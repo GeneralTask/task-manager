@@ -9,7 +9,7 @@ client = TrelloClient(
     token_secret='1e5f7a7486153007a1a880142e538e0ebb15fc1665fe71a071fdfb13d9ad34df'
 )
 board = client.get_board("5983c935e5714aac22c8e482")
-print(board, [(l.id, l.name) for l in  board.all_lists()])
+
 tasks_list = board.get_list("5983c9426b4811c90c36126a")
 while True:
     tasks = tasks_list.list_cards()
