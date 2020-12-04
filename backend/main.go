@@ -1,6 +1,14 @@
+// https://golang.org/doc/editors.html
+// https://marketplace.visualstudio.com/items?itemName=golang.go
+// https://golang.org/cmd/go/#hdr-GOPATH_environment_variable
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"io/ioutil"
+)
 
 func main() {
 	r := gin.Default()
