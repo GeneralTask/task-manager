@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"gorm.io/gorm/clause"
 )
 
 type GoogleRedirectParams struct {
@@ -68,7 +69,11 @@ func main() {
 			log.Fatalf("Error decoding JSON: %v", err)
 		}
 
-		// db := getDBConnection()
+		db := getDBConnection()
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&User{GoogleID: userInfo.SUB})
+		var currentUser User
+		db.First(&currentUser, "sub = ?", userInfo.SUB)
+		db.Create(&InternalAPIToken{User: currentUser, Token: /* uuid thingy*/})
 		c.JSON(200, gin.H{
 			"state":   redirectParams.State,
 			"code":    redirectParams.Code,
