@@ -12,4 +12,6 @@ docker run --name task_postgres -e POSTGRES_PASSWORD=password -p 5433:5432 -d po
 
 # Inspect the postgres db
 docker exec -it task_postgres psql -U postgres
+# Hit the API server
+curl localhost:8080/ping
 ```
