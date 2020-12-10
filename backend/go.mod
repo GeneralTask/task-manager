@@ -7,5 +7,6 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/satori/go.uuid v1.2.0
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
+	gorm.io/driver/postgres v1.0.5
 	gorm.io/gorm v1.20.8
 )

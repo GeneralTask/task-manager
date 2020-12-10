@@ -4,6 +4,14 @@ import (
 	"gorm.io/gorm"
 )
 
+// APISource is a distinct API with its own token
+type APISource string
+
+const (
+	// Google APISource
+	Google APISource = "google"
+)
+
 // User model
 type User struct {
 	gorm.Model
@@ -20,8 +28,8 @@ type InternalAPIToken struct {
 // ExternalAPIToken model
 type ExternalAPIToken struct {
 	gorm.Model
-	ExternalID string
-	UserID     int
-	User       User
-	Source     string
+	Token  string
+	UserID int
+	User   User
+	Source string
 }
