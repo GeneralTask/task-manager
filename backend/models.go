@@ -15,6 +15,7 @@ const (
 // User model
 type User struct {
 	gorm.Model
+	GoogleID string `gorm:"uniqueIndex"`
 }
 
 // InternalAPIToken model
