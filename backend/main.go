@@ -120,7 +120,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Unable to create Calendar service: %v", err)
 		}
-		calendarResponse, err := calendarService.Events.List("primary").Fields("items(updated,summary)", "summary", "nextPageToken").Do()
+		calendarResponse, err := calendarService.Events.List("primary").Do()
 		c.JSON(200, gin.H{"go": "fuck yourself!", "token": googleToken.Token, "token2": token, "response": response, "calendar": calendarResponse})
 	})
 	r.Run()
