@@ -13,6 +13,8 @@ import (
 	guuid "github.com/google/uuid"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/calendar/v3"
+	"google.golang.org/api/gmail/v1"
 	"gorm.io/gorm/clause"
 )
 
@@ -44,7 +46,7 @@ func main() {
 	r := gin.Default()
 	r.GET("/login/", func(c *gin.Context) {
 		config := getGoogleConfig()
-		authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+		authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 		c.Redirect(302, authURL)
 	})
 	r.GET("/login/redirect/", func(c *gin.Context) {
@@ -92,10 +94,34 @@ func main() {
 			"scope":          redirectParams.Scope,
 		})
 	})
-	r.GET("/ping", func(c *gin.Context) {
+	r.GET("/ping/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
+	})
+	r.GET("/tasks/", func(c *gin.Context) {
+		db := getDBConnection()
+		var googleToken ExternalAPIToken
+		db.Last(&googleToken, "user_id = ?", 1)
+		var token oauth2.Token
+		json.Unmarshal([]byte(googleToken.Token), &token)
+		config := getGoogleConfig()
+		client := config.Client(context.Background(), &token)
+		gmailService, err := gmail.New(client)
+		if err != nil {
+			log.Fatalf("Unable to create Gmail service: %v", err)
+		}
+		response, err := gmailService.Users.Threads.List("me").Q("is:unread").Do()
+		if err != nil {
+			log.Printf("Failed to load Gmail threads for user: %v", err)
+		}
+
+		calendarService, err := calendar.New(client)
+		if err != nil {
+			log.Fatalf("Unable to create Calendar service: %v", err)
+		}
+		calendarResponse, err := calendarService.Events.List("primary").Fields("items(updated,summary)", "summary", "nextPageToken").Do()
+		c.JSON(200, gin.H{"go": "fuck yourself!", "token": googleToken.Token, "token2": token, "response": response, "calendar": calendarResponse})
 	})
 	r.Run()
 }
