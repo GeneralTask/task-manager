@@ -15,3 +15,7 @@ docker exec -it task_postgres psql -U postgres
 # Hit the API server
 curl localhost:8080/ping
 ```
+
+## Useful links
+
+Google Go client examples: https://github.com/googleapis/google-api-go-client/tree/master/examples

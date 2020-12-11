@@ -10,6 +10,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	guuid "github.com/google/uuid"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"gorm.io/gorm/clause"
@@ -72,14 +73,23 @@ func main() {
 		db := getDBConnection()
 		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&User{GoogleID: userInfo.SUB})
 		var currentUser User
-		db.First(&currentUser, "sub = ?", userInfo.SUB)
-		db.Create(&InternalAPIToken{User: currentUser, Token: /* uuid thingy*/})
+		db.First(&currentUser, "google_id = ?", userInfo.SUB)
+		tokenString, err := json.Marshal(&token)
+		if err != nil {
+			log.Fatalf("Failed to serialize token json: %v", err)
+		}
+		db.Create(&ExternalAPIToken{User: currentUser, Source: "google", Token: string(tokenString)})
+		internalToken := guuid.New().String()
+		db.Create(&InternalAPIToken{User: currentUser, Token: internalToken})
+		c.SetCookie("authToken", internalToken, 60*60*24, "/", "localhost", false, false)
 		c.JSON(200, gin.H{
-			"state":   redirectParams.State,
-			"code":    redirectParams.Code,
-			"user_id": userInfo.SUB,
-			"token":   token,
-			"scope":   redirectParams.Scope,
+			"state":          redirectParams.State,
+			"code":           redirectParams.Code,
+			"user_id":        userInfo.SUB,
+			"user_pk":        currentUser.ID,
+			"token":          token,
+			"internal_token": internalToken,
+			"scope":          redirectParams.Scope,
 		})
 	})
 	r.GET("/ping", func(c *gin.Context) {
