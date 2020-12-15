@@ -1,5 +1,7 @@
 # Use root/example as user/password credentials
-version: '3.1'
+# Min version is 3.4 because 3.4 is min for setting mongo user/pass:
+# see https://stackoverflow.com/questions/34559557/
+version: '3.4'
 
 services:
 
