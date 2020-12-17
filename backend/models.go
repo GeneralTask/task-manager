@@ -1,9 +1,5 @@
 package main
 
-import (
-	"gorm.io/gorm"
-)
-
 // APISource is a distinct API with its own token
 type APISource string
 
@@ -14,13 +10,11 @@ const (
 
 // User model
 type User struct {
-	gorm.Model
 	GoogleID string `gorm:"uniqueIndex"`
 }
 
 // InternalAPIToken model
 type InternalAPIToken struct {
-	gorm.Model
 	Token  string `gorm:"uniqueIndex"`
 	UserID int
 	User   User
@@ -28,7 +22,6 @@ type InternalAPIToken struct {
 
 // ExternalAPIToken model
 type ExternalAPIToken struct {
-	gorm.Model
 	Token  string
 	UserID int
 	User   User

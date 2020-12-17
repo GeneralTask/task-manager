@@ -3,15 +3,14 @@ package main
 import (
 	"log"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func getDBConnection() *gorm.DB {
-	dsn := "host=localhost user=postgres dbname=postgres password=password port=5433 sslmode=disable TimeZone=US/Pacific"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func getDBConnection() *mongo.Client {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
-		log.Fatalf("Failed to open DB connection: %v", err)
+		log.Fatalf("Failed to create mongo DB client: %v", err)
 	}
-	return db
+	return client
 }
