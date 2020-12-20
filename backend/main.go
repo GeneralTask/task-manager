@@ -15,7 +15,6 @@ import (
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/gmail/v1"
-	"gorm.io/gorm/clause"
 )
 
 // GoogleRedirectParams ...
@@ -73,9 +72,13 @@ func loginCallback(c *gin.Context) {
 	}
 
 	db := getDBConnection()
-	db.Clauses(clause.OnConflict{DoNothing: true}).Create(&User{GoogleID: userInfo.SUB})
+	userCollection := db.Collection("users")
+	userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB})
 	var currentUser User
-	db.First(&currentUser, "google_id = ?", userInfo.SUB)
+	cursor, err := db.First(&currentUser, "google_id = ?", userInfo.SUB)
+	if err != nil {
+		log.Fatalf("Failed to create new user in db: %v", err)
+	}
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
 		log.Fatalf("Failed to serialize token json: %v", err)
