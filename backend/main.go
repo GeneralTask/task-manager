@@ -73,9 +73,8 @@ func loginCallback(c *gin.Context) {
 
 	db := getDBConnection()
 	userCollection := db.Collection("users")
-	userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB})
-	var currentUser User
-	cursor, err := db.First(&currentUser, "google_id = ?", userInfo.SUB)
+	cursor, err := userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB})
+	insertedUserID := cursor.InsertedID
 	if err != nil {
 		log.Fatalf("Failed to create new user in db: %v", err)
 	}
