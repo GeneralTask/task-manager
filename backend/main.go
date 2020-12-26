@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
@@ -74,7 +75,7 @@ func loginCallback(c *gin.Context) {
 	db := getDBConnection()
 	userCollection := db.Collection("users")
 	cursor, err := userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB})
-	insertedUserID := cursor.InsertedID
+	insertedUserID := cursor.InsertedID.(primitive.ObjectID)
 	if err != nil {
 		log.Fatalf("Failed to create new user in db: %v", err)
 	}
@@ -82,15 +83,23 @@ func loginCallback(c *gin.Context) {
 	if err != nil {
 		log.Fatalf("Failed to serialize token json: %v", err)
 	}
-	db.Create(&ExternalAPIToken{User: currentUser, Source: "google", Token: string(tokenString)})
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+	_, err = externalAPITokenCollection.InsertOne(nil, &ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)})
+	if err != nil {
+		log.Fatalf("Failed to create external token record: %v", err)
+	}
 	internalToken := guuid.New().String()
-	db.Create(&InternalAPIToken{User: currentUser, Token: internalToken})
+	internalAPITokenCollection := db.Collection("internal_api_tokens")
+	_, err = internalAPITokenCollection.InsertOne(nil, &InternalAPIToken{UserID: insertedUserID, Token: internalToken})
+	if err != nil {
+		log.Fatalf("Failed to create internal token record: %v", err)
+	}
 	c.SetCookie("authToken", internalToken, 60*60*24, "/", "localhost", false, false)
 	c.JSON(200, gin.H{
 		"state":          redirectParams.State,
 		"code":           redirectParams.Code,
 		"user_id":        userInfo.SUB,
-		"user_pk":        currentUser.ID,
+		"user_pk":        insertedUserID,
 		"token":          token,
 		"internal_token": internalToken,
 		"scope":          redirectParams.Scope,
@@ -123,7 +132,6 @@ func tasksList(c *gin.Context) {
 }
 
 func main() {
-	migrateAll()
 	r := gin.Default()
 	r.GET("/login/", login)
 	r.GET("/login/callback/", loginCallback)

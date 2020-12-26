@@ -29,8 +29,7 @@ type InternalAPIToken struct {
 // ExternalAPIToken model
 type ExternalAPIToken struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
+	Source string
 	Token  string
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
-	User   User
-	Source string
 }
