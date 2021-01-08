@@ -16,20 +16,20 @@ const (
 // todo: consider putting api tokens into user document
 type User struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	GoogleID string             `gorm:"uniqueIndex"`
+	GoogleID string             `bson:"google_id,omitempty"`
 }
 
 // InternalAPIToken model
 type InternalAPIToken struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
-	Token  string             `gorm:"uniqueIndex"`
+	Token  string             `bson:"token,omitempty"`
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
 }
 
 // ExternalAPIToken model
 type ExternalAPIToken struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
-	Source string
-	Token  string
+	Source string             `bson:"source,omitempty"`
+	Token  string             `bson:"token,omitempty"`
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
 }

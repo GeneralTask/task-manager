@@ -1,6 +1,3 @@
-// https://golang.org/doc/editors.html
-// https://marketplace.visualstudio.com/items?itemName=golang.go
-// https://golang.org/cmd/go/#hdr-GOPATH_environment_variable
 package main
 
 import (
@@ -11,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -108,8 +106,13 @@ func loginCallback(c *gin.Context) {
 
 func tasksList(c *gin.Context) {
 	db := getDBConnection()
+	externalAPITokenCollection := db.Collection("external_api_tokens")
 	var googleToken ExternalAPIToken
-	db.Last(&googleToken, "user_id = ?", 1)
+	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: 1}}).Decode(&googleToken)
+	if err != nil {
+		log.Fatalf("Failed to fetch external API token: %v", err)
+	}
+
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
 	config := getGoogleConfig()
