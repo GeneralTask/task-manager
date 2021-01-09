@@ -147,7 +147,7 @@ func (api *API) tasksList(c *gin.Context) {
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	var googleToken ExternalAPIToken
-	userID, _ := primitive.ObjectIDFromHex("5ff9563f44837404380e1004")
+	userID, _ := c.Get("user")
 	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&googleToken)
 	if err != nil {
 		log.Fatalf("Failed to fetch external API token: %v", err)
@@ -216,22 +216,30 @@ func (api *API) tasksList(c *gin.Context) {
 
 func tokenMiddleware(c *gin.Context) {
 	token := c.Request.Header.Get("Authorization")
+	if len(token) != 42 {
+		c.AbortWithStatusJSON(401, gin.H{"detail": "incorrect auth token format"})
+	}
+	token = token[6:]
+	log.Println("Token: \"" + token + "\"")
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var internalToken InternalAPIToken
 	err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", token}}).Decode(&internalToken)
 	if err != nil {
-		c.AbortWithStatusJSON(401, gin.H{"detail": "Unauthorized"})
+		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
 	}
+	log.Println(internalToken.UserID)
 	c.Set("user", internalToken.UserID)
 }
 
 func getRouter(api *API) *gin.Engine {
 	router := gin.Default()
+	// Unauthenticated endpoints
 	router.GET("/login/", api.login)
 	router.GET("/login/callback/", api.loginCallback)
 	router.Use(tokenMiddleware)
+	// Authenticated endpoints
 	router.GET("/tasks/", api.tasksList)
 	return router
 }

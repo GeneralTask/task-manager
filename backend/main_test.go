@@ -94,8 +94,8 @@ func TestLoginCallback(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		db, dbCleanup := GetDBConnection()
 		defer dbCleanup()
-		err := db.Drop(context.Background())
-		assert.NoError(t, err)
+		// err := db.Drop(context.Background())
+		// assert.NoError(t, err)
 
 		mockConfig := MockGoogleConfig{}
 		mockToken := oauth2.Token{AccessToken: "noice420"}
