@@ -33,3 +33,15 @@ type ExternalAPIToken struct {
 	Token  string             `bson:"token,omitempty"`
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
 }
+
+// Task json model
+type Task struct {
+	ID            string `json:"id"`
+	IDExternal    string `json:"id_external"`
+	IDOrdering    int    `json:"id_ordering"`
+	DatetimeEnd   string `json:"datetime_end"`
+	DatetimeStart string `json:"datetime_start"`
+	Sender        string `json:"sender"`
+	Source        string `json:"source"`
+	Title         string `json:"title"`
+}

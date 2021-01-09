@@ -147,10 +147,13 @@ func (api *API) tasksList(c *gin.Context) {
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	var googleToken ExternalAPIToken
-	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: 1}}).Decode(&googleToken)
+	userID, _ := primitive.ObjectIDFromHex("5ff9563f44837404380e1004")
+	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&googleToken)
 	if err != nil {
 		log.Fatalf("Failed to fetch external API token: %v", err)
 	}
+
+	var tasks []*Task
 
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
@@ -160,9 +163,33 @@ func (api *API) tasksList(c *gin.Context) {
 	if err != nil {
 		log.Fatalf("Unable to create Gmail service: %v", err)
 	}
-	response, err := gmailService.Users.Threads.List("me").Q("is:unread").Do()
+	threadsResponse, err := gmailService.Users.Threads.List("me").Q("is:unread").Do()
 	if err != nil {
-		log.Printf("Failed to load Gmail threads for user: %v", err)
+		log.Fatalf("Failed to load Gmail threads for user: %v", err)
+	}
+	for _, threadListItem := range threadsResponse.Threads {
+		thread, err := gmailService.Users.Threads.Get("me", threadListItem.Id).Do()
+		if err != nil {
+			log.Fatalf("failed to load thread! %v", err)
+		}
+		var sender = ""
+		var title = ""
+		for _, header := range thread.Messages[0].Payload.Headers {
+			if header.Name == "From" {
+				sender = header.Value
+			}
+			if header.Name == "Subject" {
+				title = header.Value
+			}
+		}
+		tasks = append(tasks, &Task{
+			ID:         guuid.New().String(),
+			IDExternal: threadListItem.Id,
+			IDOrdering: len(tasks),
+			Sender:     sender,
+			Source:     "gmail",
+			Title:      title,
+		})
 	}
 
 	calendarService, err := calendar.New(client)
@@ -170,7 +197,21 @@ func (api *API) tasksList(c *gin.Context) {
 		log.Fatalf("Unable to create Calendar service: %v", err)
 	}
 	calendarResponse, err := calendarService.Events.List("primary").Do()
-	c.JSON(200, gin.H{"go": "fuck yourself!", "token": googleToken.Token, "token2": token, "response": response, "calendar": calendarResponse})
+	if err != nil {
+		log.Fatalf("Unable to load calendar events: %v", err)
+	}
+	for _, event := range calendarResponse.Items {
+		tasks = append(tasks, &Task{
+			ID:            guuid.New().String(),
+			IDExternal:    event.Id,
+			IDOrdering:    len(tasks),
+			DatetimeEnd:   event.End.DateTime,
+			DatetimeStart: event.Start.DateTime,
+			Source:        "gcal",
+			Title:         event.Summary,
+		})
+	}
+	c.JSON(200, tasks)
 }
 
 func getRouter(api *API) *gin.Engine {
