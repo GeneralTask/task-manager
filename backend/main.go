@@ -214,10 +214,24 @@ func (api *API) tasksList(c *gin.Context) {
 	c.JSON(200, tasks)
 }
 
+func tokenMiddleware(c *gin.Context) {
+	token := c.Request.Header.Get("Authorization")
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	internalAPITokenCollection := db.Collection("internal_api_tokens")
+	var internalToken InternalAPIToken
+	err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", token}}).Decode(&internalToken)
+	if err != nil {
+		c.AbortWithStatusJSON(401, gin.H{"detail": "Unauthorized"})
+	}
+	c.Set("user", internalToken.UserID)
+}
+
 func getRouter(api *API) *gin.Engine {
 	router := gin.Default()
 	router.GET("/login/", api.login)
 	router.GET("/login/callback/", api.loginCallback)
+	router.Use(tokenMiddleware)
 	router.GET("/tasks/", api.tasksList)
 	return router
 }
