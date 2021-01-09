@@ -28,6 +28,11 @@ type GoogleUserInfo struct {
 	SUB string `json:"sub"`
 }
 
+// API is the object containing API route handlers
+type API struct {
+	GoogleConfig *oauth2.Config
+}
+
 func getGoogleConfig() *oauth2.Config {
 	// Taken from https://developers.google.com/people/quickstart/go
 	b, err := ioutil.ReadFile("credentials.json")
@@ -41,24 +46,22 @@ func getGoogleConfig() *oauth2.Config {
 	return config
 }
 
-func login(c *gin.Context) {
-	config := getGoogleConfig()
-	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+func (api *API) login(c *gin.Context) {
+	authURL := api.GoogleConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	c.Redirect(302, authURL)
 }
 
-func loginCallback(c *gin.Context) {
+func (api *API) loginCallback(c *gin.Context) {
 	var redirectParams GoogleRedirectParams
 	if c.ShouldBind(&redirectParams) != nil || redirectParams.State == "" || redirectParams.Code == "" || redirectParams.Scope == "" {
 		c.JSON(400, gin.H{"detail": "Missing query params"})
 		return
 	}
-	config := getGoogleConfig()
-	token, err := config.Exchange(context.TODO(), redirectParams.Code)
+	token, err := api.GoogleConfig.Exchange(context.TODO(), redirectParams.Code)
 	if err != nil {
 		log.Fatalf("Failed to fetch token from google: %v", err)
 	}
-	client := config.Client(context.Background(), token)
+	client := api.GoogleConfig.Client(context.Background(), token)
 	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
 		log.Fatalf("Failed to load user info: %v", err)
@@ -70,7 +73,7 @@ func loginCallback(c *gin.Context) {
 		log.Fatalf("Error decoding JSON: %v", err)
 	}
 
-	db := getDBConnection()
+	db := GetDBConnection()
 	userCollection := db.Collection("users")
 	cursor, err := userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB})
 	insertedUserID := cursor.InsertedID.(primitive.ObjectID)
@@ -104,8 +107,8 @@ func loginCallback(c *gin.Context) {
 	})
 }
 
-func tasksList(c *gin.Context) {
-	db := getDBConnection()
+func (api *API) tasksList(c *gin.Context) {
+	db := GetDBConnection()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	var googleToken ExternalAPIToken
 	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: 1}}).Decode(&googleToken)
@@ -134,10 +137,14 @@ func tasksList(c *gin.Context) {
 	c.JSON(200, gin.H{"go": "fuck yourself!", "token": googleToken.Token, "token2": token, "response": response, "calendar": calendarResponse})
 }
 
-func main() {
+func getRouter(api *API) *gin.Engine {
 	r := gin.Default()
-	r.GET("/login/", login)
-	r.GET("/login/callback/", loginCallback)
-	r.GET("/tasks/", tasksList)
-	r.Run()
+	r.GET("/login/", api.login)
+	r.GET("/login/callback/", api.loginCallback)
+	r.GET("/tasks/", api.tasksList)
+	return r
+}
+
+func main() {
+	getRouter(&API{GoogleConfig: getGoogleConfig()}).Run()
 }

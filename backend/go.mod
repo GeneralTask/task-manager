@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/google/uuid v1.1.2
 	github.com/satori/go.uuid v1.2.0
+	github.com/stretchr/testify v1.6.1
 	go.mongodb.org/mongo-driver v1.4.4
 	golang.org/x/net v0.0.0-20201209123823-ac852fbbde11 // indirect
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5

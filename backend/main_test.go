@@ -6,22 +6,29 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/oauth2"
 )
 
 func TestLoginRedirect(t *testing.T) {
 	// Syntax taken from https://semaphoreci.com/community/tutorials/test-driven-development-of-go-web-applications-with-gin
-	r := gin.Default()
-	r.GET("/login/", login)
+	t.Run("Success", func(t *testing.T) {
+		r := getRouter(&API{GoogleConfig: &oauth2.Config{
+			ClientID:    "123",
+			RedirectURL: "g.com",
+			Scopes:      []string{"s1", "s2"},
+		}})
 
-	request, _ := http.NewRequest("GET", "/login/", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, request)
-	if w.Code != http.StatusFound {
-		t.Fail()
-	}
-	p, err := ioutil.ReadAll(w.Body)
-	if err != nil || string(p) != "<a href=\"https://accounts.google.com/o/oauth2/auth?access_type=offline&amp;client_id=786163085684-uvopl20u17kp4p2vd951odnm6f89f2f6.apps.googleusercontent.com&amp;prompt=consent&amp;redirect_uri=https%3A%2F%2Fgeneraltask.io&amp;response_type=code&amp;scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.modify+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar.events&amp;state=state-token\">Found</a>.\n\n" {
-		t.Fail()
-	}
+		request, _ := http.NewRequest("GET", "/login/", nil)
+		recorder := httptest.NewRecorder()
+		r.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusFound, recorder.Code)
+		p, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(
+			t,
+			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;prompt=consent&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state=state-token\">Found</a>.\n\n",
+			string(p),
+		)
+	})
 }

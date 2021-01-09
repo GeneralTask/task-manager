@@ -9,7 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func getDBConnection() *mongo.Database {
+// GetDBConnection returns a MongoDB client
+func GetDBConnection() *mongo.Database {
 	// This code is drawn from https://github.com/mongodb/mongo-go-driver
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
