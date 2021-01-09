@@ -7,13 +7,18 @@ First, install Go and Docker.
 
 ```
 cd backend
-go run main.go migrate.go db.go models.go
-docker run --name task_postgres -e POSTGRES_PASSWORD=password -p 5433:5432 -d postgres:12
+docker-compose up -d
+go run main.go db.go models.go
 
-# Inspect the postgres db
-docker exec -it task_postgres psql -U postgres
 # Hit the API server
 curl localhost:8080/ping
+```
+
+## Testing
+
+```
+docker-compose up -d
+go test
 ```
 
 ## Useful links

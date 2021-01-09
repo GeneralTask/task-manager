@@ -10,14 +10,13 @@ import (
 )
 
 // GetDBConnection returns a MongoDB client
-func GetDBConnection() *mongo.Database {
+func GetDBConnection() (*mongo.Database, func()) {
 	// This code is drawn from https://github.com/mongodb/mongo-go-driver
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://root:example@localhost:27017"))
 	if err != nil {
 		log.Fatalf("Failed to create mongo DB client: %v", err)
 	}
 	contextResult, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
 	err = client.Connect(contextResult)
 	if err != nil {
 		log.Fatalf("Failed to connect to mongo DB: %v", err)
@@ -28,11 +27,13 @@ func GetDBConnection() *mongo.Database {
 		log.Fatalf("Failed to ping mongo DB: %v", err)
 	}
 
-	defer func() {
+	cleanup := func() {
+		log.Println("disconnecting now! buh-bye!")
 		if err = client.Disconnect(contextResult); err != nil {
 			log.Fatalf("Failed to disconnect from mongo DB: %v", err)
 		}
-	}()
+		cancel()
+	}
 
-	return client.Database("main")
+	return client.Database("main"), cleanup
 }

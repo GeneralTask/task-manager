@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
@@ -28,9 +29,16 @@ type GoogleUserInfo struct {
 	SUB string `json:"sub"`
 }
 
+// OauthConfig is the interface for interacting with the oauth2 config
+type OauthConfig interface {
+	AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) string
+	Client(ctx context.Context, t *oauth2.Token) *http.Client
+	Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error)
+}
+
 // API is the object containing API route handlers
 type API struct {
-	GoogleConfig *oauth2.Config
+	GoogleConfig OauthConfig
 }
 
 func getGoogleConfig() *oauth2.Config {
@@ -57,7 +65,7 @@ func (api *API) loginCallback(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "Missing query params"})
 		return
 	}
-	token, err := api.GoogleConfig.Exchange(context.TODO(), redirectParams.Code)
+	token, err := api.GoogleConfig.Exchange(context.Background(), redirectParams.Code)
 	if err != nil {
 		log.Fatalf("Failed to fetch token from google: %v", err)
 	}
@@ -72,10 +80,16 @@ func (api *API) loginCallback(c *gin.Context) {
 	if err != nil {
 		log.Fatalf("Error decoding JSON: %v", err)
 	}
+	if userInfo.SUB == "" {
+		log.Fatal("Failed to retrieve google user ID")
+	}
 
-	db := GetDBConnection()
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
 	userCollection := db.Collection("users")
 	cursor, err := userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB})
+	log.Println(err)
+	log.Println(cursor.InsertedID)
 	insertedUserID := cursor.InsertedID.(primitive.ObjectID)
 	if err != nil {
 		log.Fatalf("Failed to create new user in db: %v", err)
@@ -108,7 +122,8 @@ func (api *API) loginCallback(c *gin.Context) {
 }
 
 func (api *API) tasksList(c *gin.Context) {
-	db := GetDBConnection()
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	var googleToken ExternalAPIToken
 	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: 1}}).Decode(&googleToken)
@@ -138,11 +153,11 @@ func (api *API) tasksList(c *gin.Context) {
 }
 
 func getRouter(api *API) *gin.Engine {
-	r := gin.Default()
-	r.GET("/login/", api.login)
-	r.GET("/login/callback/", api.loginCallback)
-	r.GET("/tasks/", api.tasksList)
-	return r
+	router := gin.Default()
+	router.GET("/login/", api.login)
+	router.GET("/login/callback/", api.loginCallback)
+	router.GET("/tasks/", api.tasksList)
+	return router
 }
 
 func main() {
