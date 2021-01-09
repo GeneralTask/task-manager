@@ -29,19 +29,40 @@ type GoogleUserInfo struct {
 	SUB string `json:"sub"`
 }
 
-// OauthConfig is the interface for interacting with the oauth2 config
-type OauthConfig interface {
+// HTTPClient ...
+type HTTPClient interface {
+	Get(url string) (*http.Response, error)
+}
+
+type oauthConfigWrapper struct {
+	Config *oauth2.Config
+}
+
+func (c *oauthConfigWrapper) AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) string {
+	return c.Config.AuthCodeURL(state, opts...)
+}
+
+func (c *oauthConfigWrapper) Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
+	return c.Config.Exchange(ctx, code, opts...)
+}
+
+func (c *oauthConfigWrapper) Client(ctx context.Context, t *oauth2.Token) HTTPClient {
+	return c.Config.Client(ctx, t)
+}
+
+// OauthConfigWrapper is the interface for interacting with the oauth2 config
+type OauthConfigWrapper interface {
 	AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) string
-	Client(ctx context.Context, t *oauth2.Token) *http.Client
+	Client(ctx context.Context, t *oauth2.Token) HTTPClient
 	Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error)
 }
 
 // API is the object containing API route handlers
 type API struct {
-	GoogleConfig OauthConfig
+	GoogleConfig OauthConfigWrapper
 }
 
-func getGoogleConfig() *oauth2.Config {
+func getGoogleConfig() OauthConfigWrapper {
 	// Taken from https://developers.google.com/people/quickstart/go
 	b, err := ioutil.ReadFile("credentials.json")
 	if err != nil {
@@ -51,7 +72,7 @@ func getGoogleConfig() *oauth2.Config {
 	if err != nil {
 		log.Fatalf("Unable to parse credentials file to config: %v", err)
 	}
-	return config
+	return &oauthConfigWrapper{Config: config}
 }
 
 func (api *API) login(c *gin.Context) {
@@ -134,7 +155,7 @@ func (api *API) tasksList(c *gin.Context) {
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
 	config := getGoogleConfig()
-	client := config.Client(context.Background(), &token)
+	client := config.Client(context.Background(), &token).(*http.Client)
 	gmailService, err := gmail.New(client)
 	if err != nil {
 		log.Fatalf("Unable to create Gmail service: %v", err)

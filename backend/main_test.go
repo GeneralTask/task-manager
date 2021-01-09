@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"io/ioutil"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/oauth2"
 )
 
@@ -22,9 +24,9 @@ func (m *MockGoogleConfig) AuthCodeURL(state string, opts ...oauth2.AuthCodeOpti
 	return url
 }
 
-func (m *MockGoogleConfig) Client(ctx context.Context, t *oauth2.Token) *http.Client {
+func (m *MockGoogleConfig) Client(ctx context.Context, t *oauth2.Token) HTTPClient {
 	ret := m.Called(ctx, t)
-	client := ret.Get(0).(*http.Client)
+	client := ret.Get(0).(*MockHTTPClient)
 	return client
 }
 
@@ -38,15 +40,29 @@ func (m *MockGoogleConfig) Exchange(ctx context.Context, code string, opts ...oa
 	return token, err
 }
 
+type MockHTTPClient struct {
+	mock.Mock
+}
+
+func (c *MockHTTPClient) Get(url string) (*http.Response, error) {
+	ret := c.Called(url)
+	resp := ret.Get(0).(*http.Response)
+	var err error
+	if ret.Get(1) != nil {
+		err = ret.Get(1).(error)
+	}
+	return resp, err
+}
+
 func TestLoginRedirect(t *testing.T) {
 	// Syntax taken from https://semaphoreci.com/community/tutorials/test-driven-development-of-go-web-applications-with-gin
 	// Also inspired by https://dev.to/jacobsngoodwin/04-testing-first-gin-http-handler-9m0
 	t.Run("Success", func(t *testing.T) {
-		router := getRouter(&API{GoogleConfig: &oauth2.Config{
+		router := getRouter(&API{GoogleConfig: &oauthConfigWrapper{Config: &oauth2.Config{
 			ClientID:    "123",
 			RedirectURL: "g.com",
 			Scopes:      []string{"s1", "s2"},
-		}})
+		}}})
 
 		request, _ := http.NewRequest("GET", "/login/", nil)
 		recorder := httptest.NewRecorder()
@@ -76,10 +92,17 @@ func TestLoginCallback(t *testing.T) {
 	})
 
 	t.Run("Success", func(t *testing.T) {
+		db, dbCleanup := GetDBConnection()
+		defer dbCleanup()
+		err := db.Drop(context.Background())
+		assert.NoError(t, err)
+
 		mockConfig := MockGoogleConfig{}
 		mockToken := oauth2.Token{AccessToken: "noice420"}
 		mockConfig.On("Exchange", context.Background(), "code1234").Return(&mockToken, nil)
-		mockConfig.On("Client", context.Background(), &mockToken).Return(&http.Client{})
+		mockClient := MockHTTPClient{}
+		mockClient.On("Get", "https://www.googleapis.com/oauth2/v3/userinfo").Return(&http.Response{Body: ioutil.NopCloser(bytes.NewBufferString("{\"sub\": \"goog12345\"}"))}, nil)
+		mockConfig.On("Client", context.Background(), &mockToken).Return(&mockClient)
 		router := getRouter(&API{GoogleConfig: &mockConfig})
 
 		request, _ := http.NewRequest("GET", "/login/callback/", nil)
@@ -91,9 +114,35 @@ func TestLoginCallback(t *testing.T) {
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		userCollection := db.Collection("users")
+		count, err := userCollection.CountDocuments(nil, bson.D{})
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Missing query params\"}", string(body))
+		assert.Equal(t, int64(1), count)
+		var user User
+		err = userCollection.FindOne(nil, bson.D{}).Decode(&user)
+		assert.NoError(t, err)
+		assert.Equal(t, "goog12345", user.GoogleID)
+
+		externalAPITokenCollection := db.Collection("external_api_tokens")
+		count, err = externalAPITokenCollection.CountDocuments(nil, bson.D{})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+		var googleToken ExternalAPIToken
+		err = externalAPITokenCollection.FindOne(nil, bson.D{}).Decode(&googleToken)
+		assert.NoError(t, err)
+		assert.Equal(t, "google", googleToken.Source)
+		assert.Equal(t, "{\"access_token\":\"noice420\",\"expiry\":\"0001-01-01T00:00:00Z\"}", googleToken.Token)
+		assert.Equal(t, user.ID, googleToken.UserID)
+
+		internalAPITokenCollection := db.Collection("internal_api_tokens")
+		count, err = internalAPITokenCollection.CountDocuments(nil, bson.D{})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+		var internalToken InternalAPIToken
+		err = internalAPITokenCollection.FindOne(nil, bson.D{}).Decode(&internalToken)
+		assert.NoError(t, err)
+		assert.Equal(t, user.ID, internalToken.UserID)
 	})
 }
