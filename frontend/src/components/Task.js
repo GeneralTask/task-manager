@@ -26,19 +26,17 @@ function Task(props) {
       setTitle("Oopsie no time");
     }
     return (
-        <Draggable draggableId={props.task.id} index={props.index}>
+        <Draggable draggableId={props.task.id} index={parseInt(props.index)}>
             {provided => (
-            <div
+              <Container                
                 {...provided.draggableProps}
                 {...provided.dragHandleProps}
                 ref={provided.innerRef}
-            >
-                <Container>
-                    <h2>{title}</h2>
-                    <span>{description}</span><br/><br/>
-                    <button onClick={() => handleDone()}>Done</button> <button onClick={() => handleNoTime()}>I don't have time</button>
-                </Container>            
-            </div>
+              >
+                  <h2>{title}</h2>
+                  <span>{props.index}</span><br/><br/>
+                  <button onClick={() => handleDone()}>Done</button> <button onClick={() => handleNoTime()}>I don't have time</button>
+              </Container>            
             )}
         </Draggable>
     );
