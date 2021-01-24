@@ -114,7 +114,6 @@ func (api *API) loginCallback(c *gin.Context) {
 	var insertedUserID primitive.ObjectID
 	if userCollection.FindOne(nil, bson.D{{Key: "google_id", Value: userInfo.SUB}}).Decode(&user) != nil {
 		cursor, err := userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB})
-		log.Println(err)
 		insertedUserID = cursor.InsertedID.(primitive.ObjectID)
 		if err != nil {
 			log.Fatalf("Failed to create new user in db: %v", err)
@@ -122,7 +121,6 @@ func (api *API) loginCallback(c *gin.Context) {
 	} else {
 		insertedUserID = user.ID
 	}
-	log.Println(insertedUserID)
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
