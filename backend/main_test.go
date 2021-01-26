@@ -98,6 +98,7 @@ func TestLoginCallback(t *testing.T) {
 		defer dbCleanup()
 		makeLoginCallbackRequest(t, "noice420")
 		verifyLoginCallback(t, db, "noice420")
+		//change token and verify token updates and still only 1 row per user.
 		makeLoginCallbackRequest(t, "TSLA")
 		verifyLoginCallback(t, db, "TSLA")
 	})
