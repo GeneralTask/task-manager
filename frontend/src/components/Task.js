@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Draggable } from 'react-beautiful-dnd'
+import { Draggable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
+
+import TaskInternal from './TaskInternal';
 
 
 const Container = styled.div`
@@ -33,9 +35,11 @@ function Task(props) {
                 {...provided.dragHandleProps}
                 ref={provided.innerRef}
               >
-                  <h2>{title}</h2>
-                  <span>{props.index}</span><br/><br/>
-                  <button onClick={() => handleDone()}>Done</button> <button onClick={() => handleNoTime()}>I don't have time</button>
+                  <TaskInternal 
+                    title={title} 
+                    id={props.id} 
+                    description={props.description} 
+                  />
               </Container>            
             )}
         </Draggable>
