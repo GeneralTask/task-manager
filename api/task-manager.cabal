@@ -1,4 +1,4 @@
-cabal-version: 1.12
+cabal-version: 2.0
 
 -- This file has been generated from package.yaml by hpack version 0.34.3.
 --
@@ -25,6 +25,8 @@ source-repository head
 
 library
   exposed-modules:
+      Api
+      Database.Model
       Lib
   other-modules:
       Paths_task_manager
@@ -33,7 +35,16 @@ library
   default-extensions: RecordWildCards ConstraintKinds DeriveTraversable QuasiQuotes GeneralizedNewtypeDeriving ViewPatterns RankNTypes DerivingVia DataKinds FlexibleContexts FlexibleInstances FunctionalDependencies GADTs KindSignatures LambdaCase MultiParamTypeClasses MultiWayIf OverloadedStrings PolyKinds ScopedTypeVariables TypeFamilies TypeOperators TypeApplications InstanceSigs
   build-depends:
       base
+    , persistent
+    , persistent-sqlite
+    , persistent-template
     , relude
+    , servant
+    , wai
+    , warp
+  mixins:
+      base hiding (Prelude)
+    , relude (Relude as Prelude)
   default-language: Haskell2010
 
 executable task-manager-exe
@@ -46,8 +57,17 @@ executable task-manager-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base
+    , persistent
+    , persistent-sqlite
+    , persistent-template
     , relude
+    , servant
     , task-manager
+    , wai
+    , warp
+  mixins:
+      base hiding (Prelude)
+    , relude (Relude as Prelude)
   default-language: Haskell2010
 
 test-suite task-manager-test
@@ -61,6 +81,15 @@ test-suite task-manager-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base
+    , persistent
+    , persistent-sqlite
+    , persistent-template
     , relude
+    , servant
     , task-manager
+    , wai
+    , warp
+  mixins:
+      base hiding (Prelude)
+    , relude (Relude as Prelude)
   default-language: Haskell2010
