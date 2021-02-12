@@ -15,3 +15,11 @@
 # vendor/
 
 .idea/
+
+# MacOS Idiocy 
+.DS_Store
+
+# Editor created files
+TAGS
+.swap 
+.tmp
