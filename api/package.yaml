@@ -19,11 +19,44 @@ extra-source-files:
 # common to point users to the README.md file.
 description:         Please see the README on GitHub at <https://github.com/githubuser/task-manager#readme>
 
+# These extensions simply constitute a subset of what will eventually
+# be conined "Haskell2021". For now, it's enough to know they
+# constitute stable behavior.
+default-extensions:
+- RecordWildCards
+- ConstraintKinds
+- DeriveTraversable
+- QuasiQuotes
+- GeneralizedNewtypeDeriving
+- ViewPatterns
+- RankNTypes
+- DerivingVia
+- DataKinds
+- FlexibleContexts
+- FlexibleInstances
+- FunctionalDependencies
+- GADTs
+- KindSignatures
+- LambdaCase
+- MultiParamTypeClasses
+- MultiWayIf
+- OverloadedStrings
+- PolyKinds
+- ScopedTypeVariables
+- TypeFamilies
+- TypeOperators
+- TypeApplications
+- InstanceSigs
+
 dependencies:
-- base >= 4.7 && < 5
+- base
+- relude
 
 library:
   source-dirs: src
+  mixins:
+  - base hiding (Prelude)
+  - relude (Relude as Prelude)
 
 executables:
   task-manager-exe:
