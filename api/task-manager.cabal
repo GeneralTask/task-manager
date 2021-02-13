@@ -41,9 +41,11 @@ library
       aeson
     , base
     , blaze-html
+    , fast-logger
     , file-embed
     , hoauth2
     , http-client
+    , http-client-tls
     , monad-logger
     , mtl
     , persistent
@@ -75,9 +77,11 @@ executable task-manager-exe
       aeson
     , base
     , blaze-html
+    , fast-logger
     , file-embed
     , hoauth2
     , http-client
+    , http-client-tls
     , monad-logger
     , mtl
     , persistent
@@ -111,9 +115,11 @@ test-suite task-manager-test
       aeson
     , base
     , blaze-html
+    , fast-logger
     , file-embed
     , hoauth2
     , http-client
+    , http-client-tls
     , monad-logger
     , mtl
     , persistent

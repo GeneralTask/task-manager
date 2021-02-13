@@ -14,12 +14,15 @@ import           Database.Model                       (migrateAll)
 import           Database.Persist.Sqlite              (createSqlitePool,
                                                        runMigration, runSqlPool)
 import           Handlers.Type                        (Config (Config))
-import           Network.HTTP.Client                  (defaultManagerSettings,
-                                                       newManager)
+import           Network.HTTP.Client
+import           Network.HTTP.Client.TLS
 import qualified Network.Wai.Handler.Warp             as Warp
 import           Network.Wai.Middleware.RequestLogger (logStdout)
 import           Relude
 import           Say                                  (say)
+import           System.Log.FastLogger                (LogType' (LogStdout),
+                                                       defaultBufSize,
+                                                       newFastLogger)
 
 
 engage :: IO ()
@@ -41,7 +44,7 @@ withConfig run = do
   say "Getting application resources."
 
   say "Creating HTTP Manager."
-  manager <-  newManager defaultManagerSettings
+  manager <-  newManager tlsManagerSettings
 
   -- Acquire a connection pool to an in memory (for now) database.
   say "Acquiring Sqlite database."
@@ -53,4 +56,8 @@ withConfig run = do
     runSqlPool (runMigration migrateAll) pool
     return pool
 
-  run $ Config pool manager
+
+  say "Making stdout logger."
+  (logger, _) <- newFastLogger $ LogStdout defaultBufSize
+
+  run $ Config pool manager logger

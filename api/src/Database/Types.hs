@@ -1,5 +1,8 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 -- | Instances of locally defined types, such as Enum's or token wrappers, as
 -- SQL persist-able rows in the database
+--
+-- The above instances
 
 module Database.Types
   ( OAuth2Token )
@@ -11,7 +14,6 @@ import           Database.Persist        (PersistField (..),
                                           toPersistValueJSON)
 import           Database.Persist.Sqlite (PersistFieldSql (..))
 import           Network.OAuth.OAuth2    (OAuth2Token)
-import           Relude
 
 
 -- Simply store OAuth2Token information as JSON. Given the small size, and

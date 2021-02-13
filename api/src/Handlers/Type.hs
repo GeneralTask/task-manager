@@ -10,6 +10,7 @@ import           Database.Persist.Sqlite (SqlBackend)
 import           Network.HTTP.Client     (Manager)
 import           Relude
 import           Servant                 (Handler (Handler), ServerError)
+import           System.Log.FastLogger
 
 
 -- | A monad stack built mimicking the @Handler@ monad. This allows us several
@@ -36,13 +37,21 @@ type App = AppT IO
 --
 --  a. A database connection (see Database.Schema)
 --  b. An HTTP connection manager
+--  c. A logger
 --
 --
 -- b) Allows us to query external api's (such as google, github, etc.. - the
 -- core of the application) in a performant manner.
 data Config = Config
   { dbPool      :: Pool SqlBackend
-  , httpManager :: Manager }
+  , httpManager :: Manager
+  , appLogger   :: FastLogger  }
+
+-- | A simple wrapper for running the logger found in the configuration
+log :: (MonadReader Config m, MonadIO m) => LogStr -> m ()
+log message = do
+  logger <- asks appLogger
+  liftIO $ logger message
 
 -- | The textbook (see Mac Lane's Algebra CH. V) definition of a natural
 -- transformation between categories.

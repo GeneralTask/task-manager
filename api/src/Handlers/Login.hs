@@ -7,9 +7,9 @@ import Database.Model
     ( Unique(UniqueIdentifier), User(User), runDb )
 import Database.Persist
     ( insertEntity, Entity, PersistUniqueRead(getBy) )
-import Handlers.Type ( Config(httpManager), AppT )
+import Handlers.Type (log,  Config(httpManager), AppT )
 import Network.OAuth.OAuth2
-    ( fetchAccessToken,
+    (fetchAccessToken2,  fetchAccessToken,
       ExchangeToken,
       IdToken(IdToken),
       OAuth2(oauthClientId),
@@ -21,11 +21,12 @@ import Servant.HTML.Blaze ( HTML )
 import Settings ( GoogleSettings(GoogleSettings), googleSettings )
 import qualified Text.Blaze.Html5     as H
 import Text.Hamlet ( shamletFile )
+import Servant.AP
 
 
 type LoginApi =
   "login" :> Get '[HTML] H.Html :<|>
-  "login" :> "authorize" :> ReqBody '[JSON] ExchangeToken :> Get '[JSON] (Entity User)
+  "login" :> "authorize" :> ReqBody '[JSON] ExchangeToken :> Post '[JSON] (Entity User)
 
 -- | Handler to display login information, in this mockup we simply return a
 -- button to log in with, but in the future, we'd want to expand this into a
@@ -40,7 +41,7 @@ getLogin = let oauth_client_id = oauthClientId $ coerce googleSettings
 postAuthorize :: (MonadIO m) => ExchangeToken -> AppT m (Entity User)
 postAuthorize extoken' = do
   manager <- asks httpManager
-  mtoken <- liftIO $ fetchAccessToken manager (coerce googleSettings) extoken'
+  mtoken <- liftIO $ fetchAccessToken2 manager (coerce googleSettings) extoken'
 
   token <- case mtoken of
              Right token -> return token

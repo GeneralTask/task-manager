@@ -53,6 +53,7 @@ dependencies:
 - monad-logger
 - base
 - vector
+- fast-logger
 - wai-extra
 - relude
 - persistent
@@ -68,6 +69,7 @@ dependencies:
 - uri-bytestring
 - aeson
 - http-client
+- http-client-tls
 - hoauth2
 - file-embed
 - aeson
