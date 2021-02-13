@@ -5,18 +5,19 @@
 
 module Settings where
 
-import qualified Control.Exception    as Exception
+import qualified Control.Exception     as Exception
 --  ^ Only ever use this at compile time, as it is intended to crash
 -- application. For runtime errors use Control.Monad.Except
-import           Data.Aeson           (FromJSON (parseJSON), Value,
-                                       eitherDecode', withArray, withObject,
-                                       (.:), (.:?))
-import           Data.Aeson.Types     (Parser)
-import           Data.FileEmbed       (embedStringFile)
-import qualified Data.Vector          as V
-import           Network.OAuth.OAuth2 (OAuth2 (OAuth2))
+import           Data.Aeson
+import           Data.Aeson.Types      (Parser)
+import           Data.FileEmbed        (embedStringFile)
+import qualified Data.Vector           as V
+import           Jose.Jwk
+import           Network.OAuth.OAuth2  (OAuth2 (OAuth2))
 import           Relude
-import           URI.ByteString       (URI)
+import           Relude.Unsafe         (fromJust)
+import           Text.Shakespeare.Text
+import           URI.ByteString        (URI)
 
 newtype GoogleSettings = GoogleSettings OAuth2
   deriving (Show, Eq)
@@ -45,7 +46,7 @@ instance FromJSON GoogleSettings where
 
 
 -- | Compile time errors that can occur in reading settings
-data ReadSettingsErr = CanNotParseGoogleCreds
+data ReadSettingsErr = CanNotParseGoogleCreds | CanNotParseGoogleJWK
   deriving (Show, Eq)
 
 instance Exception.Exception ReadSettingsErr
@@ -59,3 +60,21 @@ instance Exception.Exception ReadSettingsErr
 googleSettings :: GoogleSettings
 googleSettings = either (\ _ -> Exception.throw CanNotParseGoogleCreds) id $
   eitherDecode' $(embedStringFile "config/oath_clients/google.json")
+
+-- | Google certificates for decoding their JWT tokens, available from:
+--
+--   https://www.googleapis.com/oauth2/v3/certs
+--
+-- TODO: Automate this to keep it up to date
+googleJwk :: Jwk
+googleJwk = fromJust $
+  decodeStrict jwk
+  where
+    jwk = encodeUtf8 [stext|{
+      "kty": "RSA",
+      "kid": "fd285ed4febcb1aeafe780462bc569d238c506d9",
+      "e": "AQAB",
+      "alg": "RS256",
+      "use": "sig",
+      "n": "3g46w4uRYBx8CXFauWh6c5yO4ax_VDu5y8ml_Jd4Gx711155PTdtLeRuwZOhJ6nRy8YvLFPXc_aXtHifnQsi9YuI_vo7LGG2v3CCxh6ndZBjIeFkxErMDg4ELt2DQ0PgJUQUAKCkl2_gkVV9vh3oxahv_BpIgv1kuYlyQQi5JWeF7zAIm0FaZ-LJT27NbsCugcZIDQg9sztTN18L3-P_kYwvAkKY2bGYNU19qLFM1gZkzccFEDZv3LzAz7qbdWkwCoK00TUUH8TNjqmK67bytYzgEgkfF9q9szEQ5TrRL0uFg9LxT3kSTLYqYOVaUIX3uaChwaa-bQvHuNmryu7i9w"
+    }|]

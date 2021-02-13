@@ -30,6 +30,8 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 User json
   googleToken OAuth2Token
   identifier Text
+  email Text
+  fullName Text
   UniqueIdentifier identifier
   deriving Show Eq
 |]

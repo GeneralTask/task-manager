@@ -3,26 +3,28 @@
 
 module Handlers.Login where
 
-import Database.Model
-    ( Unique(UniqueIdentifier), User(User), runDb )
-import Database.Persist
-    ( insertEntity, Entity, PersistUniqueRead(getBy) )
-import Handlers.Type (log,  Config(httpManager), AppT )
-import Network.OAuth.OAuth2
-    (fetchAccessToken2,  fetchAccessToken,
-      ExchangeToken,
-      IdToken(IdToken),
-      OAuth2(oauthClientId),
-      OAuth2Token(idToken) )
-import           Relude
-import Servant
-    ( err500, throwError, type (:<|>), JSON, ReqBody, type (:>), Get )
-import Servant.HTML.Blaze ( HTML )
-import Settings ( GoogleSettings(GoogleSettings), googleSettings )
-import qualified Text.Blaze.Html5     as H
-import Text.Hamlet ( shamletFile )
-import Servant.AP
 
+import           Data.Aeson
+import           Database.Model
+import           Database.Persist     (Entity, PersistUniqueRead (getBy),
+                                       insertEntity)
+import           Handlers.Type        (App, AppT, Config (httpManager), log)
+import qualified Jose.Jwa             as J
+import qualified Jose.Jwe             as J
+import qualified Jose.Jwt             as J
+import           Network.OAuth.OAuth2 (ExchangeToken, IdToken (IdToken),
+                                       OAuth2 (oauthClientId),
+                                       OAuth2Token (idToken), fetchAccessToken,
+                                       fetchAccessToken2)
+import           Relude
+import           Relude.Extra.Map
+import           Servant
+import           Servant.API
+import           Servant.HTML.Blaze   (HTML)
+import           Settings             (GoogleSettings (GoogleSettings),
+                                       googleJwk, googleSettings)
+import qualified Text.Blaze.Html5     as H
+import           Text.Hamlet          (shamletFile)
 
 type LoginApi =
   "login" :> Get '[HTML] H.Html :<|>
@@ -47,11 +49,51 @@ postAuthorize extoken' = do
              Right token -> return token
              Left _      -> throwError err500
 
-  -- Look for a user with the correct id token
-  let Just (IdToken identifier) = idToken token
-  muser <- runDb $ getBy $ UniqueIdentifier identifier
+  -- The token contains an id_token with user details. We need to parse this to
+  -- get the user identifier.
+  user <- liftIO (getUserDetailsFromToken token) >>= \case
+    Just u  -> return u
+    Nothing -> do log $ "Incorrect id_token format : " <> show token
+                  throwError err400
+
+  -- Check if the user already exists in the database
+  mb_db_user <- runDb $ getBy $ UniqueIdentifier (userIdentifier user)
 
   -- Either return the details of this user, or insert the new user into the database.
-  case muser of
-    Just userEntity -> return userEntity
-    Nothing         -> runDb $ insertEntity (User token identifier)
+  case mb_db_user of
+    Just userEntity -> do log $ "Logging in user " <> show (userFullName user)
+                          return userEntity
+    Nothing         -> do log $ "Inserting user " <> show (userFullName user)
+                          runDb $ insertEntity user
+
+
+
+-- | When we get an OAuth2Token from google, it contains an id section which is
+-- a JWT containing user information needed for logging our user in. This
+-- function extracts that information and returns a user with all fields filled
+-- in except the googleToken
+getUserDetailsFromToken ::  OAuth2Token -> IO (Maybe User)
+getUserDetailsFromToken token = runMaybeT $ do
+  -- extract the IdToken from it's wrapped Maybe value.
+  (IdToken idToken') <- MaybeT $ return $ idToken token
+
+  -- Parse (and verify) the JWT, for more info see:
+  -- https://hackage.haskell.org/package/jose-jwt-0.9.0/docs/Jose-Jwt.html
+  --
+  -- Because MaybeT implements MonadFail, we can perform this non exhaustive
+  -- pattern match.
+  Right (J.Jws (_, payload)) <- liftIO $
+    J.decode [googleJwk] (Just $ J.JwsEncoding J.RS256) (encodeUtf8 idToken')
+
+  -- Decode the payload as a user
+  MaybeT $ return $ decodeStrict payload >>= userFromPayload
+  where
+    userFromPayload :: Object -> Maybe User
+    userFromPayload m = do
+      String identifier <- lookup "sub" m
+      String name <- lookup "name" m
+      String email <- lookup "email" m
+      return $ User { userGoogleToken = token
+                    , userIdentifier  = identifier
+                    , userEmail = email
+                    , userFullName = name }
