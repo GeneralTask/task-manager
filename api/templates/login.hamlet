@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Google Signin Pre-requisites -->
+    <!-- Source: https://developers.google.com/identity/sign-in/web/server-side-flow -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
+    <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer>
+
+    <script>
+      function start() {
+        gapi.load('auth2', function() {
+          auth2 = gapi.auth2.init({
+            client_id: '#{oauth_client_id}'
+          });
+        });
+      }
+
+    <!-- Temporary Metadata, please improve -->
+    <title>Login to General Task
+
+    <!-- Generic Styles, please improve -->
+    <link rel="stylesheet" href="/static/styles.css">
+  <body>
+    <div .center>
+      <button id="signinButton">Sign in with Google
+    <script src="/static/js/login.js">

@@ -47,21 +47,35 @@ default-extensions:
 - TypeOperators
 - TypeApplications
 - InstanceSigs
+- NoImplicitPrelude
 
 dependencies:
-- name: base
-  mixin:
-  - hiding (Prelude)
-- name: relude
-  mixin:
-  - (Relude as Prelude)
+- monad-logger
+- base
+- vector
+- wai-extra
+- relude
 - persistent
 - persistent-template
 - persistent-sqlite
 # ^ In production let's change this to postgres / mongodb / etc...
 - servant
+- servant-server
+- blaze-html
+- servant-blaze
 - warp
 - wai
+- uri-bytestring
+- aeson
+- http-client
+- hoauth2
+- file-embed
+- aeson
+- mtl
+- say
+- resource-pool
+- shakespeare
+
 
 library:
   source-dirs: src

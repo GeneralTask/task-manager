@@ -1,6 +1,7 @@
 module Main where
 
-import           Lib
+import           Application
+import           Relude
 
 main :: IO ()
-main = someFunc
+main = engage
