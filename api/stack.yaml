@@ -39,6 +39,9 @@ packages:
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
 #
+extra-deps:
+- servant-auth-0.4.0.0@sha256:01d02dfb7df4747fc96442517146d7d4ab0e575e597a124e238e8763036ea4ff,2125
+- servant-auth-server-0.4.6.0@sha256:b411b44f4252e91e5da2455d71a7113c8b5b8ff2d943d19b2ddedcfcf0392351,5111
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

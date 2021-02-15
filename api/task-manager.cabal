@@ -29,6 +29,8 @@ library
       Application
       Database.Model
       Database.Types
+      ExternalApi.Google.Mail
+      Handlers.GMail
       Handlers.Login
       Handlers.Type
       Settings
@@ -40,12 +42,15 @@ library
   build-depends:
       aeson
     , base
+    , base64-bytestring
     , blaze-html
     , fast-logger
     , file-embed
     , hoauth2
+    , http-api-data
     , http-client
     , http-client-tls
+    , jose
     , jose-jwt
     , monad-logger
     , mtl
@@ -56,9 +61,13 @@ library
     , resource-pool
     , say
     , servant
+    , servant-auth
+    , servant-auth-server
     , servant-blaze
+    , servant-client
     , servant-server
     , shakespeare
+    , time
     , uri-bytestring
     , vector
     , wai
@@ -77,12 +86,15 @@ executable task-manager-exe
   build-depends:
       aeson
     , base
+    , base64-bytestring
     , blaze-html
     , fast-logger
     , file-embed
     , hoauth2
+    , http-api-data
     , http-client
     , http-client-tls
+    , jose
     , jose-jwt
     , monad-logger
     , mtl
@@ -93,10 +105,14 @@ executable task-manager-exe
     , resource-pool
     , say
     , servant
+    , servant-auth
+    , servant-auth-server
     , servant-blaze
+    , servant-client
     , servant-server
     , shakespeare
     , task-manager
+    , time
     , uri-bytestring
     , vector
     , wai
@@ -116,12 +132,15 @@ test-suite task-manager-test
   build-depends:
       aeson
     , base
+    , base64-bytestring
     , blaze-html
     , fast-logger
     , file-embed
     , hoauth2
+    , http-api-data
     , http-client
     , http-client-tls
+    , jose
     , jose-jwt
     , monad-logger
     , mtl
@@ -132,10 +151,14 @@ test-suite task-manager-test
     , resource-pool
     , say
     , servant
+    , servant-auth
+    , servant-auth-server
     , servant-blaze
+    , servant-client
     , servant-server
     , shakespeare
     , task-manager
+    , time
     , uri-bytestring
     , vector
     , wai

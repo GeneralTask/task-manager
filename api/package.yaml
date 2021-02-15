@@ -50,6 +50,9 @@ default-extensions:
 - NoImplicitPrelude
 
 dependencies:
+- http-api-data
+- time
+- base64-bytestring
 - monad-logger
 - base
 - vector
@@ -62,6 +65,9 @@ dependencies:
 # ^ In production let's change this to postgres / mongodb / etc...
 - servant
 - servant-server
+- servant-auth
+- servant-auth-server
+- servant-client
 - blaze-html
 - servant-blaze
 - warp
@@ -78,6 +84,7 @@ dependencies:
 - resource-pool
 - shakespeare
 - jose-jwt
+- jose
 
 
 library:

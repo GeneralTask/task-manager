@@ -8,15 +8,19 @@ module Settings where
 import qualified Control.Exception     as Exception
 --  ^ Only ever use this at compile time, as it is intended to crash
 -- application. For runtime errors use Control.Monad.Except
-import           Data.Aeson
+import           Crypto.JOSE.JWK       (JWK)
+import           Data.Aeson            (FromJSON (parseJSON), Value,
+                                        decodeStrict, eitherDecode', withArray,
+                                        withObject, (.:), (.:?))
 import           Data.Aeson.Types      (Parser)
 import           Data.FileEmbed        (embedStringFile)
 import qualified Data.Vector           as V
-import           Jose.Jwk
+import           Jose.Jwk              (Jwk)
 import           Network.OAuth.OAuth2  (OAuth2 (OAuth2))
 import           Relude
 import           Relude.Unsafe         (fromJust)
-import           Text.Shakespeare.Text
+import           Servant.Auth.Server   (generateKey)
+import           Text.Shakespeare.Text (stext)
 import           URI.ByteString        (URI)
 
 newtype GoogleSettings = GoogleSettings OAuth2
@@ -78,3 +82,21 @@ googleJwk = fromJust $
       "use": "sig",
       "n": "3g46w4uRYBx8CXFauWh6c5yO4ax_VDu5y8ml_Jd4Gx711155PTdtLeRuwZOhJ6nRy8YvLFPXc_aXtHifnQsi9YuI_vo7LGG2v3CCxh6ndZBjIeFkxErMDg4ELt2DQ0PgJUQUAKCkl2_gkVV9vh3oxahv_BpIgv1kuYlyQQi5JWeF7zAIm0FaZ-LJT27NbsCugcZIDQg9sztTN18L3-P_kYwvAkKY2bGYNU19qLFM1gZkzccFEDZv3LzAz7qbdWkwCoK00TUUH8TNjqmK67bytYzgEgkfF9q9szEQ5TrRL0uFg9LxT3kSTLYqYOVaUIX3uaChwaa-bQvHuNmryu7i9w"
     }|]
+
+
+
+
+-----------------
+-- Authentication
+-----------------
+
+-- Key used to sign JWT tokens used internally by the application to validate
+-- token requests. For simplicity we also use this for browser based
+-- authentication, for encrypting cookies.
+--
+-- Currently we generate a new key for each session, obviously in a production
+-- application we would persist this, likely in the database or other shared
+-- configuration store, so that multiple instances of the applications would be
+-- able to validate tokens from a single client.
+jwtPrivateKey :: IO JWK
+jwtPrivateKey = generateKey
