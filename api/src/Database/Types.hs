@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+
 -- | Instances of locally defined types, such as Enum's or token wrappers, as
 -- SQL persist-able rows in the database
 --

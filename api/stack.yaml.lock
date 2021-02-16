@@ -18,6 +18,13 @@ packages:
       sha256: 8cd29612112546a02085e2cb30dd5a72ea46ed81e644195c589d0b26652279cb
   original:
     hackage: servant-auth-server-0.4.6.0@sha256:b411b44f4252e91e5da2455d71a7113c8b5b8ff2d943d19b2ddedcfcf0392351,5111
+- completed:
+    hackage: servant-auth-client-0.4.1.0@sha256:96d8153907a00ef05e8918ca03a972d95ecde485da0df12f6532d248f057eb60,3437
+    pantry-tree:
+      size: 480
+      sha256: 1d87e9ef405be1b7b728dfd9058ef79220398633b36996c7ff363278ed7ab459
+  original:
+    hackage: servant-auth-client-0.4.1.0@sha256:96d8153907a00ef05e8918ca03a972d95ecde485da0df12f6532d248f057eb60,3437
 snapshots:
 - completed:
     size: 563099

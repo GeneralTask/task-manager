@@ -6,8 +6,9 @@ module Handlers.Login where
 
 import           Data.Aeson
 import           Database.Model
-import           Database.Persist     (Entity, PersistUniqueRead (getBy),
-                                       insertEntity)
+import           Database.Persist     (Entity (entityKey),
+                                       PersistStoreWrite (insertKey),
+                                       PersistUniqueRead (getBy), insertEntity)
 import           Handlers.Type        (App, AppT, Config (httpManager), log)
 import qualified Jose.Jwa             as J
 import qualified Jose.Jwe             as J
@@ -20,6 +21,8 @@ import           Relude
 import           Relude.Extra.Map
 import           Servant
 import           Servant.API
+import           Servant.Auth
+import           Servant.Auth.Server
 import           Servant.HTML.Blaze   (HTML)
 import           Settings             (GoogleSettings (GoogleSettings),
                                        googleJwk, googleSettings)
@@ -28,7 +31,11 @@ import           Text.Hamlet          (shamletFile)
 
 type LoginApi =
   "login" :> Get '[HTML] H.Html :<|>
-  "login" :> "authorize" :> ReqBody '[JSON] ExchangeToken :> Post '[JSON] (Entity User)
+  "login" :> "authorize"
+  :> ReqBody '[JSON] ExchangeToken
+  :> Post '[JSON] (Headers '[ Header "Set-Cookie" SetCookie
+                            , Header "Set-Cookie" SetCookie]
+                             NoContent)
 
 -- | Handler to display login information, in this mockup we simply return a
 -- button to log in with, but in the future, we'd want to expand this into a
@@ -39,9 +46,18 @@ getLogin :: (MonadIO m) => AppT m H.Html
 getLogin = let oauth_client_id = oauthClientId $ coerce googleSettings
             in return $(shamletFile "templates/login.hamlet")
 
--- | Authorize the incoming OAuth request that spawns after a "Login" Event.
-postAuthorize :: (MonadIO m) => ExchangeToken -> AppT m (Entity User)
-postAuthorize extoken' = do
+-- | Authorize the incoming OAuth request that spawns after a "Login" Event. We
+-- then create, or log in an existing user, saving them to the database, and
+-- then post the necessary cookies for session authorization
+postAuthorize
+  :: (MonadIO m)
+  => CookieSettings
+  -> JWTSettings
+  -> ExchangeToken
+  -> AppT m (Headers '[ Header "Set-Cookie" SetCookie
+                      , Header "Set-Cookie" SetCookie]
+                      NoContent)
+postAuthorize cookieSet jwtSet extoken' = do
   manager <- asks httpManager
   mtoken <- liftIO $ fetchAccessToken2 manager (coerce googleSettings) extoken'
 
@@ -60,11 +76,17 @@ postAuthorize extoken' = do
   mb_db_user <- runDb $ getBy $ UniqueIdentifier (userIdentifier user)
 
   -- Either return the details of this user, or insert the new user into the database.
-  case mb_db_user of
+  user_id <- case mb_db_user of
     Just userEntity -> do log $ "Logging in user " <> show (userFullName user)
-                          return userEntity
+                          return $ entityKey userEntity
     Nothing         -> do log $ "Inserting user " <> show (userFullName user)
-                          runDb $ insertEntity user
+                          fmap entityKey . runDb $ insertEntity user
+
+  -- Set JWT auth with user id.
+  mApplyCookies <- liftIO $ acceptLogin cookieSet jwtSet user_id
+  case mApplyCookies of
+    Nothing           -> throwError err401
+    Just applyCookies -> return $ applyCookies NoContent
 
 
 

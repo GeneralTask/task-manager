@@ -78,6 +78,7 @@ dependencies:
 - http-client-tls
 - hoauth2
 - file-embed
+- servant-auth-client
 - aeson
 - mtl
 - say

@@ -17,13 +17,14 @@
 
 module Database.Model where
 
+import           Data.Time
 import           Database.Persist
 import           Database.Persist.Sqlite
 import           Database.Persist.TH
 import           Database.Types
 import           Handlers.Type
 import           Relude
-
+import           Servant.Auth.JWT
 
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
@@ -34,6 +35,13 @@ User json
   fullName Text
   UniqueIdentifier identifier
   deriving Show Eq
+Task json
+  associatedUser UserId
+  associatedId Text
+  UniqueAssociatedId associatedId
+  name Text
+  body Text
+  dateAssigned UTCTime
 |]
 
 
@@ -44,3 +52,7 @@ runDb :: (MonadReader Config m, MonadIO m) => SqlPersistT IO b -> m b
 runDb query = do
     pool <- asks dbPool
     liftIO $ runSqlPool query pool
+
+-- Allow a user to be persisted as a JWT token
+instance FromJWT (Key User)
+instance ToJWT (Key User)

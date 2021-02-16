@@ -11,9 +11,13 @@ module ExternalApi.Google.Mail where
 import           Data.Aeson
 import qualified Data.ByteString.Base64 as Base64
 import           Data.Time
+import           Handlers.Type
 import           Network.OAuth.OAuth2
 import           Relude
 import           Servant.API
+import           Servant.Auth
+import           Servant.Auth.Client
+import           Servant.Auth.JWT
 import           Servant.Client
 
 -- Define generic types for accessing the google api, these correspond
@@ -34,7 +38,7 @@ instance ToHttpApiData GmailUser where
 
 -- | The following is adopted, but distinct, from the documentation found in:
 -- [https://developers.google.com/gmail/api/reference/rest/v1/users.messages#Message](the
--- google documentation). For instance, we parse the message body directly, and
+-- google documentation). For instance, we parse the message body directly, nd
 -- dispense with several fields such as the mime type, and attacked files.
 data GmailMessage = GmailMessage
   { gmail_message_id           :: Text
@@ -78,12 +82,33 @@ instance FromJSON GmailMessageList where
 
 -- Derived from: https://developers.google.com/gmail/api
 type GmailAPI =
-  "users" :> Capture "user-id" GmailUser :> "messages" :> Get '[JSON] GmailMessageList
+  Auth '[Bearer] () :> -- Authentication
+  "gmail" :> "v1" :> "users" :> Capture "user-id" GmailUser :> "messages" :>
+  Get '[JSON] GmailMessageList
   -- ^ List all messages
   -- https://gmail.googleapis.com/gmail/v1/users/{userId}/messages
 
 -- | The accessors for the Gmail API, since servant can deduce what a client
 -- function should do based on the type signature of @GmailAPI@ we don't write
 -- this ourselves
-getGmailMessages :: GmailUser -> ClientM GmailMessageList
+getGmailMessages :: Token -> GmailUser -> ClientM GmailMessageList
 getGmailMessages = client $ Proxy @GmailAPI
+
+
+-- | Wrapper that sets the base url to run a google api. This should be
+-- extracted to another function
+--
+-- TODO: Wrap a renewal reuqest of the OAuthToken into this method.
+runGmailApi
+  :: ( MonadIO m )
+  => ClientM a
+  -> AppT m (Either ClientError a)
+runGmailApi f = do
+  -- Grab our TLS http manaer
+  manager <- asks httpManager
+
+  -- Set the google base url
+  let cliEnv = mkClientEnv manager (BaseUrl Https "gmail.googleapis.com" 443 "")
+
+  -- Run the client
+  liftIO $ runClientM f cliEnv

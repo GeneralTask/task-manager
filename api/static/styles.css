@@ -3,3 +3,17 @@
   align-items: center;
   justify-content: center;
 }
+
+.center-self {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+main {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

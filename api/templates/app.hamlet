@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Temporary Metadata, please improve -->
+    <title>General Task-Manager
+
+    <!-- Generic Styles, please improve -->
+    <link rel="stylesheet" href="/static/styles.css">
+  <body>
+    <main>
+      <h1 .center-self>Tasks
+      <p>Hello, #{userFullName user}. Below you will find your current tasks today. This is currently a beta program and only accesses your <b>Gmail</b> account. However, more is coming soon.
+      <div .center>
+        <a href="/update-tasks-html">Update Tasks
+       <hl>
+      <div .center>
+        <ul>
+          $forall Task _ name body date <- tasks
+            <li>
+              <article .task>
+                <header>
+                  <span .task-title>#{name}
+                <section .task-body>
+                  <p>#{body>
+                <footer>
+                  <time .task-date>#{date}

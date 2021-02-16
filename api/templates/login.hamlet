@@ -21,6 +21,10 @@
     <!-- Generic Styles, please improve -->
     <link rel="stylesheet" href="/static/styles.css">
   <body>
-    <div .center>
-      <button id="signinButton">Sign in with Google
+    <main>
+      <div .center>
+        <h1>Welcome To General Task Manager
+        <p>Please sign in with your google account to view your tasks for the day>
+
+        <button id="signinButton">Sign in with Google
     <script src="/static/js/login.js">

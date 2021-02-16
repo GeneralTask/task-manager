@@ -2,39 +2,57 @@
 
 module Api where
 
-import Handlers.Login ( LoginApi, getLogin, postAuthorize )
-import Handlers.Type ( AppT, Config, appToHandler )
-import Relude
-import Servant
-    ( hoistServer,
-      serve,
-      serveDirectoryFileServer,
-      type (:<|>)(..),
-      Raw,
-      type (:>),
-      HasServer(ServerT),
-      Server,
-      Application )
-import Servant.Server ()
+import           Database.Model      (UserId)
+import           Handlers.Login      (LoginApi, getLogin, postAuthorize)
+import           Handlers.Tasks      (TasksAPI, getRefreshHtml, getTaskList)
+import           Handlers.Type
+import           Relude
+import           Servant
+import           Servant.Auth
+import           Servant.Auth.Server (AuthResult (Authenticated),
+                                      CookieSettings, JWTSettings,
+                                      ThrowAll (throwAll))
 
 
 ------------------------------
 -- Top Level API Specification
 ------------------------------
 
+-- |The public API consists of the login endpoints, and any static files that
+-- should be served as well
+type PublicAPI = LoginApi
+
+-- | The implementation of the @PublicAPI@.
+publicServer
+  :: (MonadIO m)
+  => CookieSettings -- We need these to set token.
+  -> JWTSettings
+  -> ServerT PublicAPI (AppT m)
+publicServer cs jwts = getLogin :<|> postAuthorize cs jwts
+
+
+type PrivateAPI = TasksAPI
+
+-- | The private API is protected by an authentication scheme. Code is adapted
+-- from:
+--   https://github.com/haskell-servant/servant-auth#readme
+protectedServer
+  :: (MonadIO m)
+  => AuthResult UserId
+  -> ServerT PrivateAPI (AppT m)
+protectedServer (Authenticated userId) =
+  getTaskList userId :<|> getRefreshHtml userId
+protectedServer _ = throwAll err401
+
+
+
 -- | The API for the application. This is strongly typed, and hence can be used
 -- to generate swagger specifications as well as ensure routing via type.
-type API = LoginApi
+type API auths = (Auth auths UserId :> PrivateAPI) :<|> PublicAPI
 
 
--- | The implementation of the above API.
-appServer :: (MonadIO m) => ServerT API (AppT m)
-appServer = getLogin :<|> postAuthorize
-
--- | The API for the application, AND, the static files located in /static,
--- identified by @Raw@. We define this as an addendum to the @API@ since static
--- files should always be the last pattern searched.
-type APIWStatic = API :<|> "static" :> Raw
+server :: CookieSettings -> JWTSettings -> ServerT (API auths) App
+server cs jwts = protectedServer :<|> publicServer cs jwts
 
 ---------------
 -- Static Files
@@ -53,12 +71,19 @@ files = serveDirectoryFileServer "static"
 -- Serve API Over Warp
 ----------------------
 
--- | Convert application to @Server@, to run against Warp.
-appToServer :: Config -> Server API
-appToServer conf = hoistServer (Proxy @API) (appToHandler conf) appServer
+type APIWStatic auths = API auths
+
+apiWStatic :: Proxy (APIWStatic '[JWT])
+apiWStatic = Proxy
+
+type APIAuths = '[JWT]
+
+type AppCtx = '[CookieSettings, JWTSettings]
 
 
 -- | Our application becomes a WAI application which can be run by the
 -- blindingly fast Warp Server.
-app :: Config -> Application
-app cfg = serve (Proxy @APIWStatic) (appToServer cfg :<|> files)
+app :: Context '[CookieSettings, JWTSettings] -> CookieSettings -> JWTSettings -> Config -> Application
+app ctx cookieSet jwtSet cfg =
+  serveWithContext apiWStatic ctx $
+    hoistServerWithContext apiWStatic (Proxy @AppCtx) (appToHandler cfg) (server cookieSet jwtSet)
