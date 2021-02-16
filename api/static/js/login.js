@@ -22,6 +22,9 @@ function signInCallback(authResult) {
             success: function(result) {
                 // Handle or verify the server response.
                 console.log("Authenticated!")
+
+                // Redirect to app.
+                window.location.href = "/app"
             },
             data: JSON.stringify(authResult['code']), // See documentation in Network.OAuth.OAuth2
             error: function (xhr, status, error) {

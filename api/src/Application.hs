@@ -17,9 +17,11 @@ import           Handlers.Type                        (Config (Config))
 import           Network.HTTP.Client
 import           Network.HTTP.Client.TLS
 import qualified Network.Wai.Handler.Warp             as Warp
-import           Network.Wai.Middleware.RequestLogger (logStdout)
+import           Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import           Relude
 import           Say                                  (say)
+import           Servant
+import           Servant.Auth.Server
 import           System.Log.FastLogger                (LogType' (LogStdout),
                                                        defaultBufSize,
                                                        newFastLogger)
@@ -32,8 +34,21 @@ engage = withConfig $ \ config -> do
   -- move along
   let warpSettings = Warp.setPort 3000 Warp.defaultSettings
 
+  say "Setting up JWT authentication."
+  --  Settings for our internal JWT based token authentication. Here we use a
+  -- random Public Key for development purposes, obviously in an actual
+  -- application, this would be shared across all applications, and persisted in
+  -- some kind of permanent part of a blackboxed repo.
+  key <- generateKey
+  let jwtCfg = defaultJWTSettings key
+      cookieCfg = defaultCookieSettings
+      -- Pass both of the above on as a context
+      -- :: Context '[CookieSettings, JWTSettings]
+      ctx = cookieCfg :. jwtCfg :. EmptyContext
+
+
   say "Setting phasers to stun... (port 3000) (ctrl-c to quit)"
-  Warp.runSettings warpSettings $ logStdout $ app config
+  Warp.runSettings warpSettings $ logStdoutDev $ app ctx cookieCfg jwtCfg config
 
 
 -- | A convenience function which creates a Config instance. Although this is

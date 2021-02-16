@@ -84,7 +84,7 @@ dependencies:
 - say
 - resource-pool
 - shakespeare
-- jose-jwt
+- microlens
 - jose
 
 

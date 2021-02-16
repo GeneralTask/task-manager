@@ -4,15 +4,14 @@
 module Handlers.Login where
 
 
+import qualified Crypto.JWT           as J
 import           Data.Aeson
 import           Database.Model
 import           Database.Persist     (Entity (entityKey),
                                        PersistStoreWrite (insertKey),
                                        PersistUniqueRead (getBy), insertEntity)
 import           Handlers.Type        (App, AppT, Config (httpManager), log)
-import qualified Jose.Jwa             as J
-import qualified Jose.Jwe             as J
-import qualified Jose.Jwt             as J
+import           Lens.Micro
 import           Network.OAuth.OAuth2 (ExchangeToken, IdToken (IdToken),
                                        OAuth2 (oauthClientId),
                                        OAuth2Token (idToken), fetchAccessToken,
@@ -94,28 +93,45 @@ postAuthorize cookieSet jwtSet extoken' = do
 -- a JWT containing user information needed for logging our user in. This
 -- function extracts that information and returns a user with all fields filled
 -- in except the googleToken
-getUserDetailsFromToken ::  OAuth2Token -> IO (Maybe User)
+getUserDetailsFromToken ::  OAuth2Token -> IO (Maybe  User)
 getUserDetailsFromToken token = runMaybeT $ do
   -- extract the IdToken from it's wrapped Maybe value.
-  (IdToken idToken') <- MaybeT $ return $ idToken token
+  (IdToken idToken') <- hoistMaybe $ idToken token
 
   -- Parse (and verify) the JWT, for more info see:
-  -- https://hackage.haskell.org/package/jose-jwt-0.9.0/docs/Jose-Jwt.html
+  -- https://hackage.haskell.org/package/jose-0.8.4/docs/Crypto-JWT.html
   --
-  -- Because MaybeT implements MonadFail, we can perform this non exhaustive
-  -- pattern match.
-  Right (J.Jws (_, payload)) <- liftIO $
-    J.decode [googleJwk] (Just $ J.JwsEncoding J.RS256) (encodeUtf8 idToken')
+  -- The JWT standard insists we verify the audience of our token, in this case
+  -- this is given by the scopes we defined to access the google API. The
+  -- audience may be either a string or URI, so we use @J.StringOrURI@ types
+  -- prism in order to extract it from a string.
+  aud <- hoistMaybe $ oauthClientId (coerce googleSettings) ^? J.stringOrUri
+  claims <- exceptToMaybeT $ decodeClaims idToken' aud
 
   -- Decode the payload as a user
-  MaybeT $ return $ decodeStrict payload >>= userFromPayload
+  MaybeT $ return $ userFromClaims claims
   where
-    userFromPayload :: Object -> Maybe User
-    userFromPayload m = do
-      String identifier <- lookup "sub" m
+    -- Decode claims via the @J.verifyClaims@ Method
+
+    userFromClaims :: J.ClaimsSet -> Maybe User
+    userFromClaims claims = do
+      -- The unique identifier of the given user, this value should be a
+      -- a stirng, and we use the @Prism@ provided by @J.string@ to extract that
+      -- aspect of the value.
+      claimsSub <- claims ^. J.claimSub
+      identifier <- claimsSub ^? J.string
+
+      -- The other claims provided by goolge are vendor specific, and presnet in
+      -- the form of a HashMap.
+      let m = claims ^. J.unregisteredClaims
       String name <- lookup "name" m
       String email <- lookup "email" m
       return $ User { userGoogleToken = token
                     , userIdentifier  = identifier
                     , userEmail = email
                     , userFullName = name }
+
+decodeClaims :: Text -> J.StringOrURI -> ExceptT J.JWTError IO J.ClaimsSet
+decodeClaims token aud = do
+  jwt <- J.decodeCompact $ encodeUtf8 token
+  J.verifyClaims (J.defaultJWTValidationSettings (== aud)) googleJwk jwt

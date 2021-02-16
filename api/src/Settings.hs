@@ -15,7 +15,6 @@ import           Data.Aeson            (FromJSON (parseJSON), Value,
 import           Data.Aeson.Types      (Parser)
 import           Data.FileEmbed        (embedStringFile)
 import qualified Data.Vector           as V
-import           Jose.Jwk              (Jwk)
 import           Network.OAuth.OAuth2  (OAuth2 (OAuth2))
 import           Relude
 import           Relude.Unsafe         (fromJust)
@@ -70,20 +69,20 @@ googleSettings = either (\ _ -> Exception.throw CanNotParseGoogleCreds) id $
 --   https://www.googleapis.com/oauth2/v3/certs
 --
 -- TODO: Automate this to keep it up to date
-googleJwk :: Jwk
+googleJwk :: JWK
 googleJwk = fromJust $
   decodeStrict jwk
   where
-    jwk = encodeUtf8 [stext|{
+    jwk = encodeUtf8 [stext|
+                            {
+      "n": "lpk003IpXIRsNe9LyAWd9oy7mc9YxXsKNX9_I9mrwgeB2owQczjyw8iMeTfT-lDxztPY8tMMDp9a_F2ViQLL0_WX39gyNZ6DTh10y_vkEqooX_LT5SQvw1vkPXYNAPFOxqNDgebcB30hJC6YCDPyhN-i2BQQX5Vnu7-StaEopFXpQ12XWh-FV0ib1WU-9dC7m2zngaJb13YMpbI2rrj8YelJypUiq_K_YHcVet0bK1ue7NuVmCtX9WrVHGXXDuC-9X1wGTF6lQgC4r0AZiSsGYPcpR1hm4uHst13tF6wVAnEGjWdY9adrkgWRvIcoEORnPj-M_GwmKDBa4bJTHnGLw",
       "kty": "RSA",
-      "kid": "fd285ed4febcb1aeafe780462bc569d238c506d9",
-      "e": "AQAB",
-      "alg": "RS256",
       "use": "sig",
-      "n": "3g46w4uRYBx8CXFauWh6c5yO4ax_VDu5y8ml_Jd4Gx711155PTdtLeRuwZOhJ6nRy8YvLFPXc_aXtHifnQsi9YuI_vo7LGG2v3CCxh6ndZBjIeFkxErMDg4ELt2DQ0PgJUQUAKCkl2_gkVV9vh3oxahv_BpIgv1kuYlyQQi5JWeF7zAIm0FaZ-LJT27NbsCugcZIDQg9sztTN18L3-P_kYwvAkKY2bGYNU19qLFM1gZkzccFEDZv3LzAz7qbdWkwCoK00TUUH8TNjqmK67bytYzgEgkfF9q9szEQ5TrRL0uFg9LxT3kSTLYqYOVaUIX3uaChwaa-bQvHuNmryu7i9w"
-    }|]
-
-
+      "kid": "fdb40e2f9353c58add648b63634e5bbf63e4f502",
+      "e": "AQAB",
+      "alg": "RS256"
+    }
+    |]
 
 
 -----------------

@@ -52,7 +52,7 @@ library
     , http-client
     , http-client-tls
     , jose
-    , jose-jwt
+    , microlens
     , monad-logger
     , mtl
     , persistent
@@ -97,7 +97,7 @@ executable task-manager-exe
     , http-client
     , http-client-tls
     , jose
-    , jose-jwt
+    , microlens
     , monad-logger
     , mtl
     , persistent
@@ -144,7 +144,7 @@ test-suite task-manager-test
     , http-client
     , http-client-tls
     , jose
-    , jose-jwt
+    , microlens
     , monad-logger
     , mtl
     , persistent

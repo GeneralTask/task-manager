@@ -64,14 +64,14 @@ server cs jwts = protectedServer :<|> publicServer cs jwts
 --
 -- TODO: Eventually, when this app becomes an API only, this will no longer be
 -- necessary and these files should instead be served directly from a CDN.
-files :: Server Raw
+files :: ServerT Raw m
 files = serveDirectoryFileServer "static"
 
 ----------------------
 -- Serve API Over Warp
 ----------------------
 
-type APIWStatic auths = API auths
+type APIWStatic auths = API auths :<|> ("static" :> Raw)
 
 apiWStatic :: Proxy (APIWStatic '[JWT])
 apiWStatic = Proxy
@@ -83,7 +83,12 @@ type AppCtx = '[CookieSettings, JWTSettings]
 
 -- | Our application becomes a WAI application which can be run by the
 -- blindingly fast Warp Server.
-app :: Context '[CookieSettings, JWTSettings] -> CookieSettings -> JWTSettings -> Config -> Application
+app
+  :: Context '[CookieSettings, JWTSettings]
+  -> CookieSettings
+  -> JWTSettings
+  -> Config
+  -> Application
 app ctx cookieSet jwtSet cfg =
   serveWithContext apiWStatic ctx $
-    hoistServerWithContext apiWStatic (Proxy @AppCtx) (appToHandler cfg) (server cookieSet jwtSet)
+    hoistServerWithContext apiWStatic (Proxy @AppCtx) (appToHandler cfg) (server cookieSet jwtSet :<|> files)

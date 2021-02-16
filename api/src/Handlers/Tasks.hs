@@ -17,7 +17,7 @@ import           Servant.HTML.Blaze
 type TasksAPI =
   "task" :> "list" :> Get '[JSON] [Entity Task] :<|>
   -- ^ List all tasks associated with the currently authenticated user
-  "tasks" :> "refresh-html" :> Get '[JSON] [Entity Task]
+  "task" :> "refresh-html" :> Get '[JSON] [Entity Task]
   -- ^ Refresh the tasks and redirect. This is a temporary gimmick and will be
   -- removed in any type of future application.
 
