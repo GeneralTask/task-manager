@@ -7,30 +7,17 @@ function signInCallback(authResult) {
         // Hide the sign-in button now that the user is authorized, for example:
         $('#signinButton').attr('style', 'display: none');
 
+        alert(JSON.stringify(authResult['code']))
 
-        // Send the code to the server
-        $.ajax({
-            type: 'POST',
-            url: '/login/authorize',
-            // Always include an `X-Requested-With` header in every AJAX request,
-            // to protect against CSRF attacks.
+        fetch('/login/authorize', {
+            method: 'POST',
+            body: JSON.stringify(authResult['code']),
             headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
             },
-            contentType: "application/json",
-            dataType: 'json',
-            success: function(result) {
-                // Handle or verify the server response.
-                console.log("Authenticated!")
-
-                // Redirect to app.
-                window.location.href = "/app"
-            },
-            data: JSON.stringify(authResult['code']), // See documentation in Network.OAuth.OAuth2
-            error: function (xhr, status, error) {
-                console.warn("Error", xhr, status, error)
-            }
-        });
+            credentials: 'include'
+        }).then (response => window.location.replace("/app"))
     } else {
         // There was an error.
         console.warn("error authenticating user", authResult)

@@ -3,7 +3,8 @@
 module Api where
 
 import           Database.Model      (UserId)
-import           Handlers.Login      (LoginApi, getLogin, postAuthorize)
+import           Handlers.App
+import           Handlers.Login
 import           Handlers.Tasks      (TasksAPI, getRefreshHtml, getTaskList)
 import           Handlers.Type
 import           Relude
@@ -20,7 +21,7 @@ import           Servant.Auth.Server (AuthResult (Authenticated),
 
 -- |The public API consists of the login endpoints, and any static files that
 -- should be served as well
-type PublicAPI = LoginApi
+type PublicAPI = LoginAPI
 
 -- | The implementation of the @PublicAPI@.
 publicServer
@@ -28,10 +29,10 @@ publicServer
   => CookieSettings -- We need these to set token.
   -> JWTSettings
   -> ServerT PublicAPI (AppT m)
-publicServer cs jwts = getLogin :<|> postAuthorize cs jwts
+publicServer = loginServer
 
 
-type PrivateAPI = TasksAPI
+type PrivateAPI = TasksAPI :<|> AppAPI
 
 -- | The private API is protected by an authentication scheme. Code is adapted
 -- from:
@@ -41,7 +42,7 @@ protectedServer
   => AuthResult UserId
   -> ServerT PrivateAPI (AppT m)
 protectedServer (Authenticated userId) =
-  getTaskList userId :<|> getRefreshHtml userId
+  (getTaskList userId :<|> getRefreshHtml userId ) :<|> getApp userId
 protectedServer _ = throwAll err401
 
 

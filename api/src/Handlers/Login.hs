@@ -4,37 +4,49 @@
 module Handlers.Login where
 
 
-import qualified Crypto.JWT           as J
+import qualified Crypto.JWT               as J
 import           Data.Aeson
 import           Database.Model
-import           Database.Persist     (Entity (entityKey),
-                                       PersistStoreWrite (insertKey),
-                                       PersistUniqueRead (getBy), insertEntity)
-import           Handlers.Type        (App, AppT, Config (httpManager), log)
+import           Database.Persist         (Entity (entityKey),
+                                           PersistStoreWrite (insertKey),
+                                           PersistUniqueRead (getBy),
+                                           insertEntity)
+import           ExternalApi.Google.OAuth
+import           Handlers.Type            (App, AppT, Config (httpManager), log)
 import           Lens.Micro
-import           Network.OAuth.OAuth2 (ExchangeToken, IdToken (IdToken),
-                                       OAuth2 (oauthClientId),
-                                       OAuth2Token (idToken), fetchAccessToken,
-                                       fetchAccessToken2)
+import           Network.OAuth.OAuth2     (ExchangeToken (..),
+                                           IdToken (IdToken),
+                                           OAuth2 (oauthClientId),
+                                           OAuth2Token (idToken),
+                                           fetchAccessToken, fetchAccessToken2)
+import           Network.URI              (relativeTo, uriToString)
+import           Network.URI.Static       (uri)
 import           Relude
 import           Relude.Extra.Map
 import           Servant
 import           Servant.API
 import           Servant.Auth
 import           Servant.Auth.Server
-import           Servant.HTML.Blaze   (HTML)
-import           Settings             (GoogleSettings (GoogleSettings),
-                                       googleJwk, googleSettings)
-import qualified Text.Blaze.Html5     as H
-import           Text.Hamlet          (shamletFile)
+import           Servant.HTML.Blaze       (HTML)
+import           Settings                 (GoogleSettings (GoogleSettings),
+                                           googleJwk, googleSettings)
+import qualified Text.Blaze.Html5         as H
+import           Text.Hamlet              (shamletFile)
 
-type LoginApi =
-  "login" :> Get '[HTML] H.Html :<|>
-  "login" :> "authorize"
-  :> ReqBody '[JSON] ExchangeToken
-  :> Post '[JSON] (Headers '[ Header "Set-Cookie" SetCookie
-                            , Header "Set-Cookie" SetCookie]
+type LoginAPI =
+  "login" :> Get '[HTML] H.Html
+  :<|>
+  "oauth2" :> ReqBody '[JSON] ExchangeToken
+  :> Verb 'POST 204 '[JSON] (Headers '[ Header "Set-Cookie" SetCookie
+                                      , Header "Set-Cookie" SetCookie]
                              NoContent)
+
+loginServer
+  :: (MonadIO m)
+  => CookieSettings -- We need these to set token.
+  -> JWTSettings
+  -> ServerT LoginAPI (AppT m)
+loginServer cs jwts = getLogin :<|> getOAuth2 cs jwts
 
 -- | Handler to display login information, in this mockup we simply return a
 -- button to log in with, but in the future, we'd want to expand this into a
@@ -42,13 +54,15 @@ type LoginApi =
 -- the application, namely the login and authentication step, should be distinct
 -- from the react application, both for security and ease of implementation.
 getLogin :: (MonadIO m) => AppT m H.Html
-getLogin = let oauth_client_id = oauthClientId $ coerce googleSettings
-            in return $(shamletFile "templates/login.hamlet")
+getLogin =
+  let GoogleSettings oauth = googleSettings
+      oauth_client_id = oauthClientId oauth
+  in return $(shamletFile "templates/login.hamlet")
 
 -- | Authorize the incoming OAuth request that spawns after a "Login" Event. We
 -- then create, or log in an existing user, saving them to the database, and
 -- then post the necessary cookies for session authorization
-postAuthorize
+getOAuth2
   :: (MonadIO m)
   => CookieSettings
   -> JWTSettings
@@ -56,13 +70,13 @@ postAuthorize
   -> AppT m (Headers '[ Header "Set-Cookie" SetCookie
                       , Header "Set-Cookie" SetCookie]
                       NoContent)
-postAuthorize cookieSet jwtSet extoken' = do
+getOAuth2 cookieSet jwtSet extoken' = do
   manager <- asks httpManager
   mtoken <- liftIO $ fetchAccessToken2 manager (coerce googleSettings) extoken'
 
   token <- case mtoken of
              Right token -> return token
-             Left _      -> throwError err500
+             Left err    -> log ("Error retreiving token " <> show err) >> throwError err500
 
   -- The token contains an id_token with user details. We need to parse this to
   -- get the user identifier.
@@ -82,6 +96,7 @@ postAuthorize cookieSet jwtSet extoken' = do
                           fmap entityKey . runDb $ insertEntity user
 
   -- Set JWT auth with user id.
+  log $ "Persisting " <> show user_id <> " " <> show cookieSet
   mApplyCookies <- liftIO $ acceptLogin cookieSet jwtSet user_id
   case mApplyCookies of
     Nothing           -> throwError err401
@@ -135,3 +150,15 @@ decodeClaims :: Text -> J.StringOrURI -> ExceptT J.JWTError IO J.ClaimsSet
 decodeClaims token aud = do
   jwt <- J.decodeCompact $ encodeUtf8 token
   J.verifyClaims (J.defaultJWTValidationSettings (== aud)) googleJwk jwt
+
+------------------------
+-- Convenience Functions
+-----------------------
+
+-- | Convenience function, render a link, with a root url.
+linkToString :: Link -> Text -> Text
+linkToString link base = base <> toText (uriToString id (linkURI link) "")
+
+-- | Redirect to a different url
+redirects :: (MonadIO m, ConvertUtf8 s ByteString) => s -> AppT m ()
+redirects url = throwError err302 { errHeaders = [("Location",  encodeUtf8 url)]}

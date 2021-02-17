@@ -15,12 +15,12 @@
        <hl>
       <div .center>
         <ul>
-          $forall Task _ name body date <- tasks
+          $forall Task _ _ name body date <- tasks
             <li>
               <article .task>
                 <header>
                   <span .task-title>#{name}
                 <section .task-body>
-                  <p>#{body>
+                  <p>#{body}>
                 <footer>
-                  <time .task-date>#{date}
+                  <time .task-date datetime=#{showt date} />
