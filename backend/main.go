@@ -79,10 +79,13 @@ func getGoogleConfig() OauthConfigWrapper {
 }
 
 var ALLOWED_USERNAMES = map[string]struct{} {
-	"jasonscharff@gmail.com" : struct{}{},
-	"jreinstra@gmail.com" : struct{}{},
+	"jasonscharff@gmail.com": struct{}{},
+	"jreinstra@gmail.com": struct{}{},
+	"john@generaltask.io": struct{}{},
+	"john@robinhood.com": struct{}{},
 	"scottmai702@gmail.com": struct{}{},
 	"sequoia@sequoiasnow.com": struct{}{},
+	"nolan1299@gmail.com": struct{}{},
 }
 
 func (api *API) login(c *gin.Context) {
@@ -111,7 +114,7 @@ func (api *API) loginCallback(c *gin.Context) {
 	err = json.NewDecoder(response.Body).Decode(&userInfo)
 
 	if _, contains := ALLOWED_USERNAMES[strings.ToLower(userInfo.EMAIL)]; !contains {
-		c.JSON(401, gin.H{"detail": "Email has not been approved."})
+		c.JSON(403, gin.H{"detail": "Email has not been approved."})
 		return
 	}
 

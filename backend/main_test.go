@@ -95,7 +95,7 @@ func TestLoginCallback(t *testing.T) {
 
 	t.Run("EmailNotApproved", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "unapproved@gmail.com")
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+		assert.Equal(t, http.StatusForbidden, recorder.Code)
 	})
 
 	t.Run("Success", func(t *testing.T) {
