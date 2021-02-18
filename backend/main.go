@@ -252,25 +252,6 @@ func (api *API) tasksList(c *gin.Context) {
 	c.JSON(200, tasks)
 }
 
-func tokenMiddleware(c *gin.Context) {
-	token := c.Request.Header.Get("Authorization")
-	if len(token) != 42 {
-		c.AbortWithStatusJSON(401, gin.H{"detail": "incorrect auth token format"})
-	}
-	token = token[6:]
-	log.Println("Token: \"" + token + "\"")
-	db, dbCleanup := GetDBConnection()
-	defer dbCleanup()
-	internalAPITokenCollection := db.Collection("internal_api_tokens")
-	var internalToken InternalAPIToken
-	err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", token}}).Decode(&internalToken)
-	if err != nil {
-		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
-	}
-	log.Println(internalToken.UserID)
-	c.Set("user", internalToken.UserID)
-}
-
 func getRouter(api *API) *gin.Engine {
 	router := gin.Default()
 	// Unauthenticated endpoints
