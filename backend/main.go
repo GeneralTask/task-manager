@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
@@ -28,6 +29,7 @@ type GoogleRedirectParams struct {
 // GoogleUserInfo ...
 type GoogleUserInfo struct {
 	SUB string `json:"sub"`
+	EMAIL string `json:"email"`
 }
 
 // HTTPClient ...
@@ -76,6 +78,16 @@ func getGoogleConfig() OauthConfigWrapper {
 	return &oauthConfigWrapper{Config: config}
 }
 
+var ALLOWED_USERNAMES = map[string]struct{} {
+	"jasonscharff@gmail.com": struct{}{},
+	"jreinstra@gmail.com": struct{}{},
+	"john@generaltask.io": struct{}{},
+	"john@robinhood.com": struct{}{},
+	"scottmai702@gmail.com": struct{}{},
+	"sequoia@sequoiasnow.com": struct{}{},
+	"nolan1299@gmail.com": struct{}{},
+}
+
 func (api *API) login(c *gin.Context) {
 	authURL := api.GoogleConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	c.Redirect(302, authURL)
@@ -98,7 +110,14 @@ func (api *API) loginCallback(c *gin.Context) {
 	}
 	defer response.Body.Close()
 	var userInfo GoogleUserInfo
+
 	err = json.NewDecoder(response.Body).Decode(&userInfo)
+
+	if _, contains := ALLOWED_USERNAMES[strings.ToLower(userInfo.EMAIL)]; !contains {
+		c.JSON(403, gin.H{"detail": "Email has not been approved."})
+		return
+	}
+
 	if err != nil {
 		log.Fatalf("Error decoding JSON: %v", err)
 	}
