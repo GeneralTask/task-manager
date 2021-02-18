@@ -93,23 +93,30 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"Missing query params\"}", string(body))
 	})
 
+	t.Run("EmailNotApproved", func(t *testing.T) {
+		recorder := makeLoginCallbackRequest("noice420", "unapproved@gmail.com")
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
+
 	t.Run("Success", func(t *testing.T) {
 		db, dbCleanup := GetDBConnection()
 		defer dbCleanup()
-		makeLoginCallbackRequest(t, "noice420")
+		recorder := makeLoginCallbackRequest("noice420", "jasonscharff@gmail.com")
+		assert.Equal(t, http.StatusOK, recorder.Code)
 		verifyLoginCallback(t, db, "noice420")
 		//change token and verify token updates and still only 1 row per user.
-		makeLoginCallbackRequest(t, "TSLA")
+		recorder = makeLoginCallbackRequest( "TSLA", "jasonscharff@gmail.com")
+		assert.Equal(t, http.StatusOK, recorder.Code)
 		verifyLoginCallback(t, db, "TSLA")
 	})
 }
 
-func makeLoginCallbackRequest(t *testing.T, authToken string) {
+func makeLoginCallbackRequest(authToken string, email string) *httptest.ResponseRecorder {
 	mockConfig := MockGoogleConfig{}
 	mockToken := oauth2.Token{AccessToken: authToken}
 	mockConfig.On("Exchange", context.Background(), "code1234").Return(&mockToken, nil)
 	mockClient := MockHTTPClient{}
-	mockClient.On("Get", "https://www.googleapis.com/oauth2/v3/userinfo").Return(&http.Response{Body: ioutil.NopCloser(bytes.NewBufferString("{\"sub\": \"goog12345\"}"))}, nil)
+	mockClient.On("Get", "https://www.googleapis.com/oauth2/v3/userinfo").Return(&http.Response{Body: ioutil.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"sub\": \"goog12345\", \"email\": \"%s\"}", email)))}, nil)
 	mockConfig.On("Client", context.Background(), &mockToken).Return(&mockClient)
 	router := getRouter(&API{GoogleConfig: &mockConfig})
 
@@ -122,7 +129,7 @@ func makeLoginCallbackRequest(t *testing.T, authToken string) {
 
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
-	assert.Equal(t, http.StatusOK, recorder.Code)
+	return recorder
 }
 
 func verifyLoginCallback(t *testing.T, db *mongo.Database, authToken string) {
