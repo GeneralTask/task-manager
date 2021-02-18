@@ -3,18 +3,17 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/gmail/v1"
 )
@@ -32,51 +31,7 @@ type GoogleUserInfo struct {
 	EMAIL string `json:"email"`
 }
 
-// HTTPClient ...
-type HTTPClient interface {
-	Get(url string) (*http.Response, error)
-}
 
-type oauthConfigWrapper struct {
-	Config *oauth2.Config
-}
-
-func (c *oauthConfigWrapper) AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) string {
-	return c.Config.AuthCodeURL(state, opts...)
-}
-
-func (c *oauthConfigWrapper) Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
-	return c.Config.Exchange(ctx, code, opts...)
-}
-
-func (c *oauthConfigWrapper) Client(ctx context.Context, t *oauth2.Token) HTTPClient {
-	return c.Config.Client(ctx, t)
-}
-
-// OauthConfigWrapper is the interface for interacting with the oauth2 config
-type OauthConfigWrapper interface {
-	AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) string
-	Client(ctx context.Context, t *oauth2.Token) HTTPClient
-	Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error)
-}
-
-// API is the object containing API route handlers
-type API struct {
-	GoogleConfig OauthConfigWrapper
-}
-
-func getGoogleConfig() OauthConfigWrapper {
-	// Taken from https://developers.google.com/people/quickstart/go
-	b, err := ioutil.ReadFile("credentials.json")
-	if err != nil {
-		log.Fatalf("Unable to read credentials file: %v", err)
-	}
-	config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar.events")
-	if err != nil {
-		log.Fatalf("Unable to parse credentials file to config: %v", err)
-	}
-	return &oauthConfigWrapper{Config: config}
-}
 
 var ALLOWED_USERNAMES = map[string]struct{} {
 	"jasonscharff@gmail.com": struct{}{},
