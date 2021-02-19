@@ -2,12 +2,15 @@ package main
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"strings"
-	"log"
+
 	"github.com/gin-gonic/gin"
+	guuid "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Gets a user from the database according to an internal token.
@@ -24,6 +27,31 @@ func getUserIDFromToken(token string) (primitive.ObjectID, error) {
 	}
 
 	return internalToken.UserID, nil
+}
+
+// Creates a new user token, and stores in the database. This is wildly
+// impractical as it is currently implemented, which is why we extract it to
+// this function to allow easier changes.
+func createTokenForUser(c *gin.Context, u *User) (string, error) {
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+
+	// Create a new token
+	token := guuid.New().String()
+
+	// Save that token in the current session
+	c.SetCookie("authToken", token, 60*60*24, "/", "localhost", false, false)
+
+	// Insert into collection, and correlate with user
+	_, err := db.Collection("internal_api_tokens").UpdateOne(
+		nil,
+		// TODO: Currently this will allow a user to only use one device at the
+		// time, we need to replace this soon
+		bson.D{{"user_id", u.ID}},
+		bson.D{{"$set", &InternalAPIToken{UserID: u.ID, Token: token}}},
+		options.Update().SetUpsert(true))
+
+	return token, err
 }
 
 

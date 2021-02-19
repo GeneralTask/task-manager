@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"golang.org/x/oauth2"
 )
@@ -12,15 +14,21 @@ type HTTPClient interface {
 	Get(url string) (*http.Response, error)
 }
 
+// Generic configuration information that should be passed around the document.
+type APIConfig struct {
+	WhitelistedUsers map[string]struct{}
+}
+
 // API is the object containing API route handlers
 type API struct {
 	GoogleConfig OauthConfigWrapper
+	InternalConfig APIConfig
 }
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration Wrapper
+// OAuth Configuration Wrapper
 
 // Configuration for OAuth.
 type OauthConfigWrapper interface {
@@ -51,4 +59,29 @@ func (c *oauthConfigWrapper) Exchange(ctx context.Context, code string, opts ...
 
 func (c *oauthConfigWrapper) Client(ctx context.Context, t *oauth2.Token) HTTPClient {
 	return c.Config.Client(ctx, t)
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// API Config
+
+// Read the list of white listed users from the text files in
+// config/whitelist.txt (file should be a newline seperated list of emails)
+func parseAPIConfig(c *APIConfig) error {
+	whitelist , err := ioutil.ReadFile("./config/whitelist.txt")
+	if err != nil {
+		return err
+	}
+
+	// Split the file into lines
+ 	users := strings.Split(string(whitelist), "\n")
+
+	// Convert those lines into a struct, since it is physically impossible to
+	// write a generic contains function for a slice or array in go.
+	usersMap := make(map[string]struct{}, len(users))
+	for _, user := range users {
+		usersMap[user] = struct{}{}
+	}
+	c.WhitelistedUsers = usersMap
+	return nil
 }

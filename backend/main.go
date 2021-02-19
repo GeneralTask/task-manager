@@ -5,10 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
@@ -18,122 +14,7 @@ import (
 	"google.golang.org/api/gmail/v1"
 )
 
-// GoogleRedirectParams ...
-type GoogleRedirectParams struct {
-	State string `form:"state"`
-	Code  string `form:"code"`
-	Scope string `form:"scope"`
-}
 
-// GoogleUserInfo ...
-type GoogleUserInfo struct {
-	SUB string `json:"sub"`
-	EMAIL string `json:"email"`
-}
-
-
-
-var ALLOWED_USERNAMES = map[string]struct{} {
-	"jasonscharff@gmail.com": struct{}{},
-	"jreinstra@gmail.com": struct{}{},
-	"john@generaltask.io": struct{}{},
-	"john@robinhood.com": struct{}{},
-	"scottmai702@gmail.com": struct{}{},
-	"sequoia@sequoiasnow.com": struct{}{},
-	"nolan1299@gmail.com": struct{}{},
-}
-
-func (api *API) login(c *gin.Context) {
-	authURL := api.GoogleConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.ApprovalForce)
-	c.Redirect(302, authURL)
-}
-
-func (api *API) loginCallback(c *gin.Context) {
-	var redirectParams GoogleRedirectParams
-	if c.ShouldBind(&redirectParams) != nil || redirectParams.State == "" || redirectParams.Code == "" || redirectParams.Scope == "" {
-		c.JSON(400, gin.H{"detail": "Missing query params"})
-		return
-	}
-	token, err := api.GoogleConfig.Exchange(context.Background(), redirectParams.Code)
-	if err != nil {
-		log.Fatalf("Failed to fetch token from google: %v", err)
-	}
-	client := api.GoogleConfig.Client(context.Background(), token)
-	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
-	if err != nil {
-		log.Fatalf("Failed to load user info: %v", err)
-	}
-	defer response.Body.Close()
-	var userInfo GoogleUserInfo
-
-	err = json.NewDecoder(response.Body).Decode(&userInfo)
-
-	if _, contains := ALLOWED_USERNAMES[strings.ToLower(userInfo.EMAIL)]; !contains {
-		c.JSON(403, gin.H{"detail": "Email has not been approved."})
-		return
-	}
-
-	if err != nil {
-		log.Fatalf("Error decoding JSON: %v", err)
-	}
-	if userInfo.SUB == "" {
-		log.Fatal("Failed to retrieve google user ID")
-	}
-
-	db, dbCleanup := GetDBConnection()
-	defer dbCleanup()
-	userCollection := db.Collection("users")
-
-	var user User
-	var insertedUserID primitive.ObjectID
-	if userCollection.FindOne(nil, bson.D{{Key: "google_id", Value: userInfo.SUB}}).Decode(&user) != nil {
-		cursor, err := userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB})
-		insertedUserID = cursor.InsertedID.(primitive.ObjectID)
-		if err != nil {
-			log.Fatalf("Failed to create new user in db: %v", err)
-		}
-	} else {
-		insertedUserID = user.ID
-	}
-
-	tokenString, err := json.Marshal(&token)
-	if err != nil {
-		log.Fatalf("Failed to serialize token json: %v", err)
-	}
-	externalAPITokenCollection := db.Collection("external_api_tokens")
-	_, err = externalAPITokenCollection.UpdateOne(
-		nil,
-		bson.D{{"user_id", insertedUserID}},
-		bson.D{{"$set",  &ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)}}},
-		options.Update().SetUpsert(true),
-	)
-
-	if err != nil {
-		log.Fatalf("Failed to create external token record: %v", err)
-	}
-	internalToken := guuid.New().String()
-	internalAPITokenCollection := db.Collection("internal_api_tokens")
-	_, err = internalAPITokenCollection.UpdateOne(
-		nil,
-		bson.D{{"user_id", insertedUserID}},
-		bson.D{{"$set",  &InternalAPIToken{UserID: insertedUserID, Token: internalToken} }},
-		options.Update().SetUpsert(true),
-	)
-
-	if err != nil {
-		log.Fatalf("Failed to create internal token record: %v", err)
-	}
-	c.SetCookie("authToken", internalToken, 60*60*24, "/", "localhost", false, false)
-	c.JSON(200, gin.H{
-		"state":          redirectParams.State,
-		"code":           redirectParams.Code,
-		"user_id":        userInfo.SUB,
-		"user_pk":        insertedUserID,
-		"token":          token,
-		"internal_token": internalToken,
-		"scope":          redirectParams.Scope,
-	})
-}
 
 func (api *API) tasksList(c *gin.Context) {
 	db, dbCleanup := GetDBConnection()
@@ -219,5 +100,10 @@ func getRouter(api *API) *gin.Engine {
 }
 
 func main() {
-	getRouter(&API{GoogleConfig: getGoogleConfig()}).Run()
+	var apiConfig APIConfig
+	if err := parseAPIConfig(&apiConfig); err != nil {
+		log.Fatalf("Could not parse configuration! %v", err)
+	}
+
+	getRouter(&API{GoogleConfig: getGoogleConfig(), InternalConfig: apiConfig}).Run()
 }
