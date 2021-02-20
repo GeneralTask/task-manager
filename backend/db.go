@@ -5,6 +5,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -36,4 +38,19 @@ func GetDBConnection() (*mongo.Database, func()) {
 	}
 
 	return client.Database("main"), cleanup
+}
+
+// Retrieve the google oauth token from the database based on the user of the
+// current context.
+func (api *API) getExternalAPITokenFromCtx(c *gin.Context, t *ExternalAPIToken) error {
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+	userID := tokenMiddlewareGetUserID(c)
+	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&t)
+	if err != nil {
+		return err
+	}
+	return nil
 }

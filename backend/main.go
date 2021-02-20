@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
-	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/gmail/v1"
@@ -17,22 +16,18 @@ import (
 
 
 func (api *API) tasksList(c *gin.Context) {
-	db, dbCleanup := GetDBConnection()
-	defer dbCleanup()
-	externalAPITokenCollection := db.Collection("external_api_tokens")
-	var googleToken ExternalAPIToken
-	userID, _ := c.Get("user")
-	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&googleToken)
-	if err != nil {
-		log.Fatalf("Failed to fetch external API token: %v", err)
-	}
+	var (
+		googleToken ExternalAPIToken
+		token oauth2.Token
+	)
+	api.getExternalAPITokenFromCtx(c, &googleToken)
+	json.Unmarshal([]byte(googleToken.Token), &token)
 
 	var tasks []*Task
 
-	var token oauth2.Token
-	json.Unmarshal([]byte(googleToken.Token), &token)
-	config := getGoogleConfig()
+	config := api.GoogleConfig
 	client := config.Client(context.Background(), &token).(*http.Client)
+
 	gmailService, err := gmail.New(client)
 	if err != nil {
 		log.Fatalf("Unable to create Gmail service: %v", err)
