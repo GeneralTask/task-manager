@@ -18,7 +18,6 @@ func getUserIDFromToken(token string) (primitive.ObjectID, error) {
 	db, dbClose := GetDBConnection()
 	defer dbClose()
 
-	// Look up a user id according to the InternalAPIToken DB
 	var internalToken InternalAPIToken
 	err := db.Collection("internal_api_tokens").FindOne(nil, bson.D{{"token", token}}).Decode(&internalToken)
 
@@ -29,7 +28,7 @@ func getUserIDFromToken(token string) (primitive.ObjectID, error) {
 	return internalToken.UserID, nil
 }
 
-// Creates a new user token, and stores in the database. This is wildly
+// Creates a new user token, and stores in the database. This is somewhat
 // impractical as it is currently implemented, which is why we extract it to
 // this function to allow easier changes.
 func createTokenForUser(c *gin.Context, u *User) (string, error) {
@@ -56,18 +55,11 @@ func createTokenForUser(c *gin.Context, u *User) (string, error) {
 
 
 // Checks an incoming request for a valid token and authenticates based on that
-// tokens existence in the database.. An authorization token should be passed in
-// a header as
-//
-//     Authorization: Bearer token
-//
-// We then set the context's "user_id" for use by other functions. To future
-// proof this, we also provide the tokenMiddlewareGetUser and
-// tookenMiddlewareGetUserID functions as wrappers around this.
+// tokens existence in the database. An authorization token should be passed in
+// a header as: uthorization: Bearer token
 func tokenMiddleware(c *gin.Context) {
 	header := c.Request.Header.Get("Authorization")
 
-	// Check that the token exists.
 	if header == "" {
 		c.AbortWithError(http.StatusUnauthorized, errors.New("Malformed or missing 'Authorization' Header"))
 	}
@@ -115,14 +107,11 @@ func tokenMiddlewareGetUserID(c *gin.Context) primitive.ObjectID {
 //
 // TODO(Cache this value)
 func tokenMiddlewareGetUser(c *gin.Context) User {
-	// Open a connection to the database.
 	db, dbClose := GetDBConnection()
 	defer dbClose()
 
-	// Get the userId from the current context
 	userId := tokenMiddlewareGetUserID(c)
 
-	// Retrieve remaining user information
 	var user User
 	if err := db.Collection("users").FindOne(nil, bson.D{{ "_id", userId}}).Decode(&user); err != nil {
 		log.Fatalf("Could not find user associated with id")

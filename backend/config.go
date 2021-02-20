@@ -76,8 +76,6 @@ func parseAPIConfig(c *APIConfig) error {
 	// Split the file into lines
  	users := strings.Split(string(whitelist), "\n")
 
-	// Convert those lines into a struct, since it is physically impossible to
-	// write a generic contains function for a slice or array in go.
 	usersMap := make(map[string]struct{}, len(users))
 	for _, user := range users {
 		usersMap[user] = struct{}{}

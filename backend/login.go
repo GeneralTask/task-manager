@@ -75,16 +75,13 @@ func (api *API) userInfoFromToken(client HTTPClient, userInfo *GoogleUserInfo) e
 		return err
 	}
 
-	// Make sure to close the http connection
 	defer response.Body.Close()
 
-	// Parse user information from body
 	err = json.NewDecoder(response.Body).Decode(&userInfo)
 	if err != nil {
 		return err
 	}
 
-	// Check if the user's sub field exists
 	if userInfo.SUB == "" {
 		return errors.New("User parsed, but returned without SUB field")
 	}
@@ -96,22 +93,18 @@ func (api *API) userInfoFromToken(client HTTPClient, userInfo *GoogleUserInfo) e
 // up a user we are NOT using their internal id but rather their unique google
 // identifier, as expressed in the SUB field.
 func (api *API) getOrCreateUser(gu GoogleUserInfo, u *User) error {
-	// Get our database connection
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
 
 	userCollection := db.Collection("users")
 
-	// Lookup our user based on their google ID
 	if userCollection.FindOne(nil, bson.D{{"google_id", gu.SUB}}).Decode(&u) != nil {
-		// A user does not exist, since we got an error back, so let's create one.
 		cursor, err := userCollection.InsertOne(nil, &User{GoogleID: gu.SUB})
 		if err != nil {
 			log.Errorf("Failed to create new user in the database: %v", err)
 			return err
 		}
 
-		// Update the user with the new values
 		u.ID = cursor.InsertedID.(primitive.ObjectID)
 		u.GoogleID = gu.SUB
 	}
@@ -124,25 +117,21 @@ func (api *API) getOrCreateUser(gu GoogleUserInfo, u *User) error {
 // no reason to keep them in the ExternalAPIToken collection past the most
 // recent entry, so we use create or replace.
 //
-// The function returns the integral identifying token for the user
+// The function returns the internal identifying token for the user
 func (api *API) saveUserTokens(c *gin.Context, gtoken *oauth2.Token, u *User) (string, error) {
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
 
-	// encode the token into a json format
 	tokenString, err := json.Marshal(&gtoken)
 	if err != nil {
 		return "", err
 	}
 
-	// Insert (or replace) the google token in the external collection
 	extTokens := db.Collection("external_api_tokens")
 	_, err = extTokens.UpdateOne(
 		nil,
-		// Currently all tokens are google, in the future this could vary though
 		bson.D{{"user_id", u.ID}, {"source", "google"}},
 		bson.D{{"$set", &ExternalAPIToken{UserID: u.ID, Source: "google", Token: string(tokenString)}}},
-		// upsert: update or insert
 		options.Update().SetUpsert(true))
 	if err != nil {
 		return "", err
@@ -221,10 +210,8 @@ func (api *API) loginCallback(c *gin.Context) {
 // cross site forgery we set a state token, for more information see
 // parseOauthTokenResponse
 func (api *API) login(c *gin.Context) {
-	// Generate a state token and set
+	// Generate a state token and set cookie for CSFR
 	stateToken := guuid.New().String()
-
-	// Save the token to 'state' cookie
 	c.SetCookie("state", stateToken, 60 * 60, "/", "localhost", false, false)
 
 	authURL := api.GoogleConfig.AuthCodeURL(stateToken, oauth2.AccessTypeOffline, oauth2.ApprovalForce)

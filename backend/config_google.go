@@ -27,7 +27,6 @@ var GOOGLE_AUTH_SCOPES = []string {
 func getGoogleConfig() OauthConfigWrapper {
 	development := os.Getenv("DEVELOPMENT")
 
-	// Read the credentials file in config/google_credentials.json
 	bData, err := ioutil.ReadFile("config/google_credentials.json")
 	if err != nil {
 		log.Fatalf("Unable to read credentials file: %v", err)
