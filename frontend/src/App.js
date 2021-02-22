@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { DragDropContext, resetServerContext } from "react-beautiful-dnd";
 import data from './hardcoded-data';
-import TaskContainer from './components/TaskContainer_drag.js';
 import './App.css';
 import { BrowserRouter, Route, Switch, Redirect, Link } from "react-router-dom";
 import Cookies from 'js-cookie'
@@ -23,8 +22,9 @@ function App() {
       <BrowserRouter>
         <Switch>
 
-          <PrivateRoute path="/tasks" component={TaskList}/>
-          <Route path="/" component={Home}/>
+          <Route exact path="/" component={Home}/>
+          <Route path="/tasks" component={TaskList}/>
+          <PrivateRoute path="/protectedRoute" component={TaskList}/>
 
         </Switch>
       </BrowserRouter>
@@ -49,6 +49,8 @@ function Home() {
       <h1>General Task</h1>
       <h2>Welcome to the landing page!</h2>
       <Link to="/tasks"> See Tasks </Link>
+      <br />
+      <Link to="/protectedRoute">Try a Protected Route</Link>
     </div>
   )
 }

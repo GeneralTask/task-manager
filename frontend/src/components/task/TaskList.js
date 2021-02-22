@@ -4,7 +4,7 @@ import Task from './Task'
 import store from '../../redux/store'
 import {setTasks, addTask, removeTask} from '../../redux/actions'
 
-setTimeout(fetchTasks, 200);
+setTimeout(fetchTasks, 1000);
 
 const sampleTask = {
     id: 1, // (str) ID of the task
@@ -18,7 +18,7 @@ const sampleTask = {
 };
 
 // will be an API call instead
-async function fetchTasks(cb = ()=>{}){
+function fetchDummyTasks(cb = ()=>{}){
     const tasksResponse = {
         tasks: [
             sampleTask,
@@ -35,16 +35,30 @@ async function fetchTasks(cb = ()=>{}){
     cb();
 }
 
+function fetchTasks(){
+    fetch("http://localhost:8081/tasks")
+    .then(res => res.json())
+    .then(
+        (result) => {
+            console.log({result});
+        },
+        (error) => {
+            console.log({error});
+            fetchDummyTasks();
+        }
+    )
+}
+
 function TaskList(){
 
     const tasks = useSelector(state => state.tasks);
     
     return (
         <div>
-            <div className="spacer40"></div>
+            <h1 className="spacer40">My Tasks</h1>
 
             {tasks.length == 0  && 
-                <div>No Tasks :(</div>
+                <h2 className="spacer40">No Tasks :(</h2>
             }
             { tasks.map((task) => 
                 <Task task={task} key={task.id_ordering} />
@@ -66,5 +80,5 @@ function TaskList(){
 }
 
 export default connect(
-    state => state.tasks
+    state => ({tasks: state.tasks})
 )(TaskList);
