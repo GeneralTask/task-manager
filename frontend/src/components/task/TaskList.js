@@ -26,6 +26,8 @@ function fetchDummyTasks(cb = ()=>{}){
                 ...sampleTask,
                 id: 2,
                 id_ordering: 2,
+                logo_url: "images/Gmail-logo-500x377.png",
+                title: "General Task Meeting",
             }
         ]
     };
@@ -37,7 +39,12 @@ function fetchDummyTasks(cb = ()=>{}){
 
 function fetchTasks(){
     fetch("http://localhost:8081/tasks")
-    .then(res => res.json())
+    .then((res) => {
+        console.log({res});
+        const resj = res.json();
+        console.log({resj});
+        return resj;
+    })
     .then(
         (result) => {
             console.log({result});
