@@ -1,5 +1,5 @@
 import React from 'react';
-import Task from './Task.js';
+import Task from './Task_drag.js';
 import { Droppable } from 'react-beautiful-dnd'
 
 function TaskContainer(props) {
