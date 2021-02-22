@@ -1,7 +1,17 @@
 # task-manager
 A manager of tasks.
 
-## Setup
+## Frontend testing
+
+First, install npm.
+
+```
+cd frontend
+npm install
+npm start
+```
+
+## Backend setup
 
 First, install Go and Docker.
 
@@ -14,7 +24,7 @@ go run main.go db.go models.go
 curl localhost:8080/ping
 ```
 
-## Testing
+## Backend testing
 
 ```
 docker-compose up -d
