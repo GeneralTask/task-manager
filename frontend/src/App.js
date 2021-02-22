@@ -13,11 +13,16 @@ function App() {
   return (
     <Provider store={store}>
       <BrowserRouter>
-        <Switch>
+      <Switch>
 
-          <Route exact path="/" component={Home}/>
-          <Route path="/tasks" component={TaskList}/>
-          <PrivateRoute path="/protectedRoute" component={TaskList}/>
+        {/* landing page route */}
+        <Route exact path="/" component={Home}/>
+
+        {/* task page route, should be changed to PrivateRoute once login is functional */}
+        <Route path="/tasks" component={TaskList}/> 
+
+        {/* Demo to show PrivateRoute protection */}
+        <PrivateRoute path="/protectedRoute" component={TaskList}/> 
 
         </Switch>
       </BrowserRouter>
