@@ -65,7 +65,7 @@ function TaskList(){
         <div>
             <h1 className="spacer40">My Tasks</h1>
 
-            {tasks.length == 0  && 
+            {tasks.length === 0  && 
                 <h2 className="spacer40">No Tasks :(</h2>
             }
             { tasks.map((task) => 

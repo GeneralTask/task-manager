@@ -17,7 +17,7 @@ export default function reducer(state, action){
         case actions.REMOVE_TASK:
             return {
                 ...state,
-                tasks: state.tasks.filter(task => task.id != action.taskId)
+                tasks: state.tasks.filter(task => task.id !== action.taskId)
             }
 
         default:
