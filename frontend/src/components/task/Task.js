@@ -1,5 +1,4 @@
 import React from 'react'
-import { connect, useSelector } from 'react-redux'
 import './Task.css'
 import TaskHeader from './TaskHeader'
 

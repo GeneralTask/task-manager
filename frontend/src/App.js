@@ -2,7 +2,6 @@ import { resetServerContext } from "react-beautiful-dnd";
 import './App.css';
 import { BrowserRouter, Route, Switch, Redirect, Link } from "react-router-dom";
 import Cookies from 'js-cookie'
-
 import { Provider } from 'react-redux';
 import store from './redux/store';
 
