@@ -1,57 +1,51 @@
-import React, { useState } from 'react';
-
+import { resetServerContext } from "react-beautiful-dnd";
 import './App.css';
+import { BrowserRouter, Route, Switch, Redirect, Link } from "react-router-dom";
+import Cookies from 'js-cookie'
+import { Provider } from 'react-redux';
+import store from './redux/store';
 
-function Task(props) {
-  const [title, setTitle] = useState(props.title);
-  const [description, setDescription] = useState(props.description);
+import TaskList from "./components/task/TaskList";
 
-  function handleDone() {
-    setTitle("Oopsie done");
-    props.onDone();
-  }
+resetServerContext()
 
-  function handleNoTime() {
-    setTitle("Oopsie no time");
-  }
-
+function App() {
   return (
-    <div className="Task" style={{border: "1px solid black", width: "200px"}}>
-      <h2>{title}</h2>
-      <span>{description}</span><br/><br/>
-      <button onClick={() => handleDone()}>Done</button> <button onClick={() => handleNoTime()}>I don't have time</button>
-    </div>
+    <Provider store={store}>
+      <BrowserRouter>
+        <Switch>
+
+          <Route exact path="/" component={Home}/>
+          <Route path="/tasks" component={TaskList}/>
+          <PrivateRoute path="/protectedRoute" component={TaskList}/>
+
+        </Switch>
+      </BrowserRouter>
+    </Provider>
   );
 }
 
-function App() {
-  const initialTasks = [
-    {
-      id: 1,
-      title: "This is an important task",
-      description: "Do it now or else",
-    },
-    {
-      id: 2,
-      title: "This is less important task",
-      description: "Do it maybe",
-    }
-  ];
-  const [tasks, setTasks] = useState(initialTasks);
+const PrivateRoute = ({ component: Component, ...rest }) => (
+  <Route {...rest} render={(props) => (
+    Cookies.get('authToken')
+      ? <Component {...props} />
+      : <Redirect to='/' />
+  )} />
+);
 
-  function handleDone(task_id) {
-    const newTasks = tasks.splice(task_id, 1)
-    setTasks(newTasks);
-    console.log(newTasks, task_id);
+function Home() {
+  if (Cookies.get('authToken')) {
+    return <Redirect to='/tasks' />
   }
-
   return (
-    <div className="App">
-      {tasks.map((task, task_index) =>
-        <Task title={task.title} description={task.description} onDone={() => handleDone(task_index)}></Task>
-      )}
+    <div id="home">
+      <h1>General Task</h1>
+      <h2>Welcome to the landing page!</h2>
+      <Link to="/tasks"> See Tasks </Link>
+      <br />
+      <Link to="/protectedRoute">Try a Protected Route</Link>
     </div>
-  );
+  )
 }
 
 export default App;
