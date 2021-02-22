@@ -3,6 +3,7 @@ import { connect, useSelector } from 'react-redux'
 import Task from './Task'
 import store from '../../redux/store'
 import {setTasks, addTask, removeTask} from '../../redux/actions'
+import { TASKSURL } from '../../constants'
 
 setTimeout(fetchTasks, 1000);
 
@@ -38,7 +39,7 @@ function fetchDummyTasks(cb = ()=>{}){
 }
 
 function fetchTasks(){
-    fetch("http://localhost:8081/tasks")
+    fetch(TASKSURL)
     .then((res) => {
         console.log({res});
         const resj = res.json();

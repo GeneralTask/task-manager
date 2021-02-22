@@ -1,11 +1,9 @@
-import React, { useEffect } from 'react';
-import { DragDropContext, resetServerContext } from "react-beautiful-dnd";
-import data from './hardcoded-data';
+import { resetServerContext } from "react-beautiful-dnd";
 import './App.css';
 import { BrowserRouter, Route, Switch, Redirect, Link } from "react-router-dom";
 import Cookies from 'js-cookie'
 
-import {Provider} from 'react-redux';
+import { Provider } from 'react-redux';
 import store from './redux/store';
 
 import TaskList from "./components/task/TaskList";
