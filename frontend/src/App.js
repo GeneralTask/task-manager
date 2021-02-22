@@ -13,10 +13,6 @@ import TaskList from "./components/task/TaskList";
 resetServerContext()
 
 function App() {
-  useEffect(() => {
-    // Cookies.set('authToken', 'dummyToken')  // Remove this
-  }, []);
-
   return (
     <Provider store={store}>
       <BrowserRouter>
