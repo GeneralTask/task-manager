@@ -42,12 +42,4 @@ function App() {
   );
 }
 
-class TestTasks extends React.Component {
-  render(){
-    return(
-      <div>i am task boo</div>
-    )
-  }
-}
-
 export default App;

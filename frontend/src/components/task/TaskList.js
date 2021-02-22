@@ -1,30 +1,36 @@
 import React from 'react'
-import { connect, useSelector, dispatch } from 'react-redux'
+import { connect, useSelector } from 'react-redux'
 import Task from './Task'
 import store from '../../redux/store'
-import {setTasks} from '../../redux/actions'
+import {setTasks, addTask, removeTask} from '../../redux/actions'
 
-setTimeout(fetchTasks, 4000);
+setTimeout(fetchTasks, 200);
 
+const sampleTask = {
+    id: 1, // (str) ID of the task
+    id_external: 1, // (str): External ID of the task
+    id_ordering: 1, // (int): Integer by which tasks should be ordered in the list
+    datetime_end: null, // (str): (when applicable) end timestamp of event
+    datetime_start: null, // (str): (when applicable) end timestamp of event
+    sender: "@hackerdog", // (str): String to display on the right side of the task
+    logo_url: "images/slack-logo-icon.png", // (str): URL of the logo preview to display on the left side of the task
+    title: "Hey, can you help me put out this fire"
+};
 
 // will be an API call instead
 async function fetchTasks(cb = ()=>{}){
     const tasksResponse = {
         tasks: [
+            sampleTask,
             {
-                id: 1, // (str) ID of the task
-                id_external: 1, // (str): External ID of the task
-                id_ordering: 1, // (int): Integer by which tasks should be ordered in the list
-                datetime_end: null, // (str): (when applicable) end timestamp of event
-                datetime_start: null, // (str): (when applicable) end timestamp of event
-                sender: "Elon Musk", // (str): String to display on the right side of the task
-                logo_url: "/slacklogogobrr", // (str): URL of the logo preview to display on the left side of the task
-                title: "Omg help me", // (str): String describing main idea of task
+                ...sampleTask,
+                id: 2,
+                id_ordering: 2,
             }
         ]
     };
 
-    store.dispatch(setTasks(tasksResponse));
+    store.dispatch(setTasks(tasksResponse.tasks));
 
     cb();
 }
@@ -35,9 +41,26 @@ function TaskList(){
     
     return (
         <div>
-            { tasks.map(task => 
-                <Task/>
+            <div className="spacer40"></div>
+
+            {tasks.length == 0  && 
+                <div>No Tasks :(</div>
+            }
+            { tasks.map((task) => 
+                <Task task={task} key={task.id_ordering} />
             )}
+
+
+            <button onClick={
+                () => store.dispatch(addTask({
+                    ...sampleTask,
+                    id_ordering: tasks[tasks.length - 1].id_ordering + 1,
+                    id: tasks[tasks.length - 1].id + 1
+                }))
+            }>Add Task</button>
+            <button onClick={
+                () => store.dispatch(removeTask(tasks[tasks.length - 1].id_ordering))
+            }>Remove Task</button>
         </div>
     );
 }

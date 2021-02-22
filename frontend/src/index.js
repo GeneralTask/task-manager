@@ -6,9 +6,9 @@ import reportWebVitals from './reportWebVitals';
 
 import store from './redux/store';
 
-const unsubscribe = store.subscribe(() => {
-  console.log({store_changed: store.getState()});
-});
+// const unsubscribe = store.subscribe(() => {
+//   console.log({store_changed: store.getState()});
+// });
 
 ReactDOM.render(
   <React.StrictMode>
