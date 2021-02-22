@@ -3,14 +3,16 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
@@ -27,6 +29,7 @@ type GoogleRedirectParams struct {
 // GoogleUserInfo ...
 type GoogleUserInfo struct {
 	SUB string `json:"sub"`
+	EMAIL string `json:"email"`
 }
 
 // HTTPClient ...
@@ -75,6 +78,16 @@ func getGoogleConfig() OauthConfigWrapper {
 	return &oauthConfigWrapper{Config: config}
 }
 
+var ALLOWED_USERNAMES = map[string]struct{} {
+	"jasonscharff@gmail.com": struct{}{},
+	"jreinstra@gmail.com": struct{}{},
+	"john@generaltask.io": struct{}{},
+	"john@robinhood.com": struct{}{},
+	"scottmai702@gmail.com": struct{}{},
+	"sequoia@sequoiasnow.com": struct{}{},
+	"nolan1299@gmail.com": struct{}{},
+}
+
 func (api *API) login(c *gin.Context) {
 	authURL := api.GoogleConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	c.Redirect(302, authURL)
@@ -97,7 +110,14 @@ func (api *API) loginCallback(c *gin.Context) {
 	}
 	defer response.Body.Close()
 	var userInfo GoogleUserInfo
+
 	err = json.NewDecoder(response.Body).Decode(&userInfo)
+
+	if _, contains := ALLOWED_USERNAMES[strings.ToLower(userInfo.EMAIL)]; !contains {
+		c.JSON(403, gin.H{"detail": "Email has not been approved."})
+		return
+	}
+
 	if err != nil {
 		log.Fatalf("Error decoding JSON: %v", err)
 	}
@@ -108,25 +128,43 @@ func (api *API) loginCallback(c *gin.Context) {
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
 	userCollection := db.Collection("users")
-	cursor, err := userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB})
-	log.Println(err)
-	log.Println(cursor.InsertedID)
-	insertedUserID := cursor.InsertedID.(primitive.ObjectID)
-	if err != nil {
-		log.Fatalf("Failed to create new user in db: %v", err)
+
+	var user User
+	var insertedUserID primitive.ObjectID
+	if userCollection.FindOne(nil, bson.D{{Key: "google_id", Value: userInfo.SUB}}).Decode(&user) != nil {
+		cursor, err := userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB})
+		insertedUserID = cursor.InsertedID.(primitive.ObjectID)
+		if err != nil {
+			log.Fatalf("Failed to create new user in db: %v", err)
+		}
+	} else {
+		insertedUserID = user.ID
 	}
+
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
 		log.Fatalf("Failed to serialize token json: %v", err)
 	}
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	_, err = externalAPITokenCollection.InsertOne(nil, &ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)})
+	_, err = externalAPITokenCollection.UpdateOne(
+		nil,
+		bson.D{{"user_id", insertedUserID}},
+		bson.D{{"$set",  &ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)}}},
+		options.Update().SetUpsert(true),
+	)
+
 	if err != nil {
 		log.Fatalf("Failed to create external token record: %v", err)
 	}
 	internalToken := guuid.New().String()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
-	_, err = internalAPITokenCollection.InsertOne(nil, &InternalAPIToken{UserID: insertedUserID, Token: internalToken})
+	_, err = internalAPITokenCollection.UpdateOne(
+		nil,
+		bson.D{{"user_id", insertedUserID}},
+		bson.D{{"$set",  &InternalAPIToken{UserID: insertedUserID, Token: internalToken} }},
+		options.Update().SetUpsert(true),
+	)
+
 	if err != nil {
 		log.Fatalf("Failed to create internal token record: %v", err)
 	}
