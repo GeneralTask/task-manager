@@ -169,15 +169,8 @@ func (api *API) loginCallback(c *gin.Context) {
 		log.Fatalf("Failed to create internal token record: %v", err)
 	}
 	c.SetCookie("authToken", internalToken, 60*60*24, "/", "localhost", false, false)
-	c.JSON(200, gin.H{
-		"state":          redirectParams.State,
-		"code":           redirectParams.Code,
-		"user_id":        userInfo.SUB,
-		"user_pk":        insertedUserID,
-		"token":          token,
-		"internal_token": internalToken,
-		"scope":          redirectParams.Scope,
-	})
+	homeURL := "http://localhost:3000/"
+	c.Redirect(302, homeURL)
 }
 
 func (api *API) tasksList(c *gin.Context) {
