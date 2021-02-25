@@ -15,9 +15,14 @@ function App() {
       <BrowserRouter>
         <Switch>
 
+          {/* landing page route */}
           <Route exact path="/" component={Home}/>
-          <Route path="/tasks" component={TaskList}/>
-          <PrivateRoute path="/protectedRoute" component={TaskList}/>
+
+          {/* task page route, should be changed to PrivateRoute once login is functional */}
+          <Route path="/tasks" component={TaskList}/> 
+
+          {/* Demo to show PrivateRoute protection */}
+          <PrivateRoute path="/protectedRoute" component={TaskList}/> 
 
         </Switch>
       </BrowserRouter>
