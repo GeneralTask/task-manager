@@ -1,11 +1,10 @@
-import React from 'react'
+import {React, useEffect} from 'react'
 import { connect, useSelector } from 'react-redux'
 import Task from './Task'
 import store from '../../redux/store'
 import {setTasks, addTask, removeTask} from '../../redux/actions'
 import { TASKSURL } from '../../constants'
 
-setTimeout(fetchTasks, 1000);
 
 const sampleTask = {
     id: 1, // (str) ID of the task
@@ -58,6 +57,10 @@ function fetchTasks(){
 }
 
 function TaskList(){
+
+    useEffect(() => {
+        setTimeout(fetchTasks, 1000);
+    }, [])
 
     const tasks = useSelector(state => state.tasks);
     
