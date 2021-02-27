@@ -1,0 +1,39 @@
+.settings-page-header {
+    height: 100px;
+    width: 100%;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* font-size: 32px; */
+}
+
+.settings-body{
+    width: 30%;
+    margin: auto;
+}
+
+
+.account {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+.account img {
+    height: 36px;
+}
+
+.connect-btn {
+    /* display: flex; */
+    /* justify-content: space-between; */
+    /* align-items: center; */
+    /* height: 40px; */
+    font-size: 24px;
+    /* padding: 6px; */
+    background-color: black;
+    border-radius: 2px;
+    color: white;
+}

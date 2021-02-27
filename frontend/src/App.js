@@ -5,7 +5,9 @@ import Cookies from 'js-cookie'
 import { Provider } from 'react-redux';
 import store from './redux/store';
 
-import TaskList from "./components/task/TaskList";
+import TaskList from "./components/task/TaskList"
+import Header from "./components/Header"
+import Settings from "./components/settings/Settings"
 
 resetServerContext()
 
@@ -13,6 +15,7 @@ function App() {
   return (
     <Provider store={store}>
       <BrowserRouter>
+      <Header/>
         <Switch>
 
           {/* landing page route */}
@@ -20,6 +23,9 @@ function App() {
 
           {/* task page route, should be changed to PrivateRoute once login is functional */}
           <Route path="/tasks" component={TaskList}/> 
+
+          {/* task page route, should be changed to PrivateRoute once login is functional */}
+          <Route path="/settings" component={Settings}/> 
 
           {/* Demo to show PrivateRoute protection */}
           <PrivateRoute path="/protectedRoute" component={TaskList}/> 
@@ -47,6 +53,8 @@ function Home() {
       <h1>General Task</h1>
       <h2>Welcome to the landing page!</h2>
       <Link to="/tasks"> See Tasks </Link>
+      <br />
+      <Link to="/settings"> Settings </Link>
       <br />
       <Link to="/protectedRoute">Try a Protected Route</Link>
     </div>
