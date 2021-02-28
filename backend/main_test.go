@@ -102,11 +102,11 @@ func TestLoginCallback(t *testing.T) {
 		db, dbCleanup := GetDBConnection()
 		defer dbCleanup()
 		recorder := makeLoginCallbackRequest("noice420", "jasonscharff@gmail.com")
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "noice420")
 		//change token and verify token updates and still only 1 row per user.
 		recorder = makeLoginCallbackRequest( "TSLA", "jasonscharff@gmail.com")
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "TSLA")
 	})
 }
@@ -157,4 +157,38 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, authToken string) {
 	count, err = internalAPITokenCollection.CountDocuments(nil, bson.D{{"user_id", user.ID}})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
+}
+
+func TestAuthenticationMiddleware(t *testing.T) {
+	formattedToken := "b5b034f4-a645-4352-91d6-0c271afc4076"
+	t.Run("InvalidLength", func(t *testing.T) {
+		recorder := setTokenAndRunAuthenticatedEndpoint("hello", "Bearer hello")
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+		recorder = setTokenAndRunAuthenticatedEndpoint("hello", "hello")
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+		recorder = setTokenAndRunAuthenticatedEndpoint(formattedToken, formattedToken)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
+
+	t.Run("InvalidToken", func(t *testing.T) {
+		recorder := setTokenAndRunAuthenticatedEndpoint(formattedToken, "Bearer c5b034f4-a645-4352-91d6-0c271afc4076")
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
+
+	t.Run("Valid", func(t *testing.T) {
+		recorder := setTokenAndRunAuthenticatedEndpoint(formattedToken, "Bearer " + formattedToken)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+	})
+}
+
+func setTokenAndRunAuthenticatedEndpoint(authToken string, attemptedHeader string) *httptest.ResponseRecorder {
+	makeLoginCallbackRequest(authToken, "jasonscharff@gmail.com")
+	router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+
+	request, _ := http.NewRequest("GET", "/ping/", nil)
+	request.Header.Add("Authorization", attemptedHeader)
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	return recorder
 }

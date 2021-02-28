@@ -245,12 +245,17 @@ func (api *API) tasksList(c *gin.Context) {
 	c.JSON(200, tasks)
 }
 
+func (api *API) ping(c *gin.Context){
+	c.JSON(200, "success")
+}
+
 func tokenMiddleware(c *gin.Context) {
 	token := c.Request.Header.Get("Authorization")
-	if len(token) != 42 {
+	//Token is 36 characters + 6 for Bearer prefix + 1 for space = 43
+	if len(token) != 43 {
 		c.AbortWithStatusJSON(401, gin.H{"detail": "incorrect auth token format"})
 	}
-	token = token[6:]
+	token = token[7:]
 	log.Println("Token: \"" + token + "\"")
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
@@ -272,6 +277,7 @@ func getRouter(api *API) *gin.Engine {
 	router.Use(tokenMiddleware)
 	// Authenticated endpoints
 	router.GET("/tasks/", api.tasksList)
+	router.GET("/ping/", api.ping)
 	return router
 }
 
