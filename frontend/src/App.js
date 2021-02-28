@@ -1,6 +1,6 @@
 import { resetServerContext } from "react-beautiful-dnd";
 import './App.css';
-import { BrowserRouter, Route, Switch, Redirect, Link } from "react-router-dom";
+import { MemoryRouter, Route, Switch, Redirect, Link } from "react-router-dom";
 import Cookies from 'js-cookie'
 import { Provider } from 'react-redux';
 import store from './redux/store';
@@ -14,7 +14,7 @@ resetServerContext()
 function App() {
   return (
     <Provider store={store}>
-      <BrowserRouter>
+      <MemoryRouter>
       <Header/>
         <Switch>
 
@@ -31,7 +31,7 @@ function App() {
           <PrivateRoute path="/protectedRoute" component={TaskList}/> 
 
         </Switch>
-      </BrowserRouter>
+      </MemoryRouter>
     </Provider>
   );
 }
