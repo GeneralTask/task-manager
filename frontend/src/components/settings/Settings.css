@@ -23,7 +23,7 @@
 }
 
 .account img {
-    height: 36px;
+    height: 35px;
 }
 
 .connect-btn {
@@ -31,9 +31,9 @@
     /* justify-content: space-between; */
     /* align-items: center; */
     /* height: 40px; */
-    font-size: 24px;
-    /* padding: 6px; */
+    font-size: 20px;
+    padding: 4px 8px 4px;
     background-color: black;
-    border-radius: 2px;
+    border-radius: 4px;
     color: white;
 }

@@ -1,8 +1,11 @@
 import React from 'react'
+import {Link} from 'react-router-dom'
 
 function Header(){
     return(
         <div className="header">
+            <Link to="/tasks">Tasks</Link>
+            <Link to="/settings">Settings</Link>
             <button className="logout-btn" onClick={logout} >Logout</button>
         </div>
     )
