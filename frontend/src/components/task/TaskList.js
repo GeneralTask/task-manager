@@ -59,7 +59,7 @@ function fetchTasks(){
 function TaskList(){
 
     useEffect(() => {
-        setTimeout(fetchTasks, 1000);
+        fetchTasks();
     }, [])
 
     const tasks = useSelector(state => state.tasks);
