@@ -24,7 +24,7 @@ function App() {
           {/* task page route, should be changed to PrivateRoute once login is functional */}
           <Route path="/tasks" component={TaskList}/> 
 
-          {/* task page route, should be changed to PrivateRoute once login is functional */}
+          {/* Settings page route, should be changed to PrivateRoute once login is functional */}
           <Route path="/settings" component={Settings}/> 
 
           {/* Demo to show PrivateRoute protection */}
