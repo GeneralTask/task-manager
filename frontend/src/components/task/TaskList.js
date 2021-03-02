@@ -13,7 +13,7 @@ const sampleTask = {
     datetime_end: null, // (str): (when applicable) end timestamp of event
     datetime_start: null, // (str): (when applicable) end timestamp of event
     sender: "@hackerdog", // (str): String to display on the right side of the task
-    logo_url: "images/slack-logo-icon.png", // (str): URL of the logo preview to display on the left side of the task
+    logo_url: "images/slack.svg", // (str): URL of the logo preview to display on the left side of the task
     title: "Hey, can you help me put out this fire"
 };
 
@@ -26,7 +26,7 @@ function fetchDummyTasks(cb = ()=>{}){
                 ...sampleTask,
                 id: 2,
                 id_ordering: 2,
-                logo_url: "images/Gmail-logo-500x377.png",
+                logo_url: "images/gmail.svg",
                 title: "General Task Meeting",
             }
         ]
