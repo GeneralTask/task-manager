@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Switch, Redirect, Link } from "react-router-dom";
 import Cookies from 'js-cookie'
 import { Provider } from 'react-redux';
 import store from './redux/store';
+import { TASKS_URL } from './constants'
 
 import TaskList from "./components/task/TaskList";
 import GLButton from "./components/login/GoogleLogin";
@@ -27,7 +28,7 @@ function App() {
 
           {/* External login button redirect for Google OAuth */}
           <Route path="/login" component={() => {
-            window.location.href="http://localhost:8080/login"
+            window.location.href = TASKS_URL;
             return null;
           }}/>
         </Switch>
