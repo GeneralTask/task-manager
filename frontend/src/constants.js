@@ -1,6 +1,6 @@
 // URL Constants
-export const BASE_URL = 'http://localhost:8080/'
-export const TASKS_URL = BASE_URL + 'tasks/'
+export const BASE_URL = 'http://localhost:8080'
+export const TASKS_URL = BASE_URL + '/tasks'
 
 //Google Sign-In SVGs
 export const GOOGLE_LIGHT_NORMAL = '/assets/google_signin_buttons/google_btn_normal.svg'
