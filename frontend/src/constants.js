@@ -6,7 +6,7 @@ export const TASKS_URL = BASE_URL + '/tasks'
 export const JIRA_URL = BASE_URL + '/jira/authorize'
 
 // Frontend paths
-export const TASKS_PATH = '/tasks'
+export const TASKS_PATH = '/'
 export const SETTINGS_PATH = '/settings'
 
 //Google Sign-In SVGs

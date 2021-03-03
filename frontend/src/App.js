@@ -1,6 +1,6 @@
 import { resetServerContext } from "react-beautiful-dnd";
 import './App.css';
-import { MemoryRouter, Route, Switch, Redirect, Link } from "react-router-dom";
+import { BrowserRouter, Route, Switch, Redirect, Link } from "react-router-dom";
 import Cookies from 'js-cookie'
 import { Provider } from 'react-redux';
 import store from './redux/store';
@@ -15,24 +15,17 @@ resetServerContext()
 function App() {
   return (
     <Provider store={store}>
-      <MemoryRouter>
+      <BrowserRouter>
       <Header/>
         <Switch>
+          {/* Settings page, only accessible if logged in */}
+          <PrivateRoute path={SETTINGS_PATH} component={Settings}/> 
 
-          {/* landing page route */}
-          <Route exact path="/" component={Home}/>
-
-          {/* task page route, should be changed to PrivateRoute once login is functional */}
-          <Route path={TASKS_PATH} component={TaskList}/> 
-
-          {/* Settings page route, should be changed to PrivateRoute once login is functional */}
-          <Route path={SETTINGS_PATH} component={Settings}/> 
-
-          {/* Demo to show PrivateRoute protection */}
-          <PrivateRoute path="/protectedRoute" component={TaskList}/> 
+          {/* base url, shows landing page if not logged in, shows tasks page if logged in */}
+          <Route path={TASKS_PATH} component={LandingPage}/>
 
         </Switch>
-      </MemoryRouter>
+      </BrowserRouter>
     </Provider>
   );
 }
@@ -45,19 +38,17 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
   )} />
 );
 
-function Home() {
+function LandingPage() {
   if (Cookies.get('authToken')) {
-    return <Redirect to='/tasks' />
+    return <TaskList />
   }
   return (
     <div id="home">
       <h1>General Task</h1>
       <h2>Welcome to the landing page!</h2>
-      <Link to="/tasks"> See Tasks </Link>
+      <Link to={TASKS_PATH}> See Tasks </Link>
       <br />
-      <Link to="/settings"> Settings </Link>
-      <br />
-      <Link to="/protectedRoute">Try a Protected Route</Link>
+      <Link to={SETTINGS_PATH}> Settings </Link>
     </div>
   )
 }
