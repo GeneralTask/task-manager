@@ -4,9 +4,12 @@ import { BrowserRouter, Route, Switch, Redirect, Link } from "react-router-dom";
 import Cookies from 'js-cookie'
 import { Provider } from 'react-redux';
 import store from './redux/store';
-import { TASKS_URL } from './constants'
+import { TASKS_PATH, SETTINGS_PATH, TASKS_URL, LOGIN_URL } from './constants'
 
-import TaskList from "./components/task/TaskList";
+import TaskList from "./components/task/TaskList"
+import Header from "./components/Header"
+import Settings from "./components/settings/Settings"
+
 import GLButton from "./components/login/GoogleLogin";
 
 resetServerContext()
@@ -15,22 +18,20 @@ function App() {
   return (
     <Provider store={store}>
       <BrowserRouter>
+      <Header/>
         <Switch>
-
-          {/* landing page route */}
-          <Route exact path="/" component={Home}/>
-
-          {/* task page route, should be changed to PrivateRoute once login is functional */}
-          <Route path="/tasks" component={TaskList}/> 
-
-          {/* Demo to show PrivateRoute protection */}
-          <PrivateRoute path="/protectedRoute" component={TaskList}/> 
+          {/* Settings page, only accessible if logged in */}
+          <PrivateRoute path={SETTINGS_PATH} component={Settings}/> 
 
           {/* External login button redirect for Google OAuth */}
           <Route path="/login" component={() => {
-            window.location.href = TASKS_URL;
+            window.location.href = LOGIN_URL;
             return null;
           }}/>
+
+          {/* MAKE SURE THIS IS THE LAST ROUTE */}
+          {/* base url, shows landing page if not logged in, shows tasks page if logged in */}
+          <Route path={TASKS_PATH} component={LandingPage}/>
         </Switch>
       </BrowserRouter>
     </Provider>
@@ -45,17 +46,17 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
   )} />
 );
 
-function Home() {
+function LandingPage() {
   if (Cookies.get('authToken')) {
-    return <Redirect to='/tasks' />
+    return <TaskList />
   }
   return (
     <div id="home">
       <h1>General Task</h1>
       <h2>Welcome to the landing page!</h2>
-      <Link to="/tasks"> See Tasks </Link>
+      <Link to={TASKS_PATH}> See Tasks </Link>
       <br />
-      <Link to="/protectedRoute">Try a Protected Route</Link>
+      <Link to={SETTINGS_PATH}> Settings </Link>
       <Link to="/login"><GLButton/></Link>
     </div>
   )
