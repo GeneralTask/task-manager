@@ -4,11 +4,13 @@ import { BrowserRouter, Route, Switch, Redirect, Link } from "react-router-dom";
 import Cookies from 'js-cookie'
 import { Provider } from 'react-redux';
 import store from './redux/store';
-import { TASKS_PATH, SETTINGS_PATH } from './constants'
+import { TASKS_PATH, SETTINGS_PATH, TASKS_URL, LOGIN_URL } from './constants'
 
 import TaskList from "./components/task/TaskList"
 import Header from "./components/Header"
 import Settings from "./components/settings/Settings"
+
+import GLButton from "./components/login/GoogleLogin";
 
 resetServerContext()
 
@@ -21,9 +23,15 @@ function App() {
           {/* Settings page, only accessible if logged in */}
           <PrivateRoute path={SETTINGS_PATH} component={Settings}/> 
 
+          {/* External login button redirect for Google OAuth */}
+          <Route path="/login" component={() => {
+            window.location.href = LOGIN_URL;
+            return null;
+          }}/>
+
+          {/* MAKE SURE THIS IS THE LAST ROUTE */}
           {/* base url, shows landing page if not logged in, shows tasks page if logged in */}
           <Route path={TASKS_PATH} component={LandingPage}/>
-
         </Switch>
       </BrowserRouter>
     </Provider>
@@ -49,6 +57,7 @@ function LandingPage() {
       <Link to={TASKS_PATH}> See Tasks </Link>
       <br />
       <Link to={SETTINGS_PATH}> Settings </Link>
+      <Link to="/login"><GLButton/></Link>
     </div>
   )
 }
