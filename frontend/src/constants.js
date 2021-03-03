@@ -9,6 +9,7 @@ export const JIRA_URL = BASE_URL + '/jira/authorize'
 export const TASKS_PATH = '/tasks'
 export const SETTINGS_PATH = '/settings'
 
+
 //Google Sign-In SVGs
 export const GOOGLE_LIGHT_NORMAL = '/assets/google_signin_buttons/google_btn_normal.svg'
 export const GOOGLE_LIGHT_FOCUS = '/assets/google_signin_buttons/google_btn_focus.svg'
