@@ -1,7 +1,7 @@
 import React from 'react'
 import "./Settings.css"
 import Account from "./Account"
-import {JIRAURL} from "../../constants"
+import {JIRA_URL} from "../../constants"
 
 function Settings(){
     return(
@@ -11,7 +11,7 @@ function Settings(){
             </div>
             <div className="settings-body">
                 <h2>Accounts</h2>
-                <Account logo="images/jira.svg" name="Jira" link={JIRAURL} />
+                <Account logo="images/jira.svg" name="Jira" link={JIRA_URL} />
             </div>
         </div>
     )

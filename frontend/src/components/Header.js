@@ -1,11 +1,12 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
+import { TASKS_PATH, SETTINGS_PATH } from '../constants'
 
 function Header(){
     return(
         <div className="header">
-            <Link to="/tasks">Tasks</Link>
-            <Link to="/settings">Settings</Link>
+            <Link to={TASKS_PATH}>Tasks</Link>
+            <Link to={SETTINGS_PATH}>Settings</Link>
             <button className="logout-btn" onClick={logout} >Logout</button>
         </div>
     )

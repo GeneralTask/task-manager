@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Switch, Redirect, Link } from "react-router-dom";
 import Cookies from 'js-cookie'
 import { Provider } from 'react-redux';
 import store from './redux/store';
-import { TASKS_URL, SETTINGS_URL } from './constants'
+import { TASKS_PATH, SETTINGS_PATH } from './constants'
 
 import TaskList from "./components/task/TaskList"
 import Header from "./components/Header"
@@ -23,10 +23,10 @@ function App() {
           <Route exact path="/" component={Home}/>
 
           {/* task page route, should be changed to PrivateRoute once login is functional */}
-          <Route path="/tasks" component={TaskList}/> 
+          <Route path={TASKS_PATH} component={TaskList}/> 
 
           {/* Settings page route, should be changed to PrivateRoute once login is functional */}
-          <Route path="/settings" component={Settings}/> 
+          <Route path={SETTINGS_PATH} component={Settings}/> 
 
           {/* Demo to show PrivateRoute protection */}
           <PrivateRoute path="/protectedRoute" component={TaskList}/> 

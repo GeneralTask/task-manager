@@ -3,7 +3,7 @@ import { connect, useSelector } from 'react-redux'
 import Task from './Task'
 import store from '../../redux/store'
 import {setTasks, addTask, removeTask} from '../../redux/actions'
-import { TASKSURL } from '../../constants'
+import { TASKS_URL } from '../../constants'
 
 
 const sampleTask = {
@@ -38,7 +38,7 @@ function fetchDummyTasks(cb = ()=>{}){
 }
 
 function fetchTasks(){
-    fetch(TASKSURL)
+    fetch(TASKS_URL)
     .then((res) => {
         console.log({res});
         const resj = res.json();

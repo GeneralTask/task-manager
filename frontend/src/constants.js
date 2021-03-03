@@ -1,7 +1,13 @@
 // URL Constants
+
+// Backend Endpoints
 export const BASE_URL = 'http://localhost:8080'
 export const TASKS_URL = BASE_URL + '/tasks'
-export const SETTINGS_URL = BASE_URL + '/settings'
+export const JIRA_URL = BASE_URL + '/jira/authorize'
+
+// Frontend paths
+export const TASKS_PATH = '/tasks'
+export const SETTINGS_PATH = '/settings'
 
 //Google Sign-In SVGs
 export const GOOGLE_LIGHT_NORMAL = '/assets/google_signin_buttons/google_btn_normal.svg'
