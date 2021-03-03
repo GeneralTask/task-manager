@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
@@ -16,7 +17,6 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
-	"google.golang.org/api/gmail/v1"
 )
 
 // GoogleRedirectParams ...
@@ -208,56 +208,80 @@ func (api *API) tasksList(c *gin.Context) {
 	json.Unmarshal([]byte(googleToken.Token), &token)
 	config := getGoogleConfig()
 	client := config.Client(context.Background(), &token).(*http.Client)
-	gmailService, err := gmail.New(client)
-	if err != nil {
-		log.Fatalf("Unable to create Gmail service: %v", err)
-	}
-	threadsResponse, err := gmailService.Users.Threads.List("me").Q("is:unread").Do()
-	if err != nil {
-		log.Fatalf("Failed to load Gmail threads for user: %v", err)
-	}
-	for _, threadListItem := range threadsResponse.Threads {
-		thread, err := gmailService.Users.Threads.Get("me", threadListItem.Id).Do()
-		if err != nil {
-			log.Fatalf("failed to load thread! %v", err)
-		}
-		var sender = ""
-		var title = ""
-		for _, header := range thread.Messages[0].Payload.Headers {
-			if header.Name == "From" {
-				sender = header.Value
-			}
-			if header.Name == "Subject" {
-				title = header.Value
-			}
-		}
-		tasks = append(tasks, &Task{
-			ID:         guuid.New().String(),
-			IDExternal: threadListItem.Id,
-			IDOrdering: len(tasks),
-			Sender:     sender,
-			Source:     "gmail",
-			Title:      title,
-		})
-	}
+	//gmailService, err := gmail.New(client)
+	//if err != nil {
+	//	log.Fatalf("Unable to create Gmail service: %v", err)
+	//}
+	//threadsResponse, err := gmailService.Users.Threads.List("me").Q("is:unread").Do()
+	//if err != nil {
+	//	log.Fatalf("Failed to load Gmail threads for user: %v", err)
+	//}
+	//for _, threadListItem := range threadsResponse.Threads {
+	//	thread, err := gmailService.Users.Threads.Get("me", threadListItem.Id).Do()
+	//	if err != nil {
+	//		log.Fatalf("failed to load thread! %v", err)
+	//	}
+	//	var sender = ""
+	//	var title = ""
+	//	for _, header := range thread.Messages[0].Payload.Headers {
+	//		if header.Name == "From" {
+	//			sender = header.Value
+	//		}
+	//		if header.Name == "Subject" {
+	//			title = header.Value
+	//		}
+	//	}
+	//	tasks = append(tasks, &Task{
+	//		ID:         guuid.New().String(),
+	//		IDExternal: threadListItem.Id,
+	//		IDOrdering: len(tasks),
+	//		Sender:     sender,
+	//		Source:     "gmail",
+	//		Title:      title,
+	//	})
+	//}
 
 	calendarService, err := calendar.New(client)
 	if err != nil {
 		log.Fatalf("Unable to create Calendar service: %v", err)
 	}
-	calendarResponse, err := calendarService.Events.List("primary").Do()
+	t := time.Now()
+	todayStartTime := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	log.Println("Start time: " + todayStartTime.Format(time.RFC3339))
+	todayEndTime := todayStartTime.AddDate(0, 0, 1).Add(-time.Second)
+	log.Println("End time: " + todayEndTime.Format(time.RFC3339))
+
+	calendarResponse, err := calendarService.Events.
+		List("primary").
+		TimeMin(todayStartTime.Format(time.RFC3339)).
+		TimeMax(todayEndTime.Format(time.RFC3339)).
+		TimeZone("US/Eastern").
+		SingleEvents(true).
+		OrderBy("startTime").
+		Do()
+
 	if err != nil {
 		log.Fatalf("Unable to load calendar events: %v", err)
 	}
 	for _, event := range calendarResponse.Items {
+		log.Println("Event Found " + event.Summary)
+	}
+
+	for _, event := range calendarResponse.Items {
+		//exclude all day events which won't have a start time.
+		if len(event.Start.DateTime) == 0 {
+			continue
+		}
+
 		tasks = append(tasks, &Task{
 			ID:            guuid.New().String(),
 			IDExternal:    event.Id,
 			IDOrdering:    len(tasks),
 			DatetimeEnd:   event.End.DateTime,
 			DatetimeStart: event.Start.DateTime,
-			Source:        "gcal",
+			Source:        TaskSourceGoogleCalendar.Name,
 			Title:         event.Summary,
+			Logo: 		   TaskSourceGoogleCalendar.Logo,
 		})
 	}
 	c.JSON(200, tasks)

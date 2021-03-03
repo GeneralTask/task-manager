@@ -44,4 +44,13 @@ type Task struct {
 	Sender        string `json:"sender"`
 	Source        string `json:"source"`
 	Title         string `json:"title"`
+	Logo		  string `json:"logo_url"`
 }
+
+type TaskSource struct {
+	Name    string `json:"id"`
+	Logo    string `json:"id_external"`
+}
+
+//need actual logo
+var TaskSourceGoogleCalendar = TaskSource{"gcal", "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Google_Calendar_icon.svg/1200px-Google_Calendar_icon.svg.png"}
