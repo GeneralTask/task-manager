@@ -32,3 +32,7 @@ output "load_balancer_ip" {
   description = "Public load balancer IP address"
   value       = kubernetes_service.backend
 }
+
+output "mongodb_uri" {
+    value = mongodbatlas_cluster.main.mongo_uri
+}
