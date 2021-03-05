@@ -210,19 +210,23 @@ func (api *API) tasksList(c *gin.Context) {
 	config := getGoogleConfig()
 	client := config.Client(context.Background(), &token).(*http.Client)
 
-	calendarEvents := loadCalendarEvents(client)
-	emails := loadEmails(c, client)
-	merged := mergeTasks(calendarEvents, emails)
+	var calendarEvents = make(chan []*Task)
+	go loadCalendarEvents(client, calendarEvents)
 
-	c.JSON(200, merged)
+	var emails = make(chan []*Task)
+	go loadEmails(c, client, emails)
+
+	allTasks := mergeTasks(<-calendarEvents, <-emails)
+
+	c.JSON(200, allTasks)
 }
 
 func mergeTasks(calendarEvents []*Task, emails[]*Task) []*Task {
-	//for now
+	//for now we'll just return cal invites until we get merging logic done.
 	return calendarEvents
 }
 
-func loadEmails (c *gin.Context, client *http.Client) []*Task {
+func loadEmails (c *gin.Context, client *http.Client, result chan <- []*Task) {
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
 	var userObject User
@@ -269,10 +273,10 @@ func loadEmails (c *gin.Context, client *http.Client) []*Task {
 		})
 	}
 
-	return emails
+	result <- emails
 }
 
-func loadCalendarEvents (client *http.Client) []*Task {
+func loadCalendarEvents (client *http.Client, result chan <- []*Task) {
 	var events []*Task
 
 	calendarService, err := calendar.New(client)
@@ -319,7 +323,7 @@ func loadCalendarEvents (client *http.Client) []*Task {
 			Logo: 		   TaskSourceGoogleCalendar.Logo,
 		})
 	}
-	return events
+	result <- events
 }
 
 func (api *API) ping(c *gin.Context){
