@@ -50,10 +50,10 @@ type Task struct {
 }
 
 type TaskSource struct {
-	Name    string `json:"id"`
-	Logo    string `json:"id_external"`
+	Name    string
+	Logo    string
 }
 
-//need actual logo
+//todo: replace with self-hosted logos: https://app.asana.com/0/1199951001302650/1200025401212320/f
 var TaskSourceGoogleCalendar = TaskSource{"gcal", "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Google_Calendar_icon.svg/1200px-Google_Calendar_icon.svg.png"}
 var TaskSourceGmail = TaskSource{"gmail", "https://1000logos.net/wp-content/uploads/2018/05/Gmail-logo.png"}

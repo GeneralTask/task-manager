@@ -291,7 +291,6 @@ func loadCalendarEvents (client *http.Client, result chan <- []*Task) {
 		List("primary").
 		TimeMin(todayStartTime.Format(time.RFC3339)).
 		TimeMax(todayEndTime.Format(time.RFC3339)).
-		TimeZone("US/Eastern").
 		SingleEvents(true).
 		OrderBy("startTime").
 		Do()
