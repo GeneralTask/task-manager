@@ -101,19 +101,19 @@ func TestLoginCallback(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		db, dbCleanup := GetDBConnection()
 		defer dbCleanup()
-		recorder := makeLoginCallbackRequest("noice420", "jasonscharff@gmail.com")
+		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io")
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "noice420")
 		//change token and verify token updates and still only 1 row per user.
-		recorder = makeLoginCallbackRequest( "TSLA", "jasonscharff@gmail.com")
+		recorder = makeLoginCallbackRequest( "TSLA", "approved@generaltask.io")
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "TSLA")
 	})
 }
 
-func makeLoginCallbackRequest(authToken string, email string) *httptest.ResponseRecorder {
+func makeLoginCallbackRequest(googleToken string, email string) *httptest.ResponseRecorder {
 	mockConfig := MockGoogleConfig{}
-	mockToken := oauth2.Token{AccessToken: authToken}
+	mockToken := oauth2.Token{AccessToken: googleToken}
 	mockConfig.On("Exchange", context.Background(), "code1234").Return(&mockToken, nil)
 	mockClient := MockHTTPClient{}
 	mockClient.On("Get", "https://www.googleapis.com/oauth2/v3/userinfo").Return(&http.Response{Body: ioutil.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"sub\": \"goog12345\", \"email\": \"%s\"}", email)))}, nil)
@@ -160,29 +160,39 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, authToken string) {
 }
 
 func TestAuthenticationMiddleware(t *testing.T) {
-	formattedToken := "b5b034f4-a645-4352-91d6-0c271afc4076"
+	authToken := login("approved@generaltask.io")
+
 	t.Run("InvalidLength", func(t *testing.T) {
-		recorder := setTokenAndRunAuthenticatedEndpoint("hello", "Bearer hello")
+		recorder := runAuthenticatedEndpoint("Bearer hello")
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-		recorder = setTokenAndRunAuthenticatedEndpoint("hello", "hello")
+		recorder = runAuthenticatedEndpoint("hello")
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-		recorder = setTokenAndRunAuthenticatedEndpoint(formattedToken, formattedToken)
+		recorder = runAuthenticatedEndpoint(authToken)
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 
 	t.Run("InvalidToken", func(t *testing.T) {
-		recorder := setTokenAndRunAuthenticatedEndpoint(formattedToken, "Bearer c5b034f4-a645-4352-91d6-0c271afc4076")
+		recorder := runAuthenticatedEndpoint("Bearer c5b034f4-a645-4352-91d6-0c271afc4076")
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 
 	t.Run("Valid", func(t *testing.T) {
-		recorder := setTokenAndRunAuthenticatedEndpoint(formattedToken, "Bearer " + formattedToken)
+		recorder := runAuthenticatedEndpoint("Bearer " + authToken)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 	})
 }
 
-func setTokenAndRunAuthenticatedEndpoint(authToken string, attemptedHeader string) *httptest.ResponseRecorder {
-	makeLoginCallbackRequest(authToken, "jasonscharff@gmail.com")
+func login(email string) string {
+	recorder := makeLoginCallbackRequest("googleToken", email)
+	for _, c := range recorder.Result().Cookies() {
+		if c.Name == "authToken" {
+			return c.Value
+		}
+	}
+	return ""
+}
+
+func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
 	router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
 
 	request, _ := http.NewRequest("GET", "/ping/", nil)
