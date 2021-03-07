@@ -223,6 +223,27 @@ func TestLogout(t *testing.T) {
 
 }
 
+func login(email string) string {
+	recorder := makeLoginCallbackRequest("googleToken", email)
+	for _, c := range recorder.Result().Cookies() {
+		if c.Name == "authToken" {
+			return c.Value
+		}
+	}
+	return ""
+}
+
+func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
+	router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+
+	request, _ := http.NewRequest("GET", "/ping/", nil)
+	request.Header.Add("Authorization", attemptedHeader)
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	return recorder
+}
+
 func TestCalendar(t *testing.T) {
 
 	standardEvent := calendar.Event{
@@ -331,25 +352,4 @@ func assertTasksEqual(t *testing.T, a *Task, b *Task) {
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.Logo, b.Logo)
 	assert.Equal(t, a.Title, b.Title)
-}
-
-func login(email string) string {
-	recorder := makeLoginCallbackRequest("googleToken", email)
-	for _, c := range recorder.Result().Cookies() {
-		if c.Name == "authToken" {
-			return c.Value
-		}
-	}
-	return ""
-}
-
-func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
-	router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
-
-	request, _ := http.NewRequest("GET", "/ping/", nil)
-	request.Header.Add("Authorization", attemptedHeader)
-
-	recorder := httptest.NewRecorder()
-	router.ServeHTTP(recorder, request)
-	return recorder
 }
