@@ -182,6 +182,29 @@ func TestAuthenticationMiddleware(t *testing.T) {
 	})
 }
 
+func TestLogout(t *testing.T) {
+	authToken := login("approved@generaltask.io")
+
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	tokenCollection := db.Collection("internal_api_tokens")
+
+	count, _ := tokenCollection.CountDocuments(nil, bson.D{{"token", authToken}})
+	assert.Equal(t, int64(1), count)
+
+	router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+
+	request, _ := http.NewRequest("POST", "/logout/", nil)
+	request.Header.Add("Authorization", "Bearer " + authToken)
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	count, _ = tokenCollection.CountDocuments(nil, bson.D{{"token", authToken}})
+	assert.Equal(t, int64(0), count)
+}
+
 func login(email string) string {
 	recorder := makeLoginCallbackRequest("googleToken", email)
 	for _, c := range recorder.Result().Cookies() {
