@@ -3,12 +3,16 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"google.golang.org/api/gmail/v1"
+	"google.golang.org/api/option"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
@@ -16,7 +20,6 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
-	"google.golang.org/api/gmail/v1"
 )
 
 // GoogleRedirectParams ...
@@ -132,7 +135,7 @@ func (api *API) loginCallback(c *gin.Context) {
 	var user User
 	var insertedUserID primitive.ObjectID
 	if userCollection.FindOne(nil, bson.D{{Key: "google_id", Value: userInfo.SUB}}).Decode(&user) != nil {
-		cursor, err := userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB})
+		cursor, err := userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL})
 		insertedUserID = cursor.InsertedID.(primitive.ObjectID)
 		if err != nil {
 			log.Fatalf("Failed to create new user in db: %v", err)
@@ -198,17 +201,44 @@ func (api *API) tasksList(c *gin.Context) {
 	var googleToken ExternalAPIToken
 	userID, _ := c.Get("user")
 	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&googleToken)
+
 	if err != nil {
 		log.Fatalf("Failed to fetch external API token: %v", err)
 	}
-
-	var tasks []*Task
 
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
 	config := getGoogleConfig()
 	client := config.Client(context.Background(), &token).(*http.Client)
+
+	var calendarEvents = make(chan []*Task)
+	go loadCalendarEvents(client, calendarEvents, nil)
+
+	var emails = make(chan []*Task)
+	go loadEmails(c, client, emails)
+
+	allTasks := mergeTasks(<-calendarEvents, <-emails)
+
+	c.JSON(200, allTasks)
+}
+
+func mergeTasks(calendarEvents []*Task, emails[]*Task) []*Task {
+	//for now we'll just return cal invites until we get merging logic done.
+	return calendarEvents
+}
+
+func loadEmails (c *gin.Context, client *http.Client, result chan <- []*Task) {
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	var userObject User
+	userID, _ := c.Get("user")
+	userCollection := db.Collection("users")
+	err := userCollection.FindOne(nil, bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
+
+	var emails []*Task
+
 	gmailService, err := gmail.New(client)
+
 	if err != nil {
 		log.Fatalf("Unable to create Gmail service: %v", err)
 	}
@@ -231,36 +261,81 @@ func (api *API) tasksList(c *gin.Context) {
 				title = header.Value
 			}
 		}
-		tasks = append(tasks, &Task{
+
+		emails = append(emails, &Task{
 			ID:         guuid.New().String(),
 			IDExternal: threadListItem.Id,
-			IDOrdering: len(tasks),
+			IDOrdering: len(emails),
 			Sender:     sender,
-			Source:     "gmail",
+			Source:     TaskSourceGmail.Name,
+			Deeplink: 	fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
 			Title:      title,
+			Logo: 		TaskSourceGmail.Logo,
 		})
 	}
 
-	calendarService, err := calendar.New(client)
+	result <- emails
+}
+
+func loadCalendarEvents (client *http.Client, result chan <- []*Task, overrideUrl *string) {
+	var events []*Task
+
+	var calendarService *calendar.Service
+	var err error
+
+	if overrideUrl != nil {
+		calendarService, err = calendar.NewService(context.Background(), option.WithoutAuthentication(), option.WithEndpoint(*overrideUrl))
+	} else {
+		calendarService, err = calendar.New(client)
+	}
+
+
 	if err != nil {
 		log.Fatalf("Unable to create Calendar service: %v", err)
 	}
-	calendarResponse, err := calendarService.Events.List("primary").Do()
+
+	t := time.Now()
+	//strip out hours/minutes/seconds of today to find the start of the day
+	todayStartTime := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	//get end of day but adding one day to start of day and then subtracting a second to get day at 11:59:59PM
+	todayEndTime := todayStartTime.AddDate(0, 0, 1).Add(-time.Second)
+
+	calendarResponse, err := calendarService.Events.
+		List("primary").
+		TimeMin(todayStartTime.Format(time.RFC3339)).
+		TimeMax(todayEndTime.Format(time.RFC3339)).
+		SingleEvents(true).
+		OrderBy("startTime").
+		Do()
+
 	if err != nil {
 		log.Fatalf("Unable to load calendar events: %v", err)
 	}
+
 	for _, event := range calendarResponse.Items {
-		tasks = append(tasks, &Task{
+		//exclude all day events which won't have a start time.
+		if len(event.Start.DateTime) == 0 {
+			continue
+		}
+
+		//exclude clockwise events
+		if strings.Contains(strings.ToLower(event.Summary), "via clockwise") {
+			continue
+		}
+
+		events = append(events, &Task{
 			ID:            guuid.New().String(),
 			IDExternal:    event.Id,
-			IDOrdering:    len(tasks),
+			IDOrdering:    len(events),
 			DatetimeEnd:   event.End.DateTime,
 			DatetimeStart: event.Start.DateTime,
-			Source:        "gcal",
+			Deeplink:      event.HtmlLink,
+			Source:        TaskSourceGoogleCalendar.Name,
 			Title:         event.Summary,
+			Logo: 		   TaskSourceGoogleCalendar.Logo,
 		})
 	}
-	c.JSON(200, tasks)
+	result <- events
 }
 
 func (api *API) ping(c *gin.Context){

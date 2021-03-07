@@ -3,8 +3,11 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"go.mongodb.org/mongo-driver/mongo"
+	"google.golang.org/api/calendar/v3"
+	"google.golang.org/api/googleapi"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -239,4 +242,81 @@ func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	return recorder
+}
+
+func TestCalendar(t *testing.T) {
+
+	standardEvent := calendar.Event{
+		Created:                 "2021-02-25T17:53:01.000Z",
+		Summary:                 "Standard Event",
+		Start:                   &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+		End:                     &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+		HtmlLink:                "generaltask.io",
+		Id:                      "standard_event",
+		ServerResponse:          googleapi.ServerResponse{HTTPStatusCode: 0},
+	}
+
+	standardTask := Task{
+		IDOrdering:    0,
+		IDExternal:    "standard_event",
+		DatetimeStart: "2021-03-06T15:00:00-05:00",
+		DatetimeEnd:   "2021-03-06T15:30:00-05:00",
+		Deeplink:      "generaltask.io",
+		Title:         "Standard Event",
+		Source: 	   TaskSourceGoogleCalendar.Name,
+		Logo:          TaskSourceGoogleCalendar.Logo,
+	}
+
+	autoEvent := calendar.Event{
+		Created:                 "2021-02-25T17:53:01.000Z",
+		Summary:                 "Auto Event (via Clockwise)",
+		Start:                   &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+		End:                     &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+		HtmlLink:                "generaltask.io",
+		Id:                      "auto_event",
+		ServerResponse:          googleapi.ServerResponse{HTTPStatusCode: 0},
+	}
+
+	allDayEvent := calendar.Event{
+		Created:                 "2021-02-25T17:53:01.000Z",
+		Summary:                 "All day Event",
+		Start:                   &calendar.EventDateTime{Date: "2021-03-06"},
+		End:                     &calendar.EventDateTime{Date: "2021-03-06"},
+		HtmlLink:                "generaltask.io",
+		Id:                      "all_day_event",
+		ServerResponse:          googleapi.ServerResponse{HTTPStatusCode: 0},
+	}
+
+	server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+	defer server.Close()
+	var calendarEvents = make(chan []*Task)
+	go loadCalendarEvents(nil, calendarEvents, &server.URL)
+	result := <-calendarEvents
+	assert.Equal(t, 1, len(result))
+	firstTask := result[0]
+	assertTasksEqual(t, &standardTask, firstTask)
+}
+
+func getServerForTasks(events []*calendar.Event)  *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		resp := &calendar.Events{
+			Items:          events,
+			ServerResponse:   googleapi.ServerResponse{HTTPStatusCode: 200},
+		}
+
+		b, err := json.Marshal(resp)
+		if err != nil {
+			http.Error(w, "unable to marshal request: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.Write(b)
+	}))
+}
+
+func assertTasksEqual(t *testing.T, a *Task, b *Task) {
+	assert.Equal(t, a.DatetimeStart, b.DatetimeStart)
+	assert.Equal(t, a.DatetimeEnd, a.DatetimeEnd)
+	assert.Equal(t, a.IDExternal, b.IDExternal)
+	assert.Equal(t, a.Logo, b.Logo)
+	assert.Equal(t, a.Title, b.Title)
 }
