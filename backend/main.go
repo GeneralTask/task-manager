@@ -295,7 +295,9 @@ func loadCalendarEvents (client *http.Client, result chan <- []*Task, overrideUr
 	}
 
 	t := time.Now()
+	//strip out hours/minutes/seconds of today to find the start of the day
 	todayStartTime := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	//get end of day but adding one day to start of day and then subtracting a second to get day at 11:59:59PM
 	todayEndTime := todayStartTime.AddDate(0, 0, 1).Add(-time.Second)
 
 	calendarResponse, err := calendarService.Events.

@@ -287,47 +287,14 @@ func TestCalendar(t *testing.T) {
 		ServerResponse:          googleapi.ServerResponse{HTTPStatusCode: 0},
 	}
 
-	t.Run("SingleTask", func(t *testing.T) {
-		server := getServerForTasks([]*calendar.Event{&standardEvent})
-		defer server.Close()
-		var calendarEvents = make(chan []*Task)
-		go loadCalendarEvents(nil, calendarEvents, &server.URL)
-		result := <-calendarEvents
-		assert.Equal(t, 1, len(result))
-		firstTask := result[0]
-		assertTasksEqual(t, &standardTask, firstTask)
-	})
-
-	t.Run("FilterAllDayEvents", func(t *testing.T) {
-		server := getServerForTasks([]*calendar.Event{&allDayEvent, &standardEvent})
-		defer server.Close()
-		var calendarEvents = make(chan []*Task)
-		go loadCalendarEvents(nil, calendarEvents, &server.URL)
-		result := <-calendarEvents
-		assert.Equal(t, 1, len(result))
-		firstTask := result[0]
-		assertTasksEqual(t, &standardTask, firstTask)
-	})
-
-	t.Run("FilterAutomaticEvents", func(t *testing.T) {
-		server := getServerForTasks([]*calendar.Event{&standardEvent, &autoEvent})
-		defer server.Close()
-		var calendarEvents = make(chan []*Task)
-		go loadCalendarEvents(nil, calendarEvents, &server.URL)
-		result := <-calendarEvents
-		assert.Equal(t, 1, len(result))
-		firstTask := result[0]
-		assertTasksEqual(t, &standardTask, firstTask)
-	})
-
-	t.Run("AllowsNoEvents", func(t *testing.T) {
-		server := getServerForTasks([]*calendar.Event{&allDayEvent, &autoEvent})
-		defer server.Close()
-		var calendarEvents = make(chan []*Task)
-		go loadCalendarEvents(nil, calendarEvents, &server.URL)
-		result := <-calendarEvents
-		assert.Equal(t, 0, len(result))
-	})
+	server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+	defer server.Close()
+	var calendarEvents = make(chan []*Task)
+	go loadCalendarEvents(nil, calendarEvents, &server.URL)
+	result := <-calendarEvents
+	assert.Equal(t, 1, len(result))
+	firstTask := result[0]
+	assertTasksEqual(t, &standardTask, firstTask)
 }
 
 func getServerForTasks(events []*calendar.Event)  *httptest.Server {
