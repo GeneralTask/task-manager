@@ -182,6 +182,44 @@ func TestAuthenticationMiddleware(t *testing.T) {
 	})
 }
 
+func TestLogout(t *testing.T) {
+
+	t.Run("Logout", func(t *testing.T) {
+		authToken := login("approved@generaltask.io")
+
+		db, dbCleanup := GetDBConnection()
+		defer dbCleanup()
+		tokenCollection := db.Collection("internal_api_tokens")
+
+		count, _ := tokenCollection.CountDocuments(nil, bson.D{{"token", authToken}})
+		assert.Equal(t, int64(1), count)
+
+		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+
+		request, _ := http.NewRequest("POST", "/logout/", nil)
+		request.Header.Add("Authorization", "Bearer " + authToken)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		count, _ = tokenCollection.CountDocuments(nil, bson.D{{"token", authToken}})
+		assert.Equal(t, int64(0), count)
+	})
+
+	t.Run("Unauthorized", func(t *testing.T) {
+		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+
+		request, _ := http.NewRequest("POST", "/logout/", nil)
+		request.Header.Add("Authorization", "Bearer c8db8f3c-6fa2-476c-9648-b31432dc3ff7")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
+
+}
+
 func login(email string) string {
 	recorder := makeLoginCallbackRequest("googleToken", email)
 	for _, c := range recorder.Result().Cookies() {

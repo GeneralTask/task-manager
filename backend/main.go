@@ -173,6 +173,24 @@ func (api *API) loginCallback(c *gin.Context) {
 	c.Redirect(302, homeURL)
 }
 
+func (api *API) logout(c *gin.Context) {
+	token := getToken(c)
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+
+	tokenCollection := db.Collection("internal_api_tokens")
+	result, err := tokenCollection.DeleteOne(nil, bson.M{"token": token})
+	if err != nil {
+		log.Fatal(err)
+	}
+	if result.DeletedCount == 0 {
+		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
+	} else {
+		c.JSON(200, gin.H{})
+	}
+
+}
+
 func (api *API) tasksList(c *gin.Context) {
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
@@ -250,12 +268,7 @@ func (api *API) ping(c *gin.Context){
 }
 
 func tokenMiddleware(c *gin.Context) {
-	token := c.Request.Header.Get("Authorization")
-	//Token is 36 characters + 6 for Bearer prefix + 1 for space = 43
-	if len(token) != 43 {
-		c.AbortWithStatusJSON(401, gin.H{"detail": "incorrect auth token format"})
-	}
-	token = token[7:]
+	token := getToken(c)
 	log.Println("Token: \"" + token + "\"")
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
@@ -269,11 +282,25 @@ func tokenMiddleware(c *gin.Context) {
 	c.Set("user", internalToken.UserID)
 }
 
+func getToken(c *gin.Context) string {
+	token := c.Request.Header.Get("Authorization")
+	//Token is 36 characters + 6 for Bearer prefix + 1 for space = 43
+	if len(token) != 43 {
+		c.AbortWithStatusJSON(401, gin.H{"detail": "incorrect auth token format"})
+	}
+	token = token[7:]
+	return token
+}
+
 func getRouter(api *API) *gin.Engine {
 	router := gin.Default()
 	// Unauthenticated endpoints
 	router.GET("/login/", api.login)
 	router.GET("/login/callback/", api.loginCallback)
+
+	//logout needs to use the token directly rather than the user so no need to run token middleware
+	router.POST("/logout/", api.logout)
+
 	router.Use(tokenMiddleware)
 	// Authenticated endpoints
 	router.GET("/tasks/", api.tasksList)
