@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/api/gmail/v1"
+	"google.golang.org/api/option"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -211,7 +212,7 @@ func (api *API) tasksList(c *gin.Context) {
 	client := config.Client(context.Background(), &token).(*http.Client)
 
 	var calendarEvents = make(chan []*Task)
-	go loadCalendarEvents(client, calendarEvents)
+	go loadCalendarEvents(client, calendarEvents, nil)
 
 	var emails = make(chan []*Task)
 	go loadEmails(c, client, emails)
@@ -276,13 +277,23 @@ func loadEmails (c *gin.Context, client *http.Client, result chan <- []*Task) {
 	result <- emails
 }
 
-func loadCalendarEvents (client *http.Client, result chan <- []*Task) {
+func loadCalendarEvents (client *http.Client, result chan <- []*Task, overrideUrl *string) {
 	var events []*Task
 
-	calendarService, err := calendar.New(client)
+	var calendarService *calendar.Service
+	var err error
+
+	if overrideUrl != nil {
+		calendarService, err = calendar.NewService(context.Background(), option.WithoutAuthentication(), option.WithEndpoint(*overrideUrl))
+	} else {
+		calendarService, err = calendar.New(client)
+	}
+
+
 	if err != nil {
 		log.Fatalf("Unable to create Calendar service: %v", err)
 	}
+
 	t := time.Now()
 	todayStartTime := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 	todayEndTime := todayStartTime.AddDate(0, 0, 1).Add(-time.Second)
