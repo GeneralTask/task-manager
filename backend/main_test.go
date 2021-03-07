@@ -183,26 +183,41 @@ func TestAuthenticationMiddleware(t *testing.T) {
 }
 
 func TestLogout(t *testing.T) {
-	authToken := login("approved@generaltask.io")
 
-	db, dbCleanup := GetDBConnection()
-	defer dbCleanup()
-	tokenCollection := db.Collection("internal_api_tokens")
+	t.Run("Logout", func(t *testing.T) {
+		authToken := login("approved@generaltask.io")
 
-	count, _ := tokenCollection.CountDocuments(nil, bson.D{{"token", authToken}})
-	assert.Equal(t, int64(1), count)
+		db, dbCleanup := GetDBConnection()
+		defer dbCleanup()
+		tokenCollection := db.Collection("internal_api_tokens")
 
-	router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		count, _ := tokenCollection.CountDocuments(nil, bson.D{{"token", authToken}})
+		assert.Equal(t, int64(1), count)
 
-	request, _ := http.NewRequest("POST", "/logout/", nil)
-	request.Header.Add("Authorization", "Bearer " + authToken)
+		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
 
-	recorder := httptest.NewRecorder()
-	router.ServeHTTP(recorder, request)
-	assert.Equal(t, http.StatusOK, recorder.Code)
+		request, _ := http.NewRequest("POST", "/logout/", nil)
+		request.Header.Add("Authorization", "Bearer " + authToken)
 
-	count, _ = tokenCollection.CountDocuments(nil, bson.D{{"token", authToken}})
-	assert.Equal(t, int64(0), count)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		count, _ = tokenCollection.CountDocuments(nil, bson.D{{"token", authToken}})
+		assert.Equal(t, int64(0), count)
+	})
+
+	t.Run("Unauthorized", func(t *testing.T) {
+		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+
+		request, _ := http.NewRequest("POST", "/logout/", nil)
+		request.Header.Add("Authorization", "Bearer c8db8f3c-6fa2-476c-9648-b31432dc3ff7")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
+
 }
 
 func login(email string) string {
