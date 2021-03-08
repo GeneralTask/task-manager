@@ -375,7 +375,7 @@ func getRouter(api *API) *gin.Engine {
 	// Allow CORS for frontend API requests
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = []string{"http://localhost:3000"}
-	corsConfig.AllowHeaders = []string{"Authorization"}
+	corsConfig.AllowHeaders = []string{"Authorization", "access-control-allow-origin", "access-control-allow-headers"}
 	router.Use(cors.New(corsConfig))
 
 	// Unauthenticated endpoints

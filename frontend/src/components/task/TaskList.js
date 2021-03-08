@@ -42,18 +42,21 @@ function fetchTasks(){
     fetch(TASKS_URL, {
         mode: 'cors',
         headers: {
-            "Authorization": 'Bearer ' + Cookies.get('authToken')
+            "Authorization": 'Bearer ' + Cookies.get('authToken'),
+            "Access-Control-Allow-Origin": "http://localhost:3000",
+            "Access-Control-Allow-Headers": "access-control-allow-origin, access-control-allow-headers"
+
         }
     })
     .then((res) => {
-        console.log({res});
+        if(!res.ok){
+            return Promise.reject("/tasks api call failed");
+        }
         const resj = res.json();
-        console.log({resj});
         return resj;
     })
     .then(
         (result) => {
-            console.log({result});
             store.dispatch(setTasks(result));
         },
         (error) => {
