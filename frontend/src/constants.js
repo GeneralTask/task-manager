@@ -1,5 +1,3 @@
-// URL Constants
-
 // Backend Endpoints
 export const BASE_URL = 'http://localhost:8080'
 export const TASKS_URL = BASE_URL + '/tasks'
@@ -7,7 +5,7 @@ export const JIRA_URL = BASE_URL + '/jira/authorize'
 export const LOGIN_URL = BASE_URL + '/login'
 
 // Frontend paths
-export const TASKS_PATH = '/'
+export const LANDING_PATH = '/'
 export const SETTINGS_PATH = '/settings'
 
 
