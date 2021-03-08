@@ -1,13 +1,14 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
-import { TASKS_PATH, SETTINGS_PATH } from '../constants'
+import { LANDING_PATH, SETTINGS_PATH } from '../constants'
+import Cookies from 'js-cookie'
 
 function Header(){
     return(
         <div className="header">
-            <Link to={TASKS_PATH}>Tasks</Link>
+            <Link to={LANDING_PATH}>Tasks</Link>
             <Link to={SETTINGS_PATH}>Settings</Link>
-            <button className="logout-btn" onClick={logout} >Logout</button>
+            <button className="logout-btn" onClick={logout} disabled={!Cookies.get('authToken')}>Logout</button>
         </div>
     )
 }
@@ -17,7 +18,7 @@ function Header(){
 // We'll probably want to set up a more robust logout involving the backend
 function logout(e){
     document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.location.href = TASKS_PATH;
+    document.location.href = LANDING_PATH;
 }
 
 export default Header;
