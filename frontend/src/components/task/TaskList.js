@@ -4,6 +4,7 @@ import Task from './Task'
 import store from '../../redux/store'
 import {setTasks, addTask, removeTask} from '../../redux/actions'
 import { TASKS_URL } from '../../constants'
+import Cookies from 'js-cookie';
 
 
 const sampleTask = {
@@ -38,7 +39,12 @@ function fetchDummyTasks(cb = ()=>{}){
 }
 
 function fetchTasks(){
-    fetch(TASKS_URL)
+    fetch(TASKS_URL, {
+        mode: 'cors',
+        headers: {
+            "Authorization": 'Bearer ' + Cookies.get('authToken')
+        }
+    })
     .then((res) => {
         console.log({res});
         const resj = res.json();
@@ -48,6 +54,7 @@ function fetchTasks(){
     .then(
         (result) => {
             console.log({result});
+            store.dispatch(setTasks(result));
         },
         (error) => {
             console.log({error});
