@@ -5,14 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go.mongodb.org/mongo-driver/mongo"
+	"google.golang.org/api/calendar/v3"
+	"google.golang.org/api/googleapi"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"go.mongodb.org/mongo-driver/mongo"
-	"google.golang.org/api/calendar/v3"
-	"google.golang.org/api/googleapi"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
