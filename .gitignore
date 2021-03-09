@@ -18,3 +18,5 @@
 
 # Terraform files
 infrastructure/.terraform/*
+
+*/.vscode
