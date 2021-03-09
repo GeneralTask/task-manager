@@ -5,13 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"go.mongodb.org/mongo-driver/mongo"
-	"google.golang.org/api/calendar/v3"
-	"google.golang.org/api/googleapi"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"google.golang.org/api/calendar/v3"
+	"google.golang.org/api/googleapi"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -111,6 +112,37 @@ func TestLoginCallback(t *testing.T) {
 		recorder = makeLoginCallbackRequest( "TSLA", "approved@generaltask.io")
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "TSLA")
+	})
+}
+
+func TestCORSHeaders(t *testing.T) {
+	t.Run("OPTIONS preflight request", func(t *testing.T) {
+		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		request, _ := http.NewRequest("OPTIONS", "/tasks/", nil)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		
+		assert.Equal(t, http.StatusNoContent, recorder.Code)
+		headers := recorder.Result().Header
+		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers", 
+			headers.Get("Access-Control-Allow-Headers"))
+		assert.Equal(t, "http://localhost:3000", headers.Get("Access-Control-Allow-Origin"))
+		assert.Equal(t, "POST, OPTIONS, GET, PUT", headers.Get("Access-Control-Allow-Methods"))
+	})
+	t.Run("GET request", func(t *testing.T) {
+		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		request, _ := http.NewRequest("GET", "/ping/", nil)
+		authToken := login("approved@generaltask.io")
+		request.Header.Add("Authorization", "Bearer " + authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		headers := recorder.Result().Header
+		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers", 
+			headers.Get("Access-Control-Allow-Headers"))
+		assert.Equal(t, "http://localhost:3000", headers.Get("Access-Control-Allow-Origin"))
+		assert.Equal(t, "POST, OPTIONS, GET, PUT", headers.Get("Access-Control-Allow-Methods"))
 	})
 }
 
