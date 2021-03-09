@@ -367,8 +367,23 @@ func getToken(c *gin.Context) string {
 	return token
 }
 
+// CORSMiddleware sets CORS headers, abort if CORS preflight request is received
+func CORSMiddleware(c *gin.Context) {
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers")
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+	if(c.Request.Method == "OPTIONS"){
+		c.AbortWithStatus(http.StatusNoContent)
+	}
+	c.Next()
+}
+
 func getRouter(api *API) *gin.Engine {
 	router := gin.Default()
+
+	// Allow CORS for frontend API requests
+	router.Use(CORSMiddleware)
+
 	// Unauthenticated endpoints
 	router.GET("/login/", api.login)
 	router.GET("/login/callback/", api.loginCallback)

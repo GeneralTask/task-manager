@@ -3,7 +3,8 @@ import { connect, useSelector } from 'react-redux'
 import Task from './Task'
 import store from '../../redux/store'
 import {setTasks, addTask, removeTask} from '../../redux/actions'
-import { TASKS_URL } from '../../constants'
+import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL } from '../../constants'
+import Cookies from 'js-cookie';
 
 
 const sampleTask = {
@@ -38,16 +39,24 @@ function fetchDummyTasks(cb = ()=>{}){
 }
 
 function fetchTasks(){
-    fetch(TASKS_URL)
+    fetch(TASKS_URL, {
+        mode: 'cors',
+        headers: {
+            'Authorization': 'Bearer ' + Cookies.get('authToken'),
+            'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
+            'Access-Control-Allow-Headers': 'access-control-allow-origin, access-control-allow-headers',
+        }
+    })
     .then((res) => {
-        console.log({res});
+        if(!res.ok){
+            return Promise.reject('/tasks api call failed');
+        }
         const resj = res.json();
-        console.log({resj});
         return resj;
     })
     .then(
         (result) => {
-            console.log({result});
+            store.dispatch(setTasks(result));
         },
         (error) => {
             console.log({error});

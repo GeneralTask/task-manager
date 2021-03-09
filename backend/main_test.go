@@ -114,6 +114,37 @@ func TestLoginCallback(t *testing.T) {
 	})
 }
 
+func TestCORSHeaders(t *testing.T) {
+	t.Run("OPTIONS preflight request", func(t *testing.T) {
+		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		request, _ := http.NewRequest("OPTIONS", "/tasks/", nil)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		
+		assert.Equal(t, http.StatusNoContent, recorder.Code)
+		headers := recorder.Result().Header
+		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers", 
+			headers.Get("Access-Control-Allow-Headers"))
+		assert.Equal(t, "http://localhost:3000", headers.Get("Access-Control-Allow-Origin"))
+		assert.Equal(t, "POST, OPTIONS, GET, PUT", headers.Get("Access-Control-Allow-Methods"))
+	})
+	t.Run("GET request", func(t *testing.T) {
+		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		request, _ := http.NewRequest("GET", "/ping/", nil)
+		authToken := login("approved@generaltask.io")
+		request.Header.Add("Authorization", "Bearer " + authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		headers := recorder.Result().Header
+		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers", 
+			headers.Get("Access-Control-Allow-Headers"))
+		assert.Equal(t, "http://localhost:3000", headers.Get("Access-Control-Allow-Origin"))
+		assert.Equal(t, "POST, OPTIONS, GET, PUT", headers.Get("Access-Control-Allow-Methods"))
+	})
+}
+
 func makeLoginCallbackRequest(googleToken string, email string) *httptest.ResponseRecorder {
 	mockConfig := MockGoogleConfig{}
 	mockToken := oauth2.Token{AccessToken: googleToken}
