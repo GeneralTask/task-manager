@@ -33,7 +33,7 @@ type GoogleRedirectParams struct {
 
 // GoogleUserInfo ...
 type GoogleUserInfo struct {
-	SUB   string `json:"sub"`
+	SUB string `json:"sub"`
 	EMAIL string `json:"email"`
 }
 
@@ -83,13 +83,13 @@ func getGoogleConfig() OauthConfigWrapper {
 	return &oauthConfigWrapper{Config: config}
 }
 
-var ALLOWED_USERNAMES = map[string]struct{}{
-	"jasonscharff@gmail.com":  struct{}{},
-	"jreinstra@gmail.com":     struct{}{},
-	"john@robinhood.com":      struct{}{},
-	"scottmai702@gmail.com":   struct{}{},
+var ALLOWED_USERNAMES = map[string]struct{} {
+	"jasonscharff@gmail.com": struct{}{},
+	"jreinstra@gmail.com": struct{}{},
+	"john@robinhood.com": struct{}{},
+	"scottmai702@gmail.com": struct{}{},
 	"sequoia@sequoiasnow.com": struct{}{},
-	"nolan1299@gmail.com":     struct{}{},
+	"nolan1299@gmail.com": struct{}{},
 }
 
 func (api *API) login(c *gin.Context) {
@@ -154,7 +154,7 @@ func (api *API) loginCallback(c *gin.Context) {
 	_, err = externalAPITokenCollection.UpdateOne(
 		nil,
 		bson.D{{"user_id", insertedUserID}},
-		bson.D{{"$set", &ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)}}},
+		bson.D{{"$set",  &ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)}}},
 		options.Update().SetUpsert(true),
 	)
 
@@ -166,7 +166,7 @@ func (api *API) loginCallback(c *gin.Context) {
 	_, err = internalAPITokenCollection.UpdateOne(
 		nil,
 		bson.D{{"user_id", insertedUserID}},
-		bson.D{{"$set", &InternalAPIToken{UserID: insertedUserID, Token: internalToken}}},
+		bson.D{{"$set",  &InternalAPIToken{UserID: insertedUserID, Token: internalToken} }},
 		options.Update().SetUpsert(true),
 	)
 
@@ -224,13 +224,12 @@ func (api *API) tasksList(c *gin.Context) {
 	c.JSON(200, allTasks)
 }
 
-func mergeTasks(calendarEvents []*Task, emails []*Task) []*Task {
-	// for now we'll just return *emails until we get merging logic done.
-	// changed to emails because gcal events were not loading
-	return emails
+func mergeTasks(calendarEvents []*Task, emails[]*Task) []*Task {
+	//for now we'll just return cal invites until we get merging logic done.
+	return calendarEvents
 }
 
-func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Task) {
+func loadEmails (c *gin.Context, client *http.Client, result chan <- []*Task) {
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
 	var userObject User
@@ -271,16 +270,16 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Task) {
 			IDOrdering: len(emails),
 			Sender:     sender,
 			Source:     TaskSourceGmail.Name,
-			Deeplink:   fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
+			Deeplink: 	fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
 			Title:      title,
-			Logo:       TaskSourceGmail.Logo,
+			Logo: 		TaskSourceGmail.Logo,
 		})
 	}
 
 	result <- emails
 }
 
-func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl *string) {
+func loadCalendarEvents (client *http.Client, result chan <- []*Task, overrideUrl *string) {
 	var events []*Task
 
 	var calendarService *calendar.Service
@@ -291,6 +290,7 @@ func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl 
 	} else {
 		calendarService, err = calendar.New(client)
 	}
+
 
 	if err != nil {
 		log.Fatalf("Unable to create Calendar service: %v", err)
@@ -334,13 +334,13 @@ func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl 
 			Deeplink:      event.HtmlLink,
 			Source:        TaskSourceGoogleCalendar.Name,
 			Title:         event.Summary,
-			Logo:          TaskSourceGoogleCalendar.Logo,
+			Logo: 		   TaskSourceGoogleCalendar.Logo,
 		})
 	}
 	result <- events
 }
 
-func (api *API) ping(c *gin.Context) {
+func (api *API) ping(c *gin.Context){
 	c.JSON(200, "success")
 }
 
