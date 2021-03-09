@@ -3,7 +3,7 @@ import { connect, useSelector } from 'react-redux'
 import Task from './Task'
 import store from '../../redux/store'
 import {setTasks, addTask, removeTask} from '../../redux/actions'
-import { TASKS_URL } from '../../constants'
+import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL } from '../../constants'
 import Cookies from 'js-cookie';
 
 
@@ -42,15 +42,14 @@ function fetchTasks(){
     fetch(TASKS_URL, {
         mode: 'cors',
         headers: {
-            "Authorization": 'Bearer ' + Cookies.get('authToken'),
-            "Access-Control-Allow-Origin": "http://localhost:3000",
-            "Access-Control-Allow-Headers": "access-control-allow-origin, access-control-allow-headers"
-
+            'Authorization': 'Bearer ' + Cookies.get('authToken'),
+            'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
+            'Access-Control-Allow-Headers': 'access-control-allow-origin, access-control-allow-headers',
         }
     })
     .then((res) => {
         if(!res.ok){
-            return Promise.reject("/tasks api call failed");
+            return Promise.reject('/tasks api call failed');
         }
         const resj = res.json();
         return resj;
