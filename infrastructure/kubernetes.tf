@@ -25,7 +25,7 @@ resource "kubernetes_deployment" "backend" {
       }
       spec {
         container {
-          image = "generaltask/task-manager:86d8026a"
+          image = "generaltask/task-manager:latest"
           name  = "task-manager"
 
           port {
