@@ -22,6 +22,11 @@ module "eks" {
       additional_security_group_ids = [aws_security_group.backend_servers.id]
     },
   ]
+
+  # This is here because we saw this error: https://github.com/terraform-aws-modules/terraform-aws-eks/issues/1205
+  workers_group_defaults = {
+  	root_volume_type = "gp2"
+  }
 }
 
 data "aws_eks_cluster" "cluster" {
