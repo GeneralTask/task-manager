@@ -1,6 +1,19 @@
+# Run Mock API:
+Install json-server: `sudo npm install json-server -g`
+
+Run the mock API server (make sure Go server is not running): `json-server --watch mock-api.json --port 8080`
+
+Test it out: `curl localhost:8080/tasks`
+
+Edit the mock API contents in mock-api.json
+
+---
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
 
 ## Available Scripts
 
