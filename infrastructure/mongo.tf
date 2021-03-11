@@ -16,7 +16,7 @@ resource "mongodbatlas_cluster" "main" {
   provider_instance_size_name = "M2"
 
   //These must be the following values
-  mongo_db_major_version = "4.2"
+  mongo_db_major_version = "4.4"
   auto_scaling_disk_gb_enabled = "false"
 }
 
@@ -38,8 +38,8 @@ resource "mongodbatlas_network_peering" "mongo_peer" {
   project_id             = mongodbatlas_project.main.id
   container_id           = mongodbatlas_network_container.main.container_id
   provider_name          = "AWS"
-  route_table_cidr_block = module.vpc.default_vpc_cidr_block
-  vpc_id                 = module.vpc.default_vpc_id
+  route_table_cidr_block = module.vpc.vpc_cidr_block
+  vpc_id                 = module.vpc.vpc_id
   aws_account_id         = data.aws_caller_identity.current.account_id
 }
 
