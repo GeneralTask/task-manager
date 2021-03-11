@@ -23,13 +23,20 @@ resource "mongodbatlas_cluster" "main" {
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity
 data "aws_caller_identity" "current" {}
 
+resource "mongodbatlas_network_container" "main" {
+    project_id       = mongodbatlas_project.main.id
+    atlas_cidr_block = "10.8.0.0/21"
+    provider_name    = "AWS"
+    region_name      = "US_WEST_2"
+  }
+
 # https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/network_peering
 # https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest?tab=outputs
 # Create the peering connection request
 resource "mongodbatlas_network_peering" "mongo_peer" {
   accepter_region_name   = var.region
   project_id             = mongodbatlas_project.main.id
-  container_id           = mongodbatlas_cluster.main.container_id
+  container_id           = mongodbatlas_network_container.main.container_id
   provider_name          = "AWS"
   route_table_cidr_block = module.vpc.default_vpc_cidr_block
   vpc_id                 = module.vpc.default_vpc_id
