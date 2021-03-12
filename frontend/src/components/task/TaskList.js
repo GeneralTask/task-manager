@@ -1,6 +1,6 @@
 import {React, useEffect} from 'react'
 import { connect, useSelector } from 'react-redux'
-import Task from './Task'
+import {ScheduledTask, NonScheduledTaskBlock} from './TaskWrappers'
 import store from '../../redux/store'
 import {setTasks} from '../../redux/actions'
 import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL } from '../../constants'
@@ -34,23 +34,23 @@ function fetchTasks(){
     )
 }
 
-function groupTasks(tasks){
+function groupTasks(tasks) {
     let inNonScheduledBlock = false; // if the previous task was not a calendar event
     let isScheduledTask; // if the current task is a scheduled (calendar) event
     const groupedTasks = [];
-    for(const task of tasks){
+    for (const task of tasks) {
         isScheduledTask = scheduledTaskypes.includes(task.source);
-        if(inNonScheduledBlock && !isScheduledTask){ // currently in a non-calendar block 
+        if (inNonScheduledBlock && !isScheduledTask) { // currently in a non-calendar block 
             groupedTasks[groupedTasks.length - 1].tasks.push(task);
         }
-        else if(isScheduledTask){  // is a scheduled event (e.g. gcal meeting)
+        else if (isScheduledTask) {  // is a scheduled event (e.g. gcal meeting)
             inNonScheduledBlock = false;
             groupedTasks.push({
                 isScheduledTask: true,
                 task
-            })          
+            })
         }
-        else{ // not a scheduled event (e.g. email or slack)
+        else { // not a scheduled event (e.g. email or slack)
             inNonScheduledBlock = true;
             groupedTasks.push({
                 isScheduledTask: false,
@@ -61,7 +61,7 @@ function groupTasks(tasks){
     return groupedTasks;
 }
 
-function TaskList(){
+function TaskList() {
 
     useEffect(() => {
         fetchTasks();
@@ -73,13 +73,13 @@ function TaskList(){
         <div>
             <h1 className="spacer40">My Tasks</h1>
 
-            {tasks.length === 0  && 
+            {tasks.length === 0 &&
                 <h2 className="spacer40">No Tasks :(</h2>
             }
-            { tasks.map((task) => 
-                task.isScheduledTask 
-                ? <Task task={task} key={task.id_ordering} /> 
-                : <Task task={task} key={task.id_ordering} />
+            { tasks.map((task) =>
+                task.isScheduledTask
+                    ? <ScheduledTask task={task} key={task.id_ordering} />
+                    : <NonScheduledTaskBlock task={task} key={task.id_ordering} />
             )}
         </div>
     );
