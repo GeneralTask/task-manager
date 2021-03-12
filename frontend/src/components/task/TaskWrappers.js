@@ -9,7 +9,11 @@ function ScheduledTask(props){
 
 function NonScheduledTaskBlock(props){
     return(
-        <Task {...props}/>
+        <div>
+            { props.tasks.map((task) => 
+                <Task task={task} key={task.id_ordering} />
+            )}
+        </div>
     )
 }
 

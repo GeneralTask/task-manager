@@ -1,4 +1,5 @@
 import React from 'react'
+import './Task.css'
 import TaskHeader from './TaskHeader'
 
 export default function Task(props){

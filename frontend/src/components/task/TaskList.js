@@ -73,13 +73,13 @@ function TaskList() {
         <div>
             <h1 className="spacer40">My Tasks</h1>
 
-            {tasks.length === 0 &&
+            {groupedTasks.length === 0 &&
                 <h2 className="spacer40">No Tasks :(</h2>
             }
-            { tasks.map((task) =>
-                task.isScheduledTask
-                    ? <ScheduledTask task={task} key={task.id_ordering} />
-                    : <NonScheduledTaskBlock task={task} key={task.id_ordering} />
+            { groupedTasks.map((taskGroup, index) =>
+                taskGroup.isScheduledTask
+                    ? <ScheduledTask task={taskGroup.task} key={index} />
+                    : <NonScheduledTaskBlock tasks={taskGroup.tasks} key={index} />
             )}
         </div>
     );
