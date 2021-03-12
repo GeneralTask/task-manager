@@ -27,7 +27,6 @@ function fetchTasks(){
     .then(
         (result) => {
             store.dispatch(setTasks(result));
-            console.log(groupTasks(result))
         },
         (error) => {
             console.log({error});
@@ -47,14 +46,14 @@ function groupTasks(tasks){
         else if(isScheduledTask){  // is a scheduled event (e.g. gcal meeting)
             inNonScheduledBlock = false;
             groupedTasks.push({
-                isScheduledEvent: true,
+                isScheduledTask: true,
                 task
             })          
         }
         else{ // not a scheduled event (e.g. email or slack)
             inNonScheduledBlock = true;
             groupedTasks.push({
-                isScheduledEvent: false,
+                isScheduledTask: false,
                 tasks: [task]
             })
         }
@@ -69,7 +68,7 @@ function TaskList(){
     }, [])
 
     const tasks = useSelector(state => state.tasks);
-    
+    const groupedTasks = groupTasks(tasks);
     return (
         <div>
             <h1 className="spacer40">My Tasks</h1>
@@ -78,7 +77,9 @@ function TaskList(){
                 <h2 className="spacer40">No Tasks :(</h2>
             }
             { tasks.map((task) => 
-                <Task task={task} key={task.id_ordering} />
+                task.isScheduledTask 
+                ? <Task task={task} key={task.id_ordering} /> 
+                : <Task task={task} key={task.id_ordering} />
             )}
         </div>
     );
