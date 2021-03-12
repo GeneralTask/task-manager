@@ -2,9 +2,11 @@ import {React, useEffect} from 'react'
 import { connect, useSelector } from 'react-redux'
 import Task from './Task'
 import store from '../../redux/store'
-import {setTasks} from '../../redux/actions'
+import {setTasks, setGroupedTasks} from '../../redux/actions'
 import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL } from '../../constants'
-import Cookies from 'js-cookie';
+import Cookies from 'js-cookie'
+
+const scheduledTaskypes = ['gcal']
 
 function fetchTasks(){
     fetch(TASKS_URL, {
@@ -25,11 +27,39 @@ function fetchTasks(){
     .then(
         (result) => {
             store.dispatch(setTasks(result));
+            console.log(groupTasks(result))
         },
         (error) => {
             console.log({error});
         }
     )
+}
+
+function groupTasks(tasks){
+    let inNonScheduledBlock = false; // if the previous task was not a calendar event
+    let isScheduledTask; // if the current task is a scheduled (calendar) event
+    const groupedTasks = [];
+    for(const task of tasks){
+        isScheduledTask = scheduledTaskypes.includes(task.source);
+        if(inNonScheduledBlock && !isScheduledTask){ // currently in a non-calendar block 
+            groupedTasks[groupedTasks.length - 1].tasks.push(task);
+        }
+        else if(isScheduledTask){  // is a scheduled event (e.g. gcal meeting)
+            inNonScheduledBlock = false;
+            groupedTasks.push({
+                isScheduledEvent: true,
+                task
+            })          
+        }
+        else{ // not a scheduled event (e.g. email or slack)
+            inNonScheduledBlock = true;
+            groupedTasks.push({
+                isScheduledEvent: false,
+                tasks: [task]
+            })
+        }
+    }
+    return groupedTasks;
 }
 
 function TaskList(){
