@@ -23,3 +23,10 @@ export function removeTask(taskId){
         taskId
     }
 }
+
+export function setGroupedTasks(groupedTasks){
+    return {
+        type: actions.SET_GROUPED_TASKS,
+        groupedTasks
+    }
+}

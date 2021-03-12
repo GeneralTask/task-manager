@@ -3,7 +3,8 @@ import reducer from './reducer';
 
 
 const initialState = {
-    tasks: []
+    tasks: [],          // raw list of task objects
+    grouped_tasks: [],  // computed list of task group objects
 }
 
 

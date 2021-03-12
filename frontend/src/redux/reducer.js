@@ -20,6 +20,12 @@ export default function reducer(state, action){
                 tasks: state.tasks.filter(task => task.id !== action.taskId)
             }
 
+        case actions.SET_GROUPED_TASKS:
+            return {
+                ...state,
+                groupedTasks: action.groupedTasks
+            }
+
         default:
             return state;
     }
