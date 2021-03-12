@@ -2,7 +2,7 @@ import {React, useEffect} from 'react'
 import { connect, useSelector } from 'react-redux'
 import Task from './Task'
 import store from '../../redux/store'
-import {setTasks, setGroupedTasks} from '../../redux/actions'
+import {setTasks} from '../../redux/actions'
 import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL } from '../../constants'
 import Cookies from 'js-cookie'
 
