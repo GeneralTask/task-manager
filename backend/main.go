@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
@@ -211,23 +212,39 @@ func (api *API) tasksList(c *gin.Context) {
 	config := getGoogleConfig()
 	client := config.Client(context.Background(), &token).(*http.Client)
 
-	var calendarEvents = make(chan []*Task)
+	var calendarEvents = make(chan []*CalendarEvent)
 	go loadCalendarEvents(client, calendarEvents, nil)
 
-	var emails = make(chan []*Task)
-	go loadEmails(c, client, emails)
+	var emails []*Email
+	//var emails = make(chan []*Email)
+	//go loadEmails(c, client, emails)
 
-	allTasks := mergeTasks(<-calendarEvents, <-emails)
+	var jiraTasks []*JIRATask
+
+	allTasks := mergeTasks(<-calendarEvents, emails, jiraTasks)
 
 	c.JSON(200, allTasks)
 }
 
-func mergeTasks(calendarEvents []*Task, emails[]*Task) []*Task {
-	//for now we'll just return cal invites until we get merging logic done.
-	return calendarEvents
+func mergeTasks(calendarEvents []*CalendarEvent, emails[]*Email, jiraTasks []*JIRATask) string/*[]*Task*/ {
+//	var tasks []*Task
+	timeTillFirstTask := time.Now().Sub(calendarEvents[0].DatetimeStart)
+
+	sort.SliceStable(calendarEvents, func(i, j int) bool {
+		return calendarEvents[i].DatetimeStart.Before(calendarEvents[j].DatetimeStart)
+	})
+
+	sort.SliceStable(emails, func(i, j int) bool {
+		return calendarEvents[i].DatetimeStart.Before(calendarEvents[j].DatetimeStart)
+	})
+
+	return timeTillFirstTask.String()
+
+
+	//return tasks
 }
 
-func loadEmails (c *gin.Context, client *http.Client, result chan <- []*Task) {
+func loadEmails (c *gin.Context, client *http.Client, result chan <- []*Email) {
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
 	var userObject User
@@ -235,7 +252,7 @@ func loadEmails (c *gin.Context, client *http.Client, result chan <- []*Task) {
 	userCollection := db.Collection("users")
 	err := userCollection.FindOne(nil, bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
 
-	var emails []*Task
+	var emails []*Email
 
 	gmailService, err := gmail.New(client)
 
@@ -262,23 +279,21 @@ func loadEmails (c *gin.Context, client *http.Client, result chan <- []*Task) {
 			}
 		}
 
-		emails = append(emails, &Task{
-			ID:         guuid.New().String(),
+		emails = append(emails, &Email{
 			IDExternal: threadListItem.Id,
-			IDOrdering: len(emails),
-			Sender:     sender,
-			Source:     TaskSourceGmail.Name,
+			SenderName:     sender,
+			SenderEmail: "",
+			Datetime: "",
+			Subject: title,
 			Deeplink: 	fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
-			Title:      title,
-			Logo: 		TaskSourceGmail.Logo,
 		})
 	}
 
 	result <- emails
 }
 
-func loadCalendarEvents (client *http.Client, result chan <- []*Task, overrideUrl *string) {
-	var events []*Task
+func loadCalendarEvents (client *http.Client, result chan <- []*CalendarEvent, overrideUrl *string) {
+	var events []*CalendarEvent
 
 	var calendarService *calendar.Service
 	var err error
@@ -323,16 +338,15 @@ func loadCalendarEvents (client *http.Client, result chan <- []*Task, overrideUr
 			continue
 		}
 
-		events = append(events, &Task{
-			ID:            guuid.New().String(),
+		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
+		endTime, _ :=  time.Parse(time.RFC3339, event.End.DateTime)
+
+		events = append(events, &CalendarEvent{
 			IDExternal:    event.Id,
-			IDOrdering:    len(events),
-			DatetimeEnd:   event.End.DateTime,
-			DatetimeStart: event.Start.DateTime,
-			Deeplink:      event.HtmlLink,
-			Source:        TaskSourceGoogleCalendar.Name,
+			DatetimeEnd:   endTime,
+			DatetimeStart: startTime,
 			Title:         event.Summary,
-			Logo: 		   TaskSourceGoogleCalendar.Logo,
+			Deeplink:	   event.HtmlLink,
 		})
 	}
 	result <- events

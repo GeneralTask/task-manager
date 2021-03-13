@@ -1,6 +1,9 @@
 package main
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
+)
 
 // https://www.mongodb.com/blog/post/quick-start-golang--mongodb--modeling-documents-with-go-data-structures
 
@@ -57,3 +60,27 @@ type TaskSource struct {
 //todo: replace with self-hosted logos: https://app.asana.com/0/1199951001302650/1200025401212320/f
 var TaskSourceGoogleCalendar = TaskSource{"gcal", "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Google_Calendar_icon.svg/1200px-Google_Calendar_icon.svg.png"}
 var TaskSourceGmail = TaskSource{"gmail", "https://1000logos.net/wp-content/uploads/2018/05/Gmail-logo.png"}
+
+type CalendarEvent struct {
+	IDExternal    string
+	DatetimeEnd   time.Time
+	DatetimeStart time.Time
+	Title         string
+	Deeplink	  string
+}
+
+type Email struct {
+	IDExternal    string
+	SenderName	  string
+	SenderEmail	  string
+	TimeSent      time.Time
+	Subject       string
+	Deeplink      string
+}
+
+type JIRATask struct {
+	IDExternal    string
+	TaskName	  string
+	DueDate	  	  time.Time
+	Priority 	  int
+}

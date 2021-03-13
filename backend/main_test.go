@@ -256,15 +256,12 @@ func TestCalendar(t *testing.T) {
 		ServerResponse:          googleapi.ServerResponse{HTTPStatusCode: 0},
 	}
 
-	standardTask := Task{
-		IDOrdering:    0,
+	standardCalendarEvent := CalendarEvent{
 		IDExternal:    "standard_event",
 		DatetimeStart: "2021-03-06T15:00:00-05:00",
 		DatetimeEnd:   "2021-03-06T15:30:00-05:00",
 		Deeplink:      "generaltask.io",
 		Title:         "Standard Event",
-		Source: 	   TaskSourceGoogleCalendar.Name,
-		Logo:          TaskSourceGoogleCalendar.Logo,
 	}
 
 	autoEvent := calendar.Event{
@@ -289,12 +286,15 @@ func TestCalendar(t *testing.T) {
 
 	server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
 	defer server.Close()
-	var calendarEvents = make(chan []*Task)
+	var calendarEvents = make(chan []*CalendarEvent)
 	go loadCalendarEvents(nil, calendarEvents, &server.URL)
 	result := <-calendarEvents
 	assert.Equal(t, 1, len(result))
 	firstTask := result[0]
-	assertTasksEqual(t, &standardTask, firstTask)
+	assert.Equal(t, firstTask.DatetimeStart, standardCalendarEvent.DatetimeStart)
+	assert.Equal(t, firstTask.DatetimeEnd, standardCalendarEvent.DatetimeEnd)
+	assert.Equal(t, firstTask.IDExternal, standardCalendarEvent.IDExternal)
+	assert.Equal(t, firstTask.Title, standardCalendarEvent.Title)
 }
 
 func getServerForTasks(events []*calendar.Event)  *httptest.Server {
@@ -311,12 +311,4 @@ func getServerForTasks(events []*calendar.Event)  *httptest.Server {
 		}
 		w.Write(b)
 	}))
-}
-
-func assertTasksEqual(t *testing.T, a *Task, b *Task) {
-	assert.Equal(t, a.DatetimeStart, b.DatetimeStart)
-	assert.Equal(t, a.DatetimeEnd, a.DatetimeEnd)
-	assert.Equal(t, a.IDExternal, b.IDExternal)
-	assert.Equal(t, a.Logo, b.Logo)
-	assert.Equal(t, a.Title, b.Title)
 }
