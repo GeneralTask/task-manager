@@ -3,10 +3,8 @@ import { connect, useSelector } from 'react-redux'
 import {ScheduledTask, NonScheduledTaskBlock} from './TaskWrappers'
 import store from '../../redux/store'
 import {setTasks} from '../../redux/actions'
-import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL } from '../../constants'
+import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL, SCHEDULED_TASK_TYPES } from '../../constants'
 import Cookies from 'js-cookie'
-
-const scheduledTaskypes = ['gcal']
 
 function fetchTasks(){
     fetch(TASKS_URL, {
@@ -39,7 +37,7 @@ function groupTasks(tasks) {
     let isScheduledTask; // if the current task is a scheduled (calendar) event
     const groupedTasks = [];
     for (const task of tasks) {
-        isScheduledTask = scheduledTaskypes.includes(task.source);
+        isScheduledTask = SCHEDULED_TASK_TYPES.includes(task.source);
         if (inNonScheduledBlock && !isScheduledTask) { // currently in a non-calendar block 
             groupedTasks[groupedTasks.length - 1].tasks.push(task);
         }
