@@ -11,7 +11,7 @@ resource "kubernetes_deployment" "backend" {
   }
 
   spec {
-    replicas = 10
+    replicas = 4
     selector {
       match_labels = {
         App = "Backend"
