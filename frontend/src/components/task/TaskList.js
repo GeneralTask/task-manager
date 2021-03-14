@@ -1,10 +1,10 @@
 import {React, useEffect} from 'react'
 import { connect, useSelector } from 'react-redux'
-import Task from './Task'
 import store from '../../redux/store'
 import {setTasks} from '../../redux/actions'
 import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL } from '../../constants'
 import Cookies from 'js-cookie';
+import {ScheduledTask} from './TaskWrappers'
 
 function fetchTasks(){
     fetch(TASKS_URL, {
@@ -47,8 +47,8 @@ function TaskList(){
             {tasks.length === 0  && 
                 <h2 className="spacer40">No Tasks :(</h2>
             }
-            { tasks.map((task) => 
-                <Task task={task} key={task.id_ordering} />
+            { tasks.map((task, index) => 
+                <ScheduledTask task={task} key={index}/>
             )}
         </div>
     );
