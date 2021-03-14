@@ -7,8 +7,7 @@
 .task-outer-div {
     border: 2px solid #cccccc;
     border-radius: 2px;
-    width: 80%;
-    margin: auto;
+    width: 60%;
     margin-bottom: 10px;
 }
 
@@ -131,4 +130,18 @@
 .spacer40{
     height: 40px;
     text-align: center;
+}
+
+.task-time-annotation {
+    color: #cccccc;
+    width: 10%;
+    margin-left: 10px;
+    font-size: 18px;
+}
+
+.scheduled-task {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
