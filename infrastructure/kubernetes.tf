@@ -83,7 +83,7 @@ resource "kubernetes_service" "backend" {
     }
     port {
       port        = 443
-      target_port = 5000
+      target_port = 8080
     }
 
     type = "LoadBalancer"
