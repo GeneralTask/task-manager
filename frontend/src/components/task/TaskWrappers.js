@@ -16,7 +16,7 @@ function ScheduledTask(props) {
     )
 }
 
-function NonScheduledTaskBlock(props) {
+function UnscheduledTaskGroup(props) {
     return (
         <div className="task-group">
             <div className="task-time-annotation" />
@@ -63,5 +63,5 @@ function getTimeStr(datetime1, datetime2){
 
 export {
     ScheduledTask,
-    NonScheduledTaskBlock,
+    UnscheduledTaskGroup,
 }

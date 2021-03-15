@@ -4,7 +4,7 @@ import store from '../../redux/store'
 import {setTasks} from '../../redux/actions'
 import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL, SCHEDULED_TASK, UNSCHEDULED_GROUP } from '../../constants'
 import Cookies from 'js-cookie';
-import {ScheduledTask, NonScheduledTaskBlock} from './TaskWrappers'
+import {ScheduledTask, UnscheduledTaskGroup} from './TaskWrappers'
 
 function fetchTasks(){
     fetch(TASKS_URL, {
@@ -50,7 +50,7 @@ function TaskList(){
         }
         else if(taskGroup.type === UNSCHEDULED_GROUP){
             const tasksSplice = taskGroup.task_ids.map(taskIndex => tasks[taskIndex]);
-            return <NonScheduledTaskBlock tasks={tasksSplice} key={index} />
+            return <UnscheduledTaskGroup tasks={tasksSplice} key={index} />
         }
     }
     
