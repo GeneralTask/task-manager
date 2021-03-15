@@ -3,7 +3,8 @@ import reducer from './reducer';
 
 
 const initialState = {
-    tasks: []
+    tasks: [],
+    group_tasks: [],
 }
 
 

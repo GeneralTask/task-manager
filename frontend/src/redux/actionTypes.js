@@ -1,3 +1,5 @@
-export const SET_TASKS = "setTasks";
-export const ADD_TASK = "addTask";
-export const REMOVE_TASK = "removeTask";
+export const SET_TASKS_AND_GROUPS = "setTasksAndGroups"
+export const SET_TASKS = "setTasks"
+export const ADD_TASK = "addTask"
+export const REMOVE_TASK = "removeTask"
+export const SET_TASK_GROUPS = "setTaskGroups"

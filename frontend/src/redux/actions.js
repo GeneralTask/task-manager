@@ -23,3 +23,13 @@ export function removeTask(taskId){
         taskId
     }
 }
+
+export function setGroupTasks(task_groups){
+    if(!task_groups){
+        task_groups = [];
+    }
+    return {
+        type: actions.SET_TASK_GROUPS,
+        task_groups
+    }
+}
