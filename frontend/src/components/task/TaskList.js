@@ -51,7 +51,6 @@ function TaskList(){
         }
         else if(taskGroup.type === TASK_GROUP_UNSCHEDULED_GROUP){
             const tasksSplice = taskGroup.task_ids.map(taskId => tasks[id_to_index.get(taskId)]);
-            console.log({tasksSplice})
             return <UnscheduledTaskGroup tasks={tasksSplice} key={index} />
         }
     }
