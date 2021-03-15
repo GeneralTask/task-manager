@@ -35,7 +35,7 @@
                 "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Google_Calendar_icon.svg/1200px-Google_Calendar_icon.svg.png"
             },
             {
-                "id": "2",
+                "id": "4",
                 "id_external": "2",
                 "id_ordering": 3,
                 "datetime_end": null,
@@ -61,19 +61,28 @@
         "task_groups": [
             {
                 "type": "unscheduled_group",
-                "task_ids": [0, 1]
+                "task_ids": [
+                    "1", 
+                    "2"
+                ]
             },
             {
                 "type": "scheduled_task",
-                "task_ids": [2]
+                "task_ids": [
+                    "f2aba811-2bfd-4558-9ef0-96048a1e6b0b"
+                ]
             },
             {
                 "type": "unscheduled_group",
-                "task_ids": [3]
+                "task_ids": [
+                    "4"
+                ]
             },
             {
                 "type": "scheduled_task",
-                "task_ids": [4]
+                "task_ids": [
+                    "c72b41a6-c0d5-46bb-b868-f7021bdd8ae9"
+                ]
             }
         ]
     }

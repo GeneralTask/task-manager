@@ -40,16 +40,18 @@ function TaskList(){
 
     const tasks = useSelector(state => state.tasks);
     const task_groups = useSelector(state => state.task_groups);
+    const id_to_index = new Map(tasks.map((task, index) => [task.id, index]));
 
     function renderTaskGroup(taskGroup, index){
         if(taskGroup.type === TASK_GROUP_SCHEDULED_TASK){
-            if(taskGroup.task_ids.length != 0){
-                const scheduledTask = tasks[taskGroup.task_ids[0]];
+            if(taskGroup.task_ids.length !== 0){
+                const scheduledTask = tasks[id_to_index.get(taskGroup.task_ids[0])];
                 return <ScheduledTask task={scheduledTask} key={index} />
             }
         }
         else if(taskGroup.type === TASK_GROUP_UNSCHEDULED_GROUP){
-            const tasksSplice = taskGroup.task_ids.map(taskIndex => tasks[taskIndex]);
+            const tasksSplice = taskGroup.task_ids.map(taskId => tasks[id_to_index.get(taskId)]);
+            console.log({tasksSplice})
             return <UnscheduledTaskGroup tasks={tasksSplice} key={index} />
         }
     }
