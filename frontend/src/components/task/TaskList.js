@@ -24,7 +24,7 @@ function fetchTasks(){
     })
     .then(
         (result) => {
-            store.dispatch(setTasks(result));
+            store.dispatch(setTasks(result.tasks, result.task_groups));
         },
         (error) => {
             console.log({error});
