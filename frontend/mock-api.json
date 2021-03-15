@@ -72,7 +72,7 @@
                 "task_ids": [3]
             },
             {
-                "type": "unscheduled_group",
+                "type": "scheduled_task",
                 "task_ids": [4]
             }
         ]

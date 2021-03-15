@@ -2,9 +2,9 @@ import {React, useEffect} from 'react'
 import { connect, useSelector } from 'react-redux'
 import store from '../../redux/store'
 import {setTasks} from '../../redux/actions'
-import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL } from '../../constants'
+import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL, SCHEDULED_TASK, UNSCHEDULED_GROUP } from '../../constants'
 import Cookies from 'js-cookie';
-import {ScheduledTask} from './TaskWrappers'
+import {ScheduledTask, NonScheduledTaskBlock} from './TaskWrappers'
 
 function fetchTasks(){
     fetch(TASKS_URL, {
@@ -39,6 +39,20 @@ function TaskList(){
     }, [])
 
     const tasks = useSelector(state => state.tasks);
+    const task_groups = useSelector(state => state.task_groups);
+
+    function renderTaskGroup(taskGroup, index){
+        if(taskGroup.type === SCHEDULED_TASK){
+            if(taskGroup.task_ids.length != 0){
+                const scheduledTask = tasks[taskGroup.task_ids[0]];
+                return <ScheduledTask task={scheduledTask} key={index} />
+            }
+        }
+        else if(taskGroup.type === UNSCHEDULED_GROUP){
+            const tasksSplice = taskGroup.task_ids.map(taskIndex => tasks[taskIndex]);
+            return <NonScheduledTaskBlock tasks={tasksSplice} key={index} />
+        }
+    }
     
     return (
         <div>
@@ -47,9 +61,7 @@ function TaskList(){
             {tasks.length === 0  && 
                 <h2 className="spacer40">No Tasks :(</h2>
             }
-            { tasks.map((task, index) => 
-                <ScheduledTask task={task} key={index}/>
-            )}
+            { task_groups.map(renderTaskGroup) }
         </div>
     );
 }
