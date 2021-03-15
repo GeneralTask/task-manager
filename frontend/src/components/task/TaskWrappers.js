@@ -26,7 +26,7 @@ function UnscheduledTaskGroup(props) {
                 )}
             </div>
             <div className="task-time-annotation">
-                I am Groop
+                45 mins
             </div>
         </div>
     )
