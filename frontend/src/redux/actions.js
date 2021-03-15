@@ -1,12 +1,6 @@
 import * as actions from './actionTypes';
 
 export function setTasks(tasks, task_groups){
-    if(!tasks){
-        tasks = [];
-    }
-    if(!task_groups){
-        task_groups = [];
-    }
     return {
         type: actions.SET_TASKS,
         tasks,
