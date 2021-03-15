@@ -2,19 +2,13 @@ import * as actions from './actionTypes';
 
 export default function reducer(state, action){
     switch (action.type) {
-
-        // used for populating both tasks and group_tasks after fetching from /tasks
-        case actions.SET_TASKS_AND_GROUPS:
-            return {
-                ...state,
-                tasks: action.tasks,
-                group_tasks: action.task_groups
-            }
         
+        // tasks will never be set without task_groups        
         case actions.SET_TASKS:
             return {
                 ...state,
                 tasks: action.tasks,
+                group_tasks: action.task_groups
             }
 
         case actions.ADD_TASK:

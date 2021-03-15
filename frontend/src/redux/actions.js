@@ -1,12 +1,16 @@
 import * as actions from './actionTypes';
 
-export function setTasks(tasks){
+export function setTasks(tasks, task_groups){
     if(!tasks){
         tasks = [];
     }
+    if(!task_groups){
+        task_groups = [];
+    }
     return {
         type: actions.SET_TASKS,
-        tasks
+        tasks,
+        task_groups,
     }
 }
 
@@ -24,7 +28,7 @@ export function removeTask(taskId){
     }
 }
 
-export function setGroupTasks(task_groups){
+export function setTaskGroups(task_groups){
     if(!task_groups){
         task_groups = [];
     }
