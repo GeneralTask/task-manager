@@ -7,7 +7,6 @@
 .task-outer-div {
     border: 2px solid #cccccc;
     border-radius: 2px;
-    width: 60%;
     margin-bottom: 10px;
 }
 
@@ -139,9 +138,13 @@
     font-size: 18px;
 }
 
-.scheduled-task {
+.task-group {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+}
+
+.task-group-tasks {
+    width: 60%;
 }

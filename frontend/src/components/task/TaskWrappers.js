@@ -3,25 +3,31 @@ import Task from './Task'
 const moment = require('moment');
 
 function ScheduledTask(props) {
-    const timeStr = getTimeStr(props.task.datetime_start, props.task.datetime_end);
-    console.log({timeStr})
     return (
-        <div className="scheduled-task">
+        <div className="task-group">
             <div className="task-time-annotation" />
-            <Task {...props} />
+            <div className="task-group-tasks">
+                <Task {...props} />
+            </div>
             <div className="task-time-annotation">
-                {timeStr}
+                {getTimeStr(props.task.datetime_start, props.task.datetime_end)}
             </div>
         </div>
     )
 }
 
-function NonScheduledTaskBlock(props) {
+function UnscheduledTaskGroup(props) {
     return (
-        <div>
-            { props.tasks.map((task) =>
-                <Task task={task} key={task.id_ordering} />
-            )}
+        <div className="task-group">
+            <div className="task-time-annotation" />
+            <div className="task-group-tasks">
+                { props.tasks.map((task) =>
+                    <Task task={task} key={task.id_ordering} />
+                )}
+            </div>
+            <div className="task-time-annotation">
+                45 mins
+            </div>
         </div>
     )
 }
@@ -57,5 +63,5 @@ function getTimeStr(datetime1, datetime2){
 
 export {
     ScheduledTask,
-    NonScheduledTaskBlock,
+    UnscheduledTaskGroup,
 }

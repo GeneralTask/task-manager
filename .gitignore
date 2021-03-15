@@ -21,3 +21,4 @@ infrastructure/.terraform/*
 *.terraform*
 
 */.vscode
+.vscode/
