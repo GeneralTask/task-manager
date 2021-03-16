@@ -25,8 +25,9 @@ function UnscheduledTaskGroup(props) {
                     <Task task={task} key={task.id_ordering} />
                 )}
             </div>
-            <div className="task-time-annotation">
-                45 mins
+            <div className="task-time-annotation unscheduled-time-annotation-container">
+                <div className="unscheduled-spanbar"></div>
+                <div className="unscheduled-time-annotation">45 mins</div>
             </div>
         </div>
     )

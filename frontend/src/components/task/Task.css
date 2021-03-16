@@ -7,7 +7,8 @@
 .task-outer-div {
     border: 2px solid #cccccc;
     border-radius: 2px;
-    margin-bottom: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .task-header{
@@ -132,10 +133,11 @@
 }
 
 .task-time-annotation {
-    color: #cccccc;
+    color: #969696;
     width: 10%;
     margin-left: 10px;
     font-size: 18px;
+    font-weight: 600;
 }
 
 .task-group {
@@ -143,8 +145,28 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .task-group-tasks {
     width: 60%;
+}
+
+.unscheduled-time-annotation-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100%;
+}
+
+.unscheduled-spanbar {
+    background-color:  #969696;
+    width: 2px;
+    height: calc(100% - 10px);
+    position: absolute;
+}
+
+.unscheduled-time-annotation {
+    margin-left: 20px;
 }
