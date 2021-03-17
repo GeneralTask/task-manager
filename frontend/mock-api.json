@@ -64,26 +64,30 @@
                 "task_ids": [
                     "1", 
                     "2"
-                ]
+                ],
+                "time_duration": "1 hour 12 mins"
             },
             {
                 "type": "scheduled_task",
                 "task_ids": [
                     "f2aba811-2bfd-4558-9ef0-96048a1e6b0b"
-                ]
+                ],
+                "time_duration": "1 hour"
             },
             {
                 "type": "unscheduled_group",
                 "task_ids": [
                     "4"
-                ]
+                ],
+                "time_duration": "30 mins"
             },
             {
                 "type": "scheduled_task",
                 "task_ids": [
                     "c72b41a6-c0d5-46bb-b868-f7021bdd8ae9"
-                ]
+                ],
+                "time_duration": "1 hour 30 mins"
             }
-        ]
+        ] 
     }
 }
