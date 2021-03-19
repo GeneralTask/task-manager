@@ -46,12 +46,12 @@ function TaskList(){
         if(taskGroup.type === TASK_GROUP_SCHEDULED_TASK){
             if(taskGroup.task_ids.length !== 0){
                 const scheduledTask = tasks[id_to_index.get(taskGroup.task_ids[0])];
-                return <ScheduledTask task={scheduledTask} key={index} />
+                return <ScheduledTask task={scheduledTask} key={index} time_duration={taskGroup.time_duration} />
             }
         }
         else if(taskGroup.type === TASK_GROUP_UNSCHEDULED_GROUP){
             const tasksSplice = taskGroup.task_ids.map(taskId => tasks[id_to_index.get(taskId)]);
-            return <UnscheduledTaskGroup tasks={tasksSplice} key={index} />
+            return <UnscheduledTaskGroup tasks={tasksSplice} key={index} time_duration={taskGroup.time_duration} />
         }
     }
     

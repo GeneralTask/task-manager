@@ -10,7 +10,7 @@ function ScheduledTask(props) {
                 <Task {...props} />
             </div>
             <div className="task-time-annotation">
-                {getTimeStr(props.task.datetime_start, props.task.datetime_end)}
+                {props.time_duration}
             </div>
         </div>
     )
@@ -27,7 +27,7 @@ function UnscheduledTaskGroup(props) {
             </div>
             <div className="task-time-annotation unscheduled-time-annotation-container">
                 <div className="unscheduled-spanbar"></div>
-                <div className="unscheduled-time-annotation">45 mins</div>
+                <div className="unscheduled-time-annotation">{props.time_duration}</div>
             </div>
         </div>
     )
