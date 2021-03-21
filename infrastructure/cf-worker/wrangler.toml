@@ -1,0 +1,4 @@
+name = "cf-worker"
+type = "javascript"
+workers_dev = false
+route = "www.generaltask.io"
