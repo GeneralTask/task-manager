@@ -32,6 +32,15 @@ resource "kubernetes_deployment" "backend" {
             container_port = 8080
           }
         }
+        env {
+          name = "MONGO_URI"
+          value_from {
+            secret_key_ref {
+              name  = "mongo-uri"
+              key = "monbo_uri"
+            }
+          }
+        }
 
         image_pull_secrets {
           name = "docker-config"
@@ -108,6 +117,6 @@ resource "kubernetes_secret" "mongo_uri" {
   }
 
   data = {
-    "MONGO_URI" = mongodbatlas_cluster.main.mongo_uri
+    "mongo_uri" = mongodbatlas_cluster.main.mongo_uri
   }
 }
