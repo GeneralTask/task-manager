@@ -27,6 +27,15 @@ resource "kubernetes_deployment" "backend" {
         container {
           image = "johngeneraltask/task-manager:latest"
           name  = "task-manager"
+          env {
+            name = "MONGO_URI"
+            value_from {
+              secret_key_ref {
+                name  = "mongo-uri"
+                key = "monbo_uri"
+              }
+            }
+          }
 
           port {
             container_port = 8080
@@ -100,4 +109,14 @@ resource "kubernetes_secret" "docker_config" {
   }
 
   type = "kubernetes.io/dockerconfigjson"
+}
+
+resource "kubernetes_secret" "mongo_uri" {
+  metadata {
+    name = "mongo-uri"
+  }
+
+  data = {
+    "mongo_uri" = mongodbatlas_cluster.main.mongo_uri
+  }
 }

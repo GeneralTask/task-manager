@@ -6,6 +6,9 @@ resource "mongodbatlas_project" "main" {
 resource "mongodbatlas_cluster" "main" {
   project_id              = mongodbatlas_project.main.id
   name                    = "main"
+
+  cluster_type = "SHARDED"
+  num_shards = 2
   //M2 must be 2, M5 must be 5
   disk_size_gb            = "2"
 
