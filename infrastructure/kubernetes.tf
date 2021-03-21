@@ -27,18 +27,18 @@ resource "kubernetes_deployment" "backend" {
         container {
           image = "johngeneraltask/task-manager:latest"
           name  = "task-manager"
+          env {
+            name = "MONGO_URI"
+            value_from {
+              secret_key_ref {
+                name  = "mongo-uri"
+                key = "monbo_uri"
+              }
+            }
+          }
 
           port {
             container_port = 8080
-          }
-        }
-        env {
-          name = "MONGO_URI"
-          value_from {
-            secret_key_ref {
-              name  = "mongo-uri"
-              key = "monbo_uri"
-            }
           }
         }
 
