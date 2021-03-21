@@ -101,3 +101,13 @@ resource "kubernetes_secret" "docker_config" {
 
   type = "kubernetes.io/dockerconfigjson"
 }
+
+resource "kubernetes_secret" "mongo_uri" {
+  metadata {
+    name = "mongo-uri"
+  }
+
+  data = {
+    "MONGO_URI" = mongodbatlas_cluster.main.mongo_uri
+  }
+}
