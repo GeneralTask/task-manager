@@ -17,6 +17,7 @@ func GetDBConnection() (*mongo.Database, func()) {
 	if !mongoURIExists {
 		mongoURI = "mongodb://root:example@localhost:27017"
 	}
+	log.Println("Mongo URI:" + mongoURI)
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Fatalf("Failed to create mongo DB client: %v", err)
