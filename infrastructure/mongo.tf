@@ -7,8 +7,8 @@ resource "mongodbatlas_cluster" "main" {
   project_id              = mongodbatlas_project.main.id
   name                    = "main"
 
-  cluster_type = "SHARDED"
-  num_shards = 2
+  // M30 is required ($380 / mo) to do sharded
+  cluster_type = "REPLICASET"
   //M2 must be 2, M5 must be 5
   disk_size_gb = "10"
 
