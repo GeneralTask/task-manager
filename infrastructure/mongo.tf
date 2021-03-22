@@ -84,7 +84,7 @@ resource "aws_vpc_endpoint" "ptfe_service" {
   vpc_id             = module.vpc.vpc_id
   service_name       = mongodbatlas_privatelink_endpoint.atlaspl.endpoint_service_name
   vpc_endpoint_type  = "Interface"
-  subnet_ids         = concat(module.vpc.private_subnets, module.vpc.public_subnets)
+  subnet_ids         = [aws_subnet.primary-az1.id, aws_subnet.primary-az2.id]
   security_group_ids = [aws_security_group.backend_servers.id]
 }
 
