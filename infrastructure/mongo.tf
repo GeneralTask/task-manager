@@ -58,10 +58,10 @@ resource "aws_vpc_peering_connection_accepter" "aws_peer" {
 # Worth exploring: https://github.com/nikhil-mongo/aws-atlas-privatelink
 
 # Trying out privatelink setup
-//Subnet-A
+//Subnet-A (TODO: use the ones from the VPC module)
 resource "aws_subnet" "primary-az1" {
   vpc_id                  = module.vpc.vpc_id
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = "10.0.7.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "${var.region}a"
 }
@@ -69,7 +69,7 @@ resource "aws_subnet" "primary-az1" {
 //Subnet-B
 resource "aws_subnet" "primary-az2" {
   vpc_id                  = module.vpc.vpc_id
-  cidr_block              = "10.0.2.0/24"
+  cidr_block              = "10.0.8.0/24"
   map_public_ip_on_launch = false
   availability_zone       = "${var.region}b"
 }
