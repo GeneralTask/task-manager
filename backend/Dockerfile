@@ -8,7 +8,13 @@ RUN apk add --no-cache git
 # RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.6/main' >> /etc/apk/repositories
 # RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.6/community' >> /etc/apk/repositories
 # RUN apk update &&  apk --no-cache --update add openjdk11 && apk --no-cache --update add mongodb
-RUN apk add python3 && apk add py3-pip
+
+# [temporary] Install python/pip
+# https://stackoverflow.com/questions/62554991/how-do-i-install-python-on-alpine-linux
+ENV PYTHONUNBUFFERED=1
+RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache --upgrade pip setuptools
 
 # Set the Current Working Directory inside the container
 WORKDIR /tmp/backend
