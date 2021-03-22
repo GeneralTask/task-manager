@@ -32,7 +32,7 @@ resource "kubernetes_deployment" "backend" {
             value_from {
               secret_key_ref {
                 name  = "mongo-uri"
-                key = "monbo_uri"
+                key = "mongo_uri"
               }
             }
           }
