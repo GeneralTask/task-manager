@@ -13,8 +13,8 @@ resource "mongodbatlas_cluster" "main" {
   disk_size_gb = "10"
 
   //Provider Settings "block"
-  provider_name = "AWS"
-  provider_region_name = "US_WEST_2"
+  provider_name = var.provider_name
+  provider_region_name = var.region_atlas
   provider_instance_size_name = "M10"
 
   //These must be the following values
@@ -25,14 +25,21 @@ resource "mongodbatlas_cluster" "main" {
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity
 data "aws_caller_identity" "current" {}
 
+resource "mongodbatlas_network_container" "main" {
+    project_id       = mongodbatlas_project.main.id
+    atlas_cidr_block = "10.8.0.0/21"
+    provider_name    = var.provider_name
+    region_name      = var.region_atlas
+  }
+
 # https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/network_peering
 # https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest?tab=outputs
 # Create the peering connection request
 resource "mongodbatlas_network_peering" "mongo_peer" {
   accepter_region_name   = var.region
   project_id             = mongodbatlas_project.main.id
-  container_id           = mongodbatlas_cluster.main.container_id
-  provider_name          = "AWS"
+  container_id           = mongodbatlas_network_container.main.container_id
+  provider_name          = var.provider_name
   route_table_cidr_block = module.vpc.vpc_cidr_block
   vpc_id                 = module.vpc.vpc_id
   aws_account_id         = data.aws_caller_identity.current.account_id
@@ -46,4 +53,43 @@ resource "aws_vpc_peering_connection_accepter" "aws_peer" {
   tags = {
     Side = "Accepter"
   }
+}
+
+# Worth exploring: https://github.com/nikhil-mongo/aws-atlas-privatelink
+
+# Trying out privatelink setup
+//Subnet-A
+resource "aws_subnet" "primary-az1" {
+  vpc_id                  = module.vpc.vpc_id
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "${var.region}a"
+}
+
+//Subnet-B
+resource "aws_subnet" "primary-az2" {
+  vpc_id                  = module.vpc.vpc_id
+  cidr_block              = "10.0.2.0/24"
+  map_public_ip_on_launch = false
+  availability_zone       = "${var.region}b"
+}
+
+resource "mongodbatlas_private_endpoint" "atlaspl" {
+  project_id    = mongodbatlas_project.main.id
+  provider_name = var.provider_name
+  region        = var.region
+}
+
+resource "aws_vpc_endpoint" "ptfe_service" {
+  vpc_id             = module.vpc.vpc_id
+  service_name       = mongodbatlas_private_endpoint.atlaspl.endpoint_service_name
+  vpc_endpoint_type  = "Interface"
+  subnet_ids         = [aws_subnet.primary-az1.id, aws_subnet.primary-az2.id]
+  security_group_ids = [aws_security_group.all_worker_mgmt.id]
+}
+
+resource "mongodbatlas_private_endpoint_interface_link" "atlaseplink" {
+  project_id            = mongodbatlas_private_endpoint.atlaspl.project_id
+  private_link_id       = mongodbatlas_private_endpoint.atlaspl.private_link_id
+  interface_endpoint_id = aws_vpc_endpoint.ptfe_service.id
 }
