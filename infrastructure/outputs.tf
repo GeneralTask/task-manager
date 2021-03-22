@@ -37,10 +37,6 @@ output "mongodb_uri" {
     value = mongodbatlas_cluster.main.mongo_uri
 }
 
-output "mongodb_uri_private" {
-    value = mongodbatlas_cluster.main.connection_strings[0].private
-}
-
-output "plstring" {
-    value = lookup(mongodbatlas_cluster.main.connection_strings[0].private_endpoint[0].srv_connection_string, aws_vpc_endpoint.ptfe_service.id)
+output "mongodb_uris" {
+    value = mongodbatlas_cluster.main.connection_strings
 }
