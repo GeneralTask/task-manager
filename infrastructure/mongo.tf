@@ -10,13 +10,13 @@ resource "mongodbatlas_cluster" "main" {
   cluster_type = "SHARDED"
   num_shards = 2
   //M2 must be 2, M5 must be 5
-  disk_size_gb            = "2"
+  disk_size_gb            = "10"
 
   //Provider Settings "block"
   provider_name = "TENANT"
   backing_provider_name = "AWS"
   provider_region_name = "US_WEST_2"
-  provider_instance_size_name = "M2"
+  provider_instance_size_name = "M10"
 
   //These must be the following values
   mongo_db_major_version = "4.4"
