@@ -345,6 +345,7 @@ func (api *API) dbPing(c *gin.Context) {
 }
 
 func (api *API) ping(c *gin.Context) {
+	log.Println("success!")
 	c.JSON(200, "success")
 }
 
@@ -359,6 +360,7 @@ func tokenMiddleware(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
 	}
+	log.Println("User ID below!")
 	log.Println(internalToken.UserID)
 	c.Set("user", internalToken.UserID)
 }
