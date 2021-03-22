@@ -1,0 +1,3 @@
+# Infrastructure
+
+This folder contains terraform configuration files to set up a kubernetes cluster in AWS using EKS. The kubernetes cluster + load balancer + docker pipeline has been tested and confirmed to work, but the connection from the kube pods to the mongo db cluster is timing out. For now, we are going to use Heroku + MongoDB Atlas UI for hosting this application, and will continue debugging the connection timeouts when it makes sense to invest more time in infrastructure.
