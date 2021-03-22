@@ -117,6 +117,6 @@ resource "kubernetes_secret" "mongo_uri" {
   }
 
   data = {
-    "mongo_uri" = mongodbatlas_cluster.main.mongo_uri
+    "mongo_uri" = lookup(mongodbatlas_cluster.main.connection_strings[0].aws_private_link_srv, aws_vpc_endpoint.ptfe_service.id)
   }
 }
