@@ -36,3 +36,7 @@ output "load_balancer_ip" {
 output "mongodb_uri" {
     value = mongodbatlas_cluster.main.mongo_uri
 }
+
+output "mongodb_uris" {
+    value = mongodbatlas_cluster.main.connection_strings
+}
