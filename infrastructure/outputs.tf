@@ -37,7 +37,7 @@ output "mongodb_uri" {
     value = mongodbatlas_cluster.main.mongo_uri
 }
 
-output "mongodb_uris" {
+output "mongodb_connection_strings" {
     value = mongodbatlas_cluster.main.connection_strings
 }
 output "plstring" {
