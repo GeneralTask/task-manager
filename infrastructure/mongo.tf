@@ -74,7 +74,7 @@ resource "aws_subnet" "primary-az2" {
   availability_zone       = "${var.region}b"
 }
 
-resource "mongodbatlas_private_endpoint" "atlaspl" {
+resource "mongodbatlas_privatelink_endpoint" "atlaspl" {
   project_id    = mongodbatlas_project.main.id
   provider_name = var.provider_name
   region        = var.region
@@ -88,8 +88,9 @@ resource "aws_vpc_endpoint" "ptfe_service" {
   security_group_ids = [aws_security_group.all_worker_mgmt.id]
 }
 
-resource "mongodbatlas_private_endpoint_interface_link" "atlaseplink" {
+resource "mongodbatlas_privatelink_endpoint_service" "atlaseplink" {
   project_id            = mongodbatlas_private_endpoint.atlaspl.project_id
   private_link_id       = mongodbatlas_private_endpoint.atlaspl.private_link_id
-  interface_endpoint_id = aws_vpc_endpoint.ptfe_service.id
+  endpoint_service_id = aws_vpc_endpoint.ptfe_service.id
+  provider_name = var.provider_name
 }
