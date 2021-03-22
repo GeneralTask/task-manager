@@ -41,5 +41,5 @@ output "mongodb_connection_strings" {
     value = mongodbatlas_cluster.main.connection_strings
 }
 output "plstring" {
-  value = lookup(mongodbatlas_cluster.main.connection_strings[0].aws_private_link_srv, aws_vpc_endpoint.ptfe_service.id)
+  value = lookup(mongodbatlas_cluster.main.connection_strings[0].aws_private_link, aws_vpc_endpoint.ptfe_service.id)
 }
