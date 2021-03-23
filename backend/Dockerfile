@@ -3,6 +3,13 @@ FROM golang:1.15-alpine AS build_base
 
 RUN apk add --no-cache git
 
+# Add ca-certificates
+RUN apk update \
+    && apk upgrade \
+    && apk add --no-cache \
+    ca-certificates \
+    && update-ca-certificates 2>/dev/null || true
+
 # Set the Current Working Directory inside the container
 WORKDIR /tmp/backend
 
