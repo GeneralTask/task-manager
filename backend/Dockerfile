@@ -5,10 +5,10 @@ RUN apk add --no-cache git
 
 # [temporary] Install mongo DB shell
 # https://stackoverflow.com/questions/59762376/issue-installing-mongodb-on-alpine-image
-RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.6/main' >> /etc/apk/repositories
-RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.6/community' >> /etc/apk/repositories
-RUN apk update &&  apk --no-cache --update add openjdk11 && apk --no-cache --update add mongodb
-RUN apk --update add mongodb-tools
+# RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.6/main' >> /etc/apk/repositories
+# RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.6/community' >> /etc/apk/repositories
+# RUN apk update &&  apk --no-cache --update add openjdk11 && apk --no-cache --update add mongodb
+# RUN apk --update add mongodb-tools
 
 # [temporary] Install python/pip
 # https://stackoverflow.com/questions/62554991/how-do-i-install-python-on-alpine-linux
@@ -16,6 +16,13 @@ RUN apk --update add mongodb-tools
 # RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
 # RUN python3 -m ensurepip
 # RUN pip3 install --no-cache --upgrade pip setuptools
+
+# Add ca-certificates
+RUN apk update \
+    && apk upgrade \
+    && apk add --no-cache \
+    ca-certificates \
+    && update-ca-certificates 2>/dev/null || true
 
 # Set the Current Working Directory inside the container
 WORKDIR /tmp/backend
