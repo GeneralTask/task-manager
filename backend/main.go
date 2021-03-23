@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -350,7 +351,11 @@ func (api *API) ping(c *gin.Context) {
 }
 
 func tokenMiddleware(c *gin.Context) {
-	token := getToken(c)
+	token, err := getToken(c)
+	if err != nil {
+		// This means the auth token format was incorrect
+		return
+	}
 	log.Println("Token: \"" + token + "\"")
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
@@ -360,20 +365,22 @@ func tokenMiddleware(c *gin.Context) {
 	if err != nil {
 		log.Printf("Auth failed: %v\n", err)
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
+		return
 	}
 	log.Println("User ID below!")
 	log.Println(internalToken.UserID)
 	c.Set("user", internalToken.UserID)
 }
 
-func getToken(c *gin.Context) string {
+func getToken(c *gin.Context) (string, error) {
 	token := c.Request.Header.Get("Authorization")
 	//Token is 36 characters + 6 for Bearer prefix + 1 for space = 43
 	if len(token) != 43 {
 		c.AbortWithStatusJSON(401, gin.H{"detail": "incorrect auth token format"})
+		return "", errors.New("Incorrect auth token format")
 	}
 	token = token[7:]
-	return token
+	return token, nil
 }
 
 // CORSMiddleware sets CORS headers, abort if CORS preflight request is received
