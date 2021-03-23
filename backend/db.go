@@ -28,6 +28,7 @@ func GetDBConnection() (*mongo.Database, func()) {
 		log.Fatalf("Failed to connect to mongo DB: %v", err)
 	}
 
+	// If the ping is failing on context deadline, try removing the ping for a better error message
 	err = client.Ping(contextResult, nil)
 	if err != nil {
 		log.Fatalf("Failed to ping mongo DB: %v", err)
