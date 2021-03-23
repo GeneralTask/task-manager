@@ -22,16 +22,16 @@ func GetDBConnection() (*mongo.Database, func()) {
 	if err != nil {
 		log.Fatalf("Failed to create mongo DB client: %v", err)
 	}
-	contextResult, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	contextResult, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	err = client.Connect(contextResult)
 	if err != nil {
 		log.Fatalf("Failed to connect to mongo DB: %v", err)
 	}
 
-	err = client.Ping(contextResult, nil)
-	if err != nil {
-		log.Fatalf("Failed to ping mongo DB: %v", err)
-	}
+	// err = client.Ping(contextResult, nil)
+	// if err != nil {
+	// 	log.Fatalf("Failed to ping mongo DB: %v", err)
+	// }
 
 	cleanup := func() {
 		log.Println("disconnecting now! buh-bye!")
