@@ -179,7 +179,10 @@ func (api *API) loginCallback(c *gin.Context) {
 }
 
 func (api *API) logout(c *gin.Context) {
-	token := getToken(c)
+	token, err := getToken(c)
+	if err != nil {
+		return
+	}
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
 
@@ -361,7 +364,7 @@ func tokenMiddleware(c *gin.Context) {
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var internalToken InternalAPIToken
-	err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", token}}).Decode(&internalToken)
+	err = internalAPITokenCollection.FindOne(nil, bson.D{{"token", token}}).Decode(&internalToken)
 	if err != nil {
 		log.Printf("Auth failed: %v\n", err)
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
