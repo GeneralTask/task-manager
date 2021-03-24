@@ -5,13 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"go.mongodb.org/mongo-driver/mongo"
-	"google.golang.org/api/calendar/v3"
-	"google.golang.org/api/googleapi"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"google.golang.org/api/calendar/v3"
+	"google.golang.org/api/googleapi"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -108,7 +109,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "noice420")
 		//change token and verify token updates and still only 1 row per user.
-		recorder = makeLoginCallbackRequest( "TSLA", "approved@generaltask.io")
+		recorder = makeLoginCallbackRequest("TSLA", "approved@generaltask.io")
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "TSLA")
 	})
@@ -120,10 +121,10 @@ func TestCORSHeaders(t *testing.T) {
 		request, _ := http.NewRequest("OPTIONS", "/tasks/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
-		
+
 		assert.Equal(t, http.StatusNoContent, recorder.Code)
 		headers := recorder.Result().Header
-		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers", 
+		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers",
 			headers.Get("Access-Control-Allow-Headers"))
 		assert.Equal(t, "http://localhost:3000", headers.Get("Access-Control-Allow-Origin"))
 		assert.Equal(t, "POST, OPTIONS, GET, PUT", headers.Get("Access-Control-Allow-Methods"))
@@ -132,13 +133,13 @@ func TestCORSHeaders(t *testing.T) {
 		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
 		request, _ := http.NewRequest("GET", "/ping/", nil)
 		authToken := login("approved@generaltask.io")
-		request.Header.Add("Authorization", "Bearer " + authToken)
+		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
-		
+
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		headers := recorder.Result().Header
-		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers", 
+		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers",
 			headers.Get("Access-Control-Allow-Headers"))
 		assert.Equal(t, "http://localhost:3000", headers.Get("Access-Control-Allow-Origin"))
 		assert.Equal(t, "POST, OPTIONS, GET, PUT", headers.Get("Access-Control-Allow-Methods"))
@@ -203,16 +204,25 @@ func TestAuthenticationMiddleware(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 		recorder = runAuthenticatedEndpoint(authToken)
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"incorrect auth token format\"}", string(body))
 	})
 
 	t.Run("InvalidToken", func(t *testing.T) {
 		recorder := runAuthenticatedEndpoint("Bearer c5b034f4-a645-4352-91d6-0c271afc4076")
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"unauthorized\"}", string(body))
 	})
 
 	t.Run("Valid", func(t *testing.T) {
 		recorder := runAuthenticatedEndpoint("Bearer " + authToken)
 		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "\"success\"", string(body))
 	})
 }
 
@@ -231,7 +241,7 @@ func TestLogout(t *testing.T) {
 		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
 
 		request, _ := http.NewRequest("POST", "/logout/", nil)
-		request.Header.Add("Authorization", "Bearer " + authToken)
+		request.Header.Add("Authorization", "Bearer "+authToken)
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -278,13 +288,13 @@ func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder
 func TestCalendar(t *testing.T) {
 
 	standardEvent := calendar.Event{
-		Created:                 "2021-02-25T17:53:01.000Z",
-		Summary:                 "Standard Event",
-		Start:                   &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-		End:                     &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-		HtmlLink:                "generaltask.io",
-		Id:                      "standard_event",
-		ServerResponse:          googleapi.ServerResponse{HTTPStatusCode: 0},
+		Created:        "2021-02-25T17:53:01.000Z",
+		Summary:        "Standard Event",
+		Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+		End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+		HtmlLink:       "generaltask.io",
+		Id:             "standard_event",
+		ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 	}
 
 	standardTask := Task{
@@ -294,28 +304,28 @@ func TestCalendar(t *testing.T) {
 		DatetimeEnd:   "2021-03-06T15:30:00-05:00",
 		Deeplink:      "generaltask.io",
 		Title:         "Standard Event",
-		Source: 	   TaskSourceGoogleCalendar.Name,
+		Source:        TaskSourceGoogleCalendar.Name,
 		Logo:          TaskSourceGoogleCalendar.Logo,
 	}
 
 	autoEvent := calendar.Event{
-		Created:                 "2021-02-25T17:53:01.000Z",
-		Summary:                 "Auto Event (via Clockwise)",
-		Start:                   &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-		End:                     &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-		HtmlLink:                "generaltask.io",
-		Id:                      "auto_event",
-		ServerResponse:          googleapi.ServerResponse{HTTPStatusCode: 0},
+		Created:        "2021-02-25T17:53:01.000Z",
+		Summary:        "Auto Event (via Clockwise)",
+		Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+		End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+		HtmlLink:       "generaltask.io",
+		Id:             "auto_event",
+		ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 	}
 
 	allDayEvent := calendar.Event{
-		Created:                 "2021-02-25T17:53:01.000Z",
-		Summary:                 "All day Event",
-		Start:                   &calendar.EventDateTime{Date: "2021-03-06"},
-		End:                     &calendar.EventDateTime{Date: "2021-03-06"},
-		HtmlLink:                "generaltask.io",
-		Id:                      "all_day_event",
-		ServerResponse:          googleapi.ServerResponse{HTTPStatusCode: 0},
+		Created:        "2021-02-25T17:53:01.000Z",
+		Summary:        "All day Event",
+		Start:          &calendar.EventDateTime{Date: "2021-03-06"},
+		End:            &calendar.EventDateTime{Date: "2021-03-06"},
+		HtmlLink:       "generaltask.io",
+		Id:             "all_day_event",
+		ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 	}
 
 	server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
@@ -328,11 +338,11 @@ func TestCalendar(t *testing.T) {
 	assertTasksEqual(t, &standardTask, firstTask)
 }
 
-func getServerForTasks(events []*calendar.Event)  *httptest.Server {
+func getServerForTasks(events []*calendar.Event) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resp := &calendar.Events{
 			Items:          events,
-			ServerResponse:   googleapi.ServerResponse{HTTPStatusCode: 200},
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 200},
 		}
 
 		b, err := json.Marshal(resp)
