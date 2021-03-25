@@ -43,6 +43,15 @@ type JIRARedirectParams struct {
 	Code string `form:"code"`
 }
 
+// JIRATokenResponse ...
+type JIRATokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	ExpiresIn    int    `json:"expires_in"`
+	RefreshToken string `json:"refresh_token"`
+	Scope        string `json:"scope"`
+	TokenType    string `json:"token_type"`
+}
+
 // HTTPClient ...
 type HTTPClient interface {
 	Get(url string) (*http.Response, error)
@@ -104,6 +113,20 @@ func (api *API) authorizeJIRA(c *gin.Context) {
 }
 
 func (api *API) authorizeJIRACallback(c *gin.Context) {
+	authToken, err := c.Cookie("authToken")
+	if err != nil {
+		c.JSON(401, gin.H{"detail": "missing authToken cookie"})
+		return
+	}
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	internalAPITokenCollection := db.Collection("internal_api_tokens")
+	var internalToken InternalAPIToken
+	err = internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&internalToken)
+	if err != nil {
+		c.JSON(401, gin.H{"detail": "invalid auth token"})
+		return
+	}
 	// See https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/
 	var redirectParams JIRARedirectParams
 	if c.ShouldBind(&redirectParams) != nil || redirectParams.Code == "" {
@@ -114,18 +137,42 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 	params := []byte(`{"grant_type": "authorization_code","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","code": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
 	req, err := http.NewRequest("POST", "https://auth.atlassian.com/oauth/token", bytes.NewBuffer(params))
 	if err != nil {
-		log.Fatalf("Error forming token request: %v", err)
+		log.Printf("Error forming token request: %v", err)
+		c.JSON(400, gin.H{"detail": "Error forming token request"})
+		return
 	}
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatalf("Failed to request token: %v", err)
+		log.Printf("Failed to request token: %v", err)
+		c.JSON(400, gin.H{"detail": "Failed to request token"})
+		return
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	tokenString, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalf("Failed to read token response: %v", err)
+		log.Printf("Failed to read token response: %v", err)
+		c.JSON(400, gin.H{"detail": "Failed to read token response"})
+		return
 	}
-	c.JSON(200, body)
+	if resp.StatusCode != 200 {
+		log.Printf("Authorization failed: %s", tokenString)
+		c.JSON(400, gin.H{"detail": "Authorization failed"})
+		return
+	}
+
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+	_, err = externalAPITokenCollection.UpdateOne(
+		nil,
+		bson.D{{"user_id", internalToken.UserID}, {"source", "jira"}},
+		bson.D{{"$set", &ExternalAPIToken{UserID: internalToken.UserID, Source: "jira", Token: string(tokenString)}}},
+		options.Update().SetUpsert(true),
+	)
+
+	if err != nil {
+		log.Fatalf("Failed to create external token record: %v", err)
+	}
+
+	c.JSON(200, gin.H{"mission": "abbomplished"})
 }
 
 func (api *API) login(c *gin.Context) {
@@ -189,7 +236,7 @@ func (api *API) loginCallback(c *gin.Context) {
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	_, err = externalAPITokenCollection.UpdateOne(
 		nil,
-		bson.D{{"user_id", insertedUserID}},
+		bson.D{{"user_id", insertedUserID}, {"source", "google"}},
 		bson.D{{"$set", &ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)}}},
 		options.Update().SetUpsert(true),
 	)
