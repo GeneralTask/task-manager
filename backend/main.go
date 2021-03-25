@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -98,16 +99,33 @@ var ALLOWED_USERNAMES = map[string]struct{}{
 }
 
 func (api *API) authorizeJIRA(c *gin.Context) {
-	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=7sW3nPubP5vLDktjR2pfAU8cR67906X0&scope=read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Fauthorize%2Fjira%2Fcallback%2F&state=state-token&response_type=code&prompt=consent"
+	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=7sW3nPubP5vLDktjR2pfAU8cR67906X0&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Fauthorize2%2Fjira%2Fcallback%2F&state=state-token&response_type=code&prompt=consent"
 	c.Redirect(302, authURL)
 }
 
 func (api *API) authorizeJIRACallback(c *gin.Context) {
+	// See https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/
 	var redirectParams JIRARedirectParams
 	if c.ShouldBind(&redirectParams) != nil || redirectParams.Code == "" {
 		c.JSON(400, gin.H{"detail": "Missing query params"})
 		return
 	}
+	// params := []byte(`{"grant_type": "refresh_token","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","refresh_token": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
+	params := []byte(`{"grant_type": "authorization_code","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","code": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
+	req, err := http.NewRequest("POST", "https://auth.atlassian.com/oauth/token", bytes.NewBuffer(params))
+	if err != nil {
+		log.Fatalf("Error forming token request: %v", err)
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatalf("Failed to request token: %v", err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Failed to read token response: %v", err)
+	}
+	c.JSON(200, body)
 }
 
 func (api *API) login(c *gin.Context) {
@@ -422,6 +440,8 @@ func getRouter(api *API) *gin.Engine {
 	router.Use(CORSMiddleware)
 
 	// Unauthenticated endpoints
+	router.GET("/authorize/jira/", api.authorizeJIRA)
+	router.GET("/authorize/jira/callback/", api.authorizeJIRACallback)
 	router.GET("/login/", api.login)
 	router.GET("/login/callback/", api.loginCallback)
 
@@ -430,8 +450,6 @@ func getRouter(api *API) *gin.Engine {
 
 	router.Use(tokenMiddleware)
 	// Authenticated endpoints
-	router.GET("/authorize/jira/", api.authorizeJIRA)
-	router.GET("/authorize/jira/callback/", api.authorizeJIRACallback)
 	router.GET("/tasks/", api.tasksList)
 	router.GET("/ping/", api.ping)
 	router.GET("/dbping/", api.dbPing)
