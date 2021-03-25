@@ -43,15 +43,6 @@ type JIRARedirectParams struct {
 	Code string `form:"code"`
 }
 
-// JIRATokenResponse ...
-type JIRATokenResponse struct {
-	AccessToken  string `json:"access_token"`
-	ExpiresIn    int    `json:"expires_in"`
-	RefreshToken string `json:"refresh_token"`
-	Scope        string `json:"scope"`
-	TokenType    string `json:"token_type"`
-}
-
 // HTTPClient ...
 type HTTPClient interface {
 	Get(url string) (*http.Response, error)
@@ -133,7 +124,6 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "Missing query params"})
 		return
 	}
-	// params := []byte(`{"grant_type": "refresh_token","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","refresh_token": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
 	params := []byte(`{"grant_type": "authorization_code","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","code": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
 	req, err := http.NewRequest("POST", "https://auth.atlassian.com/oauth/token", bytes.NewBuffer(params))
 	if err != nil {
@@ -172,7 +162,8 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 		log.Fatalf("Failed to create external token record: %v", err)
 	}
 
-	c.JSON(200, gin.H{"mission": "abbomplished"})
+	homeURL := "http://localhost:3000/"
+	c.Redirect(302, homeURL)
 }
 
 func (api *API) login(c *gin.Context) {
