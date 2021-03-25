@@ -60,6 +60,71 @@ func (c *MockHTTPClient) Get(url string) (*http.Response, error) {
 	return resp, err
 }
 
+func TestAuthorizeJIRA(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		request, _ := http.NewRequest("GET", "/authorize/jira/", nil)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusFound, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(
+			t,
+			"<a href=\"https://auth.atlassian.com/authorize?audience=api.atlassian.com&amp;client_id=7sW3nPubP5vLDktjR2pfAU8cR67906X0&amp;scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&amp;redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Fauthorize2%2Fjira%2Fcallback%2F&amp;state=state-token&amp;response_type=code&amp;prompt=consent\">Found</a>.\n\n",
+			string(body),
+		)
+	})
+}
+
+func TestAuthorizeJIRACallback(t *testing.T) {
+	t.Run("CookieMissing", func(t *testing.T) {
+		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		request, _ := http.NewRequest("GET", "/authorize/jira/callback/", nil)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(
+			t,
+			"{\"detail\":\"missing authToken cookie\"}",
+			string(body),
+		)
+	})
+	t.Run("CookieBad", func(t *testing.T) {
+		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		request, _ := http.NewRequest("GET", "/authorize/jira/callback/", nil)
+		request.AddCookie(&http.Cookie{Name: "authToken", Value: "tothemoon"})
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(
+			t,
+			"{\"detail\":\"invalid auth token\"}",
+			string(body),
+		)
+	})
+	t.Run("MissingCodeParam", func(t *testing.T) {
+		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		request, _ := http.NewRequest("GET", "/authorize/jira/callback/", nil)
+		authToken := login("approved@generaltask.io")
+		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(
+			t,
+			"{\"detail\":\"Missing query params\"}",
+			string(body),
+		)
+	})
+}
+
 func TestLoginRedirect(t *testing.T) {
 	// Syntax taken from https://semaphoreci.com/community/tutorials/test-driven-development-of-go-web-applications-with-gin
 	// Also inspired by https://dev.to/jacobsngoodwin/04-testing-first-gin-http-handler-9m0
