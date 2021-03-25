@@ -50,6 +50,7 @@ type JIRAAuthToken struct {
 
 // JIRAConfig ...
 type JIRAConfig struct {
+	APIBaseURL *string
 	CloudIDURL *string
 	TokenURL   *string
 }
@@ -498,7 +499,7 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	}
 	req, err = http.NewRequest("GET", cloudIDURL, bytes.NewBuffer(params))
 	if err != nil {
-		log.Printf("Error forming token request: %v", err)
+		log.Printf("Error forming cloud ID request: %v", err)
 		return
 	}
 	req.Header.Add("Authorization", "Bearer "+newToken.AccessToken)
@@ -510,11 +511,11 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	}
 	cloudIDData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Failed to read token response: %v", err)
+		log.Printf("Failed to read cloudID response: %v", err)
 		return
 	}
 	if resp.StatusCode != 200 {
-		log.Printf("Authorization failed: %s", tokenString)
+		log.Printf("CloudID request failed: %s", tokenString)
 		return
 	}
 	var JIRASites []JIRASite
@@ -530,8 +531,33 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	}
 
 	cloudID := JIRASites[0].ID
+	apiBaseURL := "https://api.atlassian.com/ex/jira/" + cloudID + "/"
+	if api.JIRAConfigValues.APIBaseURL != nil {
+		apiBaseURL = *api.JIRAConfigValues.APIBaseURL
+	}
+	req, err = http.NewRequest("GET", apiBaseURL+"rest/api/2/search?jql=assignee=currentuser() AND status != Done", bytes.NewBuffer(params))
+	if err != nil {
+		log.Printf("Error forming search request: %v", err)
+		return
+	}
+	req.Header.Add("Authorization", "Bearer "+newToken.AccessToken)
+	req.Header.Add("Content-Type", "application/json")
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("Failed to load search results: %v", err)
+		return
+	}
+	taskData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Failed to read search response: %v", err)
+		return
+	}
+	if resp.StatusCode != 200 {
+		log.Printf("Search failed: %s", tokenString)
+		return
+	}
+	log.Println(taskData)
 
-	// use refreshed token to fetch cloud id
 	// use cloud id + token to fetch tasks
 	JQL := "assignee=currentuser() AND status != Done"
 	log.Println(JQL)
