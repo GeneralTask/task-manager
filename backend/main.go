@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
@@ -301,12 +302,15 @@ func (api *API) tasksList(c *gin.Context) {
 	var emails = make(chan []*Task)
 	go loadEmails(c, client, emails)
 
-	allTasks := mergeTasks(<-calendarEvents, <-emails)
+	var JIRATasks = make(chan []*Task)
+	go loadJIRATasks(externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
+
+	allTasks := mergeTasks(<-calendarEvents, <-emails, <-JIRATasks)
 
 	c.JSON(200, allTasks)
 }
 
-func mergeTasks(calendarEvents []*Task, emails []*Task) []*Task {
+func mergeTasks(calendarEvents []*Task, emails []*Task, JIRATasks []*Task) []*Task {
 	//for now we'll just return cal invites until we get merging logic done.
 	return calendarEvents
 }
@@ -419,6 +423,20 @@ func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl 
 		})
 	}
 	result <- events
+}
+
+func loadJIRATasks(externalAPITokenCollection mongo.Collection, userID primitive.ObjectID, result chan<- []*Task) {
+	var JIRAToken ExternalAPIToken
+	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&JIRAToken)
+	if err != nil {
+		// No JIRA token exists, so don't populate result
+		return
+	}
+	// refresh token
+	// use refreshed token to fetch cloud id
+	// use cloud id + token to fetch tasks
+	JQL := "assignee=currentuser() AND status != Done"
+	log.Println(JQL)
 }
 
 func (api *API) ping(c *gin.Context) {
