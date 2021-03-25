@@ -39,9 +39,33 @@ type GoogleUserInfo struct {
 	EMAIL string `json:"email"`
 }
 
+// JIRAAuthToken ...
+type JIRAAuthToken struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	Scope        string `json:"scope"`
+	ExpiresIn    string `json:"expires_in"`
+	TokenType    string `json:"token_type"`
+}
+
+// JIRAConfig ...
+type JIRAConfig struct {
+	CloudIDURL *string
+	TokenURL   *string
+}
+
 // JIRARedirectParams ...
 type JIRARedirectParams struct {
 	Code string `form:"code"`
+}
+
+// JIRASite ...
+type JIRASite struct {
+	ID        string   `json:"id"`
+	Name      string   `json:"name"`
+	URL       string   `json:"url"`
+	Scopes    []string `json:"scopes"`
+	AvatarURL string   `json:"avatarUrl`
 }
 
 // HTTPClient ...
@@ -74,8 +98,8 @@ type OauthConfigWrapper interface {
 
 // API is the object containing API route handlers
 type API struct {
-	GoogleConfig OauthConfigWrapper
-	JIRATokenURL *string
+	GoogleConfig     OauthConfigWrapper
+	JIRAConfigValues JIRAConfig
 }
 
 func getGoogleConfig() OauthConfigWrapper {
@@ -128,8 +152,8 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 	}
 	params := []byte(`{"grant_type": "authorization_code","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","code": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
-	if api.JIRATokenURL != nil {
-		tokenURL = *api.JIRATokenURL
+	if api.JIRAConfigValues.TokenURL != nil {
+		tokenURL = *api.JIRAConfigValues.TokenURL
 	}
 	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
@@ -303,7 +327,7 @@ func (api *API) tasksList(c *gin.Context) {
 	go loadEmails(c, client, emails)
 
 	var JIRATasks = make(chan []*Task)
-	go loadJIRATasks(externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
+	go loadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
 
 	allTasks := mergeTasks(<-calendarEvents, <-emails, <-JIRATasks)
 
@@ -425,14 +449,88 @@ func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl 
 	result <- events
 }
 
-func loadJIRATasks(externalAPITokenCollection mongo.Collection, userID primitive.ObjectID, result chan<- []*Task) {
+func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, result chan<- []*Task) {
 	var JIRAToken ExternalAPIToken
 	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&JIRAToken)
 	if err != nil {
 		// No JIRA token exists, so don't populate result
 		return
 	}
-	// refresh token
+	var token JIRAAuthToken
+	err = json.Unmarshal([]byte(JIRAToken.Token), &token)
+	if err != nil {
+		log.Printf("Failed to parse JIRA token: %v", err)
+	}
+	params := []byte(`{"grant_type": "refresh_token","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","refresh_token": "` + token.RefreshToken + `"}`)
+	tokenURL := "https://auth.atlassian.com/oauth/token"
+	if api.JIRAConfigValues.TokenURL != nil {
+		tokenURL = *api.JIRAConfigValues.TokenURL
+	}
+	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
+	if err != nil {
+		log.Printf("Error forming token request: %v", err)
+		return
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("Failed to request token: %v", err)
+		return
+	}
+	tokenString, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Failed to read token response: %v", err)
+		return
+	}
+	if resp.StatusCode != 200 {
+		log.Printf("Authorization failed: %s", tokenString)
+		return
+	}
+	var newToken JIRAAuthToken
+	err = json.Unmarshal(tokenString, &newToken)
+	if err != nil {
+		log.Printf("Failed to parse new JIRA token: %v", err)
+	}
+
+	cloudIDURL := "https://api.atlassian.com/oauth/token/accessible-resources"
+	if api.JIRAConfigValues.CloudIDURL != nil {
+		cloudIDURL = *api.JIRAConfigValues.CloudIDURL
+	}
+	req, err = http.NewRequest("GET", cloudIDURL, bytes.NewBuffer(params))
+	if err != nil {
+		log.Printf("Error forming token request: %v", err)
+		return
+	}
+	req.Header.Add("Authorization", "Bearer "+newToken.AccessToken)
+	req.Header.Add("Content-Type", "application/json")
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("Failed to load cloud ID: %v", err)
+		return
+	}
+	cloudIDData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Failed to read token response: %v", err)
+		return
+	}
+	if resp.StatusCode != 200 {
+		log.Printf("Authorization failed: %s", tokenString)
+		return
+	}
+	var JIRASites []JIRASite
+	err = json.Unmarshal(cloudIDData, &JIRASites)
+	if err != nil {
+		log.Printf("Failed to parse cloud ID response: %v", err)
+		return
+	}
+
+	if len(JIRASites) == 0 {
+		log.Println("No accessible JIRA resources found")
+		return
+	}
+
+	cloudID := JIRASites[0].ID
+
 	// use refreshed token to fetch cloud id
 	// use cloud id + token to fetch tasks
 	JQL := "assignee=currentuser() AND status != Done"
