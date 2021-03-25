@@ -62,7 +62,7 @@ func (c *MockHTTPClient) Get(url string) (*http.Response, error) {
 
 func TestAuthorizeJIRA(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		router := getRouter(&API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -79,7 +79,7 @@ func TestAuthorizeJIRA(t *testing.T) {
 
 func TestAuthorizeJIRACallback(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		router := getRouter(&API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -93,7 +93,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		)
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		router := getRouter(&API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/", nil)
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: "tothemoon"})
 		recorder := httptest.NewRecorder()
@@ -108,7 +108,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		)
 	})
 	t.Run("MissingCodeParam", func(t *testing.T) {
-		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		router := getRouter(&API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/", nil)
 		authToken := login("approved@generaltask.io")
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
@@ -122,6 +122,48 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 			"{\"detail\":\"Missing query params\"}",
 			string(body),
 		)
+	})
+	t.Run("UnsuccessfulResponse", func(t *testing.T) {
+		server := getServerForJIRA(t, http.StatusUnauthorized, `{}`)
+		router := getRouter(&API{JIRATokenURL: &server.URL})
+		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc", nil)
+		authToken := login("approved@generaltask.io")
+		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(
+			t,
+			"{\"detail\":\"Authorization failed\"}",
+			string(body),
+		)
+	})
+	t.Run("Success", func(t *testing.T) {
+		server := getServerForJIRA(t, http.StatusOK, `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`)
+		router := getRouter(&API{JIRATokenURL: &server.URL})
+		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc", nil)
+		authToken := login("approved@generaltask.io")
+		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusFound, recorder.Code)
+
+		db, dbCleanup := GetDBConnection()
+		defer dbCleanup()
+		internalAPITokenCollection := db.Collection("internal_api_tokens")
+		var authTokenStruct InternalAPIToken
+		err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&authTokenStruct)
+		assert.NoError(t, err)
+		externalAPITokenCollection := db.Collection("external_api_tokens")
+		count, err := externalAPITokenCollection.CountDocuments(nil, bson.D{{"user_id", authTokenStruct.UserID}, {"source", "jira"}})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+		var jiraToken ExternalAPIToken
+		err = externalAPITokenCollection.FindOne(nil, bson.D{{"user_id", authTokenStruct.UserID}, {"source", "jira"}}).Decode(&jiraToken)
+		assert.NoError(t, err)
+		assert.Equal(t, "jira", jiraToken.Source)
 	})
 }
 
@@ -151,7 +193,7 @@ func TestLoginRedirect(t *testing.T) {
 
 func TestLoginCallback(t *testing.T) {
 	t.Run("MissingQueryParams", func(t *testing.T) {
-		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		router := getRouter(&API{})
 
 		request, _ := http.NewRequest("GET", "/login/callback/", nil)
 		recorder := httptest.NewRecorder()
@@ -182,7 +224,7 @@ func TestLoginCallback(t *testing.T) {
 
 func TestCORSHeaders(t *testing.T) {
 	t.Run("OPTIONS preflight request", func(t *testing.T) {
-		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		router := getRouter(&API{})
 		request, _ := http.NewRequest("OPTIONS", "/tasks/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -195,7 +237,7 @@ func TestCORSHeaders(t *testing.T) {
 		assert.Equal(t, "POST, OPTIONS, GET, PUT", headers.Get("Access-Control-Allow-Methods"))
 	})
 	t.Run("GET request", func(t *testing.T) {
-		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		router := getRouter(&API{})
 		request, _ := http.NewRequest("GET", "/ping/", nil)
 		authToken := login("approved@generaltask.io")
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -242,11 +284,11 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, authToken string) {
 	assert.NoError(t, err)
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	count, err = externalAPITokenCollection.CountDocuments(nil, bson.D{{"user_id", user.ID}})
+	count, err = externalAPITokenCollection.CountDocuments(nil, bson.D{{"user_id", user.ID}, {"source", "google"}})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var googleToken ExternalAPIToken
-	err = externalAPITokenCollection.FindOne(nil, bson.D{{"user_id", user.ID}}).Decode(&googleToken)
+	err = externalAPITokenCollection.FindOne(nil, bson.D{{"user_id", user.ID}, {"source", "google"}}).Decode(&googleToken)
 	assert.NoError(t, err)
 	assert.Equal(t, "google", googleToken.Source)
 	expectedToken := fmt.Sprintf("{\"access_token\":\"%s\",\"expiry\":\"0001-01-01T00:00:00Z\"}", authToken)
@@ -303,7 +345,7 @@ func TestLogout(t *testing.T) {
 		count, _ := tokenCollection.CountDocuments(nil, bson.D{{"token", authToken}})
 		assert.Equal(t, int64(1), count)
 
-		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		router := getRouter(&API{})
 
 		request, _ := http.NewRequest("POST", "/logout/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -317,7 +359,7 @@ func TestLogout(t *testing.T) {
 	})
 
 	t.Run("Unauthorized", func(t *testing.T) {
-		router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+		router := getRouter(&API{})
 
 		request, _ := http.NewRequest("POST", "/logout/", nil)
 		request.Header.Add("Authorization", "Bearer c8db8f3c-6fa2-476c-9648-b31432dc3ff7")
@@ -340,7 +382,7 @@ func login(email string) string {
 }
 
 func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
-	router := getRouter(&API{GoogleConfig: &MockGoogleConfig{}})
+	router := getRouter(&API{})
 
 	request, _ := http.NewRequest("GET", "/ping/", nil)
 	request.Header.Add("Authorization", attemptedHeader)
@@ -401,6 +443,16 @@ func TestCalendar(t *testing.T) {
 	assert.Equal(t, 1, len(result))
 	firstTask := result[0]
 	assertTasksEqual(t, &standardTask, firstTask)
+}
+
+func getServerForJIRA(t *testing.T, statusCode int, body string) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := ioutil.ReadAll(r.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"grant_type\": \"authorization_code\",\"client_id\": \"7sW3nPubP5vLDktjR2pfAU8cR67906X0\",\"client_secret\": \"u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc\",\"code\": \"123abc\",\"redirect_uri\": \"https://api.generaltask.io/authorize2/jira/callback/\"}", string(body))
+		w.WriteHeader(statusCode)
+		w.Write([]byte(`{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`))
+	}))
 }
 
 func getServerForTasks(events []*calendar.Event) *httptest.Server {

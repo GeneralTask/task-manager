@@ -74,6 +74,7 @@ type OauthConfigWrapper interface {
 // API is the object containing API route handlers
 type API struct {
 	GoogleConfig OauthConfigWrapper
+	JIRATokenURL *string
 }
 
 func getGoogleConfig() OauthConfigWrapper {
@@ -125,7 +126,11 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 		return
 	}
 	params := []byte(`{"grant_type": "authorization_code","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","code": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
-	req, err := http.NewRequest("POST", "https://auth.atlassian.com/oauth/token", bytes.NewBuffer(params))
+	tokenURL := "https://auth.atlassian.com/oauth/token"
+	if api.JIRATokenURL != nil {
+		tokenURL = *api.JIRATokenURL
+	}
+	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
 		log.Printf("Error forming token request: %v", err)
 		c.JSON(400, gin.H{"detail": "Error forming token request"})
