@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -37,6 +38,11 @@ type GoogleUserInfo struct {
 	EMAIL string `json:"email"`
 }
 
+// JIRARedirectParams ...
+type JIRARedirectParams struct {
+	Code string `form:"code"`
+}
+
 // HTTPClient ...
 type HTTPClient interface {
 	Get(url string) (*http.Response, error)
@@ -68,6 +74,7 @@ type OauthConfigWrapper interface {
 // API is the object containing API route handlers
 type API struct {
 	GoogleConfig OauthConfigWrapper
+	JIRATokenURL *string
 }
 
 func getGoogleConfig() OauthConfigWrapper {
@@ -90,6 +97,78 @@ var ALLOWED_USERNAMES = map[string]struct{}{
 	"scottmai702@gmail.com":   struct{}{},
 	"sequoia@sequoiasnow.com": struct{}{},
 	"nolan1299@gmail.com":     struct{}{},
+}
+
+func (api *API) authorizeJIRA(c *gin.Context) {
+	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=7sW3nPubP5vLDktjR2pfAU8cR67906X0&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Fauthorize2%2Fjira%2Fcallback%2F&state=state-token&response_type=code&prompt=consent"
+	c.Redirect(302, authURL)
+}
+
+func (api *API) authorizeJIRACallback(c *gin.Context) {
+	authToken, err := c.Cookie("authToken")
+	if err != nil {
+		c.JSON(401, gin.H{"detail": "missing authToken cookie"})
+		return
+	}
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	internalAPITokenCollection := db.Collection("internal_api_tokens")
+	var internalToken InternalAPIToken
+	err = internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&internalToken)
+	if err != nil {
+		c.JSON(401, gin.H{"detail": "invalid auth token"})
+		return
+	}
+	// See https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/
+	var redirectParams JIRARedirectParams
+	if c.ShouldBind(&redirectParams) != nil || redirectParams.Code == "" {
+		c.JSON(400, gin.H{"detail": "Missing query params"})
+		return
+	}
+	params := []byte(`{"grant_type": "authorization_code","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","code": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
+	tokenURL := "https://auth.atlassian.com/oauth/token"
+	if api.JIRATokenURL != nil {
+		tokenURL = *api.JIRATokenURL
+	}
+	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
+	if err != nil {
+		log.Printf("Error forming token request: %v", err)
+		c.JSON(400, gin.H{"detail": "Error forming token request"})
+		return
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("Failed to request token: %v", err)
+		c.JSON(400, gin.H{"detail": "Failed to request token"})
+		return
+	}
+	tokenString, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Failed to read token response: %v", err)
+		c.JSON(400, gin.H{"detail": "Failed to read token response"})
+		return
+	}
+	if resp.StatusCode != 200 {
+		log.Printf("Authorization failed: %s", tokenString)
+		c.JSON(400, gin.H{"detail": "Authorization failed"})
+		return
+	}
+
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+	_, err = externalAPITokenCollection.UpdateOne(
+		nil,
+		bson.D{{"user_id", internalToken.UserID}, {"source", "jira"}},
+		bson.D{{"$set", &ExternalAPIToken{UserID: internalToken.UserID, Source: "jira", Token: string(tokenString)}}},
+		options.Update().SetUpsert(true),
+	)
+
+	if err != nil {
+		log.Fatalf("Failed to create external token record: %v", err)
+	}
+
+	homeURL := "http://localhost:3000/"
+	c.Redirect(302, homeURL)
 }
 
 func (api *API) login(c *gin.Context) {
@@ -153,7 +232,7 @@ func (api *API) loginCallback(c *gin.Context) {
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	_, err = externalAPITokenCollection.UpdateOne(
 		nil,
-		bson.D{{"user_id", insertedUserID}},
+		bson.D{{"user_id", insertedUserID}, {"source", "google"}},
 		bson.D{{"$set", &ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)}}},
 		options.Update().SetUpsert(true),
 	)
@@ -404,6 +483,8 @@ func getRouter(api *API) *gin.Engine {
 	router.Use(CORSMiddleware)
 
 	// Unauthenticated endpoints
+	router.GET("/authorize/jira/", api.authorizeJIRA)
+	router.GET("/authorize/jira/callback/", api.authorizeJIRACallback)
 	router.GET("/login/", api.login)
 	router.GET("/login/callback/", api.loginCallback)
 
