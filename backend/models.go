@@ -37,16 +37,20 @@ type ExternalAPIToken struct {
 
 // Task json model
 type Task struct {
-	ID            string `json:"id"`
-	IDExternal    string `json:"id_external"`
-	IDOrdering    int    `json:"id_ordering"`
-	DatetimeEnd   string `json:"datetime_end"`
-	DatetimeStart string `json:"datetime_start"`
-	Sender        string `json:"sender"`
-	Source        string `json:"source"`
-	Deeplink      string `json:"link"`
-	Title         string `json:"title"`
-	Logo          string `json:"logo_url"`
+	ID                string              `json:"id"`
+	IDExternal        string              `json:"id_external"`
+	IDOrdering        int                 `json:"id_ordering"`
+	CreatedAtExternal string              `json:"created_at_external"`
+	DatetimeEnd       *primitive.DateTime `json:"datetime_end"`
+	DatetimeStart     *primitive.DateTime `json:"datetime_start"`
+	DueDate           *primitive.DateTime `json:"due_date"`
+	PriorityExternal  string              `json:"priority_external"`
+	SenderName        string              `json:"sender_name"`
+	SenderEmail       string              `json:"sender_email"`
+	Source            string              `json:"source"`
+	Deeplink          string              `json:"link"`
+	Title             string              `json:"title"`
+	Logo              string              `json:"logo_url"`
 }
 
 type TaskSource struct {

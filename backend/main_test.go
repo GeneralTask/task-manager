@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -405,11 +406,16 @@ func TestCalendar(t *testing.T) {
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
+		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
+		startDateTime := primitive.NewDateTimeFromTime(startTime)
+		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
+		endDateTime := primitive.NewDateTimeFromTime(endTime)
+
 		standardTask := Task{
 			IDOrdering:    0,
 			IDExternal:    "standard_event",
-			DatetimeStart: "2021-03-06T15:00:00-05:00",
-			DatetimeEnd:   "2021-03-06T15:30:00-05:00",
+			DatetimeStart: &startDateTime,
+			DatetimeEnd:   &endDateTime,
 			Deeplink:      "generaltask.io",
 			Title:         "Standard Event",
 			Source:        TaskSourceGoogleCalendar.Name,
@@ -523,11 +529,14 @@ func TestLoadJIRATasks(t *testing.T) {
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result))
 
+		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+		dueDateTime := primitive.NewDateTimeFromTime(dueDate)
 		expectedTask := Task{
 			IDOrdering:    0,
 			IDExternal:    "42069",
-			DatetimeStart: "",
-			DatetimeEnd:   "",
+			DatetimeStart: nil,
+			DatetimeEnd:   nil,
+			DueDate:       &dueDateTime,
 			Deeplink:      "https://dankmemes.com/browse/MOON-1969",
 			Title:         "Sample Taskeroni",
 			Source:        TaskSourceJIRA.Name,
@@ -593,7 +602,7 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 			w.Write(result)
 		} else {
 			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{{
-				Fields: JIRATaskFields{Summary: "Sample Taskeroni"},
+				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni"},
 				ID:     "42069",
 				Key:    "MOON-1969",
 			}}})
@@ -622,6 +631,7 @@ func getServerForTasks(events []*calendar.Event) *httptest.Server {
 func assertTasksEqual(t *testing.T, a *Task, b *Task) {
 	assert.Equal(t, a.DatetimeStart, b.DatetimeStart)
 	assert.Equal(t, a.DatetimeEnd, b.DatetimeEnd)
+	assert.Equal(t, a.DueDate, b.DueDate)
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)

@@ -398,7 +398,7 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Task) {
 			ID:         guuid.New().String(),
 			IDExternal: threadListItem.Id,
 			IDOrdering: len(emails),
-			Sender:     sender,
+			SenderName: sender,
 			Source:     TaskSourceGmail.Name,
 			Deeplink:   fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
 			Title:      title,
@@ -453,12 +453,17 @@ func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl 
 			continue
 		}
 
+		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
+		startDateTime := primitive.NewDateTimeFromTime(startTime)
+		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
+		endDateTime := primitive.NewDateTimeFromTime(endTime)
+
 		events = append(events, &Task{
 			ID:            guuid.New().String(),
 			IDExternal:    event.Id,
 			IDOrdering:    len(events),
-			DatetimeEnd:   event.End.DateTime,
-			DatetimeStart: event.Start.DateTime,
+			DatetimeEnd:   &endDateTime,
+			DatetimeStart: &startDateTime,
 			Deeplink:      event.HtmlLink,
 			Source:        TaskSourceGoogleCalendar.Name,
 			Title:         event.Summary,
@@ -605,11 +610,18 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 
 	var tasks []*Task
 	for _, jiraTask := range jiraTasks.Issues {
+		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)
+		var dueDatePtr *primitive.DateTime
+		if err == nil {
+			dueDateTime := primitive.NewDateTimeFromTime(dueDate)
+			dueDatePtr = &dueDateTime
+		}
 		tasks = append(tasks, &Task{
 			ID:         guuid.New().String(),
 			IDExternal: jiraTask.ID,
 			IDOrdering: len(tasks),
 			Deeplink:   JIRASites[0].URL + "/browse/" + jiraTask.Key,
+			DueDate:    dueDatePtr,
 			Source:     TaskSourceJIRA.Name,
 			Title:      jiraTask.Fields.Summary,
 			Logo:       TaskSourceJIRA.Logo,
