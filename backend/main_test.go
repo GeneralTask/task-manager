@@ -445,6 +445,12 @@ func TestCalendar(t *testing.T) {
 	assertTasksEqual(t, &standardTask, firstTask)
 }
 
+func TestLoadJIRATasks(t *testing.T) {
+	t.Run("MissingJIRAToken", func(t *testing.T) {
+		assert.Equal(t, 1, 2)
+	})
+}
+
 func getServerForJIRA(t *testing.T, statusCode int, body string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
