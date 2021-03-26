@@ -4,7 +4,6 @@ go 1.15
 
 require (
 	cloud.google.com/go v0.73.0 // indirect
-	github.com/andygrunwald/go-jira v1.13.0 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/google/uuid v1.1.2
 	github.com/stretchr/objx v0.2.0 // indirect

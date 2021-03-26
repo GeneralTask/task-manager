@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -122,23 +121,6 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		assert.Equal(
 			t,
 			"{\"detail\":\"Missing query params\"}",
-			string(body),
-		)
-	})
-	t.Run("UnsuccessfulResponse", func(t *testing.T) {
-		server := getTokenServerForJIRA(t, http.StatusUnauthorized, false)
-		router := getRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &server.URL}})
-		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc", nil)
-		authToken := login("approved@generaltask.io")
-		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(
-			t,
-			"{\"detail\":\"Authorization failed\"}",
 			string(body),
 		)
 	})
@@ -551,7 +533,6 @@ func TestLoadJIRATasks(t *testing.T) {
 			Source:        TaskSourceJIRA.Name,
 			Logo:          TaskSourceJIRA.Logo,
 		}
-		log.Println(result[0])
 		assertTasksEqual(t, &expectedTask, result[0])
 	})
 }
@@ -574,7 +555,6 @@ func getTokenServerForJIRA(t *testing.T, statusCode int, refresh bool) *httptest
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
 		assert.NoError(t, err)
-		log.Println(string(body))
 		if refresh {
 			assert.Equal(t, "{\"grant_type\": \"refresh_token\",\"client_id\": \"7sW3nPubP5vLDktjR2pfAU8cR67906X0\",\"client_secret\": \"u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc\",\"refresh_token\": \"sample-token\"}", string(body))
 		} else {
@@ -608,7 +588,9 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 		assert.Equal(t, "", string(body))
 		w.WriteHeader(statusCode)
 		if empty {
-			w.Write([]byte(`[]`))
+			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{}})
+			assert.NoError(t, err)
+			w.Write(result)
 		} else {
 			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{{
 				Fields: JIRATaskFields{Summary: "Sample Taskeroni"},
@@ -616,7 +598,6 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 				Key:    "MOON-1969",
 			}}})
 			assert.NoError(t, err)
-			log.Println(string(result))
 			w.Write(result)
 		}
 	}))

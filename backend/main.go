@@ -546,7 +546,7 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		return
 	}
 	if resp.StatusCode != 200 {
-		log.Printf("CloudID request failed: %s", tokenString)
+		log.Printf("CloudID request failed: %s", cloudIDData)
 		result <- []*Task{}
 		return
 	}
@@ -563,15 +563,12 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		result <- []*Task{}
 		return
 	}
-	log.Println(JIRASites[0])
 	cloudID := JIRASites[0].ID
 	apiBaseURL := "https://api.atlassian.com/ex/jira/" + cloudID
-	log.Printf("Base URL: %s", apiBaseURL)
 	if api.JIRAConfigValues.APIBaseURL != nil {
 		apiBaseURL = *api.JIRAConfigValues.APIBaseURL
 	}
 	JQL := "assignee=currentuser() AND status != Done"
-	log.Printf("Query string: %s", JQL)
 	req, err = http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
 	if err != nil {
 		log.Printf("Error forming search request: %v", err)
@@ -605,7 +602,6 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		result <- []*Task{}
 		return
 	}
-	log.Println(jiraTasks)
 
 	var tasks []*Task
 	for _, jiraTask := range jiraTasks.Issues {
