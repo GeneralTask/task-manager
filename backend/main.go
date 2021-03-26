@@ -454,16 +454,14 @@ func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl 
 		}
 
 		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
-		startDateTime := primitive.NewDateTimeFromTime(startTime)
 		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
-		endDateTime := primitive.NewDateTimeFromTime(endTime)
 
 		events = append(events, &Task{
 			ID:            guuid.New().String(),
 			IDExternal:    event.Id,
 			IDOrdering:    len(events),
-			DatetimeEnd:   &endDateTime,
-			DatetimeStart: &startDateTime,
+			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 			Deeplink:      event.HtmlLink,
 			Source:        TaskSourceGoogleCalendar.Name,
 			Title:         event.Summary,
@@ -610,22 +608,20 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 
 	var tasks []*Task
 	for _, jiraTask := range jiraTasks.Issues {
-		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)
-		var dueDatePtr *primitive.DateTime
-		if err == nil {
-			dueDateTime := primitive.NewDateTimeFromTime(dueDate)
-			dueDatePtr = &dueDateTime
-		}
-		tasks = append(tasks, &Task{
+		task := &Task{
 			ID:         guuid.New().String(),
 			IDExternal: jiraTask.ID,
 			IDOrdering: len(tasks),
 			Deeplink:   JIRASites[0].URL + "/browse/" + jiraTask.Key,
-			DueDate:    dueDatePtr,
 			Source:     TaskSourceJIRA.Name,
 			Title:      jiraTask.Fields.Summary,
 			Logo:       TaskSourceJIRA.Logo,
-		})
+		}
+		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)
+		if err == nil {
+			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		}
+		tasks = append(tasks, task)
 	}
 	result <- tasks
 }

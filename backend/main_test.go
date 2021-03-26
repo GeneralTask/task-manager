@@ -407,15 +407,13 @@ func TestCalendar(t *testing.T) {
 		}
 
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
-		startDateTime := primitive.NewDateTimeFromTime(startTime)
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
-		endDateTime := primitive.NewDateTimeFromTime(endTime)
 
 		standardTask := Task{
 			IDOrdering:    0,
 			IDExternal:    "standard_event",
-			DatetimeStart: &startDateTime,
-			DatetimeEnd:   &endDateTime,
+			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			Deeplink:      "generaltask.io",
 			Title:         "Standard Event",
 			Source:        TaskSourceGoogleCalendar.Name,
@@ -530,17 +528,14 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.Equal(t, 1, len(result))
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
-		dueDateTime := primitive.NewDateTimeFromTime(dueDate)
 		expectedTask := Task{
-			IDOrdering:    0,
-			IDExternal:    "42069",
-			DatetimeStart: nil,
-			DatetimeEnd:   nil,
-			DueDate:       &dueDateTime,
-			Deeplink:      "https://dankmemes.com/browse/MOON-1969",
-			Title:         "Sample Taskeroni",
-			Source:        TaskSourceJIRA.Name,
-			Logo:          TaskSourceJIRA.Logo,
+			IDOrdering: 0,
+			IDExternal: "42069",
+			DueDate:    primitive.NewDateTimeFromTime(dueDate),
+			Deeplink:   "https://dankmemes.com/browse/MOON-1969",
+			Title:      "Sample Taskeroni",
+			Source:     TaskSourceJIRA.Name,
+			Logo:       TaskSourceJIRA.Logo,
 		}
 		assertTasksEqual(t, &expectedTask, result[0])
 	})
