@@ -420,7 +420,6 @@ func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl 
 	} else {
 		calendarService, err = calendar.New(client)
 	}
-
 	if err != nil {
 		log.Fatalf("Unable to create Calendar service: %v", err)
 	}
