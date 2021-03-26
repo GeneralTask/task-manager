@@ -421,12 +421,6 @@ func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl 
 	result <- events
 }
 
-func (api *API) dbPing(c *gin.Context) {
-	_, dbCleanup := GetDBConnection()
-	defer dbCleanup()
-	c.JSON(200, "success")
-}
-
 func (api *API) ping(c *gin.Context) {
 	log.Println("success!")
 	c.JSON(200, "success")
@@ -495,7 +489,6 @@ func getRouter(api *API) *gin.Engine {
 	// Authenticated endpoints
 	router.GET("/tasks/", api.tasksList)
 	router.GET("/ping/", api.ping)
-	router.GET("/dbping/", api.dbPing)
 	return router
 }
 
