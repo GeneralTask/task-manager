@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/googleapi"
@@ -393,62 +394,84 @@ func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder
 }
 
 func TestCalendar(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		standardEvent := calendar.Event{
+			Created:        "2021-02-25T17:53:01.000Z",
+			Summary:        "Standard Event",
+			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:       "generaltask.io",
+			Id:             "standard_event",
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
 
-	standardEvent := calendar.Event{
-		Created:        "2021-02-25T17:53:01.000Z",
-		Summary:        "Standard Event",
-		Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-		End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-		HtmlLink:       "generaltask.io",
-		Id:             "standard_event",
-		ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
-	}
+		standardTask := Task{
+			IDOrdering:    0,
+			IDExternal:    "standard_event",
+			DatetimeStart: "2021-03-06T15:00:00-05:00",
+			DatetimeEnd:   "2021-03-06T15:30:00-05:00",
+			Deeplink:      "generaltask.io",
+			Title:         "Standard Event",
+			Source:        TaskSourceGoogleCalendar.Name,
+			Logo:          TaskSourceGoogleCalendar.Logo,
+		}
 
-	standardTask := Task{
-		IDOrdering:    0,
-		IDExternal:    "standard_event",
-		DatetimeStart: "2021-03-06T15:00:00-05:00",
-		DatetimeEnd:   "2021-03-06T15:30:00-05:00",
-		Deeplink:      "generaltask.io",
-		Title:         "Standard Event",
-		Source:        TaskSourceGoogleCalendar.Name,
-		Logo:          TaskSourceGoogleCalendar.Logo,
-	}
+		autoEvent := calendar.Event{
+			Created:        "2021-02-25T17:53:01.000Z",
+			Summary:        "Auto Event (via Clockwise)",
+			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:       "generaltask.io",
+			Id:             "auto_event",
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
 
-	autoEvent := calendar.Event{
-		Created:        "2021-02-25T17:53:01.000Z",
-		Summary:        "Auto Event (via Clockwise)",
-		Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-		End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-		HtmlLink:       "generaltask.io",
-		Id:             "auto_event",
-		ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
-	}
+		allDayEvent := calendar.Event{
+			Created:        "2021-02-25T17:53:01.000Z",
+			Summary:        "All day Event",
+			Start:          &calendar.EventDateTime{Date: "2021-03-06"},
+			End:            &calendar.EventDateTime{Date: "2021-03-06"},
+			HtmlLink:       "generaltask.io",
+			Id:             "all_day_event",
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
 
-	allDayEvent := calendar.Event{
-		Created:        "2021-02-25T17:53:01.000Z",
-		Summary:        "All day Event",
-		Start:          &calendar.EventDateTime{Date: "2021-03-06"},
-		End:            &calendar.EventDateTime{Date: "2021-03-06"},
-		HtmlLink:       "generaltask.io",
-		Id:             "all_day_event",
-		ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
-	}
-
-	server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
-	defer server.Close()
-	var calendarEvents = make(chan []*Task)
-	go loadCalendarEvents(nil, calendarEvents, &server.URL)
-	result := <-calendarEvents
-	assert.Equal(t, 1, len(result))
-	firstTask := result[0]
-	assertTasksEqual(t, &standardTask, firstTask)
+		server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+		defer server.Close()
+		var calendarEvents = make(chan []*Task)
+		go loadCalendarEvents(nil, calendarEvents, &server.URL)
+		result := <-calendarEvents
+		assert.Equal(t, 1, len(result))
+		firstTask := result[0]
+		assertTasksEqual(t, &standardTask, firstTask)
+	})
+	t.Run("EmptyResult", func(t *testing.T) {
+		server := getServerForTasks([]*calendar.Event{})
+		defer server.Close()
+		var calendarEvents = make(chan []*Task)
+		go loadCalendarEvents(nil, calendarEvents, &server.URL)
+		result := <-calendarEvents
+		assert.Equal(t, 0, len(result))
+	})
 }
 
 func TestLoadJIRATasks(t *testing.T) {
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+
 	t.Run("MissingJIRAToken", func(t *testing.T) {
-		assert.Equal(t, 1, 2)
+		var JIRATasks = make(chan []*Task)
+		go loadJIRATasks(&API{}, externalAPITokenCollection, primitive.NewObjectID(), JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 0, len(result))
 	})
+	t.Run("RefreshTokenFailed", func(t *testing.T) {})
+	t.Run("CloudIDFetchFailed", func(t *testing.T) {})
+	t.Run("EmptyCloudIDResponse", func(t *testing.T) {})
+	t.Run("SearchFailed", func(t *testing.T) {})
+	t.Run("EmptySearchResponse", func(t *testing.T) {})
+	t.Run("Success", func(t *testing.T) {})
 }
 
 func getServerForJIRA(t *testing.T, statusCode int, body string) *httptest.Server {
