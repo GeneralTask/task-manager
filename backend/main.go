@@ -326,7 +326,7 @@ func (api *API) tasksList(c *gin.Context) {
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	var googleToken ExternalAPIToken
 	userID, _ := c.Get("user")
-	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&googleToken)
+	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken)
 
 	if err != nil {
 		log.Fatalf("Failed to fetch external API token: %v", err)
@@ -334,14 +334,14 @@ func (api *API) tasksList(c *gin.Context) {
 
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
-	// config := getGoogleConfig()
-	// client := config.Client(context.Background(), &token).(*http.Client)
+	config := getGoogleConfig()
+	client := config.Client(context.Background(), &token).(*http.Client)
 
 	var calendarEvents = make(chan []*Task)
-	// go loadCalendarEvents(client, calendarEvents, nil)
+	go loadCalendarEvents(client, calendarEvents, nil)
 
 	var emails = make(chan []*Task)
-	// go loadEmails(c, client, emails)
+	go loadEmails(c, client, emails)
 
 	var JIRATasks = make(chan []*Task)
 	go loadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
