@@ -44,7 +44,7 @@ type Task struct {
 	DatetimeEnd       primitive.DateTime `json:"datetime_end"`
 	DatetimeStart     primitive.DateTime `json:"datetime_start"`
 	DueDate           primitive.DateTime `json:"due_date"`
-	PriorityExternal  string             `json:"priority_external"`
+	PriorityExternal  int                `json:"priority_external"`
 	SenderName        string             `json:"sender_name"`
 	SenderEmail       string             `json:"sender_email"`
 	Source            string             `json:"source"`
