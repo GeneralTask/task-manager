@@ -477,6 +477,7 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		result <- []*Task{}
 		return
 	}
+
 	var token JIRAAuthToken
 	err = json.Unmarshal([]byte(JIRAToken.Token), &token)
 	if err != nil {
