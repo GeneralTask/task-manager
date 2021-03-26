@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -44,7 +45,7 @@ type JIRAAuthToken struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	Scope        string `json:"scope"`
-	ExpiresIn    string `json:"expires_in"`
+	ExpiresIn    int    `json:"expires_in"`
 	TokenType    string `json:"token_type"`
 }
 
@@ -318,14 +319,14 @@ func (api *API) tasksList(c *gin.Context) {
 
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
-	config := getGoogleConfig()
-	client := config.Client(context.Background(), &token).(*http.Client)
+	// config := getGoogleConfig()
+	// client := config.Client(context.Background(), &token).(*http.Client)
 
 	var calendarEvents = make(chan []*Task)
-	go loadCalendarEvents(client, calendarEvents, nil)
+	// go loadCalendarEvents(client, calendarEvents, nil)
 
 	var emails = make(chan []*Task)
-	go loadEmails(c, client, emails)
+	// go loadEmails(c, client, emails)
 
 	var JIRATasks = make(chan []*Task)
 	go loadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
@@ -532,10 +533,13 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 
 	cloudID := JIRASites[0].ID
 	apiBaseURL := "https://api.atlassian.com/ex/jira/" + cloudID + "/"
+	log.Printf("Base URL: %s", apiBaseURL)
 	if api.JIRAConfigValues.APIBaseURL != nil {
 		apiBaseURL = *api.JIRAConfigValues.APIBaseURL
 	}
-	req, err = http.NewRequest("GET", apiBaseURL+"rest/api/2/search?jql=assignee=currentuser() AND status != Done", bytes.NewBuffer(params))
+	JQL := "assignee=currentuser() AND status != Done"
+	log.Printf("Query string: %s", JQL)
+	req, err = http.NewRequest("GET", apiBaseURL+"rest/api/2/search?jql="+url.QueryEscape(JQL), bytes.NewBuffer(params))
 	if err != nil {
 		log.Printf("Error forming search request: %v", err)
 		return
@@ -553,14 +557,10 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		return
 	}
 	if resp.StatusCode != 200 {
-		log.Printf("Search failed: %s", tokenString)
+		log.Printf("Search failed: %s %v", taskData, resp.StatusCode)
 		return
 	}
-	log.Println(taskData)
-
-	// use cloud id + token to fetch tasks
-	JQL := "assignee=currentuser() AND status != Done"
-	log.Println(JQL)
+	log.Println(string(taskData))
 }
 
 func (api *API) ping(c *gin.Context) {
