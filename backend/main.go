@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -215,33 +216,129 @@ func (api *API) tasksList(c *gin.Context) {
 	var calendarEvents = make(chan []*CalendarEvent)
 	go loadCalendarEvents(client, calendarEvents, nil)
 
-	var emails []*Email
-	//var emails = make(chan []*Email)
-	//go loadEmails(c, client, emails)
+	var emails = make(chan []*Email)
+	go loadEmails(c, client, emails)
+
 
 	var jiraTasks []*JIRATask
 
-	allTasks := mergeTasks(<-calendarEvents, emails, jiraTasks)
+	allTasks := mergeTasks(c, <-calendarEvents, <-emails, jiraTasks)
 
 	c.JSON(200, allTasks)
+
 }
 
-func mergeTasks(calendarEvents []*CalendarEvent, emails[]*Email, jiraTasks []*JIRATask) string/*[]*Task*/ {
-//	var tasks []*Task
-	timeTillFirstTask := time.Now().Sub(calendarEvents[0].DatetimeStart)
+func mergeTasks(c *gin.Context, calendarEvents []*CalendarEvent, emails[]*Email, jiraTasks []*JIRATask) []interface{} {
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	var userObject User
+	userID, _ := c.Get("user")
+	userCollection := db.Collection("users")
+	userCollection.FindOne(nil, bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
+
+	emailDomainRegex, _ := regexp.Compile("@(.+)")
+
+	userDomain := emailDomainRegex.FindStringSubmatch(userObject.Email)[0]
+
+	var tasks []interface{}
 
 	sort.SliceStable(calendarEvents, func(i, j int) bool {
-		return calendarEvents[i].DatetimeStart.Before(calendarEvents[j].DatetimeStart)
+		return calendarEvents[i].DatetimeStart.Time().Before(calendarEvents[j].DatetimeStart.Time())
 	})
 
 	sort.SliceStable(emails, func(i, j int) bool {
-		return calendarEvents[i].DatetimeStart.Before(calendarEvents[j].DatetimeStart)
+		if emails[i].SenderDomain == userDomain && emails[j].SenderDomain != userDomain {
+			return true
+		} else if emails[j].SenderDomain == userDomain && emails[i].SenderDomain != userDomain {
+			return false
+		} else {
+			return emails[i].TimeSent.Time().Before(emails[j].TimeSent.Time())
+		}
 	})
 
-	return timeTillFirstTask.String()
+	sevenDaysFromNow := time.Now().AddDate(0, 0, 7)
+	sort.SliceStable(jiraTasks, func(i, j int) bool {
+		if jiraTasks[i].DueDate > 0 &&
+			jiraTasks[j].DueDate > 0 &&
+			jiraTasks[i].DueDate.Time().Before(sevenDaysFromNow) &&
+			jiraTasks[j].DueDate.Time().Before(sevenDaysFromNow) {
+			return jiraTasks[i].DueDate.Time().Before(jiraTasks[j].DueDate.Time())
+		} else if jiraTasks[i].DueDate == 0 && jiraTasks[j].DueDate > 0  {
+			return true
+		} else if jiraTasks[i].DueDate > 0 && jiraTasks[j].DueDate == 0 {
+			return false
+		} else if jiraTasks[i].Priority > 0 && jiraTasks[j].Priority > 0 && jiraTasks[i].Priority != jiraTasks[j].Priority {
+			return jiraTasks[i].Priority > jiraTasks[j].Priority
+		} else if jiraTasks[i].Priority > 0 && jiraTasks[j].Priority == 0 {
+			return true
+		} else if jiraTasks[i].Priority == 0 && jiraTasks[j].Priority > 0 {
+			return false
+		} else {
+			return jiraTasks[i].TaskNumber > jiraTasks[j].TaskNumber
+		}
+	})
+
+	event := calendarEvents[0]
+	timeUntilEvent := event.DatetimeStart.Time().Sub(time.Now())
+
+	eventsIndex := 0
+	emailsIndex := 0
+	taskIndex := 0
+	for emailsIndex < len(emails) && taskIndex < len(jiraTasks) {
+		var chosenItem interface{}
+
+		if emailsIndex >= len(emails) {
+			chosenItem = jiraTasks[taskIndex]
+		} else if taskIndex >= len(jiraTasks) {
+			chosenItem = emails[emailsIndex]
+		} else if emails[emailsIndex].SenderDomain == userDomain {
+			chosenItem = emails[emailsIndex]
+		} else {
+			chosenItem = jiraTasks[taskIndex]
+		}
+
+		var proposedDuration time.Duration
+
+		switch chosenItem.(type) {
+		case JIRATask:
+			proposedDuration = time.Hour
+		case Email:
+			if emails[emailsIndex].SenderDomain == userDomain {
+				proposedDuration = time.Minute * 5
+			} else {
+				proposedDuration = time.Minute * 2
+			}
+		default:
+			proposedDuration = 0
+		}
+
+		if timeUntilEvent.Minutes() < proposedDuration.Minutes() {
+			tasks = append(tasks, calendarEvents[eventsIndex])
+			eventsIndex++
+			if eventsIndex >= len(calendarEvents) {
+				timeUntilEvent =  1 << 63 - 1
+			} else {
+				timeUntilEvent = calendarEvents[eventsIndex].DatetimeStart.Time().Sub(calendarEvents[eventsIndex - 1].DatetimeStart.Time())
+			}
+		} else {
+			tasks = append(tasks, chosenItem)
+			switch chosenItem.(type) {
+			case JIRATask:
+				taskIndex++
+			case Email:
+				emailsIndex++
+			default:
+				break
+			}
+		}
+	}
+	for eventsIndex < len(calendarEvents) {
+		tasks = append(tasks, calendarEvents[eventsIndex])
+		eventsIndex++
+	}
 
 
-	//return tasks
+	return tasks
 }
 
 func loadEmails (c *gin.Context, client *http.Client, result chan <- []*Email) {
@@ -252,10 +349,12 @@ func loadEmails (c *gin.Context, client *http.Client, result chan <- []*Email) {
 	userCollection := db.Collection("users")
 	err := userCollection.FindOne(nil, bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
 
+	taskCollection := db.Collection("tasks")
+
 	var emails []*Email
-
+	
 	gmailService, err := gmail.New(client)
-
+	
 	if err != nil {
 		log.Fatalf("Unable to create Gmail service: %v", err)
 	}
@@ -278,17 +377,33 @@ func loadEmails (c *gin.Context, client *http.Client, result chan <- []*Email) {
 				title = header.Value
 			}
 		}
+		
+		e := Email{
+			Task:        Task{
+				IDExternal:    threadListItem.Id,
+				Sender:        sender,
+				Source:        TaskSourceGmail.Name,
+				Deeplink:      fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
+				Title:         title,
+				Logo:          TaskSourceGmail.Logo,
+			},
+			SenderDomain: "gmail.com",
+		}
 
-		emails = append(emails, &Email{
-			IDExternal: threadListItem.Id,
-			SenderName:     sender,
-			SenderEmail: "",
-			Datetime: "",
-			Subject: title,
-			Deeplink: 	fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
-		})
+		taskCollection.UpdateOne(
+			nil,
+			bson.M{
+				"$and": []bson.M{
+					{"id_external": e.IDExternal},
+					{"source": e.Source},
+				},
+			},
+			bson.D{{"$set",  e}},
+			options.Update().SetUpsert(true),
+		)
+
+		emails = append(emails, &e)
 	}
-
 	result <- emails
 }
 
@@ -303,11 +418,14 @@ func loadCalendarEvents (client *http.Client, result chan <- []*CalendarEvent, o
 	} else {
 		calendarService, err = calendar.New(client)
 	}
-
-
+	
 	if err != nil {
 		log.Fatalf("Unable to create Calendar service: %v", err)
 	}
+
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	taskCollection := db.Collection("tasks")
 
 	t := time.Now()
 	//strip out hours/minutes/seconds of today to find the start of the day
@@ -341,14 +459,30 @@ func loadCalendarEvents (client *http.Client, result chan <- []*CalendarEvent, o
 		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
 		endTime, _ :=  time.Parse(time.RFC3339, event.End.DateTime)
 
-		events = append(events, &CalendarEvent{
+		e := &CalendarEvent{Task{
 			IDExternal:    event.Id,
-			DatetimeEnd:   endTime,
-			DatetimeStart: startTime,
+			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+			Source:        TaskSourceGoogleCalendar.Name,
+			Deeplink:      event.HtmlLink,
 			Title:         event.Summary,
-			Deeplink:	   event.HtmlLink,
-		})
+			Logo:          TaskSourceGoogleCalendar.Logo,
+		}}
+
+		taskCollection.UpdateOne(
+			nil,
+			bson.M{
+				"$and": []bson.M{
+					{"id_external": e.IDExternal},
+					{"source": e.Source},
+				},
+			},
+			bson.D{{"$set",  e}},
+			options.Update().SetUpsert(true),
+		)
+		events = append(events, e)
 	}
+
 	result <- events
 }
 
