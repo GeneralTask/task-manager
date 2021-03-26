@@ -72,12 +72,15 @@ type JIRASite struct {
 
 // JIRATask represents the API detail result for issues - only fields we need
 type JIRATask struct {
-	Fields struct {
-		DueDate string `json:"duedate"`
-		Summary string `json:"summary"`
-	} `json:"fields"`
-	ID  string `json:"id"`
-	Key string `json:"key"`
+	Fields JIRATaskFields `json:"fields"`
+	ID     string         `json:"id"`
+	Key    string         `json:"key"`
+}
+
+// JIRATaskFields ...
+type JIRATaskFields struct {
+	DueDate string `json:"duedate"`
+	Summary string `json:"summary"`
 }
 
 // JIRATaskList represents the API list result for issues - only fields we need
@@ -522,7 +525,7 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	if api.JIRAConfigValues.CloudIDURL != nil {
 		cloudIDURL = *api.JIRAConfigValues.CloudIDURL
 	}
-	req, err = http.NewRequest("GET", cloudIDURL, bytes.NewBuffer(params))
+	req, err = http.NewRequest("GET", cloudIDURL, nil)
 	if err != nil {
 		log.Printf("Error forming cloud ID request: %v", err)
 		result <- []*Task{}
@@ -562,14 +565,14 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	}
 	log.Println(JIRASites[0])
 	cloudID := JIRASites[0].ID
-	apiBaseURL := "https://api.atlassian.com/ex/jira/" + cloudID + "/"
+	apiBaseURL := "https://api.atlassian.com/ex/jira/" + cloudID
 	log.Printf("Base URL: %s", apiBaseURL)
 	if api.JIRAConfigValues.APIBaseURL != nil {
 		apiBaseURL = *api.JIRAConfigValues.APIBaseURL
 	}
 	JQL := "assignee=currentuser() AND status != Done"
 	log.Printf("Query string: %s", JQL)
-	req, err = http.NewRequest("GET", apiBaseURL+"rest/api/2/search?jql="+url.QueryEscape(JQL), bytes.NewBuffer(params))
+	req, err = http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
 	if err != nil {
 		log.Printf("Error forming search request: %v", err)
 		result <- []*Task{}
@@ -669,6 +672,7 @@ func CORSMiddleware(c *gin.Context) {
 }
 
 func getRouter(api *API) *gin.Engine {
+	// Setting release mode has the benefit of reducing spam on the unit test output
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
