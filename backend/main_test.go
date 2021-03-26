@@ -466,7 +466,13 @@ func TestLoadJIRATasks(t *testing.T) {
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
-	t.Run("RefreshTokenFailed", func(t *testing.T) {})
+	t.Run("RefreshTokenFailed", func(t *testing.T) {
+		tokenServer := getServerForJIRA(t, http.StatusUnauthorized, "oopsie whoopsie")
+		var JIRATasks = make(chan []*Task)
+		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL}}, externalAPITokenCollection, primitive.NewObjectID(), JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 0, len(result))
+	})
 	t.Run("CloudIDFetchFailed", func(t *testing.T) {})
 	t.Run("EmptyCloudIDResponse", func(t *testing.T) {})
 	t.Run("SearchFailed", func(t *testing.T) {})
