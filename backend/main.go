@@ -70,6 +70,21 @@ type JIRASite struct {
 	AvatarURL string   `json:"avatarUrl`
 }
 
+// JIRATask represents the API detail result for issues - only fields we need
+type JIRATask struct {
+	Fields struct {
+		DueDate string `json:"duedate"`
+		Summary string `json:"summary"`
+	} `json:"fields"`
+	ID  string `json:"id"`
+	Key string `json:"key"`
+}
+
+// JIRATaskList represents the API list result for issues - only fields we need
+type JIRATaskList struct {
+	Issues []JIRATask `json:"issues"`
+}
+
 // HTTPClient ...
 type HTTPClient interface {
 	Get(url string) (*http.Response, error)
@@ -530,7 +545,7 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		log.Println("No accessible JIRA resources found")
 		return
 	}
-
+	log.Println(JIRASites[0])
 	cloudID := JIRASites[0].ID
 	apiBaseURL := "https://api.atlassian.com/ex/jira/" + cloudID + "/"
 	log.Printf("Base URL: %s", apiBaseURL)
@@ -560,7 +575,28 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		log.Printf("Search failed: %s %v", taskData, resp.StatusCode)
 		return
 	}
-	log.Println(string(taskData))
+
+	var jiraTasks JIRATaskList
+	err = json.Unmarshal(taskData, &jiraTasks)
+	if err != nil {
+		log.Printf("Failed to parse JIRA tasks: %v", err)
+	}
+	log.Println(jiraTasks)
+
+	var tasks []*Task
+	for _, jiraTask := range jiraTasks.Issues {
+		tasks = append(tasks, &Task{
+			ID:         guuid.New().String(),
+			IDExternal: jiraTask.ID,
+			IDOrdering: len(tasks),
+			Deeplink:   JIRASites[0].URL + "/browse/" + jiraTask.Key,
+			Source:     TaskSourceJIRA.Name,
+			Title:      jiraTask.Fields.Summary,
+			Logo:       TaskSourceJIRA.Logo,
+		})
+	}
+	log.Println(tasks[0])
+	result <- tasks
 }
 
 func (api *API) ping(c *gin.Context) {
