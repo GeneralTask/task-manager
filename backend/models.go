@@ -17,7 +17,7 @@ const (
 type User struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty"`
 	GoogleID string             `bson:"google_id,omitempty"`
-	Email 	 string 			`bson:"email,omitempty"`
+	Email    string             `bson:"email,omitempty"`
 }
 
 // InternalAPIToken model
@@ -44,16 +44,17 @@ type Task struct {
 	DatetimeStart string `json:"datetime_start"`
 	Sender        string `json:"sender"`
 	Source        string `json:"source"`
-	Deeplink	  string `json:"link"`
+	Deeplink      string `json:"link"`
 	Title         string `json:"title"`
-	Logo		  string `json:"logo_url"`
+	Logo          string `json:"logo_url"`
 }
 
 type TaskSource struct {
-	Name    string
-	Logo    string
+	Name string
+	Logo string
 }
 
 //todo: replace with self-hosted logos: https://app.asana.com/0/1199951001302650/1200025401212320/f
 var TaskSourceGoogleCalendar = TaskSource{"gcal", "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Google_Calendar_icon.svg/1200px-Google_Calendar_icon.svg.png"}
 var TaskSourceGmail = TaskSource{"gmail", "https://1000logos.net/wp-content/uploads/2018/05/Gmail-logo.png"}
+var TaskSourceJIRA = TaskSource{"jira", "https://zulipchat.com/static/images/integrations/logos/jira.svg"}

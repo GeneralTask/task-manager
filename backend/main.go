@@ -9,10 +9,12 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
@@ -38,9 +40,52 @@ type GoogleUserInfo struct {
 	EMAIL string `json:"email"`
 }
 
+// JIRAAuthToken ...
+type JIRAAuthToken struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	Scope        string `json:"scope"`
+	ExpiresIn    int    `json:"expires_in"`
+	TokenType    string `json:"token_type"`
+}
+
+// JIRAConfig ...
+type JIRAConfig struct {
+	APIBaseURL *string
+	CloudIDURL *string
+	TokenURL   *string
+}
+
 // JIRARedirectParams ...
 type JIRARedirectParams struct {
 	Code string `form:"code"`
+}
+
+// JIRASite ...
+type JIRASite struct {
+	ID        string   `json:"id"`
+	Name      string   `json:"name"`
+	URL       string   `json:"url"`
+	Scopes    []string `json:"scopes"`
+	AvatarURL string   `json:"avatarUrl`
+}
+
+// JIRATask represents the API detail result for issues - only fields we need
+type JIRATask struct {
+	Fields JIRATaskFields `json:"fields"`
+	ID     string         `json:"id"`
+	Key    string         `json:"key"`
+}
+
+// JIRATaskFields ...
+type JIRATaskFields struct {
+	DueDate string `json:"duedate"`
+	Summary string `json:"summary"`
+}
+
+// JIRATaskList represents the API list result for issues - only fields we need
+type JIRATaskList struct {
+	Issues []JIRATask `json:"issues"`
 }
 
 // HTTPClient ...
@@ -73,8 +118,8 @@ type OauthConfigWrapper interface {
 
 // API is the object containing API route handlers
 type API struct {
-	GoogleConfig OauthConfigWrapper
-	JIRATokenURL *string
+	GoogleConfig     OauthConfigWrapper
+	JIRAConfigValues JIRAConfig
 }
 
 func getGoogleConfig() OauthConfigWrapper {
@@ -127,8 +172,8 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 	}
 	params := []byte(`{"grant_type": "authorization_code","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","code": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
-	if api.JIRATokenURL != nil {
-		tokenURL = *api.JIRATokenURL
+	if api.JIRAConfigValues.TokenURL != nil {
+		tokenURL = *api.JIRAConfigValues.TokenURL
 	}
 	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
@@ -284,7 +329,7 @@ func (api *API) tasksList(c *gin.Context) {
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	var googleToken ExternalAPIToken
 	userID, _ := c.Get("user")
-	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&googleToken)
+	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken)
 
 	if err != nil {
 		log.Fatalf("Failed to fetch external API token: %v", err)
@@ -301,12 +346,15 @@ func (api *API) tasksList(c *gin.Context) {
 	var emails = make(chan []*Task)
 	go loadEmails(c, client, emails)
 
-	allTasks := mergeTasks(<-calendarEvents, <-emails)
+	var JIRATasks = make(chan []*Task)
+	go loadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
+
+	allTasks := mergeTasks(<-calendarEvents, <-emails, <-JIRATasks)
 
 	c.JSON(200, allTasks)
 }
 
-func mergeTasks(calendarEvents []*Task, emails []*Task) []*Task {
+func mergeTasks(calendarEvents []*Task, emails []*Task, JIRATasks []*Task) []*Task {
 	//for now we'll just return cal invites until we get merging logic done.
 	return calendarEvents
 }
@@ -319,7 +367,7 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Task) {
 	userCollection := db.Collection("users")
 	err := userCollection.FindOne(nil, bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
 
-	var emails []*Task
+	emails := []*Task{}
 
 	gmailService, err := gmail.New(client)
 
@@ -362,7 +410,7 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Task) {
 }
 
 func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl *string) {
-	var events []*Task
+	events := []*Task{}
 
 	var calendarService *calendar.Service
 	var err error
@@ -372,7 +420,6 @@ func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl 
 	} else {
 		calendarService, err = calendar.New(client)
 	}
-
 	if err != nil {
 		log.Fatalf("Unable to create Calendar service: %v", err)
 	}
@@ -419,6 +466,156 @@ func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl 
 		})
 	}
 	result <- events
+}
+
+func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, result chan<- []*Task) {
+	var JIRAToken ExternalAPIToken
+	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&JIRAToken)
+	if err != nil {
+		// No JIRA token exists, so don't populate result
+		result <- []*Task{}
+		return
+	}
+
+	var token JIRAAuthToken
+	err = json.Unmarshal([]byte(JIRAToken.Token), &token)
+	if err != nil {
+		log.Printf("Failed to parse JIRA token: %v", err)
+		result <- []*Task{}
+		return
+	}
+	params := []byte(`{"grant_type": "refresh_token","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","refresh_token": "` + token.RefreshToken + `"}`)
+	tokenURL := "https://auth.atlassian.com/oauth/token"
+	if api.JIRAConfigValues.TokenURL != nil {
+		tokenURL = *api.JIRAConfigValues.TokenURL
+	}
+	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
+	if err != nil {
+		log.Printf("Error forming token request: %v", err)
+		result <- []*Task{}
+		return
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("Failed to request token: %v", err)
+		result <- []*Task{}
+		return
+	}
+	tokenString, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Failed to read token response: %v", err)
+		result <- []*Task{}
+		return
+	}
+	if resp.StatusCode != 200 {
+		log.Printf("Authorization failed: %s", tokenString)
+		result <- []*Task{}
+		return
+	}
+	var newToken JIRAAuthToken
+	err = json.Unmarshal(tokenString, &newToken)
+	if err != nil {
+		log.Printf("Failed to parse new JIRA token: %v", err)
+		result <- []*Task{}
+		return
+	}
+
+	cloudIDURL := "https://api.atlassian.com/oauth/token/accessible-resources"
+	if api.JIRAConfigValues.CloudIDURL != nil {
+		cloudIDURL = *api.JIRAConfigValues.CloudIDURL
+	}
+	req, err = http.NewRequest("GET", cloudIDURL, nil)
+	if err != nil {
+		log.Printf("Error forming cloud ID request: %v", err)
+		result <- []*Task{}
+		return
+	}
+	req.Header.Add("Authorization", "Bearer "+newToken.AccessToken)
+	req.Header.Add("Content-Type", "application/json")
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("Failed to load cloud ID: %v", err)
+		result <- []*Task{}
+		return
+	}
+	cloudIDData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Failed to read cloudID response: %v", err)
+		result <- []*Task{}
+		return
+	}
+	if resp.StatusCode != 200 {
+		log.Printf("CloudID request failed: %s", cloudIDData)
+		result <- []*Task{}
+		return
+	}
+	JIRASites := []JIRASite{}
+	err = json.Unmarshal(cloudIDData, &JIRASites)
+	if err != nil {
+		log.Printf("Failed to parse cloud ID response: %v", err)
+		result <- []*Task{}
+		return
+	}
+
+	if len(JIRASites) == 0 {
+		log.Println("No accessible JIRA resources found")
+		result <- []*Task{}
+		return
+	}
+	cloudID := JIRASites[0].ID
+	apiBaseURL := "https://api.atlassian.com/ex/jira/" + cloudID
+	if api.JIRAConfigValues.APIBaseURL != nil {
+		apiBaseURL = *api.JIRAConfigValues.APIBaseURL
+	}
+	JQL := "assignee=currentuser() AND status != Done"
+	req, err = http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
+	if err != nil {
+		log.Printf("Error forming search request: %v", err)
+		result <- []*Task{}
+		return
+	}
+	req.Header.Add("Authorization", "Bearer "+newToken.AccessToken)
+	req.Header.Add("Content-Type", "application/json")
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("Failed to load search results: %v", err)
+		result <- []*Task{}
+		return
+	}
+	taskData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Failed to read search response: %v", err)
+		result <- []*Task{}
+		return
+	}
+	if resp.StatusCode != 200 {
+		log.Printf("Search failed: %s %v", taskData, resp.StatusCode)
+		result <- []*Task{}
+		return
+	}
+
+	var jiraTasks JIRATaskList
+	err = json.Unmarshal(taskData, &jiraTasks)
+	if err != nil {
+		log.Printf("Failed to parse JIRA tasks: %v", err)
+		result <- []*Task{}
+		return
+	}
+
+	var tasks []*Task
+	for _, jiraTask := range jiraTasks.Issues {
+		tasks = append(tasks, &Task{
+			ID:         guuid.New().String(),
+			IDExternal: jiraTask.ID,
+			IDOrdering: len(tasks),
+			Deeplink:   JIRASites[0].URL + "/browse/" + jiraTask.Key,
+			Source:     TaskSourceJIRA.Name,
+			Title:      jiraTask.Fields.Summary,
+			Logo:       TaskSourceJIRA.Logo,
+		})
+	}
+	result <- tasks
 }
 
 func (api *API) ping(c *gin.Context) {
@@ -471,6 +668,8 @@ func CORSMiddleware(c *gin.Context) {
 }
 
 func getRouter(api *API) *gin.Engine {
+	// Setting release mode has the benefit of reducing spam on the unit test output
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	// Allow CORS for frontend API requests

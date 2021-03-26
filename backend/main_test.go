@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/googleapi"
@@ -124,8 +125,8 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		)
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
-		server := getServerForJIRA(t, http.StatusUnauthorized, `{}`)
-		router := getRouter(&API{JIRATokenURL: &server.URL})
+		server := getTokenServerForJIRA(t, http.StatusUnauthorized, false)
+		router := getRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &server.URL}})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc", nil)
 		authToken := login("approved@generaltask.io")
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
@@ -141,8 +142,8 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		)
 	})
 	t.Run("Success", func(t *testing.T) {
-		server := getServerForJIRA(t, http.StatusOK, `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`)
-		router := getRouter(&API{JIRATokenURL: &server.URL})
+		server := getTokenServerForJIRA(t, http.StatusOK, false)
+		router := getRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &server.URL}})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc", nil)
 		authToken := login("approved@generaltask.io")
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
@@ -393,65 +394,212 @@ func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder
 }
 
 func TestCalendar(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		standardEvent := calendar.Event{
+			Created:        "2021-02-25T17:53:01.000Z",
+			Summary:        "Standard Event",
+			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:       "generaltask.io",
+			Id:             "standard_event",
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
 
-	standardEvent := calendar.Event{
-		Created:        "2021-02-25T17:53:01.000Z",
-		Summary:        "Standard Event",
-		Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-		End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-		HtmlLink:       "generaltask.io",
-		Id:             "standard_event",
-		ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
-	}
+		standardTask := Task{
+			IDOrdering:    0,
+			IDExternal:    "standard_event",
+			DatetimeStart: "2021-03-06T15:00:00-05:00",
+			DatetimeEnd:   "2021-03-06T15:30:00-05:00",
+			Deeplink:      "generaltask.io",
+			Title:         "Standard Event",
+			Source:        TaskSourceGoogleCalendar.Name,
+			Logo:          TaskSourceGoogleCalendar.Logo,
+		}
 
-	standardTask := Task{
-		IDOrdering:    0,
-		IDExternal:    "standard_event",
-		DatetimeStart: "2021-03-06T15:00:00-05:00",
-		DatetimeEnd:   "2021-03-06T15:30:00-05:00",
-		Deeplink:      "generaltask.io",
-		Title:         "Standard Event",
-		Source:        TaskSourceGoogleCalendar.Name,
-		Logo:          TaskSourceGoogleCalendar.Logo,
-	}
+		autoEvent := calendar.Event{
+			Created:        "2021-02-25T17:53:01.000Z",
+			Summary:        "Auto Event (via Clockwise)",
+			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:       "generaltask.io",
+			Id:             "auto_event",
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
 
-	autoEvent := calendar.Event{
-		Created:        "2021-02-25T17:53:01.000Z",
-		Summary:        "Auto Event (via Clockwise)",
-		Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-		End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-		HtmlLink:       "generaltask.io",
-		Id:             "auto_event",
-		ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
-	}
+		allDayEvent := calendar.Event{
+			Created:        "2021-02-25T17:53:01.000Z",
+			Summary:        "All day Event",
+			Start:          &calendar.EventDateTime{Date: "2021-03-06"},
+			End:            &calendar.EventDateTime{Date: "2021-03-06"},
+			HtmlLink:       "generaltask.io",
+			Id:             "all_day_event",
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
 
-	allDayEvent := calendar.Event{
-		Created:        "2021-02-25T17:53:01.000Z",
-		Summary:        "All day Event",
-		Start:          &calendar.EventDateTime{Date: "2021-03-06"},
-		End:            &calendar.EventDateTime{Date: "2021-03-06"},
-		HtmlLink:       "generaltask.io",
-		Id:             "all_day_event",
-		ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
-	}
-
-	server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
-	defer server.Close()
-	var calendarEvents = make(chan []*Task)
-	go loadCalendarEvents(nil, calendarEvents, &server.URL)
-	result := <-calendarEvents
-	assert.Equal(t, 1, len(result))
-	firstTask := result[0]
-	assertTasksEqual(t, &standardTask, firstTask)
+		server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+		defer server.Close()
+		var calendarEvents = make(chan []*Task)
+		go loadCalendarEvents(nil, calendarEvents, &server.URL)
+		result := <-calendarEvents
+		assert.Equal(t, 1, len(result))
+		firstTask := result[0]
+		assertTasksEqual(t, &standardTask, firstTask)
+	})
+	t.Run("EmptyResult", func(t *testing.T) {
+		server := getServerForTasks([]*calendar.Event{})
+		defer server.Close()
+		var calendarEvents = make(chan []*Task)
+		go loadCalendarEvents(nil, calendarEvents, &server.URL)
+		result := <-calendarEvents
+		assert.Equal(t, 0, len(result))
+	})
 }
 
-func getServerForJIRA(t *testing.T, statusCode int, body string) *httptest.Server {
+func TestLoadJIRATasks(t *testing.T) {
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+
+	t.Run("MissingJIRAToken", func(t *testing.T) {
+		var JIRATasks = make(chan []*Task)
+		userID := primitive.NewObjectID()
+		go loadJIRATasks(&API{}, externalAPITokenCollection, userID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 0, len(result))
+	})
+	t.Run("RefreshTokenFailed", func(t *testing.T) {
+		userID := createJIRAToken(t, externalAPITokenCollection)
+		tokenServer := getTokenServerForJIRA(t, http.StatusUnauthorized, true)
+		var JIRATasks = make(chan []*Task)
+		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 0, len(result))
+	})
+	t.Run("CloudIDFetchFailed", func(t *testing.T) {
+		userID := createJIRAToken(t, externalAPITokenCollection)
+		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusUnauthorized, false)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
+		var JIRATasks = make(chan []*Task)
+		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 0, len(result))
+	})
+	t.Run("EmptyCloudIDResponse", func(t *testing.T) {
+		userID := createJIRAToken(t, externalAPITokenCollection)
+		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, true)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
+		var JIRATasks = make(chan []*Task)
+		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 0, len(result))
+	})
+	t.Run("SearchFailed", func(t *testing.T) {
+		userID := createJIRAToken(t, externalAPITokenCollection)
+		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
+		searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
+		var JIRATasks = make(chan []*Task)
+		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 0, len(result))
+	})
+	t.Run("EmptySearchResponse", func(t *testing.T) {
+		userID := createJIRAToken(t, externalAPITokenCollection)
+		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
+		searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
+		var JIRATasks = make(chan []*Task)
+		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 0, len(result))
+	})
+	t.Run("Success", func(t *testing.T) {
+		userID := createJIRAToken(t, externalAPITokenCollection)
+		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
+		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+		var JIRATasks = make(chan []*Task)
+		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 1, len(result))
+
+		expectedTask := Task{
+			IDOrdering:    0,
+			IDExternal:    "42069",
+			DatetimeStart: "",
+			DatetimeEnd:   "",
+			Deeplink:      "https://dankmemes.com/browse/MOON-1969",
+			Title:         "Sample Taskeroni",
+			Source:        TaskSourceJIRA.Name,
+			Logo:          TaskSourceJIRA.Logo,
+		}
+		assertTasksEqual(t, &expectedTask, result[0])
+	})
+}
+
+func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection) *primitive.ObjectID {
+	userID := primitive.NewObjectID()
+	_, err := externalAPITokenCollection.InsertOne(
+		context.Background(),
+		&ExternalAPIToken{
+			Source: "jira",
+			Token:  `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
+			UserID: userID,
+		},
+	)
+	assert.NoError(t, err)
+	return &userID
+}
+
+func getTokenServerForJIRA(t *testing.T, statusCode int, refresh bool) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"grant_type\": \"authorization_code\",\"client_id\": \"7sW3nPubP5vLDktjR2pfAU8cR67906X0\",\"client_secret\": \"u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc\",\"code\": \"123abc\",\"redirect_uri\": \"https://api.generaltask.io/authorize2/jira/callback/\"}", string(body))
+		if refresh {
+			assert.Equal(t, "{\"grant_type\": \"refresh_token\",\"client_id\": \"7sW3nPubP5vLDktjR2pfAU8cR67906X0\",\"client_secret\": \"u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc\",\"refresh_token\": \"sample-token\"}", string(body))
+		} else {
+			assert.Equal(t, "{\"grant_type\": \"authorization_code\",\"client_id\": \"7sW3nPubP5vLDktjR2pfAU8cR67906X0\",\"client_secret\": \"u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc\",\"code\": \"123abc\",\"redirect_uri\": \"https://api.generaltask.io/authorize2/jira/callback/\"}", string(body))
+		}
 		w.WriteHeader(statusCode)
-		w.Write([]byte(`{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`))
+		w.Write([]byte(`{"access_token":"sample-access-token","refresh_token":"sample-refresh-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`))
+	}))
+}
+
+func getCloudIDServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "Bearer sample-access-token", r.Header.Get("Authorization"))
+		body, err := ioutil.ReadAll(r.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "", string(body))
+		w.WriteHeader(statusCode)
+		if empty {
+			w.Write([]byte(`[]`))
+		} else {
+			w.Write([]byte(`[{"id": "teslatothemoon42069", "url": "https://dankmemes.com"}]`))
+		}
+	}))
+}
+
+func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "Bearer sample-access-token", r.Header.Get("Authorization"))
+		body, err := ioutil.ReadAll(r.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "", string(body))
+		w.WriteHeader(statusCode)
+		if empty {
+			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{}})
+			assert.NoError(t, err)
+			w.Write(result)
+		} else {
+			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{{
+				Fields: JIRATaskFields{Summary: "Sample Taskeroni"},
+				ID:     "42069",
+				Key:    "MOON-1969",
+			}}})
+			assert.NoError(t, err)
+			w.Write(result)
+		}
 	}))
 }
 
@@ -473,8 +621,11 @@ func getServerForTasks(events []*calendar.Event) *httptest.Server {
 
 func assertTasksEqual(t *testing.T, a *Task, b *Task) {
 	assert.Equal(t, a.DatetimeStart, b.DatetimeStart)
-	assert.Equal(t, a.DatetimeEnd, a.DatetimeEnd)
+	assert.Equal(t, a.DatetimeEnd, b.DatetimeEnd)
+	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
+	assert.Equal(t, a.IDOrdering, b.IDOrdering)
 	assert.Equal(t, a.Logo, b.Logo)
 	assert.Equal(t, a.Title, b.Title)
+	assert.Equal(t, a.Source, b.Source)
 }
