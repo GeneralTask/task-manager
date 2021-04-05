@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -405,15 +406,20 @@ func TestCalendar(t *testing.T) {
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
-		standardTask := Task{
-			IDOrdering:    0,
-			IDExternal:    "standard_event",
-			DatetimeStart: "2021-03-06T15:00:00-05:00",
-			DatetimeEnd:   "2021-03-06T15:30:00-05:00",
-			Deeplink:      "generaltask.io",
-			Title:         "Standard Event",
-			Source:        TaskSourceGoogleCalendar.Name,
-			Logo:          TaskSourceGoogleCalendar.Logo,
+		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
+		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
+
+		standardTask := CalendarEvent{
+			TaskBase: TaskBase{
+				IDOrdering: 0,
+				IDExternal: "standard_event",
+				Deeplink:   "generaltask.io",
+				Title:      "Standard Event",
+				Source:     TaskSourceGoogleCalendar.Name,
+				Logo:       TaskSourceGoogleCalendar.Logo,
+			},
+			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 		}
 
 		autoEvent := calendar.Event{
@@ -438,17 +444,17 @@ func TestCalendar(t *testing.T) {
 
 		server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
 		defer server.Close()
-		var calendarEvents = make(chan []*Task)
+		var calendarEvents = make(chan []*CalendarEvent)
 		go loadCalendarEvents(nil, calendarEvents, &server.URL)
 		result := <-calendarEvents
 		assert.Equal(t, 1, len(result))
 		firstTask := result[0]
-		assertTasksEqual(t, &standardTask, firstTask)
+		assertCalendarEventsEqual(t, &standardTask, firstTask)
 	})
 	t.Run("EmptyResult", func(t *testing.T) {
 		server := getServerForTasks([]*calendar.Event{})
 		defer server.Close()
-		var calendarEvents = make(chan []*Task)
+		var calendarEvents = make(chan []*CalendarEvent)
 		go loadCalendarEvents(nil, calendarEvents, &server.URL)
 		result := <-calendarEvents
 		assert.Equal(t, 0, len(result))
@@ -523,15 +529,17 @@ func TestLoadJIRATasks(t *testing.T) {
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result))
 
+		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		expectedTask := Task{
-			IDOrdering:    0,
-			IDExternal:    "42069",
-			DatetimeStart: "",
-			DatetimeEnd:   "",
-			Deeplink:      "https://dankmemes.com/browse/MOON-1969",
-			Title:         "Sample Taskeroni",
-			Source:        TaskSourceJIRA.Name,
-			Logo:          TaskSourceJIRA.Logo,
+			TaskBase: TaskBase{
+				IDOrdering: 0,
+				IDExternal: "42069",
+				Deeplink:   "https://dankmemes.com/browse/MOON-1969",
+				Title:      "Sample Taskeroni",
+				Source:     TaskSourceJIRA.Name,
+				Logo:       TaskSourceJIRA.Logo,
+			},
+			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
 		assertTasksEqual(t, &expectedTask, result[0])
 	})
@@ -593,7 +601,7 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 			w.Write(result)
 		} else {
 			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{{
-				Fields: JIRATaskFields{Summary: "Sample Taskeroni"},
+				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni"},
 				ID:     "42069",
 				Key:    "MOON-1969",
 			}}})
@@ -619,9 +627,18 @@ func getServerForTasks(events []*calendar.Event) *httptest.Server {
 	}))
 }
 
-func assertTasksEqual(t *testing.T, a *Task, b *Task) {
+func assertCalendarEventsEqual(t *testing.T, a *CalendarEvent, b *CalendarEvent) {
 	assert.Equal(t, a.DatetimeStart, b.DatetimeStart)
 	assert.Equal(t, a.DatetimeEnd, b.DatetimeEnd)
+	assert.Equal(t, a.Deeplink, b.Deeplink)
+	assert.Equal(t, a.IDExternal, b.IDExternal)
+	assert.Equal(t, a.IDOrdering, b.IDOrdering)
+	assert.Equal(t, a.Logo, b.Logo)
+	assert.Equal(t, a.Title, b.Title)
+	assert.Equal(t, a.Source, b.Source)
+}
+
+func assertTasksEqual(t *testing.T, a *Task, b *Task) {
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)

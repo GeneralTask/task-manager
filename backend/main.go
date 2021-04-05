@@ -340,10 +340,10 @@ func (api *API) tasksList(c *gin.Context) {
 	config := getGoogleConfig()
 	client := config.Client(context.Background(), &token).(*http.Client)
 
-	var calendarEvents = make(chan []*Task)
+	var calendarEvents = make(chan []*CalendarEvent)
 	go loadCalendarEvents(client, calendarEvents, nil)
 
-	var emails = make(chan []*Task)
+	var emails = make(chan []*Email)
 	go loadEmails(c, client, emails)
 
 	var JIRATasks = make(chan []*Task)
@@ -354,12 +354,16 @@ func (api *API) tasksList(c *gin.Context) {
 	c.JSON(200, allTasks)
 }
 
-func mergeTasks(calendarEvents []*Task, emails []*Task, JIRATasks []*Task) []*Task {
+func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*Task) []interface{} {
+	var tasks []interface{}
+	for _, calendarEvent := range calendarEvents {
+		tasks = append(tasks, calendarEvent)
+	}
 	//for now we'll just return cal invites until we get merging logic done.
-	return calendarEvents
+	return tasks
 }
 
-func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Task) {
+func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
 	var userObject User
@@ -367,7 +371,7 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Task) {
 	userCollection := db.Collection("users")
 	err := userCollection.FindOne(nil, bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
 
-	emails := []*Task{}
+	emails := []*Email{}
 
 	gmailService, err := gmail.New(client)
 
@@ -394,23 +398,24 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Task) {
 			}
 		}
 
-		emails = append(emails, &Task{
-			ID:         guuid.New().String(),
-			IDExternal: threadListItem.Id,
-			IDOrdering: len(emails),
-			Sender:     sender,
-			Source:     TaskSourceGmail.Name,
-			Deeplink:   fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
-			Title:      title,
-			Logo:       TaskSourceGmail.Logo,
+		emails = append(emails, &Email{
+			TaskBase: TaskBase{
+				IDExternal: threadListItem.Id,
+				Sender:     sender,
+				Source:     TaskSourceGmail.Name,
+				Deeplink:   fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
+				Title:      title,
+				Logo:       TaskSourceGmail.Logo,
+			},
+			SenderDomain: "gmail.com", // TODO: read in sender domain
 		})
 	}
 
 	result <- emails
 }
 
-func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl *string) {
-	events := []*Task{}
+func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, overrideUrl *string) {
+	events := []*CalendarEvent{}
 
 	var calendarService *calendar.Service
 	var err error
@@ -453,16 +458,19 @@ func loadCalendarEvents(client *http.Client, result chan<- []*Task, overrideUrl 
 			continue
 		}
 
-		events = append(events, &Task{
-			ID:            guuid.New().String(),
-			IDExternal:    event.Id,
-			IDOrdering:    len(events),
-			DatetimeEnd:   event.End.DateTime,
-			DatetimeStart: event.Start.DateTime,
-			Deeplink:      event.HtmlLink,
-			Source:        TaskSourceGoogleCalendar.Name,
-			Title:         event.Summary,
-			Logo:          TaskSourceGoogleCalendar.Logo,
+		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
+		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
+
+		events = append(events, &CalendarEvent{
+			TaskBase: TaskBase{
+				IDExternal: event.Id,
+				Deeplink:   event.HtmlLink,
+				Source:     TaskSourceGoogleCalendar.Name,
+				Title:      event.Summary,
+				Logo:       TaskSourceGoogleCalendar.Logo,
+			},
+			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 		})
 	}
 	result <- events
@@ -605,15 +613,20 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 
 	var tasks []*Task
 	for _, jiraTask := range jiraTasks.Issues {
-		tasks = append(tasks, &Task{
-			ID:         guuid.New().String(),
-			IDExternal: jiraTask.ID,
-			IDOrdering: len(tasks),
-			Deeplink:   JIRASites[0].URL + "/browse/" + jiraTask.Key,
-			Source:     TaskSourceJIRA.Name,
-			Title:      jiraTask.Fields.Summary,
-			Logo:       TaskSourceJIRA.Logo,
-		})
+		task := &Task{
+			TaskBase: TaskBase{
+				IDExternal: jiraTask.ID,
+				Deeplink:   JIRASites[0].URL + "/browse/" + jiraTask.Key,
+				Source:     TaskSourceJIRA.Name,
+				Title:      jiraTask.Fields.Summary,
+				Logo:       TaskSourceJIRA.Logo,
+			},
+		}
+		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)
+		if err == nil {
+			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		}
+		tasks = append(tasks, task)
 	}
 	result <- tasks
 }

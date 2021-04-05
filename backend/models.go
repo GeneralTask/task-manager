@@ -36,17 +36,34 @@ type ExternalAPIToken struct {
 }
 
 // Task json model
+type TaskBase struct {
+	ID         string `json:"id"`
+	IDExternal string `json:"id_external"`
+	IDOrdering int    `json:"id_ordering"`
+	Sender     string `json:"sender"`
+	Source     string `json:"source"`
+	Deeplink   string `json:"link"`
+	Title      string `json:"title"`
+	Logo       string `json:"logo_url"`
+}
+
+type CalendarEvent struct {
+	TaskBase      `bson:",inline"`
+	DatetimeEnd   primitive.DateTime `json:"datetime_end"`
+	DatetimeStart primitive.DateTime `json:"datetime_start"`
+}
+
+type Email struct {
+	TaskBase     `bson:",inline"`
+	SenderDomain string             `bson:"sender_email,omitempty"`
+	TimeSent     primitive.DateTime `bson:"time_sent,omitempty"`
+}
+
 type Task struct {
-	ID            string `json:"id"`
-	IDExternal    string `json:"id_external"`
-	IDOrdering    int    `json:"id_ordering"`
-	DatetimeEnd   string `json:"datetime_end"`
-	DatetimeStart string `json:"datetime_start"`
-	Sender        string `json:"sender"`
-	Source        string `json:"source"`
-	Deeplink      string `json:"link"`
-	Title         string `json:"title"`
-	Logo          string `json:"logo_url"`
+	TaskBase   `bson:",inline"`
+	DueDate    primitive.DateTime `bson:"due_date,omitempty"`
+	Priority   int                `bson:"priority,omitempty"`
+	TaskNumber int                `bson:"task_number,omitempty"`
 }
 
 type TaskSource struct {
