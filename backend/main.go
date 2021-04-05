@@ -374,10 +374,12 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
 	emails := []*Email{}
 
 	gmailService, err := gmail.New(client)
-
 	if err != nil {
 		log.Fatalf("Unable to create Gmail service: %v", err)
 	}
+
+	taskCollection := db.Collection("tasks")
+
 	threadsResponse, err := gmailService.Users.Threads.List("me").Q("is:unread").Do()
 	if err != nil {
 		log.Fatalf("Failed to load Gmail threads for user: %v", err)
@@ -398,7 +400,7 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
 			}
 		}
 
-		emails = append(emails, &Email{
+		email := &Email{
 			TaskBase: TaskBase{
 				IDExternal: threadListItem.Id,
 				Sender:     sender,
@@ -408,7 +410,19 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
 				Logo:       TaskSourceGmail.Logo,
 			},
 			SenderDomain: "gmail.com", // TODO: read in sender domain
-		})
+		}
+		taskCollection.UpdateOne(
+			nil,
+			bson.M{
+				"$and": []bson.M{
+					{"id_external": email.IDExternal},
+					{"source": email.Source},
+				},
+			},
+			bson.D{{"$set", email}},
+			options.Update().SetUpsert(true),
+		)
+		emails = append(emails, email)
 	}
 
 	result <- emails
@@ -428,6 +442,10 @@ func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, ove
 	if err != nil {
 		log.Fatalf("Unable to create Calendar service: %v", err)
 	}
+
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	taskCollection := db.Collection("tasks")
 
 	t := time.Now()
 	//strip out hours/minutes/seconds of today to find the start of the day
@@ -461,7 +479,7 @@ func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, ove
 		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
 		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
 
-		events = append(events, &CalendarEvent{
+		event := &CalendarEvent{
 			TaskBase: TaskBase{
 				IDExternal: event.Id,
 				Deeplink:   event.HtmlLink,
@@ -471,7 +489,19 @@ func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, ove
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
-		})
+		}
+		taskCollection.UpdateOne(
+			nil,
+			bson.M{
+				"$and": []bson.M{
+					{"id_external": event.IDExternal},
+					{"source": event.Source},
+				},
+			},
+			bson.D{{"$set", event}},
+			options.Update().SetUpsert(true),
+		)
+		events = append(events, event)
 	}
 	result <- events
 }
@@ -484,6 +514,10 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		result <- []*Task{}
 		return
 	}
+
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	taskCollection := db.Collection("tasks")
 
 	var token JIRAAuthToken
 	err = json.Unmarshal([]byte(JIRAToken.Token), &token)
@@ -626,6 +660,17 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		if err == nil {
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
+		taskCollection.UpdateOne(
+			nil,
+			bson.M{
+				"$and": []bson.M{
+					{"id_external": task.IDExternal},
+					{"source": task.Source},
+				},
+			},
+			bson.D{{"$set", task}},
+			options.Update().SetUpsert(true),
+		)
 		tasks = append(tasks, task)
 	}
 	result <- tasks

@@ -450,6 +450,15 @@ func TestCalendar(t *testing.T) {
 		assert.Equal(t, 1, len(result))
 		firstTask := result[0]
 		assertCalendarEventsEqual(t, &standardTask, firstTask)
+
+		db, dbCleanup := GetDBConnection()
+		defer dbCleanup()
+		taskCollection := db.Collection("tasks")
+
+		var calendarEventFromDB CalendarEvent
+		err := taskCollection.FindOne(nil, bson.D{{"source", TaskSourceGoogleCalendar.Name}, {"id_external", "standard_event"}}).Decode(&calendarEventFromDB)
+		assert.NoError(t, err)
+		assertCalendarEventsEqual(t, &standardTask, &calendarEventFromDB)
 	})
 	t.Run("EmptyResult", func(t *testing.T) {
 		server := getServerForTasks([]*calendar.Event{})
@@ -542,6 +551,15 @@ func TestLoadJIRATasks(t *testing.T) {
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
 		assertTasksEqual(t, &expectedTask, result[0])
+
+		db, dbCleanup := GetDBConnection()
+		defer dbCleanup()
+		taskCollection := db.Collection("tasks")
+
+		var taskFromDB Task
+		err := taskCollection.FindOne(nil, bson.D{{"source", TaskSourceJIRA.Name}, {"id_external", "42069"}}).Decode(&taskFromDB)
+		assert.NoError(t, err)
+		assertTasksEqual(t, &expectedTask, &taskFromDB)
 	})
 }
 
