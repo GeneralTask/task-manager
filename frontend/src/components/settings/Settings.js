@@ -1,7 +1,7 @@
 import React from 'react'
 import "./Settings.css"
 import Account from "./Account"
-import {JIRA_URL, REACT_APP_FRONTEND_BASE_URL} from "../../constants"
+import {JIRA_URL} from "../../constants"
 
 function Settings(){
     return(
