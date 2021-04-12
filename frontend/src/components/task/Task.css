@@ -12,6 +12,7 @@
     margin: 5px 0;
     width: 100%;
     outline: none;
+    background-color: white;
 }
 
 .deeplink {
@@ -165,6 +166,7 @@
     justify-content: center;
     align-items: center;
     position: relative;
+    margin-bottom: 15px;
 }
 
 .task-group-tasks {
