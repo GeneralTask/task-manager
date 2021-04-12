@@ -1,4 +1,4 @@
-import { React } from 'react'
+import { React, useState, useEffect } from 'react'
 import Task from './Task'
 const moment = require('moment');
 
@@ -10,7 +10,7 @@ function ScheduledTask(props) {
                 <Task {...props} />
             </div>
             <div className="task-time-annotation">
-                {props.time_duration}
+                <TimeDuration time_duration={props.time_duration} next_time={props.next_time}/>
             </div>
         </div>
     )
@@ -27,17 +27,35 @@ function UnscheduledTaskGroup(props) {
             </div>
             <div className="task-time-annotation unscheduled-time-annotation-container">
                 <div className="unscheduled-spanbar"></div>
-                <div className="unscheduled-time-annotation">{props.time_duration}</div>
+                <div className="unscheduled-time-spacer"></div>
+                <TimeDuration time_duration={props.time_duration} next_time={props.next_time}/>
             </div>
         </div>
     )
 }
 
-function getTimeStr(datetime1, datetime2){
+function TimeDuration(props) {
+    const [timeStr, setTimeStr] = useState(props.time_duration);
+    useEffect(() => {
+        let timer;
+        if(props.next_time){
+            timer = setInterval(()=>{
+                console.log('hehe')
+            }, 1000);
+        }
+        return () => {
+            if(timer) clearInterval();
+        }
+    }, [])
+    return(
+        <div className="unscheduled-time-annotation">{timeStr}</div>
+    )
+}
+
+// accepts two moment objects
+function getTimeStr(start, end){
     let timeStr = "";
-    if (datetime1 && datetime2) {
-        const start = moment(datetime1);
-        const end = moment(datetime2);
+    if (start && end) {
         const diff = moment.duration(end.diff(start));
         const hours = diff.asHours();
         const minutes = (hours % 1) * 60;
