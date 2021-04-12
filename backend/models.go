@@ -71,6 +71,6 @@ type TaskSource struct {
 	Logo string
 }
 
-var TaskSourceGoogleCalendar = TaskSource{"gcal", "https://generaltask.io/images/gcal.svg"}
-var TaskSourceGmail = TaskSource{"gmail", "https://generaltask.io/images/gmail.svg"}
-var TaskSourceJIRA = TaskSource{"jira", "https://generaltask.io/images/jira.svg"}
+var TaskSourceGoogleCalendar = TaskSource{"gcal", "/images/gcal.svg"}
+var TaskSourceGmail = TaskSource{"gmail", "/images/gmail.svg"}
+var TaskSourceJIRA = TaskSource{"jira", "/images/jira.svg"}
