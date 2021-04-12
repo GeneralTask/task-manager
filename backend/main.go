@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 
@@ -349,18 +350,149 @@ func (api *API) tasksList(c *gin.Context) {
 	var JIRATasks = make(chan []*Task)
 	go loadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
 
-	allTasks := mergeTasks(<-calendarEvents, <-emails, <-JIRATasks)
+	allTasks := mergeTasks(<-calendarEvents, <-emails, <-JIRATasks, "gmail.com")
 
 	c.JSON(200, allTasks)
 }
 
-func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*Task) []interface{} {
-	var tasks []interface{}
-	for _, calendarEvent := range calendarEvents {
-		tasks = append(tasks, calendarEvent)
+func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*Task, userDomain string) []interface{} {
+
+	//sort calendar events by start time.
+	sort.SliceStable(calendarEvents, func(i, j int) bool {
+		return calendarEvents[i].DatetimeStart.Time().Before(calendarEvents[j].DatetimeStart.Time())
+	})
+
+	var allUnscheduledTasks []interface{}
+	for _, e := range emails {
+		allUnscheduledTasks = append(allUnscheduledTasks, e)
 	}
-	//for now we'll just return cal invites until we get merging logic done.
+
+	for _, t := range JIRATasks {
+		allUnscheduledTasks = append(allUnscheduledTasks, t)
+	}
+
+	//first we sort the emails and tasks into a single array
+	sort.SliceStable(allUnscheduledTasks, func(i, j int) bool {
+		a := allUnscheduledTasks[i]
+		b := allUnscheduledTasks[j]
+
+		switch a.(type) {
+		case *Task:
+			switch b.(type) {
+			case *Task:
+				return compareTasks(a.(*Task), b.(*Task))
+			case *Email:
+				return compareTaskEmail(a.(*Task), b.(*Email), userDomain)
+			}
+		case *Email:
+			switch b.(type) {
+			case *Task:
+				return !compareTaskEmail(b.(*Task), a.(*Email), userDomain)
+			case *Email:
+				return compareEmails(a.(*Email), b.(*Email), userDomain)
+			}
+		}
+		return true
+	})
+
+	//we then fill in the gaps with calendar events with these tasks
+
+	var tasks []interface{}
+	var taskGroups [] interface {}
+
+	lastEndTime := time.Now()
+	taskIndex := 0
+	calendarIndex := 0
+	for ; calendarIndex < len(calendarEvents); calendarIndex++ {
+		calendarEvent := calendarEvents[calendarIndex]
+
+		if taskIndex >= len(allUnscheduledTasks) {
+			break
+		}
+
+		remainingTime := calendarEvent.DatetimeStart.Time().Sub(lastEndTime)
+
+		timeAllocation := getTimeAllocation(allUnscheduledTasks[taskIndex])
+		for; remainingTime.Nanoseconds() >= timeAllocation; {
+			tasks = append(tasks, allUnscheduledTasks[taskIndex])
+			remainingTime -= time.Duration(timeAllocation)
+			taskIndex += 1
+			timeAllocation = getTimeAllocation(allUnscheduledTasks[taskIndex])
+			if taskIndex >= len(allUnscheduledTasks) {
+				break
+			}
+		}
+		tasks = append(tasks, calendarEvent)
+		lastEndTime = calendarEvent.DatetimeEnd.Time()
+
+	}
+
+	//add remaining calendar events, if they exist.
+	for ; calendarIndex < len(calendarEvents); calendarIndex ++ {
+		tasks = append(tasks, calendarEvents[calendarIndex])
+	}
+
+	//add remaining non scheduled events, if they exist.
+	for ; taskIndex < len(allUnscheduledTasks); taskIndex ++ {
+		tasks = append(tasks, allUnscheduledTasks[taskIndex])
+	}
+
 	return tasks
+}
+
+func getTimeAllocation(t interface{}) int64 {
+	//We can't just cast this to TaskBase so we need to switch
+	switch t.(type) {
+	case *Email:
+		return t.(*Email).TimeAllocation
+	case *Task:
+		return t.(*Task).TimeAllocation
+	default:
+		return 0
+	}
+}
+
+func compareEmails(e1 *Email, e2 *Email, myDomain string) bool {
+	if e1.SenderDomain == myDomain && e2.SenderDomain != myDomain {
+		return true
+	} else if e1.SenderDomain != myDomain && e2.SenderDomain == myDomain {
+		return false
+	} else {
+		return e1.TimeSent < e2.TimeSent
+	}
+}
+
+func compareTasks(t1 *Task, t2 *Task) bool {
+	sevenDaysFromNow := time.Now().AddDate(0, 0, 7)
+	//if both have due dates before seven days, prioritize the one with the closer due date.
+	if t1.DueDate > 0 &&
+		t2.DueDate > 0 &&
+		t1.DueDate.Time().Before(sevenDaysFromNow) &&
+		t2.DueDate.Time().Before(sevenDaysFromNow) {
+		return t1.DueDate.Time().Before(t2.DueDate.Time())
+	} else if t1.DueDate > 0 && t1.DueDate.Time().Before(sevenDaysFromNow) {
+		//t1 is due within seven days, t2 is not so prioritize t1
+		return true
+	} else if t2.DueDate > 0 && t2.DueDate.Time().Before(sevenDaysFromNow) {
+		//t2 is due within seven days, t1 is not so prioritize t2
+		return false
+	} else if t1.Priority > 0 && t2.Priority > 0 {
+		//if both have a priority, choose the one with the higher priority
+		return t1.Priority > t2.Priority
+	} else if t1.Priority > 0 {
+		//t1 has priority set, t2 does not so prioritize t1.
+		return true
+	} else if t2.Priority > 0 {
+		//t2 has priority set, t1 does not so prioritize t2.
+		return false
+	} else {
+		//if all else fails prioritize by task number.
+		return t1.TaskNumber < t2.TaskNumber
+	}
+}
+
+func compareTaskEmail(t *Task, e *Email, myDomain string) bool {
+	return e.SenderDomain != myDomain
 }
 
 func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {

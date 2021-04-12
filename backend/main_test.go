@@ -664,3 +664,132 @@ func assertTasksEqual(t *testing.T, a *Task, b *Task) {
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.Source, b.Source)
 }
+
+
+func TestMergeTasks(t *testing.T) {
+	t.Run("SimpleMerge", func(t *testing.T) {
+		c1 := CalendarEvent{
+			TaskBase: TaskBase{
+				IDOrdering: 0,
+				IDExternal: "standard_event",
+				Deeplink:   "generaltask.io",
+				Title:      "Standard Event",
+				Source:     TaskSourceGoogleCalendar.Name,
+				Logo:       TaskSourceGoogleCalendar.Logo,
+			},
+			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour + time.Minute)),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
+		}
+
+		c2 := CalendarEvent{
+			TaskBase: TaskBase{
+				IDOrdering: 0,
+				IDExternal: "standard_event_2",
+				Deeplink:   "generaltask.io",
+				Title:      "Standard Event_2",
+				Source:     TaskSourceGoogleCalendar.Name,
+				Logo:       TaskSourceGoogleCalendar.Logo,
+			},
+			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 3 + time.Minute * 20)),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 4)),
+		}
+
+		e1 := Email{
+			TaskBase: TaskBase{
+				IDOrdering: 0,
+				IDExternal: "sample_email",
+				Deeplink:   "generaltask.io",
+				Title:      "Respond to this email",
+				Source:     TaskSourceGmail.Name,
+				Logo:       TaskSourceGmail.Logo,
+				TimeAllocation: (time.Minute * 5).Nanoseconds(),
+			},
+			SenderDomain: "gmail.com",
+			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
+		}
+
+		e2 := Email{
+			TaskBase: TaskBase{
+				IDOrdering: 0,
+				IDExternal: "sample_email_2",
+				Deeplink:   "generaltask.io",
+				Title:      "Respond to this email...eventually",
+				Source:     TaskSourceGmail.Name,
+				Logo:       TaskSourceGmail.Logo,
+				TimeAllocation: (time.Minute * 2).Nanoseconds(),
+			},
+			SenderDomain: "yahoo.com",
+			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
+		}
+
+		t1 := Task{
+			TaskBase: TaskBase{
+				IDOrdering: 0,
+				IDExternal: "sample_task",
+				Deeplink:   "generaltask.io",
+				Title:      "Code x",
+				Source:     TaskSourceJIRA.Name,
+				Logo:       TaskSourceJIRA.Logo,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24)),
+			Priority:   1,
+			TaskNumber: 2,
+		}
+
+		t2 := Task{
+			TaskBase: TaskBase{
+				IDOrdering: 0,
+				IDExternal: "sample_task",
+				Deeplink:   "generaltask.io",
+				Title:      "Code x",
+				Source:     TaskSourceJIRA.Name,
+				Logo:       TaskSourceJIRA.Logo,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
+			Priority:   3,
+			TaskNumber: 12,
+		}
+
+		t3 := Task{
+			TaskBase: TaskBase{
+				IDOrdering: 0,
+				IDExternal: "sample_task",
+				Deeplink:   "generaltask.io",
+				Title:      "Code x",
+				Source:     TaskSourceJIRA.Name,
+				Logo:       TaskSourceJIRA.Logo,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			Priority:   5,
+			TaskNumber: 7,
+		}
+
+		t4 := Task{
+			TaskBase: TaskBase{
+				IDOrdering: 0,
+				IDExternal: "sample_task",
+				Deeplink:   "generaltask.io",
+				Title:      "Code x",
+				Source:     TaskSourceJIRA.Name,
+				Logo:       TaskSourceJIRA.Logo,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			Priority:   3,
+			TaskNumber: 1,
+		}
+
+
+		result := mergeTasks(
+			[]*CalendarEvent{&c1, &c2},
+			[]*Email{&e1, &e2},
+			[]*Task{&t1, &t2, &t3, &t4},
+			"gmail.com")
+
+		assert.Equal(t, len(result), 8)
+	})
+}
+
