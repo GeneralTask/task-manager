@@ -89,6 +89,11 @@ type JIRATaskList struct {
 	Issues []JIRATask `json:"issues"`
 }
 
+type TaskListResponse struct {
+	Tasks []interface{} `json:"tasks"`
+	Groups []*TaskGroup `json:"task_groups"`
+}
+
 // HTTPClient ...
 type HTTPClient interface {
 	Get(url string) (*http.Response, error)
@@ -355,7 +360,7 @@ func (api *API) tasksList(c *gin.Context) {
 	c.JSON(200, allTasks)
 }
 
-func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*Task, userDomain string) []interface{} {
+func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*Task, userDomain string) TaskListResponse {
 
 	//sort calendar events by start time.
 	sort.SliceStable(calendarEvents, func(i, j int) bool {
@@ -398,11 +403,15 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 	//we then fill in the gaps with calendar events with these tasks
 
 	var tasks []interface{}
-	var taskGroups [] interface {}
+	var taskGroups [] *TaskGroup
 
 	lastEndTime := time.Now()
 	taskIndex := 0
 	calendarIndex := 0
+
+	var addedIds [] *string
+	var totalDuration int64
+
 	for ; calendarIndex < len(calendarEvents); calendarIndex++ {
 		calendarEvent := calendarEvents[calendarIndex]
 
@@ -415,29 +424,89 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 		timeAllocation := getTimeAllocation(allUnscheduledTasks[taskIndex])
 		for; remainingTime.Nanoseconds() >= timeAllocation; {
 			tasks = append(tasks, allUnscheduledTasks[taskIndex])
+			id := getID(allUnscheduledTasks[taskIndex])
+			addedIds = append(addedIds, &id)
 			remainingTime -= time.Duration(timeAllocation)
+			totalDuration += timeAllocation
 			taskIndex += 1
 			timeAllocation = getTimeAllocation(allUnscheduledTasks[taskIndex])
 			if taskIndex >= len(allUnscheduledTasks) {
 				break
 			}
 		}
+
+		if len(addedIds) > 0 {
+			taskGroups = append(taskGroups, &TaskGroup{
+				TaskGroupType: UnscheduledGroup,
+				StartTime:     lastEndTime.String(),
+				Duration:      totalDuration,
+				TaskIDs:       addedIds,
+			})
+			totalDuration = 0
+			addedIds = nil
+		}
+
+
 		tasks = append(tasks, calendarEvent)
+		taskGroups = append(taskGroups, &TaskGroup{
+			TaskGroupType: ScheduledTask,
+			StartTime:     calendarEvent.DatetimeStart.Time().String(),
+			Duration:      calendarEvent.DatetimeEnd.Time().Sub(calendarEvent.DatetimeStart.Time()).Milliseconds(),
+			TaskIDs:       []*string{&calendarEvent.ID},
+		})
+
+
 		lastEndTime = calendarEvent.DatetimeEnd.Time()
 
 	}
 
 	//add remaining calendar events, if they exist.
 	for ; calendarIndex < len(calendarEvents); calendarIndex ++ {
-		tasks = append(tasks, calendarEvents[calendarIndex])
+		calendarEvent := calendarEvents[calendarIndex]
+		tasks = append(tasks, calendarEvent)
+
+		taskGroups = append(taskGroups, &TaskGroup{
+			TaskGroupType: ScheduledTask,
+			StartTime:     calendarEvent.DatetimeStart.Time().String(),
+			Duration:      calendarEvent.DatetimeEnd.Time().Sub(calendarEvent.DatetimeStart.Time()).Milliseconds(),
+			TaskIDs:       []*string{&calendarEvent.ID},
+		})
+		lastEndTime = calendarEvent.DatetimeEnd.Time()
 	}
 
 	//add remaining non scheduled events, if they exist.
-	for ; taskIndex < len(allUnscheduledTasks); taskIndex ++ {
-		tasks = append(tasks, allUnscheduledTasks[taskIndex])
-	}
 
-	return tasks
+	for ; taskIndex < len(allUnscheduledTasks); taskIndex ++ {
+		t := allUnscheduledTasks[taskIndex]
+		tasks = append(tasks, t)
+		totalDuration += getTimeAllocation(t)
+		id := getID(t)
+		addedIds = append(addedIds, &id)
+	}
+	if len(addedIds) > 0 {
+		taskGroups = append(taskGroups, &TaskGroup{
+			TaskGroupType: UnscheduledGroup,
+			StartTime:     lastEndTime.String(),
+			Duration:      totalDuration,
+			TaskIDs:       addedIds,
+		})
+	}
+	return TaskListResponse{
+		Tasks:  tasks,
+		Groups: taskGroups,
+	}
+}
+
+func getID(t interface{}) string {
+	//We can't just cast this to TaskBase so we need to switch
+	switch t.(type) {
+	case *Email:
+		return t.(*Email).ID
+	case *Task:
+		return t.(*Task).ID
+	default:
+		return ""
+	}
 }
 
 func getTimeAllocation(t interface{}) int64 {

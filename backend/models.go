@@ -68,6 +68,20 @@ type Task struct {
 	TaskNumber int                `bson:"task_number,omitempty"`
 }
 
+type TaskGroup struct {
+	TaskGroupType 		`json:"type"`
+	StartTime string 	`json:"datetime_start"`
+	Duration int64 	`json:"time_duration"`
+	TaskIDs []*string 	`json:"task_group"`
+}
+
+type TaskGroupType string
+
+const(
+	ScheduledTask TaskGroupType = "scheduled_task"
+	UnscheduledGroup = "unscheduled_group"
+)
+
 type TaskSource struct {
 	Name string
 	Logo string

@@ -670,7 +670,7 @@ func TestMergeTasks(t *testing.T) {
 	t.Run("SimpleMerge", func(t *testing.T) {
 		c1 := CalendarEvent{
 			TaskBase: TaskBase{
-				IDOrdering: 0,
+				ID: "c1",
 				IDExternal: "standard_event",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event",
@@ -683,7 +683,7 @@ func TestMergeTasks(t *testing.T) {
 
 		c2 := CalendarEvent{
 			TaskBase: TaskBase{
-				IDOrdering: 0,
+				ID: "c2",
 				IDExternal: "standard_event_2",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event_2",
@@ -696,7 +696,7 @@ func TestMergeTasks(t *testing.T) {
 
 		e1 := Email{
 			TaskBase: TaskBase{
-				IDOrdering: 0,
+				ID: "e1",
 				IDExternal: "sample_email",
 				Deeplink:   "generaltask.io",
 				Title:      "Respond to this email",
@@ -710,7 +710,7 @@ func TestMergeTasks(t *testing.T) {
 
 		e2 := Email{
 			TaskBase: TaskBase{
-				IDOrdering: 0,
+				ID: "e2",
 				IDExternal: "sample_email_2",
 				Deeplink:   "generaltask.io",
 				Title:      "Respond to this email...eventually",
@@ -724,7 +724,7 @@ func TestMergeTasks(t *testing.T) {
 
 		t1 := Task{
 			TaskBase: TaskBase{
-				IDOrdering: 0,
+				ID: "t1",
 				IDExternal: "sample_task",
 				Deeplink:   "generaltask.io",
 				Title:      "Code x",
@@ -739,7 +739,7 @@ func TestMergeTasks(t *testing.T) {
 
 		t2 := Task{
 			TaskBase: TaskBase{
-				IDOrdering: 0,
+				ID: "t2",
 				IDExternal: "sample_task",
 				Deeplink:   "generaltask.io",
 				Title:      "Code x",
@@ -754,7 +754,7 @@ func TestMergeTasks(t *testing.T) {
 
 		t3 := Task{
 			TaskBase: TaskBase{
-				IDOrdering: 0,
+				ID: "t3",
 				IDExternal: "sample_task",
 				Deeplink:   "generaltask.io",
 				Title:      "Code x",
@@ -769,7 +769,7 @@ func TestMergeTasks(t *testing.T) {
 
 		t4 := Task{
 			TaskBase: TaskBase{
-				IDOrdering: 0,
+				ID: "t4",
 				IDExternal: "sample_task",
 				Deeplink:   "generaltask.io",
 				Title:      "Code x",
@@ -789,7 +789,9 @@ func TestMergeTasks(t *testing.T) {
 			[]*Task{&t1, &t2, &t3, &t4},
 			"gmail.com")
 
-		assert.Equal(t, len(result), 8)
+		assert.Equal(t, len(result.Tasks), 8)
+		assert.Equal(t, len(result.Groups), 5)
+		//todo, actually compare these.
 	})
 }
 
