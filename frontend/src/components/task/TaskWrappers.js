@@ -35,20 +35,21 @@ function UnscheduledTaskGroup(props) {
 }
 
 function TimeDuration(props) {
-    const [timeStr, setTimeStr] = useState(props.time_duration);
+    const [timeStr, setTimeStr] = useState(getTimeStr(moment(), props.next_time));
     useEffect(() => {
         let timer;
         if(props.next_time){
             timer = setInterval(()=>{
-                console.log('hehe')
+                const time = getTimeStr(moment(), props.next_time);
+                setTimeStr(time);
             }, 1000);
         }
         return () => {
             if(timer) clearInterval();
         }
-    }, [])
+    }, [props.next_time])
     return(
-        <div className="unscheduled-time-annotation">{timeStr}</div>
+        <div>{timeStr}</div>
     )
 }
 
@@ -58,7 +59,7 @@ function getTimeStr(start, end){
     if (start && end) {
         const diff = moment.duration(end.diff(start));
         const hours = diff.asHours();
-        const minutes = (hours % 1) * 60;
+        const minutes = Math.floor((hours % 1) * 60);
         if (hours >= 1) {
             const justHours = Math.floor(hours);
             if (justHours > 1) {
@@ -75,6 +76,9 @@ function getTimeStr(start, end){
             else {
                 timeStr += minutes + " min ";
             }
+        }
+        if (hours === 0 && minutes < 1){
+            timeStr = "<1 min";
         }
     }
     return timeStr;
