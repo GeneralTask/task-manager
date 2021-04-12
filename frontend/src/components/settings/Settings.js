@@ -11,7 +11,7 @@ function Settings(){
             </div>
             <div className="settings-body">
                 <h2>Accounts</h2>
-                <Account logo={REACT_APP_FRONTEND_BASE_URL + "/images/jira.svg"} name="Jira" link={JIRA_URL} />
+                <Account logo="/images/jira.svg" name="Jira" link={JIRA_URL} />
             </div>
         </div>
     )
