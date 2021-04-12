@@ -44,21 +44,21 @@ function TaskList(){
     const id_to_index = new Map(tasks.map((task, index) => [task.id, index]));
 
     function renderTaskGroup(taskGroup, index){
-        let nextTime = null;
+        let next_time = null;
         if(index === 0 && task_groups.length > 1){
-            nextTime = moment(task_groups[1].datetime_start);
+            next_time = moment(task_groups[1].datetime_start);
         }
         if(taskGroup.type === TASK_GROUP_SCHEDULED_TASK){
             if(taskGroup.task_ids.length !== 0){
                 const scheduledTask = tasks[id_to_index.get(taskGroup.task_ids[0])];
                 return <ScheduledTask task={scheduledTask} key={index} time_duration={taskGroup.time_duration} 
-                    next_time={!nextTime ? null : nextTime}/>
+                    next_time={!next_time ? null : next_time}/>
             }
         }
         else if(taskGroup.type === TASK_GROUP_UNSCHEDULED_GROUP){
             const tasksSplice = taskGroup.task_ids.map(taskId => tasks[id_to_index.get(taskId)]);
             return <UnscheduledTaskGroup tasks={tasksSplice} key={index} time_duration={taskGroup.time_duration} 
-                next_time={!nextTime ? null : nextTime}/>
+                next_time={!next_time ? null : next_time}/>
         }
     }
     
