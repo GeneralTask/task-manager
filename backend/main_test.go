@@ -789,9 +789,27 @@ func TestMergeTasks(t *testing.T) {
 			[]*Task{&t1, &t2, &t3, &t4},
 			"gmail.com")
 
+
+
 		assert.Equal(t, len(result.Tasks), 8)
 		assert.Equal(t, len(result.Groups), 5)
-		//todo, actually compare these.
+		//todo, actually compare the whole objects...want to make this json first though because of casting fun.
+		assert.Equal(t, "e1", result.Tasks[0].(*Email).ID, )
+		assert.Equal(t,"c1",  result.Tasks[1].(*CalendarEvent).ID)
+		assert.Equal(t, "t1", result.Tasks[2].(*Task).ID)
+		assert.Equal(t, "c2", result.Tasks[3].(*CalendarEvent).ID)
+		assert.Equal(t, "t3", result.Tasks[4].(*Task).ID)
+		assert.Equal(t, "t4", result.Tasks[5].(*Task).ID)
+		assert.Equal(t, "t2", result.Tasks[6].(*Task).ID)
+		assert.Equal(t, "e2", result.Tasks[7].(*Email).ID)
+		assert.Equal(t,1, len(result.Groups[0].TaskIDs))
+		assert.Equal(t,1, len(result.Groups[1].TaskIDs))
+		assert.Equal(t,1, len(result.Groups[2].TaskIDs))
+		assert.Equal(t,1, len(result.Groups[3].TaskIDs))
+		assert.Equal(t,4, len(result.Groups[4].TaskIDs))
+
+
+
 	})
 }
 
