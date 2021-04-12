@@ -35,7 +35,11 @@ function UnscheduledTaskGroup(props) {
 }
 
 function TimeDuration(props) {
-    const [timeStr, setTimeStr] = useState(getTimeStr(moment(), props.next_time));
+    let initialTimeStr = props.time_duration;
+    if(props.next_time){
+        initialTimeStr = getTimeStr(moment(), props.next_time);
+    }
+    const [timeStr, setTimeStr] = useState(initialTimeStr);
     useEffect(() => {
         let timer;
         if(props.next_time){
@@ -58,15 +62,16 @@ function getTimeStr(start, end){
     let timeStr = "";
     if (start && end) {
         const diff = moment.duration(end.diff(start));
-        const hours = diff.asHours();
+        let hours = diff.asHours();
         const minutes = Math.floor((hours % 1) * 60);
+        hours = Math.floor(hours);
         if (hours >= 1) {
-            const justHours = Math.floor(hours);
-            if (justHours > 1) {
-                timeStr += justHours + " hours ";
+            hours = Math.floor(hours);
+            if (hours > 1) {
+                timeStr += hours + " hours ";
             }
             else {
-                timeStr += justHours + " hour ";
+                timeStr += hours + " hour ";
             }
         }
         if (minutes > 0) {
