@@ -8,7 +8,7 @@
                 "datetime_start": null,
                 "deeplink": "https://slack.com",
                 "sender": "@hackerdog",
-                "logo_url": "images/slack.svg",
+                "logo_url": "/images/slack.svg",
                 "title": "Hey, can you help me put out this fire?",
                 "source": "slack"
             },
@@ -20,7 +20,7 @@
                 "datetime_start": null,
                 "deeplink": "https://gmail.com",
                 "sender": "@hackerdog",
-                "logo_url": "images/gmail.svg",
+                "logo_url": "/images/gmail.svg",
                 "title": "Urgent question about tomorrow's presentation",
                 "source": "gmail"
             },
@@ -35,7 +35,7 @@
                 "source": "gcal",
                 "link": "https://www.google.com/calendar/event?eid=NXQxYjg2aGJndnB0cmQxb2tpZGIzc2QxOW0gc2NvdHRtYWk3MDJAbQ",
                 "title": "Chat with Scott",
-                "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Google_Calendar_icon.svg/1200px-Google_Calendar_icon.svg.png"
+                "logo_url": "/images/gcal.svg"
             },
             {
                 "id": "4",
@@ -44,7 +44,7 @@
                 "datetime_end": null,
                 "datetime_start": null,
                 "sender": "@hackerdog",
-                "logo_url": "images/asana.svg",
+                "logo_url": "/images/asana.svg",
                 "title": "Write presentation for tomorrow",
                 "source": "asana"
             },
@@ -59,7 +59,7 @@
                 "source": "gcal",
                 "link": "https://www.google.com/calendar/event?eid=NXBkanJpcDlqMXB2ZW81aXIxaDVtYmlhb2Igc2NvdHRtYWk3MDJAbQ",
                 "title": "Lunch Break",
-                "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Google_Calendar_icon.svg/1200px-Google_Calendar_icon.svg.png"
+                "logo_url": "/images/gcal.svg"
             }
         ],
         "task_groups": [
