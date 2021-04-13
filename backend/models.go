@@ -69,10 +69,10 @@ type Task struct {
 }
 
 type TaskGroup struct {
-	TaskGroupType 		`json:"type"`
-	StartTime string 	`json:"datetime_start"`
-	Duration int64 	`json:"time_duration"`
-	TaskIDs []*string 	`json:"task_group"`
+	TaskGroupType 			`json:"type"`
+	StartTime string 		`json:"datetime_start"`
+	Duration int64 			`json:"time_duration"`
+	tasks []interface{} 	`json:"task_group"`
 }
 
 type TaskGroupType string
