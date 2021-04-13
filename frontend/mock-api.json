@@ -28,8 +28,7 @@
                 "id": "f2aba811-2bfd-4558-9ef0-96048a1e6b0b",
                 "id_external": "5t1b86hbgvptrd1okidb3sd19m",
                 "id_ordering": 2,
-                "datetime_end": "2021-03-11T11:30:00-08:00",
-                "datetime_start": "2021-03-11T10:30:00-08:00",
+                "datetime_start": "2021-03-11T10:30:00-07:00",
                 "deeplink": "https://calendar.google.com",
                 "sender": "",
                 "source": "gcal",
@@ -52,8 +51,7 @@
                 "id": "c72b41a6-c0d5-46bb-b868-f7021bdd8ae9",
                 "id_external": "5pdjrip9j1pveo5ir1h5mbiaob",
                 "id_ordering": 4,
-                "datetime_end": "2021-03-11T13:30:00-08:00",
-                "datetime_start": "2021-03-11T12:00:00-08:00",
+                "datetime_start": "2021-03-11T12:00:00-07:00",
                 "deeplink": "https://calendar.google.com",
                 "sender": "",
                 "source": "gcal",
@@ -69,28 +67,32 @@
                     "1", 
                     "2"
                 ],
-                "time_duration": "1 hour 12 mins"
+                "time_duration": null,
+                "datetime_start": null 
             },
             {
                 "type": "scheduled_task",
                 "task_ids": [
                     "f2aba811-2bfd-4558-9ef0-96048a1e6b0b"
                 ],
-                "time_duration": "1 hour"
+                "time_duration": "1 hour",
+                "datetime_start": "2021-07-21T12:00:00-08:00" 
             },
             {
                 "type": "unscheduled_group",
                 "task_ids": [
                     "4"
                 ],
-                "time_duration": "30 mins"
+                "time_duration": "30 mins",
+                "datetime_start": "2021-07-21T13:00:00-07:00" 
             },
             {
                 "type": "scheduled_task",
                 "task_ids": [
                     "c72b41a6-c0d5-46bb-b868-f7021bdd8ae9"
                 ],
-                "time_duration": "1 hour 30 mins"
+                "time_duration": "1 hour 30 mins",
+                "datetime_start": "2021-07-21T13:30:00-07:00" 
             }
         ] 
     }
