@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 
@@ -349,18 +350,183 @@ func (api *API) tasksList(c *gin.Context) {
 	var JIRATasks = make(chan []*Task)
 	go loadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
 
-	allTasks := mergeTasks(<-calendarEvents, <-emails, <-JIRATasks)
+	allTasks := mergeTasks(<-calendarEvents, <-emails, <-JIRATasks, "gmail.com")
 
 	c.JSON(200, allTasks)
 }
 
-func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*Task) []interface{} {
-	var tasks []interface{}
-	for _, calendarEvent := range calendarEvents {
-		tasks = append(tasks, calendarEvent)
+func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*Task, userDomain string) []*TaskGroup {
+
+	//sort calendar events by start time.
+	sort.SliceStable(calendarEvents, func(i, j int) bool {
+		return calendarEvents[i].DatetimeStart.Time().Before(calendarEvents[j].DatetimeStart.Time())
+	})
+
+	var allUnscheduledTasks []interface{}
+	for _, e := range emails {
+		allUnscheduledTasks = append(allUnscheduledTasks, e)
 	}
-	//for now we'll just return cal invites until we get merging logic done.
-	return tasks
+
+	for _, t := range JIRATasks {
+		allUnscheduledTasks = append(allUnscheduledTasks, t)
+	}
+
+	//first we sort the emails and tasks into a single array
+	sort.SliceStable(allUnscheduledTasks, func(i, j int) bool {
+		a := allUnscheduledTasks[i]
+		b := allUnscheduledTasks[j]
+
+		switch a.(type) {
+		case *Task:
+			switch b.(type) {
+			case *Task:
+				return compareTasks(a.(*Task), b.(*Task))
+			case *Email:
+				return compareTaskEmail(a.(*Task), b.(*Email), userDomain)
+			}
+		case *Email:
+			switch b.(type) {
+			case *Task:
+				return !compareTaskEmail(b.(*Task), a.(*Email), userDomain)
+			case *Email:
+				return compareEmails(a.(*Email), b.(*Email), userDomain)
+			}
+		}
+		return true
+	})
+
+	//we then fill in the gaps with calendar events with these tasks
+
+	var tasks []interface{}
+	var taskGroups [] *TaskGroup
+
+	lastEndTime := time.Now()
+	taskIndex := 0
+	calendarIndex := 0
+
+	var totalDuration int64
+
+	for ; calendarIndex < len(calendarEvents); calendarIndex++ {
+		calendarEvent := calendarEvents[calendarIndex]
+
+		if taskIndex >= len(allUnscheduledTasks) {
+			break
+		}
+
+		remainingTime := calendarEvent.DatetimeStart.Time().Sub(lastEndTime)
+
+		timeAllocation := getTimeAllocation(allUnscheduledTasks[taskIndex])
+		for; remainingTime.Nanoseconds() >= timeAllocation; {
+			tasks = append(tasks, allUnscheduledTasks[taskIndex])
+			remainingTime -= time.Duration(timeAllocation)
+			totalDuration += timeAllocation
+			taskIndex += 1
+			timeAllocation = getTimeAllocation(allUnscheduledTasks[taskIndex])
+			if taskIndex >= len(allUnscheduledTasks) {
+				break
+			}
+		}
+
+		if len(tasks) > 0 {
+			taskGroups = append(taskGroups, &TaskGroup{
+				TaskGroupType: UnscheduledGroup,
+				StartTime:     lastEndTime.String(),
+				Duration:      totalDuration / int64(time.Second),
+				tasks:       tasks,
+			})
+			totalDuration = 0
+			tasks = nil
+		}
+		
+		taskGroups = append(taskGroups, &TaskGroup{
+			TaskGroupType: ScheduledTask,
+			StartTime:     calendarEvent.DatetimeStart.Time().String(),
+			Duration:      int64(calendarEvent.DatetimeEnd.Time().Sub(calendarEvent.DatetimeStart.Time()).Seconds()),
+			tasks:       []interface{}{calendarEvent},
+		})
+
+
+		lastEndTime = calendarEvent.DatetimeEnd.Time()
+	}
+
+	//add remaining calendar events, if they exist.
+	for ; calendarIndex < len(calendarEvents); calendarIndex ++ {
+		calendarEvent := calendarEvents[calendarIndex]
+
+		taskGroups = append(taskGroups, &TaskGroup{
+			TaskGroupType: ScheduledTask,
+			StartTime:     calendarEvent.DatetimeStart.Time().String(),
+			Duration:      int64(calendarEvent.DatetimeEnd.Time().Sub(calendarEvent.DatetimeStart.Time()).Seconds()),
+			tasks:       []interface{}{calendarEvent},
+		})
+		lastEndTime = calendarEvent.DatetimeEnd.Time()
+	}
+
+	//add remaining non scheduled events, if they exist.
+	tasks = nil
+	for ; taskIndex < len(allUnscheduledTasks); taskIndex ++ {
+		t := allUnscheduledTasks[taskIndex]
+		tasks = append(tasks, t)
+		totalDuration += getTimeAllocation(t)
+	}
+	if len(tasks) > 0 {
+		taskGroups = append(taskGroups, &TaskGroup{
+			TaskGroupType: UnscheduledGroup,
+			StartTime:     lastEndTime.String(),
+			Duration:      totalDuration / int64(time.Second),
+			tasks:       tasks,
+		})
+	}
+	return taskGroups
+}
+
+func getTimeAllocation(t interface{}) int64 {
+	//We can't just cast this to TaskBase so we need to switch
+	switch t.(type) {
+	case *Email:
+		return t.(*Email).TimeAllocation
+	case *Task:
+		return t.(*Task).TimeAllocation
+	default:
+		return 0
+	}
+}
+
+func compareEmails(e1 *Email, e2 *Email, myDomain string) bool {
+	if e1.SenderDomain == myDomain && e2.SenderDomain != myDomain {
+		return true
+	} else if e1.SenderDomain != myDomain && e2.SenderDomain == myDomain {
+		return false
+	} else {
+		return e1.TimeSent < e2.TimeSent
+	}
+}
+
+func compareTasks(t1 *Task, t2 *Task) bool {
+	sevenDaysFromNow := time.Now().AddDate(0, 0, 7)
+	//if both have due dates before seven days, prioritize the one with the closer due date.
+	if t1.DueDate > 0 &&
+		t2.DueDate > 0 &&
+		t1.DueDate.Time().Before(sevenDaysFromNow) &&
+		t2.DueDate.Time().Before(sevenDaysFromNow) {
+		return t1.DueDate.Time().Before(t2.DueDate.Time())
+	} else if t1.DueDate > 0 && t1.DueDate.Time().Before(sevenDaysFromNow) {
+		//t1 is due within seven days, t2 is not so prioritize t1
+		return true
+	} else if t2.DueDate > 0 && t2.DueDate.Time().Before(sevenDaysFromNow) {
+		//t2 is due within seven days, t1 is not so prioritize t2
+		return false
+	} else if t1.Priority != t2.Priority {
+		//if either have a priority, choose the one with the higher priority
+		return t1.Priority > t2.Priority
+	} else {
+		//if all else fails prioritize by task number.
+		return t1.TaskNumber < t2.TaskNumber
+	}
+}
+
+func compareTaskEmail(t *Task, e *Email, myDomain string) bool {
+	return e.SenderDomain != myDomain
 }
 
 func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {

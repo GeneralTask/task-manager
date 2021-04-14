@@ -37,14 +37,16 @@ type ExternalAPIToken struct {
 
 // Task json model
 type TaskBase struct {
-	ID         string `json:"id"`
-	IDExternal string `json:"id_external"`
-	IDOrdering int    `json:"id_ordering"`
-	Sender     string `json:"sender"`
-	Source     string `json:"source"`
-	Deeplink   string `json:"link"`
-	Title      string `json:"title"`
-	Logo       string `json:"logo_url"`
+	ID         		string `json:"id"`
+	IDExternal 		string `json:"id_external"`
+	IDOrdering 		int    `json:"id_ordering"`
+	Sender     		string `json:"sender"`
+	Source     		string `json:"source"`
+	Deeplink   		string `json:"link"`
+	Title      		string `json:"title"`
+	Logo       		string `json:"logo_url"`
+	//time in nanoseconds
+	TimeAllocation  int64  `json:"time_allocated"`
 }
 
 type CalendarEvent struct {
@@ -65,6 +67,20 @@ type Task struct {
 	Priority   int                `bson:"priority,omitempty"`
 	TaskNumber int                `bson:"task_number,omitempty"`
 }
+
+type TaskGroup struct {
+	TaskGroupType 			`json:"type"`
+	StartTime string 		`json:"datetime_start"`
+	Duration int64 			`json:"time_duration"`
+	tasks []interface{} 	`json:"task_group"`
+}
+
+type TaskGroupType string
+
+const(
+	ScheduledTask TaskGroupType = "scheduled_task"
+	UnscheduledGroup = "unscheduled_group"
+)
 
 type TaskSource struct {
 	Name string
