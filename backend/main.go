@@ -351,7 +351,6 @@ func (api *API) tasksList(c *gin.Context) {
 	go loadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
 
 	allTasks := mergeTasks(<-calendarEvents, <-emails, <-JIRATasks, "gmail.com")
-
 	c.JSON(200, allTasks)
 }
 
@@ -398,7 +397,7 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 	//we then fill in the gaps with calendar events with these tasks
 
 	var tasks []interface{}
-	var taskGroups [] *TaskGroup
+	taskGroups := []*TaskGroup{}
 
 	lastEndTime := time.Now()
 	taskIndex := 0
@@ -416,7 +415,7 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 		remainingTime := calendarEvent.DatetimeStart.Time().Sub(lastEndTime)
 
 		timeAllocation := getTimeAllocation(allUnscheduledTasks[taskIndex])
-		for; remainingTime.Nanoseconds() >= timeAllocation; {
+		for remainingTime.Nanoseconds() >= timeAllocation {
 			tasks = append(tasks, allUnscheduledTasks[taskIndex])
 			remainingTime -= time.Duration(timeAllocation)
 			totalDuration += timeAllocation
@@ -432,39 +431,38 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 				TaskGroupType: UnscheduledGroup,
 				StartTime:     lastEndTime.String(),
 				Duration:      totalDuration / int64(time.Second),
-				tasks:       tasks,
+				Tasks:         tasks,
 			})
 			totalDuration = 0
 			tasks = nil
 		}
-		
+
 		taskGroups = append(taskGroups, &TaskGroup{
 			TaskGroupType: ScheduledTask,
 			StartTime:     calendarEvent.DatetimeStart.Time().String(),
 			Duration:      int64(calendarEvent.DatetimeEnd.Time().Sub(calendarEvent.DatetimeStart.Time()).Seconds()),
-			tasks:       []interface{}{calendarEvent},
+			Tasks:         []interface{}{calendarEvent},
 		})
-
 
 		lastEndTime = calendarEvent.DatetimeEnd.Time()
 	}
 
 	//add remaining calendar events, if they exist.
-	for ; calendarIndex < len(calendarEvents); calendarIndex ++ {
+	for ; calendarIndex < len(calendarEvents); calendarIndex++ {
 		calendarEvent := calendarEvents[calendarIndex]
 
 		taskGroups = append(taskGroups, &TaskGroup{
 			TaskGroupType: ScheduledTask,
 			StartTime:     calendarEvent.DatetimeStart.Time().String(),
 			Duration:      int64(calendarEvent.DatetimeEnd.Time().Sub(calendarEvent.DatetimeStart.Time()).Seconds()),
-			tasks:       []interface{}{calendarEvent},
+			Tasks:         []interface{}{calendarEvent},
 		})
 		lastEndTime = calendarEvent.DatetimeEnd.Time()
 	}
 
 	//add remaining non scheduled events, if they exist.
 	tasks = nil
-	for ; taskIndex < len(allUnscheduledTasks); taskIndex ++ {
+	for ; taskIndex < len(allUnscheduledTasks); taskIndex++ {
 		t := allUnscheduledTasks[taskIndex]
 		tasks = append(tasks, t)
 		totalDuration += getTimeAllocation(t)
@@ -474,7 +472,7 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 			TaskGroupType: UnscheduledGroup,
 			StartTime:     lastEndTime.String(),
 			Duration:      totalDuration / int64(time.Second),
-			tasks:       tasks,
+			Tasks:         tasks,
 		})
 	}
 	return taskGroups
