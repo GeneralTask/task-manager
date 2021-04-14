@@ -13,7 +13,7 @@ function App() {
   return (
     <Provider store={store}>
       <BrowserRouter>
-      <Header/>
+      { Cookies.get('authToken') ? <Header/> : null }
         <Switch>
           {/* Settings page, only accessible if logged in */}
           <PrivateRoute path={SETTINGS_PATH} component={Settings}/> 
