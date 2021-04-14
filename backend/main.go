@@ -195,7 +195,7 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 		return
 	}
 	if resp.StatusCode != 200 {
-		log.Printf("Authorization failed: %s", tokenString)
+		log.Printf("JIRA authorization failed: %s", tokenString)
 		c.JSON(400, gin.H{"detail": "Authorization failed"})
 		return
 	}
@@ -508,7 +508,7 @@ func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, ove
 
 func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, result chan<- []*Task) {
 	var JIRAToken ExternalAPIToken
-	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&JIRAToken)
+	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "jira"}}).Decode(&JIRAToken)
 	if err != nil {
 		// No JIRA token exists, so don't populate result
 		result <- []*Task{}
@@ -551,7 +551,7 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		return
 	}
 	if resp.StatusCode != 200 {
-		log.Printf("Authorization failed: %s", tokenString)
+		log.Printf("JIRA authorization failed: %s", tokenString)
 		result <- []*Task{}
 		return
 	}
