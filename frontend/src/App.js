@@ -4,16 +4,12 @@ import Cookies from 'js-cookie'
 import { Provider } from 'react-redux'
 import store from './redux/store'
 import { LANDING_PATH, SETTINGS_PATH } from './constants'
-import {useEffect} from 'react'
 
 import Header from "./components/Header"
 import Settings from "./components/settings/Settings"
 import LandingPage from "./components/LandingPage"
 
 function App() {
-  useEffect(() => {
-    document.title = "General Task";
-  }, []);
   return (
     <Provider store={store}>
       <BrowserRouter>
