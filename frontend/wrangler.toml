@@ -7,4 +7,4 @@ zone_id = "bce9f34f456b7e596cbf10e28783316b"
 
 [site]
 bucket = "./build"
-entry-point = "workers-site"
+entry-point = "workers_site"
