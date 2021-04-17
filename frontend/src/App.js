@@ -1,15 +1,19 @@
 import './App.css';
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom"
 import Cookies from 'js-cookie'
-import { Provider } from 'react-redux';
-import store from './redux/store';
+import { Provider } from 'react-redux'
+import store from './redux/store'
 import { LANDING_PATH, SETTINGS_PATH, LOGIN_URL } from './constants'
+import {useEffect} from 'react'
 
 import Header from "./components/Header"
 import Settings from "./components/settings/Settings"
 import LandingPage from "./components/LandingPage"
 
 function App() {
+  useEffect(() => {
+    document.title = "General Task";
+  }, []);
   return (
     <Provider store={store}>
       <BrowserRouter>
