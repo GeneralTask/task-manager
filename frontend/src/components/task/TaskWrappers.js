@@ -5,7 +5,9 @@ const moment = require('moment');
 function ScheduledTask(props) {
     return (
         <div className="task-group">
-            <div className="task-time-annotation" />
+            <div className="task-time-annotation align-right" >
+                {moment(props.datetime_start).format("h:mm a")}
+            </div>
             <div className="task-group-tasks">
                 <Task {...props} />
             </div>

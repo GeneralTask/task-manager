@@ -52,7 +52,7 @@ function TaskList(){
             if(taskGroup.task_ids.length !== 0){
                 const scheduledTask = tasks[id_to_index.get(taskGroup.task_ids[0])];
                 return <ScheduledTask task={scheduledTask} key={index} time_duration={taskGroup.time_duration} 
-                    next_time={!next_time ? null : next_time}/>
+                    next_time={!next_time ? null : next_time} datetime_start={taskGroup.datetime_start} />
             }
         }
         else if(taskGroup.type === TASK_GROUP_UNSCHEDULED_GROUP){
