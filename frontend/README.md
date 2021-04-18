@@ -15,13 +15,15 @@ Edit the mock API contents in mock-api.json
 
 2. `cd frontend/`
 
-3. Authenticate with cloudflare (get credentials from John): `wrangler login`
+3. `npm install` 
 
-4. `npm run build` - this builds with generaltask.io links built in
+4. Authenticate with cloudflare (get credentials from John): `wrangler login`
 
-5. `wrangler publish` 
+5. `npm run build` - this builds with generaltask.io links built in
 
-6. Check out your work at https://generaltask.io
+6. `wrangler publish` 
+
+7. Check out your work at https://generaltask.io
 
 ---
 
