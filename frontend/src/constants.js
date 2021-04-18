@@ -1,4 +1,5 @@
 export const {REACT_APP_API_BASE_URL, REACT_APP_FRONTEND_BASE_URL} = process.env
+console.log({REACT_APP_API_BASE_URL});
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
