@@ -23,4 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 
 */.vscode
+
+# cloudflare
 workers-site/node_modules
+dist
