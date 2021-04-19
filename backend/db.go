@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,12 +12,7 @@ import (
 // GetDBConnection returns a MongoDB client
 func GetDBConnection() (*mongo.Database, func()) {
 	// This code is drawn from https://github.com/mongodb/mongo-go-driver
-	mongoURI, mongoURIExists := os.LookupEnv("MONGO_URI")
-	if !mongoURIExists {
-		mongoURI = "mongodb://root:example@localhost:27017"
-		log.Println("Using default localhost mongo.")
-	}
-	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
+	client, err := mongo.NewClient(options.Client().ApplyURI(GetConfigValue("MONGO_URI")))
 	if err != nil {
 		log.Fatalf("Failed to create mongo DB client: %v", err)
 	}

@@ -133,6 +133,7 @@ func getGoogleConfig() OauthConfigWrapper {
 	if err != nil {
 		log.Fatalf("Unable to parse credentials file to config: %v", err)
 	}
+	config.RedirectURL = GetConfigValue("GOOGLE_OAUTH_REDIRECT_URL")
 	return &oauthConfigWrapper{Config: config}
 }
 
@@ -213,8 +214,7 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 		log.Fatalf("Failed to create external token record: %v", err)
 	}
 
-	homeURL := "http://localhost:3000/"
-	c.Redirect(302, homeURL)
+	c.Redirect(302, GetConfigValue("HOME_URL"))
 }
 
 func (api *API) login(c *gin.Context) {
@@ -298,9 +298,8 @@ func (api *API) loginCallback(c *gin.Context) {
 	if err != nil {
 		log.Fatalf("Failed to create internal token record: %v", err)
 	}
-	c.SetCookie("authToken", internalToken, 60*60*24, "/", "localhost", false, false)
-	homeURL := "http://localhost:3000/"
-	c.Redirect(302, homeURL)
+	c.SetCookie("authToken", internalToken, 60*60*24, "/", GetConfigValue("COOKIE_DOMAIN"), false, false)
+	c.Redirect(302, GetConfigValue("HOME_URL"))
 }
 
 func (api *API) logout(c *gin.Context) {
@@ -881,7 +880,7 @@ func getToken(c *gin.Context) (string, error) {
 // CORSMiddleware sets CORS headers, abort if CORS preflight request is received
 func CORSMiddleware(c *gin.Context) {
 	c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers")
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	c.Writer.Header().Set("Access-Control-Allow-Origin", GetConfigValue("ACCESS_CONTROL_ALLOW_ORIGIN"))
 	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
 	if c.Request.Method == "OPTIONS" {
 		c.AbortWithStatus(http.StatusNoContent)
