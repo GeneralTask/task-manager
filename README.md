@@ -18,7 +18,7 @@ First, install Go and Docker.
 ```
 cd backend
 docker-compose up -d
-go run main.go db.go models.go
+go run .
 
 # Hit the API server
 curl localhost:8080/ping
