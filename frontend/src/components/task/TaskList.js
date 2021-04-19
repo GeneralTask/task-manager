@@ -49,7 +49,7 @@ function TaskList(){
         if(taskGroup.type === TASK_GROUP_SCHEDULED_TASK){
             if(taskGroup.tasks.length !== 0){
                 return <ScheduledTask task={taskGroup.tasks[0]} key={index} time_duration={taskGroup.time_duration} 
-                    next_time={!next_time ? null : next_time}/>
+                    next_time={!next_time ? null : next_time} datetime_start={taskGroup.datetime_start} />
             }
         }
         else if(taskGroup.type === TASK_GROUP_UNSCHEDULED_GROUP){
