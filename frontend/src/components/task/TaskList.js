@@ -36,6 +36,7 @@ function fetchTasks(){
 function TaskList(){
 
     useEffect(() => {
+        setInterval(fetchTasks, 1000 * 60);
         fetchTasks();
     }, []);
 
