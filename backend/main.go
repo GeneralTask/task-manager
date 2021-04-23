@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -566,7 +567,7 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
 		email := &Email{
 			TaskBase: TaskBase{
 				IDExternal: threadListItem.Id,
-				Sender:     sender,
+				Sender:     extractSenderName(sender),
 				Source:     TaskSourceGmail.Name,
 				Deeplink:   fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
 				Title:      title,
@@ -589,6 +590,16 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
 	}
 
 	result <- emails
+}
+
+func extractSenderName(sendLine string) string {
+	exp := regexp.MustCompile("(.+[^\\s])\\s+<(.+)>")
+	matches := exp.FindStringSubmatch(sendLine)
+	if len(matches) == 3 {
+		return matches[1]
+	} else {
+		return sendLine
+	}
 }
 
 func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, overrideUrl *string) {
