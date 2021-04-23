@@ -676,6 +676,13 @@ func assertTasksEqual(t *testing.T, a *Task, b *Task) {
 	assert.Equal(t, a.Source, b.Source)
 }
 
+func TestExtractSenders(t *testing.T) {
+	assert.Equal(t, "Clockwise", extractSenderName("Clockwise  <hello@getclockwise.com>"))
+	assert.Equal(t, "Jason Scharff", extractSenderName("Jason Scharff <jasonscharff@gmail.com>"))
+	assert.Equal(t, "Testing 123", extractSenderName("Testing 123 <test@example.com>"))
+	assert.Equal(t, "jasonscharff@gmail.com", extractSenderName("jasonscharff@gmail.com"))
+}
+
 func TestMergeTasks(t *testing.T) {
 	t.Run("SimpleMerge", func(t *testing.T) {
 		c1 := CalendarEvent{
