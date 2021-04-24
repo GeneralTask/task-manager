@@ -25,8 +25,17 @@ resource "kubernetes_deployment" "backend" {
       }
       spec {
         container {
-          image = "johngeneraltask/task-manager:latest"
+          image = "johngeneraltask/task-manager:360fd23"
           name  = "task-manager"
+          env {
+            name = "MONGO_URI"
+            value_from {
+              secret_key_ref {
+                name  = "mongo-uri"
+                key = "mongo_uri"
+              }
+            }
+          }
 
           port {
             container_port = 8080
@@ -100,4 +109,14 @@ resource "kubernetes_secret" "docker_config" {
   }
 
   type = "kubernetes.io/dockerconfigjson"
+}
+
+resource "kubernetes_secret" "mongo_uri" {
+  metadata {
+    name = "mongo-uri"
+  }
+
+  data = {
+    "mongo_uri" = lookup(mongodbatlas_cluster.main.connection_strings[0].aws_private_link, aws_vpc_endpoint.ptfe_service.id)
+  }
 }
