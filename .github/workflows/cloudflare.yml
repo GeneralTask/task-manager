@@ -1,5 +1,9 @@
 name: Cloudflare
-on: [push]
+on: 
+  workflow_dispatch:
+    tags:
+      description: 'Deploy frontend to Cloudflare!'
+
 
 jobs:
   build:

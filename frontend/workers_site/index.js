@@ -49,7 +49,7 @@ async function handleEvent(event) {
     response.headers.set("X-XSS-Protection", "1; mode=block");
     response.headers.set("X-Content-Type-Options", "nosniff");
     response.headers.set("X-Frame-Options", "DENY");
-    response.headers.set("Referrer-Policy", "unsafe-url");
+    response.headers.set("Referrer-Policy", "no-referrer");
     response.headers.set("Feature-Policy", "none");
 
     return response;
@@ -70,13 +70,6 @@ async function handleEvent(event) {
   }
 }
 
-/**
- * Here's one example of how to modify a request to
- * remove a specific prefix, in this case `/docs` from
- * the url. This can be useful if you are deploying to a
- * route on a zone, or if you only want your static content
- * to exist at a specific path.
- */
 function handlePrefix(prefix) {
   return request => {
     // compute the default (e.g. / -> index.html)
