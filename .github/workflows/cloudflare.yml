@@ -6,8 +6,8 @@ on:
           description: 'Person to greet'
           required: false
           default: 'Mona the Octocat'
-    tags:
-      description: 'Deploy frontend to Cloudflare!'
+        tags:
+          description: 'Deploy frontend to Cloudflare!'
 
 
 jobs:
