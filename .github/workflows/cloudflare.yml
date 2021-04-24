@@ -2,10 +2,6 @@ name: Cloudflare
 on: 
   workflow_dispatch:
     inputs:
-        name:
-          description: 'Person to greet'
-          required: false
-          default: 'Mona the Octocat'
         tags:
           description: 'Deploy frontend to Cloudflare!'
 
