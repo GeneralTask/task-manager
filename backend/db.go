@@ -12,7 +12,7 @@ import (
 // GetDBConnection returns a MongoDB client
 func GetDBConnection() (*mongo.Database, func()) {
 	// This code is drawn from https://github.com/mongodb/mongo-go-driver
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://root:example@localhost:27017"))
+	client, err := mongo.NewClient(options.Client().ApplyURI(GetConfigValue("MONGO_URI")))
 	if err != nil {
 		log.Fatalf("Failed to create mongo DB client: %v", err)
 	}
@@ -22,6 +22,7 @@ func GetDBConnection() (*mongo.Database, func()) {
 		log.Fatalf("Failed to connect to mongo DB: %v", err)
 	}
 
+	// If the ping is failing on context deadline, try removing the ping for a better error message
 	err = client.Ping(contextResult, nil)
 	if err != nil {
 		log.Fatalf("Failed to ping mongo DB: %v", err)

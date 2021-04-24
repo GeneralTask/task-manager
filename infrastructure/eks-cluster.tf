@@ -2,7 +2,7 @@ module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   cluster_name    = local.cluster_name
   cluster_version = "1.17"
-  subnets         = module.vpc.private_subnets
+  subnets         = [aws_subnet.primary-az1.id, aws_subnet.primary-az2.id]
 
   tags = {
     Environment = "production"
@@ -16,7 +16,7 @@ module "eks" {
     {
       name                          = "backend-servers"
       instance_type                 = "t2.micro"
-      asg_desired_capacity          = 2
+      asg_desired_capacity          = 4
       asg_min_size                  = 2
       asg_max_size                  = 4
       additional_security_group_ids = [aws_security_group.backend_servers.id]
