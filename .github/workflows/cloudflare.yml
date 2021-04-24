@@ -1,0 +1,22 @@
+name: Cloudflare
+on: 
+  workflow_dispatch:
+    inputs:
+        tags:
+          description: 'Deploy frontend to Cloudflare!'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Deploy Cloudflare Worker
+    steps:
+      - uses: actions/checkout@v2.0.0 
+      - name: install dependencies
+        run: 'npm install'
+      - name: deploy using wrangler 
+        run: 'npx wrangler publish'
+        env:
+          CF_ACCOUNT_ID: ${{secrets.CF_ACCOUNT_ID}}
+          CF_ZONE_ID: ${{secrets.CF_ZONE_ID}}
+          CF_API_TOKEN: ${{secrets.CF_API_TOKEN}}
