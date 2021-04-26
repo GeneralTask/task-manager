@@ -35,24 +35,24 @@ type ExternalAPIToken struct {
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
 }
 
-// Task json model
+// Task json & mongo model
 type TaskBase struct {
-	ID         string `json:"id"`
-	IDExternal string `json:"id_external"`
-	IDOrdering int    `json:"id_ordering"`
-	Sender     string `json:"sender"`
-	Source     string `json:"source"`
-	Deeplink   string `json:"link"`
-	Title      string `json:"title"`
-	Logo       string `json:"logo_url"`
+	ID         string `json:"id" bson:"_id,omitempty"`
+	IDExternal string `json:"id_external" bson:"id_external,omitempty"`
+	IDOrdering int    `json:"id_ordering" bson:"id_ordering,omitempty"`
+	Sender     string `json:"sender" bson:"sender,omitempty"`
+	Source     string `json:"source" bson:"source,omitempty"`
+	Deeplink   string `json:"link" bson:"deeplink,omitempty"`
+	Title      string `json:"title" bson:"title,omitempty"`
+	Logo       string `json:"logo_url" bson:"logo,omitempty"`
 	//time in nanoseconds
-	TimeAllocation int64 `json:"time_allocated"`
+	TimeAllocation int64 `json:"time_allocated" bson:"time_allocated,omitempty"`
 }
 
 type CalendarEvent struct {
 	TaskBase      `bson:",inline"`
-	DatetimeEnd   primitive.DateTime `json:"datetime_end"`
-	DatetimeStart primitive.DateTime `json:"datetime_start"`
+	DatetimeEnd   primitive.DateTime `bson:"datetime_end,omitempty"`
+	DatetimeStart primitive.DateTime `bson:"datetime_start,omitempty"`
 }
 
 type Email struct {

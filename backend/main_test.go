@@ -398,6 +398,86 @@ func Test404(t *testing.T) {
 	})
 }
 
+func TestTaskReorder(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		db, dbCleanup := GetDBConnection()
+		defer dbCleanup()
+		taskCollection := db.Collection("tasks")
+		insertResult, err := taskCollection.InsertOne(nil, TaskBase{})
+		assert.NoError(t, err)
+		taskID := insertResult.InsertedID.(primitive.ObjectID)
+		taskIDHex := taskID.Hex()
+
+		authToken := login("approved@generaltask.io")
+		router := getRouter(&API{})
+		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Content-Type", "application/json")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		var task TaskBase
+		err = taskCollection.FindOne(nil, bson.D{{"_id", taskID}}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, 2, task.IDOrdering)
+	})
+	t.Run("MissingOrderingID", func(t *testing.T) {
+		authToken := login("approved@generaltask.io")
+		router := getRouter(&API{})
+		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Content-Type", "application/json")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"'id_ordering' parameter missing or malformatted\"}", string(body))
+	})
+	t.Run("BadTaskID", func(t *testing.T) {
+		authToken := login("approved@generaltask.io")
+		router := getRouter(&API{})
+		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Content-Type", "application/json")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+	})
+	t.Run("WrongFormatTaskID", func(t *testing.T) {
+		authToken := login("approved@generaltask.io")
+		router := getRouter(&API{})
+		request, _ := http.NewRequest("PATCH", "/tasks/123/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Content-Type", "application/json")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+	})
+	t.Run("Unauthorized", func(t *testing.T) {
+		router := getRouter(&API{})
+		request, _ := http.NewRequest("PATCH", "/tasks/123/", nil)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
+}
+
 func login(email string) string {
 	recorder := makeLoginCallbackRequest("googleToken", email)
 	for _, c := range recorder.Result().Cookies() {
