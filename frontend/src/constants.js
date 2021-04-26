@@ -2,7 +2,7 @@ export const {REACT_APP_API_BASE_URL, REACT_APP_FRONTEND_BASE_URL} = process.env
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
-export const JIRA_URL = REACT_APP_API_BASE_URL + '/jira/authorize/'
+export const JIRA_URL = REACT_APP_API_BASE_URL + '/authorize/jira/'
 export const LOGIN_URL = REACT_APP_API_BASE_URL + '/login/'
 
 // Frontend paths
