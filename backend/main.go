@@ -856,6 +856,11 @@ func (api *API) ping(c *gin.Context) {
 }
 
 func tokenMiddleware(c *gin.Context) {
+	handlerName := c.HandlerName()
+	if handlerName[len(handlerName)-9:] == "handle404" {
+		// Do nothing if the route isn't recognized
+		return
+	}
 	token, err := getToken(c)
 	if err != nil {
 		// This means the auth token format was incorrect
@@ -899,10 +904,17 @@ func CORSMiddleware(c *gin.Context) {
 	c.Next()
 }
 
+func handle404(c *gin.Context) {
+	c.JSON(404, gin.H{"detail": "not found"})
+}
+
 func getRouter(api *API) *gin.Engine {
 	// Setting release mode has the benefit of reducing spam on the unit test output
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
+
+	// Default 404 handler
+	router.NoRoute(handle404)
 
 	// Allow CORS for frontend API requests
 	router.Use(CORSMiddleware)

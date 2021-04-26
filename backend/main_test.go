@@ -384,6 +384,20 @@ func TestLogout(t *testing.T) {
 
 }
 
+func Test404(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		router := getRouter(&API{})
+		request, _ := http.NewRequest("GET", "/not/a-route/", nil)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+	})
+}
+
 func login(email string) string {
 	recorder := makeLoginCallbackRequest("googleToken", email)
 	for _, c := range recorder.Result().Cookies() {
