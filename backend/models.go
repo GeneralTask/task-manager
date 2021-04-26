@@ -45,6 +45,8 @@ type TaskBase struct {
 	Deeplink   string `json:"link"`
 	Title      string `json:"title"`
 	Logo       string `json:"logo_url"`
+	//time in nanoseconds
+	TimeAllocation int64 `json:"time_allocated"`
 }
 
 type CalendarEvent struct {
@@ -66,12 +68,25 @@ type Task struct {
 	TaskNumber int                `bson:"task_number,omitempty"`
 }
 
+type TaskGroup struct {
+	TaskGroupType `json:"type"`
+	StartTime     string        `json:"datetime_start"`
+	Duration      int64         `json:"time_duration"`
+	Tasks         []interface{} `json:"tasks"`
+}
+
+type TaskGroupType string
+
+const (
+	ScheduledTask    TaskGroupType = "scheduled_task"
+	UnscheduledGroup               = "unscheduled_group"
+)
+
 type TaskSource struct {
 	Name string
 	Logo string
 }
 
-//todo: replace with self-hosted logos: https://app.asana.com/0/1199951001302650/1200025401212320/f
-var TaskSourceGoogleCalendar = TaskSource{"gcal", "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Google_Calendar_icon.svg/1200px-Google_Calendar_icon.svg.png"}
-var TaskSourceGmail = TaskSource{"gmail", "https://1000logos.net/wp-content/uploads/2018/05/Gmail-logo.png"}
-var TaskSourceJIRA = TaskSource{"jira", "https://zulipchat.com/static/images/integrations/logos/jira.svg"}
+var TaskSourceGoogleCalendar = TaskSource{"gcal", "/images/gcal.svg"}
+var TaskSourceGmail = TaskSource{"gmail", "/images/gmail.svg"}
+var TaskSourceJIRA = TaskSource{"jira", "/images/jira.svg"}

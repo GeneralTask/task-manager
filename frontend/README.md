@@ -9,6 +9,24 @@ Edit the mock API contents in mock-api.json
 
 ---
 
+# Deploy to Cloudflare:
+1. Install <a href="https://developers.cloudflare.com/workers/cli-wrangler/install-update">wrangler</a>(Cloudflare CLI): 
+- Recommended to use <a href="https://github.com/nvm-sh/nvm#installing-and-updating">nvm</a> to install Node.js if encountering issues with npm 
+
+2. `cd frontend/`
+
+3. `npm install` 
+
+4. Authenticate with cloudflare (get credentials from John): `wrangler login`
+
+5. `npm run build` - this builds with generaltask.io links built in
+
+6. `wrangler publish` 
+
+7. Check out your work at https://generaltask.io
+
+---
+
 
 # Getting Started with Create React App
 

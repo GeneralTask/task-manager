@@ -156,6 +156,7 @@
     color: #969696;
     width: 20%;
     margin-left: 10px;
+    margin-right: 10px;
     font-size: 18px;
     font-weight: 600;
 }
@@ -188,6 +189,10 @@
     position: absolute;
 }
 
-.unscheduled-time-annotation {
+.unscheduled-time-spacer {
     margin-left: 20px;
+}
+
+.align-right {
+   text-align : right;
 }

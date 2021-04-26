@@ -10,6 +10,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -132,6 +134,7 @@ func getGoogleConfig() OauthConfigWrapper {
 	if err != nil {
 		log.Fatalf("Unable to parse credentials file to config: %v", err)
 	}
+	config.RedirectURL = GetConfigValue("GOOGLE_OAUTH_REDIRECT_URL")
 	return &oauthConfigWrapper{Config: config}
 }
 
@@ -195,7 +198,7 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 		return
 	}
 	if resp.StatusCode != 200 {
-		log.Printf("Authorization failed: %s", tokenString)
+		log.Printf("JIRA authorization failed: %s", tokenString)
 		c.JSON(400, gin.H{"detail": "Authorization failed"})
 		return
 	}
@@ -212,8 +215,7 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 		log.Fatalf("Failed to create external token record: %v", err)
 	}
 
-	homeURL := "http://localhost:3000/"
-	c.Redirect(302, homeURL)
+	c.Redirect(302, GetConfigValue("HOME_URL"))
 }
 
 func (api *API) login(c *gin.Context) {
@@ -297,9 +299,8 @@ func (api *API) loginCallback(c *gin.Context) {
 	if err != nil {
 		log.Fatalf("Failed to create internal token record: %v", err)
 	}
-	c.SetCookie("authToken", internalToken, 60*60*24, "/", "localhost", false, false)
-	homeURL := "http://localhost:3000/"
-	c.Redirect(302, homeURL)
+	c.SetCookie("authToken", internalToken, 60*60*24, "/", GetConfigValue("COOKIE_DOMAIN"), false, false)
+	c.Redirect(302, GetConfigValue("HOME_URL"))
 }
 
 func (api *API) logout(c *gin.Context) {
@@ -349,18 +350,181 @@ func (api *API) tasksList(c *gin.Context) {
 	var JIRATasks = make(chan []*Task)
 	go loadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
 
-	allTasks := mergeTasks(<-calendarEvents, <-emails, <-JIRATasks)
-
+	allTasks := mergeTasks(<-calendarEvents, <-emails, <-JIRATasks, "gmail.com")
 	c.JSON(200, allTasks)
 }
 
-func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*Task) []interface{} {
-	var tasks []interface{}
-	for _, calendarEvent := range calendarEvents {
-		tasks = append(tasks, calendarEvent)
+func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*Task, userDomain string) []*TaskGroup {
+
+	//sort calendar events by start time.
+	sort.SliceStable(calendarEvents, func(i, j int) bool {
+		return calendarEvents[i].DatetimeStart.Time().Before(calendarEvents[j].DatetimeStart.Time())
+	})
+
+	var allUnscheduledTasks []interface{}
+	for _, e := range emails {
+		allUnscheduledTasks = append(allUnscheduledTasks, e)
 	}
-	//for now we'll just return cal invites until we get merging logic done.
-	return tasks
+
+	for _, t := range JIRATasks {
+		allUnscheduledTasks = append(allUnscheduledTasks, t)
+	}
+
+	//first we sort the emails and tasks into a single array
+	sort.SliceStable(allUnscheduledTasks, func(i, j int) bool {
+		a := allUnscheduledTasks[i]
+		b := allUnscheduledTasks[j]
+
+		switch a.(type) {
+		case *Task:
+			switch b.(type) {
+			case *Task:
+				return compareTasks(a.(*Task), b.(*Task))
+			case *Email:
+				return compareTaskEmail(a.(*Task), b.(*Email), userDomain)
+			}
+		case *Email:
+			switch b.(type) {
+			case *Task:
+				return !compareTaskEmail(b.(*Task), a.(*Email), userDomain)
+			case *Email:
+				return compareEmails(a.(*Email), b.(*Email), userDomain)
+			}
+		}
+		return true
+	})
+
+	//we then fill in the gaps with calendar events with these tasks
+
+	var tasks []interface{}
+	taskGroups := []*TaskGroup{}
+
+	lastEndTime := time.Now()
+	taskIndex := 0
+	calendarIndex := 0
+
+	var totalDuration int64
+
+	for ; calendarIndex < len(calendarEvents); calendarIndex++ {
+		calendarEvent := calendarEvents[calendarIndex]
+
+		if taskIndex >= len(allUnscheduledTasks) {
+			break
+		}
+
+		remainingTime := calendarEvent.DatetimeStart.Time().Sub(lastEndTime)
+
+		timeAllocation := getTimeAllocation(allUnscheduledTasks[taskIndex])
+		for remainingTime.Nanoseconds() >= timeAllocation {
+			tasks = append(tasks, allUnscheduledTasks[taskIndex])
+			remainingTime -= time.Duration(timeAllocation)
+			totalDuration += timeAllocation
+			taskIndex += 1
+			timeAllocation = getTimeAllocation(allUnscheduledTasks[taskIndex])
+			if taskIndex >= len(allUnscheduledTasks) {
+				break
+			}
+		}
+
+		if len(tasks) > 0 {
+			taskGroups = append(taskGroups, &TaskGroup{
+				TaskGroupType: UnscheduledGroup,
+				StartTime:     lastEndTime.String(),
+				Duration:      totalDuration / int64(time.Second),
+				Tasks:         tasks,
+			})
+			totalDuration = 0
+			tasks = nil
+		}
+
+		taskGroups = append(taskGroups, &TaskGroup{
+			TaskGroupType: ScheduledTask,
+			StartTime:     calendarEvent.DatetimeStart.Time().String(),
+			Duration:      int64(calendarEvent.DatetimeEnd.Time().Sub(calendarEvent.DatetimeStart.Time()).Seconds()),
+			Tasks:         []interface{}{calendarEvent},
+		})
+
+		lastEndTime = calendarEvent.DatetimeEnd.Time()
+	}
+
+	//add remaining calendar events, if they exist.
+	for ; calendarIndex < len(calendarEvents); calendarIndex++ {
+		calendarEvent := calendarEvents[calendarIndex]
+
+		taskGroups = append(taskGroups, &TaskGroup{
+			TaskGroupType: ScheduledTask,
+			StartTime:     calendarEvent.DatetimeStart.Time().String(),
+			Duration:      int64(calendarEvent.DatetimeEnd.Time().Sub(calendarEvent.DatetimeStart.Time()).Seconds()),
+			Tasks:         []interface{}{calendarEvent},
+		})
+		lastEndTime = calendarEvent.DatetimeEnd.Time()
+	}
+
+	//add remaining non scheduled events, if they exist.
+	tasks = nil
+	for ; taskIndex < len(allUnscheduledTasks); taskIndex++ {
+		t := allUnscheduledTasks[taskIndex]
+		tasks = append(tasks, t)
+		totalDuration += getTimeAllocation(t)
+	}
+	if len(tasks) > 0 {
+		taskGroups = append(taskGroups, &TaskGroup{
+			TaskGroupType: UnscheduledGroup,
+			StartTime:     lastEndTime.String(),
+			Duration:      totalDuration / int64(time.Second),
+			Tasks:         tasks,
+		})
+	}
+	return taskGroups
+}
+
+func getTimeAllocation(t interface{}) int64 {
+	//We can't just cast this to TaskBase so we need to switch
+	switch t.(type) {
+	case *Email:
+		return t.(*Email).TimeAllocation
+	case *Task:
+		return t.(*Task).TimeAllocation
+	default:
+		return 0
+	}
+}
+
+func compareEmails(e1 *Email, e2 *Email, myDomain string) bool {
+	if e1.SenderDomain == myDomain && e2.SenderDomain != myDomain {
+		return true
+	} else if e1.SenderDomain != myDomain && e2.SenderDomain == myDomain {
+		return false
+	} else {
+		return e1.TimeSent < e2.TimeSent
+	}
+}
+
+func compareTasks(t1 *Task, t2 *Task) bool {
+	sevenDaysFromNow := time.Now().AddDate(0, 0, 7)
+	//if both have due dates before seven days, prioritize the one with the closer due date.
+	if t1.DueDate > 0 &&
+		t2.DueDate > 0 &&
+		t1.DueDate.Time().Before(sevenDaysFromNow) &&
+		t2.DueDate.Time().Before(sevenDaysFromNow) {
+		return t1.DueDate.Time().Before(t2.DueDate.Time())
+	} else if t1.DueDate > 0 && t1.DueDate.Time().Before(sevenDaysFromNow) {
+		//t1 is due within seven days, t2 is not so prioritize t1
+		return true
+	} else if t2.DueDate > 0 && t2.DueDate.Time().Before(sevenDaysFromNow) {
+		//t2 is due within seven days, t1 is not so prioritize t2
+		return false
+	} else if t1.Priority != t2.Priority {
+		//if either have a priority, choose the one with the higher priority
+		return t1.Priority > t2.Priority
+	} else {
+		//if all else fails prioritize by task number.
+		return t1.TaskNumber < t2.TaskNumber
+	}
+}
+
+func compareTaskEmail(t *Task, e *Email, myDomain string) bool {
+	return e.SenderDomain != myDomain
 }
 
 func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
@@ -403,7 +567,7 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
 		email := &Email{
 			TaskBase: TaskBase{
 				IDExternal: threadListItem.Id,
-				Sender:     sender,
+				Sender:     extractSenderName(sender),
 				Source:     TaskSourceGmail.Name,
 				Deeplink:   fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
 				Title:      title,
@@ -426,6 +590,16 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
 	}
 
 	result <- emails
+}
+
+func extractSenderName(sendLine string) string {
+	exp := regexp.MustCompile("(.+[^\\s])\\s+<(.+)>")
+	matches := exp.FindStringSubmatch(sendLine)
+	if len(matches) == 3 {
+		return matches[1]
+	} else {
+		return sendLine
+	}
 }
 
 func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, overrideUrl *string) {
@@ -508,7 +682,7 @@ func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, ove
 
 func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, result chan<- []*Task) {
 	var JIRAToken ExternalAPIToken
-	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&JIRAToken)
+	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "jira"}}).Decode(&JIRAToken)
 	if err != nil {
 		// No JIRA token exists, so don't populate result
 		result <- []*Task{}
@@ -551,7 +725,7 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		return
 	}
 	if resp.StatusCode != 200 {
-		log.Printf("Authorization failed: %s", tokenString)
+		log.Printf("JIRA authorization failed: %s", tokenString)
 		result <- []*Task{}
 		return
 	}
@@ -682,6 +856,11 @@ func (api *API) ping(c *gin.Context) {
 }
 
 func tokenMiddleware(c *gin.Context) {
+	handlerName := c.HandlerName()
+	if handlerName[len(handlerName)-9:] == "handle404" {
+		// Do nothing if the route isn't recognized
+		return
+	}
 	token, err := getToken(c)
 	if err != nil {
 		// This means the auth token format was incorrect
@@ -717,7 +896,7 @@ func getToken(c *gin.Context) (string, error) {
 // CORSMiddleware sets CORS headers, abort if CORS preflight request is received
 func CORSMiddleware(c *gin.Context) {
 	c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers")
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	c.Writer.Header().Set("Access-Control-Allow-Origin", GetConfigValue("ACCESS_CONTROL_ALLOW_ORIGIN"))
 	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
 	if c.Request.Method == "OPTIONS" {
 		c.AbortWithStatus(http.StatusNoContent)
@@ -725,10 +904,17 @@ func CORSMiddleware(c *gin.Context) {
 	c.Next()
 }
 
+func handle404(c *gin.Context) {
+	c.JSON(404, gin.H{"detail": "not found"})
+}
+
 func getRouter(api *API) *gin.Engine {
 	// Setting release mode has the benefit of reducing spam on the unit test output
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
+
+	// Default 404 handler
+	router.NoRoute(handle404)
 
 	// Allow CORS for frontend API requests
 	router.Use(CORSMiddleware)

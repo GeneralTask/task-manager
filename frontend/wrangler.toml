@@ -1,0 +1,10 @@
+name = "frontend"
+type = "webpack"
+account_id = "91d7983e0bff08e0cf76f81cf79abe50"
+workers_dev = true
+route = "generaltask.io/*"
+zone_id = "bce9f34f456b7e596cbf10e28783316b"
+
+[site]
+bucket = "./build"
+entry-point = "workers_site"

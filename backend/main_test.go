@@ -193,6 +193,17 @@ func TestLoginRedirect(t *testing.T) {
 	})
 }
 
+func TestGetGoogleConfig(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		googleConfig := getGoogleConfig()
+		assert.Equal(
+			t,
+			"https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=786163085684-uvopl20u17kp4p2vd951odnm6f89f2f6.apps.googleusercontent.com&prompt=consent&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flogin%2Fcallback%2F&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.modify+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar.events&state=state-token",
+			googleConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.ApprovalForce),
+		)
+	})
+}
+
 func TestLoginCallback(t *testing.T) {
 	t.Run("MissingQueryParams", func(t *testing.T) {
 		router := getRouter(&API{})
@@ -371,6 +382,20 @@ func TestLogout(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 
+}
+
+func Test404(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		router := getRouter(&API{})
+		request, _ := http.NewRequest("GET", "/not/a-route/", nil)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+	})
 }
 
 func login(email string) string {
@@ -663,4 +688,157 @@ func assertTasksEqual(t *testing.T, a *Task, b *Task) {
 	assert.Equal(t, a.Logo, b.Logo)
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.Source, b.Source)
+}
+
+func TestExtractSenders(t *testing.T) {
+	assert.Equal(t, "Clockwise", extractSenderName("Clockwise  <hello@getclockwise.com>"))
+	assert.Equal(t, "Jason Scharff", extractSenderName("Jason Scharff <jasonscharff@gmail.com>"))
+	assert.Equal(t, "Testing 123", extractSenderName("Testing 123 <test@example.com>"))
+	assert.Equal(t, "jasonscharff@gmail.com", extractSenderName("jasonscharff@gmail.com"))
+}
+
+func TestMergeTasks(t *testing.T) {
+	t.Run("SimpleMerge", func(t *testing.T) {
+		c1 := CalendarEvent{
+			TaskBase: TaskBase{
+				ID:         "c1",
+				IDExternal: "standard_event",
+				Deeplink:   "generaltask.io",
+				Title:      "Standard Event",
+				Source:     TaskSourceGoogleCalendar.Name,
+				Logo:       TaskSourceGoogleCalendar.Logo,
+			},
+			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour + time.Minute)),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
+		}
+
+		c2 := CalendarEvent{
+			TaskBase: TaskBase{
+				ID:         "c2",
+				IDExternal: "standard_event_2",
+				Deeplink:   "generaltask.io",
+				Title:      "Standard Event_2",
+				Source:     TaskSourceGoogleCalendar.Name,
+				Logo:       TaskSourceGoogleCalendar.Logo,
+			},
+			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour*3 + time.Minute*20)),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 4)),
+		}
+
+		e1 := Email{
+			TaskBase: TaskBase{
+				ID:             "e1",
+				IDExternal:     "sample_email",
+				Deeplink:       "generaltask.io",
+				Title:          "Respond to this email",
+				Source:         TaskSourceGmail.Name,
+				Logo:           TaskSourceGmail.Logo,
+				TimeAllocation: (time.Minute * 5).Nanoseconds(),
+			},
+			SenderDomain: "gmail.com",
+			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
+		}
+
+		e2 := Email{
+			TaskBase: TaskBase{
+				ID:             "e2",
+				IDExternal:     "sample_email_2",
+				Deeplink:       "generaltask.io",
+				Title:          "Respond to this email...eventually",
+				Source:         TaskSourceGmail.Name,
+				Logo:           TaskSourceGmail.Logo,
+				TimeAllocation: (time.Minute * 2).Nanoseconds(),
+			},
+			SenderDomain: "yahoo.com",
+			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
+		}
+
+		t1 := Task{
+			TaskBase: TaskBase{
+				ID:             "t1",
+				IDExternal:     "sample_task",
+				Deeplink:       "generaltask.io",
+				Title:          "Code x",
+				Source:         TaskSourceJIRA.Name,
+				Logo:           TaskSourceJIRA.Logo,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24)),
+			Priority:   1,
+			TaskNumber: 2,
+		}
+
+		t2 := Task{
+			TaskBase: TaskBase{
+				ID:             "t2",
+				IDExternal:     "sample_task",
+				Deeplink:       "generaltask.io",
+				Title:          "Code x",
+				Source:         TaskSourceJIRA.Name,
+				Logo:           TaskSourceJIRA.Logo,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
+			Priority:   3,
+			TaskNumber: 12,
+		}
+
+		t3 := Task{
+			TaskBase: TaskBase{
+				ID:             "t3",
+				IDExternal:     "sample_task",
+				Deeplink:       "generaltask.io",
+				Title:          "Code x",
+				Source:         TaskSourceJIRA.Name,
+				Logo:           TaskSourceJIRA.Logo,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			Priority:   5,
+			TaskNumber: 7,
+		}
+
+		t4 := Task{
+			TaskBase: TaskBase{
+				ID:             "t4",
+				IDExternal:     "sample_task",
+				Deeplink:       "generaltask.io",
+				Title:          "Code x",
+				Source:         TaskSourceJIRA.Name,
+				Logo:           TaskSourceJIRA.Logo,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			Priority:   3,
+			TaskNumber: 1,
+		}
+
+		result := mergeTasks(
+			[]*CalendarEvent{&c1, &c2},
+			[]*Email{&e1, &e2},
+			[]*Task{&t1, &t2, &t3, &t4},
+			"gmail.com")
+
+		//need to improve these asserts to compare values as well but a pain with casting
+		//for now so we'll compare JSON later.
+		assert.Equal(t, len(result), 5)
+
+		assert.Equal(t, 1, len(result[0].Tasks))
+		assert.Equal(t, "e1", result[0].Tasks[0].(*Email).ID)
+
+		assert.Equal(t, 1, len(result[1].Tasks))
+		assert.Equal(t, "c1", result[1].Tasks[0].(*CalendarEvent).ID)
+
+		assert.Equal(t, 1, len(result[2].Tasks))
+		assert.Equal(t, "t1", result[2].Tasks[0].(*Task).ID)
+
+		assert.Equal(t, 1, len(result[3].Tasks))
+		assert.Equal(t, "c2", result[3].Tasks[0].(*CalendarEvent).ID)
+
+		assert.Equal(t, 4, len(result[4].Tasks))
+		assert.Equal(t, "t3", result[4].Tasks[0].(*Task).ID)
+		assert.Equal(t, "t4", result[4].Tasks[1].(*Task).ID)
+		assert.Equal(t, "t2", result[4].Tasks[2].(*Task).ID)
+		assert.Equal(t, "e2", result[4].Tasks[3].(*Email).ID)
+	})
 }
