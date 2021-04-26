@@ -1,6 +1,8 @@
 package main
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 // https://www.mongodb.com/blog/post/quick-start-golang--mongodb--modeling-documents-with-go-data-structures
 
@@ -37,14 +39,14 @@ type ExternalAPIToken struct {
 
 // Task json & mongo model
 type TaskBase struct {
-	ID         string `json:"id" bson:"_id,omitempty"`
-	IDExternal string `json:"id_external" bson:"id_external,omitempty"`
-	IDOrdering int    `json:"id_ordering" bson:"id_ordering,omitempty"`
-	Sender     string `json:"sender" bson:"sender,omitempty"`
-	Source     string `json:"source" bson:"source,omitempty"`
-	Deeplink   string `json:"link" bson:"deeplink,omitempty"`
-	Title      string `json:"title" bson:"title,omitempty"`
-	Logo       string `json:"logo_url" bson:"logo,omitempty"`
+	ID         primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	IDExternal string             `json:"id_external" bson:"id_external,omitempty"`
+	IDOrdering int                `json:"id_ordering" bson:"id_ordering,omitempty"`
+	Sender     string             `json:"sender" bson:"sender,omitempty"`
+	Source     string             `json:"source" bson:"source,omitempty"`
+	Deeplink   string             `json:"link" bson:"deeplink,omitempty"`
+	Title      string             `json:"title" bson:"title,omitempty"`
+	Logo       string             `json:"logo_url" bson:"logo,omitempty"`
 	//time in nanoseconds
 	TimeAllocation int64 `json:"time_allocated" bson:"time_allocated,omitempty"`
 }
