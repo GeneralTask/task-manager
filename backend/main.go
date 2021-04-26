@@ -451,10 +451,10 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 			remainingTime -= time.Duration(timeAllocation)
 			totalDuration += timeAllocation
 			taskIndex += 1
-			timeAllocation = getTimeAllocation(allUnscheduledTasks[taskIndex])
 			if taskIndex >= len(allUnscheduledTasks) {
 				break
 			}
+			timeAllocation = getTimeAllocation(allUnscheduledTasks[taskIndex])
 		}
 
 		if len(tasks) > 0 {
@@ -617,6 +617,22 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
 			bson.D{{"$set", email}},
 			options.Update().SetUpsert(true),
 		)
+		// This is needed to get the ID of the task; should be removed later once we load all tasks from the db
+		var taskIDContainer TaskBase
+		err = taskCollection.FindOne(
+			nil,
+			bson.M{
+				"$and": []bson.M{
+					{"id_external": email.IDExternal},
+					{"source": email.Source},
+				},
+			},
+		).Decode(&taskIDContainer)
+		if err == nil {
+			email.ID = taskIDContainer.ID
+		} else {
+			log.Printf("Failed to fetch email: %v", err)
+		}
 		emails = append(emails, email)
 	}
 
@@ -706,6 +722,22 @@ func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, ove
 			bson.D{{"$set", event}},
 			options.Update().SetUpsert(true),
 		)
+		// This is needed to get the ID of the task; should be removed later once we load all tasks from the db
+		var taskIDContainer TaskBase
+		err = taskCollection.FindOne(
+			nil,
+			bson.M{
+				"$and": []bson.M{
+					{"id_external": event.IDExternal},
+					{"source": event.Source},
+				},
+			},
+		).Decode(&taskIDContainer)
+		if err == nil {
+			event.ID = taskIDContainer.ID
+		} else {
+			log.Printf("Failed to fetch email: %v", err)
+		}
 		events = append(events, event)
 	}
 	result <- events
@@ -876,6 +908,22 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 			bson.D{{"$set", task}},
 			options.Update().SetUpsert(true),
 		)
+		// This is needed to get the ID of the task; should be removed later once we load all tasks from the db
+		var taskIDContainer TaskBase
+		err = taskCollection.FindOne(
+			nil,
+			bson.M{
+				"$and": []bson.M{
+					{"id_external": task.IDExternal},
+					{"source": task.Source},
+				},
+			},
+		).Decode(&taskIDContainer)
+		if err == nil {
+			task.ID = taskIDContainer.ID
+		} else {
+			log.Printf("Failed to fetch email: %v", err)
+		}
 		tasks = append(tasks, task)
 	}
 	result <- tasks

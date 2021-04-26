@@ -779,9 +779,10 @@ func TestExtractSenders(t *testing.T) {
 
 func TestMergeTasks(t *testing.T) {
 	t.Run("SimpleMerge", func(t *testing.T) {
+		c1ID := primitive.NewObjectID()
 		c1 := CalendarEvent{
 			TaskBase: TaskBase{
-				ID:         "c1",
+				ID:         c1ID,
 				IDExternal: "standard_event",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event",
@@ -792,9 +793,10 @@ func TestMergeTasks(t *testing.T) {
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
 		}
 
+		c2ID := primitive.NewObjectID()
 		c2 := CalendarEvent{
 			TaskBase: TaskBase{
-				ID:         "c2",
+				ID:         c2ID,
 				IDExternal: "standard_event_2",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event_2",
@@ -805,9 +807,10 @@ func TestMergeTasks(t *testing.T) {
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 4)),
 		}
 
+		e1ID := primitive.NewObjectID()
 		e1 := Email{
 			TaskBase: TaskBase{
-				ID:             "e1",
+				ID:             e1ID,
 				IDExternal:     "sample_email",
 				Deeplink:       "generaltask.io",
 				Title:          "Respond to this email",
@@ -819,9 +822,10 @@ func TestMergeTasks(t *testing.T) {
 			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 		}
 
+		e2ID := primitive.NewObjectID()
 		e2 := Email{
 			TaskBase: TaskBase{
-				ID:             "e2",
+				ID:             e2ID,
 				IDExternal:     "sample_email_2",
 				Deeplink:       "generaltask.io",
 				Title:          "Respond to this email...eventually",
@@ -833,9 +837,10 @@ func TestMergeTasks(t *testing.T) {
 			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 		}
 
+		t1ID := primitive.NewObjectID()
 		t1 := Task{
 			TaskBase: TaskBase{
-				ID:             "t1",
+				ID:             t1ID,
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
@@ -848,9 +853,10 @@ func TestMergeTasks(t *testing.T) {
 			TaskNumber: 2,
 		}
 
+		t2ID := primitive.NewObjectID()
 		t2 := Task{
 			TaskBase: TaskBase{
-				ID:             "t2",
+				ID:             t2ID,
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
@@ -863,9 +869,10 @@ func TestMergeTasks(t *testing.T) {
 			TaskNumber: 12,
 		}
 
+		t3ID := primitive.NewObjectID()
 		t3 := Task{
 			TaskBase: TaskBase{
-				ID:             "t3",
+				ID:             t3ID,
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
@@ -878,9 +885,10 @@ func TestMergeTasks(t *testing.T) {
 			TaskNumber: 7,
 		}
 
+		t4ID := primitive.NewObjectID()
 		t4 := Task{
 			TaskBase: TaskBase{
-				ID:             "t4",
+				ID:             t4ID,
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
@@ -904,21 +912,21 @@ func TestMergeTasks(t *testing.T) {
 		assert.Equal(t, len(result), 5)
 
 		assert.Equal(t, 1, len(result[0].Tasks))
-		assert.Equal(t, "e1", result[0].Tasks[0].(*Email).ID)
+		assert.Equal(t, e1ID, result[0].Tasks[0].(*Email).ID)
 
 		assert.Equal(t, 1, len(result[1].Tasks))
-		assert.Equal(t, "c1", result[1].Tasks[0].(*CalendarEvent).ID)
+		assert.Equal(t, c1ID, result[1].Tasks[0].(*CalendarEvent).ID)
 
 		assert.Equal(t, 1, len(result[2].Tasks))
-		assert.Equal(t, "t1", result[2].Tasks[0].(*Task).ID)
+		assert.Equal(t, t1ID, result[2].Tasks[0].(*Task).ID)
 
 		assert.Equal(t, 1, len(result[3].Tasks))
-		assert.Equal(t, "c2", result[3].Tasks[0].(*CalendarEvent).ID)
+		assert.Equal(t, c2ID, result[3].Tasks[0].(*CalendarEvent).ID)
 
 		assert.Equal(t, 4, len(result[4].Tasks))
-		assert.Equal(t, "t3", result[4].Tasks[0].(*Task).ID)
-		assert.Equal(t, "t4", result[4].Tasks[1].(*Task).ID)
-		assert.Equal(t, "t2", result[4].Tasks[2].(*Task).ID)
-		assert.Equal(t, "e2", result[4].Tasks[3].(*Email).ID)
+		assert.Equal(t, t3ID, result[4].Tasks[0].(*Task).ID)
+		assert.Equal(t, t4ID, result[4].Tasks[1].(*Task).ID)
+		assert.Equal(t, t2ID, result[4].Tasks[2].(*Task).ID)
+		assert.Equal(t, e2ID, result[4].Tasks[3].(*Email).ID)
 	})
 }
