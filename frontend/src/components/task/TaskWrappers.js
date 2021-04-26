@@ -23,8 +23,8 @@ function UnscheduledTaskGroup(props) {
         <div className="task-group">
             <div className="task-time-annotation" />
             <div className="task-group-tasks">
-                { props.tasks.map((task) =>
-                    <Task task={task} key={task.id_ordering} />
+                { props.tasks.map((task, index) =>
+                    <Task task={task} key={task.id_ordering} index={index} />
                 )}
             </div>
             <div className="task-time-annotation unscheduled-time-annotation-container">

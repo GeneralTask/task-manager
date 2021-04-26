@@ -1,10 +1,11 @@
-import {React, useEffect} from 'react'
+import React, { useEffect} from 'react'
 import { connect, useSelector } from 'react-redux'
 import store from '../../redux/store'
 import {setTasks} from '../../redux/actions'
 import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL, TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
 import Cookies from 'js-cookie';
 import {ScheduledTask, UnscheduledTaskGroup} from './TaskWrappers'
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import moment from 'moment'
 
 function fetchTasks(){
@@ -58,15 +59,33 @@ function TaskList(){
                 next_time={!next_time ? null : next_time}/>
         }
     }
+
+    function onDragEnd(result) {
+        // TO-DO
+    }
     
     return (
         <div>
             <h1 className="spacer40">My Tasks</h1>
-
             {task_groups.length === 0  && 
                 <h2 className="spacer40">No Tasks :(</h2>
             }
-            { task_groups.map(renderTaskGroup) }
+            <DragDropContext>
+                { 
+                    task_groups.map((group, index) =>
+                        <div>
+                            <Droppable droppableId={`list-${index}`}>
+                                {provided => (
+                                    <div ref={provided.innerRef} {...provided.droppableProps}>
+                                        {renderTaskGroup(group, index)}
+                                        {provided.placeholder}
+                                    </div>
+                                )}
+                            </Droppable>
+                        </div>
+                    )
+                }
+            </DragDropContext>
         </div>
     );
 }
