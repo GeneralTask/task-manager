@@ -37,6 +37,11 @@ type ExternalAPIToken struct {
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
 }
 
+type StateToken struct {
+	Token  primitive.ObjectID `bson:"_id,omitempty"`
+	UserID primitive.ObjectID `bson:"user_id,omitempty"`
+}
+
 // Task json & mongo model
 type TaskBase struct {
 	ID         primitive.ObjectID `json:"id" bson:"_id,omitempty"`

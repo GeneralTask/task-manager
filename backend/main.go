@@ -60,7 +60,8 @@ type JIRAConfig struct {
 
 // JIRARedirectParams ...
 type JIRARedirectParams struct {
-	Code string `form:"code"`
+	Code  string `form:"code"`
+	State string `form:"state"`
 }
 
 // JIRASite ...
@@ -147,16 +148,11 @@ var ALLOWED_USERNAMES = map[string]struct{}{
 	"nolan1299@gmail.com":     struct{}{},
 }
 
-func (api *API) authorizeJIRA(c *gin.Context) {
-	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=7sW3nPubP5vLDktjR2pfAU8cR67906X0&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Fauthorize2%2Fjira%2Fcallback%2F&state=state-token&response_type=code&prompt=consent"
-	c.Redirect(302, authURL)
-}
-
-func (api *API) authorizeJIRACallback(c *gin.Context) {
+func getTokenFromCookie(c *gin.Context) (*InternalAPIToken, error) {
 	authToken, err := c.Cookie("authToken")
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "missing authToken cookie"})
-		return
+		return nil, errors.New("Invalid auth token")
 	}
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
@@ -165,14 +161,57 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 	err = internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&internalToken)
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "invalid auth token"})
+		return nil, errors.New("Invalid auth token")
+	}
+	return &internalToken, nil
+}
+
+func (api *API) authorizeJIRA(c *gin.Context) {
+	internalToken, err := getTokenFromCookie(c)
+	if err != nil {
+		return
+	}
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	stateTokenCollection := db.Collection("state_tokens")
+	cursor, err := stateTokenCollection.InsertOne(nil, &StateToken{UserID: internalToken.UserID})
+	if err != nil {
+		log.Fatalf("Failed to create new state token: %v", err)
+	}
+	insertedStateToken := cursor.InsertedID.(primitive.ObjectID).Hex()
+	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=7sW3nPubP5vLDktjR2pfAU8cR67906X0&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Fauthorize2%2Fjira%2Fcallback%2F&state=" + insertedStateToken + "&response_type=code&prompt=consent"
+	c.Redirect(302, authURL)
+}
+
+func (api *API) authorizeJIRACallback(c *gin.Context) {
+	internalToken, err := getTokenFromCookie(c)
+	if err != nil {
 		return
 	}
 	// See https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/
 	var redirectParams JIRARedirectParams
-	if c.ShouldBind(&redirectParams) != nil || redirectParams.Code == "" {
+	if c.ShouldBind(&redirectParams) != nil || redirectParams.Code == "" || redirectParams.State == "" {
 		c.JSON(400, gin.H{"detail": "Missing query params"})
 		return
 	}
+	stateTokenID, err := primitive.ObjectIDFromHex(redirectParams.State)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "Invalid state token format"})
+		return
+	}
+
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	stateTokenCollection := db.Collection("state_tokens")
+	result, err := stateTokenCollection.DeleteOne(nil, bson.D{{"user_id", internalToken.UserID}, {"_id", stateTokenID}})
+	if err != nil {
+		log.Fatalf("Failed to delete state token: %v", err)
+	}
+	if result.DeletedCount != 1 {
+		c.JSON(400, gin.H{"detail": "Invalid state token"})
+		return
+	}
+
 	params := []byte(`{"grant_type": "authorization_code","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","code": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
 	if api.JIRAConfigValues.TokenURL != nil {
