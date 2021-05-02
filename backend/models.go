@@ -49,7 +49,7 @@ type TaskBase struct {
 	IDOrdering int                `json:"id_ordering" bson:"id_ordering,omitempty"`
 	Sender     string             `json:"sender" bson:"sender,omitempty"`
 	Source     string             `json:"source" bson:"source,omitempty"`
-	Deeplink   string             `json:"link" bson:"deeplink,omitempty"`
+	Deeplink   string             `json:"deeplink" bson:"deeplink,omitempty"`
 	Title      string             `json:"title" bson:"title,omitempty"`
 	Logo       string             `json:"logo_url" bson:"logo,omitempty"`
 	//time in nanoseconds
