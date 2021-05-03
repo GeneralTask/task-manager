@@ -2,6 +2,7 @@ import React from 'react'
 import { connect, useSelector } from 'react-redux'
 import { FetchStatus } from '../../redux/enums'
 import './dot-spinner.css'
+import {TASK_STATUS_FETCH_ERROR, TASK_STATUS_NO_TASKS} from '../../constants'
 
 
 const TaskStatus = () => {
@@ -19,7 +20,7 @@ const TaskStatus = () => {
                 content = "";
                 break;
             case FetchStatus.ERROR:
-                content = "There was an error fetching tasks";
+                content = TASK_STATUS_FETCH_ERROR;
                 break;
             default:
                 content = "";
@@ -32,10 +33,10 @@ const TaskStatus = () => {
                 content = <div className="loader"></div>
                 break;
             case FetchStatus.SUCCESS:
-                content = "No Tasks";
+                content = TASK_STATUS_NO_TASKS;
                 break;
             case FetchStatus.ERROR:
-                content = "There was an error fetching tasks";
+                content = TASK_STATUS_FETCH_ERROR;
                 break;
             default:
                 content = "";
