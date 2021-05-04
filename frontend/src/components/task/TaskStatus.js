@@ -6,41 +6,30 @@ import {TASK_STATUS_FETCH_ERROR, TASK_STATUS_NO_TASKS} from '../../constants'
 
 
 const TaskStatus = () => {
-    let content = "";
+    let content = null;
 
     const task_groups = useSelector(state => state.task_groups);
     const tasks_fetch_status = useSelector(state => state.tasks_fetch_status);
 
-    if(task_groups.length > 0){
-        switch(tasks_fetch_status){
-            case FetchStatus.LOADING:
-                content = "";
-                break;
-            case FetchStatus.SUCCESS:
-                content = "";
-                break;
-            case FetchStatus.ERROR:
-                content = TASK_STATUS_FETCH_ERROR;
-                break;
-            default:
-                content = "";
-        }
-    }
-    else{
-        // no tasks
-        switch(tasks_fetch_status){
-            case FetchStatus.LOADING:
+    switch(tasks_fetch_status){
+        case FetchStatus.LOADING:
+            if(task_groups.length === 0){
                 content = <div className="loader"></div>
-                break;
-            case FetchStatus.SUCCESS:
+            }
+            break;
+
+        case FetchStatus.SUCCESS:
+            if(task_groups.length === 0){
                 content = TASK_STATUS_NO_TASKS;
-                break;
-            case FetchStatus.ERROR:
-                content = TASK_STATUS_FETCH_ERROR;
-                break;
-            default:
-                content = "";
-        }
+            }
+            break;
+
+        case FetchStatus.ERROR:
+            content = TASK_STATUS_FETCH_ERROR;
+            break;
+
+        default:
+            content = null;
     }
 
     return(
@@ -50,7 +39,7 @@ const TaskStatus = () => {
                     {content}
                 </div>
 
-                : <div></div>
+                : null
             }
         </div>
     )
