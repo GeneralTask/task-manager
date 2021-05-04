@@ -6,3 +6,11 @@ export function setTasks(task_groups){
         task_groups,
     }
 }
+
+// tasks_fetch_status is from enums.js - FetchStatus
+export function setTasksFetchStatus(tasks_fetch_status){
+    return {
+        type: actions.SET_TASKS_FETCH_STATUS,
+        tasks_fetch_status,
+    }
+}

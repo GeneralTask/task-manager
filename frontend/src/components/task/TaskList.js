@@ -1,14 +1,17 @@
-import React, { useEffect} from 'react'
+import React, { useEffect } from 'react'
 import { connect, useSelector } from 'react-redux'
 import store from '../../redux/store'
-import {setTasks} from '../../redux/actions'
+import {setTasks, setTasksFetchStatus} from '../../redux/actions'
+import { FetchStatus } from '../../redux/enums'
 import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL, TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
 import Cookies from 'js-cookie';
 import {ScheduledTask, UnscheduledTaskGroup} from './TaskWrappers'
+import TaskStatus from './TaskStatus'
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import moment from 'moment'
 
 function fetchTasks(){
+    store.dispatch(setTasksFetchStatus(FetchStatus.LOADING));
     fetch(TASKS_URL, {
         mode: 'cors',
         headers: {
@@ -26,9 +29,11 @@ function fetchTasks(){
     })
     .then(
         (result) => {
+            store.dispatch(setTasksFetchStatus(FetchStatus.SUCCESS));
             store.dispatch(setTasks(result));
         },
         (error) => {
+            store.dispatch(setTasksFetchStatus(FetchStatus.ERROR));
             console.log({error});
         }
     )
@@ -36,12 +41,12 @@ function fetchTasks(){
 
 function TaskList(){
 
+    const task_groups = useSelector(state => state.task_groups);
+
     useEffect(() => {
         setInterval(fetchTasks, 1000 * 60);
         fetchTasks();
     }, []);
-
-    const task_groups = useSelector(state => state.task_groups);
 
     function renderTaskGroup(taskGroup, index){
         let next_time = null;
@@ -67,9 +72,7 @@ function TaskList(){
     return (
         <div>
             <h1 className="spacer40">My Tasks</h1>
-            {task_groups.length === 0  && 
-                <h2 className="spacer40">No Tasks :(</h2>
-            }
+            <TaskStatus/>
             <DragDropContext>
                 { 
                     task_groups.map((group, index) =>
@@ -91,5 +94,5 @@ function TaskList(){
 }
 
 export default connect(
-    state => ({tasks: state.tasks})
+    state => ({task_groups: state.task_groups})
 )(TaskList);

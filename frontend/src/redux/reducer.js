@@ -8,6 +8,12 @@ export default function reducer(state, action){
                 ...state,
                 task_groups: action.task_groups
             }
+        
+        case actions.SET_TASKS_FETCH_STATUS:
+            return {
+                ...state,
+                tasks_fetch_status: action.tasks_fetch_status,
+            }
 
         default:
             return state;

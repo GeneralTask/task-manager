@@ -1,9 +1,11 @@
 import { createStore } from 'redux';
 import reducer from './reducer';
+import { FetchStatus } from './enums'
 
 
 const initialState = {
     task_groups: [],
+    tasks_fetch_status: FetchStatus.LOADING,
 }
 
 
