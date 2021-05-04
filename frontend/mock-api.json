@@ -1,7 +1,7 @@
 {
     "tasks": [{
             "type": "unscheduled_group",
-            "time_duration": null,
+            "time_duration": 3600,
             "datetime_start": null,
             "tasks": [{
                     "id": "1",
@@ -31,7 +31,7 @@
         },
         {
             "type": "scheduled_task",
-            "time_duration": "1 hour",
+            "time_duration": 3600,
             "datetime_start": "2021-07-21T12:00:00-08:00",
             "tasks": [{
                 "id": "f2aba811-2bfd-4558-9ef0-96048a1e6b0b",
@@ -48,7 +48,7 @@
         },
         {
             "type": "unscheduled_group",
-            "time_duration": "30 mins",
+            "time_duration": 1800,
             "datetime_start": "2021-07-21T13:00:00-07:00",
             "tasks": [{
                 "id": "4",
@@ -64,7 +64,7 @@
         },
         {
             "type": "scheduled_task",
-            "time_duration": "1 hour 30 mins",
+            "time_duration": 5400,
             "datetime_start": "2021-07-21T13:30:00-07:00",
             "tasks": [{
                 "id": "c72b41a6-c0d5-46bb-b868-f7021bdd8ae9",

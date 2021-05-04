@@ -38,16 +38,18 @@ function UnscheduledTaskGroup(props) {
 
 function TimeDuration(props) {
     let initialTimeStr = props.time_duration;
-    if(props.next_time){
-        initialTimeStr = getTimeStr(moment(), props.next_time);
+    if(props.next_time){ // if this is the first task group (live updates)
+        initialTimeStr = getLiveTimeStr(props.next_time);
+    }
+    else{ // this is not the first task - time is formatted based off of task group duration in seconds
+        initialTimeStr = getTimeStr(moment.duration(props.time_duration * 1000));
     }
     const [timeStr, setTimeStr] = useState(initialTimeStr);
     useEffect(() => {
         let timer;
         if(props.next_time){
             timer = setInterval(()=>{
-                const time = getTimeStr(moment(), props.next_time);
-                setTimeStr(time);
+                setTimeStr(getLiveTimeStr(props.next_time));
             }, 1000);
         }
         return () => {
@@ -59,36 +61,36 @@ function TimeDuration(props) {
     )
 }
 
-// accepts two moment objects
-function getTimeStr(start, end){
+function getTimeStr(duration){
     let timeStr = "";
-    if (start && end) {
-        const diff = moment.duration(end.diff(start));
-        let hours = diff.asHours();
-        const minutes = Math.floor((hours % 1) * 60);
+    let hours = duration.asHours();
+    const minutes = Math.floor((hours % 1) * 60);
+    hours = Math.floor(hours);
+    if (hours >= 1) {
         hours = Math.floor(hours);
-        if (hours >= 1) {
-            hours = Math.floor(hours);
-            if (hours > 1) {
-                timeStr += hours + " hours ";
-            }
-            else {
-                timeStr += hours + " hour ";
-            }
+        if (hours > 1) {
+            timeStr += hours + " hours ";
         }
-        if (minutes > 0) {
-            if (minutes > 1) {
-                timeStr += minutes + " mins ";
-            }
-            else {
-                timeStr += minutes + " min ";
-            }
-        }
-        if (hours === 0 && minutes < 1){
-            timeStr = "<1 min";
+        else {
+            timeStr += hours + " hour ";
         }
     }
+    if (minutes > 0) {
+        if (minutes > 1) {
+            timeStr += minutes + " mins ";
+        }
+        else {
+            timeStr += minutes + " min ";
+        }
+    }
+    if (hours === 0 && minutes < 1){
+        timeStr = "<1 min";
+    }
     return timeStr;
+}
+
+function getLiveTimeStr(next_time){
+    return getTimeStr(moment.duration(next_time.diff(moment())))
 }
 
 export {
