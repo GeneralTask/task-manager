@@ -136,6 +136,8 @@ func getGoogleConfig() OauthConfigWrapper {
 	if err != nil {
 		log.Fatalf("Unable to parse credentials file to config: %v", err)
 	}
+	config.ClientID = GetConfigValue("GOOGLE_OAUTH_CLIENT_ID")
+	config.ClientSecret = GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET")
 	config.RedirectURL = GetConfigValue("GOOGLE_OAUTH_REDIRECT_URL")
 	return &oauthConfigWrapper{Config: config}
 }
@@ -213,7 +215,7 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 		return
 	}
 
-	params := []byte(`{"grant_type": "authorization_code","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","code": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
+	params := []byte(`{"grant_type": "authorization_code","client_id": "` + GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","code": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
 	if api.JIRAConfigValues.TokenURL != nil {
 		tokenURL = *api.JIRAConfigValues.TokenURL
@@ -841,7 +843,7 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		result <- []*Task{}
 		return
 	}
-	params := []byte(`{"grant_type": "refresh_token","client_id": "7sW3nPubP5vLDktjR2pfAU8cR67906X0","client_secret": "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc","refresh_token": "` + token.RefreshToken + `"}`)
+	params := []byte(`{"grant_type": "refresh_token","client_id": "` + GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET") + `","refresh_token": "` + token.RefreshToken + `"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
 	if api.JIRAConfigValues.TokenURL != nil {
 		tokenURL = *api.JIRAConfigValues.TokenURL
