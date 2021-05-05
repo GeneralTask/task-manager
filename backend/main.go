@@ -121,8 +121,9 @@ type OauthConfigWrapper interface {
 
 // API is the object containing API route handlers
 type API struct {
-	GoogleConfig     OauthConfigWrapper
-	JIRAConfigValues JIRAConfig
+	GoogleConfig        OauthConfigWrapper
+	JIRAConfigValues    JIRAConfig
+	SkipStateTokenCheck bool
 }
 
 func getGoogleConfig() OauthConfigWrapper {
@@ -258,7 +259,16 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 }
 
 func (api *API) login(c *gin.Context) {
-	authURL := api.GoogleConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+	stateTokenCollection := db.Collection("state_tokens")
+	cursor, err := stateTokenCollection.InsertOne(nil, &StateToken{})
+	if err != nil {
+		log.Fatalf("Failed to create new state token: %v", err)
+	}
+	insertedStateToken := cursor.InsertedID.(primitive.ObjectID).Hex()
+	c.SetCookie("googleStateToken", insertedStateToken, 60*60*24, "/", GetConfigValue("COOKIE_DOMAIN"), false, false)
+	authURL := api.GoogleConfig.AuthCodeURL(insertedStateToken, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	c.Redirect(302, authURL)
 }
 
@@ -268,6 +278,37 @@ func (api *API) loginCallback(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "Missing query params"})
 		return
 	}
+
+	db, dbCleanup := GetDBConnection()
+	defer dbCleanup()
+
+	if !api.SkipStateTokenCheck {
+		stateTokenID, err := primitive.ObjectIDFromHex(redirectParams.State)
+		if err != nil {
+			c.JSON(400, gin.H{"detail": "Invalid state token format"})
+			return
+		}
+		stateTokenFromCookie, _ := c.Cookie("googleStateToken")
+		stateTokenIDFromCookie, err := primitive.ObjectIDFromHex(stateTokenFromCookie)
+		if err != nil {
+			c.JSON(400, gin.H{"detail": "Invalid state token cookie format"})
+			return
+		}
+		if stateTokenID != stateTokenIDFromCookie {
+			c.JSON(400, gin.H{"detail": "State token does not match cookie"})
+			return
+		}
+		stateTokenCollection := db.Collection("state_tokens")
+		result, err := stateTokenCollection.DeleteOne(nil, bson.D{{"_id", stateTokenID}})
+		if err != nil {
+			log.Fatalf("Failed to delete state token: %v", err)
+		}
+		if result.DeletedCount != 1 {
+			c.JSON(400, gin.H{"detail": "Invalid state token"})
+			return
+		}
+	}
+
 	token, err := api.GoogleConfig.Exchange(context.Background(), redirectParams.Code)
 	if err != nil {
 		log.Fatalf("Failed to fetch token from google: %v", err)
@@ -295,8 +336,6 @@ func (api *API) loginCallback(c *gin.Context) {
 		log.Fatal("Failed to retrieve google user ID")
 	}
 
-	db, dbCleanup := GetDBConnection()
-	defer dbCleanup()
 	userCollection := db.Collection("users")
 
 	var user User

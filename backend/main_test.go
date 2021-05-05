@@ -103,6 +103,7 @@ func TestAuthorizeJIRA(t *testing.T) {
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		// Grab from body where we expect the state token
+		log.Println(string(body))
 		stateToken := string(body)[297:321]
 		assert.NoError(t, err)
 		assert.Equal(
@@ -116,15 +117,19 @@ func TestAuthorizeJIRA(t *testing.T) {
 func newStateToken(authToken string) string {
 	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
-	internalAPITokenCollection := db.Collection("internal_api_tokens")
-	var token InternalAPIToken
-	err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&token)
-	if err != nil {
-		log.Fatalf("Failed to find internal api token for test")
+	stateToken := &StateToken{}
+	if authToken != "" {
+		internalAPITokenCollection := db.Collection("internal_api_tokens")
+		var token InternalAPIToken
+		err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&token)
+		if err != nil {
+			log.Fatalf("Failed to find internal api token for test")
+		}
+		stateToken.UserID = token.UserID
 	}
 
 	stateTokenCollection := db.Collection("state_tokens")
-	res, err := stateTokenCollection.InsertOne(nil, &StateToken{UserID: token.UserID})
+	res, err := stateTokenCollection.InsertOne(nil, stateToken)
 	if err != nil {
 		log.Fatalf("Failed to create state token for test")
 	}
@@ -296,11 +301,19 @@ func TestLoginRedirect(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusFound, recorder.Code)
+
+		var stateToken string
+		for _, c := range recorder.Result().Cookies() {
+			if c.Name == "googleStateToken" {
+				stateToken = c.Value
+			}
+		}
+
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(
 			t,
-			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;prompt=consent&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state=state-token\">Found</a>.\n\n",
+			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;prompt=consent&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
 			string(body),
 		)
 	})
@@ -329,22 +342,56 @@ func TestLoginCallback(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"Missing query params\"}", string(body))
 	})
-
 	t.Run("EmailNotApproved", func(t *testing.T) {
-		recorder := makeLoginCallbackRequest("noice420", "unapproved@gmail.com")
+		recorder := makeLoginCallbackRequest("noice420", "unapproved@gmail.com", "example-token", "example-token", true)
 		assert.Equal(t, http.StatusForbidden, recorder.Code)
 	})
-
-	t.Run("Success", func(t *testing.T) {
+	t.Run("Idempotent", func(t *testing.T) {
 		db, dbCleanup := GetDBConnection()
 		defer dbCleanup()
-		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io")
+		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "example-token", "example-token", true)
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "noice420")
 		//change token and verify token updates and still only 1 row per user.
-		recorder = makeLoginCallbackRequest("TSLA", "approved@generaltask.io")
+		recorder = makeLoginCallbackRequest("TSLA", "approved@generaltask.io", "example-token", "example-token", true)
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "TSLA")
+	})
+	t.Run("BadStateTokenFormat", func(t *testing.T) {
+		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "example-token", "example-token", false)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Invalid state token format\"}", string(body))
+	})
+	t.Run("BadStateTokenCookieFormat", func(t *testing.T) {
+		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "6088e1c97018a22f240aa573", "example-token", false)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Invalid state token cookie format\"}", string(body))
+	})
+	t.Run("StateTokensDontMatch", func(t *testing.T) {
+		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "6088e1c97018a22f240aa573", "6088e1c97018a22f240aa574", false)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"State token does not match cookie\"}", string(body))
+	})
+	t.Run("InvalidStateToken", func(t *testing.T) {
+		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "6088e1c97018a22f240aa573", "6088e1c97018a22f240aa573", false)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Invalid state token\"}", string(body))
+	})
+	t.Run("Success", func(t *testing.T) {
+		db, dbCleanup := GetDBConnection()
+		defer dbCleanup()
+		stateToken := newStateToken("")
+		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", stateToken, stateToken, false)
+		assert.Equal(t, http.StatusFound, recorder.Code)
+		verifyLoginCallback(t, db, "noice420")
 	})
 }
 
@@ -379,18 +426,19 @@ func TestCORSHeaders(t *testing.T) {
 	})
 }
 
-func makeLoginCallbackRequest(googleToken string, email string) *httptest.ResponseRecorder {
+func makeLoginCallbackRequest(googleToken string, email string, stateToken string, stateTokenCookie string, skipStateTokenCheck bool) *httptest.ResponseRecorder {
 	mockConfig := MockGoogleConfig{}
 	mockToken := oauth2.Token{AccessToken: googleToken}
 	mockConfig.On("Exchange", context.Background(), "code1234").Return(&mockToken, nil)
 	mockClient := MockHTTPClient{}
 	mockClient.On("Get", "https://www.googleapis.com/oauth2/v3/userinfo").Return(&http.Response{Body: ioutil.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"sub\": \"goog12345\", \"email\": \"%s\"}", email)))}, nil)
 	mockConfig.On("Client", context.Background(), &mockToken).Return(&mockClient)
-	router := getRouter(&API{GoogleConfig: &mockConfig})
+	router := getRouter(&API{GoogleConfig: &mockConfig, SkipStateTokenCheck: skipStateTokenCheck})
 
 	request, _ := http.NewRequest("GET", "/login/callback/", nil)
+	request.AddCookie(&http.Cookie{Name: "googleStateToken", Value: stateTokenCookie})
 	queryParams := request.URL.Query()
-	queryParams.Add("state", "example-state")
+	queryParams.Add("state", stateToken)
 	queryParams.Add("code", "code1234")
 	queryParams.Add("scope", "s1,s2")
 	request.URL.RawQuery = queryParams.Encode()
@@ -592,7 +640,7 @@ func TestTaskReorder(t *testing.T) {
 }
 
 func login(email string) string {
-	recorder := makeLoginCallbackRequest("googleToken", email)
+	recorder := makeLoginCallbackRequest("googleToken", email, "example-token", "example-token", true)
 	for _, c := range recorder.Result().Cookies() {
 		if c.Name == "authToken" {
 			return c.Value
