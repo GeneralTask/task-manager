@@ -103,7 +103,6 @@ func TestAuthorizeJIRA(t *testing.T) {
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		// Grab from body where we expect the state token
-		log.Println(string(body))
 		stateToken := string(body)[297:321]
 		assert.NoError(t, err)
 		assert.Equal(
