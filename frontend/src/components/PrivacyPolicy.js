@@ -3,7 +3,7 @@ export default function PrivacyPolicy() {
     <div>
       <h1 className="center">Privacy Policy</h1>
       <div className="privacy-policy">
-        <p className="tab">
+        <p>
           Bee Movie Script - Dialogue Transcript According to all known laws of
           aviation, there is no way a bee should be able to fly. Its wings are
           too small to get its fat little body off the ground. The bee, of
