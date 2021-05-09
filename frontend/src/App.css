@@ -63,3 +63,13 @@ body{
 .header * {
   margin: 0 30px;
 }
+
+.privacy-policy{
+  width: 75%;
+  margin: auto;
+  text-indent: 30px;
+}
+
+.center {
+  text-align: center;
+}

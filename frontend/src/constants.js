@@ -8,6 +8,7 @@ export const LOGIN_URL = REACT_APP_API_BASE_URL + '/login/'
 // Frontend paths
 export const LANDING_PATH = '/'
 export const SETTINGS_PATH = '/settings/'
+export const PRIVACY_PATH = '/privacy/'
 
 
 //Google Sign-In SVGs
