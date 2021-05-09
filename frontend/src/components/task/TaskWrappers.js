@@ -9,7 +9,7 @@ function ScheduledTask(props) {
                 {moment(props.datetime_start).format("h:mm a")}
             </div>
             <div className="task-group-tasks">
-                <Task {...props} />
+                <Task {...props} index={0}/>
             </div>
             <div className="task-time-annotation">
                 <TimeDuration time_duration={props.time_duration} next_time={props.next_time}/>
@@ -24,7 +24,7 @@ function UnscheduledTaskGroup(props) {
             <div className="task-time-annotation" />
             <div className="task-group-tasks">
                 { props.tasks.map((task, index) =>
-                    <Task task={task} key={task.id_ordering} index={index} />
+                    <Task task={task} key={task.id_ordering} index={index}/>
                 )}
             </div>
             <div className="task-time-annotation unscheduled-time-annotation-container">

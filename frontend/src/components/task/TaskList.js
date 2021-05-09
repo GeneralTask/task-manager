@@ -4,7 +4,7 @@ import store from '../../redux/store'
 import {setTasks, setTasksFetchStatus} from '../../redux/actions'
 import { FetchStatus } from '../../redux/enums'
 import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL, TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
-import Cookies from 'js-cookie';
+import Cookies, { remove } from 'js-cookie';
 import {ScheduledTask, UnscheduledTaskGroup} from './TaskWrappers'
 import TaskStatus from './TaskStatus'
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
@@ -41,7 +41,8 @@ function fetchTasks(){
 
 function TaskList(){
 
-    const task_groups = useSelector(state => state.task_groups);
+    let task_groups = useSelector(state => state.task_groups);
+    let task_counter = 0
 
     useEffect(() => {
         setInterval(fetchTasks, 1000 * 60);
@@ -56,24 +57,41 @@ function TaskList(){
         if(taskGroup.type === TASK_GROUP_SCHEDULED_TASK){
             if(taskGroup.tasks.length !== 0){
                 return <ScheduledTask task={taskGroup.tasks[0]} key={index} time_duration={taskGroup.time_duration} 
-                    next_time={!next_time ? null : next_time} datetime_start={taskGroup.datetime_start} />
+                    next_time={!next_time ? null : next_time} datetime_start={taskGroup.datetime_start} index={task_counter++}/>
             }
         }
         else if(taskGroup.type === TASK_GROUP_UNSCHEDULED_GROUP){
-            return <UnscheduledTaskGroup tasks={taskGroup.tasks} key={index} time_duration={taskGroup.time_duration} 
-                next_time={!next_time ? null : next_time}/>
+            if (taskGroup.tasks.length !== 0) {
+
+                return <UnscheduledTaskGroup tasks={taskGroup.tasks} key={index} time_duration={taskGroup.time_duration} 
+                    next_time={!next_time ? null : next_time} index={task_counter++}/>
+            }
         }
     }
 
     function onDragEnd(result) {
-        // TO-DO
+        const { destination, source } = result;
+
+        if (destination === null) return;
+
+        const source_index = source.droppableId.slice(-1);
+        const destination_index = destination.droppableId.slice(-1);
+
+        let source_group = task_groups[source_index];
+        let dest_group = task_groups[destination_index];
+        let source_task = source_group.tasks[source.index];
+
+        source_group.tasks.splice(source.index, 1);
+        dest_group.tasks.splice(destination.index, 0, source_task);
+
+        store.dispatch(setTasks(task_groups));
     }
     
     return (
         <div>
             <h1 className="spacer40">My Tasks</h1>
             <TaskStatus/>
-            <DragDropContext>
+            <DragDropContext onDragEnd={onDragEnd}>
                 { 
                     task_groups.map((group, index) =>
                         <div>
