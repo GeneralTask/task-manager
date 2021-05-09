@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
@@ -16,7 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/oauth2/google"
+	"golang.org/x/oauth2"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
@@ -36,18 +35,16 @@ type GoogleUserInfo struct {
 }
 
 func GetGoogleConfig() OauthConfigWrapper {
-	// Taken from https://developers.google.com/people/quickstart/go
-	b, err := ioutil.ReadFile("credentials.json")
-	if err != nil {
-		log.Fatalf("Unable to read credentials file: %v", err)
+	googleConfig := &oauth2.Config{
+		ClientID:     config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID"),
+		ClientSecret: config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET"),
+		RedirectURL:  config.GetConfigValue("GOOGLE_OAUTH_REDIRECT_URL"),
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar.events"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
+			TokenURL: "https://oauth2.googleapis.com/token",
+		},
 	}
-	googleConfig, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar.events")
-	if err != nil {
-		log.Fatalf("Unable to parse credentials file to config: %v", err)
-	}
-	googleConfig.ClientID = config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID")
-	googleConfig.ClientSecret = config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET")
-	googleConfig.RedirectURL = config.GetConfigValue("GOOGLE_OAUTH_REDIRECT_URL")
 	return &OauthConfig{Config: googleConfig}
 }
 
