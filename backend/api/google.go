@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -39,25 +41,25 @@ func getGoogleConfig() OauthConfigWrapper {
 	if err != nil {
 		log.Fatalf("Unable to read credentials file: %v", err)
 	}
-	config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar.events")
+	googleConfig, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar.events")
 	if err != nil {
 		log.Fatalf("Unable to parse credentials file to config: %v", err)
 	}
-	config.ClientID = GetConfigValue("GOOGLE_OAUTH_CLIENT_ID")
-	config.ClientSecret = GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET")
-	config.RedirectURL = GetConfigValue("GOOGLE_OAUTH_REDIRECT_URL")
-	return &oauthConfigWrapper{Config: config}
+	googleConfig.ClientID = config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID")
+	googleConfig.ClientSecret = config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET")
+	googleConfig.RedirectURL = config.GetConfigValue("GOOGLE_OAUTH_REDIRECT_URL")
+	return &oauthConfigWrapper{Config: googleConfig}
 }
 
-func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
-	db, dbCleanup := GetDBConnection()
+func loadEmails(c *gin.Context, client *http.Client, result chan<- []*database.Email) {
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
-	var userObject User
+	var userObject database.User
 	userID, _ := c.Get("user")
 	userCollection := db.Collection("users")
 	err := userCollection.FindOne(nil, bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
 
-	emails := []*Email{}
+	emails := []*database.Email{}
 
 	gmailService, err := gmail.New(client)
 	if err != nil {
@@ -86,14 +88,14 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
 			}
 		}
 
-		email := &Email{
-			TaskBase: TaskBase{
+		email := &database.Email{
+			TaskBase: database.TaskBase{
 				IDExternal: threadListItem.Id,
 				Sender:     extractSenderName(sender),
-				Source:     TaskSourceGmail.Name,
+				Source:     database.TaskSourceGmail.Name,
 				Deeplink:   fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
 				Title:      title,
-				Logo:       TaskSourceGmail.Logo,
+				Logo:       database.TaskSourceGmail.Logo,
 			},
 			SenderDomain: "gmail.com", // TODO: read in sender domain
 		}
@@ -109,7 +111,7 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*Email) {
 			options.Update().SetUpsert(true),
 		)
 		// This is needed to get the ID of the task; should be removed later once we load all tasks from the db
-		var taskIDContainer TaskBase
+		var taskIDContainer database.TaskBase
 		err = taskCollection.FindOne(
 			nil,
 			bson.M{
@@ -140,8 +142,8 @@ func extractSenderName(sendLine string) string {
 	}
 }
 
-func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, overrideUrl *string) {
-	events := []*CalendarEvent{}
+func loadCalendarEvents(client *http.Client, result chan<- []*database.CalendarEvent, overrideUrl *string) {
+	events := []*database.CalendarEvent{}
 
 	var calendarService *calendar.Service
 	var err error
@@ -155,7 +157,7 @@ func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, ove
 		log.Fatalf("Unable to create Calendar service: %v", err)
 	}
 
-	db, dbCleanup := GetDBConnection()
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	taskCollection := db.Collection("tasks")
 
@@ -191,13 +193,13 @@ func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, ove
 		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
 		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
 
-		event := &CalendarEvent{
-			TaskBase: TaskBase{
+		event := &database.CalendarEvent{
+			TaskBase: database.TaskBase{
 				IDExternal: event.Id,
 				Deeplink:   event.HtmlLink,
-				Source:     TaskSourceGoogleCalendar.Name,
+				Source:     database.TaskSourceGoogleCalendar.Name,
 				Title:      event.Summary,
-				Logo:       TaskSourceGoogleCalendar.Logo,
+				Logo:       database.TaskSourceGoogleCalendar.Logo,
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
@@ -214,7 +216,7 @@ func loadCalendarEvents(client *http.Client, result chan<- []*CalendarEvent, ove
 			options.Update().SetUpsert(true),
 		)
 		// This is needed to get the ID of the task; should be removed later once we load all tasks from the db
-		var taskIDContainer TaskBase
+		var taskIDContainer database.TaskBase
 		err = taskCollection.FindOne(
 			nil,
 			bson.M{

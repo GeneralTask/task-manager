@@ -6,7 +6,10 @@ import (
 	"log"
 	"strings"
 
+	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
+	guuid "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -14,15 +17,15 @@ import (
 )
 
 func (api *API) login(c *gin.Context) {
-	db, dbCleanup := GetDBConnection()
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	stateTokenCollection := db.Collection("state_tokens")
-	cursor, err := stateTokenCollection.InsertOne(nil, &StateToken{})
+	cursor, err := stateTokenCollection.InsertOne(nil, &database.StateToken{})
 	if err != nil {
 		log.Fatalf("Failed to create new state token: %v", err)
 	}
 	insertedStateToken := cursor.InsertedID.(primitive.ObjectID).Hex()
-	c.SetCookie("googleStateToken", insertedStateToken, 60*60*24, "/", GetConfigValue("COOKIE_DOMAIN"), false, false)
+	c.SetCookie("googleStateToken", insertedStateToken, 60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
 	authURL := api.GoogleConfig.AuthCodeURL(insertedStateToken, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	c.Redirect(302, authURL)
 }
@@ -34,7 +37,7 @@ func (api *API) loginCallback(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup := GetDBConnection()
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 
 	if !api.SkipStateTokenCheck {
@@ -93,10 +96,10 @@ func (api *API) loginCallback(c *gin.Context) {
 
 	userCollection := db.Collection("users")
 
-	var user User
+	var user database.User
 	var insertedUserID primitive.ObjectID
 	if userCollection.FindOne(nil, bson.D{{Key: "google_id", Value: userInfo.SUB}}).Decode(&user) != nil {
-		cursor, err := userCollection.InsertOne(nil, &User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL})
+		cursor, err := userCollection.InsertOne(nil, &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL})
 		insertedUserID = cursor.InsertedID.(primitive.ObjectID)
 		if err != nil {
 			log.Fatalf("Failed to create new user in db: %v", err)
@@ -113,7 +116,7 @@ func (api *API) loginCallback(c *gin.Context) {
 	_, err = externalAPITokenCollection.UpdateOne(
 		nil,
 		bson.D{{"user_id", insertedUserID}, {"source", "google"}},
-		bson.D{{"$set", &ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)}}},
+		bson.D{{"$set", &database.ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)}}},
 		options.Update().SetUpsert(true),
 	)
 
@@ -125,13 +128,13 @@ func (api *API) loginCallback(c *gin.Context) {
 	_, err = internalAPITokenCollection.UpdateOne(
 		nil,
 		bson.D{{"user_id", insertedUserID}},
-		bson.D{{"$set", &InternalAPIToken{UserID: insertedUserID, Token: internalToken}}},
+		bson.D{{"$set", &database.InternalAPIToken{UserID: insertedUserID, Token: internalToken}}},
 		options.Update().SetUpsert(true),
 	)
 
 	if err != nil {
 		log.Fatalf("Failed to create internal token record: %v", err)
 	}
-	c.SetCookie("authToken", internalToken, 60*60*24, "/", GetConfigValue("COOKIE_DOMAIN"), false, false)
-	c.Redirect(302, GetConfigValue("HOME_URL"))
+	c.SetCookie("authToken", internalToken, 60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
+	c.Redirect(302, config.GetConfigValue("HOME_URL"))
 }

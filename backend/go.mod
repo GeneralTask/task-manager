@@ -1,4 +1,4 @@
-module github.com/GeneralTask/task-manager
+module github.com/GeneralTask/task-manager/backend
 
 go 1.15
 

@@ -8,6 +8,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,10 +16,10 @@ import (
 )
 
 func (api *API) tasksList(c *gin.Context) {
-	db, dbCleanup := GetDBConnection()
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	var googleToken ExternalAPIToken
+	var googleToken database.ExternalAPIToken
 	userID, _ := c.Get("user")
 	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken)
 
@@ -31,20 +32,20 @@ func (api *API) tasksList(c *gin.Context) {
 	config := getGoogleConfig()
 	client := config.Client(context.Background(), &token).(*http.Client)
 
-	var calendarEvents = make(chan []*CalendarEvent)
+	var calendarEvents = make(chan []*database.CalendarEvent)
 	go loadCalendarEvents(client, calendarEvents, nil)
 
-	var emails = make(chan []*Email)
+	var emails = make(chan []*database.Email)
 	go loadEmails(c, client, emails)
 
-	var JIRATasks = make(chan []*Task)
+	var JIRATasks = make(chan []*database.Task)
 	go loadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
 
 	allTasks := mergeTasks(<-calendarEvents, <-emails, <-JIRATasks, "gmail.com")
 	c.JSON(200, allTasks)
 }
 
-func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*Task, userDomain string) []*TaskGroup {
+func mergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Email, JIRATasks []*database.Task, userDomain string) []*database.TaskGroup {
 
 	//sort calendar events by start time.
 	sort.SliceStable(calendarEvents, func(i, j int) bool {
@@ -66,19 +67,19 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 		b := allUnscheduledTasks[j]
 
 		switch a.(type) {
-		case *Task:
+		case *database.Task:
 			switch b.(type) {
-			case *Task:
-				return compareTasks(a.(*Task), b.(*Task))
-			case *Email:
-				return compareTaskEmail(a.(*Task), b.(*Email), userDomain)
+			case *database.Task:
+				return compareTasks(a.(*database.Task), b.(*database.Task))
+			case *database.Email:
+				return compareTaskEmail(a.(*database.Task), b.(*database.Email), userDomain)
 			}
-		case *Email:
+		case *database.Email:
 			switch b.(type) {
-			case *Task:
-				return !compareTaskEmail(b.(*Task), a.(*Email), userDomain)
-			case *Email:
-				return compareEmails(a.(*Email), b.(*Email), userDomain)
+			case *database.Task:
+				return !compareTaskEmail(b.(*database.Task), a.(*database.Email), userDomain)
+			case *database.Email:
+				return compareEmails(a.(*database.Email), b.(*database.Email), userDomain)
 			}
 		}
 		return true
@@ -87,7 +88,7 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 	//we then fill in the gaps with calendar events with these tasks
 
 	var tasks []interface{}
-	taskGroups := []*TaskGroup{}
+	taskGroups := []*database.TaskGroup{}
 
 	lastEndTime := time.Now()
 	taskIndex := 0
@@ -117,8 +118,8 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 		}
 
 		if len(tasks) > 0 {
-			taskGroups = append(taskGroups, &TaskGroup{
-				TaskGroupType: UnscheduledGroup,
+			taskGroups = append(taskGroups, &database.TaskGroup{
+				TaskGroupType: database.UnscheduledGroup,
 				StartTime:     lastEndTime.String(),
 				Duration:      totalDuration / int64(time.Second),
 				Tasks:         tasks,
@@ -127,8 +128,8 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 			tasks = nil
 		}
 
-		taskGroups = append(taskGroups, &TaskGroup{
-			TaskGroupType: ScheduledTask,
+		taskGroups = append(taskGroups, &database.TaskGroup{
+			TaskGroupType: database.ScheduledTask,
 			StartTime:     calendarEvent.DatetimeStart.Time().String(),
 			Duration:      int64(calendarEvent.DatetimeEnd.Time().Sub(calendarEvent.DatetimeStart.Time()).Seconds()),
 			Tasks:         []interface{}{calendarEvent},
@@ -141,8 +142,8 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 	for ; calendarIndex < len(calendarEvents); calendarIndex++ {
 		calendarEvent := calendarEvents[calendarIndex]
 
-		taskGroups = append(taskGroups, &TaskGroup{
-			TaskGroupType: ScheduledTask,
+		taskGroups = append(taskGroups, &database.TaskGroup{
+			TaskGroupType: database.ScheduledTask,
 			StartTime:     calendarEvent.DatetimeStart.Time().String(),
 			Duration:      int64(calendarEvent.DatetimeEnd.Time().Sub(calendarEvent.DatetimeStart.Time()).Seconds()),
 			Tasks:         []interface{}{calendarEvent},
@@ -158,8 +159,8 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 		totalDuration += getTimeAllocation(t)
 	}
 	if len(tasks) > 0 {
-		taskGroups = append(taskGroups, &TaskGroup{
-			TaskGroupType: UnscheduledGroup,
+		taskGroups = append(taskGroups, &database.TaskGroup{
+			TaskGroupType: database.UnscheduledGroup,
 			StartTime:     lastEndTime.String(),
 			Duration:      totalDuration / int64(time.Second),
 			Tasks:         tasks,
@@ -171,16 +172,16 @@ func mergeTasks(calendarEvents []*CalendarEvent, emails []*Email, JIRATasks []*T
 func getTimeAllocation(t interface{}) int64 {
 	//We can't just cast this to TaskBase so we need to switch
 	switch t.(type) {
-	case *Email:
-		return t.(*Email).TimeAllocation
-	case *Task:
-		return t.(*Task).TimeAllocation
+	case *database.Email:
+		return t.(*database.Email).TimeAllocation
+	case *database.Task:
+		return t.(*database.Task).TimeAllocation
 	default:
 		return 0
 	}
 }
 
-func compareEmails(e1 *Email, e2 *Email, myDomain string) bool {
+func compareEmails(e1 *database.Email, e2 *database.Email, myDomain string) bool {
 	if e1.SenderDomain == myDomain && e2.SenderDomain != myDomain {
 		return true
 	} else if e1.SenderDomain != myDomain && e2.SenderDomain == myDomain {
@@ -190,7 +191,7 @@ func compareEmails(e1 *Email, e2 *Email, myDomain string) bool {
 	}
 }
 
-func compareTasks(t1 *Task, t2 *Task) bool {
+func compareTasks(t1 *database.Task, t2 *database.Task) bool {
 	sevenDaysFromNow := time.Now().AddDate(0, 0, 7)
 	//if both have due dates before seven days, prioritize the one with the closer due date.
 	if t1.DueDate > 0 &&
@@ -213,6 +214,6 @@ func compareTasks(t1 *Task, t2 *Task) bool {
 	}
 }
 
-func compareTaskEmail(t *Task, e *Email, myDomain string) bool {
+func compareTaskEmail(t *database.Task, e *database.Email, myDomain string) bool {
 	return e.SenderDomain != myDomain
 }

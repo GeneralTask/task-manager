@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/oauth2"
@@ -55,16 +57,16 @@ var ALLOWED_USERNAMES = map[string]struct{}{
 	"nolan1299@gmail.com":     struct{}{},
 }
 
-func getTokenFromCookie(c *gin.Context) (*InternalAPIToken, error) {
+func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 	authToken, err := c.Cookie("authToken")
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "missing authToken cookie"})
 		return nil, errors.New("Invalid auth token")
 	}
-	db, dbCleanup := GetDBConnection()
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
-	var internalToken InternalAPIToken
+	var internalToken database.InternalAPIToken
 	err = internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&internalToken)
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "invalid auth token"})
@@ -80,7 +82,7 @@ func (api *API) ping(c *gin.Context) {
 
 func tokenMiddleware(c *gin.Context) {
 	handlerName := c.HandlerName()
-	if handlerName[len(handlerName)-9:] == "handle404" {
+	if handlerName[len(handlerName)-9:] == "Handle404" {
 		// Do nothing if the route isn't recognized
 		return
 	}
@@ -90,10 +92,10 @@ func tokenMiddleware(c *gin.Context) {
 		return
 	}
 	log.Println("Token: \"" + token + "\"")
-	db, dbCleanup := GetDBConnection()
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
-	var internalToken InternalAPIToken
+	var internalToken database.InternalAPIToken
 	err = internalAPITokenCollection.FindOne(nil, bson.D{{"token", token}}).Decode(&internalToken)
 	if err != nil {
 		log.Printf("Auth failed: %v\n", err)
@@ -119,7 +121,7 @@ func getToken(c *gin.Context) (string, error) {
 // CORSMiddleware sets CORS headers, abort if CORS preflight request is received
 func CORSMiddleware(c *gin.Context) {
 	c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers")
-	c.Writer.Header().Set("Access-Control-Allow-Origin", GetConfigValue("ACCESS_CONTROL_ALLOW_ORIGIN"))
+	c.Writer.Header().Set("Access-Control-Allow-Origin", config.GetConfigValue("ACCESS_CONTROL_ALLOW_ORIGIN"))
 	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
 	if c.Request.Method == "OPTIONS" {
 		c.AbortWithStatus(http.StatusNoContent)
@@ -127,6 +129,6 @@ func CORSMiddleware(c *gin.Context) {
 	c.Next()
 }
 
-func handle404(c *gin.Context) {
+func Handle404(c *gin.Context) {
 	c.JSON(404, gin.H{"detail": "not found"})
 }

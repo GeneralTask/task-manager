@@ -1,10 +1,11 @@
-package db
+package database
 
 import (
 	"context"
 	"log"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -12,7 +13,7 @@ import (
 // GetDBConnection returns a MongoDB client
 func GetDBConnection() (*mongo.Database, func()) {
 	// This code is drawn from https://github.com/mongodb/mongo-go-driver
-	client, err := mongo.NewClient(options.Client().ApplyURI(GetConfigValue("MONGO_URI")))
+	client, err := mongo.NewClient(options.Client().ApplyURI(config.GetConfigValue("MONGO_URI")))
 	if err != nil {
 		log.Fatalf("Failed to create mongo DB client: %v", err)
 	}

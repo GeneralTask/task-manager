@@ -1,3 +1,23 @@
+package api
+
+import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/url"
+	"time"
+
+	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
 // JIRAAuthToken ...
 type JIRAAuthToken struct {
 	AccessToken  string `json:"access_token"`
@@ -52,10 +72,10 @@ func (api *API) authorizeJIRA(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	db, dbCleanup := GetDBConnection()
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	stateTokenCollection := db.Collection("state_tokens")
-	cursor, err := stateTokenCollection.InsertOne(nil, &StateToken{UserID: internalToken.UserID})
+	cursor, err := stateTokenCollection.InsertOne(nil, &database.StateToken{UserID: internalToken.UserID})
 	if err != nil {
 		log.Fatalf("Failed to create new state token: %v", err)
 	}
@@ -81,7 +101,7 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup := GetDBConnection()
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	stateTokenCollection := db.Collection("state_tokens")
 	result, err := stateTokenCollection.DeleteOne(nil, bson.D{{"user_id", internalToken.UserID}, {"_id", stateTokenID}})
@@ -93,7 +113,7 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 		return
 	}
 
-	params := []byte(`{"grant_type": "authorization_code","client_id": "` + GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","code": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
+	params := []byte(`{"grant_type": "authorization_code","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","code": "` + redirectParams.Code + `","redirect_uri": "https://api.generaltask.io/authorize2/jira/callback/"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
 	if api.JIRAConfigValues.TokenURL != nil {
 		tokenURL = *api.JIRAConfigValues.TokenURL
@@ -127,7 +147,7 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 	_, err = externalAPITokenCollection.UpdateOne(
 		nil,
 		bson.D{{"user_id", internalToken.UserID}, {"source", "jira"}},
-		bson.D{{"$set", &ExternalAPIToken{UserID: internalToken.UserID, Source: "jira", Token: string(tokenString)}}},
+		bson.D{{"$set", &database.ExternalAPIToken{UserID: internalToken.UserID, Source: "jira", Token: string(tokenString)}}},
 		options.Update().SetUpsert(true),
 	)
 
@@ -135,19 +155,19 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 		log.Fatalf("Failed to create external token record: %v", err)
 	}
 
-	c.Redirect(302, GetConfigValue("HOME_URL"))
+	c.Redirect(302, config.GetConfigValue("HOME_URL"))
 }
 
-func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, result chan<- []*Task) {
-	var JIRAToken ExternalAPIToken
+func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, result chan<- []*database.Task) {
+	var JIRAToken database.ExternalAPIToken
 	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "jira"}}).Decode(&JIRAToken)
 	if err != nil {
 		// No JIRA token exists, so don't populate result
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 
-	db, dbCleanup := GetDBConnection()
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	taskCollection := db.Collection("tasks")
 
@@ -155,10 +175,10 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	err = json.Unmarshal([]byte(JIRAToken.Token), &token)
 	if err != nil {
 		log.Printf("Failed to parse JIRA token: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
-	params := []byte(`{"grant_type": "refresh_token","client_id": "` + GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET") + `","refresh_token": "` + token.RefreshToken + `"}`)
+	params := []byte(`{"grant_type": "refresh_token","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET") + `","refresh_token": "` + token.RefreshToken + `"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
 	if api.JIRAConfigValues.TokenURL != nil {
 		tokenURL = *api.JIRAConfigValues.TokenURL
@@ -166,32 +186,32 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
 		log.Printf("Error forming token request: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Printf("Failed to request token: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 	tokenString, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Failed to read token response: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 	if resp.StatusCode != 200 {
 		log.Printf("JIRA authorization failed: %s", tokenString)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 	var newToken JIRAAuthToken
 	err = json.Unmarshal(tokenString, &newToken)
 	if err != nil {
 		log.Printf("Failed to parse new JIRA token: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 
@@ -202,7 +222,7 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	req, err = http.NewRequest("GET", cloudIDURL, nil)
 	if err != nil {
 		log.Printf("Error forming cloud ID request: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 	req.Header.Add("Authorization", "Bearer "+newToken.AccessToken)
@@ -210,31 +230,31 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	resp, err = http.DefaultClient.Do(req)
 	if err != nil {
 		log.Printf("Failed to load cloud ID: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 	cloudIDData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Failed to read cloudID response: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 	if resp.StatusCode != 200 {
 		log.Printf("CloudID request failed: %s", cloudIDData)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 	JIRASites := []JIRASite{}
 	err = json.Unmarshal(cloudIDData, &JIRASites)
 	if err != nil {
 		log.Printf("Failed to parse cloud ID response: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 
 	if len(JIRASites) == 0 {
 		log.Println("No accessible JIRA resources found")
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 	cloudID := JIRASites[0].ID
@@ -246,7 +266,7 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	req, err = http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
 	if err != nil {
 		log.Printf("Error forming search request: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 	req.Header.Add("Authorization", "Bearer "+newToken.AccessToken)
@@ -254,18 +274,18 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	resp, err = http.DefaultClient.Do(req)
 	if err != nil {
 		log.Printf("Failed to load search results: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 	taskData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Failed to read search response: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 	if resp.StatusCode != 200 {
 		log.Printf("Search failed: %s %v", taskData, resp.StatusCode)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 
@@ -273,19 +293,19 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	err = json.Unmarshal(taskData, &jiraTasks)
 	if err != nil {
 		log.Printf("Failed to parse JIRA tasks: %v", err)
-		result <- []*Task{}
+		result <- []*database.Task{}
 		return
 	}
 
-	var tasks []*Task
+	var tasks []*database.Task
 	for _, jiraTask := range jiraTasks.Issues {
-		task := &Task{
-			TaskBase: TaskBase{
+		task := &database.Task{
+			TaskBase: database.TaskBase{
 				IDExternal: jiraTask.ID,
 				Deeplink:   JIRASites[0].URL + "/browse/" + jiraTask.Key,
-				Source:     TaskSourceJIRA.Name,
+				Source:     database.TaskSourceJIRA.Name,
 				Title:      jiraTask.Fields.Summary,
-				Logo:       TaskSourceJIRA.Logo,
+				Logo:       database.TaskSourceJIRA.Logo,
 			},
 		}
 		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)
@@ -304,7 +324,7 @@ func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 			options.Update().SetUpsert(true),
 		)
 		// This is needed to get the ID of the task; should be removed later once we load all tasks from the db
-		var taskIDContainer TaskBase
+		var taskIDContainer database.TaskBase
 		err = taskCollection.FindOne(
 			nil,
 			bson.M{
