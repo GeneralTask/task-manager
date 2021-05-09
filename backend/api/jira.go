@@ -67,7 +67,7 @@ type JIRATaskList struct {
 	Issues []JIRATask `json:"issues"`
 }
 
-func (api *API) authorizeJIRA(c *gin.Context) {
+func (api *API) AuthorizeJIRA(c *gin.Context) {
 	internalToken, err := getTokenFromCookie(c)
 	if err != nil {
 		return
@@ -84,7 +84,7 @@ func (api *API) authorizeJIRA(c *gin.Context) {
 	c.Redirect(302, authURL)
 }
 
-func (api *API) authorizeJIRACallback(c *gin.Context) {
+func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 	internalToken, err := getTokenFromCookie(c)
 	if err != nil {
 		return
@@ -158,7 +158,7 @@ func (api *API) authorizeJIRACallback(c *gin.Context) {
 	c.Redirect(302, config.GetConfigValue("HOME_URL"))
 }
 
-func loadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, result chan<- []*database.Task) {
+func LoadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, result chan<- []*database.Task) {
 	var JIRAToken database.ExternalAPIToken
 	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "jira"}}).Decode(&JIRAToken)
 	if err != nil {

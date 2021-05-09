@@ -17,6 +17,8 @@ import (
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/googleapi"
 
+	"github.com/GeneralTask/task-manager/backend/api"
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson"
@@ -33,7 +35,7 @@ func (m *MockGoogleConfig) AuthCodeURL(state string, opts ...oauth2.AuthCodeOpti
 	return url
 }
 
-func (m *MockGoogleConfig) Client(ctx context.Context, t *oauth2.Token) HTTPClient {
+func (m *MockGoogleConfig) Client(ctx context.Context, t *oauth2.Token) api.HTTPClient {
 	ret := m.Called(ctx, t)
 	client := ret.Get(0).(*MockHTTPClient)
 	return client
@@ -65,7 +67,7 @@ func (c *MockHTTPClient) Get(url string) (*http.Response, error) {
 
 func TestAuthorizeJIRA(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -79,7 +81,7 @@ func TestAuthorizeJIRA(t *testing.T) {
 		)
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/", nil)
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: "tothemoon"})
 		recorder := httptest.NewRecorder()
@@ -94,7 +96,7 @@ func TestAuthorizeJIRA(t *testing.T) {
 		)
 	})
 	t.Run("Success", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/", nil)
 		authToken := login("approved@generaltask.io")
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
@@ -114,12 +116,12 @@ func TestAuthorizeJIRA(t *testing.T) {
 }
 
 func newStateToken(authToken string) string {
-	db, dbCleanup := GetDBConnection()
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
-	stateToken := &StateToken{}
+	stateToken := &database.StateToken{}
 	if authToken != "" {
 		internalAPITokenCollection := db.Collection("internal_api_tokens")
-		var token InternalAPIToken
+		var token database.InternalAPIToken
 		err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&token)
 		if err != nil {
 			log.Fatalf("Failed to find internal api token for test")
@@ -137,7 +139,7 @@ func newStateToken(authToken string) string {
 
 func TestAuthorizeJIRACallback(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -151,7 +153,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		)
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/", nil)
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: "tothemoon"})
 		recorder := httptest.NewRecorder()
@@ -166,7 +168,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		)
 	})
 	t.Run("MissingCodeParam", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/", nil)
 		authToken := login("approved@generaltask.io")
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
@@ -182,7 +184,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		)
 	})
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state=oopsie", nil)
 		authToken := login("approved@generaltask.io")
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
@@ -198,7 +200,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		)
 	})
 	t.Run("InvalidStateToken", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state=6088e1c97018a22f240aa573", nil)
 		authToken := login("approved@generaltask.io")
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
@@ -214,16 +216,16 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		)
 	})
 	t.Run("InvalidStateTokenWrongUser", func(t *testing.T) {
-		db, dbCleanup := GetDBConnection()
+		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
 		stateTokenCollection := db.Collection("state_tokens")
-		res, err := stateTokenCollection.InsertOne(nil, &StateToken{UserID: primitive.NewObjectID()})
+		res, err := stateTokenCollection.InsertOne(nil, &database.StateToken{UserID: primitive.NewObjectID()})
 		if err != nil {
 			log.Fatalf("Failed to create state token for test")
 		}
 		stateToken := res.InsertedID.(primitive.ObjectID).Hex()
 
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+stateToken, nil)
 		authToken := login("approved@generaltask.io")
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
@@ -243,7 +245,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		stateToken := newStateToken(authToken)
 
 		server := getTokenServerForJIRA(t, http.StatusUnauthorized, false)
-		router := getRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &server.URL}})
+		router := getRouter(&api.API{JIRAConfigValues: api.JIRAConfig{TokenURL: &server.URL}})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+stateToken, nil)
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 		recorder := httptest.NewRecorder()
@@ -262,24 +264,24 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		stateToken := newStateToken(authToken)
 
 		server := getTokenServerForJIRA(t, http.StatusOK, false)
-		router := getRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &server.URL}})
+		router := getRouter(&api.API{JIRAConfigValues: api.JIRAConfig{TokenURL: &server.URL}})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+stateToken, nil)
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusFound, recorder.Code)
 
-		db, dbCleanup := GetDBConnection()
+		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
 		internalAPITokenCollection := db.Collection("internal_api_tokens")
-		var authTokenStruct InternalAPIToken
+		var authTokenStruct database.InternalAPIToken
 		err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&authTokenStruct)
 		assert.NoError(t, err)
 		externalAPITokenCollection := db.Collection("external_api_tokens")
 		count, err := externalAPITokenCollection.CountDocuments(nil, bson.D{{"user_id", authTokenStruct.UserID}, {"source", "jira"}})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
-		var jiraToken ExternalAPIToken
+		var jiraToken database.ExternalAPIToken
 		err = externalAPITokenCollection.FindOne(nil, bson.D{{"user_id", authTokenStruct.UserID}, {"source", "jira"}}).Decode(&jiraToken)
 		assert.NoError(t, err)
 		assert.Equal(t, "jira", jiraToken.Source)
@@ -290,7 +292,7 @@ func TestLoginRedirect(t *testing.T) {
 	// Syntax taken from https://semaphoreci.com/community/tutorials/test-driven-development-of-go-web-applications-with-gin
 	// Also inspired by https://dev.to/jacobsngoodwin/04-testing-first-gin-http-handler-9m0
 	t.Run("Success", func(t *testing.T) {
-		router := getRouter(&API{GoogleConfig: &oauthConfigWrapper{Config: &oauth2.Config{
+		router := getRouter(&api.API{GoogleConfig: &api.OauthConfig{Config: &oauth2.Config{
 			ClientID:    "123",
 			RedirectURL: "g.com",
 			Scopes:      []string{"s1", "s2"},
@@ -320,7 +322,7 @@ func TestLoginRedirect(t *testing.T) {
 
 func TestGetGoogleConfig(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		googleConfig := getGoogleConfig()
+		googleConfig := api.GetGoogleConfig()
 		assert.Equal(
 			t,
 			"https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=786163085684-uvopl20u17kp4p2vd951odnm6f89f2f6.apps.googleusercontent.com&prompt=consent&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flogin%2Fcallback%2F&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.modify+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar.events&state=state-token",
@@ -331,7 +333,7 @@ func TestGetGoogleConfig(t *testing.T) {
 
 func TestLoginCallback(t *testing.T) {
 	t.Run("MissingQueryParams", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 
 		request, _ := http.NewRequest("GET", "/login/callback/", nil)
 		recorder := httptest.NewRecorder()
@@ -346,7 +348,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, http.StatusForbidden, recorder.Code)
 	})
 	t.Run("Idempotent", func(t *testing.T) {
-		db, dbCleanup := GetDBConnection()
+		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "example-token", "example-token", true)
 		assert.Equal(t, http.StatusFound, recorder.Code)
@@ -385,7 +387,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"Invalid state token\"}", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
-		db, dbCleanup := GetDBConnection()
+		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
 		stateToken := newStateToken("")
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", stateToken, stateToken, false)
@@ -396,7 +398,7 @@ func TestLoginCallback(t *testing.T) {
 
 func TestCORSHeaders(t *testing.T) {
 	t.Run("OPTIONS preflight request", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("OPTIONS", "/tasks/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -409,7 +411,7 @@ func TestCORSHeaders(t *testing.T) {
 		assert.Equal(t, "POST, OPTIONS, GET, PUT", headers.Get("Access-Control-Allow-Methods"))
 	})
 	t.Run("GET request", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("GET", "/ping/", nil)
 		authToken := login("approved@generaltask.io")
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -432,7 +434,7 @@ func makeLoginCallbackRequest(googleToken string, email string, stateToken strin
 	mockClient := MockHTTPClient{}
 	mockClient.On("Get", "https://www.googleapis.com/oauth2/v3/userinfo").Return(&http.Response{Body: ioutil.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"sub\": \"goog12345\", \"email\": \"%s\"}", email)))}, nil)
 	mockConfig.On("Client", context.Background(), &mockToken).Return(&mockClient)
-	router := getRouter(&API{GoogleConfig: &mockConfig, SkipStateTokenCheck: skipStateTokenCheck})
+	router := getRouter(&api.API{GoogleConfig: &mockConfig, SkipStateTokenCheck: skipStateTokenCheck})
 
 	request, _ := http.NewRequest("GET", "/login/callback/", nil)
 	request.AddCookie(&http.Cookie{Name: "googleStateToken", Value: stateTokenCookie})
@@ -452,7 +454,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, authToken string) {
 	count, err := userCollection.CountDocuments(nil, bson.D{{"google_id", "goog12345"}})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
-	var user User
+	var user database.User
 	err = userCollection.FindOne(nil, bson.D{{"google_id", "goog12345"}}).Decode(&user)
 	assert.NoError(t, err)
 
@@ -460,7 +462,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, authToken string) {
 	count, err = externalAPITokenCollection.CountDocuments(nil, bson.D{{"user_id", user.ID}, {"source", "google"}})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
-	var googleToken ExternalAPIToken
+	var googleToken database.ExternalAPIToken
 	err = externalAPITokenCollection.FindOne(nil, bson.D{{"user_id", user.ID}, {"source", "google"}}).Decode(&googleToken)
 	assert.NoError(t, err)
 	assert.Equal(t, "google", googleToken.Source)
@@ -511,14 +513,14 @@ func TestLogout(t *testing.T) {
 	t.Run("Logout", func(t *testing.T) {
 		authToken := login("approved@generaltask.io")
 
-		db, dbCleanup := GetDBConnection()
+		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
 		tokenCollection := db.Collection("internal_api_tokens")
 
 		count, _ := tokenCollection.CountDocuments(nil, bson.D{{"token", authToken}})
 		assert.Equal(t, int64(1), count)
 
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 
 		request, _ := http.NewRequest("POST", "/logout/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -532,7 +534,7 @@ func TestLogout(t *testing.T) {
 	})
 
 	t.Run("Unauthorized", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 
 		request, _ := http.NewRequest("POST", "/logout/", nil)
 		request.Header.Add("Authorization", "Bearer c8db8f3c-6fa2-476c-9648-b31432dc3ff7")
@@ -546,7 +548,7 @@ func TestLogout(t *testing.T) {
 
 func Test404(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("GET", "/not/a-route/", nil)
 
 		recorder := httptest.NewRecorder()
@@ -560,16 +562,16 @@ func Test404(t *testing.T) {
 
 func TestTaskReorder(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		db, dbCleanup := GetDBConnection()
+		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
 		taskCollection := db.Collection("tasks")
-		insertResult, err := taskCollection.InsertOne(nil, TaskBase{})
+		insertResult, err := taskCollection.InsertOne(nil, database.TaskBase{})
 		assert.NoError(t, err)
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
 		authToken := login("approved@generaltask.io")
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -581,14 +583,14 @@ func TestTaskReorder(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		var task TaskBase
+		var task database.TaskBase
 		err = taskCollection.FindOne(nil, bson.D{{"_id", taskID}}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
 	})
 	t.Run("MissingOrderingID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io")
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -602,7 +604,7 @@ func TestTaskReorder(t *testing.T) {
 	})
 	t.Run("BadTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io")
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -616,7 +618,7 @@ func TestTaskReorder(t *testing.T) {
 	})
 	t.Run("WrongFormatTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io")
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("PATCH", "/tasks/123/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -629,7 +631,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
-		router := getRouter(&API{})
+		router := getRouter(&api.API{})
 		request, _ := http.NewRequest("PATCH", "/tasks/123/", nil)
 
 		recorder := httptest.NewRecorder()
@@ -649,7 +651,7 @@ func login(email string) string {
 }
 
 func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
-	router := getRouter(&API{})
+	router := getRouter(&api.API{})
 
 	request, _ := http.NewRequest("GET", "/ping/", nil)
 	request.Header.Add("Authorization", attemptedHeader)
@@ -674,14 +676,14 @@ func TestCalendar(t *testing.T) {
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		standardTask := CalendarEvent{
-			TaskBase: TaskBase{
+		standardTask := database.CalendarEvent{
+			TaskBase: database.TaskBase{
 				IDOrdering: 0,
 				IDExternal: "standard_event",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event",
-				Source:     TaskSourceGoogleCalendar.Name,
-				Logo:       TaskSourceGoogleCalendar.Logo,
+				Source:     database.TaskSourceGoogleCalendar.Name,
+				Logo:       database.TaskSourceGoogleCalendar.Logo,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
@@ -709,49 +711,49 @@ func TestCalendar(t *testing.T) {
 
 		server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
 		defer server.Close()
-		var calendarEvents = make(chan []*CalendarEvent)
-		go loadCalendarEvents(nil, calendarEvents, &server.URL)
+		var calendarEvents = make(chan []*database.CalendarEvent)
+		go api.LoadCalendarEvents(nil, calendarEvents, &server.URL)
 		result := <-calendarEvents
 		assert.Equal(t, 1, len(result))
 		firstTask := result[0]
 		assertCalendarEventsEqual(t, &standardTask, firstTask)
 
-		db, dbCleanup := GetDBConnection()
+		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
 		taskCollection := db.Collection("tasks")
 
-		var calendarEventFromDB CalendarEvent
-		err := taskCollection.FindOne(nil, bson.D{{"source", TaskSourceGoogleCalendar.Name}, {"id_external", "standard_event"}}).Decode(&calendarEventFromDB)
+		var calendarEventFromDB database.CalendarEvent
+		err := taskCollection.FindOne(nil, bson.D{{"source", database.TaskSourceGoogleCalendar.Name}, {"id_external", "standard_event"}}).Decode(&calendarEventFromDB)
 		assert.NoError(t, err)
 		assertCalendarEventsEqual(t, &standardTask, &calendarEventFromDB)
 	})
 	t.Run("EmptyResult", func(t *testing.T) {
 		server := getServerForTasks([]*calendar.Event{})
 		defer server.Close()
-		var calendarEvents = make(chan []*CalendarEvent)
-		go loadCalendarEvents(nil, calendarEvents, &server.URL)
+		var calendarEvents = make(chan []*database.CalendarEvent)
+		go api.LoadCalendarEvents(nil, calendarEvents, &server.URL)
 		result := <-calendarEvents
 		assert.Equal(t, 0, len(result))
 	})
 }
 
 func TestLoadJIRATasks(t *testing.T) {
-	db, dbCleanup := GetDBConnection()
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 
 	t.Run("MissingJIRAToken", func(t *testing.T) {
-		var JIRATasks = make(chan []*Task)
+		var JIRATasks = make(chan []*database.Task)
 		userID := primitive.NewObjectID()
-		go loadJIRATasks(&API{}, externalAPITokenCollection, userID, JIRATasks)
+		go api.LoadJIRATasks(&api.API{}, externalAPITokenCollection, userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
 	t.Run("RefreshTokenFailed", func(t *testing.T) {
 		userID := createJIRAToken(t, externalAPITokenCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusUnauthorized, true)
-		var JIRATasks = make(chan []*Task)
-		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		var JIRATasks = make(chan []*database.Task)
+		go api.LoadJIRATasks(&api.API{JIRAConfigValues: api.JIRAConfig{TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
@@ -759,8 +761,8 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID := createJIRAToken(t, externalAPITokenCollection)
 		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusUnauthorized, false)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
-		var JIRATasks = make(chan []*Task)
-		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		var JIRATasks = make(chan []*database.Task)
+		go api.LoadJIRATasks(&api.API{JIRAConfigValues: api.JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
@@ -768,8 +770,8 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID := createJIRAToken(t, externalAPITokenCollection)
 		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, true)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
-		var JIRATasks = make(chan []*Task)
-		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		var JIRATasks = make(chan []*database.Task)
+		go api.LoadJIRATasks(&api.API{JIRAConfigValues: api.JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
@@ -778,8 +780,8 @@ func TestLoadJIRATasks(t *testing.T) {
 		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
 		searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
-		var JIRATasks = make(chan []*Task)
-		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		var JIRATasks = make(chan []*database.Task)
+		go api.LoadJIRATasks(&api.API{JIRAConfigValues: api.JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
@@ -788,8 +790,8 @@ func TestLoadJIRATasks(t *testing.T) {
 		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
-		var JIRATasks = make(chan []*Task)
-		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		var JIRATasks = make(chan []*database.Task)
+		go api.LoadJIRATasks(&api.API{JIRAConfigValues: api.JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
@@ -798,31 +800,31 @@ func TestLoadJIRATasks(t *testing.T) {
 		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
-		var JIRATasks = make(chan []*Task)
-		go loadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		var JIRATasks = make(chan []*database.Task)
+		go api.LoadJIRATasks(&api.API{JIRAConfigValues: api.JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result))
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
-		expectedTask := Task{
-			TaskBase: TaskBase{
+		expectedTask := database.Task{
+			TaskBase: database.TaskBase{
 				IDOrdering: 0,
 				IDExternal: "42069",
 				Deeplink:   "https://dankmemes.com/browse/MOON-1969",
 				Title:      "Sample Taskeroni",
-				Source:     TaskSourceJIRA.Name,
-				Logo:       TaskSourceJIRA.Logo,
+				Source:     database.TaskSourceJIRA.Name,
+				Logo:       database.TaskSourceJIRA.Logo,
 			},
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
 		assertTasksEqual(t, &expectedTask, result[0])
 
-		db, dbCleanup := GetDBConnection()
+		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
 		taskCollection := db.Collection("tasks")
 
-		var taskFromDB Task
-		err := taskCollection.FindOne(nil, bson.D{{"source", TaskSourceJIRA.Name}, {"id_external", "42069"}}).Decode(&taskFromDB)
+		var taskFromDB database.Task
+		err := taskCollection.FindOne(nil, bson.D{{"source", database.TaskSourceJIRA.Name}, {"id_external", "42069"}}).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 	})
@@ -832,7 +834,7 @@ func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection)
 	userID := primitive.NewObjectID()
 	_, err := externalAPITokenCollection.InsertOne(
 		context.Background(),
-		&ExternalAPIToken{
+		&database.ExternalAPIToken{
 			Source: "jira",
 			Token:  `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
 			UserID: userID,
@@ -879,12 +881,12 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 		assert.Equal(t, "", string(body))
 		w.WriteHeader(statusCode)
 		if empty {
-			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{}})
+			result, err := json.Marshal(api.JIRATaskList{Issues: []api.JIRATask{}})
 			assert.NoError(t, err)
 			w.Write(result)
 		} else {
-			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{{
-				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni"},
+			result, err := json.Marshal(api.JIRATaskList{Issues: []api.JIRATask{{
+				Fields: api.JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni"},
 				ID:     "42069",
 				Key:    "MOON-1969",
 			}}})
@@ -910,7 +912,7 @@ func getServerForTasks(events []*calendar.Event) *httptest.Server {
 	}))
 }
 
-func assertCalendarEventsEqual(t *testing.T, a *CalendarEvent, b *CalendarEvent) {
+func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *database.CalendarEvent) {
 	assert.Equal(t, a.DatetimeStart, b.DatetimeStart)
 	assert.Equal(t, a.DatetimeEnd, b.DatetimeEnd)
 	assert.Equal(t, a.Deeplink, b.Deeplink)
@@ -921,7 +923,7 @@ func assertCalendarEventsEqual(t *testing.T, a *CalendarEvent, b *CalendarEvent)
 	assert.Equal(t, a.Source, b.Source)
 }
 
-func assertTasksEqual(t *testing.T, a *Task, b *Task) {
+func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)
@@ -930,52 +932,45 @@ func assertTasksEqual(t *testing.T, a *Task, b *Task) {
 	assert.Equal(t, a.Source, b.Source)
 }
 
-func TestExtractSenders(t *testing.T) {
-	assert.Equal(t, "Clockwise", extractSenderName("Clockwise  <hello@getclockwise.com>"))
-	assert.Equal(t, "Jason Scharff", extractSenderName("Jason Scharff <jasonscharff@gmail.com>"))
-	assert.Equal(t, "Testing 123", extractSenderName("Testing 123 <test@example.com>"))
-	assert.Equal(t, "jasonscharff@gmail.com", extractSenderName("jasonscharff@gmail.com"))
-}
-
 func TestMergeTasks(t *testing.T) {
 	t.Run("SimpleMerge", func(t *testing.T) {
 		c1ID := primitive.NewObjectID()
-		c1 := CalendarEvent{
-			TaskBase: TaskBase{
+		c1 := database.CalendarEvent{
+			TaskBase: database.TaskBase{
 				ID:         c1ID,
 				IDExternal: "standard_event",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event",
-				Source:     TaskSourceGoogleCalendar.Name,
-				Logo:       TaskSourceGoogleCalendar.Logo,
+				Source:     database.TaskSourceGoogleCalendar.Name,
+				Logo:       database.TaskSourceGoogleCalendar.Logo,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour + time.Minute)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
 		}
 
 		c2ID := primitive.NewObjectID()
-		c2 := CalendarEvent{
-			TaskBase: TaskBase{
+		c2 := database.CalendarEvent{
+			TaskBase: database.TaskBase{
 				ID:         c2ID,
 				IDExternal: "standard_event_2",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event_2",
-				Source:     TaskSourceGoogleCalendar.Name,
-				Logo:       TaskSourceGoogleCalendar.Logo,
+				Source:     database.TaskSourceGoogleCalendar.Name,
+				Logo:       database.TaskSourceGoogleCalendar.Logo,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour*3 + time.Minute*20)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 4)),
 		}
 
 		e1ID := primitive.NewObjectID()
-		e1 := Email{
-			TaskBase: TaskBase{
+		e1 := database.Email{
+			TaskBase: database.TaskBase{
 				ID:             e1ID,
 				IDExternal:     "sample_email",
 				Deeplink:       "generaltask.io",
 				Title:          "Respond to this email",
-				Source:         TaskSourceGmail.Name,
-				Logo:           TaskSourceGmail.Logo,
+				Source:         database.TaskSourceGmail.Name,
+				Logo:           database.TaskSourceGmail.Logo,
 				TimeAllocation: (time.Minute * 5).Nanoseconds(),
 			},
 			SenderDomain: "gmail.com",
@@ -983,14 +978,14 @@ func TestMergeTasks(t *testing.T) {
 		}
 
 		e2ID := primitive.NewObjectID()
-		e2 := Email{
-			TaskBase: TaskBase{
+		e2 := database.Email{
+			TaskBase: database.TaskBase{
 				ID:             e2ID,
 				IDExternal:     "sample_email_2",
 				Deeplink:       "generaltask.io",
 				Title:          "Respond to this email...eventually",
-				Source:         TaskSourceGmail.Name,
-				Logo:           TaskSourceGmail.Logo,
+				Source:         database.TaskSourceGmail.Name,
+				Logo:           database.TaskSourceGmail.Logo,
 				TimeAllocation: (time.Minute * 2).Nanoseconds(),
 			},
 			SenderDomain: "yahoo.com",
@@ -998,14 +993,14 @@ func TestMergeTasks(t *testing.T) {
 		}
 
 		t1ID := primitive.NewObjectID()
-		t1 := Task{
-			TaskBase: TaskBase{
+		t1 := database.Task{
+			TaskBase: database.TaskBase{
 				ID:             t1ID,
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         TaskSourceJIRA.Name,
-				Logo:           TaskSourceJIRA.Logo,
+				Source:         database.TaskSourceJIRA.Name,
+				Logo:           database.TaskSourceJIRA.Logo,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24)),
@@ -1014,14 +1009,14 @@ func TestMergeTasks(t *testing.T) {
 		}
 
 		t2ID := primitive.NewObjectID()
-		t2 := Task{
-			TaskBase: TaskBase{
+		t2 := database.Task{
+			TaskBase: database.TaskBase{
 				ID:             t2ID,
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         TaskSourceJIRA.Name,
-				Logo:           TaskSourceJIRA.Logo,
+				Source:         database.TaskSourceJIRA.Name,
+				Logo:           database.TaskSourceJIRA.Logo,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
@@ -1030,14 +1025,14 @@ func TestMergeTasks(t *testing.T) {
 		}
 
 		t3ID := primitive.NewObjectID()
-		t3 := Task{
-			TaskBase: TaskBase{
+		t3 := database.Task{
+			TaskBase: database.TaskBase{
 				ID:             t3ID,
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         TaskSourceJIRA.Name,
-				Logo:           TaskSourceJIRA.Logo,
+				Source:         database.TaskSourceJIRA.Name,
+				Logo:           database.TaskSourceJIRA.Logo,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
@@ -1046,14 +1041,14 @@ func TestMergeTasks(t *testing.T) {
 		}
 
 		t4ID := primitive.NewObjectID()
-		t4 := Task{
-			TaskBase: TaskBase{
+		t4 := database.Task{
+			TaskBase: database.TaskBase{
 				ID:             t4ID,
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         TaskSourceJIRA.Name,
-				Logo:           TaskSourceJIRA.Logo,
+				Source:         database.TaskSourceJIRA.Name,
+				Logo:           database.TaskSourceJIRA.Logo,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
@@ -1061,10 +1056,10 @@ func TestMergeTasks(t *testing.T) {
 			TaskNumber: 1,
 		}
 
-		result := mergeTasks(
-			[]*CalendarEvent{&c1, &c2},
-			[]*Email{&e1, &e2},
-			[]*Task{&t1, &t2, &t3, &t4},
+		result := api.MergeTasks(
+			[]*database.CalendarEvent{&c1, &c2},
+			[]*database.Email{&e1, &e2},
+			[]*database.Task{&t1, &t2, &t3, &t4},
 			"gmail.com")
 
 		//need to improve these asserts to compare values as well but a pain with casting
@@ -1072,21 +1067,21 @@ func TestMergeTasks(t *testing.T) {
 		assert.Equal(t, len(result), 5)
 
 		assert.Equal(t, 1, len(result[0].Tasks))
-		assert.Equal(t, e1ID, result[0].Tasks[0].(*Email).ID)
+		assert.Equal(t, e1ID, result[0].Tasks[0].(*database.Email).ID)
 
 		assert.Equal(t, 1, len(result[1].Tasks))
-		assert.Equal(t, c1ID, result[1].Tasks[0].(*CalendarEvent).ID)
+		assert.Equal(t, c1ID, result[1].Tasks[0].(*database.CalendarEvent).ID)
 
 		assert.Equal(t, 1, len(result[2].Tasks))
-		assert.Equal(t, t1ID, result[2].Tasks[0].(*Task).ID)
+		assert.Equal(t, t1ID, result[2].Tasks[0].(*database.Task).ID)
 
 		assert.Equal(t, 1, len(result[3].Tasks))
-		assert.Equal(t, c2ID, result[3].Tasks[0].(*CalendarEvent).ID)
+		assert.Equal(t, c2ID, result[3].Tasks[0].(*database.CalendarEvent).ID)
 
 		assert.Equal(t, 4, len(result[4].Tasks))
-		assert.Equal(t, t3ID, result[4].Tasks[0].(*Task).ID)
-		assert.Equal(t, t4ID, result[4].Tasks[1].(*Task).ID)
-		assert.Equal(t, t2ID, result[4].Tasks[2].(*Task).ID)
-		assert.Equal(t, e2ID, result[4].Tasks[3].(*Email).ID)
+		assert.Equal(t, t3ID, result[4].Tasks[0].(*database.Task).ID)
+		assert.Equal(t, t4ID, result[4].Tasks[1].(*database.Task).ID)
+		assert.Equal(t, t2ID, result[4].Tasks[2].(*database.Task).ID)
+		assert.Equal(t, e2ID, result[4].Tasks[3].(*database.Email).ID)
 	})
 }

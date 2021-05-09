@@ -16,7 +16,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func (api *API) login(c *gin.Context) {
+func (api *API) Login(c *gin.Context) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	stateTokenCollection := db.Collection("state_tokens")
@@ -30,7 +30,7 @@ func (api *API) login(c *gin.Context) {
 	c.Redirect(302, authURL)
 }
 
-func (api *API) loginCallback(c *gin.Context) {
+func (api *API) LoginCallback(c *gin.Context) {
 	var redirectParams GoogleRedirectParams
 	if c.ShouldBind(&redirectParams) != nil || redirectParams.State == "" || redirectParams.Code == "" || redirectParams.Scope == "" {
 		c.JSON(400, gin.H{"detail": "Missing query params"})

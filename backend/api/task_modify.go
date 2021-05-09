@@ -13,7 +13,7 @@ type TaskModifyParams struct {
 	IDOrdering int `json:"id_ordering" binding:"required"`
 }
 
-func (api *API) taskModify(c *gin.Context) {
+func (api *API) TaskModify(c *gin.Context) {
 	taskIDHex := c.Param("task_id")
 	taskID, err := primitive.ObjectIDFromHex(taskIDHex)
 	if err != nil {

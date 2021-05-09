@@ -35,7 +35,7 @@ type GoogleUserInfo struct {
 	EMAIL string `json:"email"`
 }
 
-func getGoogleConfig() OauthConfigWrapper {
+func GetGoogleConfig() OauthConfigWrapper {
 	// Taken from https://developers.google.com/people/quickstart/go
 	b, err := ioutil.ReadFile("credentials.json")
 	if err != nil {
@@ -48,7 +48,7 @@ func getGoogleConfig() OauthConfigWrapper {
 	googleConfig.ClientID = config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID")
 	googleConfig.ClientSecret = config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET")
 	googleConfig.RedirectURL = config.GetConfigValue("GOOGLE_OAUTH_REDIRECT_URL")
-	return &oauthConfigWrapper{Config: googleConfig}
+	return &OauthConfig{Config: googleConfig}
 }
 
 func loadEmails(c *gin.Context, client *http.Client, result chan<- []*database.Email) {
@@ -142,7 +142,7 @@ func extractSenderName(sendLine string) string {
 	}
 }
 
-func loadCalendarEvents(client *http.Client, result chan<- []*database.CalendarEvent, overrideUrl *string) {
+func LoadCalendarEvents(client *http.Client, result chan<- []*database.CalendarEvent, overrideUrl *string) {
 	events := []*database.CalendarEvent{}
 
 	var calendarService *calendar.Service

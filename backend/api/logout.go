@@ -1,9 +1,19 @@
-func (api *API) logout(c *gin.Context) {
+package api
+
+import (
+	"log"
+
+	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+)
+
+func (api *API) Logout(c *gin.Context) {
 	token, err := getToken(c)
 	if err != nil {
 		return
 	}
-	db, dbCleanup := GetDBConnection()
+	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 
 	tokenCollection := db.Collection("internal_api_tokens")

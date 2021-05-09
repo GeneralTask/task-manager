@@ -18,19 +18,19 @@ type HTTPClient interface {
 	Get(url string) (*http.Response, error)
 }
 
-type oauthConfigWrapper struct {
+type OauthConfig struct {
 	Config *oauth2.Config
 }
 
-func (c *oauthConfigWrapper) AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) string {
+func (c *OauthConfig) AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) string {
 	return c.Config.AuthCodeURL(state, opts...)
 }
 
-func (c *oauthConfigWrapper) Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
+func (c *OauthConfig) Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
 	return c.Config.Exchange(ctx, code, opts...)
 }
 
-func (c *oauthConfigWrapper) Client(ctx context.Context, t *oauth2.Token) HTTPClient {
+func (c *OauthConfig) Client(ctx context.Context, t *oauth2.Token) HTTPClient {
 	return c.Config.Client(ctx, t)
 }
 
@@ -75,12 +75,12 @@ func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 	return &internalToken, nil
 }
 
-func (api *API) ping(c *gin.Context) {
+func (api *API) Ping(c *gin.Context) {
 	log.Println("success!")
 	c.JSON(200, "success")
 }
 
-func tokenMiddleware(c *gin.Context) {
+func TokenMiddleware(c *gin.Context) {
 	handlerName := c.HandlerName()
 	if handlerName[len(handlerName)-9:] == "Handle404" {
 		// Do nothing if the route isn't recognized

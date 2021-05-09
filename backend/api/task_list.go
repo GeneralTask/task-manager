@@ -15,7 +15,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func (api *API) tasksList(c *gin.Context) {
+func (api *API) TasksList(c *gin.Context) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
@@ -29,23 +29,23 @@ func (api *API) tasksList(c *gin.Context) {
 
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
-	config := getGoogleConfig()
+	config := GetGoogleConfig()
 	client := config.Client(context.Background(), &token).(*http.Client)
 
 	var calendarEvents = make(chan []*database.CalendarEvent)
-	go loadCalendarEvents(client, calendarEvents, nil)
+	go LoadCalendarEvents(client, calendarEvents, nil)
 
 	var emails = make(chan []*database.Email)
 	go loadEmails(c, client, emails)
 
 	var JIRATasks = make(chan []*database.Task)
-	go loadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
+	go LoadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
 
-	allTasks := mergeTasks(<-calendarEvents, <-emails, <-JIRATasks, "gmail.com")
+	allTasks := MergeTasks(<-calendarEvents, <-emails, <-JIRATasks, "gmail.com")
 	c.JSON(200, allTasks)
 }
 
-func mergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Email, JIRATasks []*database.Task, userDomain string) []*database.TaskGroup {
+func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Email, JIRATasks []*database.Task, userDomain string) []*database.TaskGroup {
 
 	//sort calendar events by start time.
 	sort.SliceStable(calendarEvents, func(i, j int) bool {
