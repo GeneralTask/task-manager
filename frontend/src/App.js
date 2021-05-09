@@ -22,7 +22,8 @@ function App() {
         <Switch>
           {/* Settings page, only accessible if logged in */}
           <PrivateRoute path={SETTINGS_PATH} component={Settings}/>
-	  <Route path={PRIVACY_PATH} component={PrivacyPolicy}/>
+	        
+          <Route path={PRIVACY_PATH} component={PrivacyPolicy}/>
 
           {/* MAKE SURE THIS IS THE LAST ROUTE */}
           {/* base url, shows landing page if not logged in, shows tasks page if logged in */}
