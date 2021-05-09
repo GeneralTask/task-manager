@@ -27,8 +27,9 @@ curl localhost:8080/ping
 ## Backend testing
 
 ```
+cd backend
 docker-compose up -d
-go test
+go test -v ./...
 ```
 
 ## Deploying backend
