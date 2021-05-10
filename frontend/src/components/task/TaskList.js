@@ -64,10 +64,6 @@ function TaskList(){
                 next_time={!next_time ? null : next_time}/>
         }
     }
-
-    function onDragEnd(result) {
-        // TO-DO
-    }
     
     return (
         <div>
