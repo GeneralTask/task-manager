@@ -79,7 +79,7 @@ type TaskGroup struct {
 	TaskGroupType `json:"type"`
 	StartTime     string        `json:"datetime_start"`
 	Duration      int64         `json:"time_duration"`
-	Tasks         []interface{} `json:"tasks"`
+	Tasks         []*TaskBase `json:"tasks"`
 }
 
 type TaskGroupType string
