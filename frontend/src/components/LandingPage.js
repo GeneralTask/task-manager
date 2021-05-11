@@ -5,7 +5,7 @@ import GLButton from './login/GoogleLogin'
 import { LOGIN_URL } from '../constants'
 
 
-function LandingPage() {
+const LandingPage = () => {
     if (Cookies.get('authToken')) {
       return <TaskList />
     }
