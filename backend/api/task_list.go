@@ -33,10 +33,10 @@ func (api *API) TasksList(c *gin.Context) {
 	client := config.Client(context.Background(), &token).(*http.Client)
 
 	var calendarEvents = make(chan []*database.CalendarEvent)
-	go LoadCalendarEvents(client, calendarEvents, nil)
+	go LoadCalendarEvents(userID.(primitive.ObjectID), client, calendarEvents, nil)
 
 	var emails = make(chan []*database.Email)
-	go loadEmails(c, client, emails)
+	go loadEmails(userID.(primitive.ObjectID), client, emails)
 
 	var JIRATasks = make(chan []*database.Task)
 	go LoadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)

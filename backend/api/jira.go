@@ -301,6 +301,7 @@ func LoadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	for _, jiraTask := range jiraTasks.Issues {
 		task := &database.Task{
 			TaskBase: database.TaskBase{
+				UserID: userID,
 				IDExternal: jiraTask.ID,
 				Deeplink:   JIRASites[0].URL + "/browse/" + jiraTask.Key,
 				Source:     database.TaskSourceJIRA.Name,
