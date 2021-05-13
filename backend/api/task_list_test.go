@@ -3,7 +3,6 @@ package api
 import (
 	"testing"
 	"time"
-
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -144,21 +143,21 @@ func TestMergeTasks(t *testing.T) {
 		assert.Equal(t, len(result), 5)
 
 		assert.Equal(t, 1, len(result[0].Tasks))
-		assert.Equal(t, e1ID, result[0].Tasks[0].(*database.Email).ID)
+		assert.Equal(t, e1ID, result[0].Tasks[0].ID)
 
 		assert.Equal(t, 1, len(result[1].Tasks))
-		assert.Equal(t, c1ID, result[1].Tasks[0].(*database.CalendarEvent).ID)
+		assert.Equal(t, c1ID, result[1].Tasks[0].ID)
 
 		assert.Equal(t, 1, len(result[2].Tasks))
-		assert.Equal(t, t1ID, result[2].Tasks[0].(*database.Task).ID)
+		assert.Equal(t, t1ID, result[2].Tasks[0].ID)
 
 		assert.Equal(t, 1, len(result[3].Tasks))
-		assert.Equal(t, c2ID, result[3].Tasks[0].(*database.CalendarEvent).ID)
+		assert.Equal(t, c2ID, result[3].Tasks[0].ID)
 
 		assert.Equal(t, 4, len(result[4].Tasks))
-		assert.Equal(t, t3ID, result[4].Tasks[0].(*database.Task).ID)
-		assert.Equal(t, t4ID, result[4].Tasks[1].(*database.Task).ID)
-		assert.Equal(t, t2ID, result[4].Tasks[2].(*database.Task).ID)
-		assert.Equal(t, e2ID, result[4].Tasks[3].(*database.Email).ID)
+		assert.Equal(t, t3ID, result[4].Tasks[0].ID)
+		assert.Equal(t, t4ID, result[4].Tasks[1].ID)
+		assert.Equal(t, t2ID, result[4].Tasks[2].ID)
+		assert.Equal(t, e2ID, result[4].Tasks[3].ID)
 	})
 }

@@ -45,6 +45,7 @@ type StateToken struct {
 // Task json & mongo model
 type TaskBase struct {
 	ID         primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	UserID 	   primitive.ObjectID `json:"-" bson:"user_id,omitempty"`
 	IDExternal string             `json:"id_external" bson:"id_external,omitempty"`
 	IDOrdering int                `json:"id_ordering" bson:"id_ordering,omitempty"`
 	Sender     string             `json:"sender" bson:"sender,omitempty"`
@@ -79,7 +80,7 @@ type TaskGroup struct {
 	TaskGroupType `json:"type"`
 	StartTime     string        `json:"datetime_start"`
 	Duration      int64         `json:"time_duration"`
-	Tasks         []interface{} `json:"tasks"`
+	Tasks         []*TaskBase `json:"tasks"`
 }
 
 type TaskGroupType string

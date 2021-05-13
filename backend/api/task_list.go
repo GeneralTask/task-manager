@@ -33,15 +33,16 @@ func (api *API) TasksList(c *gin.Context) {
 	client := config.Client(context.Background(), &token).(*http.Client)
 
 	var calendarEvents = make(chan []*database.CalendarEvent)
-	go LoadCalendarEvents(client, calendarEvents, nil)
+	go LoadCalendarEvents(userID.(primitive.ObjectID), client, calendarEvents, nil)
 
 	var emails = make(chan []*database.Email)
-	go loadEmails(c, client, emails)
+	go loadEmails(userID.(primitive.ObjectID), client, emails)
 
 	var JIRATasks = make(chan []*database.Task)
 	go LoadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
 
 	allTasks := MergeTasks(<-calendarEvents, <-emails, <-JIRATasks, "gmail.com")
+
 	c.JSON(200, allTasks)
 }
 
@@ -87,8 +88,8 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 
 	//we then fill in the gaps with calendar events with these tasks
 
-	var tasks []interface{}
-	taskGroups := []*database.TaskGroup{}
+	var tasks []*database.TaskBase
+	var taskGroups []*database.TaskGroup
 
 	lastEndTime := time.Now()
 	taskIndex := 0
@@ -105,16 +106,18 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 
 		remainingTime := calendarEvent.DatetimeStart.Time().Sub(lastEndTime)
 
-		timeAllocation := getTimeAllocation(allUnscheduledTasks[taskIndex])
+		taskBase := getTaskBase(allUnscheduledTasks[taskIndex])
+		timeAllocation := taskBase.TimeAllocation
 		for remainingTime.Nanoseconds() >= timeAllocation {
-			tasks = append(tasks, allUnscheduledTasks[taskIndex])
+			tasks = append(tasks,taskBase)
 			remainingTime -= time.Duration(timeAllocation)
 			totalDuration += timeAllocation
 			taskIndex += 1
 			if taskIndex >= len(allUnscheduledTasks) {
 				break
 			}
-			timeAllocation = getTimeAllocation(allUnscheduledTasks[taskIndex])
+			taskBase = getTaskBase(allUnscheduledTasks[taskIndex])
+			timeAllocation = taskBase.TimeAllocation
 		}
 
 		if len(tasks) > 0 {
@@ -132,7 +135,7 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 			TaskGroupType: database.ScheduledTask,
 			StartTime:     calendarEvent.DatetimeStart.Time().String(),
 			Duration:      int64(calendarEvent.DatetimeEnd.Time().Sub(calendarEvent.DatetimeStart.Time()).Seconds()),
-			Tasks:         []interface{}{calendarEvent},
+			Tasks:         []*database.TaskBase{&calendarEvent.TaskBase},
 		})
 
 		lastEndTime = calendarEvent.DatetimeEnd.Time()
@@ -146,7 +149,7 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 			TaskGroupType: database.ScheduledTask,
 			StartTime:     calendarEvent.DatetimeStart.Time().String(),
 			Duration:      int64(calendarEvent.DatetimeEnd.Time().Sub(calendarEvent.DatetimeStart.Time()).Seconds()),
-			Tasks:         []interface{}{calendarEvent},
+			Tasks:         []*database.TaskBase{&calendarEvent.TaskBase},
 		})
 		lastEndTime = calendarEvent.DatetimeEnd.Time()
 	}
@@ -154,9 +157,8 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 	//add remaining non scheduled events, if they exist.
 	tasks = nil
 	for ; taskIndex < len(allUnscheduledTasks); taskIndex++ {
-		t := allUnscheduledTasks[taskIndex]
+		t := getTaskBase(allUnscheduledTasks[taskIndex])
 		tasks = append(tasks, t)
-		totalDuration += getTimeAllocation(t)
 	}
 	if len(tasks) > 0 {
 		taskGroups = append(taskGroups, &database.TaskGroup{
@@ -169,15 +171,16 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 	return taskGroups
 }
 
-func getTimeAllocation(t interface{}) int64 {
-	//We can't just cast this to TaskBase so we need to switch
+func getTaskBase(t interface{}) *database.TaskBase {
 	switch t.(type) {
 	case *database.Email:
-		return t.(*database.Email).TimeAllocation
+		return &(t.(*database.Email).TaskBase)
 	case *database.Task:
-		return t.(*database.Task).TimeAllocation
+		return &(t.(*database.Task).TaskBase)
+	case *database.CalendarEvent:
+		return &(t.(*database.CalendarEvent).TaskBase)
 	default:
-		return 0
+		return nil
 	}
 }
 
