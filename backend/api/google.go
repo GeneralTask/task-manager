@@ -140,16 +140,6 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 	result <- emails
 }
 
-func extractSenderName(sendLine string) string {
-	exp := regexp.MustCompile("(.+[^\\s])\\s+<(.+)>")
-	matches := exp.FindStringSubmatch(sendLine)
-	if len(matches) == 3 {
-		return matches[1]
-	} else {
-		return sendLine
-	}
-}
-
 func LoadCalendarEvents(userID primitive.ObjectID, client *http.Client, result chan<- []*database.CalendarEvent, overrideUrl *string) {
 	events := []*database.CalendarEvent{}
 
