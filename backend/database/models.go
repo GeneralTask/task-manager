@@ -65,7 +65,7 @@ type CalendarEvent struct {
 
 type Email struct {
 	TaskBase     `bson:",inline"`
-	SenderDomain string             `bson:"sender_email,omitempty"`
+	SenderDomain string             `bson:"sender_domain,omitempty"`
 	TimeSent     primitive.DateTime `bson:"time_sent,omitempty"`
 }
 

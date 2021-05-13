@@ -307,6 +307,7 @@ func LoadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 				Source:     database.TaskSourceJIRA.Name,
 				Title:      jiraTask.Fields.Summary,
 				Logo:       database.TaskSourceJIRA.Logo,
+				TimeAllocation: time.Hour.Nanoseconds(),
 			},
 		}
 		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)

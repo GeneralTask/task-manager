@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/GeneralTask/task-manager/backend/utils"
 	"log"
 	"net/http"
-	"regexp"
 	"strings"
 	"time"
 
@@ -53,6 +53,7 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 	var userObject database.User
 	userCollection := db.Collection("users")
 	err := userCollection.FindOne(nil, bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
+	userDomain := utils.ExtractEmailDomain(userObject.Email)
 
 	emails := []*database.Email{}
 
@@ -63,7 +64,7 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 
 	taskCollection := db.Collection("tasks")
 
-	threadsResponse, err := gmailService.Users.Threads.List("me").Q("is:unread").Do()
+	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox is:unread").Do()
 	if err != nil {
 		log.Fatalf("Failed to load Gmail threads for user: %v", err)
 	}
@@ -83,17 +84,28 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 			}
 		}
 
+		senderName, senderEmail := utils.ExtractSenderName(sender)
+		senderDomain := utils.ExtractEmailDomain(senderEmail)
+
+		var timeAllocation time.Duration
+		if senderDomain == userDomain {
+			timeAllocation = time.Minute * 5
+		} else {
+			timeAllocation = time.Minute * 2
+		}
+
 		email := &database.Email{
 			TaskBase: database.TaskBase{
 				UserID: userID,
 				IDExternal: threadListItem.Id,
-				Sender:     extractSenderName(sender),
+				Sender:     senderName,
 				Source:     database.TaskSourceGmail.Name,
 				Deeplink:   fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
 				Title:      title,
 				Logo:       database.TaskSourceGmail.Logo,
+				TimeAllocation: timeAllocation.Nanoseconds(),
 			},
-			SenderDomain: "gmail.com", // TODO: read in sender domain
+			SenderDomain: senderDomain,
 		}
 		taskCollection.UpdateOne(
 			nil,
@@ -197,6 +209,7 @@ func LoadCalendarEvents(userID primitive.ObjectID, client *http.Client, result c
 				Source:     database.TaskSourceGoogleCalendar.Name,
 				Title:      event.Summary,
 				Logo:       database.TaskSourceGoogleCalendar.Logo,
+				TimeAllocation: endTime.Sub(startTime).Nanoseconds(),
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
