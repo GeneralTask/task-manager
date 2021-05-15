@@ -3,6 +3,11 @@ import { connect, useSelector } from 'react-redux'
 import { FetchStatus } from '../../redux/enums'
 import './dot-spinner.css'
 import {TASK_STATUS_FETCH_ERROR, TASK_STATUS_NO_TASKS} from '../../constants'
+import styled from "styled-components";
+
+const Spacer40 = styled.div`
+    height: 40px;
+`;
 
 
 const TaskStatus = () => {
@@ -35,9 +40,9 @@ const TaskStatus = () => {
     return(
         <div>
             {content 
-                ? <div className="spacer40">
+                ? <Spacer40>
                     {content}
-                </div>
+                </Spacer40>
 
                 : null
             }

@@ -1,20 +1,3 @@
-.task-title{
-    font-size: 20px;
-    width: 80%;
-    margin: auto;
-}
-
-.task-container {
-    padding: 0;
-    font-family: "Gothic A1", sans-serif;
-    border: 2px solid #cccccc;
-    border-radius: 2px;
-    margin: 5px 0;
-    width: 100%;
-    outline: none;
-    background-color: white;
-}
-
 .deeplink {
     cursor: pointer;
 }
@@ -23,47 +6,12 @@
     background-color: #e3e3e3;
 }
 
-.task-header{
+/* classes below are unused */
+
+.task-title{
     font-size: 20px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px;
-}
-
-.task-header-text {
-    text-align: left;
-}
-
-.flex-expand {
-    flex: 1;
-}
-
-.domino{
-    height: 18px;
-}
-
-.task-icon{
-    max-width: 40px;
-    padding-left: 12px;
-    padding-right: 12px
-}
-
-.task-header-side{
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-}
-
-.task-header-right{
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-}
-
-.task-header-source{
-    color: #cccccc;
+    width: 80%;
+    margin: auto;
 }
 
 .task-divider{
@@ -145,54 +93,4 @@
     padding: 1px;
     margin-right: 2px;
     width: 18px;
-}
-
-.spacer40{
-    height: 40px;
-    text-align: center;
-}
-
-.task-time-annotation {
-    color: #969696;
-    width: 20%;
-    margin-left: 10px;
-    margin-right: 10px;
-    font-size: 18px;
-    font-weight: 600;
-}
-
-.task-group {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    margin-bottom: 15px;
-}
-
-.task-group-tasks {
-    width: 60%;
-}
-
-.unscheduled-time-annotation-container{
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    height: 100%;
-}
-
-.unscheduled-spanbar {
-    background-color:  #969696;
-    width: 2px;
-    height: calc(100% - 10px);
-    position: absolute;
-}
-
-.unscheduled-time-spacer {
-    margin-left: 20px;
-}
-
-.align-right {
-   text-align : right;
 }
