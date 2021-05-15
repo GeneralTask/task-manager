@@ -24,6 +24,7 @@ export default function Task(props) {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
+          {/* TODO change this to styled component */}
           <div className={props.task.deeplink ? "deeplink" : ""}>
             <Container
               onClick={() => {
