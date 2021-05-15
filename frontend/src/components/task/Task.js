@@ -14,6 +14,16 @@ const Container = styled.div`
   outline: none;
   background-color: white;
 `;
+const Deeplink = styled.div`
+  cursor: pointer;
+  &:hover ${Container}{
+    background-color: #e3e3e3;
+  }
+`;
+
+// renders <wrapper>children</wrapper> if condition is true, else just children
+const ConditionalWrapper = ({ condition, wrapper, children }) =>
+  condition ? wrapper(children) : children;
 
 export default function Task(props) {
   return (
@@ -24,23 +34,25 @@ export default function Task(props) {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          {/* TODO change this to styled component */}
-          <div className={props.task.deeplink ? "deeplink" : ""}>
-            <Container
-              onClick={() => {
-                if (props.task.deeplink) {
-                  window.open(props.task.deeplink);
-                }
-              }}
-            >
-              <TaskHeader
-                title={props.task.title}
-                icon_url={props.task.logo_url}
-                sender={props.task.sender}
-                provided={provided}
-              />
-            </Container>
-          </div>
+          <ConditionalWrapper
+            condition={props.task.deeplink}
+            wrapper={children => <Deeplink>{children}</Deeplink>}
+            children={
+              <Container
+                onClick={() => {
+                  if (props.task.deeplink) {
+                    window.open(props.task.deeplink);
+                  }
+                }}
+              >
+                <TaskHeader
+                  title={props.task.title}
+                  icon_url={props.task.logo_url}
+                  sender={props.task.sender}
+                  provided={provided}
+                />
+              </Container>
+            } />
         </div>
       )}
     </Draggable>
