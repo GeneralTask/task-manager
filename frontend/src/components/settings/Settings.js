@@ -1,18 +1,32 @@
 import React from 'react'
-import "./Settings.css"
 import Account from "./Account"
 import {JIRA_URL} from "../../constants"
+import styled from "styled-components"
+
+const Header = styled.div`
+    height: 100px;
+    width: 100%;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const Body = styled.div`
+    width: 30%;
+    margin: auto;
+`;
 
 function Settings(){
     return(
         <div>
-            <div className="settings-page-header">
+            <Header>
                 <h1>Settings</h1>
-            </div>
-            <div className="settings-body">
+            </Header>
+            <Body>
                 <h2>Accounts</h2>
                 <Account logo="/images/jira.svg" name="Jira" link={JIRA_URL} />
-            </div>
+            </Body>
         </div>
     )
 }
