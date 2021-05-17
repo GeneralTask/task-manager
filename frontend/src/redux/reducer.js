@@ -15,6 +15,14 @@ export default function reducer(state, action){
                 tasks_fetch_status: action.tasks_fetch_status,
             }
 
+        case actions.REMOVE_TASK:
+            let task_groups = [...state.task_groups];
+            task_groups.splice(action.index, 1);
+            return {
+                ...state,
+                task_groups: task_groups
+            }
+
         default:
             return state;
     }
