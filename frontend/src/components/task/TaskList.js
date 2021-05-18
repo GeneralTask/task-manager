@@ -10,33 +10,32 @@ import TaskStatus from './TaskStatus'
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import moment from 'moment'
 
-function fetchTasks(){
+async function fetchTasks(){
     store.dispatch(setTasksFetchStatus(FetchStatus.LOADING));
-    fetch(TASKS_URL, {
-        mode: 'cors',
-        headers: {
-            'Authorization': 'Bearer ' + Cookies.get('authToken'),
-            'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
-            'Access-Control-Allow-Headers': 'access-control-allow-origin, access-control-allow-headers',
+
+    try{
+        const response = await fetch(TASKS_URL, {
+            mode: 'cors',
+            headers: {
+                'Authorization': 'Bearer ' + Cookies.get('authToken'),
+                'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
+                'Access-Control-Allow-Headers': 'access-control-allow-origin, access-control-allow-headers',
+            }
+        });
+        if(!response.ok){
+            throw new Error('/tasks api call failed');
         }
-    })
-    .then((res) => {
-        if(!res.ok){
-            return Promise.reject('/tasks api call failed');
-        }
-        const resj = res.json();
-        return resj;
-    })
-    .then(
-        (result) => {
+        else{
+            const resj = await response.json();
+            console.log({resj})
             store.dispatch(setTasksFetchStatus(FetchStatus.SUCCESS));
-            store.dispatch(setTasks(result));
-        },
-        (error) => {
-            store.dispatch(setTasksFetchStatus(FetchStatus.ERROR));
-            console.log({error});
+            store.dispatch(setTasks(resj));
         }
-    )
+    }
+    catch(e){
+        store.dispatch(setTasksFetchStatus(FetchStatus.ERROR));
+        console.log({e});
+    }
 }
 
 function TaskList(){
