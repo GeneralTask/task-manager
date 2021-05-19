@@ -1,5 +1,4 @@
-export default function PrivacyPolicy() {
-  return (
+const PrivacyPolicy = () => 
     <div>
       <h1 className="center">Privacy Policy</h1>
       <div className="privacy-policy">
@@ -27,6 +26,6 @@ export default function PrivacyPolicy() {
         </p>
         <p>Also we promise not to steal your information</p>
       </div>
-    </div>
-  );
-}
+    </div>;
+
+export default PrivacyPolicy;

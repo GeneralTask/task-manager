@@ -10,9 +10,8 @@ import TaskStatus from './TaskStatus'
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import moment from 'moment'
 
-async function fetchTasks(){
+const fetchTasks = async () => {
     store.dispatch(setTasksFetchStatus(FetchStatus.LOADING));
-
     try{
         const response = await fetch(TASKS_URL, {
             mode: 'cors',
@@ -38,7 +37,7 @@ async function fetchTasks(){
     }
 }
 
-function TaskList(){
+const TaskList = () => {
 
     let task_groups = useSelector(state => state.task_groups);
     let task_counter = 0;
@@ -48,7 +47,7 @@ function TaskList(){
         fetchTasks();
     }, []);
 
-    function renderTaskGroup(taskGroup, index){
+    const renderTaskGroup = (taskGroup, index) => {
         let next_time = null;
         if(index === 0 && task_groups.length > 1){
             next_time = moment(task_groups[1].datetime_start);

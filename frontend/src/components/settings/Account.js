@@ -1,13 +1,13 @@
 import React from 'react'
 import "./Settings.css"
 
-function Account(props) {
+const Account = ({name, logo, link}) => {
     return (
         <div className="account">
-            <img src={props.logo} alt={props.name + " logo"} />
-            <div>{props.name}</div>
+            <img src={logo} alt={name + " logo"} />
+            <div>{name}</div>
             <button onClick={() => {
-                window.open(props.link, props.name, 'height=640,width=960,toolbar=no,menubar=no,scrollbars=no,location=no,status=no')
+                window.open(link, name, 'height=640,width=960,toolbar=no,menubar=no,scrollbars=no,location=no,status=no')
             }} className="connect-btn" >Connect</button>
         </div>
     )

@@ -62,7 +62,7 @@ const LoginWithGoogle = styled.a`
   padding: 4px;
 `;
 
-function LandingPage() {
+const LandingPage = () => {
   if (Cookies.get("authToken")) {
     return <TaskList />;
   }
@@ -75,8 +75,9 @@ function LandingPage() {
           <br /> highly productive people.
         </Title>
         <Subtitle>
-          General Task pulls together your emails, messages, and tasks 
-          <br/>and prioritizes what matters most.
+          General Task pulls together your emails, messages, and tasks
+          <br />
+          and prioritizes what matters most.
         </Subtitle>
         <WaitlistInputs>
           <WaitlistInput placeholder="Enter email address" />
@@ -95,6 +96,6 @@ function LandingPage() {
       </Container>
     </div>
   );
-}
+};
 
 export default LandingPage;

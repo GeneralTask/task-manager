@@ -3,7 +3,7 @@ import "./Settings.css"
 import Account from "./Account"
 import {JIRA_URL} from "../../constants"
 
-function Settings(){
+const Settings = () => {
     return(
         <div>
             <div className="settings-page-header">

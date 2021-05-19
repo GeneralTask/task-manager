@@ -3,21 +3,21 @@ import './Task.css'
 import TaskHeader from './TaskHeader'
 import { Draggable } from "react-beautiful-dnd";
 
-export default function Task(props){
+const Task = ({task, index, isDragDisabled}) => {
     return (
-        <Draggable draggableId={props.task.id} index={props.index} isDragDisabled={props.isDragDisabled}>
+        <Draggable draggableId={task.id} index={index} isDragDisabled={isDragDisabled}>
           {provided => (
             <div
               ref={provided.innerRef}
               {...provided.draggableProps}
               {...provided.dragHandleProps}
             >
-                <div className={"task-container " + (props.task.deeplink ? "deeplink" : "")}
-                    onClick={() => { if (props.task.deeplink) { window.open(props.task.deeplink) } }} >
+                <div className={"task-container " + (task.deeplink ? "deeplink" : "")}
+                    onClick={() => { if (task.deeplink) { window.open(task.deeplink) } }} >
                     <TaskHeader
-                        title={props.task.title} 
-                        icon_url={props.task.logo_url} 
-                        sender={props.task.sender} 
+                        title={task.title} 
+                        icon_url={task.logo_url} 
+                        sender={task.sender} 
                         provided={provided}
                     />
                 </div>     
@@ -26,3 +26,5 @@ export default function Task(props){
         </Draggable>
       );
 }
+
+export default Task;
