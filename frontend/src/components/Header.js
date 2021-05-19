@@ -2,14 +2,33 @@ import React from 'react'
 import {Link} from 'react-router-dom'
 import { LANDING_PATH, SETTINGS_PATH } from '../constants'
 import Cookies from 'js-cookie'
+import styled from 'styled-components'
+
+const HeaderDiv = styled.div`
+  border-bottom: 2px solid #cccccc;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 0 30px;
+  & * {
+    margin: 0 30px; 
+  }
+`;
+
+const Logout = styled.button`
+  background-color: white;
+  border: 2px solid #cccccc;
+`;
 
 const Header = () => {
     return(
-        <div className="header">
+        <HeaderDiv>
             <Link to={LANDING_PATH}>Tasks</Link>
             <Link to={SETTINGS_PATH}>Settings</Link>
-            <button className="logout-btn" onClick={logout} disabled={!Cookies.get('authToken')}>Logout</button>
-        </div>
+            <Logout onClick={logout} disabled={!Cookies.get('authToken')}>Logout</Logout>
+        </HeaderDiv>
     )
 }
 

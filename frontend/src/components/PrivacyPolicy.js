@@ -1,7 +1,19 @@
-const PrivacyPolicy = () => 
+import styled from 'styled-components'
+
+const PrivacyContent = styled.div`
+  width: 75%;
+  margin: auto;
+  text-indent: 30px;
+`;
+
+const Title = styled.h1`
+  text-align: center;
+`;
+
+const PrivacyPolicy = () =>
     <div>
-      <h1 className="center">Privacy Policy</h1>
-      <div className="privacy-policy">
+      <Title>Privacy Policy</Title>
+      <PrivacyContent>
         <p>
           Bee Movie Script - Dialogue Transcript According to all known laws of
           aviation, there is no way a bee should be able to fly. Its wings are
@@ -25,7 +37,7 @@ const PrivacyPolicy = () =>
           I'm not going.
         </p>
         <p>Also we promise not to steal your information</p>
-      </div>
-    </div>;
+      </PrivacyContent>
+    </div>
 
 export default PrivacyPolicy;

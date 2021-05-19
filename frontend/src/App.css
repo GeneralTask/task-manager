@@ -41,33 +41,8 @@ body{
   }
 }
 
-.Task {
-  background: #fff;
-}
-
-.header {
-  border-bottom: 2px solid #cccccc;
-  width: 100%;
-  height: 50px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin: 0 30px;
-}
-
-.logout-btn{
-  background-color: white;
-  border: 2px solid #cccccc;
-}
-
 .header * {
   margin: 0 30px;
-}
-
-.privacy-policy{
-  width: 75%;
-  margin: auto;
-  text-indent: 30px;
 }
 
 .center {

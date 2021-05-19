@@ -9,6 +9,12 @@ import {ScheduledTask, UnscheduledTaskGroup} from './TaskWrappers'
 import TaskStatus from './TaskStatus'
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import moment from 'moment'
+import styled from "styled-components";
+
+const MyTasks = styled.h1`
+    height: 40px;
+    text-align: center;
+`;
 
 const fetchTasks = async () => {
     store.dispatch(setTasksFetchStatus(FetchStatus.LOADING));
@@ -86,7 +92,7 @@ const TaskList = () => {
     
     return (
         <div>
-            <h1 className="spacer40">My Tasks</h1>
+            <MyTasks>My Tasks</MyTasks>
             <TaskStatus/>
             <DragDropContext onDragEnd={onDragEnd}>
                 { 
