@@ -10,8 +10,7 @@ const Title = styled.h1`
   text-align: center;
 `;
 
-export default function PrivacyPolicy() {
-  return (
+const PrivacyPolicy = () =>
     <div>
       <Title>Privacy Policy</Title>
       <PrivacyContent>
@@ -40,5 +39,5 @@ export default function PrivacyPolicy() {
         <p>Also we promise not to steal your information</p>
       </PrivacyContent>
     </div>
-  );
-}
+
+export default PrivacyPolicy;

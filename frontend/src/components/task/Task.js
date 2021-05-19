@@ -25,9 +25,9 @@ const Deeplink = styled.div`
 const ConditionalWrapper = ({ condition, wrapper, children }) =>
   condition ? wrapper(children) : children;
 
-export default function Task(props) {
-  return (
-    <Draggable draggableId={props.task.id} index={props.index}>
+
+const Task = ({task, index, isDragDisabled}) => 
+    <Draggable draggableId={task.id} index={index}>
       {(provided) => (
         <div
           ref={provided.innerRef}
@@ -35,20 +35,20 @@ export default function Task(props) {
           {...provided.dragHandleProps}
         >
           <ConditionalWrapper
-            condition={props.task.deeplink}
+            condition={task.deeplink}
             wrapper={children => <Deeplink>{children}</Deeplink>}
             children={
               <Container
                 onClick={() => {
-                  if (props.task.deeplink) {
-                    window.open(props.task.deeplink);
+                  if (task.deeplink) {
+                    window.open(task.deeplink);
                   }
                 }}
               >
                 <TaskHeader
-                  title={props.task.title}
-                  icon_url={props.task.logo_url}
-                  sender={props.task.sender}
+                  title={task.title}
+                  icon_url={task.logo_url}
+                  sender={task.sender}
                   provided={provided}
                 />
               </Container>
@@ -56,5 +56,6 @@ export default function Task(props) {
         </div>
       )}
     </Draggable>
-  );
 }
+
+export default Task;

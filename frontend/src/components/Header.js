@@ -22,7 +22,7 @@ const Logout = styled.button`
   border: 2px solid #cccccc;
 `;
 
-function Header(){
+const Header = () => {
     return(
         <HeaderDiv>
             <Link to={LANDING_PATH}>Tasks</Link>
@@ -35,7 +35,7 @@ function Header(){
 
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
-function logout(e){
+const logout = (e) => {
     document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     document.location.href = LANDING_PATH;
 }

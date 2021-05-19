@@ -42,32 +42,34 @@ const UnscheduledTimeAnnotationContainer = styled.div`
   height: 100%;
 `;
 
-function ScheduledTask(props) {
-  return (
+const ScheduledTask = ({datetime_start, time_duration, next_time, ...rest}) => 
     <TaskGroup>
       <TimeAnnotation>
-        <AlignRight>{moment(props.datetime_start).format("h:mm a")}</AlignRight>
+        <AlignRight>{moment(datetime_start).format("h:mm a")}</AlignRight>
       </TimeAnnotation>
       <Tasks>
-        <Task {...props} />
+        <Task 
+            datetime_start={datetime_start} 
+            time_duration={time_duration} 
+            next_time={next_time}
+            isDragDisabled={true}
+            {...rest}
+        />
       </Tasks>
       <TimeAnnotation>
         <TimeDuration
-          time_duration={props.time_duration}
-          next_time={props.next_time}
+          time_duration={time_duration}
+          next_time={next_time}
         />
       </TimeAnnotation>
     </TaskGroup>
-  );
-}
 
-function UnscheduledTaskGroup(props) {
-  return (
+const UnscheduledTaskGroup = ({tasks, time_duration, next_time}) =>
     <TaskGroup>
       <TimeAnnotation />
       <Tasks>
-        {props.tasks.map((task, index) => (
-          <Task task={task} key={task.id_ordering} index={index} />
+        {tasks.map((task, index) => (
+          <Task task={task} key={task.id_ordering} index={index} isDragDisabled={false}/>
         ))}
       </Tasks>
       <TimeAnnotation>
@@ -75,41 +77,39 @@ function UnscheduledTaskGroup(props) {
           <UnscheduledSpanbar />
           <UnscheduledTimeSpacer />
           <TimeDuration
-            time_duration={props.time_duration}
-            next_time={props.next_time}
+            time_duration={time_duration}
+            next_time={next_time}
           />
         </UnscheduledTimeAnnotationContainer>
       </TimeAnnotation>
     </TaskGroup>
-  );
-}
 
-function TimeDuration(props) {
-  let initialTimeStr = props.time_duration;
-  if (props.next_time) {
+const TimeDuration = ({time_duration, next_time}) => {
+    let initialTimeStr = time_duration;
+  if (next_time) {
     // if this is the first task group (live updates)
-    initialTimeStr = getLiveTimeStr(props.next_time);
+    initialTimeStr = getLiveTimeStr(next_time);
   } else {
     // this is not the first task - time is formatted based off of task group duration in seconds
-    initialTimeStr = getTimeStr(moment.duration(props.time_duration * 1000));
+    initialTimeStr = getTimeStr(moment.duration(time_duration * 1000));
   }
   const [timeStr, setTimeStr] = useState(initialTimeStr);
   useEffect(() => {
     let timer;
-    if (props.next_time) {
+    if (next_time) {
       timer = setInterval(() => {
-        setTimeStr(getLiveTimeStr(props.next_time));
+        setTimeStr(getLiveTimeStr(next_time));
       }, 1000);
     }
     return () => {
       if (timer) clearInterval();
     };
-  }, [props.next_time]);
+  }, [next_time]);
   return <div>{timeStr}</div>;
 }
 
-function getTimeStr(duration) {
-  let timeStr = "";
+const getTimeStr = (duration) => {
+    let timeStr = "";
   let hours = duration.asHours();
   const minutes = Math.floor((hours % 1) * 60);
   hours = Math.floor(hours);
@@ -134,8 +134,7 @@ function getTimeStr(duration) {
   return timeStr;
 }
 
-function getLiveTimeStr(next_time) {
-  return getTimeStr(moment.duration(next_time.diff(moment())));
-}
+const getLiveTimeStr = (next_time) => 
+    getTimeStr(moment.duration(next_time.diff(moment())));
 
 export { ScheduledTask, UnscheduledTaskGroup };

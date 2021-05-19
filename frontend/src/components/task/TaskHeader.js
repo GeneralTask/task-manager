@@ -30,17 +30,19 @@ const Source = styled.div`
   color: #cccccc;
 `;
 
-export default function TaskHeader(props) {
+const TaskHeader = ({ icon_url, title, sender }) => {
   return (
     <Header>
       <HeaderSide>
         <Domino src="images/domino.svg" alt="" />
-        <Icon src={props.icon_url} alt="icon"></Icon>
-        <div>{props.title}</div>
+        <Icon src={icon_url} alt="icon"></Icon>
+        <div>{title}</div>
       </HeaderSide>
       <div>
-        <Source>{props.sender}</Source>
+        <Source>{sender}</Source>
       </div>
     </Header>
   );
-}
+};
+
+export default TaskHeader;

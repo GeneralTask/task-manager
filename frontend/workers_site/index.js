@@ -1,4 +1,4 @@
-import { getAssetFromKV, mapRequestToAsset } from '@cloudflare/kv-asset-handler'
+import { getAssetFromKV, mapRequestToAsset, serveSinglePageApp } from '@cloudflare/kv-asset-handler'
 
 /**
  * The DEBUG flag will do two things that help during development:
@@ -41,7 +41,7 @@ async function handleEvent(event) {
         bypassCache: true,
       };
     }
-    const page = await getAssetFromKV(event, options);
+    const page = await getAssetFromKV(event, { mapRequestToAsset: serveSinglePageApp });
 
     // allow headers to be altered
     const response = new Response(page.body, page);

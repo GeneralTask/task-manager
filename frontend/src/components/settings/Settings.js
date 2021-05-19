@@ -17,7 +17,7 @@ const Body = styled.div`
     margin: auto;
 `;
 
-function Settings(){
+const Settings = () => {
     return(
         <div>
             <Header>
