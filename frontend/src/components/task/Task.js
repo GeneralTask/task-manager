@@ -16,7 +16,7 @@ const Container = styled.div`
 `;
 const Deeplink = styled.div`
   cursor: pointer;
-  &:hover ${Container}{
+  &:hover ${Container} {
     background-color: #e3e3e3;
   }
 `;
@@ -25,37 +25,37 @@ const Deeplink = styled.div`
 const ConditionalWrapper = ({ condition, wrapper, children }) =>
   condition ? wrapper(children) : children;
 
-
-const Task = ({task, index, isDragDisabled}) => 
-    <Draggable draggableId={task.id} index={index}>
-      {(provided) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-        >
-          <ConditionalWrapper
-            condition={task.deeplink}
-            wrapper={children => <Deeplink>{children}</Deeplink>}
-            children={
-              <Container
-                onClick={() => {
-                  if (task.deeplink) {
-                    window.open(task.deeplink);
-                  }
-                }}
-              >
-                <TaskHeader
-                  title={task.title}
-                  icon_url={task.logo_url}
-                  sender={task.sender}
-                  provided={provided}
-                />
-              </Container>
-            } />
-        </div>
-      )}
-    </Draggable>
-}
+const Task = ({ task, index, isDragDisabled }) => (
+  <Draggable draggableId={task.id} index={index}>
+    {(provided) => (
+      <div
+        ref={provided.innerRef}
+        {...provided.draggableProps}
+        {...provided.dragHandleProps}
+      >
+        <ConditionalWrapper
+          condition={task.deeplink}
+          wrapper={(children) => <Deeplink>{children}</Deeplink>}
+          children={
+            <Container
+              onClick={() => {
+                if (task.deeplink) {
+                  window.open(task.deeplink);
+                }
+              }}
+            >
+              <TaskHeader
+                title={task.title}
+                icon_url={task.logo_url}
+                sender={task.sender}
+                provided={provided}
+              />
+            </Container>
+          }
+        />
+      </div>
+    )}
+  </Draggable>
+);
 
 export default Task;
