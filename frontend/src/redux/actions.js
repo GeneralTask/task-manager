@@ -14,3 +14,10 @@ export function setTasksFetchStatus(tasks_fetch_status){
         tasks_fetch_status,
     }
 }
+
+export function removeTask(index) {
+    return {
+        type: actions.REMOVE_TASK,
+        index
+    }
+}
