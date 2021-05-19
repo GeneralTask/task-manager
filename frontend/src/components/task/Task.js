@@ -3,9 +3,9 @@ import './Task.css'
 import TaskHeader from './TaskHeader'
 import { Draggable } from "react-beautiful-dnd";
 
-const Task = ({task, index}) => {
+const Task = ({task, index, isDragDisabled}) => {
     return (
-        <Draggable draggableId={task.id} index={index}>
+        <Draggable draggableId={task.id} index={index} isDragDisabled={isDragDisabled}>
           {provided => (
             <div
               ref={provided.innerRef}

@@ -12,6 +12,7 @@ const ScheduledTask = ({datetime_start, time_duration, next_time, ...rest}) =>
                 datetime_start={datetime_start} 
                 time_duration={time_duration} 
                 next_time={next_time}
+                isDragDisabled={true}
                 {...rest}
             />
         </div>
@@ -25,7 +26,7 @@ const UnscheduledTaskGroup = ({tasks, time_duration, next_time}) =>
         <div className="task-time-annotation" />
         <div className="task-group-tasks">
             { tasks.map((task, index) =>
-                <Task task={task} key={task.id_ordering} index={index} />
+                <Task task={task} key={task.id_ordering} index={index} isDragDisabled={false}/>
             )}
         </div>
         <div className="task-time-annotation unscheduled-time-annotation-container">

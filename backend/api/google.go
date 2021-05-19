@@ -11,7 +11,6 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -48,11 +47,10 @@ func GetGoogleConfig() OauthConfigWrapper {
 	return &OauthConfig{Config: googleConfig}
 }
 
-func loadEmails(c *gin.Context, client *http.Client, result chan<- []*database.Email) {
+func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []*database.Email) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	var userObject database.User
-	userID, _ := c.Get("user")
 	userCollection := db.Collection("users")
 	err := userCollection.FindOne(nil, bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
 
@@ -87,6 +85,7 @@ func loadEmails(c *gin.Context, client *http.Client, result chan<- []*database.E
 
 		email := &database.Email{
 			TaskBase: database.TaskBase{
+				UserID: userID,
 				IDExternal: threadListItem.Id,
 				Sender:     extractSenderName(sender),
 				Source:     database.TaskSourceGmail.Name,
@@ -139,7 +138,7 @@ func extractSenderName(sendLine string) string {
 	}
 }
 
-func LoadCalendarEvents(client *http.Client, result chan<- []*database.CalendarEvent, overrideUrl *string) {
+func LoadCalendarEvents(userID primitive.ObjectID, client *http.Client, result chan<- []*database.CalendarEvent, overrideUrl *string) {
 	events := []*database.CalendarEvent{}
 
 	var calendarService *calendar.Service
@@ -192,6 +191,7 @@ func LoadCalendarEvents(client *http.Client, result chan<- []*database.CalendarE
 
 		event := &database.CalendarEvent{
 			TaskBase: database.TaskBase{
+				UserID: userID,
 				IDExternal: event.Id,
 				Deeplink:   event.HtmlLink,
 				Source:     database.TaskSourceGoogleCalendar.Name,
