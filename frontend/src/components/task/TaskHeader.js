@@ -76,7 +76,7 @@ const done = async (task_id) => {
     store.dispatch(removeTaskById(task_id));
 
     const response = await fetch(TASKS_URL + task_id + '/', {
-      method: "patch",
+      method: "PATCH",
       mode: "cors",
       headers: {
         Authorization: "Bearer " + Cookies.get("authToken"),
