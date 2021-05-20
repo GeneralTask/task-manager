@@ -46,7 +46,7 @@ type StateToken struct {
 type TaskBase struct {
 	ID         primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	UserID 	   primitive.ObjectID `json:"-" bson:"user_id,omitempty"`
-	IDExternal string             `json:"id_external" bson:"id_external,omitempty"`
+	IDExternal string             `json:"-" bson:"id_external,omitempty"`
 	IDOrdering int                `json:"id_ordering" bson:"id_ordering,omitempty"`
 	Sender     string             `json:"sender" bson:"sender,omitempty"`
 	Source     string             `json:"source" bson:"source,omitempty"`
