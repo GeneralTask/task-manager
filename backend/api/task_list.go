@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"github.com/GeneralTask/task-manager/backend/utils"
 	"log"
 	"net/http"
 	"sort"
@@ -21,7 +22,15 @@ func (api *API) TasksList(c *gin.Context) {
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	var googleToken database.ExternalAPIToken
 	userID, _ := c.Get("user")
-	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken)
+	var userObject database.User
+	userCollection := db.Collection("users")
+	err := userCollection.FindOne(nil, bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
+
+	if err != nil {
+		log.Fatalf("Failed to find user")
+	}
+
+	err = externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken)
 
 	if err != nil {
 		log.Fatalf("Failed to fetch external API token: %v", err)
@@ -41,8 +50,7 @@ func (api *API) TasksList(c *gin.Context) {
 	var JIRATasks = make(chan []*database.Task)
 	go LoadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
 
-	allTasks := MergeTasks(<-calendarEvents, <-emails, <-JIRATasks, "gmail.com")
-
+	allTasks := MergeTasks(<-calendarEvents, <-emails, <-JIRATasks, utils.ExtractEmailDomain(userObject.Email))
 	c.JSON(200, allTasks)
 }
 
