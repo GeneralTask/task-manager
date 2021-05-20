@@ -38,11 +38,15 @@ const TaskHeader = ({ icon_url, title, sender }) => {
         <Icon src={icon_url} alt="icon"></Icon>
         <div>{title}</div>
       </HeaderSide>
-      <div>
-        <Source>{sender}</Source>
-      </div>
+      <Source>{sender}</Source>
+      <DoneButton />
     </Header>
   );
 };
+
+const DoneButton = () => 
+  <button className="button-black">
+    <div className="keyboard-shortcut">D</div>
+  </button>
 
 export default TaskHeader;
