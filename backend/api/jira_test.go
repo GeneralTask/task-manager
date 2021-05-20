@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -148,12 +147,8 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 	t.Run("InvalidStateTokenWrongUser", func(t *testing.T) {
 		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
-		stateTokenCollection := db.Collection("state_tokens")
-		res, err := stateTokenCollection.InsertOne(nil, &database.StateToken{UserID: primitive.NewObjectID()})
-		if err != nil {
-			log.Fatalf("Failed to create state token for test")
-		}
-		stateToken := res.InsertedID.(primitive.ObjectID).Hex()
+		randomUserID := primitive.NewObjectID()
+		stateToken := database.CreateStateToken(db, &randomUserID)
 
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+stateToken, nil)

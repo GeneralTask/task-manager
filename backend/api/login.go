@@ -19,12 +19,7 @@ import (
 func (api *API) Login(c *gin.Context) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
-	stateTokenCollection := db.Collection("state_tokens")
-	cursor, err := stateTokenCollection.InsertOne(nil, &database.StateToken{})
-	if err != nil {
-		log.Fatalf("Failed to create new state token: %v", err)
-	}
-	insertedStateToken := cursor.InsertedID.(primitive.ObjectID).Hex()
+	insertedStateToken := database.CreateStateToken(db, nil)
 	c.SetCookie("googleStateToken", insertedStateToken, 60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
 	authURL := api.GoogleConfig.AuthCodeURL(insertedStateToken, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	c.Redirect(302, authURL)
@@ -56,12 +51,8 @@ func (api *API) LoginCallback(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "State token does not match cookie"})
 			return
 		}
-		stateTokenCollection := db.Collection("state_tokens")
-		result, err := stateTokenCollection.DeleteOne(nil, bson.D{{"_id", stateTokenID}})
+		err = database.DeleteStateToken(db, stateTokenID, nil)
 		if err != nil {
-			log.Fatalf("Failed to delete state token: %v", err)
-		}
-		if result.DeletedCount != 1 {
 			c.JSON(400, gin.H{"detail": "Invalid state token"})
 			return
 		}

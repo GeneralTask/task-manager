@@ -74,12 +74,7 @@ func (api *API) AuthorizeJIRA(c *gin.Context) {
 	}
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
-	stateTokenCollection := db.Collection("state_tokens")
-	cursor, err := stateTokenCollection.InsertOne(nil, &database.StateToken{UserID: internalToken.UserID})
-	if err != nil {
-		log.Fatalf("Failed to create new state token: %v", err)
-	}
-	insertedStateToken := cursor.InsertedID.(primitive.ObjectID).Hex()
+	insertedStateToken := database.CreateStateToken(db, &internalToken.UserID)
 	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=7sW3nPubP5vLDktjR2pfAU8cR67906X0&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Fauthorize2%2Fjira%2Fcallback%2F&state=" + insertedStateToken + "&response_type=code&prompt=consent"
 	c.Redirect(302, authURL)
 }
@@ -103,12 +98,8 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
-	stateTokenCollection := db.Collection("state_tokens")
-	result, err := stateTokenCollection.DeleteOne(nil, bson.D{{"user_id", internalToken.UserID}, {"_id", stateTokenID}})
+	err = database.DeleteStateToken(db, stateTokenID, &internalToken.UserID)
 	if err != nil {
-		log.Fatalf("Failed to delete state token: %v", err)
-	}
-	if result.DeletedCount != 1 {
 		c.JSON(400, gin.H{"detail": "Invalid state token"})
 		return
 	}
@@ -169,7 +160,6 @@ func LoadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
-	taskCollection := db.Collection("tasks")
 
 	var token JIRAAuthToken
 	err = json.Unmarshal([]byte(JIRAToken.Token), &token)
@@ -301,12 +291,12 @@ func LoadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 	for _, jiraTask := range jiraTasks.Issues {
 		task := &database.Task{
 			TaskBase: database.TaskBase{
-				UserID: userID,
-				IDExternal: jiraTask.ID,
-				Deeplink:   JIRASites[0].URL + "/browse/" + jiraTask.Key,
-				Source:     database.TaskSourceJIRA.Name,
-				Title:      jiraTask.Fields.Summary,
-				Logo:       database.TaskSourceJIRA.Logo,
+				UserID:         userID,
+				IDExternal:     jiraTask.ID,
+				Deeplink:       JIRASites[0].URL + "/browse/" + jiraTask.Key,
+				Source:         database.TaskSourceJIRA.Name,
+				Title:          jiraTask.Fields.Summary,
+				Logo:           database.TaskSourceJIRA.Logo,
 				TimeAllocation: time.Hour.Nanoseconds(),
 			},
 		}
@@ -314,32 +304,20 @@ func LoadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		if err == nil {
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
-		taskCollection.UpdateOne(
-			nil,
-			bson.M{
-				"$and": []bson.M{
-					{"id_external": task.IDExternal},
-					{"source": task.Source},
-				},
+		taskID := database.UpdateOrCreateTask(
+			db,
+			userID,
+			task.IDExternal,
+			task.Source,
+			task,
+			database.TaskChangeableFields{
+				Title:    task.Title,
+				DueDate:  task.DueDate,
+				Priority: task.Priority,
 			},
-			bson.D{{"$set", task}},
-			options.Update().SetUpsert(true),
 		)
-		// This is needed to get the ID of the task; should be removed later once we load all tasks from the db
-		var taskIDContainer database.TaskBase
-		err = taskCollection.FindOne(
-			nil,
-			bson.M{
-				"$and": []bson.M{
-					{"id_external": task.IDExternal},
-					{"source": task.Source},
-				},
-			},
-		).Decode(&taskIDContainer)
-		if err == nil {
-			task.ID = taskIDContainer.ID
-		} else {
-			log.Printf("Failed to fetch email: %v", err)
+		if taskID != nil {
+			task.ID = *taskID
 		}
 		tasks = append(tasks, task)
 	}
