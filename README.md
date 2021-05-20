@@ -15,6 +15,14 @@ npm start
 
 First, install Go and Docker.
 
+Next, if you need to test anything that requires credentials, such as Google OAuth flow, then you'll need to set appropriate environment variables with those values, for example:
+
+```
+export GOOGLE_OAUTH_CLIENT_SECRET=<secret here>
+```
+
+Then, you can run the following commands:
+
 ```
 cd backend
 docker-compose up -d
