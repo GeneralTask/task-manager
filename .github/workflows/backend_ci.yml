@@ -32,5 +32,8 @@ jobs:
       - name: Spin up db
         run: docker-compose up -d
       
-      - name: Check running containers
-        run: docker ps
+      - name: Wait 5 seconds
+        run: sleep 5
+        
+      - name: Run go tests
+        run: go test -v ./...
