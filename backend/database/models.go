@@ -45,7 +45,7 @@ type StateToken struct {
 // Task json & mongo model
 type TaskBase struct {
 	ID         primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	UserID 	   primitive.ObjectID `json:"-" bson:"user_id,omitempty"`
+	UserID     primitive.ObjectID `json:"-" bson:"user_id,omitempty"`
 	IDExternal string             `json:"-" bson:"id_external,omitempty"`
 	IDOrdering int                `json:"id_ordering" bson:"id_ordering,omitempty"`
 	Sender     string             `json:"sender" bson:"sender,omitempty"`
@@ -63,6 +63,12 @@ type CalendarEvent struct {
 	DatetimeStart primitive.DateTime `bson:"datetime_start,omitempty"`
 }
 
+type CalendarEventChangeableFields struct {
+	Title         string             `json:"title" bson:"title,omitempty"`
+	DatetimeEnd   primitive.DateTime `bson:"datetime_end,omitempty"`
+	DatetimeStart primitive.DateTime `bson:"datetime_start,omitempty"`
+}
+
 type Email struct {
 	TaskBase     `bson:",inline"`
 	SenderDomain string             `bson:"sender_domain,omitempty"`
@@ -76,10 +82,16 @@ type Task struct {
 	TaskNumber int                `bson:"task_number,omitempty"`
 }
 
+type TaskChangeableFields struct {
+	Title    string             `json:"title" bson:"title,omitempty"`
+	DueDate  primitive.DateTime `bson:"due_date,omitempty"`
+	Priority int                `bson:"priority,omitempty"`
+}
+
 type TaskGroup struct {
 	TaskGroupType `json:"type"`
-	StartTime     string        `json:"datetime_start"`
-	Duration      int64         `json:"time_duration"`
+	StartTime     string      `json:"datetime_start"`
+	Duration      int64       `json:"time_duration"`
 	Tasks         []*TaskBase `json:"tasks"`
 }
 
@@ -87,7 +99,7 @@ type TaskGroupType string
 
 const (
 	ScheduledTask    TaskGroupType = "scheduled_task"
-	UnscheduledGroup               = "unscheduled_group"
+	UnscheduledGroup TaskGroupType = "unscheduled_group"
 )
 
 type TaskSource struct {

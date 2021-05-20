@@ -75,23 +75,18 @@ func login(email string) string {
 func newStateToken(authToken string) string {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
-	stateToken := &database.StateToken{}
+	var userID *primitive.ObjectID
 	if authToken != "" {
 		internalAPITokenCollection := db.Collection("internal_api_tokens")
 		var token database.InternalAPIToken
-		err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&token)
+		err := internalAPITokenCollection.FindOne(nil, bson.D{{Key: "token", Value: authToken}}).Decode(&token)
 		if err != nil {
 			log.Fatalf("Failed to find internal api token for test")
 		}
-		stateToken.UserID = token.UserID
+		userID = &token.UserID
 	}
 
-	stateTokenCollection := db.Collection("state_tokens")
-	res, err := stateTokenCollection.InsertOne(nil, stateToken)
-	if err != nil {
-		log.Fatalf("Failed to create state token for test")
-	}
-	return res.InsertedID.(primitive.ObjectID).Hex()
+	return database.CreateStateToken(db, userID)
 }
 
 func makeLoginCallbackRequest(googleToken string, email string, stateToken string, stateTokenCookie string, skipStateTokenCheck bool) *httptest.ResponseRecorder {

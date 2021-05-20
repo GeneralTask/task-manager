@@ -3,17 +3,17 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/GeneralTask/task-manager/backend/utils"
 	"log"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/utils"
+
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/gmail/v1"
@@ -50,9 +50,7 @@ func GetGoogleConfig() OauthConfigWrapper {
 func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []*database.Email) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
-	var userObject database.User
-	userCollection := db.Collection("users")
-	err := userCollection.FindOne(nil, bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
+	userObject := database.GetUser(db, userID)
 	userDomain := utils.ExtractEmailDomain(userObject.Email)
 
 	emails := []*database.Email{}
@@ -61,8 +59,6 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 	if err != nil {
 		log.Fatalf("Unable to create Gmail service: %v", err)
 	}
-
-	taskCollection := db.Collection("tasks")
 
 	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox is:unread").Do()
 	if err != nil {
@@ -96,43 +92,21 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 
 		email := &database.Email{
 			TaskBase: database.TaskBase{
-				UserID: userID,
+				UserID:     userID,
 				IDExternal: threadListItem.Id,
 				Sender:     senderName,
 				Source:     database.TaskSourceGmail.Name,
-				Deeplink:   fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
-				Title:      title,
-				Logo:       database.TaskSourceGmail.Logo,
+				Deeplink: fmt.Sprintf(
+					"https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
+				Title:          title,
+				Logo:           database.TaskSourceGmail.Logo,
 				TimeAllocation: timeAllocation.Nanoseconds(),
 			},
 			SenderDomain: senderDomain,
 		}
-		taskCollection.UpdateOne(
-			nil,
-			bson.M{
-				"$and": []bson.M{
-					{"id_external": email.IDExternal},
-					{"source": email.Source},
-				},
-			},
-			bson.D{{"$set", email}},
-			options.Update().SetUpsert(true),
-		)
-		// This is needed to get the ID of the task; should be removed later once we load all tasks from the db
-		var taskIDContainer database.TaskBase
-		err = taskCollection.FindOne(
-			nil,
-			bson.M{
-				"$and": []bson.M{
-					{"id_external": email.IDExternal},
-					{"source": email.Source},
-				},
-			},
-		).Decode(&taskIDContainer)
-		if err == nil {
-			email.ID = taskIDContainer.ID
-		} else {
-			log.Printf("Failed to fetch email: %v", err)
+		emailID := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.Source, email, bson.D{})
+		if emailID != nil {
+			email.ID = *emailID
 		}
 		emails = append(emails, email)
 	}
@@ -140,14 +114,23 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 	result <- emails
 }
 
-func LoadCalendarEvents(userID primitive.ObjectID, client *http.Client, result chan<- []*database.CalendarEvent, overrideUrl *string) {
+func LoadCalendarEvents(
+	userID primitive.ObjectID,
+	client *http.Client,
+	result chan<- []*database.CalendarEvent,
+	overrideUrl *string,
+) {
 	events := []*database.CalendarEvent{}
 
 	var calendarService *calendar.Service
 	var err error
 
 	if overrideUrl != nil {
-		calendarService, err = calendar.NewService(context.Background(), option.WithoutAuthentication(), option.WithEndpoint(*overrideUrl))
+		calendarService, err = calendar.NewService(
+			context.Background(),
+			option.WithoutAuthentication(),
+			option.WithEndpoint(*overrideUrl),
+		)
 	} else {
 		calendarService, err = calendar.New(client)
 	}
@@ -157,7 +140,6 @@ func LoadCalendarEvents(userID primitive.ObjectID, client *http.Client, result c
 
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
-	taskCollection := db.Collection("tasks")
 
 	t := time.Now()
 	//strip out hours/minutes/seconds of today to find the start of the day
@@ -193,43 +175,31 @@ func LoadCalendarEvents(userID primitive.ObjectID, client *http.Client, result c
 
 		event := &database.CalendarEvent{
 			TaskBase: database.TaskBase{
-				UserID: userID,
-				IDExternal: event.Id,
-				Deeplink:   event.HtmlLink,
-				Source:     database.TaskSourceGoogleCalendar.Name,
-				Title:      event.Summary,
-				Logo:       database.TaskSourceGoogleCalendar.Logo,
+				UserID:         userID,
+				IDExternal:     event.Id,
+				Deeplink:       event.HtmlLink,
+				Source:         database.TaskSourceGoogleCalendar.Name,
+				Title:          event.Summary,
+				Logo:           database.TaskSourceGoogleCalendar.Logo,
 				TimeAllocation: endTime.Sub(startTime).Nanoseconds(),
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 		}
-		taskCollection.UpdateOne(
-			nil,
-			bson.M{
-				"$and": []bson.M{
-					{"id_external": event.IDExternal},
-					{"source": event.Source},
-				},
+		eventID := database.UpdateOrCreateTask(
+			db,
+			userID,
+			event.IDExternal,
+			event.Source,
+			event,
+			database.CalendarEventChangeableFields{
+				Title:         event.Title,
+				DatetimeEnd:   event.DatetimeEnd,
+				DatetimeStart: event.DatetimeStart,
 			},
-			bson.D{{"$set", event}},
-			options.Update().SetUpsert(true),
 		)
-		// This is needed to get the ID of the task; should be removed later once we load all tasks from the db
-		var taskIDContainer database.TaskBase
-		err = taskCollection.FindOne(
-			nil,
-			bson.M{
-				"$and": []bson.M{
-					{"id_external": event.IDExternal},
-					{"source": event.Source},
-				},
-			},
-		).Decode(&taskIDContainer)
-		if err == nil {
-			event.ID = taskIDContainer.ID
-		} else {
-			log.Printf("Failed to fetch email: %v", err)
+		if eventID != nil {
+			event.ID = *eventID
 		}
 		events = append(events, event)
 	}
