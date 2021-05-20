@@ -20,6 +20,7 @@ const fetchTasks = async () => {
     store.dispatch(setTasksFetchStatus(FetchStatus.LOADING));
     try{
         const response = await fetch(TASKS_URL, {
+            method: "GET",
             mode: 'cors',
             headers: {
                 'Authorization': 'Bearer ' + Cookies.get('authToken'),
@@ -32,7 +33,6 @@ const fetchTasks = async () => {
         }
         else{
             const resj = await response.json();
-            console.log({resj})
             store.dispatch(setTasksFetchStatus(FetchStatus.SUCCESS));
             store.dispatch(setTasks(resj));
         }
