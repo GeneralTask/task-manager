@@ -88,15 +88,15 @@ func MarkTaskComplete(c *gin.Context, taskID primitive.ObjectID) {
 		return
 	}
 
-	if task.UserID != userID {
-		c.JSON(401, gin.H{})
-		return
-	}
+	//if task.UserID != userID {
+	//	c.JSON(401, gin.H{})
+	//	return
+	//}
 
 	if task.Source == database.TaskSourceGoogleCalendar.Name {
 
 	} else if task.Source == database.TaskSourceGmail.Name {
-		success := MarkEmailAsRead(userID.(primitive.ObjectID).String(), task.IDExternal)
+		success := MarkEmailAsRead(userID.(primitive.ObjectID), task.IDExternal)
 		c.JSON(200, gin.H{"success": success})
 	} else if task.Source == database.TaskSourceJIRA.Name {
 		return

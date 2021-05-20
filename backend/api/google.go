@@ -210,14 +210,16 @@ func LoadCalendarEvents(
 	result <- events
 }
 
-func MarkEmailAsRead(userID string, emailID string) bool{
+func MarkEmailAsRead(userID primitive.ObjectID, emailID string) bool{
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 
 	var googleToken database.ExternalAPIToken
 
-	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken)
+	if err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken); err != nil {
+		return false
+	}
 
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
@@ -230,11 +232,12 @@ func MarkEmailAsRead(userID string, emailID string) bool{
 		return false
 	}
 
-	_, err = gmailService.Users.Threads.Modify(
+	response, err := gmailService.Users.Threads.Modify(
 		"me",
 		emailID,
 		&gmail.ModifyThreadRequest{RemoveLabelIds:  []string{"INBOX"}},
 		).Do()
 
-	return err != nil
+	log.Println(response)
+	return err == nil
 }

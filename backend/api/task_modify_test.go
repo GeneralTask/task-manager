@@ -15,9 +15,9 @@ import (
 )
 
 func TestMarkAsComplete(t *testing.T) {
-	authToken := login("approved@generaltask.io")
+	authToken := "0b59605e-92a5-4413-933b-3d442e2ec673"
 	router := GetRouter(&API{})
-	request, _ := http.NewRequest("PATCH", "/tasks/"+"60a6c4ac7e59a46ad1f7643e"+"/", bytes.NewBuffer([]byte(`{"is_complete": true}`)))
+	request, _ := http.NewRequest("PATCH", "/tasks/"+"60a6d4837e59a46ad1f7990c"+"/", bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 	request.Header.Add("Authorization", "Bearer "+authToken)
 	request.Header.Add("Content-Type", "application/json")
 
