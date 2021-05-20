@@ -42,12 +42,11 @@ const DoneButton = styled.button`
   display: flex;
   justify-content: center;
   flex-direction: column;
-  padding: 4px 8px 4px 8px;
+  padding: 4px 6px 4px 6px;
   font-weight: 500;
   &:hover{
     background-color: black;
     color: white;
-    font-weight: bold;
   }
 `;
 
@@ -74,21 +73,19 @@ const TaskHeader = ({ icon_url, title, sender, task_id }) => {
 
 const done = async (task_id) => {
   try {
-    const body = JSON.stringify({isCompleted: true});
     store.dispatch(removeTaskById(task_id));
-    const response = await fetch(TASKS_URL, {
-      method: "PATCH",
+
+    const response = await fetch(TASKS_URL + task_id + '/', {
+      method: "patch",
       mode: "cors",
       headers: {
         Authorization: "Bearer " + Cookies.get("authToken"),
         "Access-Control-Allow-Origin": REACT_APP_FRONTEND_BASE_URL,
-        "Access-Control-Allow-Headers":
-          "access-control-allow-origin, access-control-allow-headers",
+        "Access-Control-Allow-Headers": "access-control-allow-origin, access-control-allow-headers",
       },
-      body,
+      body: JSON.stringify({ "is_completed": true })
     });
     
-
     if (!response.ok) {
       throw new Error("PATCH /tasks api call failed");
     } 
