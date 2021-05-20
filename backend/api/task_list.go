@@ -164,8 +164,10 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 
 	//add remaining non scheduled events, if they exist.
 	tasks = nil
+	totalDuration = 0
 	for ; taskIndex < len(allUnscheduledTasks); taskIndex++ {
 		t := getTaskBase(allUnscheduledTasks[taskIndex])
+		totalDuration += t.TimeAllocation
 		tasks = append(tasks, t)
 	}
 	if len(tasks) > 0 {
