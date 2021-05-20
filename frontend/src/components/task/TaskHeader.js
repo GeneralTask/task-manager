@@ -50,7 +50,7 @@ const DoneButton = styled.button`
   }
 `;
 
-const TaskHeader = ({ icon_url, title, sender, task_id }) => {
+const TaskHeader = ({ icon_url, title, sender, task_id, is_completable }) => {
   return (
     <Header>
       <HeaderSide>
@@ -59,6 +59,7 @@ const TaskHeader = ({ icon_url, title, sender, task_id }) => {
         <div>{title}</div>
       </HeaderSide>
       <Source>{sender}</Source>
+      {is_completable ?
       <DoneButton
         onClick={(e) => {
           e.stopPropagation();
@@ -67,6 +68,7 @@ const TaskHeader = ({ icon_url, title, sender, task_id }) => {
       >
         Done
       </DoneButton>
+      : null}
     </Header>
   );
 };
