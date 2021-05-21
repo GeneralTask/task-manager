@@ -181,7 +181,7 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 	}
 
 	// 1) look at IDOrdering of any tasks now marked as done
-	// 2) adjust downward any IDOrdering & has_prioritized task with a higher IDOrdering number
+	// 2) adjust downward each IDOrdering & has_prioritized task with a higher IDOrdering number than each done task
 	// 3) move has_prioritized tasks into correct spots in list
 	// 4) reset all non has_prioritized IDOrdering numbers to the new correct value
 
