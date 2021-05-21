@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -56,6 +57,7 @@ func TestAuthorizeJIRA(t *testing.T) {
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		// Grab from body where we expect the state token
+		log.Println("body:", string(body))
 		stateToken := string(body)[297:321]
 		assert.NoError(t, err)
 		assert.Equal(

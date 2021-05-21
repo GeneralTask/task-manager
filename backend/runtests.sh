@@ -1,5 +1,6 @@
 #!/bin/bash
 
+go clean -testcache
 export DB_NAME=test
 go test -v ./...
 if [ $? -eq 0 ]
