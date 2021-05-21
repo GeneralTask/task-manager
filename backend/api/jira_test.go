@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/GeneralTask/task-manager/backend/config"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -224,6 +225,7 @@ func TestLoadJIRATasks(t *testing.T) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
+	jiraSiteCollection := db.Collection("jira_site_collection")
 
 	t.Run("MissingJIRAToken", func(t *testing.T) {
 		var JIRATasks = make(chan []*database.Task)
@@ -240,51 +242,31 @@ func TestLoadJIRATasks(t *testing.T) {
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
-	t.Run("CloudIDFetchFailed", func(t *testing.T) {
-		userID := createJIRAToken(t, externalAPITokenCollection)
-		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusUnauthorized, false)
-		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-		var JIRATasks = make(chan []*database.Task)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
-		result := <-JIRATasks
-		assert.Equal(t, 0, len(result))
-	})
-	t.Run("EmptyCloudIDResponse", func(t *testing.T) {
-		userID := createJIRAToken(t, externalAPITokenCollection)
-		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, true)
-		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-		var JIRATasks = make(chan []*database.Task)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
-		result := <-JIRATasks
-		assert.Equal(t, 0, len(result))
-	})
+
 	t.Run("SearchFailed", func(t *testing.T) {
-		userID := createJIRAToken(t, externalAPITokenCollection)
-		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
+		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
 		var JIRATasks = make(chan []*database.Task)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
 	t.Run("EmptySearchResponse", func(t *testing.T) {
-		userID := createJIRAToken(t, externalAPITokenCollection)
-		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
+		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
 		var JIRATasks = make(chan []*database.Task)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
 	t.Run("Success", func(t *testing.T) {
-		userID := createJIRAToken(t, externalAPITokenCollection)
-		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
+		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 		var JIRATasks = make(chan []*database.Task)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result))
 
@@ -322,6 +304,12 @@ func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.Source, b.Source)
 }
 
+func setupJIRA(t *testing.T, externalAPITokenCollection *mongo.Collection, jiraSiteCollection *mongo.Collection) *primitive.ObjectID {
+	userID := createJIRAToken(t, externalAPITokenCollection)
+	createJIRASiteConfiguration(t, userID, jiraSiteCollection)
+	return userID
+}
+
 func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection) *primitive.ObjectID {
 	userID := primitive.NewObjectID()
 	_, err := externalAPITokenCollection.InsertOne(
@@ -334,6 +322,20 @@ func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection)
 	)
 	assert.NoError(t, err)
 	return &userID
+}
+
+func createJIRASiteConfiguration(t *testing.T, userID *primitive.ObjectID, jiraSiteCollection *mongo.Collection) {
+	_, err := jiraSiteCollection.UpdateOne(
+		nil,
+		bson.D{{"user_id", userID}},
+		bson.D{{"$set",&database.JIRASiteConfiguration{
+			UserID:  *userID,
+			CloudID: "sample_cloud_id",
+			SiteURL: "https://dankmemes.com",
+		}}},
+		options.Update().SetUpsert(true),
+	)
+	assert.NoError(t, err)
 }
 
 func getCloudIDServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.Server {
