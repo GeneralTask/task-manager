@@ -3,6 +3,7 @@ package api
 import (
 	"testing"
 	"time"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -133,6 +134,7 @@ func TestMergeTasks(t *testing.T) {
 		}
 
 		result := MergeTasks(
+			&[]database.TaskBase{},
 			[]*database.CalendarEvent{&c1, &c2},
 			[]*database.Email{&e1, &e2},
 			[]*database.Task{&t1, &t2, &t3, &t4},
