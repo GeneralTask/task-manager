@@ -117,21 +117,21 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 }
 
 func LoadCalendarEvents(
+	api *API,
 	userID primitive.ObjectID,
 	client *http.Client,
 	result chan<- []*database.CalendarEvent,
-	overrideUrl *string,
 ) {
 	events := []*database.CalendarEvent{}
 
 	var calendarService *calendar.Service
 	var err error
 
-	if overrideUrl != nil {
+	if api.GoogleURLs.CalendarFetchURL != nil {
 		calendarService, err = calendar.NewService(
 			context.Background(),
 			option.WithoutAuthentication(),
-			option.WithEndpoint(*overrideUrl),
+			option.WithEndpoint(*api.GoogleURLs.CalendarFetchURL),
 		)
 	} else {
 		calendarService, err = calendar.NewService(context.TODO(), option.WithHTTPClient(client))

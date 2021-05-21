@@ -43,6 +43,7 @@ type OauthConfigWrapper interface {
 }
 
 type GoogleURLOverrides struct {
+	CalendarFetchURL *string
 	GmailModifyURL *string
 }
 

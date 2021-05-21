@@ -78,8 +78,12 @@ func TestCalendar(t *testing.T) {
 
 		server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
 		defer server.Close()
+
 		var calendarEvents = make(chan []*database.CalendarEvent)
-		go LoadCalendarEvents(primitive.NewObjectID(), nil, calendarEvents, &server.URL)
+		api := &API{
+			GoogleURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+		}
+		go LoadCalendarEvents(api, primitive.NewObjectID(), nil, calendarEvents)
 		result := <-calendarEvents
 		assert.Equal(t, 1, len(result))
 		firstTask := result[0]
@@ -96,9 +100,12 @@ func TestCalendar(t *testing.T) {
 	})
 	t.Run("EmptyResult", func(t *testing.T) {
 		server := getServerForTasks([]*calendar.Event{})
+		api := API{
+			GoogleURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+		}
 		defer server.Close()
 		var calendarEvents = make(chan []*database.CalendarEvent)
-		go LoadCalendarEvents(primitive.NewObjectID(), nil, calendarEvents, &server.URL)
+		go LoadCalendarEvents(&api, primitive.NewObjectID(), nil, calendarEvents)
 		result := <-calendarEvents
 		assert.Equal(t, 0, len(result))
 	})

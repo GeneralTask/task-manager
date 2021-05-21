@@ -46,7 +46,7 @@ func (api *API) TasksList(c *gin.Context) {
 	currentTasks := database.GetActiveTasks(db, userID.(primitive.ObjectID))
 
 	var calendarEvents = make(chan []*database.CalendarEvent)
-	go LoadCalendarEvents(userID.(primitive.ObjectID), client, calendarEvents, nil)
+	go LoadCalendarEvents(api, userID.(primitive.ObjectID), client, calendarEvents)
 
 	var emails = make(chan []*database.Email)
 	go loadEmails(userID.(primitive.ObjectID), client, emails)
