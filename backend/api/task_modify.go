@@ -8,10 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
 )
 
 type TaskModifyParams struct {
-	IDOrdering int `json:"id_ordering" binding:"required"`
+	IDOrdering *int `json:"id_ordering"`
+	IsCompleted *bool `json:"is_completed"`
 }
 
 func (api *API) TaskModify(c *gin.Context) {
@@ -24,10 +26,34 @@ func (api *API) TaskModify(c *gin.Context) {
 	}
 	var modifyParams TaskModifyParams
 	err = c.BindJSON(&modifyParams)
-	if err != nil {
-		c.JSON(400, gin.H{"detail": "'id_ordering' parameter missing or malformatted"})
+
+	if err != nil || (modifyParams.IsCompleted == nil && modifyParams.IDOrdering == nil) {
+		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
 		return
 	}
+
+	if modifyParams.IsCompleted != nil && modifyParams.IDOrdering != nil {
+		c.JSON(400, gin.H{"detail": "Cannot reorder and mark as complete"})
+		return
+	}
+
+	if modifyParams.IsCompleted != nil {
+		if *modifyParams.IsCompleted {
+			MarkTaskComplete(c, taskID)
+		} else {
+			c.JSON(400, gin.H{"detail": "Tasks can only be mark as complete."})
+		}
+	} else if modifyParams.IDOrdering != nil {
+		ReOrderTask(c, taskID, *modifyParams.IDOrdering)
+	} else {
+		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
+		return
+	}
+
+}
+
+//todo: john.
+func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, reorder int) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	taskCollection := db.Collection("tasks")
@@ -47,4 +73,32 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{})
+}
+
+func MarkTaskComplete(c *gin.Context, taskID primitive.ObjectID) {
+	db, dbCleanup := database.GetDBConnection()
+	defer dbCleanup()
+	taskCollection := db.Collection("tasks")
+
+	userID, _ := c.Get("user")
+
+	var task database.TaskBase
+	if taskCollection.FindOne(nil, bson.D{{Key: "_id", Value: taskID}}).Decode(&task) != nil {
+		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
+		return
+	}
+
+	if task.UserID != userID {
+		c.JSON(401, gin.H{})
+		return
+	}
+
+	if task.Source == database.TaskSourceGoogleCalendar.Name {
+
+	} else if task.Source == database.TaskSourceGmail.Name {
+		success := MarkEmailAsRead(userID.(primitive.ObjectID).String(), task.IDExternal)
+		c.JSON(200, gin.H{"success": success})
+	} else if task.Source == database.TaskSourceJIRA.Name {
+		return
+	}
 }

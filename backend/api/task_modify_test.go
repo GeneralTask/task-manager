@@ -14,6 +14,21 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+func TestMarkAsComplete(t *testing.T) {
+	authToken := login("approved@generaltask.io")
+	router := GetRouter(&API{})
+	request, _ := http.NewRequest("PATCH", "/tasks/"+"60a6c4ac7e59a46ad1f7643e"+"/", bytes.NewBuffer([]byte(`{"is_complete": true}`)))
+	request.Header.Add("Authorization", "Bearer "+authToken)
+	request.Header.Add("Content-Type", "application/json")
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+	_, err := ioutil.ReadAll(recorder.Body)
+	assert.NoError(t, err)
+//	assert.Equal(t, "{}", string(body))
+}
+
 func TestTaskReorder(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		db, dbCleanup := database.GetDBConnection()

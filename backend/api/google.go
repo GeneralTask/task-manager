@@ -2,7 +2,9 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"net/http"
 	"strings"
@@ -95,10 +97,10 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 				IDExternal: threadListItem.Id,
 				Sender:     senderName,
 				Source:     database.TaskSourceGmail.Name,
-				Deeplink: fmt.Sprintf(
-					"https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
-				Title:          title,
-				Logo:           database.TaskSourceGmail.Logo,
+				Deeplink:   fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
+				Title:      title,
+				Logo:       database.TaskSourceGmail.Logo,
+				IsCompletable: database.TaskSourceGmail.IsCompletable,
 				TimeAllocation: timeAllocation.Nanoseconds(),
 			},
 			SenderDomain: senderDomain,
@@ -175,12 +177,13 @@ func LoadCalendarEvents(
 
 		event := &database.CalendarEvent{
 			TaskBase: database.TaskBase{
-				UserID:         userID,
-				IDExternal:     event.Id,
-				Deeplink:       event.HtmlLink,
-				Source:         database.TaskSourceGoogleCalendar.Name,
-				Title:          event.Summary,
-				Logo:           database.TaskSourceGoogleCalendar.Logo,
+				UserID:        userID,
+				IDExternal:    event.Id,
+				Deeplink:      event.HtmlLink,
+				Source:        database.TaskSourceGoogleCalendar.Name,
+				Title:         event.Summary,
+				Logo:          database.TaskSourceGoogleCalendar.Logo,
+				IsCompletable: database.TaskSourceGoogleCalendar.IsCompletable,
 				TimeAllocation: endTime.Sub(startTime).Nanoseconds(),
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
@@ -205,4 +208,33 @@ func LoadCalendarEvents(
 		events = append(events, event)
 	}
 	result <- events
+}
+
+func MarkEmailAsRead(userID string, emailID string) bool{
+	db, dbCleanup := database.GetDBConnection()
+	defer dbCleanup()
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+
+	var googleToken database.ExternalAPIToken
+
+	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken)
+
+	var token oauth2.Token
+	json.Unmarshal([]byte(googleToken.Token), &token)
+	config := GetGoogleConfig()
+	client := config.Client(context.Background(), &token).(*http.Client)
+
+	gmailService, err := gmail.New(client)
+	if err != nil {
+		log.Fatalf("Unable to create Gmail service: %v", err)
+		return false
+	}
+
+	_, err = gmailService.Users.Threads.Modify(
+		"me",
+		emailID,
+		&gmail.ModifyThreadRequest{RemoveLabelIds:  []string{"INBOX"}},
+		).Do()
+
+	return err != nil
 }

@@ -301,6 +301,7 @@ func LoadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 				Source:         database.TaskSourceJIRA.Name,
 				Title:          jiraTask.Fields.Summary,
 				Logo:           database.TaskSourceJIRA.Logo,
+				IsCompletable:  database.TaskSourceJIRA.IsCompletable,
 				TimeAllocation: time.Hour.Nanoseconds(),
 			},
 		}
