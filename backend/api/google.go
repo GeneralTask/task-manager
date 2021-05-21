@@ -12,7 +12,6 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/calendar/v3"
@@ -104,7 +103,7 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 			},
 			SenderDomain: senderDomain,
 		}
-		dbEmail := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.Source, email, bson.D{})
+		dbEmail := database.GetOrCreateTask(db, userID, email.IDExternal, email.Source, email)
 		if dbEmail != nil {
 			email.ID = dbEmail.ID
 			email.IDOrdering = dbEmail.IDOrdering

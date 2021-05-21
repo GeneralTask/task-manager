@@ -1,16 +1,14 @@
-package api
+package database
 
 import (
 	"context"
 	"log"
 	"os"
 	"testing"
-
-	"github.com/GeneralTask/task-manager/backend/database"
 )
 
 func TestMain(m *testing.M) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup := GetDBConnection()
 	defer dbCleanup()
 	log.Println("Dropping test DB now.")
 	err := db.Drop(context.TODO())

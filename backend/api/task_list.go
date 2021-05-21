@@ -43,6 +43,7 @@ func (api *API) TasksList(c *gin.Context) {
 	client := config.Client(context.Background(), &token).(*http.Client)
 
 	//TODO: load the IDs / ordering IDs of the current tasks
+	currentTasks := database.GetActiveTasks(db, userID.(primitive.ObjectID))
 
 	var calendarEvents = make(chan []*database.CalendarEvent)
 	go LoadCalendarEvents(userID.(primitive.ObjectID), client, calendarEvents, nil)
@@ -53,11 +54,11 @@ func (api *API) TasksList(c *gin.Context) {
 	var JIRATasks = make(chan []*database.Task)
 	go LoadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
 
-	allTasks := MergeTasks(<-calendarEvents, <-emails, <-JIRATasks, utils.ExtractEmailDomain(userObject.Email))
+	allTasks := MergeTasks(currentTasks, <-calendarEvents, <-emails, <-JIRATasks, utils.ExtractEmailDomain(userObject.Email))
 	c.JSON(200, allTasks)
 }
 
-func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Email, JIRATasks []*database.Task, userDomain string) []*database.TaskGroup {
+func MergeTasks(currentTasks *[]database.TaskBase, calendarEvents []*database.CalendarEvent, emails []*database.Email, JIRATasks []*database.Task, userDomain string) []*database.TaskGroup {
 
 	//sort calendar events by start time.
 	sort.SliceStable(calendarEvents, func(i, j int) bool {
