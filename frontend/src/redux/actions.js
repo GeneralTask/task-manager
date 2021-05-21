@@ -21,3 +21,10 @@ export function removeTask(index) {
         index
     }
 }
+
+export function removeTaskById(id) {
+    return {
+        type: actions.REMOVE_TASK_BY_ID,
+        id,
+    }
+}

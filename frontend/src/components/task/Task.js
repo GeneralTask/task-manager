@@ -48,6 +48,8 @@ const Task = ({ task, index, isDragDisabled }) => (
                 title={task.title}
                 icon_url={task.logo_url}
                 sender={task.sender}
+                task_id={task.id}
+                is_completable={task.is_completable}
                 provided={provided}
               />
             </Container>

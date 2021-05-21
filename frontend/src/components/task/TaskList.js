@@ -3,13 +3,13 @@ import { connect, useSelector } from 'react-redux'
 import store from '../../redux/store'
 import {removeTask, setTasks, setTasksFetchStatus} from '../../redux/actions'
 import { FetchStatus } from '../../redux/enums'
-import { TASKS_URL, REACT_APP_FRONTEND_BASE_URL, TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
-import Cookies from 'js-cookie';
+import { TASKS_URL, TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
 import {ScheduledTask, UnscheduledTaskGroup} from './TaskWrappers'
 import TaskStatus from './TaskStatus'
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import moment from 'moment'
 import styled from "styled-components";
+import {getHeaders} from '../../helpers/utils'
 
 const MyTasks = styled.h1`
     height: 40px;
@@ -20,19 +20,15 @@ const fetchTasks = async () => {
     store.dispatch(setTasksFetchStatus(FetchStatus.LOADING));
     try{
         const response = await fetch(TASKS_URL, {
+            method: "GET",
             mode: 'cors',
-            headers: {
-                'Authorization': 'Bearer ' + Cookies.get('authToken'),
-                'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
-                'Access-Control-Allow-Headers': 'access-control-allow-origin, access-control-allow-headers',
-            }
+            headers: getHeaders(),
         });
         if(!response.ok){
             throw new Error('/tasks api call failed');
         }
         else{
             const resj = await response.json();
-            console.log({resj})
             store.dispatch(setTasksFetchStatus(FetchStatus.SUCCESS));
             store.dispatch(setTasks(resj));
         }
