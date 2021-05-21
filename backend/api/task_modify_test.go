@@ -31,7 +31,7 @@ func TestMarkAsComplete(t *testing.T) {
 	insertResult, err := taskCollection.InsertOne(nil, database.TaskBase{
 		UserID:         authTokenStruct.UserID,
 		IDExternal:     "sample_jira_id",
-		Source:         "jira",
+		Source:         database.TaskSourceJIRA.Name,
 	})
 	assert.NoError(t, err)
 	jiraTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -40,7 +40,7 @@ func TestMarkAsComplete(t *testing.T) {
 	insertResult, err = taskCollection.InsertOne(nil, database.TaskBase{
 		UserID:         authTokenStruct.UserID,
 		IDExternal:     "sample_gmail_id",
-		Source:         "gmail",
+		Source:         database.TaskSourceGmail.Name,
 	})
 	assert.NoError(t, err)
 	gmailTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -49,7 +49,7 @@ func TestMarkAsComplete(t *testing.T) {
 	insertResult, err = taskCollection.InsertOne(nil, database.TaskBase{
 		UserID:         authTokenStruct.UserID,
 		IDExternal:     "sample_calendar_id",
-		Source:         "gcal",
+		Source:         database.TaskSourceGoogleCalendar.Name,
 	})
 	assert.NoError(t, err)
 	calendarTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -59,9 +59,9 @@ func TestMarkAsComplete(t *testing.T) {
 
 	_, err = externalAPITokenCollection.UpdateOne(
 		nil,
-		bson.D{{"user_id", authTokenStruct.UserID}, {"source", "jira"}},
+		bson.D{{"user_id", authTokenStruct.UserID}, {"source", database.TaskSourceJIRA.Name}},
 		bson.D{{"$set", &database.ExternalAPIToken{
-			Source: "jira",
+			Source: database.TaskSourceJIRA.Name,
 			Token:  `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
 			UserID: authTokenStruct.UserID,
 		}}},

@@ -149,8 +149,11 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
-		bson.D{{Key: "user_id", Value: internalToken.UserID}, {Key: "source", Value: "jira"}},
-		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{UserID: internalToken.UserID, Source: "jira", Token: string(tokenString)}}},
+		bson.D{{Key: "user_id", Value: internalToken.UserID}, {Key: "source", Value: database.TaskSourceJIRA.Name}},
+		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{
+			UserID: internalToken.UserID,
+			Source: database.TaskSourceJIRA.Name,
+			Token: string(tokenString)}}},
 		options.Update().SetUpsert(true),
 	)
 
@@ -343,7 +346,10 @@ func getJIRAToken(api *API, userID primitive.ObjectID) *JIRAAuthToken {
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 
-	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "jira"}}).Decode(&JIRAToken)
+	err := externalAPITokenCollection.FindOne(
+		context.TODO(),
+		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: database.TaskSourceJIRA.Name}}).Decode(&JIRAToken)
+
 	if err != nil {
 		return nil
 	}

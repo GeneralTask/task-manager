@@ -40,7 +40,7 @@ func (api *API) TaskModify(c *gin.Context) {
 		if *modifyParams.IsCompleted {
 			MarkTaskComplete(api, c, taskID)
 		} else {
-			c.JSON(400, gin.H{"detail": "Tasks can only be mark as complete."})
+			c.JSON(400, gin.H{"detail": "Tasks can only be marked as complete."})
 		}
 	} else if modifyParams.IDOrdering != nil {
 		ReOrderTask(c, taskID, *modifyParams.IDOrdering)
@@ -87,10 +87,8 @@ func MarkTaskComplete(api *API, c *gin.Context,  taskID primitive.ObjectID) {
 		return
 	}
 
-	taskUserID := task.UserID.String()
-	userIDString := userID.(primitive.ObjectID).String()
-	if taskUserID != userIDString {
-		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
+	if task.UserID != userID.(primitive.ObjectID) {
+		c.JSON(404, gin.H{"detail": "Task not found for user."})
 		return
 	}
 
@@ -104,9 +102,11 @@ func MarkTaskComplete(api *API, c *gin.Context,  taskID primitive.ObjectID) {
 	}
 
 	if success {
+		//if it fails now, it should update on next client refresh because the third party server is the source of truth
+		//so we'll just ignore failures here.
 		taskCollection.UpdateOne(nil, bson.D{{"_id", taskID}}, bson.D{{"$set", bson.D{{"is_completed", true}}}})
 		c.JSON(200, gin.H{})
 	} else {
-		c.JSON(400, gin.H{})
+		c.JSON(400, gin.H{"detail": "Failed to mark task as complete"})
 	}
 }

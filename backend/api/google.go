@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"net/http"
 	"strings"
@@ -214,20 +215,7 @@ func MarkEmailAsRead(api *API, userID primitive.ObjectID, emailID string) bool{
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-
-	var googleToken database.ExternalAPIToken
-
-	if err := externalAPITokenCollection.FindOne(
-		nil,
-		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken);
-		err != nil {
-			return false
-	}
-
-	var token oauth2.Token
-	json.Unmarshal([]byte(googleToken.Token), &token)
-	config := GetGoogleConfig()
-	client := config.Client(context.Background(), &token).(*http.Client)
+	client := getGoogleHttpClient(externalAPITokenCollection, userID)
 
 	var gmailService *gmail.Service
 	var err error
@@ -245,12 +233,27 @@ func MarkEmailAsRead(api *API, userID primitive.ObjectID, emailID string) bool{
 		return false
 	}
 
-	response, err := gmailService.Users.Threads.Modify(
+	_, err = gmailService.Users.Threads.Modify(
 		"me",
 		emailID,
 		&gmail.ModifyThreadRequest{RemoveLabelIds:  []string{"INBOX"}},
 		).Do()
 
-	log.Println(response)
 	return err == nil
+}
+
+func getGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID) *http.Client {
+	var googleToken database.ExternalAPIToken
+
+	if err := externalAPITokenCollection.FindOne(
+		context.TODO(),
+		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken);
+		err != nil {
+		return nil
+	}
+
+	var token oauth2.Token
+	json.Unmarshal([]byte(googleToken.Token), &token)
+	config := GetGoogleConfig()
+	return config.Client(context.Background(), &token).(*http.Client)
 }

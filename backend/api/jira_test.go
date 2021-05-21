@@ -211,13 +211,16 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		err := internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: authToken}}).Decode(&authTokenStruct)
 		assert.NoError(t, err)
 		externalAPITokenCollection := db.Collection("external_api_tokens")
-		count, err := externalAPITokenCollection.CountDocuments(context.TODO(), bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: "jira"}})
+		count, err := externalAPITokenCollection.CountDocuments(
+			context.TODO(),
+			bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: database.TaskSourceJIRA.Name}})
+
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 		var jiraToken database.ExternalAPIToken
-		err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: "jira"}}).Decode(&jiraToken)
+		err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: database.TaskSourceJIRA.Name}}).Decode(&jiraToken)
 		assert.NoError(t, err)
-		assert.Equal(t, "jira", jiraToken.Source)
+		assert.Equal(t, database.TaskSourceJIRA.Name, jiraToken.Source)
 	})
 }
 
@@ -315,7 +318,7 @@ func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection)
 	_, err := externalAPITokenCollection.InsertOne(
 		context.Background(),
 		&database.ExternalAPIToken{
-			Source: "jira",
+			Source: database.TaskSourceJIRA.Name,
 			Token:  `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
 			UserID: userID,
 		},

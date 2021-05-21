@@ -39,9 +39,9 @@ type ExternalAPIToken struct {
 
 type JIRASiteConfiguration struct {
 	ID            primitive.ObjectID `bson:"_id,omitempty"`
-	UserID 	      primitive.ObjectID `bson:"user_id,omitempty"`
-	CloudID 	  string             `bson:"cloud_id,omitempty"`
-	SiteURL		  string             `bson:"site_url,omitempty"`
+	UserID 	      primitive.ObjectID `bson:"user_id"`
+	CloudID 	  string             `bson:"cloud_id"`
+	SiteURL		  string             `bson:"site_url"`
 }
 
 type StateToken struct {
