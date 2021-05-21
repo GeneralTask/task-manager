@@ -21,7 +21,7 @@ func TestCORSHeaders(t *testing.T) {
 		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers",
 			headers.Get("Access-Control-Allow-Headers"))
 		assert.Equal(t, "http://localhost:3000", headers.Get("Access-Control-Allow-Origin"))
-		assert.Equal(t, "POST, OPTIONS, GET, PUT, PATCH", headers.Get("Access-Control-Allow-Methods"))
+		assert.Equal(t, "POST, OPTIONS, GET, PUT, PATCH1", headers.Get("Access-Control-Allow-Methods"))
 	})
 	t.Run("GET request", func(t *testing.T) {
 		router := GetRouter(&API{})
