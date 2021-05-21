@@ -10,7 +10,7 @@ const ExpandBody = styled.img`
     width: 20px;
 `;
 const RetractBody = styled(ExpandBody)`
-    transform: scaleX(-1); 
+    transform: rotate(180deg);
 `;
 
 // no body: no chevron
@@ -50,6 +50,5 @@ const ExpandButton = ({has_body, task_id}) => {
 }
 
 export default connect(
-    state => ({expanded_body: state.expanded_body}),
-    (state, ownProps) => ({has_body: ownProps.has_body, task_id: ownProps.task_id})
-)(ExpandButton);
+    state => ({expanded_body: state.expanded_body})
+    )(ExpandButton);
