@@ -37,7 +37,7 @@ curl localhost:8080/ping
 ```
 cd backend
 docker-compose up -d
-go test -v ./...
+./runtests.sh
 ```
 
 To clear the test cache:

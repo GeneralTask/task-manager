@@ -31,7 +31,6 @@ FROM alpine:3.9
 RUN apk add ca-certificates
 
 COPY --from=build_base /tmp/backend/out/backend /app/backend
-COPY credentials.json /app/
 COPY .env /app/
 
 # This container exposes port 8080 to the outside world

@@ -39,4 +39,4 @@ jobs:
         run: docker ps
         
       - name: Run go tests
-        run: go test -v ./...
+        run: ./runtests.sh
