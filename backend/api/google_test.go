@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -86,7 +87,7 @@ func TestCalendar(t *testing.T) {
 		taskCollection := db.Collection("tasks")
 
 		var calendarEventFromDB database.CalendarEvent
-		err := taskCollection.FindOne(nil, bson.D{{"source", database.TaskSourceGoogleCalendar.Name}, {"id_external", "standard_event"}}).Decode(&calendarEventFromDB)
+		err := taskCollection.FindOne(context.TODO(), bson.D{{Key: "source", Value: database.TaskSourceGoogleCalendar.Name}, {Key: "id_external", Value: "standard_event"}}).Decode(&calendarEventFromDB)
 		assert.NoError(t, err)
 		assertCalendarEventsEqual(t, &standardTask, &calendarEventFromDB)
 	})

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,7 +20,7 @@ func TestLogout(t *testing.T) {
 		defer dbCleanup()
 		tokenCollection := db.Collection("internal_api_tokens")
 
-		count, _ := tokenCollection.CountDocuments(nil, bson.D{{"token", authToken}})
+		count, _ := tokenCollection.CountDocuments(context.TODO(), bson.D{{Key: "token", Value: authToken}})
 		assert.Equal(t, int64(1), count)
 
 		router := GetRouter(&API{})
@@ -31,7 +32,7 @@ func TestLogout(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		count, _ = tokenCollection.CountDocuments(nil, bson.D{{"token", authToken}})
+		count, _ = tokenCollection.CountDocuments(context.TODO(), bson.D{{Key: "token", Value: authToken}})
 		assert.Equal(t, int64(0), count)
 	})
 

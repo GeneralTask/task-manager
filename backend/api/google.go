@@ -55,7 +55,7 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 
 	emails := []*database.Email{}
 
-	gmailService, err := gmail.New(client)
+	gmailService, err := gmail.NewService(context.TODO(), option.WithHTTPClient(client))
 	if err != nil {
 		log.Fatalf("Unable to create Gmail service: %v", err)
 	}
@@ -104,9 +104,10 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 			},
 			SenderDomain: senderDomain,
 		}
-		emailID := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.Source, email, bson.D{})
-		if emailID != nil {
-			email.ID = *emailID
+		dbEmail := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.Source, email, bson.D{})
+		if dbEmail != nil {
+			email.ID = dbEmail.ID
+			email.IDOrdering = dbEmail.IDOrdering
 		}
 		emails = append(emails, email)
 	}
@@ -132,7 +133,7 @@ func LoadCalendarEvents(
 			option.WithEndpoint(*overrideUrl),
 		)
 	} else {
-		calendarService, err = calendar.New(client)
+		calendarService, err = calendar.NewService(context.TODO(), option.WithHTTPClient(client))
 	}
 	if err != nil {
 		log.Fatalf("Unable to create Calendar service: %v", err)
@@ -186,7 +187,7 @@ func LoadCalendarEvents(
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 		}
-		eventID := database.UpdateOrCreateTask(
+		dbEvent := database.UpdateOrCreateTask(
 			db,
 			userID,
 			event.IDExternal,
@@ -198,8 +199,9 @@ func LoadCalendarEvents(
 				DatetimeStart: event.DatetimeStart,
 			},
 		)
-		if eventID != nil {
-			event.ID = *eventID
+		if dbEvent != nil {
+			event.ID = dbEvent.ID
+			event.IDOrdering = dbEvent.IDOrdering
 		}
 		events = append(events, event)
 	}

@@ -18,7 +18,7 @@ func UpdateOrCreateTask(
 	source string,
 	fieldsToInsertIfMissing interface{},
 	fieldsToUpdate interface{},
-) *primitive.ObjectID {
+) *TaskBase {
 	taskCollection := getTaskCollection(db)
 	dbQuery := bson.M{
 		"$and": []bson.M{
@@ -47,13 +47,13 @@ func UpdateOrCreateTask(
 		bson.D{
 			{Key: "$set", Value: fieldsToUpdate},
 		},
-		options.FindOneAndUpdate().SetUpsert(true),
 	).Decode(&task)
 	if err != nil {
 		log.Fatalf("Failed to get and update task: %v", err)
 	}
 
-	return &task.ID
+	// NOTE: This task reflects the db state before the FindOneAndUpdate call
+	return &task
 }
 
 func GetUser(db *mongo.Database, userID primitive.ObjectID) User {

@@ -30,7 +30,6 @@ func GetDBConnection() (*mongo.Database, func()) {
 	}
 
 	cleanup := func() {
-		log.Println("disconnecting now! buh-bye!")
 		if err = client.Disconnect(contextResult); err != nil {
 			log.Fatalf("Failed to disconnect from mongo DB: %v", err)
 		}

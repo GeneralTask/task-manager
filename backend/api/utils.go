@@ -49,28 +49,28 @@ type API struct {
 }
 
 var ALLOWED_USERNAMES = map[string]struct{}{
-	"jasonscharff@gmail.com":  struct{}{},
-	"jreinstra@gmail.com":     struct{}{},
-	"john@robinhood.com":      struct{}{},
-	"scottmai702@gmail.com":   struct{}{},
-	"sequoia@sequoiasnow.com": struct{}{},
-	"nolan1299@gmail.com":     struct{}{},
+	"jasonscharff@gmail.com":  {},
+	"jreinstra@gmail.com":     {},
+	"john@robinhood.com":      {},
+	"scottmai702@gmail.com":   {},
+	"sequoia@sequoiasnow.com": {},
+	"nolan1299@gmail.com":     {},
 }
 
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 	authToken, err := c.Cookie("authToken")
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "missing authToken cookie"})
-		return nil, errors.New("Invalid auth token")
+		return nil, errors.New("invalid auth token")
 	}
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var internalToken database.InternalAPIToken
-	err = internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&internalToken)
+	err = internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: authToken}}).Decode(&internalToken)
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "invalid auth token"})
-		return nil, errors.New("Invalid auth token")
+		return nil, errors.New("invalid auth token")
 	}
 	return &internalToken, nil
 }
@@ -96,7 +96,7 @@ func TokenMiddleware(c *gin.Context) {
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var internalToken database.InternalAPIToken
-	err = internalAPITokenCollection.FindOne(nil, bson.D{{"token", token}}).Decode(&internalToken)
+	err = internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: token}}).Decode(&internalToken)
 	if err != nil {
 		log.Printf("Auth failed: %v\n", err)
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
@@ -112,7 +112,7 @@ func getToken(c *gin.Context) (string, error) {
 	//Token is 36 characters + 6 for Bearer prefix + 1 for space = 43
 	if len(token) != 43 {
 		c.AbortWithStatusJSON(401, gin.H{"detail": "incorrect auth token format"})
-		return "", errors.New("Incorrect auth token format")
+		return "", errors.New("incorrect auth token format")
 	}
 	token = token[7:]
 	return token, nil
