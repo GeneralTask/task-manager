@@ -44,15 +44,16 @@ type StateToken struct {
 
 // Task json & mongo model
 type TaskBase struct {
-	ID         primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	UserID     primitive.ObjectID `json:"-" bson:"user_id,omitempty"`
-	IDExternal string             `json:"-" bson:"id_external,omitempty"`
-	IDOrdering int                `json:"id_ordering" bson:"id_ordering,omitempty"`
-	Sender     string             `json:"sender" bson:"sender,omitempty"`
-	Source     string             `json:"source" bson:"source,omitempty"`
-	Deeplink   string             `json:"deeplink" bson:"deeplink,omitempty"`
-	Title      string             `json:"title" bson:"title,omitempty"`
-	Logo       string             `json:"logo_url" bson:"logo,omitempty"`
+	ID               primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	UserID           primitive.ObjectID `json:"-" bson:"user_id,omitempty"`
+	IDExternal       string             `json:"-" bson:"id_external,omitempty"`
+	IDOrdering       int                `json:"id_ordering" bson:"id_ordering,omitempty"`
+	Sender           string             `json:"sender" bson:"sender,omitempty"`
+	Source           string             `json:"source" bson:"source,omitempty"`
+	Deeplink         string             `json:"deeplink" bson:"deeplink,omitempty"`
+	Title            string             `json:"title" bson:"title,omitempty"`
+	Logo             string             `json:"logo_url" bson:"logo,omitempty"`
+	HasBeenReordered bool               `json:"has_been_reordered" bson:"has_been_reordered,omitempty"`
 	//time in nanoseconds
 	TimeAllocation int64 `json:"time_allocated" bson:"time_allocated,omitempty"`
 }

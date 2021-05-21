@@ -41,6 +41,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: taskID}}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
+		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("MissingOrderingID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io")
