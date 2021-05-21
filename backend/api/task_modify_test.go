@@ -15,9 +15,9 @@ import (
 )
 
 func TestMarkAsComplete(t *testing.T) {
-	authToken := "0b59605e-92a5-4413-933b-3d442e2ec673"
+	authToken := "725939f1-ba8a-461b-9483-add2be67c5b2"
 	router := GetRouter(&API{})
-	request, _ := http.NewRequest("PATCH", "/tasks/"+"60a6d4837e59a46ad1f7990c"+"/", bytes.NewBuffer([]byte(`{"is_completed": true}`)))
+	request, _ := http.NewRequest("PATCH", "/tasks/"+"60a70510c2b71128a47c6b4d"+"/", bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 	request.Header.Add("Authorization", "Bearer "+authToken)
 	request.Header.Add("Content-Type", "application/json")
 
@@ -27,6 +27,21 @@ func TestMarkAsComplete(t *testing.T) {
 	_, err := ioutil.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 //	assert.Equal(t, "{}", string(body))
+}
+
+func TestTaskList(t *testing.T) {
+	authToken := "725939f1-ba8a-461b-9483-add2be67c5b2"
+	router := GetRouter(&API{})
+	request, _ := http.NewRequest("GET", "/tasks/", nil)
+	request.Header.Add("Authorization", "Bearer "+authToken)
+	request.Header.Add("Content-Type", "application/json")
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+	_, err := ioutil.ReadAll(recorder.Body)
+	assert.NoError(t, err)
+	//	assert.Equal(t, "{}", string(body))
 }
 
 func TestTaskReorder(t *testing.T) {

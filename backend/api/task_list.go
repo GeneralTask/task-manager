@@ -52,7 +52,7 @@ func (api *API) TasksList(c *gin.Context) {
 	go loadEmails(userID.(primitive.ObjectID), client, emails)
 
 	var JIRATasks = make(chan []*database.Task)
-	go LoadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
+	go LoadJIRATasks(api, userID.(primitive.ObjectID), JIRATasks)
 
 	allTasks := MergeTasks(currentTasks, <-calendarEvents, <-emails, <-JIRATasks, utils.ExtractEmailDomain(userObject.Email))
 	c.JSON(200, allTasks)

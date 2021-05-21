@@ -223,7 +223,7 @@ func TestLoadJIRATasks(t *testing.T) {
 	t.Run("MissingJIRAToken", func(t *testing.T) {
 		var JIRATasks = make(chan []*database.Task)
 		userID := primitive.NewObjectID()
-		go LoadJIRATasks(&API{}, externalAPITokenCollection, userID, JIRATasks)
+		go LoadJIRATasks(&API{}, userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
@@ -231,7 +231,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID := createJIRAToken(t, externalAPITokenCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusUnauthorized, true)
 		var JIRATasks = make(chan []*database.Task)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
@@ -240,7 +240,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusUnauthorized, false)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
 		var JIRATasks = make(chan []*database.Task)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
@@ -249,7 +249,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, true)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
 		var JIRATasks = make(chan []*database.Task)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
@@ -259,7 +259,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
 		searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
 		var JIRATasks = make(chan []*database.Task)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
@@ -269,7 +269,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
 		var JIRATasks = make(chan []*database.Task)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result))
 	})
@@ -279,7 +279,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 		var JIRATasks = make(chan []*database.Task)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, externalAPITokenCollection, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result))
 

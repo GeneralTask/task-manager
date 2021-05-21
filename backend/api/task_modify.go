@@ -39,7 +39,7 @@ func (api *API) TaskModify(c *gin.Context) {
 
 	if modifyParams.IsCompleted != nil {
 		if *modifyParams.IsCompleted {
-			MarkTaskComplete(c, taskID)
+			MarkTaskComplete(api, c, taskID)
 		} else {
 			c.JSON(400, gin.H{"detail": "Tasks can only be mark as complete."})
 		}
@@ -75,7 +75,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, reorder int) {
 	c.JSON(200, gin.H{})
 }
 
-func MarkTaskComplete(c *gin.Context, taskID primitive.ObjectID) {
+func MarkTaskComplete(api *API, c *gin.Context,  taskID primitive.ObjectID) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	taskCollection := db.Collection("tasks")
@@ -88,17 +88,23 @@ func MarkTaskComplete(c *gin.Context, taskID primitive.ObjectID) {
 		return
 	}
 
-	//if task.UserID != userID {
-	//	c.JSON(401, gin.H{})
-	//	return
-	//}
+	if task.UserID != userID {
+		c.JSON(401, gin.H{})
+		return
+	}
 
+	var success bool
 	if task.Source == database.TaskSourceGoogleCalendar.Name {
 
 	} else if task.Source == database.TaskSourceGmail.Name {
-		success := MarkEmailAsRead(userID.(primitive.ObjectID), task.IDExternal)
-		c.JSON(200, gin.H{"success": success})
+		success = MarkEmailAsRead(userID.(primitive.ObjectID), task.IDExternal)
 	} else if task.Source == database.TaskSourceJIRA.Name {
-		return
+		success = MarkJIRATaskRead(api, userID.(primitive.ObjectID), task.IDExternal)
+	}
+
+	if success {
+		c.JSON(200, gin.H{})
+	} else {
+		c.JSON(400, gin.H{})
 	}
 }
