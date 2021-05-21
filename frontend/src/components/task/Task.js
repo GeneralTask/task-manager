@@ -54,7 +54,7 @@ const Task = ({ task, index, isDragDisabled }) => (
                 has_body={!!task.body}
                 provided={provided}
               />
-              <TaskBody/>
+              <TaskBody body={task.body} task_id={task.id}/>
             </Container>
           }
         />

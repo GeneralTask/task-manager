@@ -13,6 +13,9 @@ const RetractBody = styled(ExpandBody)`
     transform: scaleX(-1); 
 `;
 
+// no body: no chevron
+// has_body, expanded_body != task_id: chevron down
+// has_body, expanded_body == task_id: chevron up
 const ExpandButton = ({has_body, task_id}) => {
     console.log("expand", has_body)
     const expanded_body = useSelector(state => state.expanded_body);
@@ -40,15 +43,11 @@ const ExpandButton = ({has_body, task_id}) => {
           )
         // task does not have a body
         ) : (
-          "expand pls"
+          null
         )}
       </div>
     );
 }
-
-// no body: no chevron
-// has_body, expanded_body != task_id: chevron down
-// has_body, expanded_body == task_id: chevron up
 
 export default connect(
     state => ({expanded_body: state.expanded_body}),
