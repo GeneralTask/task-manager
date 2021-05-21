@@ -63,7 +63,7 @@ func TestAuthorizeJIRA(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(
 			t,
-			"<a href=\"https://auth.atlassian.com/authorize?audience=api.atlassian.com&amp;client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&amp;scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&amp;redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Fauthorize2%2Fjira%2Fcallback%2F&amp;state="+stateToken+"&amp;response_type=code&amp;prompt=consent\">Found</a>.\n\n",
+			"<a href=\"https://auth.atlassian.com/authorize?audience=api.atlassian.com&amp;client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&amp;scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&amp;redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize2%2Fjira%2Fcallback%2F&amp;state="+stateToken+"&amp;response_type=code&amp;prompt=consent\">Found</a>.\n\n",
 			string(body),
 		)
 	})

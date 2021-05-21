@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"log"
 )
 
 type TaskModifyParams struct {
@@ -61,7 +60,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, reorder int) {
 		context.TODO(),
 		bson.D{{Key: "_id", Value: taskID}},
 		bson.D{{Key: "$set", Value: bson.D{
-			{Key: "id_ordering", Value: modifyParams.IDOrdering},
+			{Key: "id_ordering", Value: reorder},
 			{Key: "has_been_reordered", Value: true},
 		}}},
 	)

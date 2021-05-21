@@ -217,8 +217,11 @@ func MarkEmailAsRead(api *API, userID primitive.ObjectID, emailID string) bool{
 
 	var googleToken database.ExternalAPIToken
 
-	if err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken); err != nil {
-		return false
+	if err := externalAPITokenCollection.FindOne(
+		nil,
+		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken);
+		err != nil {
+			return false
 	}
 
 	var token oauth2.Token
