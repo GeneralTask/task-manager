@@ -20,38 +20,40 @@ func UpdateOrCreateTask(
 	fieldsToUpdate interface{},
 ) *primitive.ObjectID {
 	taskCollection := getTaskCollection(db)
-	taskCollection.UpdateOne(
-		context.TODO(),
-		bson.M{
-			"$and": []bson.M{
-				{"id_external": IDExternal},
-				{"source": source},
-				{"user_id": userID},
-			},
+	dbQuery := bson.M{
+		"$and": []bson.M{
+			{"id_external": IDExternal},
+			{"source": source},
+			{"user_id": userID},
 		},
+	}
+	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
+	_, err := taskCollection.UpdateOne(
+		context.TODO(),
+		dbQuery,
 		bson.D{
-			{Key: "$set", Value: fieldsToUpdate},
 			{Key: "$setOnInsert", Value: fieldsToInsertIfMissing},
 		},
 		options.Update().SetUpsert(true),
 	)
-	// This is needed to get the ID of the task; should be removed later once we load all tasks from the db
-	var taskIDContainer TaskBase
-	err := taskCollection.FindOne(
-		context.TODO(),
-		bson.M{
-			"$and": []bson.M{
-				{"id_external": IDExternal},
-				{"source": source},
-				{"user_id": userID},
-			},
-		},
-	).Decode(&taskIDContainer)
-	if err == nil {
-		return &taskIDContainer.ID
+	if err != nil {
+		log.Fatalf("Failed to update or create task: %v", err)
 	}
-	log.Printf("Failed to fetch email: %v", err)
-	return nil
+
+	var task TaskBase
+	err = taskCollection.FindOneAndUpdate(
+		context.TODO(),
+		dbQuery,
+		bson.D{
+			{Key: "$set", Value: fieldsToUpdate},
+		},
+		options.FindOneAndUpdate().SetUpsert(true),
+	).Decode(&task)
+	if err != nil {
+		log.Fatalf("Failed to get and update task: %v", err)
+	}
+
+	return &task.ID
 }
 
 func GetUser(db *mongo.Database, userID primitive.ObjectID) User {
