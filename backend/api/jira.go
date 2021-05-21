@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -46,7 +47,7 @@ type JIRASite struct {
 	Name      string   `json:"name"`
 	URL       string   `json:"url"`
 	Scopes    []string `json:"scopes"`
-	AvatarURL string   `json:"avatarUrl`
+	AvatarURL string   `json:"avatarUrl"`
 }
 
 // JIRATask represents the API detail result for issues - only fields we need
@@ -136,9 +137,9 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	_, err = externalAPITokenCollection.UpdateOne(
-		nil,
-		bson.D{{"user_id", internalToken.UserID}, {"source", "jira"}},
-		bson.D{{"$set", &database.ExternalAPIToken{UserID: internalToken.UserID, Source: "jira", Token: string(tokenString)}}},
+		context.TODO(),
+		bson.D{{Key: "user_id", Value: internalToken.UserID}, {Key: "source", Value: "jira"}},
+		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{UserID: internalToken.UserID, Source: "jira", Token: string(tokenString)}}},
 		options.Update().SetUpsert(true),
 	)
 
@@ -151,7 +152,10 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 
 func LoadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, result chan<- []*database.Task) {
 	var JIRAToken database.ExternalAPIToken
-	err := externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "jira"}}).Decode(&JIRAToken)
+	err := externalAPITokenCollection.FindOne(
+		context.TODO(),
+		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "jira"}},
+	).Decode(&JIRAToken)
 	if err != nil {
 		// No JIRA token exists, so don't populate result
 		result <- []*database.Task{}
@@ -304,7 +308,7 @@ func LoadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 		if err == nil {
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
-		taskID := database.UpdateOrCreateTask(
+		dbTask := database.UpdateOrCreateTask(
 			db,
 			userID,
 			task.IDExternal,
@@ -316,8 +320,9 @@ func LoadJIRATasks(api *API, externalAPITokenCollection *mongo.Collection, userI
 				Priority: task.Priority,
 			},
 		)
-		if taskID != nil {
-			task.ID = *taskID
+		if dbTask != nil {
+			task.ID = dbTask.ID
+			task.IDOrdering = dbTask.IDOrdering
 		}
 		tasks = append(tasks, task)
 	}

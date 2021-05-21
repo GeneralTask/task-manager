@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -18,7 +19,7 @@ func TestTaskReorder(t *testing.T) {
 		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
 		taskCollection := db.Collection("tasks")
-		insertResult, err := taskCollection.InsertOne(nil, database.TaskBase{})
+		insertResult, err := taskCollection.InsertOne(context.TODO(), database.TaskBase{})
 		assert.NoError(t, err)
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
@@ -37,7 +38,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, "{}", string(body))
 
 		var task database.TaskBase
-		err = taskCollection.FindOne(nil, bson.D{{"_id", taskID}}).Decode(&task)
+		err = taskCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: taskID}}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
 	})

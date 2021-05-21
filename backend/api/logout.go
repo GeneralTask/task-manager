@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"log"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -17,7 +18,7 @@ func (api *API) Logout(c *gin.Context) {
 	defer dbCleanup()
 
 	tokenCollection := db.Collection("internal_api_tokens")
-	result, err := tokenCollection.DeleteOne(nil, bson.M{"token": token})
+	result, err := tokenCollection.DeleteOne(context.TODO(), bson.M{"token": token})
 	if err != nil {
 		log.Fatal(err)
 	}
