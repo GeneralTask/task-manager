@@ -36,5 +36,5 @@ func GetDBConnection() (*mongo.Database, func()) {
 		cancel()
 	}
 
-	return client.Database("main"), cleanup
+	return client.Database(config.GetConfigValue("DB_NAME")), cleanup
 }
