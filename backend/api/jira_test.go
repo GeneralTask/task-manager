@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"github.com/GeneralTask/task-manager/backend/config"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 	"time"
 
@@ -58,12 +58,14 @@ func TestAuthorizeJIRA(t *testing.T) {
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		// Grab from body where we expect the state token
-		log.Println("body:", string(body))
-		stateToken := string(body)[297:321]
+		exp := regexp.MustCompile("state=([^&]+)&")
+		matches := exp.FindStringSubmatch(string(body))
+		assert.Equal(t,2,  len(matches))
+		stateToken := matches[1]
 		assert.NoError(t, err)
 		assert.Equal(
 			t,
-			"<a href=\"https://auth.atlassian.com/authorize?audience=api.atlassian.com&amp;client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&amp;scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&amp;redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize2%2Fjira%2Fcallback%2F&amp;state="+stateToken+"&amp;response_type=code&amp;prompt=consent\">Found</a>.\n\n",
+			"<a href=\"https://auth.atlassian.com/authorize?audience=api.atlassian.com&amp;client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&amp;scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&amp;redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&amp;state="+stateToken+"&amp;response_type=code&amp;prompt=consent\">Found</a>.\n\n",
 			string(body),
 		)
 	})
