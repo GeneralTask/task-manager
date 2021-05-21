@@ -40,6 +40,11 @@ docker-compose up -d
 go test -v ./...
 ```
 
+To clear the test cache:
+```
+go clean -testcache
+```
+
 ## Deploying backend
 
 We currently perform backend deploys using the Heroku CLI. Assuming you have the heroku credentials, you can deploy with the following steps:
