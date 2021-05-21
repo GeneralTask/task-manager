@@ -15,7 +15,7 @@
           "sender": "@hackerdog",
           "logo_url": "/images/slack.svg",
           "title": "Hey, can you help me put out this fire?",
-          "source": "slack",
+          "source": "Slack",
           "is_completable": true
         },
         {
@@ -28,7 +28,7 @@
           "sender": "@hackerdog",
           "logo_url": "/images/gmail.svg",
           "title": "Urgent question about tomorrow's presentation",
-          "source": "gmail",
+          "source": "Gmail",
           "is_completable": true
         }
       ]
@@ -45,7 +45,7 @@
           "datetime_start": "2021-03-11T10:30:00-07:00",
           "deeplink": "https://calendar.google.com",
           "sender": "",
-          "source": "gcal",
+          "source": "Google Calendar",
           "link": "https://www.google.com/calendar/event?eid=NXQxYjg2aGJndnB0cmQxb2tpZGIzc2QxOW0gc2NvdHRtYWk3MDJAbQ",
           "title": "Chat with Scott",
           "logo_url": "/images/gcal.svg",
@@ -67,7 +67,7 @@
           "sender": "@hackerdog",
           "logo_url": "/images/asana.svg",
           "title": "Write presentation for tomorrow",
-          "source": "asana",
+          "source": "Asana",
           "is_completable": true
         }
       ]
@@ -84,7 +84,7 @@
           "datetime_start": "2021-03-11T12:00:00-07:00",
           "deeplink": "https://calendar.google.com",
           "sender": "",
-          "source": "gcal",
+          "source": "Google Calendar",
           "link": "https://www.google.com/calendar/event?eid=NXBkanJpcDlqMXB2ZW81aXIxaDVtYmlhb2Igc2NvdHRtYWk3MDJAbQ",
           "title": "Lunch Break",
           "logo_url": "/images/gcal.svg",
