@@ -1,10 +1,10 @@
 import './App.css';
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom"
-import Cookies from 'js-cookie'
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import { LANDING_PATH, SETTINGS_PATH, PRIVACY_PATH } from './constants'
 import {useEffect} from 'react'
+import {getAuthToken} from './helpers/utils'
 
 import Header from "./components/Header"
 import Settings from "./components/settings/Settings"
@@ -18,7 +18,7 @@ function App() {
   return (
     <Provider store={store}>
       <BrowserRouter>
-      { Cookies.get('authToken') ? <Header/> : null }
+      { getAuthToken() ? <Header/> : null }
         <Switch>
           {/* Settings page, only accessible if logged in */}
           <PrivateRoute path={SETTINGS_PATH} component={Settings}/>
@@ -36,7 +36,7 @@ function App() {
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route {...rest} render={(props) => (
-    Cookies.get('authToken')
+    getAuthToken()
       ? <Component {...props} />
       : <Redirect to='/' />
   )} />

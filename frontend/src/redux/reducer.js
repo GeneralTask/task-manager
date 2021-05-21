@@ -26,13 +26,12 @@ export default function reducer(state, action){
       case actions.REMOVE_TASK_BY_ID:
         task_groups = [...state.task_groups];
         // loops through the tasks and removes the one with the id
-        task_groups = task_groups.map(task_group => {return {
-            ...task_group,
-            tasks: task_group.tasks.filter((task) => task.id !== action.id),
-        }});
         return {
           ...state,
-          task_groups,
+          task_groups: [...state.task_groups].map((task_group) => ({
+            ...task_group,
+            tasks: task_group.tasks.filter((task) => task.id !== action.id),
+          })),
         };
 
       default:

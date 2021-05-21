@@ -1,9 +1,9 @@
-import Cookies from "js-cookie";
 import styled from "styled-components";
 
 import TaskList from "./task/TaskList";
 import GLButton from "./login/GoogleLogin";
 import { LOGIN_URL } from "../constants";
+import {getAuthToken} from '../helpers/utils'
 
 const Logo = styled.div`
   font-weight: bold;
@@ -63,7 +63,7 @@ const LoginWithGoogle = styled.a`
 `;
 
 const LandingPage = () => {
-  if (Cookies.get("authToken")) {
+  if (getAuthToken()) {
     return <TaskList />;
   }
   return (

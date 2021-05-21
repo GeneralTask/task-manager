@@ -1,11 +1,12 @@
 import React from "react"
 import "./Task.css"
-import {TASKS_URL, REACT_APP_FRONTEND_BASE_URL} from '../../constants'
+import {TASKS_URL} from '../../constants'
 import store from '../../redux/store'
 import {removeTaskById} from '../../redux/actions'
+import {getHeaders} from '../../helpers/utils'
 
 import styled from "styled-components"
-import Cookies from 'js-cookie';
+
 
 const Header = styled.div`
   font-size: 20px;
@@ -80,11 +81,7 @@ const done = async (task_id) => {
     const response = await fetch(TASKS_URL + task_id + '/', {
       method: "PATCH",
       mode: "cors",
-      headers: {
-        Authorization: "Bearer " + Cookies.get("authToken"),
-        "Access-Control-Allow-Origin": REACT_APP_FRONTEND_BASE_URL,
-        "Access-Control-Allow-Headers": "access-control-allow-origin, access-control-allow-headers",
-      },
+      headers: getHeaders(),
       body: JSON.stringify({ "is_completed": true })
     });
     

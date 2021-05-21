@@ -23,7 +23,6 @@ export function removeTask(index) {
 }
 
 export function removeTaskById(id) {
-    console.log("here")
     return {
         type: actions.REMOVE_TASK_BY_ID,
         id,

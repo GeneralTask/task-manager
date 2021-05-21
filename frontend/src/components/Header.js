@@ -1,7 +1,7 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
 import { LANDING_PATH, SETTINGS_PATH } from '../constants'
-import Cookies from 'js-cookie'
+import {getAuthToken} from '../helpers/utils'
 import styled from 'styled-components'
 
 const HeaderDiv = styled.div`
@@ -27,7 +27,7 @@ const Header = () => {
         <HeaderDiv>
             <Link to={LANDING_PATH}>Tasks</Link>
             <Link to={SETTINGS_PATH}>Settings</Link>
-            <Logout onClick={logout} disabled={!Cookies.get('authToken')}>Logout</Logout>
+            <Logout onClick={logout} disabled={!getAuthToken()}>Logout</Logout>
         </HeaderDiv>
     )
 }
