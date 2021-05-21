@@ -134,7 +134,7 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 	}
 	if resp.StatusCode != 200 {
 		log.Printf("JIRA authorization failed: %s", tokenString)
-		c.JSON(400, gin.H{"detail": "Authorization failed", "token": config.GetConfigValue("JIRA_OAUTH_CLIENT_ID")})
+		c.JSON(400, gin.H{"detail": "Authorization failed"})
 		return
 	}
 

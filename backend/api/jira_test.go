@@ -193,8 +193,10 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		authToken := login("approved@generaltask.io")
 		stateToken := newStateToken(authToken)
 
-		server := getTokenServerForJIRA(t, http.StatusOK)
-		router := GetRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &server.URL}})
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		cloudServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
+
+		router := GetRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL, CloudIDURL: &cloudServer.URL}})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+stateToken, nil)
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 		recorder := httptest.NewRecorder()
