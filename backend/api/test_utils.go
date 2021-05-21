@@ -79,7 +79,7 @@ func newStateToken(authToken string) string {
 	if authToken != "" {
 		internalAPITokenCollection := db.Collection("internal_api_tokens")
 		var token database.InternalAPIToken
-		err := internalAPITokenCollection.FindOne(nil, bson.D{{Key: "token", Value: authToken}}).Decode(&token)
+		err := internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: authToken}}).Decode(&token)
 		if err != nil {
 			log.Fatalf("Failed to find internal api token for test")
 		}
@@ -113,19 +113,19 @@ func makeLoginCallbackRequest(googleToken string, email string, stateToken strin
 
 func verifyLoginCallback(t *testing.T, db *mongo.Database, authToken string) {
 	userCollection := db.Collection("users")
-	count, err := userCollection.CountDocuments(nil, bson.D{{"google_id", "goog12345"}})
+	count, err := userCollection.CountDocuments(context.TODO(), bson.D{{Key: "google_id", Value: "goog12345"}})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var user database.User
-	err = userCollection.FindOne(nil, bson.D{{"google_id", "goog12345"}}).Decode(&user)
+	err = userCollection.FindOne(context.TODO(), bson.D{{Key: "google_id", Value: "goog12345"}}).Decode(&user)
 	assert.NoError(t, err)
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	count, err = externalAPITokenCollection.CountDocuments(nil, bson.D{{"user_id", user.ID}, {"source", "google"}})
+	count, err = externalAPITokenCollection.CountDocuments(context.TODO(), bson.D{{Key: "user_id", Value: user.ID}, {Key: "source", Value: "google"}})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var googleToken database.ExternalAPIToken
-	err = externalAPITokenCollection.FindOne(nil, bson.D{{"user_id", user.ID}, {"source", "google"}}).Decode(&googleToken)
+	err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: user.ID}, {Key: "source", Value: "google"}}).Decode(&googleToken)
 	assert.NoError(t, err)
 	assert.Equal(t, "google", googleToken.Source)
 	expectedToken := fmt.Sprintf("{\"access_token\":\"%s\",\"expiry\":\"0001-01-01T00:00:00Z\"}", authToken)
@@ -133,7 +133,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, authToken string) {
 	assert.Equal(t, user.ID, googleToken.UserID)
 
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
-	count, err = internalAPITokenCollection.CountDocuments(nil, bson.D{{"user_id", user.ID}})
+	count, err = internalAPITokenCollection.CountDocuments(context.TODO(), bson.D{{Key: "user_id", Value: user.ID}})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 }

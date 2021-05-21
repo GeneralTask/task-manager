@@ -3,11 +3,12 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"github.com/GeneralTask/task-manager/backend/utils"
 	"log"
 	"net/http"
 	"sort"
 	"time"
+
+	"github.com/GeneralTask/task-manager/backend/utils"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -24,13 +25,13 @@ func (api *API) TasksList(c *gin.Context) {
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := db.Collection("users")
-	err := userCollection.FindOne(nil, bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
+	err := userCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
 
 	if err != nil {
 		log.Fatalf("Failed to find user")
 	}
 
-	err = externalAPITokenCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken)
+	err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken)
 
 	if err != nil {
 		log.Fatalf("Failed to fetch external API token: %v", err)
@@ -41,6 +42,9 @@ func (api *API) TasksList(c *gin.Context) {
 	config := GetGoogleConfig()
 	client := config.Client(context.Background(), &token).(*http.Client)
 
+	//TODO: load the IDs / ordering IDs of the current tasks
+	currentTasks := database.GetActiveTasks(db, userID.(primitive.ObjectID))
+
 	var calendarEvents = make(chan []*database.CalendarEvent)
 	go LoadCalendarEvents(userID.(primitive.ObjectID), client, calendarEvents, nil)
 
@@ -50,11 +54,11 @@ func (api *API) TasksList(c *gin.Context) {
 	var JIRATasks = make(chan []*database.Task)
 	go LoadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
 
-	allTasks := MergeTasks(<-calendarEvents, <-emails, <-JIRATasks, utils.ExtractEmailDomain(userObject.Email))
+	allTasks := MergeTasks(currentTasks, <-calendarEvents, <-emails, <-JIRATasks, utils.ExtractEmailDomain(userObject.Email))
 	c.JSON(200, allTasks)
 }
 
-func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Email, JIRATasks []*database.Task, userDomain string) []*database.TaskGroup {
+func MergeTasks(currentTasks *[]database.TaskBase, calendarEvents []*database.CalendarEvent, emails []*database.Email, JIRATasks []*database.Task, userDomain string) []*database.TaskGroup {
 
 	//sort calendar events by start time.
 	sort.SliceStable(calendarEvents, func(i, j int) bool {
@@ -70,7 +74,11 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 		allUnscheduledTasks = append(allUnscheduledTasks, t)
 	}
 
+	//TODO: get list of 'done' tasks and their ordering IDs
+	//TODO: adjust downward ordering IDs based on removed tasks
+
 	//first we sort the emails and tasks into a single array
+	//TODO: modify comparison functions to use IDordering is exists on both, otherwise use standard function but always put has_prioritized first
 	sort.SliceStable(allUnscheduledTasks, func(i, j int) bool {
 		a := allUnscheduledTasks[i]
 		b := allUnscheduledTasks[j]
@@ -117,7 +125,7 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 		taskBase := getTaskBase(allUnscheduledTasks[taskIndex])
 		timeAllocation := taskBase.TimeAllocation
 		for remainingTime.Nanoseconds() >= timeAllocation {
-			tasks = append(tasks,taskBase)
+			tasks = append(tasks, taskBase)
 			remainingTime -= time.Duration(timeAllocation)
 			totalDuration += timeAllocation
 			taskIndex += 1
@@ -178,17 +186,20 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 			Tasks:         tasks,
 		})
 	}
+
+	//TODO: update ordering IDs and save to db
+
 	return taskGroups
 }
 
 func getTaskBase(t interface{}) *database.TaskBase {
-	switch t.(type) {
+	switch t := t.(type) {
 	case *database.Email:
-		return &(t.(*database.Email).TaskBase)
+		return &(t.TaskBase)
 	case *database.Task:
-		return &(t.(*database.Task).TaskBase)
+		return &(t.TaskBase)
 	case *database.CalendarEvent:
-		return &(t.(*database.CalendarEvent).TaskBase)
+		return &(t.TaskBase)
 	default:
 		return nil
 	}

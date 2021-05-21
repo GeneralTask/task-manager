@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -56,6 +57,7 @@ func TestAuthorizeJIRA(t *testing.T) {
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		// Grab from body where we expect the state token
+		log.Println("body:", string(body))
 		stateToken := string(body)[297:321]
 		assert.NoError(t, err)
 		assert.Equal(
@@ -200,14 +202,14 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		defer dbCleanup()
 		internalAPITokenCollection := db.Collection("internal_api_tokens")
 		var authTokenStruct database.InternalAPIToken
-		err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&authTokenStruct)
+		err := internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: authToken}}).Decode(&authTokenStruct)
 		assert.NoError(t, err)
 		externalAPITokenCollection := db.Collection("external_api_tokens")
-		count, err := externalAPITokenCollection.CountDocuments(nil, bson.D{{"user_id", authTokenStruct.UserID}, {"source", "jira"}})
+		count, err := externalAPITokenCollection.CountDocuments(context.TODO(), bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: "jira"}})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 		var jiraToken database.ExternalAPIToken
-		err = externalAPITokenCollection.FindOne(nil, bson.D{{"user_id", authTokenStruct.UserID}, {"source", "jira"}}).Decode(&jiraToken)
+		err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: "jira"}}).Decode(&jiraToken)
 		assert.NoError(t, err)
 		assert.Equal(t, "jira", jiraToken.Source)
 	})
@@ -300,7 +302,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		taskCollection := db.Collection("tasks")
 
 		var taskFromDB database.Task
-		err := taskCollection.FindOne(nil, bson.D{{"source", database.TaskSourceJIRA.Name}, {"id_external", "42069"}}).Decode(&taskFromDB)
+		err := taskCollection.FindOne(context.TODO(), bson.D{{Key: "source", Value: database.TaskSourceJIRA.Name}, {Key: "id_external", Value: "42069"}}).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 	})

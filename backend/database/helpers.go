@@ -18,45 +18,111 @@ func UpdateOrCreateTask(
 	source string,
 	fieldsToInsertIfMissing interface{},
 	fieldsToUpdate interface{},
-) *primitive.ObjectID {
+) *TaskBase {
 	taskCollection := getTaskCollection(db)
-	taskCollection.UpdateOne(
-		context.TODO(),
-		bson.M{
-			"$and": []bson.M{
-				{"id_external": IDExternal},
-				{"source": source},
-				{"user_id": userID},
-			},
+	dbQuery := bson.M{
+		"$and": []bson.M{
+			{"id_external": IDExternal},
+			{"source": source},
+			{"user_id": userID},
 		},
+	}
+	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
+	_, err := taskCollection.UpdateOne(
+		context.TODO(),
+		dbQuery,
 		bson.D{
-			{Key: "$set", Value: fieldsToUpdate},
 			{Key: "$setOnInsert", Value: fieldsToInsertIfMissing},
 		},
 		options.Update().SetUpsert(true),
 	)
-	// This is needed to get the ID of the task; should be removed later once we load all tasks from the db
-	var taskIDContainer TaskBase
-	err := taskCollection.FindOne(
+	if err != nil {
+		log.Fatalf("Failed to update or create task: %v", err)
+	}
+
+	var task TaskBase
+	err = taskCollection.FindOneAndUpdate(
+		context.TODO(),
+		dbQuery,
+		bson.D{
+			{Key: "$set", Value: fieldsToUpdate},
+		},
+	).Decode(&task)
+	if err != nil {
+		log.Fatalf("Failed to get and update task: %v", err)
+	}
+
+	// NOTE: This task reflects the db state before the FindOneAndUpdate call
+	return &task
+}
+
+func GetOrCreateTask(db *mongo.Database,
+	userID primitive.ObjectID,
+	IDExternal string,
+	source string,
+	fieldsToInsertIfMissing interface{},
+) *TaskBase {
+	taskCollection := getTaskCollection(db)
+	log.Println("GetOrCreateTask", IDExternal, source, userID.Hex())
+	dbQuery := bson.M{
+		"$and": []bson.M{
+			{"id_external": IDExternal},
+			{"source": source},
+			{"user_id": userID},
+		},
+	}
+	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
+	_, err := taskCollection.UpdateOne(
+		context.TODO(),
+		dbQuery,
+		bson.D{
+			{Key: "$setOnInsert", Value: fieldsToInsertIfMissing},
+		},
+		options.Update().SetUpsert(true),
+	)
+	if err != nil {
+		log.Fatalf("Failed to get or create task: %v", err)
+	}
+
+	var task TaskBase
+	err = taskCollection.FindOne(
+		context.TODO(),
+		dbQuery,
+	).Decode(&task)
+	if err != nil {
+		log.Fatalf("Failed to get task: %v", err)
+	}
+
+	return &task
+}
+
+func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) *[]TaskBase {
+	cursor, err := getTaskCollection(db).Find(
 		context.TODO(),
 		bson.M{
 			"$and": []bson.M{
-				{"id_external": IDExternal},
-				{"source": source},
 				{"user_id": userID},
+				{"is_completed": false},
 			},
 		},
-	).Decode(&taskIDContainer)
-	if err == nil {
-		return &taskIDContainer.ID
+	)
+	if err != nil {
+		log.Fatalf("Failed to fetch tasks for user: %v", err)
 	}
-	log.Printf("Failed to fetch email: %v", err)
-	return nil
+	var tasks []TaskBase
+	err = cursor.All(context.TODO(), &tasks)
+	if err != nil {
+		log.Fatalf("Failed to fetch tasks for user: %v", err)
+	}
+	return &tasks
 }
 
 func GetUser(db *mongo.Database, userID primitive.ObjectID) User {
 	var userObject User
-	err := getUserCollection(db).FindOne(context.TODO(), bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
+	err := getUserCollection(db).FindOne(
+		context.TODO(),
+		bson.D{{Key: "_id", Value: userID}},
+	).Decode(&userObject)
 	if err != nil {
 		log.Fatalf("Failed to load user: %v", err)
 	}

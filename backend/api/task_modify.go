@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"log"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -30,7 +31,14 @@ func (api *API) TaskModify(c *gin.Context) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	taskCollection := db.Collection("tasks")
-	result, err := taskCollection.UpdateOne(nil, bson.D{{"_id", taskID}}, bson.D{{"$set", bson.D{{"id_ordering", modifyParams.IDOrdering}}}})
+	result, err := taskCollection.UpdateOne(
+		context.TODO(),
+		bson.D{{Key: "_id", Value: taskID}},
+		bson.D{{Key: "$set", Value: bson.D{
+			{Key: "id_ordering", Value: modifyParams.IDOrdering},
+			{Key: "has_been_reordered", Value: true},
+		}}},
+	)
 	if err != nil {
 		log.Fatalf("Failed to update task in db: %v", err)
 	}

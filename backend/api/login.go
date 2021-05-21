@@ -89,8 +89,8 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	var user database.User
 	var insertedUserID primitive.ObjectID
-	if userCollection.FindOne(nil, bson.D{{Key: "google_id", Value: userInfo.SUB}}).Decode(&user) != nil {
-		cursor, err := userCollection.InsertOne(nil, &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL})
+	if userCollection.FindOne(context.TODO(), bson.D{{Key: "google_id", Value: userInfo.SUB}}).Decode(&user) != nil {
+		cursor, err := userCollection.InsertOne(context.TODO(), &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL})
 		insertedUserID = cursor.InsertedID.(primitive.ObjectID)
 		if err != nil {
 			log.Fatalf("Failed to create new user in db: %v", err)
@@ -105,9 +105,9 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	_, err = externalAPITokenCollection.UpdateOne(
-		nil,
-		bson.D{{"user_id", insertedUserID}, {"source", "google"}},
-		bson.D{{"$set", &database.ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)}}},
+		context.TODO(),
+		bson.D{{Key: "user_id", Value: insertedUserID}, {Key: "source", Value: "google"}},
+		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)}}},
 		options.Update().SetUpsert(true),
 	)
 
@@ -117,9 +117,9 @@ func (api *API) LoginCallback(c *gin.Context) {
 	internalToken := guuid.New().String()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	_, err = internalAPITokenCollection.UpdateOne(
-		nil,
-		bson.D{{"user_id", insertedUserID}},
-		bson.D{{"$set", &database.InternalAPIToken{UserID: insertedUserID, Token: internalToken}}},
+		context.TODO(),
+		bson.D{{Key: "user_id", Value: insertedUserID}},
+		bson.D{{Key: "$set", Value: &database.InternalAPIToken{UserID: insertedUserID, Token: internalToken}}},
 		options.Update().SetUpsert(true),
 	)
 

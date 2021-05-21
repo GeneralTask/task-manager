@@ -19,6 +19,9 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -29,5 +32,11 @@ jobs:
       - name: Spin up db
         run: docker-compose up -d
       
-      - name: Check running containers
+      - name: Wait 5 seconds
+        run: sleep 5
+      
+      - name: docker ps
         run: docker ps
+        
+      - name: Run go tests
+        run: ./runtests.sh
