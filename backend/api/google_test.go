@@ -2,6 +2,9 @@ package api
 
 import (
 	"context"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -111,3 +114,14 @@ func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *datab
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.Source, b.Source)
 }
+
+func getGmailArchiveServer(t *testing.T) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := ioutil.ReadAll(r.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"removeLabelIds\":[\"INBOX\"]}\n", string(body))
+		w.WriteHeader(200)
+		w.Write([]byte(`{}`))
+	}))
+}
+

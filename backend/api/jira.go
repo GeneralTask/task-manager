@@ -34,6 +34,7 @@ type JIRAConfig struct {
 	APIBaseURL *string
 	CloudIDURL *string
 	TokenURL   *string
+	TransitionURL *string
 }
 
 // JIRARedirectParams ...
@@ -106,7 +107,7 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		return
 	}
 
-	params := []byte(`{"grant_type": "authorization_code","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","code": "` + redirectParams.Code + `","redirect_uri": "http://localhost:8080/authorize/jira/callback/"}`)
+	params := []byte(`{"grant_type": "authorization_code","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","code": "` + redirectParams.Code + `","redirect_uri": "` + config.GetConfigValue("SERVER_URL") + `authorize/jira/callback/"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
 	if api.JIRAConfigValues.TokenURL != nil {
 		tokenURL = *api.JIRAConfigValues.TokenURL
@@ -388,8 +389,7 @@ func getJIRAToken(api *API, userID primitive.ObjectID) *JIRAAuthToken {
 	return &newToken
 }
 
-func MarkJIRATaskRead(api *API, userID primitive.ObjectID, issueID string) bool {
-
+func MarkJIRATaskDone(api *API, userID primitive.ObjectID, issueID string) bool {
 	token := getJIRAToken(api, userID)
 	siteConfiguration := getJIRASiteConfiguration(userID)
 	if token == nil || siteConfiguration == nil {
@@ -397,7 +397,13 @@ func MarkJIRATaskRead(api *API, userID primitive.ObjectID, issueID string) bool 
 	}
 
 	//first get the list of transitions
-	apiBaseURL := getJIRAAPIBaseURl(*siteConfiguration)
+	var apiBaseURL string
+
+	if api.JIRAConfigValues.TransitionURL != nil {
+		apiBaseURL = *api.JIRAConfigValues.TransitionURL
+	} else {
+		apiBaseURL = getJIRAAPIBaseURl(*siteConfiguration)
+	}
 
 	finalTransitionID := getFinalTransitionID(apiBaseURL, token.AccessToken, issueID)
 
@@ -445,12 +451,11 @@ func getFinalTransitionID(apiBaseURL string, jiraAuthToken string, jiraCloudID s
 
 func executeTransition(apiBaseURL string, jiraAuthToken string, issueID string, newTransitionID string) bool {
 	transitionsURL := apiBaseURL+"/rest/api/3/issue/" + issueID + "/transitions"
-	params := []byte(`{"transition": {"id": ` + newTransitionID + "}}")
+	params := []byte(`{"transition": {"id": "` + newTransitionID + `"}}`)
 	req, _ := http.NewRequest("POST", transitionsURL, bytes.NewBuffer(params))
 	req.Header.Add("Authorization", "Bearer "+jiraAuthToken)
 	req.Header.Add("Content-Type", "application/json")
 
 	_, err := http.DefaultClient.Do(req)
 	return err == nil
-
 }

@@ -88,21 +88,24 @@ func MarkTaskComplete(api *API, c *gin.Context,  taskID primitive.ObjectID) {
 		return
 	}
 
-	if task.UserID != userID {
-		c.JSON(401, gin.H{})
+	taskUserID := task.UserID.String()
+	userIDString := userID.(primitive.ObjectID).String()
+	if taskUserID != userIDString {
+		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
 		return
 	}
 
 	var success bool
 	if task.Source == database.TaskSourceGoogleCalendar.Name {
-
+		success = false
 	} else if task.Source == database.TaskSourceGmail.Name {
-		success = MarkEmailAsRead(userID.(primitive.ObjectID), task.IDExternal)
+		success = MarkEmailAsRead(api, userID.(primitive.ObjectID), task.IDExternal)
 	} else if task.Source == database.TaskSourceJIRA.Name {
-		success = MarkJIRATaskRead(api, userID.(primitive.ObjectID), task.IDExternal)
+		success = MarkJIRATaskDone(api, userID.(primitive.ObjectID), task.IDExternal)
 	}
 
 	if success {
+		taskCollection.UpdateOne(nil, bson.D{{"_id", taskID}}, bson.D{{"$set", bson.D{{"is_completed", true}}}})
 		c.JSON(200, gin.H{})
 	} else {
 		c.JSON(400, gin.H{})

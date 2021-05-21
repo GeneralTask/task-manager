@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"github.com/GeneralTask/task-manager/backend/config"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -62,7 +63,7 @@ func TestAuthorizeJIRA(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(
 			t,
-			"<a href=\"https://auth.atlassian.com/authorize?audience=api.atlassian.com&amp;client_id=7sW3nPubP5vLDktjR2pfAU8cR67906X0&amp;scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&amp;redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Fauthorize2%2Fjira%2Fcallback%2F&amp;state="+stateToken+"&amp;response_type=code&amp;prompt=consent\">Found</a>.\n\n",
+			"<a href=\"https://auth.atlassian.com/authorize?audience=api.atlassian.com&amp;client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&amp;scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&amp;redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Fauthorize2%2Fjira%2Fcallback%2F&amp;state="+stateToken+"&amp;response_type=code&amp;prompt=consent\">Found</a>.\n\n",
 			string(body),
 		)
 	})
@@ -171,7 +172,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		authToken := login("approved@generaltask.io")
 		stateToken := newStateToken(authToken)
 
-		server := getTokenServerForJIRA(t, http.StatusUnauthorized, false)
+		server := getTokenServerForJIRA(t, http.StatusUnauthorized)
 		router := GetRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &server.URL}})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+stateToken, nil)
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
@@ -190,7 +191,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		authToken := login("approved@generaltask.io")
 		stateToken := newStateToken(authToken)
 
-		server := getTokenServerForJIRA(t, http.StatusOK, false)
+		server := getTokenServerForJIRA(t, http.StatusOK)
 		router := GetRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &server.URL}})
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+stateToken, nil)
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
@@ -229,7 +230,7 @@ func TestLoadJIRATasks(t *testing.T) {
 	})
 	t.Run("RefreshTokenFailed", func(t *testing.T) {
 		userID := createJIRAToken(t, externalAPITokenCollection)
-		tokenServer := getTokenServerForJIRA(t, http.StatusUnauthorized, true)
+		tokenServer := getTokenServerForJIRA(t, http.StatusUnauthorized)
 		var JIRATasks = make(chan []*database.Task)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
@@ -238,7 +239,7 @@ func TestLoadJIRATasks(t *testing.T) {
 	t.Run("CloudIDFetchFailed", func(t *testing.T) {
 		userID := createJIRAToken(t, externalAPITokenCollection)
 		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusUnauthorized, false)
-		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		var JIRATasks = make(chan []*database.Task)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
@@ -247,7 +248,7 @@ func TestLoadJIRATasks(t *testing.T) {
 	t.Run("EmptyCloudIDResponse", func(t *testing.T) {
 		userID := createJIRAToken(t, externalAPITokenCollection)
 		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, true)
-		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		var JIRATasks = make(chan []*database.Task)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
@@ -256,7 +257,7 @@ func TestLoadJIRATasks(t *testing.T) {
 	t.Run("SearchFailed", func(t *testing.T) {
 		userID := createJIRAToken(t, externalAPITokenCollection)
 		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
-		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
 		var JIRATasks = make(chan []*database.Task)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
@@ -266,7 +267,7 @@ func TestLoadJIRATasks(t *testing.T) {
 	t.Run("EmptySearchResponse", func(t *testing.T) {
 		userID := createJIRAToken(t, externalAPITokenCollection)
 		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
-		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
 		var JIRATasks = make(chan []*database.Task)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
@@ -276,7 +277,7 @@ func TestLoadJIRATasks(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		userID := createJIRAToken(t, externalAPITokenCollection)
 		cloudIDServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
-		tokenServer := getTokenServerForJIRA(t, http.StatusOK, true)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 		var JIRATasks = make(chan []*database.Task)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, CloudIDURL: &cloudIDServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
@@ -369,16 +370,28 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 	}))
 }
 
-func getTokenServerForJIRA(t *testing.T, statusCode int, refresh bool) *httptest.Server {
+func getTokenServerForJIRA(t *testing.T, statusCode int) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body, err := ioutil.ReadAll(r.Body)
+		_, err := ioutil.ReadAll(r.Body)
 		assert.NoError(t, err)
-		if refresh {
-			assert.Equal(t, "{\"grant_type\": \"refresh_token\",\"client_id\": \"7sW3nPubP5vLDktjR2pfAU8cR67906X0\",\"client_secret\": \"dummy_value\",\"refresh_token\": \"sample-token\"}", string(body))
-		} else {
-			assert.Equal(t, "{\"grant_type\": \"authorization_code\",\"client_id\": \"7sW3nPubP5vLDktjR2pfAU8cR67906X0\",\"client_secret\": \"dummy_value\",\"code\": \"123abc\",\"redirect_uri\": \"https://api.generaltask.io/authorize2/jira/callback/\"}", string(body))
-		}
 		w.WriteHeader(statusCode)
 		w.Write([]byte(`{"access_token":"sample-access-token","refresh_token":"sample-refresh-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`))
+	}))
+}
+
+func getTransitionIDServerForJIRA(t *testing.T) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, r.RequestURI, "/rest/api/3/issue/sample_jira_id/transitions")
+		if r.Method == "GET" {
+			w.WriteHeader(200)
+			w.Write([]byte(`{"transitions": [{"id": "100"}]}`))
+		} else if r.Method == "POST" {
+			body, err := ioutil.ReadAll(r.Body)
+			assert.NoError(t, err)
+			assert.Equal(t, "{\"transition\": {\"id\": \"100\"}}", string(body))
+			w.WriteHeader(204)
+		} else {
+			w.WriteHeader(400)
+		}
 	}))
 }

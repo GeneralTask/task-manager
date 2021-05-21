@@ -94,7 +94,7 @@ func makeLoginCallbackRequest(googleToken string, email string, stateToken strin
 	mockToken := oauth2.Token{AccessToken: googleToken}
 	mockConfig.On("Exchange", context.Background(), "code1234").Return(&mockToken, nil)
 	mockClient := MockHTTPClient{}
-	mockClient.On("Get", "https://www.googleapis.com/oauth2/v3/userinfo").Return(&http.Response{Body: ioutil.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"sub\": \"goog12345\", \"email\": \"%s\"}", email)))}, nil)
+	mockClient.On("Get", "https://www.googleapis.com/oauth2/v3/userinfo").Return(&http.Response{Body: ioutil.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"sub\": \"goog12345_%s\", \"email\": \"%s\"}", email, email)))}, nil)
 	mockConfig.On("Client", context.Background(), &mockToken).Return(&mockClient)
 	router := GetRouter(&API{GoogleConfig: &mockConfig, SkipStateTokenCheck: skipStateTokenCheck})
 

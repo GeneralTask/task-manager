@@ -210,7 +210,7 @@ func LoadCalendarEvents(
 	result <- events
 }
 
-func MarkEmailAsRead(userID primitive.ObjectID, emailID string) bool{
+func MarkEmailAsRead(api *API, userID primitive.ObjectID, emailID string) bool{
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
@@ -226,7 +226,17 @@ func MarkEmailAsRead(userID primitive.ObjectID, emailID string) bool{
 	config := GetGoogleConfig()
 	client := config.Client(context.Background(), &token).(*http.Client)
 
-	gmailService, err := gmail.New(client)
+	var gmailService *gmail.Service
+	var err error
+	if api.GoogleURLs.GmailModifyURL == nil {
+		gmailService, err = gmail.New(client)
+	} else {
+		gmailService, err = gmail.NewService(
+			context.Background(),
+			option.WithoutAuthentication(),
+			option.WithEndpoint(*api.GoogleURLs.GmailModifyURL))
+	}
+
 	if err != nil {
 		log.Fatalf("Unable to create Gmail service: %v", err)
 		return false
