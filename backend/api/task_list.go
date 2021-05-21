@@ -42,6 +42,8 @@ func (api *API) TasksList(c *gin.Context) {
 	config := GetGoogleConfig()
 	client := config.Client(context.Background(), &token).(*http.Client)
 
+	//TODO: load the IDs / ordering IDs of the current tasks
+
 	var calendarEvents = make(chan []*database.CalendarEvent)
 	go LoadCalendarEvents(userID.(primitive.ObjectID), client, calendarEvents, nil)
 
@@ -71,7 +73,11 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 		allUnscheduledTasks = append(allUnscheduledTasks, t)
 	}
 
+	//TODO: get list of 'done' tasks and their ordering IDs
+	//TODO: adjust downward ordering IDs based on removed tasks
+
 	//first we sort the emails and tasks into a single array
+	//TODO: modify comparison functions to use IDordering is exists on both, otherwise use standard function but always put has_prioritized first
 	sort.SliceStable(allUnscheduledTasks, func(i, j int) bool {
 		a := allUnscheduledTasks[i]
 		b := allUnscheduledTasks[j]
@@ -180,10 +186,7 @@ func MergeTasks(calendarEvents []*database.CalendarEvent, emails []*database.Ema
 		})
 	}
 
-	// 1) look at IDOrdering of any tasks now marked as done
-	// 2) adjust downward each IDOrdering & has_prioritized task with a higher IDOrdering number than each done task
-	// 3) move has_prioritized tasks into correct spots in list
-	// 4) reset all non has_prioritized IDOrdering numbers to the new correct value
+	//TODO: update ordering IDs and save to db
 
 	return taskGroups
 }

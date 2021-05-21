@@ -48,6 +48,7 @@ type TaskBase struct {
 	UserID           primitive.ObjectID `json:"-" bson:"user_id,omitempty"`
 	IDExternal       string             `json:"-" bson:"id_external,omitempty"`
 	IDOrdering       int                `json:"id_ordering" bson:"id_ordering,omitempty"`
+	IsCompleted      bool               `json:"-" bson:"is_completed,omitempty"`
 	Sender           string             `json:"sender" bson:"sender,omitempty"`
 	Source           string             `json:"source" bson:"source,omitempty"`
 	Deeplink         string             `json:"deeplink" bson:"deeplink,omitempty"`
