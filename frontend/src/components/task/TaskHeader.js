@@ -59,14 +59,17 @@ const DoneButton = styled.button`
 const TaskHeader = ({ icon_url, title, sender, task_id, is_completable, hover_effect }) => {
   const expanded_body = useSelector((state) => state.expanded_body);
   let onClick;
-  if (expanded_body !== task_id) {
+  if (hover_effect && expanded_body !== task_id) {
     onClick = () => {
       store.dispatch(expandBody(task_id));
     };
-  } else {
+  } else if(hover_effect && expanded_body === task_id) {
     onClick = () => {
       store.dispatch(retractBody(task_id));
     };
+  }
+  else{
+    onClick = ()=>{};
   }
   return (
     <Header hover_effect={hover_effect} onClick={onClick}>

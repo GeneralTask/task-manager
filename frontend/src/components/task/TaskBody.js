@@ -36,7 +36,7 @@ const TaskBody = ({ body, task_id, deeplink, source }) => {
           {deeplink ? (
             <Deeplink>
               <p>
-                See more at <a href={deeplink}>{source}</a>
+                See more in <a href={deeplink}>{source}</a>
               </p>
             </Deeplink>
           ) : null}
