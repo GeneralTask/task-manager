@@ -6,6 +6,7 @@ import { FetchStatus } from './enums'
 const initialState = {
     task_groups: [],
     tasks_fetch_status: FetchStatus.LOADING,
+    expanded_body: null,
 }
 
 

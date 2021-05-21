@@ -34,6 +34,18 @@ export default function reducer(state, action){
           })),
         };
 
+      case actions.EXPAND_BODY:
+        return {
+          ...state,
+          expanded_body: action.task_id,
+        }
+
+        case actions.RETRACT_BODY:
+          return {
+            ...state,
+            expanded_body: null,
+          }
+
       default:
         return state;
     }
