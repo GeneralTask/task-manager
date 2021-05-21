@@ -20,6 +20,9 @@ export const GOOGLE_LIGHT_DISABLED = '/assets/google_signin_buttons/google_btn_d
 export const TASK_GROUP_SCHEDULED_TASK = "scheduled_task"
 export const TASK_GROUP_UNSCHEDULED_GROUP = "unscheduled_group"
 
+//images
+export const CHEVRON_DOWN = '/images/chevron-arrow-down.svg'
+
 //Misc. strings
 export const TASK_STATUS_FETCH_ERROR = 'There was an error fetching tasks'
 export const TASK_STATUS_NO_TASKS = 'No Tasks'

@@ -28,3 +28,16 @@ export function removeTaskById(id) {
         id,
     }
 }
+
+export function expandBody(task_id) {
+    return {
+        type: actions.EXPAND_BODY,
+        task_id,
+    }
+}
+
+export function retractBody() {
+    return {
+        type: actions.RETRACT_BODY,
+    }
+}

@@ -3,6 +3,7 @@ import "./Task.css";
 import TaskHeader from "./TaskHeader";
 import { Draggable } from "react-beautiful-dnd";
 import styled from "styled-components";
+import TaskBody from './TaskBody'
 
 const Container = styled.div`
   padding: 0;
@@ -50,8 +51,10 @@ const Task = ({ task, index, isDragDisabled }) => (
                 sender={task.sender}
                 task_id={task.id}
                 is_completable={task.is_completable}
+                has_body={!!task.body}
                 provided={provided}
               />
+              <TaskBody/>
             </Container>
           }
         />

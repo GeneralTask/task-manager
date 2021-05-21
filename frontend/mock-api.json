@@ -16,7 +16,8 @@
           "logo_url": "/images/slack.svg",
           "title": "Hey, can you help me put out this fire?",
           "source": "slack",
-          "is_completable": true
+          "is_completable": true,
+          "body": null
         },
         {
           "id": "2",
@@ -29,7 +30,8 @@
           "logo_url": "/images/gmail.svg",
           "title": "Urgent question about tomorrow's presentation",
           "source": "gmail",
-          "is_completable": true
+          "is_completable": true,
+          "body": "<div>hello world<div>"
         }
       ]
     },
@@ -49,7 +51,8 @@
           "link": "https://www.google.com/calendar/event?eid=NXQxYjg2aGJndnB0cmQxb2tpZGIzc2QxOW0gc2NvdHRtYWk3MDJAbQ",
           "title": "Chat with Scott",
           "logo_url": "/images/gcal.svg",
-          "is_completable": false
+          "is_completable": false,
+          "body": "<div>hello world<div>"
         }
       ]
     },
@@ -68,7 +71,8 @@
           "logo_url": "/images/asana.svg",
           "title": "Write presentation for tomorrow",
           "source": "asana",
-          "is_completable": true
+          "is_completable": true,
+          "body": null
         }
       ]
     },
@@ -88,7 +92,8 @@
           "link": "https://www.google.com/calendar/event?eid=NXBkanJpcDlqMXB2ZW81aXIxaDVtYmlhb2Igc2NvdHRtYWk3MDJAbQ",
           "title": "Lunch Break",
           "logo_url": "/images/gcal.svg",
-          "is_completable": false
+          "is_completable": false,
+          "body": null
         }
       ]
     }

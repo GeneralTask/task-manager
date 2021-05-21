@@ -4,6 +4,7 @@ import {TASKS_URL} from '../../constants'
 import store from '../../redux/store'
 import {removeTaskById} from '../../redux/actions'
 import {getHeaders} from '../../helpers/utils'
+import ExpandButton from './ExpandButton'
 
 import styled from "styled-components"
 
@@ -51,7 +52,8 @@ const DoneButton = styled.button`
   }
 `;
 
-const TaskHeader = ({ icon_url, title, sender, task_id, is_completable }) => {
+const TaskHeader = ({ icon_url, title, sender, task_id, is_completable, has_body }) => {
+  console.log("header", has_body)
   return (
     <Header>
       <HeaderSide>
@@ -70,6 +72,7 @@ const TaskHeader = ({ icon_url, title, sender, task_id, is_completable }) => {
         Done
       </DoneButton>
       : null}
+      <ExpandButton has_body={has_body} task_id={task_id}/>
     </Header>
   );
 };
