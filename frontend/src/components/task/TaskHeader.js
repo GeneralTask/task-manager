@@ -2,9 +2,9 @@ import React from "react"
 import "./Task.css"
 import {TASKS_URL} from '../../constants'
 import store from '../../redux/store'
-import {removeTaskById} from '../../redux/actions'
+import {removeTaskById, expandBody, retractBody} from '../../redux/actions'
 import {getHeaders} from '../../helpers/utils'
-import ExpandButton from './ExpandButton'
+import { useSelector } from "react-redux";
 
 import styled from "styled-components"
 
@@ -16,6 +16,10 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 8px;
+  cursor: ${props => props.hover_effect ? "pointer" : "inherit"};
+  &:hover{
+    background-color: ${props => props.hover_effect ? "#e3e3e3" : "inherit"};
+  }
 `;
 
 const HeaderSide = styled.div`
@@ -52,10 +56,20 @@ const DoneButton = styled.button`
   }
 `;
 
-const TaskHeader = ({ icon_url, title, sender, task_id, is_completable, has_body }) => {
-  console.log("header", has_body)
+const TaskHeader = ({ icon_url, title, sender, task_id, is_completable, hover_effect }) => {
+  const expanded_body = useSelector((state) => state.expanded_body);
+  let onClick;
+  if (expanded_body !== task_id) {
+    onClick = () => {
+      store.dispatch(expandBody(task_id));
+    };
+  } else {
+    onClick = () => {
+      store.dispatch(retractBody(task_id));
+    };
+  }
   return (
-    <Header>
+    <Header hover_effect={hover_effect} onClick={onClick}>
       <HeaderSide>
         <Domino src="images/domino.svg" alt="" />
         <Icon src={icon_url} alt="icon"></Icon>
@@ -72,7 +86,6 @@ const TaskHeader = ({ icon_url, title, sender, task_id, is_completable, has_body
         Done
       </DoneButton>
       : null}
-      <ExpandButton has_body={has_body} task_id={task_id}/>
     </Header>
   );
 };

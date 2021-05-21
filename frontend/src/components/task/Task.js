@@ -15,16 +15,6 @@ const Container = styled.div`
   outline: none;
   background-color: white;
 `;
-const Deeplink = styled.div`
-  cursor: pointer;
-  &:hover ${Container} {
-    background-color: #e3e3e3;
-  }
-`;
-
-// renders <wrapper>children</wrapper> if condition is true, else just children
-const ConditionalWrapper = ({ condition, wrapper, children }) =>
-  condition ? wrapper(children) : children;
 
 const Task = ({ task, index, isDragDisabled }) => (
   <Draggable draggableId={task.id} index={index}>
@@ -34,30 +24,18 @@ const Task = ({ task, index, isDragDisabled }) => (
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <ConditionalWrapper
-          condition={task.deeplink}
-          wrapper={(children) => <Deeplink>{children}</Deeplink>}
-          children={
-            <Container
-              onClick={() => {
-                if (task.deeplink) {
-                  window.open(task.deeplink);
-                }
-              }}
-            >
-              <TaskHeader
-                title={task.title}
-                icon_url={task.logo_url}
-                sender={task.sender}
-                task_id={task.id}
-                is_completable={task.is_completable}
-                has_body={!!task.body}
-                provided={provided}
-              />
-              <TaskBody body={task.body} task_id={task.id}/>
-            </Container>
-          }
-        />
+        <Container>
+          <TaskHeader
+            title={task.title}
+            icon_url={task.logo_url}
+            sender={task.sender}
+            task_id={task.id}
+            is_completable={task.is_completable}
+            hover_effect={task.body || task.deeplink}
+            provided={provided}
+          />
+          <TaskBody body={task.body} task_id={task.id} deeplink={task.deeplink} source={task.source}/>
+        </Container>
       </div>
     )}
   </Draggable>
