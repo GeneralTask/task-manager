@@ -111,13 +111,15 @@ func makeLoginCallbackRequest(googleToken string, email string, stateToken strin
 	return recorder
 }
 
-func verifyLoginCallback(t *testing.T, db *mongo.Database, authToken string) {
+func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authToken string) {
 	userCollection := db.Collection("users")
-	count, err := userCollection.CountDocuments(context.TODO(), bson.D{{Key: "google_id", Value: "goog12345"}})
+	googleID := "goog12345_" + email
+
+	count, err := userCollection.CountDocuments(context.TODO(), bson.D{{Key: "google_id", Value: googleID}})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var user database.User
-	err = userCollection.FindOne(context.TODO(), bson.D{{Key: "google_id", Value: "goog12345"}}).Decode(&user)
+	err = userCollection.FindOne(context.TODO(), bson.D{{Key: "google_id", Value: googleID}}).Decode(&user)
 	assert.NoError(t, err)
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")

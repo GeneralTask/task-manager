@@ -64,11 +64,11 @@ func TestLoginCallback(t *testing.T) {
 		defer dbCleanup()
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "example-token", "example-token", true)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "noice420")
+		verifyLoginCallback(t, db, "approved@generaltask.io", "noice420")
 		//change token and verify token updates and still only 1 row per user.
 		recorder = makeLoginCallbackRequest("TSLA", "approved@generaltask.io", "example-token", "example-token", true)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "TSLA")
+		verifyLoginCallback(t, db, "approved@generaltask.io","TSLA")
 	})
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "example-token", "example-token", false)
@@ -104,6 +104,6 @@ func TestLoginCallback(t *testing.T) {
 		stateToken := newStateToken("")
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", stateToken, stateToken, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "noice420")
+		verifyLoginCallback(t, db, "approved@generaltask.io", "noice420")
 	})
 }
