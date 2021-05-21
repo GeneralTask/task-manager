@@ -2,5 +2,13 @@
 
 export DB_NAME=test
 go test -v ./...
-[ $? -eq 0 ]  || exit 1  # exits if test failures
-unset DB_NAME
+if [ $? -eq 0 ]
+then
+    echo "Tests succeeded!"
+    unset DB_NAME
+    exit 0
+else
+    echo "Tests failed!"
+    unset DB_NAME
+    exit 1
+fi
