@@ -6,9 +6,9 @@ import { FetchStatus } from '../../redux/enums'
 import { TASKS_URL, TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
 import {ScheduledTask, UnscheduledTaskGroup} from './TaskWrappers'
 import TaskStatus from './TaskStatus'
-import { DragDropContext, Droppable } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import moment from 'moment'
-import styled from 'styled-components'
+import styled from "styled-components";
 import {getHeaders} from '../../helpers/utils'
 import { TTaskGroup, TTask } from '../../helpers/types'
 import { RootState } from '../../redux/store'
@@ -16,28 +16,28 @@ import { RootState } from '../../redux/store'
 const MyTasks = styled.h1`
     height: 40px;
     text-align: center;
-`
+`;
 
 const fetchTasks = async () => {
-    store.dispatch(setTasksFetchStatus(FetchStatus.LOADING))
+    store.dispatch(setTasksFetchStatus(FetchStatus.LOADING));
     try{
         const response: Response = await fetch(TASKS_URL, {
             method: 'GET',
             mode: 'cors',
             headers: getHeaders(),
-        })
+        });
         if(!response.ok){
-            throw new Error('/tasks api call failed')
+            throw new Error('/tasks api call failed');
         }
         else{
-            const resj = await response.json()
-            store.dispatch(setTasksFetchStatus(FetchStatus.SUCCESS))
-            store.dispatch(setTasks(resj))
+            const resj = await response.json();
+            store.dispatch(setTasksFetchStatus(FetchStatus.SUCCESS));
+            store.dispatch(setTasks(resj));
         }
     }
     catch(e){
-        store.dispatch(setTasksFetchStatus(FetchStatus.ERROR))
-        console.log({e})
+        store.dispatch(setTasksFetchStatus(FetchStatus.ERROR));
+        console.log({e});
     }
 }
 
@@ -46,15 +46,15 @@ const TaskList: React.FC = () => {
     let task_counter = 0
 
     useEffect(() => {
-        setInterval(fetchTasks, 1000 * 60)
-        fetchTasks()
-    }, [])
+        setInterval(fetchTasks, 1000 * 60);
+        fetchTasks();
+    }, []);
 
     
     function renderTaskGroup(taskGroup: TTaskGroup, index: number) {
         let next_time = null
         if(index === 0 && task_groups.length > 1){
-            next_time = moment(task_groups[1].datetime_start)
+            next_time = moment(task_groups[1].datetime_start);
         }
         if(taskGroup.type === TASK_GROUP_SCHEDULED_TASK){
             if(taskGroup.tasks.length !== 0){
@@ -110,7 +110,7 @@ const TaskList: React.FC = () => {
                 }
             </DragDropContext>
         </div>
-    )
+    );
 }
 
 

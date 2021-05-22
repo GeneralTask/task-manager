@@ -5,11 +5,11 @@ const PrivacyContent = styled.div`
   width: 75%;
   margin: auto;
   text-indent: 30px;
-`
+`;
 
 const Title = styled.h1`
   text-align: center;
-`
+`;
 
 const PrivacyPolicy: React.FC = () =>
     <div>
@@ -41,4 +41,4 @@ const PrivacyPolicy: React.FC = () =>
       </PrivacyContent>
     </div>
 
-export default PrivacyPolicy
+export default PrivacyPolicy;

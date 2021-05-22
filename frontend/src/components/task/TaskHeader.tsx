@@ -1,12 +1,12 @@
-import React from 'react'
-import './Task.css'
+import React from "react"
+import "./Task.css"
 import {TASKS_URL} from '../../constants'
 import store from '../../redux/store'
 import {removeTaskById, expandBody, retractBody} from '../../redux/actions'
 import {getHeaders} from '../../helpers/utils'
-import { useSelector } from 'react-redux'
+import { useSelector } from "react-redux";
 
-import styled from 'styled-components'
+import styled from "styled-components"
 import { RootState } from '../../redux/store'
 
 
@@ -17,11 +17,11 @@ const Header = styled.div<{hover_effect: boolean}>`
   justify-content: space-between;
   align-items: center;
   padding: 8px;
-  cursor: ${props => props.hover_effect ? 'pointer' : 'inherit'};
+  cursor: ${props => props.hover_effect ? "pointer" : "inherit"};
   &:hover{
-    background-color: ${props => props.hover_effect ? '#e3e3e3' : 'inherit'};
+    background-color: ${props => props.hover_effect ? "#e3e3e3" : "inherit"};
   }
-`
+`;
 
 const HeaderSide = styled.div`
   text-align: left;
@@ -29,18 +29,18 @@ const HeaderSide = styled.div`
   display: flex;
   align-items: center;
   flex-direction: row;
-`
+`;
 const Domino = styled.img`
   height: 18px;
-`
+`;
 const Icon = styled.img`
   max-width: 40px;
   padding-left: 12px;
   padding-right: 12px;
-`
+`;
 const Source = styled.div`
   color: #cccccc;
-`
+`;
 const DoneButton = styled.button`
   background-color: white;
   border-radius: 2px;
@@ -73,12 +73,12 @@ const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_comp
   let onClick
   if (hover_effect && expanded_body !== task_id) {
     onClick = () => {
-      store.dispatch(expandBody(task_id))
-    }
+      store.dispatch(expandBody(task_id));
+    };
   } else if(hover_effect && expanded_body === task_id) {
     onClick = () => {
-      store.dispatch(retractBody())
-    }
+      store.dispatch(retractBody());
+    };
   }
   else{
     onClick = ()=>false
@@ -94,7 +94,7 @@ const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_comp
       {is_completable ?
       <DoneButton
         onClick={(e) => {
-          e.stopPropagation()
+          e.stopPropagation();
           done(task_id)
         }}
       >
@@ -102,26 +102,26 @@ const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_comp
       </DoneButton>
       : null}
     </Header>
-  )
-}
+  );
+};
 
 const done = async (task_id: string) => {
   try {
-    store.dispatch(removeTaskById(task_id))
+    store.dispatch(removeTaskById(task_id));
 
     const response = await fetch(TASKS_URL + task_id + '/', {
-      method: 'PATCH',
-      mode: 'cors',
+      method: "PATCH",
+      mode: "cors",
       headers: getHeaders(),
-      body: JSON.stringify({ 'is_completed': true })
-    })
+      body: JSON.stringify({ "is_completed": true })
+    });
     
     if (!response.ok) {
-      throw new Error('PATCH /tasks api call failed')
+      throw new Error("PATCH /tasks api call failed");
     } 
   } catch (e) {
-    console.log({e})
+    console.log({e});
   }
-}
+};
 
-export default TaskHeader
+export default TaskHeader;

@@ -1,8 +1,8 @@
-import React from 'react'
-import './Task.css'
-import TaskHeader from './TaskHeader'
-import { Draggable } from 'react-beautiful-dnd'
-import styled from 'styled-components'
+import React from "react";
+import "./Task.css";
+import TaskHeader from "./TaskHeader";
+import { Draggable } from "react-beautiful-dnd";
+import styled from "styled-components";
 import TaskBody from './TaskBody'
 import {TTask} from '../../helpers/types'
 
@@ -15,7 +15,7 @@ const Container = styled.div`
   width: 100%;
   outline: none;
   background-color: white;
-`
+`;
 
 interface Props {
   task: TTask, 
@@ -49,6 +49,6 @@ const Task: React.FC<Props> = ({ task, index, isDragDisabled }: Props) => (
       </div>
     )}
   </Draggable>
-)
+);
 
-export default Task
+export default Task;

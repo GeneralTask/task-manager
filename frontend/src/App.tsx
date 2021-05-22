@@ -1,16 +1,16 @@
-import './App.css'
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
-import { Provider } from 'react-redux'
-import store from './redux/store'
+import './App.css';
+import React from 'react'
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom"
+import { Provider } from 'react-redux';
+import store from './redux/store';
 import { LANDING_PATH, SETTINGS_PATH, PRIVACY_PATH } from './constants'
 import {useEffect} from 'react'
 import {getAuthToken} from './helpers/utils'
 
-import Header from './components/Header'
-import Settings from './components/settings/Settings'
-import LandingPage from './components/LandingPage'
-import PrivacyPolicy from './components/PrivacyPolicy'
-import React from 'react'
+import Header from "./components/Header"
+import Settings from "./components/settings/Settings"
+import LandingPage from "./components/LandingPage"
+import PrivacyPolicy from "./components/PrivacyPolicy"
 
 interface PrivateRouteProps {
   path: string,
@@ -19,8 +19,8 @@ interface PrivateRouteProps {
 
 const App: React.FC = () => {
   useEffect(() => {
-    document.title = 'General Task'
-  }, [])
+    document.title = "General Task";
+  }, []);
   return (
     <Provider store={store}>
       <BrowserRouter>
@@ -37,7 +37,7 @@ const App: React.FC = () => {
         </Switch>
       </BrowserRouter>
     </Provider>
-  )
+  );
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ path, component: Component}: PrivateRouteProps) => (
@@ -46,6 +46,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ path, component: Component}
       ? <Component {...props} />
       : <Redirect to='/' />
   )} />
-)
+);
 
-export default App
+export default App;

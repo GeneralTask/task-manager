@@ -7,18 +7,18 @@ const BodyHTML = styled.iframe`
   border: none;
   border-radius: 2px;
   width: 100%;
-`
+`;
 const BodyDiv = styled.div`
   margin: auto;
   width: 95%;
   padding: 6px;
-`
+`;
 const Deeplink = styled.div`
   margin: auto;
   text-align: center;
   width: 100%;
   color: black;
-`
+`;
 
 interface Props {
   body: string | null,
@@ -33,14 +33,14 @@ interface Props {
 // has_body, expanded_body == task_id: show body
 const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) => {
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
-  const has_body = body || deeplink
+  const has_body = !!(body || deeplink)
   return (
     <div>
       {has_body && expanded_body === task_id ? (
         <div>
           {body ? (
             <BodyDiv>
-              <BodyHTML title={'Body for task: ' + task_id} srcDoc={body} />
+              <BodyHTML title={"Body for task: " + task_id} srcDoc={body} />
             </BodyDiv>
           ) : null}
           {deeplink ? (
@@ -53,9 +53,9 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
         </div>
       ) : null}
     </div>
-  )
-}
+  );
+};
 
 export default connect((state: RootState) => ({ expanded_body: state.expanded_body }))(
   TaskBody
-)
+);
