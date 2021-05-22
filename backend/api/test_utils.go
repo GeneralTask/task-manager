@@ -72,6 +72,14 @@ func login(email string) string {
 	return ""
 }
 
+func getUserIDFromAuthToken(t *testing.T, db *mongo.Database, authToken string) primitive.ObjectID {
+	internalAPITokenCollection := db.Collection("internal_api_tokens")
+	var authTokenStruct database.InternalAPIToken
+	err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&authTokenStruct)
+	assert.NoError(t, err)
+	return authTokenStruct.UserID
+}
+
 func newStateToken(authToken string) string {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()

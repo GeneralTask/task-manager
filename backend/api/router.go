@@ -27,5 +27,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/tasks/", handlers.TasksList)
 	router.PATCH("/tasks/:task_id/", handlers.TaskModify)
 	router.GET("/ping/", handlers.Ping)
+	router.GET("/settings/", handlers.SettingsList)
+	router.PATCH("/settings/", handlers.SettingsModify)
 	return router
 }

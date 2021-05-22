@@ -38,16 +38,16 @@ type ExternalAPIToken struct {
 }
 
 type JIRASiteConfiguration struct {
-	ID            primitive.ObjectID `bson:"_id,omitempty"`
-	UserID 	      primitive.ObjectID `bson:"user_id"`
-	CloudID 	  string             `bson:"cloud_id"`
-	SiteURL		  string             `bson:"site_url"`
+	ID      primitive.ObjectID `bson:"_id,omitempty"`
+	UserID  primitive.ObjectID `bson:"user_id"`
+	CloudID string             `bson:"cloud_id"`
+	SiteURL string             `bson:"site_url"`
 }
 
 type JIRAPriority struct {
-	ID            	primitive.ObjectID `bson:"_id,omitempty"`
+	ID              primitive.ObjectID `bson:"_id,omitempty"`
 	UserID          primitive.ObjectID `bson:"user_id"`
-	JIRAID 	      	string             `bson:"jira_id"`
+	JIRAID          string             `bson:"jira_id"`
 	IntegerPriority int                `bson:"integer_priority"`
 }
 
@@ -63,7 +63,7 @@ type TaskBase struct {
 	IDExternal       string             `json:"-" bson:"id_external"`
 	IDOrdering       int                `json:"id_ordering" bson:"id_ordering"`
 	IsCompleted      bool               `json:"-" bson:"is_completed"`
-	IsCompletable    bool				`json:"is_completable" bson:"is_completable"`
+	IsCompletable    bool               `json:"is_completable" bson:"is_completable"`
 	Sender           string             `json:"sender" bson:"sender"`
 	Source           string             `json:"source" bson:"source"`
 	Deeplink         string             `json:"deeplink" bson:"deeplink"`
@@ -72,7 +72,7 @@ type TaskBase struct {
 	Logo             string             `json:"logo_url" bson:"logo"`
 	HasBeenReordered bool               `json:"has_been_reordered" bson:"has_been_reordered"`
 	//time in nanoseconds
-	TimeAllocation int64 				`json:"time_allocated" bson:"time_allocated"`
+	TimeAllocation int64 `json:"time_allocated" bson:"time_allocated"`
 }
 
 type CalendarEvent struct {
@@ -94,16 +94,16 @@ type Email struct {
 }
 
 type Task struct {
-	TaskBase     `bson:",inline"`
-	DueDate      primitive.DateTime `bson:"due_date"`
-	PriorityID   string           `bson:"priority_id"`
-	TaskNumber   int                `bson:"task_number"`
+	TaskBase   `bson:",inline"`
+	DueDate    primitive.DateTime `bson:"due_date"`
+	PriorityID string             `bson:"priority_id"`
+	TaskNumber int                `bson:"task_number"`
 }
 
 type TaskChangeableFields struct {
-	Title      string                `json:"title" bson:"title,omitempty"`
-	DueDate    primitive.DateTime    `bson:"due_date,omitempty"`
-	PriorityID string                `bson:"priority_id,omitempty"`
+	Title      string             `json:"title" bson:"title,omitempty"`
+	DueDate    primitive.DateTime `bson:"due_date,omitempty"`
+	PriorityID string             `bson:"priority_id,omitempty"`
 }
 
 type TaskGroup struct {
@@ -121,11 +121,18 @@ const (
 )
 
 type TaskSource struct {
-	Name string
-	Logo string
+	Name          string
+	Logo          string
 	IsCompletable bool
 }
 
 var TaskSourceGoogleCalendar = TaskSource{"Google Calendar", "/images/gcal.svg", false}
 var TaskSourceGmail = TaskSource{"Gmail", "/images/gmail.svg", true}
 var TaskSourceJIRA = TaskSource{"Jira", "/images/jira.svg", true}
+
+type UserSetting struct {
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
+	UserID     primitive.ObjectID `bson:"user_id"`
+	FieldKey   string             `bson:"field_key"`
+	FieldValue string             `bson:"field_value"`
+}

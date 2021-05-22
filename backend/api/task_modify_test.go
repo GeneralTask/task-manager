@@ -3,12 +3,13 @@ package api
 import (
 	"bytes"
 	"context"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
@@ -21,35 +22,32 @@ func TestMarkAsComplete(t *testing.T) {
 	defer dbCleanup()
 
 	authToken := login("approved@generaltask.io")
-	internalAPITokenCollection := db.Collection("internal_api_tokens")
-	var authTokenStruct database.InternalAPIToken
-	err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&authTokenStruct)
-	assert.NoError(t, err)
+	userID := getUserIDFromAuthToken(t, db, authToken)
 
 	taskCollection := db.Collection("tasks")
 
 	insertResult, err := taskCollection.InsertOne(nil, database.TaskBase{
-		UserID:         authTokenStruct.UserID,
-		IDExternal:     "sample_jira_id",
-		Source:         database.TaskSourceJIRA.Name,
+		UserID:     userID,
+		IDExternal: "sample_jira_id",
+		Source:     database.TaskSourceJIRA.Name,
 	})
 	assert.NoError(t, err)
 	jiraTaskID := insertResult.InsertedID.(primitive.ObjectID)
 	jiraTaskIDHex := jiraTaskID.Hex()
 
 	insertResult, err = taskCollection.InsertOne(nil, database.TaskBase{
-		UserID:         authTokenStruct.UserID,
-		IDExternal:     "sample_gmail_id",
-		Source:         database.TaskSourceGmail.Name,
+		UserID:     userID,
+		IDExternal: "sample_gmail_id",
+		Source:     database.TaskSourceGmail.Name,
 	})
 	assert.NoError(t, err)
 	gmailTaskID := insertResult.InsertedID.(primitive.ObjectID)
 	gmailTaskIDHex := gmailTaskID.Hex()
 
 	insertResult, err = taskCollection.InsertOne(nil, database.TaskBase{
-		UserID:         authTokenStruct.UserID,
-		IDExternal:     "sample_calendar_id",
-		Source:         database.TaskSourceGoogleCalendar.Name,
+		UserID:     userID,
+		IDExternal: "sample_calendar_id",
+		Source:     database.TaskSourceGoogleCalendar.Name,
 	})
 	assert.NoError(t, err)
 	calendarTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -59,11 +57,11 @@ func TestMarkAsComplete(t *testing.T) {
 
 	_, err = externalAPITokenCollection.UpdateOne(
 		nil,
-		bson.D{{"user_id", authTokenStruct.UserID}, {"source", database.TaskSourceJIRA.Name}},
+		bson.D{{"user_id", userID}, {"source", database.TaskSourceJIRA.Name}},
 		bson.D{{"$set", &database.ExternalAPIToken{
 			Source: database.TaskSourceJIRA.Name,
 			Token:  `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
-			UserID: authTokenStruct.UserID,
+			UserID: userID,
 		}}},
 		options.Update().SetUpsert(true),
 	)
@@ -72,17 +70,16 @@ func TestMarkAsComplete(t *testing.T) {
 	jiraSiteCollection := db.Collection("jira_site_collection")
 	_, err = jiraSiteCollection.UpdateOne(
 		nil,
-		bson.D{{"user_id", authTokenStruct.UserID}},
+		bson.D{{"user_id", userID}},
 
-		bson.D{{"$set", 		&database.JIRASiteConfiguration{
-			UserID:  authTokenStruct.UserID,
+		bson.D{{"$set", &database.JIRASiteConfiguration{
+			UserID:  userID,
 			CloudID: "sample_cloud_id",
 			SiteURL: "https://generaltasktester.atlassian.com",
 		}}},
 		options.Update().SetUpsert(true),
 	)
 	assert.NoError(t, err)
-
 
 	jiraTransitionServer := getTransitionIDServerForJIRA(t)
 	tokenServer := getTokenServerForJIRA(t, http.StatusOK)
@@ -91,7 +88,7 @@ func TestMarkAsComplete(t *testing.T) {
 
 	router := GetRouter(&API{
 		JIRAConfigValues: JIRAConfig{
-			TokenURL: &tokenServer.URL,
+			TokenURL:      &tokenServer.URL,
 			TransitionURL: &jiraTransitionServer.URL,
 		},
 		GoogleURLs: GoogleURLOverrides{GmailModifyURL: &gmailModifyServer.URL},
@@ -100,9 +97,9 @@ func TestMarkAsComplete(t *testing.T) {
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+jiraTaskIDHex + "/",
+			"/tasks/"+jiraTaskIDHex+"/",
 			nil)
-		request.Header.Add("Authorization", "Bearer " + authToken)
+		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
@@ -111,9 +108,9 @@ func TestMarkAsComplete(t *testing.T) {
 	t.Run("CompletionFlagFalse", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+jiraTaskIDHex + "/",
+			"/tasks/"+jiraTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": false}`)))
-		request.Header.Add("Authorization", "Bearer " + authToken)
+		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
@@ -122,9 +119,9 @@ func TestMarkAsComplete(t *testing.T) {
 	t.Run("InvalidHex", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+jiraTaskIDHex + "1/",
+			"/tasks/"+jiraTaskIDHex+"1/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
-		request.Header.Add("Authorization", "Bearer " + authToken)
+		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
@@ -136,9 +133,9 @@ func TestMarkAsComplete(t *testing.T) {
 		secondAuthToken := login("tester@generaltask.io")
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+jiraTaskIDHex + "/",
+			"/tasks/"+jiraTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
-		request.Header.Add("Authorization", "Bearer " + secondAuthToken)
+		request.Header.Add("Authorization", "Bearer "+secondAuthToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
@@ -147,13 +144,13 @@ func TestMarkAsComplete(t *testing.T) {
 	t.Run("JIRASuccess", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+jiraTaskIDHex + "/",
+			"/tasks/"+jiraTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		var task database.TaskBase
 		err = taskCollection.FindOne(nil, bson.D{{"_id", jiraTaskID}}).Decode(&task)
 		assert.Equal(t, false, task.IsCompleted)
 
-		request.Header.Add("Authorization", "Bearer " + authToken)
+		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -165,13 +162,13 @@ func TestMarkAsComplete(t *testing.T) {
 	t.Run("GmailSuccess", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+gmailTaskIDHex + "/",
+			"/tasks/"+gmailTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		var task database.TaskBase
 		err = taskCollection.FindOne(nil, bson.D{{"_id", gmailTaskID}}).Decode(&task)
 		assert.Equal(t, false, task.IsCompleted)
 
-		request.Header.Add("Authorization", "Bearer " + authToken)
+		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -183,13 +180,13 @@ func TestMarkAsComplete(t *testing.T) {
 	t.Run("CalendarFailure", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+calendarTaskIDHex + "/",
+			"/tasks/"+calendarTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		var task database.TaskBase
 		err = taskCollection.FindOne(nil, bson.D{{"_id", calendarTaskID}}).Decode(&task)
 		assert.Equal(t, false, task.IsCompleted)
 
-		request.Header.Add("Authorization", "Bearer " + authToken)
+		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
