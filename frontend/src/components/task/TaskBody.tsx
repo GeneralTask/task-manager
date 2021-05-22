@@ -7,18 +7,18 @@ const BodyHTML = styled.iframe`
   border: none;
   border-radius: 2px;
   width: 100%;
-`;
+`
 const BodyDiv = styled.div`
   margin: auto;
   width: 95%;
   padding: 6px;
-`;
+`
 const Deeplink = styled.div`
   margin: auto;
   text-align: center;
   width: 100%;
   color: black;
-`;
+`
 
 interface Props {
   body: string | null,
@@ -40,7 +40,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
         <div>
           {body ? (
             <BodyDiv>
-              <BodyHTML title={"Body for task: " + task_id} srcDoc={body} />
+              <BodyHTML title={'Body for task: ' + task_id} srcDoc={body} />
             </BodyDiv>
           ) : null}
           {deeplink ? (
@@ -53,9 +53,9 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
         </div>
       ) : null}
     </div>
-  );
-};
+  )
+}
 
 export default connect((state: RootState) => ({ expanded_body: state.expanded_body }))(
   TaskBody
-);
+)

@@ -11,7 +11,7 @@ import { RootState } from '../../redux/store'
 const Status = styled.div`
     height: 40px;
     text-align: center;
-`;
+`
 
 const TaskStatus = () => {
     let content: JSX.Element | null = null
@@ -24,20 +24,20 @@ const TaskStatus = () => {
             if(task_groups.length === 0){
                 content = <div className="loader"/>
             }
-            break;
+            break
 
         case FetchStatus.SUCCESS:
             if(task_groups.length === 0){
                 content = <div>{TASK_STATUS_NO_TASKS}</div>
             }
-            break;
+            break
 
         case FetchStatus.ERROR:
             content = <div>{TASK_STATUS_FETCH_ERROR}</div>
             break
 
         default:
-            content = null;
+            content = null
     }
 
     return(
@@ -58,4 +58,4 @@ export default connect(
         tasks_fetch_status: state.tasks_fetch_status,
         task_groups: state.task_groups,
     })
-)(TaskStatus);
+)(TaskStatus)
