@@ -90,7 +90,7 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24)),
-			PriorityID: "1",
+			PriorityID: "5",
 			TaskNumber: 2,
 		}
 
@@ -122,7 +122,7 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			PriorityID: "5",
+			PriorityID: "1",
 			TaskNumber: 7,
 		}
 
@@ -146,7 +146,6 @@ func TestMergeTasks(t *testing.T) {
 			"1" : 1,
 			"3" : 3,
 			"5" : 5,
-			"7" : 7,
 		}
 
 		result := MergeTasks(

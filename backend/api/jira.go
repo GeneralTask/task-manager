@@ -314,8 +314,8 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 	}
 
 	if needsRefresh {
-		success := GetListOfJIRAPriorities(api, userID, authToken.AccessToken)
-		if !success {
+		err = GetListOfJIRAPriorities(api, userID, authToken.AccessToken)
+		if err != nil {
 			log.Printf("Failed to fetch priorities")
 			result <- emptyTaskResult()
 			return

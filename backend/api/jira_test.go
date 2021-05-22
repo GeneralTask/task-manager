@@ -308,8 +308,8 @@ func TestGetPriorities(t *testing.T) {
 	server := getJIRAPriorityServer(t, []byte(`[{"id": "9"},{"id": "5"}]`))
 	defer server.Close()
 	api := &API{JIRAConfigValues: JIRAConfig{PriorityListURL: &server.URL}}
-	success := GetListOfJIRAPriorities(api, *userID, "sample")
-	assert.True(t, success)
+	err := GetListOfJIRAPriorities(api, *userID, "sample")
+	assert.NoError(t, err)
 
 	options := options.Find()
 	options.SetSort(bson.D{{"integer_priority", 1}})
@@ -326,8 +326,8 @@ func TestGetPriorities(t *testing.T) {
 
 	server = getJIRAPriorityServer(t, []byte(`[{"id": "8"}]`))
 	api = &API{JIRAConfigValues: JIRAConfig{PriorityListURL: &server.URL}}
-	success = GetListOfJIRAPriorities(api, *userID, "sample")
-	assert.True(t, success)
+	err = GetListOfJIRAPriorities(api, *userID, "sample")
+	assert.NoError(t, err)
 
 	cursor, err = prioritiesCollection.Find(context.TODO(), bson.D{{Key: "user_id", Value: userID}}, options)
 	assert.NoError(t, err)
