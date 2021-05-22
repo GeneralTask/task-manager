@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/GeneralTask/task-manager/backend/templating"
 	"go.mongodb.org/mongo-driver/mongo"
 	"io/ioutil"
 	"log"
@@ -64,9 +65,10 @@ type JIRATask struct {
 
 // JIRATaskFields ...
 type JIRATaskFields struct {
-	DueDate string 		`json:"duedate"`
-	Summary string 		`json:"summary"`
-	Priority PriorityID `json:"priority"`
+	DueDate 			string 		`json:"duedate"`
+	Summary 			string 		`json:"summary"`
+	Description 		string  	`json:"description"`
+	Priority 			PriorityID 	`json:"priority"`
 }
 
 // JIRATaskList represents the API list result for issues - only fields we need
@@ -259,8 +261,14 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 
+
 	var tasks []*database.Task
 	for _, jiraTask := range jiraTasks.Issues {
+		bodyString, err :=  templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
+		if err != nil {
+			log.Fatalf("Unable to parse JIRA template %v", err)
+		}
+
 		task := &database.Task{
 			TaskBase: database.TaskBase{
 				UserID:         userID,
@@ -270,6 +278,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 				Title:          jiraTask.Fields.Summary,
 				Logo:           database.TaskSourceJIRA.Logo,
 				IsCompletable:  database.TaskSourceJIRA.IsCompletable,
+				Body: 			bodyString,
 				TimeAllocation: time.Hour.Nanoseconds(),
 			},
 			PriorityID: jiraTask.Fields.Priority.ID,
