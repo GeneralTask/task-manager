@@ -63,7 +63,7 @@ const LoginWithGoogle = styled.a`
   padding: 4px;
 `
 
-const LandingPage = () => {
+const LandingPage: React.FC = () => {
   if (getAuthToken()) {
     return <TaskList />
   }

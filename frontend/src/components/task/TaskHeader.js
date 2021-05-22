@@ -69,7 +69,7 @@ const TaskHeader = ({ icon_url, title, sender, task_id, is_completable, hover_ef
     }
   }
   else{
-    onClick = ()=>{}
+    onClick = ()=>false
   }
   return (
     <Header hover_effect={hover_effect} onClick={onClick}>

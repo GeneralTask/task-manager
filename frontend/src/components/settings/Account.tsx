@@ -26,7 +26,7 @@ type Props = {
   link: string,
 }
 
-const Account = ({ name, logo, link }: Props) => (
+const Account: React.FC<Props> = ({ name, logo, link }: Props) => (
   <AccountDiv>
     <AccountLogo src={logo} alt={name + ' logo'} />
     <div>{name}</div>

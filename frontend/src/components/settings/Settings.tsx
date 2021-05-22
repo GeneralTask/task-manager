@@ -17,7 +17,7 @@ const Body = styled.div`
     margin: auto;
 `
 
-const Settings = () => {
+const Settings: React.FC = () => {
     return(
         <div>
             <Header>
