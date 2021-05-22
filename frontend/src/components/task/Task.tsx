@@ -23,10 +23,11 @@ interface Props {
   isDragDisabled: boolean,
 }
 
-// nolan pls help
+// TODO nolan pls help
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type UNKNOWN_PROVIDED_TYPE = any
 
-const Task: React.FC<Props> = ({ task, index, isDragDisabled }: Props) => (
+const Task: React.FC<Props> = ({ task, index }: Props) => (
   <Draggable draggableId={task.id} index={index}>
     {(provided: UNKNOWN_PROVIDED_TYPE) => (
       <div

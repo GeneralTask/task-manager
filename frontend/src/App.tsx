@@ -1,6 +1,6 @@
 import './App.css'
 import React from 'react'
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import store from './redux/store'
 import { LANDING_PATH, SETTINGS_PATH, PRIVACY_PATH } from './constants'
@@ -12,11 +12,6 @@ import Settings from './components/settings/Settings'
 import LandingPage from './components/LandingPage'
 import PrivacyPolicy from './components/PrivacyPolicy'
 
-interface PrivateRouteProps {
-  path: string,
-  component: React.FC<any>,
-}
-
 const App: React.FC = () => {
   useEffect(() => {
     document.title = 'General Task'
@@ -27,7 +22,7 @@ const App: React.FC = () => {
       { getAuthToken() ? <Header/> : null }
         <Switch>
           {/* Settings page, only accessible if logged in */}
-          <PrivateRoute path={SETTINGS_PATH} component={Settings}/>
+          {getAuthToken() ? <Route path={SETTINGS_PATH} component={Settings}/> : null}
 	        
           <Route path={PRIVACY_PATH} component={PrivacyPolicy}/>
 
@@ -39,13 +34,5 @@ const App: React.FC = () => {
     </Provider>
   )
 }
-
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ path, component: Component}: PrivateRouteProps) => (
-  <Route path={path} render={(props) => (
-    getAuthToken()
-      ? <Component {...props} />
-      : <Redirect to='/' />
-  )} />
-)
 
 export default App

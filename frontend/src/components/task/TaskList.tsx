@@ -68,7 +68,8 @@ const TaskList: React.FC = () => {
         }
     }
 
-    // need result type @nolan
+    // TODO need result type @nolan
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function onDragEnd(result: any) {
         const { destination, source } = result
         

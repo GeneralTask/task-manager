@@ -56,6 +56,8 @@ const DoneButton = styled.button`
     color: white;
   }
 `
+// TODO nolan pls help
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type UNKNOWN_PROVIDED_TYPE = any
 
 interface Props {
@@ -68,7 +70,7 @@ interface Props {
   provided: UNKNOWN_PROVIDED_TYPE,
 }
 
-const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_completable, hover_effect, provided }: Props) => {
+const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_completable, hover_effect }: Props) => {
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   let onClick
   if (hover_effect && expanded_body !== task_id) {
