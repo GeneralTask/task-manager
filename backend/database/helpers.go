@@ -63,7 +63,6 @@ func GetOrCreateTask(db *mongo.Database,
 	fieldsToInsertIfMissing interface{},
 ) *TaskBase {
 	taskCollection := getTaskCollection(db)
-	log.Println("GetOrCreateTask", IDExternal, source, userID.Hex())
 	dbQuery := bson.M{
 		"$and": []bson.M{
 			{"id_external": IDExternal},
