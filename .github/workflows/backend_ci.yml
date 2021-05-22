@@ -38,5 +38,17 @@ jobs:
       - name: docker ps
         run: docker ps
         
+      - name: Run go tests (5 times to check for flakiness)
+        run: ./runtests.sh
+      
+      - name: Run go tests
+        run: ./runtests.sh
+
+      - name: Run go tests
+        run: ./runtests.sh
+
+      - name: Run go tests
+        run: ./runtests.sh
+
       - name: Run go tests
         run: ./runtests.sh
