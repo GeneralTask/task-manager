@@ -257,16 +257,34 @@ func TestMergeTasks(t *testing.T) {
 		}
 		c2ID := database.GetOrCreateTask(db, userID, "standard_event2", database.TaskSourceGoogleCalendar.Name, c2).ID
 		c2.ID = c2ID
+
+		c3 := database.CalendarEvent{
+			TaskBase: database.TaskBase{
+				// IDOrdering = 0 means cal event isn't included in reordering adjustments
+				IDOrdering: 0,
+				IDExternal: "standard_event3",
+				Deeplink:   "generaltask.io",
+				Title:      "Standard Event",
+				Source:     database.TaskSourceGoogleCalendar.Name,
+				Logo:       database.TaskSourceGoogleCalendar.Logo,
+				UserID:     userID,
+			},
+			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 7)),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 8)),
+		}
+		c3ID := database.GetOrCreateTask(db, userID, "standard_event3", database.TaskSourceGoogleCalendar.Name, c3).ID
+		c3.ID = c3ID
+
 		result := MergeTasks(
 			db,
-			&[]database.TaskBase{c1.TaskBase, c2.TaskBase, t1.TaskBase, t2.TaskBase},
-			[]*database.CalendarEvent{&c1, &c2},
+			&[]database.TaskBase{c1.TaskBase, c2.TaskBase, c3.TaskBase, t1.TaskBase, t2.TaskBase},
+			[]*database.CalendarEvent{&c1, &c2, &c3},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
 			"gmail.com",
 		)
 
-		assert.Equal(t, 4, len(result))
+		assert.Equal(t, 5, len(result))
 		assert.Equal(t, t1ID, result[0].Tasks[0].ID)
 		assert.Equal(t, 1, getTaskForTest(t, taskCollection, t1ID).IDOrdering)
 
@@ -278,6 +296,9 @@ func TestMergeTasks(t *testing.T) {
 
 		assert.Equal(t, t2ID, result[3].Tasks[0].ID)
 		assert.Equal(t, 4, getTaskForTest(t, taskCollection, t2ID).IDOrdering)
+
+		assert.Equal(t, c3ID, result[4].Tasks[0].ID)
+		assert.Equal(t, 5, getTaskForTest(t, taskCollection, c3ID).IDOrdering)
 	})
 	t.Run("ReorderingPersist", func(t *testing.T) {
 		// Tested here: existing DB ordering IDs are kept (except cal events)

@@ -162,6 +162,14 @@ func MergeTasks(
 	for ; calendarIndex < len(calendarEvents); calendarIndex++ {
 		calendarEvent := calendarEvents[calendarIndex]
 
+		// add empty task group for adjustForReorderedTasks
+		taskGroups = append(taskGroups, &database.TaskGroup{
+			TaskGroupType: database.UnscheduledGroup,
+			StartTime:     calendarEvent.DatetimeStart.Time().String(),
+			Duration:      0,
+			Tasks:         []*database.TaskBase{},
+		})
+
 		taskGroups = append(taskGroups, &database.TaskGroup{
 			TaskGroupType: database.ScheduledTask,
 			StartTime:     calendarEvent.DatetimeStart.Time().String(),
@@ -247,6 +255,9 @@ func adjustForReorderedTasks(taskGroups *[]*database.TaskGroup) {
 	currentPreviousCalendarItems := []CalendarItemTuple{}
 	for groupIndex, taskGroup := range *taskGroups {
 		if taskGroup.TaskGroupType == database.ScheduledTask {
+			if taskGroup.Tasks[0].IDOrdering == 0 {
+				continue
+			}
 			calendarItem := CalendarItemTuple{IDOrdering: taskGroup.Tasks[0].IDOrdering, TaskGroupIndex: groupIndex}
 			currentPreviousCalendarItems = append(currentPreviousCalendarItems, calendarItem)
 			for previousGroupIndex, _ := range *taskGroups {
@@ -275,7 +286,6 @@ func adjustForReorderedTasks(taskGroups *[]*database.TaskGroup) {
 			}
 			// check if there is a previous calendar event with a higher ordering id
 			previousCalendarItems := taskGroupToPreviousCalendarItems[groupIndex]
-			log.Println(task.IDExternal, previousCalendarItems)
 			var highestItemWithHigherOrderingID *CalendarItemTuple
 			for _, previousCalendarItem := range previousCalendarItems {
 				orderingID := previousCalendarItem.IDOrdering
@@ -294,7 +304,6 @@ func adjustForReorderedTasks(taskGroups *[]*database.TaskGroup) {
 
 			// check if there is an upcoming calendar event with a lower ordering id
 			nextCalendarItems := taskGroupToNextCalendarItems[groupIndex]
-			log.Println(task.IDExternal, nextCalendarItems)
 			var lowestItemWithLowerOrderingID *CalendarItemTuple
 			for _, nextCalendarItem := range nextCalendarItems {
 				orderingID := nextCalendarItem.IDOrdering
