@@ -18,7 +18,7 @@ func UpdateOrCreateTask(
 	source string,
 	fieldsToInsertIfMissing interface{},
 	fieldsToUpdate interface{},
-) *TaskBase {
+) *mongo.SingleResult {
 	taskCollection := getTaskCollection(db)
 	dbQuery := bson.M{
 		"$and": []bson.M{
@@ -40,20 +40,13 @@ func UpdateOrCreateTask(
 		log.Fatalf("Failed to update or create task: %v", err)
 	}
 
-	var task TaskBase
-	err = taskCollection.FindOneAndUpdate(
+	return taskCollection.FindOneAndUpdate(
 		context.TODO(),
 		dbQuery,
 		bson.D{
 			{Key: "$set", Value: fieldsToUpdate},
 		},
-	).Decode(&task)
-	if err != nil {
-		log.Fatalf("Failed to get and update task: %v", err)
-	}
-
-	// NOTE: This task reflects the db state before the FindOneAndUpdate call
-	return &task
+	)
 }
 
 func GetOrCreateTask(db *mongo.Database,

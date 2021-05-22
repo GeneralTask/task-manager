@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/GeneralTask/task-manager/backend/utils"
 
@@ -94,14 +95,14 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 
 		email := &database.Email{
 			TaskBase: database.TaskBase{
-				UserID:     userID,
-				IDExternal: threadListItem.Id,
-				Sender:     senderName,
-				Source:     database.TaskSourceGmail.Name,
-				Deeplink:   fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
-				Title:      title,
-				Logo:       database.TaskSourceGmail.Logo,
-				IsCompletable: database.TaskSourceGmail.IsCompletable,
+				UserID:         userID,
+				IDExternal:     threadListItem.Id,
+				Sender:         senderName,
+				Source:         database.TaskSourceGmail.Name,
+				Deeplink:       fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
+				Title:          title,
+				Logo:           database.TaskSourceGmail.Logo,
+				IsCompletable:  database.TaskSourceGmail.IsCompletable,
 				TimeAllocation: timeAllocation.Nanoseconds(),
 			},
 			SenderDomain: senderDomain,
@@ -178,19 +179,20 @@ func LoadCalendarEvents(
 
 		event := &database.CalendarEvent{
 			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IDExternal:    event.Id,
-				Deeplink:      event.HtmlLink,
-				Source:        database.TaskSourceGoogleCalendar.Name,
-				Title:         event.Summary,
-				Logo:          database.TaskSourceGoogleCalendar.Logo,
-				IsCompletable: database.TaskSourceGoogleCalendar.IsCompletable,
+				UserID:         userID,
+				IDExternal:     event.Id,
+				Deeplink:       event.HtmlLink,
+				Source:         database.TaskSourceGoogleCalendar.Name,
+				Title:          event.Summary,
+				Logo:           database.TaskSourceGoogleCalendar.Logo,
+				IsCompletable:  database.TaskSourceGoogleCalendar.IsCompletable,
 				TimeAllocation: endTime.Sub(startTime).Nanoseconds(),
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 		}
-		dbEvent := database.UpdateOrCreateTask(
+		var dbEvent database.CalendarEvent
+		err = database.UpdateOrCreateTask(
 			db,
 			userID,
 			event.IDExternal,
@@ -201,17 +203,22 @@ func LoadCalendarEvents(
 				DatetimeEnd:   event.DatetimeEnd,
 				DatetimeStart: event.DatetimeStart,
 			},
-		)
-		if dbEvent != nil {
-			event.ID = dbEvent.ID
-			event.IDOrdering = dbEvent.IDOrdering
+		).Decode(&dbEvent)
+		if err != nil {
+			log.Fatalf("Failed to update or create calendar event: %v", err)
+		}
+		event.ID = dbEvent.ID
+		event.IDOrdering = dbEvent.IDOrdering
+		// If the meeting is rescheduled, we want to reset the IDOrdering so that reordered tasks are not also moved
+		if event.DatetimeStart != dbEvent.DatetimeStart || event.DatetimeEnd != dbEvent.DatetimeEnd {
+			event.IDOrdering = 0
 		}
 		events = append(events, event)
 	}
 	result <- events
 }
 
-func MarkEmailAsRead(api *API, userID primitive.ObjectID, emailID string) bool{
+func MarkEmailAsRead(api *API, userID primitive.ObjectID, emailID string) bool {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
@@ -236,8 +243,8 @@ func MarkEmailAsRead(api *API, userID primitive.ObjectID, emailID string) bool{
 	_, err = gmailService.Users.Threads.Modify(
 		"me",
 		emailID,
-		&gmail.ModifyThreadRequest{RemoveLabelIds:  []string{"INBOX"}},
-		).Do()
+		&gmail.ModifyThreadRequest{RemoveLabelIds: []string{"INBOX"}},
+	).Do()
 
 	return err == nil
 }
@@ -247,8 +254,7 @@ func getGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 
 	if err := externalAPITokenCollection.FindOne(
 		context.TODO(),
-		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken);
-		err != nil {
+		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken); err != nil {
 		return nil
 	}
 

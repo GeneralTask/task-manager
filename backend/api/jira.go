@@ -31,9 +31,9 @@ type JIRAAuthToken struct {
 
 // JIRAConfig ...
 type JIRAConfig struct {
-	APIBaseURL *string
-	CloudIDURL *string
-	TokenURL   *string
+	APIBaseURL    *string
+	CloudIDURL    *string
+	TokenURL      *string
 	TransitionURL *string
 }
 
@@ -79,7 +79,7 @@ func (api *API) AuthorizeJIRA(c *gin.Context) {
 	defer dbCleanup()
 	insertedStateToken := database.CreateStateToken(db, &internalToken.UserID)
 
-	authURL:= "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=" +config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&state=" + insertedStateToken + "&response_type=code&prompt=consent"
+	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&state=" + insertedStateToken + "&response_type=code&prompt=consent"
 	c.Redirect(302, authURL)
 }
 
@@ -153,7 +153,7 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{
 			UserID: internalToken.UserID,
 			Source: database.TaskSourceJIRA.Name,
-			Token: string(tokenString)}}},
+			Token:  string(tokenString)}}},
 		options.Update().SetUpsert(true),
 	)
 
@@ -167,7 +167,6 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "Failed to download site configuration"})
 		return
 	}
-
 
 	siteCollection := db.Collection("jira_site_collection")
 
@@ -260,7 +259,8 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- []*databas
 		if err == nil {
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
-		dbTask := database.UpdateOrCreateTask(
+		var dbTask database.Task
+		err = database.UpdateOrCreateTask(
 			db,
 			userID,
 			task.IDExternal,
@@ -271,11 +271,12 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- []*databas
 				DueDate:  task.DueDate,
 				Priority: task.Priority,
 			},
-		)
-		if dbTask != nil {
-			task.ID = dbTask.ID
-			task.IDOrdering = dbTask.IDOrdering
+		).Decode(&dbTask)
+		if err != nil {
+			log.Fatalf("Failed to update or create task: %v", err)
 		}
+		task.ID = dbTask.ID
+		task.IDOrdering = dbTask.IDOrdering
 		tasks = append(tasks, task)
 	}
 	result <- tasks
@@ -420,7 +421,7 @@ func MarkJIRATaskDone(api *API, userID primitive.ObjectID, issueID string) bool 
 }
 
 func getFinalTransitionID(apiBaseURL string, jiraAuthToken string, jiraCloudID string) *string {
-	transitionsURL := apiBaseURL+"/rest/api/3/issue/" + jiraCloudID + "/transitions"
+	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + jiraCloudID + "/transitions"
 
 	req, _ := http.NewRequest("GET", transitionsURL, nil)
 	req.Header.Add("Authorization", "Bearer "+jiraAuthToken)
@@ -442,7 +443,7 @@ func getFinalTransitionID(apiBaseURL string, jiraAuthToken string, jiraCloudID s
 	if !castResult || len(transitionsArray) < 1 {
 		return nil
 	}
-	lastTransition, castResult := transitionsArray[len(transitionsArray) - 1].(map[string]interface{})
+	lastTransition, castResult := transitionsArray[len(transitionsArray)-1].(map[string]interface{})
 	if !castResult {
 		return nil
 	}
@@ -455,7 +456,7 @@ func getFinalTransitionID(apiBaseURL string, jiraAuthToken string, jiraCloudID s
 }
 
 func executeTransition(apiBaseURL string, jiraAuthToken string, issueID string, newTransitionID string) bool {
-	transitionsURL := apiBaseURL+"/rest/api/3/issue/" + issueID + "/transitions"
+	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID + "/transitions"
 	params := []byte(`{"transition": {"id": "` + newTransitionID + `"}}`)
 	req, _ := http.NewRequest("POST", transitionsURL, bytes.NewBuffer(params))
 	req.Header.Add("Authorization", "Bearer "+jiraAuthToken)

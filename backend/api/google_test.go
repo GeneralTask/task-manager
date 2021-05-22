@@ -43,18 +43,23 @@ func TestCalendar(t *testing.T) {
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
+		db, dbCleanup := database.GetDBConnection()
+		defer dbCleanup()
+		userID := primitive.NewObjectID()
 		standardTask := database.CalendarEvent{
 			TaskBase: database.TaskBase{
-				IDOrdering: 0,
+				IDOrdering: 1,
 				IDExternal: "standard_event",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event",
 				Source:     database.TaskSourceGoogleCalendar.Name,
 				Logo:       database.TaskSourceGoogleCalendar.Logo,
+				UserID:     userID,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 		}
+		database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar.Name, standardTask)
 
 		autoEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
@@ -83,19 +88,76 @@ func TestCalendar(t *testing.T) {
 		api := &API{
 			GoogleURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 		}
-		go LoadCalendarEvents(api, primitive.NewObjectID(), nil, calendarEvents)
+		go LoadCalendarEvents(api, userID, nil, calendarEvents)
 		result := <-calendarEvents
 		assert.Equal(t, 1, len(result))
 		firstTask := result[0]
 		assertCalendarEventsEqual(t, &standardTask, firstTask)
 
-		db, dbCleanup := database.GetDBConnection()
-		defer dbCleanup()
 		taskCollection := db.Collection("tasks")
 
 		var calendarEventFromDB database.CalendarEvent
 		err := taskCollection.FindOne(context.TODO(), bson.D{{Key: "source", Value: database.TaskSourceGoogleCalendar.Name}, {Key: "id_external", Value: "standard_event"}}).Decode(&calendarEventFromDB)
 		assert.NoError(t, err)
+		assertCalendarEventsEqual(t, &standardTask, &calendarEventFromDB)
+	})
+	t.Run("RescheduledEvent", func(t *testing.T) {
+		standardEvent := calendar.Event{
+			Created:        "2021-02-25T17:53:01.000Z",
+			Summary:        "Standard Event",
+			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:       "generaltask.io",
+			Id:             "standard_event",
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
+
+		// Start time in DB is different to simulate rescheduling a meeting
+		oldStartTime, _ := time.Parse(time.RFC3339, "2021-03-06T13:00:00-05:00")
+		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
+		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
+
+		db, dbCleanup := database.GetDBConnection()
+		defer dbCleanup()
+		userID := primitive.NewObjectID()
+		standardTask := database.CalendarEvent{
+			TaskBase: database.TaskBase{
+				IDOrdering: 1,
+				IDExternal: "standard_event",
+				Deeplink:   "generaltask.io",
+				Title:      "Standard Event",
+				Source:     database.TaskSourceGoogleCalendar.Name,
+				Logo:       database.TaskSourceGoogleCalendar.Logo,
+				UserID:     userID,
+			},
+			DatetimeStart: primitive.NewDateTimeFromTime(oldStartTime),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+		}
+		database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar.Name, standardTask)
+		standardTask.DatetimeStart = primitive.NewDateTimeFromTime(startTime)
+		// IDOrdering expected to be zero because ordering is reset upon rescheduling
+		standardTask.IDOrdering = 0
+
+		server := getServerForTasks([]*calendar.Event{&standardEvent})
+		defer server.Close()
+
+		var calendarEvents = make(chan []*database.CalendarEvent)
+		api := &API{
+			GoogleURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+		}
+		go LoadCalendarEvents(api, userID, nil, calendarEvents)
+		result := <-calendarEvents
+		assert.Equal(t, 1, len(result))
+		firstTask := result[0]
+		assertCalendarEventsEqual(t, &standardTask, firstTask)
+
+		taskCollection := db.Collection("tasks")
+
+		var calendarEventFromDB database.CalendarEvent
+		err := taskCollection.FindOne(context.TODO(), bson.D{{Key: "source", Value: database.TaskSourceGoogleCalendar.Name}, {Key: "id_external", Value: "standard_event"}}).Decode(&calendarEventFromDB)
+		assert.NoError(t, err)
+		// DB is not updated until task merge
+		standardTask.IDOrdering = 1
 		assertCalendarEventsEqual(t, &standardTask, &calendarEventFromDB)
 	})
 	t.Run("EmptyResult", func(t *testing.T) {
@@ -131,4 +193,3 @@ func getGmailArchiveServer(t *testing.T) *httptest.Server {
 		w.Write([]byte(`{}`))
 	}))
 }
-
