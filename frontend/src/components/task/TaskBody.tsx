@@ -1,12 +1,15 @@
-import React from 'react'
+import React, {createRef, useEffect, useState} from 'react'
+import ReactDOM from 'react-dom'
 import { connect, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { RootState } from '../../redux/store'
+import { MAX_TASK_BODY_HEIGHT } from '../../constants'
 
-const BodyHTML = styled.iframe`
+const BodyIframe = styled.iframe<{iframeHeight: number}>`
   border: none;
   border-radius: 2px;
   width: 100%;
+  height: ${props => props.iframeHeight + 'px'};
 `
 const BodyDiv = styled.div`
   margin: auto;
@@ -27,6 +30,11 @@ interface Props {
   source: string,
 }
 
+interface BodyHTMLProps {
+  body: string,
+  task_id: string,
+}
+
 
 // no body: no body
 // has_body, expanded_body != task_id: no body
@@ -40,7 +48,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
         <div>
           {body ? (
             <BodyDiv>
-              <BodyHTML title={'Body for task: ' + task_id} srcDoc={body} />
+              <BodyHTML body={body} task_id={task_id} />
             </BodyDiv>
           ) : null}
           {deeplink ? (
@@ -55,6 +63,25 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
     </div>
   )
 } 
+
+const BodyHTML: React.FC<BodyHTMLProps> = ({body, task_id}: BodyHTMLProps) => {
+  const [iframeHeight, handleIframeHeight] = useState(0)
+
+  const [hasResized, handleHasResized] = useState(false)
+
+  return <BodyIframe 
+    id="expanded-body-html"
+    iframeHeight={iframeHeight} 
+    title={'Body for task: ' + task_id} 
+    srcDoc={body} 
+    onLoad={() => {
+      const iframe: HTMLIFrameElement | null = document.getElementById('expanded-body-html') as HTMLIFrameElement
+      if(iframe && iframe.contentWindow){
+        iframe.style.height = Math.min(iframe.contentWindow.document.body.offsetHeight + 15, MAX_TASK_BODY_HEIGHT) + 'px'
+      }
+    }}
+    />
+}
 
 export default connect((state: RootState) => ({ expanded_body: state.expanded_body }))(
   TaskBody
