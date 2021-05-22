@@ -96,7 +96,7 @@ func TestMergeTasks(t *testing.T) {
 		t2 := database.Task{
 			TaskBase: database.TaskBase{
 				ID:             t2ID,
-				IDExternal:     "sample_task",
+				IDExternal:     "sample_task1",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
 				Source:         database.TaskSourceJIRA.Name,
@@ -112,7 +112,7 @@ func TestMergeTasks(t *testing.T) {
 		t3 := database.Task{
 			TaskBase: database.TaskBase{
 				ID:             t3ID,
-				IDExternal:     "sample_task",
+				IDExternal:     "sample_task2",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
 				Source:         database.TaskSourceJIRA.Name,
@@ -128,7 +128,7 @@ func TestMergeTasks(t *testing.T) {
 		t4 := database.Task{
 			TaskBase: database.TaskBase{
 				ID:             t4ID,
-				IDExternal:     "sample_task",
+				IDExternal:     "sample_task3",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
 				Source:         database.TaskSourceJIRA.Name,
@@ -160,22 +160,27 @@ func TestMergeTasks(t *testing.T) {
 		assert.Equal(t, len(result), 5)
 
 		assert.Equal(t, 1, len(result[0].Tasks))
+		assert.Equal(t, database.UnscheduledGroup, result[0].TaskGroupType)
 		assert.Equal(t, e1ID, result[0].Tasks[0].ID)
 		assert.Equal(t, 1, result[0].Tasks[0].IDOrdering)
 
 		assert.Equal(t, 1, len(result[1].Tasks))
+		assert.Equal(t, database.ScheduledTask, result[1].TaskGroupType)
 		assert.Equal(t, c1ID, result[1].Tasks[0].ID)
 		assert.Equal(t, 2, result[1].Tasks[0].IDOrdering)
 
 		assert.Equal(t, 1, len(result[2].Tasks))
+		assert.Equal(t, database.UnscheduledGroup, result[2].TaskGroupType)
 		assert.Equal(t, t1ID, result[2].Tasks[0].ID)
 		assert.Equal(t, 3, result[2].Tasks[0].IDOrdering)
 
 		assert.Equal(t, 1, len(result[3].Tasks))
+		assert.Equal(t, database.ScheduledTask, result[3].TaskGroupType)
 		assert.Equal(t, c2ID, result[3].Tasks[0].ID)
 		assert.Equal(t, 4, result[3].Tasks[0].IDOrdering)
 
 		assert.Equal(t, 4, len(result[4].Tasks))
+		assert.Equal(t, database.UnscheduledGroup, result[4].TaskGroupType)
 		assert.Equal(t, t3ID, result[4].Tasks[0].ID)
 		assert.Equal(t, 5, result[4].Tasks[0].IDOrdering)
 
