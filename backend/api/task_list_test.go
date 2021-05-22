@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log"
 	"testing"
 	"time"
 
@@ -149,6 +150,13 @@ func TestMergeTasks(t *testing.T) {
 			"gmail.com",
 		)
 
+		for i, group := range result {
+			log.Println("group", i)
+			for _, task := range group.Tasks {
+				log.Println("\t", task.IDExternal)
+			}
+		}
+
 		//need to improve these asserts to compare values as well but a pain with casting
 		//for now so we'll compare JSON later.
 		assert.Equal(t, len(result), 5)
@@ -283,6 +291,13 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.Task{&t1, &t2},
 			"gmail.com",
 		)
+
+		for i, group := range result {
+			log.Println("group", i)
+			for _, task := range group.Tasks {
+				log.Println("\t", task.IDExternal)
+			}
+		}
 
 		assert.Equal(t, 5, len(result))
 		assert.Equal(t, t1ID, result[0].Tasks[0].ID)

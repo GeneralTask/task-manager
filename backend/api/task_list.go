@@ -134,7 +134,12 @@ func MergeTasks(
 			timeAllocation = taskBase.TimeAllocation
 		}
 
-		tasks = append(tasks, &TaskItem{TaskGroupType: database.ScheduledTask, TaskBase: &calendarEvent.TaskBase})
+		tasks = append(tasks, &TaskItem{
+			TaskGroupType: database.ScheduledTask,
+			TaskBase:      &calendarEvent.TaskBase,
+			DatetimeEnd:   calendarEvent.DatetimeEnd,
+			DatetimeStart: calendarEvent.DatetimeStart,
+		})
 
 		lastEndTime = calendarEvent.DatetimeEnd.Time()
 	}
@@ -142,7 +147,12 @@ func MergeTasks(
 	//add remaining calendar events, if they exist.
 	for ; calendarIndex < len(calendarEvents); calendarIndex++ {
 		calendarEvent := calendarEvents[calendarIndex]
-		tasks = append(tasks, &TaskItem{TaskGroupType: database.ScheduledTask, TaskBase: &calendarEvent.TaskBase})
+		tasks = append(tasks, &TaskItem{
+			TaskGroupType: database.ScheduledTask,
+			TaskBase:      &calendarEvent.TaskBase,
+			DatetimeEnd:   calendarEvent.DatetimeEnd,
+			DatetimeStart: calendarEvent.DatetimeStart,
+		})
 		lastEndTime = calendarEvent.DatetimeEnd.Time()
 	}
 
@@ -202,6 +212,8 @@ func adjustForCompletedTasks(
 type TaskItem struct {
 	TaskGroupType database.TaskGroupType
 	TaskBase      *database.TaskBase
+	DatetimeEnd   primitive.DateTime
+	DatetimeStart primitive.DateTime
 }
 
 type CalendarItem struct {
@@ -289,7 +301,7 @@ func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
 		}
 		newTaskList = append(newTaskList, taskItem)
 	}
-	return &newTaskList
+	return newTaskList
 }
 
 func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) {
@@ -316,16 +328,41 @@ func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) {
 func convertTasksToTaskGroups(tasks *[]*TaskItem) []*database.TaskGroup {
 	taskGroups := []*database.TaskGroup{}
 	lastEndTime := time.Now()
-	unscheduledTasks := []*TaskItem{}
-	for _, taskItem := range tasks {
+	unscheduledTasks := []*database.TaskBase{}
+	for _, taskItem := range *tasks {
 		if taskItem.TaskGroupType == database.ScheduledTask {
 			if len(unscheduledTasks) > 0 {
-				// create unscheduled task group here
+				taskGroups = append(taskGroups, &database.TaskGroup{
+					TaskGroupType: database.ScheduledTask,
+					StartTime:     lastEndTime.String(),
+					Duration:      int64(taskItem.DatetimeStart.Time().Sub(lastEndTime).Seconds()),
+					Tasks:         unscheduledTasks,
+				})
 			}
-			taskGroups = append(taskGroups, &database.TaskGroup{})
+			taskGroups = append(taskGroups, &database.TaskGroup{
+				TaskGroupType: database.ScheduledTask,
+				StartTime:     taskItem.DatetimeStart.Time().String(),
+				Duration:      int64(taskItem.DatetimeEnd.Time().Sub(taskItem.DatetimeStart.Time()).Seconds()),
+				Tasks:         []*database.TaskBase{taskItem.TaskBase},
+			})
+			lastEndTime = taskItem.DatetimeEnd.Time()
+		} else {
+			unscheduledTasks = append(unscheduledTasks, taskItem.TaskBase)
 		}
 	}
-	return []*database.TaskGroup{}
+	if len(unscheduledTasks) > 0 {
+		var totalDuration int64
+		for _, task := range unscheduledTasks {
+			totalDuration += task.TimeAllocation
+		}
+		taskGroups = append(taskGroups, &database.TaskGroup{
+			TaskGroupType: database.ScheduledTask,
+			StartTime:     lastEndTime.String(),
+			Duration:      totalDuration / int64(time.Second),
+			Tasks:         unscheduledTasks,
+		})
+	}
+	return taskGroups
 }
 
 func getTaskBase(t interface{}) *database.TaskBase {
