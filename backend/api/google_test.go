@@ -210,3 +210,21 @@ func getGmailArchiveServer(t *testing.T, expectedLabel string) *httptest.Server 
 		w.Write([]byte(`{}`))
 	}))
 }
+
+func TestGmailList(t *testing.T) {
+	router := GetRouter(&API{})
+	authToken := "63404511-049f-4a2d-815f-47a14ce22e0f"
+	request, _ := http.NewRequest("GET", "/tasks/", nil)
+	request.Header.Add("Authorization", "Bearer " + authToken)
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+}
+
+func TestGmailReply(t *testing.T) {
+	threadID := "179964386c3cbb84"
+	userID, _ := primitive.ObjectIDFromHex("60a974277e30bf31259f4c73")
+	ReplyToEmail(&API{}, userID, threadID, "A test reply from general task!")
+}
+
+

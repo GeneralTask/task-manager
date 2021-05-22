@@ -317,6 +317,74 @@ func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) bool {
 	return err == nil
 }
 
+func ReplyToEmail(api *API, userID primitive.ObjectID, threadID string, body string) error {
+
+	db, dbCleanup := database.GetDBConnection()
+	defer dbCleanup()
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+	client := getGoogleHttpClient(externalAPITokenCollection, userID)
+
+	var gmailService *gmail.Service
+
+	if api.GoogleURLs.GmailModifyURL == nil {
+		gmailService, _ = gmail.New(client)
+	} else {
+		//gmailService, _ := gmail.NewService(
+		//	context.Background(),
+		//	option.WithoutAuthentication(),
+		//	option.WithEndpoint(*api.GoogleURLs.GmailModifyURL))
+	}
+
+	threadResponse, err := gmailService.Users.Threads.Get("me", threadID).Do()
+
+	if err != nil {
+		return err
+	}
+
+	//for now
+	messagesList := threadResponse.Messages
+	messageOfInterest := messagesList[len(messagesList) - 1]
+	subject := ""
+	replyTo := ""
+	from := ""
+
+	for _, h := range messageOfInterest.Payload.Headers {
+		if h.Name == "Subject" {
+			subject = h.Value
+		} else if h.Name == "Reply-To" {
+			replyTo = h.Value
+		} else if h.Name == "From" {
+			from = h.Value
+		}
+	}
+
+	var sendAddress string
+	if len(replyTo) > 0 {
+		sendAddress = replyTo
+	} else {
+		sendAddress = from
+	}
+
+	if !strings.HasPrefix(subject, "Re:") {
+		subject = "Re: " + subject
+	}
+
+	emailTo := "To: " + sendAddress + "\r\n"
+	subject = "Subject: " + subject + "\n"
+	mime := "MIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n\n"
+	msg := []byte(emailTo + subject + mime + "\n" + body)
+
+	messageToSend := gmail.Message{
+		Raw:             base64.URLEncoding.EncodeToString(msg),
+		ThreadId:        threadID,
+	}
+
+	_, err = gmailService.Users.Messages.Send("me", &messageToSend).Do()
+
+	return err
+
+}
+
 func getGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID) *http.Client {
 	var googleToken database.ExternalAPIToken
 
