@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/GeneralTask/task-manager/backend/templating"
 	"log"
 	"net/http"
 	"strings"
@@ -73,66 +74,100 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 		if err != nil {
 			log.Fatalf("failed to load thread! %v", err)
 		}
-		var sender = ""
-		var title = ""
-		for _, header := range thread.Messages[0].Payload.Headers {
-			if header.Name == "From" {
-				sender = header.Value
-			}
-			if header.Name == "Subject" {
-				title = header.Value
-			}
-		}
-		var body = ""
-		for _, messagePart := range thread.Messages[0].Payload.Parts {
-			if messagePart.MimeType == "text/html" {
-				body = parseMessagePart(messagePart)
-			}
-		}
 
-		senderName, senderEmail := utils.ExtractSenderName(sender)
-		senderDomain := utils.ExtractEmailDomain(senderEmail)
+		for _, message := range thread.Messages {
+			if !isMessageUnread(message) {
+				continue
+			}
 
-		var timeAllocation time.Duration
-		if senderDomain == userDomain {
-			timeAllocation = time.Minute * 5
-		} else {
-			timeAllocation = time.Minute * 2
-		}
+			var sender = ""
+			var title = ""
+			for _, header := range message.Payload.Headers {
+				if header.Name == "From" {
+					sender = header.Value
+				}
+				if header.Name == "Subject" {
+					title = header.Value
+				}
+			}
+			var body = ""
 
-		email := &database.Email{
-			TaskBase: database.TaskBase{
-				UserID:         userID,
-				IDExternal:     threadListItem.Id,
-				Sender:         senderName,
-				Source:         database.TaskSourceGmail.Name,
-				Deeplink:       fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
-				Title:          title,
-				Body: 			body,
-				Logo:           database.TaskSourceGmail.Logo,
-				IsCompletable:  database.TaskSourceGmail.IsCompletable,
-				TimeAllocation: timeAllocation.Nanoseconds(),
-			},
-			SenderDomain: senderDomain,
+			for _, messagePart := range message.Payload.Parts {
+				if messagePart.MimeType == "text/html" {
+					body = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
+				}
+			}
+
+			if len(body) == 0 {
+				body = parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
+			}
+
+			senderName, senderEmail := utils.ExtractSenderName(sender)
+			senderDomain := utils.ExtractEmailDomain(senderEmail)
+
+			var timeAllocation time.Duration
+			if senderDomain == userDomain {
+				timeAllocation = time.Minute * 5
+			} else {
+				timeAllocation = time.Minute * 2
+			}
+
+			email := &database.Email{
+				TaskBase: database.TaskBase{
+					UserID:         userID,
+					IDExternal:     message.Id,
+					Sender:         senderName,
+					Source:         database.TaskSourceGmail.Name,
+					Deeplink:       fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
+					Title:          title,
+					Body: 			body,
+					Logo:           database.TaskSourceGmail.Logo,
+					IsCompletable:  database.TaskSourceGmail.IsCompletable,
+					TimeAllocation: timeAllocation.Nanoseconds(),
+				},
+				SenderDomain: senderDomain,
+				ThreadID: threadListItem.Id,
+				TimeSent: primitive.NewDateTimeFromTime(time.Unix(message.InternalDate / 1000, 0)),
+			}
+			dbEmail := database.GetOrCreateTask(db, userID, email.IDExternal, email.Source, email)
+			if dbEmail != nil {
+				email.ID = dbEmail.ID
+				email.IDOrdering = dbEmail.IDOrdering
+			}
+			emails = append(emails, email)
 		}
-		dbEmail := database.GetOrCreateTask(db, userID, email.IDExternal, email.Source, email)
-		if dbEmail != nil {
-			email.ID = dbEmail.ID
-			email.IDOrdering = dbEmail.IDOrdering
-		}
-		emails = append(emails, email)
 	}
-
 	result <- emails
 }
 
-func parseMessagePart(messagePart *gmail.MessagePart) string {
-	data := messagePart.Body.Data
+func isMessageUnread(message *gmail.Message) bool {
+	for _, label := range message.LabelIds {
+		if label == "UNREAD" {
+			return true
+		}
+	}
+	return false
+}
+
+func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) string {
+	data := body.Data
 	bodyData, err := base64.URLEncoding.DecodeString(data)
 	if err != nil {
 		log.Fatalf("failed to decode email body. %v", err)
 	}
-	return string(bodyData)
+
+	bodyString := string(bodyData)
+
+	if mimeType == "text/plain" {
+		formattedBody, err := templating.FormatPlainTextAsHTML(bodyString)
+		if err != nil {
+			log.Fatalf("failed to decode email body. %v", err)
+		} else {
+			bodyString = formattedBody
+		}
+	}
+
+	return bodyString
 }
 
 func LoadCalendarEvents(
@@ -257,10 +292,10 @@ func MarkEmailAsRead(api *API, userID primitive.ObjectID, emailID string) bool {
 		return false
 	}
 
-	_, err = gmailService.Users.Threads.Modify(
+	_, err = gmailService.Users.Messages.Modify(
 		"me",
 		emailID,
-		&gmail.ModifyThreadRequest{RemoveLabelIds: []string{"INBOX"}},
+		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{"INBOX"}},
 	).Do()
 
 	return err == nil
