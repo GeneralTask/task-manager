@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect, useSelector } from 'react-redux'
 import styled from 'styled-components'
+import { RootState } from '../../redux/store'
 
 const BodyHTML = styled.iframe`
   border: none;
@@ -25,9 +26,6 @@ interface Props {
   deeplink: string | null,
   source: string,
 }
-interface RootState {
-  expanded_body: string | null,
-}
 
 
 // no body: no body
@@ -48,7 +46,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
           {deeplink ? (
             <Deeplink>
               <p>
-                See more in <a href={deeplink}>{source}</a>
+                See more in <a href={deeplink} target="_blank">{source}</a>
               </p>
             </Deeplink>
           ) : null}

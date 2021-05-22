@@ -5,15 +5,13 @@ import './dot-spinner.css'
 import {TASK_STATUS_FETCH_ERROR, TASK_STATUS_NO_TASKS} from '../../constants'
 import styled from 'styled-components'
 import {TaskGroup} from './TaskTypes'
+import { RootState } from '../../redux/store'
+
 
 const Status = styled.div`
     height: 40px;
     text-align: center;
 `
-interface RootState {
-    task_groups: TaskGroup[],
-    tasks_fetch_status: FetchStatus,
-}
 
 const TaskStatus = () => {
     let content: JSX.Element | null = null

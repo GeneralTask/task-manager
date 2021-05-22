@@ -1,7 +1,17 @@
 import * as actions from './actionTypes'
+import { AnyAction } from 'redux'
+import { RootState } from './store'
+import { FetchStatus } from './enums'
 
 let task_groups
-export default function reducer(state, action){
+const reducer = (state: RootState | undefined, action: AnyAction): RootState => {
+    if(state === undefined){
+      return {
+        task_groups: [],
+        tasks_fetch_status: FetchStatus.LOADING,
+        expanded_body: null,
+      }
+    }
     switch (action.type) {
       case actions.SET_TASKS:
         return {
@@ -50,3 +60,5 @@ export default function reducer(state, action){
         return state
     }
 }
+
+export default reducer

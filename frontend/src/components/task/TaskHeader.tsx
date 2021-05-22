@@ -7,7 +7,7 @@ import {getHeaders} from '../../helpers/utils'
 import { useSelector } from 'react-redux'
 
 import styled from 'styled-components'
-import { ResponderProvided } from 'react-beautiful-dnd'
+import { RootState } from '../../redux/store'
 
 
 const Header = styled.div<{hover_effect: boolean}>`
@@ -66,9 +66,6 @@ interface Props {
   is_completable: boolean, 
   hover_effect: boolean,
   provided: UNKNOWN_PROVIDED_TYPE,
-}
-interface RootState {
-  expanded_body: string | null,
 }
 
 const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_completable, hover_effect, provided }: Props) => {

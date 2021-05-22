@@ -11,15 +11,12 @@ import moment from 'moment'
 import styled from 'styled-components'
 import {getHeaders} from '../../helpers/utils'
 import {TaskGroup, Task} from './TaskTypes'
+import { RootState } from '../../redux/store'
 
 const MyTasks = styled.h1`
     height: 40px;
     text-align: center;
 `
-
-interface RootState {
-    task_groups: TaskGroup[]
-}
 
 const fetchTasks = async () => {
     store.dispatch(setTasksFetchStatus(FetchStatus.LOADING))
@@ -98,7 +95,7 @@ const TaskList: React.FC = () => {
             <TaskStatus/>
             <DragDropContext onDragEnd={onDragEnd}>
                 { 
-                    task_groups.map((group, index) =>
+                    task_groups.map((group: TaskGroup, index: number) =>
                         <div>
                             <Droppable droppableId={`list-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
                                 {provided => (
