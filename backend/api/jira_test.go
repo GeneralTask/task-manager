@@ -353,9 +353,6 @@ func TestGetPriorities(t *testing.T) {
 		assert.Equal(t,"8",  priorities[0].JIRAID)
 		assert.Equal(t,1,  priorities[0].IntegerPriority)
 	})
-
-
-
 }
 
 func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
