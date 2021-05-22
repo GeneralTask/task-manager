@@ -100,9 +100,9 @@ type Task struct {
 }
 
 type TaskChangeableFields struct {
-	Title    string                `json:"title" bson:"title,omitempty"`
-	DueDate  primitive.DateTime    `bson:"due_date,omitempty"`
-	Priority string                `bson:"priority_id,omitempty"`
+	Title      string                `json:"title" bson:"title,omitempty"`
+	DueDate    primitive.DateTime    `bson:"due_date,omitempty"`
+	PriorityID string                `bson:"priority_id,omitempty"`
 }
 
 type TaskGroup struct {

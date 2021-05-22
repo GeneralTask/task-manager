@@ -288,7 +288,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 			database.TaskChangeableFields{
 				Title:    task.Title,
 				DueDate:  task.DueDate,
-				Priority: task.PriorityID,
+				PriorityID: task.PriorityID,
 			},
 		).Decode(&dbTask)
 		if err != nil {
