@@ -47,6 +47,7 @@ func GetGoogleConfig() OauthConfigWrapper {
 			TokenURL: "https://oauth2.googleapis.com/token",
 		},
 	}
+
 	return &OauthConfig{Config: googleConfig}
 }
 
