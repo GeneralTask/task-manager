@@ -1,4 +1,4 @@
-export interface Task {
+export interface TTask {
     id: string,
     id_external: string,
     id_ordering: number,
@@ -13,9 +13,9 @@ export interface Task {
     body: string | null
 }
 
-export interface TaskGroup {
+export interface TTaskGroup {
     type: string,
     time_duration: number,
     datetime_start: string | null,
-    tasks: Task[]
+    tasks: TTask[]
 }

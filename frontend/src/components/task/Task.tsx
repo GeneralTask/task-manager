@@ -4,7 +4,7 @@ import TaskHeader from './TaskHeader'
 import { Draggable } from 'react-beautiful-dnd'
 import styled from 'styled-components'
 import TaskBody from './TaskBody'
-import {Task as TaskType} from './TaskTypes'
+import {TTask} from '../../helpers/types'
 
 const Container = styled.div`
   padding: 0;
@@ -18,7 +18,7 @@ const Container = styled.div`
 `
 
 interface Props {
-  task: TaskType, 
+  task: TTask, 
   index: number, 
   isDragDisabled: boolean,
 }

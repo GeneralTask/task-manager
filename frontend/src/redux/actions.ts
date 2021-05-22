@@ -1,10 +1,10 @@
+import { TTaskGroup } from './../helpers/types'
 import * as actions from './actionTypes'
 import { AnyAction } from 'redux'
-import {TaskGroup} from '../components/task/TaskTypes'
 import { FetchStatus } from './enums'
 
 
-export function setTasks(task_groups: TaskGroup[]): AnyAction{
+export function setTasks(task_groups: TTaskGroup[]): AnyAction{
     return {
         type: actions.SET_TASKS,
         task_groups,

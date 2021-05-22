@@ -10,7 +10,7 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import moment from 'moment'
 import styled from 'styled-components'
 import {getHeaders} from '../../helpers/utils'
-import {TaskGroup, Task} from './TaskTypes'
+import { TTaskGroup, TTask } from '../../helpers/types'
 import { RootState } from '../../redux/store'
 
 const MyTasks = styled.h1`
@@ -51,7 +51,7 @@ const TaskList: React.FC = () => {
     }, [])
 
     
-    function renderTaskGroup(taskGroup: TaskGroup, index: number) {
+    function renderTaskGroup(taskGroup: TTaskGroup, index: number) {
         let next_time = null
         if(index === 0 && task_groups.length > 1){
             next_time = moment(task_groups[1].datetime_start)
@@ -77,9 +77,9 @@ const TaskList: React.FC = () => {
         const source_index = source.droppableId.slice(-1)
         const destination_index = destination.droppableId.slice(-1)
     
-        const source_group: TaskGroup = task_groups[source_index]
-        const dest_group: TaskGroup = task_groups[destination_index]
-        const source_task: Task = source_group.tasks[source.index]
+        const source_group: TTaskGroup = task_groups[source_index]
+        const dest_group: TTaskGroup = task_groups[destination_index]
+        const source_task: TTask = source_group.tasks[source.index]
     
         source_group.tasks.splice(source.index, 1)
         dest_group.tasks.splice(destination.index, 0, source_task)
@@ -95,7 +95,7 @@ const TaskList: React.FC = () => {
             <TaskStatus/>
             <DragDropContext onDragEnd={onDragEnd}>
                 { 
-                    task_groups.map((group: TaskGroup, index: number) =>
+                    task_groups.map((group: TTaskGroup, index: number) =>
                         <div>
                             <Droppable droppableId={`list-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
                                 {provided => (

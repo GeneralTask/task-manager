@@ -1,10 +1,10 @@
 import { compose, createStore } from 'redux'
 import reducer from './reducer'
 import { FetchStatus } from './enums'
-import {TaskGroup} from '../components/task/TaskTypes'
+import { TTaskGroup } from '../helpers/types'
 
 export interface RootState {
-    task_groups: TaskGroup[],
+    task_groups: TTaskGroup[],
     tasks_fetch_status: FetchStatus,
     expanded_body: string | null,
 }

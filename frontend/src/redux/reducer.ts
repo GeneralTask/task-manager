@@ -1,3 +1,4 @@
+import { TTask } from './../helpers/types'
 import * as actions from './actionTypes'
 import { AnyAction } from 'redux'
 import { RootState } from './store'
@@ -40,7 +41,7 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
           ...state,
           task_groups: [...state.task_groups].map((task_group) => ({
             ...task_group,
-            tasks: task_group.tasks.filter((task) => task.id !== action.id),
+            tasks: task_group.tasks.filter((task: TTask) => task.id !== action.id),
           })),
         }
 

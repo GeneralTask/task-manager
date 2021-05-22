@@ -4,7 +4,7 @@ import { FetchStatus } from '../../redux/enums'
 import './dot-spinner.css'
 import {TASK_STATUS_FETCH_ERROR, TASK_STATUS_NO_TASKS} from '../../constants'
 import styled from 'styled-components'
-import {TaskGroup} from './TaskTypes'
+import { TTaskGroup } from '../../helpers/types'
 import { RootState } from '../../redux/store'
 
 
@@ -16,7 +16,7 @@ const Status = styled.div`
 const TaskStatus = () => {
     let content: JSX.Element | null = null
 
-    const task_groups: TaskGroup[] = useSelector((state: RootState) => state.task_groups)
+    const task_groups: TTaskGroup[] = useSelector((state: RootState) => state.task_groups)
     const tasks_fetch_status: FetchStatus = useSelector((state: RootState) => state.tasks_fetch_status)
 
     switch(tasks_fetch_status){

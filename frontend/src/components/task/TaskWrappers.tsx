@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Task from './Task'
 import styled from 'styled-components'
 import moment, { Moment } from 'moment'
-import { Task as TaskType } from './TaskTypes'
+import { TTask } from '../../helpers/types'
 
 const TaskGroup = styled.div`
   display: flex;
@@ -44,7 +44,7 @@ const UnscheduledTimeAnnotationContainer = styled.div`
 `
 
 interface ScheduledTaskProps {
-  task: TaskType,
+  task: TTask,
   datetime_start: string | null,
   time_duration: number,
   next_time: Moment | null,
@@ -52,7 +52,7 @@ interface ScheduledTaskProps {
 }
 
 interface UnscheduledTaskProps {
-  tasks: TaskType[],
+  tasks: TTask[],
   time_duration: number,
   next_time: Moment | null,
   index: number,
@@ -87,7 +87,7 @@ const UnscheduledTaskGroup: React.FC<UnscheduledTaskProps> = ({ tasks, time_dura
   <TaskGroup>
     <TimeAnnotation />
     <Tasks>
-      {tasks.map((task: TaskType, index: number) => (
+      {tasks.map((task: TTask, index: number) => (
         <Task task={task} key={task.id_ordering} index={index} isDragDisabled={false} />
       ))}
     </Tasks>
