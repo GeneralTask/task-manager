@@ -29,8 +29,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install Dependencies
-        run: npm install @typescript-eslint/eslint-plugin
-        run: npm install eslint 
+        run: npm install @typescript-eslint/eslint-plugin eslint
 
       # Runs a single command using the runners shell
       - name: Run ESLint
