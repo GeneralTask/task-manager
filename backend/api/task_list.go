@@ -41,17 +41,20 @@ func (api *API) TasksList(c *gin.Context) {
 	var emails = make(chan []*database.Email)
 	go loadEmails(userID.(primitive.ObjectID), client, emails)
 
-	var JIRATasks = make(chan []*database.Task)
+	var JIRATasks = make(chan TaskResult)
 	go LoadJIRATasks(api, userID.(primitive.ObjectID), JIRATasks)
+
+	taskResult := <-JIRATasks
 
 	allTasks := MergeTasks(
 		db,
 		currentTasks,
 		<-calendarEvents,
 		<-emails,
-		<-JIRATasks,
-		utils.ExtractEmailDomain(userObject.Email),
-	)
+		taskResult.Tasks,
+		taskResult.PriorityMapping,
+		utils.ExtractEmailDomain(userObject.Email))
+
 	c.JSON(200, allTasks)
 }
 
@@ -61,6 +64,7 @@ func MergeTasks(
 	calendarEvents []*database.CalendarEvent,
 	emails []*database.Email,
 	JIRATasks []*database.Task,
+	taskPriorityMapping *map[string]int,
 	userDomain string,
 ) []*database.TaskGroup {
 
@@ -89,7 +93,7 @@ func MergeTasks(
 		case *database.Task:
 			switch b.(type) {
 			case *database.Task:
-				return compareTasks(a.(*database.Task), b.(*database.Task))
+				return compareTasks(a.(*database.Task), b.(*database.Task), taskPriorityMapping)
 			case *database.Email:
 				return compareTaskEmail(a.(*database.Task), b.(*database.Email), userDomain)
 			}
@@ -382,7 +386,7 @@ func compareEmails(e1 *database.Email, e2 *database.Email, myDomain string) bool
 	}
 }
 
-func compareTasks(t1 *database.Task, t2 *database.Task) bool {
+func compareTasks(t1 *database.Task, t2 *database.Task, priorityMapping *map[string]int) bool {
 	if res := compareTaskBases(t1, t2); res != nil {
 		return *res
 	}
@@ -399,9 +403,14 @@ func compareTasks(t1 *database.Task, t2 *database.Task) bool {
 	} else if t2.DueDate > 0 && t2.DueDate.Time().Before(sevenDaysFromNow) {
 		//t2 is due within seven days, t1 is not so prioritize t2
 		return false
-	} else if t1.Priority != t2.Priority {
-		//if either have a priority, choose the one with the higher priority
-		return t1.Priority > t2.Priority
+	} else if t1.PriorityID != t2.PriorityID {
+		if len(t1.PriorityID) > 0 && len(t2.PriorityID) > 0 {
+			return (*priorityMapping)[t1.PriorityID] < (*priorityMapping)[t2.PriorityID]
+		} else if len(t1.PriorityID) > 0 {
+			return true
+		} else {
+			return false
+		}
 	} else {
 		//if all else fails prioritize by task number.
 		return t1.TaskNumber < t2.TaskNumber

@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"go.mongodb.org/mongo-driver/mongo"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -35,6 +37,7 @@ type JIRAConfig struct {
 	CloudIDURL    *string
 	TokenURL      *string
 	TransitionURL *string
+	PriorityListURL *string
 }
 
 // JIRARedirectParams ...
@@ -61,13 +64,23 @@ type JIRATask struct {
 
 // JIRATaskFields ...
 type JIRATaskFields struct {
-	DueDate string `json:"duedate"`
-	Summary string `json:"summary"`
+	DueDate string 		`json:"duedate"`
+	Summary string 		`json:"summary"`
+	Priority PriorityID `json:"priority"`
 }
 
 // JIRATaskList represents the API list result for issues - only fields we need
 type JIRATaskList struct {
 	Issues []JIRATask `json:"issues"`
+}
+
+type PriorityID struct {
+	ID string `json:"id"`
+}
+
+type TaskResult struct {
+	Tasks []*database.Task
+	PriorityMapping *map[string]int
 }
 
 func (api *API) AuthorizeJIRA(c *gin.Context) {
@@ -187,15 +200,20 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		log.Fatalf("Failed to create external site collection record: %v", err)
 	}
 
+	err = GetListOfJIRAPriorities(api, internalToken.UserID, token.AccessToken)
+	if err != nil {
+		log.Fatalf("Failed to download priorities")
+	}
+
 	c.Redirect(302, config.GetConfigValue("HOME_URL"))
 }
 
-func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- []*database.Task) {
+func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult) {
 	authToken := getJIRAToken(api, userID)
 	siteConfiguration := getJIRASiteConfiguration(userID)
 
 	if authToken == nil || siteConfiguration == nil {
-		result <- []*database.Task{}
+		result <- emptyTaskResult()
 		return
 	}
 
@@ -207,7 +225,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- []*databas
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
 	if err != nil {
 		log.Printf("Error forming search request: %v", err)
-		result <- []*database.Task{}
+		result <- emptyTaskResult()
 		return
 	}
 	req.Header.Add("Authorization", "Bearer "+authToken.AccessToken)
@@ -215,18 +233,18 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- []*databas
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Printf("Failed to load search results: %v", err)
-		result <- []*database.Task{}
+		result <- emptyTaskResult()
 		return
 	}
 	taskData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Failed to read search response: %v", err)
-		result <- []*database.Task{}
+		result <- emptyTaskResult()
 		return
 	}
 	if resp.StatusCode != 200 {
 		log.Printf("Search failed: %s %v", taskData, resp.StatusCode)
-		result <- []*database.Task{}
+		result <- emptyTaskResult()
 		return
 	}
 
@@ -234,7 +252,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- []*databas
 	err = json.Unmarshal(taskData, &jiraTasks)
 	if err != nil {
 		log.Printf("Failed to parse JIRA tasks: %v", err)
-		result <- []*database.Task{}
+		result <- emptyTaskResult()
 		return
 	}
 
@@ -254,6 +272,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- []*databas
 				IsCompletable:  database.TaskSourceJIRA.IsCompletable,
 				TimeAllocation: time.Hour.Nanoseconds(),
 			},
+			PriorityID: jiraTask.Fields.Priority.ID,
 		}
 		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)
 		if err == nil {
@@ -269,7 +288,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- []*databas
 			database.TaskChangeableFields{
 				Title:    task.Title,
 				DueDate:  task.DueDate,
-				Priority: task.Priority,
+				PriorityID: task.PriorityID,
 			},
 		).Decode(&dbTask)
 		if err != nil {
@@ -279,8 +298,45 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- []*databas
 		task.IDOrdering = dbTask.IDOrdering
 		tasks = append(tasks, task)
 	}
-	result <- tasks
+
+	cachedMapping := fetchLocalPriorityMapping(db.Collection("jira_priorities"), userID)
+
+	//If a priority exists that isn't cached refresh the whole list.
+	var needsRefresh bool
+	for _, t := range tasks {
+		if len(t.PriorityID) == 0 {
+			continue
+		}
+		if _, exists := (*cachedMapping)[t.PriorityID]; !exists {
+			needsRefresh = true
+			break
+		}
+	}
+
+	if needsRefresh {
+		err = GetListOfJIRAPriorities(api, userID, authToken.AccessToken)
+		if err != nil {
+			log.Printf("Failed to fetch priorities")
+			result <- emptyTaskResult()
+			return
+		}
+		cachedMapping = fetchLocalPriorityMapping(db.Collection("jira_priorities"), userID)
+	}
+
+	result <- TaskResult{
+		Tasks:           tasks,
+		PriorityMapping: cachedMapping,
+	}
 }
+
+func emptyTaskResult() TaskResult {
+	var priorities map[string]int
+	return TaskResult{
+		Tasks:           []*database.Task{},
+		PriorityMapping: &priorities,
+	}
+}
+
 
 func getJIRAAPIBaseURl(siteConfiguration database.JIRASiteConfiguration) string {
 	return "https://api.atlassian.com/ex/jira/" + siteConfiguration.CloudID
@@ -464,4 +520,76 @@ func executeTransition(apiBaseURL string, jiraAuthToken string, issueID string, 
 
 	_, err := http.DefaultClient.Do(req)
 	return err == nil
+}
+
+func fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID primitive.ObjectID) *map[string]int {
+	cursor, err := prioritiesCollection.Find(context.TODO(), bson.D{{Key: "user_id", Value: userID}})
+	if err != nil {
+		log.Printf("Failed to fetch local priorities")
+		return nil
+	}
+	var priorities []database.JIRAPriority
+	err = cursor.All(context.TODO(), &priorities)
+	if err != nil {
+		return nil
+	}
+
+	result := make(map[string]int)
+	for _, p := range priorities {
+		result[p.JIRAID] = p.IntegerPriority
+	}
+	return &result
+}
+
+func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken string) error {
+	var baseURL string
+	if api.JIRAConfigValues.PriorityListURL != nil {
+		baseURL = *api.JIRAConfigValues.PriorityListURL
+	} else if siteConfiguration := getJIRASiteConfiguration(userID); siteConfiguration != nil {
+		baseURL = getJIRAAPIBaseURl(*siteConfiguration)
+	} else {
+		return errors.New("Could not form base url")
+	}
+
+	url := baseURL+"/rest/api/3/priority/"
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Add("Authorization", "Bearer "+authToken)
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		return err
+	}
+	priorityListString, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	var priorityIds []PriorityID
+	err = json.Unmarshal(priorityListString, &priorityIds)
+
+	if err != nil {
+		return err
+	}
+
+	db, dbCleanup := database.GetDBConnection()
+	defer dbCleanup()
+
+	prioritiesCollection := db.Collection("jira_priorities")
+	_, err = prioritiesCollection.DeleteMany(context.TODO(), bson.D{{Key: "user_id", Value: userID}})
+	if err != nil {
+		return err
+	}
+
+	var jiraPriorities []interface{}
+	for index, object := range priorityIds {
+		jiraPriorities = append(jiraPriorities, database.JIRAPriority{
+			UserID:          userID,
+			JIRAID:          object.ID,
+			IntegerPriority: index+1,
+		})
+	}
+	_, err = prioritiesCollection.InsertMany(context.TODO(), jiraPriorities)
+	return err
 }

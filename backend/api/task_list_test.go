@@ -88,7 +88,7 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24)),
-			Priority:   1,
+			PriorityID: "5",
 			TaskNumber: 2,
 		}
 
@@ -104,7 +104,7 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			Priority:   3,
+			PriorityID: "3",
 			TaskNumber: 12,
 		}
 
@@ -120,7 +120,7 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			Priority:   5,
+			PriorityID: "1",
 			TaskNumber: 7,
 		}
 
@@ -136,8 +136,14 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			Priority:   3,
+			PriorityID: "3",
 			TaskNumber: 1,
+		}
+
+		priorityMapping := map[string]int {
+			"1" : 1,
+			"3" : 3,
+			"5" : 5,
 		}
 
 		result := MergeTasks(
@@ -146,8 +152,8 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{&c1, &c2},
 			[]*database.Email{&e1, &e2},
 			[]*database.Task{&t1, &t2, &t3, &t4},
-			"gmail.com",
-		)
+			&priorityMapping,
+			"gmail.com")
 
 		//need to improve these asserts to compare values as well but a pain with casting
 		//for now so we'll compare JSON later.
@@ -201,7 +207,7 @@ func TestMergeTasks(t *testing.T) {
 				UserID:           userID,
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			Priority:   5,
+			PriorityID: "5",
 			TaskNumber: 7,
 		}
 		t1ID := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA.Name, t1).ID
@@ -220,7 +226,7 @@ func TestMergeTasks(t *testing.T) {
 				UserID:           userID,
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			Priority:   3,
+			PriorityID: "3",
 			TaskNumber: 12,
 		}
 		t2ID := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA.Name, t2).ID
@@ -275,12 +281,18 @@ func TestMergeTasks(t *testing.T) {
 		c3ID := database.GetOrCreateTask(db, userID, "standard_event3", database.TaskSourceGoogleCalendar.Name, c3).ID
 		c3.ID = c3ID
 
+		priorityMapping := map[string]int {
+			"3" : 3,
+			"5" : 5,
+		}
+
 		result := MergeTasks(
 			db,
 			&[]database.TaskBase{c1.TaskBase, c2.TaskBase, c3.TaskBase, t1.TaskBase, t2.TaskBase},
 			[]*database.CalendarEvent{&c1, &c2, &c3},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
+			&priorityMapping,
 			"gmail.com",
 		)
 
@@ -316,7 +328,7 @@ func TestMergeTasks(t *testing.T) {
 				UserID:         userID,
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			Priority:   5,
+			PriorityID: "5",
 			TaskNumber: 7,
 		}
 		t1ID := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA.Name, t1).ID
@@ -334,7 +346,7 @@ func TestMergeTasks(t *testing.T) {
 				UserID:         userID,
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			Priority:   3,
+			PriorityID:  "3",
 			TaskNumber: 12,
 		}
 		t2ID := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA.Name, t2).ID
@@ -371,12 +383,19 @@ func TestMergeTasks(t *testing.T) {
 		}
 		c2ID := database.GetOrCreateTask(db, userID, "standard_event2", database.TaskSourceGoogleCalendar.Name, c2).ID
 		c2.ID = c2ID
+
+		priorityMapping := map[string]int {
+			"3" : 3,
+			"5" : 5,
+		}
+
 		result := MergeTasks(
 			db,
 			&[]database.TaskBase{c1.TaskBase, c2.TaskBase, t1.TaskBase, t2.TaskBase},
 			[]*database.CalendarEvent{&c1, &c2},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
+			&priorityMapping,
 			"gmail.com",
 		)
 
@@ -411,7 +430,7 @@ func TestMergeTasks(t *testing.T) {
 				UserID:         userID,
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 1)),
-			Priority:   1,
+			PriorityID: "1",
 			TaskNumber: 7,
 		}
 
@@ -428,7 +447,7 @@ func TestMergeTasks(t *testing.T) {
 				UserID:           userID,
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			Priority:   3,
+			PriorityID: "3",
 			TaskNumber: 12,
 		}
 		t2ID := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA.Name, t2).ID
@@ -450,12 +469,18 @@ func TestMergeTasks(t *testing.T) {
 		c1ID := database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar.Name, c1).ID
 		c1.ID = c1ID
 
+		priorityMapping := map[string]int {
+			"1" : 1,
+			"3" : 3,
+		}
+
 		result := MergeTasks(
 			db,
 			&[]database.TaskBase{c1.TaskBase, t2.TaskBase},
 			[]*database.CalendarEvent{},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
+			&priorityMapping,
 			"gmail.com",
 		)
 
@@ -484,7 +509,7 @@ func TestMergeTasks(t *testing.T) {
 				UserID:         userID,
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			Priority:   5,
+			PriorityID: "5",
 			TaskNumber: 7,
 		}
 		t1ID := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA.Name, t1).ID
@@ -503,7 +528,7 @@ func TestMergeTasks(t *testing.T) {
 				UserID:           userID,
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			Priority:   3,
+			PriorityID: "3",
 			TaskNumber: 12,
 		}
 		t2ID := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA.Name, t2).ID
@@ -524,12 +549,18 @@ func TestMergeTasks(t *testing.T) {
 			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 		}
 
+		priorityMapping := map[string]int {
+			"3" : 3,
+			"5" : 5,
+		}
+
 		result := MergeTasks(
 			db,
 			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
 			[]*database.CalendarEvent{},
 			[]*database.Email{&e1},
 			[]*database.Task{&t2},
+			&priorityMapping,
 			"gmail.com",
 		)
 

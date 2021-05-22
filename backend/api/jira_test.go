@@ -196,8 +196,14 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		cloudServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
+		priorityServer := getJIRAPriorityServer(t, http.StatusOK, []byte(`[{"id" : "1"}]`))
 
-		router := GetRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL, CloudIDURL: &cloudServer.URL}})
+		router := GetRouter(&API{JIRAConfigValues: JIRAConfig{
+			TokenURL: &tokenServer.URL,
+			CloudIDURL: &cloudServer.URL,
+			PriorityListURL: &priorityServer.URL,
+		}})
+
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+stateToken, nil)
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 		recorder := httptest.NewRecorder()
@@ -231,47 +237,47 @@ func TestLoadJIRATasks(t *testing.T) {
 	jiraSiteCollection := db.Collection("jira_site_collection")
 
 	t.Run("MissingJIRAToken", func(t *testing.T) {
-		var JIRATasks = make(chan []*database.Task)
+		var JIRATasks = make(chan TaskResult)
 		userID := primitive.NewObjectID()
 		go LoadJIRATasks(&API{}, userID, JIRATasks)
 		result := <-JIRATasks
-		assert.Equal(t, 0, len(result))
+		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("RefreshTokenFailed", func(t *testing.T) {
 		userID := createJIRAToken(t, externalAPITokenCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusUnauthorized)
-		var JIRATasks = make(chan []*database.Task)
+		var JIRATasks = make(chan TaskResult)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
-		assert.Equal(t, 0, len(result))
+		assert.Equal(t, 0, len(result.Tasks))
 	})
 
 	t.Run("SearchFailed", func(t *testing.T) {
 		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
-		var JIRATasks = make(chan []*database.Task)
+		var JIRATasks = make(chan TaskResult)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
-		assert.Equal(t, 0, len(result))
+		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("EmptySearchResponse", func(t *testing.T) {
 		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
-		var JIRATasks = make(chan []*database.Task)
+		var JIRATasks = make(chan TaskResult)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
-		assert.Equal(t, 0, len(result))
+		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("Success", func(t *testing.T) {
 		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
-		var JIRATasks = make(chan []*database.Task)
+		var JIRATasks = make(chan TaskResult)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
-		assert.Equal(t, 1, len(result))
+		assert.Equal(t, 1, len(result.Tasks))
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		expectedTask := database.Task{
@@ -285,7 +291,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			},
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
-		assertTasksEqual(t, &expectedTask, result[0])
+		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
 		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
@@ -295,6 +301,57 @@ func TestLoadJIRATasks(t *testing.T) {
 		err := taskCollection.FindOne(context.TODO(), bson.D{{Key: "source", Value: database.TaskSourceJIRA.Name}, {Key: "id_external", Value: "42069"}}).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
+	})
+}
+
+func TestGetPriorities(t *testing.T) {
+	db, dbCleanup := database.GetDBConnection()
+	defer dbCleanup()
+
+	prioritiesCollection := db.Collection("jira_priorities")
+
+	userID := setupJIRA(t, db.Collection("external_api_tokens"), db.Collection("jira_site_collection"))
+
+	t.Run("ServerError", func(t *testing.T) {
+		server := getJIRAPriorityServer(t, 400, []byte(``))
+		defer server.Close()
+		api := &API{JIRAConfigValues: JIRAConfig{PriorityListURL: &server.URL}}
+		err := GetListOfJIRAPriorities(api, *userID, "sample")
+		assert.Error(t, err)
+	})
+
+	t.Run("Success", func(t *testing.T) {
+		server := getJIRAPriorityServer(t, 200, []byte(`[{"id": "9"},{"id": "5"}]`))
+		defer server.Close()
+		api := &API{JIRAConfigValues: JIRAConfig{PriorityListURL: &server.URL}}
+		err := GetListOfJIRAPriorities(api, *userID, "sample")
+		assert.NoError(t, err)
+
+		options := options.Find()
+		options.SetSort(bson.D{{"integer_priority", 1}})
+		cursor, err := prioritiesCollection.Find(context.TODO(), bson.D{{Key: "user_id", Value: userID}}, options)
+		assert.NoError(t, err)
+		var priorities []database.JIRAPriority
+		err = cursor.All(context.TODO(), &priorities)
+		assert.NoError(t, err)
+		assert.Equal(t, 2, len(priorities))
+		assert.Equal(t,"9",  priorities[0].JIRAID)
+		assert.Equal(t,1,  priorities[0].IntegerPriority)
+		assert.Equal(t,"5",  priorities[1].JIRAID)
+		assert.Equal(t,2,  priorities[1].IntegerPriority)
+
+		server = getJIRAPriorityServer(t, http.StatusOK, []byte(`[{"id": "8"}]`))
+		api = &API{JIRAConfigValues: JIRAConfig{PriorityListURL: &server.URL}}
+		err = GetListOfJIRAPriorities(api, *userID, "sample")
+		assert.NoError(t, err)
+
+		cursor, err = prioritiesCollection.Find(context.TODO(), bson.D{{Key: "user_id", Value: userID}}, options)
+		assert.NoError(t, err)
+		err = cursor.All(context.TODO(), &priorities)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(priorities))
+		assert.Equal(t,"8",  priorities[0].JIRAID)
+		assert.Equal(t,1,  priorities[0].IntegerPriority)
 	})
 }
 
@@ -402,5 +459,14 @@ func getTransitionIDServerForJIRA(t *testing.T) *httptest.Server {
 		} else {
 			w.WriteHeader(400)
 		}
+	}))
+}
+
+func getJIRAPriorityServer(t *testing.T, statusCode int, response []byte) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/rest/api/3/priority/", r.RequestURI)
+		assert.Equal(t, "GET", r.Method)
+		w.WriteHeader(statusCode)
+		w.Write(response)
 	}))
 }

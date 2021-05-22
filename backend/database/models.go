@@ -44,6 +44,13 @@ type JIRASiteConfiguration struct {
 	SiteURL		  string             `bson:"site_url"`
 }
 
+type JIRAPriority struct {
+	ID            	primitive.ObjectID `bson:"_id,omitempty"`
+	UserID          primitive.ObjectID `bson:"user_id"`
+	JIRAID 	      	string             `bson:"jira_id"`
+	IntegerPriority int                `bson:"integer_priority"`
+}
+
 type StateToken struct {
 	Token  primitive.ObjectID `bson:"_id,omitempty"`
 	UserID primitive.ObjectID `bson:"user_id"`
@@ -86,16 +93,16 @@ type Email struct {
 }
 
 type Task struct {
-	TaskBase   `bson:",inline"`
-	DueDate    primitive.DateTime `bson:"due_date"`
-	Priority   int                `bson:"priority"`
-	TaskNumber int                `bson:"task_number"`
+	TaskBase     `bson:",inline"`
+	DueDate      primitive.DateTime `bson:"due_date"`
+	PriorityID   string           `bson:"priority_id"`
+	TaskNumber   int                `bson:"task_number"`
 }
 
 type TaskChangeableFields struct {
-	Title    string             `json:"title" bson:"title,omitempty"`
-	DueDate  primitive.DateTime `bson:"due_date,omitempty"`
-	Priority int                `bson:"priority,omitempty"`
+	Title      string                `json:"title" bson:"title,omitempty"`
+	DueDate    primitive.DateTime    `bson:"due_date,omitempty"`
+	PriorityID string                `bson:"priority_id,omitempty"`
 }
 
 type TaskGroup struct {
