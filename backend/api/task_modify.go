@@ -102,9 +102,10 @@ func MarkTaskComplete(api *API, c *gin.Context,  taskID primitive.ObjectID) {
 	}
 
 	if success {
-		//if it fails now, it should update on next client refresh because the third party server is the source of truth
-		//so we'll just ignore failures here.
-		taskCollection.UpdateOne(nil, bson.D{{"_id", taskID}}, bson.D{{"$set", bson.D{{"is_completed", true}}}})
+		_, err := taskCollection.UpdateOne(nil, bson.D{{"_id", taskID}}, bson.D{{"$set", bson.D{{"is_completed", true}}}})
+		if err != nil {
+			log.Fatalf("Failed to update internal DB with completion status %v", err)
+		}
 		c.JSON(200, gin.H{})
 	} else {
 		c.JSON(400, gin.H{"detail": "Failed to mark task as complete"})
