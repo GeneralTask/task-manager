@@ -77,6 +77,7 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 	}
 
 	log.Printf("Failed to load user setting: %v", err)
+	// Default to first choice value
 	for _, setting := range Settings {
 		if setting.FieldKey == fieldKey {
 			return setting.Choices[0].Key
