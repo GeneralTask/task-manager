@@ -298,6 +298,47 @@ func TestLoadJIRATasks(t *testing.T) {
 	})
 }
 
+func TestGetPriorities(t *testing.T) {
+	db, dbCleanup := database.GetDBConnection()
+	defer dbCleanup()
+
+	prioritiesCollection := db.Collection("jira_priorities")
+
+	userID := setupJIRA(t, db.Collection("external_api_tokens"), db.Collection("jira_site_collection"))
+	server := getJIRAPriorityServer(t, []byte(`[{"id": "9"},{"id": "5"}]`))
+	defer server.Close()
+	api := &API{JIRAConfigValues: JIRAConfig{PriorityListURL: &server.URL}}
+	success := GetListOfJIRAPriorities(api, *userID, "sample")
+	assert.True(t, success)
+
+	options := options.Find()
+	options.SetSort(bson.D{{"integer_priority", 1}})
+	cursor, err := prioritiesCollection.Find(context.TODO(), bson.D{{Key: "user_id", Value: userID}}, options)
+	assert.NoError(t, err)
+	var priorities []database.JIRAPriority
+	err = cursor.All(context.TODO(), &priorities)
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(priorities))
+	assert.Equal(t,"9",  priorities[0].JIRAID)
+	assert.Equal(t,1,  priorities[0].IntegerPriority)
+	assert.Equal(t,"5",  priorities[1].JIRAID)
+	assert.Equal(t,2,  priorities[1].IntegerPriority)
+
+	server = getJIRAPriorityServer(t, []byte(`[{"id": "8"}]`))
+	api = &API{JIRAConfigValues: JIRAConfig{PriorityListURL: &server.URL}}
+	success = GetListOfJIRAPriorities(api, *userID, "sample")
+	assert.True(t, success)
+
+	cursor, err = prioritiesCollection.Find(context.TODO(), bson.D{{Key: "user_id", Value: userID}}, options)
+	assert.NoError(t, err)
+	err = cursor.All(context.TODO(), &priorities)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(priorities))
+	assert.Equal(t,"8",  priorities[0].JIRAID)
+	assert.Equal(t,1,  priorities[0].IntegerPriority)
+
+}
+
 func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
@@ -402,5 +443,14 @@ func getTransitionIDServerForJIRA(t *testing.T) *httptest.Server {
 		} else {
 			w.WriteHeader(400)
 		}
+	}))
+}
+
+func getJIRAPriorityServer(t *testing.T, response []byte) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/rest/api/3/priority/", r.RequestURI)
+		assert.Equal(t, "GET", r.Method)
+		w.WriteHeader(200)
+		w.Write(response)
 	}))
 }
