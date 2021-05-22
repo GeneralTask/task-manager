@@ -95,9 +95,13 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 			for _, messagePart := range message.Payload.Parts {
 				if messagePart.MimeType == "text/html" {
 					body = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
+				} else if messagePart.MimeType == "text/plain" && len(body) == 0 {
+					//Only use plain text if we haven't found html, prefer html.
+					body = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
 				}
 			}
 
+			//fallback to body if there are no parts.
 			if len(body) == 0 {
 				body = parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
 			}
