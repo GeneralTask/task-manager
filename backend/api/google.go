@@ -83,15 +83,15 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 				title = header.Value
 			}
 		}
-		var content = ""
+		var body = ""
 		for _, messagePart := range thread.Messages[0].Payload.Parts {
 			if messagePart.MimeType == "text/html" {
 				data := messagePart.Body.Data
-				contentData, err := base64.URLEncoding.DecodeString(data)
+				bodyData, err := base64.URLEncoding.DecodeString(data)
 				if err != nil {
 					log.Fatalf("failed to decode email body! %v", err)
 				}
-				content = string(contentData)
+				body = string(bodyData)
 				break
 			}
 		}
@@ -114,6 +114,7 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 				Source:         database.TaskSourceGmail.Name,
 				Deeplink:       fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
 				Title:          title,
+				Body: 			body,
 				Logo:           database.TaskSourceGmail.Logo,
 				IsCompletable:  database.TaskSourceGmail.IsCompletable,
 				TimeAllocation: timeAllocation.Nanoseconds(),

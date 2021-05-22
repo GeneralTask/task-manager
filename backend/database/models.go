@@ -68,7 +68,7 @@ type TaskBase struct {
 	Source           string             `json:"source" bson:"source"`
 	Deeplink         string             `json:"deeplink" bson:"deeplink"`
 	Title            string             `json:"title" bson:"title"`
-	Content          string             `json:"content" bson:"content"`
+	Body             string             `json:"body" bson:"body"`
 	Logo             string             `json:"logo_url" bson:"logo"`
 	HasBeenReordered bool               `json:"has_been_reordered" bson:"has_been_reordered"`
 	//time in nanoseconds
