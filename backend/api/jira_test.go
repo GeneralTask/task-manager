@@ -196,8 +196,14 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		cloudServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
+		priorityServer := getJIRAPriorityServer(t, []byte(`[{"id" : "1"}]`))
 
-		router := GetRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL, CloudIDURL: &cloudServer.URL}})
+		router := GetRouter(&API{JIRAConfigValues: JIRAConfig{
+			TokenURL: &tokenServer.URL,
+			CloudIDURL: &cloudServer.URL,
+			PriorityListURL: &priorityServer.URL,
+		}})
+
 		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+stateToken, nil)
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 		recorder := httptest.NewRecorder()
