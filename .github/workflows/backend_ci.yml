@@ -7,11 +7,11 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
     paths: 
-      - 'backend/**'
+      - '**/backend/**'
     branches: [ master ]
   pull_request:
     paths: 
-      - 'backend/**'
+      - '**/backend/**'
     branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
