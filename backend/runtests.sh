@@ -2,7 +2,7 @@
 
 go clean -testcache
 export DB_NAME=test
-go test -cover -v ./...
+go test -p 1 -cover -v ./...
 if [ $? -eq 0 ]
 then
     echo "Tests succeeded!"

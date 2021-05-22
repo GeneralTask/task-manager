@@ -100,7 +100,14 @@ func TestCalendar(t *testing.T) {
 		taskCollection := db.Collection("tasks")
 
 		var calendarEventFromDB database.CalendarEvent
-		err := taskCollection.FindOne(context.TODO(), bson.D{{Key: "source", Value: database.TaskSourceGoogleCalendar.Name}, {Key: "id_external", Value: "standard_event"}}).Decode(&calendarEventFromDB)
+		err := taskCollection.FindOne(
+			context.TODO(),
+			bson.M{"$and": []bson.M{
+				{"id_external": "standard_event"},
+				{"source": database.TaskSourceGoogleCalendar.Name},
+				{"user_id": userID},
+			}},
+		).Decode(&calendarEventFromDB)
 		assert.NoError(t, err)
 		assertCalendarEventsEqual(t, &standardTask, &calendarEventFromDB)
 	})
@@ -157,7 +164,14 @@ func TestCalendar(t *testing.T) {
 		taskCollection := db.Collection("tasks")
 
 		var calendarEventFromDB database.CalendarEvent
-		err := taskCollection.FindOne(context.TODO(), bson.D{{Key: "source", Value: database.TaskSourceGoogleCalendar.Name}, {Key: "id_external", Value: "standard_event"}}).Decode(&calendarEventFromDB)
+		err := taskCollection.FindOne(
+			context.TODO(),
+			bson.M{"$and": []bson.M{
+				{"id_external": "standard_event"},
+				{"source": database.TaskSourceGoogleCalendar.Name},
+				{"user_id": userID},
+			}},
+		).Decode(&calendarEventFromDB)
 		assert.NoError(t, err)
 		// DB is not updated until task merge
 		standardTask.IDOrdering = 1
