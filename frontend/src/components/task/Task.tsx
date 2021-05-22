@@ -24,7 +24,7 @@ interface Props {
 }
 
 // nolan pls help
-type UNKNOWN_PROVIDED_TYPE = any 
+type UNKNOWN_PROVIDED_TYPE = any  
 
 const Task: React.FC<Props> = ({ task, index, isDragDisabled }: Props) => (
   <Draggable draggableId={task.id} index={index}>

@@ -26,16 +26,16 @@ jobs:
     defaults:
       run:
         working-directory: frontend
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      - name: Install Dependencies
-        run: npm install @typescript-eslint/eslint-plugin eslint
-
-      # Runs a single command using the runners shell
-      - name: Run ESLint
-        run: npx eslint src --no-fix
-
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - name: Install
+        run: npm ci  # OR: yarn 
+      - name: Run eslint on changed files
+        uses: tj-actions/eslint-changed-files@v6.3
+        with:
+          config_path: "./.eslintrc"
+          extensions: "ts,tsx,js,jsx"
+          extra_args: "--max-warnings=0"
