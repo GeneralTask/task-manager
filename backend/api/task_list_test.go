@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -88,7 +90,7 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24)),
-			Priority:   1,
+			PriorityID: "1",
 			TaskNumber: 2,
 		}
 
@@ -104,7 +106,7 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			Priority:   3,
+			PriorityID: "3",
 			TaskNumber: 12,
 		}
 
@@ -120,7 +122,7 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			Priority:   5,
+			PriorityID: "5",
 			TaskNumber: 7,
 		}
 
@@ -136,8 +138,15 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			Priority:   3,
+			PriorityID: "3",
 			TaskNumber: 1,
+		}
+
+		priorityMapping := map[string]int {
+			"1" : 1,
+			"3" : 3,
+			"5" : 5,
+			"7" : 7,
 		}
 
 		result := MergeTasks(
@@ -146,8 +155,8 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{&c1, &c2},
 			[]*database.Email{&e1, &e2},
 			[]*database.Task{&t1, &t2, &t3, &t4},
-			"gmail.com",
-		)
+			&priorityMapping,
+			"gmail.com")
 
 		//need to improve these asserts to compare values as well but a pain with casting
 		//for now so we'll compare JSON later.
@@ -546,4 +555,14 @@ func getTaskForTest(t *testing.T, taskCollection *mongo.Collection, taskID primi
 	err := taskCollection.FindOne(context.TODO(), bson.M{"_id": taskID}).Decode(&updatedTask)
 	assert.NoError(t, err)
 	return &updatedTask
+}
+
+func TestTaskListSample(t *testing.T) {
+	authToken := "0cb165c0-74d6-4ce7-8cd8-a734aa4e8ba4"
+	router := GetRouter(&API{})
+	request, _ := http.NewRequest("GET", "/tasks/", nil)
+	request.Header.Add("Authorization", "Bearer " + authToken)
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusOK, recorder.Code)
 }

@@ -41,17 +41,19 @@ func (api *API) TasksList(c *gin.Context) {
 	var emails = make(chan []*database.Email)
 	go loadEmails(userID.(primitive.ObjectID), client, emails)
 
-	var JIRATasks = make(chan []*database.Task)
+	var JIRATasks = make(chan TaskResult)
 	go LoadJIRATasks(api, userID.(primitive.ObjectID), JIRATasks)
 
+	taskResult := <-JIRATasks
+
 	allTasks := MergeTasks(
-		db,
 		currentTasks,
 		<-calendarEvents,
 		<-emails,
-		<-JIRATasks,
-		utils.ExtractEmailDomain(userObject.Email),
-	)
+		taskResult.Tasks,
+		taskResult.PriorityMapping,
+		utils.ExtractEmailDomain(userObject.Email))
+
 	c.JSON(200, allTasks)
 }
 
@@ -89,7 +91,7 @@ func MergeTasks(
 		case *database.Task:
 			switch b.(type) {
 			case *database.Task:
-				return compareTasks(a.(*database.Task), b.(*database.Task))
+				return compareTasks(a.(*database.Task), b.(*database.Task), taskPriorityMapping)
 			case *database.Email:
 				return compareTaskEmail(a.(*database.Task), b.(*database.Email), userDomain)
 			}
@@ -401,7 +403,7 @@ func compareTasks(t1 *database.Task, t2 *database.Task) bool {
 		return false
 	} else if (*priorityMapping)[t1.PriorityID] != (*priorityMapping)[t2.PriorityID]{
 		//if either have a priority, choose the one with the higher priority
-		return t1.Priority > t2.Priority
+		return (*priorityMapping)[t1.PriorityID] > (*priorityMapping)[t2.PriorityID]
 	} else {
 		//if all else fails prioritize by task number.
 		return t1.TaskNumber < t2.TaskNumber
