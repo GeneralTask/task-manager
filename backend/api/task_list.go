@@ -2,9 +2,7 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"log"
-	"net/http"
 	"sort"
 	"time"
 
@@ -14,14 +12,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/oauth2"
 )
 
 func (api *API) TasksList(c *gin.Context) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	var googleToken database.ExternalAPIToken
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := db.Collection("users")
@@ -31,28 +27,22 @@ func (api *API) TasksList(c *gin.Context) {
 		log.Fatalf("Failed to find user")
 	}
 
-	err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken)
-
-	if err != nil {
+	client := getGoogleHttpClient(externalAPITokenCollection, userID.(primitive.ObjectID))
+	if client == nil {
 		log.Fatalf("Failed to fetch external API token: %v", err)
 	}
-
-	var token oauth2.Token
-	json.Unmarshal([]byte(googleToken.Token), &token)
-	config := GetGoogleConfig()
-	client := config.Client(context.Background(), &token).(*http.Client)
 
 	//TODO: load the IDs / ordering IDs of the current tasks
 	currentTasks := database.GetActiveTasks(db, userID.(primitive.ObjectID))
 
 	var calendarEvents = make(chan []*database.CalendarEvent)
-	go LoadCalendarEvents(userID.(primitive.ObjectID), client, calendarEvents, nil)
+	go LoadCalendarEvents(api, userID.(primitive.ObjectID), client, calendarEvents)
 
 	var emails = make(chan []*database.Email)
 	go loadEmails(userID.(primitive.ObjectID), client, emails)
 
 	var JIRATasks = make(chan []*database.Task)
-	go LoadJIRATasks(api, externalAPITokenCollection, userID.(primitive.ObjectID), JIRATasks)
+	go LoadJIRATasks(api, userID.(primitive.ObjectID), JIRATasks)
 
 	allTasks := MergeTasks(currentTasks, <-calendarEvents, <-emails, <-JIRATasks, utils.ExtractEmailDomain(userObject.Email))
 	c.JSON(200, allTasks)

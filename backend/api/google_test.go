@@ -2,6 +2,9 @@ package api
 
 import (
 	"context"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -75,8 +78,12 @@ func TestCalendar(t *testing.T) {
 
 		server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
 		defer server.Close()
+
 		var calendarEvents = make(chan []*database.CalendarEvent)
-		go LoadCalendarEvents(primitive.NewObjectID(), nil, calendarEvents, &server.URL)
+		api := &API{
+			GoogleURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+		}
+		go LoadCalendarEvents(api, primitive.NewObjectID(), nil, calendarEvents)
 		result := <-calendarEvents
 		assert.Equal(t, 1, len(result))
 		firstTask := result[0]
@@ -93,9 +100,12 @@ func TestCalendar(t *testing.T) {
 	})
 	t.Run("EmptyResult", func(t *testing.T) {
 		server := getServerForTasks([]*calendar.Event{})
+		api := API{
+			GoogleURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+		}
 		defer server.Close()
 		var calendarEvents = make(chan []*database.CalendarEvent)
-		go LoadCalendarEvents(primitive.NewObjectID(), nil, calendarEvents, &server.URL)
+		go LoadCalendarEvents(&api, primitive.NewObjectID(), nil, calendarEvents)
 		result := <-calendarEvents
 		assert.Equal(t, 0, len(result))
 	})
@@ -111,3 +121,14 @@ func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *datab
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.Source, b.Source)
 }
+
+func getGmailArchiveServer(t *testing.T) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := ioutil.ReadAll(r.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"removeLabelIds\":[\"INBOX\"]}\n", string(body))
+		w.WriteHeader(200)
+		w.Write([]byte(`{}`))
+	}))
+}
+

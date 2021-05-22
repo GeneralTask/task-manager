@@ -37,6 +37,13 @@ type ExternalAPIToken struct {
 	UserID primitive.ObjectID `bson:"user_id"`
 }
 
+type JIRASiteConfiguration struct {
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	UserID 	      primitive.ObjectID `bson:"user_id"`
+	CloudID 	  string             `bson:"cloud_id"`
+	SiteURL		  string             `bson:"site_url"`
+}
+
 type StateToken struct {
 	Token  primitive.ObjectID `bson:"_id,omitempty"`
 	UserID primitive.ObjectID `bson:"user_id"`
@@ -49,6 +56,7 @@ type TaskBase struct {
 	IDExternal       string             `json:"-" bson:"id_external"`
 	IDOrdering       int                `json:"id_ordering" bson:"id_ordering"`
 	IsCompleted      bool               `json:"-" bson:"is_completed"`
+	IsCompletable    bool				 `json:"is_completable" bson:"is_completable"`
 	Sender           string             `json:"sender" bson:"sender"`
 	Source           string             `json:"source" bson:"source"`
 	Deeplink         string             `json:"deeplink" bson:"deeplink"`
@@ -107,8 +115,9 @@ const (
 type TaskSource struct {
 	Name string
 	Logo string
+	IsCompletable bool
 }
 
-var TaskSourceGoogleCalendar = TaskSource{"Google Calendar", "/images/gcal.svg"}
-var TaskSourceGmail = TaskSource{"Gmail", "/images/gmail.svg"}
-var TaskSourceJIRA = TaskSource{"Jira", "/images/jira.svg"}
+var TaskSourceGoogleCalendar = TaskSource{"Google Calendar", "/images/gcal.svg", false}
+var TaskSourceGmail = TaskSource{"Gmail", "/images/gmail.svg", true}
+var TaskSourceJIRA = TaskSource{"Jira", "/images/jira.svg", true}

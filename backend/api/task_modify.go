@@ -11,7 +11,8 @@ import (
 )
 
 type TaskModifyParams struct {
-	IDOrdering int `json:"id_ordering" binding:"required"`
+	IDOrdering *int `json:"id_ordering"`
+	IsCompleted *bool `json:"is_completed"`
 }
 
 func (api *API) TaskModify(c *gin.Context) {
@@ -24,10 +25,34 @@ func (api *API) TaskModify(c *gin.Context) {
 	}
 	var modifyParams TaskModifyParams
 	err = c.BindJSON(&modifyParams)
-	if err != nil {
-		c.JSON(400, gin.H{"detail": "'id_ordering' parameter missing or malformatted"})
+
+	if err != nil || (modifyParams.IsCompleted == nil && modifyParams.IDOrdering == nil) {
+		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
 		return
 	}
+
+	if modifyParams.IsCompleted != nil && modifyParams.IDOrdering != nil {
+		c.JSON(400, gin.H{"detail": "Cannot reorder and mark as complete"})
+		return
+	}
+
+	if modifyParams.IsCompleted != nil {
+		if *modifyParams.IsCompleted {
+			MarkTaskComplete(api, c, taskID)
+		} else {
+			c.JSON(400, gin.H{"detail": "Tasks can only be marked as complete."})
+		}
+	} else if modifyParams.IDOrdering != nil {
+		ReOrderTask(c, taskID, *modifyParams.IDOrdering)
+	} else {
+		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
+		return
+	}
+
+}
+
+//todo: john.
+func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, reorder int) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	taskCollection := db.Collection("tasks")
@@ -35,7 +60,7 @@ func (api *API) TaskModify(c *gin.Context) {
 		context.TODO(),
 		bson.D{{Key: "_id", Value: taskID}},
 		bson.D{{Key: "$set", Value: bson.D{
-			{Key: "id_ordering", Value: modifyParams.IDOrdering},
+			{Key: "id_ordering", Value: reorder},
 			{Key: "has_been_reordered", Value: true},
 		}}},
 	)
@@ -47,4 +72,42 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{})
+}
+
+func MarkTaskComplete(api *API, c *gin.Context,  taskID primitive.ObjectID) {
+	db, dbCleanup := database.GetDBConnection()
+	defer dbCleanup()
+	taskCollection := db.Collection("tasks")
+
+	userID, _ := c.Get("user")
+
+	var task database.TaskBase
+	if taskCollection.FindOne(nil, bson.D{{Key: "_id", Value: taskID}}).Decode(&task) != nil {
+		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
+		return
+	}
+
+	if task.UserID != userID.(primitive.ObjectID) {
+		c.JSON(404, gin.H{"detail": "Task not found for user."})
+		return
+	}
+
+	var success bool
+	if task.Source == database.TaskSourceGoogleCalendar.Name {
+		success = false
+	} else if task.Source == database.TaskSourceGmail.Name {
+		success = MarkEmailAsRead(api, userID.(primitive.ObjectID), task.IDExternal)
+	} else if task.Source == database.TaskSourceJIRA.Name {
+		success = MarkJIRATaskDone(api, userID.(primitive.ObjectID), task.IDExternal)
+	}
+
+	if success {
+		_, err := taskCollection.UpdateOne(nil, bson.D{{"_id", taskID}}, bson.D{{"$set", bson.D{{"is_completed", true}}}})
+		if err != nil {
+			log.Fatalf("Failed to update internal DB with completion status %v", err)
+		}
+		c.JSON(200, gin.H{})
+	} else {
+		c.JSON(400, gin.H{"detail": "Failed to mark task as complete"})
+	}
 }
