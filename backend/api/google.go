@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/GeneralTask/task-manager/backend/templating"
 	"log"
 	"net/http"
 	"strings"
@@ -86,13 +87,7 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 		var body = ""
 		for _, messagePart := range thread.Messages[0].Payload.Parts {
 			if messagePart.MimeType == "text/html" {
-				data := messagePart.Body.Data
-				bodyData, err := base64.URLEncoding.DecodeString(data)
-				if err != nil {
-					log.Fatalf("failed to decode email body! %v", err)
-				}
-				body = string(bodyData)
-				break
+				body = parseMessagePart(messagePart)
 			}
 		}
 
@@ -130,6 +125,23 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 	}
 
 	result <- emails
+}
+
+func parseMessagePart(messagePart *gmail.MessagePart) string {
+	data := messagePart.Body.Data
+	bodyData, err := base64.URLEncoding.DecodeString(data)
+	if err != nil {
+		log.Fatalf("failed to decode email body. %v", err)
+	}
+	body := string(bodyData)
+
+	if messagePart.MimeType == "text/plain" {
+		body, err = templating.FormatPlainTextAsHTML(body)
+		if err != nil {
+			log.Fatalf("failed to format email body. %v", err)
+		}
+	}
+	return body
 }
 
 func LoadCalendarEvents(

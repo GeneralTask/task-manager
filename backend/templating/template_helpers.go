@@ -7,14 +7,14 @@ import (
 	"runtime"
 )
 
-func GetJIRAHTMLString(description string) (string, error) {
-	if len(description) == 0 {
-		return description, nil
+func FormatPlainTextAsHTML(text string) (string, error) {
+	if len(text) == 0 {
+		return text, nil
 	}
 
-	template := template.Must(template.ParseFiles(getDirectoryOfTemplate("jira_plain_text.html")))
+	template := template.Must(template.ParseFiles(getDirectoryOfTemplate("plain_text_template.html")))
 	buffer := new(bytes.Buffer)
-	err := template.ExecuteTemplate(buffer, "Description", description)
+	err := template.ExecuteTemplate(buffer, "Description", text)
 	return buffer.String(), err
 }
 

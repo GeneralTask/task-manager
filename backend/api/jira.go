@@ -264,7 +264,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 
 	var tasks []*database.Task
 	for _, jiraTask := range jiraTasks.Issues {
-		bodyString, err :=  templating.GetJIRAHTMLString(jiraTask.Fields.Description)
+		bodyString, err :=  templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
 		if err != nil {
 			log.Fatalf("Unable to parse JIRA template %v", err)
 		}
