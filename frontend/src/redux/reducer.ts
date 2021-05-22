@@ -18,24 +18,24 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
         return {
           ...state,
           task_groups: action.task_groups,
-        };
+        }
 
       case actions.SET_TASKS_FETCH_STATUS:
         return {
           ...state,
           tasks_fetch_status: action.tasks_fetch_status,
-        };
+        }
 
       case actions.REMOVE_TASK:
-        task_groups = [...state.task_groups];
-        task_groups.splice(action.index, 1);
+        task_groups = [...state.task_groups]
+        task_groups.splice(action.index, 1)
         return {
           ...state,
           task_groups,
-        };
+        }
 
       case actions.REMOVE_TASK_BY_ID:
-        task_groups = [...state.task_groups];
+        task_groups = [...state.task_groups]
         // loops through the tasks and removes the one with the id
         return {
           ...state,
@@ -43,7 +43,7 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
             ...task_group,
             tasks: task_group.tasks.filter((task: TTask) => task.id !== action.id),
           })),
-        };
+        }
 
       case actions.EXPAND_BODY:
         return {
@@ -58,7 +58,7 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
           }
 
       default:
-        return state;
+        return state
     }
 }
 
