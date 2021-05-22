@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func (api *API) TasksList(c *gin.Context) {
@@ -32,7 +33,6 @@ func (api *API) TasksList(c *gin.Context) {
 		log.Fatalf("Failed to fetch external API token: %v", err)
 	}
 
-	//TODO: load the IDs / ordering IDs of the current tasks
 	currentTasks := database.GetActiveTasks(db, userID.(primitive.ObjectID))
 
 	var calendarEvents = make(chan []*database.CalendarEvent)
@@ -44,11 +44,25 @@ func (api *API) TasksList(c *gin.Context) {
 	var JIRATasks = make(chan []*database.Task)
 	go LoadJIRATasks(api, userID.(primitive.ObjectID), JIRATasks)
 
-	allTasks := MergeTasks(currentTasks, <-calendarEvents, <-emails, <-JIRATasks, utils.ExtractEmailDomain(userObject.Email))
+	allTasks := MergeTasks(
+		db,
+		currentTasks,
+		<-calendarEvents,
+		<-emails,
+		<-JIRATasks,
+		utils.ExtractEmailDomain(userObject.Email),
+	)
 	c.JSON(200, allTasks)
 }
 
-func MergeTasks(currentTasks *[]database.TaskBase, calendarEvents []*database.CalendarEvent, emails []*database.Email, JIRATasks []*database.Task, userDomain string) []*database.TaskGroup {
+func MergeTasks(
+	db *mongo.Database,
+	currentTasks *[]database.TaskBase,
+	calendarEvents []*database.CalendarEvent,
+	emails []*database.Email,
+	JIRATasks []*database.Task,
+	userDomain string,
+) []*database.TaskGroup {
 
 	//sort calendar events by start time.
 	sort.SliceStable(calendarEvents, func(i, j int) bool {
@@ -64,11 +78,9 @@ func MergeTasks(currentTasks *[]database.TaskBase, calendarEvents []*database.Ca
 		allUnscheduledTasks = append(allUnscheduledTasks, t)
 	}
 
-	//TODO: get list of 'done' tasks and their ordering IDs
-	//TODO: adjust downward ordering IDs based on removed tasks
+	adjustForCompletedTasks(db, currentTasks, &allUnscheduledTasks, &calendarEvents)
 
 	//first we sort the emails and tasks into a single array
-	//TODO: modify comparison functions to use IDordering is exists on both, otherwise use standard function but always put has_prioritized first
 	sort.SliceStable(allUnscheduledTasks, func(i, j int) bool {
 		a := allUnscheduledTasks[i]
 		b := allUnscheduledTasks[j]
@@ -126,16 +138,15 @@ func MergeTasks(currentTasks *[]database.TaskBase, calendarEvents []*database.Ca
 			timeAllocation = taskBase.TimeAllocation
 		}
 
-		if len(tasks) > 0 {
-			taskGroups = append(taskGroups, &database.TaskGroup{
-				TaskGroupType: database.UnscheduledGroup,
-				StartTime:     lastEndTime.String(),
-				Duration:      totalDuration / int64(time.Second),
-				Tasks:         tasks,
-			})
-			totalDuration = 0
-			tasks = nil
-		}
+		// This may be empty but is needed for adjustForReorderedTasks
+		taskGroups = append(taskGroups, &database.TaskGroup{
+			TaskGroupType: database.UnscheduledGroup,
+			StartTime:     lastEndTime.String(),
+			Duration:      totalDuration / int64(time.Second),
+			Tasks:         tasks,
+		})
+		totalDuration = 0
+		tasks = nil
 
 		taskGroups = append(taskGroups, &database.TaskGroup{
 			TaskGroupType: database.ScheduledTask,
@@ -168,18 +179,173 @@ func MergeTasks(currentTasks *[]database.TaskBase, calendarEvents []*database.Ca
 		totalDuration += t.TimeAllocation
 		tasks = append(tasks, t)
 	}
-	if len(tasks) > 0 {
-		taskGroups = append(taskGroups, &database.TaskGroup{
-			TaskGroupType: database.UnscheduledGroup,
-			StartTime:     lastEndTime.String(),
-			Duration:      totalDuration / int64(time.Second),
-			Tasks:         tasks,
-		})
-	}
+	// This may be empty but is needed for adjustForReorderedTasks
+	taskGroups = append(taskGroups, &database.TaskGroup{
+		TaskGroupType: database.UnscheduledGroup,
+		StartTime:     lastEndTime.String(),
+		Duration:      totalDuration / int64(time.Second),
+		Tasks:         tasks,
+	})
 
-	//TODO: update ordering IDs and save to db
+	adjustForReorderedTasks(&taskGroups)
+	taskGroups = *getNonEmptyTaskGroups(&taskGroups)
+	updateOrderingIDs(db, &taskGroups)
 
 	return taskGroups
+}
+
+func adjustForCompletedTasks(
+	db *mongo.Database,
+	currentTasks *[]database.TaskBase,
+	unscheduledTasks *[]interface{},
+	calendarEvents *[]*database.CalendarEvent,
+) {
+	tasksCollection := db.Collection("tasks")
+	var newTasks []*database.TaskBase
+	newTaskIDs := make(map[primitive.ObjectID]bool)
+	for _, unscheduledTask := range *unscheduledTasks {
+		taskBase := getTaskBase(unscheduledTask)
+		newTasks = append(newTasks, taskBase)
+		newTaskIDs[taskBase.ID] = true
+	}
+	for _, calendarEvent := range *calendarEvents {
+		newTasks = append(newTasks, &calendarEvent.TaskBase)
+		newTaskIDs[calendarEvent.ID] = true
+	}
+	// There's a more efficient way to do this but this way is easy to understand
+	for _, currentTask := range *currentTasks {
+		if !newTaskIDs[currentTask.ID] {
+			res, err := tasksCollection.UpdateOne(
+				context.TODO(),
+				bson.M{"_id": currentTask.ID},
+				bson.D{{Key: "$set", Value: bson.D{{Key: "is_completed", Value: true}}}},
+			)
+			if err != nil {
+				log.Fatalf("Failed to update task ordering ID: %v", err)
+			}
+			if res.ModifiedCount != 1 {
+				log.Printf("Did not find task to update (ID=%v)", currentTask.ID)
+			}
+			for _, newTask := range newTasks {
+				if newTask.IDOrdering > currentTask.IDOrdering {
+					newTask.IDOrdering -= 1
+				}
+			}
+		}
+	}
+}
+
+type CalendarItemTuple struct {
+	IDOrdering     int
+	TaskGroupIndex int
+}
+
+func adjustForReorderedTasks(taskGroups *[]*database.TaskGroup) {
+	// for each reordered task, ensure it is in the correct ordering position relative to calendar events
+	taskGroupToPreviousCalendarItems := make(map[int][]CalendarItemTuple)
+	taskGroupToNextCalendarItems := make(map[int][]CalendarItemTuple)
+	currentPreviousCalendarItems := []CalendarItemTuple{}
+	for groupIndex, taskGroup := range *taskGroups {
+		if taskGroup.TaskGroupType == database.ScheduledTask {
+			calendarItem := CalendarItemTuple{IDOrdering: taskGroup.Tasks[0].IDOrdering, TaskGroupIndex: groupIndex}
+			currentPreviousCalendarItems = append(currentPreviousCalendarItems, calendarItem)
+			for previousGroupIndex, _ := range *taskGroups {
+				if previousGroupIndex >= groupIndex {
+					break
+				}
+				taskGroupToNextCalendarItems[previousGroupIndex] = append(
+					taskGroupToNextCalendarItems[previousGroupIndex],
+					calendarItem,
+				)
+			}
+		}
+		if taskGroup.TaskGroupType == database.UnscheduledGroup {
+			taskGroupToPreviousCalendarItems[groupIndex] = currentPreviousCalendarItems
+		}
+	}
+	for groupIndex, taskGroup := range *taskGroups {
+		if taskGroup.TaskGroupType != database.UnscheduledGroup {
+			continue
+		}
+		newTaskList := []*database.TaskBase{}
+		for _, task := range taskGroup.Tasks {
+			if !task.HasBeenReordered {
+				newTaskList = append(newTaskList, task)
+				continue
+			}
+			// check if there is a previous calendar event with a higher ordering id
+			previousCalendarItems := taskGroupToPreviousCalendarItems[groupIndex]
+			log.Println(task.IDExternal, previousCalendarItems)
+			var highestItemWithHigherOrderingID *CalendarItemTuple
+			for _, previousCalendarItem := range previousCalendarItems {
+				orderingID := previousCalendarItem.IDOrdering
+				if orderingID > task.IDOrdering &&
+					(highestItemWithHigherOrderingID == nil ||
+						highestItemWithHigherOrderingID.IDOrdering < orderingID) {
+					highestItemWithHigherOrderingID = &previousCalendarItem
+				}
+			}
+			if highestItemWithHigherOrderingID != nil {
+				desiredIndex := highestItemWithHigherOrderingID.TaskGroupIndex - 1
+				destinationTasks := (*taskGroups)[desiredIndex].Tasks
+				(*taskGroups)[desiredIndex].Tasks = append(destinationTasks, task)
+				continue
+			}
+
+			// check if there is an upcoming calendar event with a lower ordering id
+			nextCalendarItems := taskGroupToNextCalendarItems[groupIndex]
+			log.Println(task.IDExternal, nextCalendarItems)
+			var lowestItemWithLowerOrderingID *CalendarItemTuple
+			for _, nextCalendarItem := range nextCalendarItems {
+				orderingID := nextCalendarItem.IDOrdering
+				if orderingID < task.IDOrdering &&
+					(lowestItemWithLowerOrderingID == nil ||
+						lowestItemWithLowerOrderingID.IDOrdering > orderingID) {
+					lowestItemWithLowerOrderingID = &nextCalendarItem
+				}
+			}
+			if lowestItemWithLowerOrderingID != nil {
+				desiredIndex := lowestItemWithLowerOrderingID.TaskGroupIndex + 1
+				destinationTasks := (*taskGroups)[desiredIndex].Tasks
+				(*taskGroups)[desiredIndex].Tasks = append([]*database.TaskBase{task}, destinationTasks...)
+				continue
+			}
+			newTaskList = append(newTaskList, task)
+		}
+		taskGroup.Tasks = newTaskList
+	}
+}
+
+func getNonEmptyTaskGroups(taskGroups *[]*database.TaskGroup) *[]*database.TaskGroup {
+	newTaskGroups := []*database.TaskGroup{}
+	for _, taskGroup := range *taskGroups {
+		if len(taskGroup.Tasks) > 0 {
+			newTaskGroups = append(newTaskGroups, taskGroup)
+		}
+	}
+	return &newTaskGroups
+}
+
+func updateOrderingIDs(db *mongo.Database, taskGroups *[]*database.TaskGroup) {
+	tasksCollection := db.Collection("tasks")
+	orderingID := 1
+	for _, taskGroup := range *taskGroups {
+		for _, task := range taskGroup.Tasks {
+			task.IDOrdering = orderingID
+			orderingID += 1
+			res, err := tasksCollection.UpdateOne(
+				context.TODO(),
+				bson.M{"_id": task.ID},
+				bson.D{{Key: "$set", Value: bson.D{{Key: "id_ordering", Value: task.IDOrdering}}}},
+			)
+			if err != nil {
+				log.Fatalf("Failed to update task ordering ID: %v", err)
+			}
+			if res.ModifiedCount != 1 {
+				log.Printf("Did not find task to update (ID=%v)", task.ID)
+			}
+		}
+	}
 }
 
 func getTaskBase(t interface{}) *database.TaskBase {
@@ -196,7 +362,9 @@ func getTaskBase(t interface{}) *database.TaskBase {
 }
 
 func compareEmails(e1 *database.Email, e2 *database.Email, myDomain string) bool {
-	if e1.SenderDomain == myDomain && e2.SenderDomain != myDomain {
+	if res := compareTaskBases(e1, e2); res != nil {
+		return *res
+	} else if e1.SenderDomain == myDomain && e2.SenderDomain != myDomain {
 		return true
 	} else if e1.SenderDomain != myDomain && e2.SenderDomain == myDomain {
 		return false
@@ -206,6 +374,9 @@ func compareEmails(e1 *database.Email, e2 *database.Email, myDomain string) bool
 }
 
 func compareTasks(t1 *database.Task, t2 *database.Task) bool {
+	if res := compareTaskBases(t1, t2); res != nil {
+		return *res
+	}
 	sevenDaysFromNow := time.Now().AddDate(0, 0, 7)
 	//if both have due dates before seven days, prioritize the one with the closer due date.
 	if t1.DueDate > 0 &&
@@ -229,5 +400,25 @@ func compareTasks(t1 *database.Task, t2 *database.Task) bool {
 }
 
 func compareTaskEmail(t *database.Task, e *database.Email, myDomain string) bool {
+	if res := compareTaskBases(t, e); res != nil {
+		return *res
+	}
 	return e.SenderDomain != myDomain
+}
+
+func compareTaskBases(t1 interface{}, t2 interface{}) *bool {
+	// ensures we respect the existing ordering ids, and exempts reordered tasks from the normal auto-ordering
+	tb1 := getTaskBase(t1)
+	tb2 := getTaskBase(t2)
+	var result bool
+	if tb1.IDOrdering > 0 && tb2.IDOrdering > 0 {
+		result = tb1.IDOrdering < tb2.IDOrdering
+	} else if tb1.HasBeenReordered && !tb2.HasBeenReordered {
+		result = true
+	} else if !tb1.HasBeenReordered && tb2.HasBeenReordered {
+		result = false
+	} else {
+		return nil
+	}
+	return &result
 }
