@@ -302,7 +302,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 
 	cachedMapping := fetchLocalPriorityMapping(db.Collection("jira_priorities"), userID)
 
-
+	//If a priority exists that isn't cached refresh the whole list.
 	var needsRefresh bool
 	for _, t := range tasks {
 		if _, exists := (*cachedMapping)[t.PriorityID]; !exists {
