@@ -1,4 +1,4 @@
-import * as actions from './actionTypes';
+import * as actions from './actionTypes'
 
 export function setTasks(task_groups){
     return {

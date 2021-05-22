@@ -15,12 +15,12 @@ const HeaderDiv = styled.div`
   & * {
     margin: 0 30px; 
   }
-`;
+`
 
 const Logout = styled.button`
   background-color: white;
   border: 2px solid #cccccc;
-`;
+`
 
 const Header = () => {
     return(
@@ -36,8 +36,8 @@ const Header = () => {
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
 const logout = (e) => {
-    document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.location.href = LANDING_PATH;
+    document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+    document.location.href = LANDING_PATH
 }
 
-export default Header;
+export default Header

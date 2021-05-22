@@ -1,8 +1,8 @@
-import React from "react";
-import "./Task.css";
-import TaskHeader from "./TaskHeader";
-import { Draggable } from "react-beautiful-dnd";
-import styled from "styled-components";
+import React from 'react'
+import './Task.css'
+import TaskHeader from './TaskHeader'
+import { Draggable } from 'react-beautiful-dnd'
+import styled from 'styled-components'
 import TaskBody from './TaskBody'
 
 const Container = styled.div`
@@ -14,7 +14,7 @@ const Container = styled.div`
   width: 100%;
   outline: none;
   background-color: white;
-`;
+`
 
 const Task = ({ task, index, isDragDisabled }) => (
   <Draggable draggableId={task.id} index={index}>
@@ -39,6 +39,6 @@ const Task = ({ task, index, isDragDisabled }) => (
       </div>
     )}
   </Draggable>
-);
+)
 
-export default Task;
+export default Task

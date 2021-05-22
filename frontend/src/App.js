@@ -1,20 +1,20 @@
-import './App.css';
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom"
-import { Provider } from 'react-redux';
-import store from './redux/store';
+import './App.css'
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
+import { Provider } from 'react-redux'
+import store from './redux/store'
 import { LANDING_PATH, SETTINGS_PATH, PRIVACY_PATH } from './constants'
 import {useEffect} from 'react'
 import {getAuthToken} from './helpers/utils'
 
-import Header from "./components/Header"
-import Settings from "./components/settings/Settings"
-import LandingPage from "./components/LandingPage"
-import PrivacyPolicy from "./components/PrivacyPolicy"
+import Header from './components/Header'
+import Settings from './components/settings/Settings'
+import LandingPage from './components/LandingPage'
+import PrivacyPolicy from './components/PrivacyPolicy'
 
 function App() {
   useEffect(() => {
-    document.title = "General Task";
-  }, []);
+    document.title = 'General Task'
+  }, [])
   return (
     <Provider store={store}>
       <BrowserRouter>
@@ -31,7 +31,7 @@ function App() {
         </Switch>
       </BrowserRouter>
     </Provider>
-  );
+  )
 }
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
@@ -40,6 +40,6 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
       ? <Component {...props} />
       : <Redirect to='/' />
   )} />
-);
+)
 
-export default App;
+export default App
