@@ -63,6 +63,7 @@ func MergeTasks(
 	calendarEvents []*database.CalendarEvent,
 	emails []*database.Email,
 	JIRATasks []*database.Task,
+	taskPriorityMapping *map[string]int,
 	userDomain string,
 ) []*database.TaskGroup {
 
@@ -384,7 +385,7 @@ func compareEmails(e1 *database.Email, e2 *database.Email, myDomain string) bool
 	}
 }
 
-func compareTasks(t1 *database.Task, t2 *database.Task) bool {
+func compareTasks(t1 *database.Task, t2 *database.Task, priorityMapping *map[string]int) bool {
 	if res := compareTaskBases(t1, t2); res != nil {
 		return *res
 	}
