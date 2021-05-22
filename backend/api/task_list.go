@@ -332,7 +332,7 @@ func convertTasksToTaskGroups(tasks *[]*TaskItem) []*database.TaskGroup {
 		if taskItem.TaskGroupType == database.ScheduledTask {
 			if len(unscheduledTasks) > 0 {
 				taskGroups = append(taskGroups, &database.TaskGroup{
-					TaskGroupType: database.ScheduledTask,
+					TaskGroupType: database.UnscheduledGroup,
 					StartTime:     lastEndTime.String(),
 					Duration:      int64(taskItem.DatetimeStart.Time().Sub(lastEndTime).Seconds()),
 					Tasks:         unscheduledTasks,
@@ -356,7 +356,7 @@ func convertTasksToTaskGroups(tasks *[]*TaskItem) []*database.TaskGroup {
 			totalDuration += task.TimeAllocation
 		}
 		taskGroups = append(taskGroups, &database.TaskGroup{
-			TaskGroupType: database.ScheduledTask,
+			TaskGroupType: database.UnscheduledGroup,
 			StartTime:     lastEndTime.String(),
 			Duration:      totalDuration / int64(time.Second),
 			Tasks:         unscheduledTasks,
