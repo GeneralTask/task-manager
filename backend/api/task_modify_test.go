@@ -240,7 +240,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"'id_ordering' parameter missing or malformatted\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"Parameter missing or malformatted\"}", string(body))
 	})
 	t.Run("BadTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io")
