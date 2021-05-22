@@ -6,5 +6,5 @@ export const getAuthToken = (): string | undefined => Cookies.get('authToken')
 export const getHeaders = (): any => ({
     Authorization: 'Bearer ' + getAuthToken(),
     'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
-    'Access-Control-Allow-Heeaders': 'access-control-allow-origin, access-control-allow-haders',
+    'Access-Control-Allow-Headers': 'access-control-allow-origin, access-control-allow-haders',
 })
