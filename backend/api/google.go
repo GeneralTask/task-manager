@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -80,6 +81,18 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 			}
 			if header.Name == "Subject" {
 				title = header.Value
+			}
+		}
+		var content = ""
+		for _, messagePart := range thread.Messages[0].Payload.Parts {
+			if messagePart.MimeType == "text/html" {
+				data := messagePart.Body.Data
+				contentData, err := base64.URLEncoding.DecodeString(data)
+				if err != nil {
+					log.Fatalf("failed to decode email body! %v", err)
+				}
+				content = string(contentData)
+				break
 			}
 		}
 
