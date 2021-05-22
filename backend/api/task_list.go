@@ -251,10 +251,7 @@ func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
 	insertAfter := make(map[primitive.ObjectID][]*TaskItem)
 	for index, taskItem := range *tasks {
 		if taskItem.TaskGroupType == database.ScheduledTask {
-			newTaskList = append(newTaskList, taskItem)
-			for _, taskItemToInsert := range insertAfter[taskItem.TaskBase.ID] {
-				newTaskList = append(newTaskList, taskItemToInsert)
-			}
+			newTaskList = append(append(newTaskList, taskItem), insertAfter[taskItem.TaskBase.ID]...)
 			continue
 		}
 		task := taskItem.TaskBase
@@ -277,7 +274,9 @@ func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
 			calEventID := (*tasks)[highestItemWithHigherOrderingID.TaskIndex].TaskBase.ID
 			for targetIndex, targetItem := range newTaskList {
 				if targetItem.TaskBase.ID == calEventID {
-					newTaskList = append(append(newTaskList[:targetIndex], taskItem), newTaskList[targetIndex:]...)
+					newTaskList = append(newTaskList[:targetIndex+1], newTaskList[targetIndex:]...)
+					newTaskList[targetIndex] = taskItem
+					break
 				}
 			}
 			continue
@@ -338,6 +337,7 @@ func convertTasksToTaskGroups(tasks *[]*TaskItem) []*database.TaskGroup {
 					Duration:      int64(taskItem.DatetimeStart.Time().Sub(lastEndTime).Seconds()),
 					Tasks:         unscheduledTasks,
 				})
+				unscheduledTasks = []*database.TaskBase{}
 			}
 			taskGroups = append(taskGroups, &database.TaskGroup{
 				TaskGroupType: database.ScheduledTask,

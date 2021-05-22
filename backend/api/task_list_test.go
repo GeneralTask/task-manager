@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"log"
 	"testing"
 	"time"
 
@@ -97,7 +96,7 @@ func TestMergeTasks(t *testing.T) {
 		t2 := database.Task{
 			TaskBase: database.TaskBase{
 				ID:             t2ID,
-				IDExternal:     "sample_task",
+				IDExternal:     "sample_task1",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
 				Source:         database.TaskSourceJIRA.Name,
@@ -113,7 +112,7 @@ func TestMergeTasks(t *testing.T) {
 		t3 := database.Task{
 			TaskBase: database.TaskBase{
 				ID:             t3ID,
-				IDExternal:     "sample_task",
+				IDExternal:     "sample_task2",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
 				Source:         database.TaskSourceJIRA.Name,
@@ -129,7 +128,7 @@ func TestMergeTasks(t *testing.T) {
 		t4 := database.Task{
 			TaskBase: database.TaskBase{
 				ID:             t4ID,
-				IDExternal:     "sample_task",
+				IDExternal:     "sample_task3",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
 				Source:         database.TaskSourceJIRA.Name,
@@ -149,13 +148,6 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.Task{&t1, &t2, &t3, &t4},
 			"gmail.com",
 		)
-
-		for i, group := range result {
-			log.Println("group", i)
-			for _, task := range group.Tasks {
-				log.Println("\t", task.IDExternal)
-			}
-		}
 
 		//need to improve these asserts to compare values as well but a pain with casting
 		//for now so we'll compare JSON later.
@@ -291,13 +283,6 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.Task{&t1, &t2},
 			"gmail.com",
 		)
-
-		for i, group := range result {
-			log.Println("group", i)
-			for _, task := range group.Tasks {
-				log.Println("\t", task.IDExternal)
-			}
-		}
 
 		assert.Equal(t, 5, len(result))
 		assert.Equal(t, t1ID, result[0].Tasks[0].ID)
