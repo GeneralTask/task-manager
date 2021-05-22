@@ -243,22 +243,22 @@ func adjustForCompletedTasks(
 	}
 }
 
-type CalendarItemTuple struct {
+type CalendarItem struct {
 	IDOrdering     int
 	TaskGroupIndex int
 }
 
 func adjustForReorderedTasks(taskGroups *[]*database.TaskGroup) {
 	// for each reordered task, ensure it is in the correct ordering position relative to calendar events
-	taskGroupToPreviousCalendarItems := make(map[int][]CalendarItemTuple)
-	taskGroupToNextCalendarItems := make(map[int][]CalendarItemTuple)
-	currentPreviousCalendarItems := []CalendarItemTuple{}
+	taskGroupToPreviousCalendarItems := make(map[int][]CalendarItem)
+	taskGroupToNextCalendarItems := make(map[int][]CalendarItem)
+	currentPreviousCalendarItems := []CalendarItem{}
 	for groupIndex, taskGroup := range *taskGroups {
 		if taskGroup.TaskGroupType == database.ScheduledTask {
 			if taskGroup.Tasks[0].IDOrdering == 0 {
 				continue
 			}
-			calendarItem := CalendarItemTuple{IDOrdering: taskGroup.Tasks[0].IDOrdering, TaskGroupIndex: groupIndex}
+			calendarItem := CalendarItem{IDOrdering: taskGroup.Tasks[0].IDOrdering, TaskGroupIndex: groupIndex}
 			currentPreviousCalendarItems = append(currentPreviousCalendarItems, calendarItem)
 			for previousGroupIndex, _ := range *taskGroups {
 				if previousGroupIndex >= groupIndex {
@@ -286,7 +286,7 @@ func adjustForReorderedTasks(taskGroups *[]*database.TaskGroup) {
 			}
 			// check if there is a previous calendar event with a higher ordering id
 			previousCalendarItems := taskGroupToPreviousCalendarItems[groupIndex]
-			var highestItemWithHigherOrderingID *CalendarItemTuple
+			var highestItemWithHigherOrderingID *CalendarItem
 			for _, previousCalendarItem := range previousCalendarItems {
 				orderingID := previousCalendarItem.IDOrdering
 				if orderingID > task.IDOrdering &&
@@ -304,7 +304,7 @@ func adjustForReorderedTasks(taskGroups *[]*database.TaskGroup) {
 
 			// check if there is an upcoming calendar event with a lower ordering id
 			nextCalendarItems := taskGroupToNextCalendarItems[groupIndex]
-			var lowestItemWithLowerOrderingID *CalendarItemTuple
+			var lowestItemWithLowerOrderingID *CalendarItem
 			for _, nextCalendarItem := range nextCalendarItems {
 				orderingID := nextCalendarItem.IDOrdering
 				if orderingID < task.IDOrdering &&
