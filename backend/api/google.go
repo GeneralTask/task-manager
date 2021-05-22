@@ -210,7 +210,7 @@ func LoadCalendarEvents(
 		event.ID = dbEvent.ID
 		event.IDOrdering = dbEvent.IDOrdering
 		// If the meeting is rescheduled, we want to reset the IDOrdering so that reordered tasks are not also moved
-		if event.DatetimeStart != dbEvent.DatetimeStart || event.DatetimeEnd != dbEvent.DatetimeEnd {
+		if event.DatetimeStart != dbEvent.DatetimeStart {
 			event.IDOrdering = 0
 		}
 		events = append(events, event)

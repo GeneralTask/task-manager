@@ -41,6 +41,7 @@ func TestCalendar(t *testing.T) {
 		}
 
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
+		oldEndtime, _ := time.Parse(time.RFC3339, "2021-03-06T15:35:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
 		db, dbCleanup := database.GetDBConnection()
@@ -57,9 +58,11 @@ func TestCalendar(t *testing.T) {
 				UserID:     userID,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
-			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(oldEndtime),
 		}
 		database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar.Name, standardTask)
+		// Rescheduling end time along shouldn't trigger a reset like in the next test case
+		standardTask.DatetimeEnd = primitive.NewDateTimeFromTime(endTime)
 
 		autoEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
