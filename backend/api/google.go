@@ -170,7 +170,7 @@ func LoadCalendarEvents(
 
 	calendarResponse, err := calendarService.Events.
 		List("primary").
-		TimeMin(todayStartTime.Format(time.RFC3339)).
+		TimeMin(time.Now().Format(time.RFC3339)).
 		TimeMax(todayEndTime.Format(time.RFC3339)).
 		SingleEvents(true).
 		OrderBy("startTime").
