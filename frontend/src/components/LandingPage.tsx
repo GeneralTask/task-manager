@@ -1,8 +1,9 @@
-import styled from "styled-components";
+import React from 'react'
+import styled from 'styled-components'
 
-import TaskList from "./task/TaskList";
-import GLButton from "./login/GoogleLogin";
-import { LOGIN_URL } from "../constants";
+import TaskList from './task/TaskList'
+import GLButton from './login/GoogleLogin'
+import { LOGIN_URL } from '../constants'
 import {getAuthToken} from '../helpers/utils'
 
 const Logo = styled.div`
@@ -10,23 +11,23 @@ const Logo = styled.div`
   font-size: 32px;
   margin-left: 10px;
   margin-top: 10px;
-`;
+`
 const Container = styled.div`
   width: 65%;
   margin: auto;
-`;
+`
 const Title = styled.div`
   font-size: 58px;
   text-align: center;
   margin-top: 60px;
   margin-bottom: 40px;
-`;
+`
 const Subtitle = styled.div`
   font-size: 27px;
   color: #969696;
   text-align: center;
   margin-bottom: 30px;
-`;
+`
 const WaitlistInput = styled.input`
   width: 250px;
   height: 100%;
@@ -35,7 +36,7 @@ const WaitlistInput = styled.input`
   color: #969696;
   box-sizing: border-box;
   text-align: center;
-`;
+`
 const JoinWaitlistButton = styled.button`
   width: 200px;
   height: 100%;
@@ -43,12 +44,12 @@ const JoinWaitlistButton = styled.button`
   border-radius: 2px;
   color: white;
   background-color: black;
-`;
+`
 const WaitlistInputs = styled.div`
   height: 34px;
   text-align: center;
   margin-bottom: 40px;
-`;
+`
 const LoginWithGoogle = styled.a`
   border: 1px solid #cccccc;
   border-radius: 2px;
@@ -60,11 +61,11 @@ const LoginWithGoogle = styled.a`
   display: flex;
   align-items: center;
   padding: 4px;
-`;
+`
 
-const LandingPage = () => {
+const LandingPage: React.FC = () => {
   if (getAuthToken()) {
-    return <TaskList />;
+    return <TaskList />
   }
   return (
     <div>
@@ -83,7 +84,7 @@ const LandingPage = () => {
           <WaitlistInput placeholder="Enter email address" />
           <JoinWaitlistButton
             onClick={() => {
-              alert("Waitlist is closed currently.");
+              alert('Waitlist is closed currently.')
             }}
           >
             Join the Waitlist
@@ -95,7 +96,7 @@ const LandingPage = () => {
         </LoginWithGoogle>
       </Container>
     </div>
-  );
-};
+  )
+}
 
-export default LandingPage;
+export default LandingPage

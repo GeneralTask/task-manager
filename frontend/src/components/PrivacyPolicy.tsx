@@ -1,3 +1,4 @@
+import React from 'react'
 import styled from 'styled-components'
 
 const PrivacyContent = styled.div`
@@ -10,7 +11,7 @@ const Title = styled.h1`
   text-align: center;
 `;
 
-const PrivacyPolicy = () =>
+const PrivacyPolicy: React.FC = () =>
     <div>
       <Title>Privacy Policy</Title>
       <PrivacyContent>

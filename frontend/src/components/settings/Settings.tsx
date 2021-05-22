@@ -1,7 +1,7 @@
 import React from 'react'
-import Account from "./Account"
-import {JIRA_URL} from "../../constants"
-import styled from "styled-components"
+import Account from './Account'
+import {JIRA_URL} from '../../constants'
+import styled from 'styled-components'
 
 const Header = styled.div`
     height: 100px;
@@ -10,14 +10,14 @@ const Header = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-`;
+`
 
 const Body = styled.div`
     width: 30%;
     margin: auto;
-`;
+`
 
-const Settings = () => {
+const Settings: React.FC = () => {
     return(
         <div>
             <Header>
@@ -31,4 +31,4 @@ const Settings = () => {
     )
 }
 
-export default Settings;
+export default Settings

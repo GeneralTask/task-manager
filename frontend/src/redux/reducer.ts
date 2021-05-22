@@ -1,7 +1,18 @@
-import * as actions from './actionTypes';
+import { TTask } from './../helpers/types'
+import * as actions from './actionTypes'
+import { AnyAction } from 'redux'
+import { RootState } from './store'
+import { FetchStatus } from './enums'
 
-let task_groups;
-export default function reducer(state, action){
+let task_groups
+const reducer = (state: RootState | undefined, action: AnyAction): RootState => {
+    if(state === undefined){
+      return {
+        task_groups: [],
+        tasks_fetch_status: FetchStatus.LOADING,
+        expanded_body: null,
+      }
+    }
     switch (action.type) {
       case actions.SET_TASKS:
         return {
@@ -30,7 +41,7 @@ export default function reducer(state, action){
           ...state,
           task_groups: [...state.task_groups].map((task_group) => ({
             ...task_group,
-            tasks: task_group.tasks.filter((task) => task.id !== action.id),
+            tasks: task_group.tasks.filter((task: TTask) => task.id !== action.id),
           })),
         };
 
@@ -50,3 +61,5 @@ export default function reducer(state, action){
         return state;
     }
 }
+
+export default reducer

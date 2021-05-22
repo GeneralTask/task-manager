@@ -10,6 +10,8 @@ import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import moment from 'moment'
 import styled from "styled-components";
 import {getHeaders} from '../../helpers/utils'
+import { TTaskGroup, TTask } from '../../helpers/types'
+import { RootState } from '../../redux/store'
 
 const MyTasks = styled.h1`
     height: 40px;
@@ -19,8 +21,8 @@ const MyTasks = styled.h1`
 const fetchTasks = async () => {
     store.dispatch(setTasksFetchStatus(FetchStatus.LOADING));
     try{
-        const response = await fetch(TASKS_URL, {
-            method: "GET",
+        const response: Response = await fetch(TASKS_URL, {
+            method: 'GET',
             mode: 'cors',
             headers: getHeaders(),
         });
@@ -39,18 +41,18 @@ const fetchTasks = async () => {
     }
 }
 
-const TaskList = () => {
-
-    let task_groups = useSelector(state => state.task_groups);
-    let task_counter = 0;
+const TaskList: React.FC = () => {
+    const task_groups = useSelector((state: RootState) => state.task_groups)
+    let task_counter = 0
 
     useEffect(() => {
         setInterval(fetchTasks, 1000 * 60);
         fetchTasks();
     }, []);
 
-    const renderTaskGroup = (taskGroup, index) => {
-        let next_time = null;
+    
+    function renderTaskGroup(taskGroup: TTaskGroup, index: number) {
+        let next_time = null
         if(index === 0 && task_groups.length > 1){
             next_time = moment(task_groups[1].datetime_start);
         }
@@ -66,21 +68,22 @@ const TaskList = () => {
         }
     }
 
-    function onDragEnd(result) {
-        const { destination, source } = result;
+    // need result type @nolan
+    function onDragEnd(result: any) {
+        const { destination, source } = result
         
-        if (destination === null) return;
-
-        const source_index = source.droppableId.slice(-1);
-        const destination_index = destination.droppableId.slice(-1);
-
-        let source_group = task_groups[source_index];
-        let dest_group = task_groups[destination_index];
-        let source_task = source_group.tasks[source.index];
-
-        source_group.tasks.splice(source.index, 1);
-        dest_group.tasks.splice(destination.index, 0, source_task);
-
+        if (destination === null) return
+    
+        const source_index = source.droppableId.slice(-1)
+        const destination_index = destination.droppableId.slice(-1)
+    
+        const source_group: TTaskGroup = task_groups[source_index]
+        const dest_group: TTaskGroup = task_groups[destination_index]
+        const source_task: TTask = source_group.tasks[source.index]
+    
+        source_group.tasks.splice(source.index, 1)
+        dest_group.tasks.splice(destination.index, 0, source_task)
+    
         if (source_group.tasks.length === 0) {
             store.dispatch(removeTask(source_index))
         }
@@ -92,7 +95,7 @@ const TaskList = () => {
             <TaskStatus/>
             <DragDropContext onDragEnd={onDragEnd}>
                 { 
-                    task_groups.map((group, index) =>
+                    task_groups.map((group: TTaskGroup, index: number) =>
                         <div>
                             <Droppable droppableId={`list-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
                                 {provided => (
@@ -110,6 +113,8 @@ const TaskList = () => {
     );
 }
 
+
+
 export default connect(
-    state => ({task_groups: state.task_groups})
-)(TaskList);
+    (state: RootState) => ({task_groups: state.task_groups})
+)(TaskList)

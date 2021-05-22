@@ -1,4 +1,5 @@
 import './App.css';
+import React from 'react'
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom"
 import { Provider } from 'react-redux';
 import store from './redux/store';
@@ -11,7 +12,12 @@ import Settings from "./components/settings/Settings"
 import LandingPage from "./components/LandingPage"
 import PrivacyPolicy from "./components/PrivacyPolicy"
 
-function App() {
+interface PrivateRouteProps {
+  path: string,
+  component: React.FC<any>,
+}
+
+const App: React.FC = () => {
   useEffect(() => {
     document.title = "General Task";
   }, []);
@@ -34,8 +40,8 @@ function App() {
   );
 }
 
-const PrivateRoute = ({ component: Component, ...rest }) => (
-  <Route {...rest} render={(props) => (
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ path, component: Component}: PrivateRouteProps) => (
+  <Route path={path} render={(props) => (
     getAuthToken()
       ? <Component {...props} />
       : <Redirect to='/' />
