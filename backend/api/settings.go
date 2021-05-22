@@ -12,9 +12,10 @@ import (
 )
 
 type SettingDefinition struct {
-	FieldKey  string          `json:"field_key"`
-	FieldName string          `json:"field_name"`
-	Choices   []SettingChoice `json:"choices"`
+	FieldKey      string          `json:"field_key"`
+	FieldName     string          `json:"field_name"`
+	DefaultChoice string          `json:"-"`
+	Choices       []SettingChoice `json:"choices"`
 }
 
 type UserSetting struct {
@@ -35,8 +36,9 @@ const (
 
 var Settings = []SettingDefinition{
 	{
-		FieldKey:  SettingFieldEmailDonePreference,
-		FieldName: "'Done' action for emails",
+		FieldKey:      SettingFieldEmailDonePreference,
+		FieldName:     "'Done' action for emails",
+		DefaultChoice: ChoiceKeyArchive,
 		Choices: []SettingChoice{
 			{Key: ChoiceKeyArchive, Name: "Archive"},
 			{Key: ChoiceKeyMarkAsRead, Name: "Mark as read"},
@@ -80,7 +82,7 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 	// Default to first choice value
 	for _, setting := range Settings {
 		if setting.FieldKey == fieldKey {
-			return setting.Choices[0].Key
+			return setting.DefaultChoice
 		}
 	}
 	log.Fatalln("Invalid setting:", fieldKey)
