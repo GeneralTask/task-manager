@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/GeneralTask/task-manager/backend/templating"
 	"log"
 	"net/http"
 	"strings"
@@ -133,15 +132,7 @@ func parseMessagePart(messagePart *gmail.MessagePart) string {
 	if err != nil {
 		log.Fatalf("failed to decode email body. %v", err)
 	}
-	body := string(bodyData)
-
-	if messagePart.MimeType == "text/plain" {
-		body, err = templating.FormatPlainTextAsHTML(body)
-		if err != nil {
-			log.Fatalf("failed to format email body. %v", err)
-		}
-	}
-	return body
+	return string(bodyData)
 }
 
 func LoadCalendarEvents(
