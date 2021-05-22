@@ -47,6 +47,7 @@ func (api *API) TasksList(c *gin.Context) {
 	taskResult := <-JIRATasks
 
 	allTasks := MergeTasks(
+		db,
 		currentTasks,
 		<-calendarEvents,
 		<-emails,

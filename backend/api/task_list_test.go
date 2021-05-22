@@ -2,8 +2,6 @@ package api
 
 import (
 	"context"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -283,7 +281,10 @@ func TestMergeTasks(t *testing.T) {
 		c3ID := database.GetOrCreateTask(db, userID, "standard_event3", database.TaskSourceGoogleCalendar.Name, c3).ID
 		c3.ID = c3ID
 
-		priorityMapping
+		priorityMapping := map[string]int {
+			"3" : 3,
+			"5" : 5,
+		}
 
 		result := MergeTasks(
 			db,
@@ -291,6 +292,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{&c1, &c2, &c3},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
+			&priorityMapping,
 			"gmail.com",
 		)
 
@@ -575,14 +577,4 @@ func getTaskForTest(t *testing.T, taskCollection *mongo.Collection, taskID primi
 	err := taskCollection.FindOne(context.TODO(), bson.M{"_id": taskID}).Decode(&updatedTask)
 	assert.NoError(t, err)
 	return &updatedTask
-}
-
-func TestTaskListSample(t *testing.T) {
-	authToken := "0cb165c0-74d6-4ce7-8cd8-a734aa4e8ba4"
-	router := GetRouter(&API{})
-	request, _ := http.NewRequest("GET", "/tasks/", nil)
-	request.Header.Add("Authorization", "Bearer " + authToken)
-	recorder := httptest.NewRecorder()
-	router.ServeHTTP(recorder, request)
-	assert.Equal(t, http.StatusOK, recorder.Code)
 }
