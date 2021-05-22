@@ -10,16 +10,21 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import moment from 'moment'
 import styled from 'styled-components'
 import {getHeaders} from '../../helpers/utils'
+import {TaskGroup, Task} from './TaskTypes'
 
 const MyTasks = styled.h1`
     height: 40px;
     text-align: center;
 `
 
+interface RootState {
+    task_groups: TaskGroup[]
+}
+
 const fetchTasks = async () => {
     store.dispatch(setTasksFetchStatus(FetchStatus.LOADING))
     try{
-        const response = await fetch(TASKS_URL, {
+        const response: Response = await fetch(TASKS_URL, {
             method: 'GET',
             mode: 'cors',
             headers: getHeaders(),
@@ -39,9 +44,8 @@ const fetchTasks = async () => {
     }
 }
 
-const TaskList = () => {
-
-    let task_groups = useSelector(state => state.task_groups)
+const TaskList: React.FC = () => {
+    const task_groups = useSelector((state: RootState) => state.task_groups)
     let task_counter = 0
 
     useEffect(() => {
@@ -49,7 +53,8 @@ const TaskList = () => {
         fetchTasks()
     }, [])
 
-    const renderTaskGroup = (taskGroup, index) => {
+    
+    function renderTaskGroup(taskGroup: TaskGroup, index: number) {
         let next_time = null
         if(index === 0 && task_groups.length > 1){
             next_time = moment(task_groups[1].datetime_start)
@@ -66,21 +71,22 @@ const TaskList = () => {
         }
     }
 
-    function onDragEnd(result) {
+    // need result type @nolan
+    function onDragEnd(result: any) {
         const { destination, source } = result
         
         if (destination === null) return
-
+    
         const source_index = source.droppableId.slice(-1)
         const destination_index = destination.droppableId.slice(-1)
-
-        let source_group = task_groups[source_index]
-        let dest_group = task_groups[destination_index]
-        let source_task = source_group.tasks[source.index]
-
+    
+        const source_group: TaskGroup = task_groups[source_index]
+        const dest_group: TaskGroup = task_groups[destination_index]
+        const source_task: Task = source_group.tasks[source.index]
+    
         source_group.tasks.splice(source.index, 1)
         dest_group.tasks.splice(destination.index, 0, source_task)
-
+    
         if (source_group.tasks.length === 0) {
             store.dispatch(removeTask(source_index))
         }
@@ -110,6 +116,8 @@ const TaskList = () => {
     )
 }
 
+
+
 export default connect(
-    state => ({task_groups: state.task_groups})
+    (state: RootState) => ({task_groups: state.task_groups})
 )(TaskList)

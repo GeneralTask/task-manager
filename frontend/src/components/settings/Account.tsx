@@ -20,7 +20,7 @@ const ConnectButton = styled.button`
   cursor: pointer;
 `
 
-type Props = {
+interface Props {
   name: string,
   logo: string,
   link: string,

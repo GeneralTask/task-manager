@@ -1,3 +1,4 @@
+import React from 'react'
 import { connect, useSelector } from 'react-redux'
 import styled from 'styled-components'
 
@@ -18,11 +19,22 @@ const Deeplink = styled.div`
   color: black;
 `
 
+interface Props {
+  body: string | null,
+  task_id: string,
+  deeplink: string | null,
+  source: string,
+}
+interface RootState {
+  expanded_body: string | null,
+}
+
+
 // no body: no body
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
-const TaskBody = ({ body, task_id, deeplink, source }) => {
-  const expanded_body = useSelector((state) => state.expanded_body)
+const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) => {
+  const expanded_body = useSelector((state: RootState) => state.expanded_body)
   const has_body = body || deeplink
   return (
     <div>
@@ -46,6 +58,6 @@ const TaskBody = ({ body, task_id, deeplink, source }) => {
   )
 }
 
-export default connect((state) => ({ expanded_body: state.expanded_body }))(
+export default connect((state: RootState) => ({ expanded_body: state.expanded_body }))(
   TaskBody
 )

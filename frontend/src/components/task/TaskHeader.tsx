@@ -7,9 +7,10 @@ import {getHeaders} from '../../helpers/utils'
 import { useSelector } from 'react-redux'
 
 import styled from 'styled-components'
+import { ResponderProvided } from 'react-beautiful-dnd'
 
 
-const Header = styled.div`
+const Header = styled.div<{hover_effect: boolean}>`
   font-size: 20px;
   display: flex;
   flex-direction: row;
@@ -55,9 +56,23 @@ const DoneButton = styled.button`
     color: white;
   }
 `
+type UNKNOWN_PROVIDED_TYPE = any
 
-const TaskHeader = ({ icon_url, title, sender, task_id, is_completable, hover_effect }) => {
-  const expanded_body = useSelector((state) => state.expanded_body)
+interface Props {
+  logo_url: string, 
+  title: string, 
+  sender: string | null, 
+  task_id: string, 
+  is_completable: boolean, 
+  hover_effect: boolean,
+  provided: UNKNOWN_PROVIDED_TYPE,
+}
+interface RootState {
+  expanded_body: string | null,
+}
+
+const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_completable, hover_effect, provided }: Props) => {
+  const expanded_body = useSelector((state: RootState) => state.expanded_body)
   let onClick
   if (hover_effect && expanded_body !== task_id) {
     onClick = () => {
@@ -65,7 +80,7 @@ const TaskHeader = ({ icon_url, title, sender, task_id, is_completable, hover_ef
     }
   } else if(hover_effect && expanded_body === task_id) {
     onClick = () => {
-      store.dispatch(retractBody(task_id))
+      store.dispatch(retractBody())
     }
   }
   else{
@@ -75,7 +90,7 @@ const TaskHeader = ({ icon_url, title, sender, task_id, is_completable, hover_ef
     <Header hover_effect={hover_effect} onClick={onClick}>
       <HeaderSide>
         <Domino src="images/domino.svg" alt="" />
-        <Icon src={icon_url} alt="icon"></Icon>
+        <Icon src={logo_url} alt="icon"></Icon>
         <div>{title}</div>
       </HeaderSide>
       <Source>{sender}</Source>
@@ -93,7 +108,7 @@ const TaskHeader = ({ icon_url, title, sender, task_id, is_completable, hover_ef
   )
 }
 
-const done = async (task_id) => {
+const done = async (task_id: string) => {
   try {
     store.dispatch(removeTaskById(task_id))
 

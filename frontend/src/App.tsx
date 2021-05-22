@@ -10,8 +10,14 @@ import Header from './components/Header'
 import Settings from './components/settings/Settings'
 import LandingPage from './components/LandingPage'
 import PrivacyPolicy from './components/PrivacyPolicy'
+import React from 'react'
 
-function App() {
+interface PrivateRouteProps {
+  path: string,
+  component: React.FC<any>,
+}
+
+const App: React.FC = () => {
   useEffect(() => {
     document.title = 'General Task'
   }, [])
@@ -34,8 +40,8 @@ function App() {
   )
 }
 
-const PrivateRoute = ({ component: Component, ...rest }) => (
-  <Route {...rest} render={(props) => (
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ path, component: Component}: PrivateRouteProps) => (
+  <Route path={path} render={(props) => (
     getAuthToken()
       ? <Component {...props} />
       : <Redirect to='/' />

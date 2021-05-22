@@ -51,6 +51,7 @@
   },
   "devDependencies": {
     "@types/js-cookie": "^2.2.6",
+    "@types/react-beautiful-dnd": "^13.0.0",
     "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.1.9",
     "eslint": "^7.27.0",
