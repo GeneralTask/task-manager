@@ -54,7 +54,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
       ) : null}
     </div>
   )
-}
+} 
 
 export default connect((state: RootState) => ({ expanded_body: state.expanded_body }))(
   TaskBody
