@@ -31,7 +31,11 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      - uses: stefanoeb/eslint-action@1.0.2
-        with:
-          files: src/
+
+      - name: Install Dependencies
+        run: npm install @typescript-eslint/eslint-plugin eslint
+
+      # Runs a single command using the runners shell
+      - name: Run ESLint
+        run: npx eslint src --no-fix
 
