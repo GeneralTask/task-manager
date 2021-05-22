@@ -58,4 +58,11 @@ func TestSettingsGet(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "[{\"field_key\":\"email_done_preference\",\"field_name\":\"'Done' action for emails\",\"choices\":[{\"choice_key\":\"archive\",\"choice_name\":\"Archive\"},{\"choice_key\":\"mark_as_read\",\"choice_name\":\"Mark as read\"}],\"field_value\":\"mark_as_read\"}]", string(body))
 	})
+	t.Run("Unauthorized", func(t *testing.T) {
+		router := GetRouter(&API{})
+		request, _ := http.NewRequest("GET", "/settings/", nil)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
 }
