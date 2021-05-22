@@ -404,7 +404,7 @@ func compareTasks(t1 *database.Task, t2 *database.Task) bool {
 	} else if t1.PriorityID != t2.PriorityID {
 		if len(t1.PriorityID) > 0 && len(t2.PriorityID) > 0 {
 			return (*priorityMapping)[t1.PriorityID] < (*priorityMapping)[t2.PriorityID]
-		} else if len(t1.PriorityID) > 0{
+		} else if len(t1.PriorityID) > 0 {
 			return true
 		} else {
 			return false
