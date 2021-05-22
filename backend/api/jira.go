@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go.mongodb.org/mongo-driver/mongo"
 	"io/ioutil"
@@ -199,8 +200,8 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		log.Fatalf("Failed to create external site collection record: %v", err)
 	}
 
-	success := GetListOfJIRAPriorities(api, internalToken.UserID, token.AccessToken)
-	if !success {
+	err = GetListOfJIRAPriorities(api, internalToken.UserID, token.AccessToken)
+	if err != nil {
 		log.Fatalf("Failed to download priorities")
 	}
 
@@ -210,8 +211,6 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult) {
 	authToken := getJIRAToken(api, userID)
 	siteConfiguration := getJIRASiteConfiguration(userID)
-
-
 
 	if authToken == nil || siteConfiguration == nil {
 		result <- emptyTaskResult()
@@ -305,6 +304,9 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 	//If a priority exists that isn't cached refresh the whole list.
 	var needsRefresh bool
 	for _, t := range tasks {
+		if len(t.PriorityID) == 0 {
+			continue
+		}
 		if _, exists := (*cachedMapping)[t.PriorityID]; !exists {
 			needsRefresh = true
 			break
@@ -523,6 +525,7 @@ func executeTransition(apiBaseURL string, jiraAuthToken string, issueID string, 
 func fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID primitive.ObjectID) *map[string]int {
 	cursor, err := prioritiesCollection.Find(context.TODO(), bson.D{{Key: "user_id", Value: userID}})
 	if err != nil {
+		log.Printf("Failed to fetch local priorities")
 		return nil
 	}
 	var priorities []database.JIRAPriority
@@ -538,14 +541,14 @@ func fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID pr
 	return &result
 }
 
-func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken string) bool {
+func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken string) error {
 	var baseURL string
 	if api.JIRAConfigValues.PriorityListURL != nil {
 		baseURL = *api.JIRAConfigValues.PriorityListURL
 	} else if siteConfiguration := getJIRASiteConfiguration(userID); siteConfiguration != nil {
 		baseURL = getJIRAAPIBaseURl(*siteConfiguration)
 	} else {
-		return false
+		return errors.New("Could not form base url")
 	}
 
 	url := baseURL+"/rest/api/3/priority/"
@@ -556,18 +559,18 @@ func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken stri
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
-		return false
+		return err
 	}
 	priorityListString, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return false
+		return err
 	}
 
 	var priorityIds []PriorityID
 	err = json.Unmarshal(priorityListString, &priorityIds)
 
 	if err != nil {
-		return false
+		return err
 	}
 
 	db, dbCleanup := database.GetDBConnection()
@@ -576,7 +579,7 @@ func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken stri
 	prioritiesCollection := db.Collection("jira_priorities")
 	_, err = prioritiesCollection.DeleteMany(context.TODO(), bson.D{{Key: "user_id", Value: userID}})
 	if err != nil {
-		return false
+		return err
 	}
 
 	var jiraPriorities []interface{}
@@ -588,5 +591,5 @@ func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken stri
 		})
 	}
 	_, err = prioritiesCollection.InsertMany(context.TODO(), jiraPriorities)
-	return err == nil
+	return err
 }

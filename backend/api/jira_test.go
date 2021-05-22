@@ -231,47 +231,47 @@ func TestLoadJIRATasks(t *testing.T) {
 	jiraSiteCollection := db.Collection("jira_site_collection")
 
 	t.Run("MissingJIRAToken", func(t *testing.T) {
-		var JIRATasks = make(chan []*database.Task)
+		var JIRATasks = make(chan TaskResult)
 		userID := primitive.NewObjectID()
 		go LoadJIRATasks(&API{}, userID, JIRATasks)
 		result := <-JIRATasks
-		assert.Equal(t, 0, len(result))
+		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("RefreshTokenFailed", func(t *testing.T) {
 		userID := createJIRAToken(t, externalAPITokenCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusUnauthorized)
-		var JIRATasks = make(chan []*database.Task)
+		var JIRATasks = make(chan TaskResult)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
-		assert.Equal(t, 0, len(result))
+		assert.Equal(t, 0, len(result.Tasks))
 	})
 
 	t.Run("SearchFailed", func(t *testing.T) {
 		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
-		var JIRATasks = make(chan []*database.Task)
+		var JIRATasks = make(chan TaskResult)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
-		assert.Equal(t, 0, len(result))
+		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("EmptySearchResponse", func(t *testing.T) {
 		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
-		var JIRATasks = make(chan []*database.Task)
+		var JIRATasks = make(chan TaskResult)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
-		assert.Equal(t, 0, len(result))
+		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("Success", func(t *testing.T) {
 		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
-		var JIRATasks = make(chan []*database.Task)
+		var JIRATasks = make(chan TaskResult)
 		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
 		result := <-JIRATasks
-		assert.Equal(t, 1, len(result))
+		assert.Equal(t, 1, len(result.Tasks))
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		expectedTask := database.Task{
@@ -285,7 +285,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			},
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
-		assertTasksEqual(t, &expectedTask, result[0])
+		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
 		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()

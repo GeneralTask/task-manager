@@ -401,9 +401,15 @@ func compareTasks(t1 *database.Task, t2 *database.Task) bool {
 	} else if t2.DueDate > 0 && t2.DueDate.Time().Before(sevenDaysFromNow) {
 		//t2 is due within seven days, t1 is not so prioritize t2
 		return false
-	} else if (*priorityMapping)[t1.PriorityID] != (*priorityMapping)[t2.PriorityID]{
-		//if either have a priority, choose the one with the higher priority
-		return (*priorityMapping)[t1.PriorityID] > (*priorityMapping)[t2.PriorityID]
+	} else if t1.PriorityID != t2.PriorityID {
+		//if either have a priority, choose the higher priority item (lower number)
+		if len(t1.PriorityID) > 0 && len(t2.PriorityID) > 0 {
+			return (*priorityMapping)[t1.PriorityID] < (*priorityMapping)[t2.PriorityID]
+		} else if len(t1.PriorityID) > 0{
+			return true
+		} else {
+			return false
+		}
 	} else {
 		//if all else fails prioritize by task number.
 		return t1.TaskNumber < t2.TaskNumber
