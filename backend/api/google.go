@@ -274,7 +274,7 @@ func LoadCalendarEvents(
 	result <- events
 }
 
-func MarkEmailAsRead(api *API, userID primitive.ObjectID, emailID string) bool {
+func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) bool {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
@@ -296,10 +296,22 @@ func MarkEmailAsRead(api *API, userID primitive.ObjectID, emailID string) bool {
 		return false
 	}
 
+	doneSetting := GetUserSetting(db, userID, SettingFieldEmailDonePreference)
+	var labelToRemove string
+	switch doneSetting {
+	case ChoiceKeyArchive:
+		labelToRemove = "INBOX"
+	case ChoiceKeyMarkAsRead:
+		labelToRemove = "UNREAD"
+	default:
+		log.Fatalf("Invalid done user setting: %s", doneSetting)
+		return false
+	}
+
 	_, err = gmailService.Users.Messages.Modify(
 		"me",
 		emailID,
-		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{"INBOX"}},
+		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{labelToRemove}},
 	).Do()
 
 	return err == nil

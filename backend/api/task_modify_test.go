@@ -84,17 +84,18 @@ func TestMarkAsComplete(t *testing.T) {
 	jiraTransitionServer := getTransitionIDServerForJIRA(t)
 	tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 
-	gmailModifyServer := getGmailArchiveServer(t)
+	inboxGmailModifyServer := getGmailArchiveServer(t, "INBOX")
 
 	router := GetRouter(&API{
 		JIRAConfigValues: JIRAConfig{
 			TokenURL:      &tokenServer.URL,
 			TransitionURL: &jiraTransitionServer.URL,
 		},
-		GoogleURLs: GoogleURLOverrides{GmailModifyURL: &gmailModifyServer.URL},
+		GoogleURLs: GoogleURLOverrides{GmailModifyURL: &inboxGmailModifyServer.URL},
 	})
 
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
+		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+jiraTaskIDHex+"/",
@@ -106,6 +107,7 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("CompletionFlagFalse", func(t *testing.T) {
+		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+jiraTaskIDHex+"/",
@@ -117,6 +119,7 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("InvalidHex", func(t *testing.T) {
+		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+jiraTaskIDHex+"1/",
@@ -128,6 +131,7 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("InvalidUser", func(t *testing.T) {
+		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
 		ogAuth := authToken
 		log.Println(ogAuth)
 		secondAuthToken := login("tester@generaltask.io")
@@ -141,7 +145,8 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 	})
 
-	t.Run("JIRASuccess", func(t *testing.T) {
+	t.Run("JIRASuccessInbox", func(t *testing.T) {
+		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+jiraTaskIDHex+"/",
@@ -152,6 +157,9 @@ func TestMarkAsComplete(t *testing.T) {
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
+
+		assert.NoError(t, err)
+
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
@@ -159,7 +167,51 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.Equal(t, true, task.IsCompleted)
 	})
 
+	t.Run("JIRASuccessUnread", func(t *testing.T) {
+		insertResult, err = taskCollection.InsertOne(nil, database.TaskBase{
+			UserID:     userID,
+			IDExternal: "sample_jira_id",
+			Source:     database.TaskSourceJIRA.Name,
+		})
+		assert.NoError(t, err)
+		jiraTaskID = insertResult.InsertedID.(primitive.ObjectID)
+		jiraTaskIDHex = jiraTaskID.Hex()
+
+		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyMarkAsRead)
+
+		unreadGmailModifyServer := getGmailArchiveServer(t, "UNREAD")
+
+		unreadRouter := GetRouter(&API{
+			JIRAConfigValues: JIRAConfig{
+				TokenURL:      &tokenServer.URL,
+				TransitionURL: &jiraTransitionServer.URL,
+			},
+			GoogleURLs: GoogleURLOverrides{GmailModifyURL: &unreadGmailModifyServer.URL},
+		})
+
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/"+jiraTaskIDHex+"/",
+			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
+
+		var task database.TaskBase
+		err = taskCollection.FindOne(nil, bson.D{{"_id", jiraTaskID}}).Decode(&task)
+		assert.Equal(t, false, task.IsCompleted)
+
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+
+		assert.NoError(t, err)
+
+		unreadRouter.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		err = taskCollection.FindOne(nil, bson.D{{"_id", jiraTaskID}}).Decode(&task)
+		assert.Equal(t, true, task.IsCompleted)
+	})
+
 	t.Run("GmailSuccess", func(t *testing.T) {
+		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+gmailTaskIDHex+"/",
@@ -178,6 +230,7 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("CalendarFailure", func(t *testing.T) {
+		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+calendarTaskIDHex+"/",
