@@ -45,12 +45,13 @@ type OauthConfigWrapper interface {
 type GoogleURLOverrides struct {
 	CalendarFetchURL *string
 	GmailModifyURL *string
+	GmailReplyURL *string
 }
 
 // API is the object containing API route handlers
 type API struct {
 	GoogleConfig        OauthConfigWrapper
-	GoogleURLs			GoogleURLOverrides
+	GoogleOverrideURLs  GoogleURLOverrides
 	JIRAConfigValues    JIRAConfig
 	SkipStateTokenCheck bool
 }

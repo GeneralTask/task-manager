@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"log"
@@ -185,11 +186,11 @@ func LoadCalendarEvents(
 	var calendarService *calendar.Service
 	var err error
 
-	if api.GoogleURLs.CalendarFetchURL != nil {
+	if api.GoogleOverrideURLs.CalendarFetchURL != nil {
 		calendarService, err = calendar.NewService(
 			context.Background(),
 			option.WithoutAuthentication(),
-			option.WithEndpoint(*api.GoogleURLs.CalendarFetchURL),
+			option.WithEndpoint(*api.GoogleOverrideURLs.CalendarFetchURL),
 		)
 	} else {
 		calendarService, err = calendar.NewService(context.TODO(), option.WithHTTPClient(client))
@@ -282,13 +283,13 @@ func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) bool {
 
 	var gmailService *gmail.Service
 	var err error
-	if api.GoogleURLs.GmailModifyURL == nil {
+	if api.GoogleOverrideURLs.GmailModifyURL == nil {
 		gmailService, err = gmail.New(client)
 	} else {
 		gmailService, err = gmail.NewService(
 			context.Background(),
 			option.WithoutAuthentication(),
-			option.WithEndpoint(*api.GoogleURLs.GmailModifyURL))
+			option.WithEndpoint(*api.GoogleOverrideURLs.GmailModifyURL))
 	}
 
 	if err != nil {
@@ -315,6 +316,99 @@ func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) bool {
 	).Do()
 
 	return err == nil
+}
+
+func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID, body string) error {
+	db, dbCleanup := database.GetDBConnection()
+	defer dbCleanup()
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+	client := getGoogleHttpClient(externalAPITokenCollection, userID)
+
+	var gmailService *gmail.Service
+	var err error
+
+	if api.GoogleOverrideURLs.GmailReplyURL != nil {
+		gmailService, err = gmail.NewService(
+			context.Background(),
+			option.WithoutAuthentication(),
+			option.WithEndpoint(*api.GoogleOverrideURLs.GmailReplyURL),
+		)
+	} else {
+		gmailService, err = gmail.NewService(context.TODO(), option.WithHTTPClient(client))
+	}
+
+	if err != nil {
+		return err
+	}
+
+	var email database.Email
+	taskCollection := db.Collection("tasks")
+	err = taskCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: taskID},{Key: "user_id", Value: userID}}).Decode(&email)
+
+	messageResponse, err := gmailService.Users.Messages.Get("me", email.IDExternal).Do()
+
+	if err != nil {
+		return err
+	}
+
+	subject := ""
+	replyTo := ""
+	from := ""
+	smtpID := ""
+	references := ""
+
+	for _, h := range messageResponse.Payload.Headers {
+		if h.Name == "Subject" {
+			subject = h.Value
+		} else if h.Name == "Reply-To" {
+			replyTo = h.Value
+		} else if h.Name == "From" {
+			from = h.Value
+		} else  if h.Name == "References" {
+			references = h.Value
+		} else if h.Name == "Message-ID" {
+			smtpID = h.Value
+		}
+	}
+
+	var sendAddress string
+	if len(replyTo) > 0 {
+		sendAddress = replyTo
+	} else {
+		sendAddress = from
+	}
+
+	if len(smtpID) == 0 {
+		return errors.New("missing smtp id")
+	}
+
+	if len(sendAddress) == 0 {
+		return errors.New("missing send address")
+	}
+
+	if !strings.HasPrefix(subject, "Re:") {
+		subject = "Re: " + subject
+	}
+
+	emailTo := "To: " + sendAddress + "\r\n"
+	subject = "Subject: " + subject + "\n"
+	if len(references) > 0 {
+		references = "References: " + references + " " + smtpID + "\n"
+	} else {
+		references = "References: " + smtpID + "\n"
+	}
+	inReply := "In-Reply-To: " + smtpID + "\n"
+	mime := "MIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n"
+	msg := []byte(emailTo + subject + inReply + references + mime + "\n" + body)
+
+	messageToSend := gmail.Message{
+		Raw:             base64.URLEncoding.EncodeToString(msg),
+		ThreadId:        email.ThreadID,
+	}
+
+	_, err = gmailService.Users.Messages.Send("me", &messageToSend).Do()
+
+	return err
 }
 
 func getGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID) *http.Client {

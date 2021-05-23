@@ -2,11 +2,10 @@ package api
 
 import (
 	"context"
+	"github.com/GeneralTask/task-manager/backend/database"
 	"log"
 	"os"
 	"testing"
-
-	"github.com/GeneralTask/task-manager/backend/database"
 )
 
 func TestMain(m *testing.M) {
