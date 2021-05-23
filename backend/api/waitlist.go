@@ -21,11 +21,11 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "Invalid or missing 'email' parameter."})
 		return
 	}
-	log.Println("email:", params.Email)
 	if !isEmailValid(params.Email) {
 		c.JSON(400, gin.H{"detail": "Invalid email format."})
 		return
 	}
+
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	waitlistCollection := db.Collection("waitlist")
