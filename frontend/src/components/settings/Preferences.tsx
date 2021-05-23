@@ -4,7 +4,7 @@ import { connect, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { SETTINGS_URL } from '../../constants'
 import { TSetting, TSettingChoice } from '../../helpers/types'
-import { getHeaders } from '../../helpers/utils'
+import { getHeaders, makeAuthorizedRequest } from '../../helpers/utils'
 import { setSettings } from '../../redux/actions'
 import store, { RootState } from '../../redux/store'
 
@@ -30,15 +30,11 @@ interface Props {
 }
 
 const fetchSettings = async () => {
-    const response: Response = await fetch(SETTINGS_URL, {
+    const response = await makeAuthorizedRequest({
+        url: SETTINGS_URL,
         method: 'GET',
-        mode: 'cors',
-        headers: getHeaders(),
     })
-    if(!response.ok){
-        throw new Error('/tasks api call failed')
-    }
-    else{
+    if(response.ok){
         const settings = await response.json()
         store.dispatch(setSettings(settings))
     }
@@ -71,11 +67,10 @@ const Preference: React.FC<Props> = ({setting}: Props) => {
 }
 
 const changeSetting = (field_key: string, choice_key: string) => {
-    fetch(SETTINGS_URL, {
+    makeAuthorizedRequest({
+        url: SETTINGS_URL,
         method: 'PATCH',
-        mode: 'cors',
-        headers: getHeaders(),
-        body: `{"${field_key}":"${choice_key}"}`
+        body: `{"${field_key}":"${choice_key}"}`,
     })
 }
 
