@@ -6,14 +6,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/GeneralTask/task-manager/backend/templating"
-	"go.mongodb.org/mongo-driver/mongo"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"reflect"
 	"time"
+
+	"github.com/GeneralTask/task-manager/backend/templating"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -34,10 +35,10 @@ type JIRAAuthToken struct {
 
 // JIRAConfig ...
 type JIRAConfig struct {
-	APIBaseURL    *string
-	CloudIDURL    *string
-	TokenURL      *string
-	TransitionURL *string
+	APIBaseURL      *string
+	CloudIDURL      *string
+	TokenURL        *string
+	TransitionURL   *string
 	PriorityListURL *string
 }
 
@@ -65,10 +66,10 @@ type JIRATask struct {
 
 // JIRATaskFields ...
 type JIRATaskFields struct {
-	DueDate 			string 		`json:"duedate"`
-	Summary 			string 		`json:"summary"`
-	Description 		string  	`json:"description"`
-	Priority 			PriorityID 	`json:"priority"`
+	DueDate     string     `json:"duedate"`
+	Summary     string     `json:"summary"`
+	Description string     `json:"description"`
+	Priority    PriorityID `json:"priority"`
 }
 
 // JIRATaskList represents the API list result for issues - only fields we need
@@ -81,7 +82,7 @@ type PriorityID struct {
 }
 
 type TaskResult struct {
-	Tasks []*database.Task
+	Tasks           []*database.Task
 	PriorityMapping *map[string]int
 }
 
@@ -261,10 +262,9 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 
-
 	var tasks []*database.Task
 	for _, jiraTask := range jiraTasks.Issues {
-		bodyString, err :=  templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
+		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
 		if err != nil {
 			log.Fatalf("Unable to parse JIRA template %v", err)
 		}
@@ -278,7 +278,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 				Title:          jiraTask.Fields.Summary,
 				Logo:           database.TaskSourceJIRA.Logo,
 				IsCompletable:  database.TaskSourceJIRA.IsCompletable,
-				Body: 			bodyString,
+				Body:           bodyString,
 				TimeAllocation: time.Hour.Nanoseconds(),
 			},
 			PriorityID: jiraTask.Fields.Priority.ID,
@@ -295,8 +295,8 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 			task.Source,
 			task,
 			database.TaskChangeableFields{
-				Title:    task.Title,
-				DueDate:  task.DueDate,
+				Title:      task.Title,
+				DueDate:    task.DueDate,
 				PriorityID: task.PriorityID,
 			},
 		).Decode(&dbTask)
@@ -305,6 +305,9 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 		}
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
+		if dbTask.PriorityID != task.PriorityID && !dbTask.HasBeenReordered {
+			task.IDOrdering = 0
+		}
 		tasks = append(tasks, task)
 	}
 
@@ -345,7 +348,6 @@ func emptyTaskResult() TaskResult {
 		PriorityMapping: &priorities,
 	}
 }
-
 
 func getJIRAAPIBaseURl(siteConfiguration database.JIRASiteConfiguration) string {
 	return "https://api.atlassian.com/ex/jira/" + siteConfiguration.CloudID
@@ -560,7 +562,7 @@ func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken stri
 		return errors.New("Could not form base url")
 	}
 
-	url := baseURL+"/rest/api/3/priority/"
+	url := baseURL + "/rest/api/3/priority/"
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("Authorization", "Bearer "+authToken)
 	req.Header.Add("Content-Type", "application/json")
@@ -596,7 +598,7 @@ func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken stri
 		jiraPriorities = append(jiraPriorities, database.JIRAPriority{
 			UserID:          userID,
 			JIRAID:          object.ID,
-			IntegerPriority: index+1,
+			IntegerPriority: index + 1,
 		})
 	}
 	_, err = prioritiesCollection.InsertMany(context.TODO(), jiraPriorities)
