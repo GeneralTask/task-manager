@@ -117,6 +117,7 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 			for _, choice := range setting.Choices {
 				if choice.Key == fieldValue {
 					valueFound = true
+					break
 				}
 			}
 		}
@@ -143,6 +144,7 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 	)
 	if err != nil {
 		log.Fatalf("Failed to update user setting: %v", err)
+		return errors.New("failed to update user setting")
 	}
 	return nil
 }
