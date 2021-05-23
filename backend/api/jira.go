@@ -305,7 +305,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 		}
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
-		if dbTask.PriorityID != task.PriorityID {
+		if dbTask.PriorityID != task.PriorityID && !dbTask.HasBeenReordered {
 			task.IDOrdering = 0
 		}
 		tasks = append(tasks, task)

@@ -367,6 +367,53 @@ func TestLoadJIRATasks(t *testing.T) {
 		expectedTask.IDOrdering = 2
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 	})
+	t.Run("NewPriorityReordered", func(t *testing.T) {
+		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+
+		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+		expectedTask := database.Task{
+			TaskBase: database.TaskBase{
+				IDOrdering:       2,
+				IDExternal:       "42069",
+				HasBeenReordered: true,
+				Deeplink:         "https://dankmemes.com/browse/MOON-1969",
+				Title:            "Sample Taskeroni",
+				Source:           database.TaskSourceJIRA.Name,
+				Logo:             database.TaskSourceJIRA.Logo,
+				UserID:           *userID,
+			},
+			PriorityID: "something_that_will_change",
+			DueDate:    primitive.NewDateTimeFromTime(dueDate),
+		}
+		database.GetOrCreateTask(
+			db,
+			*userID,
+			"42069",
+			database.TaskSourceJIRA.Name,
+			&expectedTask,
+		)
+
+		var JIRATasks = make(chan TaskResult)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 1, len(result.Tasks))
+
+		assertTasksEqual(t, &expectedTask, result.Tasks[0])
+
+		var taskFromDB database.Task
+		err := taskCollection.FindOne(
+			context.TODO(),
+			bson.D{
+				{Key: "source", Value: database.TaskSourceJIRA.Name},
+				{Key: "id_external", Value: "42069"},
+				{Key: "user_id", Value: userID},
+			},
+		).Decode(&taskFromDB)
+		assert.NoError(t, err)
+		assertTasksEqual(t, &expectedTask, &taskFromDB)
+	})
 }
 
 func TestGetPriorities(t *testing.T) {
