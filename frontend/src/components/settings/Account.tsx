@@ -2,6 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 
 const AccountDiv = styled.div`
+  margin: auto;
+  width: 90%;
   display: flex;
   justify-content: space-between;
   align-items: center;

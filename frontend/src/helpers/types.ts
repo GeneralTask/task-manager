@@ -19,3 +19,15 @@ export interface TTaskGroup {
     datetime_start: string | null,
     tasks: TTask[]
 }
+
+export interface TSettingChoice {
+    choice_key: string,
+    choice_name: string,
+}
+
+export interface TSetting {
+    field_key: string,
+    field_value: string,
+    field_name: string,
+    choices: TSettingChoice[],
+}

@@ -1,4 +1,4 @@
-import { TTaskGroup } from './../helpers/types'
+import { TSetting, TTaskGroup } from './../helpers/types'
 import * as actions from './actionTypes'
 import { AnyAction } from 'redux'
 import { FetchStatus } from './enums'
@@ -43,5 +43,12 @@ export function expandBody(task_id: string): AnyAction{
 export function retractBody(): AnyAction{
     return {
         type: actions.RETRACT_BODY,
+    }
+}
+
+export function setSettings(settings: TSetting[]): AnyAction{
+    return {
+        type: actions.SET_SETTINGS,
+        settings,
     }
 }
