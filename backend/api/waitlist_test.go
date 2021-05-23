@@ -70,6 +70,7 @@ func TestWaitlistAdd(t *testing.T) {
 		).Decode(&entry)
 		assert.NoError(t, err)
 		assert.Equal(t, "elon@tesla.moon", entry.Email)
+		assert.False(t, entry.HasAccess)
 	})
 }
 
