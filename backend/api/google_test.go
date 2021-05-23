@@ -210,13 +210,3 @@ func getGmailArchiveServer(t *testing.T, expectedLabel string) *httptest.Server 
 		w.Write([]byte(`{}`))
 	}))
 }
-
-func TestGmailList(t *testing.T) {
-	router := GetRouter(&API{})
-	authToken := "63404511-049f-4a2d-815f-47a14ce22e0f"
-	request, _ := http.NewRequest("GET", "/tasks/", nil)
-	request.Header.Add("Authorization", "Bearer " + authToken)
-	recorder := httptest.NewRecorder()
-	router.ServeHTTP(recorder, request)
-	assert.Equal(t, http.StatusOK, recorder.Code)
-}
