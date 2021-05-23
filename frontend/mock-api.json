@@ -13,11 +13,14 @@
           "datetime_start": null,
           "deeplink": "https://slack.com",
           "sender": "@hackerdog",
-          "logo_url": "/images/slack.svg",
           "title": "Hey, can you help me put out this fire?",
-          "source": "Slack",
-          "is_completable": true,
-          "body": null
+          "body": null,
+          "source": {
+            "name": "Slack",
+            "logo": "/images/slack.svg",
+            "is_completable": true,
+            "is_replyable": false            
+          }
         },
         {
           "id": "2",
@@ -27,11 +30,14 @@
           "datetime_start": null,
           "deeplink": "https://gmail.com",
           "sender": "@hackerdog",
-          "logo_url": "/images/gmail.svg",
           "title": "Urgent question about tomorrow's presentation",
-          "source": "Gmail",
-          "is_completable": true,
-          "body": "<html><style>body{background-color:red}</style><body><div>What's up</div></body></html>"
+          "body": "<html><style>body{background-color:red}</style><body><div>What's up</div></body></html>",
+          "source": {
+            "name": "Gmail",
+            "logo": "/images/gmail.svg",
+            "is_completable": true,
+            "is_replyable": true            
+          }
         }
       ]
     },
@@ -47,12 +53,17 @@
           "datetime_start": "2021-03-11T10:30:00-07:00",
           "deeplink": "https://calendar.google.com",
           "sender": "",
-          "source": "Google Calendar",
           "link": "https://www.google.com/calendar/event?eid=NXQxYjg2aGJndnB0cmQxb2tpZGIzc2QxOW0gc2NvdHRtYWk3MDJAbQ",
           "title": "Chat with Scott",
           "logo_url": "/images/gcal.svg",
           "is_completable": false,
-          "body": "<div>hello world<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><div>"
+          "body": "<div>hello world<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>Goodbye world<div>",
+          "source": {
+            "name": "Google Calendar",
+            "logo": "/images/gcal.svg",
+            "is_completable": false,
+            "is_replyable": false            
+          }
         }
       ]
     },
@@ -70,9 +81,13 @@
           "sender": "@hackerdog",
           "logo_url": "/images/asana.svg",
           "title": "Write presentation for tomorrow",
-          "source": "Asana",
-          "is_completable": true,
-          "body": null
+          "body": null,
+          "source": {
+            "name": "Asana",
+            "logo": "/images/asana.svg",
+            "is_completable": false,
+            "is_replyable": false            
+          }
         }
       ]
     },
@@ -88,12 +103,15 @@
           "datetime_start": "2021-03-11T12:00:00-07:00",
           "deeplink": "https://calendar.google.com",
           "sender": "",
-          "source": "Google Calendar",
           "link": "https://www.google.com/calendar/event?eid=NXBkanJpcDlqMXB2ZW81aXIxaDVtYmlhb2Igc2NvdHRtYWk3MDJAbQ",
           "title": "Lunch Break",
-          "logo_url": "/images/gcal.svg",
-          "is_completable": false,
-          "body": null
+          "body": null,
+          "source": {
+            "name": "Google Calendar",
+            "logo": "/images/gcal.svg",
+            "is_completable": false,
+            "is_replyable": false            
+          }
         }
       ]
     }

@@ -4,8 +4,8 @@
     "rules": {
       "semi": ["error", "never"],
       "quotes": [2, "single"]
-    }
-    // "extends": ["plugin:@typescript-eslint/recommended"],
+    },
+    "extends": ["plugin:@typescript-eslint/recommended"]
   }
   
   

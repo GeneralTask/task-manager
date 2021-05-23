@@ -17,12 +17,12 @@ interface fetchParams {
 
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
-export const logout = () => {
+export const logout = (): void => {
     Cookies.remove('authToken', {path: '/', domain: REACT_APP_COOKIE_DOMAIN})
     document.location.href = LANDING_PATH
 }
 
-export const makeAuthorizedRequest = async(params: fetchParams) => {
+export const makeAuthorizedRequest = async(params: fetchParams): Promise<Response> => {
     const response = await fetch(params.url, {
         method: params.method,
         mode: 'cors',
