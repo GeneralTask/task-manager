@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/go-playground/assert/v2"
+	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -16,7 +16,8 @@ func TestLogout(t *testing.T) {
 	t.Run("Logout", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 
-		db, dbCleanup := database.GetDBConnection()
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
 		defer dbCleanup()
 		tokenCollection := db.Collection("internal_api_tokens")
 

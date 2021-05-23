@@ -50,14 +50,23 @@ var Settings = []SettingDefinition{
 }
 
 func (api *API) SettingsList(c *gin.Context) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	defer dbCleanup()
 	userID, _ := c.Get("user")
 	userSettings := []UserSetting{}
 	for _, setting := range Settings {
+		settingValue, err := GetUserSetting(db, userID.(primitive.ObjectID), setting.FieldKey)
+		if err != nil {
+			Handle500(c)
+			return
+		}
 		userSettings = append(userSettings, UserSetting{
 			SettingDefinition: setting,
-			FieldValue:        GetUserSetting(db, userID.(primitive.ObjectID), setting.FieldKey),
+			FieldValue:        *settingValue,
 		})
 	}
 	c.JSON(200, userSettings)
@@ -70,7 +79,11 @@ func (api *API) SettingsModify(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "Parameters missing or malformatted."})
 		return
 	}
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	defer dbCleanup()
 	userID, _ := c.Get("user")
 	for key, value := range settingsMap {
@@ -83,7 +96,7 @@ func (api *API) SettingsModify(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string) string {
+func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string) (*string, error) {
 	settingCollection := db.Collection("user_settings")
 	var userSetting database.UserSetting
 	err := settingCollection.FindOne(
@@ -94,18 +107,17 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 		}},
 	).Decode(&userSetting)
 	if err == nil {
-		return userSetting.FieldValue
+		return &userSetting.FieldValue, nil
 	}
 
-	log.Printf("Failed to load user setting: %v", err)
 	// Default to first choice value
 	for _, setting := range Settings {
 		if setting.FieldKey == fieldKey {
-			return setting.DefaultChoice
+			return &setting.DefaultChoice, nil
 		}
 	}
-	log.Fatalln("Invalid setting:", fieldKey)
-	return ""
+	log.Printf("Invalid setting: %s", fieldKey)
+	return nil, errors.New(fmt.Sprintf("Invalid setting: %s", fieldKey))
 }
 
 func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string, fieldValue string) error {
@@ -143,8 +155,8 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Fatalf("Failed to update user setting: %v", err)
-		return errors.New("failed to update user setting")
+		log.Printf("Failed to update user setting: %v", err)
+		return errors.New("internal server error")
 	}
 	return nil
 }

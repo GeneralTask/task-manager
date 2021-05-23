@@ -18,7 +18,8 @@ import (
 )
 
 func TestMarkAsComplete(t *testing.T) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
 	defer dbCleanup()
 
 	authToken := login("approved@generaltask.io", "")
@@ -95,7 +96,8 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
-		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		err := UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+jiraTaskIDHex+"/",
@@ -107,7 +109,8 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("CompletionFlagFalse", func(t *testing.T) {
-		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		err := UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+jiraTaskIDHex+"/",
@@ -119,7 +122,8 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("InvalidHex", func(t *testing.T) {
-		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		err := UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+jiraTaskIDHex+"1/",
@@ -131,7 +135,8 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("InvalidUser", func(t *testing.T) {
-		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		err := UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		assert.NoError(t, err)
 		ogAuth := authToken
 		log.Println(ogAuth)
 		secondAuthToken := login("tester@generaltask.io", "")
@@ -146,7 +151,8 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("JIRASuccessInbox", func(t *testing.T) {
-		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		err := UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+jiraTaskIDHex+"/",
@@ -250,7 +256,8 @@ func TestMarkAsComplete(t *testing.T) {
 }
 
 func TestTaskReorder(t *testing.T) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
 	defer dbCleanup()
 	taskCollection := db.Collection("tasks")
 	t.Run("Success", func(t *testing.T) {

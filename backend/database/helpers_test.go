@@ -4,17 +4,18 @@ import (
 	"log"
 	"testing"
 
-	"github.com/go-playground/assert/v2"
+	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestGetActiveTasks(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		db, dbCleanup := GetDBConnection()
+		db, dbCleanup, err := GetDBConnection()
+		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := primitive.NewObjectID()
 		notUserID := primitive.NewObjectID()
-		task1 := GetOrCreateTask(
+		task1, err := GetOrCreateTask(
 			db,
 			userID,
 			"123abc",
@@ -25,7 +26,8 @@ func TestGetActiveTasks(t *testing.T) {
 				UserID:     userID,
 			}},
 		)
-		GetOrCreateTask(
+		assert.NoError(t, err)
+		_, err = GetOrCreateTask(
 			db,
 			notUserID,
 			"123abd",
@@ -36,7 +38,8 @@ func TestGetActiveTasks(t *testing.T) {
 				UserID:     notUserID,
 			}},
 		)
-		GetOrCreateTask(
+		assert.NoError(t, err)
+		_, err = GetOrCreateTask(
 			db,
 			userID,
 			"123abe",
@@ -48,7 +51,9 @@ func TestGetActiveTasks(t *testing.T) {
 				UserID:      userID,
 			}},
 		)
-		tasks := GetActiveTasks(db, userID)
+		assert.NoError(t, err)
+		tasks, err := GetActiveTasks(db, userID)
+		assert.NoError(t, err)
 		log.Println("user ID:" + userID.Hex())
 		for _, task := range *tasks {
 			log.Println("task:" + task.ID.Hex())

@@ -39,13 +39,12 @@ type OauthConfigWrapper interface {
 	AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) string
 	Client(ctx context.Context, t *oauth2.Token) HTTPClient
 	Exchange(ctx context.Context, code string, opts ...oauth2.AuthCodeOption) (*oauth2.Token, error)
-
 }
 
 type GoogleURLOverrides struct {
 	CalendarFetchURL *string
-	GmailModifyURL *string
-	GmailReplyURL *string
+	GmailModifyURL   *string
+	GmailReplyURL    *string
 }
 
 // API is the object containing API route handlers
@@ -71,7 +70,11 @@ func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 		c.JSON(401, gin.H{"detail": "missing authToken cookie"})
 		return nil, errors.New("invalid auth token")
 	}
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return nil, err
+	}
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var internalToken database.InternalAPIToken
@@ -100,7 +103,11 @@ func TokenMiddleware(c *gin.Context) {
 		return
 	}
 	log.Println("Token: \"" + token + "\"")
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		c.AbortWithStatusJSON(500, gin.H{"detail": "internal server error"})
+		return
+	}
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var internalToken database.InternalAPIToken
@@ -139,4 +146,8 @@ func CORSMiddleware(c *gin.Context) {
 
 func Handle404(c *gin.Context) {
 	c.JSON(404, gin.H{"detail": "not found"})
+}
+
+func Handle500(c *gin.Context) {
+	c.JSON(500, gin.H{"detail": "internal server error"})
 }

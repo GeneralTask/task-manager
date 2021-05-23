@@ -54,7 +54,8 @@ func TestWaitlistAdd(t *testing.T) {
 		sendWaitlistRequest(t, http.StatusCreated, "{}")
 		sendWaitlistRequest(t, http.StatusFound, "{\"detail\":\"Email already exists in system\"}")
 
-		db, dbCleanup := database.GetDBConnection()
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
 		defer dbCleanup()
 		waitlistCollection := db.Collection("waitlist")
 		count, err := waitlistCollection.CountDocuments(

@@ -80,8 +80,11 @@ func getUserIDFromAuthToken(t *testing.T, db *mongo.Database, authToken string) 
 	return authTokenStruct.UserID
 }
 
-func newStateToken(authToken string) string {
-	db, dbCleanup := database.GetDBConnection()
+func newStateToken(authToken string) (*string, error) {
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return nil, err
+	}
 	defer dbCleanup()
 	var userID *primitive.ObjectID
 	if authToken != "" {
