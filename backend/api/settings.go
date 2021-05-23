@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -9,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type SettingDefinition struct {
@@ -61,6 +64,22 @@ func (api *API) SettingsList(c *gin.Context) {
 }
 
 func (api *API) SettingsModify(c *gin.Context) {
+	var settingsMap map[string]string
+	err := c.BindJSON(&settingsMap)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "Parameters missing or malformatted."})
+		return
+	}
+	db, dbCleanup := database.GetDBConnection()
+	defer dbCleanup()
+	userID, _ := c.Get("user")
+	for key, value := range settingsMap {
+		err = UpdateUserSetting(db, userID.(primitive.ObjectID), key, value)
+		if err != nil {
+			c.JSON(400, gin.H{"detail": fmt.Sprintf("Failed to update settings: %v", err)})
+			return
+		}
+	}
 	c.JSON(200, gin.H{})
 }
 
@@ -87,4 +106,43 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 	}
 	log.Fatalln("Invalid setting:", fieldKey)
 	return ""
+}
+
+func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string, fieldValue string) error {
+	keyFound := false
+	valueFound := false
+	for _, setting := range Settings {
+		if setting.FieldKey == fieldKey {
+			keyFound = true
+			for _, choice := range setting.Choices {
+				if choice.Key == fieldValue {
+					valueFound = true
+				}
+			}
+		}
+	}
+	if !keyFound {
+		return errors.New("invalid setting: " + fieldKey)
+	}
+	if !valueFound {
+		return errors.New("invalid value: " + fieldValue)
+	}
+	settingCollection := db.Collection("user_settings")
+	_, err := settingCollection.UpdateOne(
+		context.TODO(),
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"field_key": fieldKey},
+		}},
+		bson.D{{Key: "$set", Value: &database.UserSetting{
+			FieldKey:   fieldKey,
+			FieldValue: fieldValue,
+			UserID:     userID,
+		}}},
+		options.Update().SetUpsert(true),
+	)
+	if err != nil {
+		log.Fatalf("Failed to update user setting: %v", err)
+	}
+	return nil
 }
