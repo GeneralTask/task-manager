@@ -20,7 +20,6 @@ type GmailReplyParams struct {
 }
 
 func TestReplyToEmail(t *testing.T) {
-
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 
@@ -47,7 +46,7 @@ func TestReplyToEmail(t *testing.T) {
 
 		request, _ := http.NewRequest(
 			"POST",
-			"/tasks/"+emailID+"/reply",
+			"/tasks/"+emailID+"/reply/",
 			bytes.NewBuffer([]byte(`{"reply'": "test reply"}`)))
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -77,7 +76,7 @@ func TestReplyToEmail(t *testing.T) {
 
 		request, _ := http.NewRequest(
 			"POST",
-			"/tasks/"+taskID+"/reply",
+			"/tasks/"+taskID+"/reply/",
 			bytes.NewBuffer([]byte(`{"body": "test reply"}`)))
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -89,7 +88,45 @@ func TestReplyToEmail(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"task cannot be replied to\"}", string(body))
 	})
 
+	t.Run("Unauthorized", func(t *testing.T) {
+		router := GetRouter(&API{})
 
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/"+emailID+"/reply/",
+			bytes.NewBuffer([]byte(`{"body'": "test reply"}`)))
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
+
+	t.Run("TaskDoesNotBelongToUser", func(t *testing.T) {
+		insertedResult, err := taskCollection.InsertOne(nil, database.Email{
+			TaskBase:     database.TaskBase{
+				UserID:           primitive.NewObjectID(),
+				IDExternal:       "sample_message_id",
+				Title:            "Sample subject",
+				Source: database.TaskSourceGmail.Name,
+			},
+			ThreadID:     "sample_thread_id",
+		})
+
+		emailID := insertedResult.InsertedID.(primitive.ObjectID).Hex()
+		assert.NoError(t, err)
+
+		router := GetRouter(&API{})
+
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/"+emailID+"/reply/",
+			bytes.NewBuffer([]byte(`{"body": "test reply"}`)))
+
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusNotFound, recorder.Code)
+	})
 
 	t.Run("SuccessNoReplyTo", func(t *testing.T) {
 		var headers = []*gmail.MessagePartHeader{
@@ -101,13 +138,17 @@ func TestReplyToEmail(t *testing.T) {
 				Name:            "From",
 				Value:           "Sample sender <sample@generaltask.io>",
 			},
+			&gmail.MessagePartHeader{
+				Name:            "Message-ID",
+				Value:           "<id1@gt.io>",
+			},
 		}
 
 		server := getReplyServer(t,
 			"sample_message_id",
 			"sample_thread_id",
 			headers,
-			"To: Sample sender <sample@generaltask.io>\r\nSubject: Re: Sample subject\nMIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n\ntest reply")
+			"To: Sample sender <sample@generaltask.io>\r\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n\ntest reply")
 
 		testSuccessfulReplyWithServer(t, emailID, authToken, "test reply", server)
 	})
@@ -126,13 +167,21 @@ func TestReplyToEmail(t *testing.T) {
 				Name:            "Reply-To",
 				Value:           "Reply address <reply@generaltask.io>",
 			},
+			&gmail.MessagePartHeader{
+				Name:            "Message-ID",
+				Value:           "<id2@gt.io>",
+			},
+			&gmail.MessagePartHeader{
+				Name:            "References",
+				Value:           "<id1@gt.io>",
+			},
 		}
 
 		server := getReplyServer(t,
 			"sample_message_id",
 			"sample_thread_id",
 			headers,
-			"To: Reply address <reply@generaltask.io>\r\nSubject: Re: Sample subject\nMIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n\ntest reply")
+			"To: Reply address <reply@generaltask.io>\r\nSubject: Re: Sample subject\nIn-Reply-To: <id2@gt.io>\nReferences: <id1@gt.io> <id2@gt.io>\nMIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n\ntest reply")
 
 		testSuccessfulReplyWithServer(t, emailID, authToken, "test reply", server)
 	})
@@ -144,13 +193,13 @@ func testSuccessfulReplyWithServer(t *testing.T,
 	body string,
 	server *httptest.Server) {
 	api := &API{
-		GoogleURLs: GoogleURLOverrides{GmailReplyURL: &server.URL},
+		GoogleOverrideURLs: GoogleURLOverrides{GmailReplyURL: &server.URL},
 	}
 	router := GetRouter(api)
 
 	request, _ := http.NewRequest(
 		"POST",
-		"/tasks/"+emailID+"/reply",
+		"/tasks/"+emailID+"/reply/",
 		bytes.NewBuffer([]byte(`{"body": "` + body + `"}`)))
 
 	request.Header.Add("Authorization", "Bearer "+authToken)

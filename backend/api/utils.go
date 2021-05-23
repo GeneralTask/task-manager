@@ -51,7 +51,7 @@ type GoogleURLOverrides struct {
 // API is the object containing API route handlers
 type API struct {
 	GoogleConfig        OauthConfigWrapper
-	GoogleURLs			GoogleURLOverrides
+	GoogleOverrideURLs  GoogleURLOverrides
 	JIRAConfigValues    JIRAConfig
 	SkipStateTokenCheck bool
 }

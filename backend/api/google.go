@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"log"
@@ -185,11 +186,11 @@ func LoadCalendarEvents(
 	var calendarService *calendar.Service
 	var err error
 
-	if api.GoogleURLs.CalendarFetchURL != nil {
+	if api.GoogleOverrideURLs.CalendarFetchURL != nil {
 		calendarService, err = calendar.NewService(
 			context.Background(),
 			option.WithoutAuthentication(),
-			option.WithEndpoint(*api.GoogleURLs.CalendarFetchURL),
+			option.WithEndpoint(*api.GoogleOverrideURLs.CalendarFetchURL),
 		)
 	} else {
 		calendarService, err = calendar.NewService(context.TODO(), option.WithHTTPClient(client))
@@ -282,13 +283,13 @@ func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) bool {
 
 	var gmailService *gmail.Service
 	var err error
-	if api.GoogleURLs.GmailModifyURL == nil {
+	if api.GoogleOverrideURLs.GmailModifyURL == nil {
 		gmailService, err = gmail.New(client)
 	} else {
 		gmailService, err = gmail.NewService(
 			context.Background(),
 			option.WithoutAuthentication(),
-			option.WithEndpoint(*api.GoogleURLs.GmailModifyURL))
+			option.WithEndpoint(*api.GoogleOverrideURLs.GmailModifyURL))
 	}
 
 	if err != nil {
@@ -326,11 +327,11 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 	var gmailService *gmail.Service
 	var err error
 
-	if api.GoogleURLs.GmailReplyURL != nil {
+	if api.GoogleOverrideURLs.GmailReplyURL != nil {
 		gmailService, err = gmail.NewService(
 			context.Background(),
 			option.WithoutAuthentication(),
-			option.WithEndpoint(*api.GoogleURLs.GmailReplyURL),
+			option.WithEndpoint(*api.GoogleOverrideURLs.GmailReplyURL),
 		)
 	} else {
 		gmailService, err = gmail.NewService(context.TODO(), option.WithHTTPClient(client))
@@ -353,6 +354,8 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 	subject := ""
 	replyTo := ""
 	from := ""
+	smtpID := ""
+	references := ""
 
 	for _, h := range messageResponse.Payload.Headers {
 		if h.Name == "Subject" {
@@ -361,6 +364,10 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 			replyTo = h.Value
 		} else if h.Name == "From" {
 			from = h.Value
+		} else  if h.Name == "References" {
+			references = h.Value
+		} else if h.Name == "Message-ID" {
+			smtpID = h.Value
 		}
 	}
 
@@ -371,14 +378,28 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 		sendAddress = from
 	}
 
+	if len(smtpID) == 0 {
+		return errors.New("missing smtp id")
+	}
+
+	if len(sendAddress) == 0 {
+		return errors.New("missing send address")
+	}
+
 	if !strings.HasPrefix(subject, "Re:") {
 		subject = "Re: " + subject
 	}
 
 	emailTo := "To: " + sendAddress + "\r\n"
 	subject = "Subject: " + subject + "\n"
+	if len(references) > 0 {
+		references = "References: " + references + " " + smtpID + "\n"
+	} else {
+		references = "References: " + smtpID + "\n"
+	}
+	inReply := "In-Reply-To: " + smtpID + "\n"
 	mime := "MIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n"
-	msg := []byte(emailTo + subject + mime + "\n" + body)
+	msg := []byte(emailTo + subject + inReply + references + mime + "\n" + body)
 
 	messageToSend := gmail.Message{
 		Raw:             base64.URLEncoding.EncodeToString(msg),

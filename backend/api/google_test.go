@@ -89,7 +89,7 @@ func TestCalendar(t *testing.T) {
 
 		var calendarEvents = make(chan []*database.CalendarEvent)
 		api := &API{
-			GoogleURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+			GoogleOverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 		}
 		go LoadCalendarEvents(api, userID, nil, calendarEvents)
 		result := <-calendarEvents
@@ -153,7 +153,7 @@ func TestCalendar(t *testing.T) {
 
 		var calendarEvents = make(chan []*database.CalendarEvent)
 		api := &API{
-			GoogleURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+			GoogleOverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 		}
 		go LoadCalendarEvents(api, userID, nil, calendarEvents)
 		result := <-calendarEvents
@@ -180,7 +180,7 @@ func TestCalendar(t *testing.T) {
 	t.Run("EmptyResult", func(t *testing.T) {
 		server := getServerForTasks([]*calendar.Event{})
 		api := API{
-			GoogleURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+			GoogleOverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 		}
 		defer server.Close()
 		var calendarEvents = make(chan []*database.CalendarEvent)

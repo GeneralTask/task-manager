@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
 	"net/http"
 )
 
@@ -42,14 +43,15 @@ func (api *API) TaskReply(c *gin.Context) {
 		bson.D{{Key: "_id", Value: taskID}, {Key: "user_id", Value: userID}}).Decode(&taskBase)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{})
+		Handle404(c)
 		return
 	}
 
 	if taskBase.Source == database.TaskSourceGmail.Name {
 		err = ReplyToEmail(api, userID.(primitive.ObjectID), taskID, replyParams.Body)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"detail" : "unable to send email"})
+			log.Printf("Unable to send email with error %v", err)
+			c.JSON(http.StatusServiceUnavailable, gin.H{"detail" : "unable to send email"})
 		} else {
 			c.JSON(http.StatusCreated, gin.H{})
 		}
