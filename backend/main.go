@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	api.GetRouter(&api.API{GoogleConfig: api.GetGoogleConfig()}).Run()
+	api.GetRouter(&api.API{GoogleConfig: api.GetGoogleConfig(), SlackConfig: api.GetSlackConfig()}).Run()
 }
