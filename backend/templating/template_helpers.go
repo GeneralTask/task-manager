@@ -3,23 +3,19 @@ package templating
 import (
 	"bytes"
 	"html/template"
-	"path"
-	"runtime"
 )
+
 
 func FormatPlainTextAsHTML(text string) (string, error) {
 	if len(text) == 0 {
 		return text, nil
 	}
+	plainTextTemplate, _ := template.New("plain_text").Parse("{{ define \"Description\" }}\n<!DOCTYPE html>" +
+		"\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <style>\n        html, body {\n            " +
+		"font-size: 16px;\n            font-family: \"Gothic A1\", sans-serif;\n        }\n    " +
+		"</style>\n</head>\n<body>\n<div>{{ . }}</div>\n</body>\n</html>\n{{ end }}")
 
-	template := template.Must(template.ParseFiles(getDirectoryOfTemplate("plain_text_template.html")))
 	buffer := new(bytes.Buffer)
-	err := template.ExecuteTemplate(buffer, "Description", text)
+	err := plainTextTemplate.ExecuteTemplate(buffer, "Description", text)
 	return buffer.String(), err
-}
-
-func getDirectoryOfTemplate(name string) string {
-	_, filename, _, _ := runtime.Caller(1)
-	filepath := path.Join(path.Dir(filename), "./templates/" + name)
-	return filepath
 }

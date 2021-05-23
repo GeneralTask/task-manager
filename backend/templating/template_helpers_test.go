@@ -2,14 +2,10 @@ package templating
 
 import (
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
-	"path"
-	"runtime"
 	"testing"
 )
 
 func TestFormatPlainText(t *testing.T) {
-
 	t.Run("EmptyDescription", func(t *testing.T) {
 		result, err := FormatPlainTextAsHTML("")
 		assert.NoError(t, err)
@@ -19,18 +15,9 @@ func TestFormatPlainText(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		result, err := FormatPlainTextAsHTML("Test Description")
 		assert.NoError(t, err)
-		assert.Equal(t, readExpectationFile(t, "plain_text_test_expectation.html"), result)
+		assert.Equal(t, "\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    " +
+			"<style>\n        html, body {\n            font-size: 16px;\n            font-family: \"Gothic A1\", " +
+			"sans-serif;\n        }\n    </style>\n</head>\n<body>\n<div>Test Description</div>\n</body>\n</html>\n",
+			result)
 	})
-}
-
-func readExpectationFile(t*testing.T, filename string) string {
-	data, err := ioutil.ReadFile(getDirectoryOfExpectations(filename))
-	assert.NoError(t, err)
-	return string(data)
-}
-
-func getDirectoryOfExpectations(name string) string {
-	_, filename, _, _ := runtime.Caller(1)
-	filepath := path.Join(path.Dir(filename), "./test_expectations/" + name)
-	return filepath
 }
