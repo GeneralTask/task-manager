@@ -317,7 +317,7 @@ func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) bool {
 	return err == nil
 }
 
-func ReplyToEmail(api *API, userID primitive.ObjectID, threadID string, body string) error {
+func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID, body string) error {
 
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
@@ -335,20 +335,21 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, threadID string, body str
 		//	option.WithEndpoint(*api.GoogleURLs.GmailModifyURL))
 	}
 
-	threadResponse, err := gmailService.Users.Threads.Get("me", threadID).Do()
+	var email database.Email
+	taskCollection := db.Collection("tasks")
+	err := taskCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: taskID}}).Decode(&email)
+
+	messageResponse, err := gmailService.Users.Messages.Get("me", email.IDExternal).Do()
 
 	if err != nil {
 		return err
 	}
 
-	//for now
-	messagesList := threadResponse.Messages
-	messageOfInterest := messagesList[len(messagesList) - 1]
 	subject := ""
 	replyTo := ""
 	from := ""
 
-	for _, h := range messageOfInterest.Payload.Headers {
+	for _, h := range messageResponse.Payload.Headers {
 		if h.Name == "Subject" {
 			subject = h.Value
 		} else if h.Name == "Reply-To" {
@@ -376,13 +377,12 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, threadID string, body str
 
 	messageToSend := gmail.Message{
 		Raw:             base64.URLEncoding.EncodeToString(msg),
-		ThreadId:        threadID,
+		ThreadId:        email.ThreadID,
 	}
 
 	_, err = gmailService.Users.Messages.Send("me", &messageToSend).Do()
 
 	return err
-
 }
 
 func getGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID) *http.Client {
