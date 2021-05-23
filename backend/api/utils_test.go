@@ -26,7 +26,7 @@ func TestCORSHeaders(t *testing.T) {
 	t.Run("GET request", func(t *testing.T) {
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest("GET", "/ping/", nil)
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -41,7 +41,7 @@ func TestCORSHeaders(t *testing.T) {
 }
 
 func TestAuthenticationMiddleware(t *testing.T) {
-	authToken := login("approved@generaltask.io")
+	authToken := login("approved@generaltask.io", "")
 
 	t.Run("InvalidLength", func(t *testing.T) {
 		recorder := runAuthenticatedEndpoint("Bearer hello")

@@ -62,8 +62,8 @@ func (c *MockHTTPClient) Get(url string) (*http.Response, error) {
 	return resp, err
 }
 
-func login(email string) string {
-	recorder := makeLoginCallbackRequest("googleToken", email, "example-token", "example-token", true)
+func login(email string, name string) string {
+	recorder := makeLoginCallbackRequest("googleToken", email, name,"example-token", "example-token", true)
 	for _, c := range recorder.Result().Cookies() {
 		if c.Name == "authToken" {
 			return c.Value
@@ -97,12 +97,12 @@ func newStateToken(authToken string) string {
 	return database.CreateStateToken(db, userID)
 }
 
-func makeLoginCallbackRequest(googleToken string, email string, stateToken string, stateTokenCookie string, skipStateTokenCheck bool) *httptest.ResponseRecorder {
+func makeLoginCallbackRequest(googleToken string, email string, name string, stateToken string, stateTokenCookie string, skipStateTokenCheck bool) *httptest.ResponseRecorder {
 	mockConfig := MockGoogleConfig{}
 	mockToken := oauth2.Token{AccessToken: googleToken}
 	mockConfig.On("Exchange", context.Background(), "code1234").Return(&mockToken, nil)
 	mockClient := MockHTTPClient{}
-	mockClient.On("Get", "https://www.googleapis.com/oauth2/v3/userinfo").Return(&http.Response{Body: ioutil.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"sub\": \"goog12345_%s\", \"email\": \"%s\"}", email, email)))}, nil)
+	mockClient.On("Get", "https://www.googleapis.com/oauth2/v3/userinfo").Return(&http.Response{Body: ioutil.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"sub\": \"goog12345_%s\", \"email\": \"%s\", \"name\": \"%s\"}", email, email, name)))}, nil)
 	mockConfig.On("Client", context.Background(), &mockToken).Return(&mockClient)
 	router := GetRouter(&API{GoogleConfig: &mockConfig, SkipStateTokenCheck: skipStateTokenCheck})
 

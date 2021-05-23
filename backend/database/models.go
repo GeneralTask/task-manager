@@ -20,6 +20,7 @@ type User struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty"`
 	GoogleID string             `bson:"google_id"`
 	Email    string             `bson:"email"`
+	Name     string 			`bson:"name"`
 }
 
 // InternalAPIToken model

@@ -35,8 +35,9 @@ type GoogleRedirectParams struct {
 
 // GoogleUserInfo ...
 type GoogleUserInfo struct {
-	SUB   string `json:"sub"`
-	EMAIL string `json:"email"`
+	SUB   string  `json:"sub"`
+	EMAIL string  `json:"email"`
+	Name  string  `json:"name"`
 }
 
 func GetGoogleConfig() OauthConfigWrapper {
@@ -44,7 +45,7 @@ func GetGoogleConfig() OauthConfigWrapper {
 		ClientID:     config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET"),
 		RedirectURL:  config.GetConfigValue("GOOGLE_OAUTH_REDIRECT_URL"),
-		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar.events"},
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar.events"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
 			TokenURL: "https://oauth2.googleapis.com/token",
@@ -337,6 +338,13 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 		return err
 	}
 
+	var userObject database.User
+	userCollection := db.Collection("users")
+	err = userCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
+	if err != nil {
+		return err
+	}
+
 	var email database.Email
 	taskCollection := db.Collection("tasks")
 	err = taskCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: taskID},{Key: "user_id", Value: userID}}).Decode(&email)
@@ -388,6 +396,8 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 
 	emailTo := "To: " + sendAddress + "\r\n"
 	subject = "Subject: " + subject + "\n"
+	emailFrom := fmt.Sprintf("From: %s <%s>\n", userObject.Name, userObject.Email)
+
 	if len(references) > 0 {
 		references = "References: " + references + " " + smtpID + "\n"
 	} else {
@@ -395,7 +405,7 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 	}
 	inReply := "In-Reply-To: " + smtpID + "\n"
 	mime := "MIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n"
-	msg := []byte(emailTo + subject + inReply + references + mime + "\n" + body)
+	msg := []byte(emailTo + emailFrom + subject + inReply + references + mime + "\n" + body)
 
 	messageToSend := gmail.Message{
 		Raw:             base64.URLEncoding.EncodeToString(msg),

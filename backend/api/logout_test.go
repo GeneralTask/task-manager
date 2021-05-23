@@ -14,7 +14,7 @@ import (
 func TestLogout(t *testing.T) {
 
 	t.Run("Logout", func(t *testing.T) {
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 
 		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
