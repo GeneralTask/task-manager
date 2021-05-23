@@ -38,14 +38,14 @@ const Task: React.FC<Props> = ({ task, index }: Props) => (
         <Container>
           <TaskHeader
             title={task.title}
-            logo_url={task.logo_url}
+            logo_url={task.source.logo}
             sender={task.sender}
             task_id={task.id}
-            is_completable={task.is_completable}
+            is_completable={task.source.is_completable}
             hover_effect={!!(task.body || task.deeplink)}
             provided={provided}
           />
-          <TaskBody body={task.body} task_id={task.id} deeplink={task.deeplink} source={task.source}/>
+          <TaskBody body={task.body} task_id={task.id} deeplink={task.deeplink} source={task.source.name}/>
         </Container>
       </div>
     )}

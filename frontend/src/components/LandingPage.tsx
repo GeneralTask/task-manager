@@ -5,7 +5,6 @@ import TaskList from './task/TaskList'
 import GLButton from './login/GoogleLogin'
 import { LOGIN_URL, WAITLIST_URL } from '../constants'
 import {getAuthToken, getHeaders} from '../helpers/utils'
-import { match } from 'assert'
 
 const Logo = styled.div`
   font-weight: bold;

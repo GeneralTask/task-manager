@@ -1,5 +1,4 @@
-import React, {createRef, useEffect, useState} from 'react'
-import ReactDOM from 'react-dom'
+import React from 'react'
 import { connect, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { RootState } from '../../redux/store'

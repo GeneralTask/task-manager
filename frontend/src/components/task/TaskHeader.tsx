@@ -3,7 +3,7 @@ import './Task.css'
 import {TASKS_URL} from '../../constants'
 import store from '../../redux/store'
 import {removeTaskById, expandBody, retractBody} from '../../redux/actions'
-import {getHeaders, makeAuthorizedRequest} from '../../helpers/utils'
+import {makeAuthorizedRequest} from '../../helpers/utils'
 import { useSelector } from 'react-redux'
 
 import styled from 'styled-components'

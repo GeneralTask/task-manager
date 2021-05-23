@@ -9,7 +9,7 @@ import TaskStatus from './TaskStatus'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import moment from 'moment'
 import styled from 'styled-components'
-import {getHeaders, makeAuthorizedRequest} from '../../helpers/utils'
+import {makeAuthorizedRequest} from '../../helpers/utils'
 import { TTaskGroup, TTask } from '../../helpers/types'
 import { RootState } from '../../redux/store'
 

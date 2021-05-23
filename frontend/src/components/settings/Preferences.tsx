@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useEffect } from 'react'
 import { connect, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { SETTINGS_URL } from '../../constants'
 import { TSetting, TSettingChoice } from '../../helpers/types'
-import { getHeaders, makeAuthorizedRequest } from '../../helpers/utils'
+import { makeAuthorizedRequest } from '../../helpers/utils'
 import { setSettings } from '../../redux/actions'
 import store, { RootState } from '../../redux/store'
 
