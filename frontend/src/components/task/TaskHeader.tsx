@@ -3,7 +3,7 @@ import './Task.css'
 import {TASKS_URL} from '../../constants'
 import store from '../../redux/store'
 import {removeTaskById, expandBody, retractBody} from '../../redux/actions'
-import {getHeaders} from '../../helpers/utils'
+import {getHeaders, makeAuthorizedRequest} from '../../helpers/utils'
 import { useSelector } from 'react-redux'
 
 import styled from 'styled-components'
@@ -110,13 +110,11 @@ const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_comp
 const done = async (task_id: string) => {
   try {
     store.dispatch(removeTaskById(task_id))
-
-    const response = await fetch(TASKS_URL + task_id + '/', {
+    const response = await makeAuthorizedRequest({
+      url: TASKS_URL,
       method: 'PATCH',
-      mode: 'cors',
-      headers: getHeaders(),
       body: JSON.stringify({ 'is_completed': true })
-    })
+  })
     
     if (!response.ok) {
       throw new Error('PATCH /tasks api call failed')

@@ -9,7 +9,7 @@ import TaskStatus from './TaskStatus'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import moment from 'moment'
 import styled from 'styled-components'
-import {getHeaders} from '../../helpers/utils'
+import {getHeaders, makeAuthorizedRequest} from '../../helpers/utils'
 import { TTaskGroup, TTask } from '../../helpers/types'
 import { RootState } from '../../redux/store'
 
@@ -21,10 +21,9 @@ const MyTasks = styled.h1`
 const fetchTasks = async () => {
     store.dispatch(setTasksFetchStatus(FetchStatus.LOADING))
     try{
-        const response: Response = await fetch(TASKS_URL, {
+        const response = await makeAuthorizedRequest({
+            url: TASKS_URL,
             method: 'GET',
-            mode: 'cors',
-            headers: getHeaders(),
         })
         if(!response.ok){
             throw new Error('/tasks api call failed')
