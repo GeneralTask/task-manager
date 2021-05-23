@@ -342,6 +342,13 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 		return err
 	}
 
+	var userObject database.User
+	userCollection := db.Collection("users")
+	err = userCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
+	if err != nil {
+		return err
+	}
+
 	var email database.Email
 	taskCollection := db.Collection("tasks")
 	err = taskCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: taskID},{Key: "user_id", Value: userID}}).Decode(&email)
@@ -393,6 +400,8 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 
 	emailTo := "To: " + sendAddress + "\r\n"
 	subject = "Subject: " + subject + "\n"
+	emailFrom := fmt.Sprintf("From: %s <%s>\n", userObject.Name, userObject.Email)
+
 	if len(references) > 0 {
 		references = "References: " + references + " " + smtpID + "\n"
 	} else {
@@ -400,7 +409,7 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 	}
 	inReply := "In-Reply-To: " + smtpID + "\n"
 	mime := "MIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n"
-	msg := []byte(emailTo + subject + inReply + references + mime + "\n" + body)
+	msg := []byte(emailTo + emailFrom + subject + inReply + references + mime + "\n" + body)
 
 	messageToSend := gmail.Message{
 		Raw:             base64.URLEncoding.EncodeToString(msg),

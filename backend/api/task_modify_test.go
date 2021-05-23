@@ -21,7 +21,7 @@ func TestMarkAsComplete(t *testing.T) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 
-	authToken := login("approved@generaltask.io")
+	authToken := login("approved@generaltask.io", "")
 	userID := getUserIDFromAuthToken(t, db, authToken)
 
 	taskCollection := db.Collection("tasks")
@@ -134,7 +134,7 @@ func TestMarkAsComplete(t *testing.T) {
 		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
 		ogAuth := authToken
 		log.Println(ogAuth)
-		secondAuthToken := login("tester@generaltask.io")
+		secondAuthToken := login("tester@generaltask.io", "")
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+jiraTaskIDHex+"/",
@@ -254,7 +254,7 @@ func TestTaskReorder(t *testing.T) {
 	defer dbCleanup()
 	taskCollection := db.Collection("tasks")
 	t.Run("Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		insertResult, err := taskCollection.InsertOne(context.TODO(), database.TaskBase{UserID: userID, IDOrdering: 2})
@@ -313,7 +313,7 @@ func TestTaskReorder(t *testing.T) {
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -327,7 +327,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
 	})
 	t.Run("MissingOrderingID", func(t *testing.T) {
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -341,7 +341,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"Parameter missing or malformatted\"}", string(body))
 	})
 	t.Run("BadTaskID", func(t *testing.T) {
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -355,7 +355,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
 	})
 	t.Run("WrongFormatTaskID", func(t *testing.T) {
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest("PATCH", "/tasks/123/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)

@@ -62,8 +62,8 @@ func (c *MockHTTPClient) Get(url string) (*http.Response, error) {
 	return resp, err
 }
 
-func login(email string) string {
-	recorder := makeLoginCallbackRequest("googleToken", email, "","example-token", "example-token", true)
+func login(email string, name string) string {
+	recorder := makeLoginCallbackRequest("googleToken", email, name,"example-token", "example-token", true)
 	for _, c := range recorder.Result().Cookies() {
 		if c.Name == "authToken" {
 			return c.Value

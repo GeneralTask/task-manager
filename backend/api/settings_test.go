@@ -27,7 +27,7 @@ func TestSettingsGet(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest("GET", "/settings/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -39,7 +39,7 @@ func TestSettingsGet(t *testing.T) {
 		assert.Equal(t, "[{\"field_key\":\"email_done_preference\",\"field_name\":\"'Done' action for emails\",\"choices\":[{\"choice_key\":\"archive\",\"choice_name\":\"Archive\"},{\"choice_key\":\"mark_as_read\",\"choice_name\":\"Mark as read\"}],\"field_value\":\"archive\"}]", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		_, err := settingCollection.InsertOne(context.TODO(), &database.UserSetting{
@@ -73,7 +73,7 @@ func TestSettingsModify(t *testing.T) {
 	defer dbCleanup()
 
 	t.Run("EmptyPayload", func(t *testing.T) {
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest("PATCH", "/settings/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -85,7 +85,7 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"Parameters missing or malformatted.\"}", string(body))
 	})
 	t.Run("InvalidPayload", func(t *testing.T) {
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -101,7 +101,7 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"Parameters missing or malformatted.\"}", string(body))
 	})
 	t.Run("BadKey", func(t *testing.T) {
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -117,7 +117,7 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"Failed to update settings: invalid setting: dogecoin\"}", string(body))
 	})
 	t.Run("BadValue", func(t *testing.T) {
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -133,7 +133,7 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"Failed to update settings: invalid value: tothemoon\"}", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -152,7 +152,7 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, ChoiceKeyMarkAsRead, GetUserSetting(db, userID, SettingFieldEmailDonePreference))
 	})
 	t.Run("SuccessAlreadyExists", func(t *testing.T) {
-		authToken := login("approved@generaltask.io")
+		authToken := login("approved@generaltask.io", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyMarkAsRead)
 
