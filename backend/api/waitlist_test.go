@@ -51,9 +51,8 @@ func TestWaitlistAdd(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"Invalid email format.\"}", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
-		sendWaitlistRequest(t)
-		// run again to ensure idemotency
-		sendWaitlistRequest(t)
+		sendWaitlistRequest(t, http.StatusCreated, "{}")
+		sendWaitlistRequest(t, http.StatusFound, "{\"detail\":\"Email already exists in system\"}")
 
 		db, dbCleanup := database.GetDBConnection()
 		defer dbCleanup()
@@ -74,16 +73,16 @@ func TestWaitlistAdd(t *testing.T) {
 	})
 }
 
-func sendWaitlistRequest(t *testing.T) {
+func sendWaitlistRequest(t *testing.T, expectedCode int, expectedResponse string) {
 	router := GetRouter(&API{})
 	request, _ := http.NewRequest(
 		"POST",
 		"/waitlist/",
-		bytes.NewBuffer([]byte(`{"email": "elon@tesla.moon"}`)))
+		bytes.NewBuffer([]byte(`{"email": "elOn@tEslA.mOoN"}`)))
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
-	assert.Equal(t, http.StatusOK, recorder.Code)
+	assert.Equal(t, expectedCode, recorder.Code)
 	body, err := ioutil.ReadAll(recorder.Body)
 	assert.NoError(t, err)
-	assert.Equal(t, "{}", string(body))
+	assert.Equal(t, expectedResponse, string(body))
 }

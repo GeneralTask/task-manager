@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -10,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type WaitlistParams struct {
@@ -29,21 +29,30 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "Invalid email format."})
 		return
 	}
+	email := strings.ToLower(params.Email)
 
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	waitlistCollection := db.Collection("waitlist")
-	_, err = waitlistCollection.UpdateOne(
+
+	count, err := waitlistCollection.CountDocuments(context.TODO(), bson.M{"email": email})
+	if err != nil {
+		log.Fatalf("Failed to query waitlist: %v", err)
+	}
+	if count > 0 {
+		c.JSON(302, gin.H{"detail": "Email already exists in system"})
+		return
+	}
+
+	_, err = waitlistCollection.InsertOne(
 		context.TODO(),
-		bson.M{"email": params.Email},
-		bson.M{"$setOnInsert": &database.WaitlistEntry{
-			Email:     params.Email,
+		&database.WaitlistEntry{
+			Email:     email,
 			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
-		}},
-		options.Update().SetUpsert(true),
+		},
 	)
 	if err != nil {
 		log.Fatalf("Failed to insert waitlist entry: %v", err)
 	}
-	c.JSON(200, gin.H{})
+	c.JSON(201, gin.H{})
 }
