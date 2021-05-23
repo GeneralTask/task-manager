@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -44,9 +45,12 @@ func TestLoginRedirect(t *testing.T) {
 }
 
 func TestLoginCallback(t *testing.T) {
+	db, dbCleanup := database.GetDBConnection()
+	defer dbCleanup()
+	waitlistCollection := db.Collection("waitlist")
+
 	t.Run("MissingQueryParams", func(t *testing.T) {
 		router := GetRouter(&API{})
-
 		request, _ := http.NewRequest("GET", "/login/callback/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -55,20 +59,45 @@ func TestLoginCallback(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"Missing query params\"}", string(body))
 	})
-	t.Run("EmailNotApproved", func(t *testing.T) {
+	t.Run("EmailNotApprovedOnWaitlist", func(t *testing.T) {
+		// Waitlist entry doesn't matter if has_access = false or if different email
+		_, err := waitlistCollection.InsertOne(
+			context.TODO(),
+			&database.WaitlistEntry{Email: "unapproved@gmail.com"},
+		)
+		assert.NoError(t, err)
+		_, err = waitlistCollection.InsertOne(
+			context.TODO(),
+			&database.WaitlistEntry{
+				Email:     "different_email@gmail.com",
+				HasAccess: true,
+			},
+		)
+		assert.NoError(t, err)
+
 		recorder := makeLoginCallbackRequest("noice420", "unapproved@gmail.com", "example-token", "example-token", true)
 		assert.Equal(t, http.StatusForbidden, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Email has not been approved.\"}", string(body))
+	})
+	t.Run("EmailNotApproved", func(t *testing.T) {
+		err := waitlistCollection.Drop(context.TODO())
+		assert.NoError(t, err)
+		recorder := makeLoginCallbackRequest("noice420", "unapproved@gmail.com", "example-token", "example-token", true)
+		assert.Equal(t, http.StatusForbidden, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Email has not been approved.\"}", string(body))
 	})
 	t.Run("Idempotent", func(t *testing.T) {
-		db, dbCleanup := database.GetDBConnection()
-		defer dbCleanup()
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "example-token", "example-token", true)
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "approved@generaltask.io", "noice420")
 		//change token and verify token updates and still only 1 row per user.
 		recorder = makeLoginCallbackRequest("TSLA", "approved@generaltask.io", "example-token", "example-token", true)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "approved@generaltask.io","TSLA")
+		verifyLoginCallback(t, db, "approved@generaltask.io", "TSLA")
 	})
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "example-token", "example-token", false)
@@ -105,5 +134,21 @@ func TestLoginCallback(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", stateToken, stateToken, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "approved@generaltask.io", "noice420")
+	})
+	t.Run("SuccessWaitlist", func(t *testing.T) {
+		_, err := waitlistCollection.InsertOne(
+			context.TODO(),
+			&database.WaitlistEntry{
+				Email:     "dogecoin@tothe.moon",
+				HasAccess: true,
+			},
+		)
+		assert.NoError(t, err)
+		db, dbCleanup := database.GetDBConnection()
+		defer dbCleanup()
+		stateToken := newStateToken("")
+		recorder := makeLoginCallbackRequest("noice420", "dogecoin@tothe.moon", stateToken, stateToken, false)
+		assert.Equal(t, http.StatusFound, recorder.Code)
+		verifyLoginCallback(t, db, "dogecoin@tothe.moon", "noice420")
 	})
 }

@@ -141,5 +141,6 @@ type UserSetting struct {
 type WaitlistEntry struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	Email     string             `bson:"email"`
+	HasAccess bool               `bson:"has_access"`
 	CreatedAt primitive.DateTime `bson:"created_at"`
 }

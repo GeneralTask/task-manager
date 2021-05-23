@@ -71,18 +71,25 @@ func (api *API) LoginCallback(c *gin.Context) {
 	var userInfo GoogleUserInfo
 
 	err = json.NewDecoder(response.Body).Decode(&userInfo)
-
-	lowerEmail := strings.ToLower(userInfo.EMAIL)
-	if _, contains := ALLOWED_USERNAMES[strings.ToLower(userInfo.EMAIL)]; !contains && !strings.HasSuffix(lowerEmail, "@generaltask.io") {
-		c.JSON(403, gin.H{"detail": "Email has not been approved."})
-		return
-	}
-
 	if err != nil {
 		log.Fatalf("Error decoding JSON: %v", err)
 	}
 	if userInfo.SUB == "" {
 		log.Fatal("Failed to retrieve google user ID")
+	}
+
+	lowerEmail := strings.ToLower(userInfo.EMAIL)
+	waitlistCollection := db.Collection("waitlist")
+	count, err := waitlistCollection.CountDocuments(
+		context.TODO(),
+		bson.D{{Key: "email", Value: lowerEmail}, {Key: "has_access", Value: true}},
+	)
+	if err != nil {
+		log.Fatalf("Failed to query waitlist: %v", err)
+	}
+	if _, contains := ALLOWED_USERNAMES[strings.ToLower(userInfo.EMAIL)]; !contains && !strings.HasSuffix(lowerEmail, "@generaltask.io") && count == 0 {
+		c.JSON(403, gin.H{"detail": "Email has not been approved."})
+		return
 	}
 
 	userCollection := db.Collection("users")
