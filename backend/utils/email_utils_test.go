@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestExtractEmailDomain(t *testing.T) {
@@ -13,6 +14,10 @@ func TestExtractEmailDomain(t *testing.T) {
 
 func TestExtractSenders(t *testing.T) {
 	name, email := ExtractSenderName("Clockwise  <hello@getclockwise.com>")
+	assert.Equal(t, "Clockwise", name)
+	assert.Equal(t, "hello@getclockwise.com", email)
+
+	name, email = ExtractSenderName("\"Clockwise\"  <hello@getclockwise.com>")
 	assert.Equal(t, "Clockwise", name)
 	assert.Equal(t, "hello@getclockwise.com", email)
 

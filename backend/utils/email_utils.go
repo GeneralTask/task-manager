@@ -3,7 +3,7 @@ package utils
 import "regexp"
 
 func ExtractSenderName(sendLine string) (string, string) {
-	exp := regexp.MustCompile("(.+[^\\s])\\s+<(.+)>")
+	exp := regexp.MustCompile("([^\"].+[^\\s\"])\"*\\s+<(.+)>")
 	matches := exp.FindStringSubmatch(sendLine)
 	if len(matches) == 3 {
 		return matches[1], matches[2]
