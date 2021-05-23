@@ -1,18 +1,20 @@
 import { compose, createStore } from 'redux'
 import reducer from './reducer'
 import { FetchStatus } from './enums'
-import { TTaskGroup } from '../helpers/types'
+import { TTaskGroup, TSetting } from '../helpers/types'
 
 export interface RootState {
     task_groups: TTaskGroup[],
     tasks_fetch_status: FetchStatus,
     expanded_body: string | null,
+    settings: TSetting[],
 }
 
 const initialState: RootState = {
     task_groups: [],
     tasks_fetch_status: FetchStatus.LOADING,
     expanded_body: null,
+    settings: [],
 }
 
 declare global {

@@ -11,6 +11,7 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
         task_groups: [],
         tasks_fetch_status: FetchStatus.LOADING,
         expanded_body: null,
+        settings: [],
       }
     }
     switch (action.type) {
@@ -55,6 +56,12 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
           return {
             ...state,
             expanded_body: null,
+          }
+
+        case actions.SET_SETTINGS:
+          return {
+            ...state,
+            settings: action.settings,
           }
 
       default:
