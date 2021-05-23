@@ -284,8 +284,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IDExternal: "42069",
 				Deeplink:   "https://dankmemes.com/browse/MOON-1969",
 				Title:      "Sample Taskeroni",
-				Source:     database.TaskSourceJIRA.Name,
-				Logo:       database.TaskSourceJIRA.Logo,
+				Source:     database.TaskSourceJIRA,
 				UserID:     *userID,
 			},
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
@@ -294,7 +293,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			db,
 			*userID,
 			"42069",
-			database.TaskSourceJIRA.Name,
+			database.TaskSourceJIRA,
 			&expectedTask,
 		)
 
@@ -309,7 +308,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		err := taskCollection.FindOne(
 			context.TODO(),
 			bson.D{
-				{Key: "source", Value: database.TaskSourceJIRA.Name},
+				{Key: "source.name", Value: database.TaskSourceJIRA.Name},
 				{Key: "id_external", Value: "42069"},
 				{Key: "user_id", Value: userID},
 			},
@@ -329,8 +328,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IDExternal: "42069",
 				Deeplink:   "https://dankmemes.com/browse/MOON-1969",
 				Title:      "Sample Taskeroni",
-				Source:     database.TaskSourceJIRA.Name,
-				Logo:       database.TaskSourceJIRA.Logo,
+				Source:     database.TaskSourceJIRA,
 				UserID:     *userID,
 			},
 			PriorityID: "something_that_will_change",
@@ -340,7 +338,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			db,
 			*userID,
 			"42069",
-			database.TaskSourceJIRA.Name,
+			database.TaskSourceJIRA,
 			&expectedTask,
 		)
 
@@ -357,7 +355,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		err := taskCollection.FindOne(
 			context.TODO(),
 			bson.D{
-				{Key: "source", Value: database.TaskSourceJIRA.Name},
+				{Key: "source.name", Value: database.TaskSourceJIRA.Name},
 				{Key: "id_external", Value: "42069"},
 				{Key: "user_id", Value: userID},
 			},
@@ -380,8 +378,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				HasBeenReordered: true,
 				Deeplink:         "https://dankmemes.com/browse/MOON-1969",
 				Title:            "Sample Taskeroni",
-				Source:           database.TaskSourceJIRA.Name,
-				Logo:             database.TaskSourceJIRA.Logo,
+				Source:           database.TaskSourceJIRA,
 				UserID:           *userID,
 			},
 			PriorityID: "something_that_will_change",
@@ -391,7 +388,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			db,
 			*userID,
 			"42069",
-			database.TaskSourceJIRA.Name,
+			database.TaskSourceJIRA,
 			&expectedTask,
 		)
 
@@ -406,7 +403,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		err := taskCollection.FindOne(
 			context.TODO(),
 			bson.D{
-				{Key: "source", Value: database.TaskSourceJIRA.Name},
+				{Key: "source.name", Value: database.TaskSourceJIRA.Name},
 				{Key: "id_external", Value: "42069"},
 				{Key: "user_id", Value: userID},
 			},
@@ -471,7 +468,6 @@ func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)
-	assert.Equal(t, a.Logo, b.Logo)
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.Source, b.Source)
 }

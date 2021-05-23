@@ -15,7 +15,7 @@ func UpdateOrCreateTask(
 	db *mongo.Database,
 	userID primitive.ObjectID,
 	IDExternal string,
-	source string,
+	source TaskSource,
 	fieldsToInsertIfMissing interface{},
 	fieldsToUpdate interface{},
 ) *mongo.SingleResult {
@@ -23,7 +23,7 @@ func UpdateOrCreateTask(
 	dbQuery := bson.M{
 		"$and": []bson.M{
 			{"id_external": IDExternal},
-			{"source": source},
+			{"source.name": source.Name},
 			{"user_id": userID},
 		},
 	}
@@ -52,14 +52,14 @@ func UpdateOrCreateTask(
 func GetOrCreateTask(db *mongo.Database,
 	userID primitive.ObjectID,
 	IDExternal string,
-	source string,
+	source TaskSource,
 	fieldsToInsertIfMissing interface{},
 ) *TaskBase {
 	taskCollection := getTaskCollection(db)
 	dbQuery := bson.M{
 		"$and": []bson.M{
 			{"id_external": IDExternal},
-			{"source": source},
+			{"source.name": source.Name},
 			{"user_id": userID},
 		},
 	}

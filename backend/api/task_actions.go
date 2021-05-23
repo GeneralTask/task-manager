@@ -47,7 +47,7 @@ func (api *API) TaskReply(c *gin.Context) {
 		return
 	}
 
-	if taskBase.Source == database.TaskSourceGmail.Name {
+	if taskBase.Source.Name == database.TaskSourceGmail.Name {
 		err = ReplyToEmail(api, userID.(primitive.ObjectID), taskID, replyParams.Body)
 		if err != nil {
 			log.Printf("Unable to send email with error %v", err)

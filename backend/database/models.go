@@ -63,14 +63,12 @@ type TaskBase struct {
 	IDExternal       string             `json:"-" bson:"id_external"`
 	IDOrdering       int                `json:"id_ordering" bson:"id_ordering"`
 	IsCompleted      bool               `json:"-" bson:"is_completed"`
-	IsCompletable    bool               `json:"is_completable" bson:"is_completable"`
 	Sender           string             `json:"sender" bson:"sender"`
-	Source           string             `json:"source" bson:"source"`
+	Source           TaskSource          `json:"source" bson:"source"`
 	Deeplink         string             `json:"deeplink" bson:"deeplink"`
 	Title            string             `json:"title" bson:"title"`
 	Body             string             `json:"body" bson:"body"`
-	Logo             string             `json:"logo_url" bson:"logo"`
-	HasBeenReordered bool               `json:"has_been_reordered" bson:"has_been_reordered"`
+	HasBeenReordered bool               `json:"-" bson:"has_been_reordered"`
 	//time in nanoseconds
 	TimeAllocation int64 `json:"time_allocated" bson:"time_allocated"`
 }
@@ -122,14 +120,31 @@ const (
 )
 
 type TaskSource struct {
-	Name          string
-	Logo          string
-	IsCompletable bool
+	Name          string `json:"name" bson:"name"`
+	Logo          string `json:"logo" bson:"logo"`
+	IsCompletable bool `json:"is_completable" bson:"is_completable"`
+	IsReplyable   bool `json:"is_replyable" bson:"is_replyable"`
 }
 
-var TaskSourceGoogleCalendar = TaskSource{"Google Calendar", "/images/gcal.svg", false}
-var TaskSourceGmail = TaskSource{"Gmail", "/images/gmail.svg", true}
-var TaskSourceJIRA = TaskSource{"Jira", "/images/jira.svg", true}
+var TaskSourceGoogleCalendar = TaskSource{
+	"Google Calendar",
+	"/images/gcal.svg",
+	false,
+	false,
+}
+
+var TaskSourceGmail = TaskSource{
+	"Gmail",
+	"/images/gmail.svg",
+	true,
+	true,
+}
+var TaskSourceJIRA = TaskSource{
+	"Jira",
+	"/images/jira.svg",
+	true,
+	false,
+}
 
 type UserSetting struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty"`

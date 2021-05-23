@@ -109,11 +109,11 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	}
 
 	var success bool
-	if task.Source == database.TaskSourceGoogleCalendar.Name {
+	if task.Source.Name == database.TaskSourceGoogleCalendar.Name {
 		success = false
-	} else if task.Source == database.TaskSourceGmail.Name {
+	} else if task.Source.Name == database.TaskSourceGmail.Name {
 		success = MarkEmailAsDone(api, userID, task.IDExternal)
-	} else if task.Source == database.TaskSourceJIRA.Name {
+	} else if task.Source.Name == database.TaskSourceJIRA.Name {
 		success = MarkJIRATaskDone(api, userID, task.IDExternal)
 	}
 
