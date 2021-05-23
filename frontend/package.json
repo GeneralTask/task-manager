@@ -55,6 +55,7 @@
     "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.1.9",
     "eslint": "^7.27.0",
-    "json-server": "^0.16.3"
+    "json-server": "^0.16.3",
+    "serve": "^11.3.2"
   }
 }
