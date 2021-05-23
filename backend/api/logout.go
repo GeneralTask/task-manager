@@ -24,7 +24,9 @@ func (api *API) Logout(c *gin.Context) {
 	tokenCollection := db.Collection("internal_api_tokens")
 	result, err := tokenCollection.DeleteOne(context.TODO(), bson.M{"token": token})
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Failed to remove token: %v", err)
+		Handle500(c)
+		return
 	}
 	if result.DeletedCount == 0 {
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})

@@ -93,7 +93,9 @@ func (api *API) LoginCallback(c *gin.Context) {
 		return
 	}
 	if userInfo.SUB == "" {
-		log.Fatal("Failed to retrieve google user ID")
+		log.Println("Failed to retrieve google user ID")
+		Handle500(c)
+		return
 	}
 
 	lowerEmail := strings.ToLower(userInfo.EMAIL)
