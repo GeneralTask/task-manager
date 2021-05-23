@@ -29,7 +29,7 @@ func TestMarkAsComplete(t *testing.T) {
 	insertResult, err := taskCollection.InsertOne(nil, database.TaskBase{
 		UserID:     userID,
 		IDExternal: "sample_jira_id",
-		Source:     database.TaskSourceJIRA.Name,
+		Source:     database.TaskSourceJIRA,
 	})
 	assert.NoError(t, err)
 	jiraTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -38,7 +38,7 @@ func TestMarkAsComplete(t *testing.T) {
 	insertResult, err = taskCollection.InsertOne(nil, database.TaskBase{
 		UserID:     userID,
 		IDExternal: "sample_gmail_id",
-		Source:     database.TaskSourceGmail.Name,
+		Source:     database.TaskSourceGmail,
 	})
 	assert.NoError(t, err)
 	gmailTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -47,7 +47,7 @@ func TestMarkAsComplete(t *testing.T) {
 	insertResult, err = taskCollection.InsertOne(nil, database.TaskBase{
 		UserID:     userID,
 		IDExternal: "sample_calendar_id",
-		Source:     database.TaskSourceGoogleCalendar.Name,
+		Source:     database.TaskSourceGoogleCalendar,
 	})
 	assert.NoError(t, err)
 	calendarTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -171,7 +171,7 @@ func TestMarkAsComplete(t *testing.T) {
 		insertResult, err = taskCollection.InsertOne(nil, database.TaskBase{
 			UserID:     userID,
 			IDExternal: "sample_jira_id",
-			Source:     database.TaskSourceJIRA.Name,
+			Source:     database.TaskSourceJIRA,
 		})
 		assert.NoError(t, err)
 		jiraTaskID = insertResult.InsertedID.(primitive.ObjectID)

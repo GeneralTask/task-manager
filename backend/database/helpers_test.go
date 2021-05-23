@@ -18,10 +18,10 @@ func TestGetActiveTasks(t *testing.T) {
 			db,
 			userID,
 			"123abc",
-			TaskSourceGmail.Name,
+			TaskSourceGmail,
 			&Email{TaskBase: TaskBase{
 				IDExternal: "123abc",
-				Source:     TaskSourceGmail.Name,
+				Source:     TaskSourceGmail,
 				UserID:     userID,
 			}},
 		)
@@ -29,10 +29,10 @@ func TestGetActiveTasks(t *testing.T) {
 			db,
 			notUserID,
 			"123abd",
-			TaskSourceGmail.Name,
+			TaskSourceGmail,
 			&Email{TaskBase: TaskBase{
 				IDExternal: "123abd",
-				Source:     TaskSourceGmail.Name,
+				Source:     TaskSourceGmail,
 				UserID:     notUserID,
 			}},
 		)
@@ -40,11 +40,11 @@ func TestGetActiveTasks(t *testing.T) {
 			db,
 			userID,
 			"123abe",
-			TaskSourceGmail.Name,
+			TaskSourceGmail,
 			&Email{TaskBase: TaskBase{
 				IDExternal:  "123abe",
 				IsCompleted: true,
-				Source:      TaskSourceGmail.Name,
+				Source:      TaskSourceGmail,
 				UserID:      userID,
 			}},
 		)
