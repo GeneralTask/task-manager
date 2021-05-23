@@ -13,9 +13,6 @@ import LandingPage from './components/LandingPage'
 import PrivacyPolicy from './components/PrivacyPolicy'
 
 const App: React.FC = () => {
-  useEffect(() => {
-    document.title = 'General Task'
-  }, [])
   return (
     <Provider store={store}>
       <BrowserRouter>
