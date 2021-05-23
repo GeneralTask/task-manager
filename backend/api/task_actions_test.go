@@ -1,0 +1,198 @@
+package api
+
+import (
+	"bytes"
+	"encoding/base64"
+	"encoding/json"
+	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/api/gmail/v1"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
+
+type GmailReplyParams struct {
+	Raw string `json:"raw"`
+	ThreadID string `json:"threadId"`
+}
+
+func TestReplyToEmail(t *testing.T) {
+
+	db, dbCleanup := database.GetDBConnection()
+	defer dbCleanup()
+
+	authToken := login("approved@generaltask.io")
+	userID := getUserIDFromAuthToken(t, db, authToken)
+
+	taskCollection := db.Collection("tasks")
+
+	insertedResult, err := taskCollection.InsertOne(nil, database.Email{
+		TaskBase:     database.TaskBase{
+			UserID:           userID,
+			IDExternal:       "sample_message_id",
+			Title:            "Sample subject",
+			Source: database.TaskSourceGmail.Name,
+		},
+		ThreadID:     "sample_thread_id",
+	})
+
+	emailID := insertedResult.InsertedID.(primitive.ObjectID).Hex()
+	assert.NoError(t, err)
+
+	t.Run("MissingBody", func(t *testing.T) {
+		router := GetRouter(&API{})
+
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/"+emailID+"/reply",
+			bytes.NewBuffer([]byte(`{"reply'": "test reply"}`)))
+
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"missing `body` param\"}", string(body))
+	})
+
+	t.Run("InvalidTaskType", func(t *testing.T) {
+		insertedResult, err := taskCollection.InsertOne(nil, database.Task{
+			TaskBase:     database.TaskBase{
+				UserID:           userID,
+				IDExternal:       "sample_task_id",
+				Title:            "Sample Task",
+				Source: database.TaskSourceJIRA.Name,
+			},
+		})
+
+		taskID := insertedResult.InsertedID.(primitive.ObjectID).Hex()
+
+		assert.NoError(t, err)
+
+		router := GetRouter(&API{})
+
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/"+taskID+"/reply",
+			bytes.NewBuffer([]byte(`{"body": "test reply"}`)))
+
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"task cannot be replied to\"}", string(body))
+	})
+
+
+
+	t.Run("SuccessNoReplyTo", func(t *testing.T) {
+		var headers = []*gmail.MessagePartHeader{
+			&gmail.MessagePartHeader{
+				Name:            "Subject",
+				Value:           "Sample subject",
+			},
+			&gmail.MessagePartHeader{
+				Name:            "From",
+				Value:           "Sample sender <sample@generaltask.io>",
+			},
+		}
+
+		server := getReplyServer(t,
+			"sample_message_id",
+			"sample_thread_id",
+			headers,
+			"To: Sample sender <sample@generaltask.io>\r\nSubject: Re: Sample subject\nMIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n\ntest reply")
+
+		testSuccessfulReplyWithServer(t, emailID, authToken, "test reply", server)
+	})
+
+	t.Run("SuccessReplyToAndExistingSubjectRe", func(t *testing.T) {
+		var headers = []*gmail.MessagePartHeader{
+			&gmail.MessagePartHeader{
+				Name:            "Subject",
+				Value:           "Re: Sample subject",
+			},
+			&gmail.MessagePartHeader{
+				Name:            "From",
+				Value:           "Sample sender <sample@generaltask.io>",
+			},
+			&gmail.MessagePartHeader{
+				Name:            "Reply-To",
+				Value:           "Reply address <reply@generaltask.io>",
+			},
+		}
+
+		server := getReplyServer(t,
+			"sample_message_id",
+			"sample_thread_id",
+			headers,
+			"To: Reply address <reply@generaltask.io>\r\nSubject: Re: Sample subject\nMIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n\ntest reply")
+
+		testSuccessfulReplyWithServer(t, emailID, authToken, "test reply", server)
+	})
+}
+
+func testSuccessfulReplyWithServer(t *testing.T,
+	emailID string,
+	authToken string,
+	body string,
+	server *httptest.Server) {
+	api := &API{
+		GoogleURLs: GoogleURLOverrides{GmailReplyURL: &server.URL},
+	}
+	router := GetRouter(api)
+
+	request, _ := http.NewRequest(
+		"POST",
+		"/tasks/"+emailID+"/reply",
+		bytes.NewBuffer([]byte(`{"body": "` + body + `"}`)))
+
+	request.Header.Add("Authorization", "Bearer "+authToken)
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusCreated, recorder.Code)
+}
+
+func getReplyServer(t *testing.T,
+	messageID string,
+	threadID string,
+	headers []*gmail.MessagePartHeader,
+	expectedRawReply string) *httptest.Server {
+
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			assert.Equal(t, "/gmail/v1/users/me/messages/" + messageID, r.URL.Path)
+			w.WriteHeader(200)
+			email := gmail.Message{
+				Id:              "sample_message_id",
+				Payload:         &gmail.MessagePart{
+					Headers:     headers,
+				},
+			}
+			b, err := json.Marshal(email)
+			assert.NoError(t, err)
+			w.Write(b)
+		} else if r.Method == "POST" {
+			assert.Equal(t, "/gmail/v1/users/me/messages/send", r.URL.Path)
+
+			var params GmailReplyParams
+			json.NewDecoder(r.Body).Decode(&params)
+
+			assert.Equal(t, threadID, params.ThreadID)
+			decodedData, err := base64.URLEncoding.DecodeString(params.Raw)
+			assert.NoError(t, err)
+			assert.Equal(t, expectedRawReply, string(decodedData))
+
+			w.WriteHeader(201)
+			w.Write([]byte(`{}`))
+		} else {
+			assert.Fail(t, "Invalid Method")
+		}
+	}))
+}

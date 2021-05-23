@@ -318,26 +318,31 @@ func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) bool {
 }
 
 func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID, body string) error {
-
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	client := getGoogleHttpClient(externalAPITokenCollection, userID)
 
 	var gmailService *gmail.Service
+	var err error
 
-	if api.GoogleURLs.GmailModifyURL == nil {
-		gmailService, _ = gmail.New(client)
+	if api.GoogleURLs.GmailReplyURL != nil {
+		gmailService, err = gmail.NewService(
+			context.Background(),
+			option.WithoutAuthentication(),
+			option.WithEndpoint(*api.GoogleURLs.GmailReplyURL),
+		)
 	} else {
-		//gmailService, _ := gmail.NewService(
-		//	context.Background(),
-		//	option.WithoutAuthentication(),
-		//	option.WithEndpoint(*api.GoogleURLs.GmailModifyURL))
+		gmailService, err = gmail.NewService(context.TODO(), option.WithHTTPClient(client))
+	}
+
+	if err != nil {
+		return err
 	}
 
 	var email database.Email
 	taskCollection := db.Collection("tasks")
-	err := taskCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: taskID}}).Decode(&email)
+	err = taskCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: taskID},{Key: "user_id", Value: userID}}).Decode(&email)
 
 	messageResponse, err := gmailService.Users.Messages.Get("me", email.IDExternal).Do()
 
@@ -372,7 +377,7 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 
 	emailTo := "To: " + sendAddress + "\r\n"
 	subject = "Subject: " + subject + "\n"
-	mime := "MIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n\n"
+	mime := "MIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n"
 	msg := []byte(emailTo + subject + mime + "\n" + body)
 
 	messageToSend := gmail.Message{

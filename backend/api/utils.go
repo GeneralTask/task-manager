@@ -45,6 +45,7 @@ type OauthConfigWrapper interface {
 type GoogleURLOverrides struct {
 	CalendarFetchURL *string
 	GmailModifyURL *string
+	GmailReplyURL *string
 }
 
 // API is the object containing API route handlers

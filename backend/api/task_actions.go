@@ -10,7 +10,7 @@ import (
 )
 
 type TaskReplyParams struct {
-	Body string `json:"body"`
+	Body string `json:"body" binding:"required"`
 }
 
 func (api *API) TaskReply(c *gin.Context) {
@@ -54,6 +54,6 @@ func (api *API) TaskReply(c *gin.Context) {
 			c.JSON(http.StatusCreated, gin.H{})
 		}
 	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"detail" : "Task cannot be replied to."})
+		c.JSON(http.StatusBadRequest, gin.H{"detail" : "task cannot be replied to"})
 	}
 }
