@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"net/http"
 	"strings"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -95,15 +96,18 @@ func (api *API) LoginCallback(c *gin.Context) {
 	userCollection := db.Collection("users")
 
 	var user database.User
-	var insertedUserID primitive.ObjectID
-	if userCollection.FindOne(context.TODO(), bson.D{{Key: "google_id", Value: userInfo.SUB}}).Decode(&user) != nil {
-		cursor, err := userCollection.InsertOne(context.TODO(), &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL})
-		insertedUserID = cursor.InsertedID.(primitive.ObjectID)
-		if err != nil {
-			log.Fatalf("Failed to create new user in db: %v", err)
-		}
-	} else {
-		insertedUserID = user.ID
+
+	userCollection.FindOneAndUpdate(
+		context.TODO(),
+		bson.D{{Key: "google_id", Value: userInfo.SUB}},
+		bson.D{{Key: "$set", Value: &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name}}},
+		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+	).Decode(&user)
+
+	if user.ID == primitive.NilObjectID {
+		log.Printf("Unable to create user")
+		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Unable to create user"})
+		return
 	}
 
 	tokenString, err := json.Marshal(&token)
@@ -113,8 +117,8 @@ func (api *API) LoginCallback(c *gin.Context) {
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
-		bson.D{{Key: "user_id", Value: insertedUserID}, {Key: "source", Value: "google"}},
-		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{UserID: insertedUserID, Source: "google", Token: string(tokenString)}}},
+		bson.D{{Key: "user_id", Value: user.ID}, {Key: "source", Value: "google"}},
+		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{UserID: user.ID, Source: "google", Token: string(tokenString)}}},
 		options.Update().SetUpsert(true),
 	)
 
@@ -125,8 +129,8 @@ func (api *API) LoginCallback(c *gin.Context) {
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	_, err = internalAPITokenCollection.UpdateOne(
 		context.TODO(),
-		bson.D{{Key: "user_id", Value: insertedUserID}},
-		bson.D{{Key: "$set", Value: &database.InternalAPIToken{UserID: insertedUserID, Token: internalToken}}},
+		bson.D{{Key: "user_id", Value: user.ID}},
+		bson.D{{Key: "$set", Value: &database.InternalAPIToken{UserID: user.ID, Token: internalToken}}},
 		options.Update().SetUpsert(true),
 	)
 
