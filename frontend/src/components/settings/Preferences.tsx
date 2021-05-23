@@ -22,6 +22,7 @@ const Select = styled.select`
     height: 30px;
     display: flex;
     align-items: center;
+    padding: 0 4px 0 4px;
 `
 
 interface Props {
