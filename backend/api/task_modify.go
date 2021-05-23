@@ -36,16 +36,17 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
-	userID, _ := c.Get("user")
+	userIDRaw, _ := c.Get("user")
+	userID := userIDRaw.(primitive.ObjectID)
 
 	if modifyParams.IsCompleted != nil {
 		if *modifyParams.IsCompleted {
-			MarkTaskComplete(api, c, taskID)
+			MarkTaskComplete(api, c, taskID, userID)
 		} else {
 			c.JSON(400, gin.H{"detail": "Tasks can only be marked as complete."})
 		}
 	} else if modifyParams.IDOrdering != nil {
-		ReOrderTask(c, taskID, userID.(primitive.ObjectID), *modifyParams.IDOrdering)
+		ReOrderTask(c, taskID, userID, *modifyParams.IDOrdering)
 	} else {
 		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
 		return
@@ -91,13 +92,10 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 	c.JSON(200, gin.H{})
 }
 
-func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID) {
+func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) {
 	db, dbCleanup := database.GetDBConnection()
 	defer dbCleanup()
 	taskCollection := db.Collection("tasks")
-
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
 
 	var task database.TaskBase
 	if taskCollection.FindOne(
