@@ -1,6 +1,6 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
-import { LANDING_PATH, SETTINGS_PATH, REACT_APP_FRONTEND_DOMAIN } from '../constants'
+import { LANDING_PATH, SETTINGS_PATH, REACT_APP_COOKIE_DOMAIN } from '../constants'
 import {getAuthToken} from '../helpers/utils'
 import styled from 'styled-components'
 import Cookies from 'js-cookie'
@@ -37,7 +37,7 @@ const Header: React.FC = () => {
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
 const logout = () => {
-    Cookies.remove('authToken', {path: '/', domain: REACT_APP_FRONTEND_DOMAIN})
+    Cookies.remove('authToken', {path: '/', domain: REACT_APP_COOKIE_DOMAIN})
     document.location.href = LANDING_PATH
 }
 
