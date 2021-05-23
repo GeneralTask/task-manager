@@ -5,11 +5,12 @@ import styled from 'styled-components'
 import { RootState } from '../../redux/store'
 import { MAX_TASK_BODY_HEIGHT } from '../../constants'
 
-const BodyIframe = styled.iframe<{iframeHeight: number}>`
+const BodyIframe = styled.iframe<{iframeHeight: number, }>`
   border: none;
   border-radius: 2px;
   width: 100%;
   height: ${props => props.iframeHeight + 'px'};
+  visibility: hidden;
 `
 const BodyDiv = styled.div`
   margin: auto;
@@ -65,19 +66,17 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
 } 
 
 const BodyHTML: React.FC<BodyHTMLProps> = ({body, task_id}: BodyHTMLProps) => {
-  const [iframeHeight, handleIframeHeight] = useState(0)
-
-  const [hasResized, handleHasResized] = useState(false)
-
   return <BodyIframe 
     id="expanded-body-html"
-    iframeHeight={iframeHeight} 
+    iframeHeight={MAX_TASK_BODY_HEIGHT} 
     title={'Body for task: ' + task_id} 
     srcDoc={body} 
     onLoad={() => {
       const iframe: HTMLIFrameElement | null = document.getElementById('expanded-body-html') as HTMLIFrameElement
       if(iframe && iframe.contentWindow){
-        iframe.style.height = Math.min(iframe.contentWindow.document.body.offsetHeight + 15, MAX_TASK_BODY_HEIGHT) + 'px'
+        const height = Math.min(iframe.contentWindow.document.body.offsetHeight + 15, MAX_TASK_BODY_HEIGHT) 
+        iframe.style.height = height + 'px'
+        iframe.style.visibility = 'visible'
       }
     }}
     />
