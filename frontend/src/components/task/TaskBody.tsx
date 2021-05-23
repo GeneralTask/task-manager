@@ -3,6 +3,7 @@ import { connect, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { RootState } from '../../redux/store'
 import { MAX_TASK_BODY_HEIGHT } from '../../constants'
+import { TTaskSource } from '../../helpers/types'
 
 const BodyIframe = styled.iframe<{iframeHeight: number, }>`
   border: none;
@@ -27,12 +28,16 @@ interface Props {
   body: string | null,
   task_id: string,
   deeplink: string | null,
-  source: string,
+  source: TTaskSource,
 }
 
 interface BodyHTMLProps {
   body: string,
   task_id: string,
+}
+
+interface ReplyProps {
+  task_id: string
 }
 
 
@@ -49,12 +54,13 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
           {body ? (
             <BodyDiv>
               <BodyHTML body={body} task_id={task_id} />
+              {/* {source.is_replyable ? } */}
             </BodyDiv>
           ) : null}
           {deeplink ? (
             <Deeplink>
               <p>
-                See more in <a href={deeplink} target="_blank">{source}</a>
+                See more in <a href={deeplink} target="_blank">{source.name}</a>
               </p>
             </Deeplink>
           ) : null}
@@ -80,6 +86,8 @@ const BodyHTML: React.FC<BodyHTMLProps> = ({body, task_id}: BodyHTMLProps) => {
     }}
     />
 }
+
+const Reply: React.FC
 
 export default connect((state: RootState) => ({ expanded_body: state.expanded_body }))(
   TaskBody

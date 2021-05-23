@@ -45,7 +45,7 @@ const Task: React.FC<Props> = ({ task, index }: Props) => (
             hover_effect={!!(task.body || task.deeplink)}
             provided={provided}
           />
-          <TaskBody body={task.body} task_id={task.id} deeplink={task.deeplink} source={task.source.name}/>
+          <TaskBody body={task.body} task_id={task.id} deeplink={task.deeplink} source={task.source}/>
         </Container>
       </div>
     )}
