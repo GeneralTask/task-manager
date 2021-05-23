@@ -89,7 +89,7 @@ type CalendarEventChangeableFields struct {
 
 type Email struct {
 	TaskBase     `bson:",inline"`
-	ThreadID	 string				`bson:"thread_id"`
+	ThreadID     string             `bson:"thread_id"`
 	SenderDomain string             `bson:"sender_domain"`
 	TimeSent     primitive.DateTime `bson:"time_sent"`
 }
@@ -136,4 +136,9 @@ type UserSetting struct {
 	UserID     primitive.ObjectID `bson:"user_id"`
 	FieldKey   string             `bson:"field_key"`
 	FieldValue string             `bson:"field_value"`
+}
+
+type WaitlistEntry struct {
+	ID    primitive.ObjectID `bson:"_id,omitempty"`
+	Email string             `bson:"email"`
 }
