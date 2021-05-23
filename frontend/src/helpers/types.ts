@@ -1,3 +1,10 @@
+export interface TTaskSource {
+    name: string,
+    logo: string,
+    is_completable: boolean,
+    is_replyable: boolean,
+}
+
 export interface TTask {
     id: string,
     id_external: string,
@@ -6,10 +13,8 @@ export interface TTask {
     datetime_start: string | null,
     deeplink: string | null,
     sender: string | null,
-    logo_url: string,
     title: string,
-    source: string,
-    is_completable: boolean,
+    source: TTaskSource
     body: string | null
 }
 
