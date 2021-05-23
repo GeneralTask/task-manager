@@ -69,6 +69,9 @@ func TestSettingsGet(t *testing.T) {
 }
 
 func TestSettingsModify(t *testing.T) {
+	db, dbCleanup := database.GetDBConnection()
+	defer dbCleanup()
+
 	t.Run("EmptyPayload", func(t *testing.T) {
 		authToken := login("approved@generaltask.io")
 		router := GetRouter(&API{})
@@ -145,10 +148,35 @@ func TestSettingsModify(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		db, dbCleanup := database.GetDBConnection()
-		defer dbCleanup()
 		userID := getUserIDFromAuthToken(t, db, authToken)
 		assert.Equal(t, ChoiceKeyMarkAsRead, GetUserSetting(db, userID, SettingFieldEmailDonePreference))
 	})
-	t.Run("Unauthorized", func(t *testing.T) {})
+	t.Run("SuccessAlreadyExists", func(t *testing.T) {
+		authToken := login("approved@generaltask.io")
+		userID := getUserIDFromAuthToken(t, db, authToken)
+		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyMarkAsRead)
+
+		router := GetRouter(&API{})
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/settings/",
+			bytes.NewBuffer([]byte(`{"email_done_preference": "archive"}`)),
+		)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		assert.Equal(t, ChoiceKeyArchive, GetUserSetting(db, userID, SettingFieldEmailDonePreference))
+	})
+	t.Run("Unauthorized", func(t *testing.T) {
+		router := GetRouter(&API{})
+		request, _ := http.NewRequest("PATCH", "/settings/", nil)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
 }
