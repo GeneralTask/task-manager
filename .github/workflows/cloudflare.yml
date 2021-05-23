@@ -26,5 +26,6 @@ jobs:
         run: 'npx wrangler publish'
         
         env:
-          CF_EMAIL: john@generaltask.io
-          CF_API_KEY: 8238b2654916953b02d74abb1764b651258ca
+          CF_EMAIL: ${{secrets.CF_EMAIL}}
+          CF_API_KEY: ${{secrets.CF_API_KEY}}
+
