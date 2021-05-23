@@ -67,6 +67,21 @@ func TestMarkAsComplete(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
+	settingsCollection := db.Collection("user_settings")
+
+	_, err = settingsCollection.UpdateOne(
+		context.TODO(),
+		bson.D{{Key: "user_id", Value: userID}, {Key: "field_key", Value: SettingFieldEmailDonePreference}},
+		bson.D{{Key: "$set", Value: &database.UserSetting{
+			UserID:     userID,
+			FieldKey:   SettingFieldEmailDonePreference,
+			FieldValue: ChoiceKeyArchive,
+		}}},
+		options.Update().SetUpsert(true),
+	)
+
+	assert.NoError(t, err)
+
 	jiraSiteCollection := db.Collection("jira_site_collection")
 	_, err = jiraSiteCollection.UpdateOne(
 		nil,
@@ -84,7 +99,9 @@ func TestMarkAsComplete(t *testing.T) {
 	jiraTransitionServer := getTransitionIDServerForJIRA(t)
 	tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 
-	gmailModifyServer := getGmailArchiveServer(t)
+
+
+	gmailModifyServer := getGmailArchiveServer(t, "INBOX")
 
 	router := GetRouter(&API{
 		JIRAConfigValues: JIRAConfig{
@@ -146,12 +163,16 @@ func TestMarkAsComplete(t *testing.T) {
 			"PATCH",
 			"/tasks/"+jiraTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
+
 		var task database.TaskBase
 		err = taskCollection.FindOne(nil, bson.D{{"_id", jiraTaskID}}).Decode(&task)
 		assert.Equal(t, false, task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
+
+		assert.NoError(t, err)
+
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 

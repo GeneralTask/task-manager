@@ -201,11 +201,11 @@ func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *datab
 	assert.Equal(t, a.Source, b.Source)
 }
 
-func getGmailArchiveServer(t *testing.T) *httptest.Server {
+func getGmailArchiveServer(t *testing.T, expectedLabel string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"removeLabelIds\":[\"INBOX\"]}\n", string(body))
+		assert.Equal(t, "{\"removeLabelIds\":[\"" + expectedLabel + "\"]}\n", string(body))
 		w.WriteHeader(200)
 		w.Write([]byte(`{}`))
 	}))
