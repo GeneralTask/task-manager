@@ -18,7 +18,7 @@ func UpdateOrCreateTask(
 	source TaskSource,
 	fieldsToInsertIfMissing interface{},
 	fieldsToUpdate interface{},
-) *mongo.SingleResult {
+) (*mongo.SingleResult, error) {
 	taskCollection := getTaskCollection(db)
 	dbQuery := bson.M{
 		"$and": []bson.M{
@@ -37,7 +37,8 @@ func UpdateOrCreateTask(
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Fatalf("Failed to update or create task: %v", err)
+		log.Printf("Failed to update or create task: %v", err)
+		return nil, err
 	}
 
 	return taskCollection.FindOneAndUpdate(
@@ -46,7 +47,7 @@ func UpdateOrCreateTask(
 		bson.D{
 			{Key: "$set", Value: fieldsToUpdate},
 		},
-	)
+	), nil
 }
 
 func GetOrCreateTask(db *mongo.Database,
@@ -54,7 +55,7 @@ func GetOrCreateTask(db *mongo.Database,
 	IDExternal string,
 	source TaskSource,
 	fieldsToInsertIfMissing interface{},
-) *TaskBase {
+) (*TaskBase, error) {
 	taskCollection := getTaskCollection(db)
 	dbQuery := bson.M{
 		"$and": []bson.M{
@@ -73,7 +74,8 @@ func GetOrCreateTask(db *mongo.Database,
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Fatalf("Failed to get or create task: %v", err)
+		log.Printf("Failed to get or create task: %v", err)
+		return nil, err
 	}
 
 	var task TaskBase
@@ -82,13 +84,14 @@ func GetOrCreateTask(db *mongo.Database,
 		dbQuery,
 	).Decode(&task)
 	if err != nil {
-		log.Fatalf("Failed to get task: %v", err)
+		log.Printf("Failed to get task: %v", err)
+		return nil, err
 	}
 
-	return &task
+	return &task, nil
 }
 
-func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) *[]TaskBase {
+func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]TaskBase, error) {
 	cursor, err := getTaskCollection(db).Find(
 		context.TODO(),
 		bson.M{
@@ -99,38 +102,43 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) *[]TaskBase {
 		},
 	)
 	if err != nil {
-		log.Fatalf("Failed to fetch tasks for user: %v", err)
+		log.Printf("Failed to fetch tasks for user: %v", err)
+		return nil, err
 	}
 	var tasks []TaskBase
 	err = cursor.All(context.TODO(), &tasks)
 	if err != nil {
-		log.Fatalf("Failed to fetch tasks for user: %v", err)
+		log.Printf("Failed to fetch tasks for user: %v", err)
+		return nil, err
 	}
-	return &tasks
+	return &tasks, nil
 }
 
-func GetUser(db *mongo.Database, userID primitive.ObjectID) User {
+func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 	var userObject User
 	err := getUserCollection(db).FindOne(
 		context.TODO(),
 		bson.D{{Key: "_id", Value: userID}},
 	).Decode(&userObject)
 	if err != nil {
-		log.Fatalf("Failed to load user: %v", err)
+		log.Printf("Failed to load user: %v", err)
+		return nil, err
 	}
-	return userObject
+	return &userObject, nil
 }
 
-func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID) string {
+func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID) (*string, error) {
 	stateToken := &StateToken{}
 	if userID != nil {
 		stateToken.UserID = *userID
 	}
 	cursor, err := getStateTokenCollection(db).InsertOne(context.TODO(), stateToken)
 	if err != nil {
-		log.Fatalf("Failed to create new state token: %v", err)
+		log.Printf("Failed to create new state token: %v", err)
+		return nil, err
 	}
-	return cursor.InsertedID.(primitive.ObjectID).Hex()
+	stateTokenStr := cursor.InsertedID.(primitive.ObjectID).Hex()
+	return &stateTokenStr, nil
 }
 
 func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userID *primitive.ObjectID) error {
@@ -142,7 +150,8 @@ func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userI
 	}
 	result, err := getStateTokenCollection(db).DeleteOne(context.TODO(), deletionQuery)
 	if err != nil {
-		log.Fatalf("Failed to delete state token: %v", err)
+		log.Printf("Failed to delete state token: %v", err)
+		return err
 	}
 	if result.DeletedCount != 1 {
 		return errors.New("invalid state token")

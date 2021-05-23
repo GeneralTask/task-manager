@@ -152,13 +152,15 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		)
 	})
 	t.Run("InvalidStateTokenWrongUser", func(t *testing.T) {
-		db, dbCleanup := database.GetDBConnection()
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
 		defer dbCleanup()
 		randomUserID := primitive.NewObjectID()
-		stateToken := database.CreateStateToken(db, &randomUserID)
+		stateToken, err := database.CreateStateToken(db, &randomUserID)
+		assert.NoError(t, err)
 
 		router := GetRouter(&API{})
-		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+stateToken, nil)
+		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+*stateToken, nil)
 		authToken := login("approved@generaltask.io", "")
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 		recorder := httptest.NewRecorder()
@@ -174,11 +176,12 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
-		stateToken := newStateToken(authToken)
+		stateToken, err := newStateToken(authToken)
+		assert.NoError(t, err)
 
 		server := getTokenServerForJIRA(t, http.StatusUnauthorized)
 		router := GetRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &server.URL}})
-		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+stateToken, nil)
+		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+*stateToken, nil)
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -193,7 +196,8 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
-		stateToken := newStateToken(authToken)
+		stateToken, err := newStateToken(authToken)
+		assert.NoError(t, err)
 
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		cloudServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
@@ -205,17 +209,18 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 			PriorityListURL: &priorityServer.URL,
 		}})
 
-		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+stateToken, nil)
+		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+*stateToken, nil)
 		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusFound, recorder.Code)
 
-		db, dbCleanup := database.GetDBConnection()
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
 		defer dbCleanup()
 		internalAPITokenCollection := db.Collection("internal_api_tokens")
 		var authTokenStruct database.InternalAPIToken
-		err := internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: authToken}}).Decode(&authTokenStruct)
+		err = internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: authToken}}).Decode(&authTokenStruct)
 		assert.NoError(t, err)
 		externalAPITokenCollection := db.Collection("external_api_tokens")
 		count, err := externalAPITokenCollection.CountDocuments(
@@ -232,7 +237,8 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 }
 
 func TestLoadJIRATasks(t *testing.T) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	jiraSiteCollection := db.Collection("jira_site_collection")
@@ -414,7 +420,8 @@ func TestLoadJIRATasks(t *testing.T) {
 }
 
 func TestGetPriorities(t *testing.T) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
 	defer dbCleanup()
 
 	prioritiesCollection := db.Collection("jira_priorities")

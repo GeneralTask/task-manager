@@ -4,23 +4,25 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"google.golang.org/api/gmail/v1"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/api/gmail/v1"
 )
 
 type GmailReplyParams struct {
-	Raw string `json:"raw"`
+	Raw      string `json:"raw"`
 	ThreadID string `json:"threadId"`
 }
 
 func TestReplyToEmail(t *testing.T) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
 	defer dbCleanup()
 
 	authToken := login("approved@generaltask.io", "General Tasker")
@@ -29,13 +31,13 @@ func TestReplyToEmail(t *testing.T) {
 	taskCollection := db.Collection("tasks")
 
 	insertedResult, err := taskCollection.InsertOne(nil, database.Email{
-		TaskBase:     database.TaskBase{
-			UserID:           userID,
-			IDExternal:       "sample_message_id",
-			Title:            "Sample subject",
-			Source: database.TaskSourceGmail,
+		TaskBase: database.TaskBase{
+			UserID:     userID,
+			IDExternal: "sample_message_id",
+			Title:      "Sample subject",
+			Source:     database.TaskSourceGmail,
 		},
-		ThreadID:     "sample_thread_id",
+		ThreadID: "sample_thread_id",
 	})
 
 	emailID := insertedResult.InsertedID.(primitive.ObjectID).Hex()
@@ -60,11 +62,11 @@ func TestReplyToEmail(t *testing.T) {
 
 	t.Run("InvalidTaskType", func(t *testing.T) {
 		insertedResult, err := taskCollection.InsertOne(nil, database.Task{
-			TaskBase:     database.TaskBase{
-				UserID:           userID,
-				IDExternal:       "sample_task_id",
-				Title:            "Sample Task",
-				Source: database.TaskSourceJIRA,
+			TaskBase: database.TaskBase{
+				UserID:     userID,
+				IDExternal: "sample_task_id",
+				Title:      "Sample Task",
+				Source:     database.TaskSourceJIRA,
 			},
 		})
 
@@ -103,13 +105,13 @@ func TestReplyToEmail(t *testing.T) {
 
 	t.Run("TaskDoesNotBelongToUser", func(t *testing.T) {
 		insertedResult, err := taskCollection.InsertOne(nil, database.Email{
-			TaskBase:     database.TaskBase{
-				UserID:           primitive.NewObjectID(),
-				IDExternal:       "sample_message_id",
-				Title:            "Sample subject",
-				Source: database.TaskSourceGmail,
+			TaskBase: database.TaskBase{
+				UserID:     primitive.NewObjectID(),
+				IDExternal: "sample_message_id",
+				Title:      "Sample subject",
+				Source:     database.TaskSourceGmail,
 			},
-			ThreadID:     "sample_thread_id",
+			ThreadID: "sample_thread_id",
 		})
 
 		emailID := insertedResult.InsertedID.(primitive.ObjectID).Hex()
@@ -131,16 +133,16 @@ func TestReplyToEmail(t *testing.T) {
 	t.Run("SuccessNoReplyTo", func(t *testing.T) {
 		var headers = []*gmail.MessagePartHeader{
 			&gmail.MessagePartHeader{
-				Name:            "Subject",
-				Value:           "Sample subject",
+				Name:  "Subject",
+				Value: "Sample subject",
 			},
 			&gmail.MessagePartHeader{
-				Name:            "From",
-				Value:           "Sample sender <sample@generaltask.io>",
+				Name:  "From",
+				Value: "Sample sender <sample@generaltask.io>",
 			},
 			&gmail.MessagePartHeader{
-				Name:            "Message-ID",
-				Value:           "<id1@gt.io>",
+				Name:  "Message-ID",
+				Value: "<id1@gt.io>",
 			},
 		}
 
@@ -156,24 +158,24 @@ func TestReplyToEmail(t *testing.T) {
 	t.Run("SuccessReplyToAndExistingSubjectRe", func(t *testing.T) {
 		var headers = []*gmail.MessagePartHeader{
 			&gmail.MessagePartHeader{
-				Name:            "Subject",
-				Value:           "Re: Sample subject",
+				Name:  "Subject",
+				Value: "Re: Sample subject",
 			},
 			&gmail.MessagePartHeader{
-				Name:            "From",
-				Value:           "Sample sender <sample@generaltask.io>",
+				Name:  "From",
+				Value: "Sample sender <sample@generaltask.io>",
 			},
 			&gmail.MessagePartHeader{
-				Name:            "Reply-To",
-				Value:           "Reply address <reply@generaltask.io>",
+				Name:  "Reply-To",
+				Value: "Reply address <reply@generaltask.io>",
 			},
 			&gmail.MessagePartHeader{
-				Name:            "Message-ID",
-				Value:           "<id2@gt.io>",
+				Name:  "Message-ID",
+				Value: "<id2@gt.io>",
 			},
 			&gmail.MessagePartHeader{
-				Name:            "References",
-				Value:           "<id1@gt.io>",
+				Name:  "References",
+				Value: "<id1@gt.io>",
 			},
 		}
 
@@ -200,7 +202,7 @@ func testSuccessfulReplyWithServer(t *testing.T,
 	request, _ := http.NewRequest(
 		"POST",
 		"/tasks/"+emailID+"/reply/",
-		bytes.NewBuffer([]byte(`{"body": "` + body + `"}`)))
+		bytes.NewBuffer([]byte(`{"body": "`+body+`"}`)))
 
 	request.Header.Add("Authorization", "Bearer "+authToken)
 	recorder := httptest.NewRecorder()
@@ -216,12 +218,12 @@ func getReplyServer(t *testing.T,
 
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
-			assert.Equal(t, "/gmail/v1/users/me/messages/" + messageID, r.URL.Path)
+			assert.Equal(t, "/gmail/v1/users/me/messages/"+messageID, r.URL.Path)
 			w.WriteHeader(200)
 			email := gmail.Message{
-				Id:              "sample_message_id",
-				Payload:         &gmail.MessagePart{
-					Headers:     headers,
+				Id: "sample_message_id",
+				Payload: &gmail.MessagePart{
+					Headers: headers,
 				},
 			}
 			b, err := json.Marshal(email)

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"net/http"
 	"strings"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -18,11 +17,19 @@ import (
 )
 
 func (api *API) Login(c *gin.Context) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	defer dbCleanup()
-	insertedStateToken := database.CreateStateToken(db, nil)
-	c.SetCookie("googleStateToken", insertedStateToken, 60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
-	authURL := api.GoogleConfig.AuthCodeURL(insertedStateToken, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	insertedStateToken, err := database.CreateStateToken(db, nil)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	c.SetCookie("googleStateToken", *insertedStateToken, 60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
+	authURL := api.GoogleConfig.AuthCodeURL(*insertedStateToken, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	c.Redirect(302, authURL)
 }
 
@@ -33,7 +40,11 @@ func (api *API) LoginCallback(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	defer dbCleanup()
 
 	if !api.SkipStateTokenCheck {
@@ -61,19 +72,25 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	token, err := api.GoogleConfig.Exchange(context.Background(), redirectParams.Code)
 	if err != nil {
-		log.Fatalf("Failed to fetch token from google: %v", err)
+		log.Printf("Failed to fetch token from google: %v", err)
+		Handle500(c)
+		return
 	}
 	client := api.GoogleConfig.Client(context.Background(), token)
 	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
-		log.Fatalf("Failed to load user info: %v", err)
+		log.Printf("Failed to load user info: %v", err)
+		Handle500(c)
+		return
 	}
 	defer response.Body.Close()
 	var userInfo GoogleUserInfo
 
 	err = json.NewDecoder(response.Body).Decode(&userInfo)
 	if err != nil {
-		log.Fatalf("Error decoding JSON: %v", err)
+		log.Printf("Error decoding JSON: %v", err)
+		Handle500(c)
+		return
 	}
 	if userInfo.SUB == "" {
 		log.Fatal("Failed to retrieve google user ID")
@@ -86,7 +103,9 @@ func (api *API) LoginCallback(c *gin.Context) {
 		bson.D{{Key: "email", Value: lowerEmail}, {Key: "has_access", Value: true}},
 	)
 	if err != nil {
-		log.Fatalf("Failed to query waitlist: %v", err)
+		log.Printf("Failed to query waitlist: %v", err)
+		Handle500(c)
+		return
 	}
 	if _, contains := ALLOWED_USERNAMES[strings.ToLower(userInfo.EMAIL)]; !contains && !strings.HasSuffix(lowerEmail, "@generaltask.io") && count == 0 {
 		c.JSON(403, gin.H{"detail": "Email has not been approved."})
@@ -106,13 +125,15 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	if user.ID == primitive.NilObjectID {
 		log.Printf("Unable to create user")
-		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Unable to create user"})
+		Handle500(c)
 		return
 	}
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		log.Fatalf("Failed to serialize token json: %v", err)
+		log.Printf("Failed to serialize token json: %v", err)
+		Handle500(c)
+		return
 	}
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	_, err = externalAPITokenCollection.UpdateOne(
@@ -123,7 +144,9 @@ func (api *API) LoginCallback(c *gin.Context) {
 	)
 
 	if err != nil {
-		log.Fatalf("Failed to create external token record: %v", err)
+		log.Printf("Failed to create external token record: %v", err)
+		Handle500(c)
+		return
 	}
 	internalToken := guuid.New().String()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
@@ -135,7 +158,9 @@ func (api *API) LoginCallback(c *gin.Context) {
 	)
 
 	if err != nil {
-		log.Fatalf("Failed to create internal token record: %v", err)
+		log.Printf("Failed to create internal token record: %v", err)
+		Handle500(c)
+		return
 	}
 	c.SetCookie("authToken", internalToken, 60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
 	c.Redirect(302, config.GetConfigValue("HOME_URL"))

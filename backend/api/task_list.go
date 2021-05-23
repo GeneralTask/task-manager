@@ -16,45 +16,67 @@ import (
 )
 
 func (api *API) TasksList(c *gin.Context) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := db.Collection("users")
-	err := userCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
+	err = userCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
 
 	if err != nil {
-		log.Fatalf("Failed to find user")
+		log.Printf("Failed to find user")
+		Handle500(c)
+		return
 	}
 
 	client := getGoogleHttpClient(externalAPITokenCollection, userID.(primitive.ObjectID))
 	if client == nil {
-		log.Fatalf("Failed to fetch external API token: %v", err)
+		log.Printf("Failed to fetch external API token: %v", err)
+		Handle500(c)
+		return
 	}
 
-	currentTasks := database.GetActiveTasks(db, userID.(primitive.ObjectID))
+	currentTasks, err := database.GetActiveTasks(db, userID.(primitive.ObjectID))
+	if err != nil {
+		Handle500(c)
+		return
+	}
 
-	var calendarEvents = make(chan []*database.CalendarEvent)
+	var calendarEvents = make(chan CalendarResult)
 	go LoadCalendarEvents(api, userID.(primitive.ObjectID), client, calendarEvents)
 
-	var emails = make(chan []*database.Email)
+	var emails = make(chan EmailResult)
 	go loadEmails(userID.(primitive.ObjectID), client, emails)
 
 	var JIRATasks = make(chan TaskResult)
 	go LoadJIRATasks(api, userID.(primitive.ObjectID), JIRATasks)
 
+	calendarResult := <-calendarEvents
+	emailResult := <-emails
 	taskResult := <-JIRATasks
+	// We don't check for JIRA errors because JIRA is not guaranteed to be linked
+	if calendarResult.Error != nil || emailResult.Error != nil {
+		Handle500(c)
+		return
+	}
 
-	allTasks := MergeTasks(
+	allTasks, err := MergeTasks(
 		db,
 		currentTasks,
-		<-calendarEvents,
-		<-emails,
+		calendarResult.CalendarEvents,
+		emailResult.Emails,
 		taskResult.Tasks,
 		taskResult.PriorityMapping,
 		utils.ExtractEmailDomain(userObject.Email))
-
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	c.JSON(200, allTasks)
 }
 
@@ -66,7 +88,7 @@ func MergeTasks(
 	JIRATasks []*database.Task,
 	taskPriorityMapping *map[string]int,
 	userDomain string,
-) []*database.TaskGroup {
+) ([]*database.TaskGroup, error) {
 
 	//sort calendar events by start time.
 	sort.SliceStable(calendarEvents, func(i, j int) bool {
@@ -82,7 +104,10 @@ func MergeTasks(
 		allUnscheduledTasks = append(allUnscheduledTasks, t)
 	}
 
-	adjustForCompletedTasks(db, currentTasks, &allUnscheduledTasks, &calendarEvents)
+	err := adjustForCompletedTasks(db, currentTasks, &allUnscheduledTasks, &calendarEvents)
+	if err != nil {
+		return []*database.TaskGroup{}, err
+	}
 
 	//first we sort the emails and tasks into a single array
 	sort.SliceStable(allUnscheduledTasks, func(i, j int) bool {
@@ -167,9 +192,12 @@ func MergeTasks(
 	}
 
 	tasks = adjustForReorderedTasks(&tasks)
-	updateOrderingIDs(db, &tasks)
+	err = updateOrderingIDs(db, &tasks)
+	if err != nil {
+		return []*database.TaskGroup{}, err
+	}
 
-	return convertTasksToTaskGroups(&tasks)
+	return convertTasksToTaskGroups(&tasks), nil
 }
 
 func adjustForCompletedTasks(
@@ -177,7 +205,7 @@ func adjustForCompletedTasks(
 	currentTasks *[]database.TaskBase,
 	unscheduledTasks *[]interface{},
 	calendarEvents *[]*database.CalendarEvent,
-) {
+) error {
 	tasksCollection := db.Collection("tasks")
 	var newTasks []*database.TaskBase
 	newTaskIDs := make(map[primitive.ObjectID]bool)
@@ -199,7 +227,8 @@ func adjustForCompletedTasks(
 				bson.D{{Key: "$set", Value: bson.D{{Key: "is_completed", Value: true}}}},
 			)
 			if err != nil {
-				log.Fatalf("Failed to update task ordering ID: %v", err)
+				log.Printf("Failed to update task ordering ID: %v", err)
+				return err
 			}
 			if res.ModifiedCount != 1 {
 				log.Printf("Did not find task to update (ID=%v)", currentTask.ID)
@@ -211,6 +240,7 @@ func adjustForCompletedTasks(
 			}
 		}
 	}
+	return nil
 }
 
 type TaskItem struct {
@@ -307,7 +337,7 @@ func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
 	return newTaskList
 }
 
-func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) {
+func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) error {
 	tasksCollection := db.Collection("tasks")
 	orderingID := 1
 	for _, taskItem := range *tasks {
@@ -320,12 +350,14 @@ func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) {
 			bson.D{{Key: "$set", Value: bson.D{{Key: "id_ordering", Value: task.IDOrdering}}}},
 		)
 		if err != nil {
-			log.Fatalf("Failed to update task ordering ID: %v", err)
+			log.Printf("Failed to update task ordering ID: %v", err)
+			return err
 		}
 		if res.ModifiedCount != 1 {
 			log.Printf("Did not find task to update (ID=%v)", task.ID)
 		}
 	}
+	return nil
 }
 
 func convertTasksToTaskGroups(tasks *[]*TaskItem) []*database.TaskGroup {

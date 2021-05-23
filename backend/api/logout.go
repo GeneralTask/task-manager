@@ -14,7 +14,11 @@ func (api *API) Logout(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	defer dbCleanup()
 
 	tokenCollection := db.Collection("internal_api_tokens")

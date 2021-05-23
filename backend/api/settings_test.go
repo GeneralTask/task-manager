@@ -14,7 +14,8 @@ import (
 )
 
 func TestSettingsGet(t *testing.T) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
 	defer dbCleanup()
 	settingCollection := db.Collection("user_settings")
 
@@ -69,7 +70,8 @@ func TestSettingsGet(t *testing.T) {
 }
 
 func TestSettingsModify(t *testing.T) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
 	defer dbCleanup()
 
 	t.Run("EmptyPayload", func(t *testing.T) {
@@ -149,7 +151,9 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, "{}", string(body))
 
 		userID := getUserIDFromAuthToken(t, db, authToken)
-		assert.Equal(t, ChoiceKeyMarkAsRead, GetUserSetting(db, userID, SettingFieldEmailDonePreference))
+		setting, err := GetUserSetting(db, userID, SettingFieldEmailDonePreference)
+		assert.NoError(t, err)
+		assert.Equal(t, ChoiceKeyMarkAsRead, *setting)
 	})
 	t.Run("SuccessAlreadyExists", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
@@ -170,7 +174,9 @@ func TestSettingsModify(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		assert.Equal(t, ChoiceKeyArchive, GetUserSetting(db, userID, SettingFieldEmailDonePreference))
+		setting, err := GetUserSetting(db, userID, SettingFieldEmailDonePreference)
+		assert.NoError(t, err)
+		assert.Equal(t, ChoiceKeyArchive, *setting)
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(&API{})

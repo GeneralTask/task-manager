@@ -2,12 +2,13 @@ package api
 
 import (
 	"context"
+	"log"
+	"net/http"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"log"
-	"net/http"
 )
 
 type TaskReplyParams struct {
@@ -23,7 +24,11 @@ func (api *API) TaskReply(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	defer dbCleanup()
 
 	userID, _ := c.Get("user")
@@ -51,11 +56,11 @@ func (api *API) TaskReply(c *gin.Context) {
 		err = ReplyToEmail(api, userID.(primitive.ObjectID), taskID, replyParams.Body)
 		if err != nil {
 			log.Printf("Unable to send email with error %v", err)
-			c.JSON(http.StatusServiceUnavailable, gin.H{"detail" : "unable to send email"})
+			c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
 		} else {
 			c.JSON(http.StatusCreated, gin.H{})
 		}
 	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"detail" : "task cannot be replied to"})
+		c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
 	}
 }

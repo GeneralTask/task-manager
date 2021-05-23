@@ -84,6 +84,7 @@ type PriorityID struct {
 type TaskResult struct {
 	Tasks           []*database.Task
 	PriorityMapping *map[string]int
+	Error           error
 }
 
 func (api *API) AuthorizeJIRA(c *gin.Context) {
@@ -91,11 +92,19 @@ func (api *API) AuthorizeJIRA(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	defer dbCleanup()
-	insertedStateToken := database.CreateStateToken(db, &internalToken.UserID)
+	insertedStateToken, err := database.CreateStateToken(db, &internalToken.UserID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
 
-	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&state=" + insertedStateToken + "&response_type=code&prompt=consent"
+	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&state=" + *insertedStateToken + "&response_type=code&prompt=consent"
 	c.Redirect(302, authURL)
 }
 
@@ -116,7 +125,11 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	defer dbCleanup()
 	err = database.DeleteStateToken(db, stateTokenID, &internalToken.UserID)
 	if err != nil {
@@ -174,7 +187,9 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 	)
 
 	if err != nil {
-		log.Fatalf("Failed to create external token record: %v", err)
+		log.Printf("Failed to create external token record: %v", err)
+		Handle500(c)
+		return
 	}
 
 	siteConfiguration := getJIRASites(api, &token)
@@ -200,23 +215,27 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 	)
 
 	if err != nil {
-		log.Fatalf("Failed to create external site collection record: %v", err)
+		log.Printf("Failed to create external site collection record: %v", err)
+		Handle500(c)
+		return
 	}
 
 	err = GetListOfJIRAPriorities(api, internalToken.UserID, token.AccessToken)
 	if err != nil {
-		log.Fatalf("Failed to download priorities")
+		log.Printf("Failed to download priorities")
+		Handle500(c)
+		return
 	}
 
 	c.Redirect(302, config.GetConfigValue("HOME_URL"))
 }
 
 func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult) {
-	authToken := getJIRAToken(api, userID)
-	siteConfiguration := getJIRASiteConfiguration(userID)
+	authToken, _ := getJIRAToken(api, userID)
+	siteConfiguration, _ := getJIRASiteConfiguration(userID)
 
 	if authToken == nil || siteConfiguration == nil {
-		result <- emptyTaskResult()
+		result <- emptyTaskResult(errors.New("missing authToken or siteConfiguration"))
 		return
 	}
 
@@ -228,7 +247,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
 	if err != nil {
 		log.Printf("Error forming search request: %v", err)
-		result <- emptyTaskResult()
+		result <- emptyTaskResult(err)
 		return
 	}
 	req.Header.Add("Authorization", "Bearer "+authToken.AccessToken)
@@ -236,18 +255,18 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Printf("Failed to load search results: %v", err)
-		result <- emptyTaskResult()
+		result <- emptyTaskResult(err)
 		return
 	}
 	taskData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Failed to read search response: %v", err)
-		result <- emptyTaskResult()
+		result <- emptyTaskResult(err)
 		return
 	}
 	if resp.StatusCode != 200 {
 		log.Printf("Search failed: %s %v", taskData, resp.StatusCode)
-		result <- emptyTaskResult()
+		result <- emptyTaskResult(err)
 		return
 	}
 
@@ -255,18 +274,24 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 	err = json.Unmarshal(taskData, &jiraTasks)
 	if err != nil {
 		log.Printf("Failed to parse JIRA tasks: %v", err)
-		result <- emptyTaskResult()
+		result <- emptyTaskResult(err)
 		return
 	}
 
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		result <- emptyTaskResult(err)
+		return
+	}
 	defer dbCleanup()
 
 	var tasks []*database.Task
 	for _, jiraTask := range jiraTasks.Issues {
 		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
 		if err != nil {
-			log.Fatalf("Unable to parse JIRA template %v", err)
+			log.Printf("Unable to parse JIRA template %v", err)
+			result <- emptyTaskResult(err)
+			return
 		}
 
 		task := &database.Task{
@@ -286,7 +311,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
 		var dbTask database.Task
-		err = database.UpdateOrCreateTask(
+		res, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			task.IDExternal,
@@ -297,9 +322,16 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 				DueDate:    task.DueDate,
 				PriorityID: task.PriorityID,
 			},
-		).Decode(&dbTask)
+		)
 		if err != nil {
-			log.Fatalf("Failed to update or create task: %v", err)
+			result <- emptyTaskResult(err)
+			return
+		}
+		err = res.Decode(&dbTask)
+		if err != nil {
+			log.Printf("Failed to update or create task: %v", err)
+			result <- emptyTaskResult(err)
+			return
 		}
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
@@ -327,7 +359,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 		err = GetListOfJIRAPriorities(api, userID, authToken.AccessToken)
 		if err != nil {
 			log.Printf("Failed to fetch priorities")
-			result <- emptyTaskResult()
+			result <- emptyTaskResult(err)
 			return
 		}
 		cachedMapping = fetchLocalPriorityMapping(db.Collection("jira_priorities"), userID)
@@ -339,11 +371,12 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 	}
 }
 
-func emptyTaskResult() TaskResult {
+func emptyTaskResult(err error) TaskResult {
 	var priorities map[string]int
 	return TaskResult{
 		Tasks:           []*database.Task{},
 		PriorityMapping: &priorities,
+		Error:           err,
 	}
 }
 
@@ -391,40 +424,46 @@ func getJIRASites(api *API, token *JIRAAuthToken) *[]JIRASite {
 	return &JIRASites
 }
 
-func getJIRASiteConfiguration(userID primitive.ObjectID) *database.JIRASiteConfiguration {
+func getJIRASiteConfiguration(userID primitive.ObjectID) (*database.JIRASiteConfiguration, error) {
 	var siteConfiguration database.JIRASiteConfiguration
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return nil, err
+	}
 	defer dbCleanup()
 
 	siteCollection := db.Collection("jira_site_collection")
-	err := siteCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&siteConfiguration)
+	err = siteCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&siteConfiguration)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &siteConfiguration
+	return &siteConfiguration, nil
 }
 
-func getJIRAToken(api *API, userID primitive.ObjectID) *JIRAAuthToken {
+func getJIRAToken(api *API, userID primitive.ObjectID) (*JIRAAuthToken, error) {
 	var JIRAToken database.ExternalAPIToken
 
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return nil, err
+	}
 	defer dbCleanup()
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 
-	err := externalAPITokenCollection.FindOne(
+	err = externalAPITokenCollection.FindOne(
 		context.TODO(),
 		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: database.TaskSourceJIRA.Name}}).Decode(&JIRAToken)
 
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	var token JIRAAuthToken
 	err = json.Unmarshal([]byte(JIRAToken.Token), &token)
 	if err != nil {
 		log.Printf("Failed to parse JIRA token: %v", err)
-		return nil
+		return nil, err
 	}
 	params := []byte(`{"grant_type": "refresh_token","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","refresh_token": "` + token.RefreshToken + `"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
@@ -434,37 +473,37 @@ func getJIRAToken(api *API, userID primitive.ObjectID) *JIRAAuthToken {
 	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
 		log.Printf("Error forming token request: %v", err)
-		return nil
+		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Printf("Failed to request token: %v", err)
-		return nil
+		return nil, err
 	}
 	tokenString, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Failed to read token response: %v", err)
-		return nil
+		return nil, err
 	}
 	if resp.StatusCode != 200 {
 		log.Printf("JIRA authorization failed: %s", tokenString)
-		return nil
+		return nil, err
 	}
 	var newToken JIRAAuthToken
 	err = json.Unmarshal(tokenString, &newToken)
 	if err != nil {
 		log.Printf("Failed to parse new JIRA token: %v", err)
-		return nil
+		return nil, err
 	}
-	return &newToken
+	return &newToken, nil
 }
 
-func MarkJIRATaskDone(api *API, userID primitive.ObjectID, issueID string) bool {
-	token := getJIRAToken(api, userID)
-	siteConfiguration := getJIRASiteConfiguration(userID)
+func MarkJIRATaskDone(api *API, userID primitive.ObjectID, issueID string) error {
+	token, _ := getJIRAToken(api, userID)
+	siteConfiguration, _ := getJIRASiteConfiguration(userID)
 	if token == nil || siteConfiguration == nil {
-		return false
+		return errors.New("missing token or siteConfiguration")
 	}
 
 	//first get the list of transitions
@@ -479,7 +518,7 @@ func MarkJIRATaskDone(api *API, userID primitive.ObjectID, issueID string) bool 
 	finalTransitionID := getFinalTransitionID(apiBaseURL, token.AccessToken, issueID)
 
 	if finalTransitionID == nil {
-		return false
+		return errors.New("final transition not found")
 	}
 
 	return executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
@@ -520,7 +559,7 @@ func getFinalTransitionID(apiBaseURL string, jiraAuthToken string, jiraCloudID s
 	return &typedTransitionID
 }
 
-func executeTransition(apiBaseURL string, jiraAuthToken string, issueID string, newTransitionID string) bool {
+func executeTransition(apiBaseURL string, jiraAuthToken string, issueID string, newTransitionID string) error {
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID + "/transitions"
 	params := []byte(`{"transition": {"id": "` + newTransitionID + `"}}`)
 	req, _ := http.NewRequest("POST", transitionsURL, bytes.NewBuffer(params))
@@ -528,7 +567,7 @@ func executeTransition(apiBaseURL string, jiraAuthToken string, issueID string, 
 	req.Header.Add("Content-Type", "application/json")
 
 	_, err := http.DefaultClient.Do(req)
-	return err == nil
+	return err
 }
 
 func fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID primitive.ObjectID) *map[string]int {
@@ -554,7 +593,7 @@ func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken stri
 	var baseURL string
 	if api.JIRAConfigValues.PriorityListURL != nil {
 		baseURL = *api.JIRAConfigValues.PriorityListURL
-	} else if siteConfiguration := getJIRASiteConfiguration(userID); siteConfiguration != nil {
+	} else if siteConfiguration, _ := getJIRASiteConfiguration(userID); siteConfiguration != nil {
 		baseURL = getJIRAAPIBaseURl(*siteConfiguration)
 	} else {
 		return errors.New("Could not form base url")
@@ -582,7 +621,10 @@ func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken stri
 		return err
 	}
 
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
 	defer dbCleanup()
 
 	prioritiesCollection := db.Collection("jira_priorities")

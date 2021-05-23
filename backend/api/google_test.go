@@ -44,7 +44,8 @@ func TestCalendar(t *testing.T) {
 		oldEndtime, _ := time.Parse(time.RFC3339, "2021-03-06T15:35:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		db, dbCleanup := database.GetDBConnection()
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := primitive.NewObjectID()
 		standardTask := database.CalendarEvent{
@@ -86,20 +87,21 @@ func TestCalendar(t *testing.T) {
 		server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
 		defer server.Close()
 
-		var calendarEvents = make(chan []*database.CalendarEvent)
+		var calendarResult = make(chan CalendarResult)
 		api := &API{
 			GoogleOverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 		}
-		go LoadCalendarEvents(api, userID, nil, calendarEvents)
-		result := <-calendarEvents
-		assert.Equal(t, 1, len(result))
-		firstTask := result[0]
+		go LoadCalendarEvents(api, userID, nil, calendarResult)
+		result := <-calendarResult
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 1, len(result.CalendarEvents))
+		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardTask, firstTask)
 
 		taskCollection := db.Collection("tasks")
 
 		var calendarEventFromDB database.CalendarEvent
-		err := taskCollection.FindOne(
+		err = taskCollection.FindOne(
 			context.TODO(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
@@ -126,7 +128,8 @@ func TestCalendar(t *testing.T) {
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		db, dbCleanup := database.GetDBConnection()
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := primitive.NewObjectID()
 		standardTask := database.CalendarEvent{
@@ -149,20 +152,21 @@ func TestCalendar(t *testing.T) {
 		server := getServerForTasks([]*calendar.Event{&standardEvent})
 		defer server.Close()
 
-		var calendarEvents = make(chan []*database.CalendarEvent)
+		var calendarResult = make(chan CalendarResult)
 		api := &API{
 			GoogleOverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 		}
-		go LoadCalendarEvents(api, userID, nil, calendarEvents)
-		result := <-calendarEvents
-		assert.Equal(t, 1, len(result))
-		firstTask := result[0]
+		go LoadCalendarEvents(api, userID, nil, calendarResult)
+		result := <-calendarResult
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 1, len(result.CalendarEvents))
+		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardTask, firstTask)
 
 		taskCollection := db.Collection("tasks")
 
 		var calendarEventFromDB database.CalendarEvent
-		err := taskCollection.FindOne(
+		err = taskCollection.FindOne(
 			context.TODO(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
@@ -181,10 +185,11 @@ func TestCalendar(t *testing.T) {
 			GoogleOverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 		}
 		defer server.Close()
-		var calendarEvents = make(chan []*database.CalendarEvent)
-		go LoadCalendarEvents(&api, primitive.NewObjectID(), nil, calendarEvents)
-		result := <-calendarEvents
-		assert.Equal(t, 0, len(result))
+		var calendarResult = make(chan CalendarResult)
+		go LoadCalendarEvents(&api, primitive.NewObjectID(), nil, calendarResult)
+		result := <-calendarResult
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 0, len(result.CalendarEvents))
 	})
 }
 
@@ -202,7 +207,7 @@ func getGmailArchiveServer(t *testing.T, expectedLabel string) *httptest.Server 
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"removeLabelIds\":[\"" + expectedLabel + "\"]}\n", string(body))
+		assert.Equal(t, "{\"removeLabelIds\":[\""+expectedLabel+"\"]}\n", string(body))
 		w.WriteHeader(200)
 		w.Write([]byte(`{}`))
 	}))

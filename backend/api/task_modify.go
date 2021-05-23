@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -55,7 +56,11 @@ func (api *API) TaskModify(c *gin.Context) {
 }
 
 func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, reorder int) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	defer dbCleanup()
 	taskCollection := db.Collection("tasks")
 	result, err := taskCollection.UpdateOne(
@@ -70,7 +75,9 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		}}},
 	)
 	if err != nil {
-		log.Fatalf("Failed to update task in db: %v", err)
+		log.Printf("Failed to update task in db: %v", err)
+		Handle500(c)
+		return
 	}
 	if result.MatchedCount != 1 {
 		Handle404(c)
@@ -87,13 +94,19 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		bson.M{"$inc": bson.M{"id_ordering": 1}},
 	)
 	if err != nil {
-		log.Fatalf("Failed to move back other tasks in db: %v", err)
+		log.Printf("Failed to move back other tasks in db: %v", err)
+		Handle500(c)
+		return
 	}
 	c.JSON(200, gin.H{})
 }
 
 func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	defer dbCleanup()
 	taskCollection := db.Collection("tasks")
 
@@ -108,19 +121,20 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 		return
 	}
 
-	var success bool
 	if task.Source.Name == database.TaskSourceGoogleCalendar.Name {
-		success = false
+		err = errors.New("invalid task type")
 	} else if task.Source.Name == database.TaskSourceGmail.Name {
-		success = MarkEmailAsDone(api, userID, task.IDExternal)
+		err = MarkEmailAsDone(api, userID, task.IDExternal)
 	} else if task.Source.Name == database.TaskSourceJIRA.Name {
-		success = MarkJIRATaskDone(api, userID, task.IDExternal)
+		err = MarkJIRATaskDone(api, userID, task.IDExternal)
 	}
 
-	if success {
+	if err == nil {
 		_, err := taskCollection.UpdateOne(nil, bson.D{{"_id", taskID}}, bson.D{{"$set", bson.D{{"is_completed", true}}}})
 		if err != nil {
-			log.Fatalf("Failed to update internal DB with completion status %v", err)
+			log.Printf("Failed to update internal DB with completion status %v", err)
+			Handle500(c)
+			return
 		}
 		c.JSON(200, gin.H{})
 	} else {

@@ -31,13 +31,19 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 	}
 	email := strings.ToLower(params.Email)
 
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	defer dbCleanup()
 	waitlistCollection := db.Collection("waitlist")
 
 	count, err := waitlistCollection.CountDocuments(context.TODO(), bson.M{"email": email})
 	if err != nil {
-		log.Fatalf("Failed to query waitlist: %v", err)
+		log.Printf("Failed to query waitlist: %v", err)
+		Handle500(c)
+		return
 	}
 	if count > 0 {
 		c.JSON(302, gin.H{"detail": "Email already exists in system"})
@@ -52,7 +58,9 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 		},
 	)
 	if err != nil {
-		log.Fatalf("Failed to insert waitlist entry: %v", err)
+		log.Printf("Failed to insert waitlist entry: %v", err)
+		Handle500(c)
+		return
 	}
 	c.JSON(201, gin.H{})
 }

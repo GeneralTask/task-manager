@@ -6,11 +6,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/GeneralTask/task-manager/backend/templating"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/GeneralTask/task-manager/backend/templating"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -35,9 +36,9 @@ type GoogleRedirectParams struct {
 
 // GoogleUserInfo ...
 type GoogleUserInfo struct {
-	SUB   string  `json:"sub"`
-	EMAIL string  `json:"email"`
-	Name  string  `json:"name"`
+	SUB   string `json:"sub"`
+	EMAIL string `json:"email"`
+	Name  string `json:"name"`
 }
 
 func GetGoogleConfig() OauthConfigWrapper {
@@ -54,27 +55,46 @@ func GetGoogleConfig() OauthConfigWrapper {
 	return &OauthConfig{Config: googleConfig}
 }
 
-func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []*database.Email) {
-	db, dbCleanup := database.GetDBConnection()
+type EmailResult struct {
+	Emails []*database.Email
+	Error  error
+}
+
+func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- EmailResult) {
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		result <- emptyEmailResult(err)
+		return
+	}
 	defer dbCleanup()
-	userObject := database.GetUser(db, userID)
+	userObject, err := database.GetUser(db, userID)
+	if err != nil {
+		result <- emptyEmailResult(err)
+		return
+	}
 	userDomain := utils.ExtractEmailDomain(userObject.Email)
 
 	emails := []*database.Email{}
 
 	gmailService, err := gmail.NewService(context.TODO(), option.WithHTTPClient(client))
 	if err != nil {
-		log.Fatalf("Unable to create Gmail service: %v", err)
+		log.Printf("Unable to create Gmail service: %v", err)
+		result <- emptyEmailResult(err)
+		return
 	}
 
 	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox is:unread").Do()
 	if err != nil {
-		log.Fatalf("Failed to load Gmail threads for user: %v", err)
+		log.Printf("Failed to load Gmail threads for user: %v", err)
+		result <- emptyEmailResult(err)
+		return
 	}
 	for _, threadListItem := range threadsResponse.Threads {
 		thread, err := gmailService.Users.Threads.Get("me", threadListItem.Id).Do()
 		if err != nil {
-			log.Fatalf("failed to load thread! %v", err)
+			log.Printf("failed to load thread! %v", err)
+			result <- emptyEmailResult(err)
+			return
 		}
 
 		for _, message := range thread.Messages {
@@ -92,20 +112,32 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 					title = header.Value
 				}
 			}
-			var body = ""
+			var body *string
 
 			for _, messagePart := range message.Payload.Parts {
 				if messagePart.MimeType == "text/html" {
-					body = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
-				} else if messagePart.MimeType == "text/plain" && len(body) == 0 {
+					body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
+					if err != nil {
+						result <- emptyEmailResult(err)
+						return
+					}
+				} else if messagePart.MimeType == "text/plain" && (body == nil || len(*body) == 0) {
 					//Only use plain text if we haven't found html, prefer html.
-					body = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
+					body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
+					if err != nil {
+						result <- emptyEmailResult(err)
+						return
+					}
 				}
 			}
 
 			//fallback to body if there are no parts.
-			if len(body) == 0 {
-				body = parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
+			if body == nil || len(*body) == 0 {
+				body, err = parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
+				if err != nil {
+					result <- emptyEmailResult(err)
+					return
+				}
 			}
 
 			senderName, senderEmail := utils.ExtractSenderName(sender)
@@ -126,14 +158,18 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 					Source:         database.TaskSourceGmail,
 					Deeplink:       fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
 					Title:          title,
-					Body: 			body,
+					Body:           *body,
 					TimeAllocation: timeAllocation.Nanoseconds(),
 				},
 				SenderDomain: senderDomain,
-				ThreadID: threadListItem.Id,
-				TimeSent: primitive.NewDateTimeFromTime(time.Unix(message.InternalDate / 1000, 0)),
+				ThreadID:     threadListItem.Id,
+				TimeSent:     primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0)),
 			}
-			dbEmail := database.GetOrCreateTask(db, userID, email.IDExternal, email.Source, email)
+			dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.Source, email)
+			if err != nil {
+				result <- emptyEmailResult(err)
+				return
+			}
 			if dbEmail != nil {
 				email.ID = dbEmail.ID
 				email.IDOrdering = dbEmail.IDOrdering
@@ -141,7 +177,14 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- []
 			emails = append(emails, email)
 		}
 	}
-	result <- emails
+	result <- EmailResult{Emails: emails, Error: nil}
+}
+
+func emptyEmailResult(err error) EmailResult {
+	return EmailResult{
+		Emails: []*database.Email{},
+		Error:  err,
+	}
 }
 
 func isMessageUnread(message *gmail.Message) bool {
@@ -153,11 +196,12 @@ func isMessageUnread(message *gmail.Message) bool {
 	return false
 }
 
-func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) string {
+func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string, error) {
 	data := body.Data
 	bodyData, err := base64.URLEncoding.DecodeString(data)
 	if err != nil {
-		log.Fatalf("failed to decode email body. %v", err)
+		log.Printf("failed to decode email body. %v", err)
+		return nil, err
 	}
 
 	bodyString := string(bodyData)
@@ -165,20 +209,26 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) string {
 	if mimeType == "text/plain" {
 		formattedBody, err := templating.FormatPlainTextAsHTML(bodyString)
 		if err != nil {
-			log.Fatalf("failed to decode email body. %v", err)
+			log.Printf("failed to decode email body. %v", err)
+			return nil, err
 		} else {
 			bodyString = formattedBody
 		}
 	}
 
-	return bodyString
+	return &bodyString, nil
+}
+
+type CalendarResult struct {
+	CalendarEvents []*database.CalendarEvent
+	Error          error
 }
 
 func LoadCalendarEvents(
 	api *API,
 	userID primitive.ObjectID,
 	client *http.Client,
-	result chan<- []*database.CalendarEvent,
+	result chan<- CalendarResult,
 ) {
 	events := []*database.CalendarEvent{}
 
@@ -195,10 +245,16 @@ func LoadCalendarEvents(
 		calendarService, err = calendar.NewService(context.TODO(), option.WithHTTPClient(client))
 	}
 	if err != nil {
-		log.Fatalf("Unable to create Calendar service: %v", err)
+		log.Printf("Unable to create Calendar service: %v", err)
+		result <- emptyCalendarResult(err)
+		return
 	}
 
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		result <- emptyCalendarResult(err)
+		return
+	}
 	defer dbCleanup()
 
 	t := time.Now()
@@ -216,7 +272,9 @@ func LoadCalendarEvents(
 		Do()
 
 	if err != nil {
-		log.Fatalf("Unable to load calendar events: %v", err)
+		log.Printf("Unable to load calendar events: %v", err)
+		result <- emptyCalendarResult(err)
+		return
 	}
 
 	for _, event := range calendarResponse.Items {
@@ -246,7 +304,7 @@ func LoadCalendarEvents(
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 		}
 		var dbEvent database.CalendarEvent
-		err = database.UpdateOrCreateTask(
+		res, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			event.IDExternal,
@@ -257,9 +315,16 @@ func LoadCalendarEvents(
 				DatetimeEnd:   event.DatetimeEnd,
 				DatetimeStart: event.DatetimeStart,
 			},
-		).Decode(&dbEvent)
+		)
 		if err != nil {
-			log.Fatalf("Failed to update or create calendar event: %v", err)
+			result <- emptyCalendarResult(err)
+			return
+		}
+		err = res.Decode(&dbEvent)
+		if err != nil {
+			log.Printf("Failed to update or create calendar event: %v", err)
+			result <- emptyCalendarResult(err)
+			return
 		}
 		event.ID = dbEvent.ID
 		event.IDOrdering = dbEvent.IDOrdering
@@ -269,17 +334,26 @@ func LoadCalendarEvents(
 		}
 		events = append(events, event)
 	}
-	result <- events
+	result <- CalendarResult{CalendarEvents: events, Error: nil}
 }
 
-func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) bool {
-	db, dbCleanup := database.GetDBConnection()
+func emptyCalendarResult(err error) CalendarResult {
+	return CalendarResult{
+		CalendarEvents: []*database.CalendarEvent{},
+		Error:          err,
+	}
+}
+
+func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) error {
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	client := getGoogleHttpClient(externalAPITokenCollection, userID)
 
 	var gmailService *gmail.Service
-	var err error
 	if api.GoogleOverrideURLs.GmailModifyURL == nil {
 		gmailService, err = gmail.New(client)
 	} else {
@@ -290,20 +364,23 @@ func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) bool {
 	}
 
 	if err != nil {
-		log.Fatalf("Unable to create Gmail service: %v", err)
-		return false
+		log.Printf("Unable to create Gmail service: %v", err)
+		return err
 	}
 
-	doneSetting := GetUserSetting(db, userID, SettingFieldEmailDonePreference)
+	doneSetting, err := GetUserSetting(db, userID, SettingFieldEmailDonePreference)
+	if err != nil {
+		return err
+	}
 	var labelToRemove string
-	switch doneSetting {
+	switch *doneSetting {
 	case ChoiceKeyArchive:
 		labelToRemove = "INBOX"
 	case ChoiceKeyMarkAsRead:
 		labelToRemove = "UNREAD"
 	default:
-		log.Fatalf("Invalid done user setting: %s", doneSetting)
-		return false
+		log.Printf("Invalid done user setting: %s", *doneSetting)
+		return err
 	}
 
 	_, err = gmailService.Users.Messages.Modify(
@@ -312,17 +389,19 @@ func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) bool {
 		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{labelToRemove}},
 	).Do()
 
-	return err == nil
+	return err
 }
 
 func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID, body string) error {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	client := getGoogleHttpClient(externalAPITokenCollection, userID)
 
 	var gmailService *gmail.Service
-	var err error
 
 	if api.GoogleOverrideURLs.GmailReplyURL != nil {
 		gmailService, err = gmail.NewService(
@@ -347,7 +426,7 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 
 	var email database.Email
 	taskCollection := db.Collection("tasks")
-	err = taskCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: taskID},{Key: "user_id", Value: userID}}).Decode(&email)
+	err = taskCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: taskID}, {Key: "user_id", Value: userID}}).Decode(&email)
 
 	messageResponse, err := gmailService.Users.Messages.Get("me", email.IDExternal).Do()
 
@@ -368,7 +447,7 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 			replyTo = h.Value
 		} else if h.Name == "From" {
 			from = h.Value
-		} else  if h.Name == "References" {
+		} else if h.Name == "References" {
 			references = h.Value
 		} else if h.Name == "Message-ID" {
 			smtpID = h.Value
@@ -408,8 +487,8 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 	msg := []byte(emailTo + emailFrom + subject + inReply + references + mime + "\n" + body)
 
 	messageToSend := gmail.Message{
-		Raw:             base64.URLEncoding.EncodeToString(msg),
-		ThreadId:        email.ThreadID,
+		Raw:      base64.URLEncoding.EncodeToString(msg),
+		ThreadId: email.ThreadID,
 	}
 
 	_, err = gmailService.Users.Messages.Send("me", &messageToSend).Do()

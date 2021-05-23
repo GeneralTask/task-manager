@@ -13,7 +13,8 @@ import (
 )
 
 func TestMergeTasks(t *testing.T) {
-	db, dbCleanup := database.GetDBConnection()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
 	taskCollection := db.Collection("tasks")
 	defer dbCleanup()
 
@@ -132,13 +133,13 @@ func TestMergeTasks(t *testing.T) {
 			TaskNumber: 1,
 		}
 
-		priorityMapping := map[string]int {
-			"1" : 1,
-			"3" : 3,
-			"5" : 5,
+		priorityMapping := map[string]int{
+			"1": 1,
+			"3": 3,
+			"5": 5,
 		}
 
-		result := MergeTasks(
+		result, err := MergeTasks(
 			db,
 			&[]database.TaskBase{},
 			[]*database.CalendarEvent{&c1, &c2},
@@ -146,6 +147,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.Task{&t1, &t2, &t3, &t4},
 			&priorityMapping,
 			"gmail.com")
+		assert.NoError(t, err)
 
 		//need to improve these asserts to compare values as well but a pain with casting
 		//for now so we'll compare JSON later.
@@ -206,8 +208,9 @@ func TestMergeTasks(t *testing.T) {
 			PriorityID: "5",
 			TaskNumber: 7,
 		}
-		t1ID := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1).ID
-		t1.ID = t1ID
+		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
+		assert.NoError(t, err)
+		t1.ID = t1Res.ID
 
 		t2 := database.Task{
 			TaskBase: database.TaskBase{
@@ -224,8 +227,9 @@ func TestMergeTasks(t *testing.T) {
 			PriorityID: "3",
 			TaskNumber: 12,
 		}
-		t2ID := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2).ID
-		t2.ID = t2ID
+		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
+		assert.NoError(t, err)
+		t2.ID = t2Res.ID
 
 		c1 := database.CalendarEvent{
 			TaskBase: database.TaskBase{
@@ -239,8 +243,9 @@ func TestMergeTasks(t *testing.T) {
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(20 * time.Minute)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
 		}
-		c1ID := database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar, c1).ID
-		c1.ID = c1ID
+		c1Res, err := database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar, c1)
+		assert.NoError(t, err)
+		c1.ID = c1Res.ID
 
 		c2 := database.CalendarEvent{
 			TaskBase: database.TaskBase{
@@ -254,8 +259,9 @@ func TestMergeTasks(t *testing.T) {
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 5)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 6)),
 		}
-		c2ID := database.GetOrCreateTask(db, userID, "standard_event2", database.TaskSourceGoogleCalendar, c2).ID
-		c2.ID = c2ID
+		c2Res, err := database.GetOrCreateTask(db, userID, "standard_event2", database.TaskSourceGoogleCalendar, c2)
+		assert.NoError(t, err)
+		c2.ID = c2Res.ID
 
 		c3 := database.CalendarEvent{
 			TaskBase: database.TaskBase{
@@ -270,15 +276,16 @@ func TestMergeTasks(t *testing.T) {
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 7)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 8)),
 		}
-		c3ID := database.GetOrCreateTask(db, userID, "standard_event3", database.TaskSourceGoogleCalendar, c3).ID
-		c3.ID = c3ID
+		c3Res, err := database.GetOrCreateTask(db, userID, "standard_event3", database.TaskSourceGoogleCalendar, c3)
+		assert.NoError(t, err)
+		c3.ID = c3Res.ID
 
-		priorityMapping := map[string]int {
-			"3" : 3,
-			"5" : 5,
+		priorityMapping := map[string]int{
+			"3": 3,
+			"5": 5,
 		}
 
-		result := MergeTasks(
+		result, err := MergeTasks(
 			db,
 			&[]database.TaskBase{c1.TaskBase, c2.TaskBase, c3.TaskBase, t1.TaskBase, t2.TaskBase},
 			[]*database.CalendarEvent{&c1, &c2, &c3},
@@ -287,22 +294,23 @@ func TestMergeTasks(t *testing.T) {
 			&priorityMapping,
 			"gmail.com",
 		)
+		assert.NoError(t, err)
 
 		assert.Equal(t, 5, len(result))
-		assert.Equal(t, t1ID, result[0].Tasks[0].ID)
-		assert.Equal(t, 1, getTaskForTest(t, taskCollection, t1ID).IDOrdering)
+		assert.Equal(t, t1.ID, result[0].Tasks[0].ID)
+		assert.Equal(t, 1, getTaskForTest(t, taskCollection, t1.ID).IDOrdering)
 
-		assert.Equal(t, c1ID, result[1].Tasks[0].ID)
-		assert.Equal(t, 2, getTaskForTest(t, taskCollection, c1ID).IDOrdering)
+		assert.Equal(t, c1.ID, result[1].Tasks[0].ID)
+		assert.Equal(t, 2, getTaskForTest(t, taskCollection, c1.ID).IDOrdering)
 
-		assert.Equal(t, c2ID, result[2].Tasks[0].ID)
-		assert.Equal(t, 3, getTaskForTest(t, taskCollection, c2ID).IDOrdering)
+		assert.Equal(t, c2.ID, result[2].Tasks[0].ID)
+		assert.Equal(t, 3, getTaskForTest(t, taskCollection, c2.ID).IDOrdering)
 
-		assert.Equal(t, t2ID, result[3].Tasks[0].ID)
-		assert.Equal(t, 4, getTaskForTest(t, taskCollection, t2ID).IDOrdering)
+		assert.Equal(t, t2.ID, result[3].Tasks[0].ID)
+		assert.Equal(t, 4, getTaskForTest(t, taskCollection, t2.ID).IDOrdering)
 
-		assert.Equal(t, c3ID, result[4].Tasks[0].ID)
-		assert.Equal(t, 5, getTaskForTest(t, taskCollection, c3ID).IDOrdering)
+		assert.Equal(t, c3.ID, result[4].Tasks[0].ID)
+		assert.Equal(t, 5, getTaskForTest(t, taskCollection, c3.ID).IDOrdering)
 	})
 	t.Run("ReorderingPersist", func(t *testing.T) {
 		// Tested here: existing DB ordering IDs are kept (except cal events)
@@ -322,8 +330,9 @@ func TestMergeTasks(t *testing.T) {
 			PriorityID: "5",
 			TaskNumber: 7,
 		}
-		t1ID := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1).ID
-		t1.ID = t1ID
+		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
+		assert.NoError(t, err)
+		t1.ID = t1Res.ID
 
 		t2 := database.Task{
 			TaskBase: database.TaskBase{
@@ -336,11 +345,12 @@ func TestMergeTasks(t *testing.T) {
 				UserID:         userID,
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			PriorityID:  "3",
+			PriorityID: "3",
 			TaskNumber: 12,
 		}
-		t2ID := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2).ID
-		t2.ID = t2ID
+		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
+		assert.NoError(t, err)
+		t2.ID = t2Res.ID
 
 		c1 := database.CalendarEvent{
 			TaskBase: database.TaskBase{
@@ -354,8 +364,9 @@ func TestMergeTasks(t *testing.T) {
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(20 * time.Minute)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
 		}
-		c1ID := database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar, c1).ID
-		c1.ID = c1ID
+		c1Res, err := database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar, c1)
+		assert.NoError(t, err)
+		c1.ID = c1Res.ID
 
 		c2 := database.CalendarEvent{
 			TaskBase: database.TaskBase{
@@ -369,15 +380,16 @@ func TestMergeTasks(t *testing.T) {
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 5)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 6)),
 		}
-		c2ID := database.GetOrCreateTask(db, userID, "standard_event2", database.TaskSourceGoogleCalendar, c2).ID
-		c2.ID = c2ID
+		c2Res, err := database.GetOrCreateTask(db, userID, "standard_event2", database.TaskSourceGoogleCalendar, c2)
+		assert.NoError(t, err)
+		c2.ID = c2Res.ID
 
-		priorityMapping := map[string]int {
-			"3" : 3,
-			"5" : 5,
+		priorityMapping := map[string]int{
+			"3": 3,
+			"5": 5,
 		}
 
-		result := MergeTasks(
+		result, err := MergeTasks(
 			db,
 			&[]database.TaskBase{c1.TaskBase, c2.TaskBase, t1.TaskBase, t2.TaskBase},
 			[]*database.CalendarEvent{&c1, &c2},
@@ -386,16 +398,17 @@ func TestMergeTasks(t *testing.T) {
 			&priorityMapping,
 			"gmail.com",
 		)
+		assert.NoError(t, err)
 
 		assert.Equal(t, 3, len(result))
 		assert.Equal(t, 1, len(result[0].Tasks))
 		assert.Equal(t, 2, len(result[1].Tasks))
 		assert.Equal(t, 1, len(result[2].Tasks))
 
-		assert.Equal(t, c1ID, result[0].Tasks[0].ID)
-		assert.Equal(t, t1ID, result[1].Tasks[0].ID)
-		assert.Equal(t, t2ID, result[1].Tasks[1].ID)
-		assert.Equal(t, c2ID, result[2].Tasks[0].ID)
+		assert.Equal(t, c1.ID, result[0].Tasks[0].ID)
+		assert.Equal(t, t1.ID, result[1].Tasks[0].ID)
+		assert.Equal(t, t2.ID, result[1].Tasks[1].ID)
+		assert.Equal(t, c2.ID, result[2].Tasks[0].ID)
 	})
 	t.Run("ReorderingOldNew", func(t *testing.T) {
 		// Tested here:
@@ -436,8 +449,9 @@ func TestMergeTasks(t *testing.T) {
 			PriorityID: "3",
 			TaskNumber: 12,
 		}
-		t2ID := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2).ID
-		t2.ID = t2ID
+		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
+		assert.NoError(t, err)
+		t2.ID = t2Res.ID
 
 		c1 := database.CalendarEvent{
 			TaskBase: database.TaskBase{
@@ -451,15 +465,16 @@ func TestMergeTasks(t *testing.T) {
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(20 * time.Minute)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
 		}
-		c1ID := database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar, c1).ID
-		c1.ID = c1ID
+		c1Res, err := database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar, c1)
+		assert.NoError(t, err)
+		c1.ID = c1Res.ID
 
-		priorityMapping := map[string]int {
-			"1" : 1,
-			"3" : 3,
+		priorityMapping := map[string]int{
+			"1": 1,
+			"3": 3,
 		}
 
-		result := MergeTasks(
+		result, err := MergeTasks(
 			db,
 			&[]database.TaskBase{c1.TaskBase, t2.TaskBase},
 			[]*database.CalendarEvent{},
@@ -468,14 +483,15 @@ func TestMergeTasks(t *testing.T) {
 			&priorityMapping,
 			"gmail.com",
 		)
+		assert.NoError(t, err)
 
 		assert.Equal(t, 1, len(result))
 		assert.Equal(t, 2, len(result[0].Tasks))
 
-		assert.Equal(t, t2ID, result[0].Tasks[0].ID)
+		assert.Equal(t, t2.ID, result[0].Tasks[0].ID)
 		assert.Equal(t, t1ID, result[0].Tasks[1].ID)
 
-		updatedCalTask := getTaskForTest(t, taskCollection, c1ID)
+		updatedCalTask := getTaskForTest(t, taskCollection, c1.ID)
 		assert.True(t, updatedCalTask.IsCompleted)
 	})
 	t.Run("ReorderingOldMoveUp", func(t *testing.T) {
@@ -496,8 +512,9 @@ func TestMergeTasks(t *testing.T) {
 			PriorityID: "5",
 			TaskNumber: 7,
 		}
-		t1ID := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1).ID
-		t1.ID = t1ID
+		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
+		assert.NoError(t, err)
+		t1.ID = t1Res.ID
 
 		t2 := database.Task{
 			TaskBase: database.TaskBase{
@@ -514,8 +531,9 @@ func TestMergeTasks(t *testing.T) {
 			PriorityID: "3",
 			TaskNumber: 12,
 		}
-		t2ID := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2).ID
-		t2.ID = t2ID
+		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
+		assert.NoError(t, err)
+		t2.ID = t2Res.ID
 
 		e1ID := primitive.NewObjectID()
 		e1 := database.Email{
@@ -531,12 +549,12 @@ func TestMergeTasks(t *testing.T) {
 			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 		}
 
-		priorityMapping := map[string]int {
-			"3" : 3,
-			"5" : 5,
+		priorityMapping := map[string]int{
+			"3": 3,
+			"5": 5,
 		}
 
-		result := MergeTasks(
+		result, err := MergeTasks(
 			db,
 			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
 			[]*database.CalendarEvent{},
@@ -545,11 +563,12 @@ func TestMergeTasks(t *testing.T) {
 			&priorityMapping,
 			"gmail.com",
 		)
+		assert.NoError(t, err)
 
 		assert.Equal(t, 1, len(result))
 		assert.Equal(t, 2, len(result[0].Tasks))
 
-		assert.Equal(t, t2ID, result[0].Tasks[0].ID)
+		assert.Equal(t, t2.ID, result[0].Tasks[0].ID)
 		assert.Equal(t, e1ID, result[0].Tasks[1].ID)
 	})
 }
