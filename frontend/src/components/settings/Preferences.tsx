@@ -41,8 +41,6 @@ const fetchSettings = async () => {
     else{
         const settings = await response.json()
         store.dispatch(setSettings(settings))
-        // store.dispatch(setTasksFetchStatus(FetchStatus.SUCCESS))
-        // store.dispatch(setTasks(resj))
     }
 }
 
@@ -65,7 +63,7 @@ const Preference: React.FC<Props> = ({setting}: Props) => {
             <div>{setting.field_name}</div>
             <Select onChange={(e) => {changeSetting(setting.field_key, e.target.value)}}>
                 {setting.choices.map((choice: TSettingChoice) => 
-                    <option value={choice.choice_key} selected={!!(setting.field_value === choice.choice_key)}>{choice.choice_name}</option>
+                    <option value={choice.choice_key} selected={setting.field_value === choice.choice_key}>{choice.choice_name}</option>
                 )}
             </Select>
         </PreferenceDiv>

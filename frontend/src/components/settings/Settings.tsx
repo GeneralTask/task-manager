@@ -11,7 +11,6 @@ const Header = styled.div`
 const Body = styled.div`
     width: 35%;
     margin: auto;
-    /* margin-top: 50px; */
 `
 
 const Setting = styled.div`
