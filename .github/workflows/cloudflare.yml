@@ -26,6 +26,6 @@ jobs:
         run: 'npx wrangler publish'
         
         env:
-          CF_ACCOUNT_ID: ${{secrets.CF_ACCOUNT_ID}}
-          CF_ZONE_ID: ${{secrets.CF_ZONE_ID}}
-          CF_API_TOKEN: ${{secrets.CF_API_TOKEN}}
+          CF_EMAIL: ${{secrets.CF_EMAIL}}
+          CF_API_KEY: ${{secrets.CF_API_KEY}}
+
