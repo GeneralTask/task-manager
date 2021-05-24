@@ -82,22 +82,48 @@ func (api *API) TasksList(c *gin.Context) {
 		}
 	}
 
-	calendarResult := <-calendarEvents
-	emailResult := <-emails
-	taskResult := <-JIRATasks
-	// We don't check for JIRA errors because JIRA is not guaranteed to be linked
-	if calendarResult.Error != nil || emailResult.Error != nil {
-		Handle500(c)
-		return
+	calendarEvents := []*database.CalendarEvent{}
+	for _, calendarEventChannel := range calendarEventChannels {
+		calendarResult := <-calendarEventChannel
+		if calendarResult.Error != nil {
+			Handle500(c)
+			return
+		}
+		calendarEvents = append(calendarEvents, calendarResult.CalendarEvents...)
+	}
+
+	emails := []*database.Email{}
+	for _, emailChannel := range emailChannels {
+		emailResult := <-emailChannel
+		if emailResult.Error != nil {
+			Handle500(c)
+			return
+		}
+		emails = append(emails, emailResult.Emails...)
+	}
+
+	accountIDToPriorityMapping := make(map[string]*map[string]int)
+	jiraTasks := []*database.Task{}
+	for _, jiraTaskChannel := range jiraTaskChannels {
+		jiraTaskResult := <-jiraTaskChannel
+		if jiraTaskResult.Error != nil {
+			Handle500(c)
+			return
+		}
+		jiraTasks = append(jiraTasks, jiraTaskResult.Tasks...)
+		if len(jiraTaskResult.Tasks) > 0 {
+			accountID := jiraTaskResult.Tasks[0].SourceAccountID
+			accountIDToPriorityMapping[accountID] = jiraTaskResult.PriorityMapping
+		}
 	}
 
 	allTasks, err := MergeTasks(
 		db,
 		currentTasks,
-		calendarResult.CalendarEvents,
-		emailResult.Emails,
-		taskResult.Tasks,
-		taskResult.PriorityMapping,
+		calendarEvents,
+		emails,
+		jiraTasks,
+		&accountIDToPriorityMapping,
 		utils.ExtractEmailDomain(userObject.Email))
 	if err != nil {
 		Handle500(c)
@@ -112,7 +138,7 @@ func MergeTasks(
 	calendarEvents []*database.CalendarEvent,
 	emails []*database.Email,
 	JIRATasks []*database.Task,
-	taskPriorityMapping *map[string]int,
+	taskPriorityMapping *map[string]*map[string]int,
 	userDomain string,
 ) ([]*database.TaskGroup, error) {
 
@@ -454,7 +480,7 @@ func compareEmails(e1 *database.Email, e2 *database.Email) bool {
 	}
 }
 
-func compareTasks(t1 *database.Task, t2 *database.Task, priorityMapping *map[string]int) bool {
+func compareTasks(t1 *database.Task, t2 *database.Task, priorityMapping *map[string]*map[string]int) bool {
 	if res := compareTaskBases(t1, t2); res != nil {
 		return *res
 	}
@@ -473,7 +499,7 @@ func compareTasks(t1 *database.Task, t2 *database.Task, priorityMapping *map[str
 		return false
 	} else if t1.PriorityID != t2.PriorityID {
 		if len(t1.PriorityID) > 0 && len(t2.PriorityID) > 0 {
-			return (*priorityMapping)[t1.PriorityID] < (*priorityMapping)[t2.PriorityID]
+			return (*(*priorityMapping)[t1.SourceAccountID])[t1.PriorityID] < (*(*priorityMapping)[t2.SourceAccountID])[t2.PriorityID]
 		} else if len(t1.PriorityID) > 0 {
 			return true
 		} else {
