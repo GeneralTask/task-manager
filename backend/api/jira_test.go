@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"regexp"
 	"testing"
 	"time"
 
@@ -22,219 +21,56 @@ import (
 
 func TestAuthorizeJIRA(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		router := GetRouter(&API{})
-		request, _ := http.NewRequest("GET", "/authorize/jira/", nil)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(
-			t,
-			"{\"detail\":\"missing authToken cookie\"}",
-			string(body),
-		)
+		TestAuthorizeCookieMissing(t, &API{}, "/authorize/jira/")
 	})
+
 	t.Run("CookieBad", func(t *testing.T) {
-		router := GetRouter(&API{})
-		request, _ := http.NewRequest("GET", "/authorize/jira/", nil)
-		request.AddCookie(&http.Cookie{Name: "authToken", Value: "tothemoon"})
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(
-			t,
-			"{\"detail\":\"invalid auth token\"}",
-			string(body),
-		)
+		TestAuthorizeCookieBad(t, &API{}, "/authorize/jira/")
 	})
+
 	t.Run("Success", func(t *testing.T) {
-		router := GetRouter(&API{})
-		request, _ := http.NewRequest("GET", "/authorize/jira/", nil)
-		authToken := login("approved@generaltask.io", "")
-		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusFound, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		// Grab from body where we expect the state token
-		exp := regexp.MustCompile("state=([^&]+)&")
-		matches := exp.FindStringSubmatch(string(body))
-		assert.Equal(t, 2, len(matches))
-		stateToken := matches[1]
-		assert.NoError(t, err)
-		assert.Equal(
-			t,
-			"<a href=\"https://auth.atlassian.com/authorize?audience=api.atlassian.com&amp;client_id="+config.GetConfigValue("JIRA_OAUTH_CLIENT_ID")+"&amp;scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&amp;redirect_uri="+config.GetConfigValue("SERVER_URL")+"authorize%2Fjira%2Fcallback%2F&amp;state="+stateToken+"&amp;response_type=code&amp;prompt=consent\">Found</a>.\n\n",
-			string(body),
-		)
+		TestAuthorizeSuccess(t, &API{}, "/authorize/jira/", func(stateToken string) string {
+			return "<a href=\"https://auth.atlassian.com/authorize?audience=api.atlassian.com&amp;client_id="+config.GetConfigValue("JIRA_OAUTH_CLIENT_ID")+"&amp;scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&amp;redirect_uri="+config.GetConfigValue("SERVER_URL")+"authorize%2Fjira%2Fcallback%2F&amp;state="+stateToken+"&amp;response_type=code&amp;prompt=consent\">Found</a>.\n\n"
+		})
 	})
 }
 
 func TestAuthorizeJIRACallback(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		router := GetRouter(&API{})
-		request, _ := http.NewRequest("GET", "/authorize/jira/callback/", nil)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(
-			t,
-			"{\"detail\":\"missing authToken cookie\"}",
-			string(body),
-		)
+		TestAuthorizeCookieMissing(t, &API{}, "/authorize/jira/callback/")
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		router := GetRouter(&API{})
-		request, _ := http.NewRequest("GET", "/authorize/jira/callback/", nil)
-		request.AddCookie(&http.Cookie{Name: "authToken", Value: "tothemoon"})
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(
-			t,
-			"{\"detail\":\"invalid auth token\"}",
-			string(body),
-		)
+		TestAuthorizeCookieBad(t, &API{}, "/authorize/jira/callback/")
 	})
 	t.Run("MissingCodeParam", func(t *testing.T) {
-		router := GetRouter(&API{})
-		request, _ := http.NewRequest("GET", "/authorize/jira/callback/", nil)
-		authToken := login("approved@generaltask.io", "")
-		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(
-			t,
-			"{\"detail\":\"Missing query params\"}",
-			string(body),
-		)
+		TestAuthorizeCallbackMissingCodeParam(t, &API{}, "/authorize/jira/callback/")
 	})
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
-		router := GetRouter(&API{})
-		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state=oopsie", nil)
-		authToken := login("approved@generaltask.io", "")
-		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(
-			t,
-			"{\"detail\":\"Invalid state token format\"}",
-			string(body),
-		)
+		TestAuthorizeCallbackBadStateTokenFormat(t, &API{}, "/authorize/jira/callback/")
 	})
 	t.Run("InvalidStateToken", func(t *testing.T) {
-		router := GetRouter(&API{})
-		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state=6088e1c97018a22f240aa573", nil)
-		authToken := login("approved@generaltask.io", "")
-		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(
-			t,
-			"{\"detail\":\"Invalid state token\"}",
-			string(body),
-		)
+		TestAuthorizeCallbackInvalidStateToken(t, &API{}, "/authorize/jira/callback/")
 	})
 	t.Run("InvalidStateTokenWrongUser", func(t *testing.T) {
-		db, dbCleanup, err := database.GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
-		randomUserID := primitive.NewObjectID()
-		stateToken, err := database.CreateStateToken(db, &randomUserID)
-		assert.NoError(t, err)
-
-		router := GetRouter(&API{})
-		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+*stateToken, nil)
-		authToken := login("approved@generaltask.io", "")
-		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(
-			t,
-			"{\"detail\":\"Invalid state token\"}",
-			string(body),
-		)
+		TestAuthorizeCallbackStateTokenWrongUser(t, &API{}, "/authorize/jira/callback/")
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
-		authToken := login("approved@generaltask.io", "")
-		stateToken, err := newStateToken(authToken)
-		assert.NoError(t, err)
-
 		server := getTokenServerForJIRA(t, http.StatusUnauthorized)
-		router := GetRouter(&API{JIRAConfigValues: JIRAConfig{TokenURL: &server.URL}})
-		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+*stateToken, nil)
-		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(
-			t,
-			"{\"detail\":\"Authorization failed\"}",
-			string(body),
-		)
+		TestAuthorizeCallbackUnsuccessfulResponse(t, &API{JIRAConfigValues: JIRAConfig{TokenURL: &server.URL}},"/authorize/jira/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.io", "")
-		stateToken, err := newStateToken(authToken)
-		assert.NoError(t, err)
 
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		cloudServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
 		priorityServer := getJIRAPriorityServer(t, http.StatusOK, []byte(`[{"id" : "1"}]`))
 
-		router := GetRouter(&API{JIRAConfigValues: JIRAConfig{
+		api := &API{JIRAConfigValues: JIRAConfig{
 			TokenURL:        &tokenServer.URL,
 			CloudIDURL:      &cloudServer.URL,
 			PriorityListURL: &priorityServer.URL,
-		}})
+		}}
 
-		request, _ := http.NewRequest("GET", "/authorize/jira/callback/?code=123abc&state="+*stateToken, nil)
-		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusFound, recorder.Code)
-
-		db, dbCleanup, err := database.GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
-		internalAPITokenCollection := db.Collection("internal_api_tokens")
-		var authTokenStruct database.InternalAPIToken
-		err = internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: authToken}}).Decode(&authTokenStruct)
-		assert.NoError(t, err)
-		externalAPITokenCollection := db.Collection("external_api_tokens")
-		count, err := externalAPITokenCollection.CountDocuments(
-			context.TODO(),
-			bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: database.TaskSourceJIRA.Name}})
-
-		assert.NoError(t, err)
-		assert.Equal(t, int64(1), count)
-		var jiraToken database.ExternalAPIToken
-		err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: database.TaskSourceJIRA.Name}}).Decode(&jiraToken)
-		assert.NoError(t, err)
-		assert.Equal(t, database.TaskSourceJIRA.Name, jiraToken.Source)
-		assert.Equal(t, "teslatothemoon42069", jiraToken.AccountID)
-		assert.Equal(t, "The dungeon", jiraToken.DisplayID)
+		TestAuthorizeCallbackSuccessfulResponse(t, api, "/authorize/jira/callback/", database.TaskSourceJIRA.Name)
 	})
 }
 

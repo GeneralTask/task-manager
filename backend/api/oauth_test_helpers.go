@@ -1,0 +1,199 @@
+package api
+
+import (
+	"context"
+	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"regexp"
+	"testing"
+)
+
+func TestAuthorizeCookieMissing(t* testing.T, api* API, url string) {
+	router := GetRouter(api)
+	request, _ := http.NewRequest("GET", url, nil)
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	body, err := ioutil.ReadAll(recorder.Body)
+	assert.NoError(t, err)
+	assert.Equal(
+		t,
+		"{\"detail\":\"missing authToken cookie\"}",
+		string(body),
+	)
+}
+
+func TestAuthorizeCookieBad(t *testing.T, api *API, url string) {
+	router := GetRouter(api)
+	request, _ := http.NewRequest("GET", url, nil)
+	request.AddCookie(&http.Cookie{Name: "authToken", Value: "tothemoon"})
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	body, err := ioutil.ReadAll(recorder.Body)
+	assert.NoError(t, err)
+	assert.Equal(
+		t,
+		"{\"detail\":\"invalid auth token\"}",
+		string(body),
+	)
+}
+
+func TestAuthorizeSuccess(t *testing.T, api *API, url string, expectedResult func(string) string) {
+	router := GetRouter(api)
+	request, _ := http.NewRequest("GET", url, nil)
+	authToken := login("approved@generaltask.io", "")
+	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusFound, recorder.Code)
+	body, err := ioutil.ReadAll(recorder.Body)
+	// Grab from body where we expect the state token
+	exp := regexp.MustCompile("state=([^&\"]+)(&|$|\")")
+	bodyString := string(body)
+	matches := exp.FindStringSubmatch(bodyString)
+	assert.Equal(t, 3, len(matches))
+	stateToken := matches[1]
+	assert.NoError(t, err)
+	assert.Equal(
+		t,
+		expectedResult(stateToken),
+		bodyString,
+	)
+}
+
+func TestAuthorizeCallbackMissingCodeParam(t *testing.T, api *API, url string) {
+	router := GetRouter(api)
+	request, _ := http.NewRequest("GET", url, nil)
+	authToken := login("approved@generaltask.io", "")
+	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	body, err := ioutil.ReadAll(recorder.Body)
+	assert.NoError(t, err)
+	assert.Equal(
+		t,
+		"{\"detail\":\"Missing query params\"}",
+		string(body),
+	)
+}
+
+func TestAuthorizeCallbackBadStateTokenFormat(t *testing.T, api *API, url string) {
+	router := GetRouter(api)
+	request, _ := http.NewRequest("GET", url + "?code=123abc&state=oopsie", nil)
+	authToken := login("approved@generaltask.io", "")
+	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	body, err := ioutil.ReadAll(recorder.Body)
+	assert.NoError(t, err)
+	assert.Equal(
+		t,
+		"{\"detail\":\"Invalid state token format\"}",
+		string(body),
+	)
+}
+
+func TestAuthorizeCallbackInvalidStateToken(t *testing.T, api *API, url string) {
+	router := GetRouter(api)
+	request, _ := http.NewRequest("GET", url + "?code=123abc&state=6088e1c97018a22f240aa573", nil)
+	authToken := login("approved@generaltask.io", "")
+	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	body, err := ioutil.ReadAll(recorder.Body)
+	assert.NoError(t, err)
+	assert.Equal(
+		t,
+		"{\"detail\":\"Invalid state token\"}",
+		string(body),
+	)
+}
+
+func TestAuthorizeCallbackStateTokenWrongUser(t *testing.T, api *API, url string) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	randomUserID := primitive.NewObjectID()
+	stateToken, err := database.CreateStateToken(db, &randomUserID)
+	assert.NoError(t, err)
+
+	router := GetRouter(api)
+	request, _ := http.NewRequest("GET", url + "?code=123abc&state="+*stateToken, nil)
+	authToken := login("approved@generaltask.io", "")
+	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	body, err := ioutil.ReadAll(recorder.Body)
+	assert.NoError(t, err)
+	assert.Equal(
+		t,
+		"{\"detail\":\"Invalid state token\"}",
+		string(body),
+	)
+}
+
+func TestAuthorizeCallbackUnsuccessfulResponse(t *testing.T, api *API, url string) {
+	authToken := login("approved@generaltask.io", "")
+	stateToken, err := newStateToken(authToken)
+	assert.NoError(t, err)
+
+	router := GetRouter(api)
+	request, _ := http.NewRequest("GET", url + "?code=123abc&state="+*stateToken, nil)
+	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.NotEqual(t, http.StatusOK, recorder.Code)
+}
+
+func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string, sourceName string) {
+	authToken := login("approved@generaltask.io", "")
+	stateToken, err := newStateToken(authToken)
+	assert.NoError(t, err)
+
+
+	router := GetRouter(api)
+
+	request, _ := http.NewRequest("GET", url + "?code=123abc&state="+*stateToken, nil)
+	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, http.StatusFound, recorder.Code)
+
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	internalAPITokenCollection := db.Collection("internal_api_tokens")
+	var authTokenStruct database.InternalAPIToken
+	err = internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: authToken}}).Decode(&authTokenStruct)
+	assert.NoError(t, err)
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+	count, err := externalAPITokenCollection.CountDocuments(
+		context.TODO(),
+		bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: sourceName}})
+
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), count)
+	var externalToken database.ExternalAPIToken
+	err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: sourceName}}).Decode(&externalToken)
+	assert.NoError(t, err)
+	assert.Equal(t, sourceName, externalToken.Source)
+
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), count)
+	var jiraToken database.ExternalAPIToken
+	err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: database.TaskSourceJIRA.Name}}).Decode(&jiraToken)
+	assert.NoError(t, err)
+	assert.Equal(t, database.TaskSourceJIRA.Name, jiraToken.Source)
+	assert.Equal(t, "teslatothemoon42069", jiraToken.AccountID)
+	assert.Equal(t, "The dungeon", jiraToken.DisplayID)
+}
