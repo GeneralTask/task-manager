@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { connect, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { RootState } from '../../redux/store'
-import { MAX_TASK_BODY_HEIGHT } from '../../constants'
+import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import { TTaskSource } from '../../helpers/types'
+import { makeAuthorizedRequest } from '../../helpers/utils'
 
 const BodyIframe = styled.iframe<{iframeHeight: number, }>`
   border: none;
@@ -27,13 +28,26 @@ const ReplyDiv = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: flex-end;
 `
-const ReplyText = styled.textarea`
+const ReplyText = styled.span<{isPlaceholder: boolean}>`
   width: 88%;
-  height: 28px;
+  /* color: ${props => props.isPlaceholder ? 'red' : 'blue'}; */
+  min-height: 28px;
+  border: 1px solid #cccccc;
+  border-radius: 2px;
+  padding: 4px;
+  cursor: text;
+  $:empty:not(:focus):before{
+    content:attr('Enter Response');
+    color:grey;
+    font-style:italic;
+  }
+}
 `
 const ReplyButton = styled.button`
   width: 10%;
+  height : 38px;
   background-color: black;
   color: white;
   border-radius: 2px;
@@ -111,10 +125,30 @@ const BodyHTML: React.FC<BodyHTMLProps> = ({body, task_id}: BodyHTMLProps) => {
 }
 
 const Reply: React.FC<ReplyProps> = ({task_id}: ReplyProps) => {
-
+  // const [replyText, setReplyText] = useState('')
+  // const [textHeight, setTextHeight]
+  const [text, setText] = useState('')
+  
   return <ReplyDiv>
-    <ReplyText></ReplyText>
-    <ReplyButton>Reply</ReplyButton>
+    {/* <ReplyText placeholder="Enter Reponse" value={replyText} onChange={(e) => {
+      setReplyText(e.target.value)
+    }}/> */}
+    {/* <ReplyText role="textbox" contentEditable={true} height={state.height} isPlaceholder={!!state.text} suppressContentEditableWarning={true} onChange={(e) => {
+      const text = e.currentTarget.textContent
+      const height = e.currentTarget.scrollHeight
+      if(text !== null)
+        setState({text, height})
+    }}>
+      {state.text}
+    </ReplyText> */}
+    <ReplyText contentEditable isPlaceholder={!!text}></ReplyText>
+    <ReplyButton onClick={()=>{
+      makeAuthorizedRequest({
+        url: TASKS_URL + task_id + '/reply/',
+        method: 'POST',
+        body: JSON.stringify({body: text}),
+      })
+    }}>Reply</ReplyButton>
   </ReplyDiv>
 }
 
