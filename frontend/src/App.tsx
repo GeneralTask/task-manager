@@ -4,7 +4,6 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import store from './redux/store'
 import { LANDING_PATH, SETTINGS_PATH, PRIVACY_PATH } from './constants'
-import {useEffect} from 'react'
 import {getAuthToken} from './helpers/utils'
 
 import Header from './components/Header'

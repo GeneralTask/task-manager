@@ -23,6 +23,29 @@ const Deeplink = styled.div`
   width: 100%;
   color: black;
 `
+const ReplyDiv = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`
+const ReplyText = styled.textarea`
+  width: 88%;
+  height: 28px;
+`
+const ReplyButton = styled.button`
+  width: 10%;
+  background-color: black;
+  color: white;
+  border-radius: 2px;
+  border: 2px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 6px 4px 6px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+`
 
 interface Props {
   body: string | null,
@@ -54,7 +77,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
           {body ? (
             <BodyDiv>
               <BodyHTML body={body} task_id={task_id} />
-              {/* {source.is_replyable ? } */}
+              {source.is_replyable ? <Reply task_id={task_id}/> : null}
             </BodyDiv>
           ) : null}
           {deeplink ? (
@@ -87,7 +110,13 @@ const BodyHTML: React.FC<BodyHTMLProps> = ({body, task_id}: BodyHTMLProps) => {
     />
 }
 
-const Reply: React.FC
+const Reply: React.FC<ReplyProps> = ({task_id}: ReplyProps) => {
+
+  return <ReplyDiv>
+    <ReplyText></ReplyText>
+    <ReplyButton>Reply</ReplyButton>
+  </ReplyDiv>
+}
 
 export default connect((state: RootState) => ({ expanded_body: state.expanded_body }))(
   TaskBody
