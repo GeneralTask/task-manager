@@ -34,43 +34,53 @@ func (api *API) TasksList(c *gin.Context) {
 		return
 	}
 
-	var googleTokens []database.ExternalAPIToken
-	cursor, err := externalAPITokenCollection.Find(
-		context.TODO(),
-		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}},
-	)
-	if err != nil {
-		log.Printf("Failed to fetch google tokens: %v", err)
-		Handle500(c)
-		return
-	}
-	err = cursor.All(context.TODO(), &googleTokens)
-	if err != nil {
-		log.Printf("Failed to iterate through google tokens: %v", err)
-		Handle500(c)
-		return
-	}
-	client := getGoogleHttpClient(externalAPITokenCollection, userID.(primitive.ObjectID))
-	if client == nil {
-		log.Printf("Failed to fetch external API token: %v", err)
-		Handle500(c)
-		return
-	}
-
 	currentTasks, err := database.GetActiveTasks(db, userID.(primitive.ObjectID))
 	if err != nil {
 		Handle500(c)
 		return
 	}
 
-	var calendarEvents = make(chan CalendarResult)
-	go LoadCalendarEvents(api, userID.(primitive.ObjectID), client, calendarEvents)
+	var tokens []database.ExternalAPIToken
+	cursor, err := externalAPITokenCollection.Find(
+		context.TODO(),
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		log.Printf("Failed to fetch google tokens: %v", err)
+		Handle500(c)
+		return
+	}
+	err = cursor.All(context.TODO(), &tokens)
+	if err != nil {
+		log.Printf("Failed to iterate through google tokens: %v", err)
+		Handle500(c)
+		return
+	}
 
-	var emails = make(chan EmailResult)
-	go loadEmails(userID.(primitive.ObjectID), client, emails)
+	calendarEventChannels := []chan CalendarResult{}
+	emailChannels := []chan EmailResult{}
+	jiraTaskChannels := []chan TaskResult{}
+	for _, token := range tokens {
+		if token.Source == "google" {
+			client := getGoogleHttpClient(externalAPITokenCollection, userID.(primitive.ObjectID), token.AccountID)
+			if client == nil {
+				log.Printf("Failed to fetch external API token: %v", err)
+				Handle500(c)
+				return
+			}
+			var calendarEvents = make(chan CalendarResult)
+			go LoadCalendarEvents(api, userID.(primitive.ObjectID), client, calendarEvents)
+			calendarEventChannels = append(calendarEventChannels, calendarEvents)
 
-	var JIRATasks = make(chan TaskResult)
-	go LoadJIRATasks(api, userID.(primitive.ObjectID), JIRATasks)
+			var emails = make(chan EmailResult)
+			go loadEmails(userID.(primitive.ObjectID), client, emails)
+			emailChannels = append(emailChannels, emails)
+		} else if token.Source == database.TaskSourceJIRA.Name {
+			var JIRATasks = make(chan TaskResult)
+			go LoadJIRATasks(api, userID.(primitive.ObjectID), token.AccountID, JIRATasks)
+			jiraTaskChannels = append(jiraTaskChannels, JIRATasks)
+		}
+	}
 
 	calendarResult := <-calendarEvents
 	emailResult := <-emails
@@ -136,14 +146,14 @@ func MergeTasks(
 			case *database.Task:
 				return compareTasks(a.(*database.Task), b.(*database.Task), taskPriorityMapping)
 			case *database.Email:
-				return compareTaskEmail(a.(*database.Task), b.(*database.Email), userDomain)
+				return compareTaskEmail(a.(*database.Task), b.(*database.Email))
 			}
 		case *database.Email:
 			switch b.(type) {
 			case *database.Task:
-				return !compareTaskEmail(b.(*database.Task), a.(*database.Email), userDomain)
+				return !compareTaskEmail(b.(*database.Task), a.(*database.Email))
 			case *database.Email:
-				return compareEmails(a.(*database.Email), b.(*database.Email), userDomain)
+				return compareEmails(a.(*database.Email), b.(*database.Email))
 			}
 		}
 		return true
