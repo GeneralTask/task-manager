@@ -233,6 +233,8 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: database.TaskSourceJIRA.Name}}).Decode(&jiraToken)
 		assert.NoError(t, err)
 		assert.Equal(t, database.TaskSourceJIRA.Name, jiraToken.Source)
+		assert.Equal(t, "teslatothemoon42069", jiraToken.AccountID)
+		assert.Equal(t, "The dungeon", jiraToken.DisplayID)
 	})
 }
 
@@ -247,46 +249,46 @@ func TestLoadJIRATasks(t *testing.T) {
 	t.Run("MissingJIRAToken", func(t *testing.T) {
 		var JIRATasks = make(chan TaskResult)
 		userID := primitive.NewObjectID()
-		go LoadJIRATasks(&API{}, userID, JIRATasks)
+		go LoadJIRATasks(&API{}, userID, "exampleAccountID", JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("RefreshTokenFailed", func(t *testing.T) {
-		userID := createJIRAToken(t, externalAPITokenCollection)
+		userID, accountID := createJIRAToken(t, externalAPITokenCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusUnauthorized)
 		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 
 	t.Run("SearchFailed", func(t *testing.T) {
-		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
 		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("EmptySearchResponse", func(t *testing.T) {
-		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
 		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("Success", func(t *testing.T) {
-		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		expectedTask := database.Task{
 			TaskBase: database.TaskBase{
-				IDOrdering: 2,
+				IDOrdering: 0,
 				IDExternal: "42069",
 				Deeplink:   "https://dankmemes.com/browse/MOON-1969",
 				Title:      "Sample Taskeroni",
@@ -295,16 +297,9 @@ func TestLoadJIRATasks(t *testing.T) {
 			},
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
-		database.GetOrCreateTask(
-			db,
-			*userID,
-			"42069",
-			database.TaskSourceJIRA,
-			&expectedTask,
-		)
 
 		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
 
@@ -321,9 +316,56 @@ func TestLoadJIRATasks(t *testing.T) {
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
+		assert.Equal(t, accountID, taskFromDB.SourceAccountID)
+	})
+	t.Run("ExistingTask", func(t *testing.T) {
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+
+		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+		expectedTask := database.Task{
+			TaskBase: database.TaskBase{
+				IDOrdering:      2,
+				IDExternal:      "42069",
+				Deeplink:        "https://dankmemes.com/browse/MOON-1969",
+				Title:           "Sample Taskeroni",
+				Source:          database.TaskSourceJIRA,
+				UserID:          *userID,
+				SourceAccountID: "someAccountID",
+			},
+			DueDate: primitive.NewDateTimeFromTime(dueDate),
+		}
+		database.GetOrCreateTask(
+			db,
+			*userID,
+			"42069",
+			database.TaskSourceJIRA,
+			&expectedTask,
+		)
+
+		var JIRATasks = make(chan TaskResult)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 1, len(result.Tasks))
+
+		assertTasksEqual(t, &expectedTask, result.Tasks[0])
+
+		var taskFromDB database.Task
+		err := taskCollection.FindOne(
+			context.TODO(),
+			bson.D{
+				{Key: "source.name", Value: database.TaskSourceJIRA.Name},
+				{Key: "id_external", Value: "42069"},
+				{Key: "user_id", Value: userID},
+			},
+		).Decode(&taskFromDB)
+		assert.NoError(t, err)
+		assertTasksEqual(t, &expectedTask, &taskFromDB)
+		assert.Equal(t, "someAccountID", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 	t.Run("NewPriority", func(t *testing.T) {
-		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
@@ -349,7 +391,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		)
 
 		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
 
@@ -372,7 +414,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 	})
 	t.Run("NewPriorityReordered", func(t *testing.T) {
-		userID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
@@ -399,7 +441,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		)
 
 		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, JIRATasks)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
 
@@ -426,7 +468,7 @@ func TestGetPriorities(t *testing.T) {
 
 	prioritiesCollection := db.Collection("jira_priorities")
 
-	userID := setupJIRA(t, db.Collection("external_api_tokens"), db.Collection("jira_site_collection"))
+	userID, _ := setupJIRA(t, db.Collection("external_api_tokens"), db.Collection("jira_site_collection"))
 
 	t.Run("ServerError", func(t *testing.T) {
 		server := getJIRAPriorityServer(t, 400, []byte(``))
@@ -479,24 +521,26 @@ func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.Source, b.Source)
 }
 
-func setupJIRA(t *testing.T, externalAPITokenCollection *mongo.Collection, jiraSiteCollection *mongo.Collection) *primitive.ObjectID {
-	userID := createJIRAToken(t, externalAPITokenCollection)
+func setupJIRA(t *testing.T, externalAPITokenCollection *mongo.Collection, jiraSiteCollection *mongo.Collection) (*primitive.ObjectID, string) {
+	userID, accountID := createJIRAToken(t, externalAPITokenCollection)
 	createJIRASiteConfiguration(t, userID, jiraSiteCollection)
-	return userID
+	return userID, accountID
 }
 
-func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection) *primitive.ObjectID {
+func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection) (*primitive.ObjectID, string) {
 	userID := primitive.NewObjectID()
+	accountID := primitive.NewObjectID().Hex()
 	_, err := externalAPITokenCollection.InsertOne(
 		context.Background(),
 		&database.ExternalAPIToken{
-			Source: database.TaskSourceJIRA.Name,
-			Token:  `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
-			UserID: userID,
+			Source:    database.TaskSourceJIRA.Name,
+			Token:     `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
+			UserID:    userID,
+			AccountID: accountID,
 		},
 	)
 	assert.NoError(t, err)
-	return &userID
+	return &userID, accountID
 }
 
 func createJIRASiteConfiguration(t *testing.T, userID *primitive.ObjectID, jiraSiteCollection *mongo.Collection) {
@@ -523,7 +567,7 @@ func getCloudIDServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest
 		if empty {
 			w.Write([]byte(`[]`))
 		} else {
-			w.Write([]byte(`[{"id": "teslatothemoon42069", "url": "https://dankmemes.com"}]`))
+			w.Write([]byte(`[{"id": "teslatothemoon42069", "url": "https://dankmemes.com", "name": "The dungeon"}]`))
 		}
 	}))
 }

@@ -174,28 +174,36 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		return
 	}
 
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	siteConfiguration := getJIRASites(api, &token)
 
+	if siteConfiguration == nil {
+		c.JSON(400, gin.H{"detail": "Failed to download site configuration"})
+		return
+	}
+
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+	accountID := (*siteConfiguration)[0].ID
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
-		bson.D{{Key: "user_id", Value: internalToken.UserID}, {Key: "source", Value: database.TaskSourceJIRA.Name}},
+		bson.D{
+			{Key: "user_id", Value: internalToken.UserID},
+			{Key: "source", Value: database.TaskSourceJIRA.Name},
+			{Key: "account_id", Value: accountID},
+		},
 		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{
-			UserID: internalToken.UserID,
-			Source: database.TaskSourceJIRA.Name,
-			Token:  string(tokenString)}}},
+			UserID:       internalToken.UserID,
+			Source:       database.TaskSourceJIRA.Name,
+			Token:        string(tokenString),
+			AccountID:    accountID,
+			DisplayID:    (*siteConfiguration)[0].Name,
+			IsUnlinkable: true,
+		}}},
 		options.Update().SetUpsert(true),
 	)
 
 	if err != nil {
 		log.Printf("Failed to create external token record: %v", err)
 		Handle500(c)
-		return
-	}
-
-	siteConfiguration := getJIRASites(api, &token)
-
-	if siteConfiguration == nil {
-		c.JSON(400, gin.H{"detail": "Failed to download site configuration"})
 		return
 	}
 
@@ -230,8 +238,8 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 	c.Redirect(302, config.GetConfigValue("HOME_URL"))
 }
 
-func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult) {
-	authToken, _ := getJIRAToken(api, userID)
+func LoadJIRATasks(api *API, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+	authToken, _ := getJIRAToken(api, userID, accountID)
 	siteConfiguration, _ := getJIRASiteConfiguration(userID)
 
 	if authToken == nil || siteConfiguration == nil {
@@ -296,13 +304,14 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, result chan<- TaskResult
 
 		task := &database.Task{
 			TaskBase: database.TaskBase{
-				UserID:         userID,
-				IDExternal:     jiraTask.ID,
-				Deeplink:       siteConfiguration.SiteURL + "/browse/" + jiraTask.Key,
-				Source:         database.TaskSourceJIRA,
-				Title:          jiraTask.Fields.Summary,
-				Body:           bodyString,
-				TimeAllocation: time.Hour.Nanoseconds(),
+				UserID:          userID,
+				IDExternal:      jiraTask.ID,
+				Deeplink:        siteConfiguration.SiteURL + "/browse/" + jiraTask.Key,
+				Source:          database.TaskSourceJIRA,
+				Title:           jiraTask.Fields.Summary,
+				Body:            bodyString,
+				TimeAllocation:  time.Hour.Nanoseconds(),
+				SourceAccountID: accountID,
 			},
 			PriorityID: jiraTask.Fields.Priority.ID,
 		}
@@ -440,7 +449,7 @@ func getJIRASiteConfiguration(userID primitive.ObjectID) (*database.JIRASiteConf
 	return &siteConfiguration, nil
 }
 
-func getJIRAToken(api *API, userID primitive.ObjectID) (*JIRAAuthToken, error) {
+func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*JIRAAuthToken, error) {
 	var JIRAToken database.ExternalAPIToken
 
 	db, dbCleanup, err := database.GetDBConnection()
@@ -453,7 +462,11 @@ func getJIRAToken(api *API, userID primitive.ObjectID) (*JIRAAuthToken, error) {
 
 	err = externalAPITokenCollection.FindOne(
 		context.TODO(),
-		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: database.TaskSourceJIRA.Name}}).Decode(&JIRAToken)
+		bson.D{
+			{Key: "user_id", Value: userID},
+			{Key: "source", Value: database.TaskSourceJIRA.Name},
+			{Key: "account_id", Value: accountID},
+		}).Decode(&JIRAToken)
 
 	if err != nil {
 		return nil, err
@@ -499,8 +512,8 @@ func getJIRAToken(api *API, userID primitive.ObjectID) (*JIRAAuthToken, error) {
 	return &newToken, nil
 }
 
-func MarkJIRATaskDone(api *API, userID primitive.ObjectID, issueID string) error {
-	token, _ := getJIRAToken(api, userID)
+func MarkJIRATaskDone(api *API, userID primitive.ObjectID, accountID string, issueID string) error {
+	token, _ := getJIRAToken(api, userID, accountID)
 	siteConfiguration, _ := getJIRASiteConfiguration(userID)
 	if token == nil || siteConfiguration == nil {
 		return errors.New("missing token or siteConfiguration")

@@ -34,44 +34,97 @@ func (api *API) TasksList(c *gin.Context) {
 		return
 	}
 
-	client := getGoogleHttpClient(externalAPITokenCollection, userID.(primitive.ObjectID))
-	if client == nil {
-		log.Printf("Failed to fetch external API token: %v", err)
-		Handle500(c)
-		return
-	}
-
 	currentTasks, err := database.GetActiveTasks(db, userID.(primitive.ObjectID))
 	if err != nil {
 		Handle500(c)
 		return
 	}
 
-	var calendarEvents = make(chan CalendarResult)
-	go LoadCalendarEvents(api, userID.(primitive.ObjectID), client, calendarEvents)
-
-	var emails = make(chan EmailResult)
-	go loadEmails(userID.(primitive.ObjectID), client, emails)
-
-	var JIRATasks = make(chan TaskResult)
-	go LoadJIRATasks(api, userID.(primitive.ObjectID), JIRATasks)
-
-	calendarResult := <-calendarEvents
-	emailResult := <-emails
-	taskResult := <-JIRATasks
-	// We don't check for JIRA errors because JIRA is not guaranteed to be linked
-	if calendarResult.Error != nil || emailResult.Error != nil {
+	var tokens []database.ExternalAPIToken
+	cursor, err := externalAPITokenCollection.Find(
+		context.TODO(),
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		log.Printf("Failed to fetch api tokens: %v", err)
 		Handle500(c)
 		return
+	}
+	err = cursor.All(context.TODO(), &tokens)
+	if err != nil {
+		log.Printf("Failed to iterate through api tokens: %v", err)
+		Handle500(c)
+		return
+	}
+
+	calendarEventChannels := []chan CalendarResult{}
+	emailChannels := []chan EmailResult{}
+	jiraTaskChannels := []chan TaskResult{}
+	// Loop through linked accounts and fetch relevant items
+	for _, token := range tokens {
+		if token.Source == "google" {
+			client := getGoogleHttpClient(externalAPITokenCollection, userID.(primitive.ObjectID), token.AccountID)
+			if client == nil {
+				log.Printf("Failed to fetch google API token: %v", err)
+				Handle500(c)
+				return
+			}
+			var calendarEvents = make(chan CalendarResult)
+			go LoadCalendarEvents(api, userID.(primitive.ObjectID), token.AccountID, client, calendarEvents)
+			calendarEventChannels = append(calendarEventChannels, calendarEvents)
+
+			var emails = make(chan EmailResult)
+			go loadEmails(userID.(primitive.ObjectID), token.AccountID, client, emails)
+			emailChannels = append(emailChannels, emails)
+		} else if token.Source == database.TaskSourceJIRA.Name {
+			var JIRATasks = make(chan TaskResult)
+			go LoadJIRATasks(api, userID.(primitive.ObjectID), token.AccountID, JIRATasks)
+			jiraTaskChannels = append(jiraTaskChannels, JIRATasks)
+		}
+	}
+
+	calendarEvents := []*database.CalendarEvent{}
+	for _, calendarEventChannel := range calendarEventChannels {
+		calendarResult := <-calendarEventChannel
+		if calendarResult.Error != nil {
+			Handle500(c)
+			return
+		}
+		calendarEvents = append(calendarEvents, calendarResult.CalendarEvents...)
+	}
+
+	emails := []*database.Email{}
+	for _, emailChannel := range emailChannels {
+		emailResult := <-emailChannel
+		if emailResult.Error != nil {
+			Handle500(c)
+			return
+		}
+		emails = append(emails, emailResult.Emails...)
+	}
+
+	accountIDToPriorityMapping := make(map[string]*map[string]int)
+	jiraTasks := []*database.Task{}
+	for _, jiraTaskChannel := range jiraTaskChannels {
+		jiraTaskResult := <-jiraTaskChannel
+		if jiraTaskResult.Error != nil {
+			Handle500(c)
+			return
+		}
+		jiraTasks = append(jiraTasks, jiraTaskResult.Tasks...)
+		if len(jiraTaskResult.Tasks) > 0 {
+			accountID := jiraTaskResult.Tasks[0].SourceAccountID
+			accountIDToPriorityMapping[accountID] = jiraTaskResult.PriorityMapping
+		}
 	}
 
 	allTasks, err := MergeTasks(
 		db,
 		currentTasks,
-		calendarResult.CalendarEvents,
-		emailResult.Emails,
-		taskResult.Tasks,
-		taskResult.PriorityMapping,
+		calendarEvents,
+		emails,
+		jiraTasks,
+		&accountIDToPriorityMapping,
 		utils.ExtractEmailDomain(userObject.Email))
 	if err != nil {
 		Handle500(c)
@@ -86,7 +139,7 @@ func MergeTasks(
 	calendarEvents []*database.CalendarEvent,
 	emails []*database.Email,
 	JIRATasks []*database.Task,
-	taskPriorityMapping *map[string]int,
+	taskPriorityMapping *map[string]*map[string]int,
 	userDomain string,
 ) ([]*database.TaskGroup, error) {
 
@@ -120,14 +173,14 @@ func MergeTasks(
 			case *database.Task:
 				return compareTasks(a.(*database.Task), b.(*database.Task), taskPriorityMapping)
 			case *database.Email:
-				return compareTaskEmail(a.(*database.Task), b.(*database.Email), userDomain)
+				return compareTaskEmail(a.(*database.Task), b.(*database.Email))
 			}
 		case *database.Email:
 			switch b.(type) {
 			case *database.Task:
-				return !compareTaskEmail(b.(*database.Task), a.(*database.Email), userDomain)
+				return !compareTaskEmail(b.(*database.Task), a.(*database.Email))
 			case *database.Email:
-				return compareEmails(a.(*database.Email), b.(*database.Email), userDomain)
+				return compareEmails(a.(*database.Email), b.(*database.Email))
 			}
 		}
 		return true
@@ -414,19 +467,21 @@ func getTaskBase(t interface{}) *database.TaskBase {
 	}
 }
 
-func compareEmails(e1 *database.Email, e2 *database.Email, myDomain string) bool {
+func compareEmails(e1 *database.Email, e2 *database.Email) bool {
+	e1Domain := utils.ExtractEmailDomain(e1.SourceAccountID)
+	e2Domain := utils.ExtractEmailDomain(e2.SourceAccountID)
 	if res := compareTaskBases(e1, e2); res != nil {
 		return *res
-	} else if e1.SenderDomain == myDomain && e2.SenderDomain != myDomain {
+	} else if e1.SenderDomain == e1Domain && e2.SenderDomain != e2Domain {
 		return true
-	} else if e1.SenderDomain != myDomain && e2.SenderDomain == myDomain {
+	} else if e1.SenderDomain != e1Domain && e2.SenderDomain == e2Domain {
 		return false
 	} else {
 		return e1.TimeSent < e2.TimeSent
 	}
 }
 
-func compareTasks(t1 *database.Task, t2 *database.Task, priorityMapping *map[string]int) bool {
+func compareTasks(t1 *database.Task, t2 *database.Task, priorityMapping *map[string]*map[string]int) bool {
 	if res := compareTaskBases(t1, t2); res != nil {
 		return *res
 	}
@@ -445,7 +500,7 @@ func compareTasks(t1 *database.Task, t2 *database.Task, priorityMapping *map[str
 		return false
 	} else if t1.PriorityID != t2.PriorityID {
 		if len(t1.PriorityID) > 0 && len(t2.PriorityID) > 0 {
-			return (*priorityMapping)[t1.PriorityID] < (*priorityMapping)[t2.PriorityID]
+			return (*(*priorityMapping)[t1.SourceAccountID])[t1.PriorityID] < (*(*priorityMapping)[t2.SourceAccountID])[t2.PriorityID]
 		} else if len(t1.PriorityID) > 0 {
 			return true
 		} else {
@@ -457,11 +512,11 @@ func compareTasks(t1 *database.Task, t2 *database.Task, priorityMapping *map[str
 	}
 }
 
-func compareTaskEmail(t *database.Task, e *database.Email, myDomain string) bool {
+func compareTaskEmail(t *database.Task, e *database.Email) bool {
 	if res := compareTaskBases(t, e); res != nil {
 		return *res
 	}
-	return e.SenderDomain != myDomain
+	return e.SenderDomain != utils.ExtractEmailDomain(e.SourceAccountID)
 }
 
 func compareTaskBases(t1 interface{}, t2 interface{}) *bool {

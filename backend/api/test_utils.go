@@ -63,7 +63,7 @@ func (c *MockHTTPClient) Get(url string) (*http.Response, error) {
 }
 
 func login(email string, name string) string {
-	recorder := makeLoginCallbackRequest("googleToken", email, name,"example-token", "example-token", true)
+	recorder := makeLoginCallbackRequest("googleToken", email, name, "example-token", "example-token", true)
 	for _, c := range recorder.Result().Cookies() {
 		if c.Name == "authToken" {
 			return c.Value
@@ -100,12 +100,31 @@ func newStateToken(authToken string) (*string, error) {
 	return database.CreateStateToken(db, userID)
 }
 
-func makeLoginCallbackRequest(googleToken string, email string, name string, stateToken string, stateTokenCookie string, skipStateTokenCheck bool) *httptest.ResponseRecorder {
+func makeLoginCallbackRequest(
+	googleToken string,
+	email string,
+	name string,
+	stateToken string,
+	stateTokenCookie string,
+	skipStateTokenCheck bool,
+) *httptest.ResponseRecorder {
 	mockConfig := MockGoogleConfig{}
 	mockToken := oauth2.Token{AccessToken: googleToken}
 	mockConfig.On("Exchange", context.Background(), "code1234").Return(&mockToken, nil)
 	mockClient := MockHTTPClient{}
-	mockClient.On("Get", "https://www.googleapis.com/oauth2/v3/userinfo").Return(&http.Response{Body: ioutil.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"sub\": \"goog12345_%s\", \"email\": \"%s\", \"name\": \"%s\"}", email, email, name)))}, nil)
+	mockClient.On(
+		"Get",
+		"https://www.googleapis.com/oauth2/v3/userinfo",
+	).Return(
+		&http.Response{
+			Body: ioutil.NopCloser(bytes.NewBufferString(fmt.Sprintf(
+				"{\"sub\": \"goog12345_%s\", \"email\": \"%s\", \"name\": \"%s\"}",
+				email,
+				email,
+				name,
+			)))},
+		nil,
+	)
 	mockConfig.On("Client", context.Background(), &mockToken).Return(&mockClient)
 	router := GetRouter(&API{GoogleConfig: &mockConfig, SkipStateTokenCheck: skipStateTokenCheck})
 
@@ -134,13 +153,28 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 	assert.NoError(t, err)
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	count, err = externalAPITokenCollection.CountDocuments(context.TODO(), bson.D{{Key: "user_id", Value: user.ID}, {Key: "source", Value: "google"}})
+	count, err = externalAPITokenCollection.CountDocuments(
+		context.TODO(),
+		bson.D{
+			{Key: "user_id", Value: user.ID},
+			{Key: "source", Value: "google"},
+			{Key: "account_id", Value: email},
+		},
+	)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var googleToken database.ExternalAPIToken
-	err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: user.ID}, {Key: "source", Value: "google"}}).Decode(&googleToken)
+	err = externalAPITokenCollection.FindOne(
+		context.TODO(),
+		bson.D{
+			{Key: "user_id", Value: user.ID},
+			{Key: "source", Value: "google"},
+		},
+	).Decode(&googleToken)
 	assert.NoError(t, err)
 	assert.Equal(t, "google", googleToken.Source)
+	assert.Equal(t, email, googleToken.AccountID)
+	assert.Equal(t, email, googleToken.DisplayID)
 	expectedToken := fmt.Sprintf("{\"access_token\":\"%s\",\"expiry\":\"0001-01-01T00:00:00Z\"}", authToken)
 	assert.Equal(t, expectedToken, googleToken.Token)
 	assert.Equal(t, user.ID, googleToken.UserID)

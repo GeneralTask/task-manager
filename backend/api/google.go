@@ -60,7 +60,7 @@ type EmailResult struct {
 	Error  error
 }
 
-func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- EmailResult) {
+func loadEmails(userID primitive.ObjectID, accountID string, client *http.Client, result chan<- EmailResult) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		result <- emptyEmailResult(err)
@@ -152,14 +152,15 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- Em
 
 			email := &database.Email{
 				TaskBase: database.TaskBase{
-					UserID:         userID,
-					IDExternal:     message.Id,
-					Sender:         senderName,
-					Source:         database.TaskSourceGmail,
-					Deeplink:       fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
-					Title:          title,
-					Body:           *body,
-					TimeAllocation: timeAllocation.Nanoseconds(),
+					UserID:          userID,
+					IDExternal:      message.Id,
+					Sender:          senderName,
+					Source:          database.TaskSourceGmail,
+					Deeplink:        fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
+					Title:           title,
+					Body:            *body,
+					TimeAllocation:  timeAllocation.Nanoseconds(),
+					SourceAccountID: accountID,
 				},
 				SenderDomain: senderDomain,
 				ThreadID:     threadListItem.Id,
@@ -227,6 +228,7 @@ type CalendarResult struct {
 func LoadCalendarEvents(
 	api *API,
 	userID primitive.ObjectID,
+	accountID string,
 	client *http.Client,
 	result chan<- CalendarResult,
 ) {
@@ -293,12 +295,13 @@ func LoadCalendarEvents(
 
 		event := &database.CalendarEvent{
 			TaskBase: database.TaskBase{
-				UserID:         userID,
-				IDExternal:     event.Id,
-				Deeplink:       event.HtmlLink,
-				Source:         database.TaskSourceGoogleCalendar,
-				Title:          event.Summary,
-				TimeAllocation: endTime.Sub(startTime).Nanoseconds(),
+				UserID:          userID,
+				IDExternal:      event.Id,
+				Deeplink:        event.HtmlLink,
+				Source:          database.TaskSourceGoogleCalendar,
+				Title:           event.Summary,
+				TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
+				SourceAccountID: accountID,
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
@@ -344,14 +347,14 @@ func emptyCalendarResult(err error) CalendarResult {
 	}
 }
 
-func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) error {
+func MarkEmailAsDone(api *API, userID primitive.ObjectID, accountID string, emailID string) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
 	}
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	client := getGoogleHttpClient(externalAPITokenCollection, userID)
+	client := getGoogleHttpClient(externalAPITokenCollection, userID, accountID)
 
 	var gmailService *gmail.Service
 	if api.GoogleOverrideURLs.GmailModifyURL == nil {
@@ -392,14 +395,14 @@ func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) error 
 	return err
 }
 
-func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID, body string) error {
+func ReplyToEmail(api *API, userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
 	}
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	client := getGoogleHttpClient(externalAPITokenCollection, userID)
+	client := getGoogleHttpClient(externalAPITokenCollection, userID, accountID)
 
 	var gmailService *gmail.Service
 
@@ -496,12 +499,16 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 	return err
 }
 
-func getGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID) *http.Client {
+func getGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, accountID string) *http.Client {
 	var googleToken database.ExternalAPIToken
 
 	if err := externalAPITokenCollection.FindOne(
 		context.TODO(),
-		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken); err != nil {
+		bson.D{
+			{Key: "user_id", Value: userID},
+			{Key: "source", Value: "google"},
+			{Key: "account_id", Value: accountID},
+		}).Decode(&googleToken); err != nil {
 		return nil
 	}
 
