@@ -344,14 +344,14 @@ func emptyCalendarResult(err error) CalendarResult {
 	}
 }
 
-func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) error {
+func MarkEmailAsDone(api *API, userID primitive.ObjectID, accountID string, emailID string) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
 	}
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	client := getGoogleHttpClient(externalAPITokenCollection, userID)
+	client := getGoogleHttpClient(externalAPITokenCollection, userID, accountID)
 
 	var gmailService *gmail.Service
 	if api.GoogleOverrideURLs.GmailModifyURL == nil {
@@ -392,14 +392,14 @@ func MarkEmailAsDone(api *API, userID primitive.ObjectID, emailID string) error 
 	return err
 }
 
-func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID, body string) error {
+func ReplyToEmail(api *API, userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
 	}
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	client := getGoogleHttpClient(externalAPITokenCollection, userID)
+	client := getGoogleHttpClient(externalAPITokenCollection, userID, accountID)
 
 	var gmailService *gmail.Service
 
@@ -496,12 +496,16 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, taskID primitive.ObjectID
 	return err
 }
 
-func getGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID) *http.Client {
+func getGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, accountID string) *http.Client {
 	var googleToken database.ExternalAPIToken
 
 	if err := externalAPITokenCollection.FindOne(
 		context.TODO(),
-		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}}).Decode(&googleToken); err != nil {
+		bson.D{
+			{Key: "user_id", Value: userID},
+			{Key: "source", Value: "google"},
+			{Key: "account_id", Value: accountID},
+		}).Decode(&googleToken); err != nil {
 		return nil
 	}
 

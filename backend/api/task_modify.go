@@ -124,9 +124,9 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	if task.Source.Name == database.TaskSourceGoogleCalendar.Name {
 		err = errors.New("invalid task type")
 	} else if task.Source.Name == database.TaskSourceGmail.Name {
-		err = MarkEmailAsDone(api, userID, task.IDExternal)
+		err = MarkEmailAsDone(api, userID, task.SourceAccountID, task.IDExternal)
 	} else if task.Source.Name == database.TaskSourceJIRA.Name {
-		err = MarkJIRATaskDone(api, userID, task.IDExternal)
+		err = MarkJIRATaskDone(api, userID, task.SourceAccountID, task.IDExternal)
 	}
 
 	if err == nil {

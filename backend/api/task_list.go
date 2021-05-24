@@ -34,6 +34,22 @@ func (api *API) TasksList(c *gin.Context) {
 		return
 	}
 
+	var googleTokens []database.ExternalAPIToken
+	cursor, err := externalAPITokenCollection.Find(
+		context.TODO(),
+		bson.D{{Key: "user_id", Value: userID}, {Key: "source", Value: "google"}},
+	)
+	if err != nil {
+		log.Printf("Failed to fetch google tokens: %v", err)
+		Handle500(c)
+		return
+	}
+	err = cursor.All(context.TODO(), &googleTokens)
+	if err != nil {
+		log.Printf("Failed to iterate through google tokens: %v", err)
+		Handle500(c)
+		return
+	}
 	client := getGoogleHttpClient(externalAPITokenCollection, userID.(primitive.ObjectID))
 	if client == nil {
 		log.Printf("Failed to fetch external API token: %v", err)
@@ -414,12 +430,14 @@ func getTaskBase(t interface{}) *database.TaskBase {
 	}
 }
 
-func compareEmails(e1 *database.Email, e2 *database.Email, myDomain string) bool {
+func compareEmails(e1 *database.Email, e2 *database.Email) bool {
+	e1Domain := utils.ExtractEmailDomain(e1.SourceAccountID)
+	e2Domain := utils.ExtractEmailDomain(e2.SourceAccountID)
 	if res := compareTaskBases(e1, e2); res != nil {
 		return *res
-	} else if e1.SenderDomain == myDomain && e2.SenderDomain != myDomain {
+	} else if e1.SenderDomain == e1Domain && e2.SenderDomain != e2Domain {
 		return true
-	} else if e1.SenderDomain != myDomain && e2.SenderDomain == myDomain {
+	} else if e1.SenderDomain != e1Domain && e2.SenderDomain == e2Domain {
 		return false
 	} else {
 		return e1.TimeSent < e2.TimeSent
@@ -457,11 +475,11 @@ func compareTasks(t1 *database.Task, t2 *database.Task, priorityMapping *map[str
 	}
 }
 
-func compareTaskEmail(t *database.Task, e *database.Email, myDomain string) bool {
+func compareTaskEmail(t *database.Task, e *database.Email) bool {
 	if res := compareTaskBases(t, e); res != nil {
 		return *res
 	}
-	return e.SenderDomain != myDomain
+	return e.SenderDomain != utils.ExtractEmailDomain(e.SourceAccountID)
 }
 
 func compareTaskBases(t1 interface{}, t2 interface{}) *bool {

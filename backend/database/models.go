@@ -20,7 +20,7 @@ type User struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty"`
 	GoogleID string             `bson:"google_id"`
 	Email    string             `bson:"email"`
-	Name     string 			`bson:"name"`
+	Name     string             `bson:"name"`
 }
 
 // InternalAPIToken model
@@ -32,10 +32,13 @@ type InternalAPIToken struct {
 
 // ExternalAPIToken model
 type ExternalAPIToken struct {
-	ID     primitive.ObjectID `bson:"_id,omitempty"`
-	Source string             `bson:"source"`
-	Token  string             `bson:"token"`
-	UserID primitive.ObjectID `bson:"user_id"`
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	Source       string             `bson:"source"`
+	Token        string             `bson:"token"`
+	UserID       primitive.ObjectID `bson:"user_id"`
+	AccountID    string             `bson:"account_id"`
+	DisplayID    string             `bson:"display_id"`
+	IsUnlinkable bool               `bson:"is_unlinkable"`
 }
 
 type JIRASiteConfiguration struct {
@@ -65,7 +68,8 @@ type TaskBase struct {
 	IDOrdering       int                `json:"id_ordering" bson:"id_ordering"`
 	IsCompleted      bool               `json:"-" bson:"is_completed"`
 	Sender           string             `json:"sender" bson:"sender"`
-	Source           TaskSource          `json:"source" bson:"source"`
+	Source           TaskSource         `json:"source" bson:"source"`
+	SourceAccountID  string             `json:"-" bson:"source_account_id"`
 	Deeplink         string             `json:"deeplink" bson:"deeplink"`
 	Title            string             `json:"title" bson:"title"`
 	Body             string             `json:"body" bson:"body"`
@@ -123,8 +127,8 @@ const (
 type TaskSource struct {
 	Name          string `json:"name" bson:"name"`
 	Logo          string `json:"logo" bson:"logo"`
-	IsCompletable bool `json:"is_completable" bson:"is_completable"`
-	IsReplyable   bool `json:"is_replyable" bson:"is_replyable"`
+	IsCompletable bool   `json:"is_completable" bson:"is_completable"`
+	IsReplyable   bool   `json:"is_replyable" bson:"is_replyable"`
 }
 
 var TaskSourceGoogleCalendar = TaskSource{

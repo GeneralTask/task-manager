@@ -140,8 +140,19 @@ func (api *API) LoginCallback(c *gin.Context) {
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
-		bson.D{{Key: "user_id", Value: user.ID}, {Key: "source", Value: "google"}},
-		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{UserID: user.ID, Source: "google", Token: string(tokenString)}}},
+		bson.D{
+			{Key: "user_id", Value: user.ID},
+			{Key: "source", Value: "google"},
+			{Key: "account_id", Value: userInfo.EMAIL},
+		},
+		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{
+			UserID:       user.ID,
+			Source:       "google",
+			Token:        string(tokenString),
+			AccountID:    userInfo.EMAIL,
+			DisplayID:    userInfo.EMAIL,
+			IsUnlinkable: false,
+		}}},
 		options.Update().SetUpsert(true),
 	)
 
