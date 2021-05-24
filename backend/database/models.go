@@ -151,6 +151,13 @@ var TaskSourceJIRA = TaskSource{
 	false,
 }
 
+var TaskSourceSlack = TaskSource{
+	"Slack",
+	"/images/slack.svg",
+	true,
+	true,
+}
+
 type UserSetting struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty"`
 	UserID     primitive.ObjectID `bson:"user_id"`
