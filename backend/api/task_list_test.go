@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log"
 	"testing"
 	"time"
 
@@ -48,26 +49,42 @@ func TestMergeTasks(t *testing.T) {
 		e1ID := primitive.NewObjectID()
 		e1 := database.Email{
 			TaskBase: database.TaskBase{
-				ID:             e1ID,
-				IDExternal:     "sample_email",
-				Deeplink:       "generaltask.io",
-				Title:          "Respond to this email",
-				Source:         database.TaskSourceGmail,
-				TimeAllocation: (time.Minute * 5).Nanoseconds(),
+				ID:              e1ID,
+				IDExternal:      "sample_email",
+				Deeplink:        "generaltask.io",
+				Title:           "Respond to this email",
+				Source:          database.TaskSourceGmail,
+				TimeAllocation:  (time.Minute * 5).Nanoseconds(),
+				SourceAccountID: "elon@gmail.com",
 			},
 			SenderDomain: "gmail.com",
 			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
+		}
+		e1aID := primitive.NewObjectID()
+		e1a := database.Email{
+			TaskBase: database.TaskBase{
+				ID:              e1aID,
+				IDExternal:      "sample_emailA",
+				Deeplink:        "generaltask.io",
+				Title:           "Respond to this email",
+				Source:          database.TaskSourceGmail,
+				TimeAllocation:  (time.Minute * 5).Nanoseconds(),
+				SourceAccountID: "elon@moon.com",
+			},
+			SenderDomain: "moon.com",
+			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Minute)),
 		}
 
 		e2ID := primitive.NewObjectID()
 		e2 := database.Email{
 			TaskBase: database.TaskBase{
-				ID:             e2ID,
-				IDExternal:     "sample_email_2",
-				Deeplink:       "generaltask.io",
-				Title:          "Respond to this email...eventually",
-				Source:         database.TaskSourceGmail,
-				TimeAllocation: (time.Minute * 2).Nanoseconds(),
+				ID:              e2ID,
+				IDExternal:      "sample_email_2",
+				Deeplink:        "generaltask.io",
+				Title:           "Respond to this email...eventually",
+				Source:          database.TaskSourceGmail,
+				TimeAllocation:  (time.Minute * 2).Nanoseconds(),
+				SourceAccountID: "elon@gmail.com",
 			},
 			SenderDomain: "yahoo.com",
 			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
@@ -76,12 +93,13 @@ func TestMergeTasks(t *testing.T) {
 		t1ID := primitive.NewObjectID()
 		t1 := database.Task{
 			TaskBase: database.TaskBase{
-				ID:             t1ID,
-				IDExternal:     "sample_task",
-				Deeplink:       "generaltask.io",
-				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
-				TimeAllocation: (time.Hour).Nanoseconds(),
+				ID:              t1ID,
+				IDExternal:      "sample_task",
+				Deeplink:        "generaltask.io",
+				Title:           "Code x",
+				Source:          database.TaskSourceJIRA,
+				TimeAllocation:  (time.Hour).Nanoseconds(),
+				SourceAccountID: "JIRASite2",
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24)),
 			PriorityID: "5",
@@ -91,12 +109,13 @@ func TestMergeTasks(t *testing.T) {
 		t2ID := primitive.NewObjectID()
 		t2 := database.Task{
 			TaskBase: database.TaskBase{
-				ID:             t2ID,
-				IDExternal:     "sample_task1",
-				Deeplink:       "generaltask.io",
-				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
-				TimeAllocation: (time.Hour).Nanoseconds(),
+				ID:              t2ID,
+				IDExternal:      "sample_task1",
+				Deeplink:        "generaltask.io",
+				Title:           "Code x",
+				Source:          database.TaskSourceJIRA,
+				TimeAllocation:  (time.Hour).Nanoseconds(),
+				SourceAccountID: "JIRASite1",
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			PriorityID: "3",
@@ -106,12 +125,13 @@ func TestMergeTasks(t *testing.T) {
 		t3ID := primitive.NewObjectID()
 		t3 := database.Task{
 			TaskBase: database.TaskBase{
-				ID:             t3ID,
-				IDExternal:     "sample_task2",
-				Deeplink:       "generaltask.io",
-				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
-				TimeAllocation: (time.Hour).Nanoseconds(),
+				ID:              t3ID,
+				IDExternal:      "sample_task2",
+				Deeplink:        "generaltask.io",
+				Title:           "Code x",
+				Source:          database.TaskSourceJIRA,
+				TimeAllocation:  (time.Hour).Nanoseconds(),
+				SourceAccountID: "JIRASite1",
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			PriorityID: "1",
@@ -121,12 +141,13 @@ func TestMergeTasks(t *testing.T) {
 		t4ID := primitive.NewObjectID()
 		t4 := database.Task{
 			TaskBase: database.TaskBase{
-				ID:             t4ID,
-				IDExternal:     "sample_task3",
-				Deeplink:       "generaltask.io",
-				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
-				TimeAllocation: (time.Hour).Nanoseconds(),
+				ID:              t4ID,
+				IDExternal:      "sample_task3",
+				Deeplink:        "generaltask.io",
+				Title:           "Code x",
+				Source:          database.TaskSourceJIRA,
+				TimeAllocation:  (time.Hour).Nanoseconds(),
+				SourceAccountID: "JIRASite1",
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			PriorityID: "3",
@@ -134,9 +155,11 @@ func TestMergeTasks(t *testing.T) {
 		}
 
 		priorityMapping := map[string]*map[string]int{
-			"": {
+			"JIRASite1": {
 				"1": 1,
 				"3": 3,
+			},
+			"JIRASite2": {
 				"5": 5,
 			},
 		}
@@ -145,49 +168,59 @@ func TestMergeTasks(t *testing.T) {
 			db,
 			&[]database.TaskBase{},
 			[]*database.CalendarEvent{&c1, &c2},
-			[]*database.Email{&e1, &e2},
+			[]*database.Email{&e1, &e1a, &e2},
 			[]*database.Task{&t1, &t2, &t3, &t4},
 			&priorityMapping,
 			"gmail.com")
 		assert.NoError(t, err)
 
+		for i, group := range result {
+			log.Println("group", i)
+			for _, task := range group.Tasks {
+				log.Println("task", task.IDExternal)
+			}
+		}
+
 		//need to improve these asserts to compare values as well but a pain with casting
 		//for now so we'll compare JSON later.
 		assert.Equal(t, len(result), 5)
 
-		assert.Equal(t, 1, len(result[0].Tasks))
+		assert.Equal(t, 2, len(result[0].Tasks))
 		assert.Equal(t, database.UnscheduledGroup, result[0].TaskGroupType)
 		assert.Equal(t, e1ID, result[0].Tasks[0].ID)
 		assert.Equal(t, 1, result[0].Tasks[0].IDOrdering)
+		log.Println(result[0].Tasks[1].IDExternal)
+		assert.Equal(t, e1aID, result[0].Tasks[1].ID)
+		assert.Equal(t, 2, result[0].Tasks[1].IDOrdering)
 
 		assert.Equal(t, 1, len(result[1].Tasks))
 		assert.Equal(t, database.ScheduledTask, result[1].TaskGroupType)
 		assert.Equal(t, c1ID, result[1].Tasks[0].ID)
-		assert.Equal(t, 2, result[1].Tasks[0].IDOrdering)
+		assert.Equal(t, 3, result[1].Tasks[0].IDOrdering)
 
 		assert.Equal(t, 1, len(result[2].Tasks))
 		assert.Equal(t, database.UnscheduledGroup, result[2].TaskGroupType)
 		assert.Equal(t, t1ID, result[2].Tasks[0].ID)
-		assert.Equal(t, 3, result[2].Tasks[0].IDOrdering)
+		assert.Equal(t, 4, result[2].Tasks[0].IDOrdering)
 
 		assert.Equal(t, 1, len(result[3].Tasks))
 		assert.Equal(t, database.ScheduledTask, result[3].TaskGroupType)
 		assert.Equal(t, c2ID, result[3].Tasks[0].ID)
-		assert.Equal(t, 4, result[3].Tasks[0].IDOrdering)
+		assert.Equal(t, 5, result[3].Tasks[0].IDOrdering)
 
 		assert.Equal(t, 4, len(result[4].Tasks))
 		assert.Equal(t, database.UnscheduledGroup, result[4].TaskGroupType)
 		assert.Equal(t, t3ID, result[4].Tasks[0].ID)
-		assert.Equal(t, 5, result[4].Tasks[0].IDOrdering)
+		assert.Equal(t, 6, result[4].Tasks[0].IDOrdering)
 
 		assert.Equal(t, t4ID, result[4].Tasks[1].ID)
-		assert.Equal(t, 6, result[4].Tasks[1].IDOrdering)
+		assert.Equal(t, 7, result[4].Tasks[1].IDOrdering)
 
 		assert.Equal(t, t2ID, result[4].Tasks[2].ID)
-		assert.Equal(t, 7, result[4].Tasks[2].IDOrdering)
+		assert.Equal(t, 8, result[4].Tasks[2].IDOrdering)
 
 		assert.Equal(t, e2ID, result[4].Tasks[3].ID)
-		assert.Equal(t, 8, result[4].Tasks[3].IDOrdering)
+		assert.Equal(t, 9, result[4].Tasks[3].IDOrdering)
 	})
 	t.Run("ReorderingAroundCalendarEvents", func(t *testing.T) {
 		// Tested here:
