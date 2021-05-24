@@ -133,10 +133,12 @@ func TestMergeTasks(t *testing.T) {
 			TaskNumber: 1,
 		}
 
-		priorityMapping := map[string]int{
-			"1": 1,
-			"3": 3,
-			"5": 5,
+		priorityMapping := map[string]*map[string]int{
+			"": {
+				"1": 1,
+				"3": 3,
+				"5": 5,
+			},
 		}
 
 		result, err := MergeTasks(
@@ -280,9 +282,11 @@ func TestMergeTasks(t *testing.T) {
 		assert.NoError(t, err)
 		c3.ID = c3Res.ID
 
-		priorityMapping := map[string]int{
-			"3": 3,
-			"5": 5,
+		priorityMapping := map[string]*map[string]int{
+			"": {
+				"3": 3,
+				"5": 5,
+			},
 		}
 
 		result, err := MergeTasks(
@@ -384,9 +388,11 @@ func TestMergeTasks(t *testing.T) {
 		assert.NoError(t, err)
 		c2.ID = c2Res.ID
 
-		priorityMapping := map[string]int{
-			"3": 3,
-			"5": 5,
+		priorityMapping := map[string]*map[string]int{
+			"": {
+				"3": 3,
+				"5": 5,
+			},
 		}
 
 		result, err := MergeTasks(
@@ -469,9 +475,11 @@ func TestMergeTasks(t *testing.T) {
 		assert.NoError(t, err)
 		c1.ID = c1Res.ID
 
-		priorityMapping := map[string]int{
-			"1": 1,
-			"3": 3,
+		priorityMapping := map[string]*map[string]int{
+			"": {
+				"1": 1,
+				"3": 3,
+			},
 		}
 
 		result, err := MergeTasks(
@@ -549,9 +557,11 @@ func TestMergeTasks(t *testing.T) {
 			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 		}
 
-		priorityMapping := map[string]int{
-			"3": 3,
-			"5": 5,
+		priorityMapping := map[string]*map[string]int{
+			"": {
+				"3": 3,
+				"5": 5,
+			},
 		}
 
 		result, err := MergeTasks(

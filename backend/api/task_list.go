@@ -46,13 +46,13 @@ func (api *API) TasksList(c *gin.Context) {
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Printf("Failed to fetch google tokens: %v", err)
+		log.Printf("Failed to fetch api tokens: %v", err)
 		Handle500(c)
 		return
 	}
 	err = cursor.All(context.TODO(), &tokens)
 	if err != nil {
-		log.Printf("Failed to iterate through google tokens: %v", err)
+		log.Printf("Failed to iterate through api tokens: %v", err)
 		Handle500(c)
 		return
 	}
@@ -60,11 +60,12 @@ func (api *API) TasksList(c *gin.Context) {
 	calendarEventChannels := []chan CalendarResult{}
 	emailChannels := []chan EmailResult{}
 	jiraTaskChannels := []chan TaskResult{}
+	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		if token.Source == "google" {
 			client := getGoogleHttpClient(externalAPITokenCollection, userID.(primitive.ObjectID), token.AccountID)
 			if client == nil {
-				log.Printf("Failed to fetch external API token: %v", err)
+				log.Printf("Failed to fetch google API token: %v", err)
 				Handle500(c)
 				return
 			}
