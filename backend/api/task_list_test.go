@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"log"
 	"testing"
 	"time"
 
@@ -182,7 +181,6 @@ func TestMergeTasks(t *testing.T) {
 		assert.Equal(t, database.UnscheduledGroup, result[0].TaskGroupType)
 		assert.Equal(t, e1ID, result[0].Tasks[0].ID)
 		assert.Equal(t, 1, result[0].Tasks[0].IDOrdering)
-		log.Println(result[0].Tasks[1].IDExternal)
 		assert.Equal(t, e1aID, result[0].Tasks[1].ID)
 		assert.Equal(t, 2, result[0].Tasks[1].IDOrdering)
 
