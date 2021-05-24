@@ -70,11 +70,11 @@ func (api *API) TasksList(c *gin.Context) {
 				return
 			}
 			var calendarEvents = make(chan CalendarResult)
-			go LoadCalendarEvents(api, userID.(primitive.ObjectID), client, calendarEvents)
+			go LoadCalendarEvents(api, userID.(primitive.ObjectID), token.AccountID, client, calendarEvents)
 			calendarEventChannels = append(calendarEventChannels, calendarEvents)
 
 			var emails = make(chan EmailResult)
-			go loadEmails(userID.(primitive.ObjectID), client, emails)
+			go loadEmails(userID.(primitive.ObjectID), token.AccountID, client, emails)
 			emailChannels = append(emailChannels, emails)
 		} else if token.Source == database.TaskSourceJIRA.Name {
 			var JIRATasks = make(chan TaskResult)

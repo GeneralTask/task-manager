@@ -174,13 +174,6 @@ func TestMergeTasks(t *testing.T) {
 			"gmail.com")
 		assert.NoError(t, err)
 
-		for i, group := range result {
-			log.Println("group", i)
-			for _, task := range group.Tasks {
-				log.Println("task", task.IDExternal)
-			}
-		}
-
 		//need to improve these asserts to compare values as well but a pain with casting
 		//for now so we'll compare JSON later.
 		assert.Equal(t, len(result), 5)

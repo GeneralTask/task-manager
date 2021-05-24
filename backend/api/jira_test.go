@@ -233,6 +233,8 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: database.TaskSourceJIRA.Name}}).Decode(&jiraToken)
 		assert.NoError(t, err)
 		assert.Equal(t, database.TaskSourceJIRA.Name, jiraToken.Source)
+		assert.Equal(t, "teslatothemoon42069", jiraToken.AccountID)
+		assert.Equal(t, "The dungeon", jiraToken.DisplayID)
 	})
 }
 
@@ -286,12 +288,51 @@ func TestLoadJIRATasks(t *testing.T) {
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		expectedTask := database.Task{
 			TaskBase: database.TaskBase{
-				IDOrdering: 2,
+				IDOrdering: 0,
 				IDExternal: "42069",
 				Deeplink:   "https://dankmemes.com/browse/MOON-1969",
 				Title:      "Sample Taskeroni",
 				Source:     database.TaskSourceJIRA,
 				UserID:     *userID,
+			},
+			DueDate: primitive.NewDateTimeFromTime(dueDate),
+		}
+
+		var JIRATasks = make(chan TaskResult)
+		go LoadJIRATasks(&API{JIRAConfigValues: JIRAConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 1, len(result.Tasks))
+
+		assertTasksEqual(t, &expectedTask, result.Tasks[0])
+
+		var taskFromDB database.Task
+		err := taskCollection.FindOne(
+			context.TODO(),
+			bson.D{
+				{Key: "source.name", Value: database.TaskSourceJIRA.Name},
+				{Key: "id_external", Value: "42069"},
+				{Key: "user_id", Value: userID},
+			},
+		).Decode(&taskFromDB)
+		assert.NoError(t, err)
+		assertTasksEqual(t, &expectedTask, &taskFromDB)
+		assert.Equal(t, accountID, taskFromDB.SourceAccountID)
+	})
+	t.Run("ExistingTask", func(t *testing.T) {
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+
+		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+		expectedTask := database.Task{
+			TaskBase: database.TaskBase{
+				IDOrdering:      2,
+				IDExternal:      "42069",
+				Deeplink:        "https://dankmemes.com/browse/MOON-1969",
+				Title:           "Sample Taskeroni",
+				Source:          database.TaskSourceJIRA,
+				UserID:          *userID,
+				SourceAccountID: "someAccountID",
 			},
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
@@ -321,6 +362,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
+		assert.Equal(t, "someAccountID", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 	t.Run("NewPriority", func(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
@@ -525,7 +567,7 @@ func getCloudIDServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest
 		if empty {
 			w.Write([]byte(`[]`))
 		} else {
-			w.Write([]byte(`[{"id": "teslatothemoon42069", "url": "https://dankmemes.com"}]`))
+			w.Write([]byte(`[{"id": "teslatothemoon42069", "url": "https://dankmemes.com", "name": "The dungeon"}]`))
 		}
 	}))
 }

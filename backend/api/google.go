@@ -60,7 +60,7 @@ type EmailResult struct {
 	Error  error
 }
 
-func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- EmailResult) {
+func loadEmails(userID primitive.ObjectID, accountID string, client *http.Client, result chan<- EmailResult) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		result <- emptyEmailResult(err)
@@ -152,14 +152,15 @@ func loadEmails(userID primitive.ObjectID, client *http.Client, result chan<- Em
 
 			email := &database.Email{
 				TaskBase: database.TaskBase{
-					UserID:         userID,
-					IDExternal:     message.Id,
-					Sender:         senderName,
-					Source:         database.TaskSourceGmail,
-					Deeplink:       fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
-					Title:          title,
-					Body:           *body,
-					TimeAllocation: timeAllocation.Nanoseconds(),
+					UserID:          userID,
+					IDExternal:      message.Id,
+					Sender:          senderName,
+					Source:          database.TaskSourceGmail,
+					Deeplink:        fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
+					Title:           title,
+					Body:            *body,
+					TimeAllocation:  timeAllocation.Nanoseconds(),
+					SourceAccountID: accountID,
 				},
 				SenderDomain: senderDomain,
 				ThreadID:     threadListItem.Id,
@@ -227,6 +228,7 @@ type CalendarResult struct {
 func LoadCalendarEvents(
 	api *API,
 	userID primitive.ObjectID,
+	accountID string,
 	client *http.Client,
 	result chan<- CalendarResult,
 ) {
@@ -293,12 +295,13 @@ func LoadCalendarEvents(
 
 		event := &database.CalendarEvent{
 			TaskBase: database.TaskBase{
-				UserID:         userID,
-				IDExternal:     event.Id,
-				Deeplink:       event.HtmlLink,
-				Source:         database.TaskSourceGoogleCalendar,
-				Title:          event.Summary,
-				TimeAllocation: endTime.Sub(startTime).Nanoseconds(),
+				UserID:          userID,
+				IDExternal:      event.Id,
+				Deeplink:        event.HtmlLink,
+				Source:          database.TaskSourceGoogleCalendar,
+				Title:           event.Summary,
+				TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
+				SourceAccountID: accountID,
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),

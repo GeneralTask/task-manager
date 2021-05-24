@@ -304,13 +304,14 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, accountID string, result
 
 		task := &database.Task{
 			TaskBase: database.TaskBase{
-				UserID:         userID,
-				IDExternal:     jiraTask.ID,
-				Deeplink:       siteConfiguration.SiteURL + "/browse/" + jiraTask.Key,
-				Source:         database.TaskSourceJIRA,
-				Title:          jiraTask.Fields.Summary,
-				Body:           bodyString,
-				TimeAllocation: time.Hour.Nanoseconds(),
+				UserID:          userID,
+				IDExternal:      jiraTask.ID,
+				Deeplink:        siteConfiguration.SiteURL + "/browse/" + jiraTask.Key,
+				Source:          database.TaskSourceJIRA,
+				Title:           jiraTask.Fields.Summary,
+				Body:            bodyString,
+				TimeAllocation:  time.Hour.Nanoseconds(),
+				SourceAccountID: accountID,
 			},
 			PriorityID: jiraTask.Fields.Priority.ID,
 		}
