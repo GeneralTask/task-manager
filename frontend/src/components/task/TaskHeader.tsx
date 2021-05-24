@@ -48,9 +48,10 @@ const DoneButton = styled.button`
   margin-left: 10px;
   display: flex;
   justify-content: center;
-  flex-direction: column;
+  align-items: center;
   padding: 4px 6px 4px 6px;
   font-weight: 500;
+  cursor: pointer;
   &:hover{
     background-color: black;
     color: white;
