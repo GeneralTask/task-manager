@@ -19,7 +19,7 @@
             "name": "Slack",
             "logo": "/images/slack.svg",
             "is_completable": true,
-            "is_replyable": false            
+            "is_replyable": true            
           }
         },
         {
@@ -31,7 +31,7 @@
           "deeplink": "https://gmail.com",
           "sender": "@hackerdog",
           "title": "Urgent question about tomorrow's presentation",
-          "body": "<html><style>body{background-color:red}</style><body><div>What's up</div></body></html>",
+          "body": "<html><body><div><img src='https://5mpublishing.sirv.com/poultry%2Farticles%2Fother-poultry%2Fduck-6.jpeg?scale.option=fill&scale.width=700&scale.height=350&crop.width=700&crop.height=350&crop.y=center&crop.x=center'/></div></body></html>",
           "source": {
             "name": "Gmail",
             "logo": "/images/gmail.svg",

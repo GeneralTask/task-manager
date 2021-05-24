@@ -30,24 +30,21 @@ const ReplyDiv = styled.div`
   justify-content: space-between;
   align-items: flex-end;
 `
-const ReplyText = styled.span<{isPlaceholder: boolean}>`
-  width: 88%;
-  /* color: ${props => props.isPlaceholder ? 'red' : 'blue'}; */
-  min-height: 28px;
+const ReplyText = styled.span`
+  width: 85%;
+  /* min-height: 26px; */
   border: 1px solid #cccccc;
   border-radius: 2px;
-  padding: 4px;
+  padding: 10px;
   cursor: text;
-  $:empty:not(:focus):before{
-    content:attr('Enter Response');
-    color:grey;
-    font-style:italic;
+  &:empty:not(:focus):before {
+    content: "Enter Response";
+    color: #cccccc; 
   }
-}
 `
 const ReplyButton = styled.button`
   width: 10%;
-  height : 38px;
+  height: 42px;
   background-color: black;
   color: white;
   border-radius: 2px;
@@ -130,18 +127,11 @@ const Reply: React.FC<ReplyProps> = ({task_id}: ReplyProps) => {
   const [text, setText] = useState('')
   
   return <ReplyDiv>
-    {/* <ReplyText placeholder="Enter Reponse" value={replyText} onChange={(e) => {
-      setReplyText(e.target.value)
-    }}/> */}
-    {/* <ReplyText role="textbox" contentEditable={true} height={state.height} isPlaceholder={!!state.text} suppressContentEditableWarning={true} onChange={(e) => {
-      const text = e.currentTarget.textContent
-      const height = e.currentTarget.scrollHeight
-      if(text !== null)
-        setState({text, height})
-    }}>
-      {state.text}
-    </ReplyText> */}
-    <ReplyText contentEditable isPlaceholder={!!text}></ReplyText>
+    <ReplyText contentEditable onChange={(e) => {
+      const replyText = e.currentTarget.textContent
+      if(replyText !== null)
+        setText(replyText)
+    }}></ReplyText>
     <ReplyButton onClick={()=>{
       makeAuthorizedRequest({
         url: TASKS_URL + task_id + '/reply/',
