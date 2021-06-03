@@ -29,7 +29,7 @@ func (api *API) Login(c *gin.Context) {
 		return
 	}
 	c.SetCookie("googleStateToken", *insertedStateToken, 60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
-	authURL := api.GoogleConfig.AuthCodeURL(*insertedStateToken, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	authURL := api.GoogleConfig.AuthCodeURL(*insertedStateToken, oauth2.AccessTypeOffline)
 	c.Redirect(302, authURL)
 }
 
@@ -131,36 +131,39 @@ func (api *API) LoginCallback(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := json.Marshal(&token)
-	if err != nil {
-		log.Printf("Failed to serialize token json: %v", err)
-		Handle500(c)
-		return
+	if len(token.RefreshToken) > 0 {
+		// Only update / save the external API key if refresh token is set (isn't set after first authorization)
+		tokenString, err := json.Marshal(&token)
+		if err != nil {
+			log.Printf("Failed to serialize token json: %v", err)
+			Handle500(c)
+			return
+		}
+		externalAPITokenCollection := db.Collection("external_api_tokens")
+		_, err = externalAPITokenCollection.UpdateOne(
+			context.TODO(),
+			bson.D{
+				{Key: "user_id", Value: user.ID},
+				{Key: "source", Value: "google"},
+				{Key: "account_id", Value: userInfo.EMAIL},
+			},
+			bson.D{{Key: "$set", Value: &database.ExternalAPIToken{
+				UserID:       user.ID,
+				Source:       "google",
+				Token:        string(tokenString),
+				AccountID:    userInfo.EMAIL,
+				DisplayID:    userInfo.EMAIL,
+				IsUnlinkable: false,
+			}}},
+			options.Update().SetUpsert(true),
+		)
+		if err != nil {
+			log.Printf("Failed to create external token record: %v", err)
+			Handle500(c)
+			return
+		}
 	}
-	externalAPITokenCollection := db.Collection("external_api_tokens")
-	_, err = externalAPITokenCollection.UpdateOne(
-		context.TODO(),
-		bson.D{
-			{Key: "user_id", Value: user.ID},
-			{Key: "source", Value: "google"},
-			{Key: "account_id", Value: userInfo.EMAIL},
-		},
-		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{
-			UserID:       user.ID,
-			Source:       "google",
-			Token:        string(tokenString),
-			AccountID:    userInfo.EMAIL,
-			DisplayID:    userInfo.EMAIL,
-			IsUnlinkable: false,
-		}}},
-		options.Update().SetUpsert(true),
-	)
 
-	if err != nil {
-		log.Printf("Failed to create external token record: %v", err)
-		Handle500(c)
-		return
-	}
 	internalToken := guuid.New().String()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	_, err = internalAPITokenCollection.UpdateOne(
