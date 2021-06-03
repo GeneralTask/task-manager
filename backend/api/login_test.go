@@ -15,15 +15,14 @@ import (
 )
 
 func TestLoginRedirect(t *testing.T) {
+	router := GetRouter(&API{GoogleConfig: &OauthConfig{Config: &oauth2.Config{
+		ClientID:    "123",
+		RedirectURL: "g.com",
+		Scopes:      []string{"s1", "s2"},
+	}}})
 	// Syntax taken from https://semaphoreci.com/community/tutorials/test-driven-development-of-go-web-applications-with-gin
 	// Also inspired by https://dev.to/jacobsngoodwin/04-testing-first-gin-http-handler-9m0
 	t.Run("Success", func(t *testing.T) {
-		router := GetRouter(&API{GoogleConfig: &OauthConfig{Config: &oauth2.Config{
-			ClientID:    "123",
-			RedirectURL: "g.com",
-			Scopes:      []string{"s1", "s2"},
-		}}})
-
 		request, _ := http.NewRequest("GET", "/login/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -41,6 +40,27 @@ func TestLoginRedirect(t *testing.T) {
 		assert.Equal(
 			t,
 			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
+			string(body),
+		)
+	})
+	t.Run("SuccessForce", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "/login/?force_prompt=true", nil)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusFound, recorder.Code)
+
+		var stateToken string
+		for _, c := range recorder.Result().Cookies() {
+			if c.Name == "googleStateToken" {
+				stateToken = c.Value
+			}
+		}
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(
+			t,
+			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;prompt=consent&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
 			string(body),
 		)
 	})

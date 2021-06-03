@@ -16,6 +16,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
+type LoginRedirectParams struct {
+	ForcePrompt bool `form:"force_prompt"`
+}
+
 func (api *API) Login(c *gin.Context) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -29,7 +33,14 @@ func (api *API) Login(c *gin.Context) {
 		return
 	}
 	c.SetCookie("googleStateToken", *insertedStateToken, 60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
-	authURL := api.GoogleConfig.AuthCodeURL(*insertedStateToken, oauth2.AccessTypeOffline)
+
+	var params LoginRedirectParams
+	var authURL string
+	if c.ShouldBind(&params) == nil && params.ForcePrompt {
+		authURL = api.GoogleConfig.AuthCodeURL(*insertedStateToken, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	} else {
+		authURL = api.GoogleConfig.AuthCodeURL(*insertedStateToken, oauth2.AccessTypeOffline)
+	}
 	c.Redirect(302, authURL)
 }
 
