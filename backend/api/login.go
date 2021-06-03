@@ -175,6 +175,6 @@ func (api *API) LoginCallback(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	c.SetCookie("authToken", internalToken, 60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
+	c.SetCookie("authToken", internalToken, 30*60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
 	c.Redirect(302, config.GetConfigValue("HOME_URL"))
 }
