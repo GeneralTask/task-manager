@@ -6,7 +6,7 @@ import { FetchStatus } from '../../redux/enums'
 import { TASKS_URL, TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
 import {ScheduledTask, UnscheduledTaskGroup} from './TaskWrappers'
 import TaskStatus from './TaskStatus'
-import { DragDropContext, Droppable } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd'
 import moment from 'moment'
 import styled from 'styled-components'
 import {makeAuthorizedRequest} from '../../helpers/utils'
@@ -67,19 +67,19 @@ const TaskList: React.FC = () => {
         }
     }
 
-    // TODO need result type @nolan
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function onDragEnd(result: any) {
+    function onDragEnd(result: DropResult) {
         const { destination, source } = result
         
-        if (destination === null) return
+        if (!destination || !source) return
     
-        const source_index = source.droppableId.slice(-1)
-        const destination_index = destination.droppableId.slice(-1)
+        const source_index: number = parseInt(source.droppableId.slice(-1))
+        const destination_index: number = parseInt(destination.droppableId.slice(-1))
     
         const source_group: TTaskGroup = task_groups[source_index]
         const dest_group: TTaskGroup = task_groups[destination_index]
         const source_task: TTask = source_group.tasks[source.index]
+
+        console.log({source_index, destination_index, source_task})
     
         source_group.tasks.splice(source.index, 1)
         dest_group.tasks.splice(destination.index, 0, source_task)
@@ -87,6 +87,14 @@ const TaskList: React.FC = () => {
         if (source_group.tasks.length === 0) {
             store.dispatch(removeTask(source_index))
         }
+
+        // makeAuthorizedRequest({
+        //     url: TASKS_URL + ,
+        //     method: 'PATCH',
+        //     body: JSON.stringify({
+
+        //     })
+        // })
     }
     
     return (
