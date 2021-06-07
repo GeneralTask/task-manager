@@ -71,10 +71,7 @@ const TaskList: React.FC = () => {
     function onDragEnd(result: DropResult) {
         const { destination, source } = result
         
-        if (!destination || !source || destination.index === source.index) {
-            alert('boop')
-            return
-        }
+        if (!destination || !source || destination.index === source.index) return
     
         const source_index: number = parseInt(source.droppableId.slice(-1))
         const destination_index: number = parseInt(destination.droppableId.slice(-1))
