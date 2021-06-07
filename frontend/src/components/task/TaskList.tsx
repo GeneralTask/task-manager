@@ -58,12 +58,12 @@ const TaskList: React.FC = () => {
         }
         if(taskGroup.type === TASK_GROUP_SCHEDULED_TASK){
             if(taskGroup.tasks.length !== 0){
-                return <ScheduledTask task={taskGroup.tasks[0]} key={index} time_duration={taskGroup.time_duration} 
+                return <ScheduledTask task={taskGroup.tasks[0]} time_duration={taskGroup.time_duration} 
                     next_time={!next_time ? null : next_time} datetime_start={taskGroup.datetime_start} index={task_counter++}/>
             }
         }
         else if(taskGroup.type === TASK_GROUP_UNSCHEDULED_GROUP){
-            return <UnscheduledTaskGroup tasks={taskGroup.tasks} key={index} time_duration={taskGroup.time_duration} 
+            return <UnscheduledTaskGroup tasks={taskGroup.tasks} time_duration={taskGroup.time_duration} 
                 next_time={!next_time ? null : next_time} index={task_counter++}/>
         }
     }
@@ -107,7 +107,7 @@ const TaskList: React.FC = () => {
             <DragDropContext onDragEnd={onDragEnd}>
                 { 
                     task_groups.map((group: TTaskGroup, index: number) =>
-                        <div>
+                        <div key={index}>
                             <Droppable droppableId={`list-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
                                 {provided => (
                                     <div ref={provided.innerRef} {...provided.droppableProps}>
