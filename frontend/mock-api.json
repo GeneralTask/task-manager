@@ -19,7 +19,7 @@
             "name": "Slack",
             "logo": "/images/slack.svg",
             "is_completable": true,
-            "is_replyable": true            
+            "is_replyable": true
           }
         },
         {
@@ -36,7 +36,7 @@
             "name": "Gmail",
             "logo": "/images/gmail.svg",
             "is_completable": true,
-            "is_replyable": true            
+            "is_replyable": true
           }
         }
       ]
@@ -62,7 +62,7 @@
             "name": "Google Calendar",
             "logo": "/images/gcal.svg",
             "is_completable": false,
-            "is_replyable": false            
+            "is_replyable": false
           }
         }
       ]
@@ -86,7 +86,7 @@
             "name": "Asana",
             "logo": "/images/asana.svg",
             "is_completable": false,
-            "is_replyable": false            
+            "is_replyable": false
           }
         }
       ]
@@ -110,7 +110,7 @@
             "name": "Google Calendar",
             "logo": "/images/gcal.svg",
             "is_completable": false,
-            "is_replyable": false            
+            "is_replyable": false
           }
         }
       ]

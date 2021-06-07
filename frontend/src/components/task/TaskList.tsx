@@ -9,9 +9,10 @@ import TaskStatus from './TaskStatus'
 import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd'
 import moment from 'moment'
 import styled from 'styled-components'
-import {makeAuthorizedRequest} from '../../helpers/utils'
+import {makeAuthorizedRequest, resetOrderingIds} from '../../helpers/utils'
 import { TTaskGroup, TTask } from '../../helpers/types'
 import { RootState } from '../../redux/store'
+import _ from 'lodash'
 
 const MyTasks = styled.h1`
     height: 40px;
@@ -70,31 +71,36 @@ const TaskList: React.FC = () => {
     function onDragEnd(result: DropResult) {
         const { destination, source } = result
         
-        if (!destination || !source) return
+        if (!destination || !source || destination.index === source.index) {
+            alert('boop')
+            return
+        }
     
         const source_index: number = parseInt(source.droppableId.slice(-1))
         const destination_index: number = parseInt(destination.droppableId.slice(-1))
     
-        const source_group: TTaskGroup = task_groups[source_index]
-        const dest_group: TTaskGroup = task_groups[destination_index]
+        // makes deep copy to keep redux state intact
+        const task_groups_copy: TTaskGroup[] = _.cloneDeep(task_groups)
+        const source_group: TTaskGroup = task_groups_copy[source_index]
+        const dest_group: TTaskGroup = task_groups_copy[destination_index]
         const source_task: TTask = source_group.tasks[source.index]
-
-        console.log({source_index, destination_index, source_task})
     
         source_group.tasks.splice(source.index, 1)
         dest_group.tasks.splice(destination.index, 0, source_task)
-    
-        if (source_group.tasks.length === 0) {
-            store.dispatch(removeTask(source_index))
-        }
 
-        // makeAuthorizedRequest({
-        //     url: TASKS_URL + ,
-        //     method: 'PATCH',
-        //     body: JSON.stringify({
+        resetOrderingIds(task_groups_copy)
 
-        //     })
-        // })
+        store.dispatch(setTasks(task_groups_copy))
+
+        const reorderedTask: TTask = task_groups_copy[destination_index].tasks[destination.index]
+
+        makeAuthorizedRequest({
+            url: TASKS_URL + reorderedTask.id_ordering,
+            method: 'PATCH',
+            body: JSON.stringify({
+                id_ordering: reorderedTask.id_ordering,
+            })
+        })
     }
     
     return (

@@ -91,16 +91,18 @@ const UnscheduledTaskGroup: React.FC<UnscheduledTaskProps> = ({ tasks, time_dura
         <Task task={task} key={task.id_ordering} index={index} isDragDisabled={false} />
       ))}
     </Tasks>
-    <TimeAnnotation>
-      <UnscheduledTimeAnnotationContainer>
-        <UnscheduledSpanbar />
-        <UnscheduledTimeSpacer />
-        <TimeDuration
-          time_duration={time_duration}
-          next_time={next_time}
-        />
-      </UnscheduledTimeAnnotationContainer>
-    </TimeAnnotation>
+    {tasks.length !== 0
+      ? <TimeAnnotation>
+        <UnscheduledTimeAnnotationContainer>
+          <UnscheduledSpanbar />
+          <UnscheduledTimeSpacer />
+          <TimeDuration
+            time_duration={time_duration}
+            next_time={next_time}
+          />
+        </UnscheduledTimeAnnotationContainer>
+      </TimeAnnotation>
+      : null}
   </TaskGroup>
 
 const TimeDuration: React.FC<TimeDurationProps> = ({ time_duration, next_time }: TimeDurationProps) => {
