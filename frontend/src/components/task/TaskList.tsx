@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { connect, useSelector } from 'react-redux'
 import store from '../../redux/store'
-import {removeTask, setTasks, setTasksFetchStatus} from '../../redux/actions'
+import {setTasks, setTasksFetchStatus} from '../../redux/actions'
 import { FetchStatus } from '../../redux/enums'
 import { TASKS_URL, TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
 import {ScheduledTask, UnscheduledTaskGroup} from './TaskWrappers'
@@ -95,7 +95,7 @@ const TaskList: React.FC = () => {
         const reorderedTask: TTask = task_groups_copy[destination_index].tasks[destination.index]
 
         makeAuthorizedRequest({
-            url: TASKS_URL + reorderedTask.id_ordering,
+            url: TASKS_URL + reorderedTask.id + '/',
             method: 'PATCH',
             body: JSON.stringify({
                 id_ordering: reorderedTask.id_ordering,
