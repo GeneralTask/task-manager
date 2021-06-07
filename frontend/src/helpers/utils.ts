@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import {LANDING_PATH, REACT_APP_COOKIE_DOMAIN, ACCESS_CONTROL_ALLOW_ORIGIN} from '../constants'
+import {LANDING_PATH, REACT_APP_COOKIE_DOMAIN, REACT_APP_FRONTEND_BASE_URL} from '../constants'
 import { TTaskGroup } from './types'
 
 // This invalidates the cookie on the frontend
@@ -14,7 +14,7 @@ export const getAuthToken = (): string | undefined => Cookies.get('authToken')
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getHeaders = (): any => ({
     Authorization: 'Bearer ' + getAuthToken(),
-    'Access-Control-Allow-Origin': ACCESS_CONTROL_ALLOW_ORIGIN,
+    'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
     'Access-Control-Allow-Headers': 'Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods',
     'Access-Control-Allow-Methods': 'POST,OPTIONS,GET,PATCH',
 })
