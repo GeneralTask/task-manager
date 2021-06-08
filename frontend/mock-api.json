@@ -8,7 +8,7 @@
         {
           "id": "1",
           "id_external": "1",
-          "id_ordering": 0,
+          "id_ordering": 1,
           "datetime_end": null,
           "datetime_start": null,
           "deeplink": "https://slack.com",
@@ -19,13 +19,13 @@
             "name": "Slack",
             "logo": "/images/slack.svg",
             "is_completable": true,
-            "is_replyable": true            
+            "is_replyable": true
           }
         },
         {
           "id": "2",
           "id_external": "2",
-          "id_ordering": 1,
+          "id_ordering": 2,
           "datetime_end": null,
           "datetime_start": null,
           "deeplink": "https://gmail.com",
@@ -36,7 +36,7 @@
             "name": "Gmail",
             "logo": "/images/gmail.svg",
             "is_completable": true,
-            "is_replyable": true            
+            "is_replyable": true
           }
         }
       ]
@@ -49,7 +49,7 @@
         {
           "id": "f2aba811-2bfd-4558-9ef0-96048a1e6b0b",
           "id_external": "5t1b86hbgvptrd1okidb3sd19m",
-          "id_ordering": 2,
+          "id_ordering": 3,
           "datetime_start": "2021-03-11T10:30:00-07:00",
           "deeplink": "https://calendar.google.com",
           "sender": "",
@@ -62,7 +62,7 @@
             "name": "Google Calendar",
             "logo": "/images/gcal.svg",
             "is_completable": false,
-            "is_replyable": false            
+            "is_replyable": false
           }
         }
       ]
@@ -75,7 +75,7 @@
         {
           "id": "4",
           "id_external": "2",
-          "id_ordering": 3,
+          "id_ordering": 4,
           "datetime_end": null,
           "datetime_start": null,
           "sender": "@hackerdog",
@@ -86,7 +86,7 @@
             "name": "Asana",
             "logo": "/images/asana.svg",
             "is_completable": false,
-            "is_replyable": false            
+            "is_replyable": false
           }
         }
       ]
@@ -99,7 +99,7 @@
         {
           "id": "c72b41a6-c0d5-46bb-b868-f7021bdd8ae9",
           "id_external": "5pdjrip9j1pveo5ir1h5mbiaob",
-          "id_ordering": 4,
+          "id_ordering": 5,
           "datetime_start": "2021-03-11T12:00:00-07:00",
           "deeplink": "https://calendar.google.com",
           "sender": "",
@@ -110,7 +110,7 @@
             "name": "Google Calendar",
             "logo": "/images/gcal.svg",
             "is_completable": false,
-            "is_replyable": false            
+            "is_replyable": false
           }
         }
       ]

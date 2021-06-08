@@ -1,17 +1,18 @@
 import React, { useEffect } from 'react'
 import { connect, useSelector } from 'react-redux'
 import store from '../../redux/store'
-import {removeTask, setTasks, setTasksFetchStatus} from '../../redux/actions'
+import {setTasks, setTasksFetchStatus} from '../../redux/actions'
 import { FetchStatus } from '../../redux/enums'
 import { TASKS_URL, TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
 import {ScheduledTask, UnscheduledTaskGroup} from './TaskWrappers'
 import TaskStatus from './TaskStatus'
-import { DragDropContext, Droppable } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd'
 import moment from 'moment'
 import styled from 'styled-components'
-import {makeAuthorizedRequest} from '../../helpers/utils'
+import {makeAuthorizedRequest, resetOrderingIds} from '../../helpers/utils'
 import { TTaskGroup, TTask } from '../../helpers/types'
 import { RootState } from '../../redux/store'
+import _ from 'lodash'
 
 const MyTasks = styled.h1`
     height: 40px;
@@ -57,36 +58,46 @@ const TaskList: React.FC = () => {
         }
         if(taskGroup.type === TASK_GROUP_SCHEDULED_TASK){
             if(taskGroup.tasks.length !== 0){
-                return <ScheduledTask task={taskGroup.tasks[0]} key={index} time_duration={taskGroup.time_duration} 
+                return <ScheduledTask task={taskGroup.tasks[0]} time_duration={taskGroup.time_duration} 
                     next_time={!next_time ? null : next_time} datetime_start={taskGroup.datetime_start} index={task_counter++}/>
             }
         }
         else if(taskGroup.type === TASK_GROUP_UNSCHEDULED_GROUP){
-            return <UnscheduledTaskGroup tasks={taskGroup.tasks} key={index} time_duration={taskGroup.time_duration} 
+            return <UnscheduledTaskGroup tasks={taskGroup.tasks} time_duration={taskGroup.time_duration} 
                 next_time={!next_time ? null : next_time} index={task_counter++}/>
         }
     }
 
-    // TODO need result type @nolan
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function onDragEnd(result: any) {
+    function onDragEnd(result: DropResult) {
         const { destination, source } = result
         
-        if (destination === null) return
+        if (!destination || !source || destination.index === source.index) return
     
-        const source_index = source.droppableId.slice(-1)
-        const destination_index = destination.droppableId.slice(-1)
+        const source_index: number = parseInt(source.droppableId.slice(-1))
+        const destination_index: number = parseInt(destination.droppableId.slice(-1))
     
-        const source_group: TTaskGroup = task_groups[source_index]
-        const dest_group: TTaskGroup = task_groups[destination_index]
+        // makes deep copy to keep redux state intact
+        const task_groups_copy: TTaskGroup[] = _.cloneDeep(task_groups)
+        const source_group: TTaskGroup = task_groups_copy[source_index]
+        const dest_group: TTaskGroup = task_groups_copy[destination_index]
         const source_task: TTask = source_group.tasks[source.index]
     
         source_group.tasks.splice(source.index, 1)
         dest_group.tasks.splice(destination.index, 0, source_task)
-    
-        if (source_group.tasks.length === 0) {
-            store.dispatch(removeTask(source_index))
-        }
+
+        resetOrderingIds(task_groups_copy)
+
+        store.dispatch(setTasks(task_groups_copy))
+
+        const reorderedTask: TTask = task_groups_copy[destination_index].tasks[destination.index]
+
+        makeAuthorizedRequest({
+            url: TASKS_URL + reorderedTask.id + '/',
+            method: 'PATCH',
+            body: JSON.stringify({
+                id_ordering: reorderedTask.id_ordering,
+            })
+        })
     }
     
     return (
@@ -96,7 +107,7 @@ const TaskList: React.FC = () => {
             <DragDropContext onDragEnd={onDragEnd}>
                 { 
                     task_groups.map((group: TTaskGroup, index: number) =>
-                        <div>
+                        <div key={index}>
                             <Droppable droppableId={`list-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
                                 {provided => (
                                     <div ref={provided.innerRef} {...provided.droppableProps}>

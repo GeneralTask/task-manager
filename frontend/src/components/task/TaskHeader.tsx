@@ -112,7 +112,7 @@ const done = async (task_id: string) => {
   try {
     store.dispatch(removeTaskById(task_id))
     const response = await makeAuthorizedRequest({
-      url: TASKS_URL + task_id,
+      url: TASKS_URL + task_id + '/',
       method: 'PATCH',
       body: JSON.stringify({ 'is_completed': true })
   })
