@@ -22,3 +22,5 @@ infrastructure/.terraform/*
 
 */.vscode
 .vscode/
+
+.DS_Store
