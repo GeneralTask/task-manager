@@ -151,5 +151,19 @@
         }
       ]
     }
+  ],
+  "linked_accounts": [
+    {
+      "id": "id-1",
+      "display_id": "Jira account",
+      "name": "Jira",
+      "logo": "/images/jira.svg"
+    },
+    {
+      "id": "id-2",
+      "display_id": "Slacker",
+      "name": "Slack",
+      "logo": "/images/slack.svg"
+    }
   ]
 }

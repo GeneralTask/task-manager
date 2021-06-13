@@ -6,12 +6,12 @@ export const JIRA_URL = REACT_APP_API_BASE_URL + '/authorize/jira/'
 export const LOGIN_URL = REACT_APP_API_BASE_URL + '/login/'
 export const SETTINGS_URL = REACT_APP_API_BASE_URL + '/settings/'
 export const WAITLIST_URL = REACT_APP_API_BASE_URL + '/waitlist/'
+export const LINKED_ACCOUNTS_URL = REACT_APP_API_BASE_URL + '/linked_accounts/'
 
 // Frontend paths
 export const LANDING_PATH = '/'
 export const SETTINGS_PATH = '/settings/'
 export const PRIVACY_PATH = '/privacy/'
-
 
 //Google Sign-In SVGs
 export const GOOGLE_LIGHT_NORMAL = '/assets/google_signin_buttons/google_btn_normal.svg'

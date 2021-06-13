@@ -1,11 +1,10 @@
 import React from 'react'
-import Account from './Account'
 import Preferences from './Preferences'
-import { JIRA_URL } from '../../constants'
 import styled from 'styled-components'
+import Accounts from './Accounts'
 
 const Header = styled.div`
-    text-align: center;
+    text-align: center; 
 `
 
 const Body = styled.div`
@@ -27,7 +26,7 @@ const Settings: React.FC = () => {
             <Setting>
                 <Body>
                     <h2>Accounts</h2>
-                    <Account logo="/images/jira.svg" name="Jira" link={JIRA_URL} />
+                    <Accounts/>
                 </Body>
             </Setting>
             <Setting>
