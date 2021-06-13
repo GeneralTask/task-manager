@@ -40,6 +40,8 @@ const Icon = styled.img`
 `
 const Source = styled.div`
   color: #cccccc;
+  max-width: 25%;
+  text-align: right;
 `
 const DoneButton = styled.button`
   background-color: white;
