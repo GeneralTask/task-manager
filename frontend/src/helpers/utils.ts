@@ -9,8 +9,8 @@ export const logout = (): void => {
         url: LOGOUT_URL,
         method: 'POST',
       }).then(() => {
-          document.location.href = LANDING_PATH
-          Cookies.remove('authToken', {path: '/', domain: REACT_APP_COOKIE_DOMAIN})
+            Cookies.remove('authToken', {path: '/', domain: REACT_APP_COOKIE_DOMAIN})
+            document.location.href = LANDING_PATH
         })
 }
 
