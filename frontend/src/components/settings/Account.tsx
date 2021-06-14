@@ -19,7 +19,8 @@ const AccountLogo = styled.img`
   margin-right: 30px;
 `
 const RemoveLinkButton = styled.button`
-  font-size: 20px;
+  width: 140px;
+  font-size: 16px;
   padding: 4px 8px 4px;
   background-color: black;
   border-radius: 4px;
