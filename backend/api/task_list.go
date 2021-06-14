@@ -103,6 +103,10 @@ func (api *API) TasksList(c *gin.Context) {
 		emails = append(emails, emailResult.Emails...)
 	}
 
+	for index := range emails {
+		emails[index].TaskBase.Body = "<base target=\"_blank\">" + emails[index].TaskBase.Body
+	}
+
 	accountIDToPriorityMapping := make(map[string]*map[string]int)
 	jiraTasks := []*database.Task{}
 	for _, jiraTaskChannel := range jiraTaskChannels {
