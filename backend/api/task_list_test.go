@@ -605,6 +605,109 @@ func TestMergeTasks(t *testing.T) {
 		assert.Equal(t, t2.ID, result[0].Tasks[0].ID)
 		assert.Equal(t, e1ID, result[0].Tasks[1].ID)
 	})
+
+	t.Run("FirstTaskPersists", func(t *testing.T) {
+		userID := primitive.NewObjectID()
+		t1 := database.Task{
+			TaskBase: database.TaskBase{
+				IDOrdering:     1,
+				IDExternal:     "sample_task",
+				Deeplink:       "generaltask.io",
+				Title:          "Code x",
+				Source:         database.TaskSourceJIRA,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+				UserID:         userID,
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID: "5",
+			TaskNumber: 1,
+		}
+		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
+		assert.NoError(t, err)
+		t1.ID = t1Res.ID
+
+		t2 := database.Task{
+			TaskBase: database.TaskBase{
+				IDOrdering:     2,
+				IDExternal:     "sample_task",
+				Deeplink:       "generaltask.io",
+				Title:          "Code x",
+				Source:         database.TaskSourceJIRA,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+				UserID:         userID,
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID: "6",
+			TaskNumber: 2,
+		}
+		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t2)
+		assert.NoError(t, err)
+		t2.ID = t2Res.ID
+
+		t3 := database.Task{
+			TaskBase: database.TaskBase{
+				//0 ID ordering indicates new task.
+				IDOrdering: 0,
+				IDExternal:     "sample_task",
+				Deeplink:       "generaltask.io",
+				Title:          "Code x",
+				Source:         database.TaskSourceJIRA,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+				UserID:         userID,
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID: "2",
+			TaskNumber: 3,
+		}
+		t3Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t3)
+		assert.NoError(t, err)
+		t3.ID = t3Res.ID
+
+		t4 := database.Task{
+			TaskBase: database.TaskBase{
+				//0 ID ordering indicates new task.
+				IDOrdering: 0,
+				IDExternal:     "sample_task",
+				Deeplink:       "generaltask.io",
+				Title:          "Code x",
+				Source:         database.TaskSourceJIRA,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+				UserID:         userID,
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID: "3",
+			TaskNumber: 4,
+		}
+		t4Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t4)
+		assert.NoError(t, err)
+		t4.ID = t4Res.ID
+
+		priorityMapping := map[string]*map[string]int{
+			"": {
+				"2": 2,
+				"3": 3,
+				"5": 5,
+				"6": 6,
+			},
+		}
+
+		result, err := MergeTasks(
+			db,
+			&[]database.TaskBase{},
+			[]*database.CalendarEvent{},
+			[]*database.Email{},
+			[]*database.Task{&t1, &t2, &t3, &t4},
+			&priorityMapping,
+			"gmail.com",
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(result))
+		assert.Equal(t, 4, len(result[0].Tasks))
+		assert.Equal(t, t1.ID, result[0].Tasks[0].ID)
+		assert.Equal(t, t3.ID, result[0].Tasks[1].ID)
+		assert.Equal(t, t4.ID, result[0].Tasks[2].ID)
+		assert.Equal(t, t2.ID, result[0].Tasks[3].ID)
+	})
 }
 
 func getTaskForTest(t *testing.T, taskCollection *mongo.Collection, taskID primitive.ObjectID) *database.TaskBase {
