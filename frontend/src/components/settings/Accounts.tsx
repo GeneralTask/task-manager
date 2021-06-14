@@ -33,7 +33,7 @@ const Accounts: React.FC = () => {
 	else{
 		const removeLink = (index: number) => {
 			const account = linkedAccounts.accounts[index]
-			const confirmation = confirm(`Do you want to unlink your ${account.display_id} ${account.name} account?`)
+			const confirmation = confirm(`Do you want to unlink your ${account.name} account (${account.display_id})?`)
 			if(confirmation){
 				const newState = {
 					loading: linkedAccounts.loading,

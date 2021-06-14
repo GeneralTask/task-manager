@@ -13,7 +13,6 @@ const AccountDiv = styled.div`
 const AccountInfo = styled.div`
   display: flex;
   align-items: center;
-  max-width: 50%;
 `
 const AccountLogo = styled.img`
   height: 35px;
