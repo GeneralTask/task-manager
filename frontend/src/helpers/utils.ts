@@ -5,7 +5,7 @@ import { TTaskGroup } from './types'
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
 export const logout = (): void => {
-    Cookies.remove('authToken', {path: '/', domain: REACT_APP_COOKIE_DOMAIN})
+    Cookies.remove('authToken', {path: '/', domain: REACT_APP_COOKIE_DOMAIN as string})
     document.location.href = LANDING_PATH
 }
 
@@ -21,16 +21,17 @@ export const getHeaders = (): any => ({
 
 interface fetchParams {
     url: string,
-    method: 'GET' | 'POST' | 'PATCH'
+    method: 'GET' | 'POST' | 'PATCH' | 'DELETE'
     body?: string
 }
 
 export const makeAuthorizedRequest = async(params: fetchParams): Promise<Response> => {
+    const body = !params.body ? null : params.body
     const response = await fetch(params.url, {
         method: params.method,
         mode: 'cors',
         headers: getHeaders(),
-        body: params.body,
+        body,
     })
     if(response.status === 401){
         logout()

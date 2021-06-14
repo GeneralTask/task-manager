@@ -24,14 +24,33 @@ const Accounts: React.FC = () => {
 		setInterval(()=>{fetchLinkedAccounts(setLinkedAccounts)}, 1000 * 30)	
 	}, [])
 	
-	if(!linkedAccounts.loading && linkedAccounts.accounts.length === 0){
+	if(linkedAccounts.loading && linkedAccounts.accounts.length === 0){
 		return <div className="loader"/>
 	}
+	else if(linkedAccounts.accounts.length === 0){
+		return <div>No linked accounts!</div>
+	}
 	else{
+		const removeLink = (index: number) => {
+			const account = linkedAccounts.accounts[index]
+			const confirmation = confirm(`Do you want to unlink your ${account.display_id} ${account.name} account?`)
+			if(confirmation){
+				const newState = {
+					loading: linkedAccounts.loading,
+					accounts: [...linkedAccounts.accounts],
+				}
+				newState.accounts.splice(index, 1)
+				setLinkedAccounts(newState)
+				makeAuthorizedRequest({
+					url: LINKED_ACCOUNTS_URL + account.id + '/',
+					method: 'DELETE',
+				})
+			}
+		}
 		return(
 			<>
 				{linkedAccounts.accounts.map(((account, index) => 
-					<Account logo={account.logo} name={account.display_id} link={'' + console.log(account)} key={index} />
+					<Account logo={account.logo} name={account.display_id} key={index} removeLink={()=>{removeLink(index)}} />
 				))}
 			</>
 		)
@@ -44,10 +63,11 @@ const fetchLinkedAccounts = async (
 		url: LINKED_ACCOUNTS_URL,
 		method: 'GET',
 	})
+	let accounts = []
 	if(response.ok){
-		const accounts = await response.json()
-		setLinkedAccounts({loading: false, accounts})
+		accounts = await response.json()
 	}
+	setLinkedAccounts({loading: false, accounts})
 }
 
 export default Accounts

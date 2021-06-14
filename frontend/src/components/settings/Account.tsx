@@ -10,10 +10,16 @@ const AccountDiv = styled.div`
   font-size: 24px;
   margin-bottom: 30px;
 `
+const AccountInfo = styled.div`
+  display: flex;
+  align-items: center;
+  max-width: 50%;
+`
 const AccountLogo = styled.img`
   height: 35px;
+  margin-right: 30px;
 `
-const ConnectButton = styled.button`
+const RemoveLinkButton = styled.button`
   font-size: 20px;
   padding: 4px 8px 4px;
   background-color: black;
@@ -25,24 +31,20 @@ const ConnectButton = styled.button`
 interface Props {
   name: string,
   logo: string,
-  link: string,
+  removeLink: () => void,
 }
 
-const Account: React.FC<Props> = ({ name, logo, link }: Props) => (
+const Account: React.FC<Props> = ({ name, logo, removeLink }: Props) => (
   <AccountDiv>
-    <AccountLogo src={logo} alt={name + ' logo'} />
-    <div>{name}</div>
-    <ConnectButton
-      onClick={() => {
-        window.open(
-          link,
-          name,
-          'height=640,width=960,toolbar=no,menubar=no,scrollbars=no,location=no,status=no'
-        )
-      }}
+    <AccountInfo>
+      <AccountLogo src={logo} alt={name + ' logo'} />
+      <div>{name}</div>
+    </AccountInfo>
+    <RemoveLinkButton
+      onClick={removeLink}
     >
-      Connect
-    </ConnectButton>
+      Remove Link
+    </RemoveLinkButton>
   </AccountDiv>
 )
 

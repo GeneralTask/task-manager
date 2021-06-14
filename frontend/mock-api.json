@@ -155,9 +155,9 @@
   "linked_accounts": [
     {
       "id": "id-1",
-      "display_id": "Jira account",
-      "name": "Jira",
-      "logo": "/images/jira.svg"
+      "display_id": "scott@gmail.com",
+      "name": "Google",
+      "logo": "/images/google.svg"
     },
     {
       "id": "id-2",
