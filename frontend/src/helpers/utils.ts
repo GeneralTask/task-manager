@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import {LANDING_PATH, REACT_APP_COOKIE_DOMAIN, REACT_APP_FRONTEND_BASE_URL} from '../constants'
+import {LANDING_PATH, LINKED_ACCOUNTS_URL, REACT_APP_COOKIE_DOMAIN, REACT_APP_FRONTEND_BASE_URL} from '../constants'
 import { TTaskGroup } from './types'
 
 // This invalidates the cookie on the frontend
@@ -47,3 +47,5 @@ export const resetOrderingIds = (task_groups: TTaskGroup[]): void => {
         }
     }
 }
+
+export const getLinkedAccountsURL = (account_id: string): string => LINKED_ACCOUNTS_URL + account_id + '/'

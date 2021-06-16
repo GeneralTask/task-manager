@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { LINKED_ACCOUNTS_URL } from '../../constants'
-import { makeAuthorizedRequest } from '../../helpers/utils'
+import { getLinkedAccountsURL, makeAuthorizedRequest } from '../../helpers/utils'
 import Account from './Account'
 
 interface LinkedAccount {
@@ -33,7 +33,7 @@ const Accounts: React.FC = () => {
 	else{
 		const removeLink = (index: number) => {
 			const account = linkedAccounts.accounts[index]
-			const confirmation = confirm(`Do you want to unlink your ${account.name} account (${account.display_id})?`)
+			const confirmation = confirm(`Are you sure you want to unlink your ${account.name} account (${account.display_id})?`)
 			if(confirmation){
 				const newState = {
 					loading: linkedAccounts.loading,
@@ -42,7 +42,7 @@ const Accounts: React.FC = () => {
 				newState.accounts.splice(index, 1)
 				setLinkedAccounts(newState)
 				makeAuthorizedRequest({
-					url: LINKED_ACCOUNTS_URL + account.id + '/',
+					url: getLinkedAccountsURL(account.id),
 					method: 'DELETE',
 				})
 			}
