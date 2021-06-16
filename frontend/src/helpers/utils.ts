@@ -1,12 +1,17 @@
 import Cookies from 'js-cookie'
-import {LANDING_PATH, LINKED_ACCOUNTS_URL, REACT_APP_COOKIE_DOMAIN, REACT_APP_FRONTEND_BASE_URL} from '../constants'
+import {LANDING_PATH, LOGOUT_URL, LINKED_ACCOUNTS_URL, REACT_APP_COOKIE_DOMAIN, REACT_APP_FRONTEND_BASE_URL} from '../constants'
 import { TTaskGroup } from './types'
 
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
 export const logout = (): void => {
-    Cookies.remove('authToken', {path: '/', domain: REACT_APP_COOKIE_DOMAIN as string})
-    document.location.href = LANDING_PATH
+    makeAuthorizedRequest({
+        url: LOGOUT_URL,
+        method: 'POST',
+      }).then(() => {
+            Cookies.remove('authToken', {path: '/', domain: REACT_APP_COOKIE_DOMAIN})
+            document.location.href = LANDING_PATH
+        })
 }
 
 export const getAuthToken = (): string | undefined => Cookies.get('authToken')

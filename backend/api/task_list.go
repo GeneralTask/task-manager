@@ -103,6 +103,10 @@ func (api *API) TasksList(c *gin.Context) {
 		emails = append(emails, emailResult.Emails...)
 	}
 
+	for index := range emails {
+		emails[index].TaskBase.Body = "<base target=\"_blank\">" + emails[index].TaskBase.Body
+	}
+
 	accountIDToPriorityMapping := make(map[string]*map[string]int)
 	jiraTasks := []*database.Task{}
 	for _, jiraTaskChannel := range jiraTaskChannels {
@@ -313,6 +317,7 @@ func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
 	taskGroupToPreviousCalendarItems := make(map[int][]CalendarItem)
 	taskGroupToNextCalendarItems := make(map[int][]CalendarItem)
 	currentPreviousCalendarItems := []CalendarItem{}
+	var firstUnscheduledTaskID *primitive.ObjectID = nil
 	for index, taskItem := range *tasks {
 		if taskItem.TaskGroupType == database.ScheduledTask {
 			if taskItem.TaskBase.IDOrdering == 0 {
@@ -329,8 +334,10 @@ func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
 					calendarItem,
 				)
 			}
-		}
-		if taskItem.TaskGroupType == database.UnscheduledGroup {
+		} else if taskItem.TaskGroupType == database.UnscheduledGroup {
+			if taskItem.TaskBase.IDOrdering == 1 {
+				firstUnscheduledTaskID = &taskItem.TaskBase.ID
+			}
 			taskGroupToPreviousCalendarItems[index] = currentPreviousCalendarItems
 		}
 	}
@@ -342,10 +349,30 @@ func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
 			continue
 		}
 		task := taskItem.TaskBase
+
 		if !task.HasBeenReordered {
-			newTaskList = append(newTaskList, taskItem)
+			if firstUnscheduledTaskID != nil  {
+				//don't bump the first task as user might be working on it.
+				if task.ID == *firstUnscheduledTaskID {
+					if _, requiresMultipleInsertions :=  insertAfter[task.ID]; requiresMultipleInsertions {
+						newTaskList = append(append(newTaskList, taskItem), insertAfter[taskItem.TaskBase.ID]...)
+					} else {
+						newTaskList = append(newTaskList, taskItem)
+					}
+					firstUnscheduledTaskID = nil
+				} else {
+					insertAfter[*firstUnscheduledTaskID] = append(insertAfter[*firstUnscheduledTaskID], taskItem)
+				}
+			} else {
+				newTaskList = append(newTaskList, taskItem)
+			}
 			continue
 		}
+
+		if firstUnscheduledTaskID != nil && task.ID == *firstUnscheduledTaskID {
+			firstUnscheduledTaskID = nil
+		}
+
 		// check if there is a previous calendar event with a higher ordering id
 		previousCalendarItems := taskGroupToPreviousCalendarItems[index]
 		var highestItemWithHigherOrderingID *CalendarItem
