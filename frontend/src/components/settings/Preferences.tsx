@@ -23,6 +23,8 @@ const Select = styled.select`
     display: flex;
     align-items: center;
     padding: 0 4px 0 4px;
+    border: 2px solid black;
+    border-radius: 4px;
 `
 
 interface Props {

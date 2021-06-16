@@ -182,5 +182,22 @@
       "name": "Slack",
       "logo": "/images/slack.svg"
     }
+  ],
+  "supported_types": [
+    {
+      "authorization_url ": "https://www.google.com/",
+      "name": "Google",
+      "logo": "/images/google.svg"
+    },
+    {
+      "authorization_url ": "https://www.slack.com/",
+      "name": "Slack",
+      "logo": "/images/slack.svg"
+    },
+    {
+      "authorization_url ": "https://www.jira.com/",
+      "name": "Jira",
+      "logo": "/images/jira.svg"
+    }
   ]
 }
