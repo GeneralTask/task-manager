@@ -1,16 +1,24 @@
 import React from 'react'
-import Account from './Account'
 import Preferences from './Preferences'
-import { JIRA_URL } from '../../constants'
 import styled from 'styled-components'
+import Accounts from './Accounts'
+import { device } from '../../helpers/styles'
 
 const Header = styled.div`
-    text-align: center;
+    text-align: center; 
 `
 
 const Body = styled.div`
-    width: 35%;
+    width: 90%;
     margin: auto;
+
+    @media ${device.tablet} {
+        width: 35%;
+    }
+
+    @media ${device.laptop} {
+        width: 35%;
+    }
 `
 
 const Setting = styled.div`
@@ -27,7 +35,7 @@ const Settings: React.FC = () => {
             <Setting>
                 <Body>
                     <h2>Accounts</h2>
-                    <Account logo="/images/jira.svg" name="Jira" link={JIRA_URL} />
+                    <Accounts/>
                 </Body>
             </Setting>
             <Setting>

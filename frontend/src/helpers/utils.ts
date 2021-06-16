@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import {LANDING_PATH, LOGOUT_URL, REACT_APP_COOKIE_DOMAIN, REACT_APP_FRONTEND_BASE_URL} from '../constants'
+import {LANDING_PATH, LOGOUT_URL, LINKED_ACCOUNTS_URL, REACT_APP_COOKIE_DOMAIN, REACT_APP_FRONTEND_BASE_URL} from '../constants'
 import { TTaskGroup } from './types'
 
 // This invalidates the cookie on the frontend
@@ -26,16 +26,17 @@ export const getHeaders = (): any => ({
 
 interface fetchParams {
     url: string,
-    method: 'GET' | 'POST' | 'PATCH'
+    method: 'GET' | 'POST' | 'PATCH' | 'DELETE'
     body?: string
 }
 
 export const makeAuthorizedRequest = async(params: fetchParams): Promise<Response> => {
+    const body = !params.body ? null : params.body
     const response = await fetch(params.url, {
         method: params.method,
         mode: 'cors',
         headers: getHeaders(),
-        body: params.body,
+        body,
     })
     if(response.status === 401){
         logout()
@@ -51,3 +52,5 @@ export const resetOrderingIds = (task_groups: TTaskGroup[]): void => {
         }
     }
 }
+
+export const getLinkedAccountsURL = (account_id: string): string => LINKED_ACCOUNTS_URL + account_id + '/'
