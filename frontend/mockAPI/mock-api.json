@@ -183,7 +183,7 @@
       "logo": "/images/slack.svg"
     }
   ],
-  "supported_types": [
+  "linked_accounts_supported_types": [
     {
       "authorization_url ": "https://www.google.com/",
       "name": "Google",
@@ -195,7 +195,7 @@
       "logo": "/images/slack.svg"
     },
     {
-      "authorization_url ": "https://www.jira.com/",
+      "authorization_url ": "/authorize/jira/",
       "name": "Jira",
       "logo": "/images/jira.svg"
     }

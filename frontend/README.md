@@ -1,7 +1,7 @@
 # Run Mock API:
 Install json-server: `sudo npm install json-server -g`
 
-Run the mock API server (make sure Go server is not running): `json-server --watch mock-api.json --port 8080`
+Run the mock API server (make sure Go server is not running): `cd frontend/mockAPI/; json-server mock-api.json --watch --port 8080 --read-only --routes routes.json`
 
 Test it out: `curl localhost:8080/tasks`
 

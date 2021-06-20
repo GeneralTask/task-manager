@@ -3,7 +3,7 @@ import Preferences from './Preferences'
 import styled from 'styled-components'
 import Accounts from './Accounts'
 import { device, flex } from '../../helpers/styles'
-import AddAccounts from './AddAccounts'
+import AddNewAccountDropdown from './AddNewAccountDropdown'
 
 const Header = styled.div`
     text-align: center; 
@@ -14,7 +14,7 @@ const Body = styled.div`
     margin: auto;
 
     @media ${device.tablet} {
-        width: 35%;
+        width: 50%;
     }
 
     @media ${device.laptop} {
@@ -37,7 +37,7 @@ const Settings: React.FC = () => {
                 <Body>
                     <flex.justifyContentSpaceBetween>
                         <h2>Accounts</h2>
-                        <AddAccounts />
+                        <AddNewAccountDropdown />
                     </flex.justifyContentSpaceBetween>
                     <Accounts />
                 </Body>

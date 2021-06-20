@@ -8,6 +8,7 @@ export const device = {
 }
 
 export const flex = {
+    flex: styled.div`display: flex;`,
     alignItemsCenter: styled.div`display: flex; align-items: center`,
     justifyContentSpaceBetween: styled.div`display: flex; justify-content: space-between`,
 }
