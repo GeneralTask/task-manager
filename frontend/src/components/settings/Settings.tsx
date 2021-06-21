@@ -2,7 +2,8 @@ import React from 'react'
 import Preferences from './Preferences'
 import styled from 'styled-components'
 import Accounts from './Accounts'
-import { device } from '../../helpers/styles'
+import { device, flex } from '../../helpers/styles'
+import AddNewAccountDropdown from './AddNewAccountDropdown'
 
 const Header = styled.div`
     text-align: center; 
@@ -13,7 +14,7 @@ const Body = styled.div`
     margin: auto;
 
     @media ${device.tablet} {
-        width: 35%;
+        width: 50%;
     }
 
     @media ${device.laptop} {
@@ -34,13 +35,16 @@ const Settings: React.FC = () => {
             </Header>
             <Setting>
                 <Body>
-                    <h2>Accounts</h2>
-                    <Accounts/>
+                    <flex.justifyContentSpaceBetween>
+                        <h2>Accounts</h2>
+                        <AddNewAccountDropdown />
+                    </flex.justifyContentSpaceBetween>
+                    <Accounts />
                 </Body>
             </Setting>
             <Setting>
                 <Body>
-                    <Preferences/>
+                    <Preferences />
                 </Body>
             </Setting>
         </div>
