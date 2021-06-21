@@ -26,6 +26,7 @@ const Button = styled.button`
   text-align: center;
   cursor: pointer;
   font-size: 20px;
+  background-color: white;
   &:hover {
     border: 2px solid #cccccc;
     border-radius: 4px;
@@ -34,6 +35,7 @@ const Button = styled.button`
 `
 const Logout = styled(Button)`
   font-weight: 600;
+  margin-right: 10px;
 `
 
 const Header: React.FC = () => {
