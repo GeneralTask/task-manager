@@ -4,13 +4,14 @@ import styled from 'styled-components'
 import TaskList from './task/TaskList'
 import GLButton from './login/GoogleLogin'
 import { LOGIN_URL, WAITLIST_URL } from '../constants'
-import {getAuthToken, getHeaders} from '../helpers/utils'
+import { getAuthToken, getHeaders } from '../helpers/utils'
 
 const Logo = styled.div`
   font-weight: bold;
   font-size: 32px;
   margin-left: 10px;
   margin-top: 10px;
+  padding: 20px;
 `
 const Container = styled.div`
   width: 65%;
@@ -54,7 +55,7 @@ const WaitlistInputs = styled.form`
   height: 34px;
   text-align: center;
 `
-const WaitlistMessage = styled.div<{visibility: string, backgroundColor: string, color: string }>`
+const WaitlistMessage = styled.div<{ visibility: string, backgroundColor: string, color: string }>`
   height: 34px;
   background-color: red;
   display: flex;
@@ -104,7 +105,7 @@ const LandingPage: React.FC = () => {
           <br />
           and prioritizes what matters most.
         </Subtitle>
-        <Waitlist/>
+        <Waitlist />
         <LoginWithGoogle href={LOGIN_URL} role="button">
           <GLButton />
           Sign in with Google
@@ -122,7 +123,7 @@ const Waitlist = () => {
   let messageText
   let messageTextColor = 'black'
   let messageBackgroundColor = 'white'
-  switch(waitlistState){
+  switch (waitlistState) {
     case WaitlistState.NONE:
       messageVisibility = 'hidden'
       messageText = ''
@@ -147,9 +148,9 @@ const Waitlist = () => {
   return (
     <WaitlistDiv>
       <WaitlistInputs onSubmit={(e) => {
-            e.preventDefault()
-            joinWaitlist(email, setWaitlistState)
-          }}>
+        e.preventDefault()
+        joinWaitlist(email, setWaitlistState)
+      }}>
         <WaitlistInput placeholder="Enter email address" value={email} onChange={e => setEmail(e.target.value)} />
         <JoinWaitlistButton role="submit">
           Join the Waitlist
@@ -171,13 +172,13 @@ const joinWaitlist = async (email: string, setWaitlistState: (state: WaitlistSta
     headers: getHeaders(),
     body: JSON.stringify({ email }),
   })
-  if(response.ok){
+  if (response.ok) {
     setWaitlistState(WaitlistState.SUCCESS)
   }
-  else if(response.status === 302){
+  else if (response.status === 302) {
     setWaitlistState(WaitlistState.EXISTS)
   }
-  else{
+  else {
     setWaitlistState(WaitlistState.ERROR)
   }
 
