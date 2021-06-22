@@ -16,7 +16,7 @@ const Header = styled.div<{hover_effect: boolean}>`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 8px;
+  padding: 8px 8px 8px 0;
   cursor: ${props => props.hover_effect ? 'pointer' : 'inherit'};
   &:hover{
     background-color: ${props => props.hover_effect ? '#e3e3e3' : 'inherit'};
@@ -30,12 +30,17 @@ const HeaderSide = styled.div`
   align-items: center;
   flex-direction: row;
 `
+const DragSection = styled.div`
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  padding: 0 12px 0 8px;
+`
 const Domino = styled.img`
   height: 18px;
 `
 const Icon = styled.img`
   max-width: 40px;
-  padding-left: 12px;
   padding-right: 12px;
 `
 const Source = styled.div`
@@ -91,7 +96,9 @@ const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_comp
   return (
     <Header hover_effect={hover_effect} onClick={onClick}>
       <HeaderSide>
-        <Domino src="images/domino.svg" alt="" />
+        <DragSection>
+          <Domino src="images/domino.svg" alt="" />
+        </DragSection>
         <Icon src={logo_url} alt="icon"></Icon>
         <div>{title}</div>
       </HeaderSide>
