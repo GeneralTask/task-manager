@@ -19,23 +19,18 @@ const HeaderDiv = styled.div`
   align-items: center;
 `
 const Button = styled.button`
-  margin: 0 8px 0 8px;
+  margin: 0 12px 0 12px;
   border: none;
   text-decoration: none;
-  padding: 10px;
+  padding: 6px;
   text-align: center;
   cursor: pointer;
   font-size: 20px;
   background-color: white;
-  &:hover {
-    border: 2px solid #cccccc;
-    border-radius: 4px;
-    padding: 6px;
-  }
 `
 const Logout = styled(Button)`
   font-weight: 600;
-  margin-right: 10px;
+  margin-right: 14px;
 `
 
 const Header: React.FC = () => {
