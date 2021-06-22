@@ -51,11 +51,11 @@ const TaskList: React.FC = () => {
     }, [])
 
 
-    function renderTaskGroup(taskGroup: TTaskGroup, index: number) {
+    function renderTaskGroup(taskGroup: TTaskGroup, index: number, firstTask: boolean) {
         let next_time = null
         // if currently in a task group, estimate time left until end of task group
         // else display the duration of that task
-        if (index === 0 && task_groups.length > 1 && moment().isAfter(moment(taskGroup.datetime_start))) {
+        if (firstTask && task_groups.length > 1 && moment().isAfter(moment(taskGroup.datetime_start))) {
             // if this is the first task
             next_time = moment(task_groups[1].datetime_start)
         }
@@ -102,7 +102,7 @@ const TaskList: React.FC = () => {
             })
         })
     }
-
+    let firstTaskFound = false
     return (
         <div>
             <MyTasks>My Tasks</MyTasks>
@@ -112,12 +112,17 @@ const TaskList: React.FC = () => {
                     task_groups.map((group: TTaskGroup, index: number) =>
                         <div key={index}>
                             <Droppable droppableId={`list-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
-                                {provided => (
-                                    <div ref={provided.innerRef} {...provided.droppableProps}>
-                                        {renderTaskGroup(group, index)}
+                                {provided => {
+                                    let firstTask = false
+                                    if (!firstTaskFound && group.tasks.length > 0) {
+                                        firstTaskFound = true
+                                        firstTask = true
+                                    }
+                                    return <div ref={provided.innerRef} {...provided.droppableProps}>
+                                        {renderTaskGroup(group, index, firstTask)}
                                         {provided.placeholder}
                                     </div>
-                                )}
+                                }}
                             </Droppable>
                         </div>
                     )
