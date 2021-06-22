@@ -35,11 +35,13 @@ func GetDBConnection() (*mongo.Database, func(), error) {
 	}
 
 	cleanup := func() {
+		log.Printf("*!*!*!*!*! Disconnecting!")
 		if err = client.Disconnect(contextResult); err != nil {
 			log.Printf("Failed to disconnect from mongo DB: %v", err)
 		}
 		cancel()
 	}
 
+	log.Printf("Connecting! *!*!*!*!*!")
 	return client.Database(config.GetConfigValue("DB_NAME")), cleanup, nil
 }
