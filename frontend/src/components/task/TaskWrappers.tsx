@@ -10,7 +10,6 @@ const TaskGroup = styled.div`
   justify-content: center;
   align-items: center;
   position: relative;
-  margin-bottom: 15px;
 `
 const Tasks = styled.div`
   width: 60%;
@@ -42,6 +41,9 @@ const UnscheduledTimeAnnotationContainer = styled.div`
   align-items: center;
   height: 100%;
 `
+const Divider = styled.div`
+  margin-bottom: 15px;
+`
 
 interface ScheduledTaskProps {
   task: TTask,
@@ -64,46 +66,52 @@ interface TimeDurationProps {
 }
 
 const ScheduledTask: React.FC<ScheduledTaskProps> = ({ task, datetime_start, time_duration, next_time, index }: ScheduledTaskProps) =>
-  <TaskGroup>
-    <TimeAnnotation>
-      <AlignRight>{moment(datetime_start).format('h:mm a')}</AlignRight>
-    </TimeAnnotation>
-    <Tasks>
-      <Task
-        task={task}
-        index={index}
-        isDragDisabled={true}
-      />
-    </Tasks>
-    <TimeAnnotation>
-      <TimeDuration
-        time_duration={time_duration}
-        next_time={next_time}
-      />
-    </TimeAnnotation>
-  </TaskGroup>
+  <>
+    <TaskGroup>
+      <TimeAnnotation>
+        <AlignRight>{moment(datetime_start).format('h:mm a')}</AlignRight>
+      </TimeAnnotation>
+      <Tasks>
+        <Task
+          task={task}
+          index={index}
+          isDragDisabled={true}
+        />
+      </Tasks>
+      <TimeAnnotation>
+        <TimeDuration
+          time_duration={time_duration}
+          next_time={next_time}
+        />
+      </TimeAnnotation>
+    </TaskGroup>
+    <Divider />
+  </>
 
 const UnscheduledTaskGroup: React.FC<UnscheduledTaskProps> = ({ tasks, time_duration, next_time }: UnscheduledTaskProps) =>
-  <TaskGroup>
-    <TimeAnnotation />
-    <Tasks>
-      {tasks.map((task: TTask) => (
-        <Task task={task} key={task.id_ordering} index={task.id_ordering} isDragDisabled={false} />
-      ))}
-    </Tasks>
-    {tasks.length !== 0
-      ? <TimeAnnotation>
-        <UnscheduledTimeAnnotationContainer>
-          <UnscheduledSpanbar />
-          <UnscheduledTimeSpacer />
-          <TimeDuration
-            time_duration={time_duration}
-            next_time={next_time}
-          />
-        </UnscheduledTimeAnnotationContainer>
-      </TimeAnnotation>
-      : null}
-  </TaskGroup>
+  <>
+    <TaskGroup>
+      <TimeAnnotation />
+      <Tasks>
+        {tasks.map((task: TTask) => (
+          <Task task={task} key={task.id_ordering} index={task.id_ordering} isDragDisabled={false} />
+        ))}
+      </Tasks>
+      {tasks.length !== 0 &&
+        <TimeAnnotation>
+          <UnscheduledTimeAnnotationContainer>
+            <UnscheduledSpanbar />
+            <UnscheduledTimeSpacer />
+            <TimeDuration
+              time_duration={time_duration}
+              next_time={next_time}
+            />
+          </UnscheduledTimeAnnotationContainer>
+        </TimeAnnotation>
+      }
+    </TaskGroup >
+    {tasks.length !== 0 && <Divider />}
+  </>
 
 const TimeDuration: React.FC<TimeDurationProps> = ({ time_duration, next_time }: TimeDurationProps) => {
   let initialTimeStr: string = time_duration.toString()
