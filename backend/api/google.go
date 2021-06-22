@@ -84,6 +84,7 @@ func loadEmails(userID primitive.ObjectID, accountID string, client *http.Client
 	}
 
 	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox is:unread").Do()
+	time.Sleep(15 * time.Second)
 	if err != nil {
 		log.Printf("failed to load Gmail threads for user: %v", err)
 		result <- emptyEmailResult(err)
