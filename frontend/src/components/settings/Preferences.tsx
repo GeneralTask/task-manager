@@ -36,7 +36,7 @@ const fetchSettings = async () => {
         url: SETTINGS_URL,
         method: 'GET',
     })
-    if(response.ok){
+    if (response.ok) {
         const settings = await response.json()
         store.dispatch(setSettings(settings))
     }
@@ -44,23 +44,23 @@ const fetchSettings = async () => {
 
 const Preferences: React.FC = () => {
     const settings = useSelector((state: RootState) => state.settings)
-    useEffect(()=>{
+    useEffect(() => {
         fetchSettings()
     }, [])
     return (
         <div>
             {settings.length ? <h2>Preferences</h2> : null}
-            {settings.map((setting: TSetting, index: number) => <Preference setting={setting} key={index}/>)}
+            {settings.map((setting: TSetting, index: number) => <Preference setting={setting} key={index} />)}
         </div>
     )
 }
 
-const Preference: React.FC<Props> = ({setting}: Props) => {
+const Preference: React.FC<Props> = ({ setting }: Props) => {
     return (
         <PreferenceDiv>
             <div>{setting.field_name}</div>
-            <Select onChange={(e) => {changeSetting(setting.field_key, e.target.value)}}>
-                {setting.choices.map((choice: TSettingChoice) => 
+            <Select onChange={(e) => { changeSetting(setting.field_key, e.target.value) }}>
+                {setting.choices.map((choice: TSettingChoice) =>
                     <option value={choice.choice_key} selected={setting.field_value === choice.choice_key}>{choice.choice_name}</option>
                 )}
             </Select>
@@ -77,5 +77,5 @@ const changeSetting = (field_key: string, choice_key: string) => {
 }
 
 export default connect(
-    (state: RootState) => ({settings: state.settings})
+    (state: RootState) => ({ settings: state.settings })
 )(Preferences)

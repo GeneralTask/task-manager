@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import {LANDING_PATH, LOGOUT_URL, LINKED_ACCOUNTS_URL, REACT_APP_COOKIE_DOMAIN, REACT_APP_FRONTEND_BASE_URL} from '../constants'
+import { LANDING_PATH, LOGOUT_URL, LINKED_ACCOUNTS_URL, REACT_APP_COOKIE_DOMAIN, REACT_APP_FRONTEND_BASE_URL } from '../constants'
 import { TTaskGroup } from './types'
 
 // This invalidates the cookie on the frontend
@@ -8,10 +8,10 @@ export const logout = (): void => {
     makeAuthorizedRequest({
         url: LOGOUT_URL,
         method: 'POST',
-      }).then(() => {
-            Cookies.remove('authToken', {path: '/', domain: REACT_APP_COOKIE_DOMAIN})
-            document.location.href = LANDING_PATH
-        })
+    }).then(() => {
+        Cookies.remove('authToken', { path: '/', domain: REACT_APP_COOKIE_DOMAIN })
+        document.location.href = LANDING_PATH
+    })
 }
 
 export const getAuthToken = (): string | undefined => Cookies.get('authToken')
@@ -30,7 +30,7 @@ interface fetchParams {
     body?: string
 }
 
-export const makeAuthorizedRequest = async(params: fetchParams): Promise<Response> => {
+export const makeAuthorizedRequest = async (params: fetchParams): Promise<Response> => {
     const body = !params.body ? null : params.body
     const response = await fetch(params.url, {
         method: params.method,
@@ -38,7 +38,7 @@ export const makeAuthorizedRequest = async(params: fetchParams): Promise<Respons
         headers: getHeaders(),
         body,
     })
-    if(response.status === 401){
+    if (response.status === 401) {
         logout()
     }
     return response
@@ -46,8 +46,8 @@ export const makeAuthorizedRequest = async(params: fetchParams): Promise<Respons
 
 export const resetOrderingIds = (task_groups: TTaskGroup[]): void => {
     let id_ordering = 1
-    for(const taskGroup of task_groups){
-        for(const task of taskGroup.tasks){
+    for (const taskGroup of task_groups) {
+        for (const task of taskGroup.tasks) {
             task.id_ordering = id_ordering++
         }
     }

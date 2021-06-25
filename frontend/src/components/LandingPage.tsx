@@ -11,7 +11,7 @@ const Logo = styled.div`
   font-size: 32px;
   margin-left: 10px;
   margin-top: 10px;
-  padding: 20px;
+  padding: 20px; 
 `
 const Container = styled.div`
   width: 65%;

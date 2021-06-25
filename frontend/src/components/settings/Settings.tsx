@@ -12,7 +12,7 @@ const Header = styled.div`
 const Body = styled.div`
     width: 90%;
     margin: auto;
-
+ 
     @media ${device.tablet} {
         width: 50%;
     }

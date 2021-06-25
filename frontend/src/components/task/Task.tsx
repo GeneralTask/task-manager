@@ -4,7 +4,7 @@ import TaskHeader from './TaskHeader'
 import { Draggable } from 'react-beautiful-dnd'
 import styled from 'styled-components'
 import TaskBody from './TaskBody'
-import {TTask} from '../../helpers/types'
+import { TTask } from '../../helpers/types'
 
 const Container = styled.div`
   padding: 0;
@@ -18,8 +18,8 @@ const Container = styled.div`
 `
 
 interface Props {
-  task: TTask, 
-  index: number, 
+  task: TTask,
+  index: number,
   isDragDisabled: boolean,
 }
 
@@ -45,7 +45,7 @@ const Task: React.FC<Props> = ({ task, index }: Props) => (
             hover_effect={!!(task.body || task.deeplink)}
             provided={provided}
           />
-          <TaskBody body={task.body} task_id={task.id} deeplink={task.deeplink} source={task.source}/>
+          <TaskBody body={task.body} task_id={task.id} deeplink={task.deeplink} source={task.source} />
         </Container>
       </div>
     )}

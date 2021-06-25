@@ -6,7 +6,7 @@ import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import { TTaskSource } from '../../helpers/types'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 
-const BodyIframe = styled.iframe<{iframeHeight: number, }>`
+const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
   border: none;
   border-radius: 2px;
   width: 100%;
@@ -88,7 +88,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
           {body ? (
             <BodyDiv>
               <BodyHTML body={body} task_id={task_id} />
-              {source.is_replyable ? <Reply task_id={task_id}/> : null}
+              {source.is_replyable ? <Reply task_id={task_id} /> : null}
             </BodyDiv>
           ) : null}
           {deeplink ? (
@@ -102,41 +102,41 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
       ) : null}
     </div>
   )
-} 
+}
 
-const BodyHTML: React.FC<BodyHTMLProps> = ({body, task_id}: BodyHTMLProps) => {
-  return <BodyIframe 
+const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id }: BodyHTMLProps) => {
+  return <BodyIframe
     id="expanded-body-html"
-    iframeHeight={MAX_TASK_BODY_HEIGHT} 
-    title={'Body for task: ' + task_id} 
-    srcDoc={body} 
+    iframeHeight={MAX_TASK_BODY_HEIGHT}
+    title={'Body for task: ' + task_id}
+    srcDoc={body}
     onLoad={() => {
       const iframe: HTMLIFrameElement | null = document.getElementById('expanded-body-html') as HTMLIFrameElement
-      if(iframe && iframe.contentWindow){
-        const height = Math.min(iframe.contentWindow.document.body.offsetHeight + 15, MAX_TASK_BODY_HEIGHT) 
+      if (iframe && iframe.contentWindow) {
+        const height = Math.min(iframe.contentWindow.document.body.offsetHeight + 15, MAX_TASK_BODY_HEIGHT)
         iframe.style.height = height + 'px'
         iframe.style.visibility = 'visible'
       }
     }}
-    />
+  />
 }
 
-const Reply: React.FC<ReplyProps> = ({task_id}: ReplyProps) => {
+const Reply: React.FC<ReplyProps> = ({ task_id }: ReplyProps) => {
   // const [replyText, setReplyText] = useState('')
   // const [textHeight, setTextHeight]
   const [text, setText] = useState('')
-  
+
   return <ReplyDiv>
     <ReplyText contentEditable onChange={(e) => {
       const replyText = e.currentTarget.textContent
-      if(replyText !== null)
+      if (replyText !== null)
         setText(replyText)
     }}></ReplyText>
-    <ReplyButton onClick={()=>{
+    <ReplyButton onClick={() => {
       makeAuthorizedRequest({
         url: TASKS_URL + task_id + '/reply/',
         method: 'POST',
-        body: JSON.stringify({body: text}),
+        body: JSON.stringify({ body: text }),
       })
     }}>Reply</ReplyButton>
   </ReplyDiv>
