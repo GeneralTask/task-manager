@@ -144,20 +144,20 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 	}
 	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
-		log.Printf("Error forming token request: %v", err)
+		log.Printf("error forming token request: %v", err)
 		c.JSON(400, gin.H{"detail": "Error forming token request"})
 		return
 	}
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Printf("Failed to request token: %v", err)
+		log.Printf("failed to request token: %v", err)
 		c.JSON(400, gin.H{"detail": "Failed to request token"})
 		return
 	}
 	tokenString, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Failed to read token response: %v", err)
+		log.Printf("failed to read token response: %v", err)
 		c.JSON(400, gin.H{"detail": "Failed to read token response"})
 		return
 	}
@@ -202,7 +202,7 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 	)
 
 	if err != nil {
-		log.Printf("Failed to create external token record: %v", err)
+		log.Printf("failed to create external token record: %v", err)
 		Handle500(c)
 		return
 	}
@@ -223,14 +223,14 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 	)
 
 	if err != nil {
-		log.Printf("Failed to create external site collection record: %v", err)
+		log.Printf("failed to create external site collection record: %v", err)
 		Handle500(c)
 		return
 	}
 
 	err = GetListOfJIRAPriorities(api, internalToken.UserID, token.AccessToken)
 	if err != nil {
-		log.Printf("Failed to download priorities")
+		log.Printf("failed to download priorities: %v", err)
 		Handle500(c)
 		return
 	}
@@ -254,7 +254,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, accountID string, result
 	JQL := "assignee=currentuser() AND status != Done"
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
 	if err != nil {
-		log.Printf("Error forming search request: %v", err)
+		log.Printf("error forming search request: %v", err)
 		result <- emptyTaskResult(err)
 		return
 	}
@@ -262,18 +262,18 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, accountID string, result
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Printf("Failed to load search results: %v", err)
+		log.Printf("failed to load search results: %v", err)
 		result <- emptyTaskResult(err)
 		return
 	}
 	taskData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Failed to read search response: %v", err)
+		log.Printf("failed to read search response: %v", err)
 		result <- emptyTaskResult(err)
 		return
 	}
 	if resp.StatusCode != 200 {
-		log.Printf("Search failed: %s %v", taskData, resp.StatusCode)
+		log.Printf("search failed: %s %v", taskData, resp.StatusCode)
 		result <- emptyTaskResult(err)
 		return
 	}
@@ -281,7 +281,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, accountID string, result
 	var jiraTasks JIRATaskList
 	err = json.Unmarshal(taskData, &jiraTasks)
 	if err != nil {
-		log.Printf("Failed to parse JIRA tasks: %v", err)
+		log.Printf("failed to parse JIRA tasks: %v", err)
 		result <- emptyTaskResult(err)
 		return
 	}
@@ -297,7 +297,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, accountID string, result
 	for _, jiraTask := range jiraTasks.Issues {
 		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
 		if err != nil {
-			log.Printf("Unable to parse JIRA template %v", err)
+			log.Printf("unable to parse JIRA template: %v", err)
 			result <- emptyTaskResult(err)
 			return
 		}
@@ -338,7 +338,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, accountID string, result
 		}
 		err = res.Decode(&dbTask)
 		if err != nil {
-			log.Printf("Failed to update or create task: %v", err)
+			log.Printf("failed to update or create task: %v", err)
 			result <- emptyTaskResult(err)
 			return
 		}
@@ -367,7 +367,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, accountID string, result
 	if needsRefresh {
 		err = GetListOfJIRAPriorities(api, userID, authToken.AccessToken)
 		if err != nil {
-			log.Printf("Failed to fetch priorities")
+			log.Printf("failed to fetch priorities: %v", err)
 			result <- emptyTaskResult(err)
 			return
 		}
@@ -400,34 +400,34 @@ func getJIRASites(api *API, token *JIRAAuthToken) *[]JIRASite {
 	}
 	req, err := http.NewRequest("GET", cloudIDURL, nil)
 	if err != nil {
-		log.Printf("Error forming cloud ID request: %v", err)
+		log.Printf("error forming cloud ID request: %v", err)
 		return nil
 	}
 	req.Header.Add("Authorization", "Bearer "+token.AccessToken)
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Printf("Failed to load cloud ID: %v", err)
+		log.Printf("failed to load cloud ID: %v", err)
 		return nil
 	}
 	cloudIDData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Failed to read cloudID response: %v", err)
+		log.Printf("failed to read cloud ID response: %v", err)
 		return nil
 	}
 	if resp.StatusCode != 200 {
-		log.Printf("CloudID request failed: %s", cloudIDData)
+		log.Printf("cloud ID request failed: %s", cloudIDData)
 		return nil
 	}
 	JIRASites := []JIRASite{}
 	err = json.Unmarshal(cloudIDData, &JIRASites)
 	if err != nil {
-		log.Printf("Failed to parse cloud ID response: %v", err)
+		log.Printf("failed to parse cloud ID response: %v", err)
 		return nil
 	}
 
 	if len(JIRASites) == 0 {
-		log.Println("No accessible JIRA resources found")
+		log.Println("no accessible JIRA resources found")
 		return nil
 	}
 	return &JIRASites
@@ -475,7 +475,7 @@ func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*JIRAA
 	var token JIRAAuthToken
 	err = json.Unmarshal([]byte(JIRAToken.Token), &token)
 	if err != nil {
-		log.Printf("Failed to parse JIRA token: %v", err)
+		log.Printf("failed to parse JIRA token: %v", err)
 		return nil, err
 	}
 	params := []byte(`{"grant_type": "refresh_token","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","refresh_token": "` + token.RefreshToken + `"}`)
@@ -485,18 +485,18 @@ func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*JIRAA
 	}
 	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
-		log.Printf("Error forming token request: %v", err)
+		log.Printf("error forming token request: %v", err)
 		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Printf("Failed to request token: %v", err)
+		log.Printf("failed to request token: %v", err)
 		return nil, err
 	}
 	tokenString, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Failed to read token response: %v", err)
+		log.Printf("failed to read token response: %v", err)
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
@@ -506,7 +506,7 @@ func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*JIRAA
 	var newToken JIRAAuthToken
 	err = json.Unmarshal(tokenString, &newToken)
 	if err != nil {
-		log.Printf("Failed to parse new JIRA token: %v", err)
+		log.Printf("failed to parse new JIRA token: %v", err)
 		return nil, err
 	}
 	return &newToken, nil
@@ -545,7 +545,7 @@ func getFinalTransitionID(apiBaseURL string, jiraAuthToken string, jiraCloudID s
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Printf("Failed to request transitions")
+		log.Printf("failed to request transitions: %v", err)
 		return nil
 	}
 
@@ -586,7 +586,7 @@ func executeTransition(apiBaseURL string, jiraAuthToken string, issueID string, 
 func fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID primitive.ObjectID) *map[string]int {
 	cursor, err := prioritiesCollection.Find(context.TODO(), bson.D{{Key: "user_id", Value: userID}})
 	if err != nil {
-		log.Printf("Failed to fetch local priorities")
+		log.Printf("failed to fetch local priorities: %v", err)
 		return nil
 	}
 	var priorities []database.JIRAPriority

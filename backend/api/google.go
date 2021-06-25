@@ -78,21 +78,21 @@ func loadEmails(userID primitive.ObjectID, accountID string, client *http.Client
 
 	gmailService, err := gmail.NewService(context.TODO(), option.WithHTTPClient(client))
 	if err != nil {
-		log.Printf("Unable to create Gmail service: %v", err)
+		log.Printf("unable to create Gmail service: %v", err)
 		result <- emptyEmailResult(err)
 		return
 	}
 
 	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox is:unread").Do()
 	if err != nil {
-		log.Printf("Failed to load Gmail threads for user: %v", err)
+		log.Printf("failed to load Gmail threads for user: %v", err)
 		result <- emptyEmailResult(err)
 		return
 	}
 	for _, threadListItem := range threadsResponse.Threads {
 		thread, err := gmailService.Users.Threads.Get("me", threadListItem.Id).Do()
 		if err != nil {
-			log.Printf("failed to load thread! %v", err)
+			log.Printf("failed to load thread: %v", err)
 			result <- emptyEmailResult(err)
 			return
 		}
@@ -201,7 +201,7 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 	data := body.Data
 	bodyData, err := base64.URLEncoding.DecodeString(data)
 	if err != nil {
-		log.Printf("failed to decode email body. %v", err)
+		log.Printf("failed to decode email body: %v", err)
 		return nil, err
 	}
 
@@ -210,7 +210,7 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 	if mimeType == "text/plain" {
 		formattedBody, err := templating.FormatPlainTextAsHTML(bodyString)
 		if err != nil {
-			log.Printf("failed to decode email body. %v", err)
+			log.Printf("failed to decode email body: %v", err)
 			return nil, err
 		} else {
 			bodyString = formattedBody
@@ -247,7 +247,7 @@ func LoadCalendarEvents(
 		calendarService, err = calendar.NewService(context.TODO(), option.WithHTTPClient(client))
 	}
 	if err != nil {
-		log.Printf("Unable to create Calendar service: %v", err)
+		log.Printf("unable to create calendar service: %v", err)
 		result <- emptyCalendarResult(err)
 		return
 	}
@@ -274,7 +274,7 @@ func LoadCalendarEvents(
 		Do()
 
 	if err != nil {
-		log.Printf("Unable to load calendar events: %v", err)
+		log.Printf("unable to load calendar events: %v", err)
 		result <- emptyCalendarResult(err)
 		return
 	}
@@ -325,7 +325,7 @@ func LoadCalendarEvents(
 		}
 		err = res.Decode(&dbEvent)
 		if err != nil {
-			log.Printf("Failed to update or create calendar event: %v", err)
+			log.Printf("failed to update or create calendar event: %v", err)
 			result <- emptyCalendarResult(err)
 			return
 		}
@@ -367,7 +367,7 @@ func MarkEmailAsDone(api *API, userID primitive.ObjectID, accountID string, emai
 	}
 
 	if err != nil {
-		log.Printf("Unable to create Gmail service: %v", err)
+		log.Printf("unable to create Gmail service: %v", err)
 		return err
 	}
 
@@ -382,7 +382,7 @@ func MarkEmailAsDone(api *API, userID primitive.ObjectID, accountID string, emai
 	case ChoiceKeyMarkAsRead:
 		labelToRemove = "UNREAD"
 	default:
-		log.Printf("Invalid done user setting: %s", *doneSetting)
+		log.Printf("invalid done user setting: %s", *doneSetting)
 		return err
 	}
 

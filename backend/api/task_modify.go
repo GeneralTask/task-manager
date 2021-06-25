@@ -75,7 +75,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		}}},
 	)
 	if err != nil {
-		log.Printf("Failed to update task in db: %v", err)
+		log.Printf("failed to update task in db: %v", err)
 		Handle500(c)
 		return
 	}
@@ -94,7 +94,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		bson.M{"$inc": bson.M{"id_ordering": 1}},
 	)
 	if err != nil {
-		log.Printf("Failed to move back other tasks in db: %v", err)
+		log.Printf("failed to move back other tasks in db: %v", err)
 		Handle500(c)
 		return
 	}
@@ -132,7 +132,7 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	if err == nil {
 		_, err := taskCollection.UpdateOne(nil, bson.D{{"_id", taskID}}, bson.D{{"$set", bson.D{{"is_completed", true}}}})
 		if err != nil {
-			log.Printf("Failed to update internal DB with completion status %v", err)
+			log.Printf("failed to update internal DB with completion status: %v", err)
 			Handle500(c)
 			return
 		}

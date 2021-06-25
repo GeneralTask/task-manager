@@ -55,7 +55,7 @@ func (api *API) TaskReply(c *gin.Context) {
 	if taskBase.Source.Name == database.TaskSourceGmail.Name {
 		err = ReplyToEmail(api, userID.(primitive.ObjectID), taskBase.SourceAccountID, taskID, replyParams.Body)
 		if err != nil {
-			log.Printf("Unable to send email with error %v", err)
+			log.Printf("unable to send email with error: %v", err)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
 		} else {
 			c.JSON(http.StatusCreated, gin.H{})

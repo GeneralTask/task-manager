@@ -50,7 +50,7 @@ type GoogleURLOverrides struct {
 // API is the object containing API route handlers
 type API struct {
 	GoogleConfig        OauthConfigWrapper
-	SlackConfig			OauthConfigWrapper
+	SlackConfig         OauthConfigWrapper
 	GoogleOverrideURLs  GoogleURLOverrides
 	JIRAConfigValues    JIRAConfig
 	SkipStateTokenCheck bool
@@ -114,7 +114,7 @@ func TokenMiddleware(c *gin.Context) {
 	var internalToken database.InternalAPIToken
 	err = internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: token}}).Decode(&internalToken)
 	if err != nil {
-		log.Printf("Auth failed: %v\n", err)
+		log.Printf("auth failed: %v\n", err)
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
 		return
 	}
