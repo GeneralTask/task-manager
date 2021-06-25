@@ -22,7 +22,7 @@ export const getHeaders = (): any => {
     return ({
         Authorization: 'Bearer ' + getAuthToken(),
         'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
-        'Access-Control-Allow-Headers': 'Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,timezone_offset',
+        'Access-Control-Allow-Headers': 'Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset',
         'Access-Control-Allow-Methods': 'POST,OPTIONS,GET,PATCH',
         'Timezone-Offset': date.getTimezoneOffset(),
     })
