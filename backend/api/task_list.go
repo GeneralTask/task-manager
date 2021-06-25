@@ -29,7 +29,7 @@ func (api *API) TasksList(c *gin.Context) {
 	err = userCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
 
 	if err != nil {
-		log.Printf("Failed to find user")
+		log.Printf("failed to find user: %v", err)
 		Handle500(c)
 		return
 	}
@@ -46,13 +46,13 @@ func (api *API) TasksList(c *gin.Context) {
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Printf("Failed to fetch api tokens: %v", err)
+		log.Printf("failed to fetch api tokens: %v", err)
 		Handle500(c)
 		return
 	}
 	err = cursor.All(context.TODO(), &tokens)
 	if err != nil {
-		log.Printf("Failed to iterate through api tokens: %v", err)
+		log.Printf("failed to iterate through api tokens: %v", err)
 		Handle500(c)
 		return
 	}
@@ -65,7 +65,7 @@ func (api *API) TasksList(c *gin.Context) {
 		if token.Source == "google" {
 			client := getGoogleHttpClient(externalAPITokenCollection, userID.(primitive.ObjectID), token.AccountID)
 			if client == nil {
-				log.Printf("Failed to fetch google API token: %v", err)
+				log.Printf("failed to fetch google API token: %v", err)
 				Handle500(c)
 				return
 			}
@@ -284,11 +284,11 @@ func adjustForCompletedTasks(
 				bson.D{{Key: "$set", Value: bson.D{{Key: "is_completed", Value: true}}}},
 			)
 			if err != nil {
-				log.Printf("Failed to update task ordering ID: %v", err)
+				log.Printf("failed to update task ordering ID: %v", err)
 				return err
 			}
 			if res.ModifiedCount != 1 {
-				log.Printf("Did not find task to update (ID=%v)", currentTask.ID)
+				log.Printf("did not find task to update (ID=%v)", currentTask.ID)
 			}
 			for _, newTask := range newTasks {
 				if newTask.IDOrdering > currentTask.IDOrdering {
@@ -325,7 +325,7 @@ func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
 			}
 			calendarItem := CalendarItem{IDOrdering: taskItem.TaskBase.IDOrdering, TaskIndex: index}
 			currentPreviousCalendarItems = append(currentPreviousCalendarItems, calendarItem)
-			for previousIndex, _ := range *tasks {
+			for previousIndex := range *tasks {
 				if previousIndex >= index {
 					break
 				}
@@ -351,10 +351,10 @@ func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
 		task := taskItem.TaskBase
 
 		if !task.HasBeenReordered {
-			if firstUnscheduledTaskID != nil  {
+			if firstUnscheduledTaskID != nil {
 				//don't bump the first task as user might be working on it.
 				if task.ID == *firstUnscheduledTaskID {
-					if _, requiresMultipleInsertions :=  insertAfter[task.ID]; requiresMultipleInsertions {
+					if _, requiresMultipleInsertions := insertAfter[task.ID]; requiresMultipleInsertions {
 						newTaskList = append(append(newTaskList, taskItem), insertAfter[taskItem.TaskBase.ID]...)
 					} else {
 						newTaskList = append(newTaskList, taskItem)
@@ -430,11 +430,11 @@ func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) error {
 			bson.D{{Key: "$set", Value: bson.D{{Key: "id_ordering", Value: task.IDOrdering}}}},
 		)
 		if err != nil {
-			log.Printf("Failed to update task ordering ID: %v", err)
+			log.Printf("failed to update task ordering ID: %v", err)
 			return err
 		}
 		if res.ModifiedCount != 1 {
-			log.Printf("Did not find task to update (ID=%v)", task.ID)
+			log.Printf("did not find task to update (ID=%v)", task.ID)
 		}
 	}
 	return nil

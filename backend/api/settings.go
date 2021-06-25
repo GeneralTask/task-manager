@@ -116,7 +116,7 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 			return &setting.DefaultChoice, nil
 		}
 	}
-	log.Printf("Invalid setting: %s", fieldKey)
+	log.Printf("invalid setting: %s", fieldKey)
 	return nil, errors.New(fmt.Sprintf("Invalid setting: %s", fieldKey))
 }
 
@@ -155,7 +155,7 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Printf("Failed to update user setting: %v", err)
+		log.Printf("failed to update user setting: %v", err)
 		return errors.New("internal server error")
 	}
 	return nil

@@ -83,14 +83,14 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	token, err := api.GoogleConfig.Exchange(context.Background(), redirectParams.Code)
 	if err != nil {
-		log.Printf("Failed to fetch token from google: %v", err)
+		log.Printf("failed to fetch token from google: %v", err)
 		Handle500(c)
 		return
 	}
 	client := api.GoogleConfig.Client(context.Background(), token)
 	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
-		log.Printf("Failed to load user info: %v", err)
+		log.Printf("failed to load user info: %v", err)
 		Handle500(c)
 		return
 	}
@@ -99,12 +99,12 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	err = json.NewDecoder(response.Body).Decode(&userInfo)
 	if err != nil {
-		log.Printf("Error decoding JSON: %v", err)
+		log.Printf("error decoding JSON: %v", err)
 		Handle500(c)
 		return
 	}
 	if userInfo.SUB == "" {
-		log.Println("Failed to retrieve google user ID")
+		log.Println("failed to retrieve google user ID")
 		Handle500(c)
 		return
 	}
@@ -116,7 +116,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		bson.D{{Key: "email", Value: lowerEmail}, {Key: "has_access", Value: true}},
 	)
 	if err != nil {
-		log.Printf("Failed to query waitlist: %v", err)
+		log.Printf("failed to query waitlist: %v", err)
 		Handle500(c)
 		return
 	}
@@ -137,7 +137,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	).Decode(&user)
 
 	if user.ID == primitive.NilObjectID {
-		log.Printf("Unable to create user")
+		log.Printf("unable to create user")
 		Handle500(c)
 		return
 	}
@@ -146,7 +146,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		// Only update / save the external API key if refresh token is set (isn't set after first authorization)
 		tokenString, err := json.Marshal(&token)
 		if err != nil {
-			log.Printf("Failed to serialize token json: %v", err)
+			log.Printf("failed to serialize token json: %v", err)
 			Handle500(c)
 			return
 		}
@@ -169,7 +169,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 			options.Update().SetUpsert(true),
 		)
 		if err != nil {
-			log.Printf("Failed to create external token record: %v", err)
+			log.Printf("failed to create external token record: %v", err)
 			Handle500(c)
 			return
 		}
@@ -185,7 +185,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	)
 
 	if err != nil {
-		log.Printf("Failed to create internal token record: %v", err)
+		log.Printf("failed to create internal token record: %v", err)
 		Handle500(c)
 		return
 	}

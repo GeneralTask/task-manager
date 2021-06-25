@@ -3,6 +3,8 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"log"
+
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -10,16 +12,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/oauth2"
-	"log"
 )
 
 type SlackRedirectParams struct {
-	Code string   `form:"code" binding:"required"`
-	State string  `form:"state" binding:"required"`
+	Code  string `form:"code" binding:"required"`
+	State string `form:"state" binding:"required"`
 }
 
 func GetSlackConfig() *OauthConfig {
-	return &OauthConfig{Config:  &oauth2.Config{
+	return &OauthConfig{Config: &oauth2.Config{
 		ClientID:     config.GetConfigValue("SLACK_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("SLACK_OAUTH_CLIENT_SECRET"),
 		RedirectURL:  "https://api.generaltask.io/authorize/slack/callback",
@@ -40,7 +41,7 @@ func (api *API) AuthorizeSlack(c *gin.Context) {
 
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
-		log.Printf("Failed to get db: %v", err)
+		log.Printf("failed to get db: %v", err)
 		Handle500(c)
 		return
 	}
@@ -48,7 +49,7 @@ func (api *API) AuthorizeSlack(c *gin.Context) {
 
 	insertedStateToken, err := database.CreateStateToken(db, &internalToken.UserID)
 	if err != nil || insertedStateToken == nil {
-		log.Printf("Failed to save state token: %v", err)
+		log.Printf("failed to save state token: %v", err)
 		Handle500(c)
 		return
 	}
@@ -92,7 +93,7 @@ func (api *API) AuthorizeSlackCallback(c *gin.Context) {
 	token, err := api.SlackConfig.Exchange(context.Background(), redirectParams.Code)
 
 	if err != nil {
-		log.Printf("Failed to fetch token from Slack: %v", err)
+		log.Printf("failed to fetch token from Slack: %v", err)
 		Handle500(c)
 		return
 	}
@@ -100,7 +101,7 @@ func (api *API) AuthorizeSlackCallback(c *gin.Context) {
 	tokenString, err := json.Marshal(&token)
 
 	if err != nil {
-		log.Printf("Error parsing token: %v", err)
+		log.Printf("error parsing token: %v", err)
 		Handle500(c)
 		return
 	}
@@ -117,7 +118,7 @@ func (api *API) AuthorizeSlackCallback(c *gin.Context) {
 	)
 
 	if err != nil {
-		log.Printf("Error saving token: %v", err)
+		log.Printf("error saving token: %v", err)
 		Handle500(c)
 		return
 	}
