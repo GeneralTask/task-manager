@@ -5,7 +5,7 @@ const AccountDiv = styled.div`
   margin: auto;
   width: 90%;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; 
   align-items: center;
   font-size: 24px;
   margin-bottom: 30px;
