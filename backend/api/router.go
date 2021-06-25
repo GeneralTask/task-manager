@@ -27,6 +27,7 @@ func GetRouter(handlers *API) *gin.Engine {
 
 	router.Use(TokenMiddleware)
 	// Authenticated endpoints
+	router.GET("/connected_accounts/supported_types/", handlers.SupportedAccountTypesList)
 	router.GET("/tasks/", handlers.TasksList)
 	router.PATCH("/tasks/:task_id/", handlers.TaskModify)
 	router.POST("/tasks/:task_id/reply/", handlers.TaskReply)
