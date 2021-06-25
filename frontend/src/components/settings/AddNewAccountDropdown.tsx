@@ -18,7 +18,7 @@ const DropdownToggle = styled.div`
     padding: 4px 8px 4px 8px;
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; 
     align-items: center;
     cursor: pointer;
 `

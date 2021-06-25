@@ -7,7 +7,7 @@ import { TTask } from '../../helpers/types'
 const TaskGroup = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: center; 
   align-items: center;
   position: relative;
 `

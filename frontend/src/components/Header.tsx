@@ -11,7 +11,7 @@ const Logo = styled.div`
   margin-top: 10px;
   padding: 20px;
 `
-const HeaderDiv = styled.div`
+const HeaderDiv = styled.div` 
   width: 100%;
   display: flex;
   justify-content: space-between;
