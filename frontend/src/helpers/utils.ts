@@ -24,7 +24,7 @@ export const getHeaders = (): any => {
         'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
         'Access-Control-Allow-Headers': 'Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,timezone_offset',
         'Access-Control-Allow-Methods': 'POST,OPTIONS,GET,PATCH',
-        'timezone_offset': date.getTimezoneOffset(),
+        'Timezone-Offset': date.getTimezoneOffset(),
     })
 }
 

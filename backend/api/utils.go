@@ -136,7 +136,7 @@ func getToken(c *gin.Context) (string, error) {
 
 // CORSMiddleware sets CORS headers, abort if CORS preflight request is received
 func CORSMiddleware(c *gin.Context) {
-	c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,timezone_offset")
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset")
 	c.Writer.Header().Set("Access-Control-Allow-Origin", config.GetConfigValue("ACCESS_CONTROL_ALLOW_ORIGIN"))
 	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, PATCH")
 	if c.Request.Method == "OPTIONS" {
