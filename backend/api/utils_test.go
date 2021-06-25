@@ -18,7 +18,7 @@ func TestCORSHeaders(t *testing.T) {
 
 		assert.Equal(t, http.StatusNoContent, recorder.Code)
 		headers := recorder.Result().Header
-		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods",
+		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset",
 			headers.Get("Access-Control-Allow-Headers"))
 		assert.Equal(t, "http://localhost:3000", headers.Get("Access-Control-Allow-Origin"))
 		assert.Equal(t, "POST, OPTIONS, GET, PUT, PATCH", headers.Get("Access-Control-Allow-Methods"))
@@ -33,7 +33,7 @@ func TestCORSHeaders(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		headers := recorder.Result().Header
-		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods",
+		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset",
 			headers.Get("Access-Control-Allow-Headers"))
 		assert.Equal(t, "http://localhost:3000", headers.Get("Access-Control-Allow-Origin"))
 		assert.Equal(t, "POST, OPTIONS, GET, PUT, PATCH", headers.Get("Access-Control-Allow-Methods"))

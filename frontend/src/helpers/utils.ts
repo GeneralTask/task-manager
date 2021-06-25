@@ -17,21 +17,25 @@ export const logout = (): void => {
 export const getAuthToken = (): string | undefined => Cookies.get('authToken')
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getHeaders = (): any => ({
-    Authorization: 'Bearer ' + getAuthToken(),
-    'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
-    'Access-Control-Allow-Headers': 'Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods',
-    'Access-Control-Allow-Methods': 'POST,OPTIONS,GET,PATCH',
-})
+export const getHeaders = (): any => {
+    const date = new Date()
+    return ({
+        Authorization: 'Bearer ' + getAuthToken(),
+        'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
+        'Access-Control-Allow-Headers': 'Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset',
+        'Access-Control-Allow-Methods': 'POST,OPTIONS,GET,PATCH',
+        'Timezone-Offset': date.getTimezoneOffset(),
+    })
+}
 
 interface fetchParams {
     url: string,
-    method: 'GET' | 'POST' | 'PATCH' | 'DELETE'
-    body?: string
+    method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+    body?: string,
 }
 
 export const makeAuthorizedRequest = async (params: fetchParams): Promise<Response> => {
-    const body = !params.body ? null : params.body
+    const body = params.body ? params.body : null
     const response = await fetch(params.url, {
         method: params.method,
         mode: 'cors',
