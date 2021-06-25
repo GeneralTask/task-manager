@@ -351,10 +351,10 @@ func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
 		task := taskItem.TaskBase
 
 		if !task.HasBeenReordered {
-			if firstUnscheduledTaskID != nil  {
+			if firstUnscheduledTaskID != nil {
 				//don't bump the first task as user might be working on it.
 				if task.ID == *firstUnscheduledTaskID {
-					if _, requiresMultipleInsertions :=  insertAfter[task.ID]; requiresMultipleInsertions {
+					if _, requiresMultipleInsertions := insertAfter[task.ID]; requiresMultipleInsertions {
 						newTaskList = append(append(newTaskList, taskItem), insertAfter[taskItem.TaskBase.ID]...)
 					} else {
 						newTaskList = append(newTaskList, taskItem)
@@ -444,9 +444,9 @@ func convertTasksToTaskGroups(tasks *[]*TaskItem) []*database.TaskGroup {
 	taskGroups := []*database.TaskGroup{}
 	lastEndTime := time.Now()
 	unscheduledTasks := []*database.TaskBase{}
-	for _, taskItem := range *tasks {
+	for index, taskItem := range *tasks {
 		if taskItem.TaskGroupType == database.ScheduledTask {
-			if len(unscheduledTasks) > 0 {
+			if len(unscheduledTasks) > 0 || index == 0 {
 				taskGroups = append(taskGroups, &database.TaskGroup{
 					TaskGroupType: database.UnscheduledGroup,
 					StartTime:     lastEndTime.String(),
@@ -466,18 +466,16 @@ func convertTasksToTaskGroups(tasks *[]*TaskItem) []*database.TaskGroup {
 			unscheduledTasks = append(unscheduledTasks, taskItem.TaskBase)
 		}
 	}
-	if len(unscheduledTasks) > 0 {
-		var totalDuration int64
-		for _, task := range unscheduledTasks {
-			totalDuration += task.TimeAllocation
-		}
-		taskGroups = append(taskGroups, &database.TaskGroup{
-			TaskGroupType: database.UnscheduledGroup,
-			StartTime:     lastEndTime.String(),
-			Duration:      totalDuration / int64(time.Second),
-			Tasks:         unscheduledTasks,
-		})
+	var totalDuration int64
+	for _, task := range unscheduledTasks {
+		totalDuration += task.TimeAllocation
 	}
+	taskGroups = append(taskGroups, &database.TaskGroup{
+		TaskGroupType: database.UnscheduledGroup,
+		StartTime:     lastEndTime.String(),
+		Duration:      totalDuration / int64(time.Second),
+		Tasks:         unscheduledTasks,
+	})
 	return taskGroups
 }
 
