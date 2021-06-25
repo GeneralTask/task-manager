@@ -324,7 +324,7 @@ func TestMergeTasks(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		assert.Equal(t, 5, len(result))
+		assert.Equal(t, 6, len(result))
 		assert.Equal(t, t1.ID, result[0].Tasks[0].ID)
 		assert.Equal(t, 1, getTaskForTest(t, taskCollection, t1.ID).IDOrdering)
 
@@ -339,6 +339,9 @@ func TestMergeTasks(t *testing.T) {
 
 		assert.Equal(t, c3.ID, result[4].Tasks[0].ID)
 		assert.Equal(t, 5, getTaskForTest(t, taskCollection, c3.ID).IDOrdering)
+
+		// Empty unscheduled task group is expected if last event is calendar event
+		assert.Equal(t, 0, len(result[5].Tasks))
 	})
 	t.Run("ReorderingPersist", func(t *testing.T) {
 		// Tested here: existing DB ordering IDs are kept (except cal events)
@@ -430,15 +433,17 @@ func TestMergeTasks(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		assert.Equal(t, 3, len(result))
-		assert.Equal(t, 1, len(result[0].Tasks))
-		assert.Equal(t, 2, len(result[1].Tasks))
-		assert.Equal(t, 1, len(result[2].Tasks))
+		assert.Equal(t, 5, len(result))
+		assert.Equal(t, 0, len(result[0].Tasks))
+		assert.Equal(t, 1, len(result[1].Tasks))
+		assert.Equal(t, 2, len(result[2].Tasks))
+		assert.Equal(t, 1, len(result[3].Tasks))
+		assert.Equal(t, 0, len(result[4].Tasks))
 
-		assert.Equal(t, c1.ID, result[0].Tasks[0].ID)
-		assert.Equal(t, t1.ID, result[1].Tasks[0].ID)
-		assert.Equal(t, t2.ID, result[1].Tasks[1].ID)
-		assert.Equal(t, c2.ID, result[2].Tasks[0].ID)
+		assert.Equal(t, c1.ID, result[1].Tasks[0].ID)
+		assert.Equal(t, t1.ID, result[2].Tasks[0].ID)
+		assert.Equal(t, t2.ID, result[2].Tasks[1].ID)
+		assert.Equal(t, c2.ID, result[3].Tasks[0].ID)
 	})
 	t.Run("ReorderingOldNew", func(t *testing.T) {
 		// Tested here:
@@ -647,7 +652,7 @@ func TestMergeTasks(t *testing.T) {
 		t3 := database.Task{
 			TaskBase: database.TaskBase{
 				//0 ID ordering indicates new task.
-				IDOrdering: 0,
+				IDOrdering:     0,
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
@@ -666,7 +671,7 @@ func TestMergeTasks(t *testing.T) {
 		t4 := database.Task{
 			TaskBase: database.TaskBase{
 				//0 ID ordering indicates new task.
-				IDOrdering: 0,
+				IDOrdering:     0,
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
