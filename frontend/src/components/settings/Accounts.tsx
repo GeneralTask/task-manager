@@ -5,7 +5,7 @@ import Account from './Account'
 
 interface LinkedAccount {
 	id: string,
-	account_id: string,
+	display_id: string,
 	name: string,
 	logo: string,
 }
@@ -33,7 +33,7 @@ const Accounts: React.FC = () => {
 	else {
 		const removeLink = (index: number) => {
 			const account = linkedAccounts.accounts[index]
-			const confirmation = confirm(`Are you sure you want to unlink your ${account.name} account (${account.account_id})?`)
+			const confirmation = confirm(`Are you sure you want to unlink your ${account.name} account (${account.display_id})?`)
 			if (confirmation) {
 				const newState = {
 					loading: linkedAccounts.loading,
@@ -50,7 +50,7 @@ const Accounts: React.FC = () => {
 		return (
 			<>
 				{linkedAccounts.accounts.map(((account, index) =>
-					<Account logo={account.logo} name={account.account_id} key={index} removeLink={() => { removeLink(index) }} />
+					<Account logo={account.logo} name={account.display_id} key={index} removeLink={() => { removeLink(index) }} />
 				))}
 			</>
 		)
