@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/utils"
@@ -21,6 +22,7 @@ func (api *API) TasksList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	userID, _ := c.Get("user")
@@ -60,6 +62,11 @@ func (api *API) TasksList(c *gin.Context) {
 	calendarEventChannels := []chan CalendarResult{}
 	emailChannels := []chan EmailResult{}
 	jiraTaskChannels := []chan TaskResult{}
+	timezoneOffset, err := strconv.ParseInt(c.GetHeader("Timezone-Offset"), 10, 64)
+	if err != nil{
+		c.JSON(400, gin.H{"detail": "Invalid timezone offset"})
+		return
+	}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		if token.Source == "google" {
@@ -70,7 +77,7 @@ func (api *API) TasksList(c *gin.Context) {
 				return
 			}
 			var calendarEvents = make(chan CalendarResult)
-			go LoadCalendarEvents(api, userID.(primitive.ObjectID), token.AccountID, client, calendarEvents)
+			go LoadCalendarEvents(api, userID.(primitive.ObjectID), token.AccountID, int(timezoneOffset), client, calendarEvents)
 			calendarEventChannels = append(calendarEventChannels, calendarEvents)
 
 			var emails = make(chan EmailResult)
