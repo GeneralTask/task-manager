@@ -7,7 +7,6 @@ import { TASKS_URL, TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } fr
 import { ScheduledTask, UnscheduledTaskGroup } from './TaskWrappers'
 import TaskStatus from './TaskStatus'
 import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd'
-import moment from 'moment'
 import styled from 'styled-components'
 import { makeAuthorizedRequest, resetOrderingIds } from '../../helpers/utils'
 import { TTaskGroup, TTask } from '../../helpers/types'
@@ -18,6 +17,11 @@ const MyTasks = styled.h1`
     height: 40px;
     text-align: center;
 `
+
+interface TaskGroupProps {
+    taskGroup: TTaskGroup,
+    index: number,
+}
 
 const fetchTasks = async () => {
     store.dispatch(setTasksFetchStatus(FetchStatus.LOADING))
@@ -44,31 +48,30 @@ const fetchTasks = async () => {
 const TaskList: React.FC = () => {
     const task_groups = useSelector((state: RootState) => state.task_groups)
     let task_counter = 0
-
     useEffect(() => {
-        setInterval(fetchTasks, 1000 * 60)
-        fetchTasks()
-    }, [])
+        const timer = setInterval(fetchTasks, 1000)
+        console.log('wut')
+        // let timer: NodeJS.Timeout
+        // timer = setInterval(() => fetchTasks, 1000)
+        // }
+        return () => {
+            clearInterval(timer)
+        }
+    }, [task_groups])
 
-
-    function renderTaskGroup(taskGroup: TTaskGroup, index: number, firstTask: boolean) {
-        let next_time = null
+    function TaskGroup({ taskGroup, index }: TaskGroupProps) {
         // if currently in a task group, estimate time left until end of task group
         // else display the duration of that task
-        if (firstTask && task_groups.length > 1 && moment().isAfter(moment(taskGroup.datetime_start))) {
-            // if this is the first task
-            next_time = moment(task_groups[1].datetime_start)
-        }
+
         if (taskGroup.type === TASK_GROUP_SCHEDULED_TASK) {
             if (taskGroup.tasks.length !== 0) {
-                return <ScheduledTask task={taskGroup.tasks[0]} time_duration={taskGroup.time_duration}
-                    next_time={!next_time ? null : next_time} datetime_start={taskGroup.datetime_start} index={task_counter++} />
+                return <ScheduledTask taskGroup={taskGroup} index={task_counter++} />
             }
         }
         else if (taskGroup.type === TASK_GROUP_UNSCHEDULED_GROUP) {
-            return <UnscheduledTaskGroup tasks={taskGroup.tasks} time_duration={taskGroup.time_duration}
-                next_time={!next_time ? null : next_time} index={task_counter++} />
+            return <UnscheduledTaskGroup taskGroup={taskGroup} index={task_counter++} />
         }
+        return null
     }
 
     function onDragEnd(result: DropResult) {
@@ -102,7 +105,7 @@ const TaskList: React.FC = () => {
             })
         })
     }
-    let firstTaskFound = false
+    const firstTaskFound = false
     return (
         <div>
             <MyTasks>My Tasks</MyTasks>
@@ -113,13 +116,8 @@ const TaskList: React.FC = () => {
                         <div key={index}>
                             <Droppable droppableId={`list-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
                                 {provided => {
-                                    let firstTask = false
-                                    if (!firstTaskFound && group.tasks.length > 0) {
-                                        firstTaskFound = true
-                                        firstTask = true
-                                    }
                                     return <div ref={provided.innerRef} {...provided.droppableProps}>
-                                        {renderTaskGroup(group, index, firstTask)}
+                                        <TaskGroup taskGroup={group} index={index} />
                                         {provided.placeholder}
                                     </div>
                                 }}
@@ -131,8 +129,6 @@ const TaskList: React.FC = () => {
         </div>
     )
 }
-
-
 
 export default connect(
     (state: RootState) => ({ task_groups: state.task_groups })

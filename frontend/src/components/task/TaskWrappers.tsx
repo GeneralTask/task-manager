@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Task from './Task'
 import styled from 'styled-components'
 import moment, { Moment } from 'moment'
-import { TTask } from '../../helpers/types'
+import { TTask, TTaskGroup } from '../../helpers/types'
 
 const TaskGroup = styled.div`
   display: flex;
@@ -45,6 +45,11 @@ const Divider = styled.div`
   margin-bottom: 15px;
 `
 
+interface TaskGroupProps {
+  taskGroup: TTaskGroup,
+  index: number,
+}
+
 interface ScheduledTaskProps {
   task: TTask,
   datetime_start: string | null,
@@ -62,78 +67,86 @@ interface UnscheduledTaskProps {
 
 interface TimeDurationProps {
   time_duration: number,
-  next_time: Moment | null,
+  datetime_start: string | null,
 }
 
-const ScheduledTask: React.FC<ScheduledTaskProps> = ({ task, datetime_start, time_duration, next_time, index }: ScheduledTaskProps) =>
-  <>
-    <TaskGroup>
-      <TimeAnnotation>
-        <AlignRight>{moment(datetime_start).format('h:mm a')}</AlignRight>
-      </TimeAnnotation>
-      <Tasks>
-        <Task
-          task={task}
-          index={index}
-          isDragDisabled={true}
-        />
-      </Tasks>
-      <TimeAnnotation>
-        <TimeDuration
-          time_duration={time_duration}
-          next_time={next_time}
-        />
-      </TimeAnnotation>
-    </TaskGroup>
-    <Divider />
-  </>
+const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroupProps) => {
+  return (
+    <>
+      <TaskGroup>
+        <TimeAnnotation>
+          <AlignRight>{moment(taskGroup.datetime_start).format('h:mm a')}</AlignRight>
+        </TimeAnnotation>
+        <Tasks>
+          <Task
+            task={taskGroup.tasks[0]}
+            index={index}
+            isDragDisabled={true}
+          />
+        </Tasks>
+        <TimeAnnotation>
+          <TimeDuration
+            time_duration={taskGroup.time_duration}
+            datetime_start={taskGroup.datetime_start}
+          />
+        </TimeAnnotation>
+      </TaskGroup>
+      <Divider />
+    </>)
+}
 
-const UnscheduledTaskGroup: React.FC<UnscheduledTaskProps> = ({ tasks, time_duration, next_time }: UnscheduledTaskProps) =>
+const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroupProps) =>
   <>
     <TaskGroup>
       <TimeAnnotation />
       <Tasks>
-        {tasks.map((task: TTask) => (
+        {taskGroup.tasks.map((task: TTask) => (
           <Task task={task} key={task.id_ordering} index={task.id_ordering} isDragDisabled={false} />
         ))}
       </Tasks>
-      {tasks.length !== 0 &&
+      {taskGroup.tasks.length !== 0 &&
         <TimeAnnotation>
           <UnscheduledTimeAnnotationContainer>
             <UnscheduledSpanbar />
             <UnscheduledTimeSpacer />
             <TimeDuration
-              time_duration={time_duration}
-              next_time={next_time}
+              time_duration={taskGroup.time_duration}
+              datetime_start={taskGroup.datetime_start}
             />
           </UnscheduledTimeAnnotationContainer>
         </TimeAnnotation>
       }
     </TaskGroup >
-    {tasks.length !== 0 && <Divider />}
+    {taskGroup.tasks.length !== 0 && <Divider />}
   </>
 
-const TimeDuration: React.FC<TimeDurationProps> = ({ time_duration, next_time }: TimeDurationProps) => {
-  let initialTimeStr: string = time_duration.toString()
-  if (next_time) {
+const TimeDuration: React.FC<TimeDurationProps> = ({ time_duration, datetime_start }: TimeDurationProps) => {
+  const duration = moment.duration(time_duration * 1000)
+  const end = moment(datetime_start).add(duration)
+  const hasStarted = moment().isAfter(moment(datetime_start))
+
+  let initialTimeStr = ''
+  if (hasStarted) {
     // if this is the first task group (live updates)
-    initialTimeStr = getLiveTimeStr(next_time)
+    initialTimeStr = getLiveTimeStr(end)
   } else {
     // this is not the first task - time is formatted based off of task group duration in seconds
     initialTimeStr = getTimeStr(moment.duration(time_duration * 1000))
   }
+
   const [timeStr, setTimeStr] = useState(initialTimeStr)
+
   useEffect(() => {
     let timer: NodeJS.Timeout
-    if (next_time) {
+    if (hasStarted) {
       timer = setInterval(() => {
-        setTimeStr(getLiveTimeStr(next_time))
+        setTimeStr(getLiveTimeStr(end))
       }, 1000)
     }
     return () => {
       if (timer) clearInterval()
     }
-  }, [next_time])
+  }, [timeStr])
   return <div>{timeStr}</div>
 }
 
@@ -163,8 +176,8 @@ const getTimeStr = (duration: moment.Duration): string => {
   return timeStr
 }
 
-const getLiveTimeStr = (next_time: Moment): string => {
-  return getTimeStr(moment.duration(next_time.diff(moment())))
+const getLiveTimeStr = (end: Moment): string => {
+  return getTimeStr(moment.duration(end.diff(moment())))
 }
 
 export { ScheduledTask, UnscheduledTaskGroup }
