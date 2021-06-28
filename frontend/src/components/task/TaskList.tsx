@@ -20,7 +20,6 @@ const MyTasks = styled.h1`
 
 interface TaskGroupProps {
     taskGroup: TTaskGroup,
-    index: number,
 }
 
 const fetchTasks = async () => {
@@ -49,17 +48,14 @@ const TaskList: React.FC = () => {
     const task_groups = useSelector((state: RootState) => state.task_groups)
     let task_counter = 0
     useEffect(() => {
-        const timer = setInterval(fetchTasks, 1000)
-        console.log('wut')
-        // let timer: NodeJS.Timeout
-        // timer = setInterval(() => fetchTasks, 1000)
-        // }
+        fetchTasks()
+        const interval: NodeJS.Timeout = setInterval(fetchTasks, 1000 * 60)
         return () => {
-            clearInterval(timer)
+            clearInterval(interval)
         }
-    }, [task_groups])
+    }, [])
 
-    function TaskGroup({ taskGroup, index }: TaskGroupProps) {
+    function TaskGroup({ taskGroup }: TaskGroupProps) {
         // if currently in a task group, estimate time left until end of task group
         // else display the duration of that task
 
@@ -105,7 +101,7 @@ const TaskList: React.FC = () => {
             })
         })
     }
-    const firstTaskFound = false
+
     return (
         <div>
             <MyTasks>My Tasks</MyTasks>
@@ -117,7 +113,7 @@ const TaskList: React.FC = () => {
                             <Droppable droppableId={`list-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
                                 {provided => {
                                     return <div ref={provided.innerRef} {...provided.droppableProps}>
-                                        <TaskGroup taskGroup={group} index={index} />
+                                        <TaskGroup taskGroup={group} />
                                         {provided.placeholder}
                                     </div>
                                 }}

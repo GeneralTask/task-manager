@@ -50,21 +50,6 @@ interface TaskGroupProps {
   index: number,
 }
 
-interface ScheduledTaskProps {
-  task: TTask,
-  datetime_start: string | null,
-  time_duration: number,
-  next_time: Moment | null,
-  index: number,
-}
-
-interface UnscheduledTaskProps {
-  tasks: TTask[],
-  time_duration: number,
-  next_time: Moment | null,
-  index: number,
-}
-
 interface TimeDurationProps {
   time_duration: number,
   datetime_start: string | null,
@@ -97,7 +82,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroup
 
 const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroupProps) =>
   <>
-    <TaskGroup>
+    <TaskGroup key={index}>
       <TimeAnnotation />
       <Tasks>
         {taskGroup.tasks.map((task: TTask) => (
@@ -127,26 +112,26 @@ const TimeDuration: React.FC<TimeDurationProps> = ({ time_duration, datetime_sta
 
   let initialTimeStr = ''
   if (hasStarted) {
-    // if this is the first task group (live updates)
+    // this will update every second
     initialTimeStr = getLiveTimeStr(end)
   } else {
-    // this is not the first task - time is formatted based off of task group duration in seconds
+    // will show the full duration of the task ( 1 hour )
     initialTimeStr = getTimeStr(moment.duration(time_duration * 1000))
   }
 
   const [timeStr, setTimeStr] = useState(initialTimeStr)
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout
-    if (hasStarted) {
-      timer = setInterval(() => {
+  if (hasStarted) {
+    useEffect(() => {
+      const interval = setInterval(() => {
         setTimeStr(getLiveTimeStr(end))
       }, 1000)
-    }
-    return () => {
-      if (timer) clearInterval()
-    }
-  }, [timeStr])
+
+      return () => {
+        clearInterval(interval)
+      }
+    }, [])
+  }
   return <div>{timeStr}</div>
 }
 
