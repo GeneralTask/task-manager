@@ -56,18 +56,15 @@ const TaskList: React.FC = () => {
     }, [])
 
     function TaskGroup({ taskGroup }: TaskGroupProps) {
-        // if currently in a task group, estimate time left until end of task group
-        // else display the duration of that task
-
         if (taskGroup.type === TASK_GROUP_SCHEDULED_TASK) {
-            if (taskGroup.tasks.length !== 0) {
-                return <ScheduledTask taskGroup={taskGroup} index={task_counter++} />
-            }
+            return <ScheduledTask taskGroup={taskGroup} index={task_counter++} />
         }
         else if (taskGroup.type === TASK_GROUP_UNSCHEDULED_GROUP) {
             return <UnscheduledTaskGroup taskGroup={taskGroup} index={task_counter++} />
         }
-        return null
+        else {
+            return null
+        }
     }
 
     function onDragEnd(result: DropResult) {
@@ -113,7 +110,7 @@ const TaskList: React.FC = () => {
                             <Droppable droppableId={`list-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
                                 {provided => {
                                     return <div ref={provided.innerRef} {...provided.droppableProps}>
-                                        <TaskGroup taskGroup={group} />
+                                        {group.tasks && <TaskGroup taskGroup={group} />}
                                         {provided.placeholder}
                                     </div>
                                 }}

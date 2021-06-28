@@ -55,30 +55,29 @@ interface TimeDurationProps {
   datetime_start: string | null,
 }
 
-const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroupProps) => {
-  return (
-    <>
-      <TaskGroup>
-        <TimeAnnotation>
-          <AlignRight>{moment(taskGroup.datetime_start).format('h:mm a')}</AlignRight>
-        </TimeAnnotation>
-        <Tasks>
-          <Task
-            task={taskGroup.tasks[0]}
-            index={index}
-            isDragDisabled={true}
-          />
-        </Tasks>
-        <TimeAnnotation>
-          <TimeDuration
-            time_duration={taskGroup.time_duration}
-            datetime_start={taskGroup.datetime_start}
-          />
-        </TimeAnnotation>
-      </TaskGroup>
-      <Divider />
-    </>)
-}
+const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroupProps) =>
+  <>
+    <TaskGroup>
+      <TimeAnnotation>
+        <AlignRight>{moment(taskGroup.datetime_start).format('h:mm a')}</AlignRight>
+      </TimeAnnotation>
+      <Tasks>
+        <Task
+          task={taskGroup.tasks[0]}
+          index={index}
+          isDragDisabled={true}
+        />
+      </Tasks>
+      <TimeAnnotation>
+        <TimeDuration
+          time_duration={taskGroup.time_duration}
+          datetime_start={taskGroup.datetime_start}
+        />
+      </TimeAnnotation>
+    </TaskGroup>
+    <Divider />
+  </>
+
 
 const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroupProps) =>
   <>
@@ -89,20 +88,18 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, index }: Ta
           <Task task={task} key={task.id_ordering} index={task.id_ordering} isDragDisabled={false} />
         ))}
       </Tasks>
-      {taskGroup.tasks.length !== 0 &&
-        <TimeAnnotation>
-          <UnscheduledTimeAnnotationContainer>
-            <UnscheduledSpanbar />
-            <UnscheduledTimeSpacer />
-            <TimeDuration
-              time_duration={taskGroup.time_duration}
-              datetime_start={taskGroup.datetime_start}
-            />
-          </UnscheduledTimeAnnotationContainer>
-        </TimeAnnotation>
-      }
+      <TimeAnnotation>
+        <UnscheduledTimeAnnotationContainer>
+          <UnscheduledSpanbar />
+          <UnscheduledTimeSpacer />
+          <TimeDuration
+            time_duration={taskGroup.time_duration}
+            datetime_start={taskGroup.datetime_start}
+          />
+        </UnscheduledTimeAnnotationContainer>
+      </TimeAnnotation>
     </TaskGroup >
-    {taskGroup.tasks.length !== 0 && <Divider />}
+    <Divider />
   </>
 
 const TimeDuration: React.FC<TimeDurationProps> = ({ time_duration, datetime_start }: TimeDurationProps) => {
