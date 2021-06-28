@@ -110,7 +110,7 @@ const TaskList: React.FC = () => {
                             <Droppable droppableId={`list-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
                                 {provided => {
                                     return <div ref={provided.innerRef} {...provided.droppableProps}>
-                                        {group.tasks.length && <TaskGroup taskGroup={group} />}
+                                        {group.tasks.length > 0 && <TaskGroup taskGroup={group} />}
                                         {provided.placeholder}
                                     </div>
                                 }}
