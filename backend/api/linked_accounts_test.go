@@ -13,7 +13,7 @@ func TestSupportedAccountTypesList(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(&API{})
-		request, _ := http.NewRequest("GET", "/connected_accounts/supported_types/", nil)
+		request, _ := http.NewRequest("GET", "/linked_accounts/supported_types/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -24,7 +24,7 @@ func TestSupportedAccountTypesList(t *testing.T) {
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(&API{})
-		request, _ := http.NewRequest("GET", "/connected_accounts/supported_types/", nil)
+		request, _ := http.NewRequest("GET", "/linked_accounts/supported_types/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
