@@ -303,6 +303,13 @@ func LoadCalendarEvents(
 			continue
 		}
 
+		//exclude events we declined.
+		for _, attendee := range event.Attendees {
+			if attendee.Self && attendee.ResponseStatus == "declined" {
+				continue
+			}
+		}
+
 		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
 		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
 
