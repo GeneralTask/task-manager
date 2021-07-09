@@ -33,7 +33,7 @@ func (api *API) SupportedAccountTypesList(c *gin.Context) {
 	}})
 }
 
-func LinkedAccountsList(c *gin.Context) {
+func (api *API) LinkedAccountsList(c *gin.Context) {
 	userID, _ := c.Get("user")
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
