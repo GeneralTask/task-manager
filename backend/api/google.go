@@ -261,6 +261,8 @@ func LoadCalendarEvents(
 	defer dbCleanup()
 
 	t := time.Now()
+	// adjust timestamp by timezone offset to get correct year / month / day
+	t = t.Add(time.Minute * -time.Duration(timezoneOffsetMinutes))
 	//Javascript returns timezone offsets with the opposite parity so we need to convert negatives to positives
 	//and vice versa.
 
@@ -272,7 +274,7 @@ func LoadCalendarEvents(
 	} else {
 		timeZoneName = "UTC"
 	}
-	location := time.FixedZone(timeZoneName, timezoneOffsetMinutes * -60)
+	location := time.FixedZone(timeZoneName, timezoneOffsetMinutes*-60)
 	//strip out hours/minutes/seconds of today to find the start of the day
 	todayStartTime := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, location)
 	//get end of day but adding one day to start of day and then subtracting a second to get day at 11:59:59PM
