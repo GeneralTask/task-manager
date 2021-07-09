@@ -52,3 +52,10 @@ export function setSettings(settings: TSetting[]): AnyAction {
         settings,
     }
 }
+
+export function setFocus(task_id: string): AnyAction {
+    return {
+        type: actions.SET_FOCUS,
+        task_id,
+    }
+}

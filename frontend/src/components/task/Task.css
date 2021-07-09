@@ -84,3 +84,7 @@
     margin-right: 2px;
     width: 18px;
 }
+
+.clamp-lines > span {
+    display: block;
+}

@@ -12,6 +12,7 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
       tasks_fetch_status: FetchStatus.LOADING,
       expanded_body: null,
       settings: [],
+      focused_task: null,
     }
   }
   switch (action.type) {
@@ -62,6 +63,12 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
       return {
         ...state,
         settings: action.settings,
+      }
+
+    case actions.SET_FOCUS:
+      return {
+        ...state,
+        focused_task: action.task_id,
       }
 
     default:

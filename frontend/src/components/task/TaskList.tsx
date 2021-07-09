@@ -1,21 +1,22 @@
+import { DragDropContext, DropResult, Droppable } from 'react-beautiful-dnd'
 import React, { useEffect } from 'react'
-import { connect, useSelector } from 'react-redux'
-import store from '../../redux/store'
-import { setTasks, setTasksFetchStatus } from '../../redux/actions'
-import { FetchStatus } from '../../redux/enums'
-import { TASKS_URL, TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
 import { ScheduledTask, UnscheduledTaskGroup } from './TaskWrappers'
-import TaskStatus from './TaskStatus'
-import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd'
-import styled from 'styled-components'
+import { TASKS_URL, TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
+import { TTask, TTaskGroup } from '../../helpers/types'
+import { connect, useSelector } from 'react-redux'
 import { makeAuthorizedRequest, resetOrderingIds } from '../../helpers/utils'
-import { TTaskGroup, TTask } from '../../helpers/types'
+import { setTasks, setTasksFetchStatus } from '../../redux/actions'
+
+import { FetchStatus } from '../../redux/enums'
 import { RootState } from '../../redux/store'
+import TaskStatus from './TaskStatus'
 import _ from 'lodash'
+import store from '../../redux/store'
+import styled from 'styled-components'
 
 const MyTasks = styled.h1`
-    height: 40px;
     text-align: center;
+    margin-top: 0;
 `
 
 interface TaskGroupProps {

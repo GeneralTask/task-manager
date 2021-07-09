@@ -1,14 +1,15 @@
-import React from 'react'
 import './Task.css'
-import { TASKS_URL } from '../../constants'
-import store from '../../redux/store'
-import { removeTaskById, expandBody, retractBody } from '../../redux/actions'
-import { makeAuthorizedRequest } from '../../helpers/utils'
-import { useSelector } from 'react-redux'
 
-import styled from 'styled-components'
+import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
+
+import { DraggableProvided } from 'react-beautiful-dnd'
+import React from 'react'
 import { RootState } from '../../redux/store'
-
+import { TASKS_URL } from '../../constants'
+import { makeAuthorizedRequest } from '../../helpers/utils'
+import store from '../../redux/store'
+import styled from 'styled-components'
+import { useSelector } from 'react-redux'
 
 const Header = styled.div<{ hover_effect: boolean }>`
   font-size: 20px;
@@ -49,8 +50,9 @@ const Source = styled.div`
   text-align: right;
 `
 const DoneButton = styled.button`
-  background-color: white;
-  border-radius: 2px;
+  background-color: black;
+  color: white;
+  border-radius: 4px;
   border: 2px solid black;
   margin-left: 10px;
   display: flex;
@@ -59,14 +61,7 @@ const DoneButton = styled.button`
   padding: 4px 6px 4px 6px;
   font-weight: 500;
   cursor: pointer;
-  &:hover{
-    background-color: black;
-    color: white;
-  }
 `
-// TODO nolan pls help
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type UNKNOWN_PROVIDED_TYPE = any
 
 interface Props {
   logo_url: string,
@@ -75,17 +70,18 @@ interface Props {
   task_id: string,
   is_completable: boolean,
   hover_effect: boolean,
-  provided: UNKNOWN_PROVIDED_TYPE,
+  provided: DraggableProvided,
+  isFocused: boolean,
 }
 
-const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_completable, hover_effect }: Props) => {
+const TaskHeader: React.FC<Props> = (props: Props) => {
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   let onClick
-  if (hover_effect && expanded_body !== task_id) {
+  if (props.hover_effect && expanded_body !== props.task_id) {
     onClick = () => {
-      store.dispatch(expandBody(task_id))
+      store.dispatch(expandBody(props.task_id))
     }
-  } else if (hover_effect && expanded_body === task_id) {
+  } else if (props.hover_effect && expanded_body === props.task_id) {
     onClick = () => {
       store.dispatch(retractBody())
     }
@@ -94,25 +90,25 @@ const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_comp
     onClick = () => false
   }
   return (
-    <Header hover_effect={hover_effect} onClick={onClick}>
+    <Header hover_effect={props.hover_effect} onClick={onClick}>
       <HeaderSide>
         <DragSection>
           <Domino src="images/domino.svg" alt="" />
         </DragSection>
-        <Icon src={logo_url} alt="icon"></Icon>
-        <div>{title}</div>
+        <Icon src={props.logo_url} alt="icon"></Icon>
+        <div>{props.title}</div>
       </HeaderSide>
-      <Source>{sender}</Source>
-      {is_completable ?
+      <Source>{props.sender}</Source>
+      {props.isFocused && props.is_completable &&
         <DoneButton
           onClick={(e) => {
             e.stopPropagation()
-            done(task_id)
+            done(props.task_id)
           }}
         >
           Done
         </DoneButton>
-        : null}
+      }
     </Header>
   )
 }

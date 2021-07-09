@@ -8,6 +8,7 @@ export interface RootState {
     tasks_fetch_status: FetchStatus,
     expanded_body: string | null,
     settings: TSetting[],
+    focused_task: string | null,
 }
 
 const initialState: RootState = {
@@ -15,6 +16,7 @@ const initialState: RootState = {
     tasks_fetch_status: FetchStatus.LOADING,
     expanded_body: null,
     settings: [],
+    focused_task: null,
 }
 
 declare global {
