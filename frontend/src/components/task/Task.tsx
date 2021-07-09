@@ -1,17 +1,18 @@
-import React from 'react'
 import './Task.css'
-import TaskHeader from './TaskHeader'
+
 import { Draggable } from 'react-beautiful-dnd'
-import styled from 'styled-components'
-import TaskBody from './TaskBody'
+import React from 'react'
 import { TTask } from '../../helpers/types'
+import TaskBody from './TaskBody'
+import TaskHeader from './TaskHeader'
+import styled from 'styled-components'
 
 const Container = styled.div`
   padding: 0;
   font-family: "Gothic A1", sans-serif;
   border: 2px solid #cccccc;
   border-radius: 2px;
-  margin: 5px 0;
+  margin-bottom: 5px;
   width: 100%;
   outline: none;
   background-color: white;
