@@ -11,6 +11,7 @@ import { FetchStatus } from '../../redux/enums'
 import { RootState } from '../../redux/store'
 import TaskStatus from './TaskStatus'
 import _ from 'lodash'
+import { darkGray } from '../../helpers/styles'
 import moment from 'moment'
 import store from '../../redux/store'
 import styled from 'styled-components'
@@ -20,7 +21,7 @@ const TaskSectionTop = styled.div`
 `
 const TimeAnnotation = styled.div`
     display: flex;
-    color: #969696;
+    color: ${darkGray};
     width: 20%;
     margin-left: 10px;
     margin-right: 10px;

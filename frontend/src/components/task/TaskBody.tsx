@@ -1,10 +1,12 @@
+import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import React, { useState } from 'react'
 import { connect, useSelector } from 'react-redux'
-import styled from 'styled-components'
+
 import { RootState } from '../../redux/store'
-import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import { TTaskSource } from '../../helpers/types'
+import { lightGray } from '../../helpers/styles'
 import { makeAuthorizedRequest } from '../../helpers/utils'
+import styled from 'styled-components'
 
 const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
   border: none;
@@ -33,13 +35,13 @@ const ReplyDiv = styled.div`
 const ReplyText = styled.span`
   width: 85%;
   /* min-height: 26px; */
-  border: 1px solid #cccccc;
+  border: 1px solid ${lightGray};
   border-radius: 2px;
   padding: 10px;
   cursor: text;
   &:empty:not(:focus):before {
     content: "Enter Response";
-    color: #cccccc; 
+    color: ${lightGray}; 
   }
 `
 const ReplyButton = styled.button`

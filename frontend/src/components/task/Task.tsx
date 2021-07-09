@@ -1,16 +1,18 @@
 import './Task.css'
 
-import { Draggable } from 'react-beautiful-dnd'
+import { Draggable, DraggableProvided } from 'react-beautiful-dnd'
+
 import React from 'react'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
+import { lightGray } from '../../helpers/styles'
 import styled from 'styled-components'
 
 const Container = styled.div`
   padding: 0;
   font-family: "Gothic A1", sans-serif;
-  border: 2px solid #cccccc;
+  border: 2px solid ${lightGray};
   border-radius: 2px;
   margin-bottom: 5px;
   width: 100%;
@@ -24,13 +26,9 @@ interface Props {
   isDragDisabled: boolean,
 }
 
-// TODO nolan pls help
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type UNKNOWN_PROVIDED_TYPE = any
-
 const Task: React.FC<Props> = ({ task, index }: Props) => (
   <Draggable draggableId={task.id} index={index}>
-    {(provided: UNKNOWN_PROVIDED_TYPE) => (
+    {(provided: DraggableProvided) => (
       <div
         ref={provided.innerRef}
         {...provided.draggableProps}
