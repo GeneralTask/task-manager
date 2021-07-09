@@ -261,6 +261,10 @@ func LoadCalendarEvents(
 	defer dbCleanup()
 
 	t := time.Now()
+	fmt.Println("t:", t)
+	// adjust timestamp by timezone offset to get correct year / month / day
+	t = t.Add(time.Minute * -time.Duration(timezoneOffsetMinutes))
+	fmt.Println("t2:", t)
 	//Javascript returns timezone offsets with the opposite parity so we need to convert negatives to positives
 	//and vice versa.
 
