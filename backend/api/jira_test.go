@@ -144,11 +144,11 @@ func TestLoadJIRATasks(t *testing.T) {
 		var taskFromDB database.Task
 		err := taskCollection.FindOne(
 			context.TODO(),
-			bson.D{
-				{Key: "source.name", Value: database.TaskSourceJIRA.Name},
-				{Key: "id_external", Value: "42069"},
-				{Key: "user_id", Value: userID},
-			},
+			bson.M{"$and": []bson.M{
+				{"source.name": database.TaskSourceJIRA.Name},
+				{"id_external": "42069"},
+				{"user_id": userID},
+			}},
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
@@ -190,11 +190,11 @@ func TestLoadJIRATasks(t *testing.T) {
 		var taskFromDB database.Task
 		err := taskCollection.FindOne(
 			context.TODO(),
-			bson.D{
-				{Key: "source.name", Value: database.TaskSourceJIRA.Name},
-				{Key: "id_external", Value: "42069"},
-				{Key: "user_id", Value: userID},
-			},
+			bson.M{"$and": []bson.M{
+				{"source.name": database.TaskSourceJIRA.Name},
+				{"id_external": "42069"},
+				{"user_id": userID},
+			}},
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
@@ -238,11 +238,11 @@ func TestLoadJIRATasks(t *testing.T) {
 		var taskFromDB database.Task
 		err := taskCollection.FindOne(
 			context.TODO(),
-			bson.D{
-				{Key: "source.name", Value: database.TaskSourceJIRA.Name},
-				{Key: "id_external", Value: "42069"},
-				{Key: "user_id", Value: userID},
-			},
+			bson.M{"$and": []bson.M{
+				{"source.name": database.TaskSourceJIRA.Name},
+				{"id_external": "42069"},
+				{"user_id": userID},
+			}},
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		// ordering ID in DB isn't updated until task merge
@@ -286,11 +286,11 @@ func TestLoadJIRATasks(t *testing.T) {
 		var taskFromDB database.Task
 		err := taskCollection.FindOne(
 			context.TODO(),
-			bson.D{
-				{Key: "source.name", Value: database.TaskSourceJIRA.Name},
-				{Key: "id_external", Value: "42069"},
-				{Key: "user_id", Value: userID},
-			},
+			bson.M{"$and": []bson.M{
+				{"source.name": database.TaskSourceJIRA.Name},
+				{"id_external": "42069"},
+				{"user_id": userID},
+			}},
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
@@ -322,8 +322,8 @@ func TestGetPriorities(t *testing.T) {
 		assert.NoError(t, err)
 
 		options := options.Find()
-		options.SetSort(bson.D{{"integer_priority", 1}})
-		cursor, err := prioritiesCollection.Find(context.TODO(), bson.D{{Key: "user_id", Value: userID}}, options)
+		options.SetSort(bson.M{"integer_priority": 1})
+		cursor, err := prioritiesCollection.Find(context.TODO(), bson.M{"user_id": userID}, options)
 		assert.NoError(t, err)
 		var priorities []database.JIRAPriority
 		err = cursor.All(context.TODO(), &priorities)
@@ -339,7 +339,7 @@ func TestGetPriorities(t *testing.T) {
 		err = GetListOfJIRAPriorities(api, *userID, "sample")
 		assert.NoError(t, err)
 
-		cursor, err = prioritiesCollection.Find(context.TODO(), bson.D{{Key: "user_id", Value: userID}}, options)
+		cursor, err = prioritiesCollection.Find(context.TODO(), bson.M{"user_id": userID}, options)
 		assert.NoError(t, err)
 		err = cursor.All(context.TODO(), &priorities)
 		assert.NoError(t, err)
@@ -381,13 +381,13 @@ func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection)
 
 func createJIRASiteConfiguration(t *testing.T, userID *primitive.ObjectID, jiraSiteCollection *mongo.Collection) {
 	_, err := jiraSiteCollection.UpdateOne(
-		nil,
-		bson.D{{"user_id", userID}},
-		bson.D{{"$set", &database.JIRASiteConfiguration{
+		context.TODO(),
+		bson.M{"user_id": userID},
+		bson.M{"$set": &database.JIRASiteConfiguration{
 			UserID:  *userID,
 			CloudID: "sample_cloud_id",
 			SiteURL: "https://dankmemes.com",
-		}}},
+		}},
 		options.Update().SetUpsert(true),
 	)
 	assert.NoError(t, err)

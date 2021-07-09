@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
@@ -30,7 +31,7 @@ func TestReplyToEmail(t *testing.T) {
 
 	taskCollection := db.Collection("tasks")
 
-	insertedResult, err := taskCollection.InsertOne(nil, database.Email{
+	insertedResult, err := taskCollection.InsertOne(context.TODO(), database.Email{
 		TaskBase: database.TaskBase{
 			UserID:     userID,
 			IDExternal: "sample_message_id",
@@ -61,7 +62,7 @@ func TestReplyToEmail(t *testing.T) {
 	})
 
 	t.Run("InvalidTaskType", func(t *testing.T) {
-		insertedResult, err := taskCollection.InsertOne(nil, database.Task{
+		insertedResult, err := taskCollection.InsertOne(context.TODO(), database.Task{
 			TaskBase: database.TaskBase{
 				UserID:     userID,
 				IDExternal: "sample_task_id",
@@ -104,7 +105,7 @@ func TestReplyToEmail(t *testing.T) {
 	})
 
 	t.Run("TaskDoesNotBelongToUser", func(t *testing.T) {
-		insertedResult, err := taskCollection.InsertOne(nil, database.Email{
+		insertedResult, err := taskCollection.InsertOne(context.TODO(), database.Email{
 			TaskBase: database.TaskBase{
 				UserID:     primitive.NewObjectID(),
 				IDExternal: "sample_message_id",
@@ -132,15 +133,15 @@ func TestReplyToEmail(t *testing.T) {
 
 	t.Run("SuccessNoReplyTo", func(t *testing.T) {
 		var headers = []*gmail.MessagePartHeader{
-			&gmail.MessagePartHeader{
+			{
 				Name:  "Subject",
 				Value: "Sample subject",
 			},
-			&gmail.MessagePartHeader{
+			{
 				Name:  "From",
 				Value: "Sample sender <sample@generaltask.io>",
 			},
-			&gmail.MessagePartHeader{
+			{
 				Name:  "Message-ID",
 				Value: "<id1@gt.io>",
 			},
@@ -157,23 +158,23 @@ func TestReplyToEmail(t *testing.T) {
 
 	t.Run("SuccessReplyToAndExistingSubjectRe", func(t *testing.T) {
 		var headers = []*gmail.MessagePartHeader{
-			&gmail.MessagePartHeader{
+			{
 				Name:  "Subject",
 				Value: "Re: Sample subject",
 			},
-			&gmail.MessagePartHeader{
+			{
 				Name:  "From",
 				Value: "Sample sender <sample@generaltask.io>",
 			},
-			&gmail.MessagePartHeader{
+			{
 				Name:  "Reply-To",
 				Value: "Reply address <reply@generaltask.io>",
 			},
-			&gmail.MessagePartHeader{
+			{
 				Name:  "Message-ID",
 				Value: "<id2@gt.io>",
 			},
-			&gmail.MessagePartHeader{
+			{
 				Name:  "References",
 				Value: "<id1@gt.io>",
 			},

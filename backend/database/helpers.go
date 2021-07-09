@@ -31,9 +31,7 @@ func UpdateOrCreateTask(
 	_, err := taskCollection.UpdateOne(
 		context.TODO(),
 		dbQuery,
-		bson.D{
-			{Key: "$setOnInsert", Value: fieldsToInsertIfMissing},
-		},
+		bson.M{"$setOnInsert": fieldsToInsertIfMissing},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
@@ -44,9 +42,7 @@ func UpdateOrCreateTask(
 	return taskCollection.FindOneAndUpdate(
 		context.TODO(),
 		dbQuery,
-		bson.D{
-			{Key: "$set", Value: fieldsToUpdate},
-		},
+		bson.M{"$set": fieldsToUpdate},
 	), nil
 }
 
@@ -68,9 +64,7 @@ func GetOrCreateTask(db *mongo.Database,
 	_, err := taskCollection.UpdateOne(
 		context.TODO(),
 		dbQuery,
-		bson.D{
-			{Key: "$setOnInsert", Value: fieldsToInsertIfMissing},
-		},
+		bson.M{"$setOnInsert": fieldsToInsertIfMissing},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
@@ -118,7 +112,7 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 	var userObject User
 	err := getUserCollection(db).FindOne(
 		context.TODO(),
-		bson.D{{Key: "_id", Value: userID}},
+		bson.M{"_id": userID},
 	).Decode(&userObject)
 	if err != nil {
 		log.Printf("Failed to load user: %v", err)
@@ -142,11 +136,11 @@ func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID) (*string, 
 }
 
 func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userID *primitive.ObjectID) error {
-	var deletionQuery bson.D
+	var deletionQuery bson.M
 	if userID == nil {
-		deletionQuery = bson.D{{Key: "_id", Value: stateTokenID}}
+		deletionQuery = bson.M{"_id": stateTokenID}
 	} else {
-		deletionQuery = bson.D{{Key: "user_id", Value: *userID}, {Key: "_id", Value: stateTokenID}}
+		deletionQuery = bson.M{"$and": []bson.M{{"user_id": *userID}, {"_id": stateTokenID}}}
 	}
 	result, err := getStateTokenCollection(db).DeleteOne(context.TODO(), deletionQuery)
 	if err != nil {

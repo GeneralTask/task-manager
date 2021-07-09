@@ -2,18 +2,19 @@ package api
 
 import (
 	"context"
-	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
 	"testing"
+
+	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func TestAuthorizeCookieMissing(t* testing.T, api* API, url string) {
+func TestAuthorizeCookieMissing(t *testing.T, api *API, url string) {
 	router := GetRouter(api)
 	request, _ := http.NewRequest("GET", url, nil)
 	recorder := httptest.NewRecorder()
@@ -86,7 +87,7 @@ func TestAuthorizeCallbackMissingCodeParam(t *testing.T, api *API, url string) {
 
 func TestAuthorizeCallbackBadStateTokenFormat(t *testing.T, api *API, url string) {
 	router := GetRouter(api)
-	request, _ := http.NewRequest("GET", url + "?code=123abc&state=oopsie", nil)
+	request, _ := http.NewRequest("GET", url+"?code=123abc&state=oopsie", nil)
 	authToken := login("approved@generaltask.io", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
@@ -103,7 +104,7 @@ func TestAuthorizeCallbackBadStateTokenFormat(t *testing.T, api *API, url string
 
 func TestAuthorizeCallbackInvalidStateToken(t *testing.T, api *API, url string) {
 	router := GetRouter(api)
-	request, _ := http.NewRequest("GET", url + "?code=123abc&state=6088e1c97018a22f240aa573", nil)
+	request, _ := http.NewRequest("GET", url+"?code=123abc&state=6088e1c97018a22f240aa573", nil)
 	authToken := login("approved@generaltask.io", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
@@ -127,7 +128,7 @@ func TestAuthorizeCallbackStateTokenWrongUser(t *testing.T, api *API, url string
 	assert.NoError(t, err)
 
 	router := GetRouter(api)
-	request, _ := http.NewRequest("GET", url + "?code=123abc&state="+*stateToken, nil)
+	request, _ := http.NewRequest("GET", url+"?code=123abc&state="+*stateToken, nil)
 	authToken := login("approved@generaltask.io", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
@@ -148,7 +149,7 @@ func TestAuthorizeCallbackUnsuccessfulResponse(t *testing.T, api *API, url strin
 	assert.NoError(t, err)
 
 	router := GetRouter(api)
-	request, _ := http.NewRequest("GET", url + "?code=123abc&state="+*stateToken, nil)
+	request, _ := http.NewRequest("GET", url+"?code=123abc&state="+*stateToken, nil)
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
@@ -160,10 +161,9 @@ func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string,
 	stateToken, err := newStateToken(authToken)
 	assert.NoError(t, err)
 
-
 	router := GetRouter(api)
 
-	request, _ := http.NewRequest("GET", url + "?code=123abc&state="+*stateToken, nil)
+	request, _ := http.NewRequest("GET", url+"?code=123abc&state="+*stateToken, nil)
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
@@ -174,24 +174,24 @@ func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string,
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var authTokenStruct database.InternalAPIToken
-	err = internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: authToken}}).Decode(&authTokenStruct)
+	err = internalAPITokenCollection.FindOne(context.TODO(), bson.M{"token": authToken}).Decode(&authTokenStruct)
 	assert.NoError(t, err)
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	count, err := externalAPITokenCollection.CountDocuments(
 		context.TODO(),
-		bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: sourceName}})
+		bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"source": sourceName}}})
 
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var externalToken database.ExternalAPIToken
-	err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: sourceName}}).Decode(&externalToken)
+	err = externalAPITokenCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"source": sourceName}}}).Decode(&externalToken)
 	assert.NoError(t, err)
 	assert.Equal(t, sourceName, externalToken.Source)
 
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var jiraToken database.ExternalAPIToken
-	err = externalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "user_id", Value: authTokenStruct.UserID}, {Key: "source", Value: database.TaskSourceJIRA.Name}}).Decode(&jiraToken)
+	err = externalAPITokenCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"source": database.TaskSourceJIRA.Name}}}).Decode(&jiraToken)
 	assert.NoError(t, err)
 	assert.Equal(t, database.TaskSourceJIRA.Name, jiraToken.Source)
 	assert.Equal(t, "teslatothemoon42069", jiraToken.AccountID)

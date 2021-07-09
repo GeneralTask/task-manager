@@ -185,19 +185,19 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 	accountID := (*siteConfiguration)[0].ID
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
-		bson.D{
-			{Key: "user_id", Value: internalToken.UserID},
-			{Key: "source", Value: database.TaskSourceJIRA.Name},
-			{Key: "account_id", Value: accountID},
-		},
-		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{
+		bson.M{"$and": []bson.M{
+			{"user_id": internalToken.UserID},
+			{"source": database.TaskSourceJIRA.Name},
+			{"account_id": accountID},
+		}},
+		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:       internalToken.UserID,
 			Source:       database.TaskSourceJIRA.Name,
 			Token:        string(tokenString),
 			AccountID:    accountID,
 			DisplayID:    (*siteConfiguration)[0].Name,
 			IsUnlinkable: true,
-		}}},
+		}},
 		options.Update().SetUpsert(true),
 	)
 
@@ -210,14 +210,12 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 	siteCollection := db.Collection("jira_site_collection")
 
 	_, err = siteCollection.UpdateOne(
-		nil,
-		bson.D{{"user_id", internalToken.UserID}},
-		bson.D{{"$set",
-			database.JIRASiteConfiguration{
-				UserID:  internalToken.UserID,
-				CloudID: (*siteConfiguration)[0].ID,
-				SiteURL: (*siteConfiguration)[0].URL,
-			},
+		context.TODO(),
+		bson.M{"user_id": internalToken.UserID},
+		bson.M{"$set": database.JIRASiteConfiguration{
+			UserID:  internalToken.UserID,
+			CloudID: (*siteConfiguration)[0].ID,
+			SiteURL: (*siteConfiguration)[0].URL,
 		}},
 		options.Update().SetUpsert(true),
 	)
@@ -442,7 +440,7 @@ func getJIRASiteConfiguration(userID primitive.ObjectID) (*database.JIRASiteConf
 	defer dbCleanup()
 
 	siteCollection := db.Collection("jira_site_collection")
-	err = siteCollection.FindOne(nil, bson.D{{Key: "user_id", Value: userID}}).Decode(&siteConfiguration)
+	err = siteCollection.FindOne(context.TODO(), bson.M{"user_id": userID}).Decode(&siteConfiguration)
 	if err != nil {
 		return nil, err
 	}
@@ -462,11 +460,11 @@ func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*JIRAA
 
 	err = externalAPITokenCollection.FindOne(
 		context.TODO(),
-		bson.D{
-			{Key: "user_id", Value: userID},
-			{Key: "source", Value: database.TaskSourceJIRA.Name},
-			{Key: "account_id", Value: accountID},
-		}).Decode(&JIRAToken)
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"source": database.TaskSourceJIRA.Name},
+			{"account_id": accountID},
+		}}).Decode(&JIRAToken)
 
 	if err != nil {
 		return nil, err
@@ -584,7 +582,7 @@ func executeTransition(apiBaseURL string, jiraAuthToken string, issueID string, 
 }
 
 func fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID primitive.ObjectID) *map[string]int {
-	cursor, err := prioritiesCollection.Find(context.TODO(), bson.D{{Key: "user_id", Value: userID}})
+	cursor, err := prioritiesCollection.Find(context.TODO(), bson.M{"user_id": userID})
 	if err != nil {
 		log.Printf("failed to fetch local priorities: %v", err)
 		return nil
@@ -609,7 +607,7 @@ func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken stri
 	} else if siteConfiguration, _ := getJIRASiteConfiguration(userID); siteConfiguration != nil {
 		baseURL = getJIRAAPIBaseURl(*siteConfiguration)
 	} else {
-		return errors.New("Could not form base url")
+		return errors.New("could not form base url")
 	}
 
 	url := baseURL + "/rest/api/3/priority/"
@@ -641,7 +639,7 @@ func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken stri
 	defer dbCleanup()
 
 	prioritiesCollection := db.Collection("jira_priorities")
-	_, err = prioritiesCollection.DeleteMany(context.TODO(), bson.D{{Key: "user_id", Value: userID}})
+	_, err = prioritiesCollection.DeleteMany(context.TODO(), bson.M{"user_id": userID})
 	if err != nil {
 		return err
 	}

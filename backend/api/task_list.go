@@ -28,7 +28,7 @@ func (api *API) TasksList(c *gin.Context) {
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := db.Collection("users")
-	err = userCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
+	err = userCollection.FindOne(context.TODO(), bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
 		log.Printf("failed to find user: %v", err)
@@ -288,7 +288,7 @@ func adjustForCompletedTasks(
 			res, err := tasksCollection.UpdateOne(
 				context.TODO(),
 				bson.M{"_id": currentTask.ID},
-				bson.D{{Key: "$set", Value: bson.D{{Key: "is_completed", Value: true}}}},
+				bson.M{"$set": bson.M{"is_completed": true}},
 			)
 			if err != nil {
 				log.Printf("failed to update task ordering ID: %v", err)
@@ -434,7 +434,7 @@ func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) error {
 		res, err := tasksCollection.UpdateOne(
 			context.TODO(),
 			bson.M{"_id": task.ID},
-			bson.D{{Key: "$set", Value: bson.D{{Key: "id_ordering", Value: task.IDOrdering}}}},
+			bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
 		)
 		if err != nil {
 			log.Printf("failed to update task ordering ID: %v", err)

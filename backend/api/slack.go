@@ -109,11 +109,11 @@ func (api *API) AuthorizeSlackCallback(c *gin.Context) {
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
-		bson.D{{Key: "user_id", Value: internalToken.UserID}, {Key: "source", Value: database.TaskSourceSlack.Name}},
-		bson.D{{Key: "$set", Value: &database.ExternalAPIToken{
+		bson.M{"$and": []bson.M{{"user_id": internalToken.UserID}, {"source": database.TaskSourceSlack.Name}}},
+		bson.M{"$set": &database.ExternalAPIToken{
 			UserID: internalToken.UserID,
 			Source: database.TaskSourceSlack.Name,
-			Token:  string(tokenString)}}},
+			Token:  string(tokenString)}},
 		options.Update().SetUpsert(true),
 	)
 

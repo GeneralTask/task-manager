@@ -79,7 +79,7 @@ func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var internalToken database.InternalAPIToken
-	err = internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: authToken}}).Decode(&internalToken)
+	err = internalAPITokenCollection.FindOne(context.TODO(), bson.M{"token": authToken}).Decode(&internalToken)
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "invalid auth token"})
 		return nil, errors.New("invalid auth token")
@@ -112,7 +112,7 @@ func TokenMiddleware(c *gin.Context) {
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var internalToken database.InternalAPIToken
-	err = internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: token}}).Decode(&internalToken)
+	err = internalAPITokenCollection.FindOne(context.TODO(), bson.M{"token": token}).Decode(&internalToken)
 	if err != nil {
 		log.Printf("auth failed: %v\n", err)
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
