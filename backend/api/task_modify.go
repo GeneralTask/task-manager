@@ -69,10 +69,10 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 			{"_id": taskID},
 			{"user_id": userID},
 		}},
-		bson.M{"$set": bson.M{"$and": []bson.M{
-			{"id_ordering": reorder},
-			{"has_been_reordered": true},
-		}}},
+		bson.M{"$set": bson.D{
+			{Key: "id_ordering", Value: reorder},
+			{Key: "has_been_reordered", Value: true},
+		}},
 	)
 	if err != nil {
 		log.Printf("failed to update task in db: %v", err)
