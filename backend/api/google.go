@@ -457,6 +457,9 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, accountID string, taskID 
 	var email database.Email
 	taskCollection := db.Collection("tasks")
 	err = taskCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"_id": taskID}, {"user_id": userID}}}).Decode(&email)
+	if err != nil {
+		return err
+	}
 
 	messageResponse, err := gmailService.Users.Messages.Get("me", email.IDExternal).Do()
 

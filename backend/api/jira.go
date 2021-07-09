@@ -548,9 +548,17 @@ func getFinalTransitionID(apiBaseURL string, jiraAuthToken string, jiraCloudID s
 	}
 
 	responseString, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("failed to read http response body: %v", err)
+		return nil
+	}
 
 	var data map[string]interface{}
 	err = json.Unmarshal(responseString, &data)
+	if err != nil {
+		log.Printf("failed to parse json data: %v", err)
+		return nil
+	}
 
 	typeOfArray := reflect.TypeOf(data["transitions"]).String()
 	fmt.Println(typeOfArray)
