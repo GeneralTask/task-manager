@@ -117,7 +117,7 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 		}
 	}
 	log.Printf("invalid setting: %s", fieldKey)
-	return nil, errors.New(fmt.Sprintf("Invalid setting: %s", fieldKey))
+	return nil, fmt.Errorf("invalid setting: %s", fieldKey)
 }
 
 func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string, fieldValue string) error {
@@ -147,11 +147,11 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 			{"user_id": userID},
 			{"field_key": fieldKey},
 		}},
-		bson.D{{Key: "$set", Value: &database.UserSetting{
+		bson.M{"$set": &database.UserSetting{
 			FieldKey:   fieldKey,
 			FieldValue: fieldValue,
 			UserID:     userID,
-		}}},
+		}},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {

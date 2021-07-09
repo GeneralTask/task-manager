@@ -127,12 +127,12 @@ func TestLoginCallback(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "Task Destroyer", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		var userObject database.User
-		userCollection.FindOne(context.TODO(), bson.D{{Key: "google_id", Value: "goog12345_approved@generaltask.io"}}).Decode(&userObject)
+		userCollection.FindOne(context.TODO(), bson.M{"google_id": "goog12345_approved@generaltask.io"}).Decode(&userObject)
 		assert.Equal(t, "Task Destroyer", userObject.Name)
 
 		recorder = makeLoginCallbackRequest("noice420", "approved@generaltask.io", "Elon Musk", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		userCollection.FindOne(context.TODO(), bson.D{{Key: "google_id", Value: "goog12345_approved@generaltask.io"}}).Decode(&userObject)
+		userCollection.FindOne(context.TODO(), bson.M{"google_id": "goog12345_approved@generaltask.io"}).Decode(&userObject)
 		assert.Equal(t, "Elon Musk", userObject.Name)
 	})
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
@@ -168,7 +168,7 @@ func TestLoginCallback(t *testing.T) {
 		db, dbCleanup, err := database.GetDBConnection()
 		assert.NoError(t, err)
 		defer dbCleanup()
-		_, err = db.Collection("external_api_tokens").DeleteOne(context.TODO(), bson.D{{Key: "account_id", Value: "approved@generaltask.io"}, {Key: "source", Value: "google"}})
+		_, err = db.Collection("external_api_tokens").DeleteOne(context.TODO(), bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.io"}, {"source": "google"}}})
 		assert.NoError(t, err)
 		stateToken, err := newStateToken("")
 		assert.NoError(t, err)

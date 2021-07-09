@@ -75,7 +75,7 @@ func login(email string, name string) string {
 func getUserIDFromAuthToken(t *testing.T, db *mongo.Database, authToken string) primitive.ObjectID {
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var authTokenStruct database.InternalAPIToken
-	err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&authTokenStruct)
+	err := internalAPITokenCollection.FindOne(context.TODO(), bson.M{"token": authToken}).Decode(&authTokenStruct)
 	assert.NoError(t, err)
 	return authTokenStruct.UserID
 }
@@ -90,7 +90,7 @@ func newStateToken(authToken string) (*string, error) {
 	if authToken != "" {
 		internalAPITokenCollection := db.Collection("internal_api_tokens")
 		var token database.InternalAPIToken
-		err := internalAPITokenCollection.FindOne(context.TODO(), bson.D{{Key: "token", Value: authToken}}).Decode(&token)
+		err := internalAPITokenCollection.FindOne(context.TODO(), bson.M{"token": authToken}).Decode(&token)
 		if err != nil {
 			log.Fatalf("Failed to find internal api token for test")
 		}
@@ -149,21 +149,21 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 	userCollection := db.Collection("users")
 	googleID := "goog12345_" + email
 
-	count, err := userCollection.CountDocuments(context.TODO(), bson.D{{Key: "google_id", Value: googleID}})
+	count, err := userCollection.CountDocuments(context.TODO(), bson.M{"google_id": googleID})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var user database.User
-	err = userCollection.FindOne(context.TODO(), bson.D{{Key: "google_id", Value: googleID}}).Decode(&user)
+	err = userCollection.FindOne(context.TODO(), bson.M{"google_id": googleID}).Decode(&user)
 	assert.NoError(t, err)
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	count, err = externalAPITokenCollection.CountDocuments(
 		context.TODO(),
-		bson.D{
-			{Key: "user_id", Value: user.ID},
-			{Key: "source", Value: "google"},
-			{Key: "account_id", Value: email},
-		},
+		bson.M{"$and": []bson.M{
+			{"user_id": user.ID},
+			{"source": "google"},
+			{"account_id": email},
+		}},
 	)
 	assert.NoError(t, err)
 	if assertNoExternalTokens {
@@ -173,10 +173,10 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 		var googleToken database.ExternalAPIToken
 		err = externalAPITokenCollection.FindOne(
 			context.TODO(),
-			bson.D{
-				{Key: "user_id", Value: user.ID},
-				{Key: "source", Value: "google"},
-			},
+			bson.M{"$and": []bson.M{
+				{"user_id": user.ID},
+				{"source": "google"},
+			}},
 		).Decode(&googleToken)
 		assert.NoError(t, err)
 		assert.Equal(t, "google", googleToken.Source)
@@ -188,7 +188,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 	}
 
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
-	count, err = internalAPITokenCollection.CountDocuments(context.TODO(), bson.D{{Key: "user_id", Value: user.ID}})
+	count, err = internalAPITokenCollection.CountDocuments(context.TODO(), bson.M{"user_id": user.ID})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 }

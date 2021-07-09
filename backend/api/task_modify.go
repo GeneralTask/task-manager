@@ -69,9 +69,9 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 			{"_id": taskID},
 			{"user_id": userID},
 		}},
-		bson.D{{Key: "$set", Value: bson.D{
-			{Key: "id_ordering", Value: reorder},
-			{Key: "has_been_reordered", Value: true},
+		bson.M{"$set": bson.M{"$and": []bson.M{
+			{"id_ordering": reorder},
+			{"has_been_reordered": true},
 		}}},
 	)
 	if err != nil {
@@ -130,7 +130,7 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	}
 
 	if err == nil {
-		_, err := taskCollection.UpdateOne(nil, bson.D{{"_id", taskID}}, bson.D{{"$set", bson.D{{"is_completed", true}}}})
+		_, err := taskCollection.UpdateOne(context.TODO(), bson.M{"_id": taskID}, bson.M{"$set": bson.M{"is_completed": true}})
 		if err != nil {
 			log.Printf("failed to update internal DB with completion status: %v", err)
 			Handle500(c)

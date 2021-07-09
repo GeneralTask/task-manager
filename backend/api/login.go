@@ -113,7 +113,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	waitlistCollection := db.Collection("waitlist")
 	count, err := waitlistCollection.CountDocuments(
 		context.TODO(),
-		bson.D{{Key: "email", Value: lowerEmail}, {Key: "has_access", Value: true}},
+		bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
 	)
 	if err != nil {
 		log.Printf("failed to query waitlist: %v", err)
@@ -131,8 +131,8 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	userCollection.FindOneAndUpdate(
 		context.TODO(),
-		bson.D{{Key: "google_id", Value: userInfo.SUB}},
-		bson.D{{Key: "$set", Value: &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name}}},
+		bson.M{"google_id": userInfo.SUB},
+		bson.M{"$set": &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name}},
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
 	).Decode(&user)
 
@@ -153,19 +153,19 @@ func (api *API) LoginCallback(c *gin.Context) {
 		externalAPITokenCollection := db.Collection("external_api_tokens")
 		_, err = externalAPITokenCollection.UpdateOne(
 			context.TODO(),
-			bson.D{
-				{Key: "user_id", Value: user.ID},
-				{Key: "source", Value: "google"},
-				{Key: "account_id", Value: userInfo.EMAIL},
-			},
-			bson.D{{Key: "$set", Value: &database.ExternalAPIToken{
+			bson.M{"$and": []bson.M{
+				{"user_id": user.ID},
+				{"source": "google"},
+				{"account_id": userInfo.EMAIL},
+			}},
+			bson.M{"$set": &database.ExternalAPIToken{
 				UserID:       user.ID,
 				Source:       "google",
 				Token:        string(tokenString),
 				AccountID:    userInfo.EMAIL,
 				DisplayID:    userInfo.EMAIL,
 				IsUnlinkable: false,
-			}}},
+			}},
 			options.Update().SetUpsert(true),
 		)
 		if err != nil {
@@ -179,8 +179,8 @@ func (api *API) LoginCallback(c *gin.Context) {
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	_, err = internalAPITokenCollection.UpdateOne(
 		context.TODO(),
-		bson.D{{Key: "user_id", Value: user.ID}},
-		bson.D{{Key: "$set", Value: &database.InternalAPIToken{UserID: user.ID, Token: internalToken}}},
+		bson.M{"user_id": user.ID},
+		bson.M{"$set": &database.InternalAPIToken{UserID: user.ID, Token: internalToken}},
 		options.Update().SetUpsert(true),
 	)
 

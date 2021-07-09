@@ -45,7 +45,7 @@ func (api *API) TaskReply(c *gin.Context) {
 	var taskBase database.TaskBase
 	err = taskCollection.FindOne(
 		context.TODO(),
-		bson.D{{Key: "_id", Value: taskID}, {Key: "user_id", Value: userID}}).Decode(&taskBase)
+		bson.M{"$and": []bson.M{{"_id": taskID}, {"user_id": userID}}}).Decode(&taskBase)
 
 	if err != nil {
 		Handle404(c)

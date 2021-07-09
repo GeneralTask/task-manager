@@ -272,7 +272,7 @@ func LoadCalendarEvents(
 	} else {
 		timeZoneName = "UTC"
 	}
-	location := time.FixedZone(timeZoneName, timezoneOffsetMinutes * -60)
+	location := time.FixedZone(timeZoneName, timezoneOffsetMinutes*-60)
 	//strip out hours/minutes/seconds of today to find the start of the day
 	todayStartTime := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, location)
 	//get end of day but adding one day to start of day and then subtracting a second to get day at 11:59:59PM
@@ -447,14 +447,14 @@ func ReplyToEmail(api *API, userID primitive.ObjectID, accountID string, taskID 
 
 	var userObject database.User
 	userCollection := db.Collection("users")
-	err = userCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: userID}}).Decode(&userObject)
+	err = userCollection.FindOne(context.TODO(), bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
 		return err
 	}
 
 	var email database.Email
 	taskCollection := db.Collection("tasks")
-	err = taskCollection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: taskID}, {Key: "user_id", Value: userID}}).Decode(&email)
+	err = taskCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"_id": taskID}, {"user_id": userID}}}).Decode(&email)
 
 	messageResponse, err := gmailService.Users.Messages.Get("me", email.IDExternal).Do()
 
@@ -529,11 +529,11 @@ func getGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 
 	if err := externalAPITokenCollection.FindOne(
 		context.TODO(),
-		bson.D{
-			{Key: "user_id", Value: userID},
-			{Key: "source", Value: "google"},
-			{Key: "account_id", Value: accountID},
-		}).Decode(&googleToken); err != nil {
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"source": "google"},
+			{"account_id": accountID},
+		}}).Decode(&googleToken); err != nil {
 		return nil
 	}
 
