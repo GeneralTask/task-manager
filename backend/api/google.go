@@ -174,6 +174,7 @@ func loadEmails(userID primitive.ObjectID, accountID string, client *http.Client
 			if dbEmail != nil {
 				email.ID = dbEmail.ID
 				email.IDOrdering = dbEmail.IDOrdering
+				email.IDTaskSection = dbEmail.IDTaskSection
 			}
 			emails = append(emails, email)
 		}

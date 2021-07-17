@@ -208,12 +208,13 @@ func TestLoadJIRATasks(t *testing.T) {
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		expectedTask := database.Task{
 			TaskBase: database.TaskBase{
-				IDOrdering: 2,
-				IDExternal: "42069",
-				Deeplink:   "https://dankmemes.com/browse/MOON-1969",
-				Title:      "Sample Taskeroni",
-				Source:     database.TaskSourceJIRA,
-				UserID:     *userID,
+				IDOrdering:    2,
+				IDExternal:    "42069",
+				IDTaskSection: IDTaskSectionBlocked,
+				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
+				Title:         "Sample Taskeroni",
+				Source:        database.TaskSourceJIRA,
+				UserID:        *userID,
 			},
 			PriorityID: "something_that_will_change",
 			DueDate:    primitive.NewDateTimeFromTime(dueDate),
@@ -247,6 +248,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.NoError(t, err)
 		// ordering ID in DB isn't updated until task merge
 		expectedTask.IDOrdering = 2
+		expectedTask.IDTaskSection = IDTaskSectionBlocked
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 	})
 	t.Run("NewPriorityReordered", func(t *testing.T) {

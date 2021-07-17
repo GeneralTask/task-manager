@@ -172,7 +172,7 @@ func TestCalendar(t *testing.T) {
 		api := &API{
 			GoogleOverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 		}
-		go LoadCalendarEvents(api, userID, "exampleAccountID", 0,nil, calendarResult)
+		go LoadCalendarEvents(api, userID, "exampleAccountID", 0, nil, calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.CalendarEvents))
@@ -270,7 +270,7 @@ func TestCalendar(t *testing.T) {
 		}
 		defer server.Close()
 		var calendarResult = make(chan CalendarResult)
-		go LoadCalendarEvents(&api, primitive.NewObjectID(), "exampleAccountID", 0,nil, calendarResult)
+		go LoadCalendarEvents(&api, primitive.NewObjectID(), "exampleAccountID", 0, nil, calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.CalendarEvents))
