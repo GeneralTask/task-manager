@@ -109,22 +109,6 @@ func (api *API) LoginCallback(c *gin.Context) {
 		return
 	}
 
-	lowerEmail := strings.ToLower(userInfo.EMAIL)
-	waitlistCollection := db.Collection("waitlist")
-	count, err := waitlistCollection.CountDocuments(
-		context.TODO(),
-		bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
-	)
-	if err != nil {
-		log.Printf("failed to query waitlist: %v", err)
-		Handle500(c)
-		return
-	}
-	if _, contains := ALLOWED_USERNAMES[strings.ToLower(userInfo.EMAIL)]; !contains && !strings.HasSuffix(lowerEmail, "@generaltask.io") && count == 0 {
-		c.JSON(403, gin.H{"detail": "Email has not been approved."})
-		return
-	}
-
 	userCollection := db.Collection("users")
 
 	var user database.User
@@ -173,6 +157,22 @@ func (api *API) LoginCallback(c *gin.Context) {
 			Handle500(c)
 			return
 		}
+	}
+
+	lowerEmail := strings.ToLower(userInfo.EMAIL)
+	waitlistCollection := db.Collection("waitlist")
+	count, err := waitlistCollection.CountDocuments(
+		context.TODO(),
+		bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
+	)
+	if err != nil {
+		log.Printf("failed to query waitlist: %v", err)
+		Handle500(c)
+		return
+	}
+	if _, contains := ALLOWED_USERNAMES[strings.ToLower(userInfo.EMAIL)]; !contains && !strings.HasSuffix(lowerEmail, "@generaltask.io") && count == 0 {
+		c.JSON(403, gin.H{"detail": "Email has not been approved."})
+		return
 	}
 
 	internalToken := guuid.New().String()

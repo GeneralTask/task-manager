@@ -103,7 +103,6 @@ func TokenMiddleware(c *gin.Context) {
 		// This means the auth token format was incorrect
 		return
 	}
-	log.Println("Token: \"" + token + "\"")
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"detail": "internal server error"})
@@ -118,8 +117,6 @@ func TokenMiddleware(c *gin.Context) {
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
 		return
 	}
-	log.Println("User ID below!")
-	log.Println(internalToken.UserID)
 	c.Set("user", internalToken.UserID)
 }
 
