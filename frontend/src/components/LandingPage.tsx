@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
-import styled from 'styled-components'
-
-import TaskList from './task/TaskList'
-import GLButton from './login/GoogleLogin'
 import { LOGIN_URL, WAITLIST_URL } from '../constants'
+import React, { useState } from 'react'
 import { getAuthToken, getHeaders } from '../helpers/utils'
+
+import GLButton from './login/GoogleLogin'
+import TaskList from './task/TaskList'
+import { textDark } from '../helpers/styles'
+import styled from 'styled-components'
 
 const Logo = styled.div`
   font-weight: bold;
@@ -25,7 +26,7 @@ const Title = styled.div`
 `
 const Subtitle = styled.div`
   font-size: 27px;
-  color: #969696;
+  color: ${textDark};
   text-align: center;
   margin-bottom: 30px;
 `
@@ -34,7 +35,7 @@ const WaitlistInput = styled.input`
   height: 100%;
   border: 1.5px solid black;
   border-radius: 2px 0 0 2px;
-  color: #969696;
+  color: ${textDark};
   box-sizing: border-box;
   text-align: center;
 `
@@ -68,13 +69,13 @@ const WaitlistMessage = styled.div<{ visibility: string, backgroundColor: string
   color: ${props => props.color};
 `
 const LoginWithGoogle = styled.a`
-  border: 1px solid #cccccc;
+  border: 1px solid ;
   border-radius: 2px;
   margin: auto;
   margin-bottom: 50px;
   display: flex;
   width: 200px;
-  color: #969696;
+  color: ${textDark};
   text-decoration: none;
   display: flex;
   align-items: center;

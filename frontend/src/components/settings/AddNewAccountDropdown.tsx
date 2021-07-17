@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react'
 import { CHEVRON_DOWN, JIRA_URL, LOGIN_URL, SUPPORTED_TYPES_URL } from '../../constants'
-import { makeAuthorizedRequest } from '../../helpers/utils'
+import React, { useEffect, useRef, useState } from 'react'
+import { hoverBackground, borderPrimary } from '../../helpers/styles'
 
+import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'
 
 const Logo = styled.img`
@@ -33,14 +34,14 @@ const OptionContainer = styled.div`
     position: relative;
     display: flex; 
     align-items: center;
-    border: 2px solid #CCCCCC;
+    border: 2px solid ${borderPrimary};
     border-top: 0;
     padding: 8.5px;
     background-color: white;
     width: 100%;
     cursor: pointer;
     &:hover{
-        background-color: #e3e3e3;
+        background-color: ${hoverBackground};
     }
 `
 

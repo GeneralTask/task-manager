@@ -1,14 +1,16 @@
-import React from 'react'
 import './Task.css'
-import { TASKS_URL } from '../../constants'
-import store from '../../redux/store'
-import { removeTaskById, expandBody, retractBody } from '../../redux/actions'
-import { makeAuthorizedRequest } from '../../helpers/utils'
-import { useSelector } from 'react-redux'
 
-import styled from 'styled-components'
+import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
+import { hoverBackground, secondaryText } from '../../helpers/styles'
+
+import { DraggableProvided } from 'react-beautiful-dnd'
+import React from 'react'
 import { RootState } from '../../redux/store'
-
+import { TASKS_URL } from '../../constants'
+import { makeAuthorizedRequest } from '../../helpers/utils'
+import store from '../../redux/store'
+import styled from 'styled-components'
+import { useSelector } from 'react-redux'
 
 const Header = styled.div<{ hover_effect: boolean }>`
   font-size: 20px;
@@ -19,7 +21,7 @@ const Header = styled.div<{ hover_effect: boolean }>`
   padding: 8px 8px 8px 0;
   cursor: ${props => props.hover_effect ? 'pointer' : 'inherit'};
   &:hover{
-    background-color: ${props => props.hover_effect ? '#e3e3e3' : 'inherit'};
+    background-color: ${props => props.hover_effect ? hoverBackground : 'inherit'};
   }
 `
 
@@ -44,7 +46,7 @@ const Icon = styled.img`
   padding-right: 12px;
 `
 const Source = styled.div`
-  color: #cccccc;
+  color:${secondaryText};
   max-width: 25%;
   text-align: right;
 `
@@ -64,9 +66,6 @@ const DoneButton = styled.button`
     color: white;
   }
 `
-// TODO nolan pls help
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type UNKNOWN_PROVIDED_TYPE = any
 
 interface Props {
   logo_url: string,
@@ -75,7 +74,7 @@ interface Props {
   task_id: string,
   is_completable: boolean,
   hover_effect: boolean,
-  provided: UNKNOWN_PROVIDED_TYPE,
+  provided: DraggableProvided,
 }
 
 const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_completable, hover_effect }: Props) => {

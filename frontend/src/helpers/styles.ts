@@ -12,3 +12,8 @@ export const flex = {
     alignItemsCenter: styled.div`display: flex; align-items: center`,
     justifyContentSpaceBetween: styled.div`display: flex; justify-content: space-between`,
 }
+
+export const textDark = '#969696'
+export const borderPrimary = '#cccccc'
+export const secondaryText = '#cccccc'
+export const hoverBackground = '#e3e3e3'
