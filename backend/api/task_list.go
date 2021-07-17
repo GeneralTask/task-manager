@@ -35,11 +35,21 @@ type TaskGroup struct {
 	Tasks         []*database.TaskBase `json:"tasks"`
 }
 
+type TaskSection struct {
+	ID         primitive.ObjectID `json:"id"`
+	Name       string             `json:"name"`
+	IsToday    bool               `json:"is_today"`
+	TaskGroups []*TaskGroup       `json:"task_groups"`
+}
+
 type TaskGroupType string
 
 const (
-	ScheduledTask    TaskGroupType = "scheduled_task"
-	UnscheduledGroup TaskGroupType = "unscheduled_group"
+	ScheduledTask          TaskGroupType = "scheduled_task"
+	UnscheduledGroup       TaskGroupType = "unscheduled_group"
+	TaskSectionNameToday   string        = "Today"
+	TaskSectionNameBlocked string        = "Blocked"
+	TaskSectionNameBacklog string        = "Backlog"
 )
 
 var IDTaskSectionToday primitive.ObjectID = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
@@ -179,7 +189,7 @@ func MergeTasks(
 	JIRATasks []*database.Task,
 	taskPriorityMapping *map[string]*map[string]int,
 	userDomain string,
-) ([]*TaskGroup, error) {
+) ([]*TaskSection, error) {
 
 	//sort calendar events by start time.
 	sort.SliceStable(calendarEvents, func(i, j int) bool {
@@ -197,7 +207,7 @@ func MergeTasks(
 
 	err := adjustForCompletedTasks(db, currentTasks, &allUnscheduledTasks, &calendarEvents)
 	if err != nil {
-		return []*TaskGroup{}, err
+		return []*TaskSection{}, err
 	}
 
 	//first we sort the emails and tasks into a single array
@@ -285,7 +295,7 @@ func MergeTasks(
 	tasks = adjustForReorderedTasks(&tasks)
 	err = updateOrderingIDs(db, &tasks)
 	if err != nil {
-		return []*TaskGroup{}, err
+		return []*TaskSection{}, err
 	}
 
 	return convertTasksToTaskGroups(&tasks), nil
@@ -462,7 +472,7 @@ func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) error {
 	return nil
 }
 
-func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskGroup {
+func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskSection {
 	taskGroups := []*TaskGroup{}
 	lastEndTime := time.Now()
 	unscheduledTasks := []*database.TaskBase{}
@@ -498,7 +508,12 @@ func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskGroup {
 		Duration:      totalDuration / int64(time.Second),
 		Tasks:         unscheduledTasks,
 	})
-	return taskGroups
+	return []*TaskSection{{
+		ID:         IDTaskSectionToday,
+		Name:       TaskSectionNameToday,
+		IsToday:    true,
+		TaskGroups: taskGroups,
+	}}
 }
 
 func getTaskBase(t interface{}) *database.TaskBase {
