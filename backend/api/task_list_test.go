@@ -175,43 +175,45 @@ func TestMergeTasks(t *testing.T) {
 
 		//need to improve these asserts to compare values as well but a pain with casting
 		//for now so we'll compare JSON later.
-		assert.Equal(t, len(result), 5)
+		assert.Equal(t, 1, len(result), 1)
+		assert.Equal(t, 5, len(result[0].TaskGroups))
+		todayGroups := result[0].TaskGroups
 
-		assert.Equal(t, 2, len(result[0].Tasks))
-		assert.Equal(t, UnscheduledGroup, result[0].TaskGroupType)
-		assert.Equal(t, e1ID, result[0].Tasks[0].ID)
-		assert.Equal(t, 1, result[0].Tasks[0].IDOrdering)
-		assert.Equal(t, e1aID, result[0].Tasks[1].ID)
-		assert.Equal(t, 2, result[0].Tasks[1].IDOrdering)
+		assert.Equal(t, 2, len(todayGroups[0].Tasks))
+		assert.Equal(t, UnscheduledGroup, todayGroups[0].TaskGroupType)
+		assert.Equal(t, e1ID, todayGroups[0].Tasks[0].ID)
+		assert.Equal(t, 1, todayGroups[0].Tasks[0].IDOrdering)
+		assert.Equal(t, e1aID, todayGroups[0].Tasks[1].ID)
+		assert.Equal(t, 2, todayGroups[0].Tasks[1].IDOrdering)
 
-		assert.Equal(t, 1, len(result[1].Tasks))
-		assert.Equal(t, ScheduledTask, result[1].TaskGroupType)
-		assert.Equal(t, c1ID, result[1].Tasks[0].ID)
-		assert.Equal(t, 3, result[1].Tasks[0].IDOrdering)
+		assert.Equal(t, 1, len(todayGroups[1].Tasks))
+		assert.Equal(t, ScheduledTask, todayGroups[1].TaskGroupType)
+		assert.Equal(t, c1ID, todayGroups[1].Tasks[0].ID)
+		assert.Equal(t, 3, todayGroups[1].Tasks[0].IDOrdering)
 
-		assert.Equal(t, 1, len(result[2].Tasks))
-		assert.Equal(t, UnscheduledGroup, result[2].TaskGroupType)
-		assert.Equal(t, t1ID, result[2].Tasks[0].ID)
-		assert.Equal(t, 4, result[2].Tasks[0].IDOrdering)
+		assert.Equal(t, 1, len(todayGroups[2].Tasks))
+		assert.Equal(t, UnscheduledGroup, todayGroups[2].TaskGroupType)
+		assert.Equal(t, t1ID, todayGroups[2].Tasks[0].ID)
+		assert.Equal(t, 4, todayGroups[2].Tasks[0].IDOrdering)
 
-		assert.Equal(t, 1, len(result[3].Tasks))
-		assert.Equal(t, ScheduledTask, result[3].TaskGroupType)
-		assert.Equal(t, c2ID, result[3].Tasks[0].ID)
-		assert.Equal(t, 5, result[3].Tasks[0].IDOrdering)
+		assert.Equal(t, 1, len(todayGroups[3].Tasks))
+		assert.Equal(t, ScheduledTask, todayGroups[3].TaskGroupType)
+		assert.Equal(t, c2ID, todayGroups[3].Tasks[0].ID)
+		assert.Equal(t, 5, todayGroups[3].Tasks[0].IDOrdering)
 
-		assert.Equal(t, 4, len(result[4].Tasks))
-		assert.Equal(t, UnscheduledGroup, result[4].TaskGroupType)
-		assert.Equal(t, t3ID, result[4].Tasks[0].ID)
-		assert.Equal(t, 6, result[4].Tasks[0].IDOrdering)
+		assert.Equal(t, 4, len(todayGroups[4].Tasks))
+		assert.Equal(t, UnscheduledGroup, todayGroups[4].TaskGroupType)
+		assert.Equal(t, t3ID, todayGroups[4].Tasks[0].ID)
+		assert.Equal(t, 6, todayGroups[4].Tasks[0].IDOrdering)
 
-		assert.Equal(t, t4ID, result[4].Tasks[1].ID)
-		assert.Equal(t, 7, result[4].Tasks[1].IDOrdering)
+		assert.Equal(t, t4ID, todayGroups[4].Tasks[1].ID)
+		assert.Equal(t, 7, todayGroups[4].Tasks[1].IDOrdering)
 
-		assert.Equal(t, t2ID, result[4].Tasks[2].ID)
-		assert.Equal(t, 8, result[4].Tasks[2].IDOrdering)
+		assert.Equal(t, t2ID, todayGroups[4].Tasks[2].ID)
+		assert.Equal(t, 8, todayGroups[4].Tasks[2].IDOrdering)
 
-		assert.Equal(t, e2ID, result[4].Tasks[3].ID)
-		assert.Equal(t, 9, result[4].Tasks[3].IDOrdering)
+		assert.Equal(t, e2ID, todayGroups[4].Tasks[3].ID)
+		assert.Equal(t, 9, todayGroups[4].Tasks[3].IDOrdering)
 	})
 	t.Run("ReorderingAroundCalendarEvents", func(t *testing.T) {
 		// Tested here:
@@ -324,24 +326,26 @@ func TestMergeTasks(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		assert.Equal(t, 6, len(result))
-		assert.Equal(t, t1.ID, result[0].Tasks[0].ID)
+		assert.Equal(t, 1, len(result))
+		todayGroups := result[0].TaskGroups
+		assert.Equal(t, 6, len(todayGroups))
+		assert.Equal(t, t1.ID, todayGroups[0].Tasks[0].ID)
 		assert.Equal(t, 1, getTaskForTest(t, taskCollection, t1.ID).IDOrdering)
 
-		assert.Equal(t, c1.ID, result[1].Tasks[0].ID)
+		assert.Equal(t, c1.ID, todayGroups[1].Tasks[0].ID)
 		assert.Equal(t, 2, getTaskForTest(t, taskCollection, c1.ID).IDOrdering)
 
-		assert.Equal(t, c2.ID, result[2].Tasks[0].ID)
+		assert.Equal(t, c2.ID, todayGroups[2].Tasks[0].ID)
 		assert.Equal(t, 3, getTaskForTest(t, taskCollection, c2.ID).IDOrdering)
 
-		assert.Equal(t, t2.ID, result[3].Tasks[0].ID)
+		assert.Equal(t, t2.ID, todayGroups[3].Tasks[0].ID)
 		assert.Equal(t, 4, getTaskForTest(t, taskCollection, t2.ID).IDOrdering)
 
-		assert.Equal(t, c3.ID, result[4].Tasks[0].ID)
+		assert.Equal(t, c3.ID, todayGroups[4].Tasks[0].ID)
 		assert.Equal(t, 5, getTaskForTest(t, taskCollection, c3.ID).IDOrdering)
 
 		// Empty unscheduled task group is expected if last event is calendar event
-		assert.Equal(t, 0, len(result[5].Tasks))
+		assert.Equal(t, 0, len(todayGroups[5].Tasks))
 	})
 	t.Run("ReorderingPersist", func(t *testing.T) {
 		// Tested here: existing DB ordering IDs are kept (except cal events)
@@ -433,17 +437,19 @@ func TestMergeTasks(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		assert.Equal(t, 5, len(result))
-		assert.Equal(t, 0, len(result[0].Tasks))
-		assert.Equal(t, 1, len(result[1].Tasks))
-		assert.Equal(t, 2, len(result[2].Tasks))
-		assert.Equal(t, 1, len(result[3].Tasks))
-		assert.Equal(t, 0, len(result[4].Tasks))
+		assert.Equal(t, 1, len(result))
+		todayGroups := result[0].TaskGroups
+		assert.Equal(t, 5, len(todayGroups))
+		assert.Equal(t, 0, len(todayGroups[0].Tasks))
+		assert.Equal(t, 1, len(todayGroups[1].Tasks))
+		assert.Equal(t, 2, len(todayGroups[2].Tasks))
+		assert.Equal(t, 1, len(todayGroups[3].Tasks))
+		assert.Equal(t, 0, len(todayGroups[4].Tasks))
 
-		assert.Equal(t, c1.ID, result[1].Tasks[0].ID)
-		assert.Equal(t, t1.ID, result[2].Tasks[0].ID)
-		assert.Equal(t, t2.ID, result[2].Tasks[1].ID)
-		assert.Equal(t, c2.ID, result[3].Tasks[0].ID)
+		assert.Equal(t, c1.ID, todayGroups[1].Tasks[0].ID)
+		assert.Equal(t, t1.ID, todayGroups[2].Tasks[0].ID)
+		assert.Equal(t, t2.ID, todayGroups[2].Tasks[1].ID)
+		assert.Equal(t, c2.ID, todayGroups[3].Tasks[0].ID)
 	})
 	t.Run("ReorderingOldNew", func(t *testing.T) {
 		// Tested here:
@@ -523,10 +529,12 @@ func TestMergeTasks(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, 1, len(result))
-		assert.Equal(t, 2, len(result[0].Tasks))
+		todayGroups := result[0].TaskGroups
+		assert.Equal(t, 1, len(todayGroups))
+		assert.Equal(t, 2, len(todayGroups[0].Tasks))
 
-		assert.Equal(t, t2.ID, result[0].Tasks[0].ID)
-		assert.Equal(t, t1ID, result[0].Tasks[1].ID)
+		assert.Equal(t, t2.ID, todayGroups[0].Tasks[0].ID)
+		assert.Equal(t, t1ID, todayGroups[0].Tasks[1].ID)
 
 		updatedCalTask := getTaskForTest(t, taskCollection, c1.ID)
 		assert.True(t, updatedCalTask.IsCompleted)
@@ -605,10 +613,12 @@ func TestMergeTasks(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, 1, len(result))
-		assert.Equal(t, 2, len(result[0].Tasks))
+		todayGroups := result[0].TaskGroups
+		assert.Equal(t, 1, len(todayGroups))
+		assert.Equal(t, 2, len(todayGroups[0].Tasks))
 
-		assert.Equal(t, t2.ID, result[0].Tasks[0].ID)
-		assert.Equal(t, e1ID, result[0].Tasks[1].ID)
+		assert.Equal(t, t2.ID, todayGroups[0].Tasks[0].ID)
+		assert.Equal(t, e1ID, todayGroups[0].Tasks[1].ID)
 	})
 
 	t.Run("FirstTaskPersists", func(t *testing.T) {
@@ -706,12 +716,15 @@ func TestMergeTasks(t *testing.T) {
 			"gmail.com",
 		)
 		assert.NoError(t, err)
+
 		assert.Equal(t, 1, len(result))
-		assert.Equal(t, 4, len(result[0].Tasks))
-		assert.Equal(t, t1.ID, result[0].Tasks[0].ID)
-		assert.Equal(t, t3.ID, result[0].Tasks[1].ID)
-		assert.Equal(t, t4.ID, result[0].Tasks[2].ID)
-		assert.Equal(t, t2.ID, result[0].Tasks[3].ID)
+		todayGroups := result[0].TaskGroups
+		assert.Equal(t, 1, len(todayGroups))
+		assert.Equal(t, 4, len(todayGroups[0].Tasks))
+		assert.Equal(t, t1.ID, todayGroups[0].Tasks[0].ID)
+		assert.Equal(t, t3.ID, todayGroups[0].Tasks[1].ID)
+		assert.Equal(t, t4.ID, todayGroups[0].Tasks[2].ID)
+		assert.Equal(t, t2.ID, todayGroups[0].Tasks[3].ID)
 	})
 }
 
