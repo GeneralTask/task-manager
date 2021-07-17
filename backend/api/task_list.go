@@ -94,8 +94,7 @@ func (api *API) TasksList(c *gin.Context) {
 	for _, calendarEventChannel := range calendarEventChannels {
 		calendarResult := <-calendarEventChannel
 		if calendarResult.Error != nil {
-			Handle500(c)
-			return
+			continue
 		}
 		calendarEvents = append(calendarEvents, calendarResult.CalendarEvents...)
 	}
@@ -104,8 +103,7 @@ func (api *API) TasksList(c *gin.Context) {
 	for _, emailChannel := range emailChannels {
 		emailResult := <-emailChannel
 		if emailResult.Error != nil {
-			Handle500(c)
-			return
+			continue
 		}
 		emails = append(emails, emailResult.Emails...)
 	}
@@ -119,8 +117,7 @@ func (api *API) TasksList(c *gin.Context) {
 	for _, jiraTaskChannel := range jiraTaskChannels {
 		jiraTaskResult := <-jiraTaskChannel
 		if jiraTaskResult.Error != nil {
-			Handle500(c)
-			return
+			continue
 		}
 		jiraTasks = append(jiraTasks, jiraTaskResult.Tasks...)
 		if len(jiraTaskResult.Tasks) > 0 {
