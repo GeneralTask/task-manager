@@ -160,7 +160,7 @@ func makeLoginCallbackRequest(
 	return recorder
 }
 
-func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authToken string, assertNoExternalTokens bool) {
+func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authToken string, assertNoExternalTokens bool, assertInternalToken bool) {
 	userCollection := db.Collection("users")
 	googleID := "goog12345_" + email
 
@@ -202,10 +202,12 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 		assert.Equal(t, user.ID, googleToken.UserID)
 	}
 
-	internalAPITokenCollection := db.Collection("internal_api_tokens")
-	count, err = internalAPITokenCollection.CountDocuments(context.TODO(), bson.M{"user_id": user.ID})
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), count)
+	if assertInternalToken {
+		internalAPITokenCollection := db.Collection("internal_api_tokens")
+		count, err = internalAPITokenCollection.CountDocuments(context.TODO(), bson.M{"user_id": user.ID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+	}
 }
 
 func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
