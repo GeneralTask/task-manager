@@ -66,6 +66,7 @@ type TaskBase struct {
 	UserID           primitive.ObjectID `json:"-" bson:"user_id"`
 	IDExternal       string             `json:"-" bson:"id_external"`
 	IDOrdering       int                `json:"id_ordering" bson:"id_ordering"`
+	IDTaskSection    primitive.ObjectID `json:"-" bson:"id_task_section"`
 	IsCompleted      bool               `json:"-" bson:"is_completed"`
 	Sender           string             `json:"sender" bson:"sender"`
 	Source           TaskSource         `json:"source" bson:"source"`
@@ -109,20 +110,6 @@ type TaskChangeableFields struct {
 	DueDate    primitive.DateTime `bson:"due_date,omitempty"`
 	PriorityID string             `bson:"priority_id,omitempty"`
 }
-
-type TaskGroup struct {
-	TaskGroupType `json:"type"`
-	StartTime     string      `json:"datetime_start"`
-	Duration      int64       `json:"time_duration"`
-	Tasks         []*TaskBase `json:"tasks"`
-}
-
-type TaskGroupType string
-
-const (
-	ScheduledTask    TaskGroupType = "scheduled_task"
-	UnscheduledGroup TaskGroupType = "unscheduled_group"
-)
 
 type TaskSource struct {
 	Name          string `json:"name" bson:"name"`
