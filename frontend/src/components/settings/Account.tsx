@@ -7,7 +7,7 @@ const AccountDiv = styled.div`
   display: flex;
   justify-content: space-between; 
   align-items: center;
-  font-size: 24px;
+  font-size: 18px;
   margin-bottom: 30px;
 `
 const AccountInfo = styled.div`
