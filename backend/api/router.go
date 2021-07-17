@@ -29,6 +29,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	// Authenticated endpoints
 	router.GET("/linked_accounts/", handlers.LinkedAccountsList)
 	router.GET("/linked_accounts/supported_types/", handlers.SupportedAccountTypesList)
+	router.DELETE("/linked_accounts/:account_id/", handlers.DeleteLinkedAccount)
 	router.GET("/tasks/", handlers.TasksList)
 	router.PATCH("/tasks/:task_id/", handlers.TaskModify)
 	router.POST("/tasks/:task_id/reply/", handlers.TaskReply)

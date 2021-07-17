@@ -8,6 +8,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type SupportedAccountType struct {
@@ -70,4 +71,49 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 		})
 	}
 	c.JSON(200, linkedAccounts)
+}
+
+func (api *API) DeleteLinkedAccount(c *gin.Context) {
+	userID, _ := c.Get("user")
+	accountIDHex := c.Param("account_id")
+	accountID, err := primitive.ObjectIDFromHex(accountIDHex)
+	if err != nil {
+		// This means the account ID is improperly formatted
+		Handle404(c)
+		return
+	}
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+	var accountToDelete database.ExternalAPIToken
+	err = externalAPITokenCollection.FindOne(
+		context.TODO(),
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"_id": accountID},
+		}},
+	).Decode(&accountToDelete)
+	if err != nil {
+		// document not found
+		Handle404(c)
+		return
+	}
+	if !accountToDelete.IsUnlinkable {
+		c.JSON(400, gin.H{"detail": "account is not unlinkable"})
+		return
+	}
+	res, err := externalAPITokenCollection.DeleteOne(
+		context.TODO(),
+		bson.M{"_id": accountID},
+	)
+	if err != nil || res.DeletedCount != 1 {
+		log.Printf("error deleting linked account: %v", err)
+		Handle500(c)
+		return
+	}
+	c.JSON(200, gin.H{})
 }
