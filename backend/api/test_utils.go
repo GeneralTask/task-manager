@@ -75,9 +75,24 @@ func login(email string, name string) string {
 func getUserIDFromAuthToken(t *testing.T, db *mongo.Database, authToken string) primitive.ObjectID {
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var authTokenStruct database.InternalAPIToken
-	err := internalAPITokenCollection.FindOne(nil, bson.D{{"token", authToken}}).Decode(&authTokenStruct)
+	err := internalAPITokenCollection.FindOne(context.TODO(), bson.M{"token": authToken}).Decode(&authTokenStruct)
 	assert.NoError(t, err)
 	return authTokenStruct.UserID
+}
+
+func getGoogleTokenFromAuthToken(t *testing.T, db *mongo.Database, authToken string) *database.ExternalAPIToken {
+	userID := getUserIDFromAuthToken(t, db, authToken)
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+	var externalAPITokenStruct database.ExternalAPIToken
+	err := externalAPITokenCollection.FindOne(
+		context.TODO(),
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"source": "google"},
+		}},
+	).Decode(&externalAPITokenStruct)
+	assert.NoError(t, err)
+	return &externalAPITokenStruct
 }
 
 func newStateToken(authToken string) (*string, error) {
