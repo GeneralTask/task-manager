@@ -4,7 +4,7 @@ import { getAuthToken, getHeaders } from '../helpers/utils'
 
 import GLButton from './login/GoogleLogin'
 import TaskList from './task/TaskList'
-import { darkGray } from '../helpers/styles'
+import { textDark } from '../helpers/styles'
 import styled from 'styled-components'
 
 const Logo = styled.div`
@@ -26,7 +26,7 @@ const Title = styled.div`
 `
 const Subtitle = styled.div`
   font-size: 27px;
-  color: ${darkGray};
+  color: ${textDark};
   text-align: center;
   margin-bottom: 30px;
 `
@@ -35,7 +35,7 @@ const WaitlistInput = styled.input`
   height: 100%;
   border: 1.5px solid black;
   border-radius: 2px 0 0 2px;
-  color: ${darkGray};
+  color: ${textDark};
   box-sizing: border-box;
   text-align: center;
 `
@@ -75,7 +75,7 @@ const LoginWithGoogle = styled.a`
   margin-bottom: 50px;
   display: flex;
   width: 200px;
-  color: ${darkGray};
+  color: ${textDark};
   text-decoration: none;
   display: flex;
   align-items: center;

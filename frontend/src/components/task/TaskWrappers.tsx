@@ -3,7 +3,7 @@ import { TTask, TTaskGroup } from '../../helpers/types'
 import moment, { Moment } from 'moment'
 
 import Task from './Task'
-import { darkGray } from '../../helpers/styles'
+import { textDark } from '../../helpers/styles'
 import styled from 'styled-components'
 
 const TaskGroup = styled.div`
@@ -17,7 +17,7 @@ const Tasks = styled.div`
   width: 60%;
 `
 const UnscheduledSpanbar = styled.div`
-  background-color: ${darkGray};
+  background-color: ${textDark};
   width: 2px;
   height: calc(100% - 10px);
   position: absolute;
@@ -26,7 +26,7 @@ const UnscheduledTimeSpacer = styled.div`
   margin-left: 20px;
 `
 const TimeAnnotation = styled.div`
-  color: ${darkGray};
+  color: ${textDark};
   width: 20%;
   margin-left: 10px;
   margin-right: 10px;

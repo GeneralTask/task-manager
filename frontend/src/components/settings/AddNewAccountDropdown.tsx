@@ -1,6 +1,6 @@
 import { CHEVRON_DOWN, JIRA_URL, LOGIN_URL, SUPPORTED_TYPES_URL } from '../../constants'
 import React, { useEffect, useRef, useState } from 'react'
-import { hoverGray, lightGray } from '../../helpers/styles'
+import { hoverBackground, borderPrimary } from '../../helpers/styles'
 
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'
@@ -34,14 +34,14 @@ const OptionContainer = styled.div`
     position: relative;
     display: flex; 
     align-items: center;
-    border: 2px solid ${lightGray};
+    border: 2px solid ${borderPrimary};
     border-top: 0;
     padding: 8.5px;
     background-color: white;
     width: 100%;
     cursor: pointer;
     &:hover{
-        background-color: ${hoverGray};
+        background-color: ${hoverBackground};
     }
 `
 

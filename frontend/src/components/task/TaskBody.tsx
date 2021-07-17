@@ -4,7 +4,7 @@ import { connect, useSelector } from 'react-redux'
 
 import { RootState } from '../../redux/store'
 import { TTaskSource } from '../../helpers/types'
-import { lightGray } from '../../helpers/styles'
+import { borderPrimary, secondaryText } from '../../helpers/styles'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'
 
@@ -35,13 +35,13 @@ const ReplyDiv = styled.div`
 const ReplyText = styled.span`
   width: 85%;
   /* min-height: 26px; */
-  border: 1px solid ${lightGray};
+  border: 1px solid ${borderPrimary};
   border-radius: 2px;
   padding: 10px;
   cursor: text;
   &:empty:not(:focus):before {
     content: "Enter Response";
-    color: ${lightGray}; 
+    color: ${secondaryText}; 
   }
 `
 const ReplyButton = styled.button`

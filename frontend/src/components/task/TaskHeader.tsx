@@ -1,7 +1,7 @@
 import './Task.css'
 
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
-import { hoverGray, lightGray } from '../../helpers/styles'
+import { hoverBackground, secondaryText } from '../../helpers/styles'
 
 import { DraggableProvided } from 'react-beautiful-dnd'
 import React from 'react'
@@ -21,7 +21,7 @@ const Header = styled.div<{ hover_effect: boolean }>`
   padding: 8px 8px 8px 0;
   cursor: ${props => props.hover_effect ? 'pointer' : 'inherit'};
   &:hover{
-    background-color: ${props => props.hover_effect ? hoverGray : 'inherit'};
+    background-color: ${props => props.hover_effect ? hoverBackground : 'inherit'};
   }
 `
 
@@ -46,7 +46,7 @@ const Icon = styled.img`
   padding-right: 12px;
 `
 const Source = styled.div`
-  color:${lightGray};
+  color:${secondaryText};
   max-width: 25%;
   text-align: right;
 `
