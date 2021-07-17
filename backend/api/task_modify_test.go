@@ -171,6 +171,8 @@ func TestMarkAsComplete(t *testing.T) {
 
 		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": jiraTaskID}).Decode(&task)
 		assert.Equal(t, true, task.IsCompleted)
+
+		assert.NoError(t, err)
 	})
 
 	t.Run("JIRASuccessUnread", func(t *testing.T) {
