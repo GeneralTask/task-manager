@@ -89,7 +89,6 @@ func loadEmails(userID primitive.ObjectID, accountID string, client *http.Client
 		result <- emptyEmailResult(err)
 		return
 	}
-
 	for _, threadListItem := range threadsResponse.Threads {
 		thread, err := gmailService.Users.Threads.Get("me", threadListItem.Id).Do()
 		if err != nil {
@@ -294,6 +293,7 @@ func LoadCalendarEvents(
 		result <- emptyCalendarResult(err)
 		return
 	}
+
 	for _, event := range calendarResponse.Items {
 		//exclude all day events which won't have a start time.
 		if len(event.Start.DateTime) == 0 {
