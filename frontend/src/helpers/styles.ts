@@ -14,6 +14,8 @@ export const flex = {
 }
 
 export const textDark = '#969696'
+export const textBlack = '#000000'
+export const textHover = '#464646'
 export const borderPrimary = '#cccccc'
 export const secondaryText = '#cccccc'
 export const hoverBackground = '#e3e3e3'
