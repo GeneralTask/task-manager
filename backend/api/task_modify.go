@@ -12,8 +12,9 @@ import (
 )
 
 type TaskModifyParams struct {
-	IDOrdering  *int  `json:"id_ordering"`
-	IsCompleted *bool `json:"is_completed"`
+	IDOrdering    *int    `json:"id_ordering"`
+	IDTaskSection *string `json:"id_task_section"`
+	IsCompleted   *bool   `json:"is_completed"`
 }
 
 func (api *API) TaskModify(c *gin.Context) {
@@ -27,9 +28,17 @@ func (api *API) TaskModify(c *gin.Context) {
 	var modifyParams TaskModifyParams
 	err = c.BindJSON(&modifyParams)
 
-	if err != nil || (modifyParams.IsCompleted == nil && modifyParams.IDOrdering == nil) {
+	if err != nil || (modifyParams.IsCompleted == nil && modifyParams.IDOrdering == nil && modifyParams.IDTaskSection == nil) {
 		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
 		return
+	}
+
+	if modifyParams.IDTaskSection != nil {
+		IDTaskSection, err := primitive.ObjectIDFromHex(*modifyParams.IDTaskSection)
+		if err != nil || (IDTaskSection != IDTaskSectionToday && IDTaskSection != IDTaskSectionBlocked && IDTaskSection != IDTaskSectionBacklog) {
+			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
+			return
+		}
 	}
 
 	if modifyParams.IsCompleted != nil && modifyParams.IDOrdering != nil {
@@ -46,8 +55,8 @@ func (api *API) TaskModify(c *gin.Context) {
 		} else {
 			c.JSON(400, gin.H{"detail": "Tasks can only be marked as complete."})
 		}
-	} else if modifyParams.IDOrdering != nil {
-		ReOrderTask(c, taskID, userID, *modifyParams.IDOrdering)
+	} else if modifyParams.IDOrdering != nil || modifyParams.IDTaskSection != nil {
+		ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection)
 	} else {
 		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
 		return
@@ -55,7 +64,7 @@ func (api *API) TaskModify(c *gin.Context) {
 
 }
 
-func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, reorder int) {
+func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
@@ -63,16 +72,29 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 	}
 	defer dbCleanup()
 	taskCollection := db.Collection("tasks")
+	updateParams := bson.M{"has_been_reordered": true}
+	if IDOrdering != nil {
+		updateParams["id_ordering"] = *IDOrdering
+	}
+	var IDTaskSection primitive.ObjectID
+	if IDTaskSectionHex != nil {
+		IDTaskSection, _ = primitive.ObjectIDFromHex(*IDTaskSectionHex)
+		updateParams["id_task_section"] = IDTaskSection
+	} else {
+		var task database.TaskBase
+		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": taskID}).Decode(&task)
+		if err != nil {
+			log.Printf("failed to load task in db: %v", err)
+		}
+		IDTaskSection = task.IDTaskSection
+	}
 	result, err := taskCollection.UpdateOne(
 		context.TODO(),
 		bson.M{"$and": []bson.M{
 			{"_id": taskID},
 			{"user_id": userID},
 		}},
-		bson.M{"$set": bson.M{
-			"id_ordering":        reorder,
-			"has_been_reordered": true,
-		}},
+		bson.M{"$set": updateParams},
 	)
 	if err != nil {
 		log.Printf("failed to update task in db: %v", err)
@@ -88,7 +110,8 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		context.TODO(),
 		bson.M{"$and": []bson.M{
 			{"_id": bson.M{"$ne": taskID}},
-			{"id_ordering": bson.M{"$gte": reorder}},
+			{"id_ordering": bson.M{"$gte": IDOrdering}},
+			{"id_task_section": IDTaskSection},
 			{"user_id": userID},
 		}},
 		bson.M{"$inc": bson.M{"id_ordering": 1}},

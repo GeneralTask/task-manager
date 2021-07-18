@@ -49,12 +49,13 @@ func TestCalendar(t *testing.T) {
 		userID := primitive.NewObjectID()
 		standardTask := database.CalendarEvent{
 			TaskBase: database.TaskBase{
-				IDOrdering: 0,
-				IDExternal: "standard_event",
-				Deeplink:   "generaltask.io",
-				Title:      "Standard Event",
-				Source:     database.TaskSourceGoogleCalendar,
-				UserID:     userID,
+				IDOrdering:    0,
+				IDExternal:    "standard_event",
+				IDTaskSection: IDTaskSectionToday,
+				Deeplink:      "generaltask.io",
+				Title:         "Standard Event",
+				Source:        database.TaskSourceGoogleCalendar,
+				UserID:        userID,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
@@ -132,6 +133,7 @@ func TestCalendar(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      1,
 				IDExternal:      "standard_event",
+				IDTaskSection:   IDTaskSectionToday,
 				Deeplink:        "generaltask.io",
 				Title:           "Standard Event",
 				Source:          database.TaskSourceGoogleCalendar,
@@ -218,6 +220,7 @@ func TestCalendar(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      1,
 				IDExternal:      "standard_event",
+				IDTaskSection:   IDTaskSectionToday,
 				Deeplink:        "generaltask.io",
 				Title:           "Standard Event",
 				Source:          database.TaskSourceGoogleCalendar,
@@ -283,6 +286,7 @@ func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *datab
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)
+	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.Source, b.Source)
 }

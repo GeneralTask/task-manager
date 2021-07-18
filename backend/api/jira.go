@@ -304,6 +304,7 @@ func LoadJIRATasks(api *API, userID primitive.ObjectID, accountID string, result
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      jiraTask.ID,
+				IDTaskSection:   IDTaskSectionToday,
 				Deeplink:        siteConfiguration.SiteURL + "/browse/" + jiraTask.Key,
 				Source:          database.TaskSourceJIRA,
 				Title:           jiraTask.Fields.Summary,

@@ -124,12 +124,13 @@ func TestLoadJIRATasks(t *testing.T) {
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		expectedTask := database.Task{
 			TaskBase: database.TaskBase{
-				IDOrdering: 0,
-				IDExternal: "42069",
-				Deeplink:   "https://dankmemes.com/browse/MOON-1969",
-				Title:      "Sample Taskeroni",
-				Source:     database.TaskSourceJIRA,
-				UserID:     *userID,
+				IDOrdering:    0,
+				IDExternal:    "42069",
+				IDTaskSection: IDTaskSectionToday,
+				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
+				Title:         "Sample Taskeroni",
+				Source:        database.TaskSourceJIRA,
+				UserID:        *userID,
 			},
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
@@ -164,6 +165,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      2,
 				IDExternal:      "42069",
+				IDTaskSection:   IDTaskSectionToday,
 				Deeplink:        "https://dankmemes.com/browse/MOON-1969",
 				Title:           "Sample Taskeroni",
 				Source:          database.TaskSourceJIRA,
@@ -261,6 +263,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:       2,
 				IDExternal:       "42069",
+				IDTaskSection:    IDTaskSectionToday,
 				HasBeenReordered: true,
 				Deeplink:         "https://dankmemes.com/browse/MOON-1969",
 				Title:            "Sample Taskeroni",
@@ -355,6 +358,7 @@ func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)
+	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.Source, b.Source)
 }

@@ -266,25 +266,63 @@ func TestTaskReorder(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
-		insertResult, err := taskCollection.InsertOne(context.TODO(), database.TaskBase{UserID: userID, IDOrdering: 2})
+		insertResult, err := taskCollection.InsertOne(
+			context.TODO(),
+			database.TaskBase{
+				UserID:        userID,
+				IDOrdering:    2,
+				IDTaskSection: IDTaskSectionToday,
+			},
+		)
 		assert.NoError(t, err)
 		taskToBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
 
-		insertResult, err = taskCollection.InsertOne(context.TODO(), database.TaskBase{UserID: primitive.NewObjectID(), IDOrdering: 3})
+		insertResult, err = taskCollection.InsertOne(
+			context.TODO(),
+			database.TaskBase{
+				UserID:        primitive.NewObjectID(),
+				IDOrdering:    3,
+				IDTaskSection: IDTaskSectionToday,
+			},
+		)
 		assert.NoError(t, err)
 		taskToNotBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
 
-		insertResult, err = taskCollection.InsertOne(context.TODO(), database.TaskBase{UserID: userID, IDOrdering: 1})
+		insertResult, err = taskCollection.InsertOne(
+			context.TODO(),
+			database.TaskBase{
+				UserID:        userID,
+				IDOrdering:    1,
+				IDTaskSection: IDTaskSectionToday,
+			},
+		)
 		assert.NoError(t, err)
 		taskToAlsoNotBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
 
-		insertResult, err = taskCollection.InsertOne(context.TODO(), database.TaskBase{UserID: userID})
+		insertResult, err = taskCollection.InsertOne(
+			context.TODO(),
+			database.TaskBase{
+				UserID:        userID,
+				IDOrdering:    2,
+				IDTaskSection: IDTaskSectionBacklog,
+			},
+		)
+		assert.NoError(t, err)
+		taskToAlsoAlsoNotBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
+
+		insertResult, err = taskCollection.InsertOne(
+			context.TODO(),
+			database.TaskBase{
+				UserID:        userID,
+				IDTaskSection: IDTaskSectionBacklog,
+			},
+		)
 		assert.NoError(t, err)
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
 		router := GetRouter(&API{})
-		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+IDTaskSectionToday.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -299,6 +337,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
+		assert.Equal(t, IDTaskSectionToday, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 
 		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": taskToBeMovedID}).Decode(&task)
@@ -314,6 +353,11 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": taskToAlsoNotBeMovedID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, task.IDOrdering)
+		assert.False(t, task.HasBeenReordered)
+
+		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": taskToAlsoAlsoNotBeMovedID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, 2, task.IDOrdering)
 		assert.False(t, task.HasBeenReordered)
 	})
 	t.Run("WrongUser", func(t *testing.T) {
@@ -376,6 +420,102 @@ func TestTaskReorder(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+	})
+	t.Run("BadTaskSectionIDFormat", func(t *testing.T) {
+		authToken := login("approved@generaltask.io", "")
+		router := GetRouter(&API{})
+		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "poop"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Content-Type", "application/json")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
+	})
+	t.Run("BadTaskSectionID", func(t *testing.T) {
+		authToken := login("approved@generaltask.io", "")
+		router := GetRouter(&API{})
+		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+primitive.NewObjectID().Hex()+`"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Content-Type", "application/json")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
+	})
+	t.Run("OnlyReorderTaskSections", func(t *testing.T) {
+		authToken := login("approved@generaltask.io", "")
+		userID := getUserIDFromAuthToken(t, db, authToken)
+
+		insertResult, err := taskCollection.InsertOne(
+			context.TODO(),
+			database.TaskBase{
+				UserID:        userID,
+				IDTaskSection: IDTaskSectionBacklog,
+			},
+		)
+		assert.NoError(t, err)
+		taskID := insertResult.InsertedID.(primitive.ObjectID)
+		taskIDHex := taskID.Hex()
+
+		router := GetRouter(&API{})
+		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+IDTaskSectionToday.Hex()+`"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Content-Type", "application/json")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		var task database.TaskBase
+		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": taskID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, 0, task.IDOrdering)
+		assert.Equal(t, IDTaskSectionToday, task.IDTaskSection)
+		assert.True(t, task.HasBeenReordered)
+	})
+	t.Run("OnlyReorderingID", func(t *testing.T) {
+		authToken := login("approved@generaltask.io", "")
+		userID := getUserIDFromAuthToken(t, db, authToken)
+
+		insertResult, err := taskCollection.InsertOne(
+			context.TODO(),
+			database.TaskBase{
+				UserID:        userID,
+				IDTaskSection: IDTaskSectionBacklog,
+			},
+		)
+		assert.NoError(t, err)
+		taskID := insertResult.InsertedID.(primitive.ObjectID)
+		taskIDHex := taskID.Hex()
+
+		router := GetRouter(&API{})
+		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Content-Type", "application/json")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		var task database.TaskBase
+		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": taskID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, 2, task.IDOrdering)
+		assert.Equal(t, IDTaskSectionBacklog, task.IDTaskSection)
+		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(&API{})
