@@ -175,7 +175,7 @@ func TestMergeTasks(t *testing.T) {
 
 		//need to improve these asserts to compare values as well but a pain with casting
 		//for now so we'll compare JSON later.
-		assert.Equal(t, 1, len(result), 1)
+		assert.Equal(t, 2, len(result))
 		assert.Equal(t, 5, len(result[0].TaskGroups))
 		todayGroups := result[0].TaskGroups
 
@@ -326,7 +326,7 @@ func TestMergeTasks(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		assert.Equal(t, 1, len(result))
+		assert.Equal(t, 2, len(result))
 		todayGroups := result[0].TaskGroups
 		assert.Equal(t, 6, len(todayGroups))
 		assert.Equal(t, t1.ID, todayGroups[0].Tasks[0].ID)
@@ -437,7 +437,7 @@ func TestMergeTasks(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		assert.Equal(t, 1, len(result))
+		assert.Equal(t, 2, len(result))
 		todayGroups := result[0].TaskGroups
 		assert.Equal(t, 5, len(todayGroups))
 		assert.Equal(t, 0, len(todayGroups[0].Tasks))
@@ -528,7 +528,7 @@ func TestMergeTasks(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		assert.Equal(t, 1, len(result))
+		assert.Equal(t, 2, len(result))
 		todayGroups := result[0].TaskGroups
 		assert.Equal(t, 1, len(todayGroups))
 		assert.Equal(t, 2, len(todayGroups[0].Tasks))
@@ -612,7 +612,7 @@ func TestMergeTasks(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		assert.Equal(t, 1, len(result))
+		assert.Equal(t, 2, len(result))
 		todayGroups := result[0].TaskGroups
 		assert.Equal(t, 1, len(todayGroups))
 		assert.Equal(t, 2, len(todayGroups[0].Tasks))
@@ -717,7 +717,7 @@ func TestMergeTasks(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		assert.Equal(t, 1, len(result))
+		assert.Equal(t, 2, len(result))
 		todayGroups := result[0].TaskGroups
 		assert.Equal(t, 1, len(todayGroups))
 		assert.Equal(t, 4, len(todayGroups[0].Tasks))
@@ -725,6 +725,73 @@ func TestMergeTasks(t *testing.T) {
 		assert.Equal(t, t3.ID, todayGroups[0].Tasks[1].ID)
 		assert.Equal(t, t4.ID, todayGroups[0].Tasks[2].ID)
 		assert.Equal(t, t2.ID, todayGroups[0].Tasks[3].ID)
+	})
+	t.Run("BlockedTasksStayInBlocked", func(t *testing.T) {
+		userID := primitive.NewObjectID()
+		t1 := database.Task{
+			TaskBase: database.TaskBase{
+				IDOrdering:     2,
+				IDExternal:     "sample_task",
+				IDTaskSection:  IDTaskSectionBlocked,
+				Deeplink:       "generaltask.io",
+				Title:          "Code x",
+				Source:         database.TaskSourceJIRA,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+				UserID:         userID,
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID: "5",
+			TaskNumber: 7,
+		}
+		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
+		assert.NoError(t, err)
+		t1.ID = t1Res.ID
+
+		t2 := database.Task{
+			TaskBase: database.TaskBase{
+				IDOrdering:     1,
+				IDExternal:     "sample_task2",
+				IDTaskSection:  IDTaskSectionBlocked,
+				Deeplink:       "generaltask.io",
+				Title:          "Code x",
+				Source:         database.TaskSourceJIRA,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+				UserID:         userID,
+			},
+			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
+			PriorityID: "3",
+			TaskNumber: 12,
+		}
+		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
+		assert.NoError(t, err)
+		t2.ID = t2Res.ID
+
+		priorityMapping := map[string]*map[string]int{
+			"": {
+				"3": 3,
+				"5": 5,
+			},
+		}
+
+		result, err := MergeTasks(
+			db,
+			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
+			[]*database.CalendarEvent{},
+			[]*database.Email{},
+			[]*database.Task{&t1, &t2},
+			&priorityMapping,
+			"gmail.com",
+		)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 2, len(result))
+		assert.Equal(t, 1, len(result[0].TaskGroups))
+		assert.Equal(t, 0, len(result[0].TaskGroups[0].Tasks))
+		blockedGroups := result[1].TaskGroups
+		assert.Equal(t, 1, len(blockedGroups))
+		assert.Equal(t, 2, len(blockedGroups[0].Tasks))
+		assert.Equal(t, t2.ID, blockedGroups[0].Tasks[0].ID)
+		assert.Equal(t, t1.ID, blockedGroups[0].Tasks[1].ID)
 	})
 }
 

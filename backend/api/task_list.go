@@ -216,7 +216,7 @@ func MergeTasks(
 	sort.SliceStable(blockedTasks, func(i, j int) bool {
 		a := blockedTasks[i]
 		b := blockedTasks[j]
-		return a.(*database.TaskBase).IDOrdering < b.(*database.TaskBase).IDOrdering
+		return a.TaskBase.IDOrdering < b.TaskBase.IDOrdering
 	})
 
 	//first we sort the emails and tasks into a single array
@@ -307,17 +307,44 @@ func MergeTasks(
 		return []*TaskSection{}, err
 	}
 
-	return convertTasksToTaskGroups(&tasks), nil
+	return []*TaskSection{
+		{
+			ID:         IDTaskSectionToday,
+			Name:       TaskSectionNameToday,
+			IsToday:    true,
+			TaskGroups: convertTasksToTaskGroups(&tasks),
+		},
+		{
+			ID:         IDTaskSectionBlocked,
+			Name:       TaskSectionNameBlocked,
+			IsToday:    false,
+			TaskGroups: convertTasksToTaskGroups(&blockedTasks),
+		},
+	}, nil
 }
 
-func extractBlockedTasks(allUnscheduledTasks *[]interface{}) ([]interface{}, []interface{}) {
-	var blockedTasks []interface{}
+func extractBlockedTasks(allUnscheduledTasks *[]interface{}) ([]*TaskItem, []interface{}) {
+	var blockedTasks []*TaskItem
 	var allOtherTasks []interface{}
 	for _, task := range *allUnscheduledTasks {
-		if task.(*database.TaskBase).IDTaskSection == IDTaskSectionBlocked {
-			blockedTasks = append(blockedTasks, task)
+		switch task := task.(type) {
+		case *database.Email:
+			if task.IDTaskSection == IDTaskSectionBlocked {
+				blockedTasks = append(blockedTasks, &TaskItem{
+					TaskGroupType: UnscheduledGroup,
+					TaskBase:      &task.TaskBase,
+				})
+				continue
+			}
+		case *database.Task:
+			if task.IDTaskSection == IDTaskSectionBlocked {
+				blockedTasks = append(blockedTasks, &TaskItem{
+					TaskGroupType: UnscheduledGroup,
+					TaskBase:      &task.TaskBase,
+				})
+				continue
+			}
 		}
-		continue
 		allOtherTasks = append(allOtherTasks, task)
 	}
 	return blockedTasks, allOtherTasks
@@ -494,7 +521,7 @@ func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) error {
 	return nil
 }
 
-func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskSection {
+func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskGroup {
 	taskGroups := []*TaskGroup{}
 	lastEndTime := time.Now()
 	unscheduledTasks := []*database.TaskBase{}
@@ -530,12 +557,7 @@ func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskSection {
 		Duration:      totalDuration / int64(time.Second),
 		Tasks:         unscheduledTasks,
 	})
-	return []*TaskSection{{
-		ID:         IDTaskSectionToday,
-		Name:       TaskSectionNameToday,
-		IsToday:    true,
-		TaskGroups: taskGroups,
-	}}
+	return taskGroups
 }
 
 func getTaskBase(t interface{}) *database.TaskBase {
