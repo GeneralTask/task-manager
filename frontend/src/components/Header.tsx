@@ -29,7 +29,7 @@ const Button = styled.button`
 `
 const Logout = styled(Button)`
   font-weight: 600;
-  margin-right: 14px;
+  margin-right: 50px;
 `
 
 const Header: React.FC = () => {
