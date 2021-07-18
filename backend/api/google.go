@@ -154,6 +154,7 @@ func loadEmails(userID primitive.ObjectID, accountID string, client *http.Client
 				TaskBase: database.TaskBase{
 					UserID:          userID,
 					IDExternal:      message.Id,
+					IDTaskSection:   IDTaskSectionToday,
 					Sender:          senderName,
 					Source:          database.TaskSourceGmail,
 					Deeplink:        fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
@@ -325,6 +326,7 @@ func LoadCalendarEvents(
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      event.Id,
+				IDTaskSection:   IDTaskSectionToday,
 				Deeplink:        event.HtmlLink,
 				Source:          database.TaskSourceGoogleCalendar,
 				Title:           event.Summary,
