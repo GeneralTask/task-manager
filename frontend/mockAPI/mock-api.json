@@ -2,7 +2,7 @@
   "tasks": [
     {
       "id": "task-section-1-id",
-      "name": "Tasks",
+      "name": "Today",
       "is_today": true,
       "task_groups": [
         {
