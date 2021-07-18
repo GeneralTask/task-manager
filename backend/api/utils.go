@@ -63,6 +63,7 @@ var ALLOWED_USERNAMES = map[string]struct{}{
 	"scottmai702@gmail.com":   {},
 	"sequoia@sequoiasnow.com": {},
 	"nolan1299@gmail.com":     {},
+	"jack_hamilton@me.com":    {},
 }
 
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
