@@ -138,7 +138,7 @@ const TaskList: React.FC = () => {
             <DragDropContext onDragEnd={onDragEnd}>
                 {
                     task_groups.map((group: TTaskGroup, index: number) => {
-                        if (!group.tasks.length) {
+                        if (group.tasks && !group.tasks.length) {
                             return (<flex.flex key={index}>
                                 <TaskWrapperSides />
                                 <Droppable droppableId={`ts-0-tg-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>

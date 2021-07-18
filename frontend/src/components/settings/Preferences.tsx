@@ -59,9 +59,9 @@ const Preference: React.FC<Props> = ({ setting }: Props) => {
     return (
         <PreferenceDiv>
             <div>{setting.field_name}</div>
-            <Select onChange={(e) => { changeSetting(setting.field_key, e.target.value) }}>
-                {setting.choices.map((choice: TSettingChoice) =>
-                    <option value={choice.choice_key} selected={setting.field_value === choice.choice_key}>{choice.choice_name}</option>
+            <Select onChange={(e) => { changeSetting(setting.field_key, e.target.value) }} defaultValue={setting.field_value}>
+                {setting.choices.map((choice: TSettingChoice, i) =>
+                    <option value={choice.choice_key} key={i}>{choice.choice_name}</option>
                 )}
             </Select>
         </PreferenceDiv>
