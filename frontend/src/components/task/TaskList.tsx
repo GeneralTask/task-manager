@@ -47,7 +47,19 @@ interface TaskGroupProps {
     taskGroup: TTaskGroup,
 }
 
+enum DragState {
+    noDrag,
+    isDragging,
+    fetchDelayed, // enabled if a tasks request was delayed because a drag was active during it
+}
+
+let dragState: DragState = DragState.noDrag
+
 const fetchTasks = async () => {
+    if (dragState !== DragState.noDrag) {
+        dragState = DragState.fetchDelayed
+        return
+    }
     store.dispatch(setTasksFetchStatus(FetchStatus.LOADING))
     try {
         const response = await makeAuthorizedRequest({
@@ -92,7 +104,11 @@ const TaskList: React.FC = () => {
         }
     }
 
-    function onDragEnd(result: DropResult) {
+    function onDragStart() {
+        dragState = DragState.isDragging
+    }
+
+    async function onDragEnd(result: DropResult) {
         const { destination, source } = result
         // destination.index is the index of the task in the *entire list*
         if (!destination || !source || result.type === 'CANCEL') return
@@ -118,13 +134,18 @@ const TaskList: React.FC = () => {
 
         const reorderedTask: TTask = task_groups_copy[destination_task_group_index].tasks[destination.index]
 
-        makeAuthorizedRequest({
+        await makeAuthorizedRequest({
             url: TASKS_URL + reorderedTask.id + '/',
             method: 'PATCH',
             body: JSON.stringify({
                 id_ordering: reorderedTask.id_ordering,
             })
         })
+
+        if (dragState == DragState.fetchDelayed) {
+            await fetchTasks()
+        }
+        dragState = DragState.noDrag
     }
 
     return (
@@ -135,7 +156,7 @@ const TaskList: React.FC = () => {
                 <TimeAnnotation></TimeAnnotation>
             </TaskSectionTop>
             <TaskStatus />
-            <DragDropContext onDragEnd={onDragEnd}>
+            <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 {
                     task_groups.map((group: TTaskGroup, index: number) => {
                         if (group.tasks && !group.tasks.length) {
