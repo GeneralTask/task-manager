@@ -1,7 +1,7 @@
 import './Task.css'
 
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
-import { hoverBackground, secondaryText, textDark } from '../../helpers/styles'
+import { hoverBackground, secondaryText } from '../../helpers/styles'
 
 import { DraggableProvided } from 'react-beautiful-dnd'
 import React from 'react'
