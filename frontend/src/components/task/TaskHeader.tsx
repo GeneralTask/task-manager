@@ -13,7 +13,7 @@ import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 
 const Header = styled.div<{ hover_effect: boolean }>`
-  font-size: 20px;
+  font-size: 16px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -25,12 +25,22 @@ const Header = styled.div<{ hover_effect: boolean }>`
   }
 `
 
-const HeaderSide = styled.div`
+const HeaderLeft = styled.div`
   text-align: left;
   flex: 1;
   display: flex;
   align-items: center;
   flex-direction: row;
+  max-width: 80%;
+`
+
+const HeaderRight = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-end;
+  max-width: 20%;
 `
 const DragSection = styled.div`
   cursor: grab;
@@ -47,8 +57,20 @@ const Icon = styled.img`
 `
 const Source = styled.div`
   color:${secondaryText};
-  max-width: 25%;
   text-align: right;
+`
+const SourceWrap = styled(Source)`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`
+const Title = styled.div`
+  color:#000000;
+`
+const TitleWrap = styled(Title)`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 const DoneButton = styled.button`
   background-color: white;
@@ -94,24 +116,26 @@ const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_comp
   }
   return (
     <Header hover_effect={hover_effect} onClick={onClick}>
-      <HeaderSide>
+      <HeaderLeft>
         <DragSection>
           <Domino src="images/domino.svg" alt="" />
         </DragSection>
         <Icon src={logo_url} alt="icon"></Icon>
-        <div>{title}</div>
-      </HeaderSide>
-      <Source>{sender}</Source>
-      {is_completable ?
-        <DoneButton
-          onClick={(e) => {
-            e.stopPropagation()
-            done(task_id)
-          }}
-        >
-          Done
-        </DoneButton>
-        : null}
+        {expanded_body === task_id ? <Title>{title}</Title> : <TitleWrap>{title}</TitleWrap>}
+      </HeaderLeft>
+      <HeaderRight>
+        {expanded_body === task_id ? <Source>{sender}</Source> : <SourceWrap>{sender}</SourceWrap>}
+        {is_completable ?
+          <DoneButton
+            onClick={(e) => {
+              e.stopPropagation()
+              done(task_id)
+            }}
+          >
+            Done
+          </DoneButton>
+          : null}
+      </HeaderRight>
     </Header>
   )
 }
