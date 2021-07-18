@@ -14,22 +14,24 @@ const Container = styled.div`
   font-family: "Gothic A1", sans-serif;
   border: 2px solid ${borderPrimary};
   border-radius: 2px;
-  margin-bottom: 5px;
   width: 100%;
   outline: none;
   background-color: white;
 `
+const DraggableContainer = styled.div`
+    margin-bottom: 5px;
+`
 
 interface Props {
   task: TTask,
-  index: number,
+  taskGroupIndex: number,
   isDragDisabled: boolean,
 }
 
-const Task: React.FC<Props> = ({ task, index }: Props) => (
-  <Draggable draggableId={task.id} index={index}>
+const Task: React.FC<Props> = ({ task, taskGroupIndex, isDragDisabled }: Props) => (
+  <Draggable draggableId={task.id} index={taskGroupIndex} isDragDisabled={isDragDisabled}>
     {(provided: DraggableProvided) => (
-      <div
+      <DraggableContainer
         ref={provided.innerRef}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
@@ -46,7 +48,7 @@ const Task: React.FC<Props> = ({ task, index }: Props) => (
           />
           <TaskBody body={task.body} task_id={task.id} deeplink={task.deeplink} source={task.source} />
         </Container>
-      </div>
+      </DraggableContainer>
     )}
   </Draggable>
 )

@@ -57,7 +57,7 @@ interface TimeDurationProps {
   datetime_start: string | null,
 }
 
-const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroupProps) =>
+const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) =>
   <>
     <TaskGroup>
       <TimeAnnotation>
@@ -66,7 +66,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroup
       <Tasks>
         <Task
           task={taskGroup.tasks[0]}
-          index={index}
+          taskGroupIndex={0}
           isDragDisabled={true}
         />
       </Tasks>
@@ -81,13 +81,13 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroup
   </>
 
 
-const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroupProps) =>
+const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) =>
   <>
-    <TaskGroup key={index}>
+    <TaskGroup>
       <TimeAnnotation />
       <Tasks>
-        {taskGroup.tasks.map((task: TTask) => (
-          <Task task={task} key={task.id_ordering} index={task.id_ordering} isDragDisabled={false} />
+        {taskGroup.tasks.map((task: TTask, taskGroupIndex) => (
+          <Task task={task} key={task.id_ordering} taskGroupIndex={taskGroupIndex} isDragDisabled={false} />
         ))}
       </Tasks>
       <TimeAnnotation>

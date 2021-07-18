@@ -11,7 +11,7 @@ import { FetchStatus } from '../../redux/enums'
 import { RootState } from '../../redux/store'
 import TaskStatus from './TaskStatus'
 import _ from 'lodash'
-import { textDark } from '../../helpers/styles'
+import { flex, textDark } from '../../helpers/styles'
 import moment from 'moment'
 import store from '../../redux/store'
 import styled from 'styled-components'
@@ -39,7 +39,9 @@ const TaskSectionHeader = styled.div`
     text-align: center;
     width: 60%;
 `
-
+const TaskWrapperSides = styled.div`
+    width: 22%;
+`
 
 interface TaskGroupProps {
     taskGroup: TTaskGroup,
@@ -92,16 +94,19 @@ const TaskList: React.FC = () => {
 
     function onDragEnd(result: DropResult) {
         const { destination, source } = result
+        // destination.index is the index of the task in the *entire list*
+        if (!destination || !source || result.type === 'CANCEL') return
 
-        if (!destination || !source || destination.index === source.index) return
-
-        const source_index: number = parseInt(source.droppableId.slice(-1))
-        const destination_index: number = parseInt(destination.droppableId.slice(-1))
+        const sourceDroppableIDSplit = source.droppableId.split('-')
+        const destDroppableIDSplit = destination.droppableId.split('-')
+        // task section number is sourceDroppableIDSplit[1]
+        const source_task_group_index: number = parseInt(sourceDroppableIDSplit[3])
+        const destination_task_group_index: number = parseInt(destDroppableIDSplit[3])
 
         // makes deep copy to keep redux state intact
         const task_groups_copy: TTaskGroup[] = _.cloneDeep(task_groups)
-        const source_group: TTaskGroup = task_groups_copy[source_index]
-        const dest_group: TTaskGroup = task_groups_copy[destination_index]
+        const source_group: TTaskGroup = task_groups_copy[source_task_group_index]
+        const dest_group: TTaskGroup = task_groups_copy[destination_task_group_index]
         const source_task: TTask = source_group.tasks[source.index]
 
         source_group.tasks.splice(source.index, 1)
@@ -111,7 +116,7 @@ const TaskList: React.FC = () => {
 
         store.dispatch(setTasks(task_groups_copy))
 
-        const reorderedTask: TTask = task_groups_copy[destination_index].tasks[destination.index]
+        const reorderedTask: TTask = task_groups_copy[destination_task_group_index].tasks[destination.index]
 
         makeAuthorizedRequest({
             url: TASKS_URL + reorderedTask.id + '/',
@@ -132,17 +137,34 @@ const TaskList: React.FC = () => {
             <TaskStatus />
             <DragDropContext onDragEnd={onDragEnd}>
                 {
-                    task_groups.map((group: TTaskGroup, index: number) =>
-                        <div key={index}>
-                            <Droppable droppableId={`list-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
-                                {provided => {
-                                    return <div ref={provided.innerRef} {...provided.droppableProps}>
-                                        {group.tasks.length > 0 && <TaskGroup taskGroup={group} />}
-                                        {provided.placeholder}
-                                    </div>
-                                }}
-                            </Droppable>
-                        </div>
+                    task_groups.map((group: TTaskGroup, index: number) => {
+                        if (!group.tasks.length) {
+                            return (<flex.flex key={index}>
+                                <TaskWrapperSides />
+                                <Droppable droppableId={`ts-0-tg-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
+                                    {provided => {
+                                        return <div ref={provided.innerRef} {...provided.droppableProps}>
+                                            {provided.placeholder}
+                                        </div>
+                                    }}
+                                </Droppable>
+                            </flex.flex>)
+                        }
+                        else {
+                            return (
+                                <div key={index}>
+                                    <Droppable droppableId={`ts-0-tg-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
+                                        {provided => {
+                                            return <div ref={provided.innerRef} {...provided.droppableProps}>
+                                                {group.tasks.length > 0 && <TaskGroup taskGroup={group} />}
+                                                {provided.placeholder}
+                                            </div>
+                                        }}
+                                    </Droppable>
+                                </div>
+                            )
+                        }
+                    }
                     )
                 }
             </DragDropContext>
