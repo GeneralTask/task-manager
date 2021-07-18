@@ -21,6 +21,7 @@ const TimeAnnotation = styled.div`
     justify-content: flex-end;
     position: relative;
     top: 12px;
+    margin-bottom: 10px;
 `
 const TaskSectionHeader = styled.div`
     margin: auto;

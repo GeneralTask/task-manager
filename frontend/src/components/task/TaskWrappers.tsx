@@ -27,7 +27,7 @@ const UnscheduledTimeSpacer = styled.div`
 `
 const TimeAnnotation = styled.div`
   color: ${textDark};
-  width: 20%;
+  width: 15%;
   margin-left: 10px;
   margin-right: 10px;
   font-size: 18px;
