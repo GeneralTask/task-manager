@@ -2,7 +2,7 @@ import { TTaskSection } from './../helpers/types'
 import * as actions from './actionTypes'
 import { AnyAction } from 'redux'
 import { RootState } from './store'
-import { FetchStatus } from './enums'
+import { DragState, FetchStatus } from './enums'
 import _ from 'lodash'
 
 let task_sections: TTaskSection[]
@@ -11,6 +11,7 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
     return {
       task_sections: [],
       tasks_fetch_status: FetchStatus.LOADING,
+      tasks_drag_state: DragState.noDrag,
       expanded_body: null,
       settings: [],
     }
@@ -66,6 +67,12 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
       return {
         ...state,
         settings: action.settings,
+      }
+
+    case actions.SET_TASKS_DRAG_STATE:
+      return {
+        ...state,
+        tasks_drag_state: action.dragState,
       }
 
     default:

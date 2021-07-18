@@ -3,9 +3,9 @@ import React, { useState } from 'react'
 import { getAuthToken, getHeaders } from '../helpers/utils'
 
 import GLButton from './login/GoogleLogin'
-import TaskList from './task/TaskList'
 import { textDark } from '../helpers/styles'
 import styled from 'styled-components'
+import TasksPage from './task/TasksPage'
 
 const Logo = styled.div`
   font-weight: bold;
@@ -91,7 +91,7 @@ enum WaitlistState {
 
 const LandingPage: React.FC = () => {
   if (getAuthToken()) {
-    return <TaskList />
+    return <TasksPage />
   }
   return (
     <div>

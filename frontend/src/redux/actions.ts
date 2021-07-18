@@ -1,8 +1,7 @@
 import { TSetting, TTaskSection } from './../helpers/types'
 import * as actions from './actionTypes'
 import { AnyAction } from 'redux'
-import { FetchStatus } from './enums'
-
+import { DragState, FetchStatus } from './enums'
 
 export function setTasks(task_sections: TTaskSection[]): AnyAction {
     return {
@@ -43,5 +42,12 @@ export function setSettings(settings: TSetting[]): AnyAction {
     return {
         type: actions.SET_SETTINGS,
         settings,
+    }
+}
+
+export function setTasksDragState(dragState: DragState): AnyAction {
+    return {
+        type: actions.SET_TASKS_DRAG_STATE,
+        dragState,
     }
 }

@@ -49,7 +49,6 @@ const Divider = styled.div`
 
 interface TaskGroupProps {
   taskGroup: TTaskGroup,
-  index: number,
 }
 
 interface TimeDurationProps {
