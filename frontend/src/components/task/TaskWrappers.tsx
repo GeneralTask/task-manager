@@ -27,7 +27,7 @@ const UnscheduledTimeSpacer = styled.div`
 `
 const TimeAnnotation = styled.div`
   color: ${textDark};
-  width: 20%;
+  width: 15%;
   margin-left: 10px;
   margin-right: 10px;
   font-size: 18px;
@@ -61,7 +61,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroup
   <>
     <TaskGroup>
       <TimeAnnotation>
-        <AlignRight>{moment(taskGroup.datetime_start).format('h:mm a')}</AlignRight>
+        <AlignRight>{momentFromDateTime(taskGroup.datetime_start).format('h:mm a')}</AlignRight>
       </TimeAnnotation>
       <Tasks>
         <Task
@@ -81,9 +81,9 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroup
   </>
 
 
-const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, index }: TaskGroupProps) =>
+const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) =>
   <>
-    <TaskGroup key={index}>
+    <TaskGroup>
       <TimeAnnotation />
       <Tasks>
         {taskGroup.tasks.map((task: TTask) => (
@@ -106,8 +106,8 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, index }: Ta
 
 const TimeDuration: React.FC<TimeDurationProps> = ({ time_duration, datetime_start }: TimeDurationProps) => {
   const duration = moment.duration(time_duration * 1000)
-  const end = moment(datetime_start).add(duration)
-  const hasStarted = moment().isAfter(moment(datetime_start))
+  const end = momentFromDateTime(datetime_start).add(duration)
+  const hasStarted = moment().isAfter(momentFromDateTime(datetime_start))
 
   let initialTimeStr = ''
   if (hasStarted) {
@@ -162,6 +162,10 @@ const getTimeStr = (duration: moment.Duration): string => {
 
 const getLiveTimeStr = (end: Moment): string => {
   return getTimeStr(moment.duration(end.diff(moment())))
+}
+
+const momentFromDateTime = (date_time: string | null): Moment => {
+  return moment(date_time, 'YYYY-MM-DD HH:mm:ss ZZ')
 }
 
 export { ScheduledTask, UnscheduledTaskGroup }
