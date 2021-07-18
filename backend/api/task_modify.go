@@ -34,9 +34,10 @@ func (api *API) TaskModify(c *gin.Context) {
 	}
 
 	if modifyParams.IDTaskSection != nil {
-		_, err := primitive.ObjectIDFromHex(*modifyParams.IDTaskSection)
-		if err != nil {
+		IDTaskSection, err := primitive.ObjectIDFromHex(*modifyParams.IDTaskSection)
+		if err != nil || (IDTaskSection != IDTaskSectionToday && IDTaskSection != IDTaskSectionBlocked && IDTaskSection != IDTaskSectionBacklog) {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
+			return
 		}
 	}
 

@@ -49,12 +49,13 @@ func TestCalendar(t *testing.T) {
 		userID := primitive.NewObjectID()
 		standardTask := database.CalendarEvent{
 			TaskBase: database.TaskBase{
-				IDOrdering: 0,
-				IDExternal: "standard_event",
-				Deeplink:   "generaltask.io",
-				Title:      "Standard Event",
-				Source:     database.TaskSourceGoogleCalendar,
-				UserID:     userID,
+				IDOrdering:    0,
+				IDExternal:    "standard_event",
+				IDTaskSection: IDTaskSectionToday,
+				Deeplink:      "generaltask.io",
+				Title:         "Standard Event",
+				Source:        database.TaskSourceGoogleCalendar,
+				UserID:        userID,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
@@ -132,6 +133,7 @@ func TestCalendar(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      1,
 				IDExternal:      "standard_event",
+				IDTaskSection:   IDTaskSectionToday,
 				Deeplink:        "generaltask.io",
 				Title:           "Standard Event",
 				Source:          database.TaskSourceGoogleCalendar,
@@ -218,6 +220,7 @@ func TestCalendar(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      1,
 				IDExternal:      "standard_event",
+				IDTaskSection:   IDTaskSectionToday,
 				Deeplink:        "generaltask.io",
 				Title:           "Standard Event",
 				Source:          database.TaskSourceGoogleCalendar,
