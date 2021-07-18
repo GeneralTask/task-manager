@@ -1,14 +1,15 @@
-import { TTask } from './../helpers/types'
+import { TTaskSection } from './../helpers/types'
 import * as actions from './actionTypes'
 import { AnyAction } from 'redux'
 import { RootState } from './store'
 import { FetchStatus } from './enums'
+import _ from 'lodash'
 
-let task_groups
+let task_sections: TTaskSection[]
 const reducer = (state: RootState | undefined, action: AnyAction): RootState => {
   if (state === undefined) {
     return {
-      task_groups: [],
+      task_sections: [],
       tasks_fetch_status: FetchStatus.LOADING,
       expanded_body: null,
       settings: [],
@@ -18,7 +19,7 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
     case actions.SET_TASKS:
       return {
         ...state,
-        task_groups: action.task_groups,
+        task_sections: action.task_sections,
       }
 
     case actions.SET_TASKS_FETCH_STATUS:
@@ -27,23 +28,26 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
         tasks_fetch_status: action.tasks_fetch_status,
       }
 
-    case actions.REMOVE_TASK:
-      task_groups = [...state.task_groups]
-      task_groups.splice(action.index, 1)
-      return {
-        ...state,
-        task_groups,
-      }
-
     case actions.REMOVE_TASK_BY_ID:
-      task_groups = [...state.task_groups]
+      task_sections = _.cloneDeep(state.task_sections)
       // loops through the tasks and removes the one with the id
+      // should pass in section/group indicies to be more efficient
+      for (const task_section of task_sections) {
+        for (const task_group of task_section.task_groups) {
+          for (let i = 0; i < task_group.tasks.length; i++) {
+            if (task_group.tasks[i].id === action.id) {
+              task_group.tasks.splice(i, 1)
+              return {
+                ...state,
+                task_sections,
+              }
+            }
+          }
+        }
+      }
       return {
         ...state,
-        task_groups: [...state.task_groups].map((task_group) => ({
-          ...task_group,
-          tasks: task_group.tasks.filter((task: TTask) => task.id !== action.id),
-        })),
+        task_sections,
       }
 
     case actions.EXPAND_BODY:
