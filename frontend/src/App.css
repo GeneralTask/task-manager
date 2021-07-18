@@ -1,5 +1,11 @@
+@font-face {
+  font-family: 'Ellipsis';
+  src: local('Arial');
+  unicode-range: U+2026;
+}
+
 body{
-  font-family: "Gothic A1", sans-serif;
+  font-family: 'Ellipsis', 'Gothic A1', sans-serif;
 }
 
 .App {
