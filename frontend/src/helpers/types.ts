@@ -25,6 +25,13 @@ export interface TTaskGroup {
     tasks: TTask[]
 }
 
+export interface TTaskSection {
+    id: string,
+    name: string,
+    is_today: boolean,
+    task_groups: TTaskGroup[],
+}
+
 export interface TSettingChoice {
     choice_key: string,
     choice_name: string,
