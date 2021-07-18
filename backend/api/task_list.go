@@ -210,6 +210,15 @@ func MergeTasks(
 		return []*TaskSection{}, err
 	}
 
+	blockedTasks, allUnscheduledTasks := extractBlockedTasks(&allUnscheduledTasks)
+
+	// sort blocked tasks by ordering ID
+	sort.SliceStable(blockedTasks, func(i, j int) bool {
+		a := blockedTasks[i]
+		b := blockedTasks[j]
+		return a.(*database.TaskBase).IDOrdering < b.(*database.TaskBase).IDOrdering
+	})
+
 	//first we sort the emails and tasks into a single array
 	sort.SliceStable(allUnscheduledTasks, func(i, j int) bool {
 		a := allUnscheduledTasks[i]
@@ -299,6 +308,19 @@ func MergeTasks(
 	}
 
 	return convertTasksToTaskGroups(&tasks), nil
+}
+
+func extractBlockedTasks(allUnscheduledTasks *[]interface{}) ([]interface{}, []interface{}) {
+	var blockedTasks []interface{}
+	var allOtherTasks []interface{}
+	for _, task := range *allUnscheduledTasks {
+		if task.(*database.TaskBase).IDTaskSection == IDTaskSectionBlocked {
+			blockedTasks = append(blockedTasks, task)
+		}
+		continue
+		allOtherTasks = append(allOtherTasks, task)
+	}
+	return blockedTasks, allOtherTasks
 }
 
 func adjustForCompletedTasks(
