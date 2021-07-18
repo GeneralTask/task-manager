@@ -126,7 +126,7 @@ const TaskList: React.FC = () => {
         <div>
             <TaskSectionTop>
                 <CurrentTime />
-                <TaskSectionHeader>Your Tasks</TaskSectionHeader>
+                <TaskSectionHeader>Tasks</TaskSectionHeader>
                 <TimeAnnotation></TimeAnnotation>
             </TaskSectionTop>
             <TaskStatus />
