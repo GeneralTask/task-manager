@@ -1,5 +1,8 @@
 import Cookies from 'js-cookie'
-import { LANDING_PATH, LOGOUT_URL, LINKED_ACCOUNTS_URL, REACT_APP_COOKIE_DOMAIN, REACT_APP_FRONTEND_BASE_URL } from '../constants'
+import { LANDING_PATH, LOGOUT_URL, LINKED_ACCOUNTS_URL, REACT_APP_COOKIE_DOMAIN, REACT_APP_FRONTEND_BASE_URL, TASKS_URL } from '../constants'
+import { setTasks, setTasksDragState, setTasksFetchStatus } from '../redux/actions'
+import { DragState, FetchStatus } from '../redux/enums'
+import store from '../redux/store'
 import { TTaskGroup } from './types'
 
 // This invalidates the cookie on the frontend
@@ -58,3 +61,30 @@ export const resetOrderingIds = (task_groups: TTaskGroup[]): void => {
 }
 
 export const getLinkedAccountsURL = (account_id: string): string => LINKED_ACCOUNTS_URL + account_id + '/'
+
+export const fetchTasks = async (): Promise<void> => {
+    const dragState = store.getState().tasks_drag_state
+    if (dragState !== DragState.noDrag) {
+        store.dispatch(setTasksDragState(DragState.fetchDelayed))
+        return
+    }
+    store.dispatch(setTasksFetchStatus(FetchStatus.LOADING))
+    try {
+        const response = await makeAuthorizedRequest({
+            url: TASKS_URL,
+            method: 'GET',
+        })
+        if (!response.ok) {
+            throw new Error('/tasks api call failed')
+        }
+        else {
+            const resj = await response.json()
+            store.dispatch(setTasksFetchStatus(FetchStatus.SUCCESS))
+            store.dispatch(setTasks(resj))
+        }
+    }
+    catch (e) {
+        store.dispatch(setTasksFetchStatus(FetchStatus.ERROR))
+        console.log({ e })
+    }
+}
