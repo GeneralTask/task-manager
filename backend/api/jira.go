@@ -13,6 +13,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -92,20 +93,13 @@ func (api *API) AuthorizeJIRA(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	db, dbCleanup, err := database.GetDBConnection()
+	atlassian := external.AtlassianService{}
+	authURL, err := atlassian.GetLinkAuthURL(internalToken.UserID)
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	defer dbCleanup()
-	insertedStateToken, err := database.CreateStateToken(db, &internalToken.UserID)
-	if err != nil {
-		Handle500(c)
-		return
-	}
-
-	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&state=" + *insertedStateToken + "&response_type=code&prompt=consent"
-	c.Redirect(302, authURL)
+	c.Redirect(302, *authURL)
 }
 
 func (api *API) AuthorizeJIRACallback(c *gin.Context) {
