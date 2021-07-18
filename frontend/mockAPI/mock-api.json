@@ -1,134 +1,211 @@
 {
   "tasks": [
     {
-      "type": "unscheduled_group",
-      "time_duration": 3600,
-      "datetime_start": null,
-      "tasks": [
+      "id": "task-section-1-id",
+      "name": "Today",
+      "is_today": true,
+      "task_groups": [
         {
-          "id": "1",
-          "id_external": "1",
-          "id_ordering": 1,
-          "datetime_end": null,
+          "type": "unscheduled_group",
+          "time_duration": 3600,
           "datetime_start": null,
-          "deeplink": "https://slack.com",
-          "sender": "@hackerdog",
-          "title": "Hey, can you help me put out this fire?",
-          "body": null,
-          "source": {
-            "name": "Slack",
-            "logo": "/images/slack.svg",
-            "is_completable": true,
-            "is_replyable": true
-          }
+          "tasks": [
+            {
+              "id": "1",
+              "id_external": "1",
+              "datetime_end": null,
+              "datetime_start": null,
+              "deeplink": "https://slack.com",
+              "sender": "@hackerdog",
+              "title": "Hey, can you help me put out this fire?",
+              "body": null,
+              "source": {
+                "name": "Slack",
+                "logo": "/images/slack.svg",
+                "is_completable": true,
+                "is_replyable": true
+              }
+            },
+            {
+              "id": "2",
+              "id_external": "2",
+              "datetime_end": null,
+              "datetime_start": null,
+              "deeplink": "https://gmail.com",
+              "sender": "@hackerdog",
+              "title": "Urgent question about tomorrow's presentation",
+              "body": "<html><body><div><img src='https://5mpublishing.sirv.com/poultry%2Farticles%2Fother-poultry%2Fduck-6.jpeg?scale.option=fill&scale.width=700&scale.height=350&crop.width=700&crop.height=350&crop.y=center&crop.x=center'/></div></body></html>",
+              "source": {
+                "name": "Gmail",
+                "logo": "/images/gmail.svg",
+                "is_completable": true,
+                "is_replyable": true
+              }
+            }
+          ]
         },
         {
-          "id": "2",
-          "id_external": "2",
-          "id_ordering": 2,
-          "datetime_end": null,
-          "datetime_start": null,
-          "deeplink": "https://gmail.com",
-          "sender": "@hackerdog",
-          "title": "Urgent question about tomorrow's presentation",
-          "body": "<html><body><div><img src='https://5mpublishing.sirv.com/poultry%2Farticles%2Fother-poultry%2Fduck-6.jpeg?scale.option=fill&scale.width=700&scale.height=350&crop.width=700&crop.height=350&crop.y=center&crop.x=center'/></div></body></html>",
-          "source": {
-            "name": "Gmail",
-            "logo": "/images/gmail.svg",
-            "is_completable": true,
-            "is_replyable": true
-          }
-        }
-      ]
-    },
-    {
-      "type": "scheduled_task",
-      "time_duration": 3600,
-      "datetime_start": "2021-07-21T12:00:00-08:00",
-      "tasks": [
-        {
-          "id": "f2aba811-2bfd-4558-9ef0-96048a1e6b0b",
-          "id_external": "5t1b86hbgvptrd1okidb3sd19m",
-          "id_ordering": 3,
-          "datetime_start": "2021-03-11T10:30:00-07:00",
-          "deeplink": "https://calendar.google.com",
-          "sender": "",
-          "link": "https://www.google.com/calendar/event?eid=NXQxYjg2aGJndnB0cmQxb2tpZGIzc2QxOW0gc2NvdHRtYWk3MDJAbQ",
-          "title": "Chat with Scott",
-          "logo_url": "/images/gcal.svg",
-          "is_completable": false,
-          "body": "<div>hello world<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>Goodbye world<div>",
-          "source": {
-            "name": "Google Calendar",
-            "logo": "/images/gcal.svg",
-            "is_completable": false,
-            "is_replyable": false
-          }
-        }
-      ]
-    },
-    {
-      "type": "unscheduled_group",
-      "time_duration": 1800,
-      "datetime_start": "2021-07-21T13:00:00-07:00",
-      "tasks": [
-        {
-          "id": "4",
-          "id_external": "2",
-          "id_ordering": 4,
-          "datetime_end": null,
-          "datetime_start": null,
-          "sender": "@hackerdog",
-          "logo_url": "/images/asana.svg",
-          "title": "Write presentation for tomorrow",
-          "body": null,
-          "source": {
-            "name": "Asana",
-            "logo": "/images/asana.svg",
-            "is_completable": false,
-            "is_replyable": false
-          }
+          "type": "scheduled_task",
+          "time_duration": 3600,
+          "datetime_start": "2021-07-21T12:00:00-08:00",
+          "tasks": [
+            {
+              "id": "f2aba811-2bfd-4558-9ef0-96048a1e6b0b",
+              "id_external": "5t1b86hbgvptrd1okidb3sd19m",
+              "datetime_start": "2021-03-11T10:30:00-07:00",
+              "deeplink": "https://calendar.google.com",
+              "sender": "",
+              "link": "https://www.google.com/calendar/event?eid=NXQxYjg2aGJndnB0cmQxb2tpZGIzc2QxOW0gc2NvdHRtYWk3MDJAbQ",
+              "title": "Chat with Scott",
+              "logo_url": "/images/gcal.svg",
+              "is_completable": false,
+              "body": "<div>hello world<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>Goodbye world<div>",
+              "source": {
+                "name": "Google Calendar",
+                "logo": "/images/gcal.svg",
+                "is_completable": false,
+                "is_replyable": false
+              }
+            }
+          ]
         },
         {
-          "id": "5",
-          "id_external": "5",
-          "id_ordering": 5,
-          "datetime_end": null,
-          "datetime_start": null,
-          "deeplink": "https://gmail.com",
-          "sender": "Amazon.com Store Card Customer Service",
-          "title": "Your Amazon.com Store Card Statement from Synchrony Bank is Available Online Your Amazon.com Store Card Statement from Synchrony Bank is Available Online",
-          "body": "<div>hello world<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>sup<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>Goodbye world<div>",
-          "source": {
-            "name": "Gmail",
-            "logo": "/images/gmail.svg",
-            "is_completable": true,
-            "is_replyable": true
-          }
+          "type": "unscheduled_group",
+          "time_duration": 1800,
+          "datetime_start": "2021-07-21T13:00:00-07:00",
+          "tasks": [
+            {
+              "id": "4",
+              "id_external": "2",
+              "datetime_end": null,
+              "datetime_start": null,
+              "sender": "@hackerdog",
+              "logo_url": "/images/asana.svg",
+              "title": "Write presentation for tomorrow",
+              "body": null,
+              "source": {
+                "name": "Asana",
+                "logo": "/images/asana.svg",
+                "is_completable": false,
+                "is_replyable": false
+              }
+            },
+            {
+              "id": "5",
+              "id_external": "5",
+              "datetime_end": null,
+              "datetime_start": null,
+              "deeplink": "https://gmail.com",
+              "sender": "Amazon.com Store Card Customer Service",
+              "title": "Your Amazon.com Store Card Statement from Synchrony Bank is Available Online Your Amazon.com Store Card Statement from Synchrony Bank is Available Online",
+              "body": "<div>hello world<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>sup<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>Goodbye world<div>",
+              "source": {
+                "name": "Gmail",
+                "logo": "/images/gmail.svg",
+                "is_completable": true,
+                "is_replyable": true
+              }
+            }
+          ]
+        },
+        {
+          "type": "scheduled_task",
+          "time_duration": 5400,
+          "datetime_start": "2021-07-21T13:30:00-07:00",
+          "tasks": [
+            {
+              "id": "c72b41a6-c0d5-46bb-b868-f7021bdd8ae9",
+              "id_external": "5pdjrip9j1pveo5ir1h5mbiaob",
+              "datetime_start": "2021-03-11T12:00:00-07:00",
+              "deeplink": "https://calendar.google.com",
+              "sender": "",
+              "link": "https://www.google.com/calendar/event?eid=NXBkanJpcDlqMXB2ZW81aXIxaDVtYmlhb2Igc2NvdHRtYWk3MDJAbQ",
+              "title": "Lunch Break",
+              "body": null,
+              "source": {
+                "name": "Google Calendar",
+                "logo": "/images/gcal.svg",
+                "is_completable": false,
+                "is_replyable": false
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "type": "scheduled_task",
-      "time_duration": 5400,
-      "datetime_start": "2021-07-21T13:30:00-07:00",
-      "tasks": [
+      "id": "task-section-2-id",
+      "name": "Backlog",
+      "is_today": false,
+      "task_groups": [
         {
-          "id": "c72b41a6-c0d5-46bb-b868-f7021bdd8ae9",
-          "id_external": "5pdjrip9j1pveo5ir1h5mbiaob",
-          "id_ordering": 6,
-          "datetime_start": "2021-03-11T12:00:00-07:00",
-          "deeplink": "https://calendar.google.com",
-          "sender": "",
-          "link": "https://www.google.com/calendar/event?eid=NXBkanJpcDlqMXB2ZW81aXIxaDVtYmlhb2Igc2NvdHRtYWk3MDJAbQ",
-          "title": "Lunch Break",
-          "body": null,
-          "source": {
-            "name": "Google Calendar",
-            "logo": "/images/gcal.svg",
-            "is_completable": false,
-            "is_replyable": false
-          }
+          "type": "unscheduled_group",
+          "time_duration": 3600,
+          "datetime_start": null,
+          "tasks": [
+            {
+              "id": "task-6",
+              "id_external": "6",
+              "datetime_end": null,
+              "datetime_start": null,
+              "sender": "Zuck",
+              "logo_url": "/images/asana.svg",
+              "title": "Fix all the bugs",
+              "body": null,
+              "source": {
+                "name": "Asana",
+                "logo": "/images/asana.svg",
+                "is_completable": false,
+                "is_replyable": false
+              }
+            },
+            {
+              "id": "task-7",
+              "id_external": "7",
+              "datetime_end": null,
+              "datetime_start": null,
+              "deeplink": "https://gmail.com",
+              "sender": "Jeff",
+              "title": "Hey, can you write some more tests?",
+              "body": "<html><body><div><img src='https://5mpublishing.sirv.com/poultry%2Farticles%2Fother-poultry%2Fduck-6.jpeg?scale.option=fill&scale.width=700&scale.height=350&crop.width=700&crop.height=350&crop.y=center&crop.x=center'/></div></body></html>",
+              "source": {
+                "name": "Gmail",
+                "logo": "/images/gmail.svg",
+                "is_completable": true,
+                "is_replyable": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task-section-2-id",
+      "name": "Blocked",
+      "is_today": false,
+      "task_groups": [
+        {
+          "type": "unscheduled_group",
+          "time_duration": 3600,
+          "datetime_start": null,
+          "tasks": [
+            {
+              "id": "task-8",
+              "id_external": "8",
+              "datetime_end": null,
+              "datetime_start": null,
+              "sender": "Zuck",
+              "logo_url": "/images/asana.svg",
+              "title": "ML-powered task prioritization",
+              "body": null,
+              "source": {
+                "name": "Asana",
+                "logo": "/images/asana.svg",
+                "is_completable": false,
+                "is_replyable": false
+              }
+            }
+          ]
         }
       ]
     }
