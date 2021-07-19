@@ -3,7 +3,7 @@ import { LANDING_PATH, LOGOUT_URL, LINKED_ACCOUNTS_URL, REACT_APP_COOKIE_DOMAIN,
 import { setTasks, setTasksDragState, setTasksFetchStatus } from '../redux/actions'
 import { DragState, FetchStatus } from '../redux/enums'
 import store from '../redux/store'
-import { TTaskGroup } from './types'
+import { TTaskSection } from './types'
 
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
@@ -51,11 +51,13 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
     return response
 }
 
-export const resetOrderingIds = (task_groups: TTaskGroup[]): void => {
-    let id_ordering = 1
-    for (const taskGroup of task_groups) {
-        for (const task of taskGroup.tasks) {
-            task.id_ordering = id_ordering++
+export const resetOrderingIds = (task_sections: TTaskSection[]): void => {
+    for (const taskSection of task_sections) {
+        let id_ordering = 1
+        for (const taskGroup of taskSection.task_groups) {
+            for (const task of taskGroup.tasks) {
+                task.id_ordering = id_ordering++
+            }
         }
     }
 }

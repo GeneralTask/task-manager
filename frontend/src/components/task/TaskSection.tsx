@@ -1,5 +1,5 @@
 import React from 'react'
-import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd'
+import { Droppable } from 'react-beautiful-dnd'
 import styled from 'styled-components'
 import { TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
 import { flex } from '../../helpers/styles'
@@ -31,49 +31,44 @@ function TaskGroup({ taskGroup, showTimeAnnotations }: TaskGroupProps) {
 interface Props {
     task_section: TTaskSection,
     task_section_index: number,
-    onDragStart: () => void,
-    onDragEnd: (result: DropResult) => Promise<void>,
 }
 
 export default function TaskSection(props: Props): JSX.Element {
     return <>
         <TaskSectionHeader show_current_time={props.task_section.is_today} name={props.task_section.name} />
-        <DragDropContext onDragStart={props.onDragStart} onDragEnd={props.onDragEnd}>
-            {
-                props.task_section.task_groups.map((group: TTaskGroup, index: number) => {
-                    if (group.tasks && !group.tasks.length) {
-                        return (<flex.flex key={index}>
-                            <TaskWrapperSides />
-                            <Droppable droppableId={`ts-0-tg-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
+        {
+            props.task_section.task_groups.map((group: TTaskGroup, index: number) => {
+                if (group.tasks && !group.tasks.length) {
+                    return (<flex.flex key={index}>
+                        <TaskWrapperSides />
+                        <Droppable droppableId={`ts-${props.task_section_index}-tg-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
+                            {provided => {
+                                return <div ref={provided.innerRef} {...provided.droppableProps}>
+                                    {provided.placeholder}
+                                </div>
+                            }}
+                        </Droppable>
+                    </flex.flex>)
+                }
+                else {
+                    return (
+                        <div key={index}>
+                            <Droppable droppableId={`ts-${props.task_section_index}-tg-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
                                 {provided => {
                                     return <div ref={provided.innerRef} {...provided.droppableProps}>
+                                        {group.tasks.length > 0 &&
+                                            <TaskGroup
+                                                taskGroup={group}
+                                                showTimeAnnotations={props.task_section.is_today}
+                                            />}
                                         {provided.placeholder}
                                     </div>
                                 }}
                             </Droppable>
-                        </flex.flex>)
-                    }
-                    else {
-                        return (
-                            <div key={index}>
-                                <Droppable droppableId={`ts-0-tg-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
-                                    {provided => {
-                                        return <div ref={provided.innerRef} {...provided.droppableProps}>
-                                            {group.tasks.length > 0 &&
-                                                <TaskGroup
-                                                    taskGroup={group}
-                                                    showTimeAnnotations={props.task_section.is_today}
-                                                />}
-                                            {provided.placeholder}
-                                        </div>
-                                    }}
-                                </Droppable>
-                            </div>
-                        )
-                    }
+                        </div>
+                    )
                 }
-                )
-            }
-        </DragDropContext>
+            })
+        }
     </>
 }

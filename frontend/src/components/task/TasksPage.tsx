@@ -1,64 +1,71 @@
+import _ from 'lodash'
 import React, { useEffect } from 'react'
+import { DragDropContext, DropResult } from 'react-beautiful-dnd'
 import { connect, useSelector } from 'react-redux'
-import { fetchTasks } from '../../helpers/utils'
-import { setTasksDragState } from '../../redux/actions'
+import { TASKS_URL } from '../../constants'
+import { TTaskSection, TTaskGroup, TTask } from '../../helpers/types'
+import { fetchTasks, makeAuthorizedRequest, resetOrderingIds } from '../../helpers/utils'
+import { setTasks, setTasksDragState } from '../../redux/actions'
 import { DragState } from '../../redux/enums'
-import { RootState } from '../../redux/store'
+import store, { RootState } from '../../redux/store'
 import TaskSection from './TaskSection'
 
 function onDragStart(): void {
     setTasksDragState(DragState.isDragging)
 }
 
-async function onDragEnd() {
-    // will finish next PR
+async function onDragEnd(result: DropResult) {
+    const { destination, source } = result
+    // destination.index is the index of the task in the *entire list*
+    if (!destination || !source || result.type === 'CANCEL') return
+
+    const sourceDroppableIDSplit = source.droppableId.split('-')
+    const destDroppableIDSplit = destination.droppableId.split('-')
+
+    const source_task_section_index = parseInt(sourceDroppableIDSplit[1])
+    const destination_task_section_index = parseInt(destDroppableIDSplit[1])
+
+    const source_task_group_index = parseInt(sourceDroppableIDSplit[3])
+    const destination_task_group_index = parseInt(destDroppableIDSplit[3])
+
+    // makes deep copy to keep redux state intact
+    const task_sections_copy: TTaskSection[] = _.cloneDeep(store.getState().task_sections)
+
+    const source_section: TTaskSection = task_sections_copy[source_task_section_index]
+    const dest_section: TTaskSection = task_sections_copy[destination_task_section_index]
+
+    const source_group: TTaskGroup = source_section.task_groups[source_task_group_index]
+    const dest_group: TTaskGroup = dest_section.task_groups[destination_task_group_index]
+
+    const source_task: TTask = source_group.tasks[source.index]
+
+    source_group.tasks.splice(source.index, 1)
+    dest_group.tasks.splice(destination.index, 0, source_task)
+
+    resetOrderingIds(task_sections_copy)
+
+    store.dispatch(setTasks(task_sections_copy))
+
+    const reorderedTask: TTask = task_sections_copy[destination_task_section_index].task_groups[destination_task_group_index].tasks[destination.index]
+
+    await makeAuthorizedRequest({
+        url: TASKS_URL + reorderedTask.id + '/',
+        method: 'PATCH',
+        body: JSON.stringify({
+            id_task_section: task_sections_copy[destination_task_section_index].id,
+            id_ordering: reorderedTask.id_ordering,
+        })
+    })
+    console.log({
+        task_id: reorderedTask.id,
+        id_task_section: task_sections_copy[destination_task_section_index].id,
+        id_ordering: reorderedTask.id_ordering,
+    })
+
+    if (store.getState().tasks_drag_state == DragState.fetchDelayed) {
+        await fetchTasks()
+    }
     setTasksDragState(DragState.noDrag)
-    return
-    // const { destination, source } = result
-    // // destination.index is the index of the task in the *entire list*
-    // if (!destination || !source || result.type === 'CANCEL') return
-
-    // const sourceDroppableIDSplit = source.droppableId.split('-')
-    // const destDroppableIDSplit = destination.droppableId.split('-')
-
-    // const source_task_section_index = parseInt(sourceDroppableIDSplit[1])
-    // const destination_task_section_index = parseInt(destDroppableIDSplit[1])
-
-    // const source_task_group_index = parseInt(sourceDroppableIDSplit[3])
-    // const destination_task_group_index = parseInt(destDroppableIDSplit[3])
-
-    // // makes deep copy to keep redux state intact
-    // const task_sections_copy: TTaskSection[] = _.cloneDeep(store.getState().task_sections)
-
-    // const source_section: TTaskSection = task_sections_copy[source_task_section_index]
-    // const dest_section: TTaskSection = task_sections_copy[destination_task_section_index]
-
-    // const source_group: TTaskGroup = source_section.task_groups[source_task_group_index]
-    // const dest_group: TTaskGroup = dest_section.task_groups[destination_task_group_index]
-
-    // const source_task: TTask = source_group.tasks[source.index]
-
-    // source_group.tasks.splice(source.index, 1)
-    // dest_group.tasks.splice(destination.index, 0, source_task)
-
-    // resetOrderingIds(task_groups_copy)
-
-    // store.dispatch(setTasks(task_groups_copy))
-
-    // const reorderedTask: TTask = task_groups_copy[destination_task_group_index].tasks[destination.index]
-
-    // await makeAuthorizedRequest({
-    //     url: TASKS_URL + reorderedTask.id + '/',
-    //     method: 'PATCH',
-    //     body: JSON.stringify({
-    //         id_ordering: reorderedTask.id_ordering,
-    //     })
-    // })
-
-    // if (dragState == DragState.fetchDelayed) {
-    //     await fetchTasks()
-    // }
-    // dragState = DragState.noDrag
 }
 
 function TasksPage(): JSX.Element {
@@ -76,15 +83,13 @@ function TasksPage(): JSX.Element {
             task_section={task_section}
             task_section_index={index}
             key={index}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
         />
     )
 
     return (
-        <>
+        <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
             {TaskSectionElements}
-        </>
+        </DragDropContext>
     )
 }
 
