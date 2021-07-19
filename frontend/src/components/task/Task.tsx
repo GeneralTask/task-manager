@@ -12,7 +12,7 @@ import styled from 'styled-components'
 const Container = styled.div`
   padding: 0;
   font-family: 'Ellipsis', 'Gothic A1', sans-serif;
-  border: 2px solid ${borderPrimary};
+  border: 1px solid ${borderPrimary};
   border-radius: 2px;
   width: 100%;
   outline: none;
