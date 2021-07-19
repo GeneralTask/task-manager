@@ -7,5 +7,4 @@ import (
 type TaskSource interface {
 	GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult)
 	MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error
-	CompareTo() bool
 }

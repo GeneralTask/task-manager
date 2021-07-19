@@ -51,7 +51,7 @@ type GoogleURLOverrides struct {
 // API is the object containing API route handlers
 type API struct {
 	GoogleConfig          OauthConfigWrapper
-	SlackConfig           OauthConfigWrapper
+	SlackConfig           external.OauthConfigWrapper
 	GoogleOverrideURLs    GoogleURLOverrides
 	AtlassianConfigValues external.AtlassianConfig
 	SkipStateTokenCheck   bool
