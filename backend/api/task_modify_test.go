@@ -68,12 +68,12 @@ func TestMarkAsComplete(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	jiraSiteCollection := db.Collection("jira_site_collection")
-	_, err = jiraSiteCollection.UpdateOne(
+	AtlassianSiteCollection := db.Collection("jira_site_collection")
+	_, err = AtlassianSiteCollection.UpdateOne(
 		context.TODO(),
 		bson.M{"user_id": userID},
 
-		bson.M{"$set": &database.JIRASiteConfiguration{
+		bson.M{"$set": &database.AtlassianSiteConfiguration{
 			UserID:  userID,
 			CloudID: "sample_cloud_id",
 			SiteURL: "https://generaltasktester.atlassian.com",

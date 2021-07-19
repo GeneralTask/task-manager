@@ -34,8 +34,8 @@ type JIRAConfig struct {
 	PriorityListURL *string
 }
 
-// JIRASite ...
-type JIRASite struct {
+// AtlassianSite ...
+type AtlassianSite struct {
 	ID        string   `json:"id"`
 	Name      string   `json:"name"`
 	URL       string   `json:"url"`
@@ -103,7 +103,7 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 		return errors.New("failed to read token response")
 	}
 
-	siteConfiguration := getJIRASites(jiraConfig, &token)
+	siteConfiguration := atlassian.GetSites(jiraConfig, &token)
 
 	if siteConfiguration == nil {
 		return errors.New("failed to download site configuration")
@@ -139,7 +139,7 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 	_, err = siteCollection.UpdateOne(
 		context.TODO(),
 		bson.M{"user_id": userID},
-		bson.M{"$set": database.JIRASiteConfiguration{
+		bson.M{"$set": database.AtlassianSiteConfiguration{
 			UserID:  userID,
 			CloudID: (*siteConfiguration)[0].ID,
 			SiteURL: (*siteConfiguration)[0].URL,
@@ -152,7 +152,8 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 		return errors.New("internal server error")
 	}
 
-	err = GetListOfJIRAPriorities(jiraConfig, userID, token.AccessToken)
+	JIRA := JIRASource{Atlassian: atlassian}
+	err = JIRA.GetListOfPriorities(jiraConfig, userID, token.AccessToken)
 	if err != nil {
 		log.Printf("failed to download priorities: %v", err)
 		return errors.New("internal server error")
@@ -160,7 +161,7 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 	return nil
 }
 
-func getJIRASites(jiraConfig JIRAConfig, token *JIRAAuthToken) *[]JIRASite {
+func (atlassian AtlassianService) GetSites(jiraConfig JIRAConfig, token *JIRAAuthToken) *[]AtlassianSite {
 	cloudIDURL := "https://api.atlassian.com/oauth/token/accessible-resources"
 	if jiraConfig.CloudIDURL != nil {
 		cloudIDURL = *jiraConfig.CloudIDURL
@@ -186,82 +187,22 @@ func getJIRASites(jiraConfig JIRAConfig, token *JIRAAuthToken) *[]JIRASite {
 		log.Printf("cloud ID request failed: %s", cloudIDData)
 		return nil
 	}
-	JIRASites := []JIRASite{}
-	err = json.Unmarshal(cloudIDData, &JIRASites)
+	AtlassianSites := []AtlassianSite{}
+	err = json.Unmarshal(cloudIDData, &AtlassianSites)
 	if err != nil {
 		log.Printf("failed to parse cloud ID response: %v", err)
 		return nil
 	}
 
-	if len(JIRASites) == 0 {
+	if len(AtlassianSites) == 0 {
 		log.Println("no accessible JIRA resources found")
 		return nil
 	}
-	return &JIRASites
+	return &AtlassianSites
 }
 
-func GetListOfJIRAPriorities(jiraConfig JIRAConfig, userID primitive.ObjectID, authToken string) error {
-	var baseURL string
-	if jiraConfig.PriorityListURL != nil {
-		baseURL = *jiraConfig.PriorityListURL
-	} else if siteConfiguration, _ := getJIRASiteConfiguration(userID); siteConfiguration != nil {
-		baseURL = getJIRAAPIBaseURl(*siteConfiguration)
-	} else {
-		return errors.New("could not form base url")
-	}
-
-	url := baseURL + "/rest/api/3/priority/"
-	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Add("Authorization", "Bearer "+authToken)
-	req.Header.Add("Content-Type", "application/json")
-
-	resp, err := http.DefaultClient.Do(req)
-
-	if err != nil {
-		return err
-	}
-	priorityListString, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	var priorityIds []PriorityID
-	err = json.Unmarshal(priorityListString, &priorityIds)
-
-	if err != nil {
-		return err
-	}
-
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return err
-	}
-	defer dbCleanup()
-
-	prioritiesCollection := db.Collection("jira_priorities")
-	_, err = prioritiesCollection.DeleteMany(context.TODO(), bson.M{"user_id": userID})
-	if err != nil {
-		return err
-	}
-
-	var jiraPriorities []interface{}
-	for index, object := range priorityIds {
-		jiraPriorities = append(jiraPriorities, database.JIRAPriority{
-			UserID:          userID,
-			JIRAID:          object.ID,
-			IntegerPriority: index + 1,
-		})
-	}
-	_, err = prioritiesCollection.InsertMany(context.TODO(), jiraPriorities)
-	return err
-}
-
-func getJIRAAPIBaseURl(siteConfiguration database.JIRASiteConfiguration) string {
-	return "https://api.atlassian.com/ex/jira/" + siteConfiguration.CloudID
-}
-
-func getJIRASiteConfiguration(userID primitive.ObjectID) (*database.JIRASiteConfiguration, error) {
-	var siteConfiguration database.JIRASiteConfiguration
+func (atlassian AtlassianService) GetSiteConfiguration(userID primitive.ObjectID) (*database.AtlassianSiteConfiguration, error) {
+	var siteConfiguration database.AtlassianSiteConfiguration
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return nil, err

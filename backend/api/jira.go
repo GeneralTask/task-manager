@@ -48,8 +48,8 @@ type JIRARedirectParams struct {
 	State string `form:"state"`
 }
 
-// JIRASite ...
-type JIRASite struct {
+// AtlassianSite ...
+type AtlassianSite struct {
 	ID        string   `json:"id"`
 	Name      string   `json:"name"`
 	URL       string   `json:"url"`
@@ -129,14 +129,15 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 
 func LoadJIRATasks(api *API, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	authToken, _ := getJIRAToken(api, userID, accountID)
-	siteConfiguration, _ := getJIRASiteConfiguration(userID)
+	JIRA := external.JIRASource{Atlassian: external.AtlassianService{}}
+	siteConfiguration, _ := JIRA.Atlassian.GetSiteConfiguration(userID)
 
 	if authToken == nil || siteConfiguration == nil {
 		result <- emptyTaskResult(errors.New("missing authToken or siteConfiguration"))
 		return
 	}
 
-	apiBaseURL := getJIRAAPIBaseURl(*siteConfiguration)
+	apiBaseURL := JIRA.GetAPIBaseURL(*siteConfiguration)
 	if api.JIRAConfigValues.APIBaseURL != nil {
 		apiBaseURL = *api.JIRAConfigValues.APIBaseURL
 	}
@@ -280,26 +281,6 @@ func emptyTaskResult(err error) TaskResult {
 	}
 }
 
-func getJIRAAPIBaseURl(siteConfiguration database.JIRASiteConfiguration) string {
-	return "https://api.atlassian.com/ex/jira/" + siteConfiguration.CloudID
-}
-
-func getJIRASiteConfiguration(userID primitive.ObjectID) (*database.JIRASiteConfiguration, error) {
-	var siteConfiguration database.JIRASiteConfiguration
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
-
-	siteCollection := db.Collection("jira_site_collection")
-	err = siteCollection.FindOne(context.TODO(), bson.M{"user_id": userID}).Decode(&siteConfiguration)
-	if err != nil {
-		return nil, err
-	}
-	return &siteConfiguration, nil
-}
-
 func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*JIRAAuthToken, error) {
 	var JIRAToken database.ExternalAPIToken
 
@@ -365,7 +346,8 @@ func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*JIRAA
 
 func MarkJIRATaskDone(api *API, userID primitive.ObjectID, accountID string, issueID string) error {
 	token, _ := getJIRAToken(api, userID, accountID)
-	siteConfiguration, _ := getJIRASiteConfiguration(userID)
+	JIRA := external.JIRASource{Atlassian: external.AtlassianService{}}
+	siteConfiguration, _ := JIRA.Atlassian.GetSiteConfiguration(userID)
 	if token == nil || siteConfiguration == nil {
 		return errors.New("missing token or siteConfiguration")
 	}
@@ -376,7 +358,7 @@ func MarkJIRATaskDone(api *API, userID primitive.ObjectID, accountID string, iss
 	if api.JIRAConfigValues.TransitionURL != nil {
 		apiBaseURL = *api.JIRAConfigValues.TransitionURL
 	} else {
-		apiBaseURL = getJIRAAPIBaseURl(*siteConfiguration)
+		apiBaseURL = JIRA.GetAPIBaseURL(*siteConfiguration)
 	}
 
 	finalTransitionID := getFinalTransitionID(apiBaseURL, token.AccessToken, issueID)
@@ -463,10 +445,11 @@ func fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID pr
 
 func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken string) error {
 	var baseURL string
+	JIRA := external.JIRASource{Atlassian: external.AtlassianService{}}
 	if api.JIRAConfigValues.PriorityListURL != nil {
 		baseURL = *api.JIRAConfigValues.PriorityListURL
-	} else if siteConfiguration, _ := getJIRASiteConfiguration(userID); siteConfiguration != nil {
-		baseURL = getJIRAAPIBaseURl(*siteConfiguration)
+	} else if siteConfiguration, _ := JIRA.Atlassian.GetSiteConfiguration(userID); siteConfiguration != nil {
+		baseURL = JIRA.GetAPIBaseURL(*siteConfiguration)
 	} else {
 		return errors.New("could not form base url")
 	}

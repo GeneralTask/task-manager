@@ -79,7 +79,7 @@ func TestLoadJIRATasks(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	jiraSiteCollection := db.Collection("jira_site_collection")
+	AtlassianSiteCollection := db.Collection("jira_site_collection")
 	taskCollection := db.Collection("tasks")
 
 	t.Run("MissingJIRAToken", func(t *testing.T) {
@@ -99,7 +99,7 @@ func TestLoadJIRATasks(t *testing.T) {
 	})
 
 	t.Run("SearchFailed", func(t *testing.T) {
-		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
 		var JIRATasks = make(chan TaskResult)
@@ -108,7 +108,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("EmptySearchResponse", func(t *testing.T) {
-		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
 		var JIRATasks = make(chan TaskResult)
@@ -117,7 +117,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("Success", func(t *testing.T) {
-		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
@@ -156,7 +156,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.Equal(t, accountID, taskFromDB.SourceAccountID)
 	})
 	t.Run("ExistingTask", func(t *testing.T) {
-		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
@@ -203,7 +203,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.Equal(t, "someAccountID", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 	t.Run("NewPriority", func(t *testing.T) {
-		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
@@ -254,7 +254,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 	})
 	t.Run("NewPriorityReordered", func(t *testing.T) {
-		userID, accountID := setupJIRA(t, externalAPITokenCollection, jiraSiteCollection)
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
@@ -363,9 +363,9 @@ func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.Source, b.Source)
 }
 
-func setupJIRA(t *testing.T, externalAPITokenCollection *mongo.Collection, jiraSiteCollection *mongo.Collection) (*primitive.ObjectID, string) {
+func setupJIRA(t *testing.T, externalAPITokenCollection *mongo.Collection, AtlassianSiteCollection *mongo.Collection) (*primitive.ObjectID, string) {
 	userID, accountID := createJIRAToken(t, externalAPITokenCollection)
-	createJIRASiteConfiguration(t, userID, jiraSiteCollection)
+	createAtlassianSiteConfiguration(t, userID, AtlassianSiteCollection)
 	return userID, accountID
 }
 
@@ -385,11 +385,11 @@ func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection)
 	return &userID, accountID
 }
 
-func createJIRASiteConfiguration(t *testing.T, userID *primitive.ObjectID, jiraSiteCollection *mongo.Collection) {
-	_, err := jiraSiteCollection.UpdateOne(
+func createAtlassianSiteConfiguration(t *testing.T, userID *primitive.ObjectID, AtlassianSiteCollection *mongo.Collection) {
+	_, err := AtlassianSiteCollection.UpdateOne(
 		context.TODO(),
 		bson.M{"user_id": userID},
-		bson.M{"$set": &database.JIRASiteConfiguration{
+		bson.M{"$set": &database.AtlassianSiteConfiguration{
 			UserID:  *userID,
 			CloudID: "sample_cloud_id",
 			SiteURL: "https://dankmemes.com",
