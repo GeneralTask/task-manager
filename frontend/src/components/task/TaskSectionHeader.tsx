@@ -1,7 +1,7 @@
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { flex, textDark } from '../../helpers/styles'
+import { textDark } from '../../helpers/styles'
 
 const TaskSectionHeaderContainer = styled.div`
   display: flex;
