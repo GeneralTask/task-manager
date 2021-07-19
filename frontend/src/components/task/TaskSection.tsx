@@ -30,6 +30,7 @@ function TaskGroup({ taskGroup, showTimeAnnotations }: TaskGroupProps) {
 
 interface Props {
     task_section: TTaskSection,
+    task_section_index: number,
     onDragStart: () => void,
     onDragEnd: (result: DropResult) => Promise<void>,
 }

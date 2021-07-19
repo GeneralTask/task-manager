@@ -1,19 +1,16 @@
-import _ from 'lodash'
 import React, { useEffect } from 'react'
-import { DropResult } from 'react-beautiful-dnd'
 import { connect, useSelector } from 'react-redux'
-import { TTask, TTaskGroup, TTaskSection } from '../../helpers/types'
 import { fetchTasks } from '../../helpers/utils'
 import { setTasksDragState } from '../../redux/actions'
 import { DragState } from '../../redux/enums'
-import store, { RootState } from '../../redux/store'
+import { RootState } from '../../redux/store'
 import TaskSection from './TaskSection'
 
 function onDragStart(): void {
     setTasksDragState(DragState.isDragging)
 }
 
-async function onDragEnd(result: DropResult) {
+async function onDragEnd() {
     // will finish next PR
     setTasksDragState(DragState.noDrag)
     return
@@ -77,6 +74,7 @@ function TasksPage(): JSX.Element {
     const TaskSectionElements = task_sections.map(
         (task_section, index) => <TaskSection
             task_section={task_section}
+            task_section_index={index}
             key={index}
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
