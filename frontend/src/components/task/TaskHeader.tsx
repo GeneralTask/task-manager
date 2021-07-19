@@ -23,6 +23,12 @@ const Header = styled.div<{ hover_effect: boolean }>`
   &:hover{
     background-color: ${props => props.hover_effect ? hoverBackground : 'inherit'};
   }
+  &:hover > div > button {
+    display: inherit;
+  }
+  & > div > button {
+    display: none;
+  }
 `
 
 const HeaderLeft = styled.div`
@@ -77,7 +83,8 @@ const TitleWrap = styled(Title)`
   text-overflow: ellipsis;
 `
 const DoneButton = styled.button`
-  background-color: white;
+  background-color: black;
+  color: white;
   border-radius: 2px;
   border: 2px solid black;
   margin-left: 10px;
@@ -88,7 +95,8 @@ const DoneButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   &:hover{
-    background-color: black;
+    background-color: #404040;
+    border: 2px solid #404040;
     color: white;
   }
 `
