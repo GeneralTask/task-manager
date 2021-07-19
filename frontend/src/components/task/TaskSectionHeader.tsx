@@ -64,10 +64,10 @@ export default function TaskSectionHeader(props: Props): JSX.Element {
 }
 
 function CurrentTime() {
-    const [timeStr, setTimeStr] = useState(moment().format('h:mm a'))
+    const [timeStr, setTimeStr] = useState(moment().format('h:mm:ss a'))
     useEffect(() => {
         const interval = setInterval(() => {
-            setTimeStr(moment().format('h:mm a'))
+            setTimeStr(moment().format('h:mm:ss a'))
         }, 1000)
 
         return () => {
