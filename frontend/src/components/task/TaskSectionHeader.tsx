@@ -14,7 +14,7 @@ const TaskSectionHeaderContainer = styled.div`
 const Spanbar = styled.div`
   display: flex;
   background-color: ${textDark};
-  height: 2px;
+  height: 1px;
   flex: 1;
   border-left: 1px solid ${textDark};
   border-right: 1px solid ${textDark};
