@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -35,7 +36,7 @@ func (api *API) TaskModify(c *gin.Context) {
 
 	if modifyParams.IDTaskSection != nil {
 		IDTaskSection, err := primitive.ObjectIDFromHex(*modifyParams.IDTaskSection)
-		if err != nil || (IDTaskSection != IDTaskSectionToday && IDTaskSection != IDTaskSectionBlocked && IDTaskSection != IDTaskSectionBacklog) {
+		if err != nil || (IDTaskSection != constants.IDTaskSectionToday && IDTaskSection != constants.IDTaskSectionBlocked && IDTaskSection != constants.IDTaskSectionBacklog) {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
 		}

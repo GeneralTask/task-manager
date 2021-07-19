@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -732,7 +733,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:     2,
 				IDExternal:     "sample_task",
-				IDTaskSection:  IDTaskSectionBlocked,
+				IDTaskSection:  constants.IDTaskSectionBlocked,
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
 				Source:         database.TaskSourceJIRA,
@@ -751,7 +752,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:     1,
 				IDExternal:     "sample_task2",
-				IDTaskSection:  IDTaskSectionBlocked,
+				IDTaskSection:  constants.IDTaskSectionBlocked,
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
 				Source:         database.TaskSourceJIRA,
@@ -770,7 +771,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:     2,
 				IDExternal:     "sample_task",
-				IDTaskSection:  IDTaskSectionBacklog,
+				IDTaskSection:  constants.IDTaskSectionBacklog,
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
 				Source:         database.TaskSourceJIRA,
@@ -789,7 +790,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:     1,
 				IDExternal:     "sample_task2",
-				IDTaskSection:  IDTaskSectionBacklog,
+				IDTaskSection:  constants.IDTaskSectionBacklog,
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
 				Source:         database.TaskSourceJIRA,
