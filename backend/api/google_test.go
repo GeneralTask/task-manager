@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -51,7 +52,7 @@ func TestCalendar(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:    0,
 				IDExternal:    "standard_event",
-				IDTaskSection: IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionToday,
 				Deeplink:      "generaltask.io",
 				Title:         "Standard Event",
 				Source:        database.TaskSourceGoogleCalendar,
@@ -133,7 +134,7 @@ func TestCalendar(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      1,
 				IDExternal:      "standard_event",
-				IDTaskSection:   IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionToday,
 				Deeplink:        "generaltask.io",
 				Title:           "Standard Event",
 				Source:          database.TaskSourceGoogleCalendar,
@@ -220,7 +221,7 @@ func TestCalendar(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      1,
 				IDExternal:      "standard_event",
-				IDTaskSection:   IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionToday,
 				Deeplink:        "generaltask.io",
 				Title:           "Standard Event",
 				Source:          database.TaskSourceGoogleCalendar,

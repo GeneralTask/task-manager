@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -84,17 +85,19 @@ func TestLoadJIRATasks(t *testing.T) {
 	taskCollection := db.Collection("tasks")
 
 	t.Run("MissingJIRAToken", func(t *testing.T) {
-		var JIRATasks = make(chan TaskResult)
+		var JIRATasks = make(chan external.TaskResult)
 		userID := primitive.NewObjectID()
-		go LoadJIRATasks(&API{}, userID, "exampleAccountID", JIRATasks)
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{}}
+		go JIRA.GetTasks(userID, "exampleAccountID", JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("RefreshTokenFailed", func(t *testing.T) {
 		userID, accountID := createJIRAToken(t, externalAPITokenCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusUnauthorized)
-		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{AtlassianConfigValues: external.AtlassianConfig{TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
+		var JIRATasks = make(chan external.TaskResult)
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: external.AtlassianConfig{TokenURL: &tokenServer.URL}}}
+		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result.Tasks))
 	})
@@ -103,8 +106,9 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
-		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{AtlassianConfigValues: external.AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
+		var JIRATasks = make(chan external.TaskResult)
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: external.AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}
+		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result.Tasks))
 	})
@@ -112,8 +116,9 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
-		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{AtlassianConfigValues: external.AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
+		var JIRATasks = make(chan external.TaskResult)
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: external.AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}
+		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result.Tasks))
 	})
@@ -127,7 +132,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:    0,
 				IDExternal:    "42069",
-				IDTaskSection: IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionToday,
 				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
 				Title:         "Sample Taskeroni",
 				Source:        database.TaskSourceJIRA,
@@ -136,8 +141,9 @@ func TestLoadJIRATasks(t *testing.T) {
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
 
-		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{AtlassianConfigValues: external.AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
+		var JIRATasks = make(chan external.TaskResult)
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: external.AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}
+		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
 
@@ -166,7 +172,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      2,
 				IDExternal:      "42069",
-				IDTaskSection:   IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionToday,
 				Deeplink:        "https://dankmemes.com/browse/MOON-1969",
 				Title:           "Sample Taskeroni",
 				Source:          database.TaskSourceJIRA,
@@ -183,8 +189,9 @@ func TestLoadJIRATasks(t *testing.T) {
 			&expectedTask,
 		)
 
-		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{AtlassianConfigValues: external.AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
+		var JIRATasks = make(chan external.TaskResult)
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: external.AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}
+		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
 
@@ -213,7 +220,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:    2,
 				IDExternal:    "42069",
-				IDTaskSection: IDTaskSectionBlocked,
+				IDTaskSection: constants.IDTaskSectionBlocked,
 				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
 				Title:         "Sample Taskeroni",
 				Source:        database.TaskSourceJIRA,
@@ -230,8 +237,9 @@ func TestLoadJIRATasks(t *testing.T) {
 			&expectedTask,
 		)
 
-		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{AtlassianConfigValues: external.AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
+		var JIRATasks = make(chan external.TaskResult)
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: external.AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}
+		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
 
@@ -251,7 +259,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.NoError(t, err)
 		// ordering ID in DB isn't updated until task merge
 		expectedTask.IDOrdering = 2
-		expectedTask.IDTaskSection = IDTaskSectionBlocked
+		expectedTask.IDTaskSection = constants.IDTaskSectionBlocked
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 	})
 	t.Run("NewPriorityReordered", func(t *testing.T) {
@@ -264,7 +272,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:       2,
 				IDExternal:       "42069",
-				IDTaskSection:    IDTaskSectionToday,
+				IDTaskSection:    constants.IDTaskSectionToday,
 				HasBeenReordered: true,
 				Deeplink:         "https://dankmemes.com/browse/MOON-1969",
 				Title:            "Sample Taskeroni",
@@ -282,8 +290,9 @@ func TestLoadJIRATasks(t *testing.T) {
 			&expectedTask,
 		)
 
-		var JIRATasks = make(chan TaskResult)
-		go LoadJIRATasks(&API{AtlassianConfigValues: external.AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}, *userID, accountID, JIRATasks)
+		var JIRATasks = make(chan external.TaskResult)
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: external.AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}
+		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
 
@@ -315,16 +324,16 @@ func TestGetPriorities(t *testing.T) {
 	t.Run("ServerError", func(t *testing.T) {
 		server := getJIRAPriorityServer(t, 400, []byte(``))
 		defer server.Close()
-		api := &API{AtlassianConfigValues: external.AtlassianConfig{PriorityListURL: &server.URL}}
-		err := GetListOfJIRAPriorities(api, *userID, "sample")
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: external.AtlassianConfig{PriorityListURL: &server.URL}}}
+		err := JIRA.GetListOfPriorities(*userID, "sample")
 		assert.Error(t, err)
 	})
 
 	t.Run("Success", func(t *testing.T) {
 		server := getJIRAPriorityServer(t, 200, []byte(`[{"id": "9"},{"id": "5"}]`))
 		defer server.Close()
-		api := &API{AtlassianConfigValues: external.AtlassianConfig{PriorityListURL: &server.URL}}
-		err := GetListOfJIRAPriorities(api, *userID, "sample")
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: external.AtlassianConfig{PriorityListURL: &server.URL}}}
+		err := JIRA.GetListOfPriorities(*userID, "sample")
 		assert.NoError(t, err)
 
 		options := options.Find()
@@ -341,8 +350,8 @@ func TestGetPriorities(t *testing.T) {
 		assert.Equal(t, 2, priorities[1].IntegerPriority)
 
 		server = getJIRAPriorityServer(t, http.StatusOK, []byte(`[{"id": "8"}]`))
-		api = &API{AtlassianConfigValues: external.AtlassianConfig{PriorityListURL: &server.URL}}
-		err = GetListOfJIRAPriorities(api, *userID, "sample")
+		JIRA = external.JIRASource{Atlassian: external.AtlassianService{Config: external.AtlassianConfig{PriorityListURL: &server.URL}}}
+		err = JIRA.GetListOfPriorities(*userID, "sample")
 		assert.NoError(t, err)
 
 		cursor, err = prioritiesCollection.Find(context.TODO(), bson.M{"user_id": userID}, options)
@@ -423,12 +432,12 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 		assert.Equal(t, "", string(body))
 		w.WriteHeader(statusCode)
 		if empty {
-			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{}})
+			result, err := json.Marshal(external.JIRATaskList{Issues: []external.JIRATask{}})
 			assert.NoError(t, err)
 			w.Write(result)
 		} else {
-			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{{
-				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni"},
+			result, err := json.Marshal(external.JIRATaskList{Issues: []external.JIRATask{{
+				Fields: external.JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni"},
 				ID:     "42069",
 				Key:    "MOON-1969",
 			}}})

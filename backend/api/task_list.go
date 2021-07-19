@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/utils"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -51,10 +53,6 @@ const (
 	TaskSectionNameBlocked string        = "Blocked"
 	TaskSectionNameBacklog string        = "Backlog"
 )
-
-var IDTaskSectionToday primitive.ObjectID = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
-var IDTaskSectionBlocked primitive.ObjectID = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
-var IDTaskSectionBacklog primitive.ObjectID = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}
 
 func (api *API) TasksList(c *gin.Context) {
 	db, dbCleanup, err := database.GetDBConnection()
@@ -101,7 +99,7 @@ func (api *API) TasksList(c *gin.Context) {
 
 	calendarEventChannels := []chan CalendarResult{}
 	emailChannels := []chan EmailResult{}
-	jiraTaskChannels := []chan TaskResult{}
+	jiraTaskChannels := []chan external.TaskResult{}
 	timezoneOffset, err := strconv.ParseInt(c.GetHeader("Timezone-Offset"), 10, 64)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "Invalid timezone offset"})
@@ -124,8 +122,9 @@ func (api *API) TasksList(c *gin.Context) {
 			go loadEmails(userID.(primitive.ObjectID), token.AccountID, client, emails)
 			emailChannels = append(emailChannels, emails)
 		} else if token.Source == database.TaskSourceJIRA.Name {
-			var JIRATasks = make(chan TaskResult)
-			go LoadJIRATasks(api, userID.(primitive.ObjectID), token.AccountID, JIRATasks)
+			var JIRATasks = make(chan external.TaskResult)
+			JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.AtlassianConfigValues}}
+			go JIRA.GetTasks(userID.(primitive.ObjectID), token.AccountID, JIRATasks)
 			jiraTaskChannels = append(jiraTaskChannels, JIRATasks)
 		}
 	}
@@ -316,19 +315,19 @@ func MergeTasks(
 
 	return []*TaskSection{
 		{
-			ID:         IDTaskSectionToday,
+			ID:         constants.IDTaskSectionToday,
 			Name:       TaskSectionNameToday,
 			IsToday:    true,
 			TaskGroups: convertTasksToTaskGroups(&tasks),
 		},
 		{
-			ID:         IDTaskSectionBlocked,
+			ID:         constants.IDTaskSectionBlocked,
 			Name:       TaskSectionNameBlocked,
 			IsToday:    false,
 			TaskGroups: convertTasksToTaskGroups(&blockedTasks),
 		},
 		{
-			ID:         IDTaskSectionBacklog,
+			ID:         constants.IDTaskSectionBacklog,
 			Name:       TaskSectionNameBacklog,
 			IsToday:    false,
 			TaskGroups: convertTasksToTaskGroups(&backlogTasks),
@@ -343,14 +342,14 @@ func extractSectionTasks(allUnscheduledTasks *[]interface{}) ([]*TaskItem, []*Ta
 	for _, task := range *allUnscheduledTasks {
 		switch task := task.(type) {
 		case *database.Email:
-			if task.IDTaskSection == IDTaskSectionBlocked {
+			if task.IDTaskSection == constants.IDTaskSectionBlocked {
 				blockedTasks = append(blockedTasks, &TaskItem{
 					TaskGroupType: UnscheduledGroup,
 					TaskBase:      &task.TaskBase,
 				})
 				continue
 			}
-			if task.IDTaskSection == IDTaskSectionBacklog {
+			if task.IDTaskSection == constants.IDTaskSectionBacklog {
 				blockedTasks = append(backlogTasks, &TaskItem{
 					TaskGroupType: UnscheduledGroup,
 					TaskBase:      &task.TaskBase,
@@ -358,14 +357,14 @@ func extractSectionTasks(allUnscheduledTasks *[]interface{}) ([]*TaskItem, []*Ta
 				continue
 			}
 		case *database.Task:
-			if task.IDTaskSection == IDTaskSectionBlocked {
+			if task.IDTaskSection == constants.IDTaskSectionBlocked {
 				blockedTasks = append(blockedTasks, &TaskItem{
 					TaskGroupType: UnscheduledGroup,
 					TaskBase:      &task.TaskBase,
 				})
 				continue
 			}
-			if task.IDTaskSection == IDTaskSectionBacklog {
+			if task.IDTaskSection == constants.IDTaskSectionBacklog {
 				blockedTasks = append(backlogTasks, &TaskItem{
 					TaskGroupType: UnscheduledGroup,
 					TaskBase:      &task.TaskBase,

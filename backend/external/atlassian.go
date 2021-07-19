@@ -218,3 +218,66 @@ func (atlassian AtlassianService) GetSiteConfiguration(userID primitive.ObjectID
 	}
 	return &siteConfiguration, nil
 }
+
+func (atlassian AtlassianService) GetToken(userID primitive.ObjectID, accountID string) (*AtlassianAuthToken, error) {
+	var JIRAToken database.ExternalAPIToken
+
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return nil, err
+	}
+	defer dbCleanup()
+
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+
+	err = externalAPITokenCollection.FindOne(
+		context.TODO(),
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"source": database.TaskSourceJIRA.Name},
+			{"account_id": accountID},
+		}}).Decode(&JIRAToken)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var token AtlassianAuthToken
+	err = json.Unmarshal([]byte(JIRAToken.Token), &token)
+	if err != nil {
+		log.Printf("failed to parse JIRA token: %v", err)
+		return nil, err
+	}
+	params := []byte(`{"grant_type": "refresh_token","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","refresh_token": "` + token.RefreshToken + `"}`)
+	tokenURL := "https://auth.atlassian.com/oauth/token"
+	if atlassian.Config.TokenURL != nil {
+		tokenURL = *atlassian.Config.TokenURL
+	}
+	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
+	if err != nil {
+		log.Printf("error forming token request: %v", err)
+		return nil, err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("failed to request token: %v", err)
+		return nil, err
+	}
+	tokenString, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("failed to read token response: %v", err)
+		return nil, err
+	}
+	if resp.StatusCode != 200 {
+		log.Printf("JIRA authorization failed: %s", tokenString)
+		return nil, err
+	}
+	var newToken AtlassianAuthToken
+	err = json.Unmarshal(tokenString, &newToken)
+	if err != nil {
+		log.Printf("failed to parse new JIRA token: %v", err)
+		return nil, err
+	}
+	return &newToken, nil
+}

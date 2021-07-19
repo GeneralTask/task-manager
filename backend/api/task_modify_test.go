@@ -11,6 +11,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
@@ -272,7 +273,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    2,
-				IDTaskSection: IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionToday,
 			},
 		)
 		assert.NoError(t, err)
@@ -283,7 +284,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        primitive.NewObjectID(),
 				IDOrdering:    3,
-				IDTaskSection: IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionToday,
 			},
 		)
 		assert.NoError(t, err)
@@ -294,7 +295,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    1,
-				IDTaskSection: IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionToday,
 			},
 		)
 		assert.NoError(t, err)
@@ -305,7 +306,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    2,
-				IDTaskSection: IDTaskSectionBacklog,
+				IDTaskSection: constants.IDTaskSectionBacklog,
 			},
 		)
 		assert.NoError(t, err)
@@ -315,7 +316,7 @@ func TestTaskReorder(t *testing.T) {
 			context.TODO(),
 			database.TaskBase{
 				UserID:        userID,
-				IDTaskSection: IDTaskSectionBacklog,
+				IDTaskSection: constants.IDTaskSectionBacklog,
 			},
 		)
 		assert.NoError(t, err)
@@ -323,7 +324,7 @@ func TestTaskReorder(t *testing.T) {
 		taskIDHex := taskID.Hex()
 
 		router := GetRouter(&API{})
-		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+IDTaskSectionToday.Hex()+`"}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+constants.IDTaskSectionToday.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -338,7 +339,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
-		assert.Equal(t, IDTaskSectionToday, task.IDTaskSection)
+		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 
 		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": taskToBeMovedID}).Decode(&task)
@@ -458,7 +459,7 @@ func TestTaskReorder(t *testing.T) {
 			context.TODO(),
 			database.TaskBase{
 				UserID:        userID,
-				IDTaskSection: IDTaskSectionBacklog,
+				IDTaskSection: constants.IDTaskSectionBacklog,
 			},
 		)
 		assert.NoError(t, err)
@@ -466,7 +467,7 @@ func TestTaskReorder(t *testing.T) {
 		taskIDHex := taskID.Hex()
 
 		router := GetRouter(&API{})
-		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+IDTaskSectionToday.Hex()+`"}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+constants.IDTaskSectionToday.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -481,7 +482,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, task.IDOrdering)
-		assert.Equal(t, IDTaskSectionToday, task.IDTaskSection)
+		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("OnlyReorderingID", func(t *testing.T) {
@@ -492,7 +493,7 @@ func TestTaskReorder(t *testing.T) {
 			context.TODO(),
 			database.TaskBase{
 				UserID:        userID,
-				IDTaskSection: IDTaskSectionBacklog,
+				IDTaskSection: constants.IDTaskSectionBacklog,
 			},
 		)
 		assert.NoError(t, err)
@@ -515,7 +516,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
-		assert.Equal(t, IDTaskSectionBacklog, task.IDTaskSection)
+		assert.Equal(t, constants.IDTaskSectionBacklog, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
