@@ -7,6 +7,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -150,7 +151,8 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	} else if task.Source.Name == database.TaskSourceGmail.Name {
 		err = MarkEmailAsDone(api, userID, task.SourceAccountID, task.IDExternal)
 	} else if task.Source.Name == database.TaskSourceJIRA.Name {
-		err = MarkJIRATaskDone(api, userID, task.SourceAccountID, task.IDExternal)
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.AtlassianConfigValues}}
+		err = JIRA.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
 	}
 
 	if err == nil {
