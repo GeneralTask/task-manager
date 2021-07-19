@@ -141,14 +141,14 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Invalid state token format\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid state token format\"}", string(body))
 	})
 	t.Run("BadStateTokenCookieFormat", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "", "6088e1c97018a22f240aa573", "example-token", false, false)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Invalid state token cookie format\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid state token cookie format\"}", string(body))
 	})
 	t.Run("StateTokensDontMatch", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "", "6088e1c97018a22f240aa573", "6088e1c97018a22f240aa574", false, false)
@@ -162,7 +162,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Invalid state token\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid state token\"}", string(body))
 	})
 	t.Run("SuccessSecondTime", func(t *testing.T) {
 		// Verifies request succeeds on second auth (no refresh token supplied)

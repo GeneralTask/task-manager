@@ -13,6 +13,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -21,40 +22,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-// JIRAAuthToken ...
-type JIRAAuthToken struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	Scope        string `json:"scope"`
-	ExpiresIn    int    `json:"expires_in"`
-	TokenType    string `json:"token_type"`
-}
-
-// JIRAConfig ...
-type JIRAConfig struct {
-	APIBaseURL      *string
-	CloudIDURL      *string
-	TokenURL        *string
-	TransitionURL   *string
-	PriorityListURL *string
-}
 
 // JIRARedirectParams ...
 type JIRARedirectParams struct {
 	Code  string `form:"code"`
 	State string `form:"state"`
-}
-
-// JIRASite ...
-type JIRASite struct {
-	ID        string   `json:"id"`
-	Name      string   `json:"name"`
-	URL       string   `json:"url"`
-	Scopes    []string `json:"scopes"`
-	AvatarURL string   `json:"avatarUrl"`
 }
 
 // JIRATask represents the API detail result for issues - only fields we need
@@ -92,20 +65,13 @@ func (api *API) AuthorizeJIRA(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	db, dbCleanup, err := database.GetDBConnection()
+	atlassian := external.AtlassianService{Config: api.AtlassianConfigValues}
+	authURL, err := atlassian.GetLinkAuthURL(internalToken.UserID)
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	defer dbCleanup()
-	insertedStateToken, err := database.CreateStateToken(db, &internalToken.UserID)
-	if err != nil {
-		Handle500(c)
-		return
-	}
-
-	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&state=" + *insertedStateToken + "&response_type=code&prompt=consent"
-	c.Redirect(302, authURL)
+	c.Redirect(302, *authURL)
 }
 
 func (api *API) AuthorizeJIRACallback(c *gin.Context) {
@@ -121,115 +87,13 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 	}
 	stateTokenID, err := primitive.ObjectIDFromHex(redirectParams.State)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "Invalid state token format"})
+		c.JSON(400, gin.H{"detail": "invalid state token format"})
 		return
 	}
-
-	db, dbCleanup, err := database.GetDBConnection()
+	atlassian := external.AtlassianService{Config: api.AtlassianConfigValues}
+	err = atlassian.HandleAuthCallback(redirectParams.Code, stateTokenID, internalToken.UserID)
 	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-	err = database.DeleteStateToken(db, stateTokenID, &internalToken.UserID)
-	if err != nil {
-		c.JSON(400, gin.H{"detail": "Invalid state token"})
-		return
-	}
-
-	params := []byte(`{"grant_type": "authorization_code","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","code": "` + redirectParams.Code + `","redirect_uri": "` + config.GetConfigValue("SERVER_URL") + `authorize/jira/callback/"}`)
-	tokenURL := "https://auth.atlassian.com/oauth/token"
-	if api.JIRAConfigValues.TokenURL != nil {
-		tokenURL = *api.JIRAConfigValues.TokenURL
-	}
-	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
-	if err != nil {
-		log.Printf("error forming token request: %v", err)
-		c.JSON(400, gin.H{"detail": "Error forming token request"})
-		return
-	}
-	req.Header.Add("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Printf("failed to request token: %v", err)
-		c.JSON(400, gin.H{"detail": "Failed to request token"})
-		return
-	}
-	tokenString, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Printf("failed to read token response: %v", err)
-		c.JSON(400, gin.H{"detail": "Failed to read token response"})
-		return
-	}
-	if resp.StatusCode != 200 {
-		log.Printf("JIRA authorization failed: %s", tokenString)
-		c.JSON(400, gin.H{"detail": "Authorization failed"})
-		return
-	}
-
-	var token JIRAAuthToken
-	err = json.Unmarshal(tokenString, &token)
-	if err != nil {
-		c.JSON(400, gin.H{"detail": "Failed to read token response"})
-		return
-	}
-
-	siteConfiguration := getJIRASites(api, &token)
-
-	if siteConfiguration == nil {
-		c.JSON(400, gin.H{"detail": "Failed to download site configuration"})
-		return
-	}
-
-	externalAPITokenCollection := db.Collection("external_api_tokens")
-	accountID := (*siteConfiguration)[0].ID
-	_, err = externalAPITokenCollection.UpdateOne(
-		context.TODO(),
-		bson.M{"$and": []bson.M{
-			{"user_id": internalToken.UserID},
-			{"source": database.TaskSourceJIRA.Name},
-			{"account_id": accountID},
-		}},
-		bson.M{"$set": &database.ExternalAPIToken{
-			UserID:       internalToken.UserID,
-			Source:       database.TaskSourceJIRA.Name,
-			Token:        string(tokenString),
-			AccountID:    accountID,
-			DisplayID:    (*siteConfiguration)[0].Name,
-			IsUnlinkable: true,
-		}},
-		options.Update().SetUpsert(true),
-	)
-
-	if err != nil {
-		log.Printf("failed to create external token record: %v", err)
-		Handle500(c)
-		return
-	}
-
-	siteCollection := db.Collection("jira_site_collection")
-
-	_, err = siteCollection.UpdateOne(
-		context.TODO(),
-		bson.M{"user_id": internalToken.UserID},
-		bson.M{"$set": database.JIRASiteConfiguration{
-			UserID:  internalToken.UserID,
-			CloudID: (*siteConfiguration)[0].ID,
-			SiteURL: (*siteConfiguration)[0].URL,
-		}},
-		options.Update().SetUpsert(true),
-	)
-
-	if err != nil {
-		log.Printf("failed to create external site collection record: %v", err)
-		Handle500(c)
-		return
-	}
-
-	err = GetListOfJIRAPriorities(api, internalToken.UserID, token.AccessToken)
-	if err != nil {
-		log.Printf("failed to download priorities: %v", err)
-		Handle500(c)
+		c.JSON(500, gin.H{"detail": err.Error()})
 		return
 	}
 
@@ -238,16 +102,17 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 
 func LoadJIRATasks(api *API, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	authToken, _ := getJIRAToken(api, userID, accountID)
-	siteConfiguration, _ := getJIRASiteConfiguration(userID)
+	JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.AtlassianConfigValues}}
+	siteConfiguration, _ := JIRA.Atlassian.GetSiteConfiguration(userID)
 
 	if authToken == nil || siteConfiguration == nil {
 		result <- emptyTaskResult(errors.New("missing authToken or siteConfiguration"))
 		return
 	}
 
-	apiBaseURL := getJIRAAPIBaseURl(*siteConfiguration)
-	if api.JIRAConfigValues.APIBaseURL != nil {
-		apiBaseURL = *api.JIRAConfigValues.APIBaseURL
+	apiBaseURL := JIRA.GetAPIBaseURL(*siteConfiguration)
+	if api.AtlassianConfigValues.APIBaseURL != nil {
+		apiBaseURL = *api.AtlassianConfigValues.APIBaseURL
 	}
 	JQL := "assignee=currentuser() AND status != Done"
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
@@ -389,67 +254,7 @@ func emptyTaskResult(err error) TaskResult {
 	}
 }
 
-func getJIRAAPIBaseURl(siteConfiguration database.JIRASiteConfiguration) string {
-	return "https://api.atlassian.com/ex/jira/" + siteConfiguration.CloudID
-}
-
-func getJIRASites(api *API, token *JIRAAuthToken) *[]JIRASite {
-	cloudIDURL := "https://api.atlassian.com/oauth/token/accessible-resources"
-	if api.JIRAConfigValues.CloudIDURL != nil {
-		cloudIDURL = *api.JIRAConfigValues.CloudIDURL
-	}
-	req, err := http.NewRequest("GET", cloudIDURL, nil)
-	if err != nil {
-		log.Printf("error forming cloud ID request: %v", err)
-		return nil
-	}
-	req.Header.Add("Authorization", "Bearer "+token.AccessToken)
-	req.Header.Add("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Printf("failed to load cloud ID: %v", err)
-		return nil
-	}
-	cloudIDData, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Printf("failed to read cloud ID response: %v", err)
-		return nil
-	}
-	if resp.StatusCode != 200 {
-		log.Printf("cloud ID request failed: %s", cloudIDData)
-		return nil
-	}
-	JIRASites := []JIRASite{}
-	err = json.Unmarshal(cloudIDData, &JIRASites)
-	if err != nil {
-		log.Printf("failed to parse cloud ID response: %v", err)
-		return nil
-	}
-
-	if len(JIRASites) == 0 {
-		log.Println("no accessible JIRA resources found")
-		return nil
-	}
-	return &JIRASites
-}
-
-func getJIRASiteConfiguration(userID primitive.ObjectID) (*database.JIRASiteConfiguration, error) {
-	var siteConfiguration database.JIRASiteConfiguration
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
-
-	siteCollection := db.Collection("jira_site_collection")
-	err = siteCollection.FindOne(context.TODO(), bson.M{"user_id": userID}).Decode(&siteConfiguration)
-	if err != nil {
-		return nil, err
-	}
-	return &siteConfiguration, nil
-}
-
-func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*JIRAAuthToken, error) {
+func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*external.AtlassianAuthToken, error) {
 	var JIRAToken database.ExternalAPIToken
 
 	db, dbCleanup, err := database.GetDBConnection()
@@ -472,7 +277,7 @@ func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*JIRAA
 		return nil, err
 	}
 
-	var token JIRAAuthToken
+	var token external.AtlassianAuthToken
 	err = json.Unmarshal([]byte(JIRAToken.Token), &token)
 	if err != nil {
 		log.Printf("failed to parse JIRA token: %v", err)
@@ -480,8 +285,8 @@ func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*JIRAA
 	}
 	params := []byte(`{"grant_type": "refresh_token","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","refresh_token": "` + token.RefreshToken + `"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
-	if api.JIRAConfigValues.TokenURL != nil {
-		tokenURL = *api.JIRAConfigValues.TokenURL
+	if api.AtlassianConfigValues.TokenURL != nil {
+		tokenURL = *api.AtlassianConfigValues.TokenURL
 	}
 	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
@@ -503,7 +308,7 @@ func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*JIRAA
 		log.Printf("JIRA authorization failed: %s", tokenString)
 		return nil, err
 	}
-	var newToken JIRAAuthToken
+	var newToken external.AtlassianAuthToken
 	err = json.Unmarshal(tokenString, &newToken)
 	if err != nil {
 		log.Printf("failed to parse new JIRA token: %v", err)
@@ -514,7 +319,8 @@ func getJIRAToken(api *API, userID primitive.ObjectID, accountID string) (*JIRAA
 
 func MarkJIRATaskDone(api *API, userID primitive.ObjectID, accountID string, issueID string) error {
 	token, _ := getJIRAToken(api, userID, accountID)
-	siteConfiguration, _ := getJIRASiteConfiguration(userID)
+	JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.AtlassianConfigValues}}
+	siteConfiguration, _ := JIRA.Atlassian.GetSiteConfiguration(userID)
 	if token == nil || siteConfiguration == nil {
 		return errors.New("missing token or siteConfiguration")
 	}
@@ -522,10 +328,10 @@ func MarkJIRATaskDone(api *API, userID primitive.ObjectID, accountID string, iss
 	//first get the list of transitions
 	var apiBaseURL string
 
-	if api.JIRAConfigValues.TransitionURL != nil {
-		apiBaseURL = *api.JIRAConfigValues.TransitionURL
+	if api.AtlassianConfigValues.TransitionURL != nil {
+		apiBaseURL = *api.AtlassianConfigValues.TransitionURL
 	} else {
-		apiBaseURL = getJIRAAPIBaseURl(*siteConfiguration)
+		apiBaseURL = JIRA.GetAPIBaseURL(*siteConfiguration)
 	}
 
 	finalTransitionID := getFinalTransitionID(apiBaseURL, token.AccessToken, issueID)
@@ -537,11 +343,11 @@ func MarkJIRATaskDone(api *API, userID primitive.ObjectID, accountID string, iss
 	return executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
 }
 
-func getFinalTransitionID(apiBaseURL string, jiraAuthToken string, jiraCloudID string) *string {
+func getFinalTransitionID(apiBaseURL string, AtlassianAuthToken string, jiraCloudID string) *string {
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + jiraCloudID + "/transitions"
 
 	req, _ := http.NewRequest("GET", transitionsURL, nil)
-	req.Header.Add("Authorization", "Bearer "+jiraAuthToken)
+	req.Header.Add("Authorization", "Bearer "+AtlassianAuthToken)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -580,11 +386,11 @@ func getFinalTransitionID(apiBaseURL string, jiraAuthToken string, jiraCloudID s
 	return &typedTransitionID
 }
 
-func executeTransition(apiBaseURL string, jiraAuthToken string, issueID string, newTransitionID string) error {
+func executeTransition(apiBaseURL string, AtlassianAuthToken string, issueID string, newTransitionID string) error {
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID + "/transitions"
 	params := []byte(`{"transition": {"id": "` + newTransitionID + `"}}`)
 	req, _ := http.NewRequest("POST", transitionsURL, bytes.NewBuffer(params))
-	req.Header.Add("Authorization", "Bearer "+jiraAuthToken)
+	req.Header.Add("Authorization", "Bearer "+AtlassianAuthToken)
 	req.Header.Add("Content-Type", "application/json")
 
 	_, err := http.DefaultClient.Do(req)
@@ -612,10 +418,11 @@ func fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID pr
 
 func GetListOfJIRAPriorities(api *API, userID primitive.ObjectID, authToken string) error {
 	var baseURL string
-	if api.JIRAConfigValues.PriorityListURL != nil {
-		baseURL = *api.JIRAConfigValues.PriorityListURL
-	} else if siteConfiguration, _ := getJIRASiteConfiguration(userID); siteConfiguration != nil {
-		baseURL = getJIRAAPIBaseURl(*siteConfiguration)
+	JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.AtlassianConfigValues}}
+	if api.AtlassianConfigValues.PriorityListURL != nil {
+		baseURL = *api.AtlassianConfigValues.PriorityListURL
+	} else if siteConfiguration, _ := JIRA.Atlassian.GetSiteConfiguration(userID); siteConfiguration != nil {
+		baseURL = JIRA.GetAPIBaseURL(*siteConfiguration)
 	} else {
 		return errors.New("could not form base url")
 	}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/oauth2"
@@ -49,11 +50,11 @@ type GoogleURLOverrides struct {
 
 // API is the object containing API route handlers
 type API struct {
-	GoogleConfig        OauthConfigWrapper
-	SlackConfig         OauthConfigWrapper
-	GoogleOverrideURLs  GoogleURLOverrides
-	JIRAConfigValues    JIRAConfig
-	SkipStateTokenCheck bool
+	GoogleConfig          OauthConfigWrapper
+	SlackConfig           OauthConfigWrapper
+	GoogleOverrideURLs    GoogleURLOverrides
+	AtlassianConfigValues external.AtlassianConfig
+	SkipStateTokenCheck   bool
 }
 
 var ALLOWED_USERNAMES = map[string]struct{}{

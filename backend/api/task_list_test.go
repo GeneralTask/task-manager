@@ -98,7 +98,7 @@ func TestMergeTasks(t *testing.T) {
 				Title:           "Code x",
 				Source:          database.TaskSourceJIRA,
 				TimeAllocation:  (time.Hour).Nanoseconds(),
-				SourceAccountID: "JIRASite2",
+				SourceAccountID: "AtlassianSite2",
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24)),
 			PriorityID: "5",
@@ -114,7 +114,7 @@ func TestMergeTasks(t *testing.T) {
 				Title:           "Code x",
 				Source:          database.TaskSourceJIRA,
 				TimeAllocation:  (time.Hour).Nanoseconds(),
-				SourceAccountID: "JIRASite1",
+				SourceAccountID: "AtlassianSite1",
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			PriorityID: "3",
@@ -130,7 +130,7 @@ func TestMergeTasks(t *testing.T) {
 				Title:           "Code x",
 				Source:          database.TaskSourceJIRA,
 				TimeAllocation:  (time.Hour).Nanoseconds(),
-				SourceAccountID: "JIRASite1",
+				SourceAccountID: "AtlassianSite1",
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			PriorityID: "1",
@@ -146,7 +146,7 @@ func TestMergeTasks(t *testing.T) {
 				Title:           "Code x",
 				Source:          database.TaskSourceJIRA,
 				TimeAllocation:  (time.Hour).Nanoseconds(),
-				SourceAccountID: "JIRASite1",
+				SourceAccountID: "AtlassianSite1",
 			},
 			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			PriorityID: "3",
@@ -154,11 +154,11 @@ func TestMergeTasks(t *testing.T) {
 		}
 
 		priorityMapping := map[string]*map[string]int{
-			"JIRASite1": {
+			"AtlassianSite1": {
 				"1": 1,
 				"3": 3,
 			},
-			"JIRASite2": {
+			"AtlassianSite2": {
 				"5": 5,
 			},
 		}

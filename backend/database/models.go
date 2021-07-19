@@ -41,7 +41,7 @@ type ExternalAPIToken struct {
 	IsUnlinkable bool               `bson:"is_unlinkable"`
 }
 
-type JIRASiteConfiguration struct {
+type AtlassianSiteConfiguration struct {
 	ID      primitive.ObjectID `bson:"_id,omitempty"`
 	UserID  primitive.ObjectID `bson:"user_id"`
 	CloudID string             `bson:"cloud_id"`

@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -68,12 +69,12 @@ func TestMarkAsComplete(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	jiraSiteCollection := db.Collection("jira_site_collection")
-	_, err = jiraSiteCollection.UpdateOne(
+	AtlassianSiteCollection := db.Collection("jira_site_collection")
+	_, err = AtlassianSiteCollection.UpdateOne(
 		context.TODO(),
 		bson.M{"user_id": userID},
 
-		bson.M{"$set": &database.JIRASiteConfiguration{
+		bson.M{"$set": &database.AtlassianSiteConfiguration{
 			UserID:  userID,
 			CloudID: "sample_cloud_id",
 			SiteURL: "https://generaltasktester.atlassian.com",
@@ -88,7 +89,7 @@ func TestMarkAsComplete(t *testing.T) {
 	inboxGmailModifyServer := getGmailArchiveServer(t, "INBOX")
 
 	router := GetRouter(&API{
-		JIRAConfigValues: JIRAConfig{
+		AtlassianConfigValues: external.AtlassianConfig{
 			TokenURL:      &tokenServer.URL,
 			TransitionURL: &jiraTransitionServer.URL,
 		},
@@ -190,7 +191,7 @@ func TestMarkAsComplete(t *testing.T) {
 		unreadGmailModifyServer := getGmailArchiveServer(t, "UNREAD")
 
 		unreadRouter := GetRouter(&API{
-			JIRAConfigValues: JIRAConfig{
+			AtlassianConfigValues: external.AtlassianConfig{
 				TokenURL:      &tokenServer.URL,
 				TransitionURL: &jiraTransitionServer.URL,
 			},

@@ -97,7 +97,7 @@ func TestAuthorizeCallbackBadStateTokenFormat(t *testing.T, api *API, url string
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
-		"{\"detail\":\"Invalid state token format\"}",
+		"{\"detail\":\"invalid state token format\"}",
 		string(body),
 	)
 }
@@ -109,12 +109,12 @@ func TestAuthorizeCallbackInvalidStateToken(t *testing.T, api *API, url string) 
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
-	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 	body, err := ioutil.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
-		"{\"detail\":\"Invalid state token\"}",
+		"{\"detail\":\"invalid state token\"}",
 		string(body),
 	)
 }
@@ -133,12 +133,12 @@ func TestAuthorizeCallbackStateTokenWrongUser(t *testing.T, api *API, url string
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
-	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 	body, err := ioutil.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
-		"{\"detail\":\"Invalid state token\"}",
+		"{\"detail\":\"invalid state token\"}",
 		string(body),
 	)
 }

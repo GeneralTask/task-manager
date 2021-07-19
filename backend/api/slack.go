@@ -73,7 +73,7 @@ func (api *API) AuthorizeSlackCallback(c *gin.Context) {
 
 	stateTokenID, err := primitive.ObjectIDFromHex(redirectParams.State)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "Invalid state token format"})
+		c.JSON(400, gin.H{"detail": "invalid state token format"})
 		return
 	}
 
@@ -86,7 +86,7 @@ func (api *API) AuthorizeSlackCallback(c *gin.Context) {
 
 	err = database.DeleteStateToken(db, stateTokenID, &internalToken.UserID)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "Invalid state token"})
+		c.JSON(500, gin.H{"detail": "invalid state token"})
 		return
 	}
 
