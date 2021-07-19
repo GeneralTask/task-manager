@@ -105,7 +105,7 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 		return errors.New("failed to read token response")
 	}
 
-	siteConfiguration := atlassian.GetSites(&token)
+	siteConfiguration := atlassian.getSites(&token)
 
 	if siteConfiguration == nil {
 		return errors.New("failed to download site configuration")
@@ -163,7 +163,7 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 	return nil
 }
 
-func (atlassian AtlassianService) GetSites(token *AtlassianAuthToken) *[]AtlassianSite {
+func (atlassian AtlassianService) getSites(token *AtlassianAuthToken) *[]AtlassianSite {
 	cloudIDURL := "https://api.atlassian.com/oauth/token/accessible-resources"
 	if atlassian.Config.CloudIDURL != nil {
 		cloudIDURL = *atlassian.Config.CloudIDURL
@@ -203,7 +203,7 @@ func (atlassian AtlassianService) GetSites(token *AtlassianAuthToken) *[]Atlassi
 	return &AtlassianSites
 }
 
-func (atlassian AtlassianService) GetSiteConfiguration(userID primitive.ObjectID) (*database.AtlassianSiteConfiguration, error) {
+func (atlassian AtlassianService) getSiteConfiguration(userID primitive.ObjectID) (*database.AtlassianSiteConfiguration, error) {
 	var siteConfiguration database.AtlassianSiteConfiguration
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -219,7 +219,7 @@ func (atlassian AtlassianService) GetSiteConfiguration(userID primitive.ObjectID
 	return &siteConfiguration, nil
 }
 
-func (atlassian AtlassianService) GetToken(userID primitive.ObjectID, accountID string) (*AtlassianAuthToken, error) {
+func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID string) (*AtlassianAuthToken, error) {
 	var JIRAToken database.ExternalAPIToken
 
 	db, dbCleanup, err := database.GetDBConnection()
