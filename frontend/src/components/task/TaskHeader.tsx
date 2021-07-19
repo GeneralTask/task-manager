@@ -18,6 +18,7 @@ const Header = styled.div<{ hover_effect: boolean }>`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  min-height: 30px;
   padding: 8px 8px 8px 0;
   cursor: ${props => props.hover_effect ? 'pointer' : 'inherit'};
   &:hover{
@@ -62,7 +63,7 @@ const Spacer = styled(DragSection)`
   visibility: hidden;
 `
 const Icon = styled.img`
-  max-width: 40px;
+  max-width: 25px;
   padding-right: 12px;
 `
 const Source = styled.div`
