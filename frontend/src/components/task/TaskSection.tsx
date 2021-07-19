@@ -2,48 +2,26 @@ import React from 'react'
 import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd'
 import styled from 'styled-components'
 import { TASK_GROUP_SCHEDULED_TASK, TASK_GROUP_UNSCHEDULED_GROUP } from '../../constants'
-import { flex, textDark } from '../../helpers/styles'
+import { flex } from '../../helpers/styles'
 import { TTaskGroup, TTaskSection } from '../../helpers/types'
+import TaskSectionHeader from './TaskSectionHeader'
 import { ScheduledTask, UnscheduledTaskGroup } from './TaskWrappers'
 
-const TaskSectionTop = styled.div`
-    display: flex;
-`
-const TimeAnnotation = styled.div`
-    display: flex;
-    color: ${textDark};
-    width: 20%;
-    margin-left: 10px;
-    margin-right: 10px;
-    font-size: 18px;
-    font-weight: 600;
-    align-items: flex-end;
-    justify-content: flex-end;
-    position: relative;
-    top: 12px;
-    margin-bottom: 10px;
-`
-const TaskSectionHeader = styled.div`
-    margin: auto;
-    font-size: 28px;
-    height: 40px;
-    text-align: center;
-    width: 60%;
-`
 const TaskWrapperSides = styled.div`
     width: 22%;
 `
 
 interface TaskGroupProps {
     taskGroup: TTaskGroup,
+    showTimeAnnotations: boolean,
 }
 
-function TaskGroup({ taskGroup }: TaskGroupProps) {
+function TaskGroup({ taskGroup, showTimeAnnotations }: TaskGroupProps) {
     if (taskGroup.type === TASK_GROUP_SCHEDULED_TASK) {
-        return <ScheduledTask taskGroup={taskGroup} />
+        return <ScheduledTask taskGroup={taskGroup} showTimeAnnotations={showTimeAnnotations} />
     }
     else if (taskGroup.type === TASK_GROUP_UNSCHEDULED_GROUP) {
-        return <UnscheduledTaskGroup taskGroup={taskGroup} />
+        return <UnscheduledTaskGroup taskGroup={taskGroup} showTimeAnnotations={showTimeAnnotations} />
     }
     else {
         return null
@@ -52,13 +30,14 @@ function TaskGroup({ taskGroup }: TaskGroupProps) {
 
 interface Props {
     task_section: TTaskSection,
+    task_section_index: number,
     onDragStart: () => void,
     onDragEnd: (result: DropResult) => Promise<void>,
 }
 
 export default function TaskSection(props: Props): JSX.Element {
     return <>
-        <TaskSectionHeader>{props.task_section.name}</TaskSectionHeader>
+        <TaskSectionHeader show_current_time={props.task_section.is_today} name={props.task_section.name} />
         <DragDropContext onDragStart={props.onDragStart} onDragEnd={props.onDragEnd}>
             {
                 props.task_section.task_groups.map((group: TTaskGroup, index: number) => {
@@ -80,7 +59,11 @@ export default function TaskSection(props: Props): JSX.Element {
                                 <Droppable droppableId={`ts-0-tg-${index}`} isDropDisabled={group.type === TASK_GROUP_SCHEDULED_TASK}>
                                     {provided => {
                                         return <div ref={provided.innerRef} {...provided.droppableProps}>
-                                            {group.tasks.length > 0 && <TaskGroup taskGroup={group} />}
+                                            {group.tasks.length > 0 &&
+                                                <TaskGroup
+                                                    taskGroup={group}
+                                                    showTimeAnnotations={props.task_section.is_today}
+                                                />}
                                             {provided.placeholder}
                                         </div>
                                     }}
