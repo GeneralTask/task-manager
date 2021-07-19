@@ -23,6 +23,12 @@ const Header = styled.div<{ hover_effect: boolean }>`
   &:hover{
     background-color: ${props => props.hover_effect ? hoverBackground : 'inherit'};
   }
+  &:hover > div > button {
+    display: inherit;
+  }
+  & > div > button {
+    display: none;
+  }
 `
 
 const HeaderLeft = styled.div`
@@ -51,6 +57,10 @@ const DragSection = styled.div`
 const Domino = styled.img`
   height: 18px;
 `
+const Spacer = styled(DragSection)`
+  cursor: pointer;
+  visibility: hidden;
+`
 const Icon = styled.img`
   max-width: 40px;
   padding-right: 12px;
@@ -73,7 +83,8 @@ const TitleWrap = styled(Title)`
   text-overflow: ellipsis;
 `
 const DoneButton = styled.button`
-  background-color: white;
+  background-color: black;
+  color: white;
   border-radius: 2px;
   border: 2px solid black;
   margin-left: 10px;
@@ -84,7 +95,8 @@ const DoneButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   &:hover{
-    background-color: black;
+    background-color: #404040;
+    border: 2px solid #404040;
     color: white;
   }
 `
@@ -97,9 +109,10 @@ interface Props {
   is_completable: boolean,
   hover_effect: boolean,
   provided: DraggableProvided,
+  isDragDisabled: boolean,
 }
 
-const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_completable, hover_effect }: Props) => {
+const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_completable, hover_effect, isDragDisabled }: Props) => {
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   let onClick
   if (hover_effect && expanded_body !== task_id) {
@@ -117,9 +130,15 @@ const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_comp
   return (
     <Header hover_effect={hover_effect} onClick={onClick}>
       <HeaderLeft>
-        <DragSection>
-          <Domino src="images/domino.svg" alt="" />
-        </DragSection>
+        {isDragDisabled ?
+          <Spacer>
+            <Domino src="images/domino.svg" alt="" />
+          </Spacer>
+          :
+          <DragSection>
+            <Domino src="images/domino.svg" alt="" />
+          </DragSection>
+        }
         <Icon src={logo_url} alt="icon"></Icon>
         {expanded_body === task_id ? <Title>{title}</Title> : <TitleWrap>{title}</TitleWrap>}
       </HeaderLeft>

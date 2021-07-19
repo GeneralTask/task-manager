@@ -45,6 +45,7 @@ const Task: React.FC<Props> = ({ task, taskGroupIndex, isDragDisabled }: Props) 
             is_completable={task.source.is_completable}
             hover_effect={!!(task.body || task.deeplink)}
             provided={provided}
+            isDragDisabled={isDragDisabled}
           />
           <TaskBody body={task.body} task_id={task.id} deeplink={task.deeplink} source={task.source} />
         </Container>
