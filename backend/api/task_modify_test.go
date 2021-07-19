@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -88,7 +89,7 @@ func TestMarkAsComplete(t *testing.T) {
 	inboxGmailModifyServer := getGmailArchiveServer(t, "INBOX")
 
 	router := GetRouter(&API{
-		JIRAConfigValues: JIRAConfig{
+		AtlassianConfigValues: external.AtlassianConfig{
 			TokenURL:      &tokenServer.URL,
 			TransitionURL: &jiraTransitionServer.URL,
 		},
@@ -190,7 +191,7 @@ func TestMarkAsComplete(t *testing.T) {
 		unreadGmailModifyServer := getGmailArchiveServer(t, "UNREAD")
 
 		unreadRouter := GetRouter(&API{
-			JIRAConfigValues: JIRAConfig{
+			AtlassianConfigValues: external.AtlassianConfig{
 				TokenURL:      &tokenServer.URL,
 				TransitionURL: &jiraTransitionServer.URL,
 			},

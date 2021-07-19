@@ -16,8 +16,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// JIRAAuthToken ...
-type JIRAAuthToken struct {
+// AtlassianAuthToken ...
+type AtlassianAuthToken struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	Scope        string `json:"scope"`
@@ -25,8 +25,8 @@ type JIRAAuthToken struct {
 	TokenType    string `json:"token_type"`
 }
 
-// JIRAConfig ...
-type JIRAConfig struct {
+// AtlassianConfig ...
+type AtlassianConfig struct {
 	APIBaseURL      *string
 	CloudIDURL      *string
 	TokenURL        *string
@@ -47,7 +47,9 @@ type PriorityID struct {
 	ID string `json:"id"`
 }
 
-type AtlassianService struct{}
+type AtlassianService struct {
+	Config AtlassianConfig
+}
 
 func (atlassian AtlassianService) GetLinkAuthURL(userID primitive.ObjectID) (*string, error) {
 	db, dbCleanup, err := database.GetDBConnection()
@@ -64,7 +66,7 @@ func (atlassian AtlassianService) GetLinkAuthURL(userID primitive.ObjectID) (*st
 	return &authURL, nil
 }
 
-func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID, jiraConfig JIRAConfig) error {
+func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
@@ -77,8 +79,8 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 
 	params := []byte(`{"grant_type": "authorization_code","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","code": "` + code + `","redirect_uri": "` + config.GetConfigValue("SERVER_URL") + `authorize/jira/callback/"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
-	if jiraConfig.TokenURL != nil {
-		tokenURL = *jiraConfig.TokenURL
+	if atlassian.Config.TokenURL != nil {
+		tokenURL = *atlassian.Config.TokenURL
 	}
 	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
@@ -97,13 +99,13 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 		return errors.New("authorization failed")
 	}
 
-	var token JIRAAuthToken
+	var token AtlassianAuthToken
 	err = json.Unmarshal(tokenString, &token)
 	if err != nil {
 		return errors.New("failed to read token response")
 	}
 
-	siteConfiguration := atlassian.GetSites(jiraConfig, &token)
+	siteConfiguration := atlassian.GetSites(&token)
 
 	if siteConfiguration == nil {
 		return errors.New("failed to download site configuration")
@@ -153,7 +155,7 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 	}
 
 	JIRA := JIRASource{Atlassian: atlassian}
-	err = JIRA.GetListOfPriorities(jiraConfig, userID, token.AccessToken)
+	err = JIRA.GetListOfPriorities(userID, token.AccessToken)
 	if err != nil {
 		log.Printf("failed to download priorities: %v", err)
 		return errors.New("internal server error")
@@ -161,10 +163,10 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 	return nil
 }
 
-func (atlassian AtlassianService) GetSites(jiraConfig JIRAConfig, token *JIRAAuthToken) *[]AtlassianSite {
+func (atlassian AtlassianService) GetSites(token *AtlassianAuthToken) *[]AtlassianSite {
 	cloudIDURL := "https://api.atlassian.com/oauth/token/accessible-resources"
-	if jiraConfig.CloudIDURL != nil {
-		cloudIDURL = *jiraConfig.CloudIDURL
+	if atlassian.Config.CloudIDURL != nil {
+		cloudIDURL = *atlassian.Config.CloudIDURL
 	}
 	req, err := http.NewRequest("GET", cloudIDURL, nil)
 	if err != nil {

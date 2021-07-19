@@ -16,10 +16,10 @@ type JIRASource struct {
 	Atlassian AtlassianService
 }
 
-func (JIRA JIRASource) GetListOfPriorities(jiraConfig JIRAConfig, userID primitive.ObjectID, authToken string) error {
+func (JIRA JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken string) error {
 	var baseURL string
-	if jiraConfig.PriorityListURL != nil {
-		baseURL = *jiraConfig.PriorityListURL
+	if JIRA.Atlassian.Config.PriorityListURL != nil {
+		baseURL = *JIRA.Atlassian.Config.PriorityListURL
 	} else if siteConfiguration, _ := JIRA.Atlassian.GetSiteConfiguration(userID); siteConfiguration != nil {
 		baseURL = JIRA.GetAPIBaseURL(*siteConfiguration)
 	} else {

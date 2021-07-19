@@ -61,13 +61,13 @@ func (api *API) LoginCallback(c *gin.Context) {
 	if !api.SkipStateTokenCheck {
 		stateTokenID, err := primitive.ObjectIDFromHex(redirectParams.State)
 		if err != nil {
-			c.JSON(400, gin.H{"detail": "Invalid state token format"})
+			c.JSON(400, gin.H{"detail": "invalid state token format"})
 			return
 		}
 		stateTokenFromCookie, _ := c.Cookie("googleStateToken")
 		stateTokenIDFromCookie, err := primitive.ObjectIDFromHex(stateTokenFromCookie)
 		if err != nil {
-			c.JSON(400, gin.H{"detail": "Invalid state token cookie format"})
+			c.JSON(400, gin.H{"detail": "invalid state token cookie format"})
 			return
 		}
 		if stateTokenID != stateTokenIDFromCookie {
@@ -76,7 +76,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		}
 		err = database.DeleteStateToken(db, stateTokenID, nil)
 		if err != nil {
-			c.JSON(400, gin.H{"detail": "Invalid state token"})
+			c.JSON(400, gin.H{"detail": "invalid state token"})
 			return
 		}
 	}
