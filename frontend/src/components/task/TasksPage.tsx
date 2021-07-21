@@ -56,11 +56,6 @@ async function onDragEnd(result: DropResult) {
             id_ordering: reorderedTask.id_ordering,
         })
     })
-    console.log({
-        task_id: reorderedTask.id,
-        id_task_section: task_sections_copy[destination_task_section_index].id,
-        id_ordering: reorderedTask.id_ordering,
-    })
 
     if (store.getState().tasks_drag_state == DragState.fetchDelayed) {
         await fetchTasks()
