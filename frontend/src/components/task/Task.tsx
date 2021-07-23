@@ -6,13 +6,13 @@ import React from 'react'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
-import { borderPrimary } from '../../helpers/styles'
+import { BORDER_PRIMARY } from '../../helpers/styles'
 import styled from 'styled-components'
 
 const Container = styled.div`
   padding: 0;
   font-family: 'Ellipsis', 'Gothic A1', sans-serif;
-  border: 1px solid ${borderPrimary};
+  border: 1px solid ${BORDER_PRIMARY};
   border-radius: 2px;
   width: 100%;
   outline: none;

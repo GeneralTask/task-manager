@@ -1,7 +1,7 @@
 import './Task.css'
 
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
-import { hoverBackground, secondaryText } from '../../helpers/styles'
+import { TEXT_BLACK, TEXT_BLACK_HOVER, BACKGROUND_HOVER, TEXT_LIGHTGRAY } from '../../helpers/styles'
 
 import { DraggableProvided } from 'react-beautiful-dnd'
 import React from 'react'
@@ -22,7 +22,7 @@ const Header = styled.div<{ hover_effect: boolean }>`
   padding: 8px 8px 8px 0;
   cursor: ${props => props.hover_effect ? 'pointer' : 'inherit'};
   &:hover{
-    background-color: ${props => props.hover_effect ? hoverBackground : 'inherit'};
+    background-color: ${props => props.hover_effect ? BACKGROUND_HOVER : 'inherit'};
   }
   &:hover > div > button {
     display: inherit;
@@ -67,7 +67,7 @@ const Icon = styled.img`
   padding-right: 12px;
 `
 const Source = styled.div`
-  color:${secondaryText};
+  color:${TEXT_LIGHTGRAY};
   text-align: right;
 `
 const SourceWrap = styled(Source)`
@@ -76,7 +76,7 @@ const SourceWrap = styled(Source)`
   text-overflow: ellipsis;
 `
 const Title = styled.div`
-  color:#000000;
+  color:${TEXT_BLACK};
 `
 const TitleWrap = styled(Title)`
   white-space: nowrap;
@@ -96,8 +96,8 @@ const DoneButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   &:hover{
-    background-color: #404040;
-    border: 2px solid #404040;
+    background-color: ${TEXT_BLACK_HOVER};
+    border: 2px solid ${TEXT_BLACK_HOVER};
     color: white;
   }
 `
