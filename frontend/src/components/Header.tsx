@@ -47,11 +47,11 @@ const Header: React.FC = () => {
   return (
     <HeaderDiv>
       <div>
-        <Link to={LANDING_PATH}><Logo>General Kenobi</Logo></Link>
+        <Link to={LANDING_PATH}><Logo>General Task</Logo></Link>
       </div>
       <div>
-        <Link to={LANDING_PATH}><Button>Hello</Button></Link>
-        <Link to={SETTINGS_PATH}><Button>There</Button></Link>
+        <Link to={LANDING_PATH}><Button>Tasks</Button></Link>
+        <Link to={SETTINGS_PATH}><Button>Settings</Button></Link>
         <Logout onClick={logout} disabled={!getAuthToken()}>Logout</Logout>
       </div>
     </HeaderDiv>
