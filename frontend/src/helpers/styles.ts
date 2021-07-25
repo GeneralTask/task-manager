@@ -13,9 +13,11 @@ export const flex = {
     justifyContentSpaceBetween: styled.div`display: flex; justify-content: space-between`,
 }
 
-export const textDark = '#969696'
-export const textBlack = '#000000'
-export const textHover = '#464646'
-export const borderPrimary = '#cccccc'
-export const secondaryText = '#cccccc'
-export const hoverBackground = '#e3e3e3'
+export const TEXT_GRAY = '#969696'
+export const TEXT_BLACK = '#000000'
+export const TEXT_BLACK_HOVER = '#464646'
+export const TEXT_LIGHTGRAY = '#CCCCCC'
+
+export const BORDER_PRIMARY = '#cccccc'
+
+export const BACKGROUND_HOVER = '#e3e3e3'
