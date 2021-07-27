@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -12,14 +11,13 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/oauth2"
-	"google.golang.org/api/calendar/v3"
-	"google.golang.org/api/googleapi"
 )
 
 type MockGoogleConfig struct {
@@ -32,7 +30,7 @@ func (m *MockGoogleConfig) AuthCodeURL(state string, opts ...oauth2.AuthCodeOpti
 	return url
 }
 
-func (m *MockGoogleConfig) Client(ctx context.Context, t *oauth2.Token) HTTPClient {
+func (m *MockGoogleConfig) Client(ctx context.Context, t *oauth2.Token) external.HTTPClient {
 	ret := m.Called(ctx, t)
 	client := ret.Get(0).(*MockHTTPClient)
 	return client
@@ -219,20 +217,4 @@ func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	return recorder
-}
-
-func getServerForTasks(events []*calendar.Event) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := &calendar.Events{
-			Items:          events,
-			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 200},
-		}
-
-		b, err := json.Marshal(resp)
-		if err != nil {
-			http.Error(w, "unable to marshal request: "+err.Error(), http.StatusBadRequest)
-			return
-		}
-		w.Write(b)
-	}))
 }

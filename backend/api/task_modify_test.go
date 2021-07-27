@@ -94,7 +94,7 @@ func TestMarkAsComplete(t *testing.T) {
 			TokenURL:      &tokenServer.URL,
 			TransitionURL: &jiraTransitionServer.URL,
 		},
-		GoogleOverrideURLs: GoogleURLOverrides{GmailModifyURL: &inboxGmailModifyServer.URL},
+		GoogleOverrideURLs: external.GoogleURLOverrides{GmailModifyURL: &inboxGmailModifyServer.URL},
 	})
 
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
@@ -196,7 +196,7 @@ func TestMarkAsComplete(t *testing.T) {
 				TokenURL:      &tokenServer.URL,
 				TransitionURL: &jiraTransitionServer.URL,
 			},
-			GoogleOverrideURLs: GoogleURLOverrides{GmailModifyURL: &unreadGmailModifyServer.URL},
+			GoogleOverrideURLs: external.GoogleURLOverrides{GmailModifyURL: &unreadGmailModifyServer.URL},
 		})
 
 		request, _ := http.NewRequest(

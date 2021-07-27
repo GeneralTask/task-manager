@@ -10,12 +10,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/oauth2"
 )
 
 func TestLoginRedirect(t *testing.T) {
-	router := GetRouter(&API{GoogleConfig: &OauthConfig{Config: &oauth2.Config{
+	router := GetRouter(&API{GoogleConfig: &external.OauthConfig{Config: &oauth2.Config{
 		ClientID:    "123",
 		RedirectURL: "g.com",
 		Scopes:      []string{"s1", "s2"},

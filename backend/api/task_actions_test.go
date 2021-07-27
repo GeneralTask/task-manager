@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/api/gmail/v1"
@@ -196,7 +197,7 @@ func testSuccessfulReplyWithServer(t *testing.T,
 	body string,
 	server *httptest.Server) {
 	api := &API{
-		GoogleOverrideURLs: GoogleURLOverrides{GmailReplyURL: &server.URL},
+		GoogleOverrideURLs: external.GoogleURLOverrides{GmailReplyURL: &server.URL},
 	}
 	router := GetRouter(api)
 
