@@ -14,6 +14,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -98,7 +99,7 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
-		err := UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -111,7 +112,7 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("CompletionFlagFalse", func(t *testing.T) {
-		err := UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -124,7 +125,7 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("InvalidHex", func(t *testing.T) {
-		err := UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -137,7 +138,7 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("InvalidUser", func(t *testing.T) {
-		err := UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		assert.NoError(t, err)
 		ogAuth := authToken
 		log.Println(ogAuth)
@@ -153,7 +154,7 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("JIRASuccessInbox", func(t *testing.T) {
-		err := UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -187,7 +188,7 @@ func TestMarkAsComplete(t *testing.T) {
 		jiraTaskID = insertResult.InsertedID.(primitive.ObjectID)
 		jiraTaskIDHex = jiraTaskID.Hex()
 
-		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyMarkAsRead)
+		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyMarkAsRead)
 
 		unreadGmailModifyServer := getGmailArchiveServer(t, "UNREAD")
 
@@ -221,7 +222,7 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("GmailSuccess", func(t *testing.T) {
-		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+gmailTaskIDHex+"/",
@@ -240,7 +241,7 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("CalendarFailure", func(t *testing.T) {
-		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyArchive)
+		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/"+calendarTaskIDHex+"/",

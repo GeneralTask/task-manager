@@ -19,6 +19,10 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
+func (GoogleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+	result <- emptyEmailResult(nil)
+}
+
 func (GoogleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
 	events := []*database.CalendarEvent{}
 

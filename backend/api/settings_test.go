@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -23,8 +24,8 @@ func TestSettingsGet(t *testing.T) {
 		// Random userID; should be ignored
 		_, err := settingCollection.InsertOne(context.TODO(), &database.UserSetting{
 			UserID:     primitive.NewObjectID(),
-			FieldKey:   SettingFieldEmailDonePreference,
-			FieldValue: ChoiceKeyMarkAsRead,
+			FieldKey:   settings.SettingFieldEmailDonePreference,
+			FieldValue: settings.ChoiceKeyMarkAsRead,
 		})
 		assert.NoError(t, err)
 
@@ -45,8 +46,8 @@ func TestSettingsGet(t *testing.T) {
 
 		_, err := settingCollection.InsertOne(context.TODO(), &database.UserSetting{
 			UserID:     userID,
-			FieldKey:   SettingFieldEmailDonePreference,
-			FieldValue: ChoiceKeyMarkAsRead,
+			FieldKey:   settings.SettingFieldEmailDonePreference,
+			FieldValue: settings.ChoiceKeyMarkAsRead,
 		})
 		assert.NoError(t, err)
 
@@ -151,14 +152,14 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, "{}", string(body))
 
 		userID := getUserIDFromAuthToken(t, db, authToken)
-		setting, err := GetUserSetting(db, userID, SettingFieldEmailDonePreference)
+		setting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailDonePreference)
 		assert.NoError(t, err)
-		assert.Equal(t, ChoiceKeyMarkAsRead, *setting)
+		assert.Equal(t, settings.ChoiceKeyMarkAsRead, *setting)
 	})
 	t.Run("SuccessAlreadyExists", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
-		UpdateUserSetting(db, userID, SettingFieldEmailDonePreference, ChoiceKeyMarkAsRead)
+		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyMarkAsRead)
 
 		router := GetRouter(&API{})
 		request, _ := http.NewRequest(
@@ -174,9 +175,9 @@ func TestSettingsModify(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		setting, err := GetUserSetting(db, userID, SettingFieldEmailDonePreference)
+		setting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailDonePreference)
 		assert.NoError(t, err)
-		assert.Equal(t, ChoiceKeyArchive, *setting)
+		assert.Equal(t, settings.ChoiceKeyArchive, *setting)
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(&API{})

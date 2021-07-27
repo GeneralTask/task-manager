@@ -7,6 +7,11 @@ type CalendarResult struct {
 	Error          error
 }
 
+type EmailResult struct {
+	Emails []*database.Email
+	Error  error
+}
+
 type TaskResult struct {
 	Tasks           []*database.Task
 	PriorityMapping *map[string]int
@@ -17,6 +22,13 @@ func emptyCalendarResult(err error) CalendarResult {
 	return CalendarResult{
 		CalendarEvents: []*database.CalendarEvent{},
 		Error:          err,
+	}
+}
+
+func emptyEmailResult(err error) EmailResult {
+	return EmailResult{
+		Emails: []*database.Email{},
+		Error:  err,
 	}
 }
 
