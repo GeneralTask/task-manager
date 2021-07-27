@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { TTask, TTaskGroup } from '../../helpers/types'
 import moment, { Moment } from 'moment'
 
-import Task from './Task'
 import { TEXT_GRAY } from '../../helpers/styles'
+import Task from './Task'
 import styled from 'styled-components'
 
 const TaskGroup = styled.div`
@@ -87,7 +87,7 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroup
       <TimeAnnotation />
       <Tasks>
         {taskGroup.tasks.map((task: TTask, taskGroupIndex) => (
-          <Task task={task} key={task.id_ordering} taskGroupIndex={taskGroupIndex} isDragDisabled={false} />
+          <Task task={task} key={taskGroupIndex} taskGroupIndex={taskGroupIndex} isDragDisabled={false} />
         ))}
       </Tasks>
       <TimeAnnotation>

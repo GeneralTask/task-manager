@@ -2,11 +2,11 @@ import './Task.css'
 
 import { Draggable, DraggableProvided } from 'react-beautiful-dnd'
 
+import { BORDER_PRIMARY } from '../../helpers/styles'
 import React from 'react'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
-import { BORDER_PRIMARY } from '../../helpers/styles'
 import styled from 'styled-components'
 
 const Container = styled.div`
@@ -34,7 +34,6 @@ const Task: React.FC<Props> = ({ task, taskGroupIndex, isDragDisabled }: Props) 
       <DraggableContainer
         ref={provided.innerRef}
         {...provided.draggableProps}
-        {...provided.dragHandleProps}
       >
         <Container>
           <TaskHeader
