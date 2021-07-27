@@ -98,7 +98,7 @@ func (api *API) TasksList(c *gin.Context) {
 	}
 
 	calendarEventChannels := []chan external.CalendarResult{}
-	emailChannels := []chan EmailResult{}
+	emailChannels := []chan external.EmailResult{}
 	jiraTaskChannels := []chan external.TaskResult{}
 	timezoneOffset, err := strconv.ParseInt(c.GetHeader("Timezone-Offset"), 10, 64)
 	if err != nil {
@@ -108,24 +108,18 @@ func (api *API) TasksList(c *gin.Context) {
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		if token.Source == "google" {
-			client := external.GetGoogleHttpClient(externalAPITokenCollection, userID.(primitive.ObjectID), token.AccountID)
-			if client == nil {
-				log.Printf("failed to fetch google API token: %v", err)
-				Handle500(c)
-				return
-			}
 			var calendarEvents = make(chan external.CalendarResult)
-			googleCalendar := external.GoogleCalendarSource{
-				Google: external.GoogleService{
-					Config:       api.GoogleConfig,
-					OverrideURLs: api.GoogleOverrideURLs,
-				},
+			google := external.GoogleService{
+				Config:       api.GoogleConfig,
+				OverrideURLs: api.GoogleOverrideURLs,
 			}
+			googleCalendar := external.GoogleCalendarSource{Google: google}
 			go googleCalendar.GetEvents(userID.(primitive.ObjectID), token.AccountID, int(timezoneOffset), calendarEvents)
 			calendarEventChannels = append(calendarEventChannels, calendarEvents)
 
-			var emails = make(chan EmailResult)
-			go loadEmails(userID.(primitive.ObjectID), token.AccountID, client, emails)
+			var emails = make(chan external.EmailResult)
+			gmail := external.GmailSource{Google: google}
+			go gmail.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails)
 			emailChannels = append(emailChannels, emails)
 		} else if token.Source == database.TaskSourceJIRA.Name {
 			var JIRATasks = make(chan external.TaskResult)

@@ -149,7 +149,11 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	if task.Source.Name == database.TaskSourceGoogleCalendar.Name {
 		err = errors.New("invalid task type")
 	} else if task.Source.Name == database.TaskSourceGmail.Name {
-		err = MarkEmailAsDone(api, userID, task.SourceAccountID, task.IDExternal)
+		gmail := external.GmailSource{Google: external.GoogleService{
+			Config:       api.GoogleConfig,
+			OverrideURLs: api.GoogleOverrideURLs,
+		}}
+		err = gmail.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
 	} else if task.Source.Name == database.TaskSourceJIRA.Name {
 		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.AtlassianConfigValues}}
 		err = JIRA.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)

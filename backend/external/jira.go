@@ -105,6 +105,10 @@ func (JIRA JIRASource) getAPIBaseURL(siteConfiguration database.AtlassianSiteCon
 	return "https://api.atlassian.com/ex/jira/" + siteConfiguration.CloudID
 }
 
+func (JIRA JIRASource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+	result <- emptyEmailResult(nil)
+}
+
 func (JIRA JIRASource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
