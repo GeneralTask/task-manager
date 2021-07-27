@@ -13,7 +13,6 @@ const Logo = styled.button`
   color: ${TEXT_BLACK};
   font-weight: bold;
   font-size: 32px;
-  /* margin-left: 10px; */
   margin: 16px 0 0 20px;
   background-color: white;
   &:hover {color: ${TEXT_BLACK_HOVER}};
