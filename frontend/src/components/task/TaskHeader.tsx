@@ -1,7 +1,7 @@
 import './Task.css'
 
+import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_BLACK_HOVER, TEXT_LIGHTGRAY } from '../../helpers/styles'
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
-import { TEXT_BLACK, TEXT_BLACK_HOVER, BACKGROUND_HOVER, TEXT_LIGHTGRAY } from '../../helpers/styles'
 
 import { DraggableProvided } from 'react-beautiful-dnd'
 import React from 'react'
@@ -12,7 +12,7 @@ import store from '../../redux/store'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 
-const Header = styled.div<{ hover_effect: boolean }>`
+const Header = styled(NoSelect) <{ hover_effect: boolean }>`
   font-size: 16px;
   display: flex;
   flex-direction: row;
@@ -113,7 +113,7 @@ interface Props {
   isDragDisabled: boolean,
 }
 
-const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_completable, hover_effect, isDragDisabled }: Props) => {
+const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_completable, hover_effect, isDragDisabled, provided }: Props) => {
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   let onClick
   if (hover_effect && expanded_body !== task_id) {
@@ -132,11 +132,11 @@ const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_comp
     <Header hover_effect={hover_effect} onClick={onClick}>
       <HeaderLeft>
         {isDragDisabled ?
-          <Spacer>
+          <Spacer {...provided.dragHandleProps} >
             <Domino src="images/domino.svg" alt="" />
           </Spacer>
           :
-          <DragSection>
+          <DragSection {...provided.dragHandleProps}>
             <Domino src="images/domino.svg" alt="" />
           </DragSection>
         }
