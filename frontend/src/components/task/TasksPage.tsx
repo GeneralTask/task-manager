@@ -1,14 +1,22 @@
-import _ from 'lodash'
-import React, { useEffect } from 'react'
 import { DragDropContext, DropResult } from 'react-beautiful-dnd'
+import React, { useEffect } from 'react'
+import { TTask, TTaskGroup, TTaskSection } from '../../helpers/types'
 import { connect, useSelector } from 'react-redux'
-import { TASKS_URL } from '../../constants'
-import { TTaskSection, TTaskGroup, TTask } from '../../helpers/types'
 import { fetchTasks, makeAuthorizedRequest, resetOrderingIds } from '../../helpers/utils'
 import { setTasks, setTasksDragState } from '../../redux/actions'
-import { DragState } from '../../redux/enums'
 import store, { RootState } from '../../redux/store'
+
+import { DragState } from '../../redux/enums'
+import { TASKS_URL } from '../../constants'
 import TaskSection from './TaskSection'
+import _ from 'lodash'
+import styled from 'styled-components'
+
+const Header = styled.div`
+    text-align: center;
+    font-size: 32px; 
+    margin-bottom: 24px;
+`
 
 function onDragStart(): void {
     setTasksDragState(DragState.isDragging)
@@ -82,9 +90,14 @@ function TasksPage(): JSX.Element {
     )
 
     return (
-        <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-            {TaskSectionElements}
-        </DragDropContext>
+        <>
+            <Header>
+                Tasks
+            </Header>
+            <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+                {TaskSectionElements}
+            </DragDropContext>
+        </>
     )
 }
 

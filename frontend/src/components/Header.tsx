@@ -1,8 +1,9 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
 import { LANDING_PATH, SETTINGS_PATH } from '../constants'
-import { getAuthToken, logout } from '../helpers/utils'
 import { TEXT_BLACK, TEXT_BLACK_HOVER } from '../helpers/styles'
+import { getAuthToken, logout } from '../helpers/utils'
+
+import { Link } from 'react-router-dom'
+import React from 'react'
 import styled from 'styled-components'
 
 const Logo = styled.button`
@@ -12,9 +13,8 @@ const Logo = styled.button`
   color: ${TEXT_BLACK};
   font-weight: bold;
   font-size: 32px;
-  margin-left: 20px;
-  margin-top: 10px;
-  padding: 20px;
+  /* margin-left: 10px; */
+  margin: 16px 0 0 20px;
   background-color: white;
   &:hover {color: ${TEXT_BLACK_HOVER}};
 `
@@ -22,7 +22,7 @@ const HeaderDiv = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
 `
 const Button = styled.button`
   margin: 0 12px 0 12px;
@@ -39,7 +39,7 @@ const Button = styled.button`
 const Logout = styled(Button)`
   color: ${TEXT_BLACK};
   font-weight: 600;
-  margin-right: 50px;
+  margin-right: 20px;
   &:hover {color: ${TEXT_BLACK_HOVER}};
 `
 

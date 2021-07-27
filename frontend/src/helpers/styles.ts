@@ -11,6 +11,7 @@ export const flex = {
     flex: styled.div`display: flex;`,
     alignItemsCenter: styled.div`display: flex; align-items: center`,
     justifyContentSpaceBetween: styled.div`display: flex; justify-content: space-between`,
+    centerXY: styled.div`display: flex; justify-content: space-between; align-items: center`,
 }
 
 export const TEXT_GRAY = '#969696'
