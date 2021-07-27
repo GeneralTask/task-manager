@@ -1,3 +1,4 @@
+import { LinkedAccount } from '../../helpers/types'
 import React from 'react'
 import styled from 'styled-components'
 
@@ -29,22 +30,21 @@ const RemoveLinkButton = styled.button`
 `
 
 interface Props {
-  name: string,
-  logo: string,
+  linkedAccount: LinkedAccount,
   removeLink: () => void,
 }
 
-const Account: React.FC<Props> = ({ name, logo, removeLink }: Props) => (
+const Account: React.FC<Props> = ({ linkedAccount, removeLink }: Props) => (
   <AccountDiv>
     <AccountInfo>
-      <AccountLogo src={logo} alt={name + ' logo'} />
-      <div>{name}</div>
+      <AccountLogo src={linkedAccount.logo} alt={linkedAccount.name + ' logo'} />
+      <div>{linkedAccount.name}</div>
     </AccountInfo>
-    <RemoveLinkButton
+    {linkedAccount.is_unlinkable && <RemoveLinkButton
       onClick={removeLink}
     >
       Remove Link
-    </RemoveLinkButton>
+    </RemoveLinkButton>}
   </AccountDiv>
 )
 

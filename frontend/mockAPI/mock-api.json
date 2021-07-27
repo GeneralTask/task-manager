@@ -251,13 +251,15 @@
       "id": "id-1",
       "display_id": "scottmai702@gmail.com",
       "name": "Google",
-      "logo": "/images/google.svg"
+      "logo": "/images/google.svg",
+      "is_unlinkable": false
     },
     {
       "id": "id-2",
       "display_id": "Slacker",
       "name": "Slack",
-      "logo": "/images/slack.svg"
+      "logo": "/images/slack.svg",
+      "is_unlinkable": true
     }
   ],
   "linked_accounts_supported_types": [
