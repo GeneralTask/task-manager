@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { LINKED_ACCOUNTS_URL } from '../../constants'
 import { getLinkedAccountsURL, makeAuthorizedRequest } from '../../helpers/utils'
-import Account from './Account'
 
-interface LinkedAccount {
-	id: string,
-	display_id: string,
-	name: string,
-	logo: string,
-}
+import Account from './Account'
+import { LINKED_ACCOUNTS_URL } from '../../constants'
+import { LinkedAccount } from '../../helpers/types'
 
 interface State {
 	loading: boolean,
@@ -31,15 +26,13 @@ const Accounts: React.FC = () => {
 		return <div>No linked accounts!</div>
 	}
 	else {
-		const removeLink = (index: number) => {
-			const account = linkedAccounts.accounts[index]
+		const removeLink = (account: LinkedAccount) => {
 			const confirmation = confirm(`Are you sure you want to unlink your ${account.name} account (${account.display_id})?`)
 			if (confirmation) {
 				const newState = {
 					loading: linkedAccounts.loading,
-					accounts: [...linkedAccounts.accounts],
+					accounts: linkedAccounts.accounts.filter(linkedAccount => linkedAccount.id != account.id),
 				}
-				newState.accounts.splice(index, 1)
 				setLinkedAccounts(newState)
 				makeAuthorizedRequest({
 					url: getLinkedAccountsURL(account.id),
@@ -50,7 +43,7 @@ const Accounts: React.FC = () => {
 		return (
 			<>
 				{linkedAccounts.accounts.map(((account, index) =>
-					<Account logo={account.logo} name={account.display_id} key={index} removeLink={() => { removeLink(index) }} />
+					<Account linkedAccount={account} key={index} removeLink={() => { removeLink(account) }} />
 				))}
 			</>
 		)

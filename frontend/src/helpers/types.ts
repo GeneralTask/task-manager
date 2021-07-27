@@ -43,3 +43,11 @@ export interface TSetting {
     field_name: string,
     choices: TSettingChoice[],
 }
+
+export interface LinkedAccount {
+    id: string,
+    display_id: string,
+    name: string,
+    logo: string,
+    is_unlinkable: boolean
+}
