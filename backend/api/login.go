@@ -16,6 +16,20 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// GoogleRedirectParams ...
+type GoogleRedirectParams struct {
+	State string `form:"state"`
+	Code  string `form:"code"`
+	Scope string `form:"scope"`
+}
+
+// GoogleUserInfo ...
+type GoogleUserInfo struct {
+	SUB   string `json:"sub"`
+	EMAIL string `json:"email"`
+	Name  string `json:"name"`
+}
+
 type LoginRedirectParams struct {
 	ForcePrompt bool `form:"force_prompt"`
 }
