@@ -61,5 +61,6 @@ func (api *API) AuthorizeSlackCallback(c *gin.Context) {
 		c.JSON(500, gin.H{"detail": err.Error()})
 		return
 	}
-	c.Redirect(302, config.GetConfigValue("HOME_URL"))
+	c.Writer.Write([]byte("<html><head><script>window.open('','_parent','');window.close();</script></head><body>Success</body></html>"))
+	c.Status(200)
 }

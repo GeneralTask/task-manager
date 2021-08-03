@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/GeneralTask/task-manager/backend/external"
 
-	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -55,5 +54,6 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(302, config.GetConfigValue("HOME_URL"))
+	c.Writer.Write([]byte("<html><head><script>window.open('','_parent','');window.close();</script></head><body>Success</body></html>"))
+	c.Status(200)
 }

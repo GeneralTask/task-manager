@@ -167,7 +167,7 @@ func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string,
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
-	assert.Equal(t, http.StatusFound, recorder.Code)
+	assert.Equal(t, http.StatusOK, recorder.Code)
 
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
