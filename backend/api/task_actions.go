@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -53,7 +54,11 @@ func (api *API) TaskReply(c *gin.Context) {
 	}
 
 	if taskBase.Source.Name == database.TaskSourceGmail.Name {
-		err = ReplyToEmail(api, userID.(primitive.ObjectID), taskBase.SourceAccountID, taskID, replyParams.Body)
+		gmail := external.GmailSource{Google: external.GoogleService{
+			Config:       api.GoogleConfig,
+			OverrideURLs: api.GoogleOverrideURLs,
+		}}
+		err = gmail.Reply(userID.(primitive.ObjectID), taskBase.SourceAccountID, taskID, replyParams.Body)
 		if err != nil {
 			log.Printf("unable to send email with error: %v", err)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
