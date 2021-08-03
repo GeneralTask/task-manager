@@ -1,7 +1,10 @@
 package api
 
 import (
+	"log"
+
 	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -31,9 +34,29 @@ func (api *API) AuthorizeSlack(c *gin.Context) {
 	if err != nil {
 		return
 	}
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	insertedStateToken, err := database.CreateStateToken(db, nil)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	stateTokenID, err := primitive.ObjectIDFromHex(*insertedStateToken)
+	if err != nil {
+		Handle500(c)
+		return
+	}
 
 	slack := external.SlackService{Config: api.SlackConfig}
-	authURL, err := slack.GetLinkAuthURL(internalToken.UserID)
+	authURL, err := slack.GetLinkURL(stateTokenID, internalToken.UserID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	c.Redirect(302, *authURL)
 }
 
@@ -55,9 +78,23 @@ func (api *API) AuthorizeSlackCallback(c *gin.Context) {
 		return
 	}
 
-	slack := external.SlackService{Config: api.SlackConfig}
-	err = slack.HandleAuthCallback(redirectParams.Code, stateTokenID, internalToken.UserID)
+	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
+	err = database.DeleteStateToken(db, stateTokenID, &internalToken.UserID)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "invalid state token"})
+		return
+	}
+
+	slack := external.SlackService{Config: api.SlackConfig}
+	err = slack.HandleLinkCallback(redirectParams.Code, internalToken.UserID)
+	if err != nil {
+		log.Println("OH NO", err)
 		c.JSON(500, gin.H{"detail": err.Error()})
 		return
 	}

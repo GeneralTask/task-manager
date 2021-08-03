@@ -51,32 +51,21 @@ type AtlassianService struct {
 	Config AtlassianConfig
 }
 
-func (atlassian AtlassianService) GetLinkAuthURL(userID primitive.ObjectID) (*string, error) {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
-	insertedStateToken, err := database.CreateStateToken(db, &userID)
-	if err != nil {
-		return nil, err
-	}
-
-	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&state=" + *insertedStateToken + "&response_type=code&prompt=consent"
+func (atlassian AtlassianService) GetLinkURL(userID primitive.ObjectID, stateTokenID primitive.ObjectID) (*string, error) {
+	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&state=" + stateTokenID.Hex() + "&response_type=code&prompt=consent"
 	return &authURL, nil
 }
 
-func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
+func (atlassian AtlassianService) GetSignupURL(forcePrompt bool) (*string, *string, error) {
+	return nil, nil, errors.New("atlassian does not support signup")
+}
+
+func (atlassian AtlassianService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
 	}
 	defer dbCleanup()
-	err = database.DeleteStateToken(db, stateTokenID, &userID)
-	if err != nil {
-		return errors.New("invalid state token")
-	}
-
 	params := []byte(`{"grant_type": "authorization_code","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","code": "` + code + `","redirect_uri": "` + config.GetConfigValue("SERVER_URL") + `authorize/jira/callback/"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
 	if atlassian.Config.TokenURL != nil {
@@ -130,7 +119,6 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 		}},
 		options.Update().SetUpsert(true),
 	)
-
 	if err != nil {
 		log.Printf("failed to create external token record: %v", err)
 		return errors.New("internal server error")
@@ -161,6 +149,10 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 		return errors.New("internal server error")
 	}
 	return nil
+}
+
+func (atlassian AtlassianService) HandleSignupCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
+	return errors.New("atlassian does not support signup")
 }
 
 func (atlassian AtlassianService) getSites(token *AtlassianAuthToken) *[]AtlassianSite {

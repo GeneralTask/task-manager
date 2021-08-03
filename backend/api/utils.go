@@ -22,16 +22,6 @@ type API struct {
 	SkipStateTokenCheck   bool
 }
 
-var ALLOWED_USERNAMES = map[string]struct{}{
-	"jasonscharff@gmail.com":  {},
-	"jreinstra@gmail.com":     {},
-	"john@robinhood.com":      {},
-	"scottmai702@gmail.com":   {},
-	"sequoia@sequoiasnow.com": {},
-	"nolan1299@gmail.com":     {},
-	"jack_hamilton@me.com":    {},
-}
-
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 	authToken, err := c.Cookie("authToken")
 	if err != nil {

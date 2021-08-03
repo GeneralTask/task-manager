@@ -156,7 +156,7 @@ func makeLoginCallbackRequest(
 	router := GetRouter(&API{GoogleConfig: &mockConfig, SkipStateTokenCheck: skipStateTokenCheck})
 
 	request, _ := http.NewRequest("GET", "/login/callback/", nil)
-	request.AddCookie(&http.Cookie{Name: "googleStateToken", Value: stateTokenCookie})
+	request.AddCookie(&http.Cookie{Name: "loginStateToken", Value: stateTokenCookie})
 	queryParams := request.URL.Query()
 	queryParams.Add("state", stateToken)
 	queryParams.Add("code", "code1234")

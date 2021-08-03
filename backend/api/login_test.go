@@ -31,7 +31,7 @@ func TestLoginRedirect(t *testing.T) {
 
 		var stateToken string
 		for _, c := range recorder.Result().Cookies() {
-			if c.Name == "googleStateToken" {
+			if c.Name == "loginStateToken" {
 				stateToken = c.Value
 			}
 		}
@@ -52,7 +52,7 @@ func TestLoginRedirect(t *testing.T) {
 
 		var stateToken string
 		for _, c := range recorder.Result().Cookies() {
-			if c.Name == "googleStateToken" {
+			if c.Name == "loginStateToken" {
 				stateToken = c.Value
 			}
 		}

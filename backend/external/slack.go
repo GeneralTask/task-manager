@@ -17,45 +17,29 @@ type SlackService struct {
 	Config OauthConfigWrapper
 }
 
-func (Slack SlackService) GetLinkAuthURL(userID primitive.ObjectID) (*string, error) {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		log.Printf("failed to get db: %v", err)
-		return nil, err
-	}
-	defer dbCleanup()
-
-	insertedStateToken, err := database.CreateStateToken(db, &userID)
-	if err != nil || insertedStateToken == nil {
-		log.Printf("failed to save state token: %v", err)
-		return nil, err
-	}
-
-	authURL := Slack.Config.AuthCodeURL(*insertedStateToken, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+func (Slack SlackService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
+	authURL := Slack.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
 }
 
-func (Slack SlackService) HandleAuthCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
+func (Slack SlackService) GetSignupURL(forcePrompt bool) (*string, *string, error) {
+	return nil, nil, errors.New("slack does not support signup")
+}
+
+func (Slack SlackService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return errors.New("internal server error")
 	}
 	defer dbCleanup()
 
-	err = database.DeleteStateToken(db, stateTokenID, &userID)
-	if err != nil {
-		return errors.New("invalid state token")
-	}
-
 	token, err := Slack.Config.Exchange(context.Background(), code)
-
 	if err != nil {
 		log.Printf("failed to fetch token from Slack: %v", err)
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
-
 	if err != nil {
 		log.Printf("error parsing token: %v", err)
 		return errors.New("internal server error")
@@ -71,10 +55,13 @@ func (Slack SlackService) HandleAuthCallback(code string, stateTokenID primitive
 			Token:  string(tokenString)}},
 		options.Update().SetUpsert(true),
 	)
-
 	if err != nil {
 		log.Printf("error saving token: %v", err)
 		return errors.New("internal server error")
 	}
 	return nil
+}
+
+func (Slack SlackService) HandleSignupCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
+	return errors.New("slack does not support signup")
 }
