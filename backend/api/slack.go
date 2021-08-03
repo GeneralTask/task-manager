@@ -1,6 +1,8 @@
 package api
 
 import (
+	"log"
+
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -86,11 +88,13 @@ func (api *API) AuthorizeSlackCallback(c *gin.Context) {
 	err = database.DeleteStateToken(db, stateTokenID, &internalToken.UserID)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "invalid state token"})
+		return
 	}
 
 	slack := external.SlackService{Config: api.SlackConfig}
 	err = slack.HandleLinkCallback(redirectParams.Code, internalToken.UserID)
 	if err != nil {
+		log.Println("OH NO", err)
 		c.JSON(500, gin.H{"detail": err.Error()})
 		return
 	}

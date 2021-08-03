@@ -85,10 +85,10 @@ func (Google GoogleService) HandleLinkCallback(code string, stateTokenID primiti
 	return errors.New("google does not support linking")
 }
 
-func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectID, error) {
+func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectID, *string, error) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, nil, err
 	}
 	defer dbCleanup()
 
@@ -96,14 +96,14 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 	if err != nil {
 		log.Printf("failed to fetch token from google: %v", err)
 
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, nil, err
 	}
 	client := Google.Config.Client(context.Background(), token)
 	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
 		log.Printf("failed to load user info: %v", err)
 
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, nil, err
 	}
 	defer response.Body.Close()
 	var userInfo GoogleUserInfo
@@ -112,11 +112,11 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 	if err != nil {
 		log.Printf("error decoding JSON: %v", err)
 
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, nil, err
 	}
 	if userInfo.SUB == "" {
 		log.Println("failed to retrieve google user ID")
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, nil, err
 	}
 
 	userCollection := db.Collection("users")
@@ -133,7 +133,7 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 	if user.ID == primitive.NilObjectID {
 		log.Printf("unable to create user")
 
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, nil, err
 	}
 
 	if len(token.RefreshToken) > 0 {
@@ -142,7 +142,7 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 		if err != nil {
 			log.Printf("failed to serialize token json: %v", err)
 
-			return primitive.NilObjectID, err
+			return primitive.NilObjectID, nil, err
 		}
 		externalAPITokenCollection := db.Collection("external_api_tokens")
 		_, err = externalAPITokenCollection.UpdateOne(
@@ -165,9 +165,9 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 		if err != nil {
 			log.Printf("failed to create external token record: %v", err)
 
-			return primitive.NilObjectID, err
+			return primitive.NilObjectID, nil, err
 		}
 	}
 
-	return user.ID, nil
+	return user.ID, &userInfo.EMAIL, nil
 }

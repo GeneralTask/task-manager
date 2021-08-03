@@ -34,20 +34,19 @@ func (Slack SlackService) HandleLinkCallback(code string, userID primitive.Objec
 	defer dbCleanup()
 
 	token, err := Slack.Config.Exchange(context.Background(), code)
-
 	if err != nil {
 		log.Printf("failed to fetch token from Slack: %v", err)
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
-
 	if err != nil {
 		log.Printf("error parsing token: %v", err)
 		return errors.New("internal server error")
 	}
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
+	log.Println("PUT", userID, string(tokenString))
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"source": database.TaskSourceSlack.Name}}},
@@ -57,11 +56,11 @@ func (Slack SlackService) HandleLinkCallback(code string, userID primitive.Objec
 			Token:  string(tokenString)}},
 		options.Update().SetUpsert(true),
 	)
-
 	if err != nil {
 		log.Printf("error saving token: %v", err)
 		return errors.New("internal server error")
 	}
+	log.Println("DONE!!")
 	return nil
 }
 

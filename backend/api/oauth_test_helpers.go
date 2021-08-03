@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -109,7 +110,7 @@ func TestAuthorizeCallbackInvalidStateToken(t *testing.T, api *API, url string) 
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
-	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	body, err := ioutil.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 	assert.Equal(
@@ -133,7 +134,7 @@ func TestAuthorizeCallbackStateTokenWrongUser(t *testing.T, api *API, url string
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
-	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	body, err := ioutil.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 	assert.Equal(
@@ -191,6 +192,7 @@ func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string,
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var jiraToken database.ExternalAPIToken
+	log.Println("LOOK", authTokenStruct.UserID)
 	err = externalAPITokenCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"source": database.TaskSourceJIRA.Name}}}).Decode(&jiraToken)
 	assert.NoError(t, err)
 	assert.Equal(t, database.TaskSourceJIRA.Name, jiraToken.Source)

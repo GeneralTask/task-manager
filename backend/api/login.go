@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -98,10 +99,26 @@ func (api *API) LoginCallback(c *gin.Context) {
 		Config:       api.GoogleConfig,
 		OverrideURLs: api.GoogleOverrideURLs,
 	}
-	userID, err := googleService.HandleSignupCallback(redirectParams.Code)
+	userID, email, err := googleService.HandleSignupCallback(redirectParams.Code)
 	if err != nil {
 		log.Printf("Failed to handle signup: %v", err)
 		Handle500(c)
+		return
+	}
+
+	lowerEmail := strings.ToLower(*email)
+	waitlistCollection := db.Collection("waitlist")
+	count, err := waitlistCollection.CountDocuments(
+		context.TODO(),
+		bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
+	)
+	if err != nil {
+		log.Printf("failed to query waitlist: %v", err)
+		Handle500(c)
+		return
+	}
+	if _, contains := config.ALLOWED_USERNAMES[lowerEmail]; !contains && !strings.HasSuffix(lowerEmail, "@generaltask.io") && count == 0 {
+		c.JSON(403, gin.H{"detail": "Email has not been approved."})
 		return
 	}
 
@@ -113,12 +130,12 @@ func (api *API) LoginCallback(c *gin.Context) {
 		bson.M{"$set": &database.InternalAPIToken{UserID: userID, Token: internalToken}},
 		options.Update().SetUpsert(true),
 	)
-
 	if err != nil {
 		log.Printf("failed to create internal token record: %v", err)
 		Handle500(c)
 		return
 	}
+
 	c.SetCookie("authToken", internalToken, 30*60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
 	c.Redirect(302, config.GetConfigValue("HOME_URL"))
 }
