@@ -102,7 +102,6 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	accountID := (*siteConfiguration)[0].ID
-	log.Println("PUT", userID, accountID, string(tokenString))
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
 		bson.M{"$and": []bson.M{
@@ -124,7 +123,6 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 		log.Printf("failed to create external token record: %v", err)
 		return errors.New("internal server error")
 	}
-	log.Println("DONE")
 
 	siteCollection := db.Collection("jira_site_collection")
 

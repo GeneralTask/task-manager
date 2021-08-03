@@ -76,7 +76,7 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		return
 	}
 	atlassian := external.AtlassianService{Config: api.AtlassianConfigValues}
-	err = atlassian.HandleLinkCallback(redirectParams.Code, stateTokenID)
+	err = atlassian.HandleLinkCallback(redirectParams.Code, internalToken.UserID)
 	if err != nil {
 		c.JSON(500, gin.H{"detail": err.Error()})
 		return

@@ -46,7 +46,6 @@ func (Slack SlackService) HandleLinkCallback(code string, userID primitive.Objec
 	}
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	log.Println("PUT", userID, string(tokenString))
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"source": database.TaskSourceSlack.Name}}},
@@ -60,7 +59,6 @@ func (Slack SlackService) HandleLinkCallback(code string, userID primitive.Objec
 		log.Printf("error saving token: %v", err)
 		return errors.New("internal server error")
 	}
-	log.Println("DONE!!")
 	return nil
 }
 
