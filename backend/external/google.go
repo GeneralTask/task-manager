@@ -3,6 +3,7 @@ package external
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -55,4 +56,20 @@ func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 	json.Unmarshal([]byte(googleToken.Token), &token)
 	config := GetGoogleConfig()
 	return config.Client(context.Background(), &token).(*http.Client)
+}
+
+func (Google GoogleService) GetLinkURL(userID primitive.ObjectID) (string, error) {
+	return "", errors.New("google does not support linking")
+}
+
+func (Google GoogleService) GetSignupURL(userID primitive.ObjectID) (string, error) {
+	return "", errors.New("google does not support signup")
+}
+
+func (Google GoogleService) HandleLinkCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
+	return errors.New("google does not support linking")
+}
+
+func (Google GoogleService) HandleSignupCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
+	return errors.New("google does not support signup")
 }

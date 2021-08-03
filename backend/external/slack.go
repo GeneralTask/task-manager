@@ -17,7 +17,7 @@ type SlackService struct {
 	Config OauthConfigWrapper
 }
 
-func (Slack SlackService) GetLinkAuthURL(userID primitive.ObjectID) (*string, error) {
+func (Slack SlackService) GetLinkURL(userID primitive.ObjectID) (*string, error) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		log.Printf("failed to get db: %v", err)
@@ -35,7 +35,11 @@ func (Slack SlackService) GetLinkAuthURL(userID primitive.ObjectID) (*string, er
 	return &authURL, nil
 }
 
-func (Slack SlackService) HandleAuthCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
+func (Slack SlackService) GetSignupURL(userID primitive.ObjectID) (string, error) {
+	return "", errors.New("slack does not support signup")
+}
+
+func (Slack SlackService) HandleLinkCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return errors.New("internal server error")
@@ -77,4 +81,8 @@ func (Slack SlackService) HandleAuthCallback(code string, stateTokenID primitive
 		return errors.New("internal server error")
 	}
 	return nil
+}
+
+func (Slack SlackService) HandleSignupCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
+	return errors.New("slack does not support signup")
 }

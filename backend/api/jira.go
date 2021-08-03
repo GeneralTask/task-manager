@@ -23,7 +23,7 @@ func (api *API) AuthorizeJIRA(c *gin.Context) {
 		return
 	}
 	atlassian := external.AtlassianService{Config: api.AtlassianConfigValues}
-	authURL, err := atlassian.GetLinkAuthURL(internalToken.UserID)
+	authURL, err := atlassian.GetLinkURL(internalToken.UserID)
 	if err != nil {
 		Handle500(c)
 		return
@@ -48,7 +48,7 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		return
 	}
 	atlassian := external.AtlassianService{Config: api.AtlassianConfigValues}
-	err = atlassian.HandleAuthCallback(redirectParams.Code, stateTokenID, internalToken.UserID)
+	err = atlassian.HandleLinkCallback(redirectParams.Code, stateTokenID, internalToken.UserID)
 	if err != nil {
 		c.JSON(500, gin.H{"detail": err.Error()})
 		return

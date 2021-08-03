@@ -33,7 +33,7 @@ func (api *API) AuthorizeSlack(c *gin.Context) {
 	}
 
 	slack := external.SlackService{Config: api.SlackConfig}
-	authURL, err := slack.GetLinkAuthURL(internalToken.UserID)
+	authURL, err := slack.GetLinkURL(internalToken.UserID)
 	c.Redirect(302, *authURL)
 }
 
@@ -56,7 +56,7 @@ func (api *API) AuthorizeSlackCallback(c *gin.Context) {
 	}
 
 	slack := external.SlackService{Config: api.SlackConfig}
-	err = slack.HandleAuthCallback(redirectParams.Code, stateTokenID, internalToken.UserID)
+	err = slack.HandleLinkCallback(redirectParams.Code, stateTokenID, internalToken.UserID)
 	if err != nil {
 		c.JSON(500, gin.H{"detail": err.Error()})
 		return

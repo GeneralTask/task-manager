@@ -51,7 +51,7 @@ type AtlassianService struct {
 	Config AtlassianConfig
 }
 
-func (atlassian AtlassianService) GetLinkAuthURL(userID primitive.ObjectID) (*string, error) {
+func (atlassian AtlassianService) GetLinkURL(userID primitive.ObjectID) (*string, error) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return nil, err
@@ -66,7 +66,11 @@ func (atlassian AtlassianService) GetLinkAuthURL(userID primitive.ObjectID) (*st
 	return &authURL, nil
 }
 
-func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
+func (atlassian AtlassianService) GetSignupURL(userID primitive.ObjectID) (string, error) {
+	return "", errors.New("atlassian does not support signup")
+}
+
+func (atlassian AtlassianService) HandleLinkCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
@@ -161,6 +165,10 @@ func (atlassian AtlassianService) HandleAuthCallback(code string, stateTokenID p
 		return errors.New("internal server error")
 	}
 	return nil
+}
+
+func (atlassian AtlassianService) HandleSignupCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
+	return errors.New("atlassian does not support signup")
 }
 
 func (atlassian AtlassianService) getSites(token *AtlassianAuthToken) *[]AtlassianSite {
