@@ -17,39 +17,21 @@ type SlackService struct {
 	Config OauthConfigWrapper
 }
 
-func (Slack SlackService) GetLinkURL(userID primitive.ObjectID) (*string, error) {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		log.Printf("failed to get db: %v", err)
-		return nil, err
-	}
-	defer dbCleanup()
-
-	insertedStateToken, err := database.CreateStateToken(db, &userID)
-	if err != nil || insertedStateToken == nil {
-		log.Printf("failed to save state token: %v", err)
-		return nil, err
-	}
-
-	authURL := Slack.Config.AuthCodeURL(*insertedStateToken, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+func (Slack SlackService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
+	authURL := Slack.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
 }
 
-func (Slack SlackService) GetSignupURL(userID primitive.ObjectID) (string, error) {
-	return "", errors.New("slack does not support signup")
+func (Slack SlackService) GetSignupURL(forcePrompt bool) (*string, *string, error) {
+	return nil, nil, errors.New("slack does not support signup")
 }
 
-func (Slack SlackService) HandleLinkCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
+func (Slack SlackService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return errors.New("internal server error")
 	}
 	defer dbCleanup()
-
-	err = database.DeleteStateToken(db, stateTokenID, &userID)
-	if err != nil {
-		return errors.New("invalid state token")
-	}
 
 	token, err := Slack.Config.Exchange(context.Background(), code)
 

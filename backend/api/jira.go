@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/gin-gonic/gin"
@@ -22,8 +23,24 @@ func (api *API) AuthorizeJIRA(c *gin.Context) {
 	if err != nil {
 		return
 	}
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	insertedStateToken, err := database.CreateStateToken(db, &internalToken.UserID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	stateTokenID, err := primitive.ObjectIDFromHex(*insertedStateToken)
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	atlassian := external.AtlassianService{Config: api.AtlassianConfigValues}
-	authURL, err := atlassian.GetLinkURL(internalToken.UserID)
+	authURL, err := atlassian.GetLinkURL(internalToken.UserID, stateTokenID)
 	if err != nil {
 		Handle500(c)
 		return
@@ -47,8 +64,19 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "invalid state token format"})
 		return
 	}
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	err = database.DeleteStateToken(db, stateTokenID, &internalToken.UserID)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "invalid state token"})
+		return
+	}
 	atlassian := external.AtlassianService{Config: api.AtlassianConfigValues}
-	err = atlassian.HandleLinkCallback(redirectParams.Code, stateTokenID, internalToken.UserID)
+	err = atlassian.HandleLinkCallback(redirectParams.Code, stateTokenID)
 	if err != nil {
 		c.JSON(500, gin.H{"detail": err.Error()})
 		return
