@@ -54,5 +54,6 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		return
 	}
 
-	c.String(200, "<html><head><script>window.open('','_parent','');window.close();</script></head><body>Success</body></html>")
+	c.Writer.Write([]byte("<html><head><script>window.open('','_parent','');window.close();</script></head><body>Success</body></html>"))
+	c.Status(200)
 }
