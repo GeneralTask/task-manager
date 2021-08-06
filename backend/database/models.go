@@ -106,9 +106,10 @@ type Task struct {
 }
 
 type TaskChangeableFields struct {
-	Title      string             `json:"title" bson:"title,omitempty"`
-	DueDate    primitive.DateTime `bson:"due_date,omitempty"`
-	PriorityID string             `bson:"priority_id,omitempty"`
+	Title              string             `json:"title" bson:"title,omitempty"`
+	DueDate            primitive.DateTime `bson:"due_date,omitempty"`
+	PriorityID         string             `bson:"priority_id,omitempty"`
+	PriorityNormalized float64            `bson:"priority_normalized,omitempty"`
 }
 
 type TaskSource struct {
