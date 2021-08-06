@@ -195,35 +195,6 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 		if err == nil {
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
-		var dbTask database.Task
-		res, err := database.UpdateOrCreateTask(
-			db,
-			userID,
-			task.IDExternal,
-			task.Source,
-			task,
-			database.TaskChangeableFields{
-				Title:      task.Title,
-				DueDate:    task.DueDate,
-				PriorityID: task.PriorityID,
-			},
-		)
-		if err != nil {
-			result <- emptyTaskResult(err)
-			return
-		}
-		err = res.Decode(&dbTask)
-		if err != nil {
-			log.Printf("failed to update or create task: %v", err)
-			result <- emptyTaskResult(err)
-			return
-		}
-		task.ID = dbTask.ID
-		task.IDOrdering = dbTask.IDOrdering
-		task.IDTaskSection = dbTask.IDTaskSection
-		if dbTask.PriorityID != task.PriorityID && !dbTask.HasBeenReordered {
-			task.IDOrdering = 0
-		}
 		tasks = append(tasks, task)
 	}
 
@@ -249,6 +220,40 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			return
 		}
 		cachedMapping = JIRA.fetchLocalPriorityMapping(db.Collection("jira_priorities"), userID)
+	}
+	priorityLength := len(*cachedMapping)
+
+	for _, task := range tasks {
+		var dbTask database.Task
+		res, err := database.UpdateOrCreateTask(
+			db,
+			userID,
+			task.IDExternal,
+			task.Source,
+			task,
+			database.TaskChangeableFields{
+				Title:              task.Title,
+				DueDate:            task.DueDate,
+				PriorityID:         task.PriorityID,
+				PriorityNormalized: float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength),
+			},
+		)
+		if err != nil {
+			result <- emptyTaskResult(err)
+			return
+		}
+		err = res.Decode(&dbTask)
+		if err != nil {
+			log.Printf("failed to update or create task: %v", err)
+			result <- emptyTaskResult(err)
+			return
+		}
+		task.ID = dbTask.ID
+		task.IDOrdering = dbTask.IDOrdering
+		task.IDTaskSection = dbTask.IDTaskSection
+		if dbTask.PriorityID != task.PriorityID && !dbTask.HasBeenReordered {
+			task.IDOrdering = 0
+		}
 	}
 
 	result <- TaskResult{
