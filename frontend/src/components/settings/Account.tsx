@@ -38,7 +38,7 @@ const Account: React.FC<Props> = ({ linkedAccount, removeLink }: Props) => (
   <AccountDiv>
     <AccountInfo>
       <AccountLogo src={linkedAccount.logo} alt={linkedAccount.name + ' logo'} />
-      <div>{linkedAccount.name}</div>
+      <div>{linkedAccount.display_id}</div>
     </AccountInfo>
     {linkedAccount.is_unlinkable && <RemoveLinkButton
       onClick={removeLink}
