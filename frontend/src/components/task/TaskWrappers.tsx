@@ -52,13 +52,9 @@ interface TaskGroupProps {
   showTimeAnnotations: boolean,
 }
 
-interface TimeDurationProps {
-  time_duration: number,
-  datetime_start: string | null,
-}
-
-const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) =>
-  <>
+const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) => {
+  const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
+  return <>
     <TaskGroup>
       <TimeAnnotation>
         <AlignRight>{momentFromDateTime(taskGroup.datetime_start).format('h:mm a')}</AlignRight>
@@ -71,18 +67,17 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) 
         />
       </Tasks>
       <TimeAnnotation>
-        <TimeDuration
-          time_duration={taskGroup.time_duration}
-          datetime_start={taskGroup.datetime_start}
-        />
+        {time}
       </TimeAnnotation>
     </TaskGroup>
     <Divider />
   </>
+}
 
 
-const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) =>
-  <>
+const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) => {
+  const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
+  return <>
     <TaskGroup>
       <TimeAnnotation />
       <Tasks>
@@ -94,17 +89,18 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroup
         <UnscheduledTimeAnnotationContainer>
           <UnscheduledSpanbar />
           <UnscheduledTimeSpacer />
-          <TimeDuration
-            time_duration={taskGroup.time_duration}
-            datetime_start={taskGroup.datetime_start}
-          />
+          {time}
         </UnscheduledTimeAnnotationContainer>
       </TimeAnnotation>
     </TaskGroup >
     <Divider />
   </>
+}
 
-const TimeDuration: React.FC<TimeDurationProps> = ({ time_duration, datetime_start }: TimeDurationProps) => {
+export function useTimeDuration(
+  time_duration: number,
+  datetime_start: string | null,
+): string {
   const duration = moment.duration(time_duration * 1000)
   const end = momentFromDateTime(datetime_start).add(duration)
   const hasStarted = moment().isAfter(momentFromDateTime(datetime_start))
@@ -131,7 +127,7 @@ const TimeDuration: React.FC<TimeDurationProps> = ({ time_duration, datetime_sta
       }
     }, [])
   }
-  return <div>{timeStr}</div>
+  return timeStr
 }
 
 const getTimeStr = (duration: moment.Duration): string => {
