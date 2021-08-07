@@ -52,7 +52,7 @@ interface TaskGroupProps {
   showTimeAnnotations: boolean,
 }
 
-const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) => {
+const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations }: TaskGroupProps) => {
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
   return <>
     <TaskGroup>
@@ -67,7 +67,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) 
         />
       </Tasks>
       <TimeAnnotation>
-        {time}
+        {showTimeAnnotations && time}
       </TimeAnnotation>
     </TaskGroup>
     <Divider />
@@ -75,7 +75,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) 
 }
 
 
-const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) => {
+const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations }: TaskGroupProps) => {
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
   return <>
     <TaskGroup>
@@ -86,11 +86,13 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroup
         ))}
       </Tasks>
       <TimeAnnotation>
-        <UnscheduledTimeAnnotationContainer>
-          <UnscheduledSpanbar />
-          <UnscheduledTimeSpacer />
-          {time}
-        </UnscheduledTimeAnnotationContainer>
+        {showTimeAnnotations &&
+          <UnscheduledTimeAnnotationContainer>
+            <UnscheduledSpanbar />
+            <UnscheduledTimeSpacer />
+            {time}
+          </UnscheduledTimeAnnotationContainer>
+        }
       </TimeAnnotation>
     </TaskGroup >
     <Divider />
