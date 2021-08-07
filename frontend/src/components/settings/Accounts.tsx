@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { getLinkedAccountsURL, makeAuthorizedRequest } from '../../helpers/utils'
 
 import Account from './Account'
+import DotSpinner from '../../helpers/components/DotSpinner'
 import { LINKED_ACCOUNTS_URL } from '../../constants'
 import { LinkedAccount } from '../../helpers/types'
 
@@ -20,7 +21,7 @@ const Accounts: React.FC = () => {
 	}, [])
 
 	if (linkedAccounts.loading && linkedAccounts.accounts.length === 0) {
-		return <div className="loader" />
+		return <DotSpinner />
 	}
 	else if (linkedAccounts.accounts.length === 0) {
 		return <div>No linked accounts!</div>
