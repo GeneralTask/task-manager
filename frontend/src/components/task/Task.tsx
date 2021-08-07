@@ -1,10 +1,10 @@
 import './Task.css'
 
 import { Draggable, DraggableProvided } from 'react-beautiful-dnd'
-import { TTask, TTaskGroupType } from '../../helpers/types'
 
 import { BORDER_PRIMARY } from '../../helpers/styles'
 import React from 'react'
+import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import styled from 'styled-components'
@@ -24,7 +24,6 @@ const DraggableContainer = styled.div`
 
 interface Props {
   task: TTask,
-  taskGroupType: TTaskGroupType,
   taskGroupIndex: number,
   isDragDisabled: boolean,
 }
