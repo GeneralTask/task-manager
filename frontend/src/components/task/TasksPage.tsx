@@ -1,3 +1,5 @@
+import '../../helpers/components/dot-spinner.css'
+
 import { DragDropContext, DropResult } from 'react-beautiful-dnd'
 import React, { useEffect } from 'react'
 import { TTask, TTaskGroup, TTaskSection } from '../../helpers/types'
@@ -9,6 +11,7 @@ import store, { RootState } from '../../redux/store'
 import { DragState } from '../../redux/enums'
 import { TASKS_URL } from '../../constants'
 import TaskSection from './TaskSection'
+import TaskStatus from './TaskStatus'
 import _ from 'lodash'
 import styled from 'styled-components'
 
@@ -94,6 +97,7 @@ function TasksPage(): JSX.Element {
             <Header>
                 Tasks
             </Header>
+            <TaskStatus />
             <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 {TaskSectionElements}
             </DragDropContext>

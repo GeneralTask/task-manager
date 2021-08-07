@@ -1,12 +1,12 @@
-import React from 'react'
-import { connect, useSelector } from 'react-redux'
-import { FetchStatus } from '../../redux/enums'
-import './dot-spinner.css'
 import { TASK_STATUS_FETCH_ERROR, TASK_STATUS_NO_TASKS } from '../../constants'
-import styled from 'styled-components'
-import { TTaskSection } from '../../helpers/types'
-import { RootState } from '../../redux/store'
+import { connect, useSelector } from 'react-redux'
 
+import DotSpinner from '../../helpers/components/DotSpinner'
+import { FetchStatus } from '../../redux/enums'
+import React from 'react'
+import { RootState } from '../../redux/store'
+import { TTaskSection } from '../../helpers/types'
+import styled from 'styled-components'
 
 const Status = styled.div`
     height: 40px;
@@ -22,7 +22,7 @@ const TaskStatus = () => {
     switch (tasks_fetch_status) {
         case FetchStatus.LOADING:
             if (task_sections.length === 0) {
-                content = <div className="loader" />
+                content = <DotSpinner />
             }
             break
 
@@ -41,15 +41,9 @@ const TaskStatus = () => {
     }
 
     return (
-        <div>
-            {content
-                ? <Status>
-                    {content}
-                </Status>
-
-                : null
-            }
-        </div>
+        <>
+            {content && <Status>{content}</Status>}
+        </>
     )
 }
 
