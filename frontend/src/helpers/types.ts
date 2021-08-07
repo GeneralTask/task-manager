@@ -1,3 +1,9 @@
+
+export enum TTaskGroupType {
+    SCHEDULED_TASK = 'scheduled_task',
+    UNSCHEDULED_GROUP = 'unscheduled_group',
+}
+
 export interface TTaskSource {
     name: string,
     logo: string,
@@ -19,7 +25,7 @@ export interface TTask {
 }
 
 export interface TTaskGroup {
-    type: string,
+    type: TTaskGroupType,
     time_duration: number,
     datetime_start: string | null,
     tasks: TTask[]

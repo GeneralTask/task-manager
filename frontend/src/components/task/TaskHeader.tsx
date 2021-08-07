@@ -7,6 +7,7 @@ import { DraggableProvided } from 'react-beautiful-dnd'
 import React from 'react'
 import { RootState } from '../../redux/store'
 import { TASKS_URL } from '../../constants'
+import { TTask } from '../../helpers/types'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import store from '../../redux/store'
 import styled from 'styled-components'
@@ -103,58 +104,48 @@ const DoneButton = styled.button`
 `
 
 interface Props {
-  logo_url: string,
-  title: string,
-  sender: string | null,
-  task_id: string,
-  is_completable: boolean,
-  hover_effect: boolean,
+  task: TTask,
   provided: DraggableProvided,
   isDragDisabled: boolean,
 }
 
-const TaskHeader: React.FC<Props> = ({ logo_url, title, sender, task_id, is_completable, hover_effect, isDragDisabled, provided }: Props) => {
+const TaskHeader: React.FC<Props> = (props: Props) => {
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
-  let onClick
-  if (hover_effect && expanded_body !== task_id) {
-    onClick = () => {
-      store.dispatch(expandBody(task_id))
-    }
-  } else if (hover_effect && expanded_body === task_id) {
-    onClick = () => {
-      store.dispatch(retractBody())
-    }
-  }
-  else {
-    onClick = () => false
-  }
+
+  const hoverEffectEnabled = !!(props.task.body || props.task.deeplink)
+
+  const onClick: () => void = hoverEffectEnabled
+    ? hoverEffectEnabled && expanded_body !== props.task.id
+      ? () => { store.dispatch(expandBody(props.task.id)) }
+      : () => { store.dispatch(retractBody()) }
+    : () => void 0 // do nothing if hoverEffectEnabled == false
+
   return (
-    <Header hover_effect={hover_effect} onClick={onClick}>
+    <Header hover_effect={hoverEffectEnabled} onClick={onClick}>
       <HeaderLeft>
-        {isDragDisabled ?
-          <Spacer {...provided.dragHandleProps} >
+        {props.isDragDisabled ?
+          <Spacer {...props.provided.dragHandleProps} >
             <Domino src="images/domino.svg" alt="" />
           </Spacer>
           :
-          <DragSection {...provided.dragHandleProps}>
+          <DragSection {...props.provided.dragHandleProps}>
             <Domino src="images/domino.svg" alt="" />
           </DragSection>
         }
-        <Icon src={logo_url} alt="icon"></Icon>
-        {expanded_body === task_id ? <Title>{title}</Title> : <TitleWrap>{title}</TitleWrap>}
+        <Icon src={props.task.source.logo} alt="icon"></Icon>
+        {expanded_body === props.task.id ? <Title>{props.task.title}</Title> : <TitleWrap>{props.task.title}</TitleWrap>}
       </HeaderLeft>
       <HeaderRight>
-        {expanded_body === task_id ? <Source>{sender}</Source> : <SourceWrap>{sender}</SourceWrap>}
-        {is_completable ?
+        {expanded_body === props.task.id ? <Source>{props.task.sender}</Source> : <SourceWrap>{props.task.sender}</SourceWrap>}
+        {props.task.source.is_completable &&
           <DoneButton
             onClick={(e) => {
               e.stopPropagation()
-              done(task_id)
+              done(props.task.id)
             }}
           >
             Done
-          </DoneButton>
-          : null}
+          </DoneButton>}
       </HeaderRight>
     </Header>
   )

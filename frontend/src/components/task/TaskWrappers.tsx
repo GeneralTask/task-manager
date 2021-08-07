@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { TTask, TTaskGroup } from '../../helpers/types'
+import { TTask, TTaskGroup, TTaskGroupType } from '../../helpers/types'
 import moment, { Moment } from 'moment'
 
 import { TEXT_GRAY } from '../../helpers/styles'
@@ -62,6 +62,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroupProps) 
       <Tasks>
         <Task
           task={taskGroup.tasks[0]}
+          taskGroupType={TTaskGroupType.SCHEDULED_TASK}
           taskGroupIndex={0}
           isDragDisabled={true}
         />
@@ -82,7 +83,7 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup }: TaskGroup
       <TimeAnnotation />
       <Tasks>
         {taskGroup.tasks.map((task: TTask, taskGroupIndex) => (
-          <Task task={task} key={taskGroupIndex} taskGroupIndex={taskGroupIndex} isDragDisabled={false} />
+          <Task task={task} taskGroupType={TTaskGroupType.UNSCHEDULED_GROUP} taskGroupIndex={taskGroupIndex} isDragDisabled={false} key={taskGroupIndex} />
         ))}
       </Tasks>
       <TimeAnnotation>

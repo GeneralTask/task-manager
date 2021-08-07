@@ -1,10 +1,10 @@
+import { BORDER_PRIMARY, TEXT_LIGHTGRAY } from '../../helpers/styles'
 import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import React, { useState } from 'react'
 import { connect, useSelector } from 'react-redux'
 
 import { RootState } from '../../redux/store'
 import { TTaskSource } from '../../helpers/types'
-import { BORDER_PRIMARY, TEXT_LIGHTGRAY } from '../../helpers/styles'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'
 
@@ -85,23 +85,23 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) =
   const has_body = !!(body || deeplink)
   return (
     <div>
-      {has_body && expanded_body === task_id ? (
+      {has_body && expanded_body === task_id && (
         <div>
-          {body ? (
+          {body && (
             <BodyDiv>
               <BodyHTML body={body} task_id={task_id} />
               {source.is_replyable ? <Reply task_id={task_id} /> : null}
             </BodyDiv>
-          ) : null}
-          {deeplink ? (
+          )}
+          {deeplink && (
             <Deeplink>
               <p>
                 See more in <a href={deeplink} target="_blank">{source.name}</a>
               </p>
             </Deeplink>
-          ) : null}
+          )}
         </div>
-      ) : null}
+      )}
     </div>
   )
 }

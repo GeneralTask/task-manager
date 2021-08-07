@@ -1,10 +1,10 @@
 import './Task.css'
 
 import { Draggable, DraggableProvided } from 'react-beautiful-dnd'
+import { TTask, TTaskGroupType } from '../../helpers/types'
 
 import { BORDER_PRIMARY } from '../../helpers/styles'
 import React from 'react'
-import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import styled from 'styled-components'
@@ -24,6 +24,7 @@ const DraggableContainer = styled.div`
 
 interface Props {
   task: TTask,
+  taskGroupType: TTaskGroupType,
   taskGroupIndex: number,
   isDragDisabled: boolean,
 }
@@ -37,12 +38,7 @@ const Task: React.FC<Props> = ({ task, taskGroupIndex, isDragDisabled }: Props) 
       >
         <Container>
           <TaskHeader
-            title={task.title}
-            logo_url={task.source.logo}
-            sender={task.sender}
-            task_id={task.id}
-            is_completable={task.source.is_completable}
-            hover_effect={!!(task.body || task.deeplink)}
+            task={task}
             provided={provided}
             isDragDisabled={isDragDisabled}
           />
