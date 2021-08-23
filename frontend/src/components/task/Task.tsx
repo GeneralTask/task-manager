@@ -26,9 +26,10 @@ interface Props {
   task: TTask,
   taskGroupIndex: number,
   isDragDisabled: boolean,
+  datetimeStart: string | null, // null if unscheduled_task
 }
 
-const Task: React.FC<Props> = ({ task, taskGroupIndex, isDragDisabled }: Props) => (
+const Task: React.FC<Props> = ({ task, datetimeStart, taskGroupIndex, isDragDisabled }: Props) => (
   <Draggable draggableId={task.id} index={taskGroupIndex} isDragDisabled={isDragDisabled}>
     {(provided: DraggableProvided) => (
       <DraggableContainer
@@ -38,6 +39,7 @@ const Task: React.FC<Props> = ({ task, taskGroupIndex, isDragDisabled }: Props) 
         <Container>
           <TaskHeader
             task={task}
+            datetimeStart={datetimeStart}
             provided={provided}
             isDragDisabled={isDragDisabled}
           />

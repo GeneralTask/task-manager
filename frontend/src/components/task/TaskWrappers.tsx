@@ -30,7 +30,7 @@ const TimeAnnotation = styled.div`
   width: 15%;
   margin-left: 10px;
   margin-right: 10px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
 `
 const AlignRight = styled.div`
@@ -62,6 +62,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
       <Tasks>
         <Task
           task={taskGroup.tasks[0]}
+          datetimeStart={taskGroup.datetime_start}
           taskGroupIndex={0}
           isDragDisabled={true}
         />
@@ -82,7 +83,7 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
       <TimeAnnotation />
       <Tasks>
         {taskGroup.tasks.map((task: TTask, taskGroupIndex) => (
-          <Task task={task} taskGroupIndex={taskGroupIndex} isDragDisabled={false} key={taskGroupIndex} />
+          <Task task={task} datetimeStart={null} taskGroupIndex={taskGroupIndex} isDragDisabled={false} key={taskGroupIndex} />
         ))}
       </Tasks>
       <TimeAnnotation>
@@ -99,9 +100,37 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
   </>
 }
 
+// hook that returns countdown until datetimeStart if it has not started, otherwise returns null
+export function useCountdown(datetimeStart: string | null): string | null {
+  if (datetimeStart == null) {
+    return null
+  }
+
+  const start = momentFromDateTime(datetimeStart)
+  const now = moment()
+  if (now.isAfter(start)) {
+    return null
+  }
+
+  const [time, setTime] = useState<string | null>(getLiveTimeStr(start))
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(getLiveTimeStr(start))
+    }, 1000)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [])
+  return time
+}
+
+// if the time task has not started, show the duration.
+// if the task has started, show the time remaining.
 export function useTimeDuration(
   time_duration: number,
   datetime_start: string | null,
+  alwaysShowTimeRemaining = false,
 ): string {
   const duration = moment.duration(time_duration * 1000)
   const end = momentFromDateTime(datetime_start).add(duration)
@@ -118,7 +147,7 @@ export function useTimeDuration(
 
   const [timeStr, setTimeStr] = useState(initialTimeStr)
 
-  if (hasStarted) {
+  if (hasStarted || alwaysShowTimeRemaining) {
     useEffect(() => {
       const interval = setInterval(() => {
         setTimeStr(getLiveTimeStr(end))

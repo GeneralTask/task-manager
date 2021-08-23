@@ -11,6 +11,7 @@ import { TTask } from '../../helpers/types'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import store from '../../redux/store'
 import styled from 'styled-components'
+import { useCountdown } from './TaskWrappers'
 import { useSelector } from 'react-redux'
 
 const Header = styled(NoSelect) <{ hover_effect: boolean }>`
@@ -67,11 +68,11 @@ const Icon = styled.img`
   max-width: 25px;
   padding-right: 12px;
 `
-const Source = styled.div`
+const RightContent = styled.div`
   color:${TEXT_LIGHTGRAY};
   text-align: right;
 `
-const SourceWrap = styled(Source)`
+const Truncated = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -102,15 +103,20 @@ const DoneButton = styled.button`
     color: white;
   }
 `
+const Black = styled.span`
+  color: ${TEXT_BLACK};
+`
 
 interface Props {
   task: TTask,
+  datetimeStart: string | null, // null if unscheduled_task
   provided: DraggableProvided,
   isDragDisabled: boolean,
 }
 
 const TaskHeader: React.FC<Props> = (props: Props) => {
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
+  const countdown = useCountdown(props.datetimeStart)
 
   const hoverEffectEnabled = !!(props.task.body || props.task.deeplink)
 
@@ -120,6 +126,12 @@ const TaskHeader: React.FC<Props> = (props: Props) => {
       : () => { store.dispatch(retractBody()) }
     : () => void 0 // do nothing if hoverEffectEnabled == false
 
+  const rightContent =
+    countdown
+      ? <span>in <Black>{countdown}</Black></span>
+      : expanded_body === props.task.id
+        ? props.task.sender
+        : <Truncated>{props.task.sender}</Truncated>
   return (
     <Header hover_effect={hoverEffectEnabled} onClick={onClick}>
       <HeaderLeft>
@@ -136,7 +148,9 @@ const TaskHeader: React.FC<Props> = (props: Props) => {
         {expanded_body === props.task.id ? <Title>{props.task.title}</Title> : <TitleWrap>{props.task.title}</TitleWrap>}
       </HeaderLeft>
       <HeaderRight>
-        {expanded_body === props.task.id ? <Source>{props.task.sender}</Source> : <SourceWrap>{props.task.sender}</SourceWrap>}
+        <RightContent>
+          {rightContent}
+        </RightContent>
         {props.task.source.is_completable &&
           <DoneButton
             onClick={(e) => {
