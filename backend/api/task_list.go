@@ -123,7 +123,7 @@ func (api *API) TasksList(c *gin.Context) {
 			emailChannels = append(emailChannels, emails)
 		} else if token.Source == database.TaskSourceJIRA.Name {
 			var JIRATasks = make(chan external.TaskResult)
-			JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.AtlassianConfigValues}}
+			JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.AtlassianConfig}}
 			go JIRA.GetTasks(userID.(primitive.ObjectID), token.AccountID, JIRATasks)
 			jiraTaskChannels = append(jiraTaskChannels, JIRATasks)
 		}

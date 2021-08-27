@@ -23,7 +23,7 @@ func TestAuthorizeJIRA(t *testing.T) {
 	})
 
 	t.Run("Success", func(t *testing.T) {
-		TestAuthorizeSuccess(t, &API{}, "/authorize/jira/", func(stateToken string) string {
+		TestAuthorizeSuccess(t, &API{AtlassianConfig: external.AtlassianConfig{OauthConfig: external.GetAtlassianOauthConfig()}}, "/authorize/jira/", func(stateToken string) string {
 			return "<a href=\"https://auth.atlassian.com/authorize?audience=api.atlassian.com&amp;client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&amp;scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&amp;redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&amp;state=" + stateToken + "&amp;response_type=code&amp;prompt=consent\">Found</a>.\n\n"
 		})
 	})
@@ -50,7 +50,13 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
 		server := getTokenServerForJIRA(t, http.StatusUnauthorized)
-		TestAuthorizeCallbackUnsuccessfulResponse(t, &API{AtlassianConfigValues: external.AtlassianConfig{TokenURL: &server.URL}}, "/authorize/jira/callback/")
+		TestAuthorizeCallbackUnsuccessfulResponse(t, &API{
+			AtlassianConfig: external.AtlassianConfig{
+				ConfigValues: external.AtlassianConfigValues{
+					TokenURL: &server.URL,
+				},
+			},
+		}, "/authorize/jira/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
 
@@ -58,11 +64,12 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		cloudServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
 		priorityServer := getJIRAPriorityServer(t, http.StatusOK, []byte(`[{"id" : "1"}]`))
 
-		api := &API{AtlassianConfigValues: external.AtlassianConfig{
-			TokenURL:        &tokenServer.URL,
-			CloudIDURL:      &cloudServer.URL,
-			PriorityListURL: &priorityServer.URL,
-		}}
+		api := &API{AtlassianConfig: external.AtlassianConfig{
+			ConfigValues: external.AtlassianConfigValues{
+				TokenURL:        &tokenServer.URL,
+				CloudIDURL:      &cloudServer.URL,
+				PriorityListURL: &priorityServer.URL,
+			}}}
 
 		TestAuthorizeCallbackSuccessfulResponse(t, api, "/authorize/jira/callback/", database.TaskSourceJIRA.Name)
 	})

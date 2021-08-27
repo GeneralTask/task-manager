@@ -91,9 +91,11 @@ func TestMarkAsComplete(t *testing.T) {
 	inboxGmailModifyServer := getGmailArchiveServer(t, "INBOX")
 
 	router := GetRouter(&API{
-		AtlassianConfigValues: external.AtlassianConfig{
-			TokenURL:      &tokenServer.URL,
-			TransitionURL: &jiraTransitionServer.URL,
+		AtlassianConfig: external.AtlassianConfig{
+			ConfigValues: external.AtlassianConfigValues{
+				TokenURL:      &tokenServer.URL,
+				TransitionURL: &jiraTransitionServer.URL,
+			},
 		},
 		GoogleOverrideURLs: external.GoogleURLOverrides{GmailModifyURL: &inboxGmailModifyServer.URL},
 	})
@@ -193,9 +195,11 @@ func TestMarkAsComplete(t *testing.T) {
 		unreadGmailModifyServer := getGmailArchiveServer(t, "UNREAD")
 
 		unreadRouter := GetRouter(&API{
-			AtlassianConfigValues: external.AtlassianConfig{
-				TokenURL:      &tokenServer.URL,
-				TransitionURL: &jiraTransitionServer.URL,
+			AtlassianConfig: external.AtlassianConfig{
+				ConfigValues: external.AtlassianConfigValues{
+					TokenURL:      &tokenServer.URL,
+					TransitionURL: &jiraTransitionServer.URL,
+				},
 			},
 			GoogleOverrideURLs: external.GoogleURLOverrides{GmailModifyURL: &unreadGmailModifyServer.URL},
 		})

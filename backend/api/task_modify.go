@@ -155,7 +155,7 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 		}}
 		err = gmail.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
 	} else if task.Source.Name == database.TaskSourceJIRA.Name {
-		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.AtlassianConfigValues}}
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.AtlassianConfig}}
 		err = JIRA.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
 	}
 

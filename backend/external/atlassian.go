@@ -14,6 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/oauth2"
 )
 
 // AtlassianAuthToken ...
@@ -25,13 +26,18 @@ type AtlassianAuthToken struct {
 	TokenType    string `json:"token_type"`
 }
 
-// AtlassianConfig ...
-type AtlassianConfig struct {
+type AtlassianConfigValues struct {
 	APIBaseURL      *string
 	CloudIDURL      *string
 	TokenURL        *string
 	TransitionURL   *string
 	PriorityListURL *string
+}
+
+// AtlassianConfig ...
+type AtlassianConfig struct {
+	OauthConfig  OauthConfigWrapper
+	ConfigValues AtlassianConfigValues
 }
 
 // AtlassianSite ...
@@ -52,7 +58,8 @@ type AtlassianService struct {
 }
 
 func (atlassian AtlassianService) GetLinkURL(userID primitive.ObjectID, stateTokenID primitive.ObjectID) (*string, error) {
-	authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&state=" + stateTokenID.Hex() + "&response_type=code&prompt=consent"
+	authURL := atlassian.Config.OauthConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	// authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&state=" + stateTokenID.Hex() + "&response_type=code&prompt=consent"
 	return &authURL, nil
 }
 
@@ -68,8 +75,8 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 	defer dbCleanup()
 	params := []byte(`{"grant_type": "authorization_code","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","code": "` + code + `","redirect_uri": "` + config.GetConfigValue("SERVER_URL") + `authorize/jira/callback/"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
-	if atlassian.Config.TokenURL != nil {
-		tokenURL = *atlassian.Config.TokenURL
+	if atlassian.Config.ConfigValues.TokenURL != nil {
+		tokenURL = *atlassian.Config.ConfigValues.TokenURL
 	}
 	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
@@ -157,8 +164,8 @@ func (atlassian AtlassianService) HandleSignupCallback(code string, stateTokenID
 
 func (atlassian AtlassianService) getSites(token *AtlassianAuthToken) *[]AtlassianSite {
 	cloudIDURL := "https://api.atlassian.com/oauth/token/accessible-resources"
-	if atlassian.Config.CloudIDURL != nil {
-		cloudIDURL = *atlassian.Config.CloudIDURL
+	if atlassian.Config.ConfigValues.CloudIDURL != nil {
+		cloudIDURL = *atlassian.Config.ConfigValues.CloudIDURL
 	}
 	req, err := http.NewRequest("GET", cloudIDURL, nil)
 	if err != nil {
@@ -242,8 +249,8 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 	}
 	params := []byte(`{"grant_type": "refresh_token","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","refresh_token": "` + token.RefreshToken + `"}`)
 	tokenURL := "https://auth.atlassian.com/oauth/token"
-	if atlassian.Config.TokenURL != nil {
-		tokenURL = *atlassian.Config.TokenURL
+	if atlassian.Config.ConfigValues.TokenURL != nil {
+		tokenURL = *atlassian.Config.ConfigValues.TokenURL
 	}
 	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
@@ -272,4 +279,17 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 		return nil, err
 	}
 	return &newToken, nil
+}
+
+func GetAtlassianOauthConfig() OauthConfigWrapper {
+	atlassianConfig := &oauth2.Config{
+		ClientID:     config.GetConfigValue("JIRA_OAUTH_CLIENT_ID"),
+		ClientSecret: config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET"),
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://auth.atlassian.com/oauth/authorize",
+			TokenURL: "https://auth.atlassian.com/oauth/token",
+		},
+		RedirectURL: "http://localhost:8080/auth/callback/jira",
+	}
+	return &OauthConfig{Config: atlassianConfig}
 }
