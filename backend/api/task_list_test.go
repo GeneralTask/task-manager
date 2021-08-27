@@ -101,9 +101,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation:  (time.Hour).Nanoseconds(),
 				SourceAccountID: "AtlassianSite2",
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24)),
-			PriorityID: "5",
-			TaskNumber: 2,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24)),
+			PriorityID:         "5",
+			PriorityNormalized: 1.0,
+			TaskNumber:         2,
 		}
 
 		t2ID := primitive.NewObjectID()
@@ -117,9 +118,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation:  (time.Hour).Nanoseconds(),
 				SourceAccountID: "AtlassianSite1",
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			PriorityID: "3",
-			TaskNumber: 12,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
+			PriorityID:         "3",
+			PriorityNormalized: 1.0,
+			TaskNumber:         12,
 		}
 
 		t3ID := primitive.NewObjectID()
@@ -133,9 +135,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation:  (time.Hour).Nanoseconds(),
 				SourceAccountID: "AtlassianSite1",
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			PriorityID: "1",
-			TaskNumber: 7,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID:         "1",
+			PriorityNormalized: 0.0,
+			TaskNumber:         7,
 		}
 
 		t4ID := primitive.NewObjectID()
@@ -149,19 +152,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation:  (time.Hour).Nanoseconds(),
 				SourceAccountID: "AtlassianSite1",
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			PriorityID: "3",
-			TaskNumber: 1,
-		}
-
-		priorityMapping := map[string]*map[string]int{
-			"AtlassianSite1": {
-				"1": 1,
-				"3": 3,
-			},
-			"AtlassianSite2": {
-				"5": 5,
-			},
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID:         "3",
+			PriorityNormalized: 1.0,
+			TaskNumber:         1,
 		}
 
 		result, err := MergeTasks(
@@ -170,7 +164,6 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{&c1, &c2},
 			[]*database.Email{&e1, &e1a, &e2},
 			[]*database.Task{&t1, &t2, &t3, &t4},
-			&priorityMapping,
 			"gmail.com")
 		assert.NoError(t, err)
 
@@ -233,9 +226,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation:   (time.Hour).Nanoseconds(),
 				UserID:           userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			PriorityID: "5",
-			TaskNumber: 7,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID:         "5",
+			PriorityNormalized: 1.0,
+			TaskNumber:         7,
 		}
 		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
 		assert.NoError(t, err)
@@ -252,9 +246,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation:   (time.Hour).Nanoseconds(),
 				UserID:           userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			PriorityID: "3",
-			TaskNumber: 12,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
+			PriorityID:         "3",
+			PriorityNormalized: 0.0,
+			TaskNumber:         12,
 		}
 		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
 		assert.NoError(t, err)
@@ -309,20 +304,12 @@ func TestMergeTasks(t *testing.T) {
 		assert.NoError(t, err)
 		c3.ID = c3Res.ID
 
-		priorityMapping := map[string]*map[string]int{
-			"": {
-				"3": 3,
-				"5": 5,
-			},
-		}
-
 		result, err := MergeTasks(
 			db,
 			&[]database.TaskBase{c1.TaskBase, c2.TaskBase, c3.TaskBase, t1.TaskBase, t2.TaskBase},
 			[]*database.CalendarEvent{&c1, &c2, &c3},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
-			&priorityMapping,
 			"gmail.com",
 		)
 		assert.NoError(t, err)
@@ -362,9 +349,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			PriorityID: "5",
-			TaskNumber: 7,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID:         "5",
+			PriorityNormalized: 1.0,
+			TaskNumber:         7,
 		}
 		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
 		assert.NoError(t, err)
@@ -380,9 +368,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			PriorityID: "3",
-			TaskNumber: 12,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
+			PriorityID:         "3",
+			PriorityNormalized: 0.0,
+			TaskNumber:         12,
 		}
 		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
 		assert.NoError(t, err)
@@ -420,20 +409,12 @@ func TestMergeTasks(t *testing.T) {
 		assert.NoError(t, err)
 		c2.ID = c2Res.ID
 
-		priorityMapping := map[string]*map[string]int{
-			"": {
-				"3": 3,
-				"5": 5,
-			},
-		}
-
 		result, err := MergeTasks(
 			db,
 			&[]database.TaskBase{c1.TaskBase, c2.TaskBase, t1.TaskBase, t2.TaskBase},
 			[]*database.CalendarEvent{&c1, &c2},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
-			&priorityMapping,
 			"gmail.com",
 		)
 		assert.NoError(t, err)
@@ -471,9 +452,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 1)),
-			PriorityID: "1",
-			TaskNumber: 7,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 1)),
+			PriorityID:         "1",
+			PriorityNormalized: 0.0,
+			TaskNumber:         7,
 		}
 
 		t2 := database.Task{
@@ -487,9 +469,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation:   (time.Hour).Nanoseconds(),
 				UserID:           userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			PriorityID: "3",
-			TaskNumber: 12,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
+			PriorityID:         "3",
+			PriorityNormalized: 1.0,
+			TaskNumber:         12,
 		}
 		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
 		assert.NoError(t, err)
@@ -511,20 +494,12 @@ func TestMergeTasks(t *testing.T) {
 		assert.NoError(t, err)
 		c1.ID = c1Res.ID
 
-		priorityMapping := map[string]*map[string]int{
-			"": {
-				"1": 1,
-				"3": 3,
-			},
-		}
-
 		result, err := MergeTasks(
 			db,
 			&[]database.TaskBase{c1.TaskBase, t2.TaskBase},
 			[]*database.CalendarEvent{},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
-			&priorityMapping,
 			"gmail.com",
 		)
 		assert.NoError(t, err)
@@ -554,9 +529,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			PriorityID: "5",
-			TaskNumber: 7,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID:         "5",
+			PriorityNormalized: 0.5,
+			TaskNumber:         7,
 		}
 		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
 		assert.NoError(t, err)
@@ -573,9 +549,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation:   (time.Hour).Nanoseconds(),
 				UserID:           userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			PriorityID: "3",
-			TaskNumber: 12,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
+			PriorityID:         "3",
+			PriorityNormalized: 0.0,
+			TaskNumber:         12,
 		}
 		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
 		assert.NoError(t, err)
@@ -595,20 +572,12 @@ func TestMergeTasks(t *testing.T) {
 			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 		}
 
-		priorityMapping := map[string]*map[string]int{
-			"": {
-				"3": 3,
-				"5": 5,
-			},
-		}
-
 		result, err := MergeTasks(
 			db,
 			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
 			[]*database.CalendarEvent{},
 			[]*database.Email{&e1},
 			[]*database.Task{&t2},
-			&priorityMapping,
 			"gmail.com",
 		)
 		assert.NoError(t, err)
@@ -634,9 +603,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			PriorityID: "5",
-			TaskNumber: 1,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID:         "5",
+			PriorityNormalized: 0.5,
+			TaskNumber:         1,
 		}
 		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
 		assert.NoError(t, err)
@@ -652,9 +622,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			PriorityID: "6",
-			TaskNumber: 2,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID:         "6",
+			PriorityNormalized: 0.75,
+			TaskNumber:         2,
 		}
 		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t2)
 		assert.NoError(t, err)
@@ -698,22 +669,12 @@ func TestMergeTasks(t *testing.T) {
 		assert.NoError(t, err)
 		t4.ID = t4Res.ID
 
-		priorityMapping := map[string]*map[string]int{
-			"": {
-				"2": 2,
-				"3": 3,
-				"5": 5,
-				"6": 6,
-			},
-		}
-
 		result, err := MergeTasks(
 			db,
 			&[]database.TaskBase{},
 			[]*database.CalendarEvent{},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2, &t3, &t4},
-			&priorityMapping,
 			"gmail.com",
 		)
 		assert.NoError(t, err)
@@ -740,9 +701,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			PriorityID: "5",
-			TaskNumber: 7,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID:         "5",
+			PriorityNormalized: 0.5,
+			TaskNumber:         7,
 		}
 		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
 		assert.NoError(t, err)
@@ -759,9 +721,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			PriorityID: "3",
-			TaskNumber: 12,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
+			PriorityID:         "3",
+			PriorityNormalized: 0.0,
+			TaskNumber:         12,
 		}
 		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
 		assert.NoError(t, err)
@@ -778,9 +741,10 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			PriorityID: "5",
-			TaskNumber: 7,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID:         "5",
+			PriorityNormalized: 0.5,
+			TaskNumber:         7,
 		}
 		t3Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t3)
 		assert.NoError(t, err)
@@ -797,20 +761,14 @@ func TestMergeTasks(t *testing.T) {
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
-			DueDate:    primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			PriorityID: "3",
-			TaskNumber: 12,
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
+			PriorityID:         "3",
+			PriorityNormalized: 0.0,
+			TaskNumber:         12,
 		}
 		t4Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t4)
 		assert.NoError(t, err)
 		t4.ID = t4Res.ID
-
-		priorityMapping := map[string]*map[string]int{
-			"": {
-				"3": 3,
-				"5": 5,
-			},
-		}
 
 		result, err := MergeTasks(
 			db,
@@ -818,7 +776,6 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
-			&priorityMapping,
 			"gmail.com",
 		)
 		assert.NoError(t, err)
