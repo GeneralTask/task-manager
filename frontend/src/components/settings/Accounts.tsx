@@ -5,6 +5,10 @@ import Account from './Account'
 import DotSpinner from '../../helpers/components/DotSpinner'
 import { LINKED_ACCOUNTS_URL } from '../../constants'
 import { LinkedAccount } from '../../helpers/types'
+import { flex } from '../../helpers/styles'
+import AddNewAccountDropdown from './AddNewAccountDropdown'
+
+const FETCH_LINKED_ACCOUNTS_INTERVAL = 1000 * 30 // every thirty seconds
 
 interface State {
 	loading: boolean,
@@ -17,7 +21,7 @@ const Accounts: React.FC = () => {
 
 	useEffect(() => {
 		fetchLinkedAccounts(setLinkedAccounts)
-		setInterval(() => { fetchLinkedAccounts(setLinkedAccounts) }, 1000 * 30)
+		setInterval(() => { fetchLinkedAccounts(setLinkedAccounts) }, FETCH_LINKED_ACCOUNTS_INTERVAL)
 	}, [])
 
 	if (linkedAccounts.loading && linkedAccounts.accounts.length === 0) {
@@ -43,6 +47,10 @@ const Accounts: React.FC = () => {
 		}
 		return (
 			<>
+				<flex.centerXY>
+					<h2>Accounts</h2>
+					<AddNewAccountDropdown />
+				</flex.centerXY>
 				{linkedAccounts.accounts.map(((account, index) =>
 					<Account linkedAccount={account} key={index} removeLink={() => { removeLink(account) }} />
 				))}

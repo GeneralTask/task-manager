@@ -5,6 +5,8 @@ import { BACKGROUND_HOVER, BORDER_PRIMARY } from '../../helpers/styles'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'
 
+const WINDOW_POLL_RATE = 10 // rate at which we check if a window has been closed (in milliseconds) 
+
 const Logo = styled.img`
     width: 20px;
     margin-right: 20px;
@@ -53,10 +55,12 @@ interface SupportedType {
 
 interface OptionProps {
     st: SupportedType,
+    refetchLinkedAccounts: () => void,
 }
 
 interface DropdownProps {
     supportedTypes: SupportedType[],
+    refetchLinkedAccounts: () => void,
 }
 
 const AddNewAccountDropdown: React.FC = () => {
@@ -65,7 +69,10 @@ const AddNewAccountDropdown: React.FC = () => {
         fetchSupportedTypes(setSupportedTypes)
     }, [])
     return (
-        <Dropdown supportedTypes={supportedTypes} />
+        <Dropdown
+            supportedTypes={supportedTypes}
+            refetchLinkedAccounts={() => { fetchSupportedTypes(setSupportedTypes) }}
+        />
     )
 }
 
@@ -101,21 +108,30 @@ const fetchSupportedTypes = async (
     }
 }
 
-const Option = ({ st }: OptionProps) => {
+const Option = ({ st, refetchLinkedAccounts }: OptionProps) => {
     return (
         <OptionContainer onClick={() => {
-            window.open(
+            const win = window.open(
                 st.authorization_url,
                 st.name,
                 'height=640,width=960,toolbar=no,menubar=no,scrollbars=no,location=no,status=no'
             )
+            if (win != null) {
+                // check every WINDOW_POLL_RATE if the window has been closed
+                const timer = setInterval(() => {
+                    if (win.closed) {
+                        clearInterval(timer)
+                        refetchLinkedAccounts()
+                    }
+                }, WINDOW_POLL_RATE)
+            }
         }}>
             <Logo src={st.logo} />
             <div>{st.name}</div>
         </OptionContainer>)
 }
 
-const Dropdown = ({ supportedTypes }: DropdownProps) => {
+const Dropdown = ({ supportedTypes, refetchLinkedAccounts }: DropdownProps) => {
     const [isExpanded, setExpanded] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
 
@@ -142,7 +158,7 @@ const Dropdown = ({ supportedTypes }: DropdownProps) => {
                 <Chevron src={CHEVRON_DOWN} />
             </DropdownToggle>
             {isExpanded && <Selector onBlur={() => { setExpanded(false) }}>
-                {supportedTypes.map((st, i) => <Option st={st} key={i} />)}
+                {supportedTypes.map((st, i) => <Option st={st} refetchLinkedAccounts={refetchLinkedAccounts} key={i} />)}
             </Selector>}
         </DropdownContainer>
     )

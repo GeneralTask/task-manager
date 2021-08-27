@@ -1,7 +1,6 @@
-import { device, flex } from '../../helpers/styles'
+import { device } from '../../helpers/styles'
 
 import Accounts from './Accounts'
-import AddNewAccountDropdown from './AddNewAccountDropdown'
 import Preferences from './Preferences'
 import React from 'react'
 import styled from 'styled-components'
@@ -34,10 +33,6 @@ const Settings: React.FC = () => {
             </Header>
             <Setting>
                 <Body>
-                    <flex.centerXY>
-                        <h2>Accounts</h2>
-                        <AddNewAccountDropdown />
-                    </flex.centerXY>
                     <Accounts />
                 </Body>
             </Setting>
