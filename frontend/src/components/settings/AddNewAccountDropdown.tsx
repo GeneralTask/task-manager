@@ -5,7 +5,7 @@ import { BACKGROUND_HOVER, BORDER_PRIMARY } from '../../helpers/styles'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'
 
-const WINDOW_POLL_RATE = 1000 // rate at which we check if a window has been closed
+const WINDOW_POLL_RATE = 10 // rate at which we check if a window has been closed (in milliseconds) 
 
 const Logo = styled.img`
     width: 20px;
