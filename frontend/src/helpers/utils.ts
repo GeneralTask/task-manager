@@ -11,7 +11,7 @@ export const logout = (): void => {
     makeAuthorizedRequest({
         url: LOGOUT_URL,
         method: 'POST',
-    }).then(() => {
+    }, true).then(() => {
         Cookies.remove('authToken', { path: '/', domain: REACT_APP_COOKIE_DOMAIN })
         document.location.href = LANDING_PATH
     })
@@ -37,7 +37,7 @@ interface fetchParams {
     body?: string,
 }
 
-export const makeAuthorizedRequest = async (params: fetchParams): Promise<Response> => {
+export const makeAuthorizedRequest = async (params: fetchParams, logoutReq = false): Promise<Response> => {
     const body = params.body ? params.body : null
     const response = await fetch(params.url, {
         method: params.method,
@@ -45,7 +45,7 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
         headers: getHeaders(),
         body,
     })
-    if (response.status === 401) {
+    if (!logoutReq && response.status === 401) {
         logout()
     }
     return response
