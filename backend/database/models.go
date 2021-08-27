@@ -99,10 +99,11 @@ type Email struct {
 }
 
 type Task struct {
-	TaskBase   `bson:",inline"`
-	DueDate    primitive.DateTime `bson:"due_date"`
-	PriorityID string             `bson:"priority_id"`
-	TaskNumber int                `bson:"task_number"`
+	TaskBase           `bson:",inline"`
+	DueDate            primitive.DateTime `bson:"due_date"`
+	PriorityID         string             `bson:"priority_id"`
+	PriorityNormalized float64            `bson:"priority_normalized"`
+	TaskNumber         int                `bson:"task_number"`
 }
 
 type TaskChangeableFields struct {
