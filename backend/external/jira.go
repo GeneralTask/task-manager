@@ -47,8 +47,8 @@ type JIRATaskList struct {
 
 func (JIRA JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken string) error {
 	var baseURL string
-	if JIRA.Atlassian.Config.PriorityListURL != nil {
-		baseURL = *JIRA.Atlassian.Config.PriorityListURL
+	if JIRA.Atlassian.Config.ConfigValues.PriorityListURL != nil {
+		baseURL = *JIRA.Atlassian.Config.ConfigValues.PriorityListURL
 	} else if siteConfiguration, _ := JIRA.Atlassian.getSiteConfiguration(userID); siteConfiguration != nil {
 		baseURL = JIRA.getAPIBaseURL(*siteConfiguration)
 	} else {
@@ -123,8 +123,8 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	}
 
 	apiBaseURL := JIRA.getAPIBaseURL(*siteConfiguration)
-	if JIRA.Atlassian.Config.APIBaseURL != nil {
-		apiBaseURL = *JIRA.Atlassian.Config.APIBaseURL
+	if JIRA.Atlassian.Config.ConfigValues.APIBaseURL != nil {
+		apiBaseURL = *JIRA.Atlassian.Config.ConfigValues.APIBaseURL
 	}
 	JQL := "assignee=currentuser() AND status != Done"
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
@@ -291,8 +291,8 @@ func (JIRA JIRASource) MarkAsDone(userID primitive.ObjectID, accountID string, i
 	//first get the list of transitions
 	var apiBaseURL string
 
-	if JIRA.Atlassian.Config.TransitionURL != nil {
-		apiBaseURL = *JIRA.Atlassian.Config.TransitionURL
+	if JIRA.Atlassian.Config.ConfigValues.TransitionURL != nil {
+		apiBaseURL = *JIRA.Atlassian.Config.ConfigValues.TransitionURL
 	} else {
 		apiBaseURL = JIRA.getAPIBaseURL(*siteConfiguration)
 	}

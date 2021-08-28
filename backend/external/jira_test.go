@@ -38,7 +38,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID, accountID := createJIRAToken(t, externalAPITokenCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusUnauthorized)
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{TokenURL: &tokenServer.URL}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{TokenURL: &tokenServer.URL}}}}
 		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result.Tasks))
@@ -49,7 +49,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
 		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result.Tasks))
@@ -59,7 +59,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
 		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 0, len(result.Tasks))
@@ -84,7 +84,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		}
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
 		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -132,7 +132,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		)
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
 		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -180,7 +180,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		)
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
 		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -233,7 +233,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		)
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
 		go JIRA.GetTasks(*userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -266,7 +266,7 @@ func TestGetPriorities(t *testing.T) {
 	t.Run("ServerError", func(t *testing.T) {
 		server := getJIRAPriorityServer(t, 400, []byte(``))
 		defer server.Close()
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{PriorityListURL: &server.URL}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{PriorityListURL: &server.URL}}}}
 		err := JIRA.GetListOfPriorities(*userID, "sample")
 		assert.Error(t, err)
 	})
@@ -274,7 +274,7 @@ func TestGetPriorities(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		server := getJIRAPriorityServer(t, 200, []byte(`[{"id": "9"},{"id": "5"}]`))
 		defer server.Close()
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{PriorityListURL: &server.URL}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{PriorityListURL: &server.URL}}}}
 		err := JIRA.GetListOfPriorities(*userID, "sample")
 		assert.NoError(t, err)
 
@@ -292,7 +292,7 @@ func TestGetPriorities(t *testing.T) {
 		assert.Equal(t, 2, priorities[1].IntegerPriority)
 
 		server = getJIRAPriorityServer(t, http.StatusOK, []byte(`[{"id": "8"}]`))
-		JIRA = JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{PriorityListURL: &server.URL}}}
+		JIRA = JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{PriorityListURL: &server.URL}}}}
 		err = JIRA.GetListOfPriorities(*userID, "sample")
 		assert.NoError(t, err)
 
