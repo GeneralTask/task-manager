@@ -59,7 +59,7 @@ type AtlassianService struct {
 
 func (atlassian AtlassianService) GetLinkURL(userID primitive.ObjectID, stateTokenID primitive.ObjectID) (*string, error) {
 	authURL := atlassian.Config.OauthConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
-	// authURL := "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&scope=offline_access%20read%3Ajira-user%20read%3Ajira-work%20write%3Ajira-work&redirect_uri=" + config.GetConfigValue("SERVER_URL") + "authorize%2Fjira%2Fcallback%2F&state=" + stateTokenID.Hex() + "&response_type=code&prompt=consent"
+	authURL += "&audience=api.atlassian.com"
 	return &authURL, nil
 }
 
@@ -286,10 +286,11 @@ func GetAtlassianOauthConfig() OauthConfigWrapper {
 		ClientID:     config.GetConfigValue("JIRA_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET"),
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://auth.atlassian.com/oauth/authorize",
+			AuthURL:  "https://auth.atlassian.com/authorize",
 			TokenURL: "https://auth.atlassian.com/oauth/token",
 		},
-		RedirectURL: "http://localhost:8080/auth/callback/jira",
+		RedirectURL: "https://api.generaltask.io/authorize/jira/callback/",
+		Scopes:      []string{"read:jira-work", "read:jira-user", "write:jira-work"},
 	}
 	return &OauthConfig{Config: atlassianConfig}
 }
