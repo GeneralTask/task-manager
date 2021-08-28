@@ -14,42 +14,24 @@ import styled from 'styled-components'
 import { useCountdown } from './TaskWrappers'
 import { useSelector } from 'react-redux'
 
-const Header = styled(NoSelect) <{ hover_effect: boolean }>`
-  font-size: 16px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 30px;
-  padding: 8px 8px 8px 0;
-  cursor: ${props => props.hover_effect ? 'pointer' : 'inherit'};
-  &:hover{
-    background-color: ${props => props.hover_effect ? BACKGROUND_HOVER : 'inherit'};
-  }
-  &:hover > div > button {
-    display: inherit;
-  }
-  & > div > button {
-    display: none;
-  }
-`
+
 
 const HeaderLeft = styled.div`
-  text-align: left;
+  text-align: left; 
   flex: 1;
   display: flex;
   align-items: center;
   flex-direction: row;
-  max-width: 80%;
+  min-width: 0;
 `
 
 const HeaderRight = styled.div`
-  flex: 1;
+  flex: content;
   display: flex;
   align-items: center;
   flex-direction: row;
-  justify-content: flex-end;
-  max-width: 20%;
+  /* justify-content: flex-end; */
+  color:${TEXT_LIGHTGRAY};
 `
 const DragSection = styled.div`
   cursor: grab;
@@ -68,19 +50,15 @@ const Icon = styled.img`
   max-width: 25px;
   padding-right: 12px;
 `
-const RightContent = styled.div`
-  color:${TEXT_LIGHTGRAY};
-  text-align: right;
-`
-const Truncated = styled.div`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`
 const Title = styled.div`
   color:${TEXT_BLACK};
 `
 const TitleWrap = styled(Title)`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`
+const NoWrap = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -107,6 +85,32 @@ const Black = styled.span`
   color: ${TEXT_BLACK};
 `
 
+const Header = styled(NoSelect) <{ hover_effect: boolean }>`
+  font-size: 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 30px;
+  padding: 8px 8px 8px 0;
+  cursor: ${props => props.hover_effect ? 'pointer' : 'inherit'};
+  &:hover{
+    background-color: ${props => props.hover_effect ? BACKGROUND_HOVER : 'inherit'};
+  }
+  &:hover > div > ${DoneButton} {
+    display: inherit;
+  }
+  & > div > ${DoneButton} {
+    display: none;
+  }
+  &:hover > div > ${NoWrap} {
+    display: none;
+  }
+  & > div > ${NoWrap} {
+    display: inherit;
+  }
+`
+
 interface Props {
   task: TTask,
   datetimeStart: string | null, // null if unscheduled_task
@@ -126,12 +130,6 @@ const TaskHeader: React.FC<Props> = (props: Props) => {
       : () => { store.dispatch(retractBody()) }
     : () => void 0 // do nothing if hoverEffectEnabled == false
 
-  const rightContent =
-    countdown
-      ? <span>in <Black>{countdown}</Black></span>
-      : expanded_body === props.task.id
-        ? props.task.sender
-        : <Truncated>{props.task.sender}</Truncated>
   return (
     <Header hover_effect={hoverEffectEnabled} onClick={onClick}>
       <HeaderLeft>
@@ -148,9 +146,12 @@ const TaskHeader: React.FC<Props> = (props: Props) => {
         {expanded_body === props.task.id ? <Title>{props.task.title}</Title> : <TitleWrap>{props.task.title}</TitleWrap>}
       </HeaderLeft>
       <HeaderRight>
-        <RightContent>
-          {rightContent}
-        </RightContent>
+        {countdown
+          ? <span>in <Black>{countdown}</Black></span>
+          : expanded_body === props.task.id
+            ? props.task.sender
+            : <NoWrap>{props.task.sender}</NoWrap>
+        }
         {props.task.source.is_completable &&
           <DoneButton
             onClick={(e) => {
