@@ -64,7 +64,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 			ClientID:     config.GetConfigValue("JIRA_OAUTH_CLIENT_ID"),
 			ClientSecret: config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET"),
 			Endpoint: oauth2.Endpoint{
-				AuthURL:  tokenServer.URL,
+				AuthURL:  "https://auth.atlassian.com/authorize",
 				TokenURL: tokenServer.URL,
 			},
 			RedirectURL: config.GetConfigValue("SERVER_URL") + "authorize/jira/callback",
