@@ -149,12 +149,12 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 			context.TODO(),
 			bson.M{"$and": []bson.M{
 				{"user_id": user.ID},
-				{"source": "google"},
+				{"service_id": TASK_SERVICE_ID_GOOGLE},
 				{"account_id": userInfo.EMAIL},
 			}},
 			bson.M{"$set": &database.ExternalAPIToken{
 				UserID:       user.ID,
-				Source:       "google",
+				ServiceID:    TASK_SERVICE_ID_GOOGLE,
 				Token:        string(tokenString),
 				AccountID:    userInfo.EMAIL,
 				DisplayID:    userInfo.EMAIL,

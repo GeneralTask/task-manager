@@ -154,7 +154,7 @@ func createJIRADungeon(t *testing.T, db *mongo.Database, authToken string) primi
 	res, err := db.Collection("external_api_tokens").InsertOne(
 		context.Background(),
 		&database.ExternalAPIToken{
-			Source:       external.TaskSourceJIRA.Name,
+			ServiceID:    external.TASK_SERVICE_ID_ATLASSIAN,
 			UserID:       getUserIDFromAuthToken(t, db, authToken),
 			DisplayID:    "Jira dungeon",
 			IsUnlinkable: true,

@@ -112,12 +112,12 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 		context.TODO(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
-			{"source": TaskSourceJIRA.Name},
+			{"service_id": TASK_SERVICE_ID_ATLASSIAN},
 			{"account_id": accountID},
 		}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:       userID,
-			Source:       TaskSourceJIRA.Name,
+			ServiceID:    TASK_SERVICE_ID_ATLASSIAN,
 			Token:        string(tokenString),
 			AccountID:    accountID,
 			DisplayID:    (*siteConfiguration)[0].Name,

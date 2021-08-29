@@ -77,7 +77,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IDTaskSection: constants.IDTaskSectionToday,
 				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
 				Title:         "Sample Taskeroni",
-				Source:        TaskSourceJIRA,
+				SourceID:      TASK_SOURCE_ID_JIRA,
 				UserID:        *userID,
 			},
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
@@ -95,7 +95,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		err := taskCollection.FindOne(
 			context.TODO(),
 			bson.M{"$and": []bson.M{
-				{"source.name": TaskSourceJIRA.Name},
+				{"source_id": TASK_SOURCE_ID_JIRA},
 				{"id_external": "42069"},
 				{"user_id": userID},
 			}},
@@ -117,7 +117,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IDTaskSection:   constants.IDTaskSectionToday,
 				Deeplink:        "https://dankmemes.com/browse/MOON-1969",
 				Title:           "Sample Taskeroni",
-				Source:          TaskSourceJIRA,
+				SourceID:        TASK_SOURCE_ID_JIRA,
 				UserID:          *userID,
 				SourceAccountID: "someAccountID",
 			},
@@ -127,7 +127,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			db,
 			*userID,
 			"42069",
-			TaskSourceJIRA,
+			TASK_SOURCE_ID_JIRA,
 			&expectedTask,
 		)
 
@@ -165,7 +165,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IDTaskSection: constants.IDTaskSectionBlocked,
 				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
 				Title:         "Sample Taskeroni",
-				Source:        TaskSourceJIRA,
+				SourceID:      TASK_SOURCE_ID_JIRA,
 				UserID:        *userID,
 			},
 			PriorityID: "something_that_will_change",
@@ -175,7 +175,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			db,
 			*userID,
 			"42069",
-			TaskSourceJIRA,
+			TASK_SOURCE_ID_JIRA,
 			&expectedTask,
 		)
 
@@ -218,7 +218,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				HasBeenReordered: true,
 				Deeplink:         "https://dankmemes.com/browse/MOON-1969",
 				Title:            "Sample Taskeroni",
-				Source:           TaskSourceJIRA,
+				SourceID:         TASK_SOURCE_ID_JIRA,
 				UserID:           *userID,
 			},
 			PriorityID: "something_that_will_change",
@@ -228,7 +228,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			db,
 			*userID,
 			"42069",
-			TaskSourceJIRA,
+			TASK_SOURCE_ID_JIRA,
 			&expectedTask,
 		)
 
@@ -312,7 +312,7 @@ func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)
 	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
 	assert.Equal(t, a.Title, b.Title)
-	assert.Equal(t, a.Source, b.Source)
+	assert.Equal(t, a.SourceID, b.SourceID)
 }
 
 func setupJIRA(t *testing.T, externalAPITokenCollection *mongo.Collection, AtlassianSiteCollection *mongo.Collection) (*primitive.ObjectID, string) {
@@ -327,7 +327,7 @@ func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection)
 	_, err := externalAPITokenCollection.InsertOne(
 		context.Background(),
 		&database.ExternalAPIToken{
-			Source:    TaskSourceJIRA.Name,
+			ServiceID: TASK_SERVICE_ID_ATLASSIAN,
 			Token:     `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
 			UserID:    userID,
 			AccountID: accountID,
