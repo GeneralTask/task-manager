@@ -10,5 +10,5 @@ type TaskSource interface {
 	GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult)
 	GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult)
 	MarkAsDone(userID primitive.ObjectID, accountID string, taskID string) error
-	Reply(userID primitive.ObjectID, accountID, taskID primitive.ObjectID, body string) error
+	Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error
 }

@@ -1,5 +1,11 @@
 package external
 
+import (
+	"errors"
+
+	"github.com/GeneralTask/task-manager/backend/database"
+)
+
 type Config struct {
 	Google             OauthConfigWrapper
 	Slack              OauthConfigWrapper
@@ -21,12 +27,46 @@ type TaskServiceResult struct {
 }
 
 func (config Config) GetTaskService(name string) (*TaskServiceResult, error) {
+	nameToSource := config.getNameToSource()
+	nameToService := map[string]TaskServiceResult{}
+	for _, taskSource := range nameToSource {
+
+	}
 	return nil, nil
 }
 
 func (config Config) GetTaskSource(name string) (*TaskSource, error) {
-	nameToSource := {
-		"google": &GoogleCalendarSource{},
+	nameToSource := config.getNameToSource()
+	result, ok := nameToSource[name]
+	if !ok {
+		return nil, errors.New("task source not found")
+	}
+	return &result, nil
+}
+
+func (config Config) getNameToSource() map[string]TaskSource {
+	atlassianService := AtlassianService{Config: config.Atlassian}
+	googleService := GoogleService{
+		Config:       config.Google,
+		OverrideURLs: config.GoogleOverrideURLs,
+	}
+	return map[string]TaskSource{
+		database.TaskSourceGmail.Name:          GmailSource{Google: googleService},
+		database.TaskSourceGoogleCalendar.Name: GoogleCalendarSource{Google: googleService},
+		database.TaskSourceJIRA.Name:           JIRASource{Atlassian: atlassianService},
+	}
+}
+
+func (config Config) getNameToService() map[string]TaskSource {
+	atlassianService := AtlassianService{Config: config.Atlassian}
+	googleService := GoogleService{
+		Config:       config.Google,
+		OverrideURLs: config.GoogleOverrideURLs,
+	}
+	return map[string]TaskSource{
+		database.TaskSourceGmail.Name:          GmailSource{Google: googleService},
+		database.TaskSourceGoogleCalendar.Name: GoogleCalendarSource{Google: googleService},
+		database.TaskSourceJIRA.Name:           JIRASource{Atlassian: atlassianService},
 	}
 }
 

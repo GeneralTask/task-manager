@@ -187,6 +187,14 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 	return &bodyString, nil
 }
 
+func (Gmail GmailSource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
+	result <- emptyCalendarResult(nil)
+}
+
+func (Gmail GmailSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+	result <- emptyTaskResult(nil)
+}
+
 func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string, emailID string) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
