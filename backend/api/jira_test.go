@@ -8,6 +8,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"golang.org/x/oauth2"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,7 @@ func TestAuthorizeJIRA(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		TestAuthorizeSuccess(t, &API{AtlassianConfig: external.AtlassianConfig{OauthConfig: external.GetAtlassianOauthConfig()}}, "/authorize/jira/", func(stateToken string) string {
-			return "<a href=\"https://auth.atlassian.com/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauthorize%2Fjira%2Fcallback%2F&amp;response_type=code&amp;scope=read%3Ajira-work+read%3Ajira-user+write%3Ajira-work&amp;state=" + stateToken + "&amp;audience=api.atlassian.com\">Found</a>.\n\n"
+			return "<a href=\"https://auth.atlassian.com/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauthorize%2Fjira%2Fcallback&amp;response_type=code&amp;scope=read%3Ajira-work+read%3Ajira-user+write%3Ajira-work&amp;state=" + stateToken + "&amp;audience=api.atlassian.com\">Found</a>.\n\n"
 		})
 	})
 }
@@ -59,12 +60,24 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		}, "/authorize/jira/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
-
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		cloudServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
 		priorityServer := getJIRAPriorityServer(t, http.StatusOK, []byte(`[{"id" : "1"}]`))
 
+		atlassianConfig := &oauth2.Config{
+			ClientID:     config.GetConfigValue("JIRA_OAUTH_CLIENT_ID"),
+			ClientSecret: config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET"),
+			Endpoint: oauth2.Endpoint{
+				AuthURL:  "https://auth.atlassian.com/authorize",
+				TokenURL: tokenServer.URL,
+			},
+			RedirectURL: config.GetConfigValue("SERVER_URL") + "authorize/jira/callback",
+			Scopes:      []string{"read:jira-work", "read:jira-user", "write:jira-work"},
+		}
+		oauthConfig := &external.OauthConfig{Config: atlassianConfig}
+
 		api := &API{AtlassianConfig: external.AtlassianConfig{
+			OauthConfig: oauthConfig,
 			ConfigValues: external.AtlassianConfigValues{
 				TokenURL:        &tokenServer.URL,
 				CloudIDURL:      &cloudServer.URL,
@@ -94,6 +107,7 @@ func getTokenServerForJIRA(t *testing.T, statusCode int) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, err := ioutil.ReadAll(r.Body)
 		assert.NoError(t, err)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(statusCode)
 		w.Write([]byte(`{"access_token":"sample-access-token","refresh_token":"sample-refresh-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`))
 	}))

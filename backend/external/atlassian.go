@@ -73,35 +73,20 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 		return err
 	}
 	defer dbCleanup()
-	params := []byte(`{"grant_type": "authorization_code","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","code": "` + code + `","redirect_uri": "` + config.GetConfigValue("SERVER_URL") + `authorize/jira/callback/"}`)
-	tokenURL := "https://auth.atlassian.com/oauth/token"
-	if atlassian.Config.ConfigValues.TokenURL != nil {
-		tokenURL = *atlassian.Config.ConfigValues.TokenURL
-	}
-	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
+
+	token, err := atlassian.Config.OauthConfig.Exchange(context.Background(), code)
 	if err != nil {
-		return errors.New("error forming token request")
-	}
-	req.Header.Add("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return errors.New("failed to request token")
-	}
-	tokenString, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return errors.New("failed to read token response")
-	}
-	if resp.StatusCode != 200 {
-		return errors.New("authorization failed")
+		log.Printf("failed to fetch token from Atlassian: %v", err)
+		return errors.New("internal server error")
 	}
 
-	var token AtlassianAuthToken
-	err = json.Unmarshal(tokenString, &token)
+	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		return errors.New("failed to read token response")
+		log.Printf("error parsing token: %v", err)
+		return errors.New("internal server error")
 	}
 
-	siteConfiguration := atlassian.getSites(&token)
+	siteConfiguration := atlassian.getSites(token)
 
 	if siteConfiguration == nil {
 		return errors.New("failed to download site configuration")
@@ -162,7 +147,7 @@ func (atlassian AtlassianService) HandleSignupCallback(code string, stateTokenID
 	return errors.New("atlassian does not support signup")
 }
 
-func (atlassian AtlassianService) getSites(token *AtlassianAuthToken) *[]AtlassianSite {
+func (atlassian AtlassianService) getSites(token *oauth2.Token) *[]AtlassianSite {
 	cloudIDURL := "https://api.atlassian.com/oauth/token/accessible-resources"
 	if atlassian.Config.ConfigValues.CloudIDURL != nil {
 		cloudIDURL = *atlassian.Config.ConfigValues.CloudIDURL
@@ -289,7 +274,7 @@ func GetAtlassianOauthConfig() OauthConfigWrapper {
 			AuthURL:  "https://auth.atlassian.com/authorize",
 			TokenURL: "https://auth.atlassian.com/oauth/token",
 		},
-		RedirectURL: config.GetConfigValue("SERVER_URL") + "authorize/jira/callback/",
+		RedirectURL: config.GetConfigValue("SERVER_URL") + "authorize/jira/callback",
 		Scopes:      []string{"read:jira-work", "read:jira-user", "write:jira-work"},
 	}
 	return &OauthConfig{Config: atlassianConfig}
