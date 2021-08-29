@@ -288,7 +288,7 @@ func GetAtlassianOauthConfig() OauthConfigWrapper {
 			AuthURL:  "https://auth.atlassian.com/authorize",
 			TokenURL: "https://auth.atlassian.com/oauth/token",
 		},
-		RedirectURL: config.GetConfigValue("SERVER_URL") + "authorize/jira/callback/",
+		RedirectURL: config.GetConfigValue("SERVER_URL") + "authorize/jira/callback",
 		Scopes:      []string{"read:jira-work", "read:jira-user", "write:jira-work"},
 	}
 	return &OauthConfig{Config: atlassianConfig}
