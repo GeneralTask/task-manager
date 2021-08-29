@@ -57,16 +57,22 @@ func (config Config) getNameToSource() map[string]TaskSource {
 	}
 }
 
-func (config Config) getNameToService() map[string]TaskSource {
-	atlassianService := AtlassianService{Config: config.Atlassian}
+func (config Config) getNameToService() map[string]TaskServiceResult {
+	// atlassianService := AtlassianService{Config: config.Atlassian}
 	googleService := GoogleService{
 		Config:       config.Google,
 		OverrideURLs: config.GoogleOverrideURLs,
 	}
-	return map[string]TaskSource{
-		database.TaskSourceGmail.Name:          GmailSource{Google: googleService},
-		database.TaskSourceGoogleCalendar.Name: GoogleCalendarSource{Google: googleService},
-		database.TaskSourceJIRA.Name:           JIRASource{Atlassian: atlassianService},
+	return map[string]TaskServiceResult{
+		"google": TaskServiceResult{
+			Service: googleService,
+			Sources: []TaskSource{
+				GmailSource{Google: googleService},
+				GoogleCalendarSource{Google: googleService},
+			},
+		},
+		// database.TaskSourceGoogleCalendar.Name: GoogleCalendarSource{Google: googleService},
+		// database.TaskSourceJIRA.Name:           JIRASource{Atlassian: atlassianService},
 	}
 }
 
