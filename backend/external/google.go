@@ -67,7 +67,7 @@ func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 	return config.Client(context.Background(), &token).(*http.Client)
 }
 
-func (Google GoogleService) GetLinkURL(userID primitive.ObjectID) (*string, error) {
+func (Google GoogleService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
 	return nil, errors.New("google does not support linking")
 }
 
@@ -81,7 +81,7 @@ func (Google GoogleService) GetSignupURL(stateTokenID primitive.ObjectID, forceP
 	return &authURL, nil
 }
 
-func (Google GoogleService) HandleLinkCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
+func (Google GoogleService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
 	return errors.New("google does not support linking")
 }
 
