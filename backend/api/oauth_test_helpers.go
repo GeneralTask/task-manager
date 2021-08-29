@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -191,9 +192,9 @@ func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string,
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var jiraToken database.ExternalAPIToken
-	err = externalAPITokenCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"source": database.TaskSourceJIRA.Name}}}).Decode(&jiraToken)
+	err = externalAPITokenCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"source": external.TaskSourceJIRA.Name}}}).Decode(&jiraToken)
 	assert.NoError(t, err)
-	assert.Equal(t, database.TaskSourceJIRA.Name, jiraToken.Source)
+	assert.Equal(t, external.TaskSourceJIRA.Name, jiraToken.Source)
 	assert.Equal(t, "teslatothemoon42069", jiraToken.AccountID)
 	assert.Equal(t, "The dungeon", jiraToken.DisplayID)
 }

@@ -10,6 +10,7 @@ import (
 
 func TestGetActiveTasks(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
+		exampleTaskSource := TaskSource{}
 		db, dbCleanup, err := GetDBConnection()
 		assert.NoError(t, err)
 		defer dbCleanup()
@@ -19,10 +20,10 @@ func TestGetActiveTasks(t *testing.T) {
 			db,
 			userID,
 			"123abc",
-			TaskSourceGmail,
+			exampleTaskSource,
 			&Email{TaskBase: TaskBase{
 				IDExternal: "123abc",
-				Source:     TaskSourceGmail,
+				Source:     exampleTaskSource,
 				UserID:     userID,
 			}},
 		)
@@ -31,10 +32,10 @@ func TestGetActiveTasks(t *testing.T) {
 			db,
 			notUserID,
 			"123abd",
-			TaskSourceGmail,
+			exampleTaskSource,
 			&Email{TaskBase: TaskBase{
 				IDExternal: "123abd",
-				Source:     TaskSourceGmail,
+				Source:     exampleTaskSource,
 				UserID:     notUserID,
 			}},
 		)
@@ -43,11 +44,11 @@ func TestGetActiveTasks(t *testing.T) {
 			db,
 			userID,
 			"123abe",
-			TaskSourceGmail,
+			exampleTaskSource,
 			&Email{TaskBase: TaskBase{
 				IDExternal:  "123abe",
 				IsCompleted: true,
-				Source:      TaskSourceGmail,
+				Source:      exampleTaskSource,
 				UserID:      userID,
 			}},
 		)

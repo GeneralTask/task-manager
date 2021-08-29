@@ -77,7 +77,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IDTaskSection: constants.IDTaskSectionToday,
 				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
 				Title:         "Sample Taskeroni",
-				Source:        database.TaskSourceJIRA,
+				Source:        TaskSourceJIRA,
 				UserID:        *userID,
 			},
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
@@ -95,7 +95,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		err := taskCollection.FindOne(
 			context.TODO(),
 			bson.M{"$and": []bson.M{
-				{"source.name": database.TaskSourceJIRA.Name},
+				{"source.name": TaskSourceJIRA.Name},
 				{"id_external": "42069"},
 				{"user_id": userID},
 			}},
@@ -117,7 +117,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IDTaskSection:   constants.IDTaskSectionToday,
 				Deeplink:        "https://dankmemes.com/browse/MOON-1969",
 				Title:           "Sample Taskeroni",
-				Source:          database.TaskSourceJIRA,
+				Source:          TaskSourceJIRA,
 				UserID:          *userID,
 				SourceAccountID: "someAccountID",
 			},
@@ -127,7 +127,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			db,
 			*userID,
 			"42069",
-			database.TaskSourceJIRA,
+			TaskSourceJIRA,
 			&expectedTask,
 		)
 
@@ -143,7 +143,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		err := taskCollection.FindOne(
 			context.TODO(),
 			bson.M{"$and": []bson.M{
-				{"source.name": database.TaskSourceJIRA.Name},
+				{"source.name": TaskSourceJIRA.Name},
 				{"id_external": "42069"},
 				{"user_id": userID},
 			}},
@@ -165,7 +165,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IDTaskSection: constants.IDTaskSectionBlocked,
 				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
 				Title:         "Sample Taskeroni",
-				Source:        database.TaskSourceJIRA,
+				Source:        TaskSourceJIRA,
 				UserID:        *userID,
 			},
 			PriorityID: "something_that_will_change",
@@ -175,7 +175,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			db,
 			*userID,
 			"42069",
-			database.TaskSourceJIRA,
+			TaskSourceJIRA,
 			&expectedTask,
 		)
 
@@ -193,7 +193,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		err := taskCollection.FindOne(
 			context.TODO(),
 			bson.M{"$and": []bson.M{
-				{"source.name": database.TaskSourceJIRA.Name},
+				{"source.name": TaskSourceJIRA.Name},
 				{"id_external": "42069"},
 				{"user_id": userID},
 			}},
@@ -218,7 +218,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				HasBeenReordered: true,
 				Deeplink:         "https://dankmemes.com/browse/MOON-1969",
 				Title:            "Sample Taskeroni",
-				Source:           database.TaskSourceJIRA,
+				Source:           TaskSourceJIRA,
 				UserID:           *userID,
 			},
 			PriorityID: "something_that_will_change",
@@ -228,7 +228,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			db,
 			*userID,
 			"42069",
-			database.TaskSourceJIRA,
+			TaskSourceJIRA,
 			&expectedTask,
 		)
 
@@ -244,7 +244,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		err := taskCollection.FindOne(
 			context.TODO(),
 			bson.M{"$and": []bson.M{
-				{"source.name": database.TaskSourceJIRA.Name},
+				{"source.name": TaskSourceJIRA.Name},
 				{"id_external": "42069"},
 				{"user_id": userID},
 			}},
@@ -327,7 +327,7 @@ func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection)
 	_, err := externalAPITokenCollection.InsertOne(
 		context.Background(),
 		&database.ExternalAPIToken{
-			Source:    database.TaskSourceJIRA.Name,
+			Source:    TaskSourceJIRA.Name,
 			Token:     `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
 			UserID:    userID,
 			AccountID: accountID,

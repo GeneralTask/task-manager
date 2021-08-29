@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/config"
-	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 )
@@ -55,7 +54,7 @@ func TestAuthorizeSlackCallback(t *testing.T) {
 		server := getTokenServerForSlack(t, http.StatusOK)
 		api := GetAPI()
 		(api.ExternalConfig.Slack.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
-		TestAuthorizeCallbackSuccessfulResponse(t, api, "/authorize/slack/callback/", database.TaskSourceSlack.Name)
+		TestAuthorizeCallbackSuccessfulResponse(t, api, "/authorize/slack/callback/", external.TaskSourceSlack.Name)
 	})
 }
 

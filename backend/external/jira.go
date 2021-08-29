@@ -183,7 +183,7 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 				IDExternal:      jiraTask.ID,
 				IDTaskSection:   constants.IDTaskSectionToday,
 				Deeplink:        siteConfiguration.SiteURL + "/browse/" + jiraTask.Key,
-				Source:          database.TaskSourceJIRA,
+				Source:          TaskSourceJIRA,
 				Title:           jiraTask.Fields.Summary,
 				Body:            bodyString,
 				TimeAllocation:  time.Hour.Nanoseconds(),

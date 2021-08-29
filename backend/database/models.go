@@ -120,42 +120,6 @@ type TaskSource struct {
 	IsReplyable   bool   `json:"is_replyable" bson:"is_replyable"`
 }
 
-var TaskSourceGoogleCalendar = TaskSource{
-	"Google Calendar",
-	"/images/gcal.svg",
-	false,
-	false,
-}
-
-var TaskSourceGmail = TaskSource{
-	"Gmail",
-	"/images/gmail.svg",
-	true,
-	true,
-}
-var TaskSourceJIRA = TaskSource{
-	"Jira",
-	"/images/jira.svg",
-	true,
-	false,
-}
-
-var TaskSourceSlack = TaskSource{
-	"Slack",
-	"/images/slack.svg",
-	true,
-	true,
-}
-
-var TaskSourceNameToSource = map[string]TaskSource{
-	TaskSourceGoogleCalendar.Name: TaskSourceGoogleCalendar,
-	TaskSourceGmail.Name:          TaskSourceGmail,
-	TaskSourceJIRA.Name:           TaskSourceJIRA,
-	TaskSourceSlack.Name:          TaskSourceSlack,
-	// Add "google" so this map can be used for external API token source also
-	"google": TaskSourceGmail,
-}
-
 type UserSetting struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty"`
 	UserID     primitive.ObjectID `bson:"user_id"`

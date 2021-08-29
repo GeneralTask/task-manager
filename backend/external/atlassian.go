@@ -112,12 +112,12 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 		context.TODO(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
-			{"source": database.TaskSourceJIRA.Name},
+			{"source": TaskSourceJIRA.Name},
 			{"account_id": accountID},
 		}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:       userID,
-			Source:       database.TaskSourceJIRA.Name,
+			Source:       TaskSourceJIRA.Name,
 			Token:        string(tokenString),
 			AccountID:    accountID,
 			DisplayID:    (*siteConfiguration)[0].Name,
@@ -232,7 +232,7 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 		context.TODO(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
-			{"source": database.TaskSourceJIRA.Name},
+			{"source": TaskSourceJIRA.Name},
 			{"account_id": accountID},
 		}}).Decode(&JIRAToken)
 

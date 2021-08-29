@@ -10,7 +10,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/external"
 	"golang.org/x/oauth2"
 
-	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -81,7 +80,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 				PriorityListURL: &priorityServer.URL,
 			}}
 
-		TestAuthorizeCallbackSuccessfulResponse(t, api, "/authorize/jira/callback/", database.TaskSourceJIRA.Name)
+		TestAuthorizeCallbackSuccessfulResponse(t, api, "/authorize/jira/callback/", external.TaskSourceJIRA.Name)
 	})
 }
 

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -153,7 +154,7 @@ func createJIRADungeon(t *testing.T, db *mongo.Database, authToken string) primi
 	res, err := db.Collection("external_api_tokens").InsertOne(
 		context.Background(),
 		&database.ExternalAPIToken{
-			Source:       database.TaskSourceJIRA.Name,
+			Source:       external.TaskSourceJIRA.Name,
 			UserID:       getUserIDFromAuthToken(t, db, authToken),
 			DisplayID:    "Jira dungeon",
 			IsUnlinkable: true,
