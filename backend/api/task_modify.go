@@ -150,12 +150,12 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 		err = errors.New("invalid task type")
 	} else if task.Source.Name == database.TaskSourceGmail.Name {
 		gmail := external.GmailSource{Google: external.GoogleService{
-			Config:       api.GoogleConfig,
-			OverrideURLs: api.GoogleOverrideURLs,
+			Config:       api.ExternalConfig.Google,
+			OverrideURLs: api.ExternalConfig.GoogleOverrideURLs,
 		}}
 		err = gmail.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
 	} else if task.Source.Name == database.TaskSourceJIRA.Name {
-		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.AtlassianConfig}}
+		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.ExternalConfig.Atlassian}}
 		err = JIRA.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
 	}
 

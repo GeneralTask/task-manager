@@ -15,11 +15,12 @@ import (
 
 // API is the object containing API route handlers
 type API struct {
-	GoogleConfig        external.OauthConfigWrapper
-	SlackConfig         external.OauthConfigWrapper
-	GoogleOverrideURLs  external.GoogleURLOverrides
-	AtlassianConfig     external.AtlassianConfig
+	ExternalConfig      external.Config
 	SkipStateTokenCheck bool
+}
+
+func GetAPI() *API {
+	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false}
 }
 
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {

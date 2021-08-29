@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/api/gmail/v1"
@@ -46,7 +45,7 @@ func TestReplyToEmail(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("MissingBody", func(t *testing.T) {
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 
 		request, _ := http.NewRequest(
 			"POST",
@@ -76,7 +75,7 @@ func TestReplyToEmail(t *testing.T) {
 
 		assert.NoError(t, err)
 
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 
 		request, _ := http.NewRequest(
 			"POST",
@@ -93,7 +92,7 @@ func TestReplyToEmail(t *testing.T) {
 	})
 
 	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 
 		request, _ := http.NewRequest(
 			"POST",
@@ -119,7 +118,7 @@ func TestReplyToEmail(t *testing.T) {
 		emailID := insertedResult.InsertedID.(primitive.ObjectID).Hex()
 		assert.NoError(t, err)
 
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 
 		request, _ := http.NewRequest(
 			"POST",
@@ -196,9 +195,8 @@ func testSuccessfulReplyWithServer(t *testing.T,
 	authToken string,
 	body string,
 	server *httptest.Server) {
-	api := &API{
-		GoogleOverrideURLs: external.GoogleURLOverrides{GmailReplyURL: &server.URL},
-	}
+	api := GetAPI()
+	api.ExternalConfig.GoogleOverrideURLs.GmailReplyURL = &server.URL
 	router := GetRouter(api)
 
 	request, _ := http.NewRequest(

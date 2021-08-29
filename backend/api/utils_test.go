@@ -11,7 +11,7 @@ import (
 
 func TestCORSHeaders(t *testing.T) {
 	t.Run("OPTIONS preflight request", func(t *testing.T) {
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("OPTIONS", "/tasks/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -24,7 +24,7 @@ func TestCORSHeaders(t *testing.T) {
 		assert.Equal(t, "POST, OPTIONS, GET, PUT, PATCH", headers.Get("Access-Control-Allow-Methods"))
 	})
 	t.Run("GET request", func(t *testing.T) {
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/ping/", nil)
 		authToken := login("approved@generaltask.io", "")
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -74,7 +74,7 @@ func TestAuthenticationMiddleware(t *testing.T) {
 
 func Test404(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/not/a-route/", nil)
 
 		recorder := httptest.NewRecorder()

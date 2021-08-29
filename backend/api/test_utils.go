@@ -153,7 +153,10 @@ func makeLoginCallbackRequest(
 		nil,
 	)
 	mockConfig.On("Client", context.Background(), &mockToken).Return(&mockClient)
-	router := GetRouter(&API{GoogleConfig: &mockConfig, SkipStateTokenCheck: skipStateTokenCheck})
+	api := GetAPI()
+	api.ExternalConfig.Google = &mockConfig
+	api.SkipStateTokenCheck = skipStateTokenCheck
+	router := GetRouter(api)
 
 	request, _ := http.NewRequest("GET", "/login/callback/", nil)
 	request.AddCookie(&http.Cookie{Name: "loginStateToken", Value: stateTokenCookie})
@@ -219,7 +222,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 }
 
 func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
-	router := GetRouter(&API{})
+	router := GetRouter(GetAPI())
 
 	request, _ := http.NewRequest("GET", "/ping/", nil)
 	request.Header.Add("Authorization", attemptedHeader)

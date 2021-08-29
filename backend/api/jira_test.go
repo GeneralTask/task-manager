@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/config"
-	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
@@ -15,15 +14,15 @@ import (
 
 func TestAuthorizeJIRA(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		TestAuthorizeCookieMissing(t, &API{}, "/authorize/jira/")
+		TestAuthorizeCookieMissing(t, GetAPI(), "/authorize/jira/")
 	})
 
 	t.Run("CookieBad", func(t *testing.T) {
-		TestAuthorizeCookieBad(t, &API{}, "/authorize/jira/")
+		TestAuthorizeCookieBad(t, GetAPI(), "/authorize/jira/")
 	})
 
 	t.Run("Success", func(t *testing.T) {
-		TestAuthorizeSuccess(t, &API{AtlassianConfig: external.AtlassianConfig{OauthConfig: external.GetAtlassianOauthConfig()}}, "/authorize/jira/", func(stateToken string) string {
+		TestAuthorizeSuccess(t, GetAPI(), "/authorize/jira/", func(stateToken string) string {
 			return "<a href=\"https://auth.atlassian.com/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauthorize%2Fjira%2Fcallback%2F&amp;response_type=code&amp;scope=read%3Ajira-work+read%3Ajira-user+write%3Ajira-work&amp;state=" + stateToken + "&amp;audience=api.atlassian.com\">Found</a>.\n\n"
 		})
 	})
@@ -31,32 +30,28 @@ func TestAuthorizeJIRA(t *testing.T) {
 
 func TestAuthorizeJIRACallback(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		TestAuthorizeCookieMissing(t, &API{}, "/authorize/jira/callback/")
+		TestAuthorizeCookieMissing(t, GetAPI(), "/authorize/jira/callback/")
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		TestAuthorizeCookieBad(t, &API{}, "/authorize/jira/callback/")
+		TestAuthorizeCookieBad(t, GetAPI(), "/authorize/jira/callback/")
 	})
 	t.Run("MissingCodeParam", func(t *testing.T) {
-		TestAuthorizeCallbackMissingCodeParam(t, &API{}, "/authorize/jira/callback/")
+		TestAuthorizeCallbackMissingCodeParam(t, GetAPI(), "/authorize/jira/callback/")
 	})
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
-		TestAuthorizeCallbackBadStateTokenFormat(t, &API{}, "/authorize/jira/callback/")
+		TestAuthorizeCallbackBadStateTokenFormat(t, GetAPI(), "/authorize/jira/callback/")
 	})
 	t.Run("InvalidStateToken", func(t *testing.T) {
-		TestAuthorizeCallbackInvalidStateToken(t, &API{}, "/authorize/jira/callback/")
+		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/authorize/jira/callback/")
 	})
 	t.Run("InvalidStateTokenWrongUser", func(t *testing.T) {
-		TestAuthorizeCallbackStateTokenWrongUser(t, &API{}, "/authorize/jira/callback/")
+		TestAuthorizeCallbackStateTokenWrongUser(t, GetAPI(), "/authorize/jira/callback/")
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
 		server := getTokenServerForJIRA(t, http.StatusUnauthorized)
-		TestAuthorizeCallbackUnsuccessfulResponse(t, &API{
-			AtlassianConfig: external.AtlassianConfig{
-				ConfigValues: external.AtlassianConfigValues{
-					TokenURL: &server.URL,
-				},
-			},
-		}, "/authorize/jira/callback/")
+		api := GetAPI()
+		api.ExternalConfig.Atlassian.ConfigValues.TokenURL = &server.URL
+		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/authorize/jira/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
 
@@ -64,13 +59,10 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 		cloudServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
 		priorityServer := getJIRAPriorityServer(t, http.StatusOK, []byte(`[{"id" : "1"}]`))
 
-		api := &API{AtlassianConfig: external.AtlassianConfig{
-			ConfigValues: external.AtlassianConfigValues{
-				TokenURL:        &tokenServer.URL,
-				CloudIDURL:      &cloudServer.URL,
-				PriorityListURL: &priorityServer.URL,
-			}}}
-
+		api := GetAPI()
+		api.ExternalConfig.Atlassian.ConfigValues.TokenURL = &tokenServer.URL
+		api.ExternalConfig.Atlassian.ConfigValues.CloudIDURL = &cloudServer.URL
+		api.ExternalConfig.Atlassian.ConfigValues.PriorityListURL = &priorityServer.URL
 		TestAuthorizeCallbackSuccessfulResponse(t, api, "/authorize/jira/callback/", database.TaskSourceJIRA.Name)
 	})
 }
