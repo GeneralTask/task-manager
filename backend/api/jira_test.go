@@ -31,34 +31,34 @@ func TestAuthorizeJIRA(t *testing.T) {
 }
 
 func TestAuthorizeJIRACallback(t *testing.T) {
-	// t.Run("CookieMissing", func(t *testing.T) {
-	// 	TestAuthorizeCookieMissing(t, &API{}, "/authorize/jira/callback/")
-	// })
-	// t.Run("CookieBad", func(t *testing.T) {
-	// 	TestAuthorizeCookieBad(t, &API{}, "/authorize/jira/callback/")
-	// })
-	// t.Run("MissingCodeParam", func(t *testing.T) {
-	// 	TestAuthorizeCallbackMissingCodeParam(t, &API{}, "/authorize/jira/callback/")
-	// })
-	// t.Run("BadStateTokenFormat", func(t *testing.T) {
-	// 	TestAuthorizeCallbackBadStateTokenFormat(t, &API{}, "/authorize/jira/callback/")
-	// })
-	// t.Run("InvalidStateToken", func(t *testing.T) {
-	// 	TestAuthorizeCallbackInvalidStateToken(t, &API{}, "/authorize/jira/callback/")
-	// })
-	// t.Run("InvalidStateTokenWrongUser", func(t *testing.T) {
-	// 	TestAuthorizeCallbackStateTokenWrongUser(t, &API{}, "/authorize/jira/callback/")
-	// })
-	// t.Run("UnsuccessfulResponse", func(t *testing.T) {
-	// 	server := getTokenServerForJIRA(t, http.StatusUnauthorized)
-	// 	TestAuthorizeCallbackUnsuccessfulResponse(t, &API{
-	// 		AtlassianConfig: external.AtlassianConfig{
-	// 			ConfigValues: external.AtlassianConfigValues{
-	// 				TokenURL: &server.URL,
-	// 			},
-	// 		},
-	// 	}, "/authorize/jira/callback/")
-	// })
+	t.Run("CookieMissing", func(t *testing.T) {
+		TestAuthorizeCookieMissing(t, &API{}, "/authorize/jira/callback/")
+	})
+	t.Run("CookieBad", func(t *testing.T) {
+		TestAuthorizeCookieBad(t, &API{}, "/authorize/jira/callback/")
+	})
+	t.Run("MissingCodeParam", func(t *testing.T) {
+		TestAuthorizeCallbackMissingCodeParam(t, &API{}, "/authorize/jira/callback/")
+	})
+	t.Run("BadStateTokenFormat", func(t *testing.T) {
+		TestAuthorizeCallbackBadStateTokenFormat(t, &API{}, "/authorize/jira/callback/")
+	})
+	t.Run("InvalidStateToken", func(t *testing.T) {
+		TestAuthorizeCallbackInvalidStateToken(t, &API{}, "/authorize/jira/callback/")
+	})
+	t.Run("InvalidStateTokenWrongUser", func(t *testing.T) {
+		TestAuthorizeCallbackStateTokenWrongUser(t, &API{}, "/authorize/jira/callback/")
+	})
+	t.Run("UnsuccessfulResponse", func(t *testing.T) {
+		server := getTokenServerForJIRA(t, http.StatusUnauthorized)
+		TestAuthorizeCallbackUnsuccessfulResponse(t, &API{
+			AtlassianConfig: external.AtlassianConfig{
+				ConfigValues: external.AtlassianConfigValues{
+					TokenURL: &server.URL,
+				},
+			},
+		}, "/authorize/jira/callback/")
+	})
 	t.Run("Success", func(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		cloudServer := getCloudIDServerForJIRA(t, http.StatusOK, false)
@@ -68,7 +68,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 			ClientID:     config.GetConfigValue("JIRA_OAUTH_CLIENT_ID"),
 			ClientSecret: config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET"),
 			Endpoint: oauth2.Endpoint{
-				AuthURL:  tokenServer.URL,
+				AuthURL:  "https://auth.atlassian.com/authorize",
 				TokenURL: tokenServer.URL,
 			},
 			RedirectURL: config.GetConfigValue("SERVER_URL") + "authorize/jira/callback",
@@ -107,6 +107,7 @@ func getTokenServerForJIRA(t *testing.T, statusCode int) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, err := ioutil.ReadAll(r.Body)
 		assert.NoError(t, err)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(statusCode)
 		w.Write([]byte(`{"access_token":"sample-access-token","refresh_token":"sample-refresh-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`))
 	}))
