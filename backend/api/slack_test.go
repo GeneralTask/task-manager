@@ -14,13 +14,13 @@ import (
 
 func TestAuthorizeSlack(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		TestAuthorizeCookieMissing(t, &API{}, "/authorize/slack/")
+		TestAuthorizeCookieMissing(t, GetAPI(), "/authorize/slack/")
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		TestAuthorizeCookieBad(t, &API{}, "/authorize/slack/")
+		TestAuthorizeCookieBad(t, GetAPI(), "/authorize/slack/")
 	})
 	t.Run("Success", func(t *testing.T) {
-		TestAuthorizeSuccess(t, &API{ExternalConfig: external.Config{Slack: external.GetSlackConfig()}}, "/authorize/slack/", func(stateToken string) string {
+		TestAuthorizeSuccess(t, GetAPI(), "/authorize/slack/", func(stateToken string) string {
 			return "<a href=\"https://slack.com/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("SLACK_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Fauthorize%2Fslack%2Fcallback&amp;response_type=code&amp;scope=channels%3Ahistory+channels%3Aread+im%3Aread+mpim%3Ahistory+im%3Ahistory+groups%3Ahistory+groups%3Aread+mpim%3Awrite+im%3Awrite+channels%3Awrite+groups%3Awrite+chat%3Awrite%3Auser&amp;state=" + stateToken + "\">Found</a>.\n\n"
 		})
 	})
@@ -28,34 +28,34 @@ func TestAuthorizeSlack(t *testing.T) {
 
 func TestAuthorizeSlackCallback(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		TestAuthorizeCookieMissing(t, &API{}, "/authorize/slack/callback/")
+		TestAuthorizeCookieMissing(t, GetAPI(), "/authorize/slack/callback/")
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		TestAuthorizeCookieBad(t, &API{}, "/authorize/slack/callback/")
+		TestAuthorizeCookieBad(t, GetAPI(), "/authorize/slack/callback/")
 	})
 	t.Run("MissingCodeParam", func(t *testing.T) {
-		TestAuthorizeCallbackMissingCodeParam(t, &API{}, "/authorize/slack/callback/")
+		TestAuthorizeCallbackMissingCodeParam(t, GetAPI(), "/authorize/slack/callback/")
 	})
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
-		TestAuthorizeCallbackMissingCodeParam(t, &API{}, "/authorize/slack/callback/")
+		TestAuthorizeCallbackMissingCodeParam(t, GetAPI(), "/authorize/slack/callback/")
 	})
 	t.Run("InvalidStateToken", func(t *testing.T) {
-		TestAuthorizeCallbackInvalidStateToken(t, &API{}, "/authorize/slack/callback/")
+		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/authorize/slack/callback/")
 	})
 	t.Run("InvalidStateTokenWrongUser", func(t *testing.T) {
-		TestAuthorizeCallbackInvalidStateToken(t, &API{}, "/authorize/slack/callback/")
+		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/authorize/slack/callback/")
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
 		server := getTokenServerForSlack(t, http.StatusUnauthorized)
-		slackConfig := external.GetSlackConfig()
-		slackConfig.Config.Endpoint.TokenURL = server.URL
-		TestAuthorizeCallbackUnsuccessfulResponse(t, &API{ExternalConfig: external.Config{Slack: slackConfig}}, "/authorize/slack/callback/")
+		api := GetAPI()
+		(api.ExternalConfig.Slack.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/authorize/slack/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
 		server := getTokenServerForSlack(t, http.StatusOK)
-		slackConfig := external.GetSlackConfig()
-		slackConfig.Config.Endpoint.TokenURL = server.URL
-		TestAuthorizeCallbackSuccessfulResponse(t, &API{ExternalConfig: external.Config{Slack: slackConfig}}, "/authorize/slack/callback/", database.TaskSourceSlack.Name)
+		api := GetAPI()
+		(api.ExternalConfig.Slack.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+		TestAuthorizeCallbackSuccessfulResponse(t, api, "/authorize/slack/callback/", database.TaskSourceSlack.Name)
 	})
 }
 

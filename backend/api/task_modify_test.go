@@ -13,7 +13,6 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -90,15 +89,11 @@ func TestMarkAsComplete(t *testing.T) {
 
 	inboxGmailModifyServer := getGmailArchiveServer(t, "INBOX")
 
-	router := GetRouter(&API{ExternalConfig: external.Config{
-		Atlassian: external.AtlassianConfig{
-			ConfigValues: external.AtlassianConfigValues{
-				TokenURL:      &tokenServer.URL,
-				TransitionURL: &jiraTransitionServer.URL,
-			},
-		},
-		GoogleOverrideURLs: external.GoogleURLOverrides{GmailModifyURL: &inboxGmailModifyServer.URL},
-	}})
+	api := GetAPI()
+	api.ExternalConfig.Atlassian.ConfigValues.TokenURL = &tokenServer.URL
+	api.ExternalConfig.Atlassian.ConfigValues.TransitionURL = &jiraTransitionServer.URL
+	api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &inboxGmailModifyServer.URL
+	router := GetRouter(api)
 
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
 		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
@@ -194,15 +189,11 @@ func TestMarkAsComplete(t *testing.T) {
 
 		unreadGmailModifyServer := getGmailArchiveServer(t, "UNREAD")
 
-		unreadRouter := GetRouter(&API{ExternalConfig: external.Config{
-			Atlassian: external.AtlassianConfig{
-				ConfigValues: external.AtlassianConfigValues{
-					TokenURL:      &tokenServer.URL,
-					TransitionURL: &jiraTransitionServer.URL,
-				},
-			},
-			GoogleOverrideURLs: external.GoogleURLOverrides{GmailModifyURL: &unreadGmailModifyServer.URL},
-		}})
+		api := GetAPI()
+		api.ExternalConfig.Atlassian.ConfigValues.TokenURL = &tokenServer.URL
+		api.ExternalConfig.Atlassian.ConfigValues.TransitionURL = &jiraTransitionServer.URL
+		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
+		unreadRouter := GetRouter(api)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -328,7 +319,7 @@ func TestTaskReorder(t *testing.T) {
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+constants.IDTaskSectionToday.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -374,7 +365,7 @@ func TestTaskReorder(t *testing.T) {
 		taskIDHex := taskID.Hex()
 
 		authToken := login("approved@generaltask.io", "")
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -388,7 +379,7 @@ func TestTaskReorder(t *testing.T) {
 	})
 	t.Run("MissingOrderingID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -402,7 +393,7 @@ func TestTaskReorder(t *testing.T) {
 	})
 	t.Run("BadTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -416,7 +407,7 @@ func TestTaskReorder(t *testing.T) {
 	})
 	t.Run("WrongFormatTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/tasks/123/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -430,7 +421,7 @@ func TestTaskReorder(t *testing.T) {
 	})
 	t.Run("BadTaskSectionIDFormat", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "poop"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -444,7 +435,7 @@ func TestTaskReorder(t *testing.T) {
 	})
 	t.Run("BadTaskSectionID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+primitive.NewObjectID().Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -471,7 +462,7 @@ func TestTaskReorder(t *testing.T) {
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+constants.IDTaskSectionToday.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -505,7 +496,7 @@ func TestTaskReorder(t *testing.T) {
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -525,7 +516,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/tasks/123/", nil)
 
 		recorder := httptest.NewRecorder()

@@ -16,11 +16,13 @@ import (
 )
 
 func TestLoginRedirect(t *testing.T) {
-	router := GetRouter(&API{ExternalConfig: external.Config{Google: &external.OauthConfig{Config: &oauth2.Config{
+	api := GetAPI()
+	api.ExternalConfig.Google = &external.OauthConfig{Config: &oauth2.Config{
 		ClientID:    "123",
 		RedirectURL: "g.com",
 		Scopes:      []string{"s1", "s2"},
-	}}}})
+	}}
+	router := GetRouter(api)
 	// Syntax taken from https://semaphoreci.com/community/tutorials/test-driven-development-of-go-web-applications-with-gin
 	// Also inspired by https://dev.to/jacobsngoodwin/04-testing-first-gin-http-handler-9m0
 	t.Run("Success", func(t *testing.T) {
@@ -74,7 +76,7 @@ func TestLoginCallback(t *testing.T) {
 	waitlistCollection := db.Collection("waitlist")
 
 	t.Run("MissingQueryParams", func(t *testing.T) {
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/login/callback/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)

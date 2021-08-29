@@ -57,6 +57,20 @@ type AtlassianService struct {
 	Config AtlassianConfig
 }
 
+func getAtlassianOauthConfig() OauthConfigWrapper {
+	atlassianConfig := &oauth2.Config{
+		ClientID:     config.GetConfigValue("JIRA_OAUTH_CLIENT_ID"),
+		ClientSecret: config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET"),
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://auth.atlassian.com/authorize",
+			TokenURL: "https://auth.atlassian.com/oauth/token",
+		},
+		RedirectURL: config.GetConfigValue("SERVER_URL") + "authorize/jira/callback/",
+		Scopes:      []string{"read:jira-work", "read:jira-user", "write:jira-work"},
+	}
+	return &OauthConfig{Config: atlassianConfig}
+}
+
 func (atlassian AtlassianService) GetLinkURL(userID primitive.ObjectID, stateTokenID primitive.ObjectID) (*string, error) {
 	authURL := atlassian.Config.OauthConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	authURL += "&audience=api.atlassian.com"
@@ -279,18 +293,4 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 		return nil, err
 	}
 	return &newToken, nil
-}
-
-func GetAtlassianOauthConfig() OauthConfigWrapper {
-	atlassianConfig := &oauth2.Config{
-		ClientID:     config.GetConfigValue("JIRA_OAUTH_CLIENT_ID"),
-		ClientSecret: config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET"),
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://auth.atlassian.com/authorize",
-			TokenURL: "https://auth.atlassian.com/oauth/token",
-		},
-		RedirectURL: config.GetConfigValue("SERVER_URL") + "authorize/jira/callback/",
-		Scopes:      []string{"read:jira-work", "read:jira-user", "write:jira-work"},
-	}
-	return &OauthConfig{Config: atlassianConfig}
 }

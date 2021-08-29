@@ -9,8 +9,8 @@ type Config struct {
 
 func GetConfig() Config {
 	return Config{
-		Google:    GetGoogleConfig(),
-		Slack:     GetSlackConfig(),
-		Atlassian: AtlassianConfig{OauthConfig: GetAtlassianOauthConfig()},
+		Google:    getGoogleConfig(),
+		Slack:     getSlackConfig(),
+		Atlassian: AtlassianConfig{OauthConfig: getAtlassianOauthConfig()},
 	}
 }

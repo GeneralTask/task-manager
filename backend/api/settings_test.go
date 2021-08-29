@@ -30,7 +30,7 @@ func TestSettingsGet(t *testing.T) {
 		assert.NoError(t, err)
 
 		authToken := login("approved@generaltask.io", "")
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/settings/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -51,7 +51,7 @@ func TestSettingsGet(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/settings/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -62,7 +62,7 @@ func TestSettingsGet(t *testing.T) {
 		assert.Equal(t, "[{\"field_key\":\"email_done_preference\",\"field_name\":\"'Done' action for emails\",\"choices\":[{\"choice_key\":\"archive\",\"choice_name\":\"Archive\"},{\"choice_key\":\"mark_as_read\",\"choice_name\":\"Mark as read\"}],\"field_value\":\"mark_as_read\"}]", string(body))
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/settings/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -77,7 +77,7 @@ func TestSettingsModify(t *testing.T) {
 
 	t.Run("EmptyPayload", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/settings/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -89,7 +89,7 @@ func TestSettingsModify(t *testing.T) {
 	})
 	t.Run("InvalidPayload", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",
@@ -105,7 +105,7 @@ func TestSettingsModify(t *testing.T) {
 	})
 	t.Run("BadKey", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",
@@ -121,7 +121,7 @@ func TestSettingsModify(t *testing.T) {
 	})
 	t.Run("BadValue", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",
@@ -137,7 +137,7 @@ func TestSettingsModify(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",
@@ -161,7 +161,7 @@ func TestSettingsModify(t *testing.T) {
 		userID := getUserIDFromAuthToken(t, db, authToken)
 		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyMarkAsRead)
 
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",
@@ -180,7 +180,7 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, settings.ChoiceKeyArchive, *setting)
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/settings/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)

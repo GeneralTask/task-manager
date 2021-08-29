@@ -24,7 +24,7 @@ func TestLogout(t *testing.T) {
 		count, _ := tokenCollection.CountDocuments(context.TODO(), bson.M{"token": authToken})
 		assert.Equal(t, int64(1), count)
 
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 
 		request, _ := http.NewRequest("POST", "/logout/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -38,7 +38,7 @@ func TestLogout(t *testing.T) {
 	})
 
 	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(&API{})
+		router := GetRouter(GetAPI())
 
 		request, _ := http.NewRequest("POST", "/logout/", nil)
 		request.Header.Add("Authorization", "Bearer c8db8f3c-6fa2-476c-9648-b31432dc3ff7")

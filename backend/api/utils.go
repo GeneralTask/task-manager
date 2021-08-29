@@ -19,6 +19,10 @@ type API struct {
 	SkipStateTokenCheck bool
 }
 
+func GetAPI() *API {
+	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false}
+}
+
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 	authToken, err := c.Cookie("authToken")
 	if err != nil {

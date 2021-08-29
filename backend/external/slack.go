@@ -18,7 +18,7 @@ type SlackService struct {
 	Config OauthConfigWrapper
 }
 
-func GetSlackConfig() *OauthConfig {
+func getSlackConfig() *OauthConfig {
 	return &OauthConfig{Config: &oauth2.Config{
 		ClientID:     config.GetConfigValue("SLACK_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("SLACK_OAUTH_CLIENT_SECRET"),

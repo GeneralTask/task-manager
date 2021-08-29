@@ -34,7 +34,7 @@ type GoogleUserInfo struct {
 	Name  string `json:"name"`
 }
 
-func GetGoogleConfig() OauthConfigWrapper {
+func getGoogleConfig() OauthConfigWrapper {
 	googleConfig := &oauth2.Config{
 		ClientID:     config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET"),
@@ -63,7 +63,7 @@ func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
-	config := GetGoogleConfig()
+	config := getGoogleConfig()
 	return config.Client(context.Background(), &token).(*http.Client)
 }
 
