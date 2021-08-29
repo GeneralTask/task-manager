@@ -25,7 +25,9 @@ func (config Config) GetTaskService(name string) (*TaskServiceResult, error) {
 }
 
 func (config Config) GetTaskSource(name string) (*TaskSource, error) {
-	return nil, nil
+	nameToSource := {
+		"google": &GoogleCalendarSource{},
+	}
 }
 
 /*
