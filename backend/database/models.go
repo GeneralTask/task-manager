@@ -83,6 +83,7 @@ type CalendarEvent struct {
 	TaskBase      `bson:",inline"`
 	DatetimeEnd   primitive.DateTime `bson:"datetime_end"`
 	DatetimeStart primitive.DateTime `bson:"datetime_start"`
+	Conference    ConferenceInfo     `bson:"conference_info,omitempty"`
 }
 
 type CalendarEventChangeableFields struct {
@@ -168,4 +169,10 @@ type WaitlistEntry struct {
 	Email     string             `bson:"email"`
 	HasAccess bool               `bson:"has_access"`
 	CreatedAt primitive.DateTime `bson:"created_at"`
+}
+
+type ConferenceInfo struct {
+	ID       primitive.ObjectID `bson:"_id,omitempty"`
+	URL      string             `bson:"url"`
+	Platform string             `bson:"platform"`
 }

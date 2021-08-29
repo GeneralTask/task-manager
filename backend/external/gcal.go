@@ -118,6 +118,8 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
 		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
 
+		GetConferenceURL(event)
+
 		event := &database.CalendarEvent{
 			TaskBase: database.TaskBase{
 				UserID:          userID,
@@ -176,4 +178,16 @@ func (googleCalendar GoogleCalendarSource) MarkAsDone(userID primitive.ObjectID,
 
 func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
 	return errors.New("cannot reply to a calendar event")
+}
+
+func GetConferenceURL(event *calendar.Event) string {
+	// first check for built-in conference URL
+	if event.ConferenceData != nil && event.ConferenceData.EntryPoints != nil {
+		for _, entryPoint := range event.ConferenceData.EntryPoints {
+			if entryPoint != nil {
+				return entryPoint.Uri
+			}
+		}
+	}
+	return ""
 }
