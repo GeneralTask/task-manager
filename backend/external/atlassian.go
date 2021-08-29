@@ -76,7 +76,7 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 
 	token, err := atlassian.Config.OauthConfig.Exchange(context.Background(), code)
 	if err != nil {
-		log.Printf("failed to fetch token from Slack: %v", err)
+		log.Printf("failed to fetch token from Atlassian: %v", err)
 		return errors.New("internal server error")
 	}
 
