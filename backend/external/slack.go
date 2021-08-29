@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,6 +16,19 @@ import (
 
 type SlackService struct {
 	Config OauthConfigWrapper
+}
+
+func GetSlackConfig() *OauthConfig {
+	return &OauthConfig{Config: &oauth2.Config{
+		ClientID:     config.GetConfigValue("SLACK_OAUTH_CLIENT_ID"),
+		ClientSecret: config.GetConfigValue("SLACK_OAUTH_CLIENT_SECRET"),
+		RedirectURL:  "https://api.generaltask.io/authorize/slack/callback",
+		Scopes:       []string{"channels:history", "channels:read", "im:read", "mpim:history", "im:history", "groups:history", "groups:read", "mpim:write", "im:write", "channels:write", "groups:write", "chat:write:user"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://slack.com/oauth/authorize",
+			TokenURL: "https://slack.com/api/oauth.access",
+		},
+	}}
 }
 
 func (Slack SlackService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {

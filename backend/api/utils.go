@@ -15,10 +15,7 @@ import (
 
 // API is the object containing API route handlers
 type API struct {
-	GoogleConfig        external.OauthConfigWrapper
-	SlackConfig         external.OauthConfigWrapper
-	GoogleOverrideURLs  external.GoogleURLOverrides
-	AtlassianConfig     external.AtlassianConfig
+	ExternalConfig      external.Config
 	SkipStateTokenCheck bool
 }
 

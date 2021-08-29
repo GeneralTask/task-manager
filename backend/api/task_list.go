@@ -110,8 +110,8 @@ func (api *API) TasksList(c *gin.Context) {
 		if token.Source == "google" {
 			var calendarEvents = make(chan external.CalendarResult)
 			google := external.GoogleService{
-				Config:       api.GoogleConfig,
-				OverrideURLs: api.GoogleOverrideURLs,
+				Config:       api.ExternalConfig.Google,
+				OverrideURLs: api.ExternalConfig.GoogleOverrideURLs,
 			}
 			googleCalendar := external.GoogleCalendarSource{Google: google}
 			go googleCalendar.GetEvents(userID.(primitive.ObjectID), token.AccountID, int(timezoneOffset), calendarEvents)
@@ -123,7 +123,7 @@ func (api *API) TasksList(c *gin.Context) {
 			emailChannels = append(emailChannels, emails)
 		} else if token.Source == database.TaskSourceJIRA.Name {
 			var JIRATasks = make(chan external.TaskResult)
-			JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.AtlassianConfig}}
+			JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.ExternalConfig.Atlassian}}
 			go JIRA.GetTasks(userID.(primitive.ObjectID), token.AccountID, JIRATasks)
 			jiraTaskChannels = append(jiraTaskChannels, JIRATasks)
 		}

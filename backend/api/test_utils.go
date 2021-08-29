@@ -153,7 +153,7 @@ func makeLoginCallbackRequest(
 		nil,
 	)
 	mockConfig.On("Client", context.Background(), &mockToken).Return(&mockClient)
-	router := GetRouter(&API{GoogleConfig: &mockConfig, SkipStateTokenCheck: skipStateTokenCheck})
+	router := GetRouter(&API{ExternalConfig: external.Config{Google: &mockConfig}, SkipStateTokenCheck: skipStateTokenCheck})
 
 	request, _ := http.NewRequest("GET", "/login/callback/", nil)
 	request.AddCookie(&http.Cookie{Name: "loginStateToken", Value: stateTokenCookie})

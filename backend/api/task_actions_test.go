@@ -196,9 +196,7 @@ func testSuccessfulReplyWithServer(t *testing.T,
 	authToken string,
 	body string,
 	server *httptest.Server) {
-	api := &API{
-		GoogleOverrideURLs: external.GoogleURLOverrides{GmailReplyURL: &server.URL},
-	}
+	api := &API{ExternalConfig: external.Config{GoogleOverrideURLs: external.GoogleURLOverrides{GmailReplyURL: &server.URL}}}
 	router := GetRouter(api)
 
 	request, _ := http.NewRequest(

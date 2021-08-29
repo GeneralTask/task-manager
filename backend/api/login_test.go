@@ -16,11 +16,11 @@ import (
 )
 
 func TestLoginRedirect(t *testing.T) {
-	router := GetRouter(&API{GoogleConfig: &external.OauthConfig{Config: &oauth2.Config{
+	router := GetRouter(&API{ExternalConfig: external.Config{Google: &external.OauthConfig{Config: &oauth2.Config{
 		ClientID:    "123",
 		RedirectURL: "g.com",
 		Scopes:      []string{"s1", "s2"},
-	}}})
+	}}}})
 	// Syntax taken from https://semaphoreci.com/community/tutorials/test-driven-development-of-go-web-applications-with-gin
 	// Also inspired by https://dev.to/jacobsngoodwin/04-testing-first-gin-http-handler-9m0
 	t.Run("Success", func(t *testing.T) {

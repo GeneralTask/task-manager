@@ -39,7 +39,7 @@ func (api *API) AuthorizeJIRA(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	atlassian := external.AtlassianService{Config: api.AtlassianConfig}
+	atlassian := external.AtlassianService{Config: api.ExternalConfig.Atlassian}
 	authURL, err := atlassian.GetLinkURL(internalToken.UserID, stateTokenID)
 	if err != nil {
 		Handle500(c)
@@ -75,7 +75,7 @@ func (api *API) AuthorizeJIRACallback(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "invalid state token"})
 		return
 	}
-	atlassian := external.AtlassianService{Config: api.AtlassianConfig}
+	atlassian := external.AtlassianService{Config: api.ExternalConfig.Atlassian}
 	err = atlassian.HandleLinkCallback(redirectParams.Code, internalToken.UserID)
 	if err != nil {
 		c.JSON(500, gin.H{"detail": err.Error()})

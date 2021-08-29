@@ -90,15 +90,15 @@ func TestMarkAsComplete(t *testing.T) {
 
 	inboxGmailModifyServer := getGmailArchiveServer(t, "INBOX")
 
-	router := GetRouter(&API{
-		AtlassianConfig: external.AtlassianConfig{
+	router := GetRouter(&API{ExternalConfig: external.Config{
+		Atlassian: external.AtlassianConfig{
 			ConfigValues: external.AtlassianConfigValues{
 				TokenURL:      &tokenServer.URL,
 				TransitionURL: &jiraTransitionServer.URL,
 			},
 		},
 		GoogleOverrideURLs: external.GoogleURLOverrides{GmailModifyURL: &inboxGmailModifyServer.URL},
-	})
+	}})
 
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
 		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
@@ -194,15 +194,15 @@ func TestMarkAsComplete(t *testing.T) {
 
 		unreadGmailModifyServer := getGmailArchiveServer(t, "UNREAD")
 
-		unreadRouter := GetRouter(&API{
-			AtlassianConfig: external.AtlassianConfig{
+		unreadRouter := GetRouter(&API{ExternalConfig: external.Config{
+			Atlassian: external.AtlassianConfig{
 				ConfigValues: external.AtlassianConfigValues{
 					TokenURL:      &tokenServer.URL,
 					TransitionURL: &jiraTransitionServer.URL,
 				},
 			},
 			GoogleOverrideURLs: external.GoogleURLOverrides{GmailModifyURL: &unreadGmailModifyServer.URL},
-		})
+		}})
 
 		request, _ := http.NewRequest(
 			"PATCH",

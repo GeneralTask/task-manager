@@ -55,8 +55,8 @@ func (api *API) TaskReply(c *gin.Context) {
 
 	if taskBase.Source.Name == database.TaskSourceGmail.Name {
 		gmail := external.GmailSource{Google: external.GoogleService{
-			Config:       api.GoogleConfig,
-			OverrideURLs: api.GoogleOverrideURLs,
+			Config:       api.ExternalConfig.Google,
+			OverrideURLs: api.ExternalConfig.GoogleOverrideURLs,
 		}}
 		err = gmail.Reply(userID.(primitive.ObjectID), taskBase.SourceAccountID, taskID, replyParams.Body)
 		if err != nil {
