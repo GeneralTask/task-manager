@@ -49,7 +49,7 @@ const Accounts: React.FC = () => {
 			<>
 				<flex.centerXY>
 					<h2>Accounts</h2>
-					<AddNewAccountDropdown />
+					<AddNewAccountDropdown refetchLinkedAccounts={() => { fetchLinkedAccounts(setLinkedAccounts) }} />
 				</flex.centerXY>
 				{linkedAccounts.accounts.map(((account, index) =>
 					<Account linkedAccount={account} key={index} removeLink={() => { removeLink(account) }} />
