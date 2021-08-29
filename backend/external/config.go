@@ -15,6 +15,19 @@ func GetConfig() Config {
 	}
 }
 
+type TaskServiceResult struct {
+	Service TaskService
+	Sources []TaskSource
+}
+
+func (config Config) GetTaskService(name string) (*TaskServiceResult, error) {
+	return nil, nil
+}
+
+func (config Config) GetTaskSource(name string) (*TaskSource, error) {
+	return nil, nil
+}
+
 /*
 
 Name to task source:
