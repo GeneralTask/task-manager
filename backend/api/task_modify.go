@@ -2,12 +2,10 @@ package api
 
 import (
 	"context"
-	"errors"
 	"log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -146,28 +144,27 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 		return
 	}
 
-	if task.Source.Name == database.TaskSourceGoogleCalendar.Name {
-		err = errors.New("invalid task type")
-	} else if task.Source.Name == database.TaskSourceGmail.Name {
-		gmail := external.GmailSource{Google: external.GoogleService{
-			Config:       api.ExternalConfig.Google,
-			OverrideURLs: api.ExternalConfig.GoogleOverrideURLs,
-		}}
-		err = gmail.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
-	} else if task.Source.Name == database.TaskSourceJIRA.Name {
-		JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.ExternalConfig.Atlassian}}
-		err = JIRA.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
+	if !task.Source.IsCompletable {
+		c.JSON(400, gin.H{"detail": "cannot be marked done"})
+		return
+	}
+	taskSource, err := api.ExternalConfig.GetTaskSource(task.Source.Name)
+	if err != nil {
+		log.Printf("failed to load external task source: %v", err)
+		Handle500(c)
+		return
 	}
 
-	if err == nil {
-		_, err := taskCollection.UpdateOne(context.TODO(), bson.M{"_id": taskID}, bson.M{"$set": bson.M{"is_completed": true}})
-		if err != nil {
-			log.Printf("failed to update internal DB with completion status: %v", err)
-			Handle500(c)
-			return
-		}
-		c.JSON(200, gin.H{})
-	} else {
+	err = (*taskSource).MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
+	if err != nil {
 		c.JSON(400, gin.H{"detail": "Failed to mark task as complete"})
+		return
 	}
+	_, err = taskCollection.UpdateOne(context.TODO(), bson.M{"_id": taskID}, bson.M{"$set": bson.M{"is_completed": true}})
+	if err != nil {
+		log.Printf("failed to update internal DB with completion status: %v", err)
+		Handle500(c)
+		return
+	}
+	c.JSON(200, gin.H{})
 }
