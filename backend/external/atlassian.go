@@ -77,8 +77,8 @@ func (atlassian AtlassianService) GetLinkURL(userID primitive.ObjectID, stateTok
 	return &authURL, nil
 }
 
-func (atlassian AtlassianService) GetSignupURL(forcePrompt bool) (*string, *string, error) {
-	return nil, nil, errors.New("atlassian does not support signup")
+func (atlassian AtlassianService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
+	return nil, errors.New("atlassian does not support signup")
 }
 
 func (atlassian AtlassianService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
@@ -172,8 +172,8 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 	return nil
 }
 
-func (atlassian AtlassianService) HandleSignupCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
-	return errors.New("atlassian does not support signup")
+func (atlassian AtlassianService) HandleSignupCallback(code string) (primitive.ObjectID, *string, error) {
+	return primitive.NilObjectID, nil, errors.New("atlassian does not support signup")
 }
 
 func (atlassian AtlassianService) getSites(token *AtlassianAuthToken) *[]AtlassianSite {

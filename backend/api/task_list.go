@@ -99,7 +99,7 @@ func (api *API) TasksList(c *gin.Context) {
 
 	calendarEventChannels := []chan external.CalendarResult{}
 	emailChannels := []chan external.EmailResult{}
-	jiraTaskChannels := []chan external.TaskResult{}
+	taskChannels := []chan external.TaskResult{}
 	timezoneOffset, err := strconv.ParseInt(c.GetHeader("Timezone-Offset"), 10, 64)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "Invalid timezone offset"})
@@ -107,25 +107,23 @@ func (api *API) TasksList(c *gin.Context) {
 	}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
-		if token.Source == "google" {
+		taskService, err := api.ExternalConfig.GetTaskService(token.Source)
+		if err != nil {
+			log.Printf("error loading task service: %v", err)
+			continue
+		}
+		for _, taskSource := range taskService.Sources {
 			var calendarEvents = make(chan external.CalendarResult)
-			google := external.GoogleService{
-				Config:       api.ExternalConfig.Google,
-				OverrideURLs: api.ExternalConfig.GoogleOverrideURLs,
-			}
-			googleCalendar := external.GoogleCalendarSource{Google: google}
-			go googleCalendar.GetEvents(userID.(primitive.ObjectID), token.AccountID, int(timezoneOffset), calendarEvents)
+			go taskSource.GetEvents(userID.(primitive.ObjectID), token.AccountID, int(timezoneOffset), calendarEvents)
 			calendarEventChannels = append(calendarEventChannels, calendarEvents)
 
 			var emails = make(chan external.EmailResult)
-			gmail := external.GmailSource{Google: google}
-			go gmail.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails)
+			go taskSource.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails)
 			emailChannels = append(emailChannels, emails)
-		} else if token.Source == database.TaskSourceJIRA.Name {
-			var JIRATasks = make(chan external.TaskResult)
-			JIRA := external.JIRASource{Atlassian: external.AtlassianService{Config: api.ExternalConfig.Atlassian}}
-			go JIRA.GetTasks(userID.(primitive.ObjectID), token.AccountID, JIRATasks)
-			jiraTaskChannels = append(jiraTaskChannels, JIRATasks)
+
+			var tasks = make(chan external.TaskResult)
+			go taskSource.GetTasks(userID.(primitive.ObjectID), token.AccountID, tasks)
+			taskChannels = append(taskChannels, tasks)
 		}
 	}
 
@@ -151,13 +149,13 @@ func (api *API) TasksList(c *gin.Context) {
 		emails[index].TaskBase.Body = "<base target=\"_blank\">" + emails[index].TaskBase.Body
 	}
 
-	jiraTasks := []*database.Task{}
-	for _, jiraTaskChannel := range jiraTaskChannels {
-		jiraTaskResult := <-jiraTaskChannel
-		if jiraTaskResult.Error != nil {
+	tasks := []*database.Task{}
+	for _, taskChannel := range taskChannels {
+		taskResult := <-taskChannel
+		if taskResult.Error != nil {
 			continue
 		}
-		jiraTasks = append(jiraTasks, jiraTaskResult.Tasks...)
+		tasks = append(tasks, taskResult.Tasks...)
 	}
 
 	allTasks, err := MergeTasks(
@@ -165,7 +163,7 @@ func (api *API) TasksList(c *gin.Context) {
 		currentTasks,
 		calendarEvents,
 		emails,
-		jiraTasks,
+		tasks,
 		utils.ExtractEmailDomain(userObject.Email))
 	if err != nil {
 		Handle500(c)
@@ -179,7 +177,7 @@ func MergeTasks(
 	currentTasks *[]database.TaskBase,
 	calendarEvents []*database.CalendarEvent,
 	emails []*database.Email,
-	JIRATasks []*database.Task,
+	tasks []*database.Task,
 	userDomain string,
 ) ([]*TaskSection, error) {
 
@@ -193,7 +191,7 @@ func MergeTasks(
 		allUnscheduledTasks = append(allUnscheduledTasks, e)
 	}
 
-	for _, t := range JIRATasks {
+	for _, t := range tasks {
 		allUnscheduledTasks = append(allUnscheduledTasks, t)
 	}
 
@@ -244,7 +242,7 @@ func MergeTasks(
 
 	//we then fill in the gaps with calendar events with these tasks
 
-	var tasks []*TaskItem
+	var taskItems []*TaskItem
 
 	lastEndTime := time.Now()
 	taskIndex := 0
@@ -262,7 +260,7 @@ func MergeTasks(
 		taskBase := getTaskBase(allUnscheduledTasks[taskIndex])
 		timeAllocation := taskBase.TimeAllocation
 		for remainingTime.Nanoseconds() >= timeAllocation {
-			tasks = append(tasks, &TaskItem{TaskGroupType: UnscheduledGroup, TaskBase: taskBase})
+			taskItems = append(taskItems, &TaskItem{TaskGroupType: UnscheduledGroup, TaskBase: taskBase})
 			remainingTime -= time.Duration(timeAllocation)
 			taskIndex += 1
 			if taskIndex >= len(allUnscheduledTasks) {
@@ -272,7 +270,7 @@ func MergeTasks(
 			timeAllocation = taskBase.TimeAllocation
 		}
 
-		tasks = append(tasks, &TaskItem{
+		taskItems = append(taskItems, &TaskItem{
 			TaskGroupType: ScheduledTask,
 			TaskBase:      &calendarEvent.TaskBase,
 			DatetimeEnd:   calendarEvent.DatetimeEnd,
@@ -285,7 +283,7 @@ func MergeTasks(
 	//add remaining calendar events, if they exist.
 	for ; calendarIndex < len(calendarEvents); calendarIndex++ {
 		calendarEvent := calendarEvents[calendarIndex]
-		tasks = append(tasks, &TaskItem{
+		taskItems = append(taskItems, &TaskItem{
 			TaskGroupType: ScheduledTask,
 			TaskBase:      &calendarEvent.TaskBase,
 			DatetimeEnd:   calendarEvent.DatetimeEnd,
@@ -297,11 +295,11 @@ func MergeTasks(
 	//add remaining non scheduled events, if they exist.
 	for ; taskIndex < len(allUnscheduledTasks); taskIndex++ {
 		task := getTaskBase(allUnscheduledTasks[taskIndex])
-		tasks = append(tasks, &TaskItem{TaskGroupType: UnscheduledGroup, TaskBase: task})
+		taskItems = append(taskItems, &TaskItem{TaskGroupType: UnscheduledGroup, TaskBase: task})
 	}
 
-	tasks = adjustForReorderedTasks(&tasks)
-	err = updateOrderingIDs(db, &tasks)
+	taskItems = adjustForReorderedTasks(&taskItems)
+	err = updateOrderingIDs(db, &taskItems)
 	if err != nil {
 		return []*TaskSection{}, err
 	}
@@ -311,7 +309,7 @@ func MergeTasks(
 			ID:         constants.IDTaskSectionToday,
 			Name:       TaskSectionNameToday,
 			IsToday:    true,
-			TaskGroups: convertTasksToTaskGroups(&tasks),
+			TaskGroups: convertTasksToTaskGroups(&taskItems),
 		},
 		{
 			ID:         constants.IDTaskSectionBlocked,

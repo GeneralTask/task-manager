@@ -19,11 +19,11 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-func (GoogleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
 	result <- emptyEmailResult(nil)
 }
 
-func (GoogleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
+func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
 	events := []*database.CalendarEvent{}
 
 	var calendarService *calendar.Service
@@ -36,11 +36,11 @@ func (GoogleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 	}
 	defer dbCleanup()
 
-	if GoogleCalendar.Google.OverrideURLs.CalendarFetchURL != nil {
+	if googleCalendar.Google.OverrideURLs.CalendarFetchURL != nil {
 		calendarService, err = calendar.NewService(
 			context.Background(),
 			option.WithoutAuthentication(),
-			option.WithEndpoint(*GoogleCalendar.Google.OverrideURLs.CalendarFetchURL),
+			option.WithEndpoint(*googleCalendar.Google.OverrideURLs.CalendarFetchURL),
 		)
 	} else {
 		externalAPITokenCollection := db.Collection("external_api_tokens")
@@ -166,6 +166,14 @@ func (GoogleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 	result <- CalendarResult{CalendarEvents: events, Error: nil}
 }
 
-func (GoogleCalendar GoogleCalendarSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+func (googleCalendar GoogleCalendarSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	result <- emptyTaskResult(nil)
+}
+
+func (googleCalendar GoogleCalendarSource) MarkAsDone(userID primitive.ObjectID, accountID string, taskID string) error {
+	return errors.New("cannot mark calendar event as done")
+}
+
+func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+	return errors.New("cannot reply to a calendar event")
 }

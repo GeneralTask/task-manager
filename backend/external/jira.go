@@ -359,3 +359,7 @@ func (JIRA JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken s
 	_, err := http.DefaultClient.Do(req)
 	return err
 }
+
+func (JIRA JIRASource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+	return errors.New("cannot reply to a JIRA task")
+}

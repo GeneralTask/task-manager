@@ -36,8 +36,8 @@ func (Slack SlackService) GetLinkURL(stateTokenID primitive.ObjectID, userID pri
 	return &authURL, nil
 }
 
-func (Slack SlackService) GetSignupURL(forcePrompt bool) (*string, *string, error) {
-	return nil, nil, errors.New("slack does not support signup")
+func (Slack SlackService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
+	return nil, errors.New("slack does not support signup")
 }
 
 func (Slack SlackService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
@@ -76,6 +76,6 @@ func (Slack SlackService) HandleLinkCallback(code string, userID primitive.Objec
 	return nil
 }
 
-func (Slack SlackService) HandleSignupCallback(code string, stateTokenID primitive.ObjectID, userID primitive.ObjectID) error {
-	return errors.New("slack does not support signup")
+func (Slack SlackService) HandleSignupCallback(code string) (primitive.ObjectID, *string, error) {
+	return primitive.NilObjectID, nil, errors.New("slack does not support signup")
 }
