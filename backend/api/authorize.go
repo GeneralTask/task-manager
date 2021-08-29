@@ -1,20 +1,24 @@
 package api
 
 import (
-	"log"
-
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/GeneralTask/task-manager/backend/external"
+
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type SlackRedirectParams struct {
+// RedirectParams ...
+type RedirectParams struct {
 	Code  string `form:"code" binding:"required"`
 	State string `form:"state" binding:"required"`
 }
 
-func (api *API) AuthorizeSlack(c *gin.Context) {
+func (api *API) Authorize(c *gin.Context) {
+	taskService, err := api.ExternalConfig.GetTaskService(c.Param("service_name"))
+	if err != nil {
+		Handle404(c)
+		return
+	}
 	internalToken, err := getTokenFromCookie(c)
 	if err != nil {
 		return
@@ -25,7 +29,7 @@ func (api *API) AuthorizeSlack(c *gin.Context) {
 		return
 	}
 	defer dbCleanup()
-	insertedStateToken, err := database.CreateStateToken(db, nil)
+	insertedStateToken, err := database.CreateStateToken(db, &internalToken.UserID)
 	if err != nil {
 		Handle500(c)
 		return
@@ -35,9 +39,7 @@ func (api *API) AuthorizeSlack(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-
-	slack := external.SlackService{Config: api.ExternalConfig.Slack}
-	authURL, err := slack.GetLinkURL(stateTokenID, internalToken.UserID)
+	authURL, err := taskService.Service.GetLinkURL(internalToken.UserID, stateTokenID)
 	if err != nil {
 		Handle500(c)
 		return
@@ -45,44 +47,43 @@ func (api *API) AuthorizeSlack(c *gin.Context) {
 	c.Redirect(302, *authURL)
 }
 
-func (api *API) AuthorizeSlackCallback(c *gin.Context) {
+func (api *API) AuthorizeCallback(c *gin.Context) {
+	taskService, err := api.ExternalConfig.GetTaskService(c.Param("service_name"))
+	if err != nil {
+		Handle404(c)
+		return
+	}
 	internalToken, err := getTokenFromCookie(c)
 	if err != nil {
 		return
 	}
-
-	var redirectParams SlackRedirectParams
-	if c.ShouldBind(&redirectParams) != nil {
+	var redirectParams RedirectParams
+	if c.ShouldBind(&redirectParams) != nil || redirectParams.Code == "" || redirectParams.State == "" {
 		c.JSON(400, gin.H{"detail": "Missing query params"})
 		return
 	}
-
 	stateTokenID, err := primitive.ObjectIDFromHex(redirectParams.State)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "invalid state token format"})
 		return
 	}
-
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
 		return
 	}
 	defer dbCleanup()
-
 	err = database.DeleteStateToken(db, stateTokenID, &internalToken.UserID)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "invalid state token"})
 		return
 	}
-
-	slack := external.SlackService{Config: api.ExternalConfig.Slack}
-	err = slack.HandleLinkCallback(redirectParams.Code, internalToken.UserID)
+	err = taskService.Service.HandleLinkCallback(redirectParams.Code, internalToken.UserID)
 	if err != nil {
-		log.Println("OH NO", err)
 		c.JSON(500, gin.H{"detail": err.Error()})
 		return
 	}
+
 	c.Writer.Write([]byte("<html><head><script>window.open('','_parent','');window.close();</script></head><body>Success</body></html>"))
 	c.Status(200)
 }
