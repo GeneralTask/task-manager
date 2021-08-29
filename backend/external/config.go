@@ -2,6 +2,7 @@ package external
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 )
@@ -28,7 +29,7 @@ type TaskServiceResult struct {
 
 func (config Config) GetTaskService(name string) (*TaskServiceResult, error) {
 	nameToService := config.getNameToService()
-	result, ok := nameToService[name]
+	result, ok := nameToService[strings.ToLower(name)]
 	if !ok {
 		return nil, errors.New("task service not found")
 	}
@@ -37,7 +38,7 @@ func (config Config) GetTaskService(name string) (*TaskServiceResult, error) {
 
 func (config Config) GetTaskSource(name string) (*TaskSource, error) {
 	nameToSource := config.getNameToSource()
-	result, ok := nameToSource[name]
+	result, ok := nameToSource[strings.ToLower(name)]
 	if !ok {
 		return nil, errors.New("task source not found")
 	}
@@ -51,9 +52,9 @@ func (config Config) getNameToSource() map[string]TaskSource {
 		OverrideURLs: config.GoogleOverrideURLs,
 	}
 	return map[string]TaskSource{
-		database.TaskSourceGmail.Name:          GmailSource{Google: googleService},
-		database.TaskSourceGoogleCalendar.Name: GoogleCalendarSource{Google: googleService},
-		database.TaskSourceJIRA.Name:           JIRASource{Atlassian: atlassianService},
+		strings.ToLower(database.TaskSourceGmail.Name):          GmailSource{Google: googleService},
+		strings.ToLower(database.TaskSourceGoogleCalendar.Name): GoogleCalendarSource{Google: googleService},
+		strings.ToLower(database.TaskSourceJIRA.Name):           JIRASource{Atlassian: atlassianService},
 	}
 }
 
@@ -71,11 +72,11 @@ func (config Config) getNameToService() map[string]TaskServiceResult {
 				GoogleCalendarSource{Google: googleService},
 			},
 		},
-		database.TaskSourceJIRA.Name: {
+		strings.ToLower(database.TaskSourceJIRA.Name): {
 			Service: atlassianService,
 			Sources: []TaskSource{JIRASource{Atlassian: atlassianService}},
 		},
-		database.TaskSourceSlack.Name: {
+		strings.ToLower(database.TaskSourceSlack.Name): {
 			Service: SlackService{Config: config.Slack},
 			Sources: []TaskSource{},
 		},
