@@ -1,8 +1,6 @@
 package api
 
 import (
-	"log"
-
 	"github.com/GeneralTask/task-manager/backend/database"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +16,6 @@ type RedirectParams struct {
 func (api *API) Authorize(c *gin.Context) {
 	taskService, err := api.ExternalConfig.GetTaskService(c.Param("service_name"))
 	if err != nil {
-		log.Println("not found!", c.Param("service_name"))
 		Handle404(c)
 		return
 	}
@@ -53,7 +50,6 @@ func (api *API) Authorize(c *gin.Context) {
 func (api *API) AuthorizeCallback(c *gin.Context) {
 	taskService, err := api.ExternalConfig.GetTaskService(c.Param("service_name"))
 	if err != nil {
-		log.Println("not found!", c.Param("service_name"))
 		Handle404(c)
 		return
 	}
