@@ -5,7 +5,6 @@ import (
 )
 
 type TaskSource interface {
-	// TODO: update all these method signatures once refactor is finalized
 	GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult)
 	GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult)
 	GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult)
