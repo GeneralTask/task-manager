@@ -157,7 +157,7 @@ func TestAuthorizeCallbackUnsuccessfulResponse(t *testing.T, api *API, url strin
 	assert.NotEqual(t, http.StatusOK, recorder.Code)
 }
 
-func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string, sourceName string) {
+func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string, serviceID string) {
 	authToken := login("approved@generaltask.io", "")
 	stateToken, err := newStateToken(authToken)
 	assert.NoError(t, err)
@@ -180,21 +180,21 @@ func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string,
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	count, err := externalAPITokenCollection.CountDocuments(
 		context.TODO(),
-		bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"source": sourceName}}})
+		bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": serviceID}}})
 
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var externalToken database.ExternalAPIToken
-	err = externalAPITokenCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"source": sourceName}}}).Decode(&externalToken)
+	err = externalAPITokenCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"source": serviceID}}}).Decode(&externalToken)
 	assert.NoError(t, err)
-	assert.Equal(t, sourceName, externalToken.Source)
+	assert.Equal(t, serviceID, externalToken.ServiceID)
 
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var jiraToken database.ExternalAPIToken
 	err = externalAPITokenCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"source": external.TaskSourceJIRA.Name}}}).Decode(&jiraToken)
 	assert.NoError(t, err)
-	assert.Equal(t, external.TaskSourceJIRA.Name, jiraToken.Source)
+	assert.Equal(t, external.TASK_SERVICE_ID_ATLASSIAN, jiraToken.ServiceID)
 	assert.Equal(t, "teslatothemoon42069", jiraToken.AccountID)
 	assert.Equal(t, "The dungeon", jiraToken.DisplayID)
 }

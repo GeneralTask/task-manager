@@ -37,7 +37,7 @@ func TestReplyToEmail(t *testing.T) {
 			UserID:     userID,
 			IDExternal: "sample_message_id",
 			Title:      "Sample subject",
-			Source:     external.TaskSourceGmail,
+			SourceID:   external.TASK_SOURCE_ID_GMAIL,
 		},
 		ThreadID: "sample_thread_id",
 	})
@@ -68,7 +68,7 @@ func TestReplyToEmail(t *testing.T) {
 				UserID:     userID,
 				IDExternal: "sample_task_id",
 				Title:      "Sample Task",
-				Source:     external.TaskSourceJIRA,
+				SourceID:   external.TASK_SOURCE_ID_JIRA,
 			},
 		})
 
@@ -111,7 +111,7 @@ func TestReplyToEmail(t *testing.T) {
 				UserID:     primitive.NewObjectID(),
 				IDExternal: "sample_message_id",
 				Title:      "Sample subject",
-				Source:     external.TaskSourceGmail,
+				SourceID:   external.TASK_SOURCE_ID_GMAIL,
 			},
 			ThreadID: "sample_thread_id",
 		})

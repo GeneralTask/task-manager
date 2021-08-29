@@ -205,7 +205,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 			}},
 		).Decode(&googleToken)
 		assert.NoError(t, err)
-		assert.Equal(t, "google", googleToken.Source)
+		assert.Equal(t, external.TASK_SERVICE_ID_GOOGLE, googleToken.ServiceID)
 		assert.Equal(t, email, googleToken.AccountID)
 		assert.Equal(t, email, googleToken.DisplayID)
 		expectedToken := fmt.Sprintf("{\"access_token\":\"%s\",\"refresh_token\":\"test123\",\"expiry\":\"0001-01-01T00:00:00Z\"}", authToken)

@@ -40,7 +40,7 @@ type TaskSourceResult struct {
 	Details TaskSourceDetails
 }
 
-func (config Config) GetTaskService(serviceID string) (*TaskServiceResult, error) {
+func (config Config) GetTaskServiceResult(serviceID string) (*TaskServiceResult, error) {
 	nameToService := config.getNameToService()
 	result, ok := nameToService[serviceID]
 	if !ok {
@@ -49,7 +49,7 @@ func (config Config) GetTaskService(serviceID string) (*TaskServiceResult, error
 	return &result, nil
 }
 
-func (config Config) GetTaskSource(serviceID string) (*TaskSourceResult, error) {
+func (config Config) GetTaskSourceResult(serviceID string) (*TaskSourceResult, error) {
 	nameToSource := config.getNameToSource()
 	result, ok := nameToSource[serviceID]
 	if !ok {

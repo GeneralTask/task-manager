@@ -63,12 +63,17 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 	}
 	linkedAccounts := []LinkedAccount{}
 	for _, token := range tokens {
-		taskService := api.ExternalConfig.GetTaskService(token.ServiceID)
+		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
+		if err != nil {
+			log.Printf("faield to fetch task service: %v", err)
+			Handle500(c)
+			return
+		}
 		linkedAccounts = append(linkedAccounts, LinkedAccount{
 			ID:           token.ID.Hex(),
 			DisplayID:    token.DisplayID,
-			Name:         token.Source,
-			Logo:         external.TaskSourceNameToSource[token.Source].Logo,
+			Name:         taskServiceResult.Details.Name,
+			Logo:         taskServiceResult.Details.Logo,
 			IsUnlinkable: token.IsUnlinkable,
 		})
 	}

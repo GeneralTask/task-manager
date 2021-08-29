@@ -54,7 +54,7 @@ func TestAuthorizeSlackCallback(t *testing.T) {
 		server := getTokenServerForSlack(t, http.StatusOK)
 		api := GetAPI()
 		(api.ExternalConfig.Slack.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
-		TestAuthorizeCallbackSuccessfulResponse(t, api, "/authorize/slack/callback/", external.TaskSourceSlack.Name)
+		TestAuthorizeCallbackSuccessfulResponse(t, api, "/authorize/slack/callback/", external.TASK_SERVICE_ID_SLACK)
 	})
 }
 

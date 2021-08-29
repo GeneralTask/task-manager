@@ -107,12 +107,12 @@ func (api *API) TasksList(c *gin.Context) {
 	}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
-		taskService, err := api.ExternalConfig.GetTaskService(token.Source)
+		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
 			log.Printf("error loading task service: %v", err)
 			continue
 		}
-		for _, taskSource := range taskService.Sources {
+		for _, taskSource := range taskServiceResult.Sources {
 			var calendarEvents = make(chan external.CalendarResult)
 			go taskSource.GetEvents(userID.(primitive.ObjectID), token.AccountID, int(timezoneOffset), calendarEvents)
 			calendarEventChannels = append(calendarEventChannels, calendarEvents)

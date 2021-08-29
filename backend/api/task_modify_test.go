@@ -33,7 +33,7 @@ func TestMarkAsComplete(t *testing.T) {
 	insertResult, err := taskCollection.InsertOne(context.TODO(), database.TaskBase{
 		UserID:     userID,
 		IDExternal: "sample_jira_id",
-		Source:     external.TaskSourceJIRA,
+		SourceID:   external.TASK_SOURCE_ID_JIRA,
 	})
 	assert.NoError(t, err)
 	jiraTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -42,7 +42,7 @@ func TestMarkAsComplete(t *testing.T) {
 	insertResult, err = taskCollection.InsertOne(context.TODO(), database.TaskBase{
 		UserID:     userID,
 		IDExternal: "sample_gmail_id",
-		Source:     external.TaskSourceGmail,
+		SourceID:   external.TASK_SOURCE_ID_GMAIL,
 	})
 	assert.NoError(t, err)
 	gmailTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -51,7 +51,7 @@ func TestMarkAsComplete(t *testing.T) {
 	insertResult, err = taskCollection.InsertOne(context.TODO(), database.TaskBase{
 		UserID:     userID,
 		IDExternal: "sample_calendar_id",
-		Source:     external.TaskSourceGoogleCalendar,
+		SourceID:   external.TASK_SOURCE_ID_GCAL,
 	})
 	assert.NoError(t, err)
 	calendarTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -61,11 +61,11 @@ func TestMarkAsComplete(t *testing.T) {
 
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
-		bson.M{"$and": []bson.M{{"user_id": userID}, {"source": external.TaskSourceJIRA.Name}}},
+		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": external.TaskSourceJIRA.Name}}},
 		bson.M{"$set": &database.ExternalAPIToken{
-			Source: external.TaskSourceJIRA.Name,
-			Token:  `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
-			UserID: userID,
+			ServiceID: external.TASK_SERVICE_ID_ATLASSIAN,
+			Token:     `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
+			UserID:    userID,
 		}},
 		options.Update().SetUpsert(true),
 	)
@@ -180,7 +180,7 @@ func TestMarkAsComplete(t *testing.T) {
 		insertResult, err = taskCollection.InsertOne(context.TODO(), database.TaskBase{
 			UserID:     userID,
 			IDExternal: "sample_jira_id",
-			Source:     external.TaskSourceJIRA,
+			SourceID:   external.TASK_SOURCE_ID_JIRA,
 		})
 		assert.NoError(t, err)
 		jiraTaskID = insertResult.InsertedID.(primitive.ObjectID)
