@@ -14,12 +14,10 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.Use(CORSMiddleware)
 
 	// Unauthenticated endpoints
-	router.GET("/authorize/jira/", handlers.AuthorizeJIRA)
-	router.GET("/authorize/jira/callback/", handlers.AuthorizeJIRACallback)
+	router.GET("/authorize/:service_name/", handlers.Authorize)
+	router.GET("/authorize/:service_name/callback/", handlers.AuthorizeCallback)
 	router.GET("/login/", handlers.Login)
 	router.GET("/login/callback/", handlers.LoginCallback)
-	router.GET("/authorize/slack/", handlers.AuthorizeSlack)
-	router.GET("/authorize/slack/callback/", handlers.AuthorizeSlackCallback)
 	router.POST("/waitlist/", handlers.WaitlistAdd)
 
 	//logout needs to use the token directly rather than the user so no need to run token middleware
