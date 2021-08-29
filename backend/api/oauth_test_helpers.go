@@ -185,14 +185,14 @@ func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string,
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var externalToken database.ExternalAPIToken
-	err = externalAPITokenCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"source": serviceID}}}).Decode(&externalToken)
+	err = externalAPITokenCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": serviceID}}}).Decode(&externalToken)
 	assert.NoError(t, err)
 	assert.Equal(t, serviceID, externalToken.ServiceID)
 
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var jiraToken database.ExternalAPIToken
-	err = externalAPITokenCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"source": external.TaskSourceJIRA.Name}}}).Decode(&jiraToken)
+	err = externalAPITokenCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": external.TASK_SERVICE_ID_ATLASSIAN}}}).Decode(&jiraToken)
 	assert.NoError(t, err)
 	assert.Equal(t, external.TASK_SERVICE_ID_ATLASSIAN, jiraToken.ServiceID)
 	assert.Equal(t, "teslatothemoon42069", jiraToken.AccountID)

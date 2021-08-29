@@ -232,7 +232,7 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 		context.TODO(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
-			{"source": TaskSourceJIRA.Name},
+			{"service_id": TASK_SERVICE_ID_ATLASSIAN},
 			{"account_id": accountID},
 		}}).Decode(&JIRAToken)
 

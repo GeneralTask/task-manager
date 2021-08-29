@@ -23,7 +23,7 @@ func UpdateOrCreateTask(
 	dbQuery := bson.M{
 		"$and": []bson.M{
 			{"id_external": IDExternal},
-			{"source": sourceID},
+			{"source_id": sourceID},
 			{"user_id": userID},
 		},
 	}

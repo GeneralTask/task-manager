@@ -169,7 +169,7 @@ func TestLoginCallback(t *testing.T) {
 	})
 	t.Run("SuccessSecondTime", func(t *testing.T) {
 		// Verifies request succeeds on second auth (no refresh token supplied)
-		_, err = db.Collection("external_api_tokens").DeleteOne(context.TODO(), bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.io"}, {"source": "google"}}})
+		_, err = db.Collection("external_api_tokens").DeleteOne(context.TODO(), bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.io"}, {"service_id": external.TASK_SERVICE_ID_GOOGLE}}})
 		assert.NoError(t, err)
 		stateToken, err := newStateToken("")
 		assert.NoError(t, err)

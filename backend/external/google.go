@@ -55,7 +55,7 @@ func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 		context.TODO(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
-			{"source": "google"},
+			{"service_id": TASK_SERVICE_ID_GOOGLE},
 			{"account_id": accountID},
 		}}).Decode(&googleToken); err != nil {
 		return nil

@@ -31,7 +31,7 @@ func (api *API) SupportedAccountTypesList(c *gin.Context) {
 	c.JSON(200, []SupportedAccountType{{
 		Name:             "JIRA",
 		Logo:             external.TaskSourceJIRA.Logo,
-		AuthorizationURL: serverURL + "authorize/jira/",
+		AuthorizationURL: serverURL + "authorize/atlassian/",
 	}})
 }
 

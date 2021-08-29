@@ -86,7 +86,7 @@ func getGoogleTokenFromAuthToken(t *testing.T, db *mongo.Database, authToken str
 		context.TODO(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
-			{"source": "google"},
+			{"service_id": external.TASK_SERVICE_ID_GOOGLE},
 		}},
 	).Decode(&externalAPITokenStruct)
 	assert.NoError(t, err)
@@ -187,7 +187,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 		context.TODO(),
 		bson.M{"$and": []bson.M{
 			{"user_id": user.ID},
-			{"source": "google"},
+			{"service_id": external.TASK_SERVICE_ID_GOOGLE},
 			{"account_id": email},
 		}},
 	)
@@ -201,7 +201,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 			context.TODO(),
 			bson.M{"$and": []bson.M{
 				{"user_id": user.ID},
-				{"source": "google"},
+				{"service_id": external.TASK_SERVICE_ID_GOOGLE},
 			}},
 		).Decode(&googleToken)
 		assert.NoError(t, err)

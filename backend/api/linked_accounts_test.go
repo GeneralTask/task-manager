@@ -26,7 +26,7 @@ func TestSupportedAccountTypesList(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "[{\"name\":\"JIRA\",\"logo\":\"/images/jira.svg\",\"authorization_url\":\"http://localhost:8080/authorize/jira/\"}]", string(body))
+		assert.Equal(t, "[{\"name\":\"JIRA\",\"logo\":\"/images/jira.svg\",\"authorization_url\":\"http://localhost:8080/authorize/atlassian/\"}]", string(body))
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(GetAPI())
@@ -52,7 +52,7 @@ func TestLinkedAccountsList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		googleTokenID := getGoogleTokenFromAuthToken(t, db, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts@generaltask.io\",\"name\":\"google\",\"logo\":\"/images/gmail.svg\",\"is_unlinkable\":false}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts@generaltask.io\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"is_unlinkable\":false}]", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("linkedaccounts2@generaltask.io", "")
@@ -67,7 +67,7 @@ func TestLinkedAccountsList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		googleTokenID := getGoogleTokenFromAuthToken(t, db, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts2@generaltask.io\",\"name\":\"google\",\"logo\":\"/images/gmail.svg\",\"is_unlinkable\":false},{\"id\":\""+jiraTokenID+"\",\"display_id\":\"Jira dungeon\",\"name\":\"Jira\",\"logo\":\"/images/jira.svg\",\"is_unlinkable\":true}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts2@generaltask.io\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"is_unlinkable\":false},{\"id\":\""+jiraTokenID+"\",\"display_id\":\"Jira dungeon\",\"name\":\"Atlassian\",\"logo\":\"/images/jira.svg\",\"is_unlinkable\":true}]", string(body))
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(GetAPI())

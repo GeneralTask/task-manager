@@ -143,7 +143,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		err := taskCollection.FindOne(
 			context.TODO(),
 			bson.M{"$and": []bson.M{
-				{"source.name": TaskSourceJIRA.Name},
+				{"source_id": TASK_SOURCE_ID_JIRA},
 				{"id_external": "42069"},
 				{"user_id": userID},
 			}},
@@ -193,7 +193,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		err := taskCollection.FindOne(
 			context.TODO(),
 			bson.M{"$and": []bson.M{
-				{"source.name": TaskSourceJIRA.Name},
+				{"source_id": TASK_SOURCE_ID_JIRA},
 				{"id_external": "42069"},
 				{"user_id": userID},
 			}},
@@ -244,7 +244,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		err := taskCollection.FindOne(
 			context.TODO(),
 			bson.M{"$and": []bson.M{
-				{"source.name": TaskSourceJIRA.Name},
+				{"source_id": TASK_SOURCE_ID_JIRA},
 				{"id_external": "42069"},
 				{"user_id": userID},
 			}},

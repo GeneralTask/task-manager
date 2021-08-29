@@ -93,7 +93,7 @@ func TestCalendar(t *testing.T) {
 			context.TODO(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
-				{"source.name": TaskSourceGoogleCalendar.Name},
+				{"source_id": TASK_SOURCE_ID_GCAL},
 				{"user_id": userID},
 			}},
 		).Decode(&calendarEventFromDB)
@@ -181,7 +181,7 @@ func TestCalendar(t *testing.T) {
 			context.TODO(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
-				{"source.name": TaskSourceGoogleCalendar.Name},
+				{"source_id": TASK_SOURCE_ID_GCAL},
 				{"user_id": userID},
 			}},
 		).Decode(&calendarEventFromDB)
@@ -251,7 +251,7 @@ func TestCalendar(t *testing.T) {
 			context.TODO(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
-				{"source.name": TaskSourceGoogleCalendar.Name},
+				{"source_id": TASK_SOURCE_ID_GCAL},
 				{"user_id": userID},
 			}},
 		).Decode(&calendarEventFromDB)
