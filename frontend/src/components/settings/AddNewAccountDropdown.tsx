@@ -63,7 +63,11 @@ interface DropdownProps {
     refetchLinkedAccounts: () => void,
 }
 
-const AddNewAccountDropdown: React.FC = () => {
+interface Props {
+    refetchLinkedAccounts: () => void,
+}
+
+const AddNewAccountDropdown: React.FC<Props> = (props: Props) => {
     const [supportedTypes, setSupportedTypes] = useState<SupportedType[]>([])
     useEffect(() => {
         fetchSupportedTypes(setSupportedTypes)
@@ -71,7 +75,7 @@ const AddNewAccountDropdown: React.FC = () => {
     return (
         <Dropdown
             supportedTypes={supportedTypes}
-            refetchLinkedAccounts={() => { fetchSupportedTypes(setSupportedTypes) }}
+            refetchLinkedAccounts={props.refetchLinkedAccounts}
         />
     )
 }
