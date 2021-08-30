@@ -118,8 +118,6 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
 		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
 
-		GetConferenceURL(event)
-
 		event := &database.CalendarEvent{
 			TaskBase: database.TaskBase{
 				UserID:          userID,
@@ -130,6 +128,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				Title:           event.Summary,
 				TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
 				SourceAccountID: accountID,
+				Conference:      *GetConference(event.ConferenceData),
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
@@ -180,14 +179,20 @@ func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, acco
 	return errors.New("cannot reply to a calendar event")
 }
 
-func GetConferenceURL(event *calendar.Event) string {
+func GetConference(calendarConferenceData *calendar.ConferenceData) *database.Conference {
 	// first check for built-in conference URL
-	if event.ConferenceData != nil && event.ConferenceData.EntryPoints != nil {
-		for _, entryPoint := range event.ConferenceData.EntryPoints {
+	if calendarConferenceData != nil {
+		for _, entryPoint := range calendarConferenceData.EntryPoints {
 			if entryPoint != nil {
-				return entryPoint.Uri
+				conference := &database.Conference{
+					Platform: calendarConferenceData.ConferenceSolution.Name,
+					Logo:     calendarConferenceData.ConferenceSolution.IconUri,
+					URL:      entryPoint.Uri,
+				}
+				return conference
 			}
 		}
 	}
-	return ""
+
+	return nil
 }
