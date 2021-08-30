@@ -74,14 +74,14 @@ type TaskBase struct {
 	Body             string             `bson:"body"`
 	HasBeenReordered bool               `bson:"has_been_reordered"`
 	//time in nanoseconds
-	TimeAllocation int64 `bson:"time_allocated"`
+	TimeAllocation int64      `json:"time_allocated" bson:"time_allocated"`
+	Conference     Conference `bson:"conference_info,omitempty"`
 }
 
 type CalendarEvent struct {
 	TaskBase      `bson:",inline"`
 	DatetimeEnd   primitive.DateTime `bson:"datetime_end"`
 	DatetimeStart primitive.DateTime `bson:"datetime_start"`
-	Conference    ConferenceInfo     `bson:"conference_info,omitempty"`
 }
 
 type CalendarEventChangeableFields struct {
@@ -126,8 +126,8 @@ type WaitlistEntry struct {
 	CreatedAt primitive.DateTime `bson:"created_at"`
 }
 
-type ConferenceInfo struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	URL      string             `bson:"url"`
-	Platform string             `bson:"platform"`
+type Conference struct {
+	Platform string `bson:"platform"`
+	Logo     string `bson:"logo"`
+	URL      string `bson:"url"`
 }
