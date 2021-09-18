@@ -103,12 +103,12 @@ func (Google GoogleService) HandleLinkCallback(code string, userID primitive.Obj
 		return err
 	}
 	defer dbCleanup()
-	token, err := Google.LoginConfig.Exchange(context.Background(), code)
+	token, err := Google.AuthorizeConfig.Exchange(context.Background(), code)
 	if err != nil {
 		log.Printf("failed to fetch token from google: %v", err)
 		return err
 	}
-	client := Google.LoginConfig.Client(context.Background(), token)
+	client := Google.AuthorizeConfig.Client(context.Background(), token)
 	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
 		log.Printf("failed to load user info: %v", err)
@@ -129,6 +129,7 @@ func (Google GoogleService) HandleLinkCallback(code string, userID primitive.Obj
 	}
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
+
 
 	count, err := externalAPITokenCollection.CountDocuments(
 		context.TODO(),
