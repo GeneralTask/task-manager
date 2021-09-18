@@ -28,7 +28,8 @@ func TestSupportedAccountTypesList(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.True(t, strings.Contains(string(body), "{\"name\":\"JIRA\",\"logo\":\"/images/jira.svg\",\"authorization_url\":\"http://localhost:8080/authorize/atlassian/\"}"))
+		assert.True(t, strings.Contains(string(body), "{\"name\":\"Atlassian\",\"logo\":\"/images/jira.svg\",\"authorization_url\":\"http://localhost:8080/authorize/atlassian/\"}"))
+		assert.True(t, strings.Contains(string(body), "{\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"authorization_url\":\"http://localhost:8080/authorize/google/\"}"))
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(GetAPI())
