@@ -66,13 +66,13 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 
 	var timeZoneName string
 	if timezoneOffsetMinutes > 0 {
-		timeZoneName = fmt.Sprintf("UTC-%d", timezoneOffsetMinutes/constants.MINUTE)
+		timeZoneName = fmt.Sprintf("UTC-%d", timezoneOffsetMinutes/60)
 	} else if timezoneOffsetMinutes < 0 {
-		timeZoneName = fmt.Sprintf("UTC+%d", -timezoneOffsetMinutes/constants.MINUTE)
+		timeZoneName = fmt.Sprintf("UTC+%d", timezoneOffsetMinutes/-60)
 	} else {
 		timeZoneName = "UTC"
 	}
-	location := time.FixedZone(timeZoneName, -timezoneOffsetMinutes*constants.MINUTE)
+	location := time.FixedZone(timeZoneName, timezoneOffsetMinutes*-60)
 	//strip out hours/minutes/seconds of today to find the start of the day
 	todayStartTime := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, location)
 	//get end of day but adding one day to start of day and then subtracting a second to get day at 11:59:59PM

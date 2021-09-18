@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/GeneralTask/task-manager/backend/config"
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
@@ -55,7 +54,7 @@ func (api *API) Login(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	c.SetCookie("loginStateToken", *insertedStateToken, constants.DAY, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
+	c.SetCookie("loginStateToken", *insertedStateToken, 60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
 	c.Redirect(302, *authURL)
 }
 
@@ -137,6 +136,6 @@ func (api *API) LoginCallback(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("authToken", internalToken, constants.MONTH, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
+	c.SetCookie("authToken", internalToken, 30*60*60*24, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
 	c.Redirect(302, config.GetConfigValue("HOME_URL"))
 }
