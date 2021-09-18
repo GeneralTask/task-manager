@@ -89,7 +89,7 @@ func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 }
 
 func (Google GoogleService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	authURL := Google.AuthorizeConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline)
+	authURL := Google.AuthorizeConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
 }
 
