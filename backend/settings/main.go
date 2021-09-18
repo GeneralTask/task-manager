@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -49,10 +50,13 @@ var Settings = []SettingDefinition{
 }
 
 func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string) (*string, error) {
+	parent_ctx := context.Background()
 	settingCollection := db.Collection("user_settings")
 	var userSetting database.UserSetting
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	err := settingCollection.FindOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"field_key": fieldKey},
@@ -73,6 +77,7 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 }
 
 func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string, fieldValue string) error {
+	parent_ctx := context.Background()
 	keyFound := false
 	valueFound := false
 	for _, setting := range Settings {
@@ -93,8 +98,10 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 		return errors.New("invalid value: " + fieldValue)
 	}
 	settingCollection := db.Collection("user_settings")
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	_, err := settingCollection.UpdateOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"field_key": fieldKey},

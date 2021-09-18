@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -43,6 +44,7 @@ func (api *API) SupportedAccountTypesList(c *gin.Context) {
 }
 
 func (api *API) LinkedAccountsList(c *gin.Context) {
+	parent_ctx := c.Request.Context()
 	userID, _ := c.Get("user")
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -53,8 +55,10 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 
 	var tokens []database.ExternalAPIToken
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
-		context.TODO(),
+		db_ctx,
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
@@ -62,7 +66,10 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	err = cursor.All(context.TODO(), &tokens)
+
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(db_ctx, &tokens)
 	if err != nil {
 		log.Printf("failed to iterate through api tokens: %v", err)
 		Handle500(c)
@@ -88,6 +95,7 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 }
 
 func (api *API) DeleteLinkedAccount(c *gin.Context) {
+	parent_ctx := c.Request.Context()
 	userID, _ := c.Get("user")
 	accountIDHex := c.Param("account_id")
 	accountID, err := primitive.ObjectIDFromHex(accountIDHex)
@@ -103,9 +111,12 @@ func (api *API) DeleteLinkedAccount(c *gin.Context) {
 	}
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
+
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	var accountToDelete database.ExternalAPIToken
 	err = externalAPITokenCollection.FindOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"_id": accountID},
@@ -120,8 +131,11 @@ func (api *API) DeleteLinkedAccount(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "account is not unlinkable"})
 		return
 	}
+
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	res, err := externalAPITokenCollection.DeleteOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"_id": accountID},
 	)
 	if err != nil || res.DeletedCount != 1 {

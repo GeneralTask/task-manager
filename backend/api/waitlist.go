@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,7 @@ type WaitlistParams struct {
 }
 
 func (api *API) WaitlistAdd(c *gin.Context) {
+	parent_ctx := c.Request.Context()
 	var params WaitlistParams
 	err := c.BindJSON(&params)
 	if err != nil || params.Email == "" {
@@ -39,7 +41,9 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 	defer dbCleanup()
 	waitlistCollection := db.Collection("waitlist")
 
-	count, err := waitlistCollection.CountDocuments(context.TODO(), bson.M{"email": email})
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	count, err := waitlistCollection.CountDocuments(db_ctx, bson.M{"email": email})
 	if err != nil {
 		log.Printf("failed to query waitlist: %v", err)
 		Handle500(c)
@@ -50,8 +54,10 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 		return
 	}
 
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	_, err = waitlistCollection.InsertOne(
-		context.TODO(),
+		db_ctx,
 		&database.WaitlistEntry{
 			Email:     email,
 			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
