@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/api/gmail/v1"
@@ -36,7 +37,7 @@ func TestReplyToEmail(t *testing.T) {
 			UserID:     userID,
 			IDExternal: "sample_message_id",
 			Title:      "Sample subject",
-			Source:     database.TaskSourceGmail,
+			SourceID:   external.TASK_SOURCE_ID_GMAIL,
 		},
 		ThreadID: "sample_thread_id",
 	})
@@ -67,7 +68,7 @@ func TestReplyToEmail(t *testing.T) {
 				UserID:     userID,
 				IDExternal: "sample_task_id",
 				Title:      "Sample Task",
-				Source:     database.TaskSourceJIRA,
+				SourceID:   external.TASK_SOURCE_ID_JIRA,
 			},
 		})
 
@@ -110,7 +111,7 @@ func TestReplyToEmail(t *testing.T) {
 				UserID:     primitive.NewObjectID(),
 				IDExternal: "sample_message_id",
 				Title:      "Sample subject",
-				Source:     database.TaskSourceGmail,
+				SourceID:   external.TASK_SOURCE_ID_GMAIL,
 			},
 			ThreadID: "sample_thread_id",
 		})

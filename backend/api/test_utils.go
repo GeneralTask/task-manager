@@ -86,7 +86,7 @@ func getGoogleTokenFromAuthToken(t *testing.T, db *mongo.Database, authToken str
 		context.TODO(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
-			{"source": "google"},
+			{"service_id": external.TASK_SERVICE_ID_GOOGLE},
 		}},
 	).Decode(&externalAPITokenStruct)
 	assert.NoError(t, err)
@@ -187,7 +187,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 		context.TODO(),
 		bson.M{"$and": []bson.M{
 			{"user_id": user.ID},
-			{"source": "google"},
+			{"service_id": external.TASK_SERVICE_ID_GOOGLE},
 			{"account_id": email},
 		}},
 	)
@@ -201,11 +201,11 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 			context.TODO(),
 			bson.M{"$and": []bson.M{
 				{"user_id": user.ID},
-				{"source": "google"},
+				{"service_id": external.TASK_SERVICE_ID_GOOGLE},
 			}},
 		).Decode(&googleToken)
 		assert.NoError(t, err)
-		assert.Equal(t, "google", googleToken.Source)
+		assert.Equal(t, external.TASK_SERVICE_ID_GOOGLE, googleToken.ServiceID)
 		assert.Equal(t, email, googleToken.AccountID)
 		assert.Equal(t, email, googleToken.DisplayID)
 		expectedToken := fmt.Sprintf("{\"access_token\":\"%s\",\"refresh_token\":\"test123\",\"expiry\":\"0001-01-01T00:00:00Z\"}", authToken)

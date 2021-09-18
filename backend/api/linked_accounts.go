@@ -6,6 +6,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -29,8 +30,8 @@ func (api *API) SupportedAccountTypesList(c *gin.Context) {
 	serverURL := config.GetConfigValue("SERVER_URL")
 	c.JSON(200, []SupportedAccountType{{
 		Name:             "JIRA",
-		Logo:             database.TaskSourceJIRA.Logo,
-		AuthorizationURL: serverURL + "authorize/jira/",
+		Logo:             external.TaskSourceJIRA.Logo,
+		AuthorizationURL: serverURL + "authorize/atlassian/",
 	}})
 }
 
@@ -62,11 +63,17 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 	}
 	linkedAccounts := []LinkedAccount{}
 	for _, token := range tokens {
+		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
+		if err != nil {
+			log.Printf("faield to fetch task service: %v", err)
+			Handle500(c)
+			return
+		}
 		linkedAccounts = append(linkedAccounts, LinkedAccount{
 			ID:           token.ID.Hex(),
 			DisplayID:    token.DisplayID,
-			Name:         token.Source,
-			Logo:         database.TaskSourceNameToSource[token.Source].Logo,
+			Name:         taskServiceResult.Details.Name,
+			Logo:         taskServiceResult.Details.Logo,
 			IsUnlinkable: token.IsUnlinkable,
 		})
 	}

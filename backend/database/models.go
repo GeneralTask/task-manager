@@ -6,16 +6,7 @@ import (
 
 // https://www.mongodb.com/blog/post/quick-start-golang--mongodb--modeling-documents-with-go-data-structures
 
-// APISource is a distinct API with its own token
-type APISource string
-
-const (
-	// Google APISource
-	Google APISource = "google"
-)
-
 // User model
-// todo: consider putting api tokens into user document
 type User struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty"`
 	GoogleID string             `bson:"google_id"`
@@ -33,7 +24,7 @@ type InternalAPIToken struct {
 // ExternalAPIToken model
 type ExternalAPIToken struct {
 	ID           primitive.ObjectID `bson:"_id,omitempty"`
-	Source       string             `bson:"source"`
+	ServiceID    string             `bson:"service_id"`
 	Token        string             `bson:"token"`
 	UserID       primitive.ObjectID `bson:"user_id"`
 	AccountID    string             `bson:"account_id"`
@@ -69,7 +60,7 @@ type TaskBase struct {
 	IDTaskSection    primitive.ObjectID `json:"-" bson:"id_task_section"`
 	IsCompleted      bool               `json:"-" bson:"is_completed"`
 	Sender           string             `json:"sender" bson:"sender"`
-	Source           TaskSource         `json:"source" bson:"source"`
+	SourceID         string             `json:"source_id" bson:"source_id"`
 	SourceAccountID  string             `json:"-" bson:"source_account_id"`
 	Deeplink         string             `json:"deeplink" bson:"deeplink"`
 	Title            string             `json:"title" bson:"title"`
@@ -111,49 +102,6 @@ type TaskChangeableFields struct {
 	DueDate            primitive.DateTime `bson:"due_date,omitempty"`
 	PriorityID         string             `bson:"priority_id,omitempty"`
 	PriorityNormalized float64            `bson:"priority_normalized,omitempty"`
-}
-
-type TaskSource struct {
-	Name          string `json:"name" bson:"name"`
-	Logo          string `json:"logo" bson:"logo"`
-	IsCompletable bool   `json:"is_completable" bson:"is_completable"`
-	IsReplyable   bool   `json:"is_replyable" bson:"is_replyable"`
-}
-
-var TaskSourceGoogleCalendar = TaskSource{
-	"Google Calendar",
-	"/images/gcal.svg",
-	false,
-	false,
-}
-
-var TaskSourceGmail = TaskSource{
-	"Gmail",
-	"/images/gmail.svg",
-	true,
-	true,
-}
-var TaskSourceJIRA = TaskSource{
-	"Jira",
-	"/images/jira.svg",
-	true,
-	false,
-}
-
-var TaskSourceSlack = TaskSource{
-	"Slack",
-	"/images/slack.svg",
-	true,
-	true,
-}
-
-var TaskSourceNameToSource = map[string]TaskSource{
-	TaskSourceGoogleCalendar.Name: TaskSourceGoogleCalendar,
-	TaskSourceGmail.Name:          TaskSourceGmail,
-	TaskSourceJIRA.Name:           TaskSourceJIRA,
-	TaskSourceSlack.Name:          TaskSourceSlack,
-	// Add "google" so this map can be used for external API token source also
-	"google": TaskSourceGmail,
 }
 
 type UserSetting struct {

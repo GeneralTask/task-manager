@@ -7,6 +7,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -27,7 +28,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal: "standard_event",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event",
-				Source:     database.TaskSourceGoogleCalendar,
+				SourceID:   external.TASK_SOURCE_ID_GCAL,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour + time.Minute)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
@@ -40,7 +41,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal: "standard_event_2",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event_2",
-				Source:     database.TaskSourceGoogleCalendar,
+				SourceID:   external.TASK_SOURCE_ID_GCAL,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour*3 + time.Minute*20)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 4)),
@@ -53,7 +54,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:      "sample_email",
 				Deeplink:        "generaltask.io",
 				Title:           "Respond to this email",
-				Source:          database.TaskSourceGmail,
+				SourceID:        external.TASK_SOURCE_ID_GMAIL,
 				TimeAllocation:  (time.Minute * 5).Nanoseconds(),
 				SourceAccountID: "elon@gmail.com",
 			},
@@ -67,7 +68,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:      "sample_emailA",
 				Deeplink:        "generaltask.io",
 				Title:           "Respond to this email",
-				Source:          database.TaskSourceGmail,
+				SourceID:        external.TASK_SOURCE_ID_GMAIL,
 				TimeAllocation:  (time.Minute * 5).Nanoseconds(),
 				SourceAccountID: "elon@moon.com",
 			},
@@ -82,7 +83,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:      "sample_email_2",
 				Deeplink:        "generaltask.io",
 				Title:           "Respond to this email...eventually",
-				Source:          database.TaskSourceGmail,
+				SourceID:        external.TASK_SOURCE_ID_GMAIL,
 				TimeAllocation:  (time.Minute * 2).Nanoseconds(),
 				SourceAccountID: "elon@gmail.com",
 			},
@@ -97,7 +98,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:      "sample_task",
 				Deeplink:        "generaltask.io",
 				Title:           "Code x",
-				Source:          database.TaskSourceJIRA,
+				SourceID:        external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:  (time.Hour).Nanoseconds(),
 				SourceAccountID: "AtlassianSite2",
 			},
@@ -114,7 +115,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:      "sample_task1",
 				Deeplink:        "generaltask.io",
 				Title:           "Code x",
-				Source:          database.TaskSourceJIRA,
+				SourceID:        external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:  (time.Hour).Nanoseconds(),
 				SourceAccountID: "AtlassianSite1",
 			},
@@ -131,7 +132,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:      "sample_task2",
 				Deeplink:        "generaltask.io",
 				Title:           "Code x",
-				Source:          database.TaskSourceJIRA,
+				SourceID:        external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:  (time.Hour).Nanoseconds(),
 				SourceAccountID: "AtlassianSite1",
 			},
@@ -148,7 +149,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:      "sample_task3",
 				Deeplink:        "generaltask.io",
 				Title:           "Code x",
-				Source:          database.TaskSourceJIRA,
+				SourceID:        external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:  (time.Hour).Nanoseconds(),
 				SourceAccountID: "AtlassianSite1",
 			},
@@ -222,7 +223,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:       "sample_task",
 				Deeplink:         "generaltask.io",
 				Title:            "Code x",
-				Source:           database.TaskSourceJIRA,
+				SourceID:         external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:   (time.Hour).Nanoseconds(),
 				UserID:           userID,
 			},
@@ -231,7 +232,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 1.0,
 			TaskNumber:         7,
 		}
-		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
+		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t1)
 		assert.NoError(t, err)
 		t1.ID = t1Res.ID
 
@@ -242,7 +243,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:       "sample_task2",
 				Deeplink:         "generaltask.io",
 				Title:            "Code x",
-				Source:           database.TaskSourceJIRA,
+				SourceID:         external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:   (time.Hour).Nanoseconds(),
 				UserID:           userID,
 			},
@@ -251,7 +252,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 0.0,
 			TaskNumber:         12,
 		}
-		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
+		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", external.TASK_SOURCE_ID_JIRA, t2)
 		assert.NoError(t, err)
 		t2.ID = t2Res.ID
 
@@ -261,13 +262,13 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal: "standard_event",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event",
-				Source:     database.TaskSourceGoogleCalendar,
+				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(20 * time.Minute)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
 		}
-		c1Res, err := database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar, c1)
+		c1Res, err := database.GetOrCreateTask(db, userID, "standard_event", external.TASK_SOURCE_ID_GCAL, c1)
 		assert.NoError(t, err)
 		c1.ID = c1Res.ID
 
@@ -277,13 +278,13 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal: "standard_event2",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event",
-				Source:     database.TaskSourceGoogleCalendar,
+				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 5)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 6)),
 		}
-		c2Res, err := database.GetOrCreateTask(db, userID, "standard_event2", database.TaskSourceGoogleCalendar, c2)
+		c2Res, err := database.GetOrCreateTask(db, userID, "standard_event2", external.TASK_SOURCE_ID_GCAL, c2)
 		assert.NoError(t, err)
 		c2.ID = c2Res.ID
 
@@ -294,13 +295,13 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal: "standard_event3",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event",
-				Source:     database.TaskSourceGoogleCalendar,
+				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 7)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 8)),
 		}
-		c3Res, err := database.GetOrCreateTask(db, userID, "standard_event3", database.TaskSourceGoogleCalendar, c3)
+		c3Res, err := database.GetOrCreateTask(db, userID, "standard_event3", external.TASK_SOURCE_ID_GCAL, c3)
 		assert.NoError(t, err)
 		c3.ID = c3Res.ID
 
@@ -345,7 +346,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
@@ -354,7 +355,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 1.0,
 			TaskNumber:         7,
 		}
-		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
+		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t1)
 		assert.NoError(t, err)
 		t1.ID = t1Res.ID
 
@@ -364,7 +365,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:     "sample_task2",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
@@ -373,7 +374,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 0.0,
 			TaskNumber:         12,
 		}
-		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
+		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", external.TASK_SOURCE_ID_JIRA, t2)
 		assert.NoError(t, err)
 		t2.ID = t2Res.ID
 
@@ -383,13 +384,13 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal: "standard_event",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event",
-				Source:     database.TaskSourceGoogleCalendar,
+				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(20 * time.Minute)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
 		}
-		c1Res, err := database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar, c1)
+		c1Res, err := database.GetOrCreateTask(db, userID, "standard_event", external.TASK_SOURCE_ID_GCAL, c1)
 		assert.NoError(t, err)
 		c1.ID = c1Res.ID
 
@@ -399,13 +400,13 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal: "standard_event2",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event",
-				Source:     database.TaskSourceGoogleCalendar,
+				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 5)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 6)),
 		}
-		c2Res, err := database.GetOrCreateTask(db, userID, "standard_event2", database.TaskSourceGoogleCalendar, c2)
+		c2Res, err := database.GetOrCreateTask(db, userID, "standard_event2", external.TASK_SOURCE_ID_GCAL, c2)
 		assert.NoError(t, err)
 		c2.ID = c2Res.ID
 
@@ -448,7 +449,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
@@ -465,7 +466,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:       "sample_task2",
 				Deeplink:         "generaltask.io",
 				Title:            "Code x",
-				Source:           database.TaskSourceJIRA,
+				SourceID:         external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:   (time.Hour).Nanoseconds(),
 				UserID:           userID,
 			},
@@ -474,7 +475,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 1.0,
 			TaskNumber:         12,
 		}
-		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
+		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", external.TASK_SOURCE_ID_JIRA, t2)
 		assert.NoError(t, err)
 		t2.ID = t2Res.ID
 
@@ -484,13 +485,13 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal: "standard_event",
 				Deeplink:   "generaltask.io",
 				Title:      "Standard Event",
-				Source:     database.TaskSourceGoogleCalendar,
+				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(20 * time.Minute)),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
 		}
-		c1Res, err := database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar, c1)
+		c1Res, err := database.GetOrCreateTask(db, userID, "standard_event", external.TASK_SOURCE_ID_GCAL, c1)
 		assert.NoError(t, err)
 		c1.ID = c1Res.ID
 
@@ -525,7 +526,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
@@ -534,7 +535,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 0.5,
 			TaskNumber:         7,
 		}
-		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
+		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t1)
 		assert.NoError(t, err)
 		t1.ID = t1Res.ID
 
@@ -545,7 +546,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:       "sample_task2",
 				Deeplink:         "generaltask.io",
 				Title:            "Code x",
-				Source:           database.TaskSourceJIRA,
+				SourceID:         external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:   (time.Hour).Nanoseconds(),
 				UserID:           userID,
 			},
@@ -554,7 +555,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 0.0,
 			TaskNumber:         12,
 		}
-		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
+		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", external.TASK_SOURCE_ID_JIRA, t2)
 		assert.NoError(t, err)
 		t2.ID = t2Res.ID
 
@@ -565,7 +566,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:     "sample_email",
 				Deeplink:       "generaltask.io",
 				Title:          "Respond to this email",
-				Source:         database.TaskSourceGmail,
+				SourceID:       external.TASK_SOURCE_ID_GMAIL,
 				TimeAllocation: (time.Minute * 5).Nanoseconds(),
 			},
 			SenderDomain: "gmail.com",
@@ -599,7 +600,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
@@ -608,7 +609,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 0.5,
 			TaskNumber:         1,
 		}
-		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
+		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t1)
 		assert.NoError(t, err)
 		t1.ID = t1Res.ID
 
@@ -618,7 +619,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
@@ -627,7 +628,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 0.75,
 			TaskNumber:         2,
 		}
-		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t2)
+		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t2)
 		assert.NoError(t, err)
 		t2.ID = t2Res.ID
 
@@ -638,7 +639,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
@@ -646,7 +647,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityID: "2",
 			TaskNumber: 3,
 		}
-		t3Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t3)
+		t3Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t3)
 		assert.NoError(t, err)
 		t3.ID = t3Res.ID
 
@@ -657,7 +658,7 @@ func TestMergeTasks(t *testing.T) {
 				IDExternal:     "sample_task",
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
@@ -665,7 +666,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityID: "3",
 			TaskNumber: 4,
 		}
-		t4Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t4)
+		t4Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t4)
 		assert.NoError(t, err)
 		t4.ID = t4Res.ID
 
@@ -697,7 +698,7 @@ func TestMergeTasks(t *testing.T) {
 				IDTaskSection:  constants.IDTaskSectionBlocked,
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
@@ -706,7 +707,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 0.5,
 			TaskNumber:         7,
 		}
-		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t1)
+		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t1)
 		assert.NoError(t, err)
 		t1.ID = t1Res.ID
 
@@ -717,7 +718,7 @@ func TestMergeTasks(t *testing.T) {
 				IDTaskSection:  constants.IDTaskSectionBlocked,
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
@@ -726,7 +727,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 0.0,
 			TaskNumber:         12,
 		}
-		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t2)
+		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", external.TASK_SOURCE_ID_JIRA, t2)
 		assert.NoError(t, err)
 		t2.ID = t2Res.ID
 
@@ -737,7 +738,7 @@ func TestMergeTasks(t *testing.T) {
 				IDTaskSection:  constants.IDTaskSectionBacklog,
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
@@ -746,7 +747,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 0.5,
 			TaskNumber:         7,
 		}
-		t3Res, err := database.GetOrCreateTask(db, userID, "sample_task", database.TaskSourceJIRA, t3)
+		t3Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t3)
 		assert.NoError(t, err)
 		t3.ID = t3Res.ID
 
@@ -757,7 +758,7 @@ func TestMergeTasks(t *testing.T) {
 				IDTaskSection:  constants.IDTaskSectionBacklog,
 				Deeplink:       "generaltask.io",
 				Title:          "Code x",
-				Source:         database.TaskSourceJIRA,
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
 				UserID:         userID,
 			},
@@ -766,7 +767,7 @@ func TestMergeTasks(t *testing.T) {
 			PriorityNormalized: 0.0,
 			TaskNumber:         12,
 		}
-		t4Res, err := database.GetOrCreateTask(db, userID, "sample_task2", database.TaskSourceJIRA, t4)
+		t4Res, err := database.GetOrCreateTask(db, userID, "sample_task2", external.TASK_SOURCE_ID_JIRA, t4)
 		assert.NoError(t, err)
 		t4.ID = t4Res.ID
 

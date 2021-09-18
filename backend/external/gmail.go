@@ -128,7 +128,7 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 					IDExternal:      message.Id,
 					IDTaskSection:   constants.IDTaskSectionToday,
 					Sender:          senderName,
-					Source:          database.TaskSourceGmail,
+					SourceID:        TASK_SOURCE_ID_GMAIL,
 					Deeplink:        fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", userObject.Email, threadListItem.Id),
 					Title:           title,
 					Body:            *body,
@@ -139,7 +139,7 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 				ThreadID:     threadListItem.Id,
 				TimeSent:     primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0)),
 			}
-			dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.Source, email)
+			dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.SourceID, email)
 			if err != nil {
 				result <- emptyEmailResult(err)
 				return

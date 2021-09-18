@@ -43,7 +43,7 @@ func TestCalendar(t *testing.T) {
 				IDTaskSection: constants.IDTaskSectionToday,
 				Deeplink:      "generaltask.io",
 				Title:         "Standard Event",
-				Source:        database.TaskSourceGoogleCalendar,
+				SourceID:      TASK_SOURCE_ID_GCAL,
 				UserID:        userID,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
@@ -93,7 +93,7 @@ func TestCalendar(t *testing.T) {
 			context.TODO(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
-				{"source.name": database.TaskSourceGoogleCalendar.Name},
+				{"source_id": TASK_SOURCE_ID_GCAL},
 				{"user_id": userID},
 			}},
 		).Decode(&calendarEventFromDB)
@@ -127,14 +127,14 @@ func TestCalendar(t *testing.T) {
 				IDTaskSection:   constants.IDTaskSectionToday,
 				Deeplink:        "generaltask.io",
 				Title:           "Standard Event",
-				Source:          database.TaskSourceGoogleCalendar,
+				SourceID:        TASK_SOURCE_ID_GCAL,
 				UserID:          userID,
 				SourceAccountID: "exampleAccountID",
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(oldEndtime),
 		}
-		database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar, standardTask)
+		database.GetOrCreateTask(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
 		// Rescheduling end time along shouldn't trigger a reset like in the next test case
 		standardTask.DatetimeEnd = primitive.NewDateTimeFromTime(endTime)
 
@@ -181,7 +181,7 @@ func TestCalendar(t *testing.T) {
 			context.TODO(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
-				{"source.name": database.TaskSourceGoogleCalendar.Name},
+				{"source_id": TASK_SOURCE_ID_GCAL},
 				{"user_id": userID},
 			}},
 		).Decode(&calendarEventFromDB)
@@ -216,14 +216,14 @@ func TestCalendar(t *testing.T) {
 				IDTaskSection:   constants.IDTaskSectionToday,
 				Deeplink:        "generaltask.io",
 				Title:           "Standard Event",
-				Source:          database.TaskSourceGoogleCalendar,
+				SourceID:        TASK_SOURCE_ID_GCAL,
 				UserID:          userID,
 				SourceAccountID: "exampleAccountID",
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(oldStartTime),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 		}
-		database.GetOrCreateTask(db, userID, "standard_event", database.TaskSourceGoogleCalendar, standardTask)
+		database.GetOrCreateTask(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
 		standardTask.DatetimeStart = primitive.NewDateTimeFromTime(startTime)
 		// IDOrdering expected to be zero because ordering is reset upon rescheduling
 		standardTask.IDOrdering = 0
@@ -251,7 +251,7 @@ func TestCalendar(t *testing.T) {
 			context.TODO(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
-				{"source.name": database.TaskSourceGoogleCalendar.Name},
+				{"source_id": TASK_SOURCE_ID_GCAL},
 				{"user_id": userID},
 			}},
 		).Decode(&calendarEventFromDB)
@@ -285,7 +285,7 @@ func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *datab
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)
 	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
 	assert.Equal(t, a.Title, b.Title)
-	assert.Equal(t, a.Source, b.Source)
+	assert.Equal(t, a.SourceID, b.SourceID)
 }
 
 func getServerForTasks(events []*calendar.Event) *httptest.Server {

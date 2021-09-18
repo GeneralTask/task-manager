@@ -144,18 +144,19 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 		return
 	}
 
-	if !task.Source.IsCompletable {
-		c.JSON(400, gin.H{"detail": "cannot be marked done"})
-		return
-	}
-	taskSource, err := api.ExternalConfig.GetTaskSource(task.Source.Name)
+	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
 	if err != nil {
 		log.Printf("failed to load external task source: %v", err)
 		Handle500(c)
 		return
 	}
 
-	err = (*taskSource).MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
+	if !taskSourceResult.Details.IsCompletable {
+		c.JSON(400, gin.H{"detail": "cannot be marked done"})
+		return
+	}
+
+	err = taskSourceResult.Source.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "Failed to mark task as complete"})
 		return
