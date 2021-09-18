@@ -24,7 +24,7 @@ type GmailReplyParams struct {
 }
 
 func TestReplyToEmail(t *testing.T) {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -34,9 +34,9 @@ func TestReplyToEmail(t *testing.T) {
 
 	taskCollection := db.Collection("tasks")
 
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	insertedResult, err := taskCollection.InsertOne(db_ctx, database.Email{
+	insertedResult, err := taskCollection.InsertOne(dbCtx, database.Email{
 		TaskBase: database.TaskBase{
 			UserID:     userID,
 			IDExternal: "sample_message_id",
@@ -67,9 +67,9 @@ func TestReplyToEmail(t *testing.T) {
 	})
 
 	t.Run("InvalidTaskType", func(t *testing.T) {
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		insertedResult, err := taskCollection.InsertOne(db_ctx, database.Task{
+		insertedResult, err := taskCollection.InsertOne(dbCtx, database.Task{
 			TaskBase: database.TaskBase{
 				UserID:     userID,
 				IDExternal: "sample_task_id",
@@ -112,9 +112,9 @@ func TestReplyToEmail(t *testing.T) {
 	})
 
 	t.Run("TaskDoesNotBelongToUser", func(t *testing.T) {
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		insertedResult, err := taskCollection.InsertOne(db_ctx, database.Email{
+		insertedResult, err := taskCollection.InsertOne(dbCtx, database.Email{
 			TaskBase: database.TaskBase{
 				UserID:     primitive.NewObjectID(),
 				IDExternal: "sample_message_id",

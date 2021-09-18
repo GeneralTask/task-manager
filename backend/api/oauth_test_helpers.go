@@ -159,7 +159,7 @@ func TestAuthorizeCallbackUnsuccessfulResponse(t *testing.T, api *API, url strin
 }
 
 func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string, serviceID string) {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	authToken := login("approved@generaltask.io", "")
 	stateToken, err := newStateToken(authToken)
 	assert.NoError(t, err)
@@ -177,32 +177,32 @@ func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string,
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var authTokenStruct database.InternalAPIToken
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = internalAPITokenCollection.FindOne(db_ctx, bson.M{"token": authToken}).Decode(&authTokenStruct)
+	err = internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": authToken}).Decode(&authTokenStruct)
 	assert.NoError(t, err)
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	count, err := externalAPITokenCollection.CountDocuments(
-		db_ctx,
+		dbCtx,
 		bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": serviceID}}})
 
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var externalToken database.ExternalAPIToken
-	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = externalAPITokenCollection.FindOne(db_ctx, bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": serviceID}}}).Decode(&externalToken)
+	err = externalAPITokenCollection.FindOne(dbCtx, bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": serviceID}}}).Decode(&externalToken)
 	assert.NoError(t, err)
 	assert.Equal(t, serviceID, externalToken.ServiceID)
 
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var jiraToken database.ExternalAPIToken
-	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = externalAPITokenCollection.FindOne(db_ctx, bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": external.TASK_SERVICE_ID_ATLASSIAN}}}).Decode(&jiraToken)
+	err = externalAPITokenCollection.FindOne(dbCtx, bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": external.TASK_SERVICE_ID_ATLASSIAN}}}).Decode(&jiraToken)
 	assert.NoError(t, err)
 	assert.Equal(t, external.TASK_SERVICE_ID_ATLASSIAN, jiraToken.ServiceID)
 	assert.Equal(t, "teslatothemoon42069", jiraToken.AccountID)

@@ -47,9 +47,9 @@ func (api *API) Login(c *gin.Context) {
 		return
 	}
 	googleService := external.GoogleService{
-		LoginConfig:      	api.ExternalConfig.GoogleLoginConfig,
-		AuthorizeConfig: 	api.ExternalConfig.GoogleAuthorizeConfig,
-		OverrideURLs: 	  	api.ExternalConfig.GoogleOverrideURLs,
+		LoginConfig:     api.ExternalConfig.GoogleLoginConfig,
+		AuthorizeConfig: api.ExternalConfig.GoogleAuthorizeConfig,
+		OverrideURLs:    api.ExternalConfig.GoogleOverrideURLs,
 	}
 	authURL, err := googleService.GetSignupURL(stateTokenID, forcePrompt)
 	if err != nil {
@@ -61,7 +61,7 @@ func (api *API) Login(c *gin.Context) {
 }
 
 func (api *API) LoginCallback(c *gin.Context) {
-	parent_ctx := c.Request.Context()
+	parentCtx := c.Request.Context()
 	var redirectParams GoogleRedirectParams
 	if c.ShouldBind(&redirectParams) != nil || redirectParams.State == "" || redirectParams.Code == "" || redirectParams.Scope == "" {
 		c.JSON(400, gin.H{"detail": "Missing query params"})
@@ -101,7 +101,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	googleService := external.GoogleService{
 		LoginConfig:     api.ExternalConfig.GoogleLoginConfig,
 		AuthorizeConfig: api.ExternalConfig.GoogleAuthorizeConfig,
-		OverrideURLs: 	 api.ExternalConfig.GoogleOverrideURLs,
+		OverrideURLs:    api.ExternalConfig.GoogleOverrideURLs,
 	}
 	userID, email, err := googleService.HandleSignupCallback(redirectParams.Code)
 	if err != nil {
@@ -112,10 +112,10 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	lowerEmail := strings.ToLower(*email)
 	waitlistCollection := db.Collection("waitlist")
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	count, err := waitlistCollection.CountDocuments(
-		db_ctx,
+		dbCtx,
 		bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
 	)
 	if err != nil {
@@ -130,10 +130,10 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	internalToken := guuid.New().String()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
-	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = internalAPITokenCollection.UpdateOne(
-		db_ctx,
+		dbCtx,
 		bson.M{"user_id": userID},
 		bson.M{"$set": &database.InternalAPIToken{UserID: userID, Token: internalToken}},
 		options.Update().SetUpsert(true),
