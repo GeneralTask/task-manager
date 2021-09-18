@@ -43,7 +43,7 @@ type TaskSourceResult struct {
 }
 
 func (config Config) GetTaskServiceResult(serviceID string) (*TaskServiceResult, error) {
-	nameToService := config.getNameToService()
+	nameToService := config.GetNameToService()
 	result, ok := nameToService[serviceID]
 	if !ok {
 		return nil, errors.New("task service not found")
@@ -83,7 +83,7 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 	}
 }
 
-func (config Config) getNameToService() map[string]TaskServiceResult {
+func (config Config) GetNameToService() map[string]TaskServiceResult {
 	atlassianService := AtlassianService{Config: config.Atlassian}
 	googleService := GoogleService{
 		LoginConfig:        config.GoogleLoginConfig,
@@ -138,7 +138,7 @@ var TaskServiceSlack = TaskServiceDetails{
 	TASK_SERVICE_ID_SLACK,
 	"Slack",
 	"/images/slack.svg",
-	true,
+	false,
 	false,
 }
 
