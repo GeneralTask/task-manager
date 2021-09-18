@@ -53,21 +53,21 @@ type StateToken struct {
 
 // Task json & mongo model
 type TaskBase struct {
-	ID               primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	UserID           primitive.ObjectID `json:"-" bson:"user_id"`
-	IDExternal       string             `json:"-" bson:"id_external"`
-	IDOrdering       int                `json:"id_ordering" bson:"id_ordering"`
-	IDTaskSection    primitive.ObjectID `json:"-" bson:"id_task_section"`
-	IsCompleted      bool               `json:"-" bson:"is_completed"`
-	Sender           string             `json:"sender" bson:"sender"`
-	SourceID         string             `json:"-" bson:"source_id"`
-	SourceAccountID  string             `json:"-" bson:"source_account_id"`
-	Deeplink         string             `json:"deeplink" bson:"deeplink"`
-	Title            string             `json:"title" bson:"title"`
-	Body             string             `json:"body" bson:"body"`
-	HasBeenReordered bool               `json:"-" bson:"has_been_reordered"`
+	ID               primitive.ObjectID `bson:"_id,omitempty"`
+	UserID           primitive.ObjectID `bson:"user_id"`
+	IDExternal       string             `bson:"id_external"`
+	IDOrdering       int                `bson:"id_ordering"`
+	IDTaskSection    primitive.ObjectID `bson:"id_task_section"`
+	IsCompleted      bool               `bson:"is_completed"`
+	Sender           string             `bson:"sender"`
+	SourceID         string             `bson:"source_id"`
+	SourceAccountID  string             `bson:"source_account_id"`
+	Deeplink         string             `bson:"deeplink"`
+	Title            string             `bson:"title"`
+	Body             string             `bson:"body"`
+	HasBeenReordered bool               `bson:"has_been_reordered"`
 	//time in nanoseconds
-	TimeAllocation int64 `json:"time_allocated" bson:"time_allocated"`
+	TimeAllocation int64 `bson:"time_allocated"`
 }
 
 type CalendarEvent struct {
