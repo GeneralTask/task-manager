@@ -15,19 +15,19 @@ const (
 )
 
 type Config struct {
-	GoogleLoginConfig  OauthConfigWrapper
+	GoogleLoginConfig     OauthConfigWrapper
 	GoogleAuthorizeConfig OauthConfigWrapper
-	Slack              OauthConfigWrapper
-	GoogleOverrideURLs GoogleURLOverrides
-	Atlassian          AtlassianConfig
+	Slack                 OauthConfigWrapper
+	GoogleOverrideURLs    GoogleURLOverrides
+	Atlassian             AtlassianConfig
 }
 
 func GetConfig() Config {
 	return Config{
-		GoogleLoginConfig:    getGoogleLoginConfig(),
+		GoogleLoginConfig:     getGoogleLoginConfig(),
 		GoogleAuthorizeConfig: getGoogleAuthorizeConfig(),
-		Slack:     getSlackConfig(),
-		Atlassian: AtlassianConfig{OauthConfig: getAtlassianOauthConfig()},
+		Slack:                 getSlackConfig(),
+		Atlassian:             AtlassianConfig{OauthConfig: getAtlassianOauthConfig()},
 	}
 }
 
@@ -63,9 +63,9 @@ func (config Config) GetTaskSourceResult(serviceID string) (*TaskSourceResult, e
 func (config Config) getNameToSource() map[string]TaskSourceResult {
 	atlassianService := AtlassianService{Config: config.Atlassian}
 	googleService := GoogleService{
-		LoginConfig:       	config.GoogleLoginConfig,
-		AuthorizeConfig: 	config.GoogleAuthorizeConfig,
-		OverrideURLs: 		config.GoogleOverrideURLs,
+		LoginConfig:     config.GoogleLoginConfig,
+		AuthorizeConfig: config.GoogleAuthorizeConfig,
+		OverrideURLs:    config.GoogleOverrideURLs,
 	}
 	return map[string]TaskSourceResult{
 		TASK_SOURCE_ID_GMAIL: {
@@ -86,9 +86,9 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 func (config Config) GetNameToService() map[string]TaskServiceResult {
 	atlassianService := AtlassianService{Config: config.Atlassian}
 	googleService := GoogleService{
-		LoginConfig:        config.GoogleLoginConfig,
-		AuthorizeConfig: 	config.GoogleAuthorizeConfig,
-		OverrideURLs: 		config.GoogleOverrideURLs,
+		LoginConfig:     config.GoogleLoginConfig,
+		AuthorizeConfig: config.GoogleAuthorizeConfig,
+		OverrideURLs:    config.GoogleOverrideURLs,
 	}
 	return map[string]TaskServiceResult{
 		TASK_SERVICE_ID_GOOGLE: {
@@ -131,7 +131,7 @@ var TaskServiceGoogle = TaskServiceDetails{
 	TASK_SERVICE_ID_GOOGLE,
 	"Google",
 	"/images/gmail.svg",
-	false,
+	true,
 	true,
 }
 var TaskServiceSlack = TaskServiceDetails{
