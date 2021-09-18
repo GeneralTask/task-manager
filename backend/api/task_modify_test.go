@@ -71,7 +71,7 @@ func TestMarkAsComplete(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	AtlassianSiteCollection := db.Collection("jira_site_collection")
+	AtlassianSiteCollection := db.Collection("jira_sites")
 	_, err = AtlassianSiteCollection.UpdateOne(
 		context.TODO(),
 		bson.M{"user_id": userID},
