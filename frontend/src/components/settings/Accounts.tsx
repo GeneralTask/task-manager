@@ -28,7 +28,14 @@ const Accounts: React.FC = () => {
 		return <DotSpinner />
 	}
 	else if (linkedAccounts.accounts.length === 0) {
-		return <div>No linked accounts!</div>
+		return (
+			<>
+				<flex.centerXY>
+					<h2>No linked accounts!</h2>
+					<AddNewAccountDropdown refetchLinkedAccounts={() => { fetchLinkedAccounts(setLinkedAccounts) }} />
+				</flex.centerXY>
+			</>
+		)
 	}
 	else {
 		const removeLink = (account: LinkedAccount) => {
