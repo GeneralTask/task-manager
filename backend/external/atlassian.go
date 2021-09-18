@@ -130,7 +130,7 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 		return errors.New("internal server error")
 	}
 
-	siteCollection := db.Collection("jira_site_collection")
+	siteCollection := db.Collection("jira_sites")
 
 	_, err = siteCollection.UpdateOne(
 		context.TODO(),
@@ -209,7 +209,7 @@ func (atlassian AtlassianService) getSiteConfiguration(userID primitive.ObjectID
 	}
 	defer dbCleanup()
 
-	siteCollection := db.Collection("jira_site_collection")
+	siteCollection := db.Collection("jira_sites")
 	err = siteCollection.FindOne(context.TODO(), bson.M{"user_id": userID}).Decode(&siteConfiguration)
 	if err != nil {
 		return nil, err

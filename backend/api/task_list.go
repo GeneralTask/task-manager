@@ -32,7 +32,7 @@ type TaskSource struct {
 	IsReplyable   bool   `json:"is_replyable"`
 }
 
-type TaskData struct {
+type TaskResult struct {
 	ID             primitive.ObjectID `json:"id"`
 	IDOrdering     int                `json:"id_ordering"`
 	Sender         string             `json:"sender"`
@@ -50,9 +50,9 @@ type CalendarItem struct {
 
 type TaskGroup struct {
 	TaskGroupType `json:"type"`
-	StartTime     string      `json:"datetime_start"`
-	Duration      int64       `json:"time_duration"`
-	Tasks         []*TaskData `json:"tasks"`
+	StartTime     string        `json:"datetime_start"`
+	Duration      int64         `json:"time_duration"`
+	Tasks         []*TaskResult `json:"tasks"`
 }
 
 type TaskSection struct {
@@ -560,7 +560,7 @@ func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) error {
 func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskGroup {
 	taskGroups := []*TaskGroup{}
 	lastEndTime := time.Now()
-	unscheduledTasks := []*TaskData{}
+	unscheduledTasks := []*TaskResult{}
 	for index, taskItem := range *tasks {
 		if taskItem.TaskGroupType == ScheduledTask {
 			if len(unscheduledTasks) > 0 || index == 0 {
@@ -570,17 +570,17 @@ func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskGroup {
 					Duration:      int64(taskItem.DatetimeStart.Time().Sub(lastEndTime).Seconds()),
 					Tasks:         unscheduledTasks,
 				})
-				unscheduledTasks = []*TaskData{}
+				unscheduledTasks = []*TaskResult{}
 			}
 			taskGroups = append(taskGroups, &TaskGroup{
 				TaskGroupType: ScheduledTask,
 				StartTime:     taskItem.DatetimeStart.Time().String(),
 				Duration:      int64(taskItem.DatetimeEnd.Time().Sub(taskItem.DatetimeStart.Time()).Seconds()),
-				Tasks:         []*TaskData{taskBaseToTaskData(taskItem.TaskBase)},
+				Tasks:         []*TaskResult{taskBaseToTaskResult(taskItem.TaskBase)},
 			})
 			lastEndTime = taskItem.DatetimeEnd.Time()
 		} else {
-			unscheduledTasks = append(unscheduledTasks, taskBaseToTaskData(taskItem.TaskBase))
+			unscheduledTasks = append(unscheduledTasks, taskBaseToTaskResult(taskItem.TaskBase))
 		}
 	}
 	var totalDuration int64
@@ -596,10 +596,10 @@ func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskGroup {
 	return taskGroups
 }
 
-func taskBaseToTaskData(t *database.TaskBase) *TaskData {
+func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 	// Normally we need to use api.ExternalConfig but we are just using the source details constants here
 	taskSourceResult, _ := external.GetConfig().GetTaskSourceResult(t.SourceID)
-	return &TaskData{
+	return &TaskResult{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
 		Sender:     t.Sender,
@@ -609,6 +609,10 @@ func taskBaseToTaskData(t *database.TaskBase) *TaskData {
 			IsCompletable: taskSourceResult.Details.IsCompletable,
 			IsReplyable:   taskSourceResult.Details.IsReplyable,
 		},
+		Deeplink:       t.Deeplink,
+		Title:          t.Title,
+		Body:           t.Body,
+		TimeAllocation: t.TimeAllocation,
 	}
 }
 
