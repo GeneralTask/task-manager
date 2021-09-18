@@ -25,6 +25,7 @@ type GmailSource struct {
 }
 
 func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+	parent_ctx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		result <- emptyEmailResult(err)
@@ -48,7 +49,9 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 		return
 	}
 
-	gmailService, err := gmail.NewService(context.TODO(), option.WithHTTPClient(client))
+	ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+	defer cancel()
+	gmailService, err := gmail.NewService(ext_ctx, option.WithHTTPClient(client))
 	if err != nil {
 		log.Printf("unable to create Gmail service: %v", err)
 		result <- emptyEmailResult(err)
@@ -196,6 +199,7 @@ func (Gmail GmailSource) GetTasks(userID primitive.ObjectID, accountID string, r
 }
 
 func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string, emailID string) error {
+	parent_ctx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
@@ -208,8 +212,10 @@ func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string,
 	if Gmail.Google.OverrideURLs.GmailModifyURL == nil {
 		gmailService, err = gmail.New(client)
 	} else {
+		ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+		defer cancel()
 		gmailService, err = gmail.NewService(
-			context.Background(),
+			ext_ctx,
 			option.WithoutAuthentication(),
 			option.WithEndpoint(*Gmail.Google.OverrideURLs.GmailModifyURL))
 	}
@@ -244,6 +250,7 @@ func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string,
 }
 
 func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+	parent_ctx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
@@ -255,13 +262,17 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 	var gmailService *gmail.Service
 
 	if Gmail.Google.OverrideURLs.GmailReplyURL != nil {
+		ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+		defer cancel()
 		gmailService, err = gmail.NewService(
-			context.Background(),
+			ext_ctx,
 			option.WithoutAuthentication(),
 			option.WithEndpoint(*Gmail.Google.OverrideURLs.GmailReplyURL),
 		)
 	} else {
-		gmailService, err = gmail.NewService(context.TODO(), option.WithHTTPClient(client))
+		ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+		defer cancel()
+		gmailService, err = gmail.NewService(ext_ctx, option.WithHTTPClient(client))
 	}
 
 	if err != nil {
@@ -270,14 +281,18 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 
 	var userObject database.User
 	userCollection := db.Collection("users")
-	err = userCollection.FindOne(context.TODO(), bson.M{"_id": userID}).Decode(&userObject)
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err = userCollection.FindOne(db_ctx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
 		return err
 	}
 
 	var email database.Email
 	taskCollection := db.Collection("tasks")
-	err = taskCollection.FindOne(context.TODO(), bson.M{"$and": []bson.M{{"_id": taskID}, {"user_id": userID}}}).Decode(&email)
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err = taskCollection.FindOne(db_ctx, bson.M{"$and": []bson.M{{"_id": taskID}, {"user_id": userID}}}).Decode(&email)
 	if err != nil {
 		return err
 	}

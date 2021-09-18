@@ -46,6 +46,7 @@ type JIRATaskList struct {
 }
 
 func (JIRA JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken string) error {
+	parent_ctx := context.Background()
 	var baseURL string
 	if JIRA.Atlassian.Config.ConfigValues.PriorityListURL != nil {
 		baseURL = *JIRA.Atlassian.Config.ConfigValues.PriorityListURL
@@ -84,7 +85,9 @@ func (JIRA JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken 
 	defer dbCleanup()
 
 	prioritiesCollection := db.Collection("jira_priorities")
-	_, err = prioritiesCollection.DeleteMany(context.TODO(), bson.M{"user_id": userID})
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err = prioritiesCollection.DeleteMany(db_ctx, bson.M{"user_id": userID})
 	if err != nil {
 		return err
 	}
@@ -97,7 +100,9 @@ func (JIRA JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken 
 			IntegerPriority: index + 1,
 		})
 	}
-	_, err = prioritiesCollection.InsertMany(context.TODO(), jiraPriorities)
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err = prioritiesCollection.InsertMany(db_ctx, jiraPriorities)
 	return err
 }
 
@@ -263,13 +268,18 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 }
 
 func (JIRA JIRASource) fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID primitive.ObjectID) *map[string]int {
-	cursor, err := prioritiesCollection.Find(context.TODO(), bson.M{"user_id": userID})
+	parent_ctx := context.Background()
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := prioritiesCollection.Find(db_ctx, bson.M{"user_id": userID})
 	if err != nil {
 		log.Printf("failed to fetch local priorities: %v", err)
 		return nil
 	}
 	var priorities []database.JIRAPriority
-	err = cursor.All(context.TODO(), &priorities)
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(db_ctx, &priorities)
 	if err != nil {
 		return nil
 	}

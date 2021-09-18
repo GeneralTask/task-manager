@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
@@ -24,6 +25,7 @@ func GetAPI() *API {
 }
 
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
+	parent_ctx := c.Request.Context()
 	authToken, err := c.Cookie("authToken")
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "missing authToken cookie"})
@@ -37,7 +39,9 @@ func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var internalToken database.InternalAPIToken
-	err = internalAPITokenCollection.FindOne(context.TODO(), bson.M{"token": authToken}).Decode(&internalToken)
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err = internalAPITokenCollection.FindOne(db_ctx, bson.M{"token": authToken}).Decode(&internalToken)
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "invalid auth token"})
 		return nil, errors.New("invalid auth token")
@@ -51,6 +55,7 @@ func (api *API) Ping(c *gin.Context) {
 }
 
 func TokenMiddleware(c *gin.Context) {
+	parent_ctx := c.Request.Context()
 	handlerName := c.HandlerName()
 	if handlerName[len(handlerName)-9:] == "Handle404" {
 		// Do nothing if the route isn't recognized
@@ -69,7 +74,9 @@ func TokenMiddleware(c *gin.Context) {
 	defer dbCleanup()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var internalToken database.InternalAPIToken
-	err = internalAPITokenCollection.FindOne(context.TODO(), bson.M{"token": token}).Decode(&internalToken)
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err = internalAPITokenCollection.FindOne(db_ctx, bson.M{"token": token}).Decode(&internalToken)
 	if err != nil {
 		log.Printf("auth failed: %v\n", err)
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})

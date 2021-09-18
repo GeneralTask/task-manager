@@ -61,6 +61,7 @@ func (api *API) Login(c *gin.Context) {
 }
 
 func (api *API) LoginCallback(c *gin.Context) {
+	parent_ctx := c.Request.Context()
 	var redirectParams GoogleRedirectParams
 	if c.ShouldBind(&redirectParams) != nil || redirectParams.State == "" || redirectParams.Code == "" || redirectParams.Scope == "" {
 		c.JSON(400, gin.H{"detail": "Missing query params"})
@@ -111,8 +112,10 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	lowerEmail := strings.ToLower(*email)
 	waitlistCollection := db.Collection("waitlist")
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	count, err := waitlistCollection.CountDocuments(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
 	)
 	if err != nil {
@@ -127,8 +130,10 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	internalToken := guuid.New().String()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	_, err = internalAPITokenCollection.UpdateOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"user_id": userID},
 		bson.M{"$set": &database.InternalAPIToken{UserID: userID, Token: internalToken}},
 		options.Update().SetUpsert(true),

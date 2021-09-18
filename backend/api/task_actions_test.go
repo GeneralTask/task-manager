@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
@@ -23,6 +24,7 @@ type GmailReplyParams struct {
 }
 
 func TestReplyToEmail(t *testing.T) {
+	parent_ctx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -32,7 +34,9 @@ func TestReplyToEmail(t *testing.T) {
 
 	taskCollection := db.Collection("tasks")
 
-	insertedResult, err := taskCollection.InsertOne(context.TODO(), database.Email{
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	insertedResult, err := taskCollection.InsertOne(db_ctx, database.Email{
 		TaskBase: database.TaskBase{
 			UserID:     userID,
 			IDExternal: "sample_message_id",
@@ -63,7 +67,9 @@ func TestReplyToEmail(t *testing.T) {
 	})
 
 	t.Run("InvalidTaskType", func(t *testing.T) {
-		insertedResult, err := taskCollection.InsertOne(context.TODO(), database.Task{
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
+		insertedResult, err := taskCollection.InsertOne(db_ctx, database.Task{
 			TaskBase: database.TaskBase{
 				UserID:     userID,
 				IDExternal: "sample_task_id",
@@ -106,7 +112,9 @@ func TestReplyToEmail(t *testing.T) {
 	})
 
 	t.Run("TaskDoesNotBelongToUser", func(t *testing.T) {
-		insertedResult, err := taskCollection.InsertOne(context.TODO(), database.Email{
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
+		insertedResult, err := taskCollection.InsertOne(db_ctx, database.Email{
 			TaskBase: database.TaskBase{
 				UserID:     primitive.NewObjectID(),
 				IDExternal: "sample_message_id",

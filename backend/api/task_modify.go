@@ -65,6 +65,7 @@ func (api *API) TaskModify(c *gin.Context) {
 }
 
 func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string) {
+	parent_ctx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
@@ -82,14 +83,18 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		updateParams["id_task_section"] = IDTaskSection
 	} else {
 		var task database.TaskBase
-		err = taskCollection.FindOne(context.TODO(), bson.M{"_id": taskID}).Decode(&task)
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(db_ctx, bson.M{"_id": taskID}).Decode(&task)
 		if err != nil {
 			log.Printf("failed to load task in db: %v", err)
 		}
 		IDTaskSection = task.IDTaskSection
 	}
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	result, err := taskCollection.UpdateOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"_id": taskID},
 			{"user_id": userID},
@@ -106,8 +111,10 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		return
 	}
 	// Move back other tasks to ensure ordering is preserved (gaps are removed in GET task list)
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	_, err = taskCollection.UpdateMany(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"_id": bson.M{"$ne": taskID}},
 			{"id_ordering": bson.M{"$gte": IDOrdering}},
@@ -125,6 +132,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 }
 
 func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) {
+	parent_ctx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
@@ -134,8 +142,10 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	taskCollection := db.Collection("tasks")
 
 	var task database.TaskBase
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	if taskCollection.FindOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"_id": taskID},
 			{"user_id": userID},
@@ -161,7 +171,9 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 		c.JSON(400, gin.H{"detail": "Failed to mark task as complete"})
 		return
 	}
-	_, err = taskCollection.UpdateOne(context.TODO(), bson.M{"_id": taskID}, bson.M{"$set": bson.M{"is_completed": true}})
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err = taskCollection.UpdateOne(db_ctx, bson.M{"_id": taskID}, bson.M{"$set": bson.M{"is_completed": true}})
 	if err != nil {
 		log.Printf("failed to update internal DB with completion status: %v", err)
 		Handle500(c)

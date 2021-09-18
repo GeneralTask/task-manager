@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -23,9 +24,9 @@ type GoogleURLOverrides struct {
 }
 
 type GoogleService struct {
-	LoginConfig  OauthConfigWrapper
-	AuthorizeConfig   OauthConfigWrapper
-	OverrideURLs GoogleURLOverrides
+	LoginConfig     OauthConfigWrapper
+	AuthorizeConfig OauthConfigWrapper
+	OverrideURLs    GoogleURLOverrides
 }
 
 // GoogleUserInfo ...
@@ -64,10 +65,13 @@ func getGoogleAuthorizeConfig() OauthConfigWrapper {
 }
 
 func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, accountID string) *http.Client {
+	parent_ctx := context.Background()
 	var googleToken database.ExternalAPIToken
 
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	if err := externalAPITokenCollection.FindOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"service_id": TASK_SERVICE_ID_GOOGLE},
@@ -79,7 +83,9 @@ func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
 	config := getGoogleLoginConfig()
-	return config.Client(context.Background(), &token).(*http.Client)
+	ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+	defer cancel()
+	return config.Client(ext_ctx, &token).(*http.Client)
 }
 
 func (Google GoogleService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
@@ -151,12 +157,12 @@ func (Google GoogleService) HandleLinkCallback(code string, userID primitive.Obj
 			{"account_id": userInfo.EMAIL},
 		}},
 		bson.M{"$set": &database.ExternalAPIToken{
-			UserID:       userID,
-			ServiceID:    TASK_SERVICE_ID_GOOGLE,
-			Token:        string(tokenString),
-			AccountID:    userInfo.EMAIL,
-			DisplayID:    userInfo.EMAIL,
-			IsUnlinkable: false,
+			UserID:         userID,
+			ServiceID:      TASK_SERVICE_ID_GOOGLE,
+			Token:          string(tokenString),
+			AccountID:      userInfo.EMAIL,
+			DisplayID:      userInfo.EMAIL,
+			IsUnlinkable:   false,
 			IsPrimaryLogin: false,
 		}},
 		options.Update().SetUpsert(true),
@@ -165,19 +171,25 @@ func (Google GoogleService) HandleLinkCallback(code string, userID primitive.Obj
 }
 
 func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectID, *string, error) {
+	parent_ctx := context.Background()
+
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return primitive.NilObjectID, nil, err
 	}
 	defer dbCleanup()
 
-	token, err := Google.LoginConfig.Exchange(context.Background(), code)
+	ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+	defer cancel()
+	token, err := Google.LoginConfig.Exchange(ext_ctx, code)
 	if err != nil {
 		log.Printf("failed to fetch token from google: %v", err)
 
 		return primitive.NilObjectID, nil, err
 	}
-	client := Google.LoginConfig.Client(context.Background(), token)
+	ext_ctx, cancel = context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+	defer cancel()
+	client := Google.LoginConfig.Client(ext_ctx, token)
 	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
 		log.Printf("failed to load user info: %v", err)
@@ -202,8 +214,10 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 
 	var user database.User
 
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	userCollection.FindOneAndUpdate(
-		context.TODO(),
+		db_ctx,
 		bson.M{"google_id": userInfo.SUB},
 		bson.M{"$set": &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name}},
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
@@ -224,20 +238,22 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 			return primitive.NilObjectID, nil, err
 		}
 		externalAPITokenCollection := db.Collection("external_api_tokens")
+		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
 		_, err = externalAPITokenCollection.UpdateOne(
-			context.TODO(),
+			db_ctx,
 			bson.M{"$and": []bson.M{
 				{"user_id": user.ID},
 				{"service_id": TASK_SERVICE_ID_GOOGLE},
 				{"account_id": userInfo.EMAIL},
 			}},
 			bson.M{"$set": &database.ExternalAPIToken{
-				UserID:       user.ID,
-				ServiceID:    TASK_SERVICE_ID_GOOGLE,
-				Token:        string(tokenString),
-				AccountID:    userInfo.EMAIL,
-				DisplayID:    userInfo.EMAIL,
-				IsUnlinkable: false,
+				UserID:         user.ID,
+				ServiceID:      TASK_SERVICE_ID_GOOGLE,
+				Token:          string(tokenString),
+				AccountID:      userInfo.EMAIL,
+				DisplayID:      userInfo.EMAIL,
+				IsUnlinkable:   false,
 				IsPrimaryLogin: true,
 			}},
 			options.Update().SetUpsert(true),

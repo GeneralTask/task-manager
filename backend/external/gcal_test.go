@@ -18,6 +18,7 @@ import (
 )
 
 func TestCalendar(t *testing.T) {
+	parent_ctx := context.Background()
 	t.Run("Success", func(t *testing.T) {
 		standardEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
@@ -89,8 +90,10 @@ func TestCalendar(t *testing.T) {
 		taskCollection := db.Collection("tasks")
 
 		var calendarEventFromDB database.CalendarEvent
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
 		err = taskCollection.FindOne(
-			context.TODO(),
+			db_ctx,
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
 				{"source_id": TASK_SOURCE_ID_GCAL},
@@ -177,8 +180,10 @@ func TestCalendar(t *testing.T) {
 		taskCollection := db.Collection("tasks")
 
 		var calendarEventFromDB database.CalendarEvent
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
 		err = taskCollection.FindOne(
-			context.TODO(),
+			db_ctx,
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
 				{"source_id": TASK_SOURCE_ID_GCAL},
@@ -247,8 +252,10 @@ func TestCalendar(t *testing.T) {
 		taskCollection := db.Collection("tasks")
 
 		var calendarEventFromDB database.CalendarEvent
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
 		err = taskCollection.FindOne(
-			context.TODO(),
+			db_ctx,
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
 				{"source_id": TASK_SOURCE_ID_GCAL},

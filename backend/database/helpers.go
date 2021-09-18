@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,6 +20,7 @@ func UpdateOrCreateTask(
 	fieldsToInsertIfMissing interface{},
 	fieldsToUpdate interface{},
 ) (*mongo.SingleResult, error) {
+	parent_ctx := context.Background()
 	taskCollection := getTaskCollection(db)
 	dbQuery := bson.M{
 		"$and": []bson.M{
@@ -28,8 +30,10 @@ func UpdateOrCreateTask(
 		},
 	}
 	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	_, err := taskCollection.UpdateOne(
-		context.TODO(),
+		db_ctx,
 		dbQuery,
 		bson.M{"$setOnInsert": fieldsToInsertIfMissing},
 		options.Update().SetUpsert(true),
@@ -39,8 +43,10 @@ func UpdateOrCreateTask(
 		return nil, err
 	}
 
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	return taskCollection.FindOneAndUpdate(
-		context.TODO(),
+		db_ctx,
 		dbQuery,
 		bson.M{"$set": fieldsToUpdate},
 	), nil
@@ -52,6 +58,7 @@ func GetOrCreateTask(db *mongo.Database,
 	sourceID string,
 	fieldsToInsertIfMissing interface{},
 ) (*TaskBase, error) {
+	parent_ctx := context.Background()
 	taskCollection := getTaskCollection(db)
 	dbQuery := bson.M{
 		"$and": []bson.M{
@@ -61,8 +68,10 @@ func GetOrCreateTask(db *mongo.Database,
 		},
 	}
 	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	_, err := taskCollection.UpdateOne(
-		context.TODO(),
+		db_ctx,
 		dbQuery,
 		bson.M{"$setOnInsert": fieldsToInsertIfMissing},
 		options.Update().SetUpsert(true),
@@ -73,8 +82,10 @@ func GetOrCreateTask(db *mongo.Database,
 	}
 
 	var task TaskBase
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	err = taskCollection.FindOne(
-		context.TODO(),
+		db_ctx,
 		dbQuery,
 	).Decode(&task)
 	if err != nil {
@@ -86,8 +97,11 @@ func GetOrCreateTask(db *mongo.Database,
 }
 
 func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]TaskBase, error) {
+	parent_ctx := context.Background()
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	cursor, err := getTaskCollection(db).Find(
-		context.TODO(),
+		db_ctx,
 		bson.M{
 			"$and": []bson.M{
 				{"user_id": userID},
@@ -100,7 +114,9 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]TaskBase,
 		return nil, err
 	}
 	var tasks []TaskBase
-	err = cursor.All(context.TODO(), &tasks)
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(db_ctx, &tasks)
 	if err != nil {
 		log.Printf("Failed to fetch tasks for user: %v", err)
 		return nil, err
@@ -109,9 +125,12 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]TaskBase,
 }
 
 func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
+	parent_ctx := context.Background()
 	var userObject User
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	err := getUserCollection(db).FindOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"_id": userID},
 	).Decode(&userObject)
 	if err != nil {
@@ -122,11 +141,14 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 }
 
 func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID) (*string, error) {
+	parent_ctx := context.Background()
 	stateToken := &StateToken{}
 	if userID != nil {
 		stateToken.UserID = *userID
 	}
-	cursor, err := getStateTokenCollection(db).InsertOne(context.TODO(), stateToken)
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := getStateTokenCollection(db).InsertOne(db_ctx, stateToken)
 	if err != nil {
 		log.Printf("Failed to create new state token: %v", err)
 		return nil, err
@@ -136,13 +158,16 @@ func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID) (*string, 
 }
 
 func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userID *primitive.ObjectID) error {
+	parent_ctx := context.Background()
 	var deletionQuery bson.M
 	if userID == nil {
 		deletionQuery = bson.M{"_id": stateTokenID}
 	} else {
 		deletionQuery = bson.M{"$and": []bson.M{{"user_id": *userID}, {"_id": stateTokenID}}}
 	}
-	result, err := getStateTokenCollection(db).DeleteOne(context.TODO(), deletionQuery)
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	result, err := getStateTokenCollection(db).DeleteOne(db_ctx, deletionQuery)
 	if err != nil {
 		log.Printf("Failed to delete state token: %v", err)
 		return err

@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -41,13 +42,16 @@ func (Slack SlackService) GetSignupURL(stateTokenID primitive.ObjectID, forcePro
 }
 
 func (Slack SlackService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
+	parent_ctx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return errors.New("internal server error")
 	}
 	defer dbCleanup()
 
-	token, err := Slack.Config.Exchange(context.Background(), code)
+	ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+	defer cancel()
+	token, err := Slack.Config.Exchange(ext_ctx, code)
 	if err != nil {
 		log.Printf("failed to fetch token from Slack: %v", err)
 		return errors.New("internal server error")
@@ -60,8 +64,10 @@ func (Slack SlackService) HandleLinkCallback(code string, userID primitive.Objec
 	}
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	_, err = externalAPITokenCollection.UpdateOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_SLACK}}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:    userID,

@@ -19,6 +19,7 @@ import (
 )
 
 func TestLoadJIRATasks(t *testing.T) {
+	parent_ctx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -92,8 +93,10 @@ func TestLoadJIRATasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
 		var taskFromDB database.Task
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
 		err := taskCollection.FindOne(
-			context.TODO(),
+			db_ctx,
 			bson.M{"$and": []bson.M{
 				{"source_id": TASK_SOURCE_ID_JIRA},
 				{"id_external": "42069"},
@@ -140,8 +143,10 @@ func TestLoadJIRATasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
 		var taskFromDB database.Task
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
 		err := taskCollection.FindOne(
-			context.TODO(),
+			db_ctx,
 			bson.M{"$and": []bson.M{
 				{"source_id": TASK_SOURCE_ID_JIRA},
 				{"id_external": "42069"},
@@ -190,8 +195,10 @@ func TestLoadJIRATasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
 		var taskFromDB database.Task
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
 		err := taskCollection.FindOne(
-			context.TODO(),
+			db_ctx,
 			bson.M{"$and": []bson.M{
 				{"source_id": TASK_SOURCE_ID_JIRA},
 				{"id_external": "42069"},
@@ -241,8 +248,10 @@ func TestLoadJIRATasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
 		var taskFromDB database.Task
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
 		err := taskCollection.FindOne(
-			context.TODO(),
+			db_ctx,
 			bson.M{"$and": []bson.M{
 				{"source_id": TASK_SOURCE_ID_JIRA},
 				{"id_external": "42069"},
@@ -255,6 +264,7 @@ func TestLoadJIRATasks(t *testing.T) {
 }
 
 func TestGetPriorities(t *testing.T) {
+	parent_ctx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -280,10 +290,14 @@ func TestGetPriorities(t *testing.T) {
 
 		options := options.Find()
 		options.SetSort(bson.M{"integer_priority": 1})
-		cursor, err := prioritiesCollection.Find(context.TODO(), bson.M{"user_id": userID}, options)
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
+		cursor, err := prioritiesCollection.Find(db_ctx, bson.M{"user_id": userID}, options)
 		assert.NoError(t, err)
 		var priorities []database.JIRAPriority
-		err = cursor.All(context.TODO(), &priorities)
+		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
+		err = cursor.All(db_ctx, &priorities)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(priorities))
 		assert.Equal(t, "9", priorities[0].JIRAID)
@@ -296,9 +310,13 @@ func TestGetPriorities(t *testing.T) {
 		err = JIRA.GetListOfPriorities(*userID, "sample")
 		assert.NoError(t, err)
 
-		cursor, err = prioritiesCollection.Find(context.TODO(), bson.M{"user_id": userID}, options)
+		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
+		cursor, err = prioritiesCollection.Find(db_ctx, bson.M{"user_id": userID}, options)
 		assert.NoError(t, err)
-		err = cursor.All(context.TODO(), &priorities)
+		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
+		err = cursor.All(parent_ctx, &priorities)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(priorities))
 		assert.Equal(t, "8", priorities[0].JIRAID)
@@ -322,10 +340,13 @@ func setupJIRA(t *testing.T, externalAPITokenCollection *mongo.Collection, Atlas
 }
 
 func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection) (*primitive.ObjectID, string) {
+	parent_ctx := context.Background()
 	userID := primitive.NewObjectID()
 	accountID := primitive.NewObjectID().Hex()
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	_, err := externalAPITokenCollection.InsertOne(
-		context.Background(),
+		db_ctx,
 		&database.ExternalAPIToken{
 			ServiceID: TASK_SERVICE_ID_ATLASSIAN,
 			Token:     `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
@@ -338,8 +359,11 @@ func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection)
 }
 
 func createAtlassianSiteConfiguration(t *testing.T, userID *primitive.ObjectID, AtlassianSiteCollection *mongo.Collection) {
+	parent_ctx := context.Background()
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	_, err := AtlassianSiteCollection.UpdateOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"user_id": userID},
 		bson.M{"$set": &database.AtlassianSiteConfiguration{
 			UserID:  *userID,
