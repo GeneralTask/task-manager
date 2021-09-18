@@ -90,7 +90,9 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 	}
 	defer dbCleanup()
 
-	token, err := atlassian.Config.OauthConfig.Exchange(context.Background(), code)
+	ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+	defer cancel()
+	token, err := atlassian.Config.OauthConfig.Exchange(ext_ctx, code)
 	if err != nil {
 		log.Printf("failed to fetch token from Atlassian: %v", err)
 		return errors.New("internal server error")

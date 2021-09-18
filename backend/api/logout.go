@@ -11,7 +11,7 @@ import (
 )
 
 func (api *API) Logout(c *gin.Context) {
-	parent_ctx := context.Background()
+	parent_ctx := c.Request.Context()
 	token, err := getToken(c)
 	if err != nil {
 		return

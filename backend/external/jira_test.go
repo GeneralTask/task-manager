@@ -340,10 +340,13 @@ func setupJIRA(t *testing.T, externalAPITokenCollection *mongo.Collection, Atlas
 }
 
 func createJIRAToken(t *testing.T, externalAPITokenCollection *mongo.Collection) (*primitive.ObjectID, string) {
+	parent_ctx := context.Background()
 	userID := primitive.NewObjectID()
 	accountID := primitive.NewObjectID().Hex()
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	_, err := externalAPITokenCollection.InsertOne(
-		context.Background(),
+		db_ctx,
 		&database.ExternalAPIToken{
 			Source:    database.TaskSourceJIRA.Name,
 			Token:     `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,

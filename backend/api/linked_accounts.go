@@ -36,6 +36,7 @@ func (api *API) SupportedAccountTypesList(c *gin.Context) {
 }
 
 func (api *API) LinkedAccountsList(c *gin.Context) {
+	parent_ctx := c.Request.Context()
 	userID, _ := c.Get("user")
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -44,7 +45,6 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 	}
 	defer dbCleanup()
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	parent_ctx := context.Background()
 
 	var tokens []database.ExternalAPIToken
 	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
@@ -81,7 +81,7 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 }
 
 func (api *API) DeleteLinkedAccount(c *gin.Context) {
-	parent_ctx := context.Background()
+	parent_ctx := c.Request.Context()
 	userID, _ := c.Get("user")
 	accountIDHex := c.Param("account_id")
 	accountID, err := primitive.ObjectIDFromHex(accountIDHex)

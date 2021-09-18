@@ -65,7 +65,7 @@ func (api *API) TaskModify(c *gin.Context) {
 }
 
 func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string) {
-	parent_ctx := context.Background()
+	parent_ctx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
@@ -132,7 +132,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 }
 
 func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) {
-	parent_ctx := context.Background()
+	parent_ctx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)

@@ -68,7 +68,9 @@ func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
 	config := getGoogleConfig()
-	return config.Client(context.Background(), &token).(*http.Client)
+	ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+	defer cancel()
+	return config.Client(ext_ctx, &token).(*http.Client)
 }
 
 func (Google GoogleService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
@@ -98,13 +100,17 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 	}
 	defer dbCleanup()
 
-	token, err := Google.Config.Exchange(context.Background(), code)
+	ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+	defer cancel()
+	token, err := Google.Config.Exchange(ext_ctx, code)
 	if err != nil {
 		log.Printf("failed to fetch token from google: %v", err)
 
 		return primitive.NilObjectID, nil, err
 	}
-	client := Google.Config.Client(context.Background(), token)
+	ext_ctx, cancel = context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+	defer cancel()
+	client := Google.Config.Client(ext_ctx, token)
 	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
 		log.Printf("failed to load user info: %v", err)

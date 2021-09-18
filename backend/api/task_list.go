@@ -55,7 +55,7 @@ const (
 )
 
 func (api *API) TasksList(c *gin.Context) {
-	parent_ctx := context.Background()
+	parent_ctx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)

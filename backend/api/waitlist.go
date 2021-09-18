@@ -19,7 +19,7 @@ type WaitlistParams struct {
 }
 
 func (api *API) WaitlistAdd(c *gin.Context) {
-	parent_ctx := context.Background()
+	parent_ctx := c.Request.Context()
 	var params WaitlistParams
 	err := c.BindJSON(&params)
 	if err != nil || params.Email == "" {

@@ -49,7 +49,9 @@ func (Slack SlackService) HandleLinkCallback(code string, userID primitive.Objec
 	}
 	defer dbCleanup()
 
-	token, err := Slack.Config.Exchange(context.Background(), code)
+	ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+	defer cancel()
+	token, err := Slack.Config.Exchange(ext_ctx, code)
 	if err != nil {
 		log.Printf("failed to fetch token from Slack: %v", err)
 		return errors.New("internal server error")

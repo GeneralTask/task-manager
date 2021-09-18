@@ -199,6 +199,7 @@ func (Gmail GmailSource) GetTasks(userID primitive.ObjectID, accountID string, r
 }
 
 func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string, emailID string) error {
+	parent_ctx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
@@ -211,8 +212,10 @@ func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string,
 	if Gmail.Google.OverrideURLs.GmailModifyURL == nil {
 		gmailService, err = gmail.New(client)
 	} else {
+		ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+		defer cancel()
 		gmailService, err = gmail.NewService(
-			context.Background(),
+			ext_ctx,
 			option.WithoutAuthentication(),
 			option.WithEndpoint(*Gmail.Google.OverrideURLs.GmailModifyURL))
 	}
@@ -259,8 +262,10 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 	var gmailService *gmail.Service
 
 	if Gmail.Google.OverrideURLs.GmailReplyURL != nil {
+		ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+		defer cancel()
 		gmailService, err = gmail.NewService(
-			context.Background(),
+			ext_ctx,
 			option.WithoutAuthentication(),
 			option.WithEndpoint(*Gmail.Google.OverrideURLs.GmailReplyURL),
 		)

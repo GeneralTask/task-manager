@@ -17,7 +17,7 @@ type TaskReplyParams struct {
 }
 
 func (api *API) TaskReply(c *gin.Context) {
-	parent_ctx := context.Background()
+	parent_ctx := c.Request.Context()
 	taskIDHex := c.Param("task_id")
 	taskID, err := primitive.ObjectIDFromHex(taskIDHex)
 	if err != nil {

@@ -38,8 +38,10 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 	defer dbCleanup()
 
 	if googleCalendar.Google.OverrideURLs.CalendarFetchURL != nil {
+		ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+		defer cancel()
 		calendarService, err = calendar.NewService(
-			context.Background(),
+			ext_ctx,
 			option.WithoutAuthentication(),
 			option.WithEndpoint(*googleCalendar.Google.OverrideURLs.CalendarFetchURL),
 		)

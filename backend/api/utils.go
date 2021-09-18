@@ -25,7 +25,7 @@ func GetAPI() *API {
 }
 
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
-	parent_ctx := context.Background()
+	parent_ctx := c.Request.Context()
 	authToken, err := c.Cookie("authToken")
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "missing authToken cookie"})
@@ -55,7 +55,7 @@ func (api *API) Ping(c *gin.Context) {
 }
 
 func TokenMiddleware(c *gin.Context) {
-	parent_ctx := context.Background()
+	parent_ctx := c.Request.Context()
 	handlerName := c.HandlerName()
 	if handlerName[len(handlerName)-9:] == "Handle404" {
 		// Do nothing if the route isn't recognized

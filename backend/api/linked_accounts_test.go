@@ -154,8 +154,11 @@ func TestDeleteLinkedAccount(t *testing.T) {
 }
 
 func createJIRADungeon(t *testing.T, db *mongo.Database, authToken string) primitive.ObjectID {
+	parent_ctx := context.Background()
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	res, err := db.Collection("external_api_tokens").InsertOne(
-		context.Background(),
+		db_ctx,
 		&database.ExternalAPIToken{
 			Source:       database.TaskSourceJIRA.Name,
 			UserID:       getUserIDFromAuthToken(t, db, authToken),
