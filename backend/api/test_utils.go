@@ -147,7 +147,7 @@ func makeLoginCallbackRequest(
 	if !skipRefreshToken {
 		mockToken.RefreshToken = "test123"
 	}
-	mockConfig.On("Exchange", context.Background(), "code1234").Return(&mockToken, nil)
+	mockConfig.On("Exchange", mock.Anything, "code1234").Return(&mockToken, nil)
 	mockClient := MockHTTPClient{}
 	mockClient.On(
 		"Get",
@@ -162,7 +162,7 @@ func makeLoginCallbackRequest(
 			)))},
 		nil,
 	)
-	mockConfig.On("Client", context.Background(), &mockToken).Return(&mockClient)
+	mockConfig.On("Client", mock.Anything, &mockToken).Return(&mockClient)
 	api := GetAPI()
 	api.ExternalConfig.GoogleLoginConfig = &mockConfig
 	api.SkipStateTokenCheck = skipStateTokenCheck
