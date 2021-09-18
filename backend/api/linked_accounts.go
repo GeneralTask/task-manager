@@ -47,10 +47,10 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 	parent_ctx := context.Background()
 
 	var tokens []database.ExternalAPIToken
-	find_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
 	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
-		find_ctx,
+		db_ctx,
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
@@ -59,9 +59,9 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 		return
 	}
 
-	all_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
 	defer cancel()
-	err = cursor.All(all_ctx, &tokens)
+	err = cursor.All(db_ctx, &tokens)
 	if err != nil {
 		log.Printf("failed to iterate through api tokens: %v", err)
 		Handle500(c)
