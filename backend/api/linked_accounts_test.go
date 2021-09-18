@@ -85,7 +85,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	t.Run("MalformattedAccountID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(GetAPI())
@@ -138,10 +138,10 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		var token database.ExternalAPIToken
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err := db.Collection("external_api_tokens").FindOne(
-			db_ctx,
+			dbCtx,
 			bson.M{"_id": jiraTokenID},
 		).Decode(&token)
 		// assert token is not found in db anymore
@@ -157,11 +157,11 @@ func TestDeleteLinkedAccount(t *testing.T) {
 }
 
 func createJIRADungeon(t *testing.T, db *mongo.Database, authToken string) primitive.ObjectID {
-	parent_ctx := context.Background()
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	res, err := db.Collection("external_api_tokens").InsertOne(
-		db_ctx,
+		dbCtx,
 		&database.ExternalAPIToken{
 			ServiceID:    external.TASK_SERVICE_ID_ATLASSIAN,
 			UserID:       getUserIDFromAuthToken(t, db, authToken),

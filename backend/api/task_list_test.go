@@ -798,11 +798,11 @@ func TestMergeTasks(t *testing.T) {
 }
 
 func getTaskForTest(t *testing.T, taskCollection *mongo.Collection, taskID primitive.ObjectID) *database.TaskBase {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	var updatedTask database.TaskBase
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err := taskCollection.FindOne(db_ctx, bson.M{"_id": taskID}).Decode(&updatedTask)
+	err := taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&updatedTask)
 	assert.NoError(t, err)
 	return &updatedTask
 }

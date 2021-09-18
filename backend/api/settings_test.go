@@ -16,7 +16,7 @@ import (
 )
 
 func TestSettingsGet(t *testing.T) {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -24,9 +24,9 @@ func TestSettingsGet(t *testing.T) {
 
 	t.Run("DefaultValue", func(t *testing.T) {
 		// Random userID; should be ignored
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		_, err := settingCollection.InsertOne(db_ctx, &database.UserSetting{
+		_, err := settingCollection.InsertOne(dbCtx, &database.UserSetting{
 			UserID:     primitive.NewObjectID(),
 			FieldKey:   settings.SettingFieldEmailDonePreference,
 			FieldValue: settings.ChoiceKeyMarkAsRead,
@@ -48,9 +48,9 @@ func TestSettingsGet(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		_, err := settingCollection.InsertOne(db_ctx, &database.UserSetting{
+		_, err := settingCollection.InsertOne(dbCtx, &database.UserSetting{
 			UserID:     userID,
 			FieldKey:   settings.SettingFieldEmailDonePreference,
 			FieldValue: settings.ChoiceKeyMarkAsRead,

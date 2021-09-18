@@ -46,7 +46,7 @@ type JIRATaskList struct {
 }
 
 func (JIRA JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken string) error {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	var baseURL string
 	if JIRA.Atlassian.Config.ConfigValues.PriorityListURL != nil {
 		baseURL = *JIRA.Atlassian.Config.ConfigValues.PriorityListURL
@@ -85,9 +85,9 @@ func (JIRA JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken 
 	defer dbCleanup()
 
 	prioritiesCollection := db.Collection("jira_priorities")
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	_, err = prioritiesCollection.DeleteMany(db_ctx, bson.M{"user_id": userID})
+	_, err = prioritiesCollection.DeleteMany(dbCtx, bson.M{"user_id": userID})
 	if err != nil {
 		return err
 	}
@@ -100,9 +100,9 @@ func (JIRA JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken 
 			IntegerPriority: index + 1,
 		})
 	}
-	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	_, err = prioritiesCollection.InsertMany(db_ctx, jiraPriorities)
+	_, err = prioritiesCollection.InsertMany(dbCtx, jiraPriorities)
 	return err
 }
 
@@ -268,18 +268,18 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 }
 
 func (JIRA JIRASource) fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID primitive.ObjectID) *map[string]int {
-	parent_ctx := context.Background()
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	cursor, err := prioritiesCollection.Find(db_ctx, bson.M{"user_id": userID})
+	cursor, err := prioritiesCollection.Find(dbCtx, bson.M{"user_id": userID})
 	if err != nil {
 		log.Printf("failed to fetch local priorities: %v", err)
 		return nil
 	}
 	var priorities []database.JIRAPriority
-	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = cursor.All(db_ctx, &priorities)
+	err = cursor.All(dbCtx, &priorities)
 	if err != nil {
 		return nil
 	}

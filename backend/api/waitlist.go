@@ -19,7 +19,7 @@ type WaitlistParams struct {
 }
 
 func (api *API) WaitlistAdd(c *gin.Context) {
-	parent_ctx := c.Request.Context()
+	parentCtx := c.Request.Context()
 	var params WaitlistParams
 	err := c.BindJSON(&params)
 	if err != nil || params.Email == "" {
@@ -41,9 +41,9 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 	defer dbCleanup()
 	waitlistCollection := db.Collection("waitlist")
 
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	count, err := waitlistCollection.CountDocuments(db_ctx, bson.M{"email": email})
+	count, err := waitlistCollection.CountDocuments(dbCtx, bson.M{"email": email})
 	if err != nil {
 		log.Printf("failed to query waitlist: %v", err)
 		Handle500(c)
@@ -54,10 +54,10 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 		return
 	}
 
-	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = waitlistCollection.InsertOne(
-		db_ctx,
+		dbCtx,
 		&database.WaitlistEntry{
 			Email:     email,
 			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),

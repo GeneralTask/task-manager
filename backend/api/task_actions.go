@@ -17,7 +17,7 @@ type TaskReplyParams struct {
 }
 
 func (api *API) TaskReply(c *gin.Context) {
-	parent_ctx := c.Request.Context()
+	parentCtx := c.Request.Context()
 	taskIDHex := c.Param("task_id")
 	taskID, err := primitive.ObjectIDFromHex(taskIDHex)
 	if err != nil {
@@ -45,10 +45,10 @@ func (api *API) TaskReply(c *gin.Context) {
 
 	taskCollection := db.Collection("tasks")
 	var taskBase database.TaskBase
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = taskCollection.FindOne(
-		db_ctx,
+		dbCtx,
 		bson.M{"$and": []bson.M{{"_id": taskID}, {"user_id": userID}}}).Decode(&taskBase)
 
 	if err != nil {
