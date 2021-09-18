@@ -24,6 +24,7 @@ func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, 
 }
 
 func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
+	parent_ctx := context.Background()
 	events := []*database.CalendarEvent{}
 
 	var calendarService *calendar.Service
@@ -50,7 +51,9 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			result <- emptyCalendarResult(errors.New("failed to fetch google API token"))
 			return
 		}
-		calendarService, err = calendar.NewService(context.TODO(), option.WithHTTPClient(client))
+		ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+		defer cancel()
+		calendarService, err = calendar.NewService(ext_ctx, option.WithHTTPClient(client))
 	}
 	if err != nil {
 		log.Printf("unable to create calendar service: %v", err)

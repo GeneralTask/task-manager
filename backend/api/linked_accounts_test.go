@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -81,6 +82,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
+	parent_ctx := context.Background()
 	t.Run("MalformattedAccountID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(GetAPI())
@@ -133,8 +135,10 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		var token database.ExternalAPIToken
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
 		err := db.Collection("external_api_tokens").FindOne(
-			context.TODO(),
+			db_ctx,
 			bson.M{"_id": jiraTokenID},
 		).Decode(&token)
 		// assert token is not found in db anymore

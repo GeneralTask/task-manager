@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -16,6 +17,7 @@ type TaskReplyParams struct {
 }
 
 func (api *API) TaskReply(c *gin.Context) {
+	parent_ctx := context.Background()
 	taskIDHex := c.Param("task_id")
 	taskID, err := primitive.ObjectIDFromHex(taskIDHex)
 	if err != nil {
@@ -43,8 +45,10 @@ func (api *API) TaskReply(c *gin.Context) {
 
 	taskCollection := db.Collection("tasks")
 	var taskBase database.TaskBase
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	err = taskCollection.FindOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{{"_id": taskID}, {"user_id": userID}}}).Decode(&taskBase)
 
 	if err != nil {

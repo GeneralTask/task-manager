@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/stretchr/testify/assert"
@@ -15,6 +16,7 @@ import (
 )
 
 func TestSettingsGet(t *testing.T) {
+	parent_ctx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -22,7 +24,9 @@ func TestSettingsGet(t *testing.T) {
 
 	t.Run("DefaultValue", func(t *testing.T) {
 		// Random userID; should be ignored
-		_, err := settingCollection.InsertOne(context.TODO(), &database.UserSetting{
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
+		_, err := settingCollection.InsertOne(db_ctx, &database.UserSetting{
 			UserID:     primitive.NewObjectID(),
 			FieldKey:   settings.SettingFieldEmailDonePreference,
 			FieldValue: settings.ChoiceKeyMarkAsRead,
@@ -44,7 +48,9 @@ func TestSettingsGet(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
-		_, err := settingCollection.InsertOne(context.TODO(), &database.UserSetting{
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
+		_, err := settingCollection.InsertOne(db_ctx, &database.UserSetting{
 			UserID:     userID,
 			FieldKey:   settings.SettingFieldEmailDonePreference,
 			FieldValue: settings.ChoiceKeyMarkAsRead,

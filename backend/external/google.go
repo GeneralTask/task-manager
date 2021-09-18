@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -49,10 +50,13 @@ func getGoogleConfig() OauthConfigWrapper {
 }
 
 func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, accountID string) *http.Client {
+	parent_ctx := context.Background()
 	var googleToken database.ExternalAPIToken
 
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	if err := externalAPITokenCollection.FindOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"source": "google"},
@@ -86,6 +90,8 @@ func (Google GoogleService) HandleLinkCallback(code string, userID primitive.Obj
 }
 
 func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectID, *string, error) {
+	parent_ctx := context.Background()
+
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return primitive.NilObjectID, nil, err
@@ -123,8 +129,10 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 
 	var user database.User
 
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	userCollection.FindOneAndUpdate(
-		context.TODO(),
+		db_ctx,
 		bson.M{"google_id": userInfo.SUB},
 		bson.M{"$set": &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name}},
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
@@ -145,8 +153,10 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 			return primitive.NilObjectID, nil, err
 		}
 		externalAPITokenCollection := db.Collection("external_api_tokens")
+		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
 		_, err = externalAPITokenCollection.UpdateOne(
-			context.TODO(),
+			db_ctx,
 			bson.M{"$and": []bson.M{
 				{"user_id": user.ID},
 				{"source": "google"},

@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
@@ -71,19 +72,25 @@ func login(email string, name string) string {
 }
 
 func getUserIDFromAuthToken(t *testing.T, db *mongo.Database, authToken string) primitive.ObjectID {
+	parent_ctx := context.Background()
 	internalAPITokenCollection := db.Collection("internal_api_tokens")
 	var authTokenStruct database.InternalAPIToken
-	err := internalAPITokenCollection.FindOne(context.TODO(), bson.M{"token": authToken}).Decode(&authTokenStruct)
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err := internalAPITokenCollection.FindOne(db_ctx, bson.M{"token": authToken}).Decode(&authTokenStruct)
 	assert.NoError(t, err)
 	return authTokenStruct.UserID
 }
 
 func getGoogleTokenFromAuthToken(t *testing.T, db *mongo.Database, authToken string) *database.ExternalAPIToken {
+	parent_ctx := context.Background()
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	var externalAPITokenStruct database.ExternalAPIToken
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	err := externalAPITokenCollection.FindOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"source": "google"},
@@ -104,6 +111,7 @@ func getGmailArchiveServer(t *testing.T, expectedLabel string) *httptest.Server 
 }
 
 func newStateToken(authToken string) (*string, error) {
+	parent_ctx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return nil, err
@@ -113,7 +121,9 @@ func newStateToken(authToken string) (*string, error) {
 	if authToken != "" {
 		internalAPITokenCollection := db.Collection("internal_api_tokens")
 		var token database.InternalAPIToken
-		err := internalAPITokenCollection.FindOne(context.TODO(), bson.M{"token": authToken}).Decode(&token)
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
+		err := internalAPITokenCollection.FindOne(db_ctx, bson.M{"token": authToken}).Decode(&token)
 		if err != nil {
 			log.Fatalf("Failed to find internal api token for test")
 		}
@@ -172,19 +182,26 @@ func makeLoginCallbackRequest(
 }
 
 func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authToken string, assertNoExternalTokens bool, assertInternalToken bool) {
+	parent_ctx := context.Background()
 	userCollection := db.Collection("users")
 	googleID := "goog12345_" + email
 
-	count, err := userCollection.CountDocuments(context.TODO(), bson.M{"google_id": googleID})
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	count, err := userCollection.CountDocuments(db_ctx, bson.M{"google_id": googleID})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var user database.User
-	err = userCollection.FindOne(context.TODO(), bson.M{"google_id": googleID}).Decode(&user)
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err = userCollection.FindOne(db_ctx, bson.M{"google_id": googleID}).Decode(&user)
 	assert.NoError(t, err)
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	count, err = externalAPITokenCollection.CountDocuments(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"user_id": user.ID},
 			{"source": "google"},
@@ -197,8 +214,10 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 	} else {
 		assert.Equal(t, int64(1), count)
 		var googleToken database.ExternalAPIToken
+		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
 		err = externalAPITokenCollection.FindOne(
-			context.TODO(),
+			db_ctx,
 			bson.M{"$and": []bson.M{
 				{"user_id": user.ID},
 				{"source": "google"},
@@ -215,7 +234,9 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 
 	if assertInternalToken {
 		internalAPITokenCollection := db.Collection("internal_api_tokens")
-		count, err = internalAPITokenCollection.CountDocuments(context.TODO(), bson.M{"user_id": user.ID})
+		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
+		count, err = internalAPITokenCollection.CountDocuments(db_ctx, bson.M{"user_id": user.ID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 	}

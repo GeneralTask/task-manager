@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -82,6 +83,7 @@ func (atlassian AtlassianService) GetSignupURL(stateTokenID primitive.ObjectID, 
 }
 
 func (atlassian AtlassianService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
+	parent_ctx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
@@ -108,8 +110,10 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	accountID := (*siteConfiguration)[0].ID
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	_, err = externalAPITokenCollection.UpdateOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"source": database.TaskSourceJIRA.Name},
@@ -132,8 +136,10 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 
 	siteCollection := db.Collection("jira_site_collection")
 
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	_, err = siteCollection.UpdateOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"user_id": userID},
 		bson.M{"$set": database.AtlassianSiteConfiguration{
 			UserID:  userID,
@@ -202,6 +208,7 @@ func (atlassian AtlassianService) getSites(token *oauth2.Token) *[]AtlassianSite
 }
 
 func (atlassian AtlassianService) getSiteConfiguration(userID primitive.ObjectID) (*database.AtlassianSiteConfiguration, error) {
+	parent_ctx := context.Background()
 	var siteConfiguration database.AtlassianSiteConfiguration
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -210,7 +217,9 @@ func (atlassian AtlassianService) getSiteConfiguration(userID primitive.ObjectID
 	defer dbCleanup()
 
 	siteCollection := db.Collection("jira_site_collection")
-	err = siteCollection.FindOne(context.TODO(), bson.M{"user_id": userID}).Decode(&siteConfiguration)
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err = siteCollection.FindOne(db_ctx, bson.M{"user_id": userID}).Decode(&siteConfiguration)
 	if err != nil {
 		return nil, err
 	}
@@ -218,6 +227,7 @@ func (atlassian AtlassianService) getSiteConfiguration(userID primitive.ObjectID
 }
 
 func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID string) (*AtlassianAuthToken, error) {
+	parent_ctx := context.Background()
 	var JIRAToken database.ExternalAPIToken
 
 	db, dbCleanup, err := database.GetDBConnection()
@@ -228,8 +238,10 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	err = externalAPITokenCollection.FindOne(
-		context.TODO(),
+		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"source": database.TaskSourceJIRA.Name},

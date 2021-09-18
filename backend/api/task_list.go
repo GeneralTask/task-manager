@@ -55,6 +55,7 @@ const (
 )
 
 func (api *API) TasksList(c *gin.Context) {
+	parent_ctx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
@@ -66,7 +67,9 @@ func (api *API) TasksList(c *gin.Context) {
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := db.Collection("users")
-	err = userCollection.FindOne(context.TODO(), bson.M{"_id": userID}).Decode(&userObject)
+	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err = userCollection.FindOne(db_ctx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
 		log.Printf("failed to find user: %v", err)
@@ -81,8 +84,10 @@ func (api *API) TasksList(c *gin.Context) {
 	}
 
 	var tokens []database.ExternalAPIToken
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
-		context.TODO(),
+		db_ctx,
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
@@ -90,7 +95,9 @@ func (api *API) TasksList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	err = cursor.All(context.TODO(), &tokens)
+	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(db_ctx, &tokens)
 	if err != nil {
 		log.Printf("failed to iterate through api tokens: %v", err)
 		Handle500(c)
@@ -374,6 +381,7 @@ func adjustForCompletedTasks(
 	unscheduledTasks *[]interface{},
 	calendarEvents *[]*database.CalendarEvent,
 ) error {
+	parent_ctx := context.Background()
 	tasksCollection := db.Collection("tasks")
 	var newTasks []*database.TaskBase
 	newTaskIDs := make(map[primitive.ObjectID]bool)
@@ -389,8 +397,10 @@ func adjustForCompletedTasks(
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
 		if !newTaskIDs[currentTask.ID] {
+			db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+			defer cancel()
 			res, err := tasksCollection.UpdateOne(
-				context.TODO(),
+				db_ctx,
 				bson.M{"_id": currentTask.ID},
 				bson.M{"$set": bson.M{"is_completed": true}},
 			)
@@ -517,14 +527,17 @@ func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
 }
 
 func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) error {
+	parent_ctx := context.Background()
 	tasksCollection := db.Collection("tasks")
 	orderingID := 1
 	for _, taskItem := range *tasks {
 		task := taskItem.TaskBase
 		task.IDOrdering = orderingID
 		orderingID += 1
+		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		defer cancel()
 		res, err := tasksCollection.UpdateOne(
-			context.TODO(),
+			db_ctx,
 			bson.M{"_id": task.ID},
 			bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
 		)
