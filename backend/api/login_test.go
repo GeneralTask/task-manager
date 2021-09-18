@@ -17,7 +17,7 @@ import (
 
 func TestLoginRedirect(t *testing.T) {
 	api := GetAPI()
-	api.ExternalConfig.Google = &external.OauthConfig{Config: &oauth2.Config{
+	api.ExternalConfig.GoogleLoginConfig = &external.OauthConfig{Config: &oauth2.Config{
 		ClientID:    "123",
 		RedirectURL: "g.com",
 		Scopes:      []string{"s1", "s2"},

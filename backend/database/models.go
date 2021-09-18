@@ -30,6 +30,7 @@ type ExternalAPIToken struct {
 	AccountID    string             `bson:"account_id"`
 	DisplayID    string             `bson:"display_id"`
 	IsUnlinkable bool               `bson:"is_unlinkable"`
+	IsPrimaryLogin bool				`bson:"is_primary_login"`
 }
 
 type AtlassianSiteConfiguration struct {
