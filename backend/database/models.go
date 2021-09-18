@@ -60,7 +60,7 @@ type TaskBase struct {
 	IDTaskSection    primitive.ObjectID `json:"-" bson:"id_task_section"`
 	IsCompleted      bool               `json:"-" bson:"is_completed"`
 	Sender           string             `json:"sender" bson:"sender"`
-	SourceID         string             `json:"source_id" bson:"source_id"`
+	SourceID         string             `json:"-" bson:"source_id"`
 	SourceAccountID  string             `json:"-" bson:"source_account_id"`
 	Deeplink         string             `json:"deeplink" bson:"deeplink"`
 	Title            string             `json:"title" bson:"title"`
@@ -77,7 +77,7 @@ type CalendarEvent struct {
 }
 
 type CalendarEventChangeableFields struct {
-	Title         string             `json:"title" bson:"title,omitempty"`
+	Title         string             `bson:"title,omitempty"`
 	DatetimeEnd   primitive.DateTime `bson:"datetime_end,omitempty"`
 	DatetimeStart primitive.DateTime `bson:"datetime_start,omitempty"`
 }
