@@ -2,13 +2,21 @@ package external
 
 import (
 	"errors"
-	"strings"
+)
 
-	"github.com/GeneralTask/task-manager/backend/database"
+const (
+	TASK_SERVICE_ID_ATLASSIAN = "atlassian"
+	TASK_SERVICE_ID_GOOGLE    = "google"
+	TASK_SERVICE_ID_SLACK     = "slack"
+
+	TASK_SOURCE_ID_GCAL  = "gcal"
+	TASK_SOURCE_ID_GMAIL = "gmail"
+	TASK_SOURCE_ID_JIRA  = "jira"
 )
 
 type Config struct {
-	Google             OauthConfigWrapper
+	GoogleLoginConfig  OauthConfigWrapper
+	GoogleAuthorizeConfig OauthConfigWrapper
 	Slack              OauthConfigWrapper
 	GoogleOverrideURLs GoogleURLOverrides
 	Atlassian          AtlassianConfig
@@ -16,7 +24,8 @@ type Config struct {
 
 func GetConfig() Config {
 	return Config{
-		Google:    getGoogleConfig(),
+		GoogleLoginConfig:    getGoogleLoginConfig(),
+		GoogleAuthorizeConfig: getGoogleAuthorizeConfig(),
 		Slack:     getSlackConfig(),
 		Atlassian: AtlassianConfig{OauthConfig: getAtlassianOauthConfig()},
 	}
@@ -24,61 +33,142 @@ func GetConfig() Config {
 
 type TaskServiceResult struct {
 	Service TaskService
+	Details TaskServiceDetails
 	Sources []TaskSource
 }
 
-func (config Config) GetTaskService(name string) (*TaskServiceResult, error) {
+type TaskSourceResult struct {
+	Source  TaskSource
+	Details TaskSourceDetails
+}
+
+func (config Config) GetTaskServiceResult(serviceID string) (*TaskServiceResult, error) {
 	nameToService := config.getNameToService()
-	result, ok := nameToService[strings.ToLower(name)]
+	result, ok := nameToService[serviceID]
 	if !ok {
 		return nil, errors.New("task service not found")
 	}
 	return &result, nil
 }
 
-func (config Config) GetTaskSource(name string) (*TaskSource, error) {
+func (config Config) GetTaskSourceResult(serviceID string) (*TaskSourceResult, error) {
 	nameToSource := config.getNameToSource()
-	result, ok := nameToSource[strings.ToLower(name)]
+	result, ok := nameToSource[serviceID]
 	if !ok {
 		return nil, errors.New("task source not found")
 	}
 	return &result, nil
 }
 
-func (config Config) getNameToSource() map[string]TaskSource {
+func (config Config) getNameToSource() map[string]TaskSourceResult {
 	atlassianService := AtlassianService{Config: config.Atlassian}
 	googleService := GoogleService{
-		Config:       config.Google,
-		OverrideURLs: config.GoogleOverrideURLs,
+		LoginConfig:       	config.GoogleLoginConfig,
+		AuthorizeConfig: 	config.GoogleAuthorizeConfig,
+		OverrideURLs: 		config.GoogleOverrideURLs,
 	}
-	return map[string]TaskSource{
-		strings.ToLower(database.TaskSourceGmail.Name):          GmailSource{Google: googleService},
-		strings.ToLower(database.TaskSourceGoogleCalendar.Name): GoogleCalendarSource{Google: googleService},
-		strings.ToLower(database.TaskSourceJIRA.Name):           JIRASource{Atlassian: atlassianService},
+	return map[string]TaskSourceResult{
+		TASK_SOURCE_ID_GMAIL: {
+			Details: TaskSourceGmail,
+			Source:  GmailSource{Google: googleService},
+		},
+		TASK_SOURCE_ID_GCAL: {
+			Details: TaskSourceGoogleCalendar,
+			Source:  GoogleCalendarSource{Google: googleService},
+		},
+		TASK_SOURCE_ID_JIRA: {
+			Details: TaskSourceJIRA,
+			Source:  JIRASource{Atlassian: atlassianService},
+		},
 	}
 }
 
 func (config Config) getNameToService() map[string]TaskServiceResult {
 	atlassianService := AtlassianService{Config: config.Atlassian}
 	googleService := GoogleService{
-		Config:       config.Google,
-		OverrideURLs: config.GoogleOverrideURLs,
+		LoginConfig:        config.GoogleLoginConfig,
+		AuthorizeConfig: 	config.GoogleAuthorizeConfig,
+		OverrideURLs: 		config.GoogleOverrideURLs,
 	}
 	return map[string]TaskServiceResult{
-		"google": {
+		TASK_SERVICE_ID_GOOGLE: {
 			Service: googleService,
+			Details: TaskServiceGoogle,
 			Sources: []TaskSource{
 				GmailSource{Google: googleService},
 				GoogleCalendarSource{Google: googleService},
 			},
 		},
-		strings.ToLower(database.TaskSourceJIRA.Name): {
+		TASK_SERVICE_ID_ATLASSIAN: {
 			Service: atlassianService,
+			Details: TaskServiceAtlassian,
 			Sources: []TaskSource{JIRASource{Atlassian: atlassianService}},
 		},
-		strings.ToLower(database.TaskSourceSlack.Name): {
+		TASK_SERVICE_ID_SLACK: {
 			Service: SlackService{Config: config.Slack},
+			Details: TaskServiceSlack,
 			Sources: []TaskSource{},
 		},
 	}
+}
+
+type TaskServiceDetails struct {
+	ID           string
+	Name         string
+	Logo         string
+	IsLinkable   bool
+	IsSignupable bool
+}
+
+var TaskServiceAtlassian = TaskServiceDetails{
+	TASK_SERVICE_ID_ATLASSIAN,
+	"Atlassian",
+	"/images/jira.svg",
+	true,
+	false,
+}
+var TaskServiceGoogle = TaskServiceDetails{
+	TASK_SERVICE_ID_GOOGLE,
+	"Google",
+	"/images/gmail.svg",
+	false,
+	true,
+}
+var TaskServiceSlack = TaskServiceDetails{
+	TASK_SERVICE_ID_SLACK,
+	"Slack",
+	"/images/slack.svg",
+	true,
+	false,
+}
+
+type TaskSourceDetails struct {
+	ID            string
+	Name          string
+	Logo          string
+	IsCompletable bool
+	IsReplyable   bool
+}
+
+var TaskSourceGoogleCalendar = TaskSourceDetails{
+	TASK_SOURCE_ID_GCAL,
+	"Google Calendar",
+	"/images/gcal.svg",
+	false,
+	false,
+}
+
+var TaskSourceGmail = TaskSourceDetails{
+	TASK_SOURCE_ID_GMAIL,
+	"Gmail",
+	"/images/gmail.svg",
+	true,
+	true,
+}
+var TaskSourceJIRA = TaskSourceDetails{
+	TASK_SOURCE_ID_JIRA,
+	"Jira",
+	"/images/jira.svg",
+	true,
+	false,
 }

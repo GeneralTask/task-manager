@@ -118,12 +118,12 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
-			{"source": database.TaskSourceJIRA.Name},
+			{"service_id": TASK_SERVICE_ID_ATLASSIAN},
 			{"account_id": accountID},
 		}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:       userID,
-			Source:       database.TaskSourceJIRA.Name,
+			ServiceID:    TASK_SERVICE_ID_ATLASSIAN,
 			Token:        string(tokenString),
 			AccountID:    accountID,
 			DisplayID:    (*siteConfiguration)[0].Name,
@@ -136,7 +136,7 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 		return errors.New("internal server error")
 	}
 
-	siteCollection := db.Collection("jira_site_collection")
+	siteCollection := db.Collection("jira_sites")
 
 	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
 	defer cancel()
@@ -218,7 +218,7 @@ func (atlassian AtlassianService) getSiteConfiguration(userID primitive.ObjectID
 	}
 	defer dbCleanup()
 
-	siteCollection := db.Collection("jira_site_collection")
+	siteCollection := db.Collection("jira_sites")
 	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
 	defer cancel()
 	err = siteCollection.FindOne(db_ctx, bson.M{"user_id": userID}).Decode(&siteConfiguration)
@@ -246,7 +246,7 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
-			{"source": database.TaskSourceJIRA.Name},
+			{"service_id": TASK_SERVICE_ID_ATLASSIAN},
 			{"account_id": accountID},
 		}}).Decode(&JIRAToken)
 

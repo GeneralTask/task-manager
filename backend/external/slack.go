@@ -68,11 +68,11 @@ func (Slack SlackService) HandleLinkCallback(code string, userID primitive.Objec
 	defer cancel()
 	_, err = externalAPITokenCollection.UpdateOne(
 		db_ctx,
-		bson.M{"$and": []bson.M{{"user_id": userID}, {"source": database.TaskSourceSlack.Name}}},
+		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_SLACK}}},
 		bson.M{"$set": &database.ExternalAPIToken{
-			UserID: userID,
-			Source: database.TaskSourceSlack.Name,
-			Token:  string(tokenString)}},
+			UserID:    userID,
+			ServiceID: TASK_SERVICE_ID_SLACK,
+			Token:     string(tokenString)}},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {

@@ -24,8 +24,9 @@ type GoogleURLOverrides struct {
 }
 
 type GoogleService struct {
-	Config       OauthConfigWrapper
-	OverrideURLs GoogleURLOverrides
+	LoginConfig     OauthConfigWrapper
+	AuthorizeConfig OauthConfigWrapper
+	OverrideURLs    GoogleURLOverrides
 }
 
 // GoogleUserInfo ...
@@ -35,11 +36,25 @@ type GoogleUserInfo struct {
 	Name  string `json:"name"`
 }
 
-func getGoogleConfig() OauthConfigWrapper {
+func getGoogleLoginConfig() OauthConfigWrapper {
 	googleConfig := &oauth2.Config{
 		ClientID:     config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET"),
-		RedirectURL:  config.GetConfigValue("GOOGLE_OAUTH_REDIRECT_URL"),
+		RedirectURL:  config.GetConfigValue("GOOGLE_OAUTH_LOGIN_REDIRECT_URL"),
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar.events"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
+			TokenURL: "https://oauth2.googleapis.com/token",
+		},
+	}
+	return &OauthConfig{Config: googleConfig}
+}
+
+func getGoogleAuthorizeConfig() OauthConfigWrapper {
+	googleConfig := &oauth2.Config{
+		ClientID:     config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID"),
+		ClientSecret: config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET"),
+		RedirectURL:  config.GetConfigValue("GOOGLE_OAUTH_AUTHORIZE_REDIRECT_URL"),
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar.events"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
@@ -59,7 +74,7 @@ func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 		db_ctx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
-			{"source": "google"},
+			{"service_id": TASK_SERVICE_ID_GOOGLE},
 			{"account_id": accountID},
 		}}).Decode(&googleToken); err != nil {
 		return nil
@@ -67,28 +82,92 @@ func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
-	config := getGoogleConfig()
+	config := getGoogleLoginConfig()
 	ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
 	defer cancel()
 	return config.Client(ext_ctx, &token).(*http.Client)
 }
 
 func (Google GoogleService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	return nil, errors.New("google does not support linking")
+	authURL := Google.AuthorizeConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline)
+	return &authURL, nil
 }
 
 func (Google GoogleService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
 	var authURL string
 	if forcePrompt {
-		authURL = Google.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+		authURL = Google.LoginConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	} else {
-		authURL = Google.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline)
+		authURL = Google.LoginConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline)
 	}
 	return &authURL, nil
 }
 
 func (Google GoogleService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
-	return errors.New("google does not support linking")
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+	token, err := Google.LoginConfig.Exchange(context.Background(), code)
+	if err != nil {
+		log.Printf("failed to fetch token from google: %v", err)
+		return err
+	}
+	client := Google.LoginConfig.Client(context.Background(), token)
+	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
+	if err != nil {
+		log.Printf("failed to load user info: %v", err)
+		return err
+	}
+	defer response.Body.Close()
+	var userInfo GoogleUserInfo
+
+	err = json.NewDecoder(response.Body).Decode(&userInfo)
+	if err != nil {
+		log.Printf("failed to load decode user info: %v", err)
+		return err
+	}
+	tokenString, err := json.Marshal(&token)
+	if err != nil {
+		log.Printf("failed to load token: %v", err)
+		return err
+	}
+
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+
+	count, err := externalAPITokenCollection.CountDocuments(
+		context.TODO(),
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"service_id": TASK_SERVICE_ID_GOOGLE},
+			{"account_id": userInfo.EMAIL},
+			{"is_primary_login": true},
+		}})
+
+	if count > 0 {
+		return errors.New("Already exists as primary")
+	}
+
+	_, err = externalAPITokenCollection.UpdateOne(
+		context.TODO(),
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"service_id": TASK_SERVICE_ID_GOOGLE},
+			{"account_id": userInfo.EMAIL},
+		}},
+		bson.M{"$set": &database.ExternalAPIToken{
+			UserID:         userID,
+			ServiceID:      TASK_SERVICE_ID_GOOGLE,
+			Token:          string(tokenString),
+			AccountID:      userInfo.EMAIL,
+			DisplayID:      userInfo.EMAIL,
+			IsUnlinkable:   false,
+			IsPrimaryLogin: false,
+		}},
+		options.Update().SetUpsert(true),
+	)
+	return nil
 }
 
 func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectID, *string, error) {
@@ -102,7 +181,7 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 
 	ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := Google.Config.Exchange(ext_ctx, code)
+	token, err := Google.LoginConfig.Exchange(ext_ctx, code)
 	if err != nil {
 		log.Printf("failed to fetch token from google: %v", err)
 
@@ -110,7 +189,7 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 	}
 	ext_ctx, cancel = context.WithTimeout(parent_ctx, constants.ExternalTimeout)
 	defer cancel()
-	client := Google.Config.Client(ext_ctx, token)
+	client := Google.LoginConfig.Client(ext_ctx, token)
 	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
 		log.Printf("failed to load user info: %v", err)
@@ -165,16 +244,17 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 			db_ctx,
 			bson.M{"$and": []bson.M{
 				{"user_id": user.ID},
-				{"source": "google"},
+				{"service_id": TASK_SERVICE_ID_GOOGLE},
 				{"account_id": userInfo.EMAIL},
 			}},
 			bson.M{"$set": &database.ExternalAPIToken{
-				UserID:       user.ID,
-				Source:       "google",
-				Token:        string(tokenString),
-				AccountID:    userInfo.EMAIL,
-				DisplayID:    userInfo.EMAIL,
-				IsUnlinkable: false,
+				UserID:         user.ID,
+				ServiceID:      TASK_SERVICE_ID_GOOGLE,
+				Token:          string(tokenString),
+				AccountID:      userInfo.EMAIL,
+				DisplayID:      userInfo.EMAIL,
+				IsUnlinkable:   false,
+				IsPrimaryLogin: true,
 			}},
 			options.Update().SetUpsert(true),
 		)

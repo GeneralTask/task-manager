@@ -71,13 +71,13 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 
 	var timeZoneName string
 	if timezoneOffsetMinutes > 0 {
-		timeZoneName = fmt.Sprintf("UTC-%d", timezoneOffsetMinutes/60)
+		timeZoneName = fmt.Sprintf("UTC-%d", timezoneOffsetMinutes/constants.MINUTE)
 	} else if timezoneOffsetMinutes < 0 {
-		timeZoneName = fmt.Sprintf("UTC+%d", timezoneOffsetMinutes/-60)
+		timeZoneName = fmt.Sprintf("UTC+%d", -timezoneOffsetMinutes/constants.MINUTE)
 	} else {
 		timeZoneName = "UTC"
 	}
-	location := time.FixedZone(timeZoneName, timezoneOffsetMinutes*-60)
+	location := time.FixedZone(timeZoneName, -timezoneOffsetMinutes*constants.MINUTE)
 	//strip out hours/minutes/seconds of today to find the start of the day
 	todayStartTime := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, location)
 	//get end of day but adding one day to start of day and then subtracting a second to get day at 11:59:59PM
@@ -129,7 +129,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				IDExternal:      event.Id,
 				IDTaskSection:   constants.IDTaskSectionToday,
 				Deeplink:        event.HtmlLink,
-				Source:          database.TaskSourceGoogleCalendar,
+				SourceID:        TASK_SOURCE_ID_GCAL,
 				Title:           event.Summary,
 				TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
 				SourceAccountID: accountID,
@@ -142,7 +142,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			db,
 			userID,
 			event.IDExternal,
-			event.Source,
+			event.SourceID,
 			event,
 			database.CalendarEventChangeableFields{
 				Title:         event.Title,

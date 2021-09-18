@@ -14,7 +14,7 @@ type RedirectParams struct {
 }
 
 func (api *API) Authorize(c *gin.Context) {
-	taskService, err := api.ExternalConfig.GetTaskService(c.Param("service_name"))
+	taskService, err := api.ExternalConfig.GetTaskServiceResult(c.Param("service_name"))
 	if err != nil {
 		Handle404(c)
 		return
@@ -39,7 +39,7 @@ func (api *API) Authorize(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	authURL, err := taskService.Service.GetLinkURL(internalToken.UserID, stateTokenID)
+	authURL, err := taskService.Service.GetLinkURL(stateTokenID, internalToken.UserID, )
 	if err != nil {
 		Handle500(c)
 		return
@@ -48,7 +48,7 @@ func (api *API) Authorize(c *gin.Context) {
 }
 
 func (api *API) AuthorizeCallback(c *gin.Context) {
-	taskService, err := api.ExternalConfig.GetTaskService(c.Param("service_name"))
+	taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(c.Param("service_name"))
 	if err != nil {
 		Handle404(c)
 		return
@@ -78,7 +78,7 @@ func (api *API) AuthorizeCallback(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "invalid state token"})
 		return
 	}
-	err = taskService.Service.HandleLinkCallback(redirectParams.Code, internalToken.UserID)
+	err = taskServiceResult.Service.HandleLinkCallback(redirectParams.Code, internalToken.UserID)
 	if err != nil {
 		c.JSON(500, gin.H{"detail": err.Error()})
 		return

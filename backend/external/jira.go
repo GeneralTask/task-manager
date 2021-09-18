@@ -188,7 +188,7 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 				IDExternal:      jiraTask.ID,
 				IDTaskSection:   constants.IDTaskSectionToday,
 				Deeplink:        siteConfiguration.SiteURL + "/browse/" + jiraTask.Key,
-				Source:          database.TaskSourceJIRA,
+				SourceID:        TASK_SOURCE_ID_JIRA,
 				Title:           jiraTask.Fields.Summary,
 				Body:            bodyString,
 				TimeAllocation:  time.Hour.Nanoseconds(),
@@ -234,7 +234,7 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			db,
 			userID,
 			task.IDExternal,
-			task.Source,
+			task.SourceID,
 			task,
 			database.TaskChangeableFields{
 				Title:              task.Title,

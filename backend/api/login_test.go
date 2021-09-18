@@ -18,7 +18,7 @@ import (
 
 func TestLoginRedirect(t *testing.T) {
 	api := GetAPI()
-	api.ExternalConfig.Google = &external.OauthConfig{Config: &oauth2.Config{
+	api.ExternalConfig.GoogleLoginConfig = &external.OauthConfig{Config: &oauth2.Config{
 		ClientID:    "123",
 		RedirectURL: "g.com",
 		Scopes:      []string{"s1", "s2"},
@@ -184,7 +184,7 @@ func TestLoginCallback(t *testing.T) {
 		// Verifies request succeeds on second auth (no refresh token supplied)
 		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
 		defer cancel()
-		_, err = db.Collection("external_api_tokens").DeleteOne(db_ctx, bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.io"}, {"source": "google"}}})
+		_, err = db.Collection("external_api_tokens").DeleteOne(db_ctx, bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.io"}, {"service_id": external.TASK_SERVICE_ID_GOOGLE}}})
 		assert.NoError(t, err)
 		stateToken, err := newStateToken("")
 		assert.NoError(t, err)

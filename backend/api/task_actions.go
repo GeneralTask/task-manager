@@ -56,17 +56,17 @@ func (api *API) TaskReply(c *gin.Context) {
 		return
 	}
 
-	if !taskBase.Source.IsReplyable {
-		c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
-		return
-	}
-	taskSource, err := api.ExternalConfig.GetTaskSource(taskBase.Source.Name)
+	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(taskBase.SourceID)
 	if err != nil {
 		log.Printf("error loading external task source: %v", err)
 		Handle500(c)
 		return
 	}
-	err = (*taskSource).Reply(userID.(primitive.ObjectID), taskBase.SourceAccountID, taskID, replyParams.Body)
+	if !taskSourceResult.Details.IsReplyable {
+		c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
+		return
+	}
+	err = taskSourceResult.Source.Reply(userID.(primitive.ObjectID), taskBase.SourceAccountID, taskID, replyParams.Body)
 	if err != nil {
 		log.Printf("unable to send email with error: %v", err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})

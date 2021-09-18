@@ -13,6 +13,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -35,7 +36,7 @@ func TestMarkAsComplete(t *testing.T) {
 	insertResult, err := taskCollection.InsertOne(db_ctx, database.TaskBase{
 		UserID:     userID,
 		IDExternal: "sample_jira_id",
-		Source:     database.TaskSourceJIRA,
+		SourceID:   external.TASK_SOURCE_ID_JIRA,
 	})
 	assert.NoError(t, err)
 	jiraTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -46,7 +47,7 @@ func TestMarkAsComplete(t *testing.T) {
 	insertResult, err = taskCollection.InsertOne(db_ctx, database.TaskBase{
 		UserID:     userID,
 		IDExternal: "sample_gmail_id",
-		Source:     database.TaskSourceGmail,
+		SourceID:   external.TASK_SOURCE_ID_GMAIL,
 	})
 	assert.NoError(t, err)
 	gmailTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -57,7 +58,7 @@ func TestMarkAsComplete(t *testing.T) {
 	insertResult, err = taskCollection.InsertOne(db_ctx, database.TaskBase{
 		UserID:     userID,
 		IDExternal: "sample_calendar_id",
-		Source:     database.TaskSourceGoogleCalendar,
+		SourceID:   external.TASK_SOURCE_ID_GCAL,
 	})
 	assert.NoError(t, err)
 	calendarTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -69,17 +70,17 @@ func TestMarkAsComplete(t *testing.T) {
 	defer cancel()
 	_, err = externalAPITokenCollection.UpdateOne(
 		db_ctx,
-		bson.M{"$and": []bson.M{{"user_id": userID}, {"source": database.TaskSourceJIRA.Name}}},
+		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": external.TaskSourceJIRA.Name}}},
 		bson.M{"$set": &database.ExternalAPIToken{
-			Source: database.TaskSourceJIRA.Name,
-			Token:  `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
-			UserID: userID,
+			ServiceID: external.TASK_SERVICE_ID_ATLASSIAN,
+			Token:     `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
+			UserID:    userID,
 		}},
 		options.Update().SetUpsert(true),
 	)
 	assert.NoError(t, err)
 
-	AtlassianSiteCollection := db.Collection("jira_site_collection")
+	AtlassianSiteCollection := db.Collection("jira_sites")
 	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = AtlassianSiteCollection.UpdateOne(
@@ -196,7 +197,7 @@ func TestMarkAsComplete(t *testing.T) {
 		insertResult, err = taskCollection.InsertOne(db_ctx, database.TaskBase{
 			UserID:     userID,
 			IDExternal: "sample_jira_id",
-			Source:     database.TaskSourceJIRA,
+			SourceID:   external.TASK_SOURCE_ID_JIRA,
 		})
 		assert.NoError(t, err)
 		jiraTaskID = insertResult.InsertedID.(primitive.ObjectID)
