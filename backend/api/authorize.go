@@ -39,7 +39,7 @@ func (api *API) Authorize(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	authURL, err := taskService.Service.GetLinkURL(internalToken.UserID, stateTokenID)
+	authURL, err := taskService.Service.GetLinkURL(stateTokenID, internalToken.UserID, )
 	if err != nil {
 		Handle500(c)
 		return

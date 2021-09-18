@@ -32,7 +32,13 @@ func (api *API) SupportedAccountTypesList(c *gin.Context) {
 		Name:             "JIRA",
 		Logo:             external.TaskSourceJIRA.Logo,
 		AuthorizationURL: serverURL + "authorize/atlassian/",
-	}})
+	},
+	{
+		Name:             "Google",
+		Logo:             external.TaskSourceGmail.Logo,
+		AuthorizationURL: serverURL + "authorize/google/",
+	},
+	})
 }
 
 func (api *API) LinkedAccountsList(c *gin.Context) {
