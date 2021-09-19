@@ -5,7 +5,6 @@ import (
 	"html/template"
 )
 
-
 func FormatPlainTextAsHTML(text string) (string, error) {
 	if len(text) == 0 {
 		return text, nil
