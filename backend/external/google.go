@@ -109,6 +109,7 @@ func (Google GoogleService) HandleLinkCallback(code string, userID primitive.Obj
 	if err != nil {
 		return err
 	}
+
 	defer dbCleanup()
 	token, err := Google.AuthorizeConfig.Exchange(context.Background(), code)
 	if err != nil {
