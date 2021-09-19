@@ -21,7 +21,7 @@ func UpdateOrCreateTask(
 	fieldsToUpdate interface{},
 ) (*mongo.SingleResult, error) {
 	parentCtx := context.Background()
-	taskCollection := getTaskCollection(db)
+	taskCollection := GetTaskCollection(db)
 	dbQuery := bson.M{
 		"$and": []bson.M{
 			{"id_external": IDExternal},
@@ -59,7 +59,7 @@ func GetOrCreateTask(db *mongo.Database,
 	fieldsToInsertIfMissing interface{},
 ) (*TaskBase, error) {
 	parentCtx := context.Background()
-	taskCollection := getTaskCollection(db)
+	taskCollection := GetTaskCollection(db)
 	dbQuery := bson.M{
 		"$and": []bson.M{
 			{"id_external": IDExternal},
@@ -100,7 +100,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]TaskBase,
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	cursor, err := getTaskCollection(db).Find(
+	cursor, err := GetTaskCollection(db).Find(
 		dbCtx,
 		bson.M{
 			"$and": []bson.M{
@@ -129,7 +129,7 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 	var userObject User
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err := getUserCollection(db).FindOne(
+	err := GetUserCollection(db).FindOne(
 		dbCtx,
 		bson.M{"_id": userID},
 	).Decode(&userObject)
@@ -148,7 +148,7 @@ func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID) (*string, 
 	}
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	cursor, err := getStateTokenCollection(db).InsertOne(dbCtx, stateToken)
+	cursor, err := GetStateTokenCollection(db).InsertOne(dbCtx, stateToken)
 	if err != nil {
 		log.Printf("Failed to create new state token: %v", err)
 		return nil, err
@@ -167,7 +167,7 @@ func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userI
 	}
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	result, err := getStateTokenCollection(db).DeleteOne(dbCtx, deletionQuery)
+	result, err := GetStateTokenCollection(db).DeleteOne(dbCtx, deletionQuery)
 	if err != nil {
 		log.Printf("Failed to delete state token: %v", err)
 		return err
@@ -178,18 +178,38 @@ func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userI
 	return nil
 }
 
-func getStateTokenCollection(db *mongo.Database) *mongo.Collection {
+func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("state_tokens")
 }
 
-func getTaskCollection(db *mongo.Database) *mongo.Collection {
+func GetTaskCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("tasks")
 }
 
-func getUserCollection(db *mongo.Database) *mongo.Collection {
+func GetUserCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("users")
 }
 
 func GetExternalTokenCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("external_api_tokens")
+}
+
+func GetUserSettingsCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("user_settings")
+}
+
+func GetInternalTokenCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("internal_api_tokens")
+}
+
+func GetWaitlistCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("waitlist")
+}
+
+func GetJiraSitesCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("jira_sites")
+}
+
+func GetJiraPrioritiesCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("jira_priorities")
 }

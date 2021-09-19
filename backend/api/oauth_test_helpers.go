@@ -175,13 +175,13 @@ func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string,
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	internalAPITokenCollection := db.Collection("internal_api_tokens")
+	internalAPITokenCollection := database.GetInternalTokenCollection(db)
 	var authTokenStruct database.InternalAPIToken
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": authToken}).Decode(&authTokenStruct)
 	assert.NoError(t, err)
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	count, err := externalAPITokenCollection.CountDocuments(

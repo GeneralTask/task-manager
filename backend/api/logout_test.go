@@ -21,7 +21,7 @@ func TestLogout(t *testing.T) {
 		db, dbCleanup, err := database.GetDBConnection()
 		assert.NoError(t, err)
 		defer dbCleanup()
-		tokenCollection := db.Collection("internal_api_tokens")
+		tokenCollection := database.GetInternalTokenCollection(db)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()

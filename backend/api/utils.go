@@ -37,7 +37,7 @@ func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 		return nil, err
 	}
 	defer dbCleanup()
-	internalAPITokenCollection := db.Collection("internal_api_tokens")
+	internalAPITokenCollection := database.GetInternalTokenCollection(db)
 	var internalToken database.InternalAPIToken
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -72,7 +72,7 @@ func TokenMiddleware(c *gin.Context) {
 		return
 	}
 	defer dbCleanup()
-	internalAPITokenCollection := db.Collection("internal_api_tokens")
+	internalAPITokenCollection := database.GetInternalTokenCollection(db)
 	var internalToken database.InternalAPIToken
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()

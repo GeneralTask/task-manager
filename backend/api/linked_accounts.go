@@ -52,7 +52,7 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 		return
 	}
 	defer dbCleanup()
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 
 	var tokens []database.ExternalAPIToken
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -110,7 +110,7 @@ func (api *API) DeleteLinkedAccount(c *gin.Context) {
 		return
 	}
 	defer dbCleanup()
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()

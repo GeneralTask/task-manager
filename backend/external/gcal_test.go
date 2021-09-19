@@ -87,7 +87,7 @@ func TestCalendar(t *testing.T) {
 		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardTask, firstTask)
 
-		taskCollection := db.Collection("tasks")
+		taskCollection := database.GetTaskCollection(db)
 
 		var calendarEventFromDB database.CalendarEvent
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -177,7 +177,7 @@ func TestCalendar(t *testing.T) {
 		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardTask, firstTask)
 
-		taskCollection := db.Collection("tasks")
+		taskCollection := database.GetTaskCollection(db)
 
 		var calendarEventFromDB database.CalendarEvent
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -249,7 +249,7 @@ func TestCalendar(t *testing.T) {
 		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardTask, firstTask)
 
-		taskCollection := db.Collection("tasks")
+		taskCollection := database.GetTaskCollection(db)
 
 		var calendarEventFromDB database.CalendarEvent
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)

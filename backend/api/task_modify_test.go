@@ -29,7 +29,7 @@ func TestMarkAsComplete(t *testing.T) {
 	authToken := login("approved@generaltask.io", "")
 	userID := getUserIDFromAuthToken(t, db, authToken)
 
-	taskCollection := db.Collection("tasks")
+	taskCollection := database.GetTaskCollection(db)
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -64,7 +64,7 @@ func TestMarkAsComplete(t *testing.T) {
 	calendarTaskID := insertResult.InsertedID.(primitive.ObjectID)
 	calendarTaskIDHex := calendarTaskID.Hex()
 
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -80,7 +80,7 @@ func TestMarkAsComplete(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	AtlassianSiteCollection := db.Collection("jira_sites")
+	AtlassianSiteCollection := database.GetJiraSitesCollection(db)
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = AtlassianSiteCollection.UpdateOne(
@@ -290,7 +290,7 @@ func TestTaskReorder(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	taskCollection := db.Collection("tasks")
+	taskCollection := database.GetTaskCollection(db)
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
