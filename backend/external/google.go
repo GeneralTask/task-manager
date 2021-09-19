@@ -25,9 +25,9 @@ type GoogleURLOverrides struct {
 }
 
 type GoogleService struct {
-	LoginConfig     OauthConfigWrapper
-	AuthorizeConfig OauthConfigWrapper
-	OverrideURLs    GoogleURLOverrides
+	LoginConfig  OauthConfigWrapper
+	LinkConfig   OauthConfigWrapper
+	OverrideURLs GoogleURLOverrides
 }
 
 // GoogleUserInfo ...
@@ -51,7 +51,7 @@ func getGoogleLoginConfig() OauthConfigWrapper {
 	return &OauthConfig{Config: googleConfig}
 }
 
-func getGoogleAuthorizeConfig() OauthConfigWrapper {
+func getGoogleLinkConfig() OauthConfigWrapper {
 	googleConfig := &oauth2.Config{
 		ClientID:     config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET"),
@@ -90,7 +90,7 @@ func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 }
 
 func (Google GoogleService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	authURL := Google.AuthorizeConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	authURL := Google.LinkConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
 }
 
@@ -111,12 +111,12 @@ func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID pri
 	}
 
 	defer dbCleanup()
-	token, err := Google.AuthorizeConfig.Exchange(context.Background(), *params.Oauth2Code)
+	token, err := Google.LinkConfig.Exchange(context.Background(), *params.Oauth2Code)
 	if err != nil {
 		log.Printf("failed to fetch token from google: %v", err)
 		return err
 	}
-	client := Google.AuthorizeConfig.Client(context.Background(), token)
+	client := Google.LinkConfig.Client(context.Background(), token)
 	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
 		log.Printf("failed to load user info: %v", err)

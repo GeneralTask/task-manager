@@ -23,7 +23,7 @@ func getTrelloConfig() *oauth1.Config {
 	return &oauth1.Config{
 		ConsumerKey:    config.GetConfigValue("TRELLO_OAUTH_CLIENT_ID"),
 		ConsumerSecret: config.GetConfigValue("TRELLO_OAUTH_CLIENT_SECRET"),
-		CallbackURL:    config.GetConfigValue("SERVER_URL") + "authorize/trello/callback/",
+		CallbackURL:    config.GetConfigValue("SERVER_URL") + "link/trello/callback/",
 		Endpoint: oauth1.Endpoint{
 			RequestTokenURL: "https://trello.com/1/OAuthGetRequestToken",
 			AuthorizeURL:    "https://trello.com/1/OAuthAuthorizeToken",

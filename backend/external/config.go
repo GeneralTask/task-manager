@@ -29,7 +29,7 @@ type Config struct {
 func GetConfig() Config {
 	return Config{
 		GoogleLoginConfig:     getGoogleLoginConfig(),
-		GoogleAuthorizeConfig: getGoogleAuthorizeConfig(),
+		GoogleAuthorizeConfig: getGoogleLinkConfig(),
 		Slack:                 getSlackConfig(),
 		Trello:                getTrelloConfig(),
 		Atlassian:             AtlassianConfig{OauthConfig: getAtlassianOauthConfig()},
@@ -68,9 +68,9 @@ func (config Config) GetTaskSourceResult(serviceID string) (*TaskSourceResult, e
 func (config Config) getNameToSource() map[string]TaskSourceResult {
 	atlassianService := AtlassianService{Config: config.Atlassian}
 	googleService := GoogleService{
-		LoginConfig:     config.GoogleLoginConfig,
-		AuthorizeConfig: config.GoogleAuthorizeConfig,
-		OverrideURLs:    config.GoogleOverrideURLs,
+		LoginConfig:  config.GoogleLoginConfig,
+		LinkConfig:   config.GoogleAuthorizeConfig,
+		OverrideURLs: config.GoogleOverrideURLs,
 	}
 	return map[string]TaskSourceResult{
 		TASK_SOURCE_ID_GMAIL: {
@@ -91,9 +91,9 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 func (config Config) GetNameToService() map[string]TaskServiceResult {
 	atlassianService := AtlassianService{Config: config.Atlassian}
 	googleService := GoogleService{
-		LoginConfig:     config.GoogleLoginConfig,
-		AuthorizeConfig: config.GoogleAuthorizeConfig,
-		OverrideURLs:    config.GoogleOverrideURLs,
+		LoginConfig:  config.GoogleLoginConfig,
+		LinkConfig:   config.GoogleAuthorizeConfig,
+		OverrideURLs: config.GoogleOverrideURLs,
 	}
 	return map[string]TaskServiceResult{
 		TASK_SERVICE_ID_GOOGLE: {

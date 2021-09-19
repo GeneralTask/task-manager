@@ -37,7 +37,7 @@ func (api *API) SupportedAccountTypesList(c *gin.Context) {
 		supportedAccountTypes = append(supportedAccountTypes, SupportedAccountType{
 			Name:             service.Details.Name,
 			Logo:             service.Details.Logo,
-			AuthorizationURL: serverURL + "authorize/" + service.Details.ID + "/",
+			AuthorizationURL: serverURL + "link/" + service.Details.ID + "/",
 		})
 	}
 	c.JSON(200, supportedAccountTypes)

@@ -13,46 +13,46 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAuthorizeJIRA(t *testing.T) {
+func TestLinkJIRA(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		TestAuthorizeCookieMissing(t, GetAPI(), "/authorize/atlassian/")
+		TestAuthorizeCookieMissing(t, GetAPI(), "/link/atlassian/")
 	})
 
 	t.Run("CookieBad", func(t *testing.T) {
-		TestAuthorizeCookieBad(t, GetAPI(), "/authorize/atlassian/")
+		TestAuthorizeCookieBad(t, GetAPI(), "/link/atlassian/")
 	})
 
 	t.Run("Success", func(t *testing.T) {
-		TestAuthorizeSuccess(t, GetAPI(), "/authorize/atlassian/", func(stateToken string) string {
-			return "<a href=\"https://auth.atlassian.com/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauthorize%2Fjira%2Fcallback%2F&amp;response_type=code&amp;scope=read%3Ajira-work+read%3Ajira-user+write%3Ajira-work&amp;state=" + stateToken + "&amp;audience=api.atlassian.com\">Found</a>.\n\n"
+		TestAuthorizeSuccess(t, GetAPI(), "/link/atlassian/", func(stateToken string) string {
+			return "<a href=\"https://auth.atlassian.com/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flink%2Fjira%2Fcallback%2F&amp;response_type=code&amp;scope=read%3Ajira-work+read%3Ajira-user+write%3Ajira-work&amp;state=" + stateToken + "&amp;audience=api.atlassian.com\">Found</a>.\n\n"
 		})
 	})
 }
 
-func TestAuthorizeJIRACallback(t *testing.T) {
+func TestLinkJIRACallback(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		TestAuthorizeCookieMissing(t, GetAPI(), "/authorize/atlassian/callback/")
+		TestAuthorizeCookieMissing(t, GetAPI(), "/link/atlassian/callback/")
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		TestAuthorizeCookieBad(t, GetAPI(), "/authorize/atlassian/callback/")
+		TestAuthorizeCookieBad(t, GetAPI(), "/link/atlassian/callback/")
 	})
 	t.Run("MissingCodeParam", func(t *testing.T) {
-		TestAuthorizeCallbackMissingCodeParam(t, GetAPI(), "/authorize/atlassian/callback/")
+		TestAuthorizeCallbackMissingCodeParam(t, GetAPI(), "/link/atlassian/callback/")
 	})
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
-		TestAuthorizeCallbackBadStateTokenFormat(t, GetAPI(), "/authorize/atlassian/callback/")
+		TestAuthorizeCallbackBadStateTokenFormat(t, GetAPI(), "/link/atlassian/callback/")
 	})
 	t.Run("InvalidStateToken", func(t *testing.T) {
-		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/authorize/atlassian/callback/")
+		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/link/atlassian/callback/")
 	})
 	t.Run("InvalidStateTokenWrongUser", func(t *testing.T) {
-		TestAuthorizeCallbackStateTokenWrongUser(t, GetAPI(), "/authorize/atlassian/callback/")
+		TestAuthorizeCallbackStateTokenWrongUser(t, GetAPI(), "/link/atlassian/callback/")
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
 		server := getTokenServerForJIRA(t, http.StatusUnauthorized)
 		api := GetAPI()
 		api.ExternalConfig.Atlassian.ConfigValues.TokenURL = &server.URL
-		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/authorize/atlassian/callback/")
+		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/link/atlassian/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
@@ -66,7 +66,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 				AuthURL:  "https://auth.atlassian.com/authorize",
 				TokenURL: tokenServer.URL,
 			},
-			RedirectURL: config.GetConfigValue("SERVER_URL") + "authorize/jira/callback",
+			RedirectURL: config.GetConfigValue("SERVER_URL") + "link/jira/callback",
 			Scopes:      []string{"read:jira-work", "read:jira-user", "write:jira-work"},
 		}
 		oauthConfig := &external.OauthConfig{Config: atlassianConfig}
@@ -80,7 +80,7 @@ func TestAuthorizeJIRACallback(t *testing.T) {
 				PriorityListURL: &priorityServer.URL,
 			}}
 
-		TestAuthorizeCallbackSuccessfulResponse(t, api, "/authorize/atlassian/callback/", external.TASK_SERVICE_ID_ATLASSIAN)
+		TestAuthorizeCallbackSuccessfulResponse(t, api, "/link/atlassian/callback/", external.TASK_SERVICE_ID_ATLASSIAN)
 	})
 }
 

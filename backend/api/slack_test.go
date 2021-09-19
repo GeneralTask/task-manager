@@ -11,50 +11,50 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAuthorizeSlack(t *testing.T) {
+func TestLinkSlack(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		TestAuthorizeCookieMissing(t, GetAPI(), "/authorize/slack/")
+		TestAuthorizeCookieMissing(t, GetAPI(), "/link/slack/")
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		TestAuthorizeCookieBad(t, GetAPI(), "/authorize/slack/")
+		TestAuthorizeCookieBad(t, GetAPI(), "/link/slack/")
 	})
 	t.Run("Success", func(t *testing.T) {
-		TestAuthorizeSuccess(t, GetAPI(), "/authorize/slack/", func(stateToken string) string {
-			return "<a href=\"https://slack.com/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("SLACK_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Fauthorize%2Fslack%2Fcallback&amp;response_type=code&amp;scope=channels%3Ahistory+channels%3Aread+im%3Aread+mpim%3Ahistory+im%3Ahistory+groups%3Ahistory+groups%3Aread+mpim%3Awrite+im%3Awrite+channels%3Awrite+groups%3Awrite+chat%3Awrite%3Auser&amp;state=" + stateToken + "\">Found</a>.\n\n"
+		TestAuthorizeSuccess(t, GetAPI(), "/link/slack/", func(stateToken string) string {
+			return "<a href=\"https://slack.com/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("SLACK_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Flink%2Fslack%2Fcallback&amp;response_type=code&amp;scope=channels%3Ahistory+channels%3Aread+im%3Aread+mpim%3Ahistory+im%3Ahistory+groups%3Ahistory+groups%3Aread+mpim%3Awrite+im%3Awrite+channels%3Awrite+groups%3Awrite+chat%3Awrite%3Auser&amp;state=" + stateToken + "\">Found</a>.\n\n"
 		})
 	})
 }
 
-func TestAuthorizeSlackCallback(t *testing.T) {
+func TestLinkSlackCallback(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		TestAuthorizeCookieMissing(t, GetAPI(), "/authorize/slack/callback/")
+		TestAuthorizeCookieMissing(t, GetAPI(), "/link/slack/callback/")
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		TestAuthorizeCookieBad(t, GetAPI(), "/authorize/slack/callback/")
+		TestAuthorizeCookieBad(t, GetAPI(), "/link/slack/callback/")
 	})
 	t.Run("MissingCodeParam", func(t *testing.T) {
-		TestAuthorizeCallbackMissingCodeParam(t, GetAPI(), "/authorize/slack/callback/")
+		TestAuthorizeCallbackMissingCodeParam(t, GetAPI(), "/link/slack/callback/")
 	})
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
-		TestAuthorizeCallbackMissingCodeParam(t, GetAPI(), "/authorize/slack/callback/")
+		TestAuthorizeCallbackMissingCodeParam(t, GetAPI(), "/link/slack/callback/")
 	})
 	t.Run("InvalidStateToken", func(t *testing.T) {
-		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/authorize/slack/callback/")
+		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/link/slack/callback/")
 	})
 	t.Run("InvalidStateTokenWrongUser", func(t *testing.T) {
-		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/authorize/slack/callback/")
+		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/link/slack/callback/")
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
 		server := getTokenServerForSlack(t, http.StatusUnauthorized)
 		api := GetAPI()
 		(api.ExternalConfig.Slack.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
-		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/authorize/slack/callback/")
+		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/link/slack/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
 		server := getTokenServerForSlack(t, http.StatusOK)
 		api := GetAPI()
 		(api.ExternalConfig.Slack.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
-		TestAuthorizeCallbackSuccessfulResponse(t, api, "/authorize/slack/callback/", external.TASK_SERVICE_ID_SLACK)
+		TestAuthorizeCallbackSuccessfulResponse(t, api, "/link/slack/callback/", external.TASK_SERVICE_ID_SLACK)
 	})
 }
 

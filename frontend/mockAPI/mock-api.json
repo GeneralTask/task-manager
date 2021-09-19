@@ -286,7 +286,7 @@
       "logo": "/images/trello.svg"
     },
     {
-      "authorization_url ": "/authorize/jira/",
+      "authorization_url ": "/link/jira/",
       "name": "Jira",
       "logo": "/images/jira.svg"
     }

@@ -18,7 +18,7 @@ type Oauth2RedirectParams struct {
 	State string `form:"state" binding:"required"`
 }
 
-func (api *API) Authorize(c *gin.Context) {
+func (api *API) Link(c *gin.Context) {
 	taskService, err := api.ExternalConfig.GetTaskServiceResult(c.Param("service_name"))
 	if err != nil {
 		Handle404(c)
@@ -55,7 +55,7 @@ func (api *API) Authorize(c *gin.Context) {
 	c.Redirect(302, *authURL)
 }
 
-func (api *API) AuthorizeCallback(c *gin.Context) {
+func (api *API) LinkCallback(c *gin.Context) {
 	taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(c.Param("service_name"))
 	if err != nil {
 		Handle404(c)
