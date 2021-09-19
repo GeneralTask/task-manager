@@ -23,7 +23,7 @@ func getSlackConfig() *OauthConfig {
 	return &OauthConfig{Config: &oauth2.Config{
 		ClientID:     config.GetConfigValue("SLACK_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("SLACK_OAUTH_CLIENT_SECRET"),
-		RedirectURL:  "https://api.generaltask.io/authorize/slack/callback",
+		RedirectURL:  "https://api.generaltask.io/link/slack/callback",
 		Scopes:       []string{"channels:history", "channels:read", "im:read", "mpim:history", "im:history", "groups:history", "groups:read", "mpim:write", "im:write", "channels:write", "groups:write", "chat:write:user"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://slack.com/oauth/authorize",

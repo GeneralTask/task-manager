@@ -14,8 +14,8 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.Use(CORSMiddleware)
 
 	// Unauthenticated endpoints
-	router.GET("/authorize/:service_name/", handlers.Authorize)
-	router.GET("/authorize/:service_name/callback/", handlers.AuthorizeCallback)
+	router.GET("/link/:service_name/", handlers.Link)
+	router.GET("/link/:service_name/callback/", handlers.LinkCallback)
 	router.GET("/login/", handlers.Login)
 	router.GET("/login/callback/", handlers.LoginCallback)
 	router.POST("/waitlist/", handlers.WaitlistAdd)

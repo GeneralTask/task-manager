@@ -47,9 +47,9 @@ func (api *API) Login(c *gin.Context) {
 		return
 	}
 	googleService := external.GoogleService{
-		LoginConfig:     api.ExternalConfig.GoogleLoginConfig,
-		AuthorizeConfig: api.ExternalConfig.GoogleAuthorizeConfig,
-		OverrideURLs:    api.ExternalConfig.GoogleOverrideURLs,
+		LoginConfig:  api.ExternalConfig.GoogleLoginConfig,
+		LinkConfig:   api.ExternalConfig.GoogleAuthorizeConfig,
+		OverrideURLs: api.ExternalConfig.GoogleOverrideURLs,
 	}
 	authURL, err := googleService.GetSignupURL(stateTokenID, forcePrompt)
 	if err != nil {
@@ -99,9 +99,9 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 
 	googleService := external.GoogleService{
-		LoginConfig:     api.ExternalConfig.GoogleLoginConfig,
-		AuthorizeConfig: api.ExternalConfig.GoogleAuthorizeConfig,
-		OverrideURLs:    api.ExternalConfig.GoogleOverrideURLs,
+		LoginConfig:  api.ExternalConfig.GoogleLoginConfig,
+		LinkConfig:   api.ExternalConfig.GoogleAuthorizeConfig,
+		OverrideURLs: api.ExternalConfig.GoogleOverrideURLs,
 	}
 	userID, email, err := googleService.HandleSignupCallback(external.CallbackParams{Oauth2Code: &redirectParams.Code})
 	if err != nil {
