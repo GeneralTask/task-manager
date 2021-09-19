@@ -22,7 +22,3 @@ type TrelloCard struct {
 	Name      string   `json:"name"`
 	URL       string   `json:"url"`
 }
-
-// func (Trello TrelloSource) getAPIBaseURL(siteConfiguration database.AtlassianSiteConfiguration) string {
-// 	return "https://api.trello.com/1/" + siteConfiguration.CloudID
-// }
