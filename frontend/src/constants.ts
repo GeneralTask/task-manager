@@ -2,7 +2,7 @@ export const { REACT_APP_API_BASE_URL, REACT_APP_FRONTEND_BASE_URL, REACT_APP_CO
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
-export const JIRA_URL = REACT_APP_API_BASE_URL + '/authorize/jira/'
+export const JIRA_URL = REACT_APP_API_BASE_URL + '/link/jira/'
 export const LOGIN_URL = REACT_APP_API_BASE_URL + '/login/'
 export const LOGOUT_URL = REACT_APP_API_BASE_URL + '/logout/'
 export const SETTINGS_URL = REACT_APP_API_BASE_URL + '/settings/'
