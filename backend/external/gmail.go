@@ -24,7 +24,7 @@ type GmailSource struct {
 	Google GoogleService
 }
 
-type GmailEmail struct {
+type EmailContents struct {
 	To      string
 	Subject string
 	Body    string
@@ -255,7 +255,7 @@ func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string,
 	return err
 }
 
-func (Gmail GmailSource) SendEmail(userID primitive.ObjectID, accountID string, email GmailEmail) error {
+func (Gmail GmailSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
