@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAuthorizeSlack(t *testing.T) {
+func TestLinkSlack(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
 		TestAuthorizeCookieMissing(t, GetAPI(), "/link/slack/")
 	})
@@ -25,7 +25,7 @@ func TestAuthorizeSlack(t *testing.T) {
 	})
 }
 
-func TestAuthorizeSlackCallback(t *testing.T) {
+func TestLinkSlackCallback(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
 		TestAuthorizeCookieMissing(t, GetAPI(), "/link/slack/callback/")
 	})

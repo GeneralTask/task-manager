@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAuthorizeJIRA(t *testing.T) {
+func TestLinkJIRA(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
 		TestAuthorizeCookieMissing(t, GetAPI(), "/link/atlassian/")
 	})
@@ -29,7 +29,7 @@ func TestAuthorizeJIRA(t *testing.T) {
 	})
 }
 
-func TestAuthorizeJIRACallback(t *testing.T) {
+func TestLinkJIRACallback(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
 		TestAuthorizeCookieMissing(t, GetAPI(), "/link/atlassian/callback/")
 	})
