@@ -213,3 +213,7 @@ func GetJiraSitesCollection(db *mongo.Database) *mongo.Collection {
 func GetJiraPrioritiesCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("jira_priorities")
 }
+
+func GetOauth1RequestsSecretsCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("oauth1_request_secrets")
+}

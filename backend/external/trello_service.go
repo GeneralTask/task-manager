@@ -52,7 +52,7 @@ func (Trello TrelloService) GetLinkURL(stateTokenID primitive.ObjectID, userID p
 	}
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	authSecretCollection := db.Collection("oauth1_request_secrets")
+	authSecretCollection := database.GetOauth1RequestsSecretsCollection(db)
 	_, err = authSecretCollection.DeleteMany(dbCtx, bson.M{"user_id": userID})
 	if err != nil {
 		log.Fatalf("failed to delete old request secrets: %v", err)
@@ -82,7 +82,7 @@ func (Trello TrelloService) HandleLinkCallback(params CallbackParams, userID pri
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	var secret database.Oauth1RequestSecret
-	err = db.Collection("oauth1_request_secrets").FindOne(dbCtx, bson.M{"user_id": userID}).Decode(&secret)
+	err = database.GetOauth1RequestsSecretsCollection(db).FindOne(dbCtx, bson.M{"user_id": userID}).Decode(&secret)
 	if err != nil {
 		log.Printf("failed to load request secret: %v", err)
 	}
