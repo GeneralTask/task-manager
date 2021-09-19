@@ -23,14 +23,14 @@ type InternalAPIToken struct {
 
 // ExternalAPIToken model
 type ExternalAPIToken struct {
-	ID           primitive.ObjectID `bson:"_id,omitempty"`
-	ServiceID    string             `bson:"service_id"`
-	Token        string             `bson:"token"`
-	UserID       primitive.ObjectID `bson:"user_id"`
-	AccountID    string             `bson:"account_id"`
-	DisplayID    string             `bson:"display_id"`
-	IsUnlinkable bool               `bson:"is_unlinkable"`
-	IsPrimaryLogin bool				`bson:"is_primary_login"`
+	ID             primitive.ObjectID `bson:"_id,omitempty"`
+	ServiceID      string             `bson:"service_id"`
+	Token          string             `bson:"token"`
+	UserID         primitive.ObjectID `bson:"user_id"`
+	AccountID      string             `bson:"account_id"`
+	DisplayID      string             `bson:"display_id"`
+	IsUnlinkable   bool               `bson:"is_unlinkable"`
+	IsPrimaryLogin bool               `bson:"is_primary_login"`
 }
 
 type AtlassianSiteConfiguration struct {
