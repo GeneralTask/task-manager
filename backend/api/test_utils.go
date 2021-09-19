@@ -73,7 +73,7 @@ func login(email string, name string) string {
 
 func getUserIDFromAuthToken(t *testing.T, db *mongo.Database, authToken string) primitive.ObjectID {
 	parentCtx := context.Background()
-	internalAPITokenCollection := db.Collection("internal_api_tokens")
+	internalAPITokenCollection := database.GetInternalTokenCollection(db)
 	var authTokenStruct database.InternalAPIToken
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -85,7 +85,7 @@ func getUserIDFromAuthToken(t *testing.T, db *mongo.Database, authToken string) 
 func getGoogleTokenFromAuthToken(t *testing.T, db *mongo.Database, authToken string) *database.ExternalAPIToken {
 	parentCtx := context.Background()
 	userID := getUserIDFromAuthToken(t, db, authToken)
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	var externalAPITokenStruct database.ExternalAPIToken
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -119,7 +119,7 @@ func newStateToken(authToken string) (*string, error) {
 	defer dbCleanup()
 	var userID *primitive.ObjectID
 	if authToken != "" {
-		internalAPITokenCollection := db.Collection("internal_api_tokens")
+		internalAPITokenCollection := database.GetInternalTokenCollection(db)
 		var token database.InternalAPIToken
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -183,7 +183,7 @@ func makeLoginCallbackRequest(
 
 func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authToken string, assertNoExternalTokens bool, assertInternalToken bool) {
 	parentCtx := context.Background()
-	userCollection := db.Collection("users")
+	userCollection := database.GetUserCollection(db)
 	googleID := "goog12345_" + email
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -197,7 +197,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 	err = userCollection.FindOne(dbCtx, bson.M{"google_id": googleID}).Decode(&user)
 	assert.NoError(t, err)
 
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	count, err = externalAPITokenCollection.CountDocuments(
@@ -233,7 +233,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 	}
 
 	if assertInternalToken {
-		internalAPITokenCollection := db.Collection("internal_api_tokens")
+		internalAPITokenCollection := database.GetInternalTokenCollection(db)
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		count, err = internalAPITokenCollection.CountDocuments(dbCtx, bson.M{"user_id": user.ID})

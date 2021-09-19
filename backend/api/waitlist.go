@@ -39,7 +39,7 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 		return
 	}
 	defer dbCleanup()
-	waitlistCollection := db.Collection("waitlist")
+	waitlistCollection := database.GetWaitlistCollection(db)
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()

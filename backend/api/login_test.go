@@ -75,7 +75,7 @@ func TestLoginCallback(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	waitlistCollection := db.Collection("waitlist")
+	waitlistCollection := database.GetWaitlistCollection(db)
 
 	t.Run("MissingQueryParams", func(t *testing.T) {
 		router := GetRouter(GetAPI())
@@ -136,7 +136,7 @@ func TestLoginCallback(t *testing.T) {
 		verifyLoginCallback(t, db, "approved@generaltask.io", "TSLA", false, true)
 	})
 	t.Run("UpdatesName", func(t *testing.T) {
-		userCollection := db.Collection("users")
+		userCollection := database.GetUserCollection(db)
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "Task Destroyer", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		var userObject database.User
@@ -184,7 +184,7 @@ func TestLoginCallback(t *testing.T) {
 		// Verifies request succeeds on second auth (no refresh token supplied)
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		_, err = db.Collection("external_api_tokens").DeleteOne(dbCtx, bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.io"}, {"service_id": external.TASK_SERVICE_ID_GOOGLE}}})
+		_, err = database.GetExternalTokenCollection(db).DeleteOne(dbCtx, bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.io"}, {"service_id": external.TASK_SERVICE_ID_GOOGLE}}})
 		assert.NoError(t, err)
 		stateToken, err := newStateToken("")
 		assert.NoError(t, err)

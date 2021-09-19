@@ -81,10 +81,10 @@ func (api *API) TasksList(c *gin.Context) {
 	}
 
 	defer dbCleanup()
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	userID, _ := c.Get("user")
 	var userObject database.User
-	userCollection := db.Collection("users")
+	userCollection := database.GetUserCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
@@ -400,7 +400,7 @@ func adjustForCompletedTasks(
 	calendarEvents *[]*database.CalendarEvent,
 ) error {
 	parentCtx := context.Background()
-	tasksCollection := db.Collection("tasks")
+	tasksCollection := database.GetTaskCollection(db)
 	var newTasks []*database.TaskBase
 	newTaskIDs := make(map[primitive.ObjectID]bool)
 	for _, unscheduledTask := range *unscheduledTasks {
@@ -546,7 +546,7 @@ func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
 
 func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) error {
 	parentCtx := context.Background()
-	tasksCollection := db.Collection("tasks")
+	tasksCollection := database.GetTaskCollection(db)
 	orderingID := 1
 	for _, taskItem := range *tasks {
 		task := taskItem.TaskBase

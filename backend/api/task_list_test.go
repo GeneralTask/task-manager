@@ -17,7 +17,7 @@ import (
 func TestMergeTasks(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
-	taskCollection := db.Collection("tasks")
+	taskCollection := database.GetTaskCollection(db)
 	defer dbCleanup()
 
 	t.Run("SimpleMerge", func(t *testing.T) {

@@ -32,7 +32,7 @@ func TestReplyToEmail(t *testing.T) {
 	authToken := login("approved@generaltask.io", "General Tasker")
 	userID := getUserIDFromAuthToken(t, db, authToken)
 
-	taskCollection := db.Collection("tasks")
+	taskCollection := database.GetTaskCollection(db)
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()

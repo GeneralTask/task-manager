@@ -111,7 +111,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 
 	lowerEmail := strings.ToLower(*email)
-	waitlistCollection := db.Collection("waitlist")
+	waitlistCollection := database.GetWaitlistCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	count, err := waitlistCollection.CountDocuments(
@@ -129,7 +129,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 
 	internalToken := guuid.New().String()
-	internalAPITokenCollection := db.Collection("internal_api_tokens")
+	internalAPITokenCollection := database.GetInternalTokenCollection(db)
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = internalAPITokenCollection.UpdateOne(

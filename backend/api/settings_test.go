@@ -20,7 +20,7 @@ func TestSettingsGet(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	settingCollection := db.Collection("user_settings")
+	settingCollection := database.GetUserSettingsCollection(db)
 
 	t.Run("DefaultValue", func(t *testing.T) {
 		// Random userID; should be ignored

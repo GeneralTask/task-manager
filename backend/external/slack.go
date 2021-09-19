@@ -63,7 +63,7 @@ func (Slack SlackService) HandleLinkCallback(params CallbackParams, userID primi
 		return errors.New("internal server error")
 	}
 
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = externalAPITokenCollection.UpdateOne(
