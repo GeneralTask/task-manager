@@ -8,6 +8,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/dghubble/oauth1"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -15,25 +16,24 @@ import (
 )
 
 type TrelloService struct {
-	Config OauthConfigWrapper
+	Config *oauth1.Config
 }
 
-func getTrelloConfig() *OauthConfig {
-	return &OauthConfig{Config: &oauth2.Config{
-		ClientID:     config.GetConfigValue("TRELLO_OAUTH_CLIENT_ID"),
-		ClientSecret: config.GetConfigValue("TRELLO_OAUTH_CLIENT_SECRET"),
-		RedirectURL:  "https://api.generaltask.io/authorize/trello/callback",
-		Scopes:       []string{
-			// TODO
+func getTrelloConfig() *oauth1.Config {
+	return &oauth1.Config{
+		ConsumerKey:    config.GetConfigValue("TRELLO_OAUTH_CLIENT_ID"),
+		ConsumerSecret: config.GetConfigValue("TRELLO_OAUTH_CLIENT_SECRET"),
+		CallbackURL:    config.GetConfigValue("SERVER_URL") + "authorize/trello/callback/",
+		Endpoint: oauth1.Endpoint{
+			RequestTokenURL: "https://trello.com/1/OAuthGetRequestToken",
+			AuthorizeURL:    "https://trello.com/1/OAuthAuthorizeToken",
+			AccessTokenURL:  "https://trello.com/1/OAuthGetAccessToken",
 		},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://trello.com/1/OAuthAuthorizeToken",
-			TokenURL: "https://trello.com/1/OAuthGetAccessToken",
-		},
-	}}
+	}
 }
 
 func (Trello TrelloService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
+	requestToken, requestSecret, err = Trello.Config.RequestToken()
 	authURL := Trello.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
 }

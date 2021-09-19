@@ -2,6 +2,8 @@ package external
 
 import (
 	"errors"
+
+	"github.com/dghubble/oauth1"
 )
 
 const (
@@ -19,7 +21,7 @@ type Config struct {
 	GoogleLoginConfig     OauthConfigWrapper
 	GoogleAuthorizeConfig OauthConfigWrapper
 	Slack                 OauthConfigWrapper
-	Trello                OauthConfigWrapper
+	Trello                *oauth1.Config
 	GoogleOverrideURLs    GoogleURLOverrides
 	Atlassian             AtlassianConfig
 }
@@ -120,10 +122,16 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 	}
 }
 
+type AuthType string
+
+var AuthTypeOauth2 AuthType = "oauth2"
+var AuthTypeOauth1 AuthType = "oauth1"
+
 type TaskServiceDetails struct {
 	ID           string
 	Name         string
 	Logo         string
+	AuthType     AuthType
 	IsLinkable   bool
 	IsSignupable bool
 }
@@ -132,6 +140,7 @@ var TaskServiceAtlassian = TaskServiceDetails{
 	TASK_SERVICE_ID_ATLASSIAN,
 	"Atlassian",
 	"/images/jira.svg",
+	AuthTypeOauth2,
 	true,
 	false,
 }
@@ -139,6 +148,7 @@ var TaskServiceGoogle = TaskServiceDetails{
 	TASK_SERVICE_ID_GOOGLE,
 	"Google",
 	"/images/gmail.svg",
+	AuthTypeOauth2,
 	true,
 	true,
 }
@@ -146,6 +156,7 @@ var TaskServiceSlack = TaskServiceDetails{
 	TASK_SERVICE_ID_SLACK,
 	"Slack",
 	"/images/slack.svg",
+	AuthTypeOauth2,
 	false,
 	false,
 }
@@ -153,6 +164,7 @@ var TaskServiceTrello = TaskServiceDetails{
 	TASK_SERVICE_ID_TRELLO,
 	"Trello",
 	"/images/trello.svg",
+	AuthTypeOauth1,
 	true,
 	false,
 }
