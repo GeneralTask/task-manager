@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/dghubble/oauth1"
 	"go.mongodb.org/mongo-driver/bson"
@@ -32,12 +33,38 @@ func getTrelloConfig() *oauth1.Config {
 }
 
 func (Trello TrelloService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	requestToken, requestSecret, err := Trello.Config.RequestToken()
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
+		log.Printf("failed to connect to db: %v", err)
 		return nil, err
 	}
-	authURL, err := Trello.Config.AuthorizationURL(requestToken)
-	return &authURL, nil
+	defer dbCleanup()
+
+	requestToken, requestSecret, err := Trello.Config.RequestToken()
+	if err != nil {
+		log.Printf("failed to get request token for link URL")
+		return nil, err
+	}
+	secret := database.Oauth1RequestSecret{
+		UserID:        userID,
+		RequestSecret: requestSecret,
+	}
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	authSecretCollection := db.Collection("oauth1_request_secrets")
+	_, err = authSecretCollection.DeleteMany(dbCtx, bson.M{"user_id": userID})
+	if err != nil {
+		log.Fatalf("failed to delete old request secrets: %v", err)
+	}
+	_, err = authSecretCollection.InsertOne(dbCtx, &secret)
+	if err != nil {
+		log.Printf("failed to create new request secret: %v", err)
+		return nil, err
+	}
+	authURL, _ := Trello.Config.AuthorizationURL(requestToken)
+	authURLStr := authURL.String()
+	return &authURLStr, nil
 }
 
 func (Trello TrelloService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
@@ -45,17 +72,27 @@ func (Trello TrelloService) GetSignupURL(stateTokenID primitive.ObjectID, forceP
 }
 
 func (Trello TrelloService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
+	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return errors.New("internal server error")
 	}
 	defer dbCleanup()
 
-	token, err := Trello.Config.Exchange(context.Background(), code)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	var secret database.Oauth1RequestSecret
+	err = db.Collection("oauth1_request_secrets").FindOne(dbCtx, bson.M{"user_id": userID}).Decode(&secret)
+	if err != nil {
+		log.Printf("failed to load request secret: %v", err)
+	}
+
+	accessToken, accessSecret, err := Trello.Config.AccessToken(*params.Oauth1Token, secret.RequestSecret, *params.Oauth1Verifier)
 	if err != nil {
 		log.Printf("failed to fetch token from trello: %v", err)
 		return errors.New("internal server error")
 	}
+	token := oauth1.NewToken(accessToken, accessSecret)
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
