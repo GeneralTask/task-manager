@@ -83,16 +83,16 @@ func (atlassian AtlassianService) GetSignupURL(stateTokenID primitive.ObjectID, 
 }
 
 func (atlassian AtlassianService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
 	}
 	defer dbCleanup()
 
-	ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := atlassian.Config.OauthConfig.Exchange(ext_ctx, code)
+	token, err := atlassian.Config.OauthConfig.Exchange(extCtx, code)
 	if err != nil {
 		log.Printf("failed to fetch token from Atlassian: %v", err)
 		return errors.New("internal server error")
@@ -112,10 +112,10 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	accountID := (*siteConfiguration)[0].ID
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = externalAPITokenCollection.UpdateOne(
-		db_ctx,
+		dbCtx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"service_id": TASK_SERVICE_ID_ATLASSIAN},
@@ -138,10 +138,10 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 
 	siteCollection := db.Collection("jira_sites")
 
-	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = siteCollection.UpdateOne(
-		db_ctx,
+		dbCtx,
 		bson.M{"user_id": userID},
 		bson.M{"$set": database.AtlassianSiteConfiguration{
 			UserID:  userID,
@@ -210,7 +210,7 @@ func (atlassian AtlassianService) getSites(token *oauth2.Token) *[]AtlassianSite
 }
 
 func (atlassian AtlassianService) getSiteConfiguration(userID primitive.ObjectID) (*database.AtlassianSiteConfiguration, error) {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	var siteConfiguration database.AtlassianSiteConfiguration
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -219,9 +219,9 @@ func (atlassian AtlassianService) getSiteConfiguration(userID primitive.ObjectID
 	defer dbCleanup()
 
 	siteCollection := db.Collection("jira_sites")
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = siteCollection.FindOne(db_ctx, bson.M{"user_id": userID}).Decode(&siteConfiguration)
+	err = siteCollection.FindOne(dbCtx, bson.M{"user_id": userID}).Decode(&siteConfiguration)
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +229,7 @@ func (atlassian AtlassianService) getSiteConfiguration(userID primitive.ObjectID
 }
 
 func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID string) (*AtlassianAuthToken, error) {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	var JIRAToken database.ExternalAPIToken
 
 	db, dbCleanup, err := database.GetDBConnection()
@@ -240,10 +240,10 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = externalAPITokenCollection.FindOne(
-		db_ctx,
+		dbCtx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"service_id": TASK_SERVICE_ID_ATLASSIAN},

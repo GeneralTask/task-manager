@@ -71,7 +71,7 @@ func TestLoginRedirect(t *testing.T) {
 }
 
 func TestLoginCallback(t *testing.T) {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -90,17 +90,17 @@ func TestLoginCallback(t *testing.T) {
 
 	t.Run("EmailNotApprovedOnWaitlist", func(t *testing.T) {
 		// Waitlist entry doesn't matter if has_access = false or if different email
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		_, err := waitlistCollection.InsertOne(
-			db_ctx,
+			dbCtx,
 			&database.WaitlistEntry{Email: "unapproved@gmail.com"},
 		)
 		assert.NoError(t, err)
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		_, err = waitlistCollection.InsertOne(
-			db_ctx,
+			dbCtx,
 			&database.WaitlistEntry{
 				Email:     "different_email@gmail.com",
 				HasAccess: true,
@@ -115,9 +115,9 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"Email has not been approved.\"}", string(body))
 	})
 	t.Run("EmailNotApproved", func(t *testing.T) {
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err := waitlistCollection.Drop(db_ctx)
+		err := waitlistCollection.Drop(dbCtx)
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "unapproved@gmail.com", "", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusForbidden, recorder.Code)
@@ -140,16 +140,16 @@ func TestLoginCallback(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.io", "Task Destroyer", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		var userObject database.User
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		userCollection.FindOne(db_ctx, bson.M{"google_id": "goog12345_approved@generaltask.io"}).Decode(&userObject)
+		userCollection.FindOne(dbCtx, bson.M{"google_id": "goog12345_approved@generaltask.io"}).Decode(&userObject)
 		assert.Equal(t, "Task Destroyer", userObject.Name)
 
 		recorder = makeLoginCallbackRequest("noice420", "approved@generaltask.io", "Elon Musk", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		userCollection.FindOne(db_ctx, bson.M{"google_id": "goog12345_approved@generaltask.io"}).Decode(&userObject)
+		userCollection.FindOne(dbCtx, bson.M{"google_id": "goog12345_approved@generaltask.io"}).Decode(&userObject)
 		assert.Equal(t, "Elon Musk", userObject.Name)
 	})
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
@@ -182,9 +182,9 @@ func TestLoginCallback(t *testing.T) {
 	})
 	t.Run("SuccessSecondTime", func(t *testing.T) {
 		// Verifies request succeeds on second auth (no refresh token supplied)
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		_, err = db.Collection("external_api_tokens").DeleteOne(db_ctx, bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.io"}, {"service_id": external.TASK_SERVICE_ID_GOOGLE}}})
+		_, err = db.Collection("external_api_tokens").DeleteOne(dbCtx, bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.io"}, {"service_id": external.TASK_SERVICE_ID_GOOGLE}}})
 		assert.NoError(t, err)
 		stateToken, err := newStateToken("")
 		assert.NoError(t, err)
@@ -200,10 +200,10 @@ func TestLoginCallback(t *testing.T) {
 		verifyLoginCallback(t, db, "approved@generaltask.io", "noice420", false, true)
 	})
 	t.Run("SuccessWaitlist", func(t *testing.T) {
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		_, err := waitlistCollection.InsertOne(
-			db_ctx,
+			dbCtx,
 			&database.WaitlistEntry{
 				Email:     "dogecoin@tothe.moon",
 				HasAccess: true,

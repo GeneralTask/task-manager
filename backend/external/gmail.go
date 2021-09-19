@@ -56,8 +56,9 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 	}
 
 	ext_ctx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	gmailService, err := gmail.NewService(ext_ctx, option.WithHTTPClient(client))
+	gmailService, err := gmail.NewService(extCtx, option.WithHTTPClient(client))
 	if err != nil {
 		log.Printf("unable to create Gmail service: %v", err)
 		result <- emptyEmailResult(err)
@@ -218,10 +219,10 @@ func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string,
 	if Gmail.Google.OverrideURLs.GmailModifyURL == nil {
 		gmailService, err = gmail.New(client)
 	} else {
-		ext_ctx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 		gmailService, err = gmail.NewService(
-			ext_ctx,
+			extCtx,
 			option.WithoutAuthentication(),
 			option.WithEndpoint(*Gmail.Google.OverrideURLs.GmailModifyURL))
 	}
@@ -334,17 +335,17 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 	var gmailService *gmail.Service
 
 	if Gmail.Google.OverrideURLs.GmailReplyURL != nil {
-		ext_ctx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 		gmailService, err = gmail.NewService(
-			ext_ctx,
+			extCtx,
 			option.WithoutAuthentication(),
 			option.WithEndpoint(*Gmail.Google.OverrideURLs.GmailReplyURL),
 		)
 	} else {
-		ext_ctx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
-		gmailService, err = gmail.NewService(ext_ctx, option.WithHTTPClient(client))
+		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
 	}
 
 	if err != nil {
@@ -353,18 +354,18 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 
 	var userObject database.User
 	userCollection := db.Collection("users")
-	db_ctx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = userCollection.FindOne(db_ctx, bson.M{"_id": userID}).Decode(&userObject)
+	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
 		return err
 	}
 
 	var email database.Email
 	taskCollection := db.Collection("tasks")
-	db_ctx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = taskCollection.FindOne(db_ctx, bson.M{"$and": []bson.M{{"_id": taskID}, {"user_id": userID}}}).Decode(&email)
+	err = taskCollection.FindOne(dbCtx, bson.M{"$and": []bson.M{{"_id": taskID}, {"user_id": userID}}}).Decode(&email)
 	if err != nil {
 		return err
 	}

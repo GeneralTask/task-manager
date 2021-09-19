@@ -10,16 +10,16 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	db, dbCleanup, err := GetDBConnection()
 	if err != nil {
 		log.Fatalf("Failed to connect to DB: %v", err)
 	}
 	defer dbCleanup()
 	log.Println("Dropping test DB now.")
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = db.Drop(db_ctx)
+	err = db.Drop(dbCtx)
 	if err != nil {
 		log.Fatalf("Failed to wipe test DB: %v", err)
 	}

@@ -13,7 +13,7 @@ import (
 )
 
 func TestLogout(t *testing.T) {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 
 	t.Run("Logout", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
@@ -23,9 +23,9 @@ func TestLogout(t *testing.T) {
 		defer dbCleanup()
 		tokenCollection := db.Collection("internal_api_tokens")
 
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		count, _ := tokenCollection.CountDocuments(db_ctx, bson.M{"token": authToken})
+		count, _ := tokenCollection.CountDocuments(dbCtx, bson.M{"token": authToken})
 		assert.Equal(t, int64(1), count)
 
 		router := GetRouter(GetAPI())
@@ -37,9 +37,9 @@ func TestLogout(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		count, _ = tokenCollection.CountDocuments(db_ctx, bson.M{"token": authToken})
+		count, _ = tokenCollection.CountDocuments(dbCtx, bson.M{"token": authToken})
 		assert.Equal(t, int64(0), count)
 	})
 

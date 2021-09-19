@@ -50,13 +50,13 @@ var Settings = []SettingDefinition{
 }
 
 func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string) (*string, error) {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	settingCollection := db.Collection("user_settings")
 	var userSetting database.UserSetting
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err := settingCollection.FindOne(
-		db_ctx,
+		dbCtx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"field_key": fieldKey},
@@ -77,7 +77,7 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 }
 
 func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string, fieldValue string) error {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	keyFound := false
 	valueFound := false
 	for _, setting := range Settings {
@@ -98,10 +98,10 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 		return errors.New("invalid value: " + fieldValue)
 	}
 	settingCollection := db.Collection("user_settings")
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err := settingCollection.UpdateOne(
-		db_ctx,
+		dbCtx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"field_key": fieldKey},
