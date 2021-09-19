@@ -136,7 +136,7 @@ const Reply: React.FC<ReplyProps> = ({ task_id }: ReplyProps) => {
     }}></ReplyText>
     <ReplyButton onClick={() => {
       makeAuthorizedRequest({
-        url: TASKS_URL + task_id + '/reply/',
+        url: TASKS_URL + '/reply/' + task_id + '/',
         method: 'POST',
         body: JSON.stringify({ body: text }),
       })
