@@ -63,7 +63,6 @@ func (api *API) AuthorizeCallback(c *gin.Context) {
 	}
 	internalToken, err := getTokenFromCookie(c)
 	if err != nil {
-		Handle500(c)
 		return
 	}
 	callbackParams := external.CallbackParams{}

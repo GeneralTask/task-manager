@@ -165,7 +165,7 @@ var TaskServiceTrello = TaskServiceDetails{
 	"Trello",
 	"/images/trello.svg",
 	AuthTypeOauth1,
-	true,
+	false,
 	false,
 }
 

@@ -82,7 +82,7 @@ func TestAuthorizeCallbackMissingCodeParam(t *testing.T, api *API, url string) {
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
-		"{\"detail\":\"Missing query params\"}",
+		"{\"detail\":\"missing query params\"}",
 		string(body),
 	)
 }

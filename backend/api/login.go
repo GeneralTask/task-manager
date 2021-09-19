@@ -64,7 +64,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	var redirectParams GoogleRedirectParams
 	if c.ShouldBind(&redirectParams) != nil || redirectParams.State == "" || redirectParams.Code == "" || redirectParams.Scope == "" {
-		c.JSON(400, gin.H{"detail": "Missing query params"})
+		c.JSON(400, gin.H{"detail": "missing query params"})
 		return
 	}
 

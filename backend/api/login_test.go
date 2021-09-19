@@ -85,7 +85,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Missing query params\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"missing query params\"}", string(body))
 	})
 
 	t.Run("EmailNotApprovedOnWaitlist", func(t *testing.T) {
