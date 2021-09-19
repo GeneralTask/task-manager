@@ -41,7 +41,7 @@ func (Slack SlackService) GetSignupURL(stateTokenID primitive.ObjectID, forcePro
 	return nil, errors.New("slack does not support signup")
 }
 
-func (Slack SlackService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
+func (Slack SlackService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -51,7 +51,7 @@ func (Slack SlackService) HandleLinkCallback(code string, userID primitive.Objec
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := Slack.Config.Exchange(extCtx, code)
+	token, err := Slack.Config.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
 		log.Printf("failed to fetch token from Slack: %v", err)
 		return errors.New("internal server error")
@@ -82,6 +82,6 @@ func (Slack SlackService) HandleLinkCallback(code string, userID primitive.Objec
 	return nil
 }
 
-func (Slack SlackService) HandleSignupCallback(code string) (primitive.ObjectID, *string, error) {
+func (Slack SlackService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
 	return primitive.NilObjectID, nil, errors.New("slack does not support signup")
 }

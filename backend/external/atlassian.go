@@ -82,7 +82,7 @@ func (atlassian AtlassianService) GetSignupURL(stateTokenID primitive.ObjectID, 
 	return nil, errors.New("atlassian does not support signup")
 }
 
-func (atlassian AtlassianService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
+func (atlassian AtlassianService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -92,7 +92,7 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := atlassian.Config.OauthConfig.Exchange(extCtx, code)
+	token, err := atlassian.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
 		log.Printf("failed to fetch token from Atlassian: %v", err)
 		return errors.New("internal server error")
@@ -165,7 +165,7 @@ func (atlassian AtlassianService) HandleLinkCallback(code string, userID primiti
 	return nil
 }
 
-func (atlassian AtlassianService) HandleSignupCallback(code string) (primitive.ObjectID, *string, error) {
+func (atlassian AtlassianService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
 	return primitive.NilObjectID, nil, errors.New("atlassian does not support signup")
 }
 

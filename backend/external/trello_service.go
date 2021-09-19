@@ -12,7 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/oauth2"
 )
 
 type TrelloService struct {
@@ -33,8 +32,11 @@ func getTrelloConfig() *oauth1.Config {
 }
 
 func (Trello TrelloService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	requestToken, requestSecret, err = Trello.Config.RequestToken()
-	authURL := Trello.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	requestToken, requestSecret, err := Trello.Config.RequestToken()
+	if err != nil {
+		return nil, err
+	}
+	authURL, err := Trello.Config.AuthorizationURL(requestToken)
 	return &authURL, nil
 }
 
@@ -42,7 +44,7 @@ func (Trello TrelloService) GetSignupURL(stateTokenID primitive.ObjectID, forceP
 	return nil, errors.New("trello does not support signup")
 }
 
-func (Trello TrelloService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
+func (Trello TrelloService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return errors.New("internal server error")
@@ -78,6 +80,6 @@ func (Trello TrelloService) HandleLinkCallback(code string, userID primitive.Obj
 	return nil
 }
 
-func (Trello TrelloService) HandleSignupCallback(code string) (primitive.ObjectID, *string, error) {
+func (Trello TrelloService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
 	return primitive.NilObjectID, nil, errors.New("trello does not support signup")
 }

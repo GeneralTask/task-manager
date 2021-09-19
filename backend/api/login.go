@@ -103,7 +103,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		AuthorizeConfig: api.ExternalConfig.GoogleAuthorizeConfig,
 		OverrideURLs:    api.ExternalConfig.GoogleOverrideURLs,
 	}
-	userID, email, err := googleService.HandleSignupCallback(redirectParams.Code)
+	userID, email, err := googleService.HandleSignupCallback(external.CallbackParams{Oauth2Code: &redirectParams.Code})
 	if err != nil {
 		log.Printf("Failed to handle signup: %v", err)
 		Handle500(c)

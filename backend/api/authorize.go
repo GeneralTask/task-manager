@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -78,7 +79,7 @@ func (api *API) AuthorizeCallback(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "invalid state token"})
 		return
 	}
-	err = taskServiceResult.Service.HandleLinkCallback(redirectParams.Code, internalToken.UserID)
+	err = taskServiceResult.Service.HandleLinkCallback(external.CallbackParams{Oauth2Code: &redirectParams.Code}, internalToken.UserID)
 	if err != nil {
 		c.JSON(500, gin.H{"detail": err.Error()})
 		return
