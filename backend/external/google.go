@@ -21,6 +21,7 @@ type GoogleURLOverrides struct {
 	CalendarFetchURL *string
 	GmailModifyURL   *string
 	GmailReplyURL    *string
+	GmailSendURL     *string
 }
 
 type GoogleService struct {
@@ -135,7 +136,6 @@ func (Google GoogleService) HandleLinkCallback(code string, userID primitive.Obj
 	}
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-
 
 	count, err := externalAPITokenCollection.CountDocuments(
 		context.TODO(),
