@@ -436,3 +436,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 
 	return err
 }
+
+func (Gmail GmailSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
+	return errors.New("Has not been implemented yet")
+}

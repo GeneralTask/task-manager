@@ -34,5 +34,6 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/ping/", handlers.Ping)
 	router.GET("/settings/", handlers.SettingsList)
 	router.PATCH("/settings/", handlers.SettingsModify)
+	router.POST("/tasks/create", handlers.TaskCreate)
 	return router
 }

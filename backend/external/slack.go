@@ -85,3 +85,7 @@ func (Slack SlackService) HandleLinkCallback(code string, userID primitive.Objec
 func (Slack SlackService) HandleSignupCallback(code string) (primitive.ObjectID, *string, error) {
 	return primitive.NilObjectID, nil, errors.New("slack does not support signup")
 }
+
+func (Slack SlackService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
+	return errors.New("Has not been implemented yet")
+}

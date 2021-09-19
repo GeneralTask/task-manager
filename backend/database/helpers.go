@@ -189,3 +189,7 @@ func getTaskCollection(db *mongo.Database) *mongo.Collection {
 func getUserCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("users")
 }
+
+func GetExternalTokenCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("external_api_tokens")
+}
