@@ -24,6 +24,12 @@ type GmailSource struct {
 	Google GoogleService
 }
 
+type EmailContents struct {
+	To      string
+	Subject string
+	Body    string
+}
+
 func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -245,6 +251,72 @@ func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string,
 		emailID,
 		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{labelToRemove}},
 	).Do()
+
+	return err
+}
+
+func (Gmail GmailSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+	externalAPITokenCollection := db.Collection("external_api_tokens")
+	client := GetGoogleHttpClient(externalAPITokenCollection, userID, accountID)
+
+	var gmailService *gmail.Service
+
+	if Gmail.Google.OverrideURLs.GmailSendURL != nil {
+		ext_ctx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		defer cancel()
+		gmailService, err = gmail.NewService(
+			ext_ctx,
+			option.WithoutAuthentication(),
+			option.WithEndpoint(*Gmail.Google.OverrideURLs.GmailSendURL),
+		)
+	} else {
+		ext_ctx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		defer cancel()
+		gmailService, err = gmail.NewService(ext_ctx, option.WithHTTPClient(client))
+	}
+
+	if err != nil {
+		return err
+	}
+
+	var userObject database.User
+	userCollection := db.Collection("users")
+	db_ctx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = userCollection.FindOne(db_ctx, bson.M{"_id": userID}).Decode(&userObject)
+	if err != nil {
+		return err
+	}
+
+	if err != nil {
+		return err
+	}
+
+	sendAddress := email.To
+	subject := email.Subject
+	body := email.Body
+
+	if len(sendAddress) == 0 {
+		return errors.New("missing send address")
+	}
+
+	emailTo := "To: " + sendAddress + "\r\n"
+	subject = "Subject: " + subject + "\n"
+	emailFrom := fmt.Sprintf("From: %s <%s>\n", userObject.Name, userObject.Email)
+
+	msg := []byte(emailTo + emailFrom + subject + "\n" + body)
+
+	messageToSend := gmail.Message{
+		Raw: base64.URLEncoding.EncodeToString(msg),
+	}
+
+	_, err = gmailService.Users.Messages.Send("me", &messageToSend).Do()
 
 	return err
 }
