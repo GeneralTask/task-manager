@@ -184,11 +184,11 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 }
 
 type TaskCreateParams struct {
-	Title     *string    `json:"title"`
-	Body      *string    `json:"body"`
-	DueDate   *time.Time `json:"due_date"`
-	SourceID  *string    `json:"source_id"`
-	AccountID *string    `json:"account_id"`
+	Title     *string    `json:"title" binding:"required"`
+	Body      *string    `json:"body" binding:"required"`
+	DueDate   *time.Time `json:"due_date" binding:"required"`
+	SourceID  *string    `json:"source_id" binding:"required"`
+	AccountID *string    `json:"account_id" binding:"required"`
 }
 
 func (api *API) TaskCreate(c *gin.Context) {
