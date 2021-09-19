@@ -11,7 +11,7 @@ import (
 )
 
 func (api *API) Logout(c *gin.Context) {
-	parent_ctx := c.Request.Context()
+	parentCtx := c.Request.Context()
 	token, err := getToken(c)
 	if err != nil {
 		return
@@ -24,9 +24,9 @@ func (api *API) Logout(c *gin.Context) {
 	defer dbCleanup()
 
 	tokenCollection := db.Collection("internal_api_tokens")
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	result, err := tokenCollection.DeleteOne(db_ctx, bson.M{"token": token})
+	result, err := tokenCollection.DeleteOne(dbCtx, bson.M{"token": token})
 	if err != nil {
 		log.Printf("failed to remove token: %v", err)
 		Handle500(c)

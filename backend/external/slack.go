@@ -42,16 +42,16 @@ func (Slack SlackService) GetSignupURL(stateTokenID primitive.ObjectID, forcePro
 }
 
 func (Slack SlackService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return errors.New("internal server error")
 	}
 	defer dbCleanup()
 
-	ext_ctx, cancel := context.WithTimeout(parent_ctx, constants.ExternalTimeout)
+	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := Slack.Config.Exchange(ext_ctx, code)
+	token, err := Slack.Config.Exchange(extCtx, code)
 	if err != nil {
 		log.Printf("failed to fetch token from Slack: %v", err)
 		return errors.New("internal server error")
@@ -64,10 +64,10 @@ func (Slack SlackService) HandleLinkCallback(code string, userID primitive.Objec
 	}
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = externalAPITokenCollection.UpdateOne(
-		db_ctx,
+		dbCtx,
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_SLACK}}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:    userID,

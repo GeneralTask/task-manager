@@ -21,7 +21,7 @@ import (
 )
 
 func TestMarkAsComplete(t *testing.T) {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -31,9 +31,9 @@ func TestMarkAsComplete(t *testing.T) {
 
 	taskCollection := db.Collection("tasks")
 
-	db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	insertResult, err := taskCollection.InsertOne(db_ctx, database.TaskBase{
+	insertResult, err := taskCollection.InsertOne(dbCtx, database.TaskBase{
 		UserID:     userID,
 		IDExternal: "sample_jira_id",
 		SourceID:   external.TASK_SOURCE_ID_JIRA,
@@ -42,9 +42,9 @@ func TestMarkAsComplete(t *testing.T) {
 	jiraTaskID := insertResult.InsertedID.(primitive.ObjectID)
 	jiraTaskIDHex := jiraTaskID.Hex()
 
-	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	insertResult, err = taskCollection.InsertOne(db_ctx, database.TaskBase{
+	insertResult, err = taskCollection.InsertOne(dbCtx, database.TaskBase{
 		UserID:     userID,
 		IDExternal: "sample_gmail_id",
 		SourceID:   external.TASK_SOURCE_ID_GMAIL,
@@ -53,9 +53,9 @@ func TestMarkAsComplete(t *testing.T) {
 	gmailTaskID := insertResult.InsertedID.(primitive.ObjectID)
 	gmailTaskIDHex := gmailTaskID.Hex()
 
-	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	insertResult, err = taskCollection.InsertOne(db_ctx, database.TaskBase{
+	insertResult, err = taskCollection.InsertOne(dbCtx, database.TaskBase{
 		UserID:     userID,
 		IDExternal: "sample_calendar_id",
 		SourceID:   external.TASK_SOURCE_ID_GCAL,
@@ -66,10 +66,10 @@ func TestMarkAsComplete(t *testing.T) {
 
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 
-	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = externalAPITokenCollection.UpdateOne(
-		db_ctx,
+		dbCtx,
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": external.TaskSourceJIRA.Name}}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			ServiceID: external.TASK_SERVICE_ID_ATLASSIAN,
@@ -81,10 +81,10 @@ func TestMarkAsComplete(t *testing.T) {
 	assert.NoError(t, err)
 
 	AtlassianSiteCollection := db.Collection("jira_sites")
-	db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = AtlassianSiteCollection.UpdateOne(
-		db_ctx,
+		dbCtx,
 		bson.M{"user_id": userID},
 
 		bson.M{"$set": &database.AtlassianSiteConfiguration{
@@ -170,9 +170,9 @@ func TestMarkAsComplete(t *testing.T) {
 			"/tasks/"+jiraTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		var task database.TaskBase
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": jiraTaskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": jiraTaskID}).Decode(&task)
 		assert.Equal(t, false, task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -183,18 +183,18 @@ func TestMarkAsComplete(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": jiraTaskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": jiraTaskID}).Decode(&task)
 		assert.Equal(t, true, task.IsCompleted)
 
 		assert.NoError(t, err)
 	})
 
 	t.Run("JIRASuccessUnread", func(t *testing.T) {
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		insertResult, err = taskCollection.InsertOne(db_ctx, database.TaskBase{
+		insertResult, err = taskCollection.InsertOne(dbCtx, database.TaskBase{
 			UserID:     userID,
 			IDExternal: "sample_jira_id",
 			SourceID:   external.TASK_SOURCE_ID_JIRA,
@@ -219,9 +219,9 @@ func TestMarkAsComplete(t *testing.T) {
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 
 		var task database.TaskBase
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": jiraTaskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": jiraTaskID}).Decode(&task)
 		assert.Equal(t, false, task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -232,9 +232,9 @@ func TestMarkAsComplete(t *testing.T) {
 		unreadRouter.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": jiraTaskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": jiraTaskID}).Decode(&task)
 		assert.Equal(t, true, task.IsCompleted)
 	})
 
@@ -245,9 +245,9 @@ func TestMarkAsComplete(t *testing.T) {
 			"/tasks/"+gmailTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		var task database.TaskBase
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": gmailTaskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&task)
 		assert.Equal(t, false, task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -255,9 +255,9 @@ func TestMarkAsComplete(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": gmailTaskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&task)
 		assert.Equal(t, true, task.IsCompleted)
 	})
 
@@ -268,9 +268,9 @@ func TestMarkAsComplete(t *testing.T) {
 			"/tasks/"+calendarTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		var task database.TaskBase
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": calendarTaskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": calendarTaskID}).Decode(&task)
 		assert.Equal(t, false, task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -278,15 +278,15 @@ func TestMarkAsComplete(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": calendarTaskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": calendarTaskID}).Decode(&task)
 		assert.Equal(t, false, task.IsCompleted)
 	})
 }
 
 func TestTaskReorder(t *testing.T) {
-	parent_ctx := context.Background()
+	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -295,10 +295,10 @@ func TestTaskReorder(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
-			db_ctx,
+			dbCtx,
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    2,
@@ -308,10 +308,10 @@ func TestTaskReorder(t *testing.T) {
 		assert.NoError(t, err)
 		taskToBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err = taskCollection.InsertOne(
-			db_ctx,
+			dbCtx,
 			database.TaskBase{
 				UserID:        primitive.NewObjectID(),
 				IDOrdering:    3,
@@ -321,10 +321,10 @@ func TestTaskReorder(t *testing.T) {
 		assert.NoError(t, err)
 		taskToNotBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err = taskCollection.InsertOne(
-			db_ctx,
+			dbCtx,
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    1,
@@ -334,10 +334,10 @@ func TestTaskReorder(t *testing.T) {
 		assert.NoError(t, err)
 		taskToAlsoNotBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err = taskCollection.InsertOne(
-			db_ctx,
+			dbCtx,
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    2,
@@ -347,10 +347,10 @@ func TestTaskReorder(t *testing.T) {
 		assert.NoError(t, err)
 		taskToAlsoAlsoNotBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err = taskCollection.InsertOne(
-			db_ctx,
+			dbCtx,
 			database.TaskBase{
 				UserID:        userID,
 				IDTaskSection: constants.IDTaskSectionBacklog,
@@ -373,46 +373,46 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, "{}", string(body))
 
 		var task database.TaskBase
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": taskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
 		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": taskToBeMovedID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskToBeMovedID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 3, task.IDOrdering)
 		assert.False(t, task.HasBeenReordered)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": taskToNotBeMovedID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskToNotBeMovedID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 3, task.IDOrdering)
 		assert.False(t, task.HasBeenReordered)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": taskToAlsoNotBeMovedID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskToAlsoNotBeMovedID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, task.IDOrdering)
 		assert.False(t, task.HasBeenReordered)
 
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": taskToAlsoAlsoNotBeMovedID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskToAlsoAlsoNotBeMovedID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
 		assert.False(t, task.HasBeenReordered)
 	})
 	t.Run("WrongUser", func(t *testing.T) {
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		insertResult, err := taskCollection.InsertOne(db_ctx, database.TaskBase{})
+		insertResult, err := taskCollection.InsertOne(dbCtx, database.TaskBase{})
 		assert.NoError(t, err)
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
@@ -504,10 +504,10 @@ func TestTaskReorder(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
-			db_ctx,
+			dbCtx,
 			database.TaskBase{
 				UserID:        userID,
 				IDTaskSection: constants.IDTaskSectionBacklog,
@@ -530,9 +530,9 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, "{}", string(body))
 
 		var task database.TaskBase
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": taskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, task.IDOrdering)
 		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
@@ -542,10 +542,10 @@ func TestTaskReorder(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
-		db_ctx, cancel := context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
-			db_ctx,
+			dbCtx,
 			database.TaskBase{
 				UserID:        userID,
 				IDTaskSection: constants.IDTaskSectionBacklog,
@@ -568,9 +568,9 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, "{}", string(body))
 
 		var task database.TaskBase
-		db_ctx, cancel = context.WithTimeout(parent_ctx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(db_ctx, bson.M{"_id": taskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
 		assert.Equal(t, constants.IDTaskSectionBacklog, task.IDTaskSection)
