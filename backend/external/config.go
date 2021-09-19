@@ -8,6 +8,7 @@ const (
 	TASK_SERVICE_ID_ATLASSIAN = "atlassian"
 	TASK_SERVICE_ID_GOOGLE    = "google"
 	TASK_SERVICE_ID_SLACK     = "slack"
+	TASK_SERVICE_ID_TRELLO    = "trello"
 
 	TASK_SOURCE_ID_GCAL  = "gcal"
 	TASK_SOURCE_ID_GMAIL = "gmail"
@@ -18,6 +19,7 @@ type Config struct {
 	GoogleLoginConfig     OauthConfigWrapper
 	GoogleAuthorizeConfig OauthConfigWrapper
 	Slack                 OauthConfigWrapper
+	Trello                OauthConfigWrapper
 	GoogleOverrideURLs    GoogleURLOverrides
 	Atlassian             AtlassianConfig
 }
@@ -27,6 +29,7 @@ func GetConfig() Config {
 		GoogleLoginConfig:     getGoogleLoginConfig(),
 		GoogleAuthorizeConfig: getGoogleAuthorizeConfig(),
 		Slack:                 getSlackConfig(),
+		Trello:                getTrelloConfig(),
 		Atlassian:             AtlassianConfig{OauthConfig: getAtlassianOauthConfig()},
 	}
 }
@@ -109,6 +112,11 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 			Details: TaskServiceSlack,
 			Sources: []TaskSource{},
 		},
+		TASK_SERVICE_ID_TRELLO: {
+			Service: TrelloService{Config: config.Trello},
+			Details: TaskServiceTrello,
+			Sources: []TaskSource{},
+		},
 	}
 }
 
@@ -139,6 +147,13 @@ var TaskServiceSlack = TaskServiceDetails{
 	"Slack",
 	"/images/slack.svg",
 	false,
+	false,
+}
+var TaskServiceTrello = TaskServiceDetails{
+	TASK_SERVICE_ID_TRELLO,
+	"Trello",
+	"/images/trello.svg",
+	true,
 	false,
 }
 

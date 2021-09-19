@@ -260,6 +260,13 @@
       "name": "Slack",
       "logo": "/images/slack.svg",
       "is_unlinkable": true
+    },
+    {
+      "id": "id-3",
+      "display_id": "Treller",
+      "name": "Trello",
+      "logo": "/images/trello.svg",
+      "is_unlinkable": true
     }
   ],
   "linked_accounts_supported_types": [
@@ -272,6 +279,11 @@
       "authorization_url ": "https://www.slack.com/",
       "name": "Slack",
       "logo": "/images/slack.svg"
+    },
+    {
+      "authorization_url ": "https://www.trello.com/",
+      "name": "Trello",
+      "logo": "/images/trello.svg"
     },
     {
       "authorization_url ": "/authorize/jira/",
