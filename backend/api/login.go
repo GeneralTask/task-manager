@@ -64,7 +64,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	var redirectParams GoogleRedirectParams
 	if c.ShouldBind(&redirectParams) != nil || redirectParams.State == "" || redirectParams.Code == "" || redirectParams.Scope == "" {
-		c.JSON(400, gin.H{"detail": "Missing query params"})
+		c.JSON(400, gin.H{"detail": "missing query params"})
 		return
 	}
 
@@ -103,7 +103,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		AuthorizeConfig: api.ExternalConfig.GoogleAuthorizeConfig,
 		OverrideURLs:    api.ExternalConfig.GoogleOverrideURLs,
 	}
-	userID, email, err := googleService.HandleSignupCallback(redirectParams.Code)
+	userID, email, err := googleService.HandleSignupCallback(external.CallbackParams{Oauth2Code: &redirectParams.Code})
 	if err != nil {
 		log.Printf("Failed to handle signup: %v", err)
 		Handle500(c)

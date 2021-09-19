@@ -52,6 +52,12 @@ type StateToken struct {
 	UserID primitive.ObjectID `bson:"user_id"`
 }
 
+type Oauth1RequestSecret struct {
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	UserID        primitive.ObjectID `bson:"user_id"`
+	RequestSecret string             `bson:"request_secret"`
+}
+
 // Task json & mongo model
 type TaskBase struct {
 	ID               primitive.ObjectID `bson:"_id,omitempty"`

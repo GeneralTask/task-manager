@@ -104,14 +104,14 @@ func (Google GoogleService) GetSignupURL(stateTokenID primitive.ObjectID, forceP
 	return &authURL, nil
 }
 
-func (Google GoogleService) HandleLinkCallback(code string, userID primitive.ObjectID) error {
+func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
 	}
 
 	defer dbCleanup()
-	token, err := Google.AuthorizeConfig.Exchange(context.Background(), code)
+	token, err := Google.AuthorizeConfig.Exchange(context.Background(), *params.Oauth2Code)
 	if err != nil {
 		log.Printf("failed to fetch token from google: %v", err)
 		return err
@@ -172,7 +172,7 @@ func (Google GoogleService) HandleLinkCallback(code string, userID primitive.Obj
 	return nil
 }
 
-func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectID, *string, error) {
+func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
 	parentCtx := context.Background()
 
 	db, dbCleanup, err := database.GetDBConnection()
@@ -183,7 +183,7 @@ func (Google GoogleService) HandleSignupCallback(code string) (primitive.ObjectI
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := Google.LoginConfig.Exchange(extCtx, code)
+	token, err := Google.LoginConfig.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
 		log.Printf("failed to fetch token from google: %v", err)
 
