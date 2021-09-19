@@ -11,6 +11,17 @@ npm install
 npm start
 ```
 
+## Pre-Commit
+Install pre-commit by
+```
+brew install pre-commit
+```
+
+Then inside of the `task-manager` directory add pre-commit to the project using:
+```
+pre-commit install
+```
+
 ## Backend setup
 
 First, install Go and Docker.
