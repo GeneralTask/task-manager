@@ -73,7 +73,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		return
 	}
 	defer dbCleanup()
-	taskCollection := db.Collection("tasks")
+	taskCollection := database.GetTaskCollection(db)
 	updateParams := bson.M{"has_been_reordered": true}
 	if IDOrdering != nil {
 		updateParams["id_ordering"] = *IDOrdering
@@ -140,7 +140,7 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 		return
 	}
 	defer dbCleanup()
-	taskCollection := db.Collection("tasks")
+	taskCollection := database.GetTaskCollection(db)
 
 	var task database.TaskBase
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)

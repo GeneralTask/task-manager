@@ -51,7 +51,7 @@ var Settings = []SettingDefinition{
 
 func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string) (*string, error) {
 	parentCtx := context.Background()
-	settingCollection := db.Collection("user_settings")
+	settingCollection := database.GetUserSettingsCollection(db)
 	var userSetting database.UserSetting
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -97,7 +97,7 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 	if !valueFound {
 		return errors.New("invalid value: " + fieldValue)
 	}
-	settingCollection := db.Collection("user_settings")
+	settingCollection := database.GetUserSettingsCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err := settingCollection.UpdateOne(

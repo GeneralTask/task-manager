@@ -84,7 +84,7 @@ func (JIRA JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken 
 	}
 	defer dbCleanup()
 
-	prioritiesCollection := db.Collection("jira_priorities")
+	prioritiesCollection := database.GetJiraPrioritiesCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = prioritiesCollection.DeleteMany(dbCtx, bson.M{"user_id": userID})
@@ -203,7 +203,7 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 		tasks = append(tasks, task)
 	}
 
-	cachedMapping := JIRA.fetchLocalPriorityMapping(db.Collection("jira_priorities"), userID)
+	cachedMapping := JIRA.fetchLocalPriorityMapping(database.GetJiraPrioritiesCollection(db), userID)
 
 	//If a priority exists that isn't cached refresh the whole list.
 	var needsRefresh bool
@@ -224,7 +224,7 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			result <- emptyTaskResult(err)
 			return
 		}
-		cachedMapping = JIRA.fetchLocalPriorityMapping(db.Collection("jira_priorities"), userID)
+		cachedMapping = JIRA.fetchLocalPriorityMapping(database.GetJiraPrioritiesCollection(db), userID)
 	}
 	priorityLength := len(*cachedMapping)
 

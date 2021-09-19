@@ -23,7 +23,7 @@ func (api *API) Logout(c *gin.Context) {
 	}
 	defer dbCleanup()
 
-	tokenCollection := db.Collection("internal_api_tokens")
+	tokenCollection := database.GetInternalTokenCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	result, err := tokenCollection.DeleteOne(dbCtx, bson.M{"token": token})

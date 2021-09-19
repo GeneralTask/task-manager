@@ -136,7 +136,7 @@ func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID pri
 		return err
 	}
 
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 
 	count, err := externalAPITokenCollection.CountDocuments(
 		context.TODO(),
@@ -212,7 +212,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 		return primitive.NilObjectID, nil, err
 	}
 
-	userCollection := db.Collection("users")
+	userCollection := database.GetUserCollection(db)
 
 	var user database.User
 
@@ -239,7 +239,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 
 			return primitive.NilObjectID, nil, err
 		}
-		externalAPITokenCollection := db.Collection("external_api_tokens")
+		externalAPITokenCollection := database.GetExternalTokenCollection(db)
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		_, err = externalAPITokenCollection.UpdateOne(

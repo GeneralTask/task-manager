@@ -140,7 +140,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		var token database.ExternalAPIToken
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err := db.Collection("external_api_tokens").FindOne(
+		err := database.GetExternalTokenCollection(db).FindOne(
 			dbCtx,
 			bson.M{"_id": jiraTokenID},
 		).Decode(&token)
@@ -160,7 +160,7 @@ func createJIRADungeon(t *testing.T, db *mongo.Database, authToken string) primi
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	res, err := db.Collection("external_api_tokens").InsertOne(
+	res, err := database.GetExternalTokenCollection(db).InsertOne(
 		dbCtx,
 		&database.ExternalAPIToken{
 			ServiceID:    external.TASK_SERVICE_ID_ATLASSIAN,

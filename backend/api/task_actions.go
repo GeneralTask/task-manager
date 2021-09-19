@@ -43,7 +43,7 @@ func (api *API) TaskReply(c *gin.Context) {
 		return
 	}
 
-	taskCollection := db.Collection("tasks")
+	taskCollection := database.GetTaskCollection(db)
 	var taskBase database.TaskBase
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()

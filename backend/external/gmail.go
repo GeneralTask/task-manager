@@ -47,7 +47,7 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 
 	emails := []*database.Email{}
 
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	client := GetGoogleHttpClient(externalAPITokenCollection, userID, accountID)
 	if client == nil {
 		log.Printf("failed to fetch google API token")
@@ -211,7 +211,7 @@ func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string,
 		return err
 	}
 	defer dbCleanup()
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	client := GetGoogleHttpClient(externalAPITokenCollection, userID, accountID)
 
 	var gmailService *gmail.Service
@@ -262,7 +262,7 @@ func (Gmail GmailSource) SendEmail(userID primitive.ObjectID, accountID string, 
 		return err
 	}
 	defer dbCleanup()
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	client := GetGoogleHttpClient(externalAPITokenCollection, userID, accountID)
 
 	var gmailService *gmail.Service
@@ -286,7 +286,7 @@ func (Gmail GmailSource) SendEmail(userID primitive.ObjectID, accountID string, 
 	}
 
 	var userObject database.User
-	userCollection := db.Collection("users")
+	userCollection := database.GetUserCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
@@ -328,7 +328,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 		return err
 	}
 	defer dbCleanup()
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	client := GetGoogleHttpClient(externalAPITokenCollection, userID, accountID)
 
 	var gmailService *gmail.Service
@@ -352,7 +352,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 	}
 
 	var userObject database.User
-	userCollection := db.Collection("users")
+	userCollection := database.GetUserCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
@@ -361,7 +361,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 	}
 
 	var email database.Email
-	taskCollection := db.Collection("tasks")
+	taskCollection := database.GetTaskCollection(db)
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = taskCollection.FindOne(dbCtx, bson.M{"$and": []bson.M{{"_id": taskID}, {"user_id": userID}}}).Decode(&email)

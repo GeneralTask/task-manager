@@ -100,7 +100,7 @@ func (Trello TrelloService) HandleLinkCallback(params CallbackParams, userID pri
 		return errors.New("internal server error")
 	}
 
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_TRELLO}}},

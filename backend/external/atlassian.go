@@ -110,7 +110,7 @@ func (atlassian AtlassianService) HandleLinkCallback(params CallbackParams, user
 		return errors.New("failed to download site configuration")
 	}
 
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	accountID := (*siteConfiguration)[0].ID
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -136,7 +136,7 @@ func (atlassian AtlassianService) HandleLinkCallback(params CallbackParams, user
 		return errors.New("internal server error")
 	}
 
-	siteCollection := db.Collection("jira_sites")
+	siteCollection := database.GetJiraSitesCollection(db)
 
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -218,7 +218,7 @@ func (atlassian AtlassianService) getSiteConfiguration(userID primitive.ObjectID
 	}
 	defer dbCleanup()
 
-	siteCollection := db.Collection("jira_sites")
+	siteCollection := database.GetJiraSitesCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = siteCollection.FindOne(dbCtx, bson.M{"user_id": userID}).Decode(&siteConfiguration)
@@ -238,7 +238,7 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 	}
 	defer dbCleanup()
 
-	externalAPITokenCollection := db.Collection("external_api_tokens")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()

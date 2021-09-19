@@ -23,9 +23,9 @@ func TestLoadJIRATasks(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	externalAPITokenCollection := db.Collection("external_api_tokens")
-	AtlassianSiteCollection := db.Collection("jira_sites")
-	taskCollection := db.Collection("tasks")
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	AtlassianSiteCollection := database.GetJiraSitesCollection(db)
+	taskCollection := database.GetTaskCollection(db)
 
 	t.Run("MissingJIRAToken", func(t *testing.T) {
 		var JIRATasks = make(chan TaskResult)
@@ -269,9 +269,9 @@ func TestGetPriorities(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 
-	prioritiesCollection := db.Collection("jira_priorities")
+	prioritiesCollection := database.GetJiraPrioritiesCollection(db)
 
-	userID, _ := setupJIRA(t, db.Collection("external_api_tokens"), db.Collection("jira_sites"))
+	userID, _ := setupJIRA(t, database.GetExternalTokenCollection(db), database.GetJiraSitesCollection(db))
 
 	t.Run("ServerError", func(t *testing.T) {
 		server := getJIRAPriorityServer(t, 400, []byte(``))

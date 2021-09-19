@@ -59,7 +59,7 @@ func TestWaitlistAdd(t *testing.T) {
 		db, dbCleanup, err := database.GetDBConnection()
 		assert.NoError(t, err)
 		defer dbCleanup()
-		waitlistCollection := db.Collection("waitlist")
+		waitlistCollection := database.GetWaitlistCollection(db)
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		count, err := waitlistCollection.CountDocuments(
