@@ -373,3 +373,7 @@ func (JIRA JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken s
 func (JIRA JIRASource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
 	return errors.New("cannot reply to a JIRA task")
 }
+
+func (JIRA JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
+	return errors.New("Has not been implemented yet")
+}

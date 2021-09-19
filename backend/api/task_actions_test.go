@@ -54,7 +54,7 @@ func TestReplyToEmail(t *testing.T) {
 
 		request, _ := http.NewRequest(
 			"POST",
-			"/tasks/"+emailID+"/reply/",
+			"/tasks/reply/"+emailID+"/",
 			bytes.NewBuffer([]byte(`{"reply'": "test reply"}`)))
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -86,7 +86,7 @@ func TestReplyToEmail(t *testing.T) {
 
 		request, _ := http.NewRequest(
 			"POST",
-			"/tasks/"+taskID+"/reply/",
+			"/tasks/reply/"+taskID+"/",
 			bytes.NewBuffer([]byte(`{"body": "test reply"}`)))
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -103,7 +103,7 @@ func TestReplyToEmail(t *testing.T) {
 
 		request, _ := http.NewRequest(
 			"POST",
-			"/tasks/"+emailID+"/reply/",
+			"/tasks/reply/"+emailID+"/",
 			bytes.NewBuffer([]byte(`{"body'": "test reply"}`)))
 
 		recorder := httptest.NewRecorder()
@@ -131,7 +131,7 @@ func TestReplyToEmail(t *testing.T) {
 
 		request, _ := http.NewRequest(
 			"POST",
-			"/tasks/"+emailID+"/reply/",
+			"/tasks/reply/"+emailID+"/",
 			bytes.NewBuffer([]byte(`{"body": "test reply"}`)))
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -210,7 +210,7 @@ func testSuccessfulReplyWithServer(t *testing.T,
 
 	request, _ := http.NewRequest(
 		"POST",
-		"/tasks/"+emailID+"/reply/",
+		"/tasks/reply/"+emailID+"/",
 		bytes.NewBuffer([]byte(`{"body": "`+body+`"}`)))
 
 	request.Header.Add("Authorization", "Bearer "+authToken)

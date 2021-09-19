@@ -112,7 +112,7 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+jiraTaskIDHex+"/",
+			"/tasks/modify/"+jiraTaskIDHex+"/",
 			nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -125,7 +125,7 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+jiraTaskIDHex+"/",
+			"/tasks/modify/"+jiraTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": false}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -138,7 +138,7 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+jiraTaskIDHex+"1/",
+			"/tasks/modify/"+jiraTaskIDHex+"1/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -154,7 +154,7 @@ func TestMarkAsComplete(t *testing.T) {
 		secondAuthToken := login("tester@generaltask.io", "")
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+jiraTaskIDHex+"/",
+			"/tasks/modify/"+jiraTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		request.Header.Add("Authorization", "Bearer "+secondAuthToken)
 		recorder := httptest.NewRecorder()
@@ -167,7 +167,7 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+jiraTaskIDHex+"/",
+			"/tasks/modify/"+jiraTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		var task database.TaskBase
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -215,7 +215,7 @@ func TestMarkAsComplete(t *testing.T) {
 
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+jiraTaskIDHex+"/",
+			"/tasks/modify/"+jiraTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 
 		var task database.TaskBase
@@ -242,7 +242,7 @@ func TestMarkAsComplete(t *testing.T) {
 		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+gmailTaskIDHex+"/",
+			"/tasks/modify/"+gmailTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		var task database.TaskBase
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -265,7 +265,7 @@ func TestMarkAsComplete(t *testing.T) {
 		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/"+calendarTaskIDHex+"/",
+			"/tasks/modify/"+calendarTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		var task database.TaskBase
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -361,7 +361,7 @@ func TestTaskReorder(t *testing.T) {
 		taskIDHex := taskID.Hex()
 
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+constants.IDTaskSectionToday.Hex()+`"}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+constants.IDTaskSectionToday.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -419,7 +419,7 @@ func TestTaskReorder(t *testing.T) {
 
 		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -433,7 +433,7 @@ func TestTaskReorder(t *testing.T) {
 	t.Run("MissingOrderingID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", nil)
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -447,7 +447,7 @@ func TestTaskReorder(t *testing.T) {
 	t.Run("BadTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -461,7 +461,7 @@ func TestTaskReorder(t *testing.T) {
 	t.Run("WrongFormatTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/123/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/123/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -475,7 +475,7 @@ func TestTaskReorder(t *testing.T) {
 	t.Run("BadTaskSectionIDFormat", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "poop"}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "poop"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -489,7 +489,7 @@ func TestTaskReorder(t *testing.T) {
 	t.Run("BadTaskSectionID", func(t *testing.T) {
 		authToken := login("approved@generaltask.io", "")
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+primitive.NewObjectID().Hex()+`"}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+primitive.NewObjectID().Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -518,7 +518,7 @@ func TestTaskReorder(t *testing.T) {
 		taskIDHex := taskID.Hex()
 
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+constants.IDTaskSectionToday.Hex()+`"}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+constants.IDTaskSectionToday.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -556,7 +556,7 @@ func TestTaskReorder(t *testing.T) {
 		taskIDHex := taskID.Hex()
 
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -578,7 +578,7 @@ func TestTaskReorder(t *testing.T) {
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/123/", nil)
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/123/", nil)
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
