@@ -75,7 +75,7 @@ type TaskBase struct {
 	HasBeenReordered bool               `bson:"has_been_reordered"`
 	//time in nanoseconds
 	TimeAllocation int64      `json:"time_allocated" bson:"time_allocated"`
-	Conference     Conference `bson:"conference_info,omitempty"`
+	Conference     Conference `bson:"conference_info"`
 }
 
 type CalendarEvent struct {

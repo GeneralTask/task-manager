@@ -122,7 +122,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 
 		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
 		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
-
+		conference := GetConference(event.ConferenceData)
 		event := &database.CalendarEvent{
 			TaskBase: database.TaskBase{
 				UserID:          userID,
@@ -133,10 +133,12 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				Title:           event.Summary,
 				TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
 				SourceAccountID: accountID,
-				Conference:      *GetConference(event.ConferenceData),
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+		}
+		if conference != nil {
+			event.TaskBase.Conference = *conference
 		}
 		var dbEvent database.CalendarEvent
 		res, err := database.UpdateOrCreateTask(
@@ -201,6 +203,5 @@ func GetConference(calendarConferenceData *calendar.ConferenceData) *database.Co
 			}
 		}
 	}
-
 	return nil
 }
