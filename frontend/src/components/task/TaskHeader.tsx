@@ -30,7 +30,7 @@ const HeaderRight = styled.div`
   display: flex;
   align-items: center;
   flex-direction: row;
-  /* justify-content: flex-end; */
+  justify-content: flex-end;
   color:${TEXT_LIGHTGRAY};
 `
 const DragSection = styled.div`
