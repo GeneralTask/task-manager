@@ -9,7 +9,7 @@ import { setTasks, setTasksDragState } from '../../redux/actions'
 import store, { RootState } from '../../redux/store'
 
 import { DragState } from '../../redux/enums'
-import { TASKS_URL } from '../../constants'
+import { TASKS_MODIFY_URL } from '../../constants'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
 import _ from 'lodash'
@@ -60,7 +60,7 @@ async function onDragEnd(result: DropResult) {
     const reorderedTask: TTask = task_sections_copy[destination_task_section_index].task_groups[destination_task_group_index].tasks[destination.index]
 
     await makeAuthorizedRequest({
-        url: TASKS_URL + reorderedTask.id + '/',
+        url: TASKS_MODIFY_URL + reorderedTask.id + '/',
         method: 'PATCH',
         body: JSON.stringify({
             id_task_section: task_sections_copy[destination_task_section_index].id,

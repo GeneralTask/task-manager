@@ -6,7 +6,7 @@ import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
 import { DraggableProvided } from 'react-beautiful-dnd'
 import React from 'react'
 import { RootState } from '../../redux/store'
-import { TASKS_URL } from '../../constants'
+import { TASKS_MODIFY_URL } from '../../constants'
 import { TTask } from '../../helpers/types'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import store from '../../redux/store'
@@ -170,7 +170,7 @@ const done = async (task_id: string) => {
   try {
     store.dispatch(removeTaskById(task_id))
     const response = await makeAuthorizedRequest({
-      url: TASKS_URL + '/modify/' + task_id + '/',
+      url: TASKS_MODIFY_URL + task_id + '/',
       method: 'PATCH',
       body: JSON.stringify({ 'is_completed': true })
     })
