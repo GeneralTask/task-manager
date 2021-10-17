@@ -74,7 +74,7 @@ type TaskBase struct {
 	Body             string             `bson:"body"`
 	HasBeenReordered bool               `bson:"has_been_reordered"`
 	//time in nanoseconds
-	TimeAllocation int64       `json:"time_allocated" bson:"time_allocated"`
+	TimeAllocation int64       `bson:"time_allocated"`
 	Conference     *Conference `bson:"conference"`
 }
 
