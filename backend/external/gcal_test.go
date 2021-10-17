@@ -320,7 +320,7 @@ func TestCalendar(t *testing.T) {
 				Title:         "Standard Event",
 				SourceID:      TASK_SOURCE_ID_GCAL,
 				UserID:        userID,
-				Conference: &database.Conference{
+				ConferenceCall: &database.ConferenceCall{
 					URL:      "https://meet.google.com/example-conference-id",
 					Platform: "sample-platform",
 					Logo:     "sample-icon-uri",
@@ -394,7 +394,7 @@ func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *datab
 	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.SourceID, b.SourceID)
-	assert.Equal(t, a.Conference, b.Conference)
+	assert.Equal(t, a.ConferenceCall, b.ConferenceCall)
 }
 
 func getServerForTasks(events []*calendar.Event) *httptest.Server {

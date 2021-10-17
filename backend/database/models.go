@@ -74,8 +74,8 @@ type TaskBase struct {
 	Body             string             `bson:"body"`
 	HasBeenReordered bool               `bson:"has_been_reordered"`
 	//time in nanoseconds
-	TimeAllocation int64       `bson:"time_allocated"`
-	Conference     *Conference `bson:"conference"`
+	TimeAllocation int64           `bson:"time_allocated"`
+	ConferenceCall *ConferenceCall `bson:"conference_call"`
 }
 
 type CalendarEvent struct {
@@ -126,7 +126,7 @@ type WaitlistEntry struct {
 	CreatedAt primitive.DateTime `bson:"created_at"`
 }
 
-type Conference struct {
+type ConferenceCall struct {
 	Platform string `bson:"platform"`
 	Logo     string `bson:"logo"`
 	URL      string `bson:"url"`

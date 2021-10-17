@@ -32,7 +32,7 @@ type TaskSource struct {
 	IsReplyable   bool   `json:"is_replyable"`
 }
 
-type Conference struct {
+type ConferenceCall struct {
 	Platform string `json:"platform"`
 	Logo     string `json:"logo"`
 	URL      string `json:"url"`
@@ -47,7 +47,7 @@ type TaskResult struct {
 	Title          string             `json:"title"`
 	Body           string             `json:"body"`
 	TimeAllocation int64              `json:"time_allocated"`
-	Conference     *Conference        `json:"conference"`
+	ConferenceCall *ConferenceCall    `json:"conference_call"`
 }
 
 type CalendarItem struct {
@@ -633,7 +633,7 @@ func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 		Title:          t.Title,
 		Body:           t.Body,
 		TimeAllocation: t.TimeAllocation,
-		Conference:     (*Conference)(t.Conference),
+		ConferenceCall: (*ConferenceCall)(t.ConferenceCall),
 	}
 }
 
