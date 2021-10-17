@@ -133,13 +133,14 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				Title:           event.Summary,
 				TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
 				SourceAccountID: accountID,
+				Conference:      conference,
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 		}
-		if conference != nil {
-			event.TaskBase.Conference = *conference
-		}
+		// if conference != nil {
+		// 	event.TaskBase.Conference = *conference
+		// }
 		var dbEvent database.CalendarEvent
 		res, err := database.UpdateOrCreateTask(
 			db,

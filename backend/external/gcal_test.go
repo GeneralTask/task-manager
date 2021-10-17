@@ -46,6 +46,7 @@ func TestCalendar(t *testing.T) {
 				Title:         "Standard Event",
 				SourceID:      TASK_SOURCE_ID_GCAL,
 				UserID:        userID,
+				Conference:    nil,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
@@ -133,6 +134,7 @@ func TestCalendar(t *testing.T) {
 				SourceID:        TASK_SOURCE_ID_GCAL,
 				UserID:          userID,
 				SourceAccountID: "exampleAccountID",
+				Conference:      nil,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(oldEndtime),
@@ -224,6 +226,7 @@ func TestCalendar(t *testing.T) {
 				SourceID:        TASK_SOURCE_ID_GCAL,
 				UserID:          userID,
 				SourceAccountID: "exampleAccountID",
+				Conference:      nil,
 			},
 			DatetimeStart: primitive.NewDateTimeFromTime(oldStartTime),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
@@ -282,6 +285,107 @@ func TestCalendar(t *testing.T) {
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.CalendarEvents))
 	})
+	t.Run("Conference event", func(t *testing.T) {
+		standardEvent := calendar.Event{
+			Created:        "2021-02-25T17:53:01.000Z",
+			Summary:        "Standard Event",
+			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:       "generaltask.io",
+			Id:             "standard_event",
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+			ConferenceData: &calendar.ConferenceData{
+				EntryPoints: []*calendar.EntryPoint{
+					{
+						Uri: "https://meet.google.com/example-conference-id",
+					},
+				},
+				ConferenceSolution: &calendar.ConferenceSolution{
+					Name:    "sample-platform",
+					IconUri: "sample-icon-uri",
+				},
+			},
+		}
+
+		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
+		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
+
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
+		defer dbCleanup()
+		userID := primitive.NewObjectID()
+		standardTask := database.CalendarEvent{
+			TaskBase: database.TaskBase{
+				IDOrdering:    0,
+				IDExternal:    "standard_event",
+				IDTaskSection: constants.IDTaskSectionToday,
+				Deeplink:      "generaltask.io",
+				Title:         "Standard Event",
+				SourceID:      TASK_SOURCE_ID_GCAL,
+				UserID:        userID,
+				Conference: &database.Conference{
+					URL:      "https://meet.google.com/example-conference-id",
+					Platform: "sample-platform",
+					Logo:     "sample-icon-uri",
+				},
+			},
+			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+		}
+
+		autoEvent := calendar.Event{
+			Created:        "2021-02-25T17:53:01.000Z",
+			Summary:        "Auto Event (via Clockwise)",
+			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:       "generaltask.io",
+			Id:             "auto_event",
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
+
+		allDayEvent := calendar.Event{
+			Created:        "2021-02-25T17:53:01.000Z",
+			Summary:        "All day Event",
+			Start:          &calendar.EventDateTime{Date: "2021-03-06"},
+			End:            &calendar.EventDateTime{Date: "2021-03-06"},
+			HtmlLink:       "generaltask.io",
+			Id:             "all_day_event",
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
+
+		server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+		defer server.Close()
+
+		var calendarResult = make(chan CalendarResult)
+		googleCalendar := GoogleCalendarSource{
+			Google: GoogleService{
+				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+			},
+		}
+		go googleCalendar.GetEvents(userID, "exampleAccountID", 0, calendarResult)
+		result := <-calendarResult
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 1, len(result.CalendarEvents))
+		firstTask := result.CalendarEvents[0]
+		assertCalendarEventsEqual(t, &standardTask, firstTask)
+
+		taskCollection := database.GetTaskCollection(db)
+
+		var calendarEventFromDB database.CalendarEvent
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(
+			dbCtx,
+			bson.M{"$and": []bson.M{
+				{"id_external": "standard_event"},
+				{"source_id": TASK_SOURCE_ID_GCAL},
+				{"user_id": userID},
+			}},
+		).Decode(&calendarEventFromDB)
+		assert.NoError(t, err)
+		assertCalendarEventsEqual(t, &standardTask, &calendarEventFromDB)
+		assert.Equal(t, "exampleAccountID", calendarEventFromDB.SourceAccountID)
+	})
 }
 
 func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *database.CalendarEvent) {
@@ -293,6 +397,7 @@ func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *datab
 	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.SourceID, b.SourceID)
+	assert.Equal(t, a.Conference, b.Conference)
 }
 
 func getServerForTasks(events []*calendar.Event) *httptest.Server {
