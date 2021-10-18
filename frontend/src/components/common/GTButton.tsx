@@ -39,25 +39,6 @@ interface Theme {
     hoverColor: string,
 }
 
-// const themes = new Map<ThemeType, Theme>([
-//     ['black', {
-//         backgroundColor: TEXT_BLACK,
-//         borderColor: TEXT_BLACK,
-//         color: TEXT_WHITE,
-//         hoverBackgroundColor: TEXT_BLACK_HOVER,
-//         hoverBorderColor: TEXT_BLACK_HOVER,
-//         hoverColor: TEXT_WHITE,
-//     }],
-//     ['primary', {
-//         backgroundColor: TEXT_BLACK,
-//         borderColor: TEXT_BLACK,
-//         color: TEXT_WHITE,
-//         hoverBackgroundColor: TEXT_BLACK_HOVER,
-//         hoverBorderColor: TEXT_BLACK_HOVER,
-//         hoverColor: TEXT_WHITE,
-//     }]
-// ])
-
 const themes = {
     black: {
         backgroundColor: TEXT_BLACK,
