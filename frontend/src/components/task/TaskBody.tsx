@@ -46,22 +46,6 @@ const ReplyText = styled.span`
     color: ${TEXT_LIGHTGRAY}; 
   }
 `
-const ReplyButton = styled.button`
-  width: 10%;
-  height: 42px;
-  background-color: black;
-  color: white;
-  border-radius: 2px;
-  border: 2px solid black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 4px 6px 4px 6px;
-  font-weight: 500;
-  font-size: 16px;
-  cursor: pointer;
-`
-
 interface Props {
   body: string | null,
   task_id: string,
