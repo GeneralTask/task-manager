@@ -122,7 +122,6 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 
 		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
 		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
-
 		event := &database.CalendarEvent{
 			TaskBase: database.TaskBase{
 				UserID:          userID,
@@ -133,6 +132,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				Title:           event.Summary,
 				TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
 				SourceAccountID: accountID,
+				ConferenceCall:  GetConferenceCall(event.ConferenceData),
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
@@ -185,4 +185,20 @@ func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, acco
 
 func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("Has not been implemented yet")
+}
+func GetConferenceCall(calendarConferenceData *calendar.ConferenceData) *database.ConferenceCall {
+	// first check for built-in conference URL
+	if calendarConferenceData != nil {
+		for _, entryPoint := range calendarConferenceData.EntryPoints {
+			if entryPoint != nil {
+				conference := &database.ConferenceCall{
+					Platform: calendarConferenceData.ConferenceSolution.Name,
+					Logo:     calendarConferenceData.ConferenceSolution.IconUri,
+					URL:      entryPoint.Uri,
+				}
+				return conference
+			}
+		}
+	}
+	return nil
 }
