@@ -48,11 +48,14 @@ const themes = {
         hoverBorderColor: TEXT_BLACK_HOVER,
         hoverColor: TEXT_WHITE,
     },
+    // will update this to be a primary color
     primary: {
-        backgroundColor: 'black',
-        borderColor: 'black',
-        color: 'white',
-        hoverColor: '#000',
+        backgroundColor: TEXT_BLACK,
+        borderColor: TEXT_BLACK,
+        color: TEXT_WHITE,
+        hoverBackgroundColor: TEXT_BLACK_HOVER,
+        hoverBorderColor: TEXT_BLACK_HOVER,
+        hoverColor: TEXT_WHITE,
     },
 }
 
