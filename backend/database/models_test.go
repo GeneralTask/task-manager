@@ -1,12 +1,10 @@
 package database
 
 import (
-	"context"
 	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -16,24 +14,30 @@ func TestCreatedAtTask(t *testing.T) {
 		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := primitive.NewObjectID()
-		sourceID := primitive.NewObjectID()
-		taskCollection := GetTaskCollection(db)
-		dbQuery := []bson.M{
-			{"id_external": "8008135"},
-			{"source_id": sourceID},
-			{"user_id": userID},
-		}
-		_, err = taskCollection.InsertOne(context.TODO(), dbQuery)
+		task1, err := GetOrCreateTask(
+			db,
+			userID,
+			"123abc",
+			"foobar_source",
+			&Email{TaskBase: TaskBase{
+				IDExternal: "123abc",
+				SourceID:   "foobar_source",
+				UserID:     userID,
+			}},
+		)
 		assert.NoError(t, err)
 		tasks, err := GetActiveTasks(db, userID)
-		assert.NoError(t, err)
-		log.Println("user ID:" + userID.Hex())
-		for _, task := range *tasks {
-			log.Println("task:" + task.ID.Hex())
-			log.Println(task.UserID)
-			log.Println(task.IsCompleted)
-		}
 		assert.Equal(t, 1, len(*tasks))
+		assert.Equal(t, task1.ID, (*tasks)[0].ID)
+
+		postDBTask := (*tasks)[0]
+
+		assert.NoError(t, err)
+		log.Println("task:" + postDBTask.ID.Hex())
+		log.Println(postDBTask.CreatedAt)
+		log.Println(postDBTask.History.CreatedAt)
+		assert.NotEqual(t, postDBTask.History.CreatedAt, primitive.DateTime(0))
+		assert.NotEqual(t, postDBTask.History.UpdatedAt, primitive.DateTime(0))
 		assert.Equal(t, true, false)
 	})
 }
