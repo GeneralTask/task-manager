@@ -1,6 +1,8 @@
 package database
 
 import (
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -8,6 +10,7 @@ import (
 
 // User model
 type User struct {
+	History  `bson:",inline"`
 	ID       primitive.ObjectID `bson:"_id,omitempty"`
 	GoogleID string             `bson:"google_id"`
 	Email    string             `bson:"email"`
@@ -16,13 +19,15 @@ type User struct {
 
 // InternalAPIToken model
 type InternalAPIToken struct {
-	ID     primitive.ObjectID `bson:"_id,omitempty"`
-	Token  string             `bson:"token"`
-	UserID primitive.ObjectID `bson:"user_id"`
+	History `bson:",inline"`
+	ID      primitive.ObjectID `bson:"_id,omitempty"`
+	Token   string             `bson:"token"`
+	UserID  primitive.ObjectID `bson:"user_id"`
 }
 
 // ExternalAPIToken model
 type ExternalAPIToken struct {
+	History        `bson:",inline"`
 	ID             primitive.ObjectID `bson:"_id,omitempty"`
 	ServiceID      string             `bson:"service_id"`
 	Token          string             `bson:"token"`
@@ -34,6 +39,7 @@ type ExternalAPIToken struct {
 }
 
 type AtlassianSiteConfiguration struct {
+	History `bson:",inline"`
 	ID      primitive.ObjectID `bson:"_id,omitempty"`
 	UserID  primitive.ObjectID `bson:"user_id"`
 	CloudID string             `bson:"cloud_id"`
@@ -41,6 +47,7 @@ type AtlassianSiteConfiguration struct {
 }
 
 type JIRAPriority struct {
+	History         `bson:",inline"`
 	ID              primitive.ObjectID `bson:"_id,omitempty"`
 	UserID          primitive.ObjectID `bson:"user_id"`
 	JIRAID          string             `bson:"jira_id"`
@@ -48,11 +55,13 @@ type JIRAPriority struct {
 }
 
 type StateToken struct {
-	Token  primitive.ObjectID `bson:"_id,omitempty"`
-	UserID primitive.ObjectID `bson:"user_id"`
+	History `bson:",inline"`
+	Token   primitive.ObjectID `bson:"_id,omitempty"`
+	UserID  primitive.ObjectID `bson:"user_id"`
 }
 
 type Oauth1RequestSecret struct {
+	History       `bson:",inline"`
 	ID            primitive.ObjectID `bson:"_id,omitempty"`
 	UserID        primitive.ObjectID `bson:"user_id"`
 	RequestSecret string             `bson:"request_secret"`
@@ -60,6 +69,7 @@ type Oauth1RequestSecret struct {
 
 // Task json & mongo model
 type TaskBase struct {
+	History          `bson:",inline"`
 	ID               primitive.ObjectID `bson:"_id,omitempty"`
 	UserID           primitive.ObjectID `bson:"user_id"`
 	IDExternal       string             `bson:"id_external"`
@@ -112,6 +122,7 @@ type TaskChangeableFields struct {
 }
 
 type UserSetting struct {
+	History    `bson:",inline"`
 	ID         primitive.ObjectID `bson:"_id,omitempty"`
 	UserID     primitive.ObjectID `bson:"user_id"`
 	FieldKey   string             `bson:"field_key"`
@@ -123,4 +134,19 @@ type WaitlistEntry struct {
 	Email     string             `bson:"email"`
 	HasAccess bool               `bson:"has_access"`
 	CreatedAt primitive.DateTime `bson:"created_at"`
+}
+
+type History struct {
+	CreatedAt primitive.DateTime `bson:"created_at"`
+	UpdatedAt primitive.DateTime `bson:"updated_at"`
+}
+
+// Custom marshalling logic to set date created and updated when saving this object
+func (h *History) GetBSON() (interface{}, error) {
+	if h.CreatedAt.Time().IsZero() {
+		h.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
+	}
+	h.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+	type my *History
+	return my(h), nil
 }
