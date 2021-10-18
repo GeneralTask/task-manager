@@ -7,6 +7,8 @@ import { RootState } from '../../redux/store'
 import { TTaskSource } from '../../helpers/types'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'
+import GTButton from '../common/GTButton'
+
 
 const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
   border: none;
@@ -33,7 +35,7 @@ const ReplyDiv = styled.div`
   align-items: flex-end;
 `
 const ReplyText = styled.span`
-  width: 85%;
+  width: 86%;
   /* min-height: 26px; */
   border: 1px solid ${BORDER_PRIMARY};
   border-radius: 2px;
@@ -133,14 +135,20 @@ const Reply: React.FC<ReplyProps> = ({ task_id }: ReplyProps) => {
       const replyText = e.currentTarget.textContent
       if (replyText !== null)
         setText(replyText)
-    }}></ReplyText>
-    <ReplyButton onClick={() => {
-      makeAuthorizedRequest({
-        url: TASKS_URL + '/reply/' + task_id + '/',
-        method: 'POST',
-        body: JSON.stringify({ body: text }),
-      })
-    }}>Reply</ReplyButton>
+    }}>{text}</ReplyText>
+    <GTButton
+      theme="black"
+      height="42px"
+      width="10%"
+      onClick={() => {
+        makeAuthorizedRequest({
+          url: TASKS_URL + '/reply/' + task_id + '/',
+          method: 'POST',
+          body: JSON.stringify({ body: text }),
+        })
+      }}
+    >
+      Reply</GTButton>
   </ReplyDiv>
 }
 

@@ -1,5 +1,3 @@
-import '../../helpers/components/dot-spinner.css'
-
 import { DragDropContext, DropResult } from 'react-beautiful-dnd'
 import React, { useEffect } from 'react'
 import { TTask, TTaskGroup, TTaskSection } from '../../helpers/types'

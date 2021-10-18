@@ -1,12 +1,12 @@
 import { TASK_STATUS_FETCH_ERROR, TASK_STATUS_NO_TASKS } from '../../constants'
 import { connect, useSelector } from 'react-redux'
 
-import DotSpinner from '../../helpers/components/DotSpinner'
 import { FetchStatus } from '../../redux/enums'
 import React from 'react'
 import { RootState } from '../../redux/store'
 import { TTaskSection } from '../../helpers/types'
 import styled from 'styled-components'
+import DotSpinner from '../common/DotSpinner'
 
 const Status = styled.div`
     height: 40px;

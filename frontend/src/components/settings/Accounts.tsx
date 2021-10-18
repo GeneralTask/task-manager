@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { getLinkedAccountsURL, makeAuthorizedRequest } from '../../helpers/utils'
 
 import Account from './Account'
-import DotSpinner from '../../helpers/components/DotSpinner'
 import { LINKED_ACCOUNTS_URL } from '../../constants'
 import { LinkedAccount } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
 import AddNewAccountDropdown from './AddNewAccountDropdown'
+import DotSpinner from '../common/DotSpinner'
 
 const FETCH_LINKED_ACCOUNTS_INTERVAL = 1000 * 30 // every thirty seconds
 
