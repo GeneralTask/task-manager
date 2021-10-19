@@ -20,7 +20,12 @@ export const TEXT_WHITE = '#ffffff'
 export const TEXT_BLACK_HOVER = '#464646'
 export const TEXT_LIGHTGRAY = '#CCCCCC'
 
+export const BACKGROUND_PRIMARY = '#007bff'
+export const BACKGROUND_PRIMARY_HOVER = '#0069d9'
+export const BORDER_PRIMARY_HOVER = '#0062cc'
+
 export const BORDER_PRIMARY = '#cccccc'
+export const BACKGROUND_WHITE = '#ffffff'
 
 export const BACKGROUND_HOVER = '#e3e3e3'
 

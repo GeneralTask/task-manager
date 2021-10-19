@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import React, { MouseEvent } from 'react'
-import { TEXT_BLACK, TEXT_BLACK_HOVER, TEXT_WHITE } from '../../helpers/styles'
+import { BACKGROUND_HOVER, BACKGROUND_PRIMARY, BACKGROUND_PRIMARY_HOVER, BACKGROUND_WHITE, BORDER_PRIMARY, BORDER_PRIMARY_HOVER, TEXT_BLACK, TEXT_BLACK_HOVER, TEXT_GRAY, TEXT_WHITE } from '../../helpers/styles'
 
 const Button = styled.button<{
     theme: Theme,
@@ -28,7 +28,7 @@ const Button = styled.button<{
   }
 `
 
-type ThemeType = 'black' | 'primary'
+type ThemeType = 'black' | 'primary' | 'light'
 
 interface Theme {
     backgroundColor: string,
@@ -48,15 +48,22 @@ const themes = {
         hoverBorderColor: TEXT_BLACK_HOVER,
         hoverColor: TEXT_WHITE,
     },
-    // will update this to be a primary color
     primary: {
-        backgroundColor: TEXT_BLACK,
-        borderColor: TEXT_BLACK,
+        backgroundColor: BACKGROUND_PRIMARY,
+        borderColor: BACKGROUND_PRIMARY,
         color: TEXT_WHITE,
-        hoverBackgroundColor: TEXT_BLACK_HOVER,
-        hoverBorderColor: TEXT_BLACK_HOVER,
+        hoverBackgroundColor: BACKGROUND_PRIMARY_HOVER,
+        hoverBorderColor: BORDER_PRIMARY_HOVER,
         hoverColor: TEXT_WHITE,
     },
+    light: {
+        backgroundColor: BACKGROUND_WHITE,
+        borderColor: TEXT_BLACK,
+        color: TEXT_BLACK,
+        hoverBackgroundColor: BACKGROUND_HOVER,
+        hoverBorderColor: TEXT_BLACK,
+        hoverColor: TEXT_BLACK,
+    }
 }
 
 interface Props {
