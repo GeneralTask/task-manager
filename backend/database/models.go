@@ -1,6 +1,7 @@
 package database
 
 import (
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -142,11 +143,14 @@ type History struct {
 }
 
 // Custom marshalling logic to set date created and updated when saving this object
+// GetBSON implements bson.Getter
 func (h *History) GetBSON() (interface{}, error) {
-	if h.CreatedAt.Time().IsZero() {
+	if h.CreatedAt == primitive.DateTime(0) {
 		h.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
 	}
 	h.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+	log.Println("Created At:", h.CreatedAt)
+	log.Println("Updated At:", h.UpdatedAt)
 	type my *History
 	return my(h), nil
 }
