@@ -84,9 +84,7 @@ func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID pr
 	var token oauth2.Token
 	json.Unmarshal([]byte(googleToken.Token), &token)
 	config := getGoogleLoginConfig()
-	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
-	defer cancel()
-	return config.Client(extCtx, &token).(*http.Client)
+	return config.Client(parentCtx, &token).(*http.Client)
 }
 
 func (Google GoogleService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
