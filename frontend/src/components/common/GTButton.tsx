@@ -12,7 +12,7 @@ const Button = styled.button<{
   color: ${(props) => props.theme.color};
   border-radius: 2px;
   border: 2px solid ${(props) => props.theme.borderColor};
-  /* margin: ${(props) => props.margin}; */
+  margin: ${(props) => props.margin};
   display: flex;
   justify-content: center;
   align-items: center;
