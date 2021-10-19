@@ -1,4 +1,4 @@
-import { BORDER_PRIMARY, TEXT_LIGHTGRAY } from '../../helpers/styles'
+import { BORDER_PRIMARY } from '../../helpers/styles'
 import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import React, { useState } from 'react'
 import { connect, useSelector } from 'react-redux'
@@ -8,7 +8,7 @@ import { TTaskSource } from '../../helpers/types'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'
 import GTButton from '../common/GTButton'
-
+import ContentEditable from 'react-contenteditable'
 
 const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
   border: none;
@@ -34,18 +34,14 @@ const ReplyDiv = styled.div`
   justify-content: space-between;
   align-items: flex-end;
 `
-const ReplyText = styled.span`
-  width: 86%;
-  /* min-height: 26px; */
-  border: 1px solid ${BORDER_PRIMARY};
-  border-radius: 2px;
-  padding: 10px;
-  cursor: text;
-  &:empty:not(:focus):before {
-    content: "Enter Response";
-    color: ${TEXT_LIGHTGRAY}; 
-  }
-`
+const ReplyInputStyle = {
+  width: '86%',
+  border: `1px solid ${BORDER_PRIMARY}`,
+  borderRadius: '2px',
+  padding: '10px',
+  cursor: 'text',
+}
+
 interface Props {
   body: string | null,
   task_id: string,
@@ -110,26 +106,26 @@ const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id }: BodyHTMLProps) => 
 }
 
 const Reply: React.FC<ReplyProps> = ({ task_id }: ReplyProps) => {
-  // const [replyText, setReplyText] = useState('')
-  // const [textHeight, setTextHeight]
   const [text, setText] = useState('')
 
   return <ReplyDiv>
-    <ReplyText contentEditable onChange={(e) => {
-      const replyText = e.currentTarget.textContent
-      if (replyText !== null)
-        setText(replyText)
-    }}>{text}</ReplyText>
+    <ContentEditable
+      className="reply-input"
+      html={text}
+      style={ReplyInputStyle}
+      onChange={(e) => setText(e.target.value)}
+    />
     <GTButton
       theme="black"
       height="42px"
       width="10%"
       onClick={() => {
         makeAuthorizedRequest({
-          url: TASKS_URL + '/reply/' + task_id + '/',
+          url: TASKS_URL + 'reply/' + task_id + '/',
           method: 'POST',
           body: JSON.stringify({ body: text }),
         })
+        setText('')
       }}
     >
       Reply</GTButton>
