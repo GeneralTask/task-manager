@@ -1,6 +1,6 @@
 import './Task.css'
 
-import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_BLACK_HOVER, TEXT_LIGHTGRAY } from '../../helpers/styles'
+import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_LIGHTGRAY } from '../../helpers/styles'
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
 
 import { DraggableProvided } from 'react-beautiful-dnd'
@@ -13,8 +13,7 @@ import store from '../../redux/store'
 import styled from 'styled-components'
 import { useCountdown } from './TaskWrappers'
 import { useSelector } from 'react-redux'
-
-
+import GTButton from '../common/GTButton'
 
 const HeaderLeft = styled.div`
   text-align: left; 
@@ -63,23 +62,9 @@ const NoWrap = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
 `
-const DoneButton = styled.button`
-  background-color: black;
-  color: white;
-  border-radius: 2px;
-  border: 2px solid black;
+// wrapper for Done Button so that it can be hidden by Header
+const DoneButton = styled.div`
   margin-left: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 4px 6px 4px 6px;
-  font-weight: 500;
-  cursor: pointer;
-  &:hover{
-    background-color: ${TEXT_BLACK_HOVER};
-    border: 2px solid ${TEXT_BLACK_HOVER};
-    color: white;
-  }
 `
 const Black = styled.span`
   color: ${TEXT_BLACK};
@@ -153,14 +138,14 @@ const TaskHeader: React.FC<Props> = (props: Props) => {
             : <NoWrap>{props.task.sender}</NoWrap>
         }
         {props.task.source.is_completable &&
-          <DoneButton
-            onClick={(e) => {
+          <DoneButton><GTButton theme="black" onClick={(e) => {
+            if (e != null) {
               e.stopPropagation()
-              done(props.task.id)
-            }}
+            }
+            done(props.task.id)
+          }}
           >
-            Done
-          </DoneButton>}
+            Done</GTButton></DoneButton>}
       </HeaderRight>
     </Header>
   )
