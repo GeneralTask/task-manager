@@ -19,7 +19,7 @@ const Container = styled.div`
   background-color: white;
 `
 const DraggableContainer = styled.div`
-    margin-bottom: 5px;
+    margin: 2.5px 0;
 `
 
 interface Props {
