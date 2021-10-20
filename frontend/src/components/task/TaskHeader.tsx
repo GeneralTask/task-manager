@@ -45,6 +45,7 @@ const Domino = styled.img`
 const Spacer = styled(DragSection)`
   cursor: pointer;
   visibility: hidden;
+  padding: 0;
 `
 const Icon = styled.img`
   max-width: 25px;
