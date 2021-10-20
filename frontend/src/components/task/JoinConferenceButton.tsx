@@ -26,7 +26,7 @@ function JoinConferenceButton({ conferenceCall }: Props): JSX.Element {
         <GTButton theme="black" margin={Margin.ml10} >
             <JoinConference>
                 <Logo src={conferenceCall.logo} />
-                Join Meting
+                Join Meeting
             </JoinConference>
         </GTButton>
     </Link>
