@@ -65,7 +65,7 @@ const NoWrap = styled.div`
   text-overflow: ellipsis;
 `
 // wrapper for Done Button so that it can be hidden by Header
-const DoneButton = styled.div`
+const HoverButton = styled.div`
   margin-left: 10px;
 `
 const Black = styled.span`
@@ -84,10 +84,10 @@ const Header = styled(NoSelect) <{ hover_effect: boolean }>`
   &:hover{
     background-color: ${props => props.hover_effect ? BACKGROUND_HOVER : 'inherit'};
   }
-  &:hover > div > ${DoneButton} {
+  &:hover > div > ${HoverButton} {
     display: inherit;
   }
-  & > div > ${DoneButton} {
+  & > div > ${HoverButton} {
     display: none;
   }
   &:hover > div > ${NoWrap} {
@@ -141,17 +141,19 @@ const TaskHeader: React.FC<Props> = (props: Props) => {
         }
         {
           props.task.conference_call &&
-          <JoinConferenceButton conferenceCall={props.task.conference_call} />
+          <HoverButton>
+            <JoinConferenceButton conferenceCall={props.task.conference_call} />
+          </HoverButton>
         }
         {props.task.source.is_completable &&
-          <DoneButton><GTButton theme="black" onClick={(e) => {
+          <HoverButton><GTButton theme="black" onClick={(e) => {
             if (e != null) {
               e.stopPropagation()
             }
             done(props.task.id)
           }}
           >
-            Done</GTButton></DoneButton>}
+            Done</GTButton></HoverButton>}
       </HeaderRight>
     </Header>
   )

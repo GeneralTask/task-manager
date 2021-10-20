@@ -5,7 +5,7 @@ import { TConferenceCall } from '../../helpers/types'
 import GTButton from '../common/GTButton'
 
 const Logo = styled.img`
-    height: 24px;
+    max-height: 16px;
     margin-right: 6px;
 `
 const JoinConference = styled.div`
