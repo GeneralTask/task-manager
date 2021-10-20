@@ -14,6 +14,7 @@ import styled from 'styled-components'
 import { useCountdown } from './TaskWrappers'
 import { useSelector } from 'react-redux'
 import GTButton from '../common/GTButton'
+import JoinConferenceButton from './JoinConferenceButton'
 
 const HeaderLeft = styled.div`
   text-align: left; 
@@ -136,6 +137,10 @@ const TaskHeader: React.FC<Props> = (props: Props) => {
           : expanded_body === props.task.id
             ? props.task.sender
             : <NoWrap>{props.task.sender}</NoWrap>
+        }
+        {
+          props.task.conference_call &&
+          <JoinConferenceButton conferenceCall={props.task.conference_call} />
         }
         {props.task.source.is_completable &&
           <DoneButton><GTButton theme="black" onClick={(e) => {

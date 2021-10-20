@@ -11,6 +11,12 @@ export interface TTaskSource {
     is_replyable: boolean,
 }
 
+export interface TConferenceCall {
+    platform: string,
+    logo: string,
+    url: string,
+}
+
 export interface TTask {
     id: string,
     id_external: string,
@@ -22,6 +28,7 @@ export interface TTask {
     title: string,
     source: TTaskSource
     body: string | null
+    conference_call: TConferenceCall | null,
 }
 
 export interface TTaskGroup {
