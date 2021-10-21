@@ -24,6 +24,8 @@ export const BACKGROUND_PRIMARY = '#007bff'
 export const BACKGROUND_PRIMARY_HOVER = '#0069d9'
 export const BORDER_PRIMARY_HOVER = '#0062cc'
 
+export const DIVIDER_LIGHTGRAY = '#DDDDDD'
+
 export const BORDER_PRIMARY = '#cccccc'
 export const BACKGROUND_WHITE = '#ffffff'
 

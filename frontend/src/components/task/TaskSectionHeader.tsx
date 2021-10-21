@@ -1,7 +1,7 @@
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { TEXT_GRAY } from '../../helpers/styles'
+import { DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
 
 const TaskSectionHeaderContainer = styled.div`
   display: flex;
@@ -13,11 +13,11 @@ const TaskSectionHeaderContainer = styled.div`
 `
 const Spanbar = styled.div`
   display: flex;
-  background-color: ${TEXT_GRAY};
+  background-color: ${DIVIDER_LIGHTGRAY};
   height: 1px;
   flex: 1;
-  border-left: 1px solid ${TEXT_GRAY};
-  border-right: 1px solid ${TEXT_GRAY};
+  border-left: 1px solid ${DIVIDER_LIGHTGRAY};
+  border-right: 1px solid ${DIVIDER_LIGHTGRAY};
   border-radius: 2px;
 `
 const TimeAnnotation = styled.div`
