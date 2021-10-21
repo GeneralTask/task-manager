@@ -121,6 +121,7 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 						return
 					}
 				}
+				log.Println("body length:", len(*body))
 			}
 
 			//fallback to body if there are no parts.
@@ -184,6 +185,26 @@ func isMessageUnread(message *gmail.Message) bool {
 	}
 	return false
 }
+
+// func parseMessagePart(messagePart *gmail.MessagePart) (*string, error) {
+// 	var body *string
+// 	if messagePart.MimeType == "text/html" {
+// 		log.Println("html")
+// 		body, err := parseMessagePartBody(messagePart.MimeType, messagePart.Body)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 	} else if messagePart.MimeType == "text/plain" && (body == nil || len(*body) == 0) {
+// 		log.Println("text")
+// 		//Only use plain text if we haven't found html, prefer html.
+// 		body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
+// 		if err != nil {
+// 			log.Printf("failed to load email plain text body: %v", err)
+// 			result <- emptyEmailResult(err)
+// 			return
+// 		}
+// 	}
+// }
 
 func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string, error) {
 	data := body.Data
