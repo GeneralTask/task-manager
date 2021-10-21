@@ -96,7 +96,12 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 			var body *string
 
 			for _, messagePart := range message.Payload.Parts {
+				log.Println(messagePart)
+			}
+
+			for _, messagePart := range message.Payload.Parts {
 				if messagePart.MimeType == "text/html" {
+					log.Println("html")
 					body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
 					if err != nil {
 						log.Printf("failed to load email HTML body: %v", err)
@@ -104,6 +109,7 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 						return
 					}
 				} else if messagePart.MimeType == "text/plain" && (body == nil || len(*body) == 0) {
+					log.Println("text")
 					//Only use plain text if we haven't found html, prefer html.
 					body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
 					if err != nil {
@@ -116,6 +122,7 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 
 			//fallback to body if there are no parts.
 			if body == nil || len(*body) == 0 {
+				log.Println("there are no parts")
 				body, err = parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
 				if err != nil {
 					result <- emptyEmailResult(err)
@@ -184,7 +191,8 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 	}
 
 	bodyString := string(bodyData)
-	log.Println("bodyString", bodyString)
+	log.Printf("body data: %v", bodyData)
+	log.Println("bodyString", bodyString, len(bodyString))
 
 	if mimeType == "text/plain" {
 		formattedBody, err := templating.FormatPlainTextAsHTML(bodyString)
