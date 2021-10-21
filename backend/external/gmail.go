@@ -188,6 +188,9 @@ func parseMessagePart(messagePart *gmail.MessagePart) (*string, error) {
 	if messagePart.MimeType == "text/html" {
 		log.Println("html")
 		body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
+		if body != nil {
+			log.Println("body 1:", len(*body))
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -195,6 +198,9 @@ func parseMessagePart(messagePart *gmail.MessagePart) (*string, error) {
 		log.Println("text")
 		//Only use plain text if we haven't found html, prefer html.
 		body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
+		if body != nil {
+			log.Println("body 2:", len(*body))
+		}
 		if err != nil {
 			return nil, err
 		}
