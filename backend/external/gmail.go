@@ -119,6 +119,7 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 				log.Println("there are no parts")
 				body, err = parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
 				if err != nil {
+					log.Println("ERROR OOPSIE", err)
 					result <- emptyEmailResult(err)
 					return
 				}
