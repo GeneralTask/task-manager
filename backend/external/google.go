@@ -162,7 +162,7 @@ func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID pri
 			Token:          string(tokenString),
 			AccountID:      userInfo.EMAIL,
 			DisplayID:      userInfo.EMAIL,
-			IsUnlinkable:   false,
+			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
 		}},
 		options.Update().SetUpsert(true),
