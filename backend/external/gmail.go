@@ -103,23 +103,11 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 			}
 
 			for _, messagePart := range message.Payload.Parts {
-				if messagePart.MimeType == "text/html" {
-					log.Println("html")
-					body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
-					if err != nil {
-						log.Printf("failed to load email HTML body: %v", err)
-						result <- emptyEmailResult(err)
-						return
-					}
-				} else if messagePart.MimeType == "text/plain" && (body == nil || len(*body) == 0) {
-					log.Println("text")
-					//Only use plain text if we haven't found html, prefer html.
-					body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
-					if err != nil {
-						log.Printf("failed to load email plain text body: %v", err)
-						result <- emptyEmailResult(err)
-						return
-					}
+				body, err = parseMessagePart(messagePart)
+				if err != nil {
+					log.Printf("failed to load email body: %v", err)
+					result <- emptyEmailResult(err)
+					return
 				}
 				if body != nil {
 					log.Println("body length:", len(*body))
@@ -188,25 +176,30 @@ func isMessageUnread(message *gmail.Message) bool {
 	return false
 }
 
-// func parseMessagePart(messagePart *gmail.MessagePart) (*string, error) {
-// 	var body *string
-// 	if messagePart.MimeType == "text/html" {
-// 		log.Println("html")
-// 		body, err := parseMessagePartBody(messagePart.MimeType, messagePart.Body)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 	} else if messagePart.MimeType == "text/plain" && (body == nil || len(*body) == 0) {
-// 		log.Println("text")
-// 		//Only use plain text if we haven't found html, prefer html.
-// 		body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
-// 		if err != nil {
-// 			log.Printf("failed to load email plain text body: %v", err)
-// 			result <- emptyEmailResult(err)
-// 			return
-// 		}
-// 	}
-// }
+func parseMessagePart(messagePart *gmail.MessagePart) (*string, error) {
+	var body *string
+	var err error
+	if messagePart.MimeType[:9] == "multipart" {
+		for _, subPart := range messagePart.Parts {
+			return parseMessagePart(subPart)
+		}
+	}
+	if messagePart.MimeType == "text/html" {
+		log.Println("html")
+		body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
+		if err != nil {
+			return nil, err
+		}
+	} else if messagePart.MimeType == "text/plain" && (body == nil || len(*body) == 0) {
+		log.Println("text")
+		//Only use plain text if we haven't found html, prefer html.
+		body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return body, nil
+}
 
 func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string, error) {
 	data := body.Data
