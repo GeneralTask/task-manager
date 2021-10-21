@@ -96,7 +96,10 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 			var body *string
 
 			for _, messagePart := range message.Payload.Parts {
-				log.Println(messagePart)
+				log.Println(messagePart, messagePart.Body)
+				for _, subPart := range messagePart.Parts {
+					log.Println(subPart, subPart.Body)
+				}
 			}
 
 			for _, messagePart := range message.Payload.Parts {
