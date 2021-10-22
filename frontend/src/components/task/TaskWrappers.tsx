@@ -164,7 +164,7 @@ export function useTimeDuration(
 const getTimeStr = (duration: moment.Duration): string => {
   let timeStr = ''
   let hours: number = duration.asHours()
-  const minutes: number = Math.floor((hours % 1) * 60)
+  const minutes: number = Math.ceil((hours % 1) * 60)
   hours = Math.floor(hours)
   if (hours >= 1) {
     hours = Math.floor(hours)
