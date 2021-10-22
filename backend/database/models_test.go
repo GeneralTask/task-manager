@@ -33,12 +33,12 @@ func TestCreatedAtTask(t *testing.T) {
 
 		postDBTask := (*tasks)[0]
 
-		h, err := postDBTask.GetBSON()
-		assert.NoError(t, err)
 		log.Println("task:" + postDBTask.ID.Hex())
-		log.Println("h:", h)
 		log.Println("Created At TEST:", postDBTask.History.CreatedAt)
 		log.Println("Updated At TEST:", postDBTask.History.UpdatedAt)
+		history, err := postDBTask.GetBSON()
+		assert.NoError(t, err)
+		log.Println("history:", history)
 		assert.NotEqual(t, postDBTask.History.CreatedAt, primitive.DateTime(0))
 		assert.NotEqual(t, postDBTask.History.UpdatedAt, primitive.DateTime(0))
 		assert.Equal(t, true, false)
