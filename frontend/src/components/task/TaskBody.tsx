@@ -45,7 +45,7 @@ interface Props {
   task_id: string,
   deeplink: string | null,
   source: TTaskSource,
-  is_expanded: boolean,
+  isExpanded: boolean,
 }
 
 interface BodyHTMLProps {
@@ -61,16 +61,16 @@ interface ReplyProps {
 // no body: no body
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
-const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source, is_expanded }: Props) => {
-  const has_body = !!(body || deeplink)
+const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source, isExpanded }: Props) => {
+  const hasBody = !!(body || deeplink)
   return (
     <div>
-      {is_expanded && (
+      {hasBody && isExpanded && (
         <div>
           {body && (
             <BodyDiv>
               <BodyHTML body={body} task_id={task_id} />
-              {source.is_replyable ? <Reply task_id={task_id} /> : null}
+              {source.is_replyable && <Reply task_id={task_id} />}
             </BodyDiv>
           )}
           {deeplink && (

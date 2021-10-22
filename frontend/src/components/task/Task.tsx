@@ -33,7 +33,7 @@ interface Props {
 
 const Task: React.FC<Props> = ({ task, datetimeStart, taskGroupIndex, isDragDisabled }: Props) => {
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
-  const is_expanded = expanded_body === task.id
+  const isExpanded = expanded_body === task.id
   return (
     <Draggable draggableId={task.id} index={taskGroupIndex} isDragDisabled={isDragDisabled}>
       {(provided: DraggableProvided) => (
@@ -47,14 +47,14 @@ const Task: React.FC<Props> = ({ task, datetimeStart, taskGroupIndex, isDragDisa
               datetimeStart={datetimeStart}
               provided={provided}
               isDragDisabled={isDragDisabled}
-              is_expanded={is_expanded}
+              isExpanded={isExpanded}
             />
             <TaskBody
               body={task.body}
               task_id={task.id}
               deeplink={task.deeplink}
               source={task.source}
-              is_expanded={is_expanded}
+              isExpanded={isExpanded}
             />
           </Container>
         </DraggableContainer>
