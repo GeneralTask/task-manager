@@ -4,6 +4,8 @@ import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_LIGHTGRAY } from '../../he
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
 
 import { DraggableProvided } from 'react-beautiful-dnd'
+import GTButton from '../common/GTButton'
+import JoinConferenceButton from './JoinConferenceButton'
 import React from 'react'
 import { RootState } from '../../redux/store'
 import { TASKS_MODIFY_URL } from '../../constants'
@@ -13,8 +15,6 @@ import store from '../../redux/store'
 import styled from 'styled-components'
 import { useCountdown } from './TaskWrappers'
 import { useSelector } from 'react-redux'
-import GTButton from '../common/GTButton'
-import JoinConferenceButton from './JoinConferenceButton'
 
 const HeaderLeft = styled.div`
   text-align: left; 
@@ -24,7 +24,6 @@ const HeaderLeft = styled.div`
   flex-direction: row;
   min-width: 0;
 `
-
 const HeaderRight = styled.div`
   flex: content;
   display: flex;
@@ -103,6 +102,7 @@ interface Props {
   datetimeStart: string | null, // null if unscheduled_task
   provided: DraggableProvided,
   isDragDisabled: boolean,
+  is_expanded: boolean,
 }
 
 const TaskHeader: React.FC<Props> = (props: Props) => {
