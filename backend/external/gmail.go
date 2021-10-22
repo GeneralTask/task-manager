@@ -96,35 +96,20 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 			var body *string
 
 			for _, messagePart := range message.Payload.Parts {
-				log.Println(messagePart, messagePart.Body)
-				for _, subPart := range messagePart.Parts {
-					log.Println(subPart, subPart.Body)
-				}
-			}
-
-			for _, messagePart := range message.Payload.Parts {
 				body, err = parseMessagePart(messagePart)
 				if err != nil {
-					log.Printf("failed to load email body: %v", err)
 					result <- emptyEmailResult(err)
 					return
 				}
 				if body != nil {
-					log.Println("body length:", len(*body))
 					break
 				}
 			}
 
 			//fallback to body if there are no parts.
-			log.Println("are there parts?", body)
-			if body != nil {
-				log.Println(len(*body))
-			}
 			if body == nil || len(*body) == 0 {
-				log.Println("there are no parts")
 				body, err = parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
 				if err != nil {
-					log.Println("ERROR OOPSIE", err)
 					result <- emptyEmailResult(err)
 					return
 				}
@@ -191,21 +176,13 @@ func parseMessagePart(messagePart *gmail.MessagePart) (*string, error) {
 		}
 	}
 	if messagePart.MimeType == "text/html" {
-		log.Println("html")
 		body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
-		if body != nil {
-			log.Println("body 1:", len(*body))
-		}
 		if err != nil {
 			return nil, err
 		}
 	} else if messagePart.MimeType == "text/plain" && (body == nil || len(*body) == 0) {
-		log.Println("text")
 		//Only use plain text if we haven't found html, prefer html.
 		body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
-		if body != nil {
-			log.Println("body 2:", len(*body))
-		}
 		if err != nil {
 			return nil, err
 		}
@@ -222,8 +199,6 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 	}
 
 	bodyString := string(bodyData)
-	log.Printf("body data: %v", bodyData)
-	log.Println("bodyString", bodyString, len(bodyString))
 
 	if mimeType == "text/plain" {
 		formattedBody, err := templating.FormatPlainTextAsHTML(bodyString)
