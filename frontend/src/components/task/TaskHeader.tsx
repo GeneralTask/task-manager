@@ -4,6 +4,8 @@ import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_LIGHTGRAY } from '../../he
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
 
 import { DraggableProvided } from 'react-beautiful-dnd'
+import GTButton from '../common/GTButton'
+import JoinConferenceButton from './JoinConferenceButton'
 import React from 'react'
 import { RootState } from '../../redux/store'
 import { TASKS_MODIFY_URL } from '../../constants'
@@ -13,8 +15,6 @@ import store from '../../redux/store'
 import styled from 'styled-components'
 import { useCountdown } from './TaskWrappers'
 import { useSelector } from 'react-redux'
-import GTButton from '../common/GTButton'
-import JoinConferenceButton from './JoinConferenceButton'
 
 const HeaderLeft = styled.div`
   text-align: left; 
@@ -24,7 +24,6 @@ const HeaderLeft = styled.div`
   flex-direction: row;
   min-width: 0;
 `
-
 const HeaderRight = styled.div`
   flex: content;
   display: flex;
@@ -72,7 +71,7 @@ const Black = styled.span`
   color: ${TEXT_BLACK};
 `
 
-const Header = styled(NoSelect) <{ hover_effect: boolean }>`
+const Header = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
   font-size: 16px;
   display: flex;
   flex-direction: row;
@@ -80,15 +79,15 @@ const Header = styled(NoSelect) <{ hover_effect: boolean }>`
   align-items: center;
   min-height: 30px;
   padding: 8px 8px 8px 0;
-  cursor: ${props => props.hover_effect ? 'pointer' : 'inherit'};
+  cursor: ${props => props.hoverEffect ? 'pointer' : 'inherit'};
   &:hover{
-    background-color: ${props => props.hover_effect ? BACKGROUND_HOVER : 'inherit'};
+    background-color: ${props => props.hoverEffect ? BACKGROUND_HOVER : 'inherit'};
   }
   &:hover > div > ${HoverButton} {
     display: inherit;
   }
   & > div > ${HoverButton} {
-    display: none;
+    display: ${props => props.showButtons ? 'inherit' : 'none'};;
   }
   &:hover > div > ${NoWrap} {
     display: none;
@@ -103,6 +102,7 @@ interface Props {
   datetimeStart: string | null, // null if unscheduled_task
   provided: DraggableProvided,
   isDragDisabled: boolean,
+  isExpanded: boolean,
 }
 
 const TaskHeader: React.FC<Props> = (props: Props) => {
@@ -118,7 +118,7 @@ const TaskHeader: React.FC<Props> = (props: Props) => {
     : () => void 0 // do nothing if hoverEffectEnabled == false
 
   return (
-    <Header hover_effect={hoverEffectEnabled} onClick={onClick}>
+    <Header hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
       <HeaderLeft>
         {props.isDragDisabled ?
           <Spacer {...props.provided.dragHandleProps} >

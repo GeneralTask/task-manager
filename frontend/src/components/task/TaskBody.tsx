@@ -1,14 +1,12 @@
-import { BORDER_PRIMARY } from '../../helpers/styles'
 import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import React, { useState } from 'react'
-import { connect, useSelector } from 'react-redux'
 
-import { RootState } from '../../redux/store'
+import { BORDER_PRIMARY } from '../../helpers/styles'
+import ContentEditable from 'react-contenteditable'
+import GTButton from '../common/GTButton'
 import { TTaskSource } from '../../helpers/types'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'
-import GTButton from '../common/GTButton'
-import ContentEditable from 'react-contenteditable'
 
 const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
   border: none;
@@ -47,6 +45,7 @@ interface Props {
   task_id: string,
   deeplink: string | null,
   source: TTaskSource,
+  isExpanded: boolean,
 }
 
 interface BodyHTMLProps {
@@ -62,17 +61,16 @@ interface ReplyProps {
 // no body: no body
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
-const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source }: Props) => {
-  const expanded_body = useSelector((state: RootState) => state.expanded_body)
-  const has_body = !!(body || deeplink)
+const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source, isExpanded }: Props) => {
+  const hasBody = !!(body || deeplink)
   return (
     <div>
-      {has_body && expanded_body === task_id && (
+      {hasBody && isExpanded && (
         <div>
           {body && (
             <BodyDiv>
               <BodyHTML body={body} task_id={task_id} />
-              {source.is_replyable ? <Reply task_id={task_id} /> : null}
+              {source.is_replyable && <Reply task_id={task_id} />}
             </BodyDiv>
           )}
           {deeplink && (
@@ -132,6 +130,4 @@ const Reply: React.FC<ReplyProps> = ({ task_id }: ReplyProps) => {
   </ReplyDiv>
 }
 
-export default connect((state: RootState) => ({ expanded_body: state.expanded_body }))(
-  TaskBody
-)
+export default TaskBody
