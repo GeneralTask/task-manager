@@ -111,6 +111,7 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 				}
 				if body != nil {
 					log.Println("body length:", len(*body))
+					break
 				}
 			}
 
