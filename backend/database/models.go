@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -88,11 +89,6 @@ type TaskBase struct {
 	TimeAllocation int64 `bson:"time_allocated"`
 }
 
-// func (task *TaskBase) GetBSON() (interface{}, error) {
-// 	log.Println("GetBSON called FOR TASK!")
-// 	return task, nil
-// }
-
 type CalendarEvent struct {
 	TaskBase      `bson:",inline"`
 	DatetimeEnd   primitive.DateTime `bson:"datetime_end"`
@@ -159,4 +155,14 @@ func (history *History) GetBSON() (interface{}, error) {
 	log.Println("Updated At:", history.UpdatedAt)
 	type my *History
 	return my(history), nil
+}
+
+func (history *History) MarshalBSON() ([]byte, error) {
+	log.Println("NOICE NOICE NOICE")
+	if history.CreatedAt == primitive.DateTime(0) {
+		history.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
+	}
+	history.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+
+	return bson.Marshal(history)
 }
