@@ -143,19 +143,24 @@ type History struct {
 	UpdatedAt primitive.DateTime `bson:"updated_at"`
 }
 
+type historyMirror struct {
+	CreatedAt primitive.DateTime `bson:"created_at"`
+	UpdatedAt primitive.DateTime `bson:"updated_at"`
+}
+
 // Custom marshalling logic to set date created and updated when saving this object
 // GetBSON implements bson.Getter
-func (history *History) GetBSON() (interface{}, error) {
-	log.Println("GetBSON called!")
-	if history.CreatedAt == primitive.DateTime(0) {
-		history.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
-	}
-	history.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
-	log.Println("Created At:", history.CreatedAt)
-	log.Println("Updated At:", history.UpdatedAt)
-	type my *History
-	return my(history), nil
-}
+// func (history *History) GetBSON() (interface{}, error) {
+// 	log.Println("GetBSON called!")
+// 	if history.CreatedAt == primitive.DateTime(0) {
+// 		history.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
+// 	}
+// 	history.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+// 	log.Println("Created At:", history.CreatedAt)
+// 	log.Println("Updated At:", history.UpdatedAt)
+// 	type my *History
+// 	return my(history), nil
+// }
 
 func (history *History) MarshalBSON() ([]byte, error) {
 	log.Println("NOICE NOICE NOICE")
@@ -164,5 +169,7 @@ func (history *History) MarshalBSON() ([]byte, error) {
 	}
 	history.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
 
-	return bson.Marshal(history)
+	res, err := bson.Marshal(historyMirror{CreatedAt: history.CreatedAt, UpdatedAt: history.UpdatedAt})
+	log.Println("res:", res, "err:", err)
+	return res, err
 }
