@@ -23,10 +23,11 @@ const HeaderLeft = styled.div`
   align-items: center;
   flex-direction: row;
   min-width: 0;
+  flex-basis: auto;
 `
 const HeaderRight = styled.div`
-  flex: content;
   display: flex;
+  flex: content;
   align-items: center;
   flex-direction: row;
   justify-content: flex-end;
