@@ -88,6 +88,11 @@ type TaskBase struct {
 	TimeAllocation int64 `bson:"time_allocated"`
 }
 
+// func (task *TaskBase) GetBSON() (interface{}, error) {
+// 	log.Println("GetBSON called FOR TASK!")
+// 	return task, nil
+// }
+
 type CalendarEvent struct {
 	TaskBase      `bson:",inline"`
 	DatetimeEnd   primitive.DateTime `bson:"datetime_end"`
