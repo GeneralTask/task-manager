@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -149,8 +148,6 @@ func TestMarkAsComplete(t *testing.T) {
 	t.Run("InvalidUser", func(t *testing.T) {
 		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		assert.NoError(t, err)
-		ogAuth := authToken
-		log.Println(ogAuth)
 		secondAuthToken := login("tester@generaltask.io", "")
 		request, _ := http.NewRequest(
 			"PATCH",
