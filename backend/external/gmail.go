@@ -94,16 +94,33 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 				}
 			}
 			var body *string
+			var bodyPlain *string
 
+			var messageParts []*gmail.MessagePart
 			for _, messagePart := range message.Payload.Parts {
-				body, err = parseMessagePart(messagePart)
-				if err != nil {
-					result <- emptyEmailResult(err)
-					return
+				if messagePart.MimeType[:9] == "multipart" {
+					messageParts = append(messageParts, messagePart.Parts...)
+					continue
 				}
-				if body != nil {
+				messageParts = append(messageParts, messagePart)
+			}
+			for _, messagePart := range messageParts {
+				parsedBody, err := parseMessagePartBody(messagePart.MimeType, messagePart.Body)
+				if err != nil {
+					log.Printf("failed to parse message body: %v", err)
+					continue
+				}
+				if messagePart.MimeType == "text/html" {
+					body = parsedBody
 					break
 				}
+				if messagePart.MimeType == "text/plain" && bodyPlain == nil {
+					bodyPlain = parsedBody
+				}
+			}
+			// first fallback on first text/plain parsed body
+			if body == nil && bodyPlain != nil {
+				body = bodyPlain
 			}
 
 			//fallback to body if there are no parts.
@@ -165,29 +182,6 @@ func isMessageUnread(message *gmail.Message) bool {
 		}
 	}
 	return false
-}
-
-func parseMessagePart(messagePart *gmail.MessagePart) (*string, error) {
-	var body *string
-	var err error
-	if messagePart.MimeType[:9] == "multipart" {
-		for _, subPart := range messagePart.Parts {
-			return parseMessagePart(subPart)
-		}
-	}
-	if messagePart.MimeType == "text/html" {
-		body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
-		if err != nil {
-			return nil, err
-		}
-	} else if messagePart.MimeType == "text/plain" && (body == nil || len(*body) == 0) {
-		//Only use plain text if we haven't found html, prefer html.
-		body, err = parseMessagePartBody(messagePart.MimeType, messagePart.Body)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return body, nil
 }
 
 func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string, error) {
