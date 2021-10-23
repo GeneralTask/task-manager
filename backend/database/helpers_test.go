@@ -1,7 +1,6 @@
 package database
 
 import (
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -53,13 +52,6 @@ func TestGetActiveTasks(t *testing.T) {
 		)
 		assert.NoError(t, err)
 		tasks, err := GetActiveTasks(db, userID)
-		assert.NoError(t, err)
-		log.Println("user ID:" + userID.Hex())
-		for _, task := range *tasks {
-			log.Println("task:" + task.ID.Hex())
-			log.Println(task.UserID)
-			log.Println(task.IsCompleted)
-		}
 		assert.Equal(t, 1, len(*tasks))
 		assert.Equal(t, task1.ID, (*tasks)[0].ID)
 	})

@@ -45,6 +45,7 @@ func UpdateOrCreateTask(
 
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
+	log.Println("SETTING:", fieldsToUpdate)
 	return taskCollection.FindOneAndUpdate(
 		dbCtx,
 		dbQuery,

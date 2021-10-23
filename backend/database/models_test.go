@@ -1,6 +1,7 @@
 package database
 
 import (
+	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -28,12 +29,20 @@ func TestCreatedAtTask(t *testing.T) {
 		tasks, err := GetActiveTasks(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
-		assert.Equal(t, task1.ID, (*tasks)[0].ID)
-
 		postDBTask := (*tasks)[0]
+		assert.Equal(t, task1.ID, postDBTask.ID)
 
+		assert.NotEqual(t, primitive.DateTime(0), postDBTask.History.CreatedAt)
+		assert.NotEqual(t, primitive.DateTime(0), postDBTask.History.UpdatedAt)
+
+		UpdateOrCreateTask(db, userID, "123abc", "foobar_source", Task{}, TaskChangeableFields{})
+		tasks, err = GetActiveTasks(db, userID)
 		assert.NoError(t, err)
-		assert.NotEqual(t, postDBTask.History.CreatedAt, primitive.DateTime(0))
-		assert.NotEqual(t, postDBTask.History.UpdatedAt, primitive.DateTime(0))
+		assert.Equal(t, 1, len(*tasks))
+		postDBTaskUpdated := (*tasks)[0]
+		assert.Equal(t, task1.ID, postDBTaskUpdated.ID)
+		log.Println("postDBTaskUpdated:", postDBTaskUpdated.History.CreatedAt, postDBTaskUpdated.History.UpdatedAt)
+		assert.Equal(t, postDBTask.History.CreatedAt, postDBTaskUpdated.History.CreatedAt)
+		assert.NotEqual(t, postDBTask.History.UpdatedAt, postDBTaskUpdated.History.UpdatedAt)
 	})
 }

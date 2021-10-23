@@ -1,6 +1,7 @@
 package database
 
 import (
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -95,6 +96,7 @@ type CalendarEvent struct {
 }
 
 type CalendarEventChangeableFields struct {
+	History       HistoryUpdateOnly  `bson:"history"`
 	Title         string             `bson:"title,omitempty"`
 	DatetimeEnd   primitive.DateTime `bson:"datetime_end,omitempty"`
 	DatetimeStart primitive.DateTime `bson:"datetime_start,omitempty"`
@@ -116,6 +118,7 @@ type Task struct {
 }
 
 type TaskChangeableFields struct {
+	History            HistoryUpdateOnly  `bson:"history"`
 	Title              string             `json:"title" bson:"title,omitempty"`
 	DueDate            primitive.DateTime `bson:"due_date,omitempty"`
 	PriorityID         string             `bson:"priority_id,omitempty"`
@@ -153,6 +156,19 @@ func (history *History) MarshalBSON() ([]byte, error) {
 	}
 	history.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
 
-	res, err := bson.Marshal(historyMirror{CreatedAt: history.CreatedAt, UpdatedAt: history.UpdatedAt})
-	return res, err
+	return bson.Marshal(historyMirror{CreatedAt: history.CreatedAt, UpdatedAt: history.UpdatedAt})
+}
+
+type HistoryUpdateOnly struct {
+	UpdatedAt primitive.DateTime `bson:"updated_at"`
+}
+
+type historyUpdateOnlyMirror struct {
+	UpdatedAt primitive.DateTime `bson:"updated_at"`
+}
+
+func (history *HistoryUpdateOnly) MarshalBSON() ([]byte, error) {
+	log.Println("marshal bson!")
+	history.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+	return bson.Marshal(historyUpdateOnlyMirror{UpdatedAt: history.UpdatedAt})
 }
