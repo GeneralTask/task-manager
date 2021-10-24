@@ -382,7 +382,6 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 		return err
 	}
 
-	log.Println("email ID external:", email.IDExternal, email)
 	messageResponse, err := gmailService.Users.Messages.Get("me", email.IDExternal).Do()
 
 	if err != nil {
@@ -396,7 +395,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 	references := ""
 
 	for _, h := range messageResponse.Payload.Headers {
-		log.Println("message headers:", h.Name, h.Value, h)
+		log.Println("message headers:", h.Name, h.Value)
 		if h.Name == "Subject" {
 			subject = h.Value
 		} else if h.Name == "Reply-To" {
@@ -405,7 +404,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 			from = h.Value
 		} else if h.Name == "References" {
 			references = h.Value
-		} else if h.Name == "Message-ID" {
+		} else if h.Name == "Message-ID" || h.Name == "Message-Id" {
 			smtpID = h.Value
 		}
 	}
