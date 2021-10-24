@@ -160,7 +160,7 @@ func TestReplyToEmail(t *testing.T) {
 			"sample_message_id",
 			"sample_thread_id",
 			headers,
-			"To: Sample sender <sample@generaltask.io>\r\nFrom: General Tasker <approved@generaltask.io>\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n\ntest reply")
+			"To: Sample sender <sample@generaltask.io>\r\nFrom: General Tasker <approved@generaltask.io>\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
 
 		testSuccessfulReplyWithServer(t, emailID, authToken, "test reply", server)
 	})
@@ -193,7 +193,7 @@ func TestReplyToEmail(t *testing.T) {
 			"sample_message_id",
 			"sample_thread_id",
 			headers,
-			"To: Reply address <reply@generaltask.io>\r\nFrom: General Tasker <approved@generaltask.io>\nSubject: Re: Sample subject\nIn-Reply-To: <id2@gt.io>\nReferences: <id1@gt.io> <id2@gt.io>\nMIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n\ntest reply")
+			"To: Reply address <reply@generaltask.io>\r\nFrom: General Tasker <approved@generaltask.io>\nSubject: Re: Sample subject\nIn-Reply-To: <id2@gt.io>\nReferences: <id1@gt.io> <id2@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
 
 		testSuccessfulReplyWithServer(t, emailID, authToken, "test reply", server)
 	})

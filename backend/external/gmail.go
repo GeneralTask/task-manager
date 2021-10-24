@@ -401,7 +401,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 			from = h.Value
 		} else if h.Name == "References" {
 			references = h.Value
-		} else if h.Name == "Message-ID" {
+		} else if h.Name == "Message-ID" || h.Name == "Message-Id" {
 			smtpID = h.Value
 		}
 	}
@@ -435,7 +435,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 		references = "References: " + smtpID + "\n"
 	}
 	inReply := "In-Reply-To: " + smtpID + "\n"
-	mime := "MIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n"
+	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n"
 	msg := []byte(emailTo + emailFrom + subject + inReply + references + mime + "\n" + body)
 
 	messageToSend := gmail.Message{
