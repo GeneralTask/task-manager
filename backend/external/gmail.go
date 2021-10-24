@@ -341,6 +341,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 	}
 	defer dbCleanup()
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	log.Println("userID:", userID, "accountID:", accountID)
 	client := GetGoogleHttpClient(externalAPITokenCollection, userID, accountID)
 
 	var gmailService *gmail.Service
@@ -393,6 +394,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 	smtpID := ""
 	references := ""
 
+	log.Println("message headers:", messageResponse.Payload.Headers)
 	for _, h := range messageResponse.Payload.Headers {
 		if h.Name == "Subject" {
 			subject = h.Value
@@ -436,7 +438,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 		references = "References: " + smtpID + "\n"
 	}
 	inReply := "In-Reply-To: " + smtpID + "\n"
-	mime := "MIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n"
+	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n"
 	msg := []byte(emailTo + emailFrom + subject + inReply + references + mime + "\n" + body)
 
 	messageToSend := gmail.Message{
