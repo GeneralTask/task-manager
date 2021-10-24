@@ -333,6 +333,7 @@ func (Gmail GmailSource) SendEmail(userID primitive.ObjectID, accountID string, 
 }
 
 func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+	log.Println("REPLY BODY:", body)
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
