@@ -133,9 +133,6 @@ export function useTimeDuration(
   datetime_start: string | null,
   alwaysShowTimeRemaining = false,
 ): string {
-  // const duration = moment.duration(time_duration * 1000)
-  // const end = momentFromDateTime(datetime_start).add(duration)
-  // const hasStarted = moment().isAfter(momentFromDateTime(datetime_start))
   const duration = Duration.fromMillis(time_duration * 1000)
   const start = parseDateTime(datetime_start)
   const end = start.plus(duration)
@@ -175,9 +172,9 @@ const getLiveTimeStr = (dtEnd: DateTime): string => {
 
 const getTimeStringFromDuration = (dur: Duration): string => {
   const shortEnglishHumanizer = humanizeDuration.humanizer({
-    language: 'sen',
+    language: 'short_en',
     languages: {
-      sen: {
+      short_en: {
         y: () => 'years',
         mo: () => 'months',
         w: () => 'weeks',
@@ -189,7 +186,7 @@ const getTimeStringFromDuration = (dur: Duration): string => {
       },
     },
   })
-  return shortEnglishHumanizer(dur.toMillis(), { largest: 2, delimiter: ' ', language: 'sen' })
+  return shortEnglishHumanizer(dur.toMillis(), { largest: 2, delimiter: ' ', maxDecimalPoints: 0, language: 'short_en' })
 }
 
 const parseDateTime = (date_time: string | null): DateTime => {
