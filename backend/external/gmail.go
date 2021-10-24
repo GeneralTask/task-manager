@@ -333,7 +333,6 @@ func (Gmail GmailSource) SendEmail(userID primitive.ObjectID, accountID string, 
 }
 
 func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
-	log.Println("REPLY BODY:", body)
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -341,7 +340,6 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 	}
 	defer dbCleanup()
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	log.Println("userID:", userID, "accountID:", accountID)
 	client := GetGoogleHttpClient(externalAPITokenCollection, userID, accountID)
 
 	var gmailService *gmail.Service
@@ -395,7 +393,6 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 	references := ""
 
 	for _, h := range messageResponse.Payload.Headers {
-		log.Println("message headers:", h.Name, h.Value)
 		if h.Name == "Subject" {
 			subject = h.Value
 		} else if h.Name == "Reply-To" {
