@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { TTask, TTaskGroup } from '../../helpers/types'
-import moment, { Moment } from 'moment'
+import { DateTime, Duration } from 'luxon'
+import humanizeDuration from 'humanize-duration'
 
 import { TEXT_GRAY } from '../../helpers/styles'
 import Task from './Task'
@@ -57,7 +58,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
   return <>
     <TaskGroup>
       <TimeAnnotation>
-        <AlignRight>{momentFromDateTime(taskGroup.datetime_start).format('h:mm a')}</AlignRight>
+        <AlignRight>{parseDateTime(taskGroup.datetime_start).toLocaleString(DateTime.TIME_SIMPLE)}</AlignRight>
       </TimeAnnotation>
       <Tasks>
         <Task
@@ -106,9 +107,8 @@ export function useCountdown(datetimeStart: string | null): string | null {
     return null
   }
 
-  const start = momentFromDateTime(datetimeStart)
-  const now = moment()
-  if (now.isAfter(start)) {
+  const start = parseDateTime(datetimeStart)
+  if (DateTime.now() > start) {
     return null
   }
 
@@ -127,22 +127,30 @@ export function useCountdown(datetimeStart: string | null): string | null {
 
 // if the time task has not started, show the duration.
 // if the task has started, show the time remaining.
+// if the task is over, show nothing
 export function useTimeDuration(
   time_duration: number,
   datetime_start: string | null,
   alwaysShowTimeRemaining = false,
 ): string {
-  const duration = moment.duration(time_duration * 1000)
-  const end = momentFromDateTime(datetime_start).add(duration)
-  const hasStarted = moment().isAfter(momentFromDateTime(datetime_start))
+  // const duration = moment.duration(time_duration * 1000)
+  // const end = momentFromDateTime(datetime_start).add(duration)
+  // const hasStarted = moment().isAfter(momentFromDateTime(datetime_start))
+  const duration = Duration.fromMillis(time_duration * 1000)
+  const start = parseDateTime(datetime_start)
+  const end = start.plus(duration)
+  const hasStarted = DateTime.now() > start
+  const hasEnded = DateTime.now() > end
 
   let initialTimeStr = ''
-  if (hasStarted) {
+  if (hasEnded) {
+    return ''
+  } else if (hasStarted) {
     // this will update every second
     initialTimeStr = getLiveTimeStr(end)
   } else {
     // will show the full duration of the task ( 1 hour )
-    initialTimeStr = getTimeStr(moment.duration(time_duration * 1000))
+    initialTimeStr = getTimeStringFromDuration(duration)
   }
 
   const [timeStr, setTimeStr] = useState(initialTimeStr)
@@ -161,38 +169,31 @@ export function useTimeDuration(
   return timeStr
 }
 
-const getTimeStr = (duration: moment.Duration): string => {
-  let timeStr = ''
-  let hours: number = duration.asHours()
-  const minutes: number = Math.ceil((hours % 1) * 60)
-  hours = Math.floor(hours)
-  if (hours >= 1) {
-    hours = Math.floor(hours)
-    if (hours > 1) {
-      timeStr += hours + ' hours '
-    } else {
-      timeStr += hours + ' hour '
-    }
-  }
-  if (minutes > 0) {
-    if (minutes > 1) {
-      timeStr += minutes + ' mins '
-    } else {
-      timeStr += minutes + ' min '
-    }
-  }
-  if (hours === 0 && minutes < 1) {
-    timeStr = '<1 min'
-  }
-  return timeStr
+const getLiveTimeStr = (dtEnd: DateTime): string => {
+  return getTimeStringFromDuration(dtEnd.diffNow())
 }
 
-const getLiveTimeStr = (end: Moment): string => {
-  return getTimeStr(moment.duration(end.diff(moment())))
+const getTimeStringFromDuration = (dur: Duration): string => {
+  const shortEnglishHumanizer = humanizeDuration.humanizer({
+    language: 'sen',
+    languages: {
+      sen: {
+        y: () => 'years',
+        mo: () => 'months',
+        w: () => 'weeks',
+        d: () => 'days',
+        h: () => 'hours',
+        m: () => 'mins',
+        s: () => 'seconds',
+        ms: () => 'ms',
+      },
+    },
+  })
+  return shortEnglishHumanizer(dur.toMillis(), { largest: 2, delimiter: ' ', language: 'sen' })
 }
 
-const momentFromDateTime = (date_time: string | null): Moment => {
-  return moment(date_time, 'YYYY-MM-DD HH:mm:ss ZZ')
+const parseDateTime = (date_time: string | null): DateTime => {
+  return DateTime.fromISO(date_time || '')
 }
 
 export { ScheduledTask, UnscheduledTaskGroup }
