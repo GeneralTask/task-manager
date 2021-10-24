@@ -4,10 +4,10 @@
         "updates": [
             {
                 "q": {
-                    "$and": {
-                        "service_id": "google",
-                        "is_primary_login": false
-                    }
+                    "$and": [
+                        {"service_id": "google"},
+                        {"is_primary_login": false}
+                    ]
                 },
                 "u": {
                     "$set": {
