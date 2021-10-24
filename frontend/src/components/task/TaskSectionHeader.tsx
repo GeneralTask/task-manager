@@ -1,4 +1,4 @@
-import moment from 'moment'
+import { DateTime } from 'luxon'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
@@ -64,10 +64,10 @@ export default function TaskSectionHeader(props: Props): JSX.Element {
 }
 
 function CurrentTime() {
-  const [timeStr, setTimeStr] = useState(moment().format('h:mm:ss a'))
+  const [timeStr, setTimeStr] = useState(DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS))
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimeStr(moment().format('h:mm:ss a'))
+      setTimeStr(DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS))
     }, 1000)
 
     return () => {
