@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	err := migrations.RunMigrations()
+	err := migrations.RunMigrations("migrations")
 	if err != nil {
 		fmt.Printf("error running migrations: %v", err)
 		return
