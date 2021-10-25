@@ -24,8 +24,7 @@ func RunMigrations(relativePath string) error {
 
 func getMigrate(relativePath string) (*migrate.Migrate, error) {
 	filePath := fmt.Sprintf("file://%s", relativePath)
-	fullDBURL := fmt.Sprintf("%s/%s?authSource=admin", config.GetConfigValue("MONGO_URI"), config.GetConfigValue("DB_NAME"))
-	migrate, err := migrate.New(filePath, fullDBURL)
+	migrate, err := migrate.New(filePath, config.GetConfigValue("MONGO_URI_MIGRATIONS"))
 	if err != nil {
 		return nil, err
 	}
