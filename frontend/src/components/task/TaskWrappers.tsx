@@ -108,9 +108,7 @@ export function useCountdown(datetimeStart: string | null): string | null {
   }
 
   const start = parseDateTime(datetimeStart)
-  if (DateTime.now() > start) {
-    return null
-  }
+
 
   const [time, setTime] = useState<string | null>(getLiveTimeStr(start))
   useEffect(() => {
@@ -122,6 +120,10 @@ export function useCountdown(datetimeStart: string | null): string | null {
       clearInterval(interval)
     }
   }, [])
+
+  if (DateTime.now() > start) {
+    return null
+  }
   return time
 }
 
@@ -132,7 +134,7 @@ export function useTimeDuration(
   time_duration: number,
   datetime_start: string | null,
   alwaysShowTimeRemaining = false,
-): string {
+): string | null {
   const duration = Duration.fromMillis(time_duration * 1000)
   const start = parseDateTime(datetime_start)
   const end = start.plus(duration)
@@ -140,9 +142,7 @@ export function useTimeDuration(
   const hasEnded = DateTime.now() > end
 
   let initialTimeStr = ''
-  if (hasEnded) {
-    return ''
-  } else if (hasStarted) {
+  if (hasStarted && !hasEnded) {
     // this will update every second
     initialTimeStr = getLiveTimeStr(end)
   } else {
@@ -152,17 +152,19 @@ export function useTimeDuration(
 
   const [timeStr, setTimeStr] = useState(initialTimeStr)
 
-  if (hasStarted || alwaysShowTimeRemaining) {
-    useEffect(() => {
-      const interval = setInterval(() => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if ((hasStarted && !hasEnded) || alwaysShowTimeRemaining) {
         setTimeStr(getLiveTimeStr(end))
-      }, 1000)
-
-      return () => {
-        clearInterval(interval)
+      } else {
+        setTimeStr(getTimeStringFromDuration(duration))
       }
-    }, [])
-  }
+    }, 1000)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [])
   return timeStr
 }
 
@@ -175,18 +177,18 @@ const getTimeStringFromDuration = (dur: Duration): string => {
     language: 'short_en',
     languages: {
       short_en: {
-        y: () => 'years',
-        mo: () => 'months',
-        w: () => 'weeks',
-        d: () => 'days',
-        h: () => 'hours',
-        m: () => 'mins',
-        s: () => 'seconds',
-        ms: () => 'ms',
+        y: (c) => 'year' + (c === 1 ? '' : 's'),
+        mo: (c) => 'month' + (c === 1 ? '' : 's'),
+        w: (c) => 'week' + (c === 1 ? '' : 's'),
+        d: (c) => 'day' + (c === 1 ? '' : 's'),
+        h: (c) => 'hour' + (c === 1 ? '' : 's'),
+        m: (c) => 'min' + (c === 1 ? '' : 's'),
+        s: (c) => 'second' + (c === 1 ? '' : 's'),
+        ms: (c) => 'millisecond' + (c === 1 ? '' : 's'),
       },
     },
   })
-  return shortEnglishHumanizer(dur.toMillis(), { largest: 2, delimiter: ' ', maxDecimalPoints: 0, language: 'short_en' })
+  return shortEnglishHumanizer(dur.toMillis(), { units: ['d', 'h', 'm'], largest: 2, delimiter: ' ', round: true, language: 'short_en', })
 }
 
 const parseDateTime = (date_time: string | null): DateTime => {
