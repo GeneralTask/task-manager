@@ -32,6 +32,7 @@ RUN apk add ca-certificates
 
 COPY --from=build_base /tmp/backend/out/backend /app/backend
 COPY .env /app/
+ADD migrations /app/migrations/
 
 # This container exposes port 8080 to the outside world
 EXPOSE 8080

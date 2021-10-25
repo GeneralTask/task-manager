@@ -2,7 +2,6 @@ package migrations
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -51,10 +50,8 @@ func TestMigrate(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, external.TASK_SERVICE_ID_GOOGLE, result.ServiceID)
 		assert.False(t, result.IsPrimaryLogin)
-		fmt.Println("done with up")
 	})
 	t.Run("MigrateDown", func(t *testing.T) {
-		fmt.Println("starting down")
 		externalTokenCollection := database.GetExternalTokenCollection(db)
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
