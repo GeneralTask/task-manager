@@ -24,6 +24,7 @@ export const logout = (): void => {
     })
 }
 
+
 export const getAuthToken = (): string | undefined => Cookies.get('authToken')
 
 export const getHeaders = (): Record<string, string> => {
