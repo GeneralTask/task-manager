@@ -1,9 +1,16 @@
 import Cookies from 'js-cookie'
-import { LANDING_PATH, LOGOUT_URL, LINKED_ACCOUNTS_URL, REACT_APP_COOKIE_DOMAIN, REACT_APP_FRONTEND_BASE_URL, TASKS_URL } from '../constants'
-import { setTasks, setTasksDragState, setTasksFetchStatus } from '../redux/actions'
-import { DragState, FetchStatus } from '../redux/enums'
+import {
+    LANDING_PATH,
+    LINKED_ACCOUNTS_URL,
+    LOGOUT_URL,
+    REACT_APP_COOKIE_DOMAIN,
+    REACT_APP_FRONTEND_BASE_URL,
+    TASKS_URL
+} from '../constants'
+import {setTasks, setTasksDragState, setTasksFetchStatus} from '../redux/actions'
+import {DragState, FetchStatus} from '../redux/enums'
 import store from '../redux/store'
-import { TTaskSection } from './types'
+import {TTaskSection} from './types'
 
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
@@ -12,22 +19,22 @@ export const logout = (): void => {
         url: LOGOUT_URL,
         method: 'POST',
     }, true).then(() => {
-        Cookies.remove('authToken', { path: '/', domain: REACT_APP_COOKIE_DOMAIN })
+        Cookies.remove('authToken', {path: '/', domain: REACT_APP_COOKIE_DOMAIN})
         document.location.href = LANDING_PATH
     })
 }
 
+
 export const getAuthToken = (): string | undefined => Cookies.get('authToken')
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getHeaders = (): any => {
+export const getHeaders = (): Record<string, string> => {
     const date = new Date()
     return ({
         Authorization: 'Bearer ' + getAuthToken(),
-        'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
+        'Access-Control-Allow-Origin': String(REACT_APP_FRONTEND_BASE_URL),
         'Access-Control-Allow-Headers': 'Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset',
         'Access-Control-Allow-Methods': 'POST,OPTIONS,GET,PATCH,DELETE',
-        'Timezone-Offset': date.getTimezoneOffset(),
+        'Timezone-Offset': date.getTimezoneOffset().toString(),
     })
 }
 
@@ -78,15 +85,13 @@ export const fetchTasks = async (): Promise<void> => {
         })
         if (!response.ok) {
             throw new Error('/tasks api call failed')
-        }
-        else {
+        } else {
             const resj = await response.json()
             store.dispatch(setTasksFetchStatus(FetchStatus.SUCCESS))
             store.dispatch(setTasks(resj))
         }
-    }
-    catch (e) {
+    } catch (e) {
         store.dispatch(setTasksFetchStatus(FetchStatus.ERROR))
-        console.log({ e })
+        console.log({e})
     }
 }
