@@ -1,6 +1,6 @@
 import './Task.css'
 
-import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_LIGHTGRAY } from '../../helpers/styles'
+import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
 
 import { DraggableProvided } from 'react-beautiful-dnd'
@@ -31,7 +31,7 @@ const HeaderRight = styled.div`
   align-items: center;
   flex-direction: row;
   justify-content: flex-end;
-  color:${TEXT_LIGHTGRAY};
+  color:${TEXT_GRAY};
 `
 const DragSection = styled.div`
   cursor: grab;
