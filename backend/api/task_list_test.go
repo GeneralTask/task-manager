@@ -816,7 +816,7 @@ func TestMergeTasks(t *testing.T) {
 		e2ID := primitive.NewObjectID()
 		e2 := database.Email{
 			TaskBase: database.TaskBase{
-				ID:             e1ID,
+				ID:             e2ID,
 				IDExternal:     "sample_email",
 				Deeplink:       "generaltask.io",
 				Title:          "Respond to this email but sent more recently",
@@ -850,8 +850,8 @@ func TestMergeTasks(t *testing.T) {
 		assert.Equal(t, 1, len(todayGroups))
 		assert.Equal(t, 2, len(todayGroups[0].Tasks))
 
-		assert.Equal(t, e2ID, todayGroups[0].Tasks[0].ID)
-		assert.Equal(t, e1ID, todayGroups[0].Tasks[1].ID)
+		assert.Equal(t, e1ID, todayGroups[0].Tasks[0].ID)
+		assert.Equal(t, e2ID, todayGroups[0].Tasks[1].ID)
 	})
 }
 
