@@ -250,12 +250,13 @@ func MergeTasks(
 		return a.TaskBase.IDOrdering < b.TaskBase.IDOrdering
 	})
 
-	doneSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailOrderingPreference)
+	orderingSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailOrderingPreference)
 	if err != nil {
 		log.Printf("failed to fetch email ordering setting: %v", err)
 		return []*TaskSection{}, err
 	}
-	newestEmailsFirst := *doneSetting == settings.ChoiceKeyNewestFirst
+	newestEmailsFirst := *orderingSetting == settings.ChoiceKeyNewestFirst
+	log.Println("ordering setting:", *orderingSetting, settings.ChoiceKeyNewestFirst, "newest first:", newestEmailsFirst)
 
 	//first we sort the emails and tasks into a single array
 	sort.SliceStable(allUnscheduledTasks, func(i, j int) bool {
