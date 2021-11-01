@@ -664,14 +664,19 @@ func compareEmails(e1 *database.Email, e2 *database.Email, newestEmailsFirst boo
 	e1Domain := utils.ExtractEmailDomain(e1.SourceAccountID)
 	e2Domain := utils.ExtractEmailDomain(e2.SourceAccountID)
 	if res := compareTaskBases(e1, e2); res != nil {
+		log.Println("compare1")
 		return *res
 	} else if e1.SenderDomain == e1Domain && e2.SenderDomain != e2Domain {
+		log.Println("compare2")
 		return true
 	} else if e1.SenderDomain != e1Domain && e2.SenderDomain == e2Domain {
+		log.Println("compare3")
 		return false
 	} else if newestEmailsFirst {
+		log.Println("compare4")
 		return e1.TimeSent > e2.TimeSent
 	} else {
+		log.Println("compare5")
 		return e1.TimeSent < e2.TimeSent
 	}
 }
@@ -720,10 +725,13 @@ func compareTaskBases(t1 interface{}, t2 interface{}) *bool {
 	tb2 := getTaskBase(t2)
 	var result bool
 	if tb1.IDOrdering > 0 && tb2.IDOrdering > 0 {
+		log.Println("compareBASE1")
 		result = tb1.IDOrdering < tb2.IDOrdering
 	} else if tb1.HasBeenReordered && !tb2.HasBeenReordered {
+		log.Println("compareBASE2")
 		result = true
 	} else if !tb1.HasBeenReordered && tb2.HasBeenReordered {
+		log.Println("compareBASE3")
 		result = false
 	} else {
 		return nil
