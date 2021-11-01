@@ -98,15 +98,18 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 
 			var messageParts []*gmail.MessagePart
 			for _, messagePart := range message.Payload.Parts {
+				log.Println("part type initial:", messagePart.MimeType)
 				if messagePart.MimeType[:9] == "multipart" {
+					for _, m := range messagePart.Parts {
+						log.Println("multipart initial:", m.MimeType)
+					}
 					messageParts = append(messageParts, messagePart.Parts...)
 					continue
 				}
 				messageParts = append(messageParts, messagePart)
 			}
 			for _, messagePart := range messageParts {
-				log.Println("\tpart type:", messagePart.MimeType)
-				log.Println(messagePart)
+				log.Println("part type expanded:", messagePart.MimeType)
 			}
 			for _, messagePart := range messageParts {
 				parsedBody, err := parseMessagePartBody(messagePart.MimeType, messagePart.Body)
