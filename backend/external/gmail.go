@@ -105,6 +105,10 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 				messageParts = append(messageParts, messagePart)
 			}
 			for _, messagePart := range messageParts {
+				log.Println("\tpart type:", messagePart.MimeType)
+				log.Println(messagePart)
+			}
+			for _, messagePart := range messageParts {
 				parsedBody, err := parseMessagePartBody(messagePart.MimeType, messagePart.Body)
 				if err != nil {
 					log.Printf("failed to parse message body: %v", err)
@@ -122,9 +126,11 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 			if body == nil && bodyPlain != nil {
 				body = bodyPlain
 			}
+			log.Println("semifinal body:", body)
 
 			//fallback to body if there are no parts.
 			if body == nil || len(*body) == 0 {
+				log.Println("no parts!")
 				body, err = parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
 				if err != nil {
 					result <- emptyEmailResult(err)
