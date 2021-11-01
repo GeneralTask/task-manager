@@ -8,6 +8,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -165,7 +166,8 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{&c1, &c2},
 			[]*database.Email{&e1, &e1a, &e2},
 			[]*database.Task{&t1, &t2, &t3, &t4},
-			"gmail.com")
+			primitive.NewObjectID(),
+		)
 		assert.NoError(t, err)
 
 		//need to improve these asserts to compare values as well but a pain with casting
@@ -176,9 +178,9 @@ func TestMergeTasks(t *testing.T) {
 
 		assert.Equal(t, 2, len(todayGroups[0].Tasks))
 		assert.Equal(t, UnscheduledGroup, todayGroups[0].TaskGroupType)
-		assert.Equal(t, e1ID, todayGroups[0].Tasks[0].ID)
+		assert.Equal(t, e1aID, todayGroups[0].Tasks[0].ID)
 		assert.Equal(t, 1, todayGroups[0].Tasks[0].IDOrdering)
-		assert.Equal(t, e1aID, todayGroups[0].Tasks[1].ID)
+		assert.Equal(t, e1ID, todayGroups[0].Tasks[1].ID)
 		assert.Equal(t, 2, todayGroups[0].Tasks[1].IDOrdering)
 
 		assert.Equal(t, 1, len(todayGroups[1].Tasks))
@@ -311,7 +313,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{&c1, &c2, &c3},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
-			"gmail.com",
+			userID,
 		)
 		assert.NoError(t, err)
 
@@ -416,7 +418,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{&c1, &c2},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
-			"gmail.com",
+			userID,
 		)
 		assert.NoError(t, err)
 
@@ -501,7 +503,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
-			"gmail.com",
+			userID,
 		)
 		assert.NoError(t, err)
 
@@ -579,7 +581,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{},
 			[]*database.Email{&e1},
 			[]*database.Task{&t2},
-			"gmail.com",
+			userID,
 		)
 		assert.NoError(t, err)
 
@@ -676,7 +678,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2, &t3, &t4},
-			"gmail.com",
+			userID,
 		)
 		assert.NoError(t, err)
 
@@ -777,7 +779,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
-			"gmail.com",
+			userID,
 		)
 		assert.NoError(t, err)
 
@@ -794,6 +796,62 @@ func TestMergeTasks(t *testing.T) {
 		assert.Equal(t, 2, len(backlogGroups[0].Tasks))
 		assert.Equal(t, t4.ID, backlogGroups[0].Tasks[0].ID)
 		assert.Equal(t, t3.ID, backlogGroups[0].Tasks[1].ID)
+	})
+	t.Run("EmailOrderingOldestFirst", func(t *testing.T) {
+		userID := primitive.NewObjectID()
+		e1ID := primitive.NewObjectID()
+		e1 := database.Email{
+			TaskBase: database.TaskBase{
+				ID:             e1ID,
+				IDExternal:     "sample_email",
+				Deeplink:       "generaltask.io",
+				Title:          "Respond to this email",
+				SourceID:       external.TASK_SOURCE_ID_GMAIL,
+				TimeAllocation: (time.Minute * 5).Nanoseconds(),
+			},
+			SenderDomain: "gmail.com",
+			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
+		}
+
+		e2ID := primitive.NewObjectID()
+		e2 := database.Email{
+			TaskBase: database.TaskBase{
+				ID:             e2ID,
+				IDExternal:     "sample_email",
+				Deeplink:       "generaltask.io",
+				Title:          "Respond to this email but sent more recently",
+				SourceID:       external.TASK_SOURCE_ID_GMAIL,
+				TimeAllocation: (time.Minute * 5).Nanoseconds(),
+			},
+			SenderDomain: "gmail.com",
+			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Minute)),
+		}
+
+		err := settings.UpdateUserSetting(
+			db,
+			userID,
+			settings.SettingFieldEmailOrderingPreference,
+			settings.ChoiceKeyOldestFirst,
+		)
+		assert.NoError(t, err)
+
+		result, err := MergeTasks(
+			db,
+			&[]database.TaskBase{e1.TaskBase, e2.TaskBase},
+			[]*database.CalendarEvent{},
+			[]*database.Email{&e1, &e2},
+			[]*database.Task{},
+			userID,
+		)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 3, len(result))
+		todayGroups := result[0].TaskGroups
+		assert.Equal(t, 1, len(todayGroups))
+		assert.Equal(t, 2, len(todayGroups[0].Tasks))
+
+		assert.Equal(t, e1ID, todayGroups[0].Tasks[0].ID)
+		assert.Equal(t, e2ID, todayGroups[0].Tasks[1].ID)
 	})
 }
 

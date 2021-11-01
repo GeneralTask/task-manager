@@ -9,6 +9,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/GeneralTask/task-manager/backend/utils"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -196,7 +197,8 @@ func (api *API) TasksList(c *gin.Context) {
 		calendarEvents,
 		emails,
 		tasks,
-		utils.ExtractEmailDomain(userObject.Email))
+		userID.(primitive.ObjectID),
+	)
 	if err != nil {
 		Handle500(c)
 		return
@@ -210,7 +212,7 @@ func MergeTasks(
 	calendarEvents []*database.CalendarEvent,
 	emails []*database.Email,
 	tasks []*database.Task,
-	userDomain string,
+	userID primitive.ObjectID,
 ) ([]*TaskSection, error) {
 
 	//sort calendar events by start time.
@@ -248,6 +250,13 @@ func MergeTasks(
 		return a.TaskBase.IDOrdering < b.TaskBase.IDOrdering
 	})
 
+	doneSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailOrderingPreference)
+	if err != nil {
+		log.Printf("failed to fetch email ordering setting: %v", err)
+		return []*TaskSection{}, err
+	}
+	newestEmailsFirst := *doneSetting == settings.ChoiceKeyNewestFirst
+
 	//first we sort the emails and tasks into a single array
 	sort.SliceStable(allUnscheduledTasks, func(i, j int) bool {
 		a := allUnscheduledTasks[i]
@@ -266,7 +275,7 @@ func MergeTasks(
 			case *database.Task:
 				return !compareTaskEmail(b.(*database.Task), a.(*database.Email))
 			case *database.Email:
-				return compareEmails(a.(*database.Email), b.(*database.Email))
+				return compareEmails(a.(*database.Email), b.(*database.Email), newestEmailsFirst)
 			}
 		}
 		return true
@@ -650,7 +659,7 @@ func getTaskBase(t interface{}) *database.TaskBase {
 	}
 }
 
-func compareEmails(e1 *database.Email, e2 *database.Email) bool {
+func compareEmails(e1 *database.Email, e2 *database.Email, newestEmailsFirst bool) bool {
 	e1Domain := utils.ExtractEmailDomain(e1.SourceAccountID)
 	e2Domain := utils.ExtractEmailDomain(e2.SourceAccountID)
 	if res := compareTaskBases(e1, e2); res != nil {
@@ -659,6 +668,8 @@ func compareEmails(e1 *database.Email, e2 *database.Email) bool {
 		return true
 	} else if e1.SenderDomain != e1Domain && e2.SenderDomain == e2Domain {
 		return false
+	} else if newestEmailsFirst {
+		return e1.TimeSent > e2.TimeSent
 	} else {
 		return e1.TimeSent < e2.TimeSent
 	}

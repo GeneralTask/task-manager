@@ -32,9 +32,14 @@ type SettingChoice struct {
 }
 
 const (
+	// Email done
 	SettingFieldEmailDonePreference = "email_done_preference"
 	ChoiceKeyArchive                = "archive"
 	ChoiceKeyMarkAsRead             = "mark_as_read"
+	// Email ordering
+	SettingFieldEmailOrderingPreference = "email_ordering_preference"
+	ChoiceKeyNewestFirst                = "newest_first"
+	ChoiceKeyOldestFirst                = "oldest_first"
 )
 
 var Settings = []SettingDefinition{
@@ -45,6 +50,15 @@ var Settings = []SettingDefinition{
 		Choices: []SettingChoice{
 			{Key: ChoiceKeyArchive, Name: "Archive"},
 			{Key: ChoiceKeyMarkAsRead, Name: "Mark as read"},
+		},
+	},
+	{
+		FieldKey:      SettingFieldEmailOrderingPreference,
+		FieldName:     "Email ordering",
+		DefaultChoice: ChoiceKeyNewestFirst,
+		Choices: []SettingChoice{
+			{Key: ChoiceKeyNewestFirst, Name: "Newest first"},
+			{Key: ChoiceKeyOldestFirst, Name: "Oldest first"},
 		},
 	},
 }
