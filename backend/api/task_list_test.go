@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log"
 	"testing"
 	"time"
 
@@ -852,6 +853,102 @@ func TestMergeTasks(t *testing.T) {
 
 		assert.Equal(t, e1ID, todayGroups[0].Tasks[0].ID)
 		assert.Equal(t, e2ID, todayGroups[0].Tasks[1].ID)
+	})
+	t.Run("OverlappingEvents", func(t *testing.T) {
+		// Tested here: existing DB ordering IDs are kept (except cal events)
+
+		userID := primitive.NewObjectID()
+		t1 := database.Task{
+			TaskBase: database.TaskBase{
+				IDOrdering:     1,
+				IDExternal:     "sample_task",
+				Deeplink:       "generaltask.io",
+				Title:          "Code x",
+				SourceID:       external.TASK_SOURCE_ID_JIRA,
+				TimeAllocation: (time.Hour).Nanoseconds(),
+				UserID:         userID,
+			},
+			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
+			PriorityID:         "5",
+			PriorityNormalized: 1.0,
+			TaskNumber:         7,
+		}
+		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t1)
+		assert.NoError(t, err)
+		t1.ID = t1Res.ID
+
+		c1 := database.CalendarEvent{
+			TaskBase: database.TaskBase{
+				IDOrdering: 3,
+				IDExternal: "standard_event",
+				Deeplink:   "generaltask.io",
+				Title:      "Standard Event",
+				SourceID:   external.TASK_SOURCE_ID_GCAL,
+				UserID:     userID,
+			},
+			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Minute * 5)),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 5)),
+		}
+		c1Res, err := database.GetOrCreateTask(db, userID, "standard_event", external.TASK_SOURCE_ID_GCAL, c1)
+		assert.NoError(t, err)
+		c1.ID = c1Res.ID
+
+		c2 := database.CalendarEvent{
+			TaskBase: database.TaskBase{
+				IDOrdering: 2,
+				IDExternal: "standard_event2",
+				Deeplink:   "generaltask.io",
+				Title:      "Standard Event",
+				SourceID:   external.TASK_SOURCE_ID_GCAL,
+				UserID:     userID,
+			},
+			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Minute * 10)),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Minute * 20)),
+		}
+		c2Res, err := database.GetOrCreateTask(db, userID, "standard_event2", external.TASK_SOURCE_ID_GCAL, c2)
+		assert.NoError(t, err)
+		c2.ID = c2Res.ID
+
+		c3 := database.CalendarEvent{
+			TaskBase: database.TaskBase{
+				IDOrdering: 2,
+				IDExternal: "standard_event2",
+				Deeplink:   "generaltask.io",
+				Title:      "Standard Event",
+				SourceID:   external.TASK_SOURCE_ID_GCAL,
+				UserID:     userID,
+			},
+			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Minute * 30)),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Minute * 40)),
+		}
+		c3Res, err := database.GetOrCreateTask(db, userID, "standard_event2", external.TASK_SOURCE_ID_GCAL, c2)
+		assert.NoError(t, err)
+		c3.ID = c3Res.ID
+
+		result, err := MergeTasks(
+			db,
+			&[]database.TaskBase{c1.TaskBase, c2.TaskBase, c3.TaskBase, t1.TaskBase},
+			[]*database.CalendarEvent{&c1, &c2, &c3},
+			[]*database.Email{},
+			[]*database.Task{&t1},
+			userID,
+		)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 3, len(result))
+		todayGroups := result[0].TaskGroups
+		log.Println("todayGroups:", todayGroups)
+		assert.Equal(t, 5, len(todayGroups))
+		assert.Equal(t, 0, len(todayGroups[0].Tasks))
+		assert.Equal(t, 1, len(todayGroups[1].Tasks))
+		assert.Equal(t, 1, len(todayGroups[2].Tasks))
+		assert.Equal(t, 1, len(todayGroups[3].Tasks))
+		assert.Equal(t, 1, len(todayGroups[4].Tasks))
+
+		assert.Equal(t, c1.ID, todayGroups[1].Tasks[0].ID)
+		assert.Equal(t, c2.ID, todayGroups[2].Tasks[0].ID)
+		assert.Equal(t, c3.ID, todayGroups[3].Tasks[0].ID)
+		assert.Equal(t, t1.ID, todayGroups[4].Tasks[0].ID)
 	})
 }
 
