@@ -165,7 +165,9 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.CalendarEvent{&c1, &c2},
 			[]*database.Email{&e1, &e1a, &e2},
 			[]*database.Task{&t1, &t2, &t3, &t4},
-			"gmail.com")
+			"gmail.com",
+			primitive.NewObjectID(),
+		)
 		assert.NoError(t, err)
 
 		//need to improve these asserts to compare values as well but a pain with casting
@@ -312,6 +314,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
 			"gmail.com",
+			userID,
 		)
 		assert.NoError(t, err)
 
@@ -417,6 +420,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
 			"gmail.com",
+			userID,
 		)
 		assert.NoError(t, err)
 
@@ -502,6 +506,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
 			"gmail.com",
+			userID,
 		)
 		assert.NoError(t, err)
 
@@ -580,6 +585,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.Email{&e1},
 			[]*database.Task{&t2},
 			"gmail.com",
+			userID,
 		)
 		assert.NoError(t, err)
 
@@ -677,6 +683,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2, &t3, &t4},
 			"gmail.com",
+			userID,
 		)
 		assert.NoError(t, err)
 
@@ -778,6 +785,7 @@ func TestMergeTasks(t *testing.T) {
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
 			"gmail.com",
+			userID,
 		)
 		assert.NoError(t, err)
 
