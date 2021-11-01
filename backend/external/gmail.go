@@ -96,14 +96,7 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 			var body *string
 			var bodyPlain *string
 
-			var messageParts []*gmail.MessagePart
-			for _, messagePart := range message.Payload.Parts {
-				if messagePart.MimeType[:9] == "multipart" {
-					messageParts = append(messageParts, messagePart.Parts...)
-					continue
-				}
-				messageParts = append(messageParts, messagePart)
-			}
+			messageParts := expandMessageParts(message.Payload.Parts)
 			for _, messagePart := range messageParts {
 				parsedBody, err := parseMessagePartBody(messagePart.MimeType, messagePart.Body)
 				if err != nil {
@@ -182,6 +175,18 @@ func isMessageUnread(message *gmail.Message) bool {
 		}
 	}
 	return false
+}
+
+func expandMessageParts(parts []*gmail.MessagePart) []*gmail.MessagePart {
+	var messageParts []*gmail.MessagePart
+	for _, messagePart := range parts {
+		if messagePart.MimeType[:9] == "multipart" {
+			messageParts = append(messageParts, expandMessageParts(messagePart.Parts)...)
+			continue
+		}
+		messageParts = append(messageParts, messagePart)
+	}
+	return messageParts
 }
 
 func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string, error) {
