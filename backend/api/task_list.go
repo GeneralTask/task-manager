@@ -318,7 +318,11 @@ func MergeTasks(
 			DatetimeStart: calendarEvent.DatetimeStart,
 		})
 
-		lastEndTime = calendarEvent.DatetimeEnd.Time()
+		endTime := calendarEvent.DatetimeEnd.Time()
+		if endTime.After(lastEndTime) {
+			// ensures we properly handle overlapping events
+			lastEndTime = endTime
+		}
 	}
 
 	//add remaining calendar events, if they exist.
