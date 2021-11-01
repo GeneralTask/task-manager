@@ -197,7 +197,6 @@ func (api *API) TasksList(c *gin.Context) {
 		calendarEvents,
 		emails,
 		tasks,
-		utils.ExtractEmailDomain(userObject.Email),
 		userID.(primitive.ObjectID),
 	)
 	if err != nil {
@@ -213,7 +212,6 @@ func MergeTasks(
 	calendarEvents []*database.CalendarEvent,
 	emails []*database.Email,
 	tasks []*database.Task,
-	userDomain string,
 	userID primitive.ObjectID,
 ) ([]*TaskSection, error) {
 
