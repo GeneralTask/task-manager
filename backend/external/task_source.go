@@ -16,7 +16,8 @@ type TaskSource interface {
 }
 
 type TaskCreationObject struct {
-	Title   *string
-	Body    *string
-	DueDate *time.Time
+	Title          string
+	Body           string
+	DueDate        *time.Time
+	TimeAllocation *int64
 }

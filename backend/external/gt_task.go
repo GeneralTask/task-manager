@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -60,5 +61,34 @@ func (GeneralTask GeneralTaskTaskSource) Reply(userID primitive.ObjectID, accoun
 }
 
 func (GeneralTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return nil
+	newTask := database.Task{
+		TaskBase: database.TaskBase{
+			UserID:          userID,
+			IDExternal:      primitive.NewObjectID().Hex(),
+			IDTaskSection:   constants.IDTaskSectionToday,
+			SourceID:        TASK_SOURCE_ID_GT_TASK,
+			Title:           task.Title,
+			Body:            task.Body,
+			TimeAllocation:  time.Hour.Nanoseconds(),
+			SourceAccountID: accountID,
+		},
+	}
+	if task.DueDate != nil {
+		newTask.DueDate = primitive.NewDateTimeFromTime(*task.DueDate)
+	}
+	if task.TimeAllocation != nil {
+		newTask.TimeAllocation = *task.TimeAllocation
+	}
+
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err = taskCollection.InsertOne(dbCtx, newTask)
+	return err
 }
