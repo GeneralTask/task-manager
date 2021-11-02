@@ -1,8 +1,13 @@
 package external
 
 import (
+	"context"
 	"errors"
+	"log"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/GeneralTask/task-manager/backend/database"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -17,6 +22,33 @@ func (GeneralTask GeneralTaskTaskSource) GetEvents(userID primitive.ObjectID, ac
 }
 
 func (GeneralTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		result <- emptyTaskResult(err)
+		return
+	}
+	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	cursor, err := taskCollection.Find(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"source_id": TASK_SOURCE_ID_GT_TASK},
+			{"source_account_id": accountID},
+			{"is_completed": false},
+		}},
+	)
+	var tasks []*database.Task
+	if err != nil || cursor.All(dbCtx, &tasks) != nil {
+		log.Printf("failed to fetch general task tasks: %v", err)
+		result <- emptyTaskResult(err)
+		return
+	}
+	result <- TaskResult{Tasks: tasks, Error: nil}
 }
 
 func (GeneralTask GeneralTaskTaskSource) MarkAsDone(userID primitive.ObjectID, accountID string, taskID string) error {
