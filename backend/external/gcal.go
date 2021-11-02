@@ -190,7 +190,6 @@ func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.Object
 func GetConferenceCall(event *calendar.Event) *database.ConferenceCall {
 	// first check for built-in conference URL
 	if event.ConferenceData != nil {
-		fmt.Println(*event)
 		for _, entryPoint := range event.ConferenceData.EntryPoints {
 			if entryPoint != nil {
 				conference := &database.ConferenceCall{
