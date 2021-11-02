@@ -102,6 +102,16 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 		OverrideURLs: config.GoogleOverrideURLs,
 	}
 	return map[string]TaskServiceResult{
+		TASK_SERVICE_ID_ATLASSIAN: {
+			Service: atlassianService,
+			Details: TaskServiceAtlassian,
+			Sources: []TaskSource{JIRASource{Atlassian: atlassianService}},
+		},
+		TASK_SERVICE_ID_GT: {
+			Service: GeneralTaskService{},
+			Details: TaskServiceGeneralTask,
+			Sources: []TaskSource{GeneralTaskTaskSource{}},
+		},
 		TASK_SERVICE_ID_GOOGLE: {
 			Service: googleService,
 			Details: TaskServiceGoogle,
@@ -109,11 +119,6 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 				GmailSource{Google: googleService},
 				GoogleCalendarSource{Google: googleService},
 			},
-		},
-		TASK_SERVICE_ID_ATLASSIAN: {
-			Service: atlassianService,
-			Details: TaskServiceAtlassian,
-			Sources: []TaskSource{JIRASource{Atlassian: atlassianService}},
 		},
 		TASK_SERVICE_ID_SLACK: {
 			Service: SlackService{Config: config.Slack},
@@ -192,7 +197,7 @@ type TaskSourceDetails struct {
 }
 
 var TaskSourceGeneralTask = TaskSourceDetails{
-	TASK_SOURCE_ID_GENERAL_TASK,
+	TASK_SOURCE_ID_GT_TASK,
 	"General Task",
 	"/images/general_task.svg",
 	true,
