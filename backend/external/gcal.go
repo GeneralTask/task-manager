@@ -10,6 +10,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/utils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
@@ -187,8 +188,9 @@ func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.Object
 	return errors.New("Has not been implemented yet")
 }
 func GetConferenceCall(event *calendar.Event) *database.ConferenceCall {
+	// first check for built-in conference URL
 	if event.ConferenceData != nil {
-		// first check for built-in conference URL
+		fmt.Println(*event)
 		for _, entryPoint := range event.ConferenceData.EntryPoints {
 			if entryPoint != nil {
 				conference := &database.ConferenceCall{
@@ -199,8 +201,13 @@ func GetConferenceCall(event *calendar.Event) *database.ConferenceCall {
 				return conference
 			}
 		}
-		// then check the description for a conference URL
-		
+	}
+	// then check the description for a conference URL
+	if event.Description != "" {
+		conference := utils.GetConferenceUrlFromString(event.Description)
+		if conference != nil {
+			return conference
+		}
 	}
 	
 	return nil
