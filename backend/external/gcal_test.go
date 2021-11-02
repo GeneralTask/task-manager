@@ -23,6 +23,7 @@ func TestCalendar(t *testing.T) {
 		standardEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
 			Summary:        "Standard Event",
+			Description:    "event <strong>description</strong>",
 			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
 			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
 			HtmlLink:       "generaltask.io",
@@ -44,6 +45,7 @@ func TestCalendar(t *testing.T) {
 				IDTaskSection: constants.IDTaskSectionToday,
 				Deeplink:      "generaltask.io&authuser=exampleAccountID",
 				Title:         "Standard Event",
+				Body:          "event <strong>description</strong>",
 				SourceID:      TASK_SOURCE_ID_GCAL,
 				UserID:        userID,
 			},
@@ -108,6 +110,7 @@ func TestCalendar(t *testing.T) {
 		standardEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
 			Summary:        "Standard Event",
+			Description:    "new description",
 			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
 			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
 			HtmlLink:       "generaltask.io",
@@ -130,6 +133,7 @@ func TestCalendar(t *testing.T) {
 				IDTaskSection:   constants.IDTaskSectionToday,
 				Deeplink:        "generaltask.io&authuser=exampleAccountID",
 				Title:           "Standard Event",
+				Body:            "old description",
 				SourceID:        TASK_SOURCE_ID_GCAL,
 				UserID:          userID,
 				SourceAccountID: "exampleAccountID",
@@ -140,6 +144,7 @@ func TestCalendar(t *testing.T) {
 		database.GetOrCreateTask(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
 		// Rescheduling end time along shouldn't trigger a reset like in the next test case
 		standardTask.DatetimeEnd = primitive.NewDateTimeFromTime(endTime)
+		standardTask.Body = "new description"
 
 		autoEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
