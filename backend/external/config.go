@@ -8,13 +8,15 @@ import (
 
 const (
 	TASK_SERVICE_ID_ATLASSIAN = "atlassian"
+	TASK_SERVICE_ID_GT        = "gt"
 	TASK_SERVICE_ID_GOOGLE    = "google"
 	TASK_SERVICE_ID_SLACK     = "slack"
 	TASK_SERVICE_ID_TRELLO    = "trello"
 
-	TASK_SOURCE_ID_GCAL  = "gcal"
-	TASK_SOURCE_ID_GMAIL = "gmail"
-	TASK_SOURCE_ID_JIRA  = "jira"
+	TASK_SOURCE_ID_GCAL    = "gcal"
+	TASK_SOURCE_ID_GT_TASK = "gt_task"
+	TASK_SOURCE_ID_GMAIL   = "gmail"
+	TASK_SOURCE_ID_JIRA    = "jira"
 )
 
 type Config struct {
@@ -73,13 +75,17 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 		OverrideURLs: config.GoogleOverrideURLs,
 	}
 	return map[string]TaskSourceResult{
-		TASK_SOURCE_ID_GMAIL: {
-			Details: TaskSourceGmail,
-			Source:  GmailSource{Google: googleService},
-		},
 		TASK_SOURCE_ID_GCAL: {
 			Details: TaskSourceGoogleCalendar,
 			Source:  GoogleCalendarSource{Google: googleService},
+		},
+		TASK_SOURCE_ID_GT_TASK: {
+			Details: TaskSourceGeneralTask,
+			Source:  GeneralTaskTaskSource{},
+		},
+		TASK_SOURCE_ID_GMAIL: {
+			Details: TaskSourceGmail,
+			Source:  GmailSource{Google: googleService},
 		},
 		TASK_SOURCE_ID_JIRA: {
 			Details: TaskSourceJIRA,
@@ -144,6 +150,14 @@ var TaskServiceAtlassian = TaskServiceDetails{
 	true,
 	false,
 }
+var TaskServiceGeneralTask = TaskServiceDetails{
+	TASK_SERVICE_ID_ATLASSIAN,
+	"General Task",
+	"/images/general_task.svg",
+	AuthTypeOauth2,
+	false,
+	false,
+}
 var TaskServiceGoogle = TaskServiceDetails{
 	TASK_SERVICE_ID_GOOGLE,
 	"Google",
@@ -177,6 +191,13 @@ type TaskSourceDetails struct {
 	IsReplyable   bool
 }
 
+var TaskSourceGeneralTask = TaskSourceDetails{
+	TASK_SOURCE_ID_GENERAL_TASK,
+	"General Task",
+	"/images/general_task.svg",
+	true,
+	false,
+}
 var TaskSourceGoogleCalendar = TaskSourceDetails{
 	TASK_SOURCE_ID_GCAL,
 	"Google Calendar",
