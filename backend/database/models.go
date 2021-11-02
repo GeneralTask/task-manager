@@ -86,6 +86,7 @@ type CalendarEvent struct {
 
 type CalendarEventChangeableFields struct {
 	Title         string             `bson:"title,omitempty"`
+	Body          string             `bson:"body,omitempty"`
 	DatetimeEnd   primitive.DateTime `bson:"datetime_end,omitempty"`
 	DatetimeStart primitive.DateTime `bson:"datetime_start,omitempty"`
 }

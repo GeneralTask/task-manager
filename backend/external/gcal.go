@@ -131,6 +131,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				Deeplink:        fmt.Sprintf("%s&authuser=%s", event.HtmlLink, accountID),
 				SourceID:        TASK_SOURCE_ID_GCAL,
 				Title:           event.Summary,
+				Body:            event.Description,
 				TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
 				SourceAccountID: accountID,
 				ConferenceCall:  GetConferenceCall(event),
@@ -147,6 +148,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			event,
 			database.CalendarEventChangeableFields{
 				Title:         event.Title,
+				Body:          event.Body,
 				DatetimeEnd:   event.DatetimeEnd,
 				DatetimeStart: event.DatetimeStart,
 			},
@@ -208,6 +210,6 @@ func GetConferenceCall(event *calendar.Event) *database.ConferenceCall {
 			return conference
 		}
 	}
-	
+
 	return nil
 }
