@@ -2,14 +2,15 @@ package api
 
 import (
 	"context"
+	"log"
+	"time"
+
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"log"
-	"time"
 )
 
 type TaskModifyParams struct {
@@ -184,8 +185,8 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 }
 
 type TaskCreateParams struct {
-	Title     *string    `json:"title" binding:"required"`
-	Body      *string    `json:"body" binding:"required"`
+	Title     string     `json:"title" binding:"required"`
+	Body      string     `json:"body" binding:"required"`
 	DueDate   *time.Time `json:"due_date" binding:"required"`
 	SourceID  *string    `json:"source_id" binding:"required"`
 	AccountID *string    `json:"account_id" binding:"required"`
