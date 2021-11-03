@@ -20,7 +20,6 @@ const Logo = styled.button`
 const HeaderDiv = styled.div` 
   width: 100%;
   display: flex;
-  padding-right: 20px;
   justify-content: space-between;
   align-items: flex-end;
 `
@@ -47,10 +46,13 @@ const Hamburger = styled.img`
 const DropDown = styled.div`
   display: flex;
   flex-direction: column;
-  padding-right: 20px;
   & > * {
     text-align: right;
   }
+  padding-right: 10px;
+`
+const Right = styled.div`
+  margin-right: 30px;
 `
 
 const Header: React.FC = () => {
@@ -71,7 +73,7 @@ const Header: React.FC = () => {
         <div>
           <Link to={LANDING_PATH}><Logo>General Task</Logo></Link>
         </div>
-        <div>
+        <Right>
           {deviceSize === DeviceSize.MOBILE
             ? <Hamburger src="images/hamburger.svg" onClick={toggleMenu} />
             : <>
@@ -79,7 +81,7 @@ const Header: React.FC = () => {
               <Link to={SETTINGS_PATH}><Button>Settings</Button></Link>
               <Logout onClick={logout} disabled={!getAuthToken()}>Logout</Logout>
             </>}
-        </div>
+        </Right>
       </HeaderDiv>
       {deviceSize === DeviceSize.MOBILE && isMenuOpen && <DropDown>
         <Link to={LANDING_PATH}><Button>Tasks</Button></Link>
