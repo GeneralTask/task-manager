@@ -158,7 +158,7 @@ var TaskServiceAtlassian = TaskServiceDetails{
 var TaskServiceGeneralTask = TaskServiceDetails{
 	TASK_SERVICE_ID_ATLASSIAN,
 	"General Task",
-	"/images/general_task.svg",
+	"/images/favicon.ico",
 	AuthTypeOauth2,
 	false,
 	false,
@@ -199,7 +199,7 @@ type TaskSourceDetails struct {
 var TaskSourceGeneralTask = TaskSourceDetails{
 	TASK_SOURCE_ID_GT_TASK,
 	"General Task",
-	"/images/general_task.svg",
+	"/images/favicon.ico",
 	true,
 	false,
 }
