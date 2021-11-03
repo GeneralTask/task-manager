@@ -1,9 +1,9 @@
+import { DeviceSize, getAuthToken, logout, useDeviceSize } from '../helpers/utils'
 import { LANDING_PATH, SETTINGS_PATH } from '../constants'
+import React, { useEffect } from 'react'
 import { TEXT_BLACK, TEXT_BLACK_HOVER } from '../helpers/styles'
-import { getAuthToken, logout } from '../helpers/utils'
 
 import { Link } from 'react-router-dom'
-import React from 'react'
 import styled from 'styled-components'
 
 const Logo = styled.button`
@@ -20,6 +20,7 @@ const Logo = styled.button`
 const HeaderDiv = styled.div` 
   width: 100%;
   display: flex;
+  padding-right: 20px;
   justify-content: space-between;
   align-items: flex-end;
 `
@@ -37,24 +38,56 @@ const Button = styled.button`
 `
 const Logout = styled(Button)`
   color: ${TEXT_BLACK};
-  font-weight: 600;
-  margin-right: 20px;
   &:hover {color: ${TEXT_BLACK_HOVER}};
+`
+const Hamburger = styled.img`
+  cursor: pointer;
+  width: 32px;
+`
+const DropDown = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding-right: 20px;
+  & > * {
+    text-align: right;
+  }
 `
 
 const Header: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false)
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
+
+  const deviceSize = useDeviceSize()
+
+  useEffect(() => {
+    if (deviceSize !== DeviceSize.MOBILE) {
+      setIsMenuOpen(false)
+    }
+  }, [deviceSize])
+
   return (
-    <HeaderDiv>
-      <div>
-        <Link to={LANDING_PATH}><Logo>General Task</Logo></Link>
-      </div>
-      <div>
+    <>
+      <HeaderDiv>
+        <div>
+          <Link to={LANDING_PATH}><Logo>General Task</Logo></Link>
+        </div>
+        <div>
+          {deviceSize === DeviceSize.MOBILE
+            ? <Hamburger src="images/hamburger.svg" onClick={toggleMenu} />
+            : <>
+              <Link to={LANDING_PATH}><Button>Tasks</Button></Link>
+              <Link to={SETTINGS_PATH}><Button>Settings</Button></Link>
+              <Logout onClick={logout} disabled={!getAuthToken()}>Logout</Logout>
+            </>}
+        </div>
+      </HeaderDiv>
+      {deviceSize === DeviceSize.MOBILE && isMenuOpen && <DropDown>
         <Link to={LANDING_PATH}><Button>Tasks</Button></Link>
         <Link to={SETTINGS_PATH}><Button>Settings</Button></Link>
         <Logout onClick={logout} disabled={!getAuthToken()}>Logout</Logout>
-      </div>
-    </HeaderDiv>
+      </DropDown>}
+    </>
   )
 }
 
-export default Header
+export default React.memo(Header)

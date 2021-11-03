@@ -1,4 +1,4 @@
-import Cookies from 'js-cookie'
+import { DragState, FetchStatus } from '../redux/enums'
 import {
     LANDING_PATH,
     LINKED_ACCOUNTS_URL,
@@ -7,10 +7,12 @@ import {
     REACT_APP_FRONTEND_BASE_URL,
     TASKS_URL
 } from '../constants'
-import {setTasks, setTasksDragState, setTasksFetchStatus} from '../redux/actions'
-import {DragState, FetchStatus} from '../redux/enums'
+import { setTasks, setTasksDragState, setTasksFetchStatus } from '../redux/actions'
+import { useEffect, useState } from 'react'
+
+import Cookies from 'js-cookie'
+import { TTaskSection } from './types'
 import store from '../redux/store'
-import {TTaskSection} from './types'
 
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
@@ -19,7 +21,7 @@ export const logout = (): void => {
         url: LOGOUT_URL,
         method: 'POST',
     }, true).then(() => {
-        Cookies.remove('authToken', {path: '/', domain: REACT_APP_COOKIE_DOMAIN})
+        Cookies.remove('authToken', { path: '/', domain: REACT_APP_COOKIE_DOMAIN })
         document.location.href = LANDING_PATH
     })
 }
@@ -92,6 +94,32 @@ export const fetchTasks = async (): Promise<void> => {
         }
     } catch (e) {
         store.dispatch(setTasksFetchStatus(FetchStatus.ERROR))
-        console.log({e})
+        console.log({ e })
     }
+}
+
+export enum DeviceSize {
+    MOBILE,
+    DESKTOP,
+}
+const MOBILE_WIDTH = 768 // common mobile width threshold https://www.w3schools.com/css/css_rwd_mediaqueries.asp
+
+// hook that returns whether the device is mobile or desktop
+export const useDeviceSize = (): DeviceSize => {
+    const [deviceSize, setDeviceSize] = useState(DeviceSize.MOBILE)
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < MOBILE_WIDTH) {
+                setDeviceSize(DeviceSize.MOBILE)
+            } else {
+                setDeviceSize(DeviceSize.DESKTOP)
+            }
+        }
+        window.addEventListener('resize', handleResize)
+        handleResize()
+        return () => {
+            window.removeEventListener('resize', handleResize)
+        }
+    }, [])
+    return deviceSize
 }
