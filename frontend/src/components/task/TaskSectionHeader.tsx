@@ -1,7 +1,9 @@
-import { DateTime } from 'luxon'
-import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
 import { DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
+import { DeviceSize, useDeviceSize } from '../../helpers/utils'
+import React, { useEffect, useState } from 'react'
+
+import { DateTime } from 'luxon'
+import styled from 'styled-components'
 
 const TaskSectionHeaderContainer = styled.div`
   display: flex;
@@ -64,15 +66,25 @@ export default function TaskSectionHeader(props: Props): JSX.Element {
 }
 
 function CurrentTime() {
-  const [timeStr, setTimeStr] = useState(DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS))
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeStr(DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS))
-    }, 1000)
+  const [timeStr, setTimeStr] = useState('')
+  const deviceSize = useDeviceSize()
 
-    return () => {
-      clearInterval(interval)
+  useEffect(() => {
+    if (deviceSize !== DeviceSize.MOBILE) {
+      setTimeStr(DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS))
+      const interval = setInterval(() => {
+        setTimeStr(DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS))
+      }, 1000)
+
+      return () => {
+        clearInterval(interval)
+      }
     }
-  }, [])
-  return <CurrentTimeText>{timeStr}</CurrentTimeText>
+    else {
+      setTimeStr('')
+    }
+  }, [deviceSize])
+  return <>
+    {deviceSize !== DeviceSize.MOBILE && <CurrentTimeText>{timeStr}</CurrentTimeText>}
+  </>
 }
