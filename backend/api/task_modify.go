@@ -168,7 +168,7 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 
 	err = taskSourceResult.Source.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "Failed to mark task as complete"})
+		c.JSON(503, gin.H{"detail": "Failed to mark task as complete"})
 		return
 	}
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)

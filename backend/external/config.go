@@ -193,6 +193,7 @@ type TaskSourceDetails struct {
 	Name          string
 	Logo          string
 	IsCompletable bool
+	IsCreatable   bool
 	IsReplyable   bool
 }
 
@@ -200,6 +201,7 @@ var TaskSourceGeneralTask = TaskSourceDetails{
 	TASK_SOURCE_ID_GT_TASK,
 	"General Task",
 	"/images/favicon.ico",
+	true,
 	true,
 	false,
 }
@@ -209,6 +211,7 @@ var TaskSourceGoogleCalendar = TaskSourceDetails{
 	"/images/gcal.svg",
 	false,
 	false,
+	false,
 }
 
 var TaskSourceGmail = TaskSourceDetails{
@@ -216,6 +219,7 @@ var TaskSourceGmail = TaskSourceDetails{
 	"Gmail",
 	"/images/gmail.svg",
 	true,
+	false,
 	true,
 }
 var TaskSourceJIRA = TaskSourceDetails{
@@ -223,5 +227,6 @@ var TaskSourceJIRA = TaskSourceDetails{
 	"Jira",
 	"/images/jira.svg",
 	true,
+	false,
 	false,
 }
