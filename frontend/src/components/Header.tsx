@@ -20,6 +20,7 @@ const Logo = styled.button`
 const HeaderDiv = styled.div` 
   width: 100%;
   display: flex;
+  padding-right: 20px;
   justify-content: space-between;
   align-items: flex-end;
 `
@@ -37,20 +38,19 @@ const Button = styled.button`
 `
 const Logout = styled(Button)`
   color: ${TEXT_BLACK};
-  /* font-weight: 600; */
-  margin-right: 20px;
-  text-align: left;
   &:hover {color: ${TEXT_BLACK_HOVER}};
 `
 const Hamburger = styled.img`
   cursor: pointer;
   width: 32px;
-  margin-right: 20px;
 `
 const DropDown = styled.div`
   display: flex;
   flex-direction: column;
-  padding-left: 40px;
+  padding-right: 20px;
+  & > * {
+    text-align: right;
+  }
 `
 
 const Header: React.FC = () => {

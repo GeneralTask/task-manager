@@ -102,7 +102,7 @@ export enum DeviceSize {
     MOBILE,
     DESKTOP,
 }
-const MOBILE_WIDTH = 768
+const MOBILE_WIDTH = 768 // common mobile width threshold https://www.w3schools.com/css/css_rwd_mediaqueries.asp
 
 // hook that returns whether the device is mobile or desktop
 export const useDeviceSize = (): DeviceSize => {
