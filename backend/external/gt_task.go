@@ -12,8 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const DefaultAccountID string = "default"
-
 type GeneralTaskTaskSource struct{}
 
 func (GeneralTask GeneralTaskTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {

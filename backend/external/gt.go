@@ -6,6 +6,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+const GeneralTaskDefaultAccountID string = "default"
+
 type GeneralTaskService struct{}
 
 func (GeneralTask GeneralTaskService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
