@@ -12,6 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+const DefaultAccountID string = "default"
+
 type GeneralTaskTaskSource struct{}
 
 func (GeneralTask GeneralTaskTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
@@ -34,6 +36,12 @@ func (GeneralTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 
+	log.Println("filter:", bson.M{"$and": []bson.M{
+		{"user_id": userID},
+		{"source_id": TASK_SOURCE_ID_GT_TASK},
+		{"source_account_id": accountID},
+		{"is_completed": false},
+	}})
 	cursor, err := taskCollection.Find(
 		dbCtx,
 		bson.M{"$and": []bson.M{
