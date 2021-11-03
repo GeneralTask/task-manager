@@ -66,11 +66,12 @@ export default function TaskSectionHeader(props: Props): JSX.Element {
 }
 
 function CurrentTime() {
-  const [timeStr, setTimeStr] = useState(DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS))
+  const [timeStr, setTimeStr] = useState('')
   const deviceSize = useDeviceSize()
 
   useEffect(() => {
     if (deviceSize !== DeviceSize.MOBILE) {
+      setTimeStr(DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS))
       const interval = setInterval(() => {
         setTimeStr(DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS))
       }, 1000)
@@ -79,7 +80,10 @@ function CurrentTime() {
         clearInterval(interval)
       }
     }
-  }, [])
+    else {
+      setTimeStr('')
+    }
+  }, [deviceSize])
   return <>
     {deviceSize !== DeviceSize.MOBILE && <CurrentTimeText>{timeStr}</CurrentTimeText>}
   </>
