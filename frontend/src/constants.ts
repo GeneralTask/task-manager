@@ -1,4 +1,9 @@
-export const { REACT_APP_API_BASE_URL, REACT_APP_FRONTEND_BASE_URL, REACT_APP_COOKIE_DOMAIN, ACCESS_CONTROL_ALLOW_ORIGIN } = process.env
+export const {
+    REACT_APP_API_BASE_URL,
+    REACT_APP_FRONTEND_BASE_URL,
+    REACT_APP_COOKIE_DOMAIN,
+    ACCESS_CONTROL_ALLOW_ORIGIN
+} = process.env
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
@@ -28,4 +33,4 @@ export const CHEVRON_DOWN = '/images/chevron-arrow-down.svg'
 //Misc. strings
 export const TASK_STATUS_FETCH_ERROR = 'There was an error fetching tasks'
 export const TASK_STATUS_NO_TASKS = 'No Tasks'
-export const MAX_TASK_BODY_HEIGHT = 300
+export const MAX_TASK_BODY_HEIGHT = 500
