@@ -134,7 +134,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				Body:            event.Description,
 				TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
 				SourceAccountID: accountID,
-				ConferenceCall:  GetConferenceCall(event),
+				ConferenceCall:  GetConferenceCall(event, accountID),
 			},
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
@@ -189,27 +189,30 @@ func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, acco
 func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("Has not been implemented yet")
 }
-func GetConferenceCall(event *calendar.Event) *database.ConferenceCall {
+
+func GetConferenceCall(event *calendar.Event, accountID string) *database.ConferenceCall {
 	// first check for built-in conference URL
+	var conferenceCall *database.ConferenceCall
 	if event.ConferenceData != nil {
 		for _, entryPoint := range event.ConferenceData.EntryPoints {
 			if entryPoint != nil {
-				conference := &database.ConferenceCall{
+				conferenceCall = &database.ConferenceCall{
 					Platform: event.ConferenceData.ConferenceSolution.Name,
 					Logo:     event.ConferenceData.ConferenceSolution.IconUri,
 					URL:      entryPoint.Uri,
 				}
-				return conference
+				break
 			}
 		}
 	}
 	// then check the description for a conference URL
-	if event.Description != "" {
-		conference := utils.GetConferenceUrlFromString(event.Description)
-		if conference != nil {
-			return conference
-		}
+	if conferenceCall == nil && event.Description != "" {
+		conferenceCall = utils.GetConferenceUrlFromString(event.Description)
 	}
 
-	return nil
+	if conferenceCall != nil && strings.Contains(conferenceCall.URL, "meet.google.com") {
+		conferenceCall.URL += "?authuser=" + accountID
+	}
+
+	return conferenceCall
 }

@@ -326,7 +326,7 @@ func TestCalendar(t *testing.T) {
 				SourceID:      TASK_SOURCE_ID_GCAL,
 				UserID:        userID,
 				ConferenceCall: &database.ConferenceCall{
-					URL:      "https://meet.google.com/example-conference-id",
+					URL:      "https://meet.google.com/example-conference-id?authuser=exampleAccountID",
 					Platform: "sample-platform",
 					Logo:     "sample-icon-uri",
 				},
