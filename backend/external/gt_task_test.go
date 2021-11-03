@@ -1,7 +1,6 @@
 package external
 
 import (
-	"log"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -74,7 +73,6 @@ func createTestTask(userID primitive.ObjectID) *database.Task {
 
 func insertTestTasks(t *testing.T, db *mongo.Database, userID primitive.ObjectID, tasks []*database.Task) {
 	for _, task := range tasks {
-		log.Println("inserting task:", task)
 		_, err := database.GetOrCreateTask(
 			db,
 			userID,
