@@ -1,19 +1,19 @@
-import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
-import React, { useState } from 'react'
+import {MAX_TASK_BODY_HEIGHT, TASKS_URL} from '../../constants'
+import React, {useState} from 'react'
 
-import { BORDER_PRIMARY } from '../../helpers/styles'
+import {BORDER_PRIMARY} from '../../helpers/styles'
 import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
-import { TTaskSource } from '../../helpers/types'
-import { makeAuthorizedRequest } from '../../helpers/utils'
+import {TTaskSource} from '../../helpers/types'
+import {makeAuthorizedRequest} from '../../helpers/utils'
 import styled from 'styled-components'
 
 const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
   border: none;
   border-radius: 2px;
   width: 100%;
-  height: ${props => props.iframeHeight + 'px'};
   visibility: hidden;
+  height: ${props => props.iframeHeight + 'px'};
 `
 const BodyDiv = styled.div`
   margin: auto;
@@ -33,101 +33,100 @@ const ReplyDiv = styled.div`
   align-items: flex-end;
 `
 const ReplyInputStyle = {
-  width: '86%',
-  border: `1px solid ${BORDER_PRIMARY}`,
-  borderRadius: '2px',
-  padding: '10px',
-  cursor: 'text',
+    width: '86%',
+    border: `1px solid ${BORDER_PRIMARY}`,
+    borderRadius: '2px',
+    padding: '10px',
+    cursor: 'text',
 }
 
 interface Props {
-  body: string | null,
-  task_id: string,
-  deeplink: string | null,
-  source: TTaskSource,
-  isExpanded: boolean,
+    body: string | null,
+    task_id: string,
+    deeplink: string | null,
+    source: TTaskSource,
+    isExpanded: boolean,
 }
 
 interface BodyHTMLProps {
-  body: string,
-  task_id: string,
+    body: string,
+    task_id: string,
 }
 
 interface ReplyProps {
-  task_id: string
+    task_id: string
 }
 
 
 // no body: no body
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
-const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source, isExpanded }: Props) => {
-  const hasBody = !!(body || deeplink)
-  return (
-    <div>
-      {hasBody && isExpanded && (
+const TaskBody: React.FC<Props> = ({body, task_id, deeplink, source, isExpanded}: Props) => {
+    return (
         <div>
-          {body && (
-            <BodyDiv>
-              <BodyHTML body={body} task_id={task_id} />
-              {source.is_replyable && <Reply task_id={task_id} />}
-            </BodyDiv>
-          )}
-          {deeplink && (
-            <Deeplink>
-              <p>
-                See more in <a href={deeplink} target="_blank">{source.name}</a>
-              </p>
-            </Deeplink>
-          )}
+            {Boolean(body || deeplink) && isExpanded && (
+                <div>
+                    {body && (
+                        <BodyDiv>
+                            <BodyHTML body={body} task_id={task_id}/>
+                            {source.is_replyable && <Reply task_id={task_id}/>}
+                        </BodyDiv>
+                    )}
+                    {deeplink && (
+                        <Deeplink>
+                            <p>
+                                See more in <a href={deeplink} target="_blank">{source.name}</a>
+                            </p>
+                        </Deeplink>
+                    )}
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  )
+    )
 }
 
-const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id }: BodyHTMLProps) => {
-  return <BodyIframe
-    id="expanded-body-html"
-    iframeHeight={MAX_TASK_BODY_HEIGHT}
-    title={'Body for task: ' + task_id}
-    srcDoc={body}
-    onLoad={() => {
-      const iframe: HTMLIFrameElement | null = document.getElementById('expanded-body-html') as HTMLIFrameElement
-      if (iframe && iframe.contentWindow) {
-        const height = Math.min(iframe.contentWindow.document.body.offsetHeight + 15, MAX_TASK_BODY_HEIGHT)
-        iframe.style.height = height + 'px'
-        iframe.style.visibility = 'visible'
-      }
-    }}
-  />
-}
-
-const Reply: React.FC<ReplyProps> = ({ task_id }: ReplyProps) => {
-  const [text, setText] = useState('')
-
-  return <ReplyDiv>
-    <ContentEditable
-      className="reply-input"
-      html={text}
-      style={ReplyInputStyle}
-      onChange={(e) => setText(e.target.value)}
+const BodyHTML: React.FC<BodyHTMLProps> = ({body, task_id}: BodyHTMLProps) => {
+    return <BodyIframe
+        id="expanded-body-html"
+        iframeHeight={MAX_TASK_BODY_HEIGHT}
+        title={'Body for task: ' + task_id}
+        srcDoc={body}
+        onLoad={() => {
+            const iframe: HTMLIFrameElement | null = document.getElementById('expanded-body-html') as HTMLIFrameElement
+            if (iframe && iframe.contentWindow) {
+                const height = Math.min(iframe.contentWindow.document.body.offsetHeight + 200, MAX_TASK_BODY_HEIGHT)
+                iframe.style.height = height + 'px'
+                iframe.style.visibility = 'visible'
+            }
+        }}
     />
-    <GTButton
-      theme="black"
-      height="42px"
-      width="10%"
-      onClick={() => {
-        makeAuthorizedRequest({
-          url: TASKS_URL + 'reply/' + task_id + '/',
-          method: 'POST',
-          body: JSON.stringify({ body: text }),
-        })
-        setText('')
-      }}
-    >
-      Reply</GTButton>
-  </ReplyDiv>
+}
+
+const Reply: React.FC<ReplyProps> = ({task_id}: ReplyProps) => {
+    const [text, setText] = useState('')
+
+    return <ReplyDiv>
+        <ContentEditable
+            className="reply-input"
+            html={text}
+            style={ReplyInputStyle}
+            onChange={(e) => setText(e.target.value)}
+        />
+        <GTButton
+            theme="black"
+            height="42px"
+            width="10%"
+            onClick={() => {
+                makeAuthorizedRequest({
+                    url: TASKS_URL + 'reply/' + task_id + '/',
+                    method: 'POST',
+                    body: JSON.stringify({body: text}),
+                })
+                setText('')
+            }}
+        >
+            Reply</GTButton>
+    </ReplyDiv>
 }
 
 export default TaskBody
