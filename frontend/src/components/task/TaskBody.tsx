@@ -62,7 +62,6 @@ interface ReplyProps {
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
 const TaskBody: React.FC<Props> = ({body, task_id, deeplink, source, isExpanded}: Props) => {
-    // const hasBody = Boolean(body || deeplink)
     return (
         <div>
             {Boolean(body || deeplink) && isExpanded && (
