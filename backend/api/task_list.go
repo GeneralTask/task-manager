@@ -599,7 +599,7 @@ func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskGroup {
 			if len(unscheduledTasks) > 0 || index == 0 {
 				taskGroups = append(taskGroups, &TaskGroup{
 					TaskGroupType: UnscheduledGroup,
-					StartTime:     lastEndTime.String(),
+					StartTime:     lastEndTime.Format(time.RFC3339),
 					Duration:      int64(taskItem.DatetimeStart.Time().Sub(lastEndTime).Seconds()),
 					Tasks:         unscheduledTasks,
 				})
@@ -607,7 +607,7 @@ func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskGroup {
 			}
 			taskGroups = append(taskGroups, &TaskGroup{
 				TaskGroupType: ScheduledTask,
-				StartTime:     taskItem.DatetimeStart.Time().String(),
+				StartTime:     taskItem.DatetimeStart.Time().Format(time.RFC3339),
 				Duration:      int64(taskItem.DatetimeEnd.Time().Sub(taskItem.DatetimeStart.Time()).Seconds()),
 				Tasks:         []*TaskResult{taskBaseToTaskResult(taskItem.TaskBase)},
 			})
@@ -622,7 +622,7 @@ func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskGroup {
 	}
 	taskGroups = append(taskGroups, &TaskGroup{
 		TaskGroupType: UnscheduledGroup,
-		StartTime:     lastEndTime.String(),
+		StartTime:     lastEndTime.Format(time.RFC3339),
 		Duration:      totalDuration / int64(time.Second),
 		Tasks:         unscheduledTasks,
 	})
