@@ -31,11 +31,7 @@ type AsanaAuthToken struct {
 }
 
 type AsanaConfigValues struct {
-	APIBaseURL      *string
-	CloudIDURL      *string
-	TokenURL        *string
-	TransitionURL   *string
-	PriorityListURL *string
+	UserInfoURL *string
 }
 
 type AsanaResponse struct {
@@ -85,6 +81,10 @@ func (Asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 	}
 
 	client := Asana.Config.Client(parentCtx, token)
+	// userInfoURL := "https://api.atlassian.com/oauth/token/accessible-resources"
+	// if atlassian.Config.ConfigValues.CloudIDURL != nil {
+	// 	userInfoURL = *atlassian.Config.ConfigValues.CloudIDURL
+	// }
 	response, err := client.Get("https://app.asana.com/api/1.0/users/1200488949851905")
 	if err != nil {
 		log.Printf("failed to load user info: %v", err)
