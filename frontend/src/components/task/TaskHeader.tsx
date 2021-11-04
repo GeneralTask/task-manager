@@ -1,6 +1,6 @@
 import './Task.css'
 
-import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
+import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY, device } from '../../helpers/styles'
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
 
 import GTButton from '../common/GTButton'
@@ -86,8 +86,10 @@ const Header = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>
   &:hover > div > ${HoverButton} {
     display: inherit;
   }
-  & > div > ${HoverButton} {
-    display: ${props => props.showButtons ? 'inherit' : 'none'};;
+  @media ${device.mobile} {
+    & > div > ${HoverButton} {
+      display: ${props => props.showButtons ? 'inherit' : 'none'};;
+    }
   }
   &:hover > div > ${NoWrap} {
     display: none;
