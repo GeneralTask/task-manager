@@ -69,12 +69,13 @@ const Preference: React.FC<Props> = ({ setting }: Props) => {
     )
 }
 
-const changeSetting = (field_key: string, choice_key: string) => {
-    makeAuthorizedRequest({
+const changeSetting = async (field_key: string, choice_key: string) => {
+    await makeAuthorizedRequest({
         url: SETTINGS_URL,
         method: 'PATCH',
         body: `{"${field_key}":"${choice_key}"}`,
     })
+    await fetchSettings()
 }
 
 export default connect(

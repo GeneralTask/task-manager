@@ -1,11 +1,11 @@
-import {MAX_TASK_BODY_HEIGHT, TASKS_URL} from '../../constants'
-import React, {useState} from 'react'
+import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
+import React, { useState } from 'react'
+import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
 
-import {BORDER_PRIMARY} from '../../helpers/styles'
+import { BORDER_PRIMARY } from '../../helpers/styles'
 import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
-import {TTaskSource} from '../../helpers/types'
-import {makeAuthorizedRequest} from '../../helpers/utils'
+import { TTaskSource } from '../../helpers/types'
 import styled from 'styled-components'
 
 const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
@@ -61,15 +61,15 @@ interface ReplyProps {
 // no body: no body
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
-const TaskBody: React.FC<Props> = ({body, task_id, deeplink, source, isExpanded}: Props) => {
+const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source, isExpanded }: Props) => {
     return (
         <div>
             {Boolean(body || deeplink) && isExpanded && (
                 <div>
                     {body && (
                         <BodyDiv>
-                            <BodyHTML body={body} task_id={task_id}/>
-                            {source.is_replyable && <Reply task_id={task_id}/>}
+                            <BodyHTML body={body} task_id={task_id} />
+                            {source.is_replyable && <Reply task_id={task_id} />}
                         </BodyDiv>
                     )}
                     {deeplink && (
@@ -85,7 +85,7 @@ const TaskBody: React.FC<Props> = ({body, task_id, deeplink, source, isExpanded}
     )
 }
 
-const BodyHTML: React.FC<BodyHTMLProps> = ({body, task_id}: BodyHTMLProps) => {
+const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id }: BodyHTMLProps) => {
     return <BodyIframe
         id="expanded-body-html"
         iframeHeight={MAX_TASK_BODY_HEIGHT}
@@ -102,7 +102,7 @@ const BodyHTML: React.FC<BodyHTMLProps> = ({body, task_id}: BodyHTMLProps) => {
     />
 }
 
-const Reply: React.FC<ReplyProps> = ({task_id}: ReplyProps) => {
+const Reply: React.FC<ReplyProps> = ({ task_id }: ReplyProps) => {
     const [text, setText] = useState('')
 
     return <ReplyDiv>
@@ -120,9 +120,10 @@ const Reply: React.FC<ReplyProps> = ({task_id}: ReplyProps) => {
                 makeAuthorizedRequest({
                     url: TASKS_URL + 'reply/' + task_id + '/',
                     method: 'POST',
-                    body: JSON.stringify({body: text}),
+                    body: JSON.stringify({ body: text }),
                 })
                 setText('')
+                fetchTasks()
             }}
         >
             Reply</GTButton>
