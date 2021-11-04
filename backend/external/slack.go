@@ -70,9 +70,14 @@ func (Slack SlackService) HandleLinkCallback(params CallbackParams, userID primi
 		dbCtx,
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_SLACK}}},
 		bson.M{"$set": &database.ExternalAPIToken{
-			UserID:    userID,
-			ServiceID: TASK_SERVICE_ID_SLACK,
-			Token:     string(tokenString)}},
+			UserID:         userID,
+			ServiceID:      TASK_SERVICE_ID_SLACK,
+			Token:          string(tokenString),
+			AccountID:      "todo",
+			DisplayID:      "todo",
+			IsUnlinkable:   true,
+			IsPrimaryLogin: false,
+		}},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
@@ -87,5 +92,5 @@ func (Slack SlackService) HandleSignupCallback(params CallbackParams) (primitive
 }
 
 func (Slack SlackService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("Has not been implemented yet")
+	return errors.New("has not been implemented yet")
 }

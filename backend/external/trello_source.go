@@ -2,6 +2,7 @@ package external
 
 import (
 	"errors"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -29,5 +30,5 @@ type TrelloCard struct {
 }
 
 func (Trello TrelloService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("Has not been implemented yet")
+	return errors.New("has not been implemented yet")
 }

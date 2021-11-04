@@ -187,7 +187,7 @@ func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, acco
 }
 
 func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("Has not been implemented yet")
+	return errors.New("has not been implemented yet")
 }
 
 func GetConferenceCall(event *calendar.Event, accountID string) *database.ConferenceCall {

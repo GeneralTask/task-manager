@@ -10,7 +10,6 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -196,15 +195,7 @@ func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string,
 	err = externalAPITokenCollection.FindOne(dbCtx, bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": serviceID}}}).Decode(&externalToken)
 	assert.NoError(t, err)
 	assert.Equal(t, serviceID, externalToken.ServiceID)
-
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), count)
-	var jiraToken database.ExternalAPIToken
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = externalAPITokenCollection.FindOne(dbCtx, bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": external.TASK_SERVICE_ID_ATLASSIAN}}}).Decode(&jiraToken)
-	assert.NoError(t, err)
-	assert.Equal(t, external.TASK_SERVICE_ID_ATLASSIAN, jiraToken.ServiceID)
-	assert.Equal(t, "teslatothemoon42069", jiraToken.AccountID)
-	assert.Equal(t, "The dungeon", jiraToken.DisplayID)
+	assert.True(t, len(externalToken.AccountID) > 0)
+	assert.True(t, len(externalToken.DisplayID) > 0)
+	assert.True(t, len(externalToken.Token) > 0)
 }

@@ -50,7 +50,7 @@ func getAsanaConfig() *OauthConfig {
 	return &OauthConfig{Config: &oauth2.Config{
 		ClientID:     config.GetConfigValue("ASANA_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("ASANA_OAUTH_CLIENT_SECRET"),
-		RedirectURL:  config.GetConfigValue("SERVER_URL") + "link/asana/callback",
+		RedirectURL:  config.GetConfigValue("SERVER_URL") + "link/asana/callback/",
 		Scopes:       []string{},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://app.asana.com/-/oauth_authorize",
