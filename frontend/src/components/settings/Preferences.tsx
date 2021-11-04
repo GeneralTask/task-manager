@@ -1,12 +1,13 @@
-import React from 'react'
-import { useEffect } from 'react'
-import { connect, useSelector } from 'react-redux'
-import styled from 'styled-components'
-import { SETTINGS_URL } from '../../constants'
 import { TSetting, TSettingChoice } from '../../helpers/types'
+import { connect, useSelector } from 'react-redux'
+import store, { RootState } from '../../redux/store'
+
+import React from 'react'
+import { SETTINGS_URL } from '../../constants'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import { setSettings } from '../../redux/actions'
-import store, { RootState } from '../../redux/store'
+import styled from 'styled-components'
+import { useEffect } from 'react'
 
 const PreferenceDiv = styled.div`
   margin: auto;
@@ -31,7 +32,7 @@ interface Props {
     setting: TSetting
 }
 
-const fetchSettings = async () => {
+export const fetchSettings = async (): Promise<void> => {
     const response = await makeAuthorizedRequest({
         url: SETTINGS_URL,
         method: 'GET',

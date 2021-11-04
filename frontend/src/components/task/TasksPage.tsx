@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react'
 import { connect, useSelector } from 'react-redux'
-import { fetchTasks } from '../../helpers/utils'
-import { RootState } from '../../redux/store'
 
+import { RootState } from '../../redux/store'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
+import { fetchSettings } from '../settings/Preferences'
+import { fetchTasks } from '../../helpers/utils'
 import styled from 'styled-components'
 
 const Header = styled.div`
@@ -16,6 +17,7 @@ const Header = styled.div`
 function TasksPage(): JSX.Element {
     const task_sections = useSelector((state: RootState) => state.task_sections)
     useEffect(() => {
+        fetchSettings() // fetch settings once on tasks page load
         fetchTasks()
         const interval: NodeJS.Timeout = setInterval(fetchTasks, 1000 * 60)
         return () => {
