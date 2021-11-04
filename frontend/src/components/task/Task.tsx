@@ -9,6 +9,8 @@ import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import styled from 'styled-components'
+import { useDrag } from 'react-dnd'
+import { ItemTypes } from '../../helpers/utils'
 
 const Container = styled.div`
   padding: 0;
@@ -32,14 +34,22 @@ interface Props {
 const Task: React.FC<Props> = ({ task, datetimeStart, isDragDisabled }: Props) => {
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   const isExpanded = expanded_body === task.id
+  const [{opacity}, drag, dragPreview] = useDrag(() => ({
+    type: ItemTypes.TASK,
+    collect: monitor => ({
+      opacity: monitor.isDragging() ? 0.5 : 1
+    })
+  }))
+
   return (
-    <DraggableContainer>
+    <DraggableContainer style={{opacity}} ref={dragPreview}>
       <Container>
         <TaskHeader
           task={task}
           datetimeStart={datetimeStart}
           isDragDisabled={isDragDisabled}
           isExpanded={isExpanded}
+          ref={drag}
         />
         <TaskBody
           body={task.body}

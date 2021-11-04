@@ -2,6 +2,8 @@ import React, { useEffect } from 'react'
 import { connect, useSelector } from 'react-redux'
 import { fetchTasks } from '../../helpers/utils'
 import { RootState } from '../../redux/store'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
@@ -32,13 +34,13 @@ function TasksPage(): JSX.Element {
     )
 
     return (
-        <div>
+        <DndProvider backend={HTML5Backend}>
             <Header>
                 Tasks
             </Header>
             <TaskStatus />
             {TaskSectionElements}
-        </div>
+        </DndProvider>
     )
 }
 

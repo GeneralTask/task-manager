@@ -123,3 +123,8 @@ export const useDeviceSize = (): DeviceSize => {
     }, [])
     return deviceSize
 }
+
+// React-DND Item Types
+export const ItemTypes = {
+    TASK: 'task'
+}

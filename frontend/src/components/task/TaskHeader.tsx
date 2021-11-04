@@ -104,7 +104,7 @@ interface Props {
   isExpanded: boolean,
 }
 
-const TaskHeader: React.FC<Props> = (props: Props) => {
+const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) => {
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   const countdown = useCountdown(props.datetimeStart)
 
@@ -120,11 +120,11 @@ const TaskHeader: React.FC<Props> = (props: Props) => {
     <Header hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
       <HeaderLeft>
         {props.isDragDisabled ?
-          <Spacer >
+          <Spacer ref={ref}>
             <Domino src="images/domino.svg" alt="" />
           </Spacer>
           :
-          <DragSection >
+          <DragSection ref={ref}>
             <Domino src="images/domino.svg" alt="" />
           </DragSection>
         }
@@ -156,7 +156,7 @@ const TaskHeader: React.FC<Props> = (props: Props) => {
       </HeaderRight>
     </Header>
   )
-}
+})
 
 const done = async (task_id: string) => {
   try {
