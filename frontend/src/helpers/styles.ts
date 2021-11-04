@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 export const device = {
-  mobile: '(min-width: 320px)',
+  mobile: '(min-width: 768px)',
   tablet: '(min-width: 1280px)',
   laptop: '(min-width: 1324px)',
   desktop: '(min-width: 2560px)',
