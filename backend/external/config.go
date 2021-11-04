@@ -7,12 +7,14 @@ import (
 )
 
 const (
+	TASK_SERVICE_ID_ASANA     = "asana"
 	TASK_SERVICE_ID_ATLASSIAN = "atlassian"
 	TASK_SERVICE_ID_GT        = "gt"
 	TASK_SERVICE_ID_GOOGLE    = "google"
 	TASK_SERVICE_ID_SLACK     = "slack"
 	TASK_SERVICE_ID_TRELLO    = "trello"
 
+	TASK_SOURCE_ID_ASANA   = "asana_task"
 	TASK_SOURCE_ID_GCAL    = "gcal"
 	TASK_SOURCE_ID_GT_TASK = "gt_task"
 	TASK_SOURCE_ID_GMAIL   = "gmail"
@@ -24,6 +26,7 @@ type Config struct {
 	GoogleAuthorizeConfig OauthConfigWrapper
 	Slack                 OauthConfigWrapper
 	Trello                *oauth1.Config
+	Asana                 OauthConfigWrapper
 	GoogleOverrideURLs    GoogleURLOverrides
 	Atlassian             AtlassianConfig
 }
@@ -34,6 +37,7 @@ func GetConfig() Config {
 		GoogleAuthorizeConfig: getGoogleLinkConfig(),
 		Slack:                 getSlackConfig(),
 		Trello:                getTrelloConfig(),
+		Asana:                 getAsanaConfig(),
 		Atlassian:             AtlassianConfig{OauthConfig: getAtlassianOauthConfig()},
 	}
 }
@@ -74,6 +78,7 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 		LinkConfig:   config.GoogleAuthorizeConfig,
 		OverrideURLs: config.GoogleOverrideURLs,
 	}
+	asanaService := AsanaService{Config: config.Asana}
 	return map[string]TaskSourceResult{
 		TASK_SOURCE_ID_GCAL: {
 			Details: TaskSourceGoogleCalendar,
@@ -91,10 +96,15 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 			Details: TaskSourceJIRA,
 			Source:  JIRASource{Atlassian: atlassianService},
 		},
+		TASK_SOURCE_ID_ASANA: {
+			Details: TaskSourceAsana,
+			Source:  AsanaTaskSource{Asana: asanaService},
+		},
 	}
 }
 
 func (config Config) GetNameToService() map[string]TaskServiceResult {
+	asanaService := AsanaService{Config: config.Asana}
 	atlassianService := AtlassianService{Config: config.Atlassian}
 	googleService := GoogleService{
 		LoginConfig:  config.GoogleLoginConfig,
@@ -129,6 +139,11 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 			Service: TrelloService{Config: config.Trello},
 			Details: TaskServiceTrello,
 			Sources: []TaskSource{},
+		},
+		TASK_SERVICE_ID_ASANA: {
+			Service: asanaService,
+			Details: TaskServiceAsana,
+			Sources: []TaskSource{AsanaTaskSource{Asana: asanaService}},
 		},
 	}
 }
@@ -187,6 +202,14 @@ var TaskServiceTrello = TaskServiceDetails{
 	false,
 	false,
 }
+var TaskServiceAsana = TaskServiceDetails{
+	TASK_SERVICE_ID_ASANA,
+	"Asana",
+	"/images/asana.svg",
+	AuthTypeOauth2,
+	true,
+	false,
+}
 
 type TaskSourceDetails struct {
 	ID            string
@@ -226,6 +249,14 @@ var TaskSourceJIRA = TaskSourceDetails{
 	TASK_SOURCE_ID_JIRA,
 	"Jira",
 	"/images/jira.svg",
+	true,
+	false,
+	false,
+}
+var TaskSourceAsana = TaskSourceDetails{
+	TASK_SOURCE_ID_ASANA,
+	"Asana",
+	"/images/asana.svg",
 	true,
 	false,
 	false,

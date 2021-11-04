@@ -8,6 +8,7 @@ export const {
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
 export const TASKS_MODIFY_URL = REACT_APP_API_BASE_URL + '/tasks/modify/'
+export const ASANA_URL = REACT_APP_API_BASE_URL + '/link/asana/'
 export const JIRA_URL = REACT_APP_API_BASE_URL + '/link/jira/'
 export const LOGIN_URL = REACT_APP_API_BASE_URL + '/login/'
 export const LOGOUT_URL = REACT_APP_API_BASE_URL + '/logout/'

@@ -144,9 +144,12 @@ func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID pri
 			{"account_id": userInfo.EMAIL},
 			{"is_primary_login": true},
 		}})
+	if err != nil {
+		return err
+	}
 
 	if count > 0 {
-		return errors.New("Already exists as primary")
+		return errors.New("already exists as primary")
 	}
 
 	_, err = externalAPITokenCollection.UpdateOne(
@@ -167,6 +170,10 @@ func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID pri
 		}},
 		options.Update().SetUpsert(true),
 	)
+	if err != nil {
+		log.Printf("failed to fetch token from google: %v", err)
+		return err
+	}
 	return nil
 }
 

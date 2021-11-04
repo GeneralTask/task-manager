@@ -232,7 +232,9 @@ func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string,
 
 	var gmailService *gmail.Service
 	if Gmail.Google.OverrideURLs.GmailModifyURL == nil {
-		gmailService, err = gmail.New(client)
+		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		defer cancel()
+		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
 	} else {
 		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
@@ -454,5 +456,5 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 }
 
 func (Gmail GmailSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("Has not been implemented yet")
+	return errors.New("has not been implemented yet")
 }

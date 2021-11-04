@@ -375,5 +375,5 @@ func (JIRA JIRASource) Reply(userID primitive.ObjectID, accountID string, taskID
 }
 
 func (JIRA JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("Has not been implemented yet")
+	return errors.New("has not been implemented yet")
 }

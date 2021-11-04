@@ -1,4 +1,4 @@
-import { CHEVRON_DOWN, JIRA_URL, LOGIN_URL, SUPPORTED_TYPES_URL } from '../../constants'
+import { CHEVRON_DOWN, JIRA_URL, ASANA_URL, LOGIN_URL, SUPPORTED_TYPES_URL } from '../../constants'
 import React, { useEffect, useRef, useState } from 'react'
 import { BACKGROUND_HOVER, BORDER_PRIMARY } from '../../helpers/styles'
 
@@ -107,6 +107,11 @@ const fetchSupportedTypes = async (
                 authorization_url: JIRA_URL,
                 name: 'Jira',
                 logo: '/images/jira.svg'
+            },
+            {
+                authorization_url: ASANA_URL,
+                name: 'Asana',
+                logo: '/images/asana.svg'
             }
         ])
     }
