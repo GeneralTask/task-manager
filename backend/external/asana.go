@@ -81,11 +81,11 @@ func (Asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 	}
 
 	client := Asana.Config.Client(parentCtx, token)
-	// userInfoURL := "https://api.atlassian.com/oauth/token/accessible-resources"
-	// if atlassian.Config.ConfigValues.CloudIDURL != nil {
-	// 	userInfoURL = *atlassian.Config.ConfigValues.CloudIDURL
-	// }
-	response, err := client.Get("https://app.asana.com/api/1.0/users/1200488949851905")
+	userInfoURL := "https://app.asana.com/api/1.0/users/me"
+	if Asana.ConfigValues.UserInfoURL != nil {
+		userInfoURL = *Asana.ConfigValues.UserInfoURL
+	}
+	response, err := client.Get(userInfoURL)
 	if err != nil {
 		log.Printf("failed to load user info: %v", err)
 		return err
