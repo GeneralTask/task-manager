@@ -98,7 +98,7 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 		},
 		TASK_SOURCE_ID_ASANA: {
 			Details: TaskSourceAsana,
-			Source:  AsanaSource{Asana: asanaService},
+			Source:  AsanaTaskSource{Asana: asanaService},
 		},
 	}
 }
@@ -143,7 +143,7 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 		TASK_SERVICE_ID_ASANA: {
 			Service: asanaService,
 			Details: TaskServiceAsana,
-			Sources: []TaskSource{AsanaSource{Asana: asanaService}},
+			Sources: []TaskSource{AsanaTaskSource{Asana: asanaService}},
 		},
 	}
 }

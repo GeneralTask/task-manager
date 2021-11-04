@@ -22,10 +22,6 @@ type AsanaService struct {
 	ConfigValues AsanaConfigValues
 }
 
-type AsanaSource struct {
-	Asana AsanaService
-}
-
 type AsanaAuthToken struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
@@ -54,7 +50,7 @@ func getAsanaConfig() *OauthConfig {
 	return &OauthConfig{Config: &oauth2.Config{
 		ClientID:     config.GetConfigValue("ASANA_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("ASANA_OAUTH_CLIENT_SECRET"),
-		RedirectURL:  config.GetConfigValue("SERVER_URL") + "authorize/asana/callback",
+		RedirectURL:  config.GetConfigValue("SERVER_URL") + "link/asana/callback",
 		Scopes:       []string{},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://app.asana.com/-/oauth_authorize",
@@ -145,28 +141,4 @@ func (Asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 
 func (Asana AsanaService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
 	return primitive.NilObjectID, nil, errors.New("asana does not support signup")
-}
-
-func (Asana AsanaSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
-	result <- emptyEmailResult(nil)
-}
-
-func (Asana AsanaSource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
-	result <- emptyCalendarResult(nil)
-}
-
-func (Asana AsanaSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	result <- emptyTaskResult(errors.New("missing authToken or siteConfiguration"))
-}
-
-func (Asana AsanaSource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
-	return errors.New("missing token or siteConfiguration")
-}
-
-func (Asana AsanaSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
-	return errors.New("cannot reply to an asana task")
-}
-
-func (Asana AsanaSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("cannot create new asana task")
 }
