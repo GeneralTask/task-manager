@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"io/ioutil"
 	"log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -79,33 +77,15 @@ func (Asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 		log.Printf("failed to fetch token from Asana: %v", err)
 		return errors.New("internal server error")
 	}
-
-	client := Asana.Config.Client(parentCtx, token)
-	userInfoURL := "https://app.asana.com/api/1.0/users/me"
-	if Asana.ConfigValues.UserInfoURL != nil {
-		userInfoURL = *Asana.ConfigValues.UserInfoURL
+	tokenExtra := token.Extra("data")
+	if tokenExtra == nil {
+		log.Println("missing 'data' from token response")
+		return errors.New("internal server error")
 	}
-	response, err := client.Get(userInfoURL)
-	if err != nil {
-		log.Printf("failed to load user info: %v", err)
-		return err
-	}
-
-	defer response.Body.Close()
-	// var asanaResponse AsanaResponse
-	userInfo := AsanaUserInfo{}
-
-	err = json.NewDecoder(response.Body).Decode(&userInfo)
-	fmt.Println("raw response", response)
-	body, e := ioutil.ReadAll(response.Body)
-	if e != nil {
-		fmt.Println("err")
-	}
-	fmt.Println("reponse: ", body)
-	fmt.Println("userInfo", userInfo)
-	if err != nil {
-		log.Printf("failed to load decode user info: %v", err)
-		return err
+	accountEmail, ok := tokenExtra.(map[string]interface{})["email"]
+	if !ok {
+		log.Println("missing 'email' in 'data' from token response")
+		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
@@ -124,8 +104,8 @@ func (Asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 			UserID:         userID,
 			ServiceID:      TASK_SERVICE_ID_ASANA,
 			Token:          string(tokenString),
-			AccountID:      userInfo.Email,
-			DisplayID:      userInfo.Name,
+			AccountID:      accountEmail.(string),
+			DisplayID:      accountEmail.(string),
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
 		}},
