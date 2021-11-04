@@ -1,15 +1,21 @@
 package api
 
 import (
+	"bytes"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateTask(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
 	authToken := login("approved@generaltask.io", "")
 	router := GetRouter(GetAPI())
 
@@ -52,6 +58,50 @@ func TestCreateTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"Invalid or missing parameter.\"}", string(body))
 	})
-	t.Run("WrongAccountID", func(t *testing.T) {})
-	t.Run("Success", func(t *testing.T) {})
+	t.Run("WrongAccountID", func(t *testing.T) {
+		// this currently isn't possible because only GT tasks are supported, but we should add this when it's possible
+	})
+	t.Run("SuccessTitleOnly", func(t *testing.T) {
+		authToken := login("create_task_success_title_only@generaltask.io", "")
+		userID := getUserIDFromAuthToken(t, db, authToken)
+
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/create/gt_task/",
+			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		tasks, err := database.GetActiveTasks(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*tasks))
+		task := (*tasks)[0]
+		assert.Equal(t, "buy more dogecoin", task.Title)
+		assert.Equal(t, "", task.Body)
+		// 1 hour is the default
+		assert.Equal(t, int64(3600000000000), task.TimeAllocation)
+	})
+	t.Run("Success", func(t *testing.T) {
+		authToken := login("create_task_success@generaltask.io", "")
+		userID := getUserIDFromAuthToken(t, db, authToken)
+
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/create/gt_task/",
+			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		tasks, err := database.GetActiveTasks(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*tasks))
+		task := (*tasks)[0]
+		assert.Equal(t, "buy more dogecoin", task.Title)
+		assert.Equal(t, "seriously!", task.Body)
+		assert.Equal(t, int64(300000000000), task.TimeAllocation)
+	})
 }

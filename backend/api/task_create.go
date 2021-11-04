@@ -14,10 +14,11 @@ import (
 )
 
 type TaskCreateParams struct {
-	Title     string     `json:"title" binding:"required"`
-	Body      string     `json:"body"`
-	DueDate   *time.Time `json:"due_date"`
-	AccountID string     `json:"account_id"`
+	AccountID    string     `json:"account_id"`
+	Title        string     `json:"title" binding:"required"`
+	Body         string     `json:"body"`
+	DueDate      *time.Time `json:"due_date"`
+	TimeDuration *int       `json:"time_duration"`
 }
 
 func (api *API) TaskCreate(c *gin.Context) {
@@ -34,6 +35,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 	var taskCreateParams TaskCreateParams
 	err = c.BindJSON(&taskCreateParams)
 	if err != nil {
+		log.Println("OOPSIE", err)
 		c.JSON(400, gin.H{"detail": "Invalid or missing parameter."})
 		return
 	}
@@ -69,10 +71,16 @@ func (api *API) TaskCreate(c *gin.Context) {
 		taskCreateParams.AccountID = external.GeneralTaskDefaultAccountID
 	}
 
+	var timeAllocation *int64
+	if taskCreateParams.TimeDuration != nil {
+		timeAllocationTemp := (time.Duration(*taskCreateParams.TimeDuration) * time.Second).Nanoseconds()
+		timeAllocation = &timeAllocationTemp
+	}
 	taskCreationObject := external.TaskCreationObject{
-		Title:   taskCreateParams.Title,
-		Body:    taskCreateParams.Body,
-		DueDate: taskCreateParams.DueDate,
+		Title:          taskCreateParams.Title,
+		Body:           taskCreateParams.Body,
+		DueDate:        taskCreateParams.DueDate,
+		TimeAllocation: timeAllocation,
 	}
 	err = taskSourceResult.Source.CreateNewTask(userID, taskCreateParams.AccountID, taskCreationObject)
 	if err != nil {
