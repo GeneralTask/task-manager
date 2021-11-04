@@ -1,7 +1,6 @@
 import { ScheduledTask, UnscheduledTaskGroup } from './TaskWrappers'
 import { TTaskGroup, TTaskGroupType, TTaskSection } from '../../helpers/types'
 
-import { Droppable } from 'react-beautiful-dnd'
 import React from 'react'
 import TaskSectionHeader from './TaskSectionHeader'
 import { flex } from '../../helpers/styles'
@@ -41,33 +40,17 @@ export default function TaskSection(props: Props): JSX.Element {
                 if (group.tasks && !group.tasks.length) {
                     return (<flex.flex key={index}>
                         <TaskWrapperSides />
-                        <Droppable droppableId={`ts-${props.task_section_index}-tg-${index}`} isDropDisabled={group.type === TTaskGroupType.SCHEDULED_TASK}>
-                            {provided => {
-                                return <div ref={provided.innerRef} {...provided.droppableProps}>
-                                    {provided.placeholder}
-                                </div>
-                            }}
-                        </Droppable>
                     </flex.flex>)
                 }
-                else {
-                    return (
-                        <div key={index}>
-                            <Droppable droppableId={`ts-${props.task_section_index}-tg-${index}`} isDropDisabled={group.type === TTaskGroupType.SCHEDULED_TASK}>
-                                {provided => {
-                                    return <div ref={provided.innerRef} {...provided.droppableProps}>
-                                        {group.tasks.length > 0 &&
-                                            <TaskGroup
-                                                taskGroup={group}
-                                                showTimeAnnotations={props.task_section.is_today}
-                                            />}
-                                        {provided.placeholder}
-                                    </div>
-                                }}
-                            </Droppable>
-                        </div>
-                    )
-                }
+                return (
+                    <div key={index}>
+                        {
+                            group.tasks.length > 0 &&
+                            <TaskGroup taskGroup={group}
+                                showTimeAnnotations={props.task_section.is_today}/>
+                        }  
+                    </div>
+                )
             })
         }
     </>

@@ -1,6 +1,5 @@
 import './Task.css'
 
-import { Draggable, DraggableProvided } from 'react-beautiful-dnd'
 import { connect, useSelector } from 'react-redux'
 
 import { BORDER_PRIMARY } from '../../helpers/styles'
@@ -35,31 +34,23 @@ const Task: React.FC<Props> = ({ task, datetimeStart, taskGroupIndex, isDragDisa
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   const isExpanded = expanded_body === task.id
   return (
-    <Draggable draggableId={task.id} index={taskGroupIndex} isDragDisabled={isDragDisabled}>
-      {(provided: DraggableProvided) => (
-        <DraggableContainer
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-        >
-          <Container>
-            <TaskHeader
-              task={task}
-              datetimeStart={datetimeStart}
-              provided={provided}
-              isDragDisabled={isDragDisabled}
-              isExpanded={isExpanded}
-            />
-            <TaskBody
-              body={task.body}
-              task_id={task.id}
-              deeplink={task.deeplink}
-              source={task.source}
-              isExpanded={isExpanded}
-            />
-          </Container>
-        </DraggableContainer>
-      )}
-    </Draggable>
+    <DraggableContainer>
+      <Container>
+        <TaskHeader
+          task={task}
+          datetimeStart={datetimeStart}
+          isDragDisabled={isDragDisabled}
+          isExpanded={isExpanded}
+        />
+        <TaskBody
+          body={task.body}
+          task_id={task.id}
+          deeplink={task.deeplink}
+          source={task.source}
+          isExpanded={isExpanded}
+        />
+      </Container>
+    </DraggableContainer>
   )
 }
 

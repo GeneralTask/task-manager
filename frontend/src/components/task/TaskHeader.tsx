@@ -3,7 +3,6 @@ import './Task.css'
 import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
 
-import { DraggableProvided } from 'react-beautiful-dnd'
 import GTButton from '../common/GTButton'
 import JoinConferenceButton from './JoinConferenceButton'
 import React from 'react'
@@ -101,7 +100,6 @@ const Header = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>
 interface Props {
   task: TTask,
   datetimeStart: string | null, // null if unscheduled_task
-  provided: DraggableProvided,
   isDragDisabled: boolean,
   isExpanded: boolean,
 }
@@ -122,11 +120,11 @@ const TaskHeader: React.FC<Props> = (props: Props) => {
     <Header hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
       <HeaderLeft>
         {props.isDragDisabled ?
-          <Spacer {...props.provided.dragHandleProps} >
+          <Spacer >
             <Domino src="images/domino.svg" alt="" />
           </Spacer>
           :
-          <DragSection {...props.provided.dragHandleProps}>
+          <DragSection >
             <Domino src="images/domino.svg" alt="" />
           </DragSection>
         }
