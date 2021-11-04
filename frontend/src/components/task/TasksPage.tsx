@@ -5,7 +5,6 @@ import { RootState } from '../../redux/store'
 
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
-import _ from 'lodash'
 import styled from 'styled-components'
 
 const Header = styled.div`

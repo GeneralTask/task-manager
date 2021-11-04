@@ -25,12 +25,11 @@ const DraggableContainer = styled.div`
 
 interface Props {
   task: TTask,
-  taskGroupIndex: number,
   isDragDisabled: boolean,
   datetimeStart: string | null, // null if unscheduled_task
 }
 
-const Task: React.FC<Props> = ({ task, datetimeStart, taskGroupIndex, isDragDisabled }: Props) => {
+const Task: React.FC<Props> = ({ task, datetimeStart, isDragDisabled }: Props) => {
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   const isExpanded = expanded_body === task.id
   return (
