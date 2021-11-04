@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -80,6 +81,7 @@ func TestCreateTask(t *testing.T) {
 		task := (*tasks)[0]
 		assert.Equal(t, "buy more dogecoin", task.Title)
 		assert.Equal(t, "", task.Body)
+		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 		// 1 hour is the default
 		assert.Equal(t, int64(3600000000000), task.TimeAllocation)
 	})
@@ -103,5 +105,6 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, "buy more dogecoin", task.Title)
 		assert.Equal(t, "seriously!", task.Body)
 		assert.Equal(t, int64(300000000000), task.TimeAllocation)
+		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 	})
 }

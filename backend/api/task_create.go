@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -24,9 +23,7 @@ type TaskCreateParams struct {
 func (api *API) TaskCreate(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	sourceID := c.Param("source_id")
-	log.Println("source_id:", sourceID)
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
-	log.Println(taskSourceResult, err)
 	if err != nil || !taskSourceResult.Details.IsCreatable {
 		Handle404(c)
 		return
@@ -35,7 +32,6 @@ func (api *API) TaskCreate(c *gin.Context) {
 	var taskCreateParams TaskCreateParams
 	err = c.BindJSON(&taskCreateParams)
 	if err != nil {
-		log.Println("OOPSIE", err)
 		c.JSON(400, gin.H{"detail": "Invalid or missing parameter."})
 		return
 	}
