@@ -9,8 +9,11 @@ import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import styled from 'styled-components'
-import { useDrag } from 'react-dnd'
+import { useDrag, useDrop } from 'react-dnd'
 import { ItemTypes } from '../../helpers/types'
+import store from '../../redux/store'
+import { dragDrop, setTasksDragState } from '../../redux/actions'
+import { DragState } from '../../redux/enums'
 
 const Container = styled.div`
   padding: 0;
@@ -31,15 +34,33 @@ interface Props {
   datetimeStart: string | null, // null if unscheduled_task
 }
 
-const Task: React.FC<Props> = ({ task, datetimeStart, isDragDisabled }: Props) => {
+const Task: React.FC<Props> = (props: Props) => {
+  const { task, datetimeStart, isDragDisabled } = props
+  const dragDropRef = React.useRef<HTMLDivElement>(null)
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   const isExpanded = expanded_body === task.id
+
   const [{opacity}, drag, dragPreview] = useDrag(() => ({
     type: ItemTypes.TASK,
-    collect: monitor => ({
-      opacity: monitor.isDragging() ? 0.5 : 1
-    })
+    item: { id: task.id },
+    end: (item, monitor) => {
+      const dropResult: {id: string} | null = monitor.getDropResult()
+      if (dropResult === null || item.id === dropResult.id) return
+      store.dispatch(dragDrop(item, dropResult))
+    },
+    collect: monitor => {
+      const isDragging = !!monitor.isDragging()
+      if (isDragging) setTasksDragState(DragState.isDragging)
+      return { opacity: isDragging ? 0.5 : 1 }
+    }
   }))
+  const [, drop] = useDrop(() => ({
+    accept: ItemTypes.TASK,
+    drop: () => ({
+      id: task.id,
+    }),
+  }))
+  drag(drop(dragDropRef))
 
   return (
     <DraggableContainer style={{opacity}} ref={dragPreview}>
@@ -49,7 +70,7 @@ const Task: React.FC<Props> = ({ task, datetimeStart, isDragDisabled }: Props) =
           datetimeStart={datetimeStart}
           isDragDisabled={isDragDisabled}
           isExpanded={isExpanded}
-          ref={drag}
+          ref={dragDropRef}
         />
         <TaskBody
           body={task.body}
