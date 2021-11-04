@@ -1,12 +1,13 @@
-import React from 'react'
-import { useEffect } from 'react'
-import { connect, useSelector } from 'react-redux'
-import styled from 'styled-components'
-import { SETTINGS_URL } from '../../constants'
 import { TSetting, TSettingChoice } from '../../helpers/types'
+import { connect, useSelector } from 'react-redux'
+import store, { RootState } from '../../redux/store'
+
+import React from 'react'
+import { SETTINGS_URL } from '../../constants'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import { setSettings } from '../../redux/actions'
-import store, { RootState } from '../../redux/store'
+import styled from 'styled-components'
+import { useEffect } from 'react'
 
 const PreferenceDiv = styled.div`
   margin: auto;
@@ -68,12 +69,13 @@ const Preference: React.FC<Props> = ({ setting }: Props) => {
     )
 }
 
-const changeSetting = (field_key: string, choice_key: string) => {
-    makeAuthorizedRequest({
+const changeSetting = async (field_key: string, choice_key: string) => {
+    await makeAuthorizedRequest({
         url: SETTINGS_URL,
         method: 'PATCH',
         body: `{"${field_key}":"${choice_key}"}`,
     })
+    await fetchSettings()
 }
 
 export default connect(
