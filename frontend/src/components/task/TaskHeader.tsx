@@ -2,6 +2,7 @@ import './Task.css'
 
 import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
+import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
 
 import GTButton from '../common/GTButton'
 import JoinConferenceButton from './JoinConferenceButton'
@@ -9,7 +10,6 @@ import React from 'react'
 import { RootState } from '../../redux/store'
 import { TASKS_MODIFY_URL } from '../../constants'
 import { TTask } from '../../helpers/types'
-import { makeAuthorizedRequest } from '../../helpers/utils'
 import store from '../../redux/store'
 import styled from 'styled-components'
 import { useCountdown } from './TaskWrappers'
@@ -168,8 +168,9 @@ const done = async (task_id: string) => {
     })
 
     if (!response.ok) {
-      throw new Error('PATCH /tasks api call failed')
+      throw new Error('PATCH /tasks/modify Mark as Done failed: ' + response.text())
     }
+    await fetchTasks()
   } catch (e) {
     console.log({ e })
   }
