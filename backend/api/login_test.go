@@ -199,6 +199,13 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "approved@generaltask.io", "noice420", false, true)
 	})
+	t.Run("SuccessNewDomain", func(t *testing.T) {
+		stateToken, err := newStateToken("")
+		assert.NoError(t, err)
+		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", *stateToken, *stateToken, false, false)
+		assert.Equal(t, http.StatusFound, recorder.Code)
+		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", false, true)
+	})
 	t.Run("SuccessWaitlist", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()

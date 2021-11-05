@@ -1,4 +1,4 @@
-package config
+package constants
 
 var ALLOWED_USERNAMES = map[string]struct{}{
 	"jasonscharff@gmail.com":  {},
