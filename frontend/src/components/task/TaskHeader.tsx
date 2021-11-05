@@ -101,7 +101,7 @@ const Header = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>
 interface Props {
   task: TTask,
   datetimeStart: string | null, // null if unscheduled_task
-  isDragDisabled: boolean,
+  dragDropDisabled: boolean,
   isExpanded: boolean,
 }
 
@@ -120,7 +120,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
   return (
     <Header hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
       <HeaderLeft>
-        {props.isDragDisabled ?
+        {props.dragDropDisabled ?
           <Spacer ref={ref}>
             <Domino src="images/domino.svg" alt="" />
           </Spacer>

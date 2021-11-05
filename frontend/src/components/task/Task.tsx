@@ -5,7 +5,7 @@ import { connect, useSelector } from 'react-redux'
 import { BORDER_PRIMARY } from '../../helpers/styles'
 import React from 'react'
 import { RootState } from '../../redux/store'
-import { TTask } from '../../helpers/types'
+import { DropResult, TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import styled from 'styled-components'
@@ -30,12 +30,12 @@ const DraggableContainer = styled.div`
 
 interface Props {
   task: TTask,
-  isDragDisabled: boolean,
+  dragDropDisabled: boolean,
   datetimeStart: string | null, // null if unscheduled_task
 }
 
 const Task: React.FC<Props> = (props: Props) => {
-  const { task, datetimeStart, isDragDisabled } = props
+  const { task, datetimeStart, dragDropDisabled } = props
   const previewDropRef = React.useRef<HTMLDivElement>(null)
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   const isExpanded = expanded_body === task.id
@@ -44,8 +44,9 @@ const Task: React.FC<Props> = (props: Props) => {
     type: ItemTypes.TASK,
     item: { id: task.id },
     end: (item, monitor) => {
-      const dropResult: {id: string} | null = monitor.getDropResult()
+      const dropResult: DropResult | null = monitor.getDropResult()
       if (dropResult === null || item.id === dropResult.id) return
+      if (dropResult.dropDisabled) return
       store.dispatch(dragDrop(item, dropResult))
     },
     collect: monitor => {
@@ -58,6 +59,7 @@ const Task: React.FC<Props> = (props: Props) => {
     accept: ItemTypes.TASK,
     drop: () => ({
       id: task.id,
+      dropDisabled: dragDropDisabled
     }),
   }))
   dragPreview(drop(previewDropRef))
@@ -68,7 +70,7 @@ const Task: React.FC<Props> = (props: Props) => {
         <TaskHeader
           task={task}
           datetimeStart={datetimeStart}
-          isDragDisabled={isDragDisabled}
+          dragDropDisabled={dragDropDisabled}
           isExpanded={isExpanded}
           ref={drag}
         />
