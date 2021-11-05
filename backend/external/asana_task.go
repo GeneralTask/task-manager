@@ -19,10 +19,47 @@ func (AsanaTask AsanaTaskSource) GetEvents(userID primitive.ObjectID, accountID 
 }
 
 func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+	// first, get new token using oauth client (see how google does it)
+	// then, get workspace ID: https://app.asana.com/api/1.0/users/me
+	/*
+		{
+			"data": {
+				"gid": "1199950905836463",
+				"email": "john@generaltask.io",
+				"name": "John Reinstra",
+				"photo": null,
+				"resource_type": "user",
+				"workspaces": [
+					{
+						"gid": "1199951001109677",
+						"name": "generaltask.io",
+						"resource_type": "workspace"
+					}
+				]
+			}
+		}
+	*/
+	// sample URL to fetch active tasks for a user:
+	// https://app.asana.com/api/1.0/tasks/?assignee=me&workspace=1199951001109677&completed_since=2022-01-01&opt_fields=this.html_notes,this.name,this.due_at,this.due_on
+	/*
+		{
+			"data": [
+				{
+					"gid": "1201012333089937",
+					"due_at": "2021-11-08T18:00:00.000Z",
+					"due_on": "2021-11-08",
+					"html_notes": "<body></body>",
+					"name": "Asana integration"
+				},
+			]
+		}
+	*/
 	result <- emptyTaskResult(errors.New("missing authToken or siteConfiguration"))
 }
 
 func (AsanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
+	// sample URL: https://app.asana.com/api/1.0/tasks/1201012333089937/
+	// PUT payload: {"data": {"completed": true}}
 	return errors.New("missing token or siteConfiguration")
 }
 
