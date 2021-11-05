@@ -10,7 +10,6 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -50,7 +49,7 @@ func TestAuthorizeCookieBad(t *testing.T, api *API, url string) {
 func TestAuthorizeSuccess(t *testing.T, api *API, url string, expectedResult func(string) string) {
 	router := GetRouter(api)
 	request, _ := http.NewRequest("GET", url, nil)
-	authToken := login("approved@generaltask.io", "")
+	authToken := login("authorize_success@generaltask.com", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
@@ -73,7 +72,7 @@ func TestAuthorizeSuccess(t *testing.T, api *API, url string, expectedResult fun
 func TestAuthorizeCallbackMissingCodeParam(t *testing.T, api *API, url string) {
 	router := GetRouter(api)
 	request, _ := http.NewRequest("GET", url, nil)
-	authToken := login("approved@generaltask.io", "")
+	authToken := login("authorize_missing_code@generaltask.com", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
@@ -90,7 +89,7 @@ func TestAuthorizeCallbackMissingCodeParam(t *testing.T, api *API, url string) {
 func TestAuthorizeCallbackBadStateTokenFormat(t *testing.T, api *API, url string) {
 	router := GetRouter(api)
 	request, _ := http.NewRequest("GET", url+"?code=123abc&state=oopsie", nil)
-	authToken := login("approved@generaltask.io", "")
+	authToken := login("authorize_bad_state_token@generaltask.com", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
@@ -107,7 +106,7 @@ func TestAuthorizeCallbackBadStateTokenFormat(t *testing.T, api *API, url string
 func TestAuthorizeCallbackInvalidStateToken(t *testing.T, api *API, url string) {
 	router := GetRouter(api)
 	request, _ := http.NewRequest("GET", url+"?code=123abc&state=6088e1c97018a22f240aa573", nil)
-	authToken := login("approved@generaltask.io", "")
+	authToken := login("authorize_invalid_state_token@generaltask.com", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
@@ -131,7 +130,7 @@ func TestAuthorizeCallbackStateTokenWrongUser(t *testing.T, api *API, url string
 
 	router := GetRouter(api)
 	request, _ := http.NewRequest("GET", url+"?code=123abc&state="+*stateToken, nil)
-	authToken := login("approved@generaltask.io", "")
+	authToken := login("authorize_wrong_user@generaltask.com", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
@@ -146,7 +145,7 @@ func TestAuthorizeCallbackStateTokenWrongUser(t *testing.T, api *API, url string
 }
 
 func TestAuthorizeCallbackUnsuccessfulResponse(t *testing.T, api *API, url string) {
-	authToken := login("approved@generaltask.io", "")
+	authToken := login("authorize_unsuccessful@generaltask.com", "")
 	stateToken, err := newStateToken(authToken)
 	assert.NoError(t, err)
 
@@ -160,7 +159,7 @@ func TestAuthorizeCallbackUnsuccessfulResponse(t *testing.T, api *API, url strin
 
 func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string, serviceID string) {
 	parentCtx := context.Background()
-	authToken := login("approved@generaltask.io", "")
+	authToken := login("authorize_successful@generaltask.com", "")
 	stateToken, err := newStateToken(authToken)
 	assert.NoError(t, err)
 
@@ -196,15 +195,7 @@ func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string,
 	err = externalAPITokenCollection.FindOne(dbCtx, bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": serviceID}}}).Decode(&externalToken)
 	assert.NoError(t, err)
 	assert.Equal(t, serviceID, externalToken.ServiceID)
-
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), count)
-	var jiraToken database.ExternalAPIToken
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = externalAPITokenCollection.FindOne(dbCtx, bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": external.TASK_SERVICE_ID_ATLASSIAN}}}).Decode(&jiraToken)
-	assert.NoError(t, err)
-	assert.Equal(t, external.TASK_SERVICE_ID_ATLASSIAN, jiraToken.ServiceID)
-	assert.Equal(t, "teslatothemoon42069", jiraToken.AccountID)
-	assert.Equal(t, "The dungeon", jiraToken.DisplayID)
+	assert.True(t, len(externalToken.AccountID) > 0)
+	assert.True(t, len(externalToken.DisplayID) > 0)
+	assert.True(t, len(externalToken.Token) > 0)
 }

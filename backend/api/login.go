@@ -123,7 +123,8 @@ func (api *API) LoginCallback(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	if _, contains := config.ALLOWED_USERNAMES[lowerEmail]; !contains && !strings.HasSuffix(lowerEmail, "@generaltask.io") && count == 0 {
+	isGTUser := strings.HasSuffix(lowerEmail, "@generaltask.com")
+	if _, contains := constants.ALLOWED_USERNAMES[lowerEmail]; !contains && !isGTUser && count == 0 {
 		c.JSON(403, gin.H{"detail": "Email has not been approved."})
 		return
 	}

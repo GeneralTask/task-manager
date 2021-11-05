@@ -314,8 +314,6 @@ func TestGetPriorities(t *testing.T) {
 		defer cancel()
 		cursor, err = prioritiesCollection.Find(dbCtx, bson.M{"user_id": userID}, options)
 		assert.NoError(t, err)
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err = cursor.All(parentCtx, &priorities)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(priorities))

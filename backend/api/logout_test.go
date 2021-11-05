@@ -16,7 +16,7 @@ func TestLogout(t *testing.T) {
 	parentCtx := context.Background()
 
 	t.Run("Logout", func(t *testing.T) {
-		authToken := login("approved@generaltask.io", "")
+		authToken := login("approved@generaltask.com", "")
 
 		db, dbCleanup, err := database.GetDBConnection()
 		assert.NoError(t, err)

@@ -28,7 +28,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:         c1ID,
 				IDExternal: "standard_event",
-				Deeplink:   "generaltask.io",
+				Deeplink:   "generaltask.com",
 				Title:      "Standard Event",
 				SourceID:   external.TASK_SOURCE_ID_GCAL,
 			},
@@ -41,7 +41,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:         c2ID,
 				IDExternal: "standard_event_2",
-				Deeplink:   "generaltask.io",
+				Deeplink:   "generaltask.com",
 				Title:      "Standard Event_2",
 				SourceID:   external.TASK_SOURCE_ID_GCAL,
 			},
@@ -54,7 +54,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:              e1ID,
 				IDExternal:      "sample_email",
-				Deeplink:        "generaltask.io",
+				Deeplink:        "generaltask.com",
 				Title:           "Respond to this email",
 				SourceID:        external.TASK_SOURCE_ID_GMAIL,
 				TimeAllocation:  (time.Minute * 5).Nanoseconds(),
@@ -68,7 +68,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:              e1aID,
 				IDExternal:      "sample_emailA",
-				Deeplink:        "generaltask.io",
+				Deeplink:        "generaltask.com",
 				Title:           "Respond to this email",
 				SourceID:        external.TASK_SOURCE_ID_GMAIL,
 				TimeAllocation:  (time.Minute * 5).Nanoseconds(),
@@ -83,7 +83,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:              e2ID,
 				IDExternal:      "sample_email_2",
-				Deeplink:        "generaltask.io",
+				Deeplink:        "generaltask.com",
 				Title:           "Respond to this email...eventually",
 				SourceID:        external.TASK_SOURCE_ID_GMAIL,
 				TimeAllocation:  (time.Minute * 2).Nanoseconds(),
@@ -98,7 +98,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:              t1ID,
 				IDExternal:      "sample_task",
-				Deeplink:        "generaltask.io",
+				Deeplink:        "generaltask.com",
 				Title:           "Code x",
 				SourceID:        external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:  (time.Hour).Nanoseconds(),
@@ -115,7 +115,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:              t2ID,
 				IDExternal:      "sample_task1",
-				Deeplink:        "generaltask.io",
+				Deeplink:        "generaltask.com",
 				Title:           "Code x",
 				SourceID:        external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:  (time.Hour).Nanoseconds(),
@@ -132,7 +132,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:              t3ID,
 				IDExternal:      "sample_task2",
-				Deeplink:        "generaltask.io",
+				Deeplink:        "generaltask.com",
 				Title:           "Code x",
 				SourceID:        external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:  (time.Hour).Nanoseconds(),
@@ -149,7 +149,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:              t4ID,
 				IDExternal:      "sample_task3",
-				Deeplink:        "generaltask.io",
+				Deeplink:        "generaltask.com",
 				Title:           "Code x",
 				SourceID:        external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:  (time.Hour).Nanoseconds(),
@@ -224,7 +224,7 @@ func TestMergeTasks(t *testing.T) {
 				IDOrdering:       1,
 				HasBeenReordered: true,
 				IDExternal:       "sample_task",
-				Deeplink:         "generaltask.io",
+				Deeplink:         "generaltask.com",
 				Title:            "Code x",
 				SourceID:         external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:   (time.Hour).Nanoseconds(),
@@ -244,7 +244,7 @@ func TestMergeTasks(t *testing.T) {
 				IDOrdering:       5,
 				HasBeenReordered: true,
 				IDExternal:       "sample_task2",
-				Deeplink:         "generaltask.io",
+				Deeplink:         "generaltask.com",
 				Title:            "Code x",
 				SourceID:         external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:   (time.Hour).Nanoseconds(),
@@ -263,7 +263,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering: 3,
 				IDExternal: "standard_event",
-				Deeplink:   "generaltask.io",
+				Deeplink:   "generaltask.com",
 				Title:      "Standard Event",
 				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
@@ -279,7 +279,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering: 4,
 				IDExternal: "standard_event2",
-				Deeplink:   "generaltask.io",
+				Deeplink:   "generaltask.com",
 				Title:      "Standard Event",
 				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
@@ -296,7 +296,7 @@ func TestMergeTasks(t *testing.T) {
 				// IDOrdering = 0 means cal event isn't included in reordering adjustments
 				IDOrdering: 0,
 				IDExternal: "standard_event3",
-				Deeplink:   "generaltask.io",
+				Deeplink:   "generaltask.com",
 				Title:      "Standard Event",
 				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
@@ -347,7 +347,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:     1,
 				IDExternal:     "sample_task",
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -366,7 +366,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:     4,
 				IDExternal:     "sample_task2",
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -385,7 +385,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering: 3,
 				IDExternal: "standard_event",
-				Deeplink:   "generaltask.io",
+				Deeplink:   "generaltask.com",
 				Title:      "Standard Event",
 				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
@@ -401,7 +401,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering: 2,
 				IDExternal: "standard_event2",
-				Deeplink:   "generaltask.io",
+				Deeplink:   "generaltask.com",
 				Title:      "Standard Event",
 				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
@@ -450,7 +450,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:             t1ID,
 				IDExternal:     "sample_task",
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -467,7 +467,7 @@ func TestMergeTasks(t *testing.T) {
 				IDOrdering:       4,
 				HasBeenReordered: true,
 				IDExternal:       "sample_task2",
-				Deeplink:         "generaltask.io",
+				Deeplink:         "generaltask.com",
 				Title:            "Code x",
 				SourceID:         external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:   (time.Hour).Nanoseconds(),
@@ -486,7 +486,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering: 3,
 				IDExternal: "standard_event",
-				Deeplink:   "generaltask.io",
+				Deeplink:   "generaltask.com",
 				Title:      "Standard Event",
 				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
@@ -527,7 +527,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:     1,
 				IDExternal:     "sample_task",
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -547,7 +547,7 @@ func TestMergeTasks(t *testing.T) {
 				IDOrdering:       2,
 				HasBeenReordered: true,
 				IDExternal:       "sample_task2",
-				Deeplink:         "generaltask.io",
+				Deeplink:         "generaltask.com",
 				Title:            "Code x",
 				SourceID:         external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation:   (time.Hour).Nanoseconds(),
@@ -567,7 +567,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:             e1ID,
 				IDExternal:     "sample_email",
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Respond to this email",
 				SourceID:       external.TASK_SOURCE_ID_GMAIL,
 				TimeAllocation: (time.Minute * 5).Nanoseconds(),
@@ -601,7 +601,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:     1,
 				IDExternal:     "sample_task",
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -620,7 +620,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:     2,
 				IDExternal:     "sample_task",
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -640,7 +640,7 @@ func TestMergeTasks(t *testing.T) {
 				//0 ID ordering indicates new task.
 				IDOrdering:     0,
 				IDExternal:     "sample_task",
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -659,7 +659,7 @@ func TestMergeTasks(t *testing.T) {
 				//0 ID ordering indicates new task.
 				IDOrdering:     0,
 				IDExternal:     "sample_task",
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -699,7 +699,7 @@ func TestMergeTasks(t *testing.T) {
 				IDOrdering:     2,
 				IDExternal:     "sample_task",
 				IDTaskSection:  constants.IDTaskSectionBlocked,
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -719,7 +719,7 @@ func TestMergeTasks(t *testing.T) {
 				IDOrdering:     1,
 				IDExternal:     "sample_task2",
 				IDTaskSection:  constants.IDTaskSectionBlocked,
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -739,7 +739,7 @@ func TestMergeTasks(t *testing.T) {
 				IDOrdering:     2,
 				IDExternal:     "sample_task",
 				IDTaskSection:  constants.IDTaskSectionBacklog,
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -759,7 +759,7 @@ func TestMergeTasks(t *testing.T) {
 				IDOrdering:     1,
 				IDExternal:     "sample_task2",
 				IDTaskSection:  constants.IDTaskSectionBacklog,
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -805,7 +805,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:             e1ID,
 				IDExternal:     "sample_email",
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Respond to this email",
 				SourceID:       external.TASK_SOURCE_ID_GMAIL,
 				TimeAllocation: (time.Minute * 5).Nanoseconds(),
@@ -819,7 +819,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				ID:             e2ID,
 				IDExternal:     "sample_email",
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Respond to this email but sent more recently",
 				SourceID:       external.TASK_SOURCE_ID_GMAIL,
 				TimeAllocation: (time.Minute * 5).Nanoseconds(),
@@ -862,7 +862,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:     1,
 				IDExternal:     "sample_task",
-				Deeplink:       "generaltask.io",
+				Deeplink:       "generaltask.com",
 				Title:          "Code x",
 				SourceID:       external.TASK_SOURCE_ID_JIRA,
 				TimeAllocation: (time.Hour).Nanoseconds(),
@@ -881,7 +881,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering: 3,
 				IDExternal: "standard_event",
-				Deeplink:   "generaltask.io",
+				Deeplink:   "generaltask.com",
 				Title:      "Standard Event",
 				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
@@ -897,7 +897,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering: 2,
 				IDExternal: "standard_event2",
-				Deeplink:   "generaltask.io",
+				Deeplink:   "generaltask.com",
 				Title:      "Standard Event",
 				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
@@ -913,7 +913,7 @@ func TestMergeTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering: 2,
 				IDExternal: "standard_event2",
-				Deeplink:   "generaltask.io",
+				Deeplink:   "generaltask.com",
 				Title:      "Standard Event",
 				SourceID:   external.TASK_SOURCE_ID_GCAL,
 				UserID:     userID,
