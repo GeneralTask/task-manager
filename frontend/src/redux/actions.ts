@@ -52,10 +52,11 @@ export function setTasksDragState(dragState: DragState): AnyAction {
     }
 }
 
-export function dragDrop(dragTask: {id: string} | null, dropTask: {id: string} | null): AnyAction {
+export function dragDrop(dragTaskId: string, dropTaskId: string, isLowerHalf: boolean): AnyAction {
     return {
         type: actions.DRAG_DROP,
-        dragTask,
-        dropTask,
+        dragTaskId,
+        dropTaskId,
+        isLowerHalf,
     }
 }

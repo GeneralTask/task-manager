@@ -5,7 +5,7 @@ import { connect, useSelector } from 'react-redux'
 import { BORDER_PRIMARY } from '../../helpers/styles'
 import React from 'react'
 import { RootState } from '../../redux/store'
-import { DropResult, TTask } from '../../helpers/types'
+import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import styled from 'styled-components'
@@ -43,12 +43,6 @@ const Task: React.FC<Props> = (props: Props) => {
   const [{opacity}, drag, dragPreview] = useDrag(() => ({
     type: ItemTypes.TASK,
     item: { id: task.id },
-    end: (item, monitor) => {
-      const dropResult: DropResult | null = monitor.getDropResult()
-      if (dropResult === null || item.id === dropResult.id) return
-      if (dropResult.dropDisabled) return
-      store.dispatch(dragDrop(item, dropResult))
-    },
     collect: monitor => {
       const isDragging = !!monitor.isDragging()
       if (isDragging) setTasksDragState(DragState.isDragging)
@@ -57,10 +51,17 @@ const Task: React.FC<Props> = (props: Props) => {
   }))
   const [, drop] = useDrop(() => ({
     accept: ItemTypes.TASK,
-    drop: () => ({
-      id: task.id,
-      dropDisabled: dragDropDisabled
-    }),
+    drop: (item: { id: string }, monitor) => {
+      if (item.id === task.id || dragDropDisabled) return
+      if (!previewDropRef.current) return
+
+      const boundingRect = previewDropRef.current.getBoundingClientRect()
+      if (boundingRect != null) {
+        const dropMiddleY = (boundingRect.bottom - boundingRect.top) / 2 + boundingRect.top
+        const clientOffsetY = monitor.getClientOffset()?.y
+        store.dispatch(dragDrop(item.id, task.id, !!(clientOffsetY && clientOffsetY > dropMiddleY)))
+      }
+    },
   }))
   dragPreview(drop(previewDropRef))
 
