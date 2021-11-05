@@ -69,3 +69,8 @@ export interface LinkedAccount {
 export const ItemTypes = {
     TASK: 'task'
 }
+
+export interface DropResult {
+    id: string,
+    dropDisabled: boolean
+}
