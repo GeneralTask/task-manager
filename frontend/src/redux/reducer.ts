@@ -77,8 +77,7 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
     
     case actions.DRAG_DROP:
       if (action.dropTask === null) return state
-      if (action.dragTask.id === action.dropTask.id) return state
-
+      if (action.dragTaskId === action.dropTaskId) return state
       task_sections = _.cloneDeep(state.task_sections)
       let dragTaskObject = null
 
@@ -86,7 +85,7 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
       for (const task_section of task_sections) {
         for (const task_group of task_section.task_groups) {
           for (let i = 0; i < task_group.tasks.length; i++) {
-            if (task_group.tasks[i].id === action.dragTask.id) {
+            if (task_group.tasks[i].id === action.dragTaskId) {
               dragTaskObject = task_group.tasks[i]
               task_group.tasks.splice(i, 1)
             }
@@ -98,8 +97,8 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
       for (const task_section of task_sections) {
         for (const task_group of task_section.task_groups) {
           for (let i = 0; i < task_group.tasks.length; i++) {
-            if (task_group.tasks[i].id === action.dropTask.id && dragTaskObject !== null) {
-              task_group.tasks.splice(i, 0, dragTaskObject)
+            if (task_group.tasks[i].id === action.dropTaskId && dragTaskObject !== null) {
+              task_group.tasks.splice(i + action.isLowerHalf, 0, dragTaskObject)
               return {
                 ...state,
                 task_sections
