@@ -36,7 +36,7 @@ interface Props {
 
 const Task: React.FC<Props> = (props: Props) => {
   const { task, datetimeStart, isDragDisabled } = props
-  const dragDropRef = React.useRef<HTMLDivElement>(null)
+  const previewDropRef = React.useRef<HTMLDivElement>(null)
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   const isExpanded = expanded_body === task.id
 
@@ -60,17 +60,17 @@ const Task: React.FC<Props> = (props: Props) => {
       id: task.id,
     }),
   }))
-  drag(drop(dragDropRef))
+  dragPreview(drop(previewDropRef))
 
   return (
-    <DraggableContainer style={{opacity}} ref={dragPreview}>
+    <DraggableContainer style={{opacity}} ref={previewDropRef}>
       <Container>
         <TaskHeader
           task={task}
           datetimeStart={datetimeStart}
           isDragDisabled={isDragDisabled}
           isExpanded={isExpanded}
-          ref={dragDropRef}
+          ref={drag}
         />
         <TaskBody
           body={task.body}
