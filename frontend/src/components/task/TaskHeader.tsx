@@ -70,7 +70,6 @@ const HoverButton = styled.div`
 const Black = styled.span`
   color: ${TEXT_BLACK};
 `
-
 const Header = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
   font-size: 16px;
   display: flex;

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
-import { TTask, TTaskGroup } from '../../helpers/types'
 import { DateTime, Duration } from 'luxon'
-import humanizeDuration from 'humanize-duration'
+import React, { useEffect, useState } from 'react'
+import { TEXT_GRAY, device } from '../../helpers/styles'
+import { TTask, TTaskGroup } from '../../helpers/types'
 
-import { TEXT_GRAY } from '../../helpers/styles'
 import Task from './Task'
+import humanizeDuration from 'humanize-duration'
 import styled from 'styled-components'
 
 const TaskGroup = styled.div`
@@ -15,7 +15,10 @@ const TaskGroup = styled.div`
   position: relative;
 `
 const Tasks = styled.div`
-  width: 60%;
+  width: 70%;
+  @media ${device.mobile}{
+    width: 60%;
+  }
 `
 const UnscheduledSpanbar = styled.div`
   background-color: ${TEXT_GRAY};
@@ -28,11 +31,16 @@ const UnscheduledTimeSpacer = styled.div`
 `
 const TimeAnnotation = styled.div`
   color: ${TEXT_GRAY};
-  width: 15%;
-  margin-left: 10px;
-  margin-right: 10px;
   font-size: 16px;
   font-weight: 600;
+  & > * {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+  width: 15%;
+  @media ${device.mobile}{
+    width: 20%;
+  }
 `
 const AlignRight = styled.div`
   text-align: right;
@@ -68,7 +76,9 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
         />
       </Tasks>
       <TimeAnnotation>
-        {showTimeAnnotations && time}
+        <div>
+          {showTimeAnnotations && time}
+        </div>
       </TimeAnnotation>
     </TaskGroup>
     <Divider />
