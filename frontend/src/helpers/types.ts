@@ -64,3 +64,8 @@ export interface LinkedAccount {
     logo: string,
     is_unlinkable: boolean
 }
+
+// React-DND Item Types
+export const ItemTypes = {
+    TASK: 'task'
+}

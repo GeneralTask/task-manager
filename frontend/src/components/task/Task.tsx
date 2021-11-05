@@ -10,7 +10,7 @@ import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import styled from 'styled-components'
 import { useDrag } from 'react-dnd'
-import { ItemTypes } from '../../helpers/utils'
+import { ItemTypes } from '../../helpers/types'
 
 const Container = styled.div`
   padding: 0;
