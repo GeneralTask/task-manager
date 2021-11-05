@@ -49,7 +49,7 @@ func TestAuthorizeCookieBad(t *testing.T, api *API, url string) {
 func TestAuthorizeSuccess(t *testing.T, api *API, url string, expectedResult func(string) string) {
 	router := GetRouter(api)
 	request, _ := http.NewRequest("GET", url, nil)
-	authToken := login("authorize_success@generaltask.io", "")
+	authToken := login("authorize_success@generaltask.com", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
@@ -72,7 +72,7 @@ func TestAuthorizeSuccess(t *testing.T, api *API, url string, expectedResult fun
 func TestAuthorizeCallbackMissingCodeParam(t *testing.T, api *API, url string) {
 	router := GetRouter(api)
 	request, _ := http.NewRequest("GET", url, nil)
-	authToken := login("authorize_missing_code@generaltask.io", "")
+	authToken := login("authorize_missing_code@generaltask.com", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
@@ -89,7 +89,7 @@ func TestAuthorizeCallbackMissingCodeParam(t *testing.T, api *API, url string) {
 func TestAuthorizeCallbackBadStateTokenFormat(t *testing.T, api *API, url string) {
 	router := GetRouter(api)
 	request, _ := http.NewRequest("GET", url+"?code=123abc&state=oopsie", nil)
-	authToken := login("authorize_bad_state_token@generaltask.io", "")
+	authToken := login("authorize_bad_state_token@generaltask.com", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
@@ -106,7 +106,7 @@ func TestAuthorizeCallbackBadStateTokenFormat(t *testing.T, api *API, url string
 func TestAuthorizeCallbackInvalidStateToken(t *testing.T, api *API, url string) {
 	router := GetRouter(api)
 	request, _ := http.NewRequest("GET", url+"?code=123abc&state=6088e1c97018a22f240aa573", nil)
-	authToken := login("authorize_invalid_state_token@generaltask.io", "")
+	authToken := login("authorize_invalid_state_token@generaltask.com", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
@@ -130,7 +130,7 @@ func TestAuthorizeCallbackStateTokenWrongUser(t *testing.T, api *API, url string
 
 	router := GetRouter(api)
 	request, _ := http.NewRequest("GET", url+"?code=123abc&state="+*stateToken, nil)
-	authToken := login("authorize_wrong_user@generaltask.io", "")
+	authToken := login("authorize_wrong_user@generaltask.com", "")
 	request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
@@ -145,7 +145,7 @@ func TestAuthorizeCallbackStateTokenWrongUser(t *testing.T, api *API, url string
 }
 
 func TestAuthorizeCallbackUnsuccessfulResponse(t *testing.T, api *API, url string) {
-	authToken := login("authorize_unsuccessful@generaltask.io", "")
+	authToken := login("authorize_unsuccessful@generaltask.com", "")
 	stateToken, err := newStateToken(authToken)
 	assert.NoError(t, err)
 
@@ -159,7 +159,7 @@ func TestAuthorizeCallbackUnsuccessfulResponse(t *testing.T, api *API, url strin
 
 func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string, serviceID string) {
 	parentCtx := context.Background()
-	authToken := login("authorize_successful@generaltask.io", "")
+	authToken := login("authorize_successful@generaltask.com", "")
 	stateToken, err := newStateToken(authToken)
 	assert.NoError(t, err)
 

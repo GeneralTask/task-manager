@@ -20,7 +20,7 @@ func TestLinkSlack(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		TestAuthorizeSuccess(t, GetAPI(), "/link/slack/", func(stateToken string) string {
-			return "<a href=\"https://slack.com/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("SLACK_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=https%3A%2F%2Fapi.generaltask.io%2Flink%2Fslack%2Fcallback&amp;response_type=code&amp;scope=channels%3Ahistory+channels%3Aread+im%3Aread+mpim%3Ahistory+im%3Ahistory+groups%3Ahistory+groups%3Aread+mpim%3Awrite+im%3Awrite+channels%3Awrite+groups%3Awrite+chat%3Awrite%3Auser&amp;state=" + stateToken + "\">Found</a>.\n\n"
+			return "<a href=\"https://slack.com/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("SLACK_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=https%3A%2F%2Fapi.generaltask.com%2Flink%2Fslack%2Fcallback&amp;response_type=code&amp;scope=channels%3Ahistory+channels%3Aread+im%3Aread+mpim%3Ahistory+im%3Ahistory+groups%3Ahistory+groups%3Aread+mpim%3Awrite+im%3Awrite+channels%3Awrite+groups%3Awrite+chat%3Awrite%3Auser&amp;state=" + stateToken + "\">Found</a>.\n\n"
 		})
 	})
 }

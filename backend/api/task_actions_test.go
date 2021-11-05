@@ -29,7 +29,7 @@ func TestReplyToEmail(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 
-	authToken := login("approved@generaltask.io", "General Tasker")
+	authToken := login("approved@generaltask.com", "General Tasker")
 	userID := getUserIDFromAuthToken(t, db, authToken)
 
 	taskCollection := database.GetTaskCollection(db)
@@ -148,7 +148,7 @@ func TestReplyToEmail(t *testing.T) {
 			},
 			{
 				Name:  "From",
-				Value: "Sample sender <sample@generaltask.io>",
+				Value: "Sample sender <sample@generaltask.com>",
 			},
 			{
 				Name:  "Message-ID",
@@ -160,7 +160,7 @@ func TestReplyToEmail(t *testing.T) {
 			"sample_message_id",
 			"sample_thread_id",
 			headers,
-			"To: Sample sender <sample@generaltask.io>\r\nFrom: General Tasker <approved@generaltask.io>\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
+			"To: Sample sender <sample@generaltask.com>\r\nFrom: General Tasker <approved@generaltask.com>\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
 
 		testSuccessfulReplyWithServer(t, emailID, authToken, "test reply", server)
 	})
@@ -173,11 +173,11 @@ func TestReplyToEmail(t *testing.T) {
 			},
 			{
 				Name:  "From",
-				Value: "Sample sender <sample@generaltask.io>",
+				Value: "Sample sender <sample@generaltask.com>",
 			},
 			{
 				Name:  "Reply-To",
-				Value: "Reply address <reply@generaltask.io>",
+				Value: "Reply address <reply@generaltask.com>",
 			},
 			{
 				Name:  "Message-ID",
@@ -193,7 +193,7 @@ func TestReplyToEmail(t *testing.T) {
 			"sample_message_id",
 			"sample_thread_id",
 			headers,
-			"To: Reply address <reply@generaltask.io>\r\nFrom: General Tasker <approved@generaltask.io>\nSubject: Re: Sample subject\nIn-Reply-To: <id2@gt.io>\nReferences: <id1@gt.io> <id2@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
+			"To: Reply address <reply@generaltask.com>\r\nFrom: General Tasker <approved@generaltask.com>\nSubject: Re: Sample subject\nIn-Reply-To: <id2@gt.io>\nReferences: <id1@gt.io> <id2@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
 
 		testSuccessfulReplyWithServer(t, emailID, authToken, "test reply", server)
 	})

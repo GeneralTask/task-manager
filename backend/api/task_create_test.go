@@ -17,7 +17,7 @@ func TestCreateTask(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 
-	authToken := login("approved@generaltask.io", "")
+	authToken := login("approved@generaltask.com", "")
 	router := GetRouter(GetAPI())
 
 	t.Run("BadSourceID", func(t *testing.T) {
@@ -63,7 +63,7 @@ func TestCreateTask(t *testing.T) {
 		// this currently isn't possible because only GT tasks are supported, but we should add this when it's possible
 	})
 	t.Run("SuccessTitleOnly", func(t *testing.T) {
-		authToken := login("create_task_success_title_only@generaltask.io", "")
+		authToken := login("create_task_success_title_only@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		request, _ := http.NewRequest(
@@ -86,7 +86,7 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, int64(3600000000000), task.TimeAllocation)
 	})
 	t.Run("Success", func(t *testing.T) {
-		authToken := login("create_task_success@generaltask.io", "")
+		authToken := login("create_task_success@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		request, _ := http.NewRequest(
