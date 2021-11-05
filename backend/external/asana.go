@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/oauth2"
 )
@@ -121,4 +123,8 @@ func (Asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 
 func (Asana AsanaService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
 	return primitive.NilObjectID, nil, errors.New("asana does not support signup")
+}
+
+func getAsanaHttpClient(db *mongo.Database, userID primitive.ObjectID, accountID string) *http.Client {
+	return getExternalOauth2Client(db, userID, accountID, TASK_SERVICE_ID_ASANA, getAsanaConfig())
 }
