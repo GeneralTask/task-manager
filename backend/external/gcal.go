@@ -47,8 +47,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			option.WithEndpoint(*googleCalendar.Google.OverrideURLs.CalendarFetchURL),
 		)
 	} else {
-		externalAPITokenCollection := database.GetExternalTokenCollection(db)
-		client := GetGoogleHttpClient(externalAPITokenCollection, userID, accountID)
+		client := getGoogleHttpClient(db, userID, accountID)
 		if client == nil {
 			log.Printf("failed to fetch google API token")
 			result <- emptyCalendarResult(errors.New("failed to fetch google API token"))

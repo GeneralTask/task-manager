@@ -47,8 +47,7 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 
 	emails := []*database.Email{}
 
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	client := GetGoogleHttpClient(externalAPITokenCollection, userID, accountID)
+	client := getGoogleHttpClient(db, userID, accountID)
 	if client == nil {
 		log.Printf("failed to fetch google API token")
 		result <- emptyEmailResult(errors.New("failed to fetch google API token"))
@@ -227,8 +226,7 @@ func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string,
 		return err
 	}
 	defer dbCleanup()
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	client := GetGoogleHttpClient(externalAPITokenCollection, userID, accountID)
+	client := getGoogleHttpClient(db, userID, accountID)
 
 	var gmailService *gmail.Service
 	if Gmail.Google.OverrideURLs.GmailModifyURL == nil {
@@ -280,8 +278,7 @@ func (Gmail GmailSource) SendEmail(userID primitive.ObjectID, accountID string, 
 		return err
 	}
 	defer dbCleanup()
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	client := GetGoogleHttpClient(externalAPITokenCollection, userID, accountID)
+	client := getGoogleHttpClient(db, userID, accountID)
 
 	var gmailService *gmail.Service
 
@@ -346,8 +343,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 		return err
 	}
 	defer dbCleanup()
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	client := GetGoogleHttpClient(externalAPITokenCollection, userID, accountID)
+	client := getGoogleHttpClient(db, userID, accountID)
 
 	var gmailService *gmail.Service
 

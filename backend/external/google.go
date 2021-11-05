@@ -65,26 +65,8 @@ func getGoogleLinkConfig() OauthConfigWrapper {
 	return &OauthConfig{Config: googleConfig}
 }
 
-func GetGoogleHttpClient(externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, accountID string) *http.Client {
-	parentCtx := context.Background()
-	var googleToken database.ExternalAPIToken
-
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	if err := externalAPITokenCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"user_id": userID},
-			{"service_id": TASK_SERVICE_ID_GOOGLE},
-			{"account_id": accountID},
-		}}).Decode(&googleToken); err != nil {
-		return nil
-	}
-
-	var token oauth2.Token
-	json.Unmarshal([]byte(googleToken.Token), &token)
-	config := getGoogleLoginConfig()
-	return config.Client(parentCtx, &token).(*http.Client)
+func getGoogleHttpClient(db *mongo.Database, userID primitive.ObjectID, accountID string) *http.Client {
+	return getExternalOauth2Client(db, userID, accountID, TASK_SERVICE_ID_GOOGLE, getGoogleLoginConfig())
 }
 
 func (Google GoogleService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
