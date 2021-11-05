@@ -19,7 +19,7 @@ import (
 
 func TestSupportedAccountTypesList(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.io", "")
+		authToken := login("approved@generaltask.com", "")
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/linked_accounts/supported_types/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -45,7 +45,7 @@ func TestLinkedAccountsList(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	t.Run("SuccessOnlyGoogle", func(t *testing.T) {
-		authToken := login("linkedaccounts@generaltask.io", "")
+		authToken := login("linkedaccounts@generaltask.com", "")
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/linked_accounts/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -55,10 +55,10 @@ func TestLinkedAccountsList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		googleTokenID := getGoogleTokenFromAuthToken(t, db, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts@generaltask.io\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"is_unlinkable\":false}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"is_unlinkable\":false}]", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
-		authToken := login("linkedaccounts2@generaltask.io", "")
+		authToken := login("linkedaccounts2@generaltask.com", "")
 		jiraTokenID := createJIRADungeon(t, db, authToken).Hex()
 		assert.NoError(t, err)
 		router := GetRouter(GetAPI())
@@ -70,7 +70,7 @@ func TestLinkedAccountsList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		googleTokenID := getGoogleTokenFromAuthToken(t, db, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts2@generaltask.io\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"is_unlinkable\":false},{\"id\":\""+jiraTokenID+"\",\"display_id\":\"Jira dungeon\",\"name\":\"Atlassian\",\"logo\":\"/images/jira.svg\",\"is_unlinkable\":true}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts2@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"is_unlinkable\":false},{\"id\":\""+jiraTokenID+"\",\"display_id\":\"Jira dungeon\",\"name\":\"Atlassian\",\"logo\":\"/images/jira.svg\",\"is_unlinkable\":true}]", string(body))
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(GetAPI())
@@ -87,7 +87,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	defer dbCleanup()
 	parentCtx := context.Background()
 	t.Run("MalformattedAccountID", func(t *testing.T) {
-		authToken := login("approved@generaltask.io", "")
+		authToken := login("approved@generaltask.com", "")
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/123/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -96,7 +96,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 	})
 	t.Run("InvalidAccountID", func(t *testing.T) {
-		authToken := login("approved@generaltask.io", "")
+		authToken := login("approved@generaltask.com", "")
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+primitive.NewObjectID().Hex()+"/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -105,7 +105,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 	})
 	t.Run("UnlinkableAccount", func(t *testing.T) {
-		authToken := login("approved@generaltask.io", "")
+		authToken := login("approved@generaltask.com", "")
 		googleAccountID := getGoogleTokenFromAuthToken(t, db, authToken).ID
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+googleAccountID.Hex()+"/", nil)
@@ -118,8 +118,8 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"account is not unlinkable\"}", string(body))
 	})
 	t.Run("AccountDifferentUser", func(t *testing.T) {
-		authToken := login("approved@generaltask.io", "")
-		authTokenOther := login("other@generaltask.io", "")
+		authToken := login("approved@generaltask.com", "")
+		authTokenOther := login("other@generaltask.com", "")
 		googleAccountID := getGoogleTokenFromAuthToken(t, db, authTokenOther).ID
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+googleAccountID.Hex()+"/", nil)
@@ -129,7 +129,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 	})
 	t.Run("Success", func(t *testing.T) {
-		authToken := login("deletelinkedaccount@generaltask.io", "")
+		authToken := login("deletelinkedaccount@generaltask.com", "")
 		jiraTokenID := createJIRADungeon(t, db, authToken)
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+jiraTokenID.Hex()+"/", nil)
