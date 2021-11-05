@@ -31,7 +31,8 @@ type AsanaAuthToken struct {
 }
 
 type AsanaConfigValues struct {
-	UserInfoURL *string
+	UserInfoURL  *string
+	TaskFetchURL *string
 }
 
 type AsanaResponse struct {

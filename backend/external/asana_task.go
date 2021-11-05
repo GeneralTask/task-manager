@@ -2,7 +2,9 @@ package external
 
 import (
 	"errors"
+	"log"
 
+	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -19,6 +21,27 @@ func (AsanaTask AsanaTaskSource) GetEvents(userID primitive.ObjectID, accountID 
 }
 
 func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		result <- emptyTaskResult(err)
+		return
+	}
+	defer dbCleanup()
+
+	client := getAsanaHttpClient(db, userID, accountID)
+	log.Println("client:", client)
+
+	userInfoURL := "https://app.asana.com/api/1.0/users/me"
+	if AsanaTask.Asana.ConfigValues.UserInfoURL != nil {
+		userInfoURL = *AsanaTask.Asana.ConfigValues.UserInfoURL
+	}
+
+	response, err := client.Get(userInfoURL)
+	if err != nil {
+		log.Printf("failed to load asana user info: %v", err)
+	}
+	log.Println("response:", response)
+	result <- emptyTaskResult(nil)
 	// first, get new token using oauth client (see how google does it)
 	// then, get workspace ID: https://app.asana.com/api/1.0/users/me
 	/*
