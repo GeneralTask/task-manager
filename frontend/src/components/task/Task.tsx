@@ -56,7 +56,7 @@ const Task: React.FC<Props> = (props: Props) => {
       if (!previewDropRef.current) return
 
       const boundingRect = previewDropRef.current.getBoundingClientRect()
-      if (boundingRect !== undefined) {
+      if (boundingRect != null) {
         const dropMiddleY = (boundingRect.bottom - boundingRect.top) / 2 + boundingRect.top
         const clientOffsetY = monitor.getClientOffset()?.y
         store.dispatch(dragDrop(item.id, task.id, !!(clientOffsetY && clientOffsetY > dropMiddleY)))
