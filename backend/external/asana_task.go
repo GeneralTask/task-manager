@@ -2,14 +2,36 @@ package external
 
 import (
 	"errors"
+	"fmt"
 	"log"
+	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type AsanaTaskSource struct {
 	Asana AsanaService
+}
+
+type AsanaUserInfoResponse struct {
+	Data struct {
+		Workspaces []struct {
+			ID string `json:"gid"`
+		} `json:"workspaces"`
+	} `json:"data"`
+}
+
+type AsanaTasksResponse struct {
+	Data []struct {
+		GID          string `json:"gid"`
+		CreatedAt    string `json:"created_at"`
+		DueOn        string `json:"due_on"`
+		HTMLNotes    string `json:"html_notes"`
+		Name         string `json:"name"`
+		PermalinkURL string `json:"permalink_url"`
+	} `json:"data"`
 }
 
 func (AsanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
@@ -29,55 +51,82 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	defer dbCleanup()
 
 	client := getAsanaHttpClient(db, userID, accountID)
-	log.Println("client:", client)
 
 	userInfoURL := "https://app.asana.com/api/1.0/users/me"
 	if AsanaTask.Asana.ConfigValues.UserInfoURL != nil {
 		userInfoURL = *AsanaTask.Asana.ConfigValues.UserInfoURL
 	}
 
-	response, err := client.Get(userInfoURL)
-	if err != nil {
-		log.Printf("failed to load asana user info: %v", err)
+	var userInfo AsanaUserInfoResponse
+	err = getJSON(client, userInfoURL, &userInfo)
+	if err != nil || len(userInfo.Data.Workspaces) == 0 {
+		log.Printf("failed to get asana workspace ID: %v", err)
+		result <- emptyTaskResult(err)
+		return
 	}
-	log.Println("response:", response)
-	result <- emptyTaskResult(nil)
-	// first, get new token using oauth client (see how google does it)
-	// then, get workspace ID: https://app.asana.com/api/1.0/users/me
-	/*
-		{
-			"data": {
-				"gid": "1199950905836463",
-				"email": "john@generaltask.io",
-				"name": "John Reinstra",
-				"photo": null,
-				"resource_type": "user",
-				"workspaces": [
-					{
-						"gid": "1199951001109677",
-						"name": "generaltask.io",
-						"resource_type": "workspace"
-					}
-				]
-			}
+	workspaceID := userInfo.Data.Workspaces[0].ID
+
+	taskFetchURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/?assignee=me&workspace=%s&completed_since=2022-01-01&opt_fields=this.html_notes,this.name,this.due_at,this.due_on,this.permalink_url,this.created_at", workspaceID)
+	if AsanaTask.Asana.ConfigValues.TaskFetchURL != nil {
+		taskFetchURL = *AsanaTask.Asana.ConfigValues.TaskFetchURL
+	}
+
+	var asanaTasks AsanaTasksResponse
+	err = getJSON(client, taskFetchURL, &asanaTasks)
+	if err != nil {
+		log.Printf("failed to fetch asana tasks: %v", err)
+	}
+
+	var tasks []*database.Task
+	for _, asanaTask := range asanaTasks.Data {
+		task := &database.Task{
+			TaskBase: database.TaskBase{
+				UserID:          userID,
+				IDExternal:      asanaTask.GID,
+				IDTaskSection:   constants.IDTaskSectionToday,
+				Deeplink:        asanaTask.PermalinkURL,
+				SourceID:        TASK_SOURCE_ID_ASANA,
+				Title:           asanaTask.Name,
+				Body:            asanaTask.HTMLNotes,
+				TimeAllocation:  time.Hour.Nanoseconds(),
+				SourceAccountID: accountID,
+			},
 		}
-	*/
-	// sample URL to fetch active tasks for a user:
-	// https://app.asana.com/api/1.0/tasks/?assignee=me&workspace=1199951001109677&completed_since=2022-01-01&opt_fields=this.html_notes,this.name,this.due_at,this.due_on
-	/*
-		{
-			"data": [
-				{
-					"gid": "1201012333089937",
-					"due_at": "2021-11-08T18:00:00.000Z",
-					"due_on": "2021-11-08",
-					"html_notes": "<body></body>",
-					"name": "Asana integration"
-				},
-			]
+		dueDate, err := time.Parse("2006-01-02", asanaTask.DueOn)
+		if err == nil {
+			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
-	*/
-	result <- emptyTaskResult(errors.New("missing authToken or siteConfiguration"))
+		var dbTask database.Task
+		res, err := database.UpdateOrCreateTask(
+			db,
+			userID,
+			task.IDExternal,
+			task.SourceID,
+			task,
+			database.TaskChangeableFields{
+				Title:   task.Title,
+				DueDate: task.DueDate,
+			},
+		)
+		if err != nil {
+			result <- emptyTaskResult(err)
+			return
+		}
+		err = res.Decode(&dbTask)
+		if err != nil {
+			log.Printf("failed to update or create task: %v", err)
+			result <- emptyTaskResult(err)
+			return
+		}
+		task.ID = dbTask.ID
+		task.IDOrdering = dbTask.IDOrdering
+		task.IDTaskSection = dbTask.IDTaskSection
+		tasks = append(tasks, task)
+	}
+
+	result <- TaskResult{
+		Tasks: tasks,
+	}
 }
 
 func (AsanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
