@@ -51,3 +51,11 @@ export function setTasksDragState(dragState: DragState): AnyAction {
         dragState,
     }
 }
+
+export function dragDrop(dragTask: {id: string} | null, dropTask: {id: string} | null): AnyAction {
+    return {
+        type: actions.DRAG_DROP,
+        dragTask,
+        dropTask,
+    }
+}
