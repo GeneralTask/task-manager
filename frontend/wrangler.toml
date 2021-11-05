@@ -1,8 +1,8 @@
 name = "frontend"
 type = "webpack"
 account_id = "91d7983e0bff08e0cf76f81cf79abe50"
-route = "generaltask.io/*"
-zone_id = "bce9f34f456b7e596cbf10e28783316b"
+route = "generaltask.com/*"
+zone_id = "3902eeab1159d5dbc8604825e8b7c7b0"
 
 [site]
 bucket = "./build"
