@@ -152,7 +152,7 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 		result <- emptyTaskResult(err)
 		return
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		log.Printf("search failed: %s %v", taskData, resp.StatusCode)
 		result <- emptyTaskResult(err)
 		return

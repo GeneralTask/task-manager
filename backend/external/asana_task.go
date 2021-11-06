@@ -2,12 +2,36 @@ package external
 
 import (
 	"errors"
+	"fmt"
+	"log"
+	"net/http"
+	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type AsanaTaskSource struct {
 	Asana AsanaService
+}
+
+type AsanaUserInfoResponse struct {
+	Data struct {
+		Workspaces []struct {
+			ID string `json:"gid"`
+		} `json:"workspaces"`
+	} `json:"data"`
+}
+
+type AsanaTasksResponse struct {
+	Data []struct {
+		GID          string `json:"gid"`
+		DueOn        string `json:"due_on"`
+		HTMLNotes    string `json:"html_notes"`
+		Name         string `json:"name"`
+		PermalinkURL string `json:"permalink_url"`
+	} `json:"data"`
 }
 
 func (AsanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
@@ -19,10 +43,104 @@ func (AsanaTask AsanaTaskSource) GetEvents(userID primitive.ObjectID, accountID 
 }
 
 func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	result <- emptyTaskResult(errors.New("missing authToken or siteConfiguration"))
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		result <- emptyTaskResult(err)
+		return
+	}
+	defer dbCleanup()
+
+	client := getAsanaHttpClient(db, userID, accountID)
+
+	userInfoURL := "https://app.asana.com/api/1.0/users/me"
+	if AsanaTask.Asana.ConfigValues.UserInfoURL != nil {
+		userInfoURL = *AsanaTask.Asana.ConfigValues.UserInfoURL
+		client = http.DefaultClient
+	}
+
+	var userInfo AsanaUserInfoResponse
+	err = getJSON(client, userInfoURL, &userInfo)
+	if err != nil || len(userInfo.Data.Workspaces) == 0 {
+		log.Printf("failed to get asana workspace ID: %v", err)
+		if err == nil {
+			err = errors.New("user has not workspaces")
+		}
+		result <- emptyTaskResult(err)
+		return
+	}
+	workspaceID := userInfo.Data.Workspaces[0].ID
+
+	taskFetchURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/?assignee=me&workspace=%s&completed_since=2022-01-01&opt_fields=this.html_notes,this.name,this.due_at,this.due_on,this.permalink_url", workspaceID)
+	if AsanaTask.Asana.ConfigValues.TaskFetchURL != nil {
+		taskFetchURL = *AsanaTask.Asana.ConfigValues.TaskFetchURL
+		client = http.DefaultClient
+	} else if client == nil {
+		client = getAsanaHttpClient(db, userID, accountID)
+	}
+
+	var asanaTasks AsanaTasksResponse
+	err = getJSON(client, taskFetchURL, &asanaTasks)
+	if err != nil {
+		log.Printf("failed to fetch asana tasks: %v", err)
+		result <- emptyTaskResult(err)
+		return
+	}
+
+	var tasks []*database.Task
+	for _, asanaTask := range asanaTasks.Data {
+		task := &database.Task{
+			TaskBase: database.TaskBase{
+				UserID:          userID,
+				IDExternal:      asanaTask.GID,
+				IDTaskSection:   constants.IDTaskSectionToday,
+				Deeplink:        asanaTask.PermalinkURL,
+				SourceID:        TASK_SOURCE_ID_ASANA,
+				Title:           asanaTask.Name,
+				Body:            asanaTask.HTMLNotes,
+				TimeAllocation:  time.Hour.Nanoseconds(),
+				SourceAccountID: accountID,
+			},
+		}
+		dueDate, err := time.Parse("2006-01-02", asanaTask.DueOn)
+		if err == nil {
+			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		}
+		var dbTask database.Task
+		res, err := database.UpdateOrCreateTask(
+			db,
+			userID,
+			task.IDExternal,
+			task.SourceID,
+			task,
+			database.TaskChangeableFields{
+				Title:   task.Title,
+				DueDate: task.DueDate,
+			},
+		)
+		if err != nil {
+			result <- emptyTaskResult(err)
+			return
+		}
+		err = res.Decode(&dbTask)
+		if err != nil {
+			log.Printf("failed to update or create task: %v", err)
+			result <- emptyTaskResult(err)
+			return
+		}
+		task.ID = dbTask.ID
+		task.IDOrdering = dbTask.IDOrdering
+		task.IDTaskSection = dbTask.IDTaskSection
+		tasks = append(tasks, task)
+	}
+
+	result <- TaskResult{
+		Tasks: tasks,
+	}
 }
 
 func (AsanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
+	// sample URL: https://app.asana.com/api/1.0/tasks/1201012333089937/
+	// PUT payload: {"data": {"completed": true}}
 	return errors.New("missing token or siteConfiguration")
 }
 

@@ -257,7 +257,7 @@ var TaskSourceAsana = TaskSourceDetails{
 	TASK_SOURCE_ID_ASANA,
 	"Asana",
 	"/images/asana.svg",
-	true,
+	false,
 	false,
 	false,
 }

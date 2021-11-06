@@ -22,24 +22,9 @@ type AsanaService struct {
 	ConfigValues AsanaConfigValues
 }
 
-type AsanaAuthToken struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	Scope        string `json:"scope"`
-	ExpiresIn    int    `json:"expires_in"`
-	TokenType    string `json:"token_type"`
-}
-
 type AsanaConfigValues struct {
-	UserInfoURL *string
-}
-
-type AsanaResponse struct {
-	Data string `json:"data"`
-}
-type AsanaUserInfo struct {
-	Email string `json:"email"`
-	Name  string `json:"name"`
+	UserInfoURL  *string
+	TaskFetchURL *string
 }
 
 func getAsanaConfig() *OauthConfig {
