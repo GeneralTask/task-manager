@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -26,7 +27,6 @@ type AsanaUserInfoResponse struct {
 type AsanaTasksResponse struct {
 	Data []struct {
 		GID          string `json:"gid"`
-		CreatedAt    string `json:"created_at"`
 		DueOn        string `json:"due_on"`
 		HTMLNotes    string `json:"html_notes"`
 		Name         string `json:"name"`
@@ -55,26 +55,35 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	userInfoURL := "https://app.asana.com/api/1.0/users/me"
 	if AsanaTask.Asana.ConfigValues.UserInfoURL != nil {
 		userInfoURL = *AsanaTask.Asana.ConfigValues.UserInfoURL
+		client = http.DefaultClient
 	}
 
 	var userInfo AsanaUserInfoResponse
 	err = getJSON(client, userInfoURL, &userInfo)
 	if err != nil || len(userInfo.Data.Workspaces) == 0 {
 		log.Printf("failed to get asana workspace ID: %v", err)
+		if err == nil {
+			err = errors.New("user has not workspaces")
+		}
 		result <- emptyTaskResult(err)
 		return
 	}
 	workspaceID := userInfo.Data.Workspaces[0].ID
 
-	taskFetchURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/?assignee=me&workspace=%s&completed_since=2022-01-01&opt_fields=this.html_notes,this.name,this.due_at,this.due_on,this.permalink_url,this.created_at", workspaceID)
+	taskFetchURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/?assignee=me&workspace=%s&completed_since=2022-01-01&opt_fields=this.html_notes,this.name,this.due_at,this.due_on,this.permalink_url", workspaceID)
 	if AsanaTask.Asana.ConfigValues.TaskFetchURL != nil {
 		taskFetchURL = *AsanaTask.Asana.ConfigValues.TaskFetchURL
+		client = http.DefaultClient
+	} else if client == nil {
+		client = getAsanaHttpClient(db, userID, accountID)
 	}
 
 	var asanaTasks AsanaTasksResponse
 	err = getJSON(client, taskFetchURL, &asanaTasks)
 	if err != nil {
 		log.Printf("failed to fetch asana tasks: %v", err)
+		result <- emptyTaskResult(err)
+		return
 	}
 
 	var tasks []*database.Task
