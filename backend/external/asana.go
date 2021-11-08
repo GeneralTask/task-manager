@@ -23,8 +23,9 @@ type AsanaService struct {
 }
 
 type AsanaConfigValues struct {
-	UserInfoURL  *string
-	TaskFetchURL *string
+	UserInfoURL   *string
+	TaskFetchURL  *string
+	TaskUpdateURL *string
 }
 
 func getAsanaConfig() *OauthConfig {
