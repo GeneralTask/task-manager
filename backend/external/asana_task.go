@@ -141,7 +141,26 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 func (AsanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
 	// sample URL: https://app.asana.com/api/1.0/tasks/1201012333089937/
 	// PUT payload: {"data": {"completed": true}}
-	return errors.New("missing token or siteConfiguration")
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+
+	client := getAsanaHttpClient(db, userID, accountID)
+
+	taskFetchURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/%s/", issueID)
+	if AsanaTask.Asana.ConfigValues.UserInfoURL != nil {
+		taskFetchURL = *AsanaTask.Asana.ConfigValues.TaskFetchURL
+		client = http.DefaultClient
+	}
+	var asanaTasks AsanaTasksResponse
+	err = getJSON(client, taskFetchURL, &asanaTasks)
+	if err != nil {
+		log.Printf("failed to fetch asana tasks: %v", err)
+		return err
+	}
+	return nil
 }
 
 func (AsanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
