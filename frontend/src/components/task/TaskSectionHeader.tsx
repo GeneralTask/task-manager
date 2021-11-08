@@ -38,6 +38,7 @@ const InsideHeader = styled.div<{isOver: boolean}>`
   width: 60%;
   margin-left: 4px;
   background-color: ${props => props.isOver ? BACKGROUND_HOVER : 'inherit'};
+  border-radius: 2px;
   height:100%;
 `
 const HeaderText = styled.div`
