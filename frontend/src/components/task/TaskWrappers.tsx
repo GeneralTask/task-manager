@@ -141,8 +141,9 @@ export function useCountdown(datetimeStart: string | null): string | null {
 
   const start = parseDateTime(datetimeStart)
 
-  const [time, setTime] = useState<string | null>(getLiveTimeStr(start, isMobile))
+  const [time, setTime] = useState<string | null>('')
   useEffect(() => {
+    setTime(getLiveTimeStr(start, isMobile))
     const interval = setInterval(() => {
       setTime(getLiveTimeStr(start, isMobile))
     }, 1000)
@@ -150,7 +151,7 @@ export function useCountdown(datetimeStart: string | null): string | null {
     return () => {
       clearInterval(interval)
     }
-  }, [])
+  }, [isMobile])
 
   if (DateTime.now() > start) {
     return null
