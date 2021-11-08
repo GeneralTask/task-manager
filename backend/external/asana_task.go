@@ -139,8 +139,6 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 }
 
 func (AsanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
-	// sample URL: https://app.asana.com/api/1.0/tasks/1201012333089937/
-	// PUT payload: {"data": {"completed": true}}
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
