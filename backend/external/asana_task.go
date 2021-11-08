@@ -149,13 +149,12 @@ func (AsanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID
 
 	client := getAsanaHttpClient(db, userID, accountID)
 
-	taskFetchURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/%s/", issueID)
-	if AsanaTask.Asana.ConfigValues.UserInfoURL != nil {
-		taskFetchURL = *AsanaTask.Asana.ConfigValues.TaskFetchURL
+	taskUpdateURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/%s/", issueID)
+	if AsanaTask.Asana.ConfigValues.TaskUpdateURL != nil {
+		taskUpdateURL = *AsanaTask.Asana.ConfigValues.TaskUpdateURL
 		client = http.DefaultClient
 	}
-	var asanaTasks AsanaTasksResponse
-	err = getJSON(client, taskFetchURL, &asanaTasks)
+	err = requestJSON(client, "PUT", taskUpdateURL, `{"data": {"completed": true}}`, EmptyResponsePlaceholder)
 	if err != nil {
 		log.Printf("failed to fetch asana tasks: %v", err)
 		return err
