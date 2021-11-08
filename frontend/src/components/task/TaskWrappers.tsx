@@ -213,7 +213,16 @@ const getTimeStringFromDuration = (dur: Duration, condensed=false): string => {
       short_en: condensed ? short_en_condensed : short_en_expanded,
     },
   })
-  return shortEnglishHumanizer(dur.toMillis(), { units: ['d', 'h', 'm'], largest: 2, delimiter: ' ', round: true, language: 'short_en', })
+  return shortEnglishHumanizer(
+    dur.toMillis(), 
+    { 
+      units: ['d', 'h', 'm'], 
+      largest: 2, 
+      delimiter: ' ', 
+      round: true, 
+      language: 'short_en', 
+      spacer: condensed ? '' : ' ',
+    })
 }
 
 const parseDateTime = (date_time: string | null): DateTime => {
