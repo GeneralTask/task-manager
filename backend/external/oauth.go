@@ -59,6 +59,5 @@ func getExternalOauth2Client(db *mongo.Database, userID primitive.ObjectID, acco
 
 	var token oauth2.Token
 	json.Unmarshal([]byte(externalToken.Token), &token)
-	config := getGoogleLoginConfig()
-	return config.Client(parentCtx, &token).(*http.Client)
+	return oauthConfig.Client(parentCtx, &token).(*http.Client)
 }
