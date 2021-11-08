@@ -1,4 +1,4 @@
-import { DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
+import { BACKGROUND_HOVER, DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
 import { DeviceSize, useDeviceSize } from '../../helpers/utils'
 import React, { useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
@@ -37,7 +37,7 @@ const InsideHeader = styled.div<{isOver: boolean}>`
   align-items: center;
   width: 60%;
   margin-left: 4px;
-  background-color: ${props => props.isOver ? '#e0e0e0' : 'white'};
+  background-color: ${props => props.isOver ? BACKGROUND_HOVER : 'white'};
   height:100%;
 `
 const HeaderText = styled.div`
