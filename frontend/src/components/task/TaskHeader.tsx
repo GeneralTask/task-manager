@@ -1,6 +1,6 @@
 import './Task.css'
 
-import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY, device } from '../../helpers/styles'
+import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY, device, flex } from '../../helpers/styles'
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
 import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
 
@@ -58,7 +58,7 @@ const TitleWrap = styled(Title)`
   overflow: hidden;
   text-overflow: ellipsis;
 `
-const NoWrap = styled.div`
+const Truncated = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -69,6 +69,9 @@ const HoverButton = styled.div`
 `
 const Black = styled.span`
   color: ${TEXT_BLACK};
+`
+const Space = styled.span`
+  width: 0.5ch;
 `
 const Header = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
   font-size: 16px;
@@ -90,10 +93,10 @@ const Header = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>
       display: ${props => props.showButtons ? 'inherit' : 'none'};;
     }
   }
-  &:hover > div > ${NoWrap} {
+  &:hover > div > ${Truncated} {
     display: none;
   }
-  & > div > ${NoWrap} {
+  & > div > ${Truncated} {
     display: inherit;
   }
 `
@@ -134,10 +137,10 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
       </HeaderLeft>
       <HeaderRight>
         {countdown
-          ? <span>in <Black>{countdown}</Black></span>
+          ? <flex.flex>in<Space/><Black>{countdown}</Black></flex.flex>
           : expanded_body === props.task.id
             ? props.task.sender
-            : <NoWrap>{props.task.sender}</NoWrap>
+            : <Truncated>{props.task.sender}</Truncated>
         }
         {
           props.task.conference_call &&
