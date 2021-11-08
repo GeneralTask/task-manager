@@ -6,6 +6,12 @@
       "is_today": true,
       "task_groups": [
         {
+          "type": "unscheduled_group",
+          "time_duration": 3600,
+          "datetime_start": null,
+          "tasks": []
+        },
+        {
           "type": "scheduled_task",
           "time_duration": 3600,
           "datetime_start": "2021-10-25T07:39:00-07:00",
@@ -130,6 +136,12 @@
               }
             }
           ]
+        },
+        {
+          "type": "unscheduled_group",
+          "time_duration": 3600,
+          "datetime_start": null,
+          "tasks": []
         }
       ]
     },
