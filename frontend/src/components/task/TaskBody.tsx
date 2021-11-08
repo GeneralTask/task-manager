@@ -92,7 +92,6 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source, isExpanded
 function resizeIframe(iframe: HTMLIFrameElement | null, setIframeHeight: React.Dispatch<React.SetStateAction<number>>,isVisible: boolean){
     if (isVisible && iframe?.contentWindow?.document) {
         const height = Math.min(iframe.contentWindow.document.body.offsetHeight + 15, MAX_TASK_BODY_HEIGHT)
-        iframe.style.height = height + 'px'
         iframe.style.visibility = 'visible'
         setIframeHeight(height)
         return height
