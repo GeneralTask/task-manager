@@ -34,7 +34,7 @@ interface Props {
 
 export default function TaskSection(props: Props): JSX.Element {
     return <>
-        <TaskSectionHeader show_current_time={props.task_section.is_today} name={props.task_section.name} />
+        <TaskSectionHeader task_section_index={props.task_section_index} show_current_time={props.task_section.is_today} name={props.task_section.name} />
         {
             props.task_section.task_groups.map((group: TTaskGroup, task_group_index: number) => {
                 if (group.tasks && !group.tasks.length) {
