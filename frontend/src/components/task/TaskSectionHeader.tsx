@@ -37,7 +37,7 @@ const InsideHeader = styled.div<{isOver: boolean}>`
   align-items: center;
   width: 60%;
   margin-left: 4px;
-  background-color: ${props => props.isOver ? BACKGROUND_HOVER : 'white'};
+  background-color: ${props => props.isOver ? BACKGROUND_HOVER : 'inherit'};
   height:100%;
 `
 const HeaderText = styled.div`
