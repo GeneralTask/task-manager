@@ -35,7 +35,6 @@ const ReplyDiv = styled.div`
 const ExpandedBody = styled.div<{isExpanded: boolean}>`
     display: ${props => props.isExpanded ? 'block' : 'none'}
 `
-
 const ReplyInputStyle = {
     width: '86%',
     border: `1px solid ${BORDER_PRIMARY}`,
@@ -90,23 +89,31 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source, isExpanded
     )
 }
 
-function resizeIframe(iframe: HTMLIFrameElement | null, isVisible: boolean){
-    if (isVisible && iframe?.contentWindow) {
-        const height = Math.min(iframe.contentWindow.document.body.offsetHeight + 200, MAX_TASK_BODY_HEIGHT)
+function resizeIframe(iframe: HTMLIFrameElement | null, setIframeHeight: React.Dispatch<React.SetStateAction<number>>,isVisible: boolean){
+    if (isVisible && iframe?.contentWindow?.document) {
+        const height = Math.min(iframe.contentWindow.document.body.offsetHeight + 15, MAX_TASK_BODY_HEIGHT)
         iframe.style.height = height + 'px'
         iframe.style.visibility = 'visible'
+        setIframeHeight(height)
+        return height
     }
+    return 0
 }
 
 const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id, isExpanded }: BodyHTMLProps) => {
-    const iframe = useRef<HTMLIFrameElement>(null)
-    useEffect(() => {resizeIframe(iframe?.current, isExpanded)})
+    const iframeRef = useRef<HTMLIFrameElement>(null)
+    const [iframeHeight, setIframeHeight] = useState(0)
+    useEffect(() => {
+        resizeIframe(iframeRef?.current, setIframeHeight, isExpanded)
+    })
     return <BodyIframe
-        ref={iframe}
-        iframeHeight={MAX_TASK_BODY_HEIGHT}
+        ref={iframeRef}
+        iframeHeight={iframeHeight}
         title={'Body for task: ' + task_id}
         srcDoc={body}
-        onLoad={() => {resizeIframe(iframe?.current, isExpanded)}}
+        onLoad={() => {
+            resizeIframe(iframeRef?.current, setIframeHeight, isExpanded)
+        }}
     />
 }
 const Reply: React.FC<ReplyProps> = ({ task_id }: ReplyProps) => {
