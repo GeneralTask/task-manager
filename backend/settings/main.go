@@ -40,6 +40,11 @@ const (
 	SettingFieldEmailOrderingPreference = "email_ordering_preference"
 	ChoiceKeyNewestFirst                = "newest_first"
 	ChoiceKeyOldestFirst                = "oldest_first"
+	// Task duration
+	SettingFieldDefaultTaskDuration = "default_task_duration"
+	ChoiceKey30Minutes              = "30"
+	ChoiceKey60Minutes              = "60"
+	ChoiceKey120Minutes             = "120"
 )
 
 var Settings = []SettingDefinition{
@@ -59,6 +64,16 @@ var Settings = []SettingDefinition{
 		Choices: []SettingChoice{
 			{Key: ChoiceKeyNewestFirst, Name: "Newest first"},
 			{Key: ChoiceKeyOldestFirst, Name: "Oldest first"},
+		},
+	},
+	{
+		FieldKey:      SettingFieldDefaultTaskDuration,
+		FieldName:     "Default task duration",
+		DefaultChoice: ChoiceKey60Minutes,
+		Choices: []SettingChoice{
+			{Key: ChoiceKey30Minutes, Name: "30 mins"},
+			{Key: ChoiceKey60Minutes, Name: "1 hour"},
+			{Key: ChoiceKey120Minutes, Name: "2 hours"},
 		},
 	},
 }
