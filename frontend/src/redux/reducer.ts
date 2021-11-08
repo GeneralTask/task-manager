@@ -132,7 +132,7 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
       // Insert dragged task into top of section
       const task_section_drop = task_sections[action.sectionIndex]
       if (task_section_drop.task_groups.length === 0) return state
-      if (task_section_drop.task_groups[0].type === TTaskGroupType.SCHEDULED_TASK) return state
+      if (task_section_drop.task_groups[0].type !== TTaskGroupType.UNSCHEDULED_GROUP) return state
       task_section_drop.task_groups[0].tasks.splice(0,0,dragTaskObject)
 
       return {
