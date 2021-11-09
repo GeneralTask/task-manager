@@ -7,6 +7,7 @@ import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
 import { TTaskSource } from '../../helpers/types'
 import styled from 'styled-components'
+import { toast } from 'react-toastify'
 
 const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
   border: none;
@@ -32,7 +33,7 @@ const ReplyDiv = styled.div`
   justify-content: space-between;
   align-items: flex-end;
 `
-const ExpandedBody = styled.div<{isExpanded: boolean}>`
+const ExpandedBody = styled.div<{ isExpanded: boolean }>`
     display: ${props => props.isExpanded ? 'block' : 'none'}
 `
 const ReplyInputStyle = {
@@ -49,6 +50,7 @@ interface Props {
     deeplink: string | null,
     source: TTaskSource,
     isExpanded: boolean,
+    sender: string | null,
 }
 
 interface BodyHTMLProps {
@@ -58,14 +60,15 @@ interface BodyHTMLProps {
 }
 
 interface ReplyProps {
-    task_id: string
+    task_id: string,
+    sender: string | null,
 }
 
 
 // no body: no body
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
-const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source, isExpanded }: Props) => {
+const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, isExpanded }: Props) => {
     return (
         <div>
             {Boolean(body || deeplink) && (
@@ -73,7 +76,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source, isExpanded
                     {body && (
                         <BodyDiv>
                             <BodyHTML body={body} task_id={task_id} isExpanded={isExpanded} />
-                            {source.is_replyable && <Reply task_id={task_id} />}
+                            {source.is_replyable && <Reply task_id={task_id} sender={sender} />}
                         </BodyDiv>
                     )}
                     {deeplink && (
@@ -89,7 +92,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, deeplink, source, isExpanded
     )
 }
 
-function resizeIframe(iframe: HTMLIFrameElement | null, setIframeHeight: React.Dispatch<React.SetStateAction<number>>,isVisible: boolean){
+function resizeIframe(iframe: HTMLIFrameElement | null, setIframeHeight: React.Dispatch<React.SetStateAction<number>>, isVisible: boolean) {
     if (isVisible && iframe?.contentWindow?.document) {
         const height = Math.min(iframe.contentWindow.document.body.offsetHeight + 15, MAX_TASK_BODY_HEIGHT)
         iframe.style.visibility = 'visible'
@@ -115,7 +118,7 @@ const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id, isExpanded }: BodyHT
         }}
     />
 }
-const Reply: React.FC<ReplyProps> = ({ task_id }: ReplyProps) => {
+const Reply: React.FC<ReplyProps> = ({ task_id, sender }: ReplyProps) => {
     const [text, setText] = useState('')
 
     return <ReplyDiv>
@@ -129,14 +132,20 @@ const Reply: React.FC<ReplyProps> = ({ task_id }: ReplyProps) => {
             theme="black"
             height="42px"
             width="10%"
-            onClick={() => {
-                makeAuthorizedRequest({
+            onClick={async () => {
+                const response = await makeAuthorizedRequest({
                     url: TASKS_URL + 'reply/' + task_id + '/',
                     method: 'POST',
                     body: JSON.stringify({ body: text }),
                 })
                 setText('')
                 fetchTasks()
+                if (response.ok) {
+                    toast.success(`Replied to ${sender ?? 'email'}!`)
+                }
+                else {
+                    toast.error(`There was an error replying to ${sender ?? 'email'}`)
+                }
             }}
         >
             Reply</GTButton>

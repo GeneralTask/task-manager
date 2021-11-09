@@ -137,7 +137,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
       </HeaderLeft>
       <HeaderRight>
         {countdown
-          ? <flex.flex>in<Space/><Black>{countdown}</Black></flex.flex>
+          ? <flex.flex>in<Space /><Black>{countdown}</Black></flex.flex>
           : expanded_body === props.task.id
             ? props.task.sender
             : <Truncated>{props.task.sender}</Truncated>

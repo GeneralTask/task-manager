@@ -1,19 +1,23 @@
 import './App.css'
-import React from 'react'
+import 'react-toastify/dist/ReactToastify.css'
+
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
-import { Provider } from 'react-redux'
-import store from './redux/store'
-import { LANDING_PATH, SETTINGS_PATH, PRIVACY_PATH } from './constants'
-import { getAuthToken } from './helpers/utils'
+import { LANDING_PATH, PRIVACY_PATH, SETTINGS_PATH, TOAST_DURATION } from './constants'
+import { ToastContainer, Zoom, toast } from 'react-toastify'
 
 import Header from './components/Header'
-import Settings from './components/settings/Settings'
 import LandingPage from './components/LandingPage'
 import PrivacyPolicy from './components/PrivacyPolicy'
+import { Provider } from 'react-redux'
+import React from 'react'
+import Settings from './components/settings/Settings'
+import { getAuthToken } from './helpers/utils'
+import store from './redux/store'
 
 const App: React.FC = () => {
   return (
     <Provider store={store}>
+      <ToastContainer draggable={false} transition={Zoom} autoClose={TOAST_DURATION} position={toast.POSITION.BOTTOM_RIGHT} />
       <BrowserRouter>
         {getAuthToken() ? <Header /> : null}
         <Switch>

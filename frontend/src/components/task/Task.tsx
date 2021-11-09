@@ -1,19 +1,19 @@
 import './Task.css'
 
 import { connect, useSelector } from 'react-redux'
+import { dragDrop, setTasksDragState } from '../../redux/actions'
+import { useDrag, useDrop } from 'react-dnd'
 
 import { BORDER_PRIMARY } from '../../helpers/styles'
+import { DragState } from '../../redux/enums'
+import { ItemTypes } from '../../helpers/types'
 import React from 'react'
 import { RootState } from '../../redux/store'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
-import styled from 'styled-components'
-import { useDrag, useDrop } from 'react-dnd'
-import { ItemTypes } from '../../helpers/types'
 import store from '../../redux/store'
-import { dragDrop, setTasksDragState } from '../../redux/actions'
-import { DragState } from '../../redux/enums'
+import styled from 'styled-components'
 
 const Container = styled.div`
   padding: 0;
@@ -40,7 +40,7 @@ const Task: React.FC<Props> = (props: Props) => {
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   const isExpanded = expanded_body === task.id
 
-  const [{opacity}, drag, dragPreview] = useDrag(() => ({
+  const [{ opacity }, drag, dragPreview] = useDrag(() => ({
     type: ItemTypes.TASK,
     item: { id: task.id },
     collect: monitor => {
@@ -66,7 +66,7 @@ const Task: React.FC<Props> = (props: Props) => {
   dragPreview(drop(previewDropRef))
 
   return (
-    <DraggableContainer style={{opacity}} ref={previewDropRef}>
+    <DraggableContainer style={{ opacity }} ref={previewDropRef}>
       <Container>
         <TaskHeader
           task={task}
@@ -78,6 +78,7 @@ const Task: React.FC<Props> = (props: Props) => {
         <TaskBody
           body={task.body}
           task_id={task.id}
+          sender={task.sender}
           deeplink={task.deeplink}
           source={task.source}
           isExpanded={isExpanded}
