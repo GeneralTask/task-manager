@@ -9,6 +9,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/settings"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -97,7 +98,7 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 				SourceID:        TASK_SOURCE_ID_ASANA,
 				Title:           asanaTask.Name,
 				Body:            asanaTask.HTMLNotes,
-				TimeAllocation:  time.Hour.Nanoseconds(),
+				TimeAllocation:  settings.GetDefaultTaskDuration(db, userID),
 				SourceAccountID: accountID,
 			},
 		}

@@ -15,6 +15,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -191,7 +192,7 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 				SourceID:        TASK_SOURCE_ID_JIRA,
 				Title:           jiraTask.Fields.Summary,
 				Body:            bodyString,
-				TimeAllocation:  time.Hour.Nanoseconds(),
+				TimeAllocation:  settings.GetDefaultTaskDuration(db, userID),
 				SourceAccountID: accountID,
 			},
 			PriorityID: jiraTask.Fields.Priority.ID,
