@@ -42,6 +42,8 @@ const Tasks = styled.div`
   @media ${device.mobile}{
     width: 60%;
   }
+  display:flex;
+  flex-direction: column;
 `
 const UnscheduledSpanbar = styled.div`
   background-color: ${TEXT_GRAY};
