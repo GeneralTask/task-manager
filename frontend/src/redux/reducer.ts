@@ -1,4 +1,4 @@
-import { TTaskSection } from './../helpers/types'
+import { TTask, TTaskGroupType, TTaskSection } from './../helpers/types'
 import * as actions from './actionTypes'
 import { AnyAction } from 'redux'
 import { RootState } from './store'
@@ -6,6 +6,7 @@ import { DragState, FetchStatus } from './enums'
 import _ from 'lodash'
 
 let task_sections: TTaskSection[]
+let dragTaskObject: TTask | null = null
 const reducer = (state: RootState | undefined, action: AnyAction): RootState => {
   if (state === undefined) {
     return {
@@ -79,7 +80,6 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
       if (action.dropTask === null) return state
       if (action.dragTaskId === action.dropTaskId) return state
       task_sections = _.cloneDeep(state.task_sections)
-      let dragTaskObject = null
 
       // Find dragged object and remove
       for (const task_section of task_sections) {
@@ -109,6 +109,37 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
       }
       return state
 
+    case actions.SECTION_DROP:
+      if (action.dropTaskId == null) return state
+      if (action.sectionIndex == null) return state
+      if (action.sectionIndex >= state.task_sections.length) return state
+      
+      task_sections = _.cloneDeep(state.task_sections)
+
+      // Find dragged object and remove
+      for (const task_section of task_sections) {
+        for (const task_group of task_section.task_groups) {
+          for (let i = 0; i < task_group.tasks.length; i++) {
+            if (task_group.tasks[i].id === action.dragTaskId) {
+              dragTaskObject = task_group.tasks[i]
+              task_group.tasks.splice(i, 1)
+            }
+          }
+        }
+      }
+      if (dragTaskObject === null) return state
+
+      // Insert dragged task into top of section
+      const task_section_drop = task_sections[action.sectionIndex]
+      if (task_section_drop.task_groups.length === 0) return state
+      if (task_section_drop.task_groups[0].type !== TTaskGroupType.UNSCHEDULED_GROUP) return state
+      task_section_drop.task_groups[0].tasks.splice(0,0,dragTaskObject)
+
+      return {
+        ...state,
+        task_sections
+      }
+      
     default:
       return state
   }

@@ -60,3 +60,11 @@ export function dragDrop(dragTaskId: string, dropTaskId: string, isLowerHalf: bo
         isLowerHalf,
     }
 }
+
+export function sectionDrop(dragTaskId: string, sectionIndex: number) :AnyAction {
+    return {
+        type: actions.SECTION_DROP,
+        dragTaskId,
+        sectionIndex,
+    }
+}
