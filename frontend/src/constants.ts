@@ -35,3 +35,4 @@ export const CHEVRON_DOWN = '/images/chevron-arrow-down.svg'
 export const TASK_STATUS_FETCH_ERROR = 'There was an error fetching tasks'
 export const TASK_STATUS_NO_TASKS = 'No Tasks'
 export const MAX_TASK_BODY_HEIGHT = 500
+export const TOAST_DURATION = 5000

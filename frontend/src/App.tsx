@@ -2,7 +2,7 @@ import './App.css'
 import 'react-toastify/dist/ReactToastify.css'
 
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
-import { LANDING_PATH, PRIVACY_PATH, SETTINGS_PATH } from './constants'
+import { LANDING_PATH, PRIVACY_PATH, SETTINGS_PATH, TOAST_DURATION } from './constants'
 import { ToastContainer, Zoom } from 'react-toastify'
 
 import Header from './components/Header'
@@ -17,7 +17,7 @@ import store from './redux/store'
 const App: React.FC = () => {
   return (
     <Provider store={store}>
-      <ToastContainer draggable={false} transition={Zoom} autoClose={5000} />
+      <ToastContainer draggable={false} transition={Zoom} autoClose={TOAST_DURATION} />
       <BrowserRouter>
         {getAuthToken() ? <Header /> : null}
         <Switch>

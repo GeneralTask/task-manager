@@ -133,16 +133,18 @@ const Reply: React.FC<ReplyProps> = ({ task_id, sender }: ReplyProps) => {
             height="42px"
             width="10%"
             onClick={async () => {
-                await makeAuthorizedRequest({
+                const response = await makeAuthorizedRequest({
                     url: TASKS_URL + 'reply/' + task_id + '/',
                     method: 'POST',
                     body: JSON.stringify({ body: text }),
                 })
                 setText('')
                 fetchTasks()
-                toast.success(`Replied to ${sender ?? 'email'}!`, {
-                    position: toast.POSITION.BOTTOM_RIGHT
-                })
+                if (response.ok) {
+                    toast.success(`Replied to ${sender ?? 'email'}!`, {
+                        position: toast.POSITION.BOTTOM_RIGHT
+                    })
+                }
             }}
         >
             Reply</GTButton>
