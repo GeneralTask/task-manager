@@ -141,9 +141,10 @@ const Reply: React.FC<ReplyProps> = ({ task_id, sender }: ReplyProps) => {
                 setText('')
                 fetchTasks()
                 if (response.ok) {
-                    toast.success(`Replied to ${sender ?? 'email'}!`, {
-                        position: toast.POSITION.BOTTOM_RIGHT
-                    })
+                    toast.success(`Replied to ${sender ?? 'email'}!`)
+                }
+                else {
+                    toast.error(`There was an error replying to ${sender ?? 'email'}`)
                 }
             }}
         >
