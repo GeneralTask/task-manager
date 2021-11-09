@@ -68,7 +68,7 @@ var Settings = []SettingDefinition{
 	},
 	{
 		FieldKey:      SettingFieldDefaultTaskDuration,
-		FieldName:     "Default task duration",
+		FieldName:     "Default new imported task duration",
 		DefaultChoice: ChoiceKey60Minutes,
 		Choices: []SettingChoice{
 			{Key: ChoiceKey30Minutes, Name: "30 mins"},
