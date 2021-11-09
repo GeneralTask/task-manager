@@ -8,7 +8,7 @@
         {
           "type": "unscheduled_group",
           "time_duration": 3600,
-          "datetime_start": null,
+          "datetime_start": "2021-10-25T07:39:00-06:00",
           "tasks": []
         },
         {
@@ -140,7 +140,7 @@
         {
           "type": "unscheduled_group",
           "time_duration": 3600,
-          "datetime_start": null,
+          "datetime_start": "2021-10-25T07:39:00-07:00",
           "tasks": []
         }
       ]
@@ -153,7 +153,7 @@
         {
           "type": "unscheduled_group",
           "time_duration": 3600,
-          "datetime_start": null,
+          "datetime_start": "2021-10-25T07:39:00-07:00",
           "tasks": [
             {
               "id": "task-6",
