@@ -110,10 +110,9 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
       return state
 
     case actions.SECTION_DROP:
-      if (action.dropTaskId == null) return state
+      if (action.dragTaskId == null) return state
       if (action.sectionIndex == null) return state
       if (action.sectionIndex >= state.task_sections.length) return state
-      
       task_sections = _.cloneDeep(state.task_sections)
 
       // Find dragged object and remove
