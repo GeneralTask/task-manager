@@ -1,4 +1,4 @@
-import { DragState, FetchStatus } from '../redux/enums'
+import { DragState, FetchStatusEnum } from '../redux/enums'
 import {
     LANDING_PATH,
     LINKED_ACCOUNTS_URL,
@@ -16,14 +16,14 @@ import store from '../redux/store'
 
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
-export const logout = (): void => {
-    makeAuthorizedRequest({
+export const logout = async (): Promise<void> => {
+    await makeAuthorizedRequest({
         url: LOGOUT_URL,
         method: 'POST',
-    }, true).then(() => {
-        Cookies.remove('authToken', { path: '/', domain: REACT_APP_COOKIE_DOMAIN })
-        document.location.href = LANDING_PATH
+        logoutReq: true,
     })
+    Cookies.remove('authToken', { path: '/', domain: REACT_APP_COOKIE_DOMAIN })
+    document.location.href = LANDING_PATH
 }
 
 
@@ -44,17 +44,32 @@ interface fetchParams {
     url: string,
     method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
     body?: string,
+
+    logoutReq?: boolean,
+    // optional function that *accepts* an abort function
+    abortCallback?: (abort_fetch: () => void) => void,
 }
 
-export const makeAuthorizedRequest = async (params: fetchParams, logoutReq = false): Promise<Response> => {
-    const body = params.body ? params.body : null
+export const makeAuthorizedRequest = async (params: fetchParams): Promise<Response> => {
+    const body = params.body ?? null
+    let signal: AbortSignal | undefined = undefined
+    if (params.abortCallback != null) {
+        const controller = new AbortController()
+        signal = controller.signal
+        // params.abortCallback(controller.abort)
+        params.abortCallback(() => {
+            controller.abort()
+            console.log('aborting request')
+        })
+    }
     const response = await fetch(params.url, {
         method: params.method,
         mode: 'cors',
         headers: getHeaders(),
         body,
+        signal: signal,
     })
-    if (!logoutReq && response.status === 401) {
+    if (!params?.logoutReq && response.status === 401) {
         logout()
     }
     return response
@@ -79,21 +94,38 @@ export const fetchTasks = async (): Promise<void> => {
         store.dispatch(setTasksDragState(DragState.fetchDelayed))
         return
     }
-    store.dispatch(setTasksFetchStatus(FetchStatus.LOADING))
+    const fetchStatus = store.getState().tasks_fetch_status
+    if (fetchStatus.status === FetchStatusEnum.LOADING) {
+        // abort inflight request
+        fetchStatus.abort_fetch()
+    }
+    let aborted = false
     try {
         const response = await makeAuthorizedRequest({
             url: TASKS_URL,
             method: 'GET',
+            abortCallback: (abort_fetch: () => void) => {
+                console.log('callback')
+                // store.dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING, abort_fetch))
+                store.dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING, () => {
+                    abort_fetch()
+                    aborted = true
+                }))
+            }
         })
+        console.log({ aborted })
+        if (aborted) {
+            alert('just had an abortion!!!')
+        }
         if (!response.ok) {
             throw new Error('/tasks api call failed')
         } else {
             const resj = await response.json()
-            store.dispatch(setTasksFetchStatus(FetchStatus.SUCCESS))
+            store.dispatch(setTasksFetchStatus(FetchStatusEnum.SUCCESS))
             store.dispatch(setTasks(resj))
         }
     } catch (e) {
-        store.dispatch(setTasksFetchStatus(FetchStatus.ERROR))
+        store.dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
         console.log({ e })
     }
 }
@@ -123,3 +155,6 @@ export const useDeviceSize = (): DeviceSize => {
     }, [])
     return deviceSize
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export function emptyFunction(): void { }
