@@ -11,7 +11,6 @@ import { setTasks, setTasksDragState, setTasksFetchStatus } from '../redux/actio
 import { useEffect, useState } from 'react'
 
 import Cookies from 'js-cookie'
-import { TTaskSection } from './types'
 import store from '../redux/store'
 
 // This invalidates the cookie on the frontend
