@@ -4,16 +4,9 @@ import { getAuthToken, getHeaders } from '../helpers/utils'
 
 import GLButton from './login/GoogleLogin'
 import { TEXT_GRAY } from '../helpers/styles'
-import styled from 'styled-components'
 import TasksPage from './task/TasksPage'
+import styled from 'styled-components'
 
-const Logo = styled.div`
-  font-weight: bold;
-  font-size: 32px;
-  margin-left: 10px;
-  margin-top: 10px;
-  padding: 20px; 
-`
 const Container = styled.div`
   width: 65%;
   margin: auto;
@@ -94,8 +87,7 @@ const LandingPage: React.FC = () => {
     return <TasksPage />
   }
   return (
-    <div>
-      <Logo>General Task</Logo>
+    <>
       <Container>
         <Title>
           The task manager for
@@ -112,7 +104,7 @@ const LandingPage: React.FC = () => {
           Sign in with Google
         </LoginWithGoogle>
       </Container>
-    </div>
+    </>
   )
 }
 
