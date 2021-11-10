@@ -56,6 +56,7 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
     if (params.abortCallback != null) {
         const controller = new AbortController()
         signal = controller.signal
+        // pass our abort function back to the caller
         params.abortCallback(() => controller.abort())
     }
     const response = await fetch(params.url, {
@@ -100,9 +101,8 @@ export const fetchTasks = async (): Promise<void> => {
             url: TASKS_URL,
             method: 'GET',
             abortCallback: (abort_fetch: () => void) => {
-                console.log('callback')
-                store.dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING, abort_fetch)
-                )
+                // get abort function from makeAuthorizedRequest, then make it available in redux state
+                store.dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING, abort_fetch))
             }
         })
         if (!response.ok) {
