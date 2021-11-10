@@ -79,7 +79,7 @@ const Task: React.FC<Props> = (props: Props) => {
       return { isOver: monitor.isOver()}
     },
     drop: (item: { id: string }, monitor) => {
-      if (item.id === task.id || dragDisabled) return
+      if (item.id === task.id) return
       if (!dropRef.current) return
 
       const boundingRect = dropRef.current.getBoundingClientRect()

@@ -95,10 +95,17 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
 
       // Insert dragged object into new position
       for (const task_section of task_sections) {
-        for (const task_group of task_section.task_groups) {
+        for (let group_index = 0 ; group_index < task_section.task_groups.length ; group_index++) {
+          const task_group = task_section.task_groups[group_index]
           for (let i = 0; i < task_group.tasks.length; i++) {
             if (task_group.tasks[i].id === action.dropTaskId && dragTaskObject !== null) {
-              task_group.tasks.splice(i + action.isLowerHalf, 0, dragTaskObject)
+              if (task_group.type == TTaskGroupType.SCHEDULED_TASK) {
+                if (action.isLowerHalf) task_section.task_groups[group_index + 1].tasks.splice(0, 0, dragTaskObject)
+                else task_section.task_groups[group_index - 1].tasks.push(dragTaskObject)
+              }
+              else {
+                task_group.tasks.splice(i + action.isLowerHalf, 0, dragTaskObject)
+              }
               return {
                 ...state,
                 task_sections
@@ -127,7 +134,6 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
         }
       }
       if (dragTaskObject === null) return state
-
       // Insert dragged task into top of section
       const task_section_drop = task_sections[action.sectionIndex]
       if (task_section_drop.task_groups.length === 0) return state
