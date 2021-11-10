@@ -1,17 +1,19 @@
-import { DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
+import { BACKGROUND_HOVER, DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
 import { DeviceSize, useDeviceSize } from '../../helpers/utils'
 import React, { useEffect, useState } from 'react'
-
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
+import { useDrop } from 'react-dnd'
+import { ItemTypes } from '../../helpers/types'
+import store from '../../redux/store'
+import { sectionDrop } from '../../redux/actions'
 
 const TaskSectionHeaderContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 40px;
+  height: 50px;
   color: ${TEXT_GRAY};
-  margin-bottom: 4px;
 `
 const Spanbar = styled.div`
   display: flex;
@@ -29,12 +31,15 @@ const TimeAnnotation = styled.div`
   justify-content: flex-end;
   height: 100%;
 `
-const InsideHeader = styled.div`
+const InsideHeader = styled.div<{isOver: boolean}>`
   display: flex;
   justify-content: center;
   align-items: center;
   width: 60%;
   margin-left: 4px;
+  background-color: ${props => props.isOver ? BACKGROUND_HOVER : 'inherit'};
+  border-radius: 2px;
+  height:100%;
 `
 const HeaderText = styled.div`
   font-size: 28px;
@@ -49,13 +54,23 @@ const CurrentTimeText = styled.div`
 interface Props {
   show_current_time: boolean,
   name: string,
+  task_section_index: number,
 }
 
 export default function TaskSectionHeader(props: Props): JSX.Element {
+  const [{isOver}, drop] = useDrop(() => ({
+    accept: ItemTypes.TASK,
+    collect: monitor => ({
+      isOver: !!monitor.isOver()
+    }),
+    drop: ({id}: {id: string}) => {
+      store.dispatch(sectionDrop(id, props.task_section_index))
+    }
+  }))
   return (
     <TaskSectionHeaderContainer>
       <TimeAnnotation>{props.show_current_time && <CurrentTime />}</TimeAnnotation>
-      <InsideHeader>
+      <InsideHeader isOver={isOver} ref={drop} >
         <Spanbar />
         <HeaderText>{props.name}</HeaderText>
         <Spanbar />
