@@ -1,7 +1,10 @@
-import { TSetting, TTaskSection } from './../helpers/types'
 import * as actions from './actionTypes'
+
+import { DragState, FetchStatusEnum } from './enums'
+import { TSetting, TTaskSection } from './../helpers/types'
+
 import { AnyAction } from 'redux'
-import { DragState, FetchStatus } from './enums'
+import { emptyFunction } from '../helpers/utils'
 
 export function setTasks(task_sections: TTaskSection[]): AnyAction {
     return {
@@ -10,11 +13,14 @@ export function setTasks(task_sections: TTaskSection[]): AnyAction {
     }
 }
 
-// tasks_fetch_status is from enums.js - FetchStatus
-export function setTasksFetchStatus(tasks_fetch_status: FetchStatus): AnyAction {
+// tasks_fetch_status is from enums.js - FetchStatusEnum
+export function setTasksFetchStatus(status: FetchStatusEnum, abort_fetch: () => void = emptyFunction): AnyAction {
     return {
         type: actions.SET_TASKS_FETCH_STATUS,
-        tasks_fetch_status,
+        tasks_fetch_status: {
+            status,
+            abort_fetch,
+        }
     }
 }
 

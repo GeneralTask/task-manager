@@ -1,21 +1,16 @@
 import { TTask, TTaskGroupType, TTaskSection } from './../helpers/types'
 import * as actions from './actionTypes'
+
+import { RootState, initialState } from './store'
+
 import { AnyAction } from 'redux'
-import { RootState } from './store'
-import { DragState, FetchStatus } from './enums'
 import _ from 'lodash'
 
 let task_sections: TTaskSection[]
 let dragTaskObject: TTask | null = null
 const reducer = (state: RootState | undefined, action: AnyAction): RootState => {
-  if (state === undefined) {
-    return {
-      task_sections: [],
-      tasks_fetch_status: FetchStatus.LOADING,
-      tasks_drag_state: DragState.noDrag,
-      expanded_body: null,
-      settings: [],
-    }
+  if (state == null) {
+    return initialState
   }
   switch (action.type) {
     case actions.SET_TASKS:
@@ -75,7 +70,7 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
         ...state,
         tasks_drag_state: action.dragState,
       }
-    
+
     case actions.DRAG_DROP:
       if (action.dropTask === null) return state
       if (action.dragTaskId === action.dropTaskId) return state

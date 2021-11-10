@@ -1,12 +1,12 @@
 import { TASK_STATUS_FETCH_ERROR, TASK_STATUS_NO_TASKS } from '../../constants'
+import { TFetchStatus, TTaskSection } from '../../helpers/types'
 import { connect, useSelector } from 'react-redux'
 
-import { FetchStatus } from '../../redux/enums'
+import DotSpinner from '../common/DotSpinner'
+import { FetchStatusEnum } from '../../redux/enums'
 import React from 'react'
 import { RootState } from '../../redux/store'
-import { TTaskSection } from '../../helpers/types'
 import styled from 'styled-components'
-import DotSpinner from '../common/DotSpinner'
 
 const Status = styled.div`
     height: 40px;
@@ -17,22 +17,22 @@ const TaskStatus = () => {
     let content: JSX.Element | null = null
 
     const task_sections: TTaskSection[] = useSelector((state: RootState) => state.task_sections)
-    const tasks_fetch_status: FetchStatus = useSelector((state: RootState) => state.tasks_fetch_status)
+    const tasks_fetch_status: TFetchStatus = useSelector((state: RootState) => state.tasks_fetch_status)
 
-    switch (tasks_fetch_status) {
-        case FetchStatus.LOADING:
+    switch (tasks_fetch_status.status) {
+        case FetchStatusEnum.LOADING:
             if (task_sections.length === 0) {
                 content = <DotSpinner />
             }
             break
 
-        case FetchStatus.SUCCESS:
+        case FetchStatusEnum.SUCCESS:
             if (task_sections.length === 0) {
                 content = <div>{TASK_STATUS_NO_TASKS}</div>
             }
             break
 
-        case FetchStatus.ERROR:
+        case FetchStatusEnum.ERROR:
             content = <div>{TASK_STATUS_FETCH_ERROR}</div>
             break
 

@@ -1,3 +1,4 @@
+import { FetchStatusEnum } from '../redux/enums'
 
 export enum TTaskGroupType {
     SCHEDULED_TASK = 'scheduled_task',
@@ -73,4 +74,9 @@ export const ItemTypes = {
 export interface DropResult {
     id: string,
     dropDisabled: boolean
+}
+
+export interface TFetchStatus {
+    status: FetchStatusEnum,
+    abort_fetch: () => void,
 }
