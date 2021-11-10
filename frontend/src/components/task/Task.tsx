@@ -79,6 +79,7 @@ const Task: React.FC<Props> = (props: Props) => {
       return { isOver: monitor.isOver()}
     },
     drop: (item: { id: string }, monitor) => {
+      setTasksDragState(DragState.noDrag)
       if (item.id === task.id) return
       if (!dropRef.current) return
 
