@@ -1,5 +1,6 @@
 import './Task.css'
 
+import React, { useState } from 'react'
 import { connect, useSelector } from 'react-redux'
 import { dragDrop, setTasksDragState } from '../../redux/actions'
 import { useDrag, useDrop } from 'react-dnd'
@@ -7,7 +8,6 @@ import { useDrag, useDrop } from 'react-dnd'
 import { BORDER_PRIMARY } from '../../helpers/styles'
 import { DragState } from '../../redux/enums'
 import { ItemTypes } from '../../helpers/types'
-import React, { useState } from 'react'
 import { RootState } from '../../redux/store'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
@@ -15,7 +15,7 @@ import TaskHeader from './TaskHeader'
 import store from '../../redux/store'
 import styled from 'styled-components'
 
-const Container = styled.div`
+const Container = styled.div<{ opacity: number }>`
   padding: 0;
   font-family: 'Ellipsis', 'Gothic A1', sans-serif;
   border: 1px solid ${BORDER_PRIMARY};
@@ -23,12 +23,13 @@ const Container = styled.div`
   width: 100%;
   outline: none;
   background-color: white;
+  opacity: ${props => props.opacity}
 `
 const DraggableContainer = styled.div`
     margin: 5px 0;
     position: relative;
 `
-const DropIndicator = styled.hr<{isVisible:boolean}>`
+const DropIndicator = styled.hr<{ isVisible: boolean }>`
   flex-grow: 1;
   height: 0px;
   position: absolute;
@@ -37,7 +38,7 @@ const DropIndicator = styled.hr<{isVisible:boolean}>`
   color: ${BORDER_PRIMARY};
   border-color: ${BORDER_PRIMARY};
   background-color: ${BORDER_PRIMARY};
-  opacity: ${props => props.isVisible ? '1.0' : '0.0'};
+  visibility: ${props => props.isVisible ? 'visible' : 'hidden'};
 `
 const DropIndicatorAbove = styled(DropIndicator)`
   margin-top: -5px;
@@ -72,10 +73,10 @@ const Task: React.FC<Props> = (props: Props) => {
       return { opacity: isDragging ? 0.5 : 1 }
     }
   }))
-  const [{isOverDroppable}, drop] = useDrop(() => ({
+  const [{ isOverDroppable }, drop] = useDrop(() => ({
     accept: ItemTypes.TASK,
     collect: monitor => {
-      return {isOverDroppable: monitor.isOver() && !props.dragDropDisabled}
+      return { isOverDroppable: monitor.isOver() && !props.dragDropDisabled }
     },
     drop: (item: { id: string }, monitor) => {
       if (item.id === task.id || dragDropDisabled) return
@@ -90,7 +91,7 @@ const Task: React.FC<Props> = (props: Props) => {
     },
     hover: (_, monitor) => {
       if (!dropRef.current) return
-      
+
       const boundingRect = dropRef.current.getBoundingClientRect()
       if (boundingRect != null) {
         const dropMiddleY = (boundingRect.bottom - boundingRect.top) / 2 + boundingRect.top
@@ -108,9 +109,9 @@ const Task: React.FC<Props> = (props: Props) => {
 
   return (
     <div ref={dropRef}>
-      <DraggableContainer style={{opacity}} ref={dragPreview}>
-        <DropIndicatorAbove isVisible={isOverDroppable && dropDirection}></DropIndicatorAbove>
-        <Container >
+      <DraggableContainer ref={dragPreview}>
+        <DropIndicatorAbove isVisible={isOverDroppable && dropDirection} />
+        <Container opacity={opacity} >
           <TaskHeader
             task={task}
             datetimeStart={datetimeStart}
@@ -119,13 +120,13 @@ const Task: React.FC<Props> = (props: Props) => {
             ref={drag}
           />
           <TaskBody
-              body={task.body}
-              task_id={task.id}
-              deeplink={task.deeplink}
-              source={task.source}
-              isExpanded={isExpanded} sender={null}/>
+            body={task.body}
+            task_id={task.id}
+            deeplink={task.deeplink}
+            source={task.source}
+            isExpanded={isExpanded} sender={null} />
         </Container>
-        <DropIndicatorBelow isVisible={isOverDroppable && !dropDirection}></DropIndicatorBelow>
+        <DropIndicatorBelow isVisible={isOverDroppable && !dropDirection} />
       </DraggableContainer>
     </div>
   )
