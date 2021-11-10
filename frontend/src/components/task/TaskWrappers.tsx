@@ -97,7 +97,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
         <Task
           task={taskGroup.tasks[0]}
           datetimeStart={taskGroup.datetime_start}
-          dragDropDisabled={true}/>
+          dragDisabled={true}/>
       </Tasks>
       <TimeAnnotation>
         <div>
@@ -117,7 +117,7 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
       <TimeAnnotation />
       <Tasks>
         {taskGroup.tasks.map((task: TTask) => (
-          <Task task={task} datetimeStart={null} dragDropDisabled={false} key={task.id}/>
+          <Task task={task} datetimeStart={null} dragDisabled={false} key={task.id}/>
         ))}
       </Tasks>
       <TimeAnnotation>
