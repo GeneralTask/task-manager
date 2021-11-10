@@ -19,7 +19,7 @@ const App: React.FC = () => {
     <Provider store={store}>
       <ToastContainer draggable={false} transition={Zoom} autoClose={TOAST_DURATION} position={toast.POSITION.BOTTOM_RIGHT} />
       <BrowserRouter>
-        {getAuthToken() ? <Header /> : null}
+        <Header isLoggedIn={Boolean(getAuthToken())} />
         <Switch>
           {/* Settings page, only accessible if logged in */}
           {getAuthToken() ? <Route path={SETTINGS_PATH} component={Settings} /> : null}

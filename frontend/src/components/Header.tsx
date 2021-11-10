@@ -54,8 +54,11 @@ const DropDown = styled.div`
 const Right = styled.div`
   margin-right: 30px;
 `
+interface Props {
+  isLoggedIn: boolean,
+}
 
-const Header: React.FC = () => {
+const Header: React.FC<Props> = ({ isLoggedIn }: Props) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false)
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
@@ -73,7 +76,7 @@ const Header: React.FC = () => {
         <div>
           <Link to={LANDING_PATH}><Logo>General Task</Logo></Link>
         </div>
-        <Right>
+        {isLoggedIn && <Right>
           {deviceSize === DeviceSize.MOBILE
             ? <Hamburger src="images/hamburger.svg" onClick={toggleMenu} />
             : <>
@@ -81,9 +84,9 @@ const Header: React.FC = () => {
               <Link to={SETTINGS_PATH}><Button>Settings</Button></Link>
               <Logout onClick={logout} disabled={!getAuthToken()}>Logout</Logout>
             </>}
-        </Right>
+        </Right>}
       </HeaderDiv>
-      {deviceSize === DeviceSize.MOBILE && isMenuOpen && <DropDown>
+      {isLoggedIn && deviceSize === DeviceSize.MOBILE && isMenuOpen && <DropDown>
         <Link to={LANDING_PATH}><Button>Tasks</Button></Link>
         <Link to={SETTINGS_PATH}><Button>Settings</Button></Link>
         <Logout onClick={logout} disabled={!getAuthToken()}>Logout</Logout>
