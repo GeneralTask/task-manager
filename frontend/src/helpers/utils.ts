@@ -56,11 +56,7 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
     if (params.abortCallback != null) {
         const controller = new AbortController()
         signal = controller.signal
-        // params.abortCallback(controller.abort)
-        params.abortCallback(() => {
-            controller.abort()
-            console.log('aborting request')
-        })
+        params.abortCallback(() => controller.abort())
     }
     const response = await fetch(params.url, {
         method: params.method,
@@ -99,33 +95,24 @@ export const fetchTasks = async (): Promise<void> => {
         // abort inflight request
         fetchStatus.abort_fetch()
     }
-    let aborted = false
     try {
         const response = await makeAuthorizedRequest({
             url: TASKS_URL,
             method: 'GET',
             abortCallback: (abort_fetch: () => void) => {
                 console.log('callback')
-                // store.dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING, abort_fetch))
-                store.dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING, () => {
-                    abort_fetch()
-                    aborted = true
-                }))
+                store.dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING, abort_fetch)
+                )
             }
         })
-        console.log({ aborted })
-        if (aborted) {
-            alert('just had an abortion!!!')
-        }
         if (!response.ok) {
-            throw new Error('/tasks api call failed')
+            store.dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
         } else {
             const resj = await response.json()
             store.dispatch(setTasksFetchStatus(FetchStatusEnum.SUCCESS))
             store.dispatch(setTasks(resj))
         }
     } catch (e) {
-        store.dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
         console.log({ e })
     }
 }
