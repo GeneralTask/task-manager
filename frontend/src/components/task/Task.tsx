@@ -53,12 +53,12 @@ const DropDirection = {
 
 interface Props {
   task: TTask,
-  dragDropDisabled: boolean,
+  dragDisabled: boolean,
   datetimeStart: string | null, // null if unscheduled_task
 }
 
 const Task: React.FC<Props> = (props: Props) => {
-  const { task, datetimeStart, dragDropDisabled } = props
+  const { task, datetimeStart, dragDisabled } = props
   const dropRef = React.useRef<HTMLDivElement>(null)
   const expanded_body = useSelector((state: RootState) => state.expanded_body)
   const isExpanded = expanded_body === task.id
@@ -73,13 +73,13 @@ const Task: React.FC<Props> = (props: Props) => {
       return { opacity: isDragging ? 0.5 : 1 }
     }
   }))
-  const [{ isOverDroppable }, drop] = useDrop(() => ({
+  const [{ isOver }, drop] = useDrop(() => ({
     accept: ItemTypes.TASK,
     collect: monitor => {
-      return { isOverDroppable: monitor.isOver() && !props.dragDropDisabled }
+      return { isOver: monitor.isOver()}
     },
     drop: (item: { id: string }, monitor) => {
-      if (item.id === task.id || dragDropDisabled) return
+      if (item.id === task.id) return
       if (!dropRef.current) return
 
       const boundingRect = dropRef.current.getBoundingClientRect()
@@ -110,12 +110,12 @@ const Task: React.FC<Props> = (props: Props) => {
   return (
     <div ref={dropRef}>
       <DraggableContainer ref={dragPreview}>
-        <DropIndicatorAbove isVisible={isOverDroppable && dropDirection} />
+        <DropIndicatorAbove isVisible={isOver && dropDirection} />
         <Container opacity={opacity} >
           <TaskHeader
             task={task}
             datetimeStart={datetimeStart}
-            dragDropDisabled={dragDropDisabled}
+            dragDisabled={dragDisabled}
             isExpanded={isExpanded}
             ref={drag}
           />
@@ -126,7 +126,7 @@ const Task: React.FC<Props> = (props: Props) => {
             source={task.source}
             isExpanded={isExpanded} sender={null} />
         </Container>
-        <DropIndicatorBelow isVisible={isOverDroppable && !dropDirection} />
+        <DropIndicatorBelow isVisible={isOver && !dropDirection} />
       </DraggableContainer>
     </div>
   )
