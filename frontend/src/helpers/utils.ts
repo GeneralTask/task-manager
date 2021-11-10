@@ -72,17 +72,6 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
     return response
 }
 
-export const resetOrderingIds = (task_sections: TTaskSection[]): void => {
-    for (const taskSection of task_sections) {
-        let id_ordering = 1
-        for (const taskGroup of taskSection.task_groups) {
-            for (const task of taskGroup.tasks) {
-                task.id_ordering = id_ordering++
-            }
-        }
-    }
-}
-
 export const getLinkedAccountsURL = (account_id: string): string => LINKED_ACCOUNTS_URL + account_id + '/'
 
 export const fetchTasks = async (): Promise<void> => {
