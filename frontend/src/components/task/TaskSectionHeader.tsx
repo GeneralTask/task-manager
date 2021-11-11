@@ -1,12 +1,14 @@
 import { BACKGROUND_HOVER, DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
 import { DeviceSize, useDeviceSize } from '../../helpers/utils'
 import React, { useEffect, useState } from 'react'
+
 import { DateTime } from 'luxon'
+import { ItemTypes } from '../../helpers/types'
+import RefreshButton from './RefreshButton'
+import { sectionDrop } from '../../redux/actions'
+import store from '../../redux/store'
 import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
-import { ItemTypes } from '../../helpers/types'
-import store from '../../redux/store'
-import { sectionDrop } from '../../redux/actions'
 
 const TaskSectionHeaderContainer = styled.div`
   display: flex;
@@ -31,7 +33,10 @@ const TimeAnnotation = styled.div`
   justify-content: flex-end;
   height: 100%;
 `
-const InsideHeader = styled.div<{isOver: boolean}>`
+const TimeAnnotationRight = styled(TimeAnnotation)`
+  justify-content: flex-start;
+`
+const InsideHeader = styled.div<{ isOver: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -52,30 +57,32 @@ const CurrentTimeText = styled.div`
 `
 
 interface Props {
-  show_current_time: boolean,
+  isToday: boolean,
   name: string,
   task_section_index: number,
 }
 
 export default function TaskSectionHeader(props: Props): JSX.Element {
-  const [{isOver}, drop] = useDrop(() => ({
+  const [{ isOver }, drop] = useDrop(() => ({
     accept: ItemTypes.TASK,
     collect: monitor => ({
       isOver: !!monitor.isOver()
     }),
-    drop: ({id}: {id: string}) => {
+    drop: ({ id }: { id: string }) => {
       store.dispatch(sectionDrop(id, props.task_section_index))
     }
   }))
   return (
     <TaskSectionHeaderContainer>
-      <TimeAnnotation>{props.show_current_time && <CurrentTime />}</TimeAnnotation>
+      <TimeAnnotation>{props.isToday && <CurrentTime />}</TimeAnnotation>
       <InsideHeader isOver={isOver} ref={drop} >
         <Spanbar />
         <HeaderText>{props.name}</HeaderText>
         <Spanbar />
       </InsideHeader>
-      <TimeAnnotation></TimeAnnotation>
+      <TimeAnnotationRight>
+        {props.isToday && <RefreshButton />}
+      </TimeAnnotationRight>
     </TaskSectionHeaderContainer>
   )
 }

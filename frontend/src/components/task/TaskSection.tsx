@@ -20,7 +20,7 @@ function TaskGroup(props: TaskGroupProps) {
         return <ScheduledTask taskGroup={props.taskGroup} showTimeAnnotations={props.showTimeAnnotations} />
     }
     else if (props.taskGroup.type === TTaskGroupType.UNSCHEDULED_GROUP) {
-        return <UnscheduledTaskGroup taskGroup={props.taskGroup} showTimeAnnotations={props.showTimeAnnotations}/>
+        return <UnscheduledTaskGroup taskGroup={props.taskGroup} showTimeAnnotations={props.showTimeAnnotations} />
     }
     else {
         return null
@@ -34,7 +34,7 @@ interface Props {
 
 export default function TaskSection(props: Props): JSX.Element {
     return <>
-        <TaskSectionHeader task_section_index={props.task_section_index} show_current_time={props.task_section.is_today} name={props.task_section.name} />
+        <TaskSectionHeader task_section_index={props.task_section_index} isToday={props.task_section.is_today} name={props.task_section.name} />
         {
             props.task_section.task_groups.map((group: TTaskGroup, task_group_index: number) => {
                 if (group.tasks && !group.tasks.length) {
@@ -49,7 +49,7 @@ export default function TaskSection(props: Props): JSX.Element {
                             <TaskGroup taskGroup={group}
                                 showTimeAnnotations={props.task_section.is_today}
                             />
-                        }  
+                        }
                     </div>
                 )
             })
