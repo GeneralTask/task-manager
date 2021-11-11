@@ -97,7 +97,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
         <Task
           task={taskGroup.tasks[0]}
           datetimeStart={taskGroup.datetime_start}
-          dragDisabled={true}/>
+          dragDisabled={true} />
       </Tasks>
       <TimeAnnotation>
         <div>
@@ -117,7 +117,7 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
       <TimeAnnotation />
       <Tasks>
         {taskGroup.tasks.map((task: TTask) => (
-          <Task task={task} datetimeStart={null} dragDisabled={false} key={task.id}/>
+          <Task task={task} datetimeStart={null} dragDisabled={false} key={task.id} />
         ))}
       </Tasks>
       <TimeAnnotation>
@@ -153,7 +153,7 @@ export function useCountdown(datetimeStart: string | null): string | null {
     return () => {
       clearInterval(interval)
     }
-  }, [isMobile])
+  }, [isMobile, datetimeStart])
 
   if (DateTime.now() > start) {
     return null
@@ -201,15 +201,15 @@ export function useTimeDuration(
     return () => {
       clearInterval(interval)
     }
-  }, [isMobile])
+  }, [isMobile, time_duration, datetime_start, alwaysShowTimeRemaining])
   return timeStr
 }
 
-const getLiveTimeStr = (dtEnd: DateTime, condensed=false): string => {
+const getLiveTimeStr = (dtEnd: DateTime, condensed = false): string => {
   return getTimeStringFromDuration(dtEnd.diffNow(), condensed)
 }
 
-const getTimeStringFromDuration = (dur: Duration, condensed=false): string => {
+const getTimeStringFromDuration = (dur: Duration, condensed = false): string => {
   const shortEnglishHumanizer = humanizeDuration.humanizer({
     language: 'short_en',
     languages: {
@@ -217,13 +217,13 @@ const getTimeStringFromDuration = (dur: Duration, condensed=false): string => {
     },
   })
   return shortEnglishHumanizer(
-    dur.toMillis(), 
-    { 
-      units: ['d', 'h', 'm'], 
-      largest: 2, 
-      delimiter: ' ', 
-      round: true, 
-      language: 'short_en', 
+    dur.toMillis(),
+    {
+      units: ['d', 'h', 'm'],
+      largest: 2,
+      delimiter: ' ',
+      round: true,
+      language: 'short_en',
       spacer: condensed ? '' : ' ',
     })
 }
