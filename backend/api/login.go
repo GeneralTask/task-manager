@@ -13,7 +13,6 @@ import (
 	guuid "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // GoogleRedirectParams ...
@@ -133,11 +132,9 @@ func (api *API) LoginCallback(c *gin.Context) {
 	internalAPITokenCollection := database.GetInternalTokenCollection(db)
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	_, err = internalAPITokenCollection.UpdateOne(
+	_, err = internalAPITokenCollection.InsertOne(
 		dbCtx,
-		bson.M{"user_id": userID},
-		bson.M{"$set": &database.InternalAPIToken{UserID: userID, Token: internalToken}},
-		options.Update().SetUpsert(true),
+		&database.InternalAPIToken{UserID: userID, Token: internalToken},
 	)
 	if err != nil {
 		log.Printf("failed to create internal token record: %v", err)
