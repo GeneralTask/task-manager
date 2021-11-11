@@ -1,4 +1,4 @@
-import styled, { css, keyframes } from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
 import { FetchStatusEnum } from '../../redux/enums'
 import React from 'react'
@@ -14,12 +14,6 @@ const spin = keyframes`
         transform: rotate(360deg);
     }
 `
-
-const spinRule = css(
-    (['', '1s', 'linear', 'infinte'] as any) as TemplateStringsArray,
-    spin
-)
-
 const RefreshBtn = styled.img`
     width: 30px;
     margin-left: 10px;
