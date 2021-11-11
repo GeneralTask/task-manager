@@ -237,6 +237,7 @@ func MergeTasks(
 	blockedTasks, backlogTasks, allUnscheduledTasks := extractSectionTasks(&allUnscheduledTasks)
 
 	// sort blocked tasks by ordering ID
+	// we can assume every task has a proper ordering ID because tasks have to be dragged into the blocked section
 	sort.SliceStable(blockedTasks, func(i, j int) bool {
 		a := blockedTasks[i]
 		b := blockedTasks[j]
@@ -244,6 +245,7 @@ func MergeTasks(
 	})
 
 	// sort backlog tasks by ordering ID
+	// we can assume every task has a proper ordering ID because tasks have to be dragged into the backlog section
 	sort.SliceStable(backlogTasks, func(i, j int) bool {
 		a := backlogTasks[i]
 		b := backlogTasks[j]
@@ -286,30 +288,29 @@ func MergeTasks(
 	var taskItems []*TaskItem
 
 	lastEndTime := time.Now()
-	taskIndex := 0
 	calendarIndex := 0
 
 	for ; calendarIndex < len(calendarEvents); calendarIndex++ {
 		calendarEvent := calendarEvents[calendarIndex]
 
-		if taskIndex >= len(allUnscheduledTasks) {
+		if len(allUnscheduledTasks) == 0 {
 			break
 		}
 
 		remainingTime := calendarEvent.DatetimeStart.Time().Sub(lastEndTime)
 
-		taskBase := getTaskBase(allUnscheduledTasks[taskIndex])
-		timeAllocation := taskBase.TimeAllocation
-		for remainingTime.Nanoseconds() >= timeAllocation {
-			taskItems = append(taskItems, &TaskItem{TaskGroupType: UnscheduledGroup, TaskBase: taskBase})
-			remainingTime -= time.Duration(timeAllocation)
-			taskIndex += 1
-			if taskIndex >= len(allUnscheduledTasks) {
-				break
+		var newUnscheduledTasks []interface{}
+		for _, unscheduledTask := range allUnscheduledTasks {
+			taskBase := getTaskBase(unscheduledTask)
+			if taskBase.TimeAllocation > remainingTime.Nanoseconds() {
+				// we won't use this unscheduled task in this group, so add it to the remaining unscheduled tasks group
+				newUnscheduledTasks = append(newUnscheduledTasks, unscheduledTask)
+				continue
 			}
-			taskBase = getTaskBase(allUnscheduledTasks[taskIndex])
-			timeAllocation = taskBase.TimeAllocation
+			taskItems = append(taskItems, &TaskItem{TaskGroupType: UnscheduledGroup, TaskBase: taskBase})
+			remainingTime -= time.Duration(taskBase.TimeAllocation)
 		}
+		allUnscheduledTasks = newUnscheduledTasks
 
 		taskItems = append(taskItems, &TaskItem{
 			TaskGroupType: ScheduledTask,
@@ -338,8 +339,8 @@ func MergeTasks(
 	}
 
 	//add remaining non scheduled events, if they exist.
-	for ; taskIndex < len(allUnscheduledTasks); taskIndex++ {
-		task := getTaskBase(allUnscheduledTasks[taskIndex])
+	for _, unscheduledTask := range allUnscheduledTasks {
+		task := getTaskBase(unscheduledTask)
 		taskItems = append(taskItems, &TaskItem{TaskGroupType: UnscheduledGroup, TaskBase: task})
 	}
 

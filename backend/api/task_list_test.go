@@ -177,41 +177,41 @@ func TestMergeTasks(t *testing.T) {
 		assert.Equal(t, 5, len(result[0].TaskGroups))
 		todayGroups := result[0].TaskGroups
 
-		assert.Equal(t, 2, len(todayGroups[0].Tasks))
+		assert.Equal(t, 3, len(todayGroups[0].Tasks))
 		assert.Equal(t, UnscheduledGroup, todayGroups[0].TaskGroupType)
 		assert.Equal(t, e1aID, todayGroups[0].Tasks[0].ID)
 		assert.Equal(t, 1, todayGroups[0].Tasks[0].IDOrdering)
 		assert.Equal(t, e1ID, todayGroups[0].Tasks[1].ID)
 		assert.Equal(t, 2, todayGroups[0].Tasks[1].IDOrdering)
+		// email would normally go behind tasks but it goes in the first task group to fill in a time gap
+		assert.Equal(t, e2ID, todayGroups[0].Tasks[2].ID)
+		assert.Equal(t, 3, todayGroups[0].Tasks[2].IDOrdering)
 
 		assert.Equal(t, 1, len(todayGroups[1].Tasks))
 		assert.Equal(t, ScheduledTask, todayGroups[1].TaskGroupType)
 		assert.Equal(t, c1ID, todayGroups[1].Tasks[0].ID)
-		assert.Equal(t, 3, todayGroups[1].Tasks[0].IDOrdering)
+		assert.Equal(t, 4, todayGroups[1].Tasks[0].IDOrdering)
 
 		assert.Equal(t, 1, len(todayGroups[2].Tasks))
 		assert.Equal(t, UnscheduledGroup, todayGroups[2].TaskGroupType)
 		assert.Equal(t, t1ID, todayGroups[2].Tasks[0].ID)
-		assert.Equal(t, 4, todayGroups[2].Tasks[0].IDOrdering)
+		assert.Equal(t, 5, todayGroups[2].Tasks[0].IDOrdering)
 
 		assert.Equal(t, 1, len(todayGroups[3].Tasks))
 		assert.Equal(t, ScheduledTask, todayGroups[3].TaskGroupType)
 		assert.Equal(t, c2ID, todayGroups[3].Tasks[0].ID)
-		assert.Equal(t, 5, todayGroups[3].Tasks[0].IDOrdering)
+		assert.Equal(t, 6, todayGroups[3].Tasks[0].IDOrdering)
 
-		assert.Equal(t, 4, len(todayGroups[4].Tasks))
+		assert.Equal(t, 3, len(todayGroups[4].Tasks))
 		assert.Equal(t, UnscheduledGroup, todayGroups[4].TaskGroupType)
 		assert.Equal(t, t3ID, todayGroups[4].Tasks[0].ID)
-		assert.Equal(t, 6, todayGroups[4].Tasks[0].IDOrdering)
+		assert.Equal(t, 7, todayGroups[4].Tasks[0].IDOrdering)
 
 		assert.Equal(t, t4ID, todayGroups[4].Tasks[1].ID)
-		assert.Equal(t, 7, todayGroups[4].Tasks[1].IDOrdering)
+		assert.Equal(t, 8, todayGroups[4].Tasks[1].IDOrdering)
 
 		assert.Equal(t, t2ID, todayGroups[4].Tasks[2].ID)
-		assert.Equal(t, 8, todayGroups[4].Tasks[2].IDOrdering)
-
-		assert.Equal(t, e2ID, todayGroups[4].Tasks[3].ID)
-		assert.Equal(t, 9, todayGroups[4].Tasks[3].IDOrdering)
+		assert.Equal(t, 9, todayGroups[4].Tasks[2].IDOrdering)
 	})
 	t.Run("ReorderingAroundCalendarEvents", func(t *testing.T) {
 		// Tested here:
