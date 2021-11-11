@@ -14,6 +14,8 @@ import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import store from '../../redux/store'
 import styled from 'styled-components'
+import { lookupTaskObject, lookupTaskSection, makeAuthorizedRequest } from '../../helpers/utils'
+import { TASKS_MODIFY_URL } from '../../constants'
 
 const Container = styled.div<{ opacity: number }>`
   padding: 0;
@@ -60,7 +62,7 @@ interface Props {
 const Task: React.FC<Props> = (props: Props) => {
   const { task, datetimeStart, dragDisabled } = props
   const dropRef = React.useRef<HTMLDivElement>(null)
-  const expanded_body = useSelector((state: RootState) => state.expanded_body)
+  const {expanded_body, task_sections}  = useSelector((state: RootState) => state)
   const isExpanded = expanded_body === task.id
   const [dropDirection, setDropDirection] = useState(DropDirection.Up)
 
@@ -89,6 +91,19 @@ const Task: React.FC<Props> = (props: Props) => {
         const clientOffsetY = monitor.getClientOffset()?.y
         store.dispatch(dragDrop(item.id, task.id, !!(clientOffsetY && clientOffsetY > dropMiddleY)))
       }
+      const droppedSectionId = lookupTaskSection(task_sections, task.id)
+      const taskDropped = lookupTaskObject(task_sections, item.id)
+
+      makeAuthorizedRequest({
+        url: TASKS_MODIFY_URL + item.id + '/',
+        method: 'PATCH',
+        body: JSON.stringify({
+          id_task_section: task_sections[droppedSectionId].id,
+          id_ordering: taskDropped?.id_ordering
+        })
+      }).catch((error) => {
+        throw new Error('PATCH /tasks/ failed: ' + error)
+      })
     },
     hover: (_, monitor) => {
       if (!dropRef.current) return

@@ -5,6 +5,7 @@ import { RootState, initialState } from './store'
 
 import { AnyAction } from 'redux'
 import _ from 'lodash'
+import { updateOrderingIds } from '../helpers/utils'
 
 let task_sections: TTaskSection[]
 let dragTaskObject: TTask | null = null
@@ -101,9 +102,12 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
               else {
                 task_group.tasks.splice(i + action.isLowerHalf, 0, dragTaskObject)
               }
+              Object.assign(state.task_sections, updateOrderingIds(task_sections))
               return {
                 ...state,
-                task_sections
+                task_sections: [
+                  ...state.task_sections
+                ]
               }
             }
           }

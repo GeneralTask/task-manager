@@ -12,6 +12,8 @@ import { useEffect, useState } from 'react'
 
 import Cookies from 'js-cookie'
 import store from '../redux/store'
+import { TTask, TTaskSection } from './types'
+import _ from 'lodash'
 
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
@@ -69,6 +71,45 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
         logout()
     }
     return response
+}
+
+export const lookupTaskSection = (task_sections: TTaskSection[], task_id: string): number => {
+    return _.findIndex(task_sections, (section) => {
+        return section.task_groups.find(group => {
+            return group.tasks.find(task => {
+                if (task.id === task_id) return true
+                return false
+            }) !== undefined
+        }) !== undefined
+    })
+}
+
+export const lookupTaskObject = (task_sections: TTaskSection[], task_id: string): TTask | null => {
+    let task = null
+    for (const section of task_sections) {
+        if (task !== null) break
+        for (const group of section.task_groups) {
+            if (task !== null) break
+            for (const currTask of group.tasks) {
+                if (currTask.id == task_id) {
+                    task = currTask
+                    break
+                }
+            }
+        }
+    }
+    return task
+}
+
+
+export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
+    return task_sections.map((section) => {
+        let idOrdering = 1
+        section.task_groups.forEach((group) => {
+            group.tasks.forEach((task) => task.id_ordering = idOrdering++)
+        })
+        return section        
+    })
 }
 
 export const getLinkedAccountsURL = (account_id: string): string => LINKED_ACCOUNTS_URL + account_id + '/'
