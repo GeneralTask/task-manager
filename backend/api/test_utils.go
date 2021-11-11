@@ -238,7 +238,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 		defer cancel()
 		count, err = internalAPITokenCollection.CountDocuments(dbCtx, bson.M{"user_id": user.ID})
 		assert.NoError(t, err)
-		assert.Equal(t, int64(1), count)
+		assert.GreaterOrEqual(t, count, int64(1))
 	}
 }
 
