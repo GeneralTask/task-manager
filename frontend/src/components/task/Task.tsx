@@ -65,7 +65,7 @@ const Task: React.FC<Props> = (props: Props) => {
   const {expanded_body, task_sections}  = useSelector((state: RootState) => state)
   const isExpanded = expanded_body === task.id
   const [dropDirection, setDropDirection] = useState(DropDirection.Up)
-  const taskSectionsRef = useRef<TTaskSection[]>(task_sections)
+  const taskSectionsRef = useRef<TTaskSection[]>()
 
   taskSectionsRef.current = task_sections
 
@@ -87,7 +87,7 @@ const Task: React.FC<Props> = (props: Props) => {
       setTasksDragState(DragState.noDrag)
 
       if (taskSectionsRef.current == null) return
-      const task_sections = taskSectionsRef.current
+      const taskSections = taskSectionsRef.current
 
       if (item.id === task.id) return
       if (!dropRef.current) return
@@ -99,7 +99,7 @@ const Task: React.FC<Props> = (props: Props) => {
         const clientOffsetY = monitor.getClientOffset()?.y
         isLowerHalf = !!(clientOffsetY && clientOffsetY > dropMiddleY)
       }
-      const updatedTaskSections = TaskDropReorder(task_sections, item.id, task.id, isLowerHalf)
+      const updatedTaskSections = TaskDropReorder(taskSections, item.id, task.id, isLowerHalf)
       store.dispatch(setTasks(updatedTaskSections))
       
       const updatedOrderingId = lookupTaskObject(updatedTaskSections, item.id)?.id_ordering
@@ -108,7 +108,7 @@ const Task: React.FC<Props> = (props: Props) => {
         url: TASKS_MODIFY_URL + item.id + '/',
         method: 'PATCH',
         body: JSON.stringify({
-          id_task_section: task_sections[droppedSectionId].id,
+          id_task_section: taskSections[droppedSectionId].id,
           id_ordering: updatedOrderingId
         })
       }).then(fetchTasks).catch((error) => {
