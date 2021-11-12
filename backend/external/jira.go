@@ -254,6 +254,7 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			result <- emptyTaskResult(err)
 			return
 		}
+		task.HasBeenReordered = dbTask.HasBeenReordered
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection

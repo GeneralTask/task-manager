@@ -128,6 +128,7 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			result <- emptyTaskResult(err)
 			return
 		}
+		task.HasBeenReordered = dbTask.HasBeenReordered
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection

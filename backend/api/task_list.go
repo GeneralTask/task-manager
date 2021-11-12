@@ -447,8 +447,8 @@ func adjustForCompletedTasks(
 				log.Printf("failed to update task ordering ID: %v", err)
 				return err
 			}
-			if res.ModifiedCount != 1 {
-				log.Printf("did not find task to update (ID=%v)", currentTask.ID)
+			if res.MatchedCount != 1 {
+				log.Printf("did not find task to mark completed (ID=%v)", currentTask.ID)
 			}
 			for _, newTask := range newTasks {
 				if newTask.IDOrdering > currentTask.IDOrdering {
@@ -584,8 +584,8 @@ func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) error {
 			log.Printf("failed to update task ordering ID: %v", err)
 			return err
 		}
-		if res.ModifiedCount != 1 {
-			log.Printf("did not find task to update (ID=%v)", task.ID)
+		if res.MatchedCount != 1 {
+			log.Printf("did not find task to update ordering ID (ID=%v)", task.ID)
 		}
 	}
 	return nil
@@ -722,6 +722,8 @@ func compareTaskBases(t1 interface{}, t2 interface{}) *bool {
 	// ensures we respect the existing ordering ids, and exempts reordered tasks from the normal auto-ordering
 	tb1 := getTaskBase(t1)
 	tb2 := getTaskBase(t2)
+	log.Println("compare", tb1.Title, "with", tb2.Title)
+	log.Println("reordered:", tb1.HasBeenReordered, tb2.HasBeenReordered)
 	var result bool
 	if tb1.HasBeenReordered && tb2.HasBeenReordered {
 		result = tb1.IDOrdering < tb2.IDOrdering
@@ -730,7 +732,9 @@ func compareTaskBases(t1 interface{}, t2 interface{}) *bool {
 	} else if !tb1.HasBeenReordered && tb2.HasBeenReordered {
 		result = false
 	} else {
+		log.Println("nil")
 		return nil
 	}
+	log.Println("result:", result)
 	return &result
 }
