@@ -14,7 +14,8 @@ import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import store from '../../redux/store'
 import styled from 'styled-components'
-import { TaskDropReorder } from '../../helpers/utils'
+import { lookupTaskObject, lookupTaskSection, makeAuthorizedRequest, TaskDropReorder } from '../../helpers/utils'
+import { TASKS_MODIFY_URL } from '../../constants'
 
 const Container = styled.div<{ opacity: number }>`
   padding: 0;
@@ -93,6 +94,19 @@ const Task: React.FC<Props> = (props: Props) => {
       }
       const updatedTaskSections = TaskDropReorder(task_sections, item.id, task.id, isLowerHalf)
       store.dispatch(setTasks(updatedTaskSections))
+      
+      const updatedOrderingId = lookupTaskObject(updatedTaskSections, item.id)?.id_ordering
+      const droppedSectionId = lookupTaskSection(updatedTaskSections, item.id)
+      makeAuthorizedRequest({
+        url: TASKS_MODIFY_URL + item.id + '/',
+        method: 'PATCH',
+        body: JSON.stringify({
+          id_task_section: task_sections[droppedSectionId].id,
+          id_ordering: updatedOrderingId
+        })
+      }).catch((error) => {
+        throw new Error('PATCH /tasks/ failed' + error)
+      })
     },
     hover: (_, monitor) => {
       if (!dropRef.current) return
