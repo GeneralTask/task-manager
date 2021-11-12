@@ -344,7 +344,6 @@ func MergeTasks(
 		taskItems = append(taskItems, &TaskItem{TaskGroupType: UnscheduledGroup, TaskBase: task})
 	}
 
-	taskItems = adjustForReorderedTasks(&taskItems)
 	err = updateOrderingIDs(db, &taskItems)
 	if err != nil {
 		return []*TaskSection{}, err
@@ -420,6 +419,7 @@ func adjustForCompletedTasks(
 	unscheduledTasks *[]interface{},
 	calendarEvents *[]*database.CalendarEvent,
 ) error {
+	// decrements IDOrdering for tasks behind newly completed tasks
 	parentCtx := context.Background()
 	tasksCollection := database.GetTaskCollection(db)
 	var newTasks []*database.TaskBase
@@ -458,111 +458,6 @@ func adjustForCompletedTasks(
 		}
 	}
 	return nil
-}
-
-func adjustForReorderedTasks(tasks *[]*TaskItem) []*TaskItem {
-	// for each reordered task, ensure it is in the correct ordering position relative to calendar events
-	taskGroupToPreviousCalendarItems := make(map[int][]CalendarItem)
-	taskGroupToNextCalendarItems := make(map[int][]CalendarItem)
-	currentPreviousCalendarItems := []CalendarItem{}
-	var firstUnscheduledTaskID *primitive.ObjectID = nil
-	for index, taskItem := range *tasks {
-		if taskItem.TaskGroupType == ScheduledTask {
-			if taskItem.TaskBase.IDOrdering == 0 {
-				continue
-			}
-			calendarItem := CalendarItem{IDOrdering: taskItem.TaskBase.IDOrdering, TaskIndex: index}
-			currentPreviousCalendarItems = append(currentPreviousCalendarItems, calendarItem)
-			for previousIndex := range *tasks {
-				if previousIndex >= index {
-					break
-				}
-				taskGroupToNextCalendarItems[previousIndex] = append(
-					taskGroupToNextCalendarItems[previousIndex],
-					calendarItem,
-				)
-			}
-		} else if taskItem.TaskGroupType == UnscheduledGroup {
-			if taskItem.TaskBase.IDOrdering == 1 {
-				firstUnscheduledTaskID = &taskItem.TaskBase.ID
-			}
-			taskGroupToPreviousCalendarItems[index] = currentPreviousCalendarItems
-		}
-	}
-	newTaskList := []*TaskItem{}
-	insertAfter := make(map[primitive.ObjectID][]*TaskItem)
-	for index, taskItem := range *tasks {
-		if taskItem.TaskGroupType == ScheduledTask {
-			newTaskList = append(append(newTaskList, taskItem), insertAfter[taskItem.TaskBase.ID]...)
-			continue
-		}
-		task := taskItem.TaskBase
-
-		if !task.HasBeenReordered {
-			if firstUnscheduledTaskID != nil {
-				//don't bump the first task as user might be working on it.
-				if task.ID == *firstUnscheduledTaskID {
-					if _, requiresMultipleInsertions := insertAfter[task.ID]; requiresMultipleInsertions {
-						newTaskList = append(append(newTaskList, taskItem), insertAfter[taskItem.TaskBase.ID]...)
-					} else {
-						newTaskList = append(newTaskList, taskItem)
-					}
-					firstUnscheduledTaskID = nil
-				} else {
-					insertAfter[*firstUnscheduledTaskID] = append(insertAfter[*firstUnscheduledTaskID], taskItem)
-				}
-			} else {
-				newTaskList = append(newTaskList, taskItem)
-			}
-			continue
-		}
-
-		if firstUnscheduledTaskID != nil && task.ID == *firstUnscheduledTaskID {
-			firstUnscheduledTaskID = nil
-		}
-
-		// check if there is a previous calendar event with a higher ordering id
-		previousCalendarItems := taskGroupToPreviousCalendarItems[index]
-		var highestItemWithHigherOrderingID *CalendarItem
-		for _, previousCalendarItem := range previousCalendarItems {
-			orderingID := previousCalendarItem.IDOrdering
-			if orderingID > task.IDOrdering &&
-				(highestItemWithHigherOrderingID == nil ||
-					highestItemWithHigherOrderingID.IDOrdering < orderingID) {
-				highestItemWithHigherOrderingID = &previousCalendarItem
-			}
-		}
-		if highestItemWithHigherOrderingID != nil {
-			calEventID := (*tasks)[highestItemWithHigherOrderingID.TaskIndex].TaskBase.ID
-			for targetIndex, targetItem := range newTaskList {
-				if targetItem.TaskBase.ID == calEventID {
-					newTaskList = append(newTaskList[:targetIndex+1], newTaskList[targetIndex:]...)
-					newTaskList[targetIndex] = taskItem
-					break
-				}
-			}
-			continue
-		}
-
-		// check if there is an upcoming calendar event with a lower ordering id
-		nextCalendarItems := taskGroupToNextCalendarItems[index]
-		var lowestItemWithLowerOrderingID *CalendarItem
-		for _, nextCalendarItem := range nextCalendarItems {
-			orderingID := nextCalendarItem.IDOrdering
-			if orderingID < task.IDOrdering &&
-				(lowestItemWithLowerOrderingID == nil ||
-					lowestItemWithLowerOrderingID.IDOrdering > orderingID) {
-				lowestItemWithLowerOrderingID = &nextCalendarItem
-			}
-		}
-		if lowestItemWithLowerOrderingID != nil {
-			calEventID := (*tasks)[lowestItemWithLowerOrderingID.TaskIndex].TaskBase.ID
-			insertAfter[calEventID] = append(insertAfter[calEventID], taskItem)
-			continue
-		}
-		newTaskList = append(newTaskList, taskItem)
-	}
-	return newTaskList
 }
 
 func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) error {
@@ -722,19 +617,9 @@ func compareTaskBases(t1 interface{}, t2 interface{}) *bool {
 	// ensures we respect the existing ordering ids, and exempts reordered tasks from the normal auto-ordering
 	tb1 := getTaskBase(t1)
 	tb2 := getTaskBase(t2)
-	log.Println("compare", tb1.Title, "with", tb2.Title)
-	log.Println("reordered:", tb1.HasBeenReordered, tb2.HasBeenReordered)
 	var result bool
-	if tb1.HasBeenReordered && tb2.HasBeenReordered {
+	if tb1.IDOrdering > 0 && tb2.IDOrdering > 0 {
 		result = tb1.IDOrdering < tb2.IDOrdering
-	} else if tb1.HasBeenReordered && !tb2.HasBeenReordered {
-		result = true
-	} else if !tb1.HasBeenReordered && tb2.HasBeenReordered {
-		result = false
-	} else {
-		log.Println("nil")
-		return nil
 	}
-	log.Println("result:", result)
 	return &result
 }
