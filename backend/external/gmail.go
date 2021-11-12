@@ -222,6 +222,10 @@ func (Gmail GmailSource) GetTasks(userID primitive.ObjectID, accountID string, r
 	result <- emptyTaskResult(nil)
 }
 
+func (Gmail GmailSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+	result <- emptyPullRequestResult(nil)
+}
+
 func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string, emailID string) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()

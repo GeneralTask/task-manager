@@ -158,6 +158,10 @@ func (googleCalendar GoogleCalendarSource) GetTasks(userID primitive.ObjectID, a
 	result <- emptyTaskResult(nil)
 }
 
+func (googleCalendar GoogleCalendarSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+	result <- emptyPullRequestResult(nil)
+}
+
 func (googleCalendar GoogleCalendarSource) MarkAsDone(userID primitive.ObjectID, accountID string, taskID string) error {
 	return errors.New("cannot mark calendar event as done")
 }
