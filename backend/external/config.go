@@ -194,12 +194,12 @@ var TaskServiceGeneralTask = TaskServiceDetails{
 	IsSignupable: false,
 }
 var TaskServiceGithub = TaskServiceDetails{
-	TASK_SERVICE_ID_GITHUB,
-	"Github",
-	"/images/github.svg",
-	AuthTypeOauth2,
-	true,
-	false,
+	ID:           TASK_SERVICE_ID_GITHUB,
+	Name:         "Github",
+	Logo:         "/images/github.svg",
+	AuthType:     AuthTypeOauth2,
+	IsLinkable:   true,
+	IsSignupable: false,
 }
 var TaskServiceGoogle = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_GOOGLE,
