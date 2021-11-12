@@ -3,6 +3,7 @@ package external
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -76,7 +77,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			pr := &database.PullRequest{
 				TaskBase: database.TaskBase{
 					UserID:          userID,
-					IDExternal:      string(*issue.ID),
+					IDExternal:      fmt.Sprint(*issue.ID),
 					IDTaskSection:   constants.IDTaskSectionToday,
 					Deeplink:        *issue.HTMLURL,
 					SourceID:        TASK_SOURCE_ID_GITHUB_PR,

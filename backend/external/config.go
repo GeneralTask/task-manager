@@ -260,11 +260,12 @@ var TaskSourceGoogleCalendar = TaskSourceDetails{
 	IsReplyable:   false,
 }
 var TaskSourceGitPR = TaskSourceDetails{
-	TASK_SOURCE_ID_GITHUB_PR,
-	"Git PR",
-	"/images/github.svg",
-	false,
-	false,
+	ID:            TASK_SOURCE_ID_GITHUB_PR,
+	Name:          "Git PR",
+	Logo:          "/images/github.svg",
+	IsCompletable: false,
+	IsCreatable:   false,
+	IsReplyable:   false,
 }
 var TaskSourceGmail = TaskSourceDetails{
 	ID:            TASK_SOURCE_ID_GMAIL,

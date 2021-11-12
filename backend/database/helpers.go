@@ -21,7 +21,7 @@ func UpdateOrCreatePullRequest(
 	fieldsToUpdate interface{},
 ) (*mongo.SingleResult, error) {
 	parentCtx := context.Background()
-	prCollection := getPRCollection(db)
+	prCollection := GetPullRequestCollection(db)
 	dbQuery := bson.M{
 		"$and": []bson.M{
 			{"id_external": IDExternal},
@@ -232,6 +232,10 @@ func GetUserCollection(db *mongo.Database) *mongo.Collection {
 
 func GetExternalTokenCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("external_api_tokens")
+}
+
+func GetPullRequestCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("pull_requests")
 }
 
 func GetUserSettingsCollection(db *mongo.Database) *mongo.Collection {
