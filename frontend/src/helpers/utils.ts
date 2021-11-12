@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react'
 
 import Cookies from 'js-cookie'
 import store from '../redux/store'
-import { TTask, TTaskSection } from './types'
+import { TTask, TTaskGroupType, TTaskSection } from './types'
 import _ from 'lodash'
 
 // This invalidates the cookie on the frontend
@@ -174,3 +174,44 @@ export const useDeviceSize = (): DeviceSize => {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export function emptyFunction(): void { }
+
+export function TaskDropReorder(staleTaskSections: TTaskSection[], dragTaskId: string, dropTaskId: string, isLowerHalf: boolean): TTaskSection[] {
+    const taskSections = _.cloneDeep(staleTaskSections)
+    let dragTaskObject = null
+
+    // Find dragged object and remove
+    for (const taskSection of taskSections) {
+        for (const taskGroup of taskSection.task_groups) {
+            for (let i = 0; i < taskGroup.tasks.length; i++) {
+                if (taskGroup.tasks[i].id === dragTaskId) {
+                    dragTaskObject = taskGroup.tasks[i]
+                    taskGroup.tasks.splice(i,1)
+                }
+            }
+        }
+    }
+    if (dragTaskObject == null) return taskSections
+
+    let found = false
+    for (const taskSection of taskSections) {
+        if (found) break
+        for (let groupIndex = 0; groupIndex < taskSection.task_groups.length; groupIndex++) {
+            if (found) break
+            const taskGroup = taskSection.task_groups[groupIndex]
+            for (let taskIndex = 0; taskIndex < taskGroup.tasks.length; taskIndex++) {
+                if (taskGroup.tasks[taskIndex].id === dropTaskId) {
+                    found = true
+                    if (taskGroup.type === TTaskGroupType.SCHEDULED_TASK) {
+                        if (isLowerHalf) taskSection.task_groups[groupIndex + 1].tasks.splice(0,0,dragTaskObject)
+                        else taskSection.task_groups[groupIndex - 1].tasks.push(dragTaskObject)
+                    }
+                    else {
+                        taskGroup.tasks.splice(taskIndex + Number(isLowerHalf) , 0, dragTaskObject)
+                    }
+                    break
+                }
+            }
+        }
+    }
+    return updateOrderingIds(taskSections)
+}

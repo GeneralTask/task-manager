@@ -58,15 +58,6 @@ export function setTasksDragState(dragState: DragState): AnyAction {
     }
 }
 
-export function dragDrop(dragTaskId: string, dropTaskId: string, isLowerHalf: boolean): AnyAction {
-    return {
-        type: actions.DRAG_DROP,
-        dragTaskId,
-        dropTaskId,
-        isLowerHalf,
-    }
-}
-
 export function sectionDrop(dragTaskId: string, sectionIndex: number) :AnyAction {
     return {
         type: actions.SECTION_DROP,

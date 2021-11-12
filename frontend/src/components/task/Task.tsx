@@ -2,7 +2,7 @@ import './Task.css'
 
 import React, { useState } from 'react'
 import { connect, useSelector } from 'react-redux'
-import { dragDrop, setTasksDragState } from '../../redux/actions'
+import { setTasks, setTasksDragState } from '../../redux/actions'
 import { useDrag, useDrop } from 'react-dnd'
 
 import { BORDER_PRIMARY } from '../../helpers/styles'
@@ -14,8 +14,7 @@ import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import store from '../../redux/store'
 import styled from 'styled-components'
-import { lookupTaskObject, lookupTaskSection, makeAuthorizedRequest } from '../../helpers/utils'
-import { TASKS_MODIFY_URL } from '../../constants'
+import { TaskDropReorder } from '../../helpers/utils'
 
 const Container = styled.div<{ opacity: number }>`
   padding: 0;
@@ -86,24 +85,14 @@ const Task: React.FC<Props> = (props: Props) => {
       if (!dropRef.current) return
 
       const boundingRect = dropRef.current.getBoundingClientRect()
+      let isLowerHalf = false
       if (boundingRect != null) {
         const dropMiddleY = (boundingRect.bottom - boundingRect.top) / 2 + boundingRect.top
         const clientOffsetY = monitor.getClientOffset()?.y
-        store.dispatch(dragDrop(item.id, task.id, !!(clientOffsetY && clientOffsetY > dropMiddleY)))
+        isLowerHalf = !!(clientOffsetY && clientOffsetY > dropMiddleY)
       }
-      const droppedSectionId = lookupTaskSection(task_sections, task.id)
-      const taskDropped = lookupTaskObject(task_sections, item.id)
-
-      makeAuthorizedRequest({
-        url: TASKS_MODIFY_URL + item.id + '/',
-        method: 'PATCH',
-        body: JSON.stringify({
-          id_task_section: task_sections[droppedSectionId].id,
-          id_ordering: taskDropped?.id_ordering
-        })
-      }).catch((error) => {
-        throw new Error('PATCH /tasks/ failed: ' + error)
-      })
+      const updatedTaskSections = TaskDropReorder(task_sections, item.id, task.id, isLowerHalf)
+      store.dispatch(setTasks(updatedTaskSections))
     },
     hover: (_, monitor) => {
       if (!dropRef.current) return
