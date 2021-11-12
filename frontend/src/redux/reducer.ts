@@ -71,46 +71,6 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
         tasks_drag_state: action.dragState,
       }
 
-    case actions.DRAG_DROP:
-      if (action.dropTask === null) return state
-      if (action.dragTaskId === action.dropTaskId) return state
-      task_sections = _.cloneDeep(state.task_sections)
-
-      // Find dragged object and remove
-      for (const task_section of task_sections) {
-        for (const task_group of task_section.task_groups) {
-          for (let i = 0; i < task_group.tasks.length; i++) {
-            if (task_group.tasks[i].id === action.dragTaskId) {
-              dragTaskObject = task_group.tasks[i]
-              task_group.tasks.splice(i, 1)
-            }
-          }
-        }
-      }
-
-      // Insert dragged object into new position
-      for (const task_section of task_sections) {
-        for (let group_index = 0 ; group_index < task_section.task_groups.length ; group_index++) {
-          const task_group = task_section.task_groups[group_index]
-          for (let i = 0; i < task_group.tasks.length; i++) {
-            if (task_group.tasks[i].id === action.dropTaskId && dragTaskObject !== null) {
-              if (task_group.type == TTaskGroupType.SCHEDULED_TASK) {
-                if (action.isLowerHalf) task_section.task_groups[group_index + 1].tasks.splice(0, 0, dragTaskObject)
-                else task_section.task_groups[group_index - 1].tasks.push(dragTaskObject)
-              }
-              else {
-                task_group.tasks.splice(i + action.isLowerHalf, 0, dragTaskObject)
-              }
-              return {
-                ...state,
-                task_sections
-              }
-            }
-          }
-        }
-      }
-      return state
-
     case actions.SECTION_DROP:
       if (action.dragTaskId == null) return state
       if (action.sectionIndex == null) return state

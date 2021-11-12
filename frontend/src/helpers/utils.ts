@@ -12,6 +12,8 @@ import { useEffect, useState } from 'react'
 
 import Cookies from 'js-cookie'
 import store from '../redux/store'
+import { TTask, TTaskGroupType, TTaskSection } from './types'
+import _ from 'lodash'
 
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
@@ -69,6 +71,45 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
         logout()
     }
     return response
+}
+
+export const lookupTaskSection = (task_sections: TTaskSection[], task_id: string): number => {
+    return _.findIndex(task_sections, (section) => {
+        return section.task_groups.find(group => {
+            return group.tasks.find(task => {
+                if (task.id === task_id) return true
+                return false
+            }) !== undefined
+        }) !== undefined
+    })
+}
+
+export const lookupTaskObject = (task_sections: TTaskSection[], task_id: string): TTask | null => {
+    let task = null
+    for (const section of task_sections) {
+        if (task !== null) break
+        for (const group of section.task_groups) {
+            if (task !== null) break
+            for (const currTask of group.tasks) {
+                if (currTask.id == task_id) {
+                    task = currTask
+                    break
+                }
+            }
+        }
+    }
+    return task
+}
+
+
+export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
+    return task_sections.map((section) => {
+        let idOrdering = 1
+        section.task_groups.forEach((group) => {
+            group.tasks.forEach((task) => task.id_ordering = idOrdering++)
+        })
+        return section        
+    })
 }
 
 export const getLinkedAccountsURL = (account_id: string): string => LINKED_ACCOUNTS_URL + account_id + '/'
@@ -133,3 +174,44 @@ export const useDeviceSize = (): DeviceSize => {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export function emptyFunction(): void { }
+
+export function TaskDropReorder(staleTaskSections: TTaskSection[], dragTaskId: string, dropTaskId: string, isLowerHalf: boolean): TTaskSection[] {
+    const taskSections = _.cloneDeep(staleTaskSections)
+    let dragTaskObject = null
+
+    // Find dragged object and remove
+    for (const taskSection of taskSections) {
+        for (const taskGroup of taskSection.task_groups) {
+            for (let i = 0; i < taskGroup.tasks.length; i++) {
+                if (taskGroup.tasks[i].id === dragTaskId) {
+                    dragTaskObject = taskGroup.tasks[i]
+                    taskGroup.tasks.splice(i,1)
+                }
+            }
+        }
+    }
+    if (dragTaskObject == null) return taskSections
+
+    let found = false
+    for (const taskSection of taskSections) {
+        if (found) break
+        for (let groupIndex = 0; groupIndex < taskSection.task_groups.length; groupIndex++) {
+            if (found) break
+            const taskGroup = taskSection.task_groups[groupIndex]
+            for (let taskIndex = 0; taskIndex < taskGroup.tasks.length; taskIndex++) {
+                if (taskGroup.tasks[taskIndex].id === dropTaskId) {
+                    found = true
+                    if (taskGroup.type === TTaskGroupType.SCHEDULED_TASK) {
+                        if (isLowerHalf) taskSection.task_groups[groupIndex + 1].tasks.splice(0,0,dragTaskObject)
+                        else taskSection.task_groups[groupIndex - 1].tasks.push(dragTaskObject)
+                    }
+                    else {
+                        taskGroup.tasks.splice(taskIndex + Number(isLowerHalf) , 0, dragTaskObject)
+                    }
+                    break
+                }
+            }
+        }
+    }
+    return updateOrderingIds(taskSections)
+}

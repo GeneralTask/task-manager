@@ -2,7 +2,7 @@ import './Task.css'
 
 import React, { useState } from 'react'
 import { connect, useSelector } from 'react-redux'
-import { dragDrop, setTasksDragState } from '../../redux/actions'
+import { setTasks, setTasksDragState } from '../../redux/actions'
 import { useDrag, useDrop } from 'react-dnd'
 
 import { BORDER_PRIMARY } from '../../helpers/styles'
@@ -14,6 +14,8 @@ import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import store from '../../redux/store'
 import styled from 'styled-components'
+import { fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest, TaskDropReorder } from '../../helpers/utils'
+import { TASKS_MODIFY_URL } from '../../constants'
 
 const Container = styled.div<{ opacity: number }>`
   padding: 0;
@@ -60,7 +62,7 @@ interface Props {
 const Task: React.FC<Props> = (props: Props) => {
   const { task, datetimeStart, dragDisabled } = props
   const dropRef = React.useRef<HTMLDivElement>(null)
-  const expanded_body = useSelector((state: RootState) => state.expanded_body)
+  const {expanded_body, task_sections}  = useSelector((state: RootState) => state)
   const isExpanded = expanded_body === task.id
   const [dropDirection, setDropDirection] = useState(DropDirection.Up)
 
@@ -84,11 +86,27 @@ const Task: React.FC<Props> = (props: Props) => {
       if (!dropRef.current) return
 
       const boundingRect = dropRef.current.getBoundingClientRect()
+      let isLowerHalf = false
       if (boundingRect != null) {
         const dropMiddleY = (boundingRect.bottom - boundingRect.top) / 2 + boundingRect.top
         const clientOffsetY = monitor.getClientOffset()?.y
-        store.dispatch(dragDrop(item.id, task.id, !!(clientOffsetY && clientOffsetY > dropMiddleY)))
+        isLowerHalf = !!(clientOffsetY && clientOffsetY > dropMiddleY)
       }
+      const updatedTaskSections = TaskDropReorder(task_sections, item.id, task.id, isLowerHalf)
+      store.dispatch(setTasks(updatedTaskSections))
+      
+      const updatedOrderingId = lookupTaskObject(updatedTaskSections, item.id)?.id_ordering
+      const droppedSectionId = lookupTaskSection(updatedTaskSections, item.id)
+      makeAuthorizedRequest({
+        url: TASKS_MODIFY_URL + item.id + '/',
+        method: 'PATCH',
+        body: JSON.stringify({
+          id_task_section: task_sections[droppedSectionId].id,
+          id_ordering: updatedOrderingId
+        })
+      }).then(fetchTasks).catch((error) => {
+        throw new Error('PATCH /tasks/ failed' + error)
+      })
     },
     hover: (_, monitor) => {
       if (!dropRef.current) return
