@@ -14,7 +14,7 @@ import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import store from '../../redux/store'
 import styled from 'styled-components'
-import { lookupTaskObject, lookupTaskSection, makeAuthorizedRequest, TaskDropReorder } from '../../helpers/utils'
+import { fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest, TaskDropReorder } from '../../helpers/utils'
 import { TASKS_MODIFY_URL } from '../../constants'
 
 const Container = styled.div<{ opacity: number }>`
@@ -104,7 +104,7 @@ const Task: React.FC<Props> = (props: Props) => {
           id_task_section: task_sections[droppedSectionId].id,
           id_ordering: updatedOrderingId
         })
-      }).catch((error) => {
+      }).then(fetchTasks).catch((error) => {
         throw new Error('PATCH /tasks/ failed' + error)
       })
     },
