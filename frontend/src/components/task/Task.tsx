@@ -1,13 +1,13 @@
 import './Task.css'
 
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { connect, useSelector } from 'react-redux'
 import { setTasks, setTasksDragState } from '../../redux/actions'
 import { useDrag, useDrop } from 'react-dnd'
 
 import { BORDER_PRIMARY } from '../../helpers/styles'
 import { DragState } from '../../redux/enums'
-import { ItemTypes } from '../../helpers/types'
+import { ItemTypes, TTaskSection } from '../../helpers/types'
 import { RootState } from '../../redux/store'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
@@ -65,6 +65,9 @@ const Task: React.FC<Props> = (props: Props) => {
   const {expanded_body, task_sections}  = useSelector((state: RootState) => state)
   const isExpanded = expanded_body === task.id
   const [dropDirection, setDropDirection] = useState(DropDirection.Up)
+  const taskSectionsRef = useRef<TTaskSection[]>(task_sections)
+
+  taskSectionsRef.current = task_sections
 
   const [{ opacity }, drag, dragPreview] = useDrag(() => ({
     type: ItemTypes.TASK,
@@ -82,6 +85,10 @@ const Task: React.FC<Props> = (props: Props) => {
     },
     drop: (item: { id: string }, monitor) => {
       setTasksDragState(DragState.noDrag)
+
+      if (taskSectionsRef.current == null) return
+      const task_sections = taskSectionsRef.current
+
       if (item.id === task.id) return
       if (!dropRef.current) return
 
