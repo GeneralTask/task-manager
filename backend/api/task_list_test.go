@@ -213,132 +213,6 @@ func TestMergeTasks(t *testing.T) {
 		assert.Equal(t, t2ID, todayGroups[4].Tasks[2].ID)
 		assert.Equal(t, 9, todayGroups[4].Tasks[2].IDOrdering)
 	})
-	t.Run("ReorderingAroundCalendarEvents", func(t *testing.T) {
-		// Tested here:
-		// 1) tasks that were reordered before a meeting should stay that way even if time estimates push it back
-		// 2) tasks that were reordered after a meeting should stay that way even if time estimates pull it forward
-
-		userID := primitive.NewObjectID()
-		t1 := database.Task{
-			TaskBase: database.TaskBase{
-				IDOrdering:       1,
-				HasBeenReordered: true,
-				IDExternal:       "sample_task",
-				Deeplink:         "generaltask.com",
-				Title:            "Code x",
-				SourceID:         external.TASK_SOURCE_ID_JIRA,
-				TimeAllocation:   (time.Hour).Nanoseconds(),
-				UserID:           userID,
-			},
-			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
-			PriorityID:         "5",
-			PriorityNormalized: 1.0,
-			TaskNumber:         7,
-		}
-		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t1)
-		assert.NoError(t, err)
-		t1.ID = t1Res.ID
-
-		t2 := database.Task{
-			TaskBase: database.TaskBase{
-				IDOrdering:       5,
-				HasBeenReordered: true,
-				IDExternal:       "sample_task2",
-				Deeplink:         "generaltask.com",
-				Title:            "Code x",
-				SourceID:         external.TASK_SOURCE_ID_JIRA,
-				TimeAllocation:   (time.Hour).Nanoseconds(),
-				UserID:           userID,
-			},
-			DueDate:            primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
-			PriorityID:         "3",
-			PriorityNormalized: 0.0,
-			TaskNumber:         12,
-		}
-		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", external.TASK_SOURCE_ID_JIRA, t2)
-		assert.NoError(t, err)
-		t2.ID = t2Res.ID
-
-		c1 := database.CalendarEvent{
-			TaskBase: database.TaskBase{
-				IDOrdering: 3,
-				IDExternal: "standard_event",
-				Deeplink:   "generaltask.com",
-				Title:      "Standard Event",
-				SourceID:   external.TASK_SOURCE_ID_GCAL,
-				UserID:     userID,
-			},
-			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(20 * time.Minute)),
-			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
-		}
-		c1Res, err := database.GetOrCreateTask(db, userID, "standard_event", external.TASK_SOURCE_ID_GCAL, c1)
-		assert.NoError(t, err)
-		c1.ID = c1Res.ID
-
-		c2 := database.CalendarEvent{
-			TaskBase: database.TaskBase{
-				IDOrdering: 4,
-				IDExternal: "standard_event2",
-				Deeplink:   "generaltask.com",
-				Title:      "Standard Event",
-				SourceID:   external.TASK_SOURCE_ID_GCAL,
-				UserID:     userID,
-			},
-			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 5)),
-			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 6)),
-		}
-		c2Res, err := database.GetOrCreateTask(db, userID, "standard_event2", external.TASK_SOURCE_ID_GCAL, c2)
-		assert.NoError(t, err)
-		c2.ID = c2Res.ID
-
-		c3 := database.CalendarEvent{
-			TaskBase: database.TaskBase{
-				// IDOrdering = 0 means cal event isn't included in reordering adjustments
-				IDOrdering: 0,
-				IDExternal: "standard_event3",
-				Deeplink:   "generaltask.com",
-				Title:      "Standard Event",
-				SourceID:   external.TASK_SOURCE_ID_GCAL,
-				UserID:     userID,
-			},
-			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 7)),
-			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 8)),
-		}
-		c3Res, err := database.GetOrCreateTask(db, userID, "standard_event3", external.TASK_SOURCE_ID_GCAL, c3)
-		assert.NoError(t, err)
-		c3.ID = c3Res.ID
-
-		result, err := MergeTasks(
-			db,
-			&[]database.TaskBase{c1.TaskBase, c2.TaskBase, c3.TaskBase, t1.TaskBase, t2.TaskBase},
-			[]*database.CalendarEvent{&c1, &c2, &c3},
-			[]*database.Email{},
-			[]*database.Task{&t1, &t2},
-			userID,
-		)
-		assert.NoError(t, err)
-
-		assert.Equal(t, 3, len(result))
-		todayGroups := result[0].TaskGroups
-		assert.Equal(t, 6, len(todayGroups))
-		assert.Equal(t, t1.ID, todayGroups[0].Tasks[0].ID)
-		assert.Equal(t, 1, getTaskForTest(t, taskCollection, t1.ID).IDOrdering)
-
-		assert.Equal(t, c1.ID, todayGroups[1].Tasks[0].ID)
-		assert.Equal(t, 2, getTaskForTest(t, taskCollection, c1.ID).IDOrdering)
-
-		assert.Equal(t, c2.ID, todayGroups[2].Tasks[0].ID)
-		assert.Equal(t, 3, getTaskForTest(t, taskCollection, c2.ID).IDOrdering)
-
-		assert.Equal(t, t2.ID, todayGroups[3].Tasks[0].ID)
-		assert.Equal(t, 4, getTaskForTest(t, taskCollection, t2.ID).IDOrdering)
-
-		assert.Equal(t, c3.ID, todayGroups[4].Tasks[0].ID)
-		assert.Equal(t, 5, getTaskForTest(t, taskCollection, c3.ID).IDOrdering)
-
-		// Empty unscheduled task group is expected if last event is calendar event
-		assert.Equal(t, 0, len(todayGroups[5].Tasks))
-	})
 	t.Run("ReorderingPersist", func(t *testing.T) {
 		// Tested here: existing DB ordering IDs are kept (except cal events)
 
@@ -513,8 +387,8 @@ func TestMergeTasks(t *testing.T) {
 		assert.Equal(t, 1, len(todayGroups))
 		assert.Equal(t, 2, len(todayGroups[0].Tasks))
 
-		assert.Equal(t, t2.ID, todayGroups[0].Tasks[0].ID)
-		assert.Equal(t, t1ID, todayGroups[0].Tasks[1].ID)
+		assert.Equal(t, t1ID, todayGroups[0].Tasks[0].ID)
+		assert.Equal(t, t2.ID, todayGroups[0].Tasks[1].ID)
 
 		updatedCalTask := getTaskForTest(t, taskCollection, c1.ID)
 		assert.True(t, updatedCalTask.IsCompleted)

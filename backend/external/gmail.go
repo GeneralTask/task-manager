@@ -157,6 +157,7 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 				return
 			}
 			if dbEmail != nil {
+				email.HasBeenReordered = dbEmail.HasBeenReordered
 				email.ID = dbEmail.ID
 				email.IDOrdering = dbEmail.IDOrdering
 				email.IDTaskSection = dbEmail.IDTaskSection

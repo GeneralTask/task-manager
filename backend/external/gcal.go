@@ -162,6 +162,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			result <- emptyCalendarResult(err)
 			return
 		}
+		event.HasBeenReordered = dbEvent.HasBeenReordered
 		event.ID = dbEvent.ID
 		event.IDOrdering = dbEvent.IDOrdering
 		// If the meeting is rescheduled, we want to reset the IDOrdering so that reordered tasks are not also moved
