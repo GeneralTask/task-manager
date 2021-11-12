@@ -563,19 +563,14 @@ func compareEmails(e1 *database.Email, e2 *database.Email, newestEmailsFirst boo
 	e1Domain := utils.ExtractEmailDomain(e1.SourceAccountID)
 	e2Domain := utils.ExtractEmailDomain(e2.SourceAccountID)
 	if res := compareTaskBases(e1, e2); res != nil {
-		log.Println("res:", *res)
 		return *res
 	} else if e1.SenderDomain == e1Domain && e2.SenderDomain != e2Domain {
-		log.Println(1)
 		return true
 	} else if e1.SenderDomain != e1Domain && e2.SenderDomain == e2Domain {
-		log.Println(2)
 		return false
 	} else if newestEmailsFirst {
-		log.Println(3)
 		return e1.TimeSent > e2.TimeSent
 	} else {
-		log.Println(4)
 		return e1.TimeSent < e2.TimeSent
 	}
 }
