@@ -57,11 +57,3 @@ export function setTasksDragState(dragState: DragState): AnyAction {
         dragState,
     }
 }
-
-export function sectionDrop(dragTaskId: string, sectionIndex: number) :AnyAction {
-    return {
-        type: actions.SECTION_DROP,
-        dragTaskId,
-        sectionIndex,
-    }
-}

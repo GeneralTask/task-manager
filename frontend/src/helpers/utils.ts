@@ -215,3 +215,28 @@ export function TaskDropReorder(staleTaskSections: TTaskSection[], dragTaskId: s
     }
     return updateOrderingIds(taskSections)
 }
+
+export function sectionDropReorder(staleTaskSections: TTaskSection[], dragTaskId: string, sectionIndex: number) : TTaskSection[] {
+    const taskSections = _.cloneDeep(staleTaskSections)
+    let dragTaskObject = null
+
+    // Find dragged object and remove
+    for (const taskSection of taskSections) {
+        for (const taskGroup of taskSection.task_groups) {
+            for (let i = 0; i < taskGroup.tasks.length; i++) {
+                if (taskGroup.tasks[i].id === dragTaskId) {
+                    dragTaskObject = taskGroup.tasks[i]
+                    taskGroup.tasks.splice(i,1)
+                }
+            }
+        }
+    }
+    if (dragTaskObject === null) return taskSections
+
+    const section = taskSections[sectionIndex]
+    if (section == null || section.task_groups.length === 0) return taskSections
+    if (section.task_groups[0].type !== TTaskGroupType.UNSCHEDULED_GROUP) return taskSections
+    section.task_groups[0].tasks.splice(0, 0, dragTaskObject)
+
+    return updateOrderingIds(taskSections)
+}
