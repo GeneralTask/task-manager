@@ -1,14 +1,16 @@
 import { BACKGROUND_HOVER, DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
-import { DeviceSize, useDeviceSize } from '../../helpers/utils'
-import React, { useEffect, useState } from 'react'
+import { DeviceSize, fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest, sectionDropReorder, useDeviceSize } from '../../helpers/utils'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { DateTime } from 'luxon'
-import { ItemTypes } from '../../helpers/types'
+import { ItemTypes, TTaskSection } from '../../helpers/types'
 import RefreshButton from './RefreshButton'
-import { sectionDrop } from '../../redux/actions'
-import store from '../../redux/store'
+import store, { RootState } from '../../redux/store'
+import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
+import { setTasks } from '../../redux/actions'
+import { TASKS_MODIFY_URL } from '../../constants'
 
 const TaskSectionHeaderContainer = styled.div`
   display: flex;
@@ -63,13 +65,31 @@ interface Props {
 }
 
 export default function TaskSectionHeader(props: Props): JSX.Element {
+  const taskSections = useSelector((state: RootState) => state.task_sections)
+  const taskSectionsRef = useRef<TTaskSection[]>(taskSections)
+  taskSectionsRef.current = taskSections
+  
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ItemTypes.TASK,
     collect: monitor => ({
       isOver: !!monitor.isOver()
     }),
     drop: ({ id }: { id: string }) => {
-      store.dispatch(sectionDrop(id, props.task_section_index))
+      const updatedTaskSections = sectionDropReorder(taskSectionsRef.current, id, props.task_section_index)
+      store.dispatch(setTasks(updatedTaskSections))
+
+      const updatedOrderingId = lookupTaskObject(updatedTaskSections, id)?.id_ordering
+      const droppedSectionId = lookupTaskSection(updatedTaskSections, id)
+      makeAuthorizedRequest({
+        url: TASKS_MODIFY_URL + id + '/',
+        method: 'PATCH',
+        body: JSON.stringify({
+          id_task_section:  taskSectionsRef.current[droppedSectionId].id,
+          id_ordering: updatedOrderingId
+        })
+      }).then(fetchTasks).catch((error) => {
+        throw new Error('PATCH /tasks/ failed' + error)
+      })
     }
   }))
   return (
