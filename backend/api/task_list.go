@@ -386,7 +386,7 @@ func extractSectionTasks(allUnscheduledTasks *[]interface{}) ([]*TaskItem, []*Ta
 				continue
 			}
 			if task.IDTaskSection == constants.IDTaskSectionBacklog {
-				blockedTasks = append(backlogTasks, &TaskItem{
+				backlogTasks = append(backlogTasks, &TaskItem{
 					TaskGroupType: UnscheduledGroup,
 					TaskBase:      &task.TaskBase,
 				})
@@ -401,7 +401,7 @@ func extractSectionTasks(allUnscheduledTasks *[]interface{}) ([]*TaskItem, []*Ta
 				continue
 			}
 			if task.IDTaskSection == constants.IDTaskSectionBacklog {
-				blockedTasks = append(backlogTasks, &TaskItem{
+				backlogTasks = append(backlogTasks, &TaskItem{
 					TaskGroupType: UnscheduledGroup,
 					TaskBase:      &task.TaskBase,
 				})
