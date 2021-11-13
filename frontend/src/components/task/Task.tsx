@@ -5,7 +5,6 @@ import { connect, useSelector } from 'react-redux'
 import { setTasks, setTasksDragState } from '../../redux/actions'
 import { useDrag, useDrop } from 'react-dnd'
 
-import { BORDER_PRIMARY } from '../../helpers/styles'
 import { DragState } from '../../redux/enums'
 import { ItemTypes, TTaskSection } from '../../helpers/types'
 import { RootState } from '../../redux/store'
@@ -16,38 +15,12 @@ import store from '../../redux/store'
 import styled from 'styled-components'
 import { fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest, TaskDropReorder } from '../../helpers/utils'
 import { TASKS_MODIFY_URL } from '../../constants'
+import {DraggableContainer, ContainerStyles, DropIndicatorAboveStyles, DropIndicatorBelowStyles} from './Task-style'
 
-const Container = styled.div<{ opacity: number }>`
-  padding: 0;
-  font-family: 'Ellipsis', 'Gothic A1', sans-serif;
-  border: 1px solid ${BORDER_PRIMARY};
-  border-radius: 2px;
-  width: 100%;
-  outline: none;
-  background-color: white;
-  opacity: ${props => props.opacity}
-`
-const DraggableContainer = styled.div`
-    margin: 5px 0;
-    position: relative;
-`
-const DropIndicator = styled.hr<{ isVisible: boolean }>`
-  flex-grow: 1;
-  height: 0px;
-  position: absolute;
-  left: 0px;
-  right: 0px;
-  color: ${BORDER_PRIMARY};
-  border-color: ${BORDER_PRIMARY};
-  background-color: ${BORDER_PRIMARY};
-  visibility: ${props => props.isVisible ? 'visible' : 'hidden'};
-`
-const DropIndicatorAbove = styled(DropIndicator)`
-  margin-top: -5px;
-`
-const DropIndicatorBelow = styled(DropIndicator)`
-  margin-top: 5.0px;
-`
+const Container = styled.div<{ opacity: number }>`${ContainerStyles}`
+const DropIndicatorAbove = styled.hr<{ isVisible: boolean }>`${DropIndicatorAboveStyles}`
+const DropIndicatorBelow = styled.hr<{ isVisible: boolean }>`${DropIndicatorBelowStyles}`
+
 const DropDirection = {
   'Up': true,
   'Down': false,
