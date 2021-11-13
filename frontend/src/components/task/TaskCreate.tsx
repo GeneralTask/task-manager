@@ -27,8 +27,8 @@ export default function TaskCreate(): JSX.Element {
             if (title === '') {
                 tempTitleError = 'Title is required'
             }
-            let timeEstimateNum = -1
-            timeEstimateNum = parseInt(timeEstimate)
+
+            const timeEstimateNum = parseInt(timeEstimate)
             if (isNaN(timeEstimateNum)) {
                 tempTimeEstimateError = 'Time estimate must be a number'
             }
