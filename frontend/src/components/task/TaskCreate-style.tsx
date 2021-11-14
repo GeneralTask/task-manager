@@ -19,7 +19,7 @@ export const Input = styled.input<{ error: boolean }>`
     outline: none;
     width: 100%;
     height: 32px;
-    padding: 0 6px;
+    padding: 8px 16px;
     &::placeholder {
         color: ${TEXT_LIGHTGRAY}
     }
