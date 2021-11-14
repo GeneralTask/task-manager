@@ -1,6 +1,7 @@
-import styled from 'styled-components'
-import React, { MouseEvent } from 'react'
 import { BACKGROUND_HOVER, BACKGROUND_PRIMARY, BACKGROUND_PRIMARY_HOVER, BACKGROUND_WHITE, BORDER_PRIMARY_HOVER, TEXT_BLACK, TEXT_BLACK_HOVER, TEXT_WHITE } from '../../helpers/styles'
+import React, { MouseEvent } from 'react'
+
+import styled from 'styled-components'
 
 const Button = styled.button<{
     theme: Theme,
@@ -73,6 +74,7 @@ interface Props {
     width?: string,
     height?: string,
     margin?: string,
+    type?: 'submit' | 'reset' | 'button',
 }
 
 function GTButton(props: Props): JSX.Element {
@@ -83,6 +85,7 @@ function GTButton(props: Props): JSX.Element {
             width={props.width}
             height={props.height}
             margin={props.margin}
+            type={props.type}
         >
             {props.children}
         </Button>

@@ -27,6 +27,7 @@ export const BORDER_PRIMARY_HOVER = '#0062cc'
 export const DIVIDER_LIGHTGRAY = '#DDDDDD'
 
 export const BORDER_PRIMARY = '#cccccc'
+export const BORDER_ERROR = '#FF0000'
 export const BACKGROUND_WHITE = '#ffffff'
 
 export const BACKGROUND_HOVER = '#e3e3e3'

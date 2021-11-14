@@ -80,3 +80,11 @@ export interface TFetchStatus {
     status: FetchStatusEnum,
     abort_fetch: () => void,
 }
+
+export interface TTaskCreateParams {
+    account_id?: string,
+    title: string,
+    body?: string,
+    due_date?: string,
+    time_duration?: number,
+}

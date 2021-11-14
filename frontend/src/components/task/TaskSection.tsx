@@ -2,6 +2,7 @@ import { ScheduledTask, UnscheduledTaskGroup } from './TaskWrappers'
 import { TTaskGroup, TTaskGroupType, TTaskSection } from '../../helpers/types'
 
 import React from 'react'
+import TaskCreate from './TaskCreate'
 import TaskSectionHeader from './TaskSectionHeader'
 import { flex } from '../../helpers/styles'
 import styled from 'styled-components'
@@ -35,6 +36,7 @@ interface Props {
 export default function TaskSection(props: Props): JSX.Element {
     return <>
         <TaskSectionHeader task_section_index={props.task_section_index} isToday={props.task_section.is_today} name={props.task_section.name} />
+        {props.task_section.is_today && <TaskCreate />}
         {
             props.task_section.task_groups.map((group: TTaskGroup, task_group_index: number) => {
                 if (group.tasks && !group.tasks.length) {
