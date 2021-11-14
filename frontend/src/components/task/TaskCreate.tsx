@@ -1,4 +1,5 @@
-import { ErrorContainer, ErrorIcon, Form, InputDueDate, InputTimeEstimate, InputTitle, OuterContainer, SaveBtnDiv } from './TaskCreate-style'
+import * as styles from './TaskCreate-style'
+
 import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
 import React, { useState } from 'react'
 import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
@@ -16,8 +17,8 @@ export default function TaskCreate(): JSX.Element {
     const [timeEstimateError, setTimeEstimateError] = useState('')
     const [dueDateError, setDueDateError] = useState('')
 
-    return <OuterContainer>
-        <Form onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+    return <styles.OuterContainer>
+        <styles.Form onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault()
 
             let tempTitleError = ''
@@ -56,45 +57,45 @@ export default function TaskCreate(): JSX.Element {
                 await fetchTasks()
             }
         }}>
-            <InputTitle
+            <styles.InputTitle
                 placeholder='Describe Task'
                 value={title}
                 error={titleError !== ''}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
             />
-            <InputTimeEstimate
+            <styles.InputTimeEstimate
                 placeholder='Time Estimate (mins)'
                 value={timeEstimate}
                 error={timeEstimateError !== ''}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTimeEstimate(event.target.value)}
             />
-            <InputDueDate
+            <styles.InputDueDate
                 placeholder='Due Date'
                 value={dueDate}
                 error={dueDateError !== ''}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDueDate(event.target.value)}
             />
-            <SaveBtnDiv>
+            <styles.SaveBtnDiv>
                 <GTButton theme='black' width='80%' type='submit' >Save</GTButton>
-            </SaveBtnDiv>
-        </Form>
-        <ErrorContainer>
+            </styles.SaveBtnDiv>
+        </styles.Form>
+        <styles.ErrorContainer>
             {titleError && <flex.alignItemsCenter>
-                <ErrorIcon src='/images/error.svg' />
+                <styles.ErrorIcon src='/images/error.svg' />
                 <span>{titleError}</span>
             </flex.alignItemsCenter>
             }
             {timeEstimateError && <flex.alignItemsCenter>
-                <ErrorIcon src='/images/error.svg' />
+                <styles.ErrorIcon src='/images/error.svg' />
                 <span>{timeEstimateError}</span>
             </flex.alignItemsCenter>
             }
             {dueDateError && <flex.alignItemsCenter>
-                <ErrorIcon src='/images/error.svg' />
+                <styles.ErrorIcon src='/images/error.svg' />
                 <span>{dueDateError}</span>
             </flex.alignItemsCenter>
             }
-        </ErrorContainer>
-    </OuterContainer >
+        </styles.ErrorContainer>
+    </styles.OuterContainer >
 }
 
