@@ -39,6 +39,7 @@ const JoinWaitlistButton = styled.button`
   border-radius: 0 2px 2px 0;
   color: white;
   background-color: black;
+  cursor: pointer
 `
 const WaitlistDiv = styled.div`
   width: 450px;
