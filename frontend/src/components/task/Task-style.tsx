@@ -7,7 +7,7 @@ export const DraggableContainer = styled.div`
     position: relative;
 `
 
-export const ContainerStyles = css<{ opacity: number }>`
+export const Container = styled.div<{ opacity: number }>`
   padding: 0;
   font-family: 'Ellipsis', 'Gothic A1', sans-serif;
   border: 1px solid ${BORDER_PRIMARY};
@@ -30,11 +30,12 @@ const DropIndicatorStyles = css<{ isVisible: boolean }>`
     visibility: ${props => props.isVisible ? 'visible' : 'hidden'};
 `
 
-export const DropIndicatorAboveStyles = css`
+export const DropIndicatorAbove = styled.hr`
     ${DropIndicatorStyles}
     margin-top: -5px;
 `
-export const DropIndicatorBelowStyles = css`
+
+export const DropIndicatorBelow = styled.hr`
     ${DropIndicatorStyles}
     margin-top: 5.0px;
 `
