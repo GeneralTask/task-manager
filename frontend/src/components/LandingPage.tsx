@@ -1,8 +1,8 @@
-import { LOGIN_URL, WAITLIST_URL } from '../constants'
+import { WAITLIST_URL } from '../constants'
 import React, { useState } from 'react'
 import { getAuthToken, getHeaders } from '../helpers/utils'
 
-import GLButton from './login/GoogleLogin'
+import GLButton from './login/GoogleLoginButton'
 import { TEXT_GRAY } from '../helpers/styles'
 import TasksPage from './task/TasksPage'
 import styled from 'styled-components'
@@ -62,19 +62,7 @@ const WaitlistMessage = styled.div<{ visibility: string, backgroundColor: string
   border-top: none;
   color: ${props => props.color};
 `
-const LoginWithGoogle = styled.a`
-  border: 1px solid ;
-  border-radius: 2px;
-  margin: auto;
-  margin-bottom: 50px;
-  display: flex;
-  width: 200px;
-  color: ${TEXT_GRAY};
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  padding: 4px;
-`
+
 
 enum WaitlistState {
   NONE,
@@ -100,10 +88,7 @@ const LandingPage: React.FC = () => {
           and prioritizes what matters most.
         </Subtitle>
         <Waitlist />
-        <LoginWithGoogle href={LOGIN_URL} role="button">
-          <GLButton />
-          Sign in with Google
-        </LoginWithGoogle>
+        <GLButton />
       </Container>
     </>
   )
