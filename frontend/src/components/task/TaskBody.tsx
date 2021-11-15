@@ -2,47 +2,11 @@ import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import React, { useEffect, useRef, useState } from 'react'
 import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
 
-import { BORDER_PRIMARY } from '../../helpers/styles'
 import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
 import { TTaskSource } from '../../helpers/types'
-import styled from 'styled-components'
 import { toast } from 'react-toastify'
-
-const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
-  border: none;
-  border-radius: 2px;
-  width: 100%;
-  visibility: hidden;
-  height: ${props => props.iframeHeight + 'px'};
-`
-const BodyDiv = styled.div`
-  margin: auto;
-  width: 95%;
-  padding: 6px;
-`
-const Deeplink = styled.div`
-  margin: auto;
-  text-align: center;
-  width: 100%;
-  color: black;
-`
-const ReplyDiv = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
-`
-const ExpandedBody = styled.div<{ isExpanded: boolean }>`
-    display: ${props => props.isExpanded ? 'block' : 'none'}
-`
-const ReplyInputStyle = {
-    width: '86%',
-    border: `1px solid ${BORDER_PRIMARY}`,
-    borderRadius: '2px',
-    padding: '10px',
-    cursor: 'text',
-}
+import { BodyIframe, BodyDiv, Deeplink, ReplyDiv, ExpandedBody, ReplyInputStyle } from './TaskBody-style'
 
 interface Props {
     body: string | null,
