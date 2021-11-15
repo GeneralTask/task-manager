@@ -3,28 +3,33 @@ import React, { useState } from 'react'
 import { getAuthToken, getHeaders } from '../helpers/utils'
 
 import GLButton from './login/GoogleLoginButton'
-import { TEXT_GRAY } from '../helpers/styles'
+import { device, TEXT_GRAY } from '../helpers/styles'
 import TasksPage from './task/TasksPage'
 import styled from 'styled-components'
 
 const Container = styled.div`
-  width: 65%;
   margin: auto;
 `
 const Title = styled.div`
-  font-size: 58px;
+  font-size: 35px;
   text-align: center;
   margin-top: 60px;
   margin-bottom: 40px;
+  @media ${device.mobile} {
+    font-size: 58px;
+  }
 `
 const Subtitle = styled.div`
-  font-size: 27px;
+  font-size: 18px;
   color: ${TEXT_GRAY};
   text-align: center;
   margin-bottom: 30px;
+  @media ${device.mobile} {
+    font-size: 27px;
+  }
 `
 const WaitlistInput = styled.input`
-  width: 250px;
+  width: 60%;
   height: 100%;
   border: 1.5px solid black;
   border-radius: 2px 0 0 2px;
@@ -33,22 +38,27 @@ const WaitlistInput = styled.input`
   text-align: center;
 `
 const JoinWaitlistButton = styled.button`
-  width: 200px;
+  width: 40%;
   height: 100%;
   border: 1.5px solid black;
   border-radius: 0 2px 2px 0;
   color: white;
   background-color: black;
-  cursor: pointer
+  cursor: pointer;
 `
 const WaitlistDiv = styled.div`
-  width: 450px;
+  width: 90%;
   margin: auto;
   margin-bottom: 40px;
+  @media ${device.mobile} {
+    width: 500px;
+  }
 `
 const WaitlistInputs = styled.form`
   height: 34px;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 `
 const WaitlistMessage = styled.div<{ visibility: string, backgroundColor: string, color: string }>`
   height: 34px;
