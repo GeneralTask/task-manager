@@ -33,6 +33,7 @@ export const Input = styled.input<{ error: boolean }>`
 `
 export const InputTitle = styled(Input)`
     width: 100%;
+    border-bottom: 1px solid ${BORDER_PRIMARY};
     @media ${device.mobile}{
         width: 50%;
         border-right: 1px solid ${BORDER_PRIMARY};
@@ -40,6 +41,7 @@ export const InputTitle = styled(Input)`
 `
 export const InputTimeEstimate = styled(Input)`
     width: 100%;
+    border-bottom: 1px solid ${BORDER_PRIMARY};
     @media ${device.mobile}{
         width: 25%;
         border-right: 1px solid ${BORDER_PRIMARY};
@@ -72,3 +74,4 @@ export const ErrorIcon = styled.img`
     margin: 4px;
     width: 20px;
 `
+
