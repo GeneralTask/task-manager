@@ -109,7 +109,7 @@ interface Props {
 }
 
 const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) => {
-  const expanded_body = useSelector((state: RootState) => state.expanded_body)
+  const expanded_body = useSelector((state: RootState) => state.tasks_page.expanded_body)
   const countdown = useCountdown(props.datetimeStart)
 
   const hoverEffectEnabled = !!(props.task.body || props.task.deeplink)

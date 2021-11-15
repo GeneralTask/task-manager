@@ -1,9 +1,9 @@
-import { TTaskSection } from './../helpers/types'
 import * as actions from './actionTypes'
 
 import { RootState, initialState } from './store'
 
 import { AnyAction } from 'redux'
+import { TTaskSection } from './../helpers/types'
 import _ from 'lodash'
 
 let task_sections: TTaskSection[]
@@ -15,17 +15,23 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
     case actions.SET_TASKS:
       return {
         ...state,
-        task_sections: action.task_sections,
+        tasks_page: {
+          ...state.tasks_page,
+          task_sections: action.task_sections,
+        },
       }
 
     case actions.SET_TASKS_FETCH_STATUS:
       return {
         ...state,
-        tasks_fetch_status: action.tasks_fetch_status,
+        tasks_page: {
+          ...state.tasks_page,
+          tasks_fetch_status: action.tasks_fetch_status,
+        },
       }
 
     case actions.REMOVE_TASK_BY_ID:
-      task_sections = _.cloneDeep(state.task_sections)
+      task_sections = _.cloneDeep(state.tasks_page.task_sections)
       // loops through the tasks and removes the one with the id
       // should pass in section/group indicies to be more efficient
       for (const task_section of task_sections) {
@@ -35,7 +41,10 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
               task_group.tasks.splice(i, 1)
               return {
                 ...state,
-                task_sections,
+                tasks_page: {
+                  ...state.tasks_page,
+                  task_sections,
+                }
               }
             }
           }
@@ -43,19 +52,28 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
       }
       return {
         ...state,
-        task_sections,
+        tasks_page: {
+          ...state.tasks_page,
+          task_sections,
+        }
       }
 
     case actions.EXPAND_BODY:
       return {
         ...state,
-        expanded_body: action.task_id,
+        tasks_page: {
+          ...state.tasks_page,
+          expanded_body: action.task_id,
+        }
       }
 
     case actions.RETRACT_BODY:
       return {
         ...state,
-        expanded_body: null,
+        tasks_page: {
+          ...state.tasks_page,
+          expanded_body: null,
+        }
       }
 
     case actions.SET_SETTINGS:
@@ -67,7 +85,10 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
     case actions.SET_TASKS_DRAG_STATE:
       return {
         ...state,
-        tasks_drag_state: action.dragState,
+        tasks_page: {
+          ...state.tasks_page,
+          tasks_drag_state: action.dragState,
+        }
       }
 
     default:

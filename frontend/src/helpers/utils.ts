@@ -7,13 +7,13 @@ import {
     REACT_APP_FRONTEND_BASE_URL,
     TASKS_URL
 } from '../constants'
+import { TTask, TTaskGroupType, TTaskSection } from './types'
 import { setTasks, setTasksDragState, setTasksFetchStatus } from '../redux/actions'
 import { useEffect, useState } from 'react'
 
 import Cookies from 'js-cookie'
-import store from '../redux/store'
-import { TTask, TTaskGroupType, TTaskSection } from './types'
 import _ from 'lodash'
+import store from '../redux/store'
 
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
@@ -108,19 +108,20 @@ export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[]
         section.task_groups.forEach((group) => {
             group.tasks.forEach((task) => task.id_ordering = idOrdering++)
         })
-        return section        
+        return section
     })
 }
 
 export const getLinkedAccountsURL = (account_id: string): string => LINKED_ACCOUNTS_URL + account_id + '/'
 
 export const fetchTasks = async (): Promise<void> => {
-    const dragState = store.getState().tasks_drag_state
+    const reduxState = store.getState()
+    const dragState = reduxState.tasks_page.tasks_drag_state
     if (dragState !== DragState.noDrag) {
         store.dispatch(setTasksDragState(DragState.fetchDelayed))
         return
     }
-    const fetchStatus = store.getState().tasks_fetch_status
+    const fetchStatus = reduxState.tasks_page.tasks_fetch_status
     if (fetchStatus.status === FetchStatusEnum.LOADING) {
         // abort inflight request
         fetchStatus.abort_fetch()
@@ -185,7 +186,7 @@ export function TaskDropReorder(staleTaskSections: TTaskSection[], dragTaskId: s
             for (let i = 0; i < taskGroup.tasks.length; i++) {
                 if (taskGroup.tasks[i].id === dragTaskId) {
                     dragTaskObject = taskGroup.tasks[i]
-                    taskGroup.tasks.splice(i,1)
+                    taskGroup.tasks.splice(i, 1)
                 }
             }
         }
@@ -202,11 +203,11 @@ export function TaskDropReorder(staleTaskSections: TTaskSection[], dragTaskId: s
                 if (taskGroup.tasks[taskIndex].id === dropTaskId) {
                     found = true
                     if (taskGroup.type === TTaskGroupType.SCHEDULED_TASK) {
-                        if (isLowerHalf) taskSection.task_groups[groupIndex + 1].tasks.splice(0,0,dragTaskObject)
+                        if (isLowerHalf) taskSection.task_groups[groupIndex + 1].tasks.splice(0, 0, dragTaskObject)
                         else taskSection.task_groups[groupIndex - 1].tasks.push(dragTaskObject)
                     }
                     else {
-                        taskGroup.tasks.splice(taskIndex + Number(isLowerHalf) , 0, dragTaskObject)
+                        taskGroup.tasks.splice(taskIndex + Number(isLowerHalf), 0, dragTaskObject)
                     }
                     break
                 }
@@ -216,7 +217,7 @@ export function TaskDropReorder(staleTaskSections: TTaskSection[], dragTaskId: s
     return updateOrderingIds(taskSections)
 }
 
-export function sectionDropReorder(staleTaskSections: TTaskSection[], dragTaskId: string, sectionIndex: number) : TTaskSection[] {
+export function sectionDropReorder(staleTaskSections: TTaskSection[], dragTaskId: string, sectionIndex: number): TTaskSection[] {
     const taskSections = _.cloneDeep(staleTaskSections)
     let dragTaskObject = null
 
@@ -226,7 +227,7 @@ export function sectionDropReorder(staleTaskSections: TTaskSection[], dragTaskId
             for (let i = 0; i < taskGroup.tasks.length; i++) {
                 if (taskGroup.tasks[i].id === dragTaskId) {
                     dragTaskObject = taskGroup.tasks[i]
-                    taskGroup.tasks.splice(i,1)
+                    taskGroup.tasks.splice(i, 1)
                 }
             }
         }

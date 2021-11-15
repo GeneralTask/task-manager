@@ -1,16 +1,16 @@
 import { BACKGROUND_HOVER, DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
 import { DeviceSize, fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest, sectionDropReorder, useDeviceSize } from '../../helpers/utils'
+import { ItemTypes, TTaskSection } from '../../helpers/types'
 import React, { useEffect, useRef, useState } from 'react'
+import store, { RootState } from '../../redux/store'
 
 import { DateTime } from 'luxon'
-import { ItemTypes, TTaskSection } from '../../helpers/types'
 import RefreshButton from './RefreshButton'
-import store, { RootState } from '../../redux/store'
-import { useSelector } from 'react-redux'
+import { TASKS_MODIFY_URL } from '../../constants'
+import { setTasks } from '../../redux/actions'
 import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
-import { setTasks } from '../../redux/actions'
-import { TASKS_MODIFY_URL } from '../../constants'
+import { useSelector } from 'react-redux'
 
 const TaskSectionHeaderContainer = styled.div`
   display: flex;
@@ -65,10 +65,10 @@ interface Props {
 }
 
 export default function TaskSectionHeader(props: Props): JSX.Element {
-  const taskSections = useSelector((state: RootState) => state.task_sections)
+  const taskSections = useSelector((state: RootState) => state.tasks_page.task_sections)
   const taskSectionsRef = useRef<TTaskSection[]>(taskSections)
   taskSectionsRef.current = taskSections
-  
+
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ItemTypes.TASK,
     collect: monitor => ({
@@ -84,7 +84,7 @@ export default function TaskSectionHeader(props: Props): JSX.Element {
         url: TASKS_MODIFY_URL + id + '/',
         method: 'PATCH',
         body: JSON.stringify({
-          id_task_section:  taskSectionsRef.current[droppedSectionId].id,
+          id_task_section: taskSectionsRef.current[droppedSectionId].id,
           id_ordering: updatedOrderingId
         })
       }).then(fetchTasks).catch((error) => {
