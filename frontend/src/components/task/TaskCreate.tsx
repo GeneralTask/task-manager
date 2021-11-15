@@ -29,12 +29,15 @@ export default function TaskCreate(): JSX.Element {
                 tempTitleError = 'Title is required'
             }
 
-            const timeEstimateNum = parseInt(timeEstimate)
-            if (isNaN(timeEstimateNum)) {
-                tempTimeEstimateError = 'Time estimate must be a number'
-            }
-            else if (timeEstimateNum <= 0) {
-                tempTimeEstimateError = 'Time estimate must be greater than 0'
+            let timeEstimateNum = -1
+            if (timeEstimate !== '') {
+                timeEstimateNum = parseInt(timeEstimate)
+                if (isNaN(timeEstimateNum)) {
+                    tempTimeEstimateError = 'Time estimate must be a number'
+                }
+                else if (timeEstimateNum <= 0) {
+                    tempTimeEstimateError = 'Time estimate must be greater than 0'
+                }
             }
 
             setTitleError(tempTitleError)
@@ -49,6 +52,11 @@ export default function TaskCreate(): JSX.Element {
                 if (timeEstimateNum > 0) {
                     body.time_duration = timeEstimateNum * 60
                 }
+
+                setTitle('')
+                setTimeEstimate('')
+                setDueDate('')
+
                 await makeAuthorizedRequest({
                     url: TASKS_CREATE_URL + GT_TASK_SOURCE_ID + '/',
                     method: 'POST',
