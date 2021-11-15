@@ -24,10 +24,7 @@ export const SETTINGS_PATH = '/settings/'
 export const PRIVACY_PATH = '/privacy/'
 
 //Google Sign-In SVGs
-export const GOOGLE_LIGHT_NORMAL = '/assets/google_signin_buttons/google_btn_normal.svg'
-export const GOOGLE_LIGHT_FOCUS = '/assets/google_signin_buttons/google_btn_focus.svg'
-export const GOOGLE_LIGHT_PRESSED = '/assets/google_signin_buttons/google_btn_pressed.svg'
-export const GOOGLE_LIGHT_DISABLED = '/assets/google_signin_buttons/google_btn_disabled.svg'
+export const GOOGLE_LIGHT_NORMAL = '/assets/google_signin_buttons/btn_google_signin_light_normal_web@2x.png'
 
 //images
 export const CHEVRON_DOWN = '/images/chevron-arrow-down.svg'
