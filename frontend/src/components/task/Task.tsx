@@ -12,14 +12,9 @@ import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import store from '../../redux/store'
-import styled from 'styled-components'
 import { fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest, TaskDropReorder } from '../../helpers/utils'
 import { TASKS_MODIFY_URL } from '../../constants'
-import {DraggableContainer, ContainerStyles, DropIndicatorAboveStyles, DropIndicatorBelowStyles} from './Task-style'
-
-const Container = styled.div<{ opacity: number }>`${ContainerStyles}`
-const DropIndicatorAbove = styled.hr<{ isVisible: boolean }>`${DropIndicatorAboveStyles}`
-const DropIndicatorBelow = styled.hr<{ isVisible: boolean }>`${DropIndicatorBelowStyles}`
+import {DraggableContainer, Container, DropIndicatorAbove, DropIndicatorBelow} from './Task-style'
 
 const DropDirection = {
   'Up': true,
