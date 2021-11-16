@@ -123,6 +123,9 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 					return
 				}
 			}
+			if body != nil {
+				log.Println("load body:\n", *body)
+			}
 
 			senderName, senderEmail := utils.ExtractSenderName(sender)
 			senderDomain := utils.ExtractEmailDomain(senderEmail)
@@ -205,6 +208,8 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 			log.Printf("failed to decode email body: %v", err)
 			return nil, err
 		} else {
+			log.Println("before:\n", bodyString)
+			log.Println("after:\n", formattedBody)
 			bodyString = formattedBody
 		}
 	}
@@ -396,6 +401,11 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 	smtpID := ""
 	references := ""
 
+	log.Println("reply to message data:\n", messageResponse.Payload.Body.Data)
+	log.Println("reply to message raw:\n", messageResponse.Raw)
+	// load email body as HTML
+	// grab sender name, email, and sent time
+	// add something like this <br class=""><div><br class=""><blockquote type="cite" class=""><div class="">On Nov 16, 2021, at 12:19 PM, John Reinstra &lt;<a href="mailto:john@generaltask.com" class="">john@generaltask.com</a>&gt; wrote:</div><br class="Apple-interchange-newline"><div class=""><meta http-equiv="Content-Type" content="text/html; charset=us-ascii" class=""><div style="word-wrap: break-word; -webkit-nbsp-mode: space; line-break: after-white-space;" class="">
 	for _, h := range messageResponse.Payload.Headers {
 		if h.Name == "Subject" {
 			subject = h.Value
@@ -441,6 +451,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 	inReply := "In-Reply-To: " + smtpID + "\n"
 	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n"
 	msg := []byte(emailTo + emailFrom + subject + inReply + references + mime + "\n" + body)
+	log.Println("final message!\n", string(msg))
 
 	messageToSend := gmail.Message{
 		Raw:      base64.URLEncoding.EncodeToString(msg),
