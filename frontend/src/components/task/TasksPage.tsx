@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { RootState } from '../../redux/store'
+import store, { RootState } from '../../redux/store'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
 import { fetchLinkedAccounts } from '../settings/Accounts'
@@ -10,6 +10,8 @@ import { fetchSettings } from '../settings/Preferences'
 import { fetchTasks } from '../../helpers/utils'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
+import GTButton from '../common/GTButton'
+import { setShowCreateTaskForm } from '../../redux/actions'
 
 const Header = styled.div`
     text-align: center;
@@ -45,6 +47,15 @@ export default function TasksPage(): JSX.Element {
             <Header>
                 Tasks
             </Header>
+            <div>
+                <GTButton
+                    theme='light'
+                    onClick={() => {
+                        store.dispatch(setShowCreateTaskForm(false))
+                    }}>
+                    New
+                </GTButton>
+            </div>
             <TaskStatus />
             {TaskSectionElements}
         </DndProvider>
