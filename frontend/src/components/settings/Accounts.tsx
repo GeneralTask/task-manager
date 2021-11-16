@@ -14,8 +14,6 @@ import { useSelector } from 'react-redux'
 const FETCH_LINKED_ACCOUNTS_INTERVAL = 1000 * 30 // every thirty seconds
 
 const Accounts: React.FC = () => {
-
-	// const [linkedAccounts, setLinkedAccounts] = useState<State>({ loading: true, accounts: [] })
 	const [isLoading, setIsLoading] = useState(true)
 	const linkedAccounts = useSelector((state: RootState) => state.settings_page.linked_accounts)
 
