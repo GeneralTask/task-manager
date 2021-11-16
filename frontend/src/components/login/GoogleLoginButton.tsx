@@ -6,6 +6,9 @@ import { LOGIN_URL } from '../../constants'
 const GoogleLoginLink = styled.a`
     display: flex;
     height: 50px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
 `
 const GoogleLoginImage = styled.img`
     height: 100%;
