@@ -3,7 +3,7 @@ import './Task.css'
 import { Container, DraggableContainer, DropIndicatorAbove, DropIndicatorBelow } from './Task-style'
 import { ItemTypes, TTaskSection } from '../../helpers/types'
 import React, { useRef, useState } from 'react'
-import { TaskDropReorder, fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest } from '../../helpers/utils'
+import { taskDropReorder, fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest } from '../../helpers/utils'
 import { setTasks, setTasksDragState } from '../../redux/actions'
 import { useDrag, useDrop } from 'react-dnd'
 
@@ -70,9 +70,8 @@ export default function Task(props: Props): JSX.Element {
         const clientOffsetY = monitor.getClientOffset()?.y
         isLowerHalf = !!(clientOffsetY && clientOffsetY > dropMiddleY)
       }
-      const updatedTaskSections = TaskDropReorder(taskSections, item.id, task.id, isLowerHalf)
+      const updatedTaskSections = taskDropReorder(taskSections, item.id, task.id, isLowerHalf)
       store.dispatch(setTasks(updatedTaskSections))
-
       const updatedOrderingId = lookupTaskObject(updatedTaskSections, item.id)?.id_ordering
       const droppedSectionId = lookupTaskSection(updatedTaskSections, item.id)
       makeAuthorizedRequest({

@@ -176,7 +176,7 @@ export const useDeviceSize = (): DeviceSize => {
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export function emptyFunction(): void { }
 
-export function TaskDropReorder(staleTaskSections: TTaskSection[], dragTaskId: string, dropTaskId: string, isLowerHalf: boolean): TTaskSection[] {
+export function taskDropReorder(staleTaskSections: TTaskSection[], dragTaskId: string, dropTaskId: string, isLowerHalf: boolean): TTaskSection[] {
     const taskSections = _.cloneDeep(staleTaskSections)
     let dragTaskObject = null
 
