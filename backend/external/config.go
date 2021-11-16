@@ -24,7 +24,7 @@ const (
 )
 
 type Config struct {
-	GithubAuthorizeConfig OauthConfigWrapper
+	Github                OauthConfigWrapper
 	GoogleLoginConfig     OauthConfigWrapper
 	GoogleAuthorizeConfig OauthConfigWrapper
 	Slack                 OauthConfigWrapper
@@ -38,7 +38,7 @@ func GetConfig() Config {
 	return Config{
 		GoogleLoginConfig:     getGoogleLoginConfig(),
 		GoogleAuthorizeConfig: getGoogleLinkConfig(),
-		GithubAuthorizeConfig: getGithubConfig(),
+		Github:                getGithubConfig(),
 		Slack:                 getSlackConfig(),
 		Trello:                getTrelloConfig(),
 		Asana:                 getAsanaConfig(),
@@ -83,7 +83,7 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 		OverrideURLs: config.GoogleOverrideURLs,
 	}
 	asanaService := AsanaService{Config: config.Asana}
-	githubService := GithubService{Config: config.GithubAuthorizeConfig}
+	githubService := GithubService{Config: config.Github}
 	return map[string]TaskSourceResult{
 		TASK_SOURCE_ID_GCAL: {
 			Details: TaskSourceGoogleCalendar,
@@ -106,7 +106,7 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 			Source:  AsanaTaskSource{Asana: asanaService},
 		},
 		TASK_SOURCE_ID_GITHUB_PR: {
-			Details: TaskSourceGitPR,
+			Details: TaskSourceGithubPR,
 			Source:  GithubPRSource{Github: githubService},
 		},
 	}
@@ -120,7 +120,7 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 		LinkConfig:   config.GoogleAuthorizeConfig,
 		OverrideURLs: config.GoogleOverrideURLs,
 	}
-	githubService := GithubService{Config: config.GithubAuthorizeConfig}
+	githubService := GithubService{Config: config.Github}
 	return map[string]TaskServiceResult{
 		TASK_SERVICE_ID_ATLASSIAN: {
 			Service: atlassianService,
@@ -259,7 +259,7 @@ var TaskSourceGoogleCalendar = TaskSourceDetails{
 	IsCreatable:   false,
 	IsReplyable:   false,
 }
-var TaskSourceGitPR = TaskSourceDetails{
+var TaskSourceGithubPR = TaskSourceDetails{
 	ID:            TASK_SOURCE_ID_GITHUB_PR,
 	Name:          "Git PR",
 	Logo:          "/images/github.svg",

@@ -81,6 +81,7 @@ func (Github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 	}
 
 	tokenString, err := json.Marshal(&token)
+	log.Println("token string:", string(tokenString))
 	if err != nil {
 		log.Printf("error parsing token: %v", err)
 		return errors.New("internal server error")
@@ -94,10 +95,14 @@ func (Github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 		dbCtx,
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_GITHUB}}},
 		bson.M{"$set": &database.ExternalAPIToken{
-			UserID:    userID,
-			ServiceID: TASK_SERVICE_ID_GITHUB,
-			Token:     string(tokenString)},
-		},
+			UserID:         userID,
+			ServiceID:      TASK_SERVICE_ID_GITHUB,
+			Token:          string(tokenString),
+			AccountID:      "todo",
+			DisplayID:      "todo",
+			IsUnlinkable:   true,
+			IsPrimaryLogin: false,
+		}},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
