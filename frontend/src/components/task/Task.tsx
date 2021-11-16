@@ -40,6 +40,7 @@ export default function Task(props: Props): JSX.Element {
 
   taskSectionsRef.current = taskSections
 
+
   const [{ opacity }, drag, dragPreview] = useDrag(() => ({
     type: ItemTypes.TASK,
     item: { id: task.id },
@@ -70,12 +71,12 @@ export default function Task(props: Props): JSX.Element {
         const clientOffsetY = monitor.getClientOffset()?.y
         isLowerHalf = !!(clientOffsetY && clientOffsetY > dropMiddleY)
       }
-      const previousOrderingId = lookupTaskObject(taskSections, item.id)?.id_ordering
-      const previousSectionId = lookupTaskSection(taskSections, item.id)
 
       const updatedTaskSections = taskDropReorder(taskSections, item.id, task.id, isLowerHalf)
       store.dispatch(setTasks(updatedTaskSections))
 
+      const previousOrderingId = lookupTaskObject(taskSections, item.id)?.id_ordering
+      const previousSectionId = lookupTaskSection(taskSections, item.id)
       let updatedOrderingId = lookupTaskObject(updatedTaskSections, item.id)?.id_ordering
       const updatedSectionId = lookupTaskSection(updatedTaskSections, item.id)
 
