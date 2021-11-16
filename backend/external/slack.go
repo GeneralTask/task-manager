@@ -68,7 +68,7 @@ func (Slack SlackService) HandleLinkCallback(params CallbackParams, userID primi
 	defer cancel()
 	_, err = externalAPITokenCollection.UpdateOne(
 		dbCtx,
-		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_SLACK}}},
+		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_SLACK}, {"account_id": "todo"}}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:         userID,
 			ServiceID:      TASK_SERVICE_ID_SLACK,

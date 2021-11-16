@@ -103,12 +103,15 @@ func (Trello TrelloService) HandleLinkCallback(params CallbackParams, userID pri
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
-		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_TRELLO}}},
+		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_TRELLO}, {"account_id": "todo"}}},
 		bson.M{"$set": &database.ExternalAPIToken{
-			UserID:       userID,
-			ServiceID:    TASK_SERVICE_ID_TRELLO,
-			Token:        string(tokenString),
-			IsUnlinkable: true,
+			UserID:         userID,
+			ServiceID:      TASK_SERVICE_ID_TRELLO,
+			Token:          string(tokenString),
+			AccountID:      "todo",
+			DisplayID:      "todo",
+			IsUnlinkable:   true,
+			IsPrimaryLogin: true,
 		}},
 		options.Update().SetUpsert(true),
 	)

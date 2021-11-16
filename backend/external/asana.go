@@ -85,15 +85,16 @@ func (Asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 	externalAPITokenCollection := db.Collection("external_api_tokens")
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
+	accountID := accountEmail.(string)
 	_, err = externalAPITokenCollection.UpdateOne(
 		dbCtx,
-		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_ASANA}}},
+		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_ASANA}, {"account_id": accountID}}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:         userID,
 			ServiceID:      TASK_SERVICE_ID_ASANA,
 			Token:          string(tokenString),
-			AccountID:      accountEmail.(string),
-			DisplayID:      accountEmail.(string),
+			AccountID:      accountID,
+			DisplayID:      accountID,
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
 		}},
