@@ -70,16 +70,25 @@ export default function Task(props: Props): JSX.Element {
         const clientOffsetY = monitor.getClientOffset()?.y
         isLowerHalf = !!(clientOffsetY && clientOffsetY > dropMiddleY)
       }
+      const previousOrderingId = lookupTaskObject(taskSections, item.id)?.id_ordering
+      const previousSectionId = lookupTaskSection(taskSections, item.id)
+
       const updatedTaskSections = taskDropReorder(taskSections, item.id, task.id, isLowerHalf)
       store.dispatch(setTasks(updatedTaskSections))
-      const updatedOrderingId = lookupTaskObject(updatedTaskSections, item.id)?.id_ordering
-      const droppedSectionId = lookupTaskSection(updatedTaskSections, item.id)
+
+      let updatedOrderingId = lookupTaskObject(updatedTaskSections, item.id)?.id_ordering
+      const updatedSectionId = lookupTaskSection(updatedTaskSections, item.id)
+
+      if (updatedOrderingId == null || previousOrderingId == null) return
+      if (previousSectionId === updatedSectionId && previousOrderingId >= updatedOrderingId) {
+        updatedOrderingId -= 1
+      }
       makeAuthorizedRequest({
         url: TASKS_MODIFY_URL + item.id + '/',
         method: 'PATCH',
         body: JSON.stringify({
-          id_task_section: taskSections[droppedSectionId].id,
-          id_ordering: updatedOrderingId
+          id_task_section: taskSections[updatedSectionId].id,
+          id_ordering: updatedOrderingId + 1,
         })
       }).then(fetchTasks).catch((error) => {
         throw new Error('PATCH /tasks/ failed' + error)
