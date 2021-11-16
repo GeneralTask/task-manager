@@ -27,7 +27,9 @@ const Container = styled.div`
 
 
 const RefreshButton = (): JSX.Element => {
-    const isLoading = useSelector((state: RootState) => state.tasks_fetch_status.status) === FetchStatusEnum.LOADING
+    const isLoading = useSelector(
+        (state: RootState) => state.tasks_page.tasks_fetch_status.status
+    ) === FetchStatusEnum.LOADING
     return <Container onClick={fetchTasks}>
         {isLoading
             ? <SpinningRefreshBtn src="images/refresh.svg" />

@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-import { connect, useSelector } from 'react-redux'
 
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -9,6 +8,7 @@ import TaskStatus from './TaskStatus'
 import { fetchSettings } from '../settings/Preferences'
 import { fetchTasks } from '../../helpers/utils'
 import styled from 'styled-components'
+import { useSelector } from 'react-redux'
 
 const Header = styled.div`
     text-align: center;
@@ -16,8 +16,8 @@ const Header = styled.div`
     margin-bottom: 24px;
 `
 
-function TasksPage(): JSX.Element {
-    const task_sections = useSelector((state: RootState) => state.task_sections)
+export default function TasksPage(): JSX.Element {
+    const task_sections = useSelector((state: RootState) => state.tasks_page.task_sections)
     useEffect(() => {
         fetchSettings() // fetch settings once on tasks page load
         fetchTasks()
@@ -45,7 +45,3 @@ function TasksPage(): JSX.Element {
         </DndProvider>
     )
 }
-
-export default connect(
-    (state: RootState) => ({ task_sections: state.task_sections })
-)(TasksPage)

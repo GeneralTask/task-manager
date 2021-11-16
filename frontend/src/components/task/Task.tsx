@@ -1,20 +1,20 @@
 import './Task.css'
 
+import { Container, DraggableContainer, DropIndicatorAbove, DropIndicatorBelow } from './Task-style'
+import { ItemTypes, TTaskSection } from '../../helpers/types'
 import React, { useRef, useState } from 'react'
-import { connect, useSelector } from 'react-redux'
+import { TaskDropReorder, fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest } from '../../helpers/utils'
 import { setTasks, setTasksDragState } from '../../redux/actions'
 import { useDrag, useDrop } from 'react-dnd'
 
 import { DragState } from '../../redux/enums'
-import { ItemTypes, TTaskSection } from '../../helpers/types'
 import { RootState } from '../../redux/store'
+import { TASKS_MODIFY_URL } from '../../constants'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import store from '../../redux/store'
-import { fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest, TaskDropReorder } from '../../helpers/utils'
-import { TASKS_MODIFY_URL } from '../../constants'
-import {DraggableContainer, Container, DropIndicatorAbove, DropIndicatorBelow} from './Task-style'
+import { useSelector } from 'react-redux'
 
 const DropDirection = {
   'Up': true,
@@ -27,15 +27,18 @@ interface Props {
   datetimeStart: string | null, // null if unscheduled_task
 }
 
-const Task: React.FC<Props> = (props: Props) => {
+export default function Task(props: Props): JSX.Element {
   const { task, datetimeStart, dragDisabled } = props
   const dropRef = React.useRef<HTMLDivElement>(null)
-  const {expanded_body, task_sections}  = useSelector((state: RootState) => state)
-  const isExpanded = expanded_body === task.id
+  const { expandedBody, taskSections } = useSelector((state: RootState) => ({
+    expandedBody: state.tasks_page.expanded_body,
+    taskSections: state.tasks_page.task_sections,
+  }))
+  const isExpanded = expandedBody === task.id
   const [dropDirection, setDropDirection] = useState(DropDirection.Up)
   const taskSectionsRef = useRef<TTaskSection[]>()
 
-  taskSectionsRef.current = task_sections
+  taskSectionsRef.current = taskSections
 
   const [{ opacity }, drag, dragPreview] = useDrag(() => ({
     type: ItemTypes.TASK,
@@ -49,7 +52,7 @@ const Task: React.FC<Props> = (props: Props) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ItemTypes.TASK,
     collect: monitor => {
-      return { isOver: monitor.isOver()}
+      return { isOver: monitor.isOver() }
     },
     drop: (item: { id: string }, monitor) => {
       setTasksDragState(DragState.noDrag)
@@ -69,7 +72,7 @@ const Task: React.FC<Props> = (props: Props) => {
       }
       const updatedTaskSections = TaskDropReorder(taskSections, item.id, task.id, isLowerHalf)
       store.dispatch(setTasks(updatedTaskSections))
-      
+
       const updatedOrderingId = lookupTaskObject(updatedTaskSections, item.id)?.id_ordering
       const droppedSectionId = lookupTaskSection(updatedTaskSections, item.id)
       makeAuthorizedRequest({
@@ -125,7 +128,3 @@ const Task: React.FC<Props> = (props: Props) => {
     </div>
   )
 }
-
-export default connect((state: RootState) => ({ expanded_body: state.expanded_body }))(
-  Task
-)
