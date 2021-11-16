@@ -5,6 +5,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { RootState } from '../../redux/store'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
+import { fetchLinkedAccounts } from '../settings/Accounts'
 import { fetchSettings } from '../settings/Preferences'
 import { fetchTasks } from '../../helpers/utils'
 import styled from 'styled-components'
@@ -19,8 +20,12 @@ const Header = styled.div`
 export default function TasksPage(): JSX.Element {
     const task_sections = useSelector((state: RootState) => state.tasks_page.task_sections)
     useEffect(() => {
-        fetchSettings() // fetch settings once on tasks page load
+        // fetch settings and linked accounts once on tasks page load
+        fetchSettings()
+        fetchLinkedAccounts()
+
         fetchTasks()
+
         const interval: NodeJS.Timeout = setInterval(fetchTasks, 1000 * 60)
         return () => {
             clearInterval(interval)

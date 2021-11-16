@@ -1,5 +1,5 @@
-import { LinkedAccount } from '../../helpers/types'
 import React from 'react'
+import { TLinkedAccount } from '../../helpers/types'
 import styled from 'styled-components'
 
 const AccountDiv = styled.div`
@@ -30,7 +30,7 @@ const RemoveLinkButton = styled.button`
 `
 
 interface Props {
-  linkedAccount: LinkedAccount,
+  linkedAccount: TLinkedAccount,
   removeLink: () => void,
 }
 
