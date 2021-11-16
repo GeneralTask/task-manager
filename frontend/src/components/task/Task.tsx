@@ -3,7 +3,7 @@ import './Task.css'
 import { Container, DraggableContainer, DropIndicatorAbove, DropIndicatorBelow } from './Task-style'
 import { ItemTypes, TTaskSection } from '../../helpers/types'
 import React, { useRef, useState } from 'react'
-import { TaskDropReorder, fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest } from '../../helpers/utils'
+import { taskDropReorder, fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest } from '../../helpers/utils'
 import { setTasks, setTasksDragState } from '../../redux/actions'
 import { useDrag, useDrop } from 'react-dnd'
 
@@ -40,6 +40,7 @@ export default function Task(props: Props): JSX.Element {
 
   taskSectionsRef.current = taskSections
 
+
   const [{ opacity }, drag, dragPreview] = useDrag(() => ({
     type: ItemTypes.TASK,
     item: { id: task.id },
@@ -70,17 +71,25 @@ export default function Task(props: Props): JSX.Element {
         const clientOffsetY = monitor.getClientOffset()?.y
         isLowerHalf = !!(clientOffsetY && clientOffsetY > dropMiddleY)
       }
-      const updatedTaskSections = TaskDropReorder(taskSections, item.id, task.id, isLowerHalf)
+
+      const updatedTaskSections = taskDropReorder(taskSections, item.id, task.id, isLowerHalf)
       store.dispatch(setTasks(updatedTaskSections))
 
-      const updatedOrderingId = lookupTaskObject(updatedTaskSections, item.id)?.id_ordering
-      const droppedSectionId = lookupTaskSection(updatedTaskSections, item.id)
+      const previousOrderingId = lookupTaskObject(taskSections, item.id)?.id_ordering
+      const previousSectionId = lookupTaskSection(taskSections, item.id)
+      let updatedOrderingId = lookupTaskObject(updatedTaskSections, item.id)?.id_ordering
+      const updatedSectionId = lookupTaskSection(updatedTaskSections, item.id)
+
+      if (updatedOrderingId == null || previousOrderingId == null) return
+      if (previousSectionId === updatedSectionId && previousOrderingId >= updatedOrderingId) {
+        updatedOrderingId -= 1
+      }
       makeAuthorizedRequest({
         url: TASKS_MODIFY_URL + item.id + '/',
         method: 'PATCH',
         body: JSON.stringify({
-          id_task_section: taskSections[droppedSectionId].id,
-          id_ordering: updatedOrderingId
+          id_task_section: taskSections[updatedSectionId].id,
+          id_ordering: updatedOrderingId + 1,
         })
       }).then(fetchTasks).catch((error) => {
         throw new Error('PATCH /tasks/ failed' + error)
