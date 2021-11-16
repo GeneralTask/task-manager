@@ -34,6 +34,7 @@ func (GeneralTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 
+	log.Println("find:", userID, TASK_SOURCE_ID_GT_TASK, accountID, false)
 	cursor, err := taskCollection.Find(
 		dbCtx,
 		bson.M{"$and": []bson.M{
@@ -73,6 +74,7 @@ func (GeneralTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 			SourceAccountID: accountID,
 		},
 	}
+	log.Println("task:", userID, newTask.SourceID, newTask.SourceAccountID, newTask.IsCompleted)
 	if task.DueDate != nil {
 		newTask.DueDate = primitive.NewDateTimeFromTime(*task.DueDate)
 	}

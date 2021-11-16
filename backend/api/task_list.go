@@ -129,6 +129,11 @@ func (api *API) TasksList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	// add dummy token for gt_task fetch logic
+	tokens = append(tokens, database.ExternalAPIToken{
+		AccountID: external.GeneralTaskDefaultAccountID,
+		ServiceID: external.TASK_SERVICE_ID_GT,
+	})
 
 	calendarEventChannels := []chan external.CalendarResult{}
 	emailChannels := []chan external.EmailResult{}

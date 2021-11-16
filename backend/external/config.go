@@ -1,7 +1,7 @@
 package external
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/dghubble/oauth1"
 )
@@ -57,16 +57,16 @@ func (config Config) GetTaskServiceResult(serviceID string) (*TaskServiceResult,
 	nameToService := config.GetNameToService()
 	result, ok := nameToService[serviceID]
 	if !ok {
-		return nil, errors.New("task service not found")
+		return nil, fmt.Errorf("task service %s not found", serviceID)
 	}
 	return &result, nil
 }
 
-func (config Config) GetTaskSourceResult(serviceID string) (*TaskSourceResult, error) {
+func (config Config) GetTaskSourceResult(sourceID string) (*TaskSourceResult, error) {
 	nameToSource := config.getNameToSource()
-	result, ok := nameToSource[serviceID]
+	result, ok := nameToSource[sourceID]
 	if !ok {
-		return nil, errors.New("task source not found")
+		return nil, fmt.Errorf("task source %s not found", sourceID)
 	}
 	return &result, nil
 }
