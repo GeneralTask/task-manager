@@ -58,7 +58,7 @@ export interface TSetting {
     choices: TSettingChoice[],
 }
 
-export interface LinkedAccount {
+export interface TLinkedAccount {
     id: string,
     display_id: string,
     name: string,

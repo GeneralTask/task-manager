@@ -79,7 +79,19 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
     case actions.SET_SETTINGS:
       return {
         ...state,
-        settings: action.settings,
+        settings_page: {
+          ...state.settings_page,
+          settings: action.settings,
+        },
+      }
+
+    case actions.SET_LINKED_ACCOUNTS:
+      return {
+        ...state,
+        settings_page: {
+          ...state.settings_page,
+          linked_accounts: action.linkedAccounts,
+        },
       }
 
     case actions.SET_TASKS_DRAG_STATE:

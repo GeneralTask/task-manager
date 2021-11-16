@@ -1,7 +1,7 @@
 import * as actions from './actionTypes'
 
 import { DragState, FetchStatusEnum } from './enums'
-import { TSetting, TTaskSection } from './../helpers/types'
+import { TLinkedAccount, TSetting, TTaskSection } from './../helpers/types'
 
 import { AnyAction } from 'redux'
 import { emptyFunction } from '../helpers/utils'
@@ -48,6 +48,13 @@ export function setSettings(settings: TSetting[]): AnyAction {
     return {
         type: actions.SET_SETTINGS,
         settings,
+    }
+}
+
+export function setLinkedAccounts(linkedAccounts: TLinkedAccount[]): AnyAction {
+    return {
+        type: actions.SET_LINKED_ACCOUNTS,
+        linkedAccounts,
     }
 }
 

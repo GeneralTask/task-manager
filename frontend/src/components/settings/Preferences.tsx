@@ -1,5 +1,4 @@
 import { TSetting, TSettingChoice } from '../../helpers/types'
-import { connect, useSelector } from 'react-redux'
 import store, { RootState } from '../../redux/store'
 
 import React from 'react'
@@ -8,6 +7,7 @@ import { makeAuthorizedRequest } from '../../helpers/utils'
 import { setSettings } from '../../redux/actions'
 import styled from 'styled-components'
 import { useEffect } from 'react'
+import { useSelector } from 'react-redux'
 
 const PreferenceDiv = styled.div`
   margin: auto;
@@ -44,7 +44,7 @@ export const fetchSettings = async (): Promise<void> => {
 }
 
 const Preferences: React.FC = () => {
-    const settings = useSelector((state: RootState) => state.settings)
+    const settings = useSelector((state: RootState) => state.settings_page.settings)
     useEffect(() => {
         fetchSettings()
     }, [])
@@ -78,6 +78,4 @@ const changeSetting = async (field_key: string, choice_key: string) => {
     await fetchSettings()
 }
 
-export default connect(
-    (state: RootState) => ({ settings: state.settings })
-)(Preferences)
+export default Preferences

@@ -1,5 +1,5 @@
 import { DragState, FetchStatusEnum } from './enums'
-import { TFetchStatus, TSetting, TTaskSection } from '../helpers/types'
+import { TFetchStatus, TLinkedAccount, TSetting, TTaskSection } from '../helpers/types'
 import { compose, createStore } from 'redux'
 
 import { emptyFunction } from '../helpers/utils'
@@ -12,7 +12,10 @@ export interface RootState {
         tasks_drag_state: DragState,
         expanded_body: string | null,
     },
-    settings: TSetting[],
+    settings_page: {
+        linked_accounts: TLinkedAccount[],
+        settings: TSetting[],
+    },
 }
 
 export const initialState: RootState = {
@@ -25,7 +28,10 @@ export const initialState: RootState = {
         tasks_drag_state: DragState.noDrag,
         expanded_body: null,
     },
-    settings: [],
+    settings_page: {
+        linked_accounts: [],
+        settings: [],
+    },
 }
 
 declare global {
