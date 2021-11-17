@@ -3,11 +3,15 @@ import { BORDER_ERROR, BORDER_PRIMARY, TEXT_LIGHTGRAY, device } from '../../help
 import styled from 'styled-components'
 
 export const OuterContainer = styled.div`
-    width: 70%;
-    @media ${device.mobile}{
-        width: 60%;
-    }
-    margin: 20px auto;
+    margin: 20px 0;
+`
+export const Side = styled.div`
+    width: 15%;
+`
+export const InnerContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `
 export const Form = styled.form`
     display: flex;
@@ -16,8 +20,10 @@ export const Form = styled.form`
     border-radius: 2px;
     flex-wrap: wrap;
     justify-content: space-between;
+    width: 70%;
     @media ${device.mobile}{
         flex-wrap: nowrap;
+        width: 60%;
     }
 `
 export const Input = styled.input<{ error: boolean }>`
@@ -36,6 +42,7 @@ export const InputTitle = styled(Input)`
     border-bottom: 1px solid ${BORDER_PRIMARY};
     @media ${device.mobile}{
         width: 50%;
+        border-bottom: none;
         border-right: 1px solid ${BORDER_PRIMARY};
     }
 `
@@ -44,6 +51,7 @@ export const InputTimeEstimate = styled(Input)`
     border-bottom: 1px solid ${BORDER_PRIMARY};
     @media ${device.mobile}{
         width: 25%;
+        border-bottom: none;
         border-right: 1px solid ${BORDER_PRIMARY};
     }
 `
@@ -69,9 +77,21 @@ export const ErrorContainer = styled.div`
     font-size: 14px;
     width: 100%;
     padding-left: 4px;
+    margin: auto;
+    width: 70%;
+    margin-top: 8px;    
+    @media ${device.mobile}{
+        width: 60%;
+    }
 `
 export const ErrorIcon = styled.img`
     margin: 4px;
     width: 20px;
 `
-
+export const CloseButton = styled.img`
+    cursor: pointer;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+`

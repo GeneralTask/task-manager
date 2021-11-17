@@ -24,75 +24,83 @@ export default function TaskCreate(): JSX.Element {
     return <>
         {showCreateTaskForm && <>
             <styles.OuterContainer>
-                <styles.Form onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
-                    e.preventDefault()
+                <styles.InnerContainer>
+                    <styles.Side />
+                    <styles.Form onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+                        e.preventDefault()
 
-                    let tempTitleError = ''
-                    let tempTimeEstimateError = ''
-                    const tempDueDateError = ''
+                        let tempTitleError = ''
+                        let tempTimeEstimateError = ''
+                        const tempDueDateError = ''
 
-                    if (title === '') {
-                        tempTitleError = 'Title is required'
-                    }
-
-                    let timeEstimateNum = -1
-                    if (timeEstimate !== '') {
-                        timeEstimateNum = parseInt(timeEstimate)
-                        if (isNaN(timeEstimateNum)) {
-                            tempTimeEstimateError = 'Time estimate must be a number'
-                        }
-                        else if (timeEstimateNum <= 0) {
-                            tempTimeEstimateError = 'Time estimate must be greater than 0'
-                        }
-                    }
-
-                    setTitleError(tempTitleError)
-                    setTimeEstimateError(tempTimeEstimateError)
-                    setDueDateError(tempDueDateError)
-
-                    if (titleError === '' && timeEstimateError === '' && dueDateError === '') {
-                        // no errors
-                        const body: TTaskCreateParams = {
-                            title,
-                        }
-                        if (timeEstimateNum > 0) {
-                            body.time_duration = timeEstimateNum * 60
+                        if (title === '') {
+                            tempTitleError = 'Title is required'
                         }
 
-                        setTitle('')
-                        setTimeEstimate('')
-                        setDueDate('')
+                        let timeEstimateNum = -1
+                        if (timeEstimate !== '') {
+                            timeEstimateNum = parseInt(timeEstimate)
+                            if (isNaN(timeEstimateNum)) {
+                                tempTimeEstimateError = 'Time estimate must be a number'
+                            }
+                            else if (timeEstimateNum <= 0) {
+                                tempTimeEstimateError = 'Time estimate must be greater than 0'
+                            }
+                        }
 
-                        await makeAuthorizedRequest({
-                            url: TASKS_CREATE_URL + GT_TASK_SOURCE_ID + '/',
-                            method: 'POST',
-                            body: JSON.stringify(body),
-                        })
-                        await fetchTasks()
-                    }
-                }}>
-                    <styles.InputTitle
-                        placeholder='Describe Task'
-                        value={title}
-                        error={titleError !== ''}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
-                    />
-                    <styles.InputTimeEstimate
-                        placeholder='Time Estimate (mins)'
-                        value={timeEstimate}
-                        error={timeEstimateError !== ''}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTimeEstimate(event.target.value)}
-                    />
-                    <styles.InputDueDate
-                        placeholder='Due Date'
-                        value={dueDate}
-                        error={dueDateError !== ''}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDueDate(event.target.value)}
-                    />
-                    <styles.SaveBtnDiv>
-                        <GTButton theme='black' width='80%' type='submit' >Save</GTButton>
-                    </styles.SaveBtnDiv>
-                </styles.Form>
+                        setTitleError(tempTitleError)
+                        setTimeEstimateError(tempTimeEstimateError)
+                        setDueDateError(tempDueDateError)
+
+                        if (titleError === '' && timeEstimateError === '' && dueDateError === '') {
+                            // no errors
+                            const body: TTaskCreateParams = {
+                                title,
+                            }
+                            if (timeEstimateNum > 0) {
+                                body.time_duration = timeEstimateNum * 60
+                            }
+
+                            setTitle('')
+                            setTimeEstimate('')
+                            setDueDate('')
+
+                            await makeAuthorizedRequest({
+                                url: TASKS_CREATE_URL + GT_TASK_SOURCE_ID + '/',
+                                method: 'POST',
+                                body: JSON.stringify(body),
+                            })
+                            await fetchTasks()
+                        }
+                    }}>
+                        <styles.InputTitle
+                            placeholder='Describe Task'
+                            value={title}
+                            error={titleError !== ''}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
+                        />
+                        <styles.InputTimeEstimate
+                            placeholder='Time Estimate (mins)'
+                            value={timeEstimate}
+                            error={timeEstimateError !== ''}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTimeEstimate(event.target.value)}
+                        />
+                        <styles.InputDueDate
+                            placeholder='Due Date'
+                            value={dueDate}
+                            error={dueDateError !== ''}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDueDate(event.target.value)}
+                        />
+                        <styles.SaveBtnDiv>
+                            <GTButton theme='black' width='80%' type='submit' >Save</GTButton>
+                        </styles.SaveBtnDiv>
+                    </styles.Form>
+                    <styles.Side>
+                        <styles.CloseButton src="images/close.svg" onClick={() => {
+                            store.dispatch(setShowCreateTaskForm(false))
+                        }} />
+                    </styles.Side>
+                </styles.InnerContainer >
                 <styles.ErrorContainer>
                     {titleError && <flex.alignItemsCenter>
                         <styles.ErrorIcon src='/images/error.svg' />
@@ -110,10 +118,7 @@ export default function TaskCreate(): JSX.Element {
                     </flex.alignItemsCenter>
                     }
                 </styles.ErrorContainer>
-            </styles.OuterContainer >
-            <div onClick={() => {
-                store.dispatch(setShowCreateTaskForm(false))
-            }}>x</div>
+            </styles.OuterContainer>
         </>}
     </>
 }

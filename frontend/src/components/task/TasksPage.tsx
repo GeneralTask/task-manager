@@ -12,11 +12,25 @@ import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 import GTButton from '../common/GTButton'
 import { setShowCreateTaskForm } from '../../redux/actions'
+import { device } from '../../helpers/styles'
 
 const Header = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     text-align: center;
     font-size: 32px; 
+    margin: auto;
     margin-bottom: 24px;
+    width: 70%;
+    @media ${device.mobile}{
+        width: 60%;
+    }
+`
+const BtnContainer = styled.div`
+    width: 10%;
+    display: flex;
+    justify-content: flex-end;
 `
 
 export default function TasksPage(): JSX.Element {
@@ -45,17 +59,18 @@ export default function TasksPage(): JSX.Element {
     return (
         <DndProvider backend={HTML5Backend}>
             <Header>
+                <BtnContainer />
                 Tasks
+                <BtnContainer>
+                    <GTButton
+                        theme='light'
+                        onClick={() => {
+                            store.dispatch(setShowCreateTaskForm(true))
+                        }}>
+                        New
+                    </GTButton>
+                </BtnContainer>
             </Header>
-            <div>
-                <GTButton
-                    theme='light'
-                    onClick={() => {
-                        store.dispatch(setShowCreateTaskForm(false))
-                    }}>
-                    New
-                </GTButton>
-            </div>
             <TaskStatus />
             {TaskSectionElements}
         </DndProvider>
