@@ -15,20 +15,20 @@ const Status = styled.div`
 export default function TaskStatus(): JSX.Element {
     let content: JSX.Element | null = null
 
-    const { taskSections, fetchStatus } = useSelector((state: RootState) => ({
-        taskSections: state.tasks_page.task_sections,
+    const { isTaskSectionsEmpty, fetchStatus } = useSelector((state: RootState) => ({
+        isTaskSectionsEmpty: state.tasks_page.task_sections.length === 0,
         fetchStatus: state.tasks_page.tasks_fetch_status.status,
     }))
 
     switch (fetchStatus) {
         case FetchStatusEnum.LOADING:
-            if (taskSections.length === 0) {
+            if (isTaskSectionsEmpty) {
                 content = <DotSpinner />
             }
             break
 
         case FetchStatusEnum.SUCCESS:
-            if (taskSections.length === 0) {
+            if (isTaskSectionsEmpty) {
                 content = <div>{TASK_STATUS_NO_TASKS}</div>
             }
             break
