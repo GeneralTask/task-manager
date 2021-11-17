@@ -30,16 +30,14 @@ interface Props {
 export default function Task(props: Props): JSX.Element {
   const { task, datetimeStart, dragDisabled } = props
   const dropRef = React.useRef<HTMLDivElement>(null)
-  const { expandedBody, taskSections } = useSelector((state: RootState) => ({
-    expandedBody: state.tasks_page.expanded_body,
+  const { isBodyExpanded, taskSections } = useSelector((state: RootState) => ({
+    isBodyExpanded: state.tasks_page.expanded_body === task.id,
     taskSections: state.tasks_page.task_sections,
   }))
-  const isExpanded = expandedBody === task.id
   const [dropDirection, setDropDirection] = useState(DropDirection.Up)
   const taskSectionsRef = useRef<TTaskSection[]>()
 
   taskSectionsRef.current = taskSections
-
 
   const [{ opacity }, drag, dragPreview] = useDrag(() => ({
     type: ItemTypes.TASK,
@@ -122,7 +120,7 @@ export default function Task(props: Props): JSX.Element {
             task={task}
             datetimeStart={datetimeStart}
             dragDisabled={dragDisabled}
-            isExpanded={isExpanded}
+            isExpanded={isBodyExpanded}
             ref={drag}
           />
           <TaskBody
@@ -130,7 +128,7 @@ export default function Task(props: Props): JSX.Element {
             task_id={task.id}
             deeplink={task.deeplink}
             source={task.source}
-            isExpanded={isExpanded} sender={null} />
+            isExpanded={isBodyExpanded} sender={null} />
         </Container>
         <DropIndicatorBelow isVisible={isOver && !dropDirection} />
       </DraggableContainer>
