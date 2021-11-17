@@ -11,6 +11,7 @@ export interface RootState {
         tasks_fetch_status: TFetchStatus,
         tasks_drag_state: DragState,
         expanded_body: string | null,
+        show_create_task_form: boolean,
     },
     settings_page: {
         linked_accounts: TLinkedAccount[],
@@ -27,6 +28,7 @@ export const initialState: RootState = {
         },
         tasks_drag_state: DragState.noDrag,
         expanded_body: null,
+        show_create_task_form: false,
     },
     settings_page: {
         linked_accounts: [],

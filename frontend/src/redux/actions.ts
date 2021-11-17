@@ -64,3 +64,10 @@ export function setTasksDragState(dragState: DragState): AnyAction {
         dragState,
     }
 }
+
+export function setShowCreateTaskForm(showCreateTaskForm: boolean): AnyAction {
+    return {
+        type: actions.SET_SHOW_CREATE_TASK_FORM,
+        showCreateTaskForm,
+    }
+}

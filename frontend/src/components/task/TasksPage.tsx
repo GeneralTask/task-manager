@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { RootState } from '../../redux/store'
+import store, { RootState } from '../../redux/store'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
 import { fetchLinkedAccounts } from '../settings/Accounts'
@@ -10,11 +10,27 @@ import { fetchSettings } from '../settings/Preferences'
 import { fetchTasks } from '../../helpers/utils'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
+import GTButton from '../common/GTButton'
+import { setShowCreateTaskForm } from '../../redux/actions'
+import { device } from '../../helpers/styles'
 
 const Header = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     text-align: center;
     font-size: 32px; 
+    margin: auto;
     margin-bottom: 24px;
+    width: 70%;
+    @media ${device.mobile}{
+        width: 60%;
+    }
+`
+const BtnContainer = styled.div`
+    width: 10%;
+    display: flex;
+    justify-content: flex-end;
 `
 
 export default function TasksPage(): JSX.Element {
@@ -43,7 +59,17 @@ export default function TasksPage(): JSX.Element {
     return (
         <DndProvider backend={HTML5Backend}>
             <Header>
+                <BtnContainer />
                 Tasks
+                <BtnContainer>
+                    <GTButton
+                        theme='light'
+                        onClick={() => {
+                            store.dispatch(setShowCreateTaskForm(true))
+                        }}>
+                        New
+                    </GTButton>
+                </BtnContainer>
             </Header>
             <TaskStatus />
             {TaskSectionElements}

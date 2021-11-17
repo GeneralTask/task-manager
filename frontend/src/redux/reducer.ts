@@ -103,6 +103,15 @@ const reducer = (state: RootState | undefined, action: AnyAction): RootState => 
         }
       }
 
+    case actions.SET_SHOW_CREATE_TASK_FORM:
+      return {
+        ...state,
+        tasks_page: {
+          ...state.tasks_page,
+          show_create_task_form: action.showCreateTaskForm,
+        }
+      }
+
     default:
       return state
   }
