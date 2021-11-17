@@ -7,13 +7,11 @@ import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
 import GTButton from '../common/GTButton'
 import JoinConferenceButton from './JoinConferenceButton'
 import React from 'react'
-import { RootState } from '../../redux/store'
 import { TASKS_MODIFY_URL } from '../../constants'
 import { TTask } from '../../helpers/types'
 import store from '../../redux/store'
 import styled from 'styled-components'
 import { useCountdown } from './TaskWrappers'
-import { useSelector } from 'react-redux'
 
 const HeaderLeft = styled.div`
   text-align: left; 
@@ -109,13 +107,12 @@ interface Props {
 }
 
 const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) => {
-  const expanded_body = useSelector((state: RootState) => state.tasks_page.expanded_body)
   const countdown = useCountdown(props.datetimeStart)
 
   const hoverEffectEnabled = !!(props.task.body || props.task.deeplink)
 
   const onClick: () => void = hoverEffectEnabled
-    ? hoverEffectEnabled && expanded_body !== props.task.id
+    ? hoverEffectEnabled && props.isExpanded
       ? () => { store.dispatch(expandBody(props.task.id)) }
       : () => { store.dispatch(retractBody()) }
     : () => void 0 // do nothing if hoverEffectEnabled == false
@@ -133,12 +130,12 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
           </DragSection>
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
-        {expanded_body === props.task.id ? <Title>{props.task.title}</Title> : <TitleWrap>{props.task.title}</TitleWrap>}
+        {props.isExpanded ? <Title>{props.task.title}</Title> : <TitleWrap>{props.task.title}</TitleWrap>}
       </HeaderLeft>
       <HeaderRight>
         {countdown
           ? <flex.flex>in<Space /><Black>{countdown}</Black></flex.flex>
-          : expanded_body === props.task.id
+          : props.isExpanded
             ? props.task.sender
             : <Truncated>{props.task.sender}</Truncated>
         }
