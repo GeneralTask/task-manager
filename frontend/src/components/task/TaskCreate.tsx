@@ -52,7 +52,7 @@ export default function TaskCreate(): JSX.Element {
                         setTimeEstimateError(tempTimeEstimateError)
                         setDueDateError(tempDueDateError)
 
-                        if (titleError === '' && timeEstimateError === '' && dueDateError === '') {
+                        if (tempTitleError === '' && tempTimeEstimateError === '' && tempDueDateError === '') {
                             // no errors
                             const body: TTaskCreateParams = {
                                 title,
