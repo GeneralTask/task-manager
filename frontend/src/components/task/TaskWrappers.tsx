@@ -1,6 +1,6 @@
 import { DateTime, Duration } from 'luxon'
 import { DeviceSize, useDeviceSize } from '../../helpers/utils'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { TEXT_GRAY, device } from '../../helpers/styles'
 import { TTask, TTaskGroup } from '../../helpers/types'
 
@@ -177,25 +177,22 @@ export function useTimeDuration(
   const hasStarted = DateTime.now() > start
   const hasEnded = DateTime.now() > end
 
-  let initialTimeStr = ''
-  if (hasStarted && !hasEnded) {
-    // this will update every second
-    initialTimeStr = getLiveTimeStr(end, isMobile)
-  } else {
-    // will show the full duration of the task ( 1 hour )
-    initialTimeStr = getTimeStringFromDuration(duration, isMobile)
-  }
+  const getTimeStr = useCallback(() => {
+    if ((hasStarted && !hasEnded) || alwaysShowTimeRemaining) {
+      // this will update every second
+      return getLiveTimeStr(end, isMobile)
+    } else {
+      // will show the full duration of the task ( 1 hour )
+      return getTimeStringFromDuration(duration, isMobile)
+    }
+  }, [isMobile, time_duration, datetime_start, alwaysShowTimeRemaining])
 
-  const [timeStr, setTimeStr] = useState(initialTimeStr)
+  const [timeStr, setTimeStr] = useState(getTimeStr())
 
   useEffect(() => {
-    setTimeStr(getLiveTimeStr(end, isMobile))
+    setTimeStr(getTimeStr())
     const interval = setInterval(() => {
-      if ((hasStarted && !hasEnded) || alwaysShowTimeRemaining) {
-        setTimeStr(getLiveTimeStr(end, isMobile))
-      } else {
-        setTimeStr(getTimeStringFromDuration(duration, isMobile))
-      }
+      setTimeStr(getTimeStr())
     }, 1000)
 
     return () => {
