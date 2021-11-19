@@ -26,7 +26,7 @@ export const ReplyDiv = styled.div`
   align-items: flex-end;
 `
 export const ExpandedBody = styled.div<{ isExpanded: boolean }>`
-    display: ${props => props.isExpanded ? 'block' : 'none'}
+  display: ${props => props.isExpanded ? 'block' : 'none'}
 `
 export const ReplyInputStyle = {
   width: '86%',
