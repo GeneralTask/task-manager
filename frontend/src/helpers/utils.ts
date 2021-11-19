@@ -155,6 +155,7 @@ const MOBILE_WIDTH = 768 // common mobile width threshold https://www.w3schools.
 
 // hook that returns whether the device is mobile or desktop
 export const useDeviceSize = (): DeviceSize => {
+    console.log('change')
     const [deviceSize, setDeviceSize] = useState(DeviceSize.MOBILE)
     useEffect(() => {
         const handleResize = () => {

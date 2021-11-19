@@ -1,6 +1,6 @@
 import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import React, { useEffect, useRef, useState } from 'react'
-import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
+import { fetchTasks, makeAuthorizedRequest, useDeviceSize } from '../../helpers/utils'
 
 import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
@@ -57,8 +57,13 @@ const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, is
 }
 
 function resizeIframe(iframe: HTMLIFrameElement | null, setIframeHeight: React.Dispatch<React.SetStateAction<number>>, isVisible: boolean) {
-    if (isVisible && iframe?.contentWindow?.document) {
-        const height = Math.min(iframe.contentWindow.document.body.offsetHeight + 15, MAX_TASK_BODY_HEIGHT)
+    if (isVisible && iframe?.contentWindow?.document != null) {
+        let height = Math.min(
+            iframe.contentWindow.document.querySelector('html')?.offsetHeight
+            ?? iframe.contentWindow.document.body.offsetHeight,
+            MAX_TASK_BODY_HEIGHT
+        )
+        height += 5
         iframe.style.visibility = 'visible'
         setIframeHeight(height)
         return height
@@ -69,17 +74,15 @@ function resizeIframe(iframe: HTMLIFrameElement | null, setIframeHeight: React.D
 const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id, isExpanded }: BodyHTMLProps) => {
     const iframeRef = useRef<HTMLIFrameElement>(null)
     const [iframeHeight, setIframeHeight] = useState(0)
+    useDeviceSize()
     useEffect(() => {
         resizeIframe(iframeRef?.current, setIframeHeight, isExpanded)
-    })
+    }, [isExpanded, body])
     return <BodyIframe
         ref={iframeRef}
         iframeHeight={iframeHeight}
         title={'Body for task: ' + task_id}
         srcDoc={body}
-        onLoad={() => {
-            resizeIframe(iframeRef?.current, setIframeHeight, isExpanded)
-        }}
     />
 }
 const Reply: React.FC<ReplyProps> = ({ task_id, sender }: ReplyProps) => {

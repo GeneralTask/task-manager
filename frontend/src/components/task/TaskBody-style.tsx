@@ -7,6 +7,7 @@ export const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
   width: 100%;
   visibility: hidden;
   height: ${props => props.iframeHeight + 'px'};
+  margin: auto;
 `
 export const BodyDiv = styled.div`
   margin: auto;
@@ -29,9 +30,9 @@ export const ExpandedBody = styled.div<{ isExpanded: boolean }>`
     display: ${props => props.isExpanded ? 'block' : 'none'}
 `
 export const ReplyInputStyle = {
-    width: '86%',
-    border: `1px solid ${BORDER_PRIMARY}`,
-    borderRadius: '2px',
-    padding: '10px',
-    cursor: 'text',
+  width: '86%',
+  border: `1px solid ${BORDER_PRIMARY}`,
+  borderRadius: '2px',
+  padding: '10px',
+  cursor: 'text',
 }
