@@ -1,103 +1,17 @@
 import './Task.css'
 
-import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY, device, flex } from '../../helpers/styles'
+import { flex } from '../../helpers/styles'
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
 import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
 
 import GTButton from '../common/GTButton'
 import JoinConferenceButton from './JoinConferenceButton'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { TASKS_MODIFY_URL } from '../../constants'
 import { TTask } from '../../helpers/types'
 import store from '../../redux/store'
-import styled from 'styled-components'
 import { useCountdown } from './TaskWrappers'
-
-const HeaderLeft = styled.div`
-  text-align: left; 
-  flex: 1;
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  min-width: 0;
-  flex-basis: auto;
-`
-const HeaderRight = styled.div`
-  display: flex;
-  flex: content;
-  align-items: center;
-  flex-direction: row;
-  justify-content: flex-end;
-  color:${TEXT_GRAY};
-`
-const DragSection = styled.div`
-  cursor: grab;
-  display: flex;
-  align-items: center;
-  padding: 0 12px 0 8px;
-`
-const Domino = styled.img`
-  height: 18px;
-`
-const Spacer = styled(DragSection)`
-  cursor: pointer;
-  visibility: hidden;
-  padding: 0;
-`
-const Icon = styled.img`
-  max-width: 25px;
-  padding-right: 12px;
-`
-const Title = styled.div`
-  color:${TEXT_BLACK};
-`
-const TitleWrap = styled(Title)`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`
-const Truncated = styled.div`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`
-// wrapper for Done Button so that it can be hidden by Header
-const HoverButton = styled.div`
-  margin-left: 10px;
-`
-const Black = styled.span`
-  color: ${TEXT_BLACK};
-`
-const Space = styled.span`
-  width: 0.5ch;
-`
-const Header = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
-  font-size: 16px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 30px;
-  padding: 8px 8px 8px 0;
-  cursor: ${props => props.hoverEffect ? 'pointer' : 'inherit'};
-  &:hover{
-    background-color: ${props => props.hoverEffect ? BACKGROUND_HOVER : 'inherit'};
-  }
-  &:hover > div > ${HoverButton} {
-    display: inherit;
-  }
-  @media ${device.mobile} {
-    & > div > ${HoverButton} {
-      display: ${props => props.showButtons ? 'inherit' : 'none'};;
-    }
-  }
-  &:hover > div > ${Truncated} {
-    display: none;
-  }
-  & > div > ${Truncated} {
-    display: inherit;
-  }
-`
+import * as styles from './TaskHeader-style'
 
 interface Props {
   task: TTask,
@@ -111,51 +25,56 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
 
   const hoverEffectEnabled = !!(props.task.body || props.task.deeplink)
 
-  const onClick: () => void = hoverEffectEnabled
-    ? hoverEffectEnabled && props.isExpanded
-      ? () => { store.dispatch(expandBody(props.task.id)) }
-      : () => { store.dispatch(retractBody()) }
-    : () => void 0 // do nothing if hoverEffectEnabled == false
+  const onClick = useCallback(() => {
+    if (hoverEffectEnabled) {
+      if (props.isExpanded) {
+        store.dispatch(retractBody())
+      }
+      else {
+        store.dispatch(expandBody(props.task.id))
+      }
+    }
+  }, [hoverEffectEnabled, props.isExpanded])
 
   return (
-    <Header hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
-      <HeaderLeft>
+    <styles.Header hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
+      <styles.HeaderLeft>
         {props.dragDisabled ?
-          <Spacer ref={ref}>
-            <Domino src="images/domino.svg" alt="" />
-          </Spacer>
+          <styles.Spacer ref={ref}>
+            <styles.Domino src="images/domino.svg" alt="" />
+          </styles.Spacer>
           :
-          <DragSection ref={ref}>
-            <Domino src="images/domino.svg" alt="" />
-          </DragSection>
+          <styles.DragSection ref={ref}>
+            <styles.Domino src="images/domino.svg" alt="" />
+          </styles.DragSection>
         }
-        <Icon src={props.task.source.logo} alt="icon"></Icon>
-        {props.isExpanded ? <Title>{props.task.title}</Title> : <TitleWrap>{props.task.title}</TitleWrap>}
-      </HeaderLeft>
-      <HeaderRight>
+        <styles.Icon src={props.task.source.logo} alt="icon"></styles.Icon>
+        {props.isExpanded ? <styles.Title>{props.task.title}</styles.Title> : <styles.TitleWrap>{props.task.title}</styles.TitleWrap>}
+      </styles.HeaderLeft>
+      <styles.HeaderRight>
         {countdown
-          ? <flex.flex>in<Space /><Black>{countdown}</Black></flex.flex>
+          ? <flex.flex>in<styles.Space /><styles.Black>{countdown}</styles.Black></flex.flex>
           : props.isExpanded
             ? props.task.sender
-            : <Truncated>{props.task.sender}</Truncated>
+            : <styles.Truncated>{props.task.sender}</styles.Truncated>
         }
         {
           props.task.conference_call &&
-          <HoverButton>
+          <styles.HoverButton>
             <JoinConferenceButton conferenceCall={props.task.conference_call} />
-          </HoverButton>
+          </styles.HoverButton>
         }
         {props.task.source.is_completable &&
-          <HoverButton><GTButton theme="black" onClick={(e) => {
+          <styles.HoverButton><GTButton theme="black" onClick={(e) => {
             if (e != null) {
               e.stopPropagation()
             }
             done(props.task.id)
           }}
           >
-            Done</GTButton></HoverButton>}
-      </HeaderRight>
-    </Header>
+            Done</GTButton></styles.HoverButton>}
+      </styles.HeaderRight>
+    </styles.Header>
   )
 })
 
