@@ -7,7 +7,6 @@ export const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
   width: 100%;
   visibility: hidden;
   height: ${props => props.iframeHeight + 'px'};
-  margin: auto;
 `
 export const BodyDiv = styled.div`
   margin: auto;
