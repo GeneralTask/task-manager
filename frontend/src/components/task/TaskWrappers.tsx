@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { TEXT_GRAY, device } from '../../helpers/styles'
 import { TTask, TTaskGroup } from '../../helpers/types'
 
+import { NOW } from '../../constants'
 import Task from './Task'
 import humanizeDuration from 'humanize-duration'
 import styled from 'styled-components'
@@ -143,21 +144,25 @@ export function useCountdown(datetimeStart: string | null): string | null {
 
   const start = parseDateTime(datetimeStart)
 
-  const [time, setTime] = useState<string | null>('')
-  useEffect(() => {
-    setTime(getLiveTimeStr(start, isMobile))
-    const interval = setInterval(() => {
+  const getTimeStr = useCallback(() => {
+    if (DateTime.now() > start) {
+      setTime(NOW)
+    }
+    else {
       setTime(getLiveTimeStr(start, isMobile))
-    }, 1000)
+    }
+  }, [start, isMobile])
+
+  const [time, setTime] = useState<string>('')
+  useEffect(() => {
+    getTimeStr()
+    const interval = setInterval(getTimeStr, 1000)
 
     return () => {
       clearInterval(interval)
     }
   }, [isMobile, datetimeStart])
 
-  if (DateTime.now() > start) {
-    return null
-  }
   return time
 }
 
