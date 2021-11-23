@@ -72,10 +72,10 @@ export default function TasksPage(): JSX.Element {
 
 function CreateNewTaskButton(): JSX.Element {
     const { showButton } = useSelector((state: RootState) => ({
-        showButton: !(
-            state.tasks_page.task_sections.length === 0 &&
-            state.tasks_page.tasks_fetch_status.status === FetchStatusEnum.LOADING
-        ),
+        showButton:
+            state.tasks_page.task_sections.length !== 0 ||
+            state.tasks_page.tasks_fetch_status.status !== FetchStatusEnum.LOADING
+        ,
     }))
     return (
         <BtnContainer>
