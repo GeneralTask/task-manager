@@ -21,15 +21,22 @@ interface TaskGroupProps {
 }
 
 function TaskGroup(props: TaskGroupProps) {
+    const wrapperProps = {
+        taskGroup: props.taskGroup,
+        showTimeAnnotations: props.showTimeAnnotations,
+        indices: {
+            group: props.indices.group,
+            section: props.indices.section,
+        }
+    }
+
     if (props.taskGroup.type === TTaskGroupType.SCHEDULED_TASK) {
-        return <ScheduledTask taskGroup={props.taskGroup} showTimeAnnotations={props.showTimeAnnotations} indices={{ group: props.indices.group, section: props.indices.section }} />
+        return <ScheduledTask {...wrapperProps} />
     }
     else if (props.taskGroup.type === TTaskGroupType.UNSCHEDULED_GROUP) {
-        return <UnscheduledTaskGroup taskGroup={props.taskGroup} showTimeAnnotations={props.showTimeAnnotations} indices={{ group: props.indices.group, section: props.indices.section }} />
+        return <UnscheduledTaskGroup {...wrapperProps} />
     }
-    else {
-        return null
-    }
+    return null
 }
 
 interface Props {
