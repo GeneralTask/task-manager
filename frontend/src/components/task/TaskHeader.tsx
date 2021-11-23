@@ -1,17 +1,18 @@
 import './Task.css'
 
-import { flex } from '../../helpers/styles'
+import * as styles from './TaskHeader-style'
+
+import { NOW, TASKS_MODIFY_URL } from '../../constants'
+import React, { useCallback } from 'react'
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
 import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
 
 import GTButton from '../common/GTButton'
 import JoinConferenceButton from './JoinConferenceButton'
-import React, { useCallback } from 'react'
-import { TASKS_MODIFY_URL } from '../../constants'
 import { TTask } from '../../helpers/types'
+import { flex } from '../../helpers/styles'
 import store from '../../redux/store'
 import { useCountdown } from './TaskWrappers'
-import * as styles from './TaskHeader-style'
 
 interface Props {
   task: TTask,
@@ -53,7 +54,10 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
       </styles.HeaderLeft>
       <styles.HeaderRight>
         {countdown
-          ? <flex.flex>in<styles.Space /><styles.Black>{countdown}</styles.Black></flex.flex>
+          ? <flex.flex>
+            {countdown !== NOW && <>in < styles.Space /></>}
+            <styles.Black>{countdown}</styles.Black>
+          </flex.flex>
           : props.isExpanded
             ? props.task.sender
             : <styles.Truncated>{props.task.sender}</styles.Truncated>
