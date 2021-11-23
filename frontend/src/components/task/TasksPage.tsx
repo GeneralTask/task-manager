@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux'
 import GTButton from '../common/GTButton'
 import { setShowCreateTaskForm } from '../../redux/actions'
 import { device } from '../../helpers/styles'
+import { FetchStatusEnum } from '../../redux/enums'
 
 const Header = styled.div`
     display: flex;
@@ -61,18 +62,31 @@ export default function TasksPage(): JSX.Element {
             <Header>
                 <BtnContainer />
                 Tasks
-                <BtnContainer>
-                    <GTButton
-                        theme='light'
-                        onClick={() => {
-                            store.dispatch(setShowCreateTaskForm(true))
-                        }}>
-                        New
-                    </GTButton>
-                </BtnContainer>
+                <CreateNewTaskButton />
             </Header>
             <TaskStatus />
             {TaskSectionElements}
         </DndProvider>
+    )
+}
+
+function CreateNewTaskButton(): JSX.Element {
+    const { showButton } = useSelector((state: RootState) => ({
+        showButton: !(
+            state.tasks_page.task_sections.length === 0 &&
+            state.tasks_page.tasks_fetch_status.status === FetchStatusEnum.LOADING
+        ),
+    }))
+    return (
+        <BtnContainer>
+            {showButton &&
+                <GTButton
+                    theme='light'
+                    onClick={() => {
+                        store.dispatch(setShowCreateTaskForm(true))
+                    }}>
+                    New
+                </GTButton>}
+        </BtnContainer>
     )
 }
