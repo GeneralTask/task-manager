@@ -25,7 +25,7 @@ interface Props {
   task: TTask,
   dragDisabled: boolean,
   datetimeStart: string | null, // null if unscheduled_task
-  indexes: {
+  indices: {
     task: number,
     group: number,
     section: number,

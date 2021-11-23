@@ -85,13 +85,13 @@ const Divider = styled.div`
 interface TaskGroupProps {
   taskGroup: TTaskGroup,
   showTimeAnnotations: boolean,
-  indexes: {
+  indices: {
     group: number,
     section: number,
   }
 }
 
-const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indexes }: TaskGroupProps) => {
+const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indices }: TaskGroupProps) => {
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
   return <>
     <TaskGroup>
@@ -103,9 +103,9 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
           task={taskGroup.tasks[0]}
           datetimeStart={taskGroup.datetime_start}
           dragDisabled={true}
-          indexes={{
-            section: indexes.section,
-            group: indexes.group,
+          indices={{
+            section: indices.section,
+            group: indices.group,
             task: 0,
           }}
         />
@@ -121,7 +121,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
 }
 
 
-const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indexes }: TaskGroupProps) => {
+const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indices }: TaskGroupProps) => {
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
   return <>
     <TaskGroup>
@@ -132,9 +132,9 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
             datetimeStart={null}
             dragDisabled={false}
             key={task.id}
-            indexes={{
-              section: indexes.section,
-              group: indexes.group,
+            indices={{
+              section: indices.section,
+              group: indices.group,
               task: taskIndex,
             }} />
         ))}
