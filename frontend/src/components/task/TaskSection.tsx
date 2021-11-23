@@ -14,18 +14,29 @@ const TaskWrapperSides = styled.div`
 interface TaskGroupProps {
     taskGroup: TTaskGroup,
     showTimeAnnotations: boolean,
+    indices: {
+        group: number,
+        section: number,
+    }
 }
 
 function TaskGroup(props: TaskGroupProps) {
+    const wrapperProps = {
+        taskGroup: props.taskGroup,
+        showTimeAnnotations: props.showTimeAnnotations,
+        indices: {
+            group: props.indices.group,
+            section: props.indices.section,
+        }
+    }
+
     if (props.taskGroup.type === TTaskGroupType.SCHEDULED_TASK) {
-        return <ScheduledTask taskGroup={props.taskGroup} showTimeAnnotations={props.showTimeAnnotations} />
+        return <ScheduledTask {...wrapperProps} />
     }
     else if (props.taskGroup.type === TTaskGroupType.UNSCHEDULED_GROUP) {
-        return <UnscheduledTaskGroup taskGroup={props.taskGroup} showTimeAnnotations={props.showTimeAnnotations} />
+        return <UnscheduledTaskGroup {...wrapperProps} />
     }
-    else {
-        return null
-    }
+    return null
 }
 
 interface Props {
@@ -50,6 +61,10 @@ export default function TaskSection(props: Props): JSX.Element {
                             group.tasks.length > 0 &&
                             <TaskGroup taskGroup={group}
                                 showTimeAnnotations={props.task_section.is_today}
+                                indices={{
+                                    group: task_group_index,
+                                    section: props.task_section_index,
+                                }}
                             />
                         }
                     </div>

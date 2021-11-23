@@ -25,6 +25,11 @@ interface Props {
   task: TTask,
   dragDisabled: boolean,
   datetimeStart: string | null, // null if unscheduled_task
+  indices: {
+    task: number,
+    group: number,
+    section: number,
+  }
 }
 
 export default function Task(props: Props): JSX.Element {
