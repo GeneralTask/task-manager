@@ -113,7 +113,7 @@ export default function Task(props: Props): JSX.Element {
 
   return (
     <DragDropContainer ref={dropRef}>
-      <DropOverlay></DropOverlay>
+      <DropOverlay />
       <DraggableContainer ref={dragPreview}>
         <DropIndicatorAbove isVisible={isOver && dropDirection} />
         <Container opacity={opacity} >
