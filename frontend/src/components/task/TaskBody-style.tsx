@@ -26,12 +26,12 @@ export const ReplyDiv = styled.div`
   align-items: flex-end;
 `
 export const ExpandedBody = styled.div<{ isExpanded: boolean }>`
-    display: ${props => props.isExpanded ? 'block' : 'none'}
+  display: ${props => props.isExpanded ? 'block' : 'none'}
 `
 export const ReplyInputStyle = {
-    width: '86%',
-    border: `1px solid ${BORDER_PRIMARY}`,
-    borderRadius: '2px',
-    padding: '10px',
-    cursor: 'text',
+  width: '86%',
+  border: `1px solid ${BORDER_PRIMARY}`,
+  borderRadius: '2px',
+  padding: '10px',
+  cursor: 'text',
 }
