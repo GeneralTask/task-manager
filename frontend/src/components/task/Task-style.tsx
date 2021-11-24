@@ -1,15 +1,11 @@
 import styled, { css } from 'styled-components'
 import { BORDER_PRIMARY } from '../../helpers/styles'
 
-export const DragDropContainer = styled.div`
-    position: relative;
-`
-
 export const DropOverlay = styled.div`
-    margin-left: -100vw;
-    width: 180vw;
+    width: 100%;
     height: 100%;
     position: absolute;
+    right: 0%;
 `
 
 export const DraggableContainer = styled.div`
