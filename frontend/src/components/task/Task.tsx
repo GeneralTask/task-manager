@@ -1,6 +1,6 @@
 import './Task.css'
 
-import { Container, DraggableContainer, DropIndicatorAbove, DropIndicatorBelow, DropOverlay } from './Task-style'
+import { Container, DragDropContainer, DraggableContainer, DropIndicatorAbove, DropIndicatorBelow, DropOverlay } from './Task-style'
 import { ItemTypes, TTaskSection } from '../../helpers/types'
 import React, { useRef, useState } from 'react'
 import { taskDropReorder, fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest } from '../../helpers/utils'
@@ -117,8 +117,8 @@ export default function Task(props: Props): JSX.Element {
   drop(dropRef)
 
   return (
-    <>
-      <DropOverlay ref={dropRef} />
+    <DragDropContainer ref={dropRef}>
+      <DropOverlay />
       <DraggableContainer ref={dragPreview}>
         <DropIndicatorAbove isVisible={isOver && dropDirection} />
         <Container opacity={opacity} >
@@ -138,6 +138,6 @@ export default function Task(props: Props): JSX.Element {
         </Container>
         <DropIndicatorBelow isVisible={isOver && !dropDirection} />
       </DraggableContainer>
-    </>
+    </DragDropContainer>
   )
 }

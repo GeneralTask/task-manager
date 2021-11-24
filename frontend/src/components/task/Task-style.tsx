@@ -1,11 +1,19 @@
 import styled, { css } from 'styled-components'
-import { BORDER_PRIMARY } from '../../helpers/styles'
+import { BORDER_PRIMARY, device } from '../../helpers/styles'
+
+export const DragDropContainer = styled.div`
+    position: relative;
+`
 
 export const DropOverlay = styled.div`
-    width: 100%;
+    width: 97vw;
     height: 100%;
     position: absolute;
-    right: 0%;
+    /* (full width / size of task ) * left margin side */
+    left: calc((-100% / 0.7) * 0.15);
+    @media ${device.mobile}{
+        left: calc((-100% / 0.6) * 0.2);
+    }
 `
 
 export const DraggableContainer = styled.div`
