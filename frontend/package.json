@@ -14,6 +14,7 @@
     "@types/react": "^17.0.6",
     "@types/react-dom": "^17.0.5",
     "chokidar": "^3.5.1",
+    "chrono-node": "^2.3.4",
     "humanize-duration": "^3.27.0",
     "js-cookie": "^2.2.1",
     "lodash": "^4.17.21",

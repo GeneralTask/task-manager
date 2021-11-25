@@ -10,6 +10,7 @@ import { flex } from '../../helpers/styles'
 import { useSelector } from 'react-redux'
 import store, { RootState } from '../../redux/store'
 import { setShowCreateTaskForm } from '../../redux/actions'
+import { parseDate } from '../../helpers/TimeParser'
 
 export default function TaskCreate(): JSX.Element {
     const showCreateTaskForm = useSelector((state: RootState) => state.tasks_page.show_create_task_form)
@@ -31,7 +32,7 @@ export default function TaskCreate(): JSX.Element {
 
                         let tempTitleError = ''
                         let tempTimeEstimateError = ''
-                        const tempDueDateError = ''
+                        let tempDueDateError = ''
 
                         if (title === '') {
                             tempTitleError = 'Title is required'
@@ -48,6 +49,18 @@ export default function TaskCreate(): JSX.Element {
                             }
                         }
 
+                        let parsedDueDate = ''
+                        if (dueDate !== '') {
+                            const parsedDate = parseDate(dueDate)
+
+                            if (parsedDate == null) {
+                                tempDueDateError = 'Could not parse due date'
+                            }
+                            else {
+                                parsedDueDate = parsedDate.toISOString()
+                            }
+                        }
+
                         setTitleError(tempTitleError)
                         setTimeEstimateError(tempTimeEstimateError)
                         setDueDateError(tempDueDateError)
@@ -60,10 +73,15 @@ export default function TaskCreate(): JSX.Element {
                             if (timeEstimateNum > 0) {
                                 body.time_duration = timeEstimateNum * 60
                             }
+                            if (dueDate !== '' && parsedDueDate != null) {
+                                body.due_date = parsedDueDate
+                            }
 
                             setTitle('')
                             setTimeEstimate('')
                             setDueDate('')
+
+                            console.log(body)
 
                             await makeAuthorizedRequest({
                                 url: TASKS_CREATE_URL + GT_TASK_SOURCE_ID + '/',
@@ -122,4 +140,3 @@ export default function TaskCreate(): JSX.Element {
         </>}
     </>
 }
-
