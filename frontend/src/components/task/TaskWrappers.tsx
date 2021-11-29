@@ -58,7 +58,7 @@ const UnscheduledSpanbar = styled.div`
   height: calc(100% - 10px);
   position: absolute;
 `
-const UnscheduledTimeSpacer = styled.div`
+const TimeSpacer = styled.div`
   margin-left: 10px;
 `
 
@@ -128,9 +128,9 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
         </DropOverlay>
       </Tasks>
       <TimeAnnotationRight>
-        <div style={{ marginLeft: '10px' }}>
+        <TimeSpacer>
           {showTimeAnnotations && time}
-        </div>
+        </TimeSpacer>
       </TimeAnnotationRight>
     </TaskGroup >
   )
@@ -161,7 +161,7 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
         {showTimeAnnotations &&
           <UnscheduledTimeAnnotationContainer>
             <UnscheduledSpanbar />
-            <UnscheduledTimeSpacer />
+            <TimeSpacer />
             {time}
           </UnscheduledTimeAnnotationContainer>
         }
