@@ -19,6 +19,7 @@
     "lodash": "^4.17.21",
     "luxon": "^2.0.2",
     "npx": "^10.2.2",
+    "parse-duration": "^1.0.2",
     "react": "^17.0.2",
     "react-contenteditable": "^3.3.6",
     "react-dnd": "^14.0.4",
