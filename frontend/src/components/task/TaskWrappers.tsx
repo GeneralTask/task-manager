@@ -39,11 +39,16 @@ const TaskGroup = styled.div`
   position: relative;
   margin-bottom: 15px;
 `
+
+const DropOverlay = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`
 const Tasks = styled.div`
-  width: 70%;
-  @media ${device.mobile}{
-    width: 60%;
-  }
+  width: 100%;
   display:flex;
   flex-direction: column;
 `
@@ -54,22 +59,39 @@ const UnscheduledSpanbar = styled.div`
   position: absolute;
 `
 const UnscheduledTimeSpacer = styled.div`
-  margin-left: 20px;
+  margin-left: 10px;
 `
 const TimeAnnotation = styled.div`
+  display: flex;
+  align-items: center;
   color: ${TEXT_GRAY};
   font-size: 16px;
   font-weight: 600;
-  & > * {
-    margin-left: 10px;
-    margin-right: 10px;
-  }
+  position: absolute;
   width: 15%;
   @media ${device.mobile}{
-    width: 20%;
+      width: 20%;
   }
+  height: 100%;
+  left: 0;
+`
+const TimeAnnotationRight = styled.div`
+  display: flex;
+  align-items: center;
+  color: ${TEXT_GRAY};
+  font-size: 16px;
+  font-weight: 600;
+  position: absolute;
+  width: 15%;
+  @media ${device.mobile}{
+      width: 20%;
+  }
+  height: 100%;
+  right: 0;
 `
 const AlignRight = styled.div`
+  margin-left: auto;
+  padding-right: 10px;
   text-align: right;
 `
 const UnscheduledTimeAnnotationContainer = styled.div`
@@ -78,6 +100,7 @@ const UnscheduledTimeAnnotationContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   height: 100%;
+  margin-left: 10px;
 `
 
 interface TaskGroupProps {
@@ -97,22 +120,24 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
         <AlignRight>{parseDateTime(taskGroup.datetime_start).toLocaleString(DateTime.TIME_SIMPLE)}</AlignRight>
       </TimeAnnotation>
       <Tasks>
-        <Task
-          task={taskGroup.tasks[0]}
-          datetimeStart={taskGroup.datetime_start}
-          dragDisabled={true}
-          indices={{
-            section: indices.section,
-            group: indices.group,
-            task: 0,
-          }}
-        />
+        <DropOverlay>
+          <Task
+            task={taskGroup.tasks[0]}
+            datetimeStart={taskGroup.datetime_start}
+            dragDisabled={true}
+            indices={{
+              section: indices.section,
+              group: indices.group,
+              task: 0,
+            }}
+          />
+        </DropOverlay>
       </Tasks>
-      <TimeAnnotation>
-        <div>
+      <TimeAnnotationRight>
+        <div style={{ marginLeft: '10px' }}>
           {showTimeAnnotations && time}
         </div>
-      </TimeAnnotation>
+      </TimeAnnotationRight>
     </TaskGroup >
   )
 }
@@ -125,18 +150,23 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
       <TimeAnnotation />
       <Tasks>
         {taskGroup.tasks.map((task: TTask, taskIndex: number) => (
-          <Task task={task}
-            datetimeStart={null}
-            dragDisabled={false}
-            key={task.id}
-            indices={{
-              section: indices.section,
-              group: indices.group,
-              task: taskIndex,
-            }} />
+          <>
+            <DropOverlay>
+
+              <Task task={task}
+                datetimeStart={null}
+                dragDisabled={false}
+                key={task.id}
+                indices={{
+                  section: indices.section,
+                  group: indices.group,
+                  task: taskIndex,
+                }} />
+            </DropOverlay>
+          </>
         ))}
       </Tasks>
-      <TimeAnnotation>
+      <TimeAnnotationRight>
         {showTimeAnnotations &&
           <UnscheduledTimeAnnotationContainer>
             <UnscheduledSpanbar />
@@ -144,7 +174,7 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
             {time}
           </UnscheduledTimeAnnotationContainer>
         }
-      </TimeAnnotation>
+      </TimeAnnotationRight>
     </TaskGroup >
   )
 }
