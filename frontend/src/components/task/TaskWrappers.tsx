@@ -37,6 +37,7 @@ const TaskGroup = styled.div`
   justify-content: center; 
   align-items: center;
   position: relative;
+  margin-bottom: 15px;
 `
 const Tasks = styled.div`
   width: 70%;
@@ -78,9 +79,6 @@ const UnscheduledTimeAnnotationContainer = styled.div`
   align-items: center;
   height: 100%;
 `
-const Divider = styled.div`
-  margin-bottom: 15px;
-`
 
 interface TaskGroupProps {
   taskGroup: TTaskGroup,
@@ -93,7 +91,7 @@ interface TaskGroupProps {
 
 const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indices }: TaskGroupProps) => {
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
-  return <>
+  return (
     <TaskGroup>
       <TimeAnnotation>
         <AlignRight>{parseDateTime(taskGroup.datetime_start).toLocaleString(DateTime.TIME_SIMPLE)}</AlignRight>
@@ -115,15 +113,14 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
           {showTimeAnnotations && time}
         </div>
       </TimeAnnotation>
-    </TaskGroup>
-    <Divider />
-  </>
+    </TaskGroup >
+  )
 }
 
 
 const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indices }: TaskGroupProps) => {
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
-  return <>
+  return (
     <TaskGroup>
       <TimeAnnotation />
       <Tasks>
@@ -149,8 +146,7 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
         }
       </TimeAnnotation>
     </TaskGroup >
-    <Divider />
-  </>
+  )
 }
 
 // hook that returns countdown until datetimeStart if it has not started, otherwise returns null
