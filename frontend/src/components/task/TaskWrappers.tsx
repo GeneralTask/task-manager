@@ -74,6 +74,7 @@ const TimeAnnotation = css`
       width: 20%;
   }
   height: 100%;
+  pointer-events: none;
 `
 const TimeAnnotationLeft = styled.div`
   ${TimeAnnotation};
