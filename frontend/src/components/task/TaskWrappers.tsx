@@ -144,20 +144,17 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
       <TimeAnnotationLeft />
       <Tasks>
         {taskGroup.tasks.map((task: TTask, taskIndex: number) => (
-          <>
-            <DropOverlay>
-
-              <Task task={task}
-                datetimeStart={null}
-                dragDisabled={false}
-                key={task.id}
-                indices={{
-                  section: indices.section,
-                  group: indices.group,
-                  task: taskIndex,
-                }} />
-            </DropOverlay>
-          </>
+          <DropOverlay>
+            <Task task={task}
+              datetimeStart={null}
+              dragDisabled={false}
+              key={task.id}
+              indices={{
+                section: indices.section,
+                group: indices.group,
+                task: taskIndex,
+              }} />
+          </DropOverlay>
         ))}
       </Tasks>
       <TimeAnnotationRight>
