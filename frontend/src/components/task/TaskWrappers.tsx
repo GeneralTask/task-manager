@@ -7,7 +7,7 @@ import { TTask, TTaskGroup } from '../../helpers/types'
 import { NOW } from '../../constants'
 import Task from './Task'
 import humanizeDuration from 'humanize-duration'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 const short_en_expanded = {
   y: (c: number | undefined) => 'year' + (c === 1 ? '' : 's'),
@@ -61,7 +61,8 @@ const UnscheduledSpanbar = styled.div`
 const UnscheduledTimeSpacer = styled.div`
   margin-left: 10px;
 `
-const TimeAnnotation = styled.div`
+
+const TimeAnnotation = css`
   display: flex;
   align-items: center;
   color: ${TEXT_GRAY};
@@ -73,20 +74,13 @@ const TimeAnnotation = styled.div`
       width: 20%;
   }
   height: 100%;
+`
+const TimeAnnotationLeft = styled.div`
+  ${TimeAnnotation};
   left: 0;
 `
 const TimeAnnotationRight = styled.div`
-  display: flex;
-  align-items: center;
-  color: ${TEXT_GRAY};
-  font-size: 16px;
-  font-weight: 600;
-  position: absolute;
-  width: 15%;
-  @media ${device.mobile}{
-      width: 20%;
-  }
-  height: 100%;
+  ${TimeAnnotation}
   right: 0;
 `
 const AlignRight = styled.div`
@@ -116,9 +110,9 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
   return (
     <TaskGroup>
-      <TimeAnnotation>
+      <TimeAnnotationLeft>
         <AlignRight>{parseDateTime(taskGroup.datetime_start).toLocaleString(DateTime.TIME_SIMPLE)}</AlignRight>
-      </TimeAnnotation>
+      </TimeAnnotationLeft>
       <Tasks>
         <DropOverlay>
           <Task
@@ -147,7 +141,7 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
   return (
     <TaskGroup>
-      <TimeAnnotation />
+      <TimeAnnotationLeft />
       <Tasks>
         {taskGroup.tasks.map((task: TTask, taskIndex: number) => (
           <>
