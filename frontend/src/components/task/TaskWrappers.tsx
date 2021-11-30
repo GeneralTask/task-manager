@@ -5,9 +5,9 @@ import { TEXT_GRAY, device } from '../../helpers/styles'
 import { TTask, TTaskGroup } from '../../helpers/types'
 
 import { NOW } from '../../constants'
-import Task from './Task'
 import humanizeDuration from 'humanize-duration'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
+import TaskDropContainer from './TaskDropContainer'
 
 const short_en_expanded = {
   y: (c: number | undefined) => 'year' + (c === 1 ? '' : 's'),
@@ -37,12 +37,11 @@ const TaskGroup = styled.div`
   justify-content: center; 
   align-items: center;
   position: relative;
+  margin-bottom: 15px;
 `
+
 const Tasks = styled.div`
-  width: 70%;
-  @media ${device.mobile}{
-    width: 60%;
-  }
+  width: 100%;
   display:flex;
   flex-direction: column;
 `
@@ -52,23 +51,35 @@ const UnscheduledSpanbar = styled.div`
   height: calc(100% - 10px);
   position: absolute;
 `
-const UnscheduledTimeSpacer = styled.div`
-  margin-left: 20px;
+const TimeSpacer = styled.div`
+  margin-left: 10px;
 `
-const TimeAnnotation = styled.div`
+
+const TimeAnnotation = css`
+  display: flex;
+  align-items: center;
   color: ${TEXT_GRAY};
   font-size: 16px;
   font-weight: 600;
-  & > * {
-    margin-left: 10px;
-    margin-right: 10px;
-  }
+  position: absolute;
   width: 15%;
   @media ${device.mobile}{
-    width: 20%;
+      width: 20%;
   }
+  height: 100%;
+  pointer-events: none;
+`
+const TimeAnnotationLeft = styled.div`
+  ${TimeAnnotation};
+  left: 0;
+`
+const TimeAnnotationRight = styled.div`
+  ${TimeAnnotation}
+  right: 0;
 `
 const AlignRight = styled.div`
+  margin-left: auto;
+  padding-right: 10px;
   text-align: right;
 `
 const UnscheduledTimeAnnotationContainer = styled.div`
@@ -77,9 +88,7 @@ const UnscheduledTimeAnnotationContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   height: 100%;
-`
-const Divider = styled.div`
-  margin-bottom: 15px;
+  margin-left: 10px;
 `
 
 interface TaskGroupProps {
@@ -91,66 +100,46 @@ interface TaskGroupProps {
   }
 }
 
-const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indices }: TaskGroupProps) => {
+const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations }: TaskGroupProps) => {
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
-  return <>
+  return (
     <TaskGroup>
-      <TimeAnnotation>
+      <TimeAnnotationLeft>
         <AlignRight>{parseDateTime(taskGroup.datetime_start).toLocaleString(DateTime.TIME_SIMPLE)}</AlignRight>
-      </TimeAnnotation>
+      </TimeAnnotationLeft>
       <Tasks>
-        <Task
-          task={taskGroup.tasks[0]}
-          datetimeStart={taskGroup.datetime_start}
-          dragDisabled={true}
-          indices={{
-            section: indices.section,
-            group: indices.group,
-            task: 0,
-          }}
-        />
+        <TaskDropContainer task={taskGroup.tasks[0]} dragDisabled={true} />
       </Tasks>
-      <TimeAnnotation>
-        <div>
+      <TimeAnnotationRight>
+        <TimeSpacer>
           {showTimeAnnotations && time}
-        </div>
-      </TimeAnnotation>
-    </TaskGroup>
-    <Divider />
-  </>
+        </TimeSpacer>
+      </TimeAnnotationRight>
+    </TaskGroup >
+  )
 }
 
 
-const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indices }: TaskGroupProps) => {
+
+const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations }: TaskGroupProps) => {
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
-  return <>
+  return (
     <TaskGroup>
-      <TimeAnnotation />
+      <TimeAnnotationLeft />
       <Tasks>
-        {taskGroup.tasks.map((task: TTask, taskIndex: number) => (
-          <Task task={task}
-            datetimeStart={null}
-            dragDisabled={false}
-            key={task.id}
-            indices={{
-              section: indices.section,
-              group: indices.group,
-              task: taskIndex,
-            }} />
-        ))}
+        {taskGroup.tasks.map((task: TTask) => <TaskDropContainer key={task.id} task={task} dragDisabled={false} />)}
       </Tasks>
-      <TimeAnnotation>
+      <TimeAnnotationRight>
         {showTimeAnnotations &&
           <UnscheduledTimeAnnotationContainer>
             <UnscheduledSpanbar />
-            <UnscheduledTimeSpacer />
+            <TimeSpacer />
             {time}
           </UnscheduledTimeAnnotationContainer>
         }
-      </TimeAnnotation>
+      </TimeAnnotationRight>
     </TaskGroup >
-    <Divider />
-  </>
+  )
 }
 
 // hook that returns countdown until datetimeStart if it has not started, otherwise returns null
