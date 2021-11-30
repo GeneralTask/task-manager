@@ -127,7 +127,7 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
     <TaskGroup>
       <TimeAnnotationLeft />
       <Tasks>
-        {taskGroup.tasks.map((task: TTask) => <TaskDropContainer task={task} dragDisabled={false} />)}
+        {taskGroup.tasks.map((task: TTask) => <TaskDropContainer key={task.id} task={task} dragDisabled={false} />)}
       </Tasks>
       <TimeAnnotationRight>
         {showTimeAnnotations &&
