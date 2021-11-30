@@ -1,26 +1,27 @@
+import { BodyDiv, BodyIframe, Deeplink, ExpandedBody, ReplyDiv, ReplyInputStyle } from './TaskBody-style'
 import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import React, { useEffect, useRef, useState } from 'react'
 import { fetchTasks, makeAuthorizedRequest, useDeviceSize } from '../../helpers/utils'
 
 import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
+import { RootState } from '../../redux/store'
 import { TTaskSource } from '../../helpers/types'
 import { toast } from 'react-toastify'
-import { BodyIframe, BodyDiv, Deeplink, ReplyDiv, ExpandedBody, ReplyInputStyle } from './TaskBody-style'
+import { useSelector } from 'react-redux'
 
 interface Props {
     body: string | null,
     task_id: string,
     deeplink: string | null,
     source: TTaskSource,
-    isExpanded: boolean,
     sender: string | null,
 }
 
 interface BodyHTMLProps {
     body: string,
     task_id: string,
-    isExpanded: boolean,
+    isBodyExpanded: boolean,
 }
 
 interface ReplyProps {
@@ -32,14 +33,56 @@ interface ReplyProps {
 // no body: no body
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
-const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, isExpanded }: Props) => {
+const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source }: Props) => {
+    const { isBodyExpanded } = useSelector((state: RootState) => ({
+        isBodyExpanded: state.tasks_page.expanded_body === task_id,
+    }))
+
+
+    const iframeRef = useRef<HTMLIFrameElement>(null)
+    const [iframeHeight, setIframeHeight] = useState(0)
+    const [scrollPosition, setScrollPosition] = useState(100)
+    // const scrollPos = useRef(0)
+
+    useDeviceSize()
+    useEffect(() => {
+        if (body && iframeRef.current) {
+            resizeIframe(iframeRef?.current, setIframeHeight, isBodyExpanded, scrollPosition)
+        }
+    }, [isBodyExpanded, body])
+
+    const onScroll = () => {
+        setScrollPosition(iframeRef?.current?.contentWindow?.window.scrollY ?? 0)
+    }
+
+    useEffect(() => {
+        if (body && iframeRef.current) {
+            if (isBodyExpanded && iframeRef?.current?.contentWindow) {
+                iframeRef.current.contentWindow.window.addEventListener('scroll', onScroll)
+                return () => {
+                    if (isBodyExpanded && iframeRef?.current?.contentWindow) {
+                        iframeRef.current.contentWindow.window.removeEventListener('scroll', onScroll)
+                    }
+                }
+            }
+        }
+    }, [isBodyExpanded, body])
+
+
     return (
         <div>
             {Boolean(body || deeplink) && (
-                <ExpandedBody isExpanded={isExpanded}>
+                <ExpandedBody isExpanded={isBodyExpanded}>
                     {body && (
                         <BodyDiv>
-                            <BodyHTML body={body} task_id={task_id} isExpanded={isExpanded} />
+                            {/* <BodyHTML body={body} task_id={task_id} isBodyExpanded={isBodyExpanded} /> */}
+                            {scrollPosition}
+                            <BodyIframe
+                                ref={iframeRef}
+                                iframeHeight={iframeHeight}
+                                title={'Body for task: ' + task_id}
+                                srcDoc={body}
+                            />
                             {source.is_replyable && <Reply task_id={task_id} sender={sender} />}
                         </BodyDiv>
                     )}
@@ -56,7 +99,12 @@ const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, is
     )
 }
 
-function resizeIframe(iframe: HTMLIFrameElement | null, setIframeHeight: React.Dispatch<React.SetStateAction<number>>, isVisible: boolean) {
+function resizeIframe(
+    iframe: HTMLIFrameElement | null,
+    setIframeHeight: React.Dispatch<React.SetStateAction<number>>,
+    isVisible: boolean,
+    scrollPosition = 0,
+) {
     if (isVisible && iframe?.contentWindow?.document != null) {
         let height = Math.min(
             iframe.contentWindow.document.querySelector('html')?.offsetHeight
@@ -65,26 +113,48 @@ function resizeIframe(iframe: HTMLIFrameElement | null, setIframeHeight: React.D
         )
         height += 5
         iframe.style.visibility = 'visible'
+        iframe.contentWindow.scrollTo(0, scrollPosition)
         setIframeHeight(height)
         return height
     }
     return 0
 }
 
-const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id, isExpanded }: BodyHTMLProps) => {
-    const iframeRef = useRef<HTMLIFrameElement>(null)
-    const [iframeHeight, setIframeHeight] = useState(0)
-    useDeviceSize()
-    useEffect(() => {
-        resizeIframe(iframeRef?.current, setIframeHeight, isExpanded)
-    }, [isExpanded, body])
-    return <BodyIframe
-        ref={iframeRef}
-        iframeHeight={iframeHeight}
-        title={'Body for task: ' + task_id}
-        srcDoc={body}
-    />
-}
+// const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id, isBodyExpanded }: BodyHTMLProps) => {
+//     const iframeRef = useRef<HTMLIFrameElement>(null)
+//     const [iframeHeight, setIframeHeight] = useState(0)
+//     const [scrollPosition, setScrollPosition] = useState(50)
+//     // const scrollPos = useRef(0)
+
+//     useDeviceSize()
+//     useEffect(() => {
+//         resizeIframe(iframeRef?.current, setIframeHeight, isBodyExpanded, scrollPosition)
+//     }, [isBodyExpanded, body])
+
+//     const onScroll = () => {
+//         setScrollPosition(iframeRef?.current?.contentWindow?.window.scrollY ?? 0)
+//     }
+
+//     useEffect(() => {
+//         if (iframeRef?.current?.contentWindow) {
+//             iframeRef.current.contentWindow.window.addEventListener('scroll', onScroll)
+//             return () => {
+//                 if (iframeRef?.current?.contentWindow) {
+//                     iframeRef.current.contentWindow.window.removeEventListener('scroll', onScroll)
+//                 }
+//             }
+//         }
+//     }, [])
+
+//     return <>
+//         {scrollPosition}
+// <BodyIframe
+//     ref={iframeRef}
+//     iframeHeight={iframeHeight}
+//     title={'Body for task: ' + task_id}
+//     srcDoc={body}
+// /></>
+// }
 const Reply: React.FC<ReplyProps> = ({ task_id, sender }: ReplyProps) => {
     const [text, setText] = useState('')
 

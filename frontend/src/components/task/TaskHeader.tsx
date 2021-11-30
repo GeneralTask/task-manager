@@ -6,39 +6,42 @@ import { NOW, TASKS_MODIFY_URL } from '../../constants'
 import React, { useCallback } from 'react'
 import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
 import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
+import store, { RootState } from '../../redux/store'
 
 import GTButton from '../common/GTButton'
 import JoinConferenceButton from './JoinConferenceButton'
 import { TTask } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
-import store from '../../redux/store'
 import { useCountdown } from './TaskWrappers'
+import { useSelector } from 'react-redux'
 
 interface Props {
   task: TTask,
   datetimeStart: string | null, // null if unscheduled_task
   dragDisabled: boolean,
-  isExpanded: boolean,
 }
 
 const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) => {
+  const { isBodyExpanded } = useSelector((state: RootState) => ({
+    isBodyExpanded: state.tasks_page.expanded_body === props.task.id,
+  }))
   const countdown = useCountdown(props.datetimeStart)
 
   const hoverEffectEnabled = !!(props.task.body || props.task.deeplink)
 
   const onClick = useCallback(() => {
     if (hoverEffectEnabled) {
-      if (props.isExpanded) {
+      if (isBodyExpanded) {
         store.dispatch(retractBody())
       }
       else {
         store.dispatch(expandBody(props.task.id))
       }
     }
-  }, [hoverEffectEnabled, props.isExpanded])
+  }, [hoverEffectEnabled, isBodyExpanded])
 
   return (
-    <styles.Header hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
+    <styles.Header hoverEffect={hoverEffectEnabled} showButtons={isBodyExpanded} onClick={onClick}>
       <styles.HeaderLeft>
         {props.dragDisabled ?
           <styles.Spacer ref={ref}>
@@ -50,7 +53,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
           </styles.DragSection>
         }
         <styles.Icon src={props.task.source.logo} alt="icon"></styles.Icon>
-        {props.isExpanded ? <styles.Title>{props.task.title}</styles.Title> : <styles.TitleWrap>{props.task.title}</styles.TitleWrap>}
+        {isBodyExpanded ? <styles.Title>{props.task.title}</styles.Title> : <styles.TitleWrap>{props.task.title}</styles.TitleWrap>}
       </styles.HeaderLeft>
       <styles.HeaderRight>
         {countdown
@@ -58,7 +61,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
             {countdown !== NOW && <>in < styles.Space /></>}
             <styles.Black>{countdown}</styles.Black>
           </flex.flex>
-          : props.isExpanded
+          : isBodyExpanded
             ? props.task.sender
             : <styles.Truncated>{props.task.sender}</styles.Truncated>
         }

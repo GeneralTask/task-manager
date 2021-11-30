@@ -1,17 +1,15 @@
 import './Task.css'
 
 import { Container, DraggableContainer, DropIndicatorAbove, DropIndicatorBelow } from './Task-style'
-import { ItemTypes } from '../../helpers/types'
-import React from 'react'
-import { setTasksDragState } from '../../redux/actions'
-import { useDrag } from 'react-dnd'
 
 import { DragState } from '../../redux/enums'
-import { RootState } from '../../redux/store'
+import { ItemTypes } from '../../helpers/types'
+import React from 'react'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
-import { useSelector } from 'react-redux'
+import { setTasksDragState } from '../../redux/actions'
+import { useDrag } from 'react-dnd'
 
 interface Props {
   task: TTask,
@@ -23,9 +21,6 @@ interface Props {
 
 export default function Task(props: Props): JSX.Element {
   const { task, datetimeStart, dragDisabled, isOver, dropDirection } = props
-  const { isBodyExpanded } = useSelector((state: RootState) => ({
-    isBodyExpanded: state.tasks_page.expanded_body === task.id,
-  }))
 
   const [{ opacity }, drag, dragPreview] = useDrag(() => ({
     type: ItemTypes.TASK,
@@ -45,7 +40,6 @@ export default function Task(props: Props): JSX.Element {
           task={task}
           datetimeStart={datetimeStart}
           dragDisabled={dragDisabled}
-          isExpanded={isBodyExpanded}
           ref={drag}
         />
         <TaskBody
@@ -53,7 +47,7 @@ export default function Task(props: Props): JSX.Element {
           task_id={task.id}
           deeplink={task.deeplink}
           source={task.source}
-          isExpanded={isBodyExpanded} sender={null} />
+          sender={null} />
       </Container>
       <DropIndicatorBelow isVisible={isOver && !dropDirection} />
     </DraggableContainer>
