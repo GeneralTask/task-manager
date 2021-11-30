@@ -1,6 +1,6 @@
-import { DeviceSize, fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest, sectionDropReorder, useDeviceSize } from '../../helpers/utils'
-import { ItemTypes, TTaskSection } from '../../helpers/types'
-import React, { useEffect, useRef, useState } from 'react'
+import { DeviceSize, fetchTasks, makeAuthorizedRequest, sectionDropReorder, useDeviceSize } from '../../helpers/utils'
+import { Indices, ItemTypes, TTaskSection } from '../../helpers/types'
+import React, { RefObject, useEffect, useRef, useState } from 'react'
 import store, { RootState } from '../../redux/store'
 
 import { CurrentTimeText, HeaderText, InsideHeader, Spanbar, TaskSectionHeaderContainer, TimeAnnotation, TimeAnnotationRight } from './TaskSectionHeader-style'
@@ -27,19 +27,23 @@ export default function TaskSectionHeader(props: Props): JSX.Element {
     collect: monitor => ({
       isOver: !!monitor.isOver()
     }),
-    drop: ({ id }: { id: string }) => {
-      const updatedTaskSections = sectionDropReorder(taskSectionsRef.current, id, props.task_section_index)
+    drop: ({ id, indicesRef }: { id: string, indicesRef: RefObject<Indices> }) => {
+      if (indicesRef.current == null) return
+      const updatedTaskSections = sectionDropReorder(taskSectionsRef.current, props.task_section_index, indicesRef.current)
       store.dispatch(setTasks(updatedTaskSections))
 
-      const updatedOrderingId = lookupTaskObject(updatedTaskSections, id)?.id_ordering
-      const droppedSectionId = lookupTaskSection(updatedTaskSections, id)
+      const patchBody = JSON.stringify({
+        id_task_section: taskSectionsRef.current[props.task_section_index].id,
+        id_ordering: updatedTaskSections[props.task_section_index]
+          .task_groups[0]
+          .tasks[0]
+          .id_ordering
+      })
+
       makeAuthorizedRequest({
         url: TASKS_MODIFY_URL + id + '/',
         method: 'PATCH',
-        body: JSON.stringify({
-          id_task_section: taskSectionsRef.current[droppedSectionId].id,
-          id_ordering: updatedOrderingId
-        })
+        body: patchBody,
       }).then(fetchTasks).catch((error) => {
         throw new Error('PATCH /tasks/ failed' + error)
       })

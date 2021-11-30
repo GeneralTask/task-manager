@@ -1,7 +1,7 @@
 import './Task.css'
 
 import { Container, DraggableContainer, DropIndicatorAbove, DropIndicatorBelow } from './Task-style'
-import { ItemTypes } from '../../helpers/types'
+import { Indices, ItemTypes } from '../../helpers/types'
 import React from 'react'
 import { setTasksDragState } from '../../redux/actions'
 import { useDrag } from 'react-dnd'
@@ -13,12 +13,14 @@ import TaskBody from './TaskBody'
 import TaskHeader from './TaskHeader'
 import { useSelector } from 'react-redux'
 
+
 interface Props {
   task: TTask,
   dragDisabled: boolean,
   datetimeStart: string | null, // null if unscheduled_task
   isOver: boolean,
   dropDirection: boolean,
+  indices: Indices,
 }
 
 export default function Task(props: Props): JSX.Element {
@@ -26,10 +28,12 @@ export default function Task(props: Props): JSX.Element {
   const { isBodyExpanded } = useSelector((state: RootState) => ({
     isBodyExpanded: state.tasks_page.expanded_body === task.id,
   }))
+  const indicesRef = React.useRef<Indices>()
+  indicesRef.current = props.indices
 
   const [{ opacity }, drag, dragPreview] = useDrag(() => ({
     type: ItemTypes.TASK,
-    item: { id: task.id },
+    item: { id: task.id, indicesRef: indicesRef },
     collect: monitor => {
       const isDragging = !!monitor.isDragging()
       if (isDragging) setTasksDragState(DragState.isDragging)

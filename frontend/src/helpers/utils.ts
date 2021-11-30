@@ -7,7 +7,7 @@ import {
     REACT_APP_FRONTEND_BASE_URL,
     TASKS_URL
 } from '../constants'
-import { TTask, TTaskGroupType, TTaskSection } from './types'
+import { Indices, TTaskGroupType, TTaskSection } from './types'
 import { setTasks, setTasksDragState, setTasksFetchStatus } from '../redux/actions'
 import { useEffect, useState } from 'react'
 
@@ -72,35 +72,6 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
     }
     return response
 }
-
-export const lookupTaskSection = (task_sections: TTaskSection[], task_id: string): number => {
-    return _.findIndex(task_sections, (section) => {
-        return section.task_groups.find(group => {
-            return group.tasks.find(task => {
-                if (task.id === task_id) return true
-                return false
-            }) !== undefined
-        }) !== undefined
-    })
-}
-
-export const lookupTaskObject = (task_sections: TTaskSection[], task_id: string): TTask | null => {
-    let task = null
-    for (const section of task_sections) {
-        if (task !== null) break
-        for (const group of section.task_groups) {
-            if (task !== null) break
-            for (const currTask of group.tasks) {
-                if (currTask.id == task_id) {
-                    task = currTask
-                    break
-                }
-            }
-        }
-    }
-    return task
-}
-
 
 export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
     return task_sections.map((section) => {
@@ -217,24 +188,13 @@ export function taskDropReorder(staleTaskSections: TTaskSection[], dragTaskId: s
     return updateOrderingIds(taskSections)
 }
 
-export function sectionDropReorder(staleTaskSections: TTaskSection[], dragTaskId: string, sectionIndex: number): TTaskSection[] {
+export function sectionDropReorder(staleTaskSections: TTaskSection[], newSectionIndex: number, indices: Indices): TTaskSection[] {
     const taskSections = _.cloneDeep(staleTaskSections)
-    let dragTaskObject = null
 
-    // Find dragged object and remove
-    for (const taskSection of taskSections) {
-        for (const taskGroup of taskSection.task_groups) {
-            for (let i = 0; i < taskGroup.tasks.length; i++) {
-                if (taskGroup.tasks[i].id === dragTaskId) {
-                    dragTaskObject = taskGroup.tasks[i]
-                    taskGroup.tasks.splice(i, 1)
-                }
-            }
-        }
-    }
-    if (dragTaskObject === null) return taskSections
+    const dragTaskObject = taskSections[indices.section].task_groups[indices.group].tasks[indices.task]
+    taskSections[indices.section].task_groups[indices.group].tasks.splice(indices.task, 1)
 
-    const section = taskSections[sectionIndex]
+    const section = taskSections[newSectionIndex]
     if (section == null || section.task_groups.length === 0) return taskSections
     if (section.task_groups[0].type !== TTaskGroupType.UNSCHEDULED_GROUP) return taskSections
     section.task_groups[0].tasks.splice(0, 0, dragTaskObject)
