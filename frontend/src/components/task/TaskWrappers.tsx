@@ -5,9 +5,9 @@ import { TEXT_GRAY, device } from '../../helpers/styles'
 import { TTask, TTaskGroup } from '../../helpers/types'
 
 import { NOW } from '../../constants'
-import Task from './Task'
 import humanizeDuration from 'humanize-duration'
 import styled, { css } from 'styled-components'
+import TaskDropContainer from './TaskDropContainer'
 
 const short_en_expanded = {
   y: (c: number | undefined) => 'year' + (c === 1 ? '' : 's'),
@@ -40,13 +40,6 @@ const TaskGroup = styled.div`
   margin-bottom: 15px;
 `
 
-const DropOverlay = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`
 const Tasks = styled.div`
   width: 100%;
   display:flex;
@@ -107,7 +100,7 @@ interface TaskGroupProps {
   }
 }
 
-const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indices }: TaskGroupProps) => {
+const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations }: TaskGroupProps) => {
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
   return (
     <TaskGroup>
@@ -115,18 +108,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
         <AlignRight>{parseDateTime(taskGroup.datetime_start).toLocaleString(DateTime.TIME_SIMPLE)}</AlignRight>
       </TimeAnnotationLeft>
       <Tasks>
-        <DropOverlay>
-          <Task
-            task={taskGroup.tasks[0]}
-            datetimeStart={taskGroup.datetime_start}
-            dragDisabled={true}
-            indices={{
-              section: indices.section,
-              group: indices.group,
-              task: 0,
-            }}
-          />
-        </DropOverlay>
+        <TaskDropContainer task={taskGroup.tasks[0]} dragDisabled={true} />
       </Tasks>
       <TimeAnnotationRight>
         <TimeSpacer>
@@ -138,25 +120,14 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
 }
 
 
-const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indices }: TaskGroupProps) => {
+
+const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations }: TaskGroupProps) => {
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
   return (
     <TaskGroup>
       <TimeAnnotationLeft />
       <Tasks>
-        {taskGroup.tasks.map((task: TTask, taskIndex: number) => (
-          <DropOverlay>
-            <Task task={task}
-              datetimeStart={null}
-              dragDisabled={false}
-              key={task.id}
-              indices={{
-                section: indices.section,
-                group: indices.group,
-                task: taskIndex,
-              }} />
-          </DropOverlay>
-        ))}
+        {taskGroup.tasks.map((task: TTask) => <TaskDropContainer task={task} dragDisabled={false} />)}
       </Tasks>
       <TimeAnnotationRight>
         {showTimeAnnotations &&

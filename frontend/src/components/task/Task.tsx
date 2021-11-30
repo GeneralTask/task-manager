@@ -1,8 +1,8 @@
 import './Task.css'
 
 import { Container, DraggableContainer, DropIndicatorAbove, DropIndicatorBelow } from './Task-style'
-import { ItemTypes, TTaskSection } from '../../helpers/types'
-import React, { useRef } from 'react'
+import { ItemTypes } from '../../helpers/types'
+import React from 'react'
 import { setTasksDragState } from '../../redux/actions'
 import { useDrag } from 'react-dnd'
 
@@ -17,22 +17,15 @@ interface Props {
   task: TTask,
   dragDisabled: boolean,
   datetimeStart: string | null, // null if unscheduled_task
-  indices: {
-    task: number,
-    group: number,
-    section: number,
-  }
+  isOver: boolean,
+  dropDirection: boolean,
 }
 
 export default function Task(props: Props): JSX.Element {
-  const { task, datetimeStart, dragDisabled } = props
-  const { isBodyExpanded, taskSections } = useSelector((state: RootState) => ({
+  const { task, datetimeStart, dragDisabled, isOver, dropDirection } = props
+  const { isBodyExpanded } = useSelector((state: RootState) => ({
     isBodyExpanded: state.tasks_page.expanded_body === task.id,
-    taskSections: state.tasks_page.task_sections,
   }))
-  const taskSectionsRef = useRef<TTaskSection[]>()
-
-  taskSectionsRef.current = taskSections
 
   const [{ opacity }, drag, dragPreview] = useDrag(() => ({
     type: ItemTypes.TASK,
@@ -46,7 +39,7 @@ export default function Task(props: Props): JSX.Element {
 
   return (
     <DraggableContainer ref={dragPreview}>
-      <DropIndicatorAbove isVisible={false} />
+      <DropIndicatorAbove isVisible={isOver && dropDirection} />
       <Container opacity={opacity} >
         <TaskHeader
           task={task}
@@ -62,7 +55,7 @@ export default function Task(props: Props): JSX.Element {
           source={task.source}
           isExpanded={isBodyExpanded} sender={null} />
       </Container>
-      <DropIndicatorBelow isVisible={false} />
+      <DropIndicatorBelow isVisible={isOver && !dropDirection} />
     </DraggableContainer>
   )
 }
