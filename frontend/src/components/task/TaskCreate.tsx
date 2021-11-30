@@ -81,8 +81,6 @@ export default function TaskCreate(): JSX.Element {
                             setTimeEstimate('')
                             setDueDate('')
 
-                            console.log(body)
-
                             await makeAuthorizedRequest({
                                 url: TASKS_CREATE_URL + GT_TASK_SOURCE_ID + '/',
                                 method: 'POST',
