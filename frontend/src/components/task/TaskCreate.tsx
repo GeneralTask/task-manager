@@ -10,6 +10,7 @@ import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
 import parse from 'parse-duration'
 import { setShowCreateTaskForm } from '../../redux/actions'
+import { parseDate } from '../../helpers/TimeParser'
 import { useSelector } from 'react-redux'
 
 export default function TaskCreate(): JSX.Element {
@@ -32,7 +33,7 @@ export default function TaskCreate(): JSX.Element {
 
                         let tempTitleError = ''
                         let tempTimeEstimateError = ''
-                        const tempDueDateError = ''
+                        let tempDueDateError = ''
 
                         if (title === '') {
                             tempTitleError = 'Title is required'
@@ -50,6 +51,18 @@ export default function TaskCreate(): JSX.Element {
                             timeEstimateNum *= 1000
                         }
 
+                        let parsedDueDate = ''
+                        if (dueDate !== '') {
+                            const parsedDate = parseDate(dueDate)
+
+                            if (parsedDate == null) {
+                                tempDueDateError = 'Could not parse due date'
+                            }
+                            else {
+                                parsedDueDate = parsedDate.toISOString()
+                            }
+                        }
+
                         setTitleError(tempTitleError)
                         setTimeEstimateError(tempTimeEstimateError)
                         setDueDateError(tempDueDateError)
@@ -61,6 +74,9 @@ export default function TaskCreate(): JSX.Element {
                             }
                             if (timeEstimateNum > 0) {
                                 body.time_duration = timeEstimateNum * 60
+                            }
+                            if (dueDate !== '' && parsedDueDate != null) {
+                                body.due_date = parsedDueDate
                             }
 
                             setTitle('')
@@ -124,4 +140,3 @@ export default function TaskCreate(): JSX.Element {
         </>}
     </>
 }
-
