@@ -1,18 +1,12 @@
 import styled, { css } from 'styled-components'
-import { BORDER_PRIMARY } from '../../helpers/styles'
+import { BORDER_PRIMARY, device } from '../../helpers/styles'
 
-export const DragDropContainer = styled.div`
-    position: relative;
-`
-
-export const DropOverlay = styled.div`
-    margin-left: -100vw;
-    width: 180vw;
-    height: 100%;
-    position: absolute;
-`
 
 export const DraggableContainer = styled.div`
+    width: 70%;
+    @media ${device.mobile}{
+        width: 60%;
+    }
     margin: 5px 0;
     position: relative;
 `

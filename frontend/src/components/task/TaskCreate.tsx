@@ -3,14 +3,15 @@ import * as styles from './TaskCreate-style'
 import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
 import React, { useState } from 'react'
 import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
+import store, { RootState } from '../../redux/store'
 
 import GTButton from '../common/GTButton'
 import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
-import { useSelector } from 'react-redux'
-import store, { RootState } from '../../redux/store'
+import parse from 'parse-duration'
 import { setShowCreateTaskForm } from '../../redux/actions'
 import { parseDate } from '../../helpers/TimeParser'
+import { useSelector } from 'react-redux'
 
 export default function TaskCreate(): JSX.Element {
     const showCreateTaskForm = useSelector((state: RootState) => state.tasks_page.show_create_task_form)
@@ -38,15 +39,16 @@ export default function TaskCreate(): JSX.Element {
                             tempTitleError = 'Title is required'
                         }
 
-                        let timeEstimateNum = -1
+                        const timeEstimateNum = -1
                         if (timeEstimate !== '') {
-                            timeEstimateNum = parseInt(timeEstimate)
-                            if (isNaN(timeEstimateNum)) {
-                                tempTimeEstimateError = 'Time estimate must be a number'
+                            let timeEstimateNum = parse(timeEstimate, 's')
+                            if (timeEstimateNum == null) {
+                                tempTimeEstimateError = 'Unable to parse time estimate'
                             }
                             else if (timeEstimateNum <= 0) {
-                                tempTimeEstimateError = 'Time estimate must be greater than 0'
+                                tempTimeEstimateError = 'Time estimate must be positive'
                             }
+                            timeEstimateNum *= 1000
                         }
 
                         let parsedDueDate = ''
@@ -96,7 +98,7 @@ export default function TaskCreate(): JSX.Element {
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
                         />
                         <styles.InputTimeEstimate
-                            placeholder='Time Estimate (mins)'
+                            placeholder='Time Estimate'
                             value={timeEstimate}
                             error={timeEstimateError !== ''}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTimeEstimate(event.target.value)}
