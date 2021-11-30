@@ -48,11 +48,14 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
         drop: (item: { id: string, indicesRef: RefObject<Indices> }, monitor) => {
             setTasksDragState(DragState.noDrag)
 
+            if (item.id === task.id) return
             if (item.indicesRef.current == null) return
             if (taskSectionsRef.current == null) return
+            if (dropRef.current == null) return
+            if (indicesRef.current == null) return
+
             const taskSections = taskSectionsRef.current
-            if (item.id === task.id) return
-            if (!dropRef.current) return
+            const dropIndices = indicesRef.current
 
             const boundingRect = dropRef.current.getBoundingClientRect()
             let isLowerHalf = false
@@ -62,7 +65,7 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
                 isLowerHalf = !!(clientOffsetY && clientOffsetY > dropMiddleY)
             }
 
-            const updatedTaskSections = taskDropReorder(taskSections, item.id, task.id, isLowerHalf)
+            const updatedTaskSections = taskDropReorder(taskSections, item.indicesRef.current, dropIndices, isLowerHalf)
             store.dispatch(setTasks(updatedTaskSections))
 
             const previousOrderingId = taskSections[item.indicesRef.current.section]
@@ -70,25 +73,20 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
                 .tasks[item.indicesRef.current.task]
                 .id_ordering
 
-            const previousSectionId = item.indicesRef.current.section
-
-            let updatedOrderingId = updatedTaskSections[indices.section]
-                .task_groups[indices.group]
-                .tasks[indices.task]
+            const updatedOrderingId = updatedTaskSections[dropIndices.section]
+                .task_groups[dropIndices.group]
+                .tasks[dropIndices.task]
                 .id_ordering
 
             const updatedSectionId = indices.section
 
             if (updatedOrderingId == null || previousOrderingId == null) return
-            if (previousSectionId === updatedSectionId && previousOrderingId >= updatedOrderingId) {
-                updatedOrderingId -= 1
-            }
             makeAuthorizedRequest({
                 url: TASKS_MODIFY_URL + item.id + '/',
                 method: 'PATCH',
                 body: JSON.stringify({
                     id_task_section: taskSections[updatedSectionId].id,
-                    id_ordering: updatedOrderingId + 1,
+                    id_ordering: updatedOrderingId,
                 })
             }).then(fetchTasks).catch((error) => {
                 throw new Error('PATCH /tasks/ failed' + error)
