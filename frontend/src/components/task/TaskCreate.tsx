@@ -82,7 +82,7 @@ export default function TaskCreate(): JSX.Element {
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
                         />
                         <styles.InputTimeEstimate
-                            placeholder='Time Estimate (mins)'
+                            placeholder='Time Estimate'
                             value={timeEstimate}
                             error={timeEstimateError !== ''}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTimeEstimate(event.target.value)}
