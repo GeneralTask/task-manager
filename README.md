@@ -24,7 +24,7 @@ pre-commit install
 
 ## Backend setup
 
-First, install Go and Docker.
+First, install Go and Docker. Ensure that your version of Go appropriately matches your computer operating system and architecture.
 
 Next, if you need to test anything that requires credentials, such as Google OAuth flow, then you'll need to set appropriate environment variables with those values, for example:
 
