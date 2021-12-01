@@ -354,6 +354,16 @@ func MergeTasks(
 		return []*TaskSection{}, err
 	}
 
+	err = updateOrderingIDs(db, &blockedTasks)
+	if err != nil {
+		return []*TaskSection{}, err
+	}
+
+	err = updateOrderingIDs(db, &backlogTasks)
+	if err != nil {
+		return []*TaskSection{}, err
+	}
+
 	return []*TaskSection{
 		{
 			ID:         constants.IDTaskSectionToday,
