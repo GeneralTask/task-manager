@@ -1,16 +1,62 @@
-import * as styles from './TaskSectionHeader-style'
-
+import { BACKGROUND_HOVER, DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
 import { DeviceSize, fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest, sectionDropReorder, useDeviceSize } from '../../helpers/utils'
 import { ItemTypes, TTaskSection } from '../../helpers/types'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import store, { RootState } from '../../redux/store'
 
 import { DateTime } from 'luxon'
 import RefreshButton from './RefreshButton'
 import { TASKS_MODIFY_URL } from '../../constants'
 import { setTasks } from '../../redux/actions'
+import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
 import { useSelector } from 'react-redux'
+
+const TaskSectionHeaderContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  color: ${TEXT_GRAY};
+`
+const Spanbar = styled.div`
+  display: flex;
+  background-color: ${DIVIDER_LIGHTGRAY};
+  height: 1px;
+  flex: 1;
+  border-left: 1px solid ${DIVIDER_LIGHTGRAY};
+  border-right: 1px solid ${DIVIDER_LIGHTGRAY};
+  border-radius: 2px;
+`
+const TimeAnnotation = styled.div`
+  display: flex;
+  width: 15%;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+`
+const TimeAnnotationRight = styled(TimeAnnotation)`
+  justify-content: flex-start;
+`
+const InsideHeader = styled.div<{ isOver: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60%;
+  margin-left: 4px;
+  background-color: ${props => props.isOver ? BACKGROUND_HOVER : 'inherit'};
+  border-radius: 2px;
+  height:100%;
+`
+const HeaderText = styled.div`
+  font-size: 28px;
+  margin: 0 40px;
+`
+const CurrentTimeText = styled.div`
+  font-size: 18px;
+  font-weight: 600;
+  padding-right: 10px;
+`
 
 interface Props {
   isToday: boolean,
@@ -47,28 +93,23 @@ export default function TaskSectionHeader(props: Props): JSX.Element {
     }
   }))
   return (
-    <styles.TaskSectionHeaderContainer>
-      <styles.TimeAnnotation>{props.isToday && <CurrentTime />}</styles.TimeAnnotation>
-      <styles.InsideHeader isOver={isOver} ref={drop} >
-        <styles.Spanbar />
-        <styles.HeaderText>{props.name}</styles.HeaderText>
-        <styles.Spanbar />
-      </styles.InsideHeader>
-      <styles.TimeAnnotationRight>
+    <TaskSectionHeaderContainer>
+      <TimeAnnotation>{props.isToday && <CurrentTime />}</TimeAnnotation>
+      <InsideHeader isOver={isOver} ref={drop} >
+        <Spanbar />
+        <HeaderText>{props.name}</HeaderText>
+        <Spanbar />
+      </InsideHeader>
+      <TimeAnnotationRight>
         {props.isToday && <RefreshButton />}
-      </styles.TimeAnnotationRight>
-    </styles.TaskSectionHeaderContainer>
+      </TimeAnnotationRight>
+    </TaskSectionHeaderContainer>
   )
 }
 
 function CurrentTime() {
   const [timeStr, setTimeStr] = useState('')
   const deviceSize = useDeviceSize()
-  const [isShown, setIsShown] = useState(true)
-
-  const toggleIsShown = useCallback(() => {
-    setIsShown(isShown => !isShown)
-  }, [])
 
   useEffect(() => {
     if (deviceSize !== DeviceSize.MOBILE) {
@@ -85,7 +126,7 @@ function CurrentTime() {
       setTimeStr('')
     }
   }, [deviceSize])
-  return <styles.CurrentTimeContainer onClick={toggleIsShown}>
-    {deviceSize !== DeviceSize.MOBILE && <styles.CurrentTimeText isShown={isShown}>{timeStr}</styles.CurrentTimeText>}
-  </styles.CurrentTimeContainer>
+  return <>
+    {deviceSize !== DeviceSize.MOBILE && <CurrentTimeText>{timeStr}</CurrentTimeText>}
+  </>
 }
