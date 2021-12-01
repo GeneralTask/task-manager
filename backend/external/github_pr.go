@@ -54,13 +54,13 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		result <- emptyPullRequestResult(err)
 		return
 	}
-	ts := oauth2.StaticTokenSource(
+	tokenSource := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token.AccessToken},
 	)
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	tc := oauth2.NewClient(extCtx, ts)
-	githubClient = github.NewClient(tc)
+	tokenClient := oauth2.NewClient(extCtx, tokenSource)
+	githubClient = github.NewClient(tokenClient)
 
 	var pullRequests []*database.PullRequest
 	listOptions := github.IssueListOptions{}
@@ -74,7 +74,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 	for _, issue := range issues {
 		if issue.IsPullRequest() {
-			pr := &database.PullRequest{
+			pullRequest := &database.PullRequest{
 				TaskBase: database.TaskBase{
 					UserID:          userID,
 					IDExternal:      fmt.Sprint(*issue.ID),
@@ -88,7 +88,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				},
 				Opened: primitive.NewDateTimeFromTime(*issue.CreatedAt),
 			}
-			pullRequests = append(pullRequests, pr)
+			pullRequests = append(pullRequests, pullRequest)
 		}
 	}
 
