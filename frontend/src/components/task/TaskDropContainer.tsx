@@ -65,28 +65,38 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
                 isLowerHalf = !!(clientOffsetY && clientOffsetY > dropMiddleY)
             }
 
-            const updatedTaskSections = taskDropReorder(taskSections, item.indicesRef.current, dropIndices, isLowerHalf)
-            store.dispatch(setTasks(updatedTaskSections))
-
             const previousOrderingId = taskSections[item.indicesRef.current.section]
                 .task_groups[item.indicesRef.current.group]
                 .tasks[item.indicesRef.current.task]
                 .id_ordering
 
-            const updatedOrderingId = updatedTaskSections[dropIndices.section]
-                .task_groups[dropIndices.group]
-                .tasks[dropIndices.task]
-                .id_ordering
 
-            const updatedSectionId = indices.section
+            const updatedTaskSections = taskDropReorder(taskSections, item.indicesRef.current, dropIndices, isLowerHalf)
+            store.dispatch(setTasks(updatedTaskSections))
 
-            if (updatedOrderingId == null || previousOrderingId == null) return
+            let updatedOrderingId = updatedTaskSections[indicesRef.current.section]
+                .task_groups[indicesRef.current.group]
+                .tasks
+                .find(task => task.id === item.id)
+                ?.id_ordering
+
+            if (updatedOrderingId == null) return
+            if (item.indicesRef.current.section === dropIndices.section &&
+                item.indicesRef.current.group === dropIndices.group &&
+                updatedOrderingId < previousOrderingId) {
+                updatedOrderingId -= 1
+            }
+            if (item.indicesRef.current.section !== dropIndices.section ||
+                item.indicesRef.current.group !== dropIndices.group) {
+                updatedOrderingId -= 1
+            }
+
             makeAuthorizedRequest({
                 url: TASKS_MODIFY_URL + item.id + '/',
                 method: 'PATCH',
                 body: JSON.stringify({
-                    id_task_section: taskSections[updatedSectionId].id,
-                    id_ordering: updatedOrderingId,
+                    id_task_section: taskSections[indices.section].id,
+                    id_ordering: updatedOrderingId + 1,
                 })
             }).then(fetchTasks).catch((error) => {
                 throw new Error('PATCH /tasks/ failed' + error)

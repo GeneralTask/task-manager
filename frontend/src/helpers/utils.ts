@@ -149,17 +149,22 @@ export function emptyFunction(): void { }
 
 export function taskDropReorder(staleTaskSections: TTaskSection[], dragIndices: Indices, dropIndices: Indices, isLowerHalf: boolean): TTaskSection[] {
     const taskSections = _.cloneDeep(staleTaskSections)
-
-    const dragTaskObject = taskSections[dragIndices.section].task_groups[dragIndices.group].tasks[dragIndices.task]
-    taskSections[dragIndices.section].task_groups[dragIndices.group].tasks.splice(dragIndices.task, 1)
-
+    const dragTaskObject = taskSections[dragIndices.section].task_groups[dragIndices.group].tasks.splice(dragIndices.task, 1)[0]
     const taskGroup = taskSections[dropIndices.section].task_groups[dropIndices.group]
+
     if (taskGroup.type === TTaskGroupType.SCHEDULED_TASK) {
         if (isLowerHalf) taskGroup.tasks.splice(0, 0, dragTaskObject)
         else taskSections[dropIndices.section].task_groups[dropIndices.group - 1].tasks.push(dragTaskObject)
     }
     else {
-        taskGroup.tasks.splice(dropIndices.task + Number(isLowerHalf), 0, dragTaskObject)
+        if (dragIndices.section === dropIndices.section
+            && dragIndices.group === dropIndices.group
+            && dragIndices.task < dropIndices.task) {
+            taskGroup.tasks.splice(dropIndices.task + Number(isLowerHalf) - 1, 0, dragTaskObject)
+        }
+        else {
+            taskGroup.tasks.splice(dropIndices.task + Number(isLowerHalf), 0, dragTaskObject)
+        }
     }
     return updateOrderingIds(taskSections)
 }
