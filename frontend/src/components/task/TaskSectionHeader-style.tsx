@@ -1,6 +1,5 @@
-import { BACKGROUND_HOVER, DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
-
 import styled from 'styled-components'
+import { BACKGROUND_HOVER, DIVIDER_LIGHTGRAY, TEXT_GRAY } from '../../helpers/styles'
 
 export const TaskSectionHeaderContainer = styled.div`
   display: flex;
@@ -9,6 +8,7 @@ export const TaskSectionHeaderContainer = styled.div`
   height: 50px;
   color: ${TEXT_GRAY};
 `
+
 export const Spanbar = styled.div`
   display: flex;
   background-color: ${DIVIDER_LIGHTGRAY};
@@ -18,6 +18,7 @@ export const Spanbar = styled.div`
   border-right: 1px solid ${DIVIDER_LIGHTGRAY};
   border-radius: 2px;
 `
+
 export const TimeAnnotation = styled.div`
   display: flex;
   width: 15%;
@@ -25,9 +26,11 @@ export const TimeAnnotation = styled.div`
   justify-content: flex-end;
   height: 100%;
 `
+
 export const TimeAnnotationRight = styled(TimeAnnotation)`
   justify-content: flex-start;
 `
+
 export const InsideHeader = styled.div<{ isOver: boolean }>`
   display: flex;
   justify-content: center;
@@ -38,16 +41,13 @@ export const InsideHeader = styled.div<{ isOver: boolean }>`
   border-radius: 2px;
   height:100%;
 `
+
 export const HeaderText = styled.div`
   font-size: 28px;
   margin: 0 40px;
 `
-export const CurrentTimeText = styled.div<{ isShown: boolean }>`
+export const CurrentTimeText = styled.div`
   font-size: 18px;
   font-weight: 600;
   padding-right: 10px;
-  visibility: ${props => props.isShown ? 'visible' : 'hidden'};
-`
-export const CurrentTimeContainer = styled.div`
-  cursor: pointer;
 `

@@ -1,10 +1,9 @@
-import * as styles from './TaskSectionHeader-style'
-
 import { DeviceSize, fetchTasks, lookupTaskObject, lookupTaskSection, makeAuthorizedRequest, sectionDropReorder, useDeviceSize } from '../../helpers/utils'
 import { ItemTypes, TTaskSection } from '../../helpers/types'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import store, { RootState } from '../../redux/store'
 
+import { CurrentTimeText, HeaderText, InsideHeader, Spanbar, TaskSectionHeaderContainer, TimeAnnotation, TimeAnnotationRight } from './TaskSectionHeader-style'
 import { DateTime } from 'luxon'
 import RefreshButton from './RefreshButton'
 import { TASKS_MODIFY_URL } from '../../constants'
@@ -47,28 +46,23 @@ export default function TaskSectionHeader(props: Props): JSX.Element {
     }
   }))
   return (
-    <styles.TaskSectionHeaderContainer>
-      <styles.TimeAnnotation>{props.isToday && <CurrentTime />}</styles.TimeAnnotation>
-      <styles.InsideHeader isOver={isOver} ref={drop} >
-        <styles.Spanbar />
-        <styles.HeaderText>{props.name}</styles.HeaderText>
-        <styles.Spanbar />
-      </styles.InsideHeader>
-      <styles.TimeAnnotationRight>
+    <TaskSectionHeaderContainer>
+      <TimeAnnotation>{props.isToday && <CurrentTime />}</TimeAnnotation>
+      <InsideHeader isOver={isOver} ref={drop} >
+        <Spanbar />
+        <HeaderText>{props.name}</HeaderText>
+        <Spanbar />
+      </InsideHeader>
+      <TimeAnnotationRight>
         {props.isToday && <RefreshButton />}
-      </styles.TimeAnnotationRight>
-    </styles.TaskSectionHeaderContainer>
+      </TimeAnnotationRight>
+    </TaskSectionHeaderContainer>
   )
 }
 
 function CurrentTime() {
   const [timeStr, setTimeStr] = useState('')
   const deviceSize = useDeviceSize()
-  const [isShown, setIsShown] = useState(true)
-
-  const toggleIsShown = useCallback(() => {
-    setIsShown(isShown => !isShown)
-  }, [])
 
   useEffect(() => {
     if (deviceSize !== DeviceSize.MOBILE) {
@@ -85,7 +79,7 @@ function CurrentTime() {
       setTimeStr('')
     }
   }, [deviceSize])
-  return <styles.CurrentTimeContainer onClick={toggleIsShown}>
-    {deviceSize !== DeviceSize.MOBILE && <styles.CurrentTimeText isShown={isShown}>{timeStr}</styles.CurrentTimeText>}
-  </styles.CurrentTimeContainer>
+  return <>
+    {deviceSize !== DeviceSize.MOBILE && <CurrentTimeText>{timeStr}</CurrentTimeText>}
+  </>
 }
