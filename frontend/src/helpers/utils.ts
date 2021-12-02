@@ -153,7 +153,9 @@ export function taskDropReorder(staleTaskSections: TTaskSection[], dragIndices: 
     const taskGroup = taskSections[dropIndices.section].task_groups[dropIndices.group]
 
     if (taskGroup.type === TTaskGroupType.SCHEDULED_TASK) {
-        if (isLowerHalf) taskGroup.tasks.splice(0, 0, dragTaskObject)
+        if (isLowerHalf) {
+            taskSections[dropIndices.section].task_groups[dropIndices.group + 1].tasks.push(dragTaskObject)
+        }
         else taskSections[dropIndices.section].task_groups[dropIndices.group - 1].tasks.push(dragTaskObject)
     }
     else {
