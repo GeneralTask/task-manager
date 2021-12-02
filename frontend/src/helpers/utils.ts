@@ -73,16 +73,6 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
     return response
 }
 
-export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
-    return task_sections.map((section) => {
-        let idOrdering = 1
-        section.task_groups.forEach((group) => {
-            group.tasks.forEach((task) => task.id_ordering = idOrdering++)
-        })
-        return section
-    })
-}
-
 export const getLinkedAccountsURL = (account_id: string): string => LINKED_ACCOUNTS_URL + account_id + '/'
 
 export const fetchTasks = async (): Promise<void> => {
@@ -147,13 +137,25 @@ export const useDeviceSize = (): DeviceSize => {
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export function emptyFunction(): void { }
 
+export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
+    return task_sections.map((section) => {
+        let idOrdering = 1
+        section.task_groups.forEach((group) => {
+            group.tasks.forEach((task) => task.id_ordering = idOrdering++)
+        })
+        return section
+    })
+}
+
 export function taskDropReorder(staleTaskSections: TTaskSection[], dragIndices: Indices, dropIndices: Indices, isLowerHalf: boolean): TTaskSection[] {
     const taskSections = _.cloneDeep(staleTaskSections)
     const dragTaskObject = taskSections[dragIndices.section].task_groups[dragIndices.group].tasks.splice(dragIndices.task, 1)[0]
     const taskGroup = taskSections[dropIndices.section].task_groups[dropIndices.group]
 
     if (taskGroup.type === TTaskGroupType.SCHEDULED_TASK) {
-        if (isLowerHalf) taskGroup.tasks.splice(0, 0, dragTaskObject)
+        if (isLowerHalf) {
+            taskSections[dropIndices.section].task_groups[dropIndices.group + 1].tasks.push(dragTaskObject)
+        }
         else taskSections[dropIndices.section].task_groups[dropIndices.group - 1].tasks.push(dragTaskObject)
     }
     else {

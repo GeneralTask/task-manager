@@ -3,7 +3,7 @@ import { useDrop } from 'react-dnd'
 import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { TASKS_MODIFY_URL } from '../../constants'
-import { ItemTypes, TTask, TTaskSection, Indices } from '../../helpers/types'
+import { ItemTypes, TTask, TTaskSection, Indices, TTaskGroupType } from '../../helpers/types'
 import { taskDropReorder, makeAuthorizedRequest, fetchTasks } from '../../helpers/utils'
 import { setTasksDragState, setTasks } from '../../redux/actions'
 import { DragState } from '../../redux/enums'
@@ -55,7 +55,7 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
             if (indicesRef.current == null) return
 
             const taskSections = taskSectionsRef.current
-            const { section: dropSection, group: dropGroup } = indicesRef.current
+            const { section: dropSection, group: dropGroup, task: dropTask } = indicesRef.current
             const { section: dragSection, group: dragGroup, task: dragTask } = item.indicesRef.current
 
             const boundingRect = dropRef.current.getBoundingClientRect()
@@ -74,20 +74,24 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
             const updatedTaskSections = taskDropReorder(taskSections, item.indicesRef.current, indicesRef.current, isLowerHalf)
             store.dispatch(setTasks(updatedTaskSections))
 
-            let updatedOrderingId = updatedTaskSections[dropSection]
-                .task_groups[dropGroup]
-                .tasks
-                .find(task => task.id === item.id)
-                ?.id_ordering
-
-            if (updatedOrderingId == null) return
-            if (dragSection === dropSection && dragGroup === dropGroup && updatedOrderingId < previousOrderingId) {
-                updatedOrderingId -= 1
+            let updatedOrderingId = null
+            if (taskSections[dropSection].task_groups[dropGroup].type === TTaskGroupType.SCHEDULED_TASK) {
+                updatedOrderingId = taskSections[dropSection].task_groups[dropGroup].tasks[dropTask].id_ordering
             }
-            if (dragSection !== dropSection || dragGroup !== dropGroup) {
-                updatedOrderingId -= 1
+            else {
+                updatedOrderingId = updatedTaskSections[dropSection]
+                    .task_groups[dropGroup]
+                    .tasks
+                    .find(task => task.id === item.id)
+                    ?.id_ordering
+                if (updatedOrderingId == null) return
+                if (dragSection === dropSection && dragGroup === dropGroup && updatedOrderingId < previousOrderingId) {
+                    updatedOrderingId -= 1
+                }
+                if (dragSection !== dropSection || dragGroup !== dropGroup) {
+                    updatedOrderingId -= 1
+                }
             }
-
             makeAuthorizedRequest({
                 url: TASKS_MODIFY_URL + item.id + '/',
                 method: 'PATCH',
