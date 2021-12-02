@@ -73,16 +73,6 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
     return response
 }
 
-export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
-    return task_sections.map((section) => {
-        let idOrdering = 1
-        section.task_groups.forEach((group) => {
-            group.tasks.forEach((task) => task.id_ordering = idOrdering++)
-        })
-        return section
-    })
-}
-
 export const getLinkedAccountsURL = (account_id: string): string => LINKED_ACCOUNTS_URL + account_id + '/'
 
 export const fetchTasks = async (): Promise<void> => {
@@ -146,6 +136,16 @@ export const useDeviceSize = (): DeviceSize => {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export function emptyFunction(): void { }
+
+export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
+    return task_sections.map((section) => {
+        let idOrdering = 1
+        section.task_groups.forEach((group) => {
+            group.tasks.forEach((task) => task.id_ordering = idOrdering++)
+        })
+        return section
+    })
+}
 
 export function taskDropReorder(staleTaskSections: TTaskSection[], dragIndices: Indices, dropIndices: Indices, isLowerHalf: boolean): TTaskSection[] {
     const taskSections = _.cloneDeep(staleTaskSections)
