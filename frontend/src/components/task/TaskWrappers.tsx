@@ -100,7 +100,7 @@ interface TaskGroupProps {
   }
 }
 
-const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations }: TaskGroupProps) => {
+const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indices }: TaskGroupProps) => {
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
   return (
     <TaskGroup>
@@ -108,7 +108,7 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
         <AlignRight>{parseDateTime(taskGroup.datetime_start).toLocaleString(DateTime.TIME_SIMPLE)}</AlignRight>
       </TimeAnnotationLeft>
       <Tasks>
-        <TaskDropContainer task={taskGroup.tasks[0]} dragDisabled={true} />
+        <TaskDropContainer task={taskGroup.tasks[0]} dragDisabled={true} indices={{ ...indices, task: 0 }} />
       </Tasks>
       <TimeAnnotationRight>
         <TimeSpacer>
@@ -121,13 +121,20 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
 
 
 
-const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations }: TaskGroupProps) => {
+const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indices }: TaskGroupProps) => {
   const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
   return (
     <TaskGroup>
       <TimeAnnotationLeft />
       <Tasks>
-        {taskGroup.tasks.map((task: TTask) => <TaskDropContainer key={task.id} task={task} dragDisabled={false} />)}
+        {taskGroup.tasks.map((task: TTask, index) => (
+          <TaskDropContainer
+            key={task.id}
+            task={task}
+            dragDisabled={false}
+            indices={{ ...indices, task: index }}
+          />
+        ))}
       </Tasks>
       <TimeAnnotationRight>
         {showTimeAnnotations &&
