@@ -55,7 +55,8 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
             if (indicesRef.current == null) return
 
             const taskSections = taskSectionsRef.current
-            const dropIndices = indicesRef.current
+            const { section: dropSection, group: dropGroup } = indicesRef.current
+            const { section: dragSection, group: dragGroup, task: dragTask } = item.indicesRef.current
 
             const boundingRect = dropRef.current.getBoundingClientRect()
             let isLowerHalf = false
@@ -65,29 +66,25 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
                 isLowerHalf = !!(clientOffsetY && clientOffsetY > dropMiddleY)
             }
 
-            const previousOrderingId = taskSections[item.indicesRef.current.section]
-                .task_groups[item.indicesRef.current.group]
-                .tasks[item.indicesRef.current.task]
+            const previousOrderingId = taskSections[dragSection]
+                .task_groups[dragGroup]
+                .tasks[dragTask]
                 .id_ordering
 
-
-            const updatedTaskSections = taskDropReorder(taskSections, item.indicesRef.current, dropIndices, isLowerHalf)
+            const updatedTaskSections = taskDropReorder(taskSections, item.indicesRef.current, indicesRef.current, isLowerHalf)
             store.dispatch(setTasks(updatedTaskSections))
 
-            let updatedOrderingId = updatedTaskSections[indicesRef.current.section]
-                .task_groups[indicesRef.current.group]
+            let updatedOrderingId = updatedTaskSections[dropSection]
+                .task_groups[dropGroup]
                 .tasks
                 .find(task => task.id === item.id)
                 ?.id_ordering
 
             if (updatedOrderingId == null) return
-            if (item.indicesRef.current.section === dropIndices.section &&
-                item.indicesRef.current.group === dropIndices.group &&
-                updatedOrderingId < previousOrderingId) {
+            if (dragSection === dropSection && dragGroup === dropGroup && updatedOrderingId < previousOrderingId) {
                 updatedOrderingId -= 1
             }
-            if (item.indicesRef.current.section !== dropIndices.section ||
-                item.indicesRef.current.group !== dropIndices.group) {
+            if (dragSection !== dropSection || dragGroup !== dropGroup) {
                 updatedOrderingId -= 1
             }
 
