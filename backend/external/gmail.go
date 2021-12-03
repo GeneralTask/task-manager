@@ -269,7 +269,7 @@ func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string,
 		emailID,
 		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{labelToRemove}},
 	).Do()
-	log.Println("message:", message)
+	log.Println("resulting message:", message)
 
 	return err
 }

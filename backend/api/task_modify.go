@@ -174,7 +174,14 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	}
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	res, err := taskCollection.UpdateOne(dbCtx, bson.M{"_id": taskID}, bson.M{"$set": bson.M{"is_completed": true}})
+	res, err := taskCollection.UpdateOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": taskID},
+			{"user_id": userID},
+		}},
+		bson.M{"$set": bson.M{"is_completed": true}},
+	)
 	if err != nil {
 		log.Printf("failed to update internal DB with completion status: %v", err)
 		Handle500(c)
