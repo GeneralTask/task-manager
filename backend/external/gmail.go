@@ -250,6 +250,7 @@ func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string,
 
 	doneSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailDonePreference)
 	if err != nil {
+		log.Printf("failed to load user setting: %s", err)
 		return err
 	}
 	var labelToRemove string
@@ -263,11 +264,12 @@ func (Gmail GmailSource) MarkAsDone(userID primitive.ObjectID, accountID string,
 		return err
 	}
 
-	_, err = gmailService.Users.Messages.Modify(
+	message, err := gmailService.Users.Messages.Modify(
 		"me",
 		emailID,
 		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{labelToRemove}},
 	).Do()
+	log.Println("resulting message:", message)
 
 	return err
 }
