@@ -109,7 +109,6 @@ function EmailQuote({ body }: EmailQuoteProps): JSX.Element {
             <br />
             <EmailBlock>
                 <div
-                    className="quotedResponse"
                     dangerouslySetInnerHTML={{ __html: sanitizeHtml(body, whitelistedHTMLAttributes) }}
                 />
             </EmailBlock>
