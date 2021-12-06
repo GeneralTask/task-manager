@@ -7,7 +7,10 @@ import GTButton from '../common/GTButton'
 import { TTaskSource } from '../../helpers/types'
 import { toast } from 'react-toastify'
 import { BodyIframe, BodyDiv, Deeplink, ReplyDiv, ExpandedBody, ReplyInputStyle } from './TaskBody-style'
-
+import sanitizeHtml from 'sanitize-html'
+import ReactDOMServer from 'react-dom/server'
+import { BORDER_PRIMARY } from '../../helpers/styles'
+import styled from 'styled-components'
 interface Props {
     body: string | null,
     task_id: string,
@@ -26,6 +29,7 @@ interface BodyHTMLProps {
 interface ReplyProps {
     task_id: string,
     sender: string | null,
+    body: string,
 }
 
 
@@ -40,7 +44,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, is
                     {body && (
                         <BodyDiv>
                             <BodyHTML body={body} task_id={task_id} isExpanded={isExpanded} />
-                            {source.is_replyable && <Reply task_id={task_id} sender={sender} />}
+                            {source.is_replyable && <Reply task_id={task_id} sender={sender} body={body} />}
                         </BodyDiv>
                     )}
                     {deeplink && (
@@ -85,8 +89,36 @@ const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id, isExpanded }: BodyHT
         srcDoc={body}
     />
 }
-const Reply: React.FC<ReplyProps> = ({ task_id, sender }: ReplyProps) => {
-    const [text, setText] = useState('')
+
+const EmailBlock = styled.blockquote`
+    margin: 0px 0px 0px 0.8ex;
+    border-left: 1px solid ${BORDER_PRIMARY};
+    padding-left: 1ex;
+`
+interface EmailQuoteProps {
+    body: string
+}
+
+function EmailQuote({ body }: EmailQuoteProps): JSX.Element {
+    const whitelistedHTMLAttributes: sanitizeHtml.IOptions = {
+        allowedAttributes: false,
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img'])
+    }
+    return (
+        <div>
+            <br />
+            <EmailBlock>
+                <div
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(body, whitelistedHTMLAttributes) }}
+                />
+            </EmailBlock>
+        </div >
+    )
+}
+
+
+const Reply: React.FC<ReplyProps> = ({ task_id, sender, body }: ReplyProps) => {
+    const [text, setText] = useState(ReactDOMServer.renderToStaticMarkup(<EmailQuote body={body} />))
 
     return <ReplyDiv>
         <ContentEditable
@@ -116,7 +148,7 @@ const Reply: React.FC<ReplyProps> = ({ task_id, sender }: ReplyProps) => {
             }}
         >
             Reply</GTButton>
-    </ReplyDiv>
+    </ReplyDiv >
 }
 
 export default TaskBody
