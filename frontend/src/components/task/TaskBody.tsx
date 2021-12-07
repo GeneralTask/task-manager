@@ -10,7 +10,6 @@ import { BodyIframe, BodyDiv, Deeplink, ReplyDiv, ExpandedBody, ReplyInputStyle 
 import sanitizeHtml from 'sanitize-html'
 import ReactDOMServer from 'react-dom/server'
 import { BORDER_PRIMARY, TEXT_GRAY } from '../../helpers/styles'
-import styled from 'styled-components'
 
 interface Props {
     body: string | null,
