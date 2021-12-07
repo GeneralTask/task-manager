@@ -122,8 +122,9 @@ function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProp
 
     return (
         <div>
-            <div style={{ color: 'black' }} />
-            <br />
+            <div style={{ color: 'black' }}>
+                <br />
+            </div>
             <div style={{
                 color: `${TEXT_GRAY}`,
                 fontSize: 'small',
@@ -140,7 +141,7 @@ function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProp
                     />
                 </div>
             </div >
-        </div>
+        </div >
     )
 }
 
