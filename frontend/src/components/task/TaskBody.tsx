@@ -102,6 +102,19 @@ interface EmailQuoteProps {
 }
 
 function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProps): JSX.Element {
+    const newMessageStyles = {
+        color: 'black'
+    }
+    const emailBlockStyles = {
+        color: `${TEXT_GRAY}`,
+        fontSize: 'small',
+    }
+    const emailQuoteStyles = {
+        margin: '0px 0px 0px 0.8ex',
+        borderLeft: `1px solid ${BORDER_PRIMARY}`,
+        paddingLeft: '1ex'
+    }
+
     const whitelistedHTMLAttributes: sanitizeHtml.IOptions = {
         allowedAttributes: false,
         allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img'])
@@ -122,20 +135,14 @@ function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProp
 
     return (
         <div>
-            <div style={{ color: 'black' }}>
+            <div style={newMessageStyles} >
+                <br />
+                <br />
                 <br />
             </div>
-            <div style={{
-                color: `${TEXT_GRAY}`,
-                fontSize: 'small',
-            }}>
+            <div style={emailBlockStyles}>
                 {sender && emailSender && emailSentTime && <div>{emailSenderQuote}</div>}
-                <br />
-                <div style={{
-                    margin: '0px 0px 0px 0.8ex',
-                    borderLeft: `1px solid ${BORDER_PRIMARY}`,
-                    paddingLeft: '1ex'
-                }}>
+                <div style={emailQuoteStyles}>
                     <div
                         dangerouslySetInnerHTML={{ __html: sanitizeHtml(body, whitelistedHTMLAttributes) }}
                     />
