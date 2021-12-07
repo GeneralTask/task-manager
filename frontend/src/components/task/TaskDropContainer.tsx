@@ -1,14 +1,13 @@
+import { Indices, ItemTypes, TTask, TTaskGroupType, TTaskSection } from '../../helpers/types'
 import React, { RefObject, useRef, useState } from 'react'
-import { useDrop } from 'react-dnd'
-import { useSelector } from 'react-redux'
-import styled from 'styled-components'
+import { makeAuthorizedRequest, taskDropReorder, useFetchTasks } from '../../helpers/utils'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+
 import { TASKS_MODIFY_URL } from '../../constants'
-import { ItemTypes, TTask, TTaskSection, Indices, TTaskGroupType } from '../../helpers/types'
-import { taskDropReorder, makeAuthorizedRequest, fetchTasks } from '../../helpers/utils'
-import { setTasksDragState, setTasks } from '../../redux/actions'
-import { DragState } from '../../redux/enums'
-import store, { RootState } from '../../redux/store'
 import Task from './Task'
+import { setTasks } from '../../redux/tasksPageSlice'
+import styled from 'styled-components'
+import { useDrop } from 'react-dnd'
 
 const DropOverlay = styled.div`
   width: 100%;
@@ -30,9 +29,11 @@ const DropDirection = {
 }
 
 const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisabled, indices }: TaskDropContainerProps) => {
-    const { taskSections } = useSelector((state: RootState) => ({
+    const fetchTasks = useFetchTasks()
+    const { taskSections } = useAppSelector(state => ({
         taskSections: state.tasks_page.task_sections,
     }))
+    const dispatch = useAppDispatch()
     const indicesRef = React.useRef<Indices>()
     const dropRef = React.useRef<HTMLDivElement>(null)
     const taskSectionsRef = useRef<TTaskSection[]>()
@@ -46,8 +47,6 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
             return { isOver: monitor.isOver() }
         },
         drop: (item: { id: string, indicesRef: RefObject<Indices> }, monitor) => {
-            setTasksDragState(DragState.noDrag)
-
             if (item.id === task.id) return
             if (item.indicesRef.current == null) return
             if (taskSectionsRef.current == null) return
@@ -72,7 +71,7 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
                 .id_ordering
 
             const updatedTaskSections = taskDropReorder(taskSections, item.indicesRef.current, indicesRef.current, isLowerHalf)
-            store.dispatch(setTasks(updatedTaskSections))
+            dispatch(setTasks(updatedTaskSections))
 
             let updatedOrderingId = null
             if (taskSections[dropSection].task_groups[dropGroup].type === TTaskGroupType.SCHEDULED_TASK) {

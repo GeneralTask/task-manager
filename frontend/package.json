@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@cloudflare/wrangler": "^1.16.1",
+    "@reduxjs/toolkit": "^1.6.2",
     "@testing-library/jest-dom": "^5.12.0",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
@@ -31,6 +32,7 @@
     "react-scripts": "4.0.0",
     "react-toastify": "^8.1.0",
     "redux": "^4.1.0",
+    "sanitize-html": "^2.6.0",
     "styled-components": "^5.3.3",
     "typescript": "^4.0.7",
     "web-vitals": "^0.2.4"
@@ -63,6 +65,7 @@
     "@types/js-cookie": "^2.2.6",
     "@types/lodash": "^4.14.170",
     "@types/react-router-dom": "^5.1.7",
+    "@types/sanitize-html": "^2.6.0",
     "@types/styled-components": "^5.1.15",
     "eslint": "^7.27.0",
     "eslint-plugin-unused-imports": "^1.1.1",

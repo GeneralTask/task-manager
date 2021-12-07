@@ -1,16 +1,16 @@
+import { BORDER_PRIMARY, TEXT_GRAY } from '../../helpers/styles'
+import { BodyDiv, BodyIframe, Deeplink, ExpandedBody, ReplyDiv, ReplyInputStyle } from './TaskBody-style'
 import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import React, { useEffect, useRef, useState } from 'react'
-import { fetchTasks, makeAuthorizedRequest, useDeviceSize } from '../../helpers/utils'
+import { makeAuthorizedRequest, useDeviceSize, useFetchTasks } from '../../helpers/utils'
 
 import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
-import { TTaskSource } from '../../helpers/types'
-import { toast } from 'react-toastify'
-import { BodyIframe, BodyDiv, Deeplink, ReplyDiv, ExpandedBody, ReplyInputStyle } from './TaskBody-style'
-import sanitizeHtml from 'sanitize-html'
 import ReactDOMServer from 'react-dom/server'
-import { BORDER_PRIMARY, TEXT_GRAY } from '../../helpers/styles'
+import { TTaskSource } from '../../helpers/types'
+import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
+import { toast } from 'react-toastify'
 
 interface Props {
     body: string | null,
@@ -148,6 +148,7 @@ function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProp
 
 
 const Reply: React.FC<ReplyProps> = ({ task_id, sender, body, emailSender, emailSentTime }: ReplyProps) => {
+    const fetchTasks = useFetchTasks()
     const [text, setText] = useState(ReactDOMServer.renderToStaticMarkup(<EmailQuote sender={sender} body={body} emailSender={emailSender} emailSentTime={emailSentTime} />))
 
     return <ReplyDiv>

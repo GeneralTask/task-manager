@@ -3,11 +3,11 @@ import { DeviceSize, useDeviceSize } from '../../helpers/utils'
 import React, { useCallback, useEffect, useState } from 'react'
 import { TEXT_GRAY, device } from '../../helpers/styles'
 import { TTask, TTaskGroup } from '../../helpers/types'
+import styled, { css } from 'styled-components'
 
 import { NOW } from '../../constants'
-import humanizeDuration from 'humanize-duration'
-import styled, { css } from 'styled-components'
 import TaskDropContainer from './TaskDropContainer'
+import humanizeDuration from 'humanize-duration'
 
 const short_en_expanded = {
   y: (c: number | undefined) => 'year' + (c === 1 ? '' : 's'),

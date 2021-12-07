@@ -2,16 +2,17 @@ import './Task.css'
 
 import * as styles from './TaskHeader-style'
 
+import { Action, Dispatch } from '@reduxjs/toolkit'
 import { NOW, TASKS_MODIFY_URL } from '../../constants'
 import React, { useCallback } from 'react'
-import { expandBody, removeTaskById, retractBody } from '../../redux/actions'
-import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
+import { collapseBody, expandBody, removeTaskByID } from '../../redux/tasksPageSlice'
+import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
 
 import GTButton from '../common/GTButton'
 import JoinConferenceButton from './JoinConferenceButton'
 import { TTask } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
-import store from '../../redux/store'
+import { useAppDispatch } from '../../redux/hooks'
 import { useCountdown } from './TaskWrappers'
 
 interface Props {
@@ -22,6 +23,9 @@ interface Props {
 }
 
 const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) => {
+  const dispatch = useAppDispatch()
+  const fetchTasks = useFetchTasks()
+
   const countdown = useCountdown(props.datetimeStart)
 
   const hoverEffectEnabled = !!(props.task.body || props.task.deeplink)
@@ -29,10 +33,10 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
   const onClick = useCallback(() => {
     if (hoverEffectEnabled) {
       if (props.isExpanded) {
-        store.dispatch(retractBody())
+        dispatch(collapseBody())
       }
       else {
-        store.dispatch(expandBody(props.task.id))
+        dispatch(expandBody(props.task.id))
       }
     }
   }, [hoverEffectEnabled, props.isExpanded])
@@ -73,7 +77,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
             if (e != null) {
               e.stopPropagation()
             }
-            done(props.task.id)
+            done(props.task.id, dispatch, fetchTasks)
           }}
           >
             Done</GTButton></styles.HoverButton>}
@@ -82,9 +86,9 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
   )
 })
 
-const done = async (task_id: string) => {
+const done = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {
   try {
-    store.dispatch(removeTaskById(task_id))
+    dispatch(removeTaskByID(task_id))
     const response = await makeAuthorizedRequest({
       url: TASKS_MODIFY_URL + task_id + '/',
       method: 'PATCH',
