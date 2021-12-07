@@ -9,7 +9,7 @@ import { toast } from 'react-toastify'
 import { BodyIframe, BodyDiv, Deeplink, ReplyDiv, ExpandedBody, ReplyInputStyle } from './TaskBody-style'
 import sanitizeHtml from 'sanitize-html'
 import ReactDOMServer from 'react-dom/server'
-import { BORDER_PRIMARY, TEXT_GRAY } from '../../helpers/styles'
+import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 
 interface Props {
     body: string | null,
@@ -103,7 +103,7 @@ interface EmailQuoteProps {
 
 function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProps): JSX.Element {
     const newMessageStyles = {
-        color: 'black'
+        color: TEXT_BLACK
     }
     const emailBlockStyles = {
         color: `${TEXT_GRAY}`,
