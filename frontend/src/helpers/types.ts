@@ -30,6 +30,8 @@ export interface TTask {
     source: TTaskSource
     body: string | null
     conference_call: TConferenceCall | null,
+    emailSender: string | null,
+    emailSentTime: string | null,
 }
 
 export interface TTaskGroup {

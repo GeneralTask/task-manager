@@ -21,6 +21,8 @@ interface Props {
   isOver: boolean,
   dropDirection: boolean,
   indices: Indices,
+  emailSender?: string | null,
+  emailSentTime?: string | null,
 }
 
 export default function Task(props: Props): JSX.Element {
@@ -58,7 +60,10 @@ export default function Task(props: Props): JSX.Element {
           deeplink={task.deeplink}
           source={task.source}
           isExpanded={isBodyExpanded}
-          sender={task.sender} />
+          sender={task.sender}
+          emailSender={task.emailSender}
+          emailSentTime={task.emailSentTime}
+        />
       </Container>
       <DropIndicatorBelow isVisible={isOver && !dropDirection} />
     </DraggableContainer>

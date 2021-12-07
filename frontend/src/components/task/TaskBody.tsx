@@ -11,6 +11,7 @@ import sanitizeHtml from 'sanitize-html'
 import ReactDOMServer from 'react-dom/server'
 import { BORDER_PRIMARY, TEXT_GRAY } from '../../helpers/styles'
 import styled from 'styled-components'
+
 interface Props {
     body: string | null,
     task_id: string,
@@ -18,6 +19,8 @@ interface Props {
     source: TTaskSource,
     isExpanded: boolean,
     sender: string | null,
+    emailSender: string | null,
+    emailSentTime: string | null,
 }
 
 interface BodyHTMLProps {
@@ -30,13 +33,15 @@ interface ReplyProps {
     task_id: string,
     sender: string | null,
     body: string,
+    emailSender: string | null,
+    emailSentTime: string | null,
 }
 
 
 // no body: no body
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
-const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, isExpanded }: Props) => {
+const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, isExpanded, emailSender, emailSentTime }: Props) => {
     return (
         <div>
             {Boolean(body || deeplink) && (
@@ -44,7 +49,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, is
                     {body && (
                         <BodyDiv>
                             <BodyHTML body={body} task_id={task_id} isExpanded={isExpanded} />
-                            {source.is_replyable && <Reply task_id={task_id} sender={sender} body={body} />}
+                            {source.is_replyable && <Reply task_id={task_id} sender={sender} body={body} emailSender={emailSender} emailSentTime={emailSentTime} />}
                         </BodyDiv>
                     )}
                     {deeplink && (
@@ -102,19 +107,35 @@ const EmailQuoteStyles = styled.div`
 `
 
 interface EmailQuoteProps {
-    sender: string | null
-    body: string
+    sender: string | null,
+    body: string,
+    emailSender: string | null,
+    emailSentTime: string | null,
 }
 
-function EmailQuote({ sender, body }: EmailQuoteProps): JSX.Element {
+function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProps): JSX.Element {
     const whitelistedHTMLAttributes: sanitizeHtml.IOptions = {
         allowedAttributes: false,
         allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img'])
     }
+    const emailDate = new Date(emailSentTime || '')
+    const month = emailDate.toLocaleString('default', { month: 'short' })
+    const hours = emailDate.getHours()
+    const minutes = emailDate.getMinutes()
+    const date = emailDate.getDate()
+    const year = emailDate.getFullYear()
+
+    let timeString = ''
+    if (hours > 12) timeString = `${hours - 12}:${minutes} PM`
+    else timeString = `${hours}:${minutes} AM`
+
+    const emailSenderQuote = `On ${month} ${date}, ${year} at ${timeString},
+     ${sender} <${emailSender}> wrote:`
+
     return (
         <EmailQuoteStyles>
             <br />
-            {sender && <div>{`${sender} wrote:`}</div>}
+            {sender && emailSender && emailSentTime && <div>{emailSenderQuote}</div>}
             <br />
             <EmailBlock>
                 <div
@@ -126,8 +147,8 @@ function EmailQuote({ sender, body }: EmailQuoteProps): JSX.Element {
 }
 
 
-const Reply: React.FC<ReplyProps> = ({ task_id, sender, body }: ReplyProps) => {
-    const [text, setText] = useState(ReactDOMServer.renderToStaticMarkup(<EmailQuote sender={sender} body={body} />))
+const Reply: React.FC<ReplyProps> = ({ task_id, sender, body, emailSender, emailSentTime }: ReplyProps) => {
+    const [text, setText] = useState(ReactDOMServer.renderToStaticMarkup(<EmailQuote sender={sender} body={body} emailSender={emailSender} emailSentTime={emailSentTime} />))
 
     return <ReplyDiv>
         <ContentEditable
