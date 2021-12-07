@@ -95,17 +95,6 @@ const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id, isExpanded }: BodyHT
     />
 }
 
-const EmailBlock = styled.blockquote`
-    margin: 0px 0px 0px 0.8ex;
-    border-left: 1px solid ${BORDER_PRIMARY};
-    padding-left: 1ex;
-
-`
-const EmailQuoteStyles = styled.div`
-    color: ${TEXT_GRAY};
-    font-size: small;
-`
-
 interface EmailQuoteProps {
     sender: string | null,
     body: string,
@@ -133,16 +122,26 @@ function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProp
      ${sender} <${emailSender}> wrote:`
 
     return (
-        <EmailQuoteStyles>
+        <div>
+            <div style={{ color: 'black' }} />
             <br />
-            {sender && emailSender && emailSentTime && <div>{emailSenderQuote}</div>}
-            <br />
-            <EmailBlock>
-                <div
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(body, whitelistedHTMLAttributes) }}
-                />
-            </EmailBlock>
-        </EmailQuoteStyles >
+            <div style={{
+                color: `${TEXT_GRAY}`,
+                fontSize: 'small',
+            }}>
+                {sender && emailSender && emailSentTime && <div>{emailSenderQuote}</div>}
+                <br />
+                <div style={{
+                    margin: '0px 0px 0px 0.8ex',
+                    borderLeft: `1px solid ${BORDER_PRIMARY}`,
+                    paddingLeft: '1ex'
+                }}>
+                    <div
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(body, whitelistedHTMLAttributes) }}
+                    />
+                </div>
+            </div >
+        </div>
     )
 }
 
