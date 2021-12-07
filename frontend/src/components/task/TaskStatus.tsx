@@ -3,9 +3,8 @@ import { TASK_STATUS_FETCH_ERROR, TASK_STATUS_NO_TASKS } from '../../constants'
 import DotSpinner from '../common/DotSpinner'
 import { FetchStatusEnum } from '../../redux/enums'
 import React from 'react'
-import { RootState } from '../../redux/store'
 import styled from 'styled-components'
-import { useSelector } from 'react-redux'
+import { useAppSelector } from '../../redux/hooks'
 
 const Status = styled.div`
     height: 40px;
@@ -15,7 +14,7 @@ const Status = styled.div`
 export default function TaskStatus(): JSX.Element {
     let content: JSX.Element | null = null
 
-    const { isTaskSectionsEmpty, fetchStatus } = useSelector((state: RootState) => ({
+    const { isTaskSectionsEmpty, fetchStatus } = useAppSelector(state => ({
         isTaskSectionsEmpty: state.tasks_page.task_sections.length === 0,
         fetchStatus: state.tasks_page.tasks_fetch_status.status,
     }))

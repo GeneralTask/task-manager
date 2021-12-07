@@ -2,19 +2,20 @@ import * as styles from './TaskCreate-style'
 
 import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
 import React, { useState } from 'react'
-import { fetchTasks, makeAuthorizedRequest } from '../../helpers/utils'
-import store, { RootState } from '../../redux/store'
+import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 import GTButton from '../common/GTButton'
 import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
 import parse from 'parse-duration'
-import { setShowCreateTaskForm } from '../../redux/actions'
 import { parseDate } from '../../helpers/TimeParser'
-import { useSelector } from 'react-redux'
+import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
 
 export default function TaskCreate(): JSX.Element {
-    const showCreateTaskForm = useSelector((state: RootState) => state.tasks_page.show_create_task_form)
+    const showCreateTaskForm = useAppSelector(state => state.tasks_page.show_create_task_form)
+    const dispatch = useAppDispatch()
+
     const [title, setTitle] = useState('')
     const [timeEstimate, setTimeEstimate] = useState('')
     const [dueDate, setDueDate] = useState('')
@@ -22,6 +23,8 @@ export default function TaskCreate(): JSX.Element {
     const [titleError, setTitleError] = useState('')
     const [timeEstimateError, setTimeEstimateError] = useState('')
     const [dueDateError, setDueDateError] = useState('')
+
+    const fetchTasks = useFetchTasks()
 
     return <>
         {showCreateTaskForm && <>
@@ -115,7 +118,7 @@ export default function TaskCreate(): JSX.Element {
                     </styles.Form>
                     <styles.Side>
                         <styles.CloseButton src="images/close.svg" onClick={() => {
-                            store.dispatch(setShowCreateTaskForm(false))
+                            dispatch(setShowCreateTaskForm(false))
                         }} />
                     </styles.Side>
                 </styles.InnerContainer >

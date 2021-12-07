@@ -1,19 +1,16 @@
 import React, { useEffect } from 'react'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import store, { RootState } from '../../redux/store'
+import { FetchStatusEnum } from '../../redux/enums'
+import GTButton from '../common/GTButton'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
-import { fetchLinkedAccounts } from '../settings/Accounts'
-import { fetchSettings } from '../settings/Preferences'
-import { fetchTasks } from '../../helpers/utils'
-import styled from 'styled-components'
-import { useSelector } from 'react-redux'
-import GTButton from '../common/GTButton'
-import { setShowCreateTaskForm } from '../../redux/actions'
 import { device } from '../../helpers/styles'
-import { FetchStatusEnum } from '../../redux/enums'
+import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
+import styled from 'styled-components'
+import { useFetchLinkedAccounts } from '../settings/Accounts'
+import { useFetchSettings } from '../settings/Preferences'
+import { useFetchTasks } from '../../helpers/utils'
 
 const Header = styled.div`
     display: flex;
@@ -35,7 +32,10 @@ const BtnContainer = styled.div`
 `
 
 export default function TasksPage(): JSX.Element {
-    const task_sections = useSelector((state: RootState) => state.tasks_page.task_sections)
+    const task_sections = useAppSelector((state) => state.tasks_page.task_sections)
+    const fetchTasks = useFetchTasks()
+    const fetchSettings = useFetchSettings()
+    const fetchLinkedAccounts = useFetchLinkedAccounts()
     useEffect(() => {
         // fetch settings and linked accounts once on tasks page load
         fetchSettings()
@@ -58,32 +58,32 @@ export default function TasksPage(): JSX.Element {
     )
 
     return (
-        <DndProvider backend={HTML5Backend}>
+        <>
             <Header>
                 <BtnContainer />
                 Tasks
                 <CreateNewTaskButton />
-            </Header>
-            <TaskStatus />
+            </Header><TaskStatus />
             {TaskSectionElements}
-        </DndProvider>
+        </>
     )
 }
 
 function CreateNewTaskButton(): JSX.Element {
-    const { showButton } = useSelector((state: RootState) => ({
+    const { showButton } = useAppSelector(state => ({
         showButton:
             state.tasks_page.task_sections.length !== 0 ||
             state.tasks_page.tasks_fetch_status.status !== FetchStatusEnum.LOADING
         ,
     }))
+    const dispatch = useAppDispatch()
     return (
         <BtnContainer>
             {showButton &&
                 <GTButton
                     theme='light'
                     onClick={() => {
-                        store.dispatch(setShowCreateTaskForm(true))
+                        dispatch(setShowCreateTaskForm(true))
                     }}>
                     New
                 </GTButton>}

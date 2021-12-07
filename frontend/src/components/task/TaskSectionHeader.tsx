@@ -1,15 +1,14 @@
-import { DeviceSize, fetchTasks, makeAuthorizedRequest, sectionDropReorder, useDeviceSize } from '../../helpers/utils'
+import { CurrentTimeText, HeaderText, InsideHeader, Spanbar, TaskSectionHeaderContainer, TimeAnnotation, TimeAnnotationRight } from './TaskSectionHeader-style'
+import { DeviceSize, makeAuthorizedRequest, sectionDropReorder, useDeviceSize, useFetchTasks } from '../../helpers/utils'
 import { Indices, ItemTypes, TTaskSection } from '../../helpers/types'
 import React, { RefObject, useEffect, useRef, useState } from 'react'
-import store, { RootState } from '../../redux/store'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
-import { CurrentTimeText, HeaderText, InsideHeader, Spanbar, TaskSectionHeaderContainer, TimeAnnotation, TimeAnnotationRight } from './TaskSectionHeader-style'
 import { DateTime } from 'luxon'
 import RefreshButton from './RefreshButton'
 import { TASKS_MODIFY_URL } from '../../constants'
-import { setTasks } from '../../redux/actions'
+import { setTasks } from '../../redux/tasksPageSlice'
 import { useDrop } from 'react-dnd'
-import { useSelector } from 'react-redux'
 
 interface Props {
   isToday: boolean,
@@ -18,7 +17,9 @@ interface Props {
 }
 
 export default function TaskSectionHeader(props: Props): JSX.Element {
-  const taskSections = useSelector((state: RootState) => state.tasks_page.task_sections)
+  const taskSections = useAppSelector((state) => state.tasks_page.task_sections)
+  const dispatch = useAppDispatch()
+  const fetchTasks = useFetchTasks()
   const taskSectionsRef = useRef<TTaskSection[]>(taskSections)
   taskSectionsRef.current = taskSections
 
@@ -30,7 +31,7 @@ export default function TaskSectionHeader(props: Props): JSX.Element {
     drop: ({ id, indicesRef }: { id: string, indicesRef: RefObject<Indices> }) => {
       if (indicesRef.current == null) return
       const updatedTaskSections = sectionDropReorder(taskSectionsRef.current, props.task_section_index, indicesRef.current)
-      store.dispatch(setTasks(updatedTaskSections))
+      dispatch(setTasks(updatedTaskSections))
 
       const patchBody = JSON.stringify({
         id_task_section: taskSectionsRef.current[props.task_section_index].id,
