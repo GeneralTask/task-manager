@@ -1,14 +1,37 @@
 import styled from 'styled-components'
-import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY, device } from '../../helpers/styles'
+import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
+
+export const DoneButton = styled.div`
+  background: #8A67DE;
+  border: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  margin-right: 0px;
+  margin: 0 12px 0 8px;
+`
+export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
+  font-size: 15px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  cursor: ${props => props.hoverEffect ? 'pointer' : 'inherit'};
+  &:hover {
+    background-color: ${BACKGROUND_HOVER};
+  }
+  min-height: 50px;
+`
 
 export const HeaderLeft = styled.div`
   text-align: left; 
-  flex: 1;
   display: flex;
   align-items: center;
   flex-direction: row;
-  min-width: 0;
   flex-basis: auto;
+  width: 60%;
 `
 export const HeaderRight = styled.div`
   display: flex;
@@ -17,72 +40,69 @@ export const HeaderRight = styled.div`
   flex-direction: row;
   justify-content: flex-end;
   color:${TEXT_GRAY};
+  height: 100%;
 `
-export const DragSection = styled.div`
+
+export const DeadlineIndicator = styled.div`
+  color: ${TEXT_BLACK};
+  font-size: 13px;
+  margin-right: 5px;
+  background-color: ${BACKGROUND_HOVER};
+  padding: 4px;
+  border-radius: 8px;
+  display: flex;
+  height: 1.1em;
+`
+export const CalendarDate = styled.div`
+  white-space: nowrap;
+  width: fit-content; 
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-right: 5px;
+  font-size: 14px;
+`
+
+export const CalendarIconContainer = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`
+
+export const CalendarIcon = styled.img`
+  width: 1em;
+`
+export const DragHandler = styled.div`
   cursor: grab;
   display: flex;
   align-items: center;
   padding: 0 12px 0 8px;
+  cursor: move;
+  margin-right: 0px;
+  height: 40%;
+  display: inline;
 `
 export const Domino = styled.img`
-  height: 18px;
+  height: 100%;
 `
-export const Spacer = styled(DragSection)`
-  cursor: pointer;
-  visibility: hidden;
-  padding: 0;
-`
+
 export const Icon = styled.img`
-  max-width: 25px;
-  padding-right: 12px;
+  max-width: 19px;
+  margin-left: 15px;
 `
 export const Title = styled.div`
+  margin-left: 15px;
   color:${TEXT_BLACK};
-`
-export const TitleWrap = styled(Title)`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
 `
+
 export const Truncated = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`
-// wrapper for Done Button so that it can be hidden by Header
-export const HoverButton = styled.div`
-  margin-left: 10px;
-`
-export const Black = styled.span`
-  color: ${TEXT_BLACK};
-`
-export const Space = styled.span`
-  width: 0.5ch;
-`
-export const Header = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
-  font-size: 16px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 30px;
-  padding: 8px 8px 8px 0;
-  cursor: ${props => props.hoverEffect ? 'pointer' : 'inherit'};
-  &:hover{
-    background-color: ${props => props.hoverEffect ? BACKGROUND_HOVER : 'inherit'};
-  }
-  &:hover > div > ${HoverButton} {
-    display: inherit;
-  }
-  @media ${device.mobile} {
-    & > div > ${HoverButton} {
-      display: ${props => props.showButtons ? 'inherit' : 'none'};;
-    }
-  }
-  &:hover > div > ${Truncated} {
-    display: none;
-  }
-  & > div > ${Truncated} {
-    display: inherit;
-  }
 `

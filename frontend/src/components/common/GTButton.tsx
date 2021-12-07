@@ -11,7 +11,7 @@ const Button = styled.button<{
 }>`
   background-color: ${(props) => props.theme.backgroundColor};
   color: ${(props) => props.theme.color};
-  border-radius: 2px;
+  border-radius: 6px;
   border: 2px solid ${(props) => props.theme.borderColor};
   margin: ${(props) => props.margin};
   display: flex;
@@ -19,6 +19,7 @@ const Button = styled.button<{
   align-items: center;
   padding: 4px 6px 4px 6px;
   font-weight: 500;
+  font-size: 16px;
   cursor: pointer;
   width: ${(props) => props.width};
   height: ${(props) => props.height};

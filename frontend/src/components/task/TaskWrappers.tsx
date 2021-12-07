@@ -45,16 +45,6 @@ const Tasks = styled.div`
   display:flex;
   flex-direction: column;
 `
-const UnscheduledSpanbar = styled.div`
-  background-color: ${TEXT_GRAY};
-  width: 2px;
-  height: calc(100% - 10px);
-  position: absolute;
-`
-const TimeSpacer = styled.div`
-  margin-left: 10px;
-`
-
 const TimeAnnotation = css`
   display: flex;
   align-items: center;
@@ -73,35 +63,21 @@ const TimeAnnotationLeft = styled.div`
   ${TimeAnnotation};
   left: 0;
 `
-const TimeAnnotationRight = styled.div`
-  ${TimeAnnotation}
-  right: 0;
-`
 const AlignRight = styled.div`
   margin-left: auto;
   padding-right: 10px;
   text-align: right;
 `
-const UnscheduledTimeAnnotationContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  height: 100%;
-  margin-left: 10px;
-`
 
 interface TaskGroupProps {
   taskGroup: TTaskGroup,
-  showTimeAnnotations: boolean,
   indices: {
     group: number,
     section: number,
   }
 }
 
-const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indices }: TaskGroupProps) => {
-  const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
+const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, indices }: TaskGroupProps) => {
   return (
     <TaskGroup>
       <TimeAnnotationLeft>
@@ -110,22 +86,15 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotation
       <Tasks>
         <TaskDropContainer task={taskGroup.tasks[0]} dragDisabled={true} indices={{ ...indices, task: 0 }} />
       </Tasks>
-      <TimeAnnotationRight>
-        <TimeSpacer>
-          {showTimeAnnotations && time}
-        </TimeSpacer>
-      </TimeAnnotationRight>
     </TaskGroup >
   )
 }
 
 
 
-const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnnotations, indices }: TaskGroupProps) => {
-  const time = useTimeDuration(taskGroup.time_duration, taskGroup.datetime_start)
+const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, indices }: TaskGroupProps) => {
   return (
     <TaskGroup>
-      <TimeAnnotationLeft />
       <Tasks>
         {taskGroup.tasks.map((task: TTask, index) => (
           <TaskDropContainer
@@ -136,15 +105,6 @@ const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, showTimeAnn
           />
         ))}
       </Tasks>
-      <TimeAnnotationRight>
-        {showTimeAnnotations &&
-          <UnscheduledTimeAnnotationContainer>
-            <UnscheduledSpanbar />
-            <TimeSpacer />
-            {time}
-          </UnscheduledTimeAnnotationContainer>
-        }
-      </TimeAnnotationRight>
     </TaskGroup >
   )
 }

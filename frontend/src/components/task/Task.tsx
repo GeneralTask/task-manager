@@ -1,6 +1,6 @@
 import './Task.css'
 
-import { Container, DraggableContainer, DropIndicatorAbove, DropIndicatorBelow } from './Task-style'
+import { TaskContainer, DraggableContainer, DropIndicatorAbove, DropIndicatorBelow } from './Task-style'
 import { Indices, ItemTypes } from '../../helpers/types'
 
 import React from 'react'
@@ -41,7 +41,7 @@ export default function Task(props: Props): JSX.Element {
   return (
     <DraggableContainer ref={dragPreview}>
       <DropIndicatorAbove isVisible={isOver && dropDirection} />
-      <Container opacity={opacity} >
+      <TaskContainer opacity={opacity} isExpanded={isBodyExpanded}>
         <TaskHeader
           task={task}
           datetimeStart={datetimeStart}
@@ -59,8 +59,34 @@ export default function Task(props: Props): JSX.Element {
           emailSender={task.emailSender}
           emailSentTime={task.emailSentTime}
         />
-      </Container>
+      </TaskContainer>
       <DropIndicatorBelow isVisible={isOver && !dropDirection} />
     </DraggableContainer>
   )
+
+  // return (
+  //   <DraggableContainer ref={dragPreview}>
+  //     <DropIndicatorAbove isVisible={isOver && dropDirection} />
+  //     <Container opacity={opacity} >
+  //       <TaskHeader
+  //         task={task}
+  //         datetimeStart={datetimeStart}
+  //         dragDisabled={dragDisabled}
+  //         isExpanded={isBodyExpanded}
+  //         ref={drag}
+  //       />
+  //       <TaskBody
+  //         body={task.body}
+  //         task_id={task.id}
+  //         deeplink={task.deeplink}
+  //         source={task.source}
+  //         isExpanded={isBodyExpanded}
+  //         sender={task.sender}
+  //         emailSender={task.emailSender}
+  //         emailSentTime={task.emailSentTime}
+  //       />
+  //     </Container>
+  //     <DropIndicatorBelow isVisible={isOver && !dropDirection} />
+  //   </DraggableContainer>
+  // )
 }

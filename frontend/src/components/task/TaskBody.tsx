@@ -1,15 +1,14 @@
 import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
-import { BodyDiv, BodyIframe, Deeplink, ExpandedBody, ReplyDiv, ReplyInputStyle } from './TaskBody-style'
-import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
-import React, { useEffect, useRef, useState } from 'react'
-import { makeAuthorizedRequest, useDeviceSize, useFetchTasks } from '../../helpers/utils'
-
+import { TASKS_URL } from '../../constants'
+import React, { useState } from 'react'
+import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
 import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
 import ReactDOMServer from 'react-dom/server'
 import { TTaskSource } from '../../helpers/types'
-import sanitizeHtml from 'sanitize-html'
 import { toast } from 'react-toastify'
+import { TaskBodyDiv, Deeplink, ReplyDiv, ExpandedBody, EmailMessage, ReplyInputStyle, EmailViewDiv, EmailSubjectHeader } from './TaskBody-style'
+import sanitizeHtml from 'sanitize-html'
 
 interface Props {
     body: string | null,
@@ -20,12 +19,6 @@ interface Props {
     sender: string | null,
     emailSender: string | null,
     emailSentTime: string | null,
-}
-
-interface BodyHTMLProps {
-    body: string,
-    task_id: string,
-    isExpanded: boolean,
 }
 
 interface ReplyProps {
@@ -46,10 +39,10 @@ const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, is
             {Boolean(body || deeplink) && (
                 <ExpandedBody isExpanded={isExpanded}>
                     {body && (
-                        <BodyDiv>
-                            <BodyHTML body={body} task_id={task_id} isExpanded={isExpanded} />
+                        <TaskBodyDiv>
+                            <EmailBody body={body} task_id={task_id} />
                             {source.is_replyable && <Reply task_id={task_id} sender={sender} body={body} emailSender={emailSender} emailSentTime={emailSentTime} />}
-                        </BodyDiv>
+                        </TaskBodyDiv>
                     )}
                     {deeplink && (
                         <Deeplink>
@@ -64,34 +57,24 @@ const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, is
     )
 }
 
-function resizeIframe(iframe: HTMLIFrameElement | null, setIframeHeight: React.Dispatch<React.SetStateAction<number>>, isVisible: boolean) {
-    if (isVisible && iframe?.contentWindow?.document != null) {
-        let height = Math.min(
-            iframe.contentWindow.document.querySelector('html')?.offsetHeight
-            ?? iframe.contentWindow.document.body.offsetHeight,
-            MAX_TASK_BODY_HEIGHT
-        )
-        height += 5
-        iframe.style.visibility = 'visible'
-        setIframeHeight(height)
-        return height
-    }
-    return 0
+interface EmailViewProps {
+    body: string,
+    task_id: string,
 }
 
-const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id, isExpanded }: BodyHTMLProps) => {
-    const iframeRef = useRef<HTMLIFrameElement>(null)
-    const [iframeHeight, setIframeHeight] = useState(0)
-    useDeviceSize()
-    useEffect(() => {
-        resizeIframe(iframeRef?.current, setIframeHeight, isExpanded)
-    }, [isExpanded, body])
-    return <BodyIframe
-        ref={iframeRef}
-        iframeHeight={iframeHeight}
-        title={'Body for task: ' + task_id}
-        srcDoc={body}
-    />
+const EmailBody: React.FC<EmailViewProps> = (props: EmailViewProps) => {
+    const whitelistedHTMLAttributes: sanitizeHtml.IOptions = {
+        allowedAttributes: false,
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'a', 'center'])
+    }
+    return (
+        <EmailViewDiv>
+            <EmailMessage>
+                <EmailSubjectHeader>Subject: {'{email subject}'} </EmailSubjectHeader>
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(props.body, whitelistedHTMLAttributes) }} />
+            </EmailMessage>
+        </EmailViewDiv>
+    )
 }
 
 interface EmailQuoteProps {
@@ -117,7 +100,7 @@ function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProp
 
     const whitelistedHTMLAttributes: sanitizeHtml.IOptions = {
         allowedAttributes: false,
-        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img'])
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'center'])
     }
     const emailDate = new Date(emailSentTime || '')
     const month = emailDate.toLocaleString('default', { month: 'short' })
@@ -131,7 +114,7 @@ function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProp
     else timeString = `${hours}:${minutes} AM`
 
     const emailSenderQuote = `On ${month} ${date}, ${year} at ${timeString},
-     ${sender} <${emailSender}> wrote:`
+                ${sender} <${emailSender}> wrote:`
 
     return (
         <div>
@@ -167,7 +150,7 @@ const Reply: React.FC<ReplyProps> = ({ task_id, sender, body, emailSender, email
         <GTButton
             theme="black"
             height="42px"
-            width="10%"
+            width="5.5em"
             onClick={async () => {
                 const response = await makeAuthorizedRequest({
                     url: TASKS_URL + 'reply/' + task_id + '/',

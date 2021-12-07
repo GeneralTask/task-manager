@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { BORDER_PRIMARY } from '../../helpers/styles'
+import { TEXT_BLACK } from '../../helpers/styles'
 
 export const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
   border: none;
@@ -8,10 +8,26 @@ export const BodyIframe = styled.iframe<{ iframeHeight: number, }>`
   visibility: hidden;
   height: ${props => props.iframeHeight + 'px'};
 `
-export const BodyDiv = styled.div`
+export const TaskBodyDiv = styled.div`
   margin: auto;
   width: 95%;
-  padding: 6px;
+`
+// background color for EmailBodyDiv needs to be defined
+export const EmailViewDiv = styled.div`
+  width: auto;
+  overflow: scroll;
+  height: 500px;
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 50px;
+  background: WhiteSmoke; 
+`
+export const EmailSubjectHeader = styled.h4`
+  margin-bottom: 20px;
+`
+export const EmailMessage = styled.div`
+  margin: 10px;
 `
 export const Deeplink = styled.div`
   margin: auto;
@@ -29,9 +45,13 @@ export const ExpandedBody = styled.div<{ isExpanded: boolean }>`
   display: ${props => props.isExpanded ? 'block' : 'none'}
 `
 export const ReplyInputStyle = {
-  width: '86%',
-  border: `1px solid ${BORDER_PRIMARY}`,
-  borderRadius: '2px',
+  width: '100%',
+  border: `1px solid ${TEXT_BLACK}`,
+  borderRadius: '6px',
   padding: '10px',
   cursor: 'text',
+  height: '100px',
+  overflow: 'scroll',
+  outline: 'none',
+  marginRight: '10px',
 }
