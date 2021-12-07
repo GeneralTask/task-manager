@@ -57,7 +57,8 @@ export default function Task(props: Props): JSX.Element {
           task_id={task.id}
           deeplink={task.deeplink}
           source={task.source}
-          isExpanded={isBodyExpanded} sender={null} />
+          isExpanded={isBodyExpanded}
+          sender={task.sender} />
       </Container>
       <DropIndicatorBelow isVisible={isOver && !dropDirection} />
     </DraggableContainer>

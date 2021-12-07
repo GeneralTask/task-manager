@@ -9,7 +9,7 @@ import { toast } from 'react-toastify'
 import { BodyIframe, BodyDiv, Deeplink, ReplyDiv, ExpandedBody, ReplyInputStyle } from './TaskBody-style'
 import sanitizeHtml from 'sanitize-html'
 import ReactDOMServer from 'react-dom/server'
-import { BORDER_PRIMARY } from '../../helpers/styles'
+import { BORDER_PRIMARY, TEXT_GRAY } from '../../helpers/styles'
 import styled from 'styled-components'
 interface Props {
     body: string | null,
@@ -94,31 +94,40 @@ const EmailBlock = styled.blockquote`
     margin: 0px 0px 0px 0.8ex;
     border-left: 1px solid ${BORDER_PRIMARY};
     padding-left: 1ex;
+
 `
+const EmailQuoteStyles = styled.div`
+    color: ${TEXT_GRAY};
+    font-size: small;
+`
+
 interface EmailQuoteProps {
+    sender: string | null
     body: string
 }
 
-function EmailQuote({ body }: EmailQuoteProps): JSX.Element {
+function EmailQuote({ sender, body }: EmailQuoteProps): JSX.Element {
     const whitelistedHTMLAttributes: sanitizeHtml.IOptions = {
         allowedAttributes: false,
         allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img'])
     }
     return (
-        <div>
+        <EmailQuoteStyles>
+            <br />
+            {sender && <div>{`${sender} wrote:`}</div>}
             <br />
             <EmailBlock>
                 <div
                     dangerouslySetInnerHTML={{ __html: sanitizeHtml(body, whitelistedHTMLAttributes) }}
                 />
             </EmailBlock>
-        </div >
+        </EmailQuoteStyles >
     )
 }
 
 
 const Reply: React.FC<ReplyProps> = ({ task_id, sender, body }: ReplyProps) => {
-    const [text, setText] = useState(ReactDOMServer.renderToStaticMarkup(<EmailQuote body={body} />))
+    const [text, setText] = useState(ReactDOMServer.renderToStaticMarkup(<EmailQuote sender={sender} body={body} />))
 
     return <ReplyDiv>
         <ContentEditable
