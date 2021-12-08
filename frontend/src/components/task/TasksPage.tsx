@@ -63,7 +63,8 @@ export default function TasksPage(): JSX.Element {
                 <BtnContainer />
                 Tasks
                 <CreateNewTaskButton />
-            </Header><TaskStatus />
+            </Header>
+            <TaskStatus />
             {TaskSectionElements}
         </>
     )
