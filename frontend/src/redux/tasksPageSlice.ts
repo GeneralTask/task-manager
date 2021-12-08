@@ -21,7 +21,7 @@ const initialState: TasksPageState = {
     show_create_task_form: false,
 }
 
-export const tasksSlice = createSlice({
+export const tasksPageSlice = createSlice({
     name: 'tasks_page',
     initialState,
     reducers: {
@@ -65,6 +65,6 @@ export const {
     expandBody,
     collapseBody,
     setShowCreateTaskForm,
-} = tasksSlice.actions
+} = tasksPageSlice.actions
 
-export default tasksSlice.reducer
+export default tasksPageSlice.reducer
