@@ -1,3 +1,4 @@
+import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 import { BodyDiv, BodyIframe, Deeplink, ExpandedBody, ReplyDiv, ReplyInputStyle } from './TaskBody-style'
 import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import React, { useEffect, useRef, useState } from 'react'
@@ -8,9 +9,7 @@ import GTButton from '../common/GTButton'
 import ReactDOMServer from 'react-dom/server'
 import { TTaskSource } from '../../helpers/types'
 import sanitizeHtml from 'sanitize-html'
-import styled from 'styled-components'
 import { toast } from 'react-toastify'
-import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 
 interface Props {
     body: string | null,
