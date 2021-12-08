@@ -1,4 +1,3 @@
-import { BORDER_PRIMARY, TEXT_GRAY } from '../../helpers/styles'
 import { BodyDiv, BodyIframe, Deeplink, ExpandedBody, ReplyDiv, ReplyInputStyle } from './TaskBody-style'
 import { MAX_TASK_BODY_HEIGHT, TASKS_URL } from '../../constants'
 import React, { useEffect, useRef, useState } from 'react'
@@ -11,6 +10,7 @@ import { TTaskSource } from '../../helpers/types'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
 import { toast } from 'react-toastify'
+import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 
 interface Props {
     body: string | null,
@@ -95,17 +95,6 @@ const BodyHTML: React.FC<BodyHTMLProps> = ({ body, task_id, isExpanded }: BodyHT
     />
 }
 
-const EmailBlock = styled.blockquote`
-    margin: 0px 0px 0px 0.8ex;
-    border-left: 1px solid ${BORDER_PRIMARY};
-    padding-left: 1ex;
-
-`
-const EmailQuoteStyles = styled.div`
-    color: ${TEXT_GRAY};
-    font-size: small;
-`
-
 interface EmailQuoteProps {
     sender: string | null,
     body: string,
@@ -114,6 +103,19 @@ interface EmailQuoteProps {
 }
 
 function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProps): JSX.Element {
+    const newMessageStyles = {
+        color: TEXT_BLACK
+    }
+    const emailBlockStyles = {
+        color: `${TEXT_GRAY}`,
+        fontSize: 'small',
+    }
+    const emailQuoteStyles = {
+        margin: '0px 0px 0px 0.8ex',
+        borderLeft: `1px solid ${BORDER_PRIMARY}`,
+        paddingLeft: '1ex'
+    }
+
     const whitelistedHTMLAttributes: sanitizeHtml.IOptions = {
         allowedAttributes: false,
         allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img'])
@@ -133,16 +135,21 @@ function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProp
      ${sender} <${emailSender}> wrote:`
 
     return (
-        <EmailQuoteStyles>
-            <br />
-            {sender && emailSender && emailSentTime && <div>{emailSenderQuote}</div>}
-            <br />
-            <EmailBlock>
-                <div
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(body, whitelistedHTMLAttributes) }}
-                />
-            </EmailBlock>
-        </EmailQuoteStyles >
+        <div>
+            <div style={newMessageStyles} >
+                <br />
+                <br />
+                <br />
+            </div>
+            <div style={emailBlockStyles}>
+                {sender && emailSender && emailSentTime && <div>{emailSenderQuote}</div>}
+                <div style={emailQuoteStyles}>
+                    <div
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(body, whitelistedHTMLAttributes) }}
+                    />
+                </div>
+            </div >
+        </div >
     )
 }
 
