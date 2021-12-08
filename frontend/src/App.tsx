@@ -5,6 +5,8 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { LANDING_PATH, PRIVACY_PATH, SETTINGS_PATH, TOAST_DURATION } from './constants'
 import { ToastContainer, Zoom, toast } from 'react-toastify'
 
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import Header from './components/Header'
 import LandingPage from './components/LandingPage'
 import PrivacyPolicy from './components/PrivacyPolicy'
@@ -18,19 +20,21 @@ const App: React.FC = () => {
   return (
     <Provider store={store}>
       <ToastContainer draggable={false} transition={Zoom} autoClose={TOAST_DURATION} position={toast.POSITION.BOTTOM_RIGHT} />
-      <BrowserRouter>
-        <Header isLoggedIn={Boolean(getAuthToken())} />
-        <Switch>
-          {/* Settings page, only accessible if logged in */}
-          {getAuthToken() ? <Route path={SETTINGS_PATH} component={Settings} /> : null}
+      <DndProvider backend={HTML5Backend}>
+        <BrowserRouter>
+          <Header isLoggedIn={Boolean(getAuthToken())} />
+          <Switch>
+            {/* Settings page, only accessible if logged in */}
+            {getAuthToken() ? <Route path={SETTINGS_PATH} component={Settings} /> : null}
 
-          <Route path={PRIVACY_PATH} component={PrivacyPolicy} />
+            <Route path={PRIVACY_PATH} component={PrivacyPolicy} />
 
-          {/* MAKE SURE THIS IS THE LAST ROUTE */}
-          {/* base url, shows landing page if not logged in, shows tasks page if logged in */}
-          <Route path={LANDING_PATH} component={LandingPage} />
-        </Switch>
-      </BrowserRouter>
+            {/* MAKE SURE THIS IS THE LAST ROUTE */}
+            {/* base url, shows landing page if not logged in, shows tasks page if logged in */}
+            <Route path={LANDING_PATH} component={LandingPage} />
+          </Switch>
+        </BrowserRouter>
+      </DndProvider>
     </Provider>
   )
 }

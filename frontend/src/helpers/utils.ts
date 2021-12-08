@@ -1,4 +1,4 @@
-import { DragState, FetchStatusEnum } from '../redux/enums'
+import { Indices, TTaskGroupType, TTaskSection } from './types'
 import {
     LANDING_PATH,
     LINKED_ACCOUNTS_URL,
@@ -7,13 +7,14 @@ import {
     REACT_APP_FRONTEND_BASE_URL,
     TASKS_URL
 } from '../constants'
-import { Indices, TTaskGroupType, TTaskSection } from './types'
-import { setTasks, setTasksDragState, setTasksFetchStatus } from '../redux/actions'
-import { useEffect, useState } from 'react'
+import { setTasks, setTasksFetchAbortFunction, setTasksFetchStatus } from '../redux/tasksPageSlice'
+import { useAppDispatch, useAppSelector } from '../redux/hooks'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import Cookies from 'js-cookie'
+import { FetchStatusEnum } from '../redux/enums'
 import _ from 'lodash'
-import store from '../redux/store'
+import { useDragDropManager } from 'react-dnd'
 
 // This invalidates the cookie on the frontend
 // We'll probably want to set up a more robust logout involving the backend
@@ -75,37 +76,53 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
 
 export const getLinkedAccountsURL = (account_id: string): string => LINKED_ACCOUNTS_URL + account_id + '/'
 
-export const fetchTasks = async (): Promise<void> => {
-    const reduxState = store.getState()
-    const dragState = reduxState.tasks_page.tasks_drag_state
-    if (dragState !== DragState.noDrag) {
-        store.dispatch(setTasksDragState(DragState.fetchDelayed))
-        return
-    }
-    const fetchStatus = reduxState.tasks_page.tasks_fetch_status
-    if (fetchStatus.status === FetchStatusEnum.LOADING) {
-        // abort inflight request
-        fetchStatus.abort_fetch()
-    }
-    try {
-        const response = await makeAuthorizedRequest({
-            url: TASKS_URL,
-            method: 'GET',
-            abortCallback: (abort_fetch: () => void) => {
-                // get abort function from makeAuthorizedRequest, then make it available in redux state
-                store.dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING, abort_fetch))
-            }
-        })
-        if (!response.ok) {
-            store.dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
-        } else {
-            const resj = await response.json()
-            store.dispatch(setTasksFetchStatus(FetchStatusEnum.SUCCESS))
-            store.dispatch(setTasks(resj))
+// making this a hook for now before we switch over to RTK Query
+export const useFetchTasks = (): () => Promise<void> => {
+    const dispatch = useAppDispatch()
+    const { tasksFetchStatus } = useAppSelector(state => ({
+        tasksFetchStatus: state.tasks_page.tasks_fetch_status,
+    }))
+    const fetchStatusRef = useRef(tasksFetchStatus)
+    useEffect(() => {
+        fetchStatusRef.current = tasksFetchStatus
+    }, [tasksFetchStatus])
+
+    const dragDropMonitor = useDragDropManager().getMonitor()
+
+    const fetchTasks = useCallback(async () => {
+        const isDragging = dragDropMonitor.isDragging()
+        const fetchStatus = fetchStatusRef.current
+        if (isDragging) {
+            return
         }
-    } catch (e) {
-        console.log({ e })
-    }
+        if (fetchStatus.status === FetchStatusEnum.LOADING) {
+            // abort inflight request
+            fetchStatus.abort_fetch()
+            setTasksFetchAbortFunction(emptyFunction)
+        }
+        try {
+            const response = await makeAuthorizedRequest({
+                url: TASKS_URL,
+                method: 'GET',
+                abortCallback: (abort_fetch: () => void) => {
+                    // get abort function from makeAuthorizedRequest, then make it available in redux state
+                    dispatch(setTasksFetchAbortFunction(abort_fetch))
+                    dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING))
+                }
+            })
+            if (!response.ok) {
+                dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
+            } else {
+                const resj = await response.json()
+                dispatch(setTasksFetchStatus(FetchStatusEnum.SUCCESS))
+                dispatch(setTasks(resj))
+            }
+        } catch (e) {
+            console.log({ e })
+        }
+    }, [])
+
+    return fetchTasks
 }
 
 export enum DeviceSize {

@@ -1,50 +1,19 @@
-import { DragState, FetchStatusEnum } from './enums'
-import { TFetchStatus, TLinkedAccount, TSetting, TTaskSection } from '../helpers/types'
-import { compose, createStore } from 'redux'
+import { configureStore } from '@reduxjs/toolkit'
+import settingsReducer from './settingsSlice'
+import tasksPageReducer from './tasksPageSlice'
 
-import { emptyFunction } from '../helpers/utils'
-import reducer from './reducer'
-
-export interface RootState {
-    tasks_page: {
-        task_sections: TTaskSection[],
-        tasks_fetch_status: TFetchStatus,
-        tasks_drag_state: DragState,
-        expanded_body: string | null,
-        show_create_task_form: boolean,
+export const store = configureStore({
+    reducer: {
+        tasks_page: tasksPageReducer,
+        settings_page: settingsReducer,
     },
-    settings_page: {
-        linked_accounts: TLinkedAccount[],
-        settings: TSetting[],
-    },
-}
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+        serializableCheck: false
+    }),
+    devTools: true,
+})
 
-export const initialState: RootState = {
-    tasks_page: {
-        task_sections: [],
-        tasks_fetch_status: {
-            status: FetchStatusEnum.LOADING,
-            abort_fetch: emptyFunction,
-        },
-        tasks_drag_state: DragState.noDrag,
-        expanded_body: null,
-        show_create_task_form: false,
-    },
-    settings_page: {
-        linked_accounts: [],
-        settings: [],
-    },
-}
-
-declare global {
-    interface Window {
-        __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
-    }
-}
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
-
-const store = createStore(reducer, initialState,
-    composeEnhancers())
+export type RootState = ReturnType<typeof store.getState>
 
 export type AppDispatch = typeof store.dispatch
 
