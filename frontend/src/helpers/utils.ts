@@ -114,7 +114,6 @@ export const useFetchTasks = (): () => Promise<void> => {
                 dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
             } else {
                 const resj = await response.json()
-                console.log(resj)
                 dispatch(setTasksFetchStatus(FetchStatusEnum.SUCCESS))
                 dispatch(setTasks(resj))
             }

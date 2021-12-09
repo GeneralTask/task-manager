@@ -152,7 +152,6 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 				},
 				SenderDomain: senderDomain,
 				ThreadID:     threadListItem.Id,
-				TimeSent:     timeSent,
 			}
 			dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.SourceID, email)
 			if err != nil {
