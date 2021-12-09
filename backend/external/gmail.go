@@ -134,6 +134,8 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 				timeAllocation = time.Minute * 2
 			}
 
+			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
+
 			email := &database.Email{
 				TaskBase: database.TaskBase{
 					UserID:            userID,
@@ -146,11 +148,11 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 					Body:              *body,
 					TimeAllocation:    timeAllocation.Nanoseconds(),
 					SourceAccountID:   accountID,
-					CreatedAtExternal: primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0)),
+					CreatedAtExternal: timeSent,
 				},
 				SenderDomain: senderDomain,
 				ThreadID:     threadListItem.Id,
-				TimeSent:     primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0)),
+				TimeSent:     timeSent,
 			}
 			dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.SourceID, email)
 			if err != nil {
