@@ -108,17 +108,19 @@ func TestLoadAsanaTasks(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 		expectedTask := database.Task{
 			TaskBase: database.TaskBase{
-				IDOrdering:      0,
-				IDExternal:      "6942069420",
-				IDTaskSection:   constants.IDTaskSectionToday,
-				Deeplink:        "https://example.com/",
-				Title:           "Task!",
-				Body:            "hmm",
-				SourceID:        TASK_SOURCE_ID_ASANA,
-				SourceAccountID: "wrong",
-				UserID:          userID,
+				IDOrdering:        0,
+				IDExternal:        "6942069420",
+				IDTaskSection:     constants.IDTaskSectionToday,
+				Deeplink:          "https://example.com/",
+				Title:             "Task!",
+				Body:              "hmm",
+				SourceID:          TASK_SOURCE_ID_ASANA,
+				SourceAccountID:   "wrong",
+				UserID:            userID,
+				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 			},
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
@@ -149,17 +151,19 @@ func TestLoadAsanaTasks(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 		expectedTask := database.Task{
 			TaskBase: database.TaskBase{
-				IDOrdering:      0,
-				IDExternal:      "6942069420",
-				IDTaskSection:   constants.IDTaskSectionToday,
-				Deeplink:        "https://example.com/",
-				Title:           "Task!",
-				Body:            "hmm",
-				SourceID:        TASK_SOURCE_ID_ASANA,
-				SourceAccountID: "sugapapa",
-				UserID:          userID,
+				IDOrdering:        0,
+				IDExternal:        "6942069420",
+				IDTaskSection:     constants.IDTaskSectionToday,
+				Deeplink:          "https://example.com/",
+				Title:             "Task!",
+				Body:              "hmm",
+				SourceID:          TASK_SOURCE_ID_ASANA,
+				SourceAccountID:   "sugapapa",
+				UserID:            userID,
+				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 			},
 			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
