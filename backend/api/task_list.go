@@ -49,6 +49,7 @@ type TaskResult struct {
 	Body           string             `json:"body"`
 	TimeAllocation int64              `json:"time_allocated"`
 	ConferenceCall *ConferenceCall    `json:"conference_call"`
+	SentAt         string             `json:"sent_at"`
 }
 
 type CalendarItem struct {
@@ -558,6 +559,7 @@ func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 		Body:           t.Body,
 		TimeAllocation: t.TimeAllocation,
 		ConferenceCall: (*ConferenceCall)(t.ConferenceCall),
+		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
 	}
 }
 

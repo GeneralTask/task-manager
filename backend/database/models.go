@@ -76,6 +76,7 @@ type TaskBase struct {
 	//time in nanoseconds
 	TimeAllocation int64           `bson:"time_allocated"`
 	ConferenceCall *ConferenceCall `bson:"conference_call"`
+	CreatedAtExternal primitive.DateTime        `bson:"created_at_external"`
 }
 
 type CalendarEvent struct {
