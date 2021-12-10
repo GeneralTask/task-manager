@@ -24,7 +24,6 @@ export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, sho
   }
   min-height: 50px;
 `
-
 export const HeaderLeft = styled.div`
   text-align: left; 
   display: flex;
@@ -65,14 +64,12 @@ export const CalendarDate = styled.div`
   margin-right: 5px;
   font-size: 14px;
 `
-
 export const CalendarIconContainer = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
 `
-
 export const CalendarIcon = styled.img`
   width: 1em;
 `
@@ -89,7 +86,6 @@ export const DragHandler = styled.div`
 export const Domino = styled.img`
   height: 100%;
 `
-
 export const Icon = styled.img`
   max-width: 19px;
   margin-left: 15px;
@@ -102,7 +98,6 @@ export const Title = styled.div`
   text-overflow: ellipsis;
 
 `
-
 export const Truncated = styled.div`
   white-space: nowrap;
   overflow: hidden;
