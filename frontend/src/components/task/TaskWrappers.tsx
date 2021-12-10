@@ -1,9 +1,8 @@
 import { DateTime, Duration } from 'luxon'
 import { DeviceSize, useDeviceSize } from '../../helpers/utils'
 import React, { useCallback, useEffect, useState } from 'react'
-import { TEXT_GRAY, device } from '../../helpers/styles'
 import { TTask, TTaskGroup } from '../../helpers/types'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { NOW } from '../../constants'
 import TaskDropContainer from './TaskDropContainer'
@@ -45,29 +44,6 @@ const Tasks = styled.div`
   display:flex;
   flex-direction: column;
 `
-const TimeAnnotation = css`
-  display: flex;
-  align-items: center;
-  color: ${TEXT_GRAY};
-  font-size: 16px;
-  font-weight: 600;
-  position: absolute;
-  width: 15%;
-  @media ${device.mobile}{
-      width: 20%;
-  }
-  height: 100%;
-  pointer-events: none;
-`
-const TimeAnnotationLeft = styled.div`
-  ${TimeAnnotation};
-  left: 0;
-`
-const AlignRight = styled.div`
-  margin-left: auto;
-  padding-right: 10px;
-  text-align: right;
-`
 
 interface TaskGroupProps {
   taskGroup: TTaskGroup,
@@ -86,8 +62,6 @@ const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, indices }: TaskGro
     </TaskGroup >
   )
 }
-
-
 
 const UnscheduledTaskGroup: React.FC<TaskGroupProps> = ({ taskGroup, indices }: TaskGroupProps) => {
   return (
