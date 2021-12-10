@@ -63,30 +63,4 @@ export default function Task(props: Props): JSX.Element {
       <DropIndicatorBelow isVisible={isOver && !dropDirection} />
     </DraggableContainer>
   )
-
-  // return (
-  //   <DraggableContainer ref={dragPreview}>
-  //     <DropIndicatorAbove isVisible={isOver && dropDirection} />
-  //     <Container opacity={opacity} >
-  //       <TaskHeader
-  //         task={task}
-  //         datetimeStart={datetimeStart}
-  //         dragDisabled={dragDisabled}
-  //         isExpanded={isBodyExpanded}
-  //         ref={drag}
-  //       />
-  //       <TaskBody
-  //         body={task.body}
-  //         task_id={task.id}
-  //         deeplink={task.deeplink}
-  //         source={task.source}
-  //         isExpanded={isBodyExpanded}
-  //         sender={task.sender}
-  //         emailSender={task.emailSender}
-  //         emailSentTime={task.emailSentTime}
-  //       />
-  //     </Container>
-  //     <DropIndicatorBelow isVisible={isOver && !dropDirection} />
-  //   </DraggableContainer>
-  // )
 }
