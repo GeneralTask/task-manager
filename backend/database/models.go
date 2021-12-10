@@ -74,9 +74,9 @@ type TaskBase struct {
 	Body             string             `bson:"body"`
 	HasBeenReordered bool               `bson:"has_been_reordered"`
 	//time in nanoseconds
-	TimeAllocation int64           `bson:"time_allocated"`
-	ConferenceCall *ConferenceCall `bson:"conference_call"`
-	CreatedAtExternal primitive.DateTime        `bson:"created_at_external"`
+	TimeAllocation    int64              `bson:"time_allocated"`
+	ConferenceCall    *ConferenceCall    `bson:"conference_call"`
+	CreatedAtExternal primitive.DateTime `bson:"created_at_external"`
 }
 
 type CalendarEvent struct {
@@ -94,9 +94,8 @@ type CalendarEventChangeableFields struct {
 
 type Email struct {
 	TaskBase     `bson:",inline"`
-	ThreadID     string             `bson:"thread_id"`
-	SenderDomain string             `bson:"sender_domain"`
-	TimeSent     primitive.DateTime `bson:"time_sent"`
+	ThreadID     string `bson:"thread_id"`
+	SenderDomain string `bson:"sender_domain"`
 }
 
 type Task struct {

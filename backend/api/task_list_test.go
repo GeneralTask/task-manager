@@ -52,45 +52,45 @@ func TestMergeTasks(t *testing.T) {
 		e1ID := primitive.NewObjectID()
 		e1 := database.Email{
 			TaskBase: database.TaskBase{
-				ID:              e1ID,
-				IDExternal:      "sample_email",
-				Deeplink:        "generaltask.com",
-				Title:           "Respond to this email",
-				SourceID:        external.TASK_SOURCE_ID_GMAIL,
-				TimeAllocation:  (time.Minute * 5).Nanoseconds(),
-				SourceAccountID: "elon@gmail.com",
+				ID:                e1ID,
+				IDExternal:        "sample_email",
+				Deeplink:          "generaltask.com",
+				Title:             "Respond to this email",
+				SourceID:          external.TASK_SOURCE_ID_GMAIL,
+				TimeAllocation:    (time.Minute * 5).Nanoseconds(),
+				SourceAccountID:   "elon@gmail.com",
+				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
 			SenderDomain: "gmail.com",
-			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 		}
 		e1aID := primitive.NewObjectID()
 		e1a := database.Email{
 			TaskBase: database.TaskBase{
-				ID:              e1aID,
-				IDExternal:      "sample_emailA",
-				Deeplink:        "generaltask.com",
-				Title:           "Respond to this email",
-				SourceID:        external.TASK_SOURCE_ID_GMAIL,
-				TimeAllocation:  (time.Minute * 5).Nanoseconds(),
-				SourceAccountID: "elon@moon.com",
+				ID:                e1aID,
+				IDExternal:        "sample_emailA",
+				Deeplink:          "generaltask.com",
+				Title:             "Respond to this email",
+				SourceID:          external.TASK_SOURCE_ID_GMAIL,
+				TimeAllocation:    (time.Minute * 5).Nanoseconds(),
+				SourceAccountID:   "elon@moon.com",
+				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Minute)),
 			},
 			SenderDomain: "moon.com",
-			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Minute)),
 		}
 
 		e2ID := primitive.NewObjectID()
 		e2 := database.Email{
 			TaskBase: database.TaskBase{
-				ID:              e2ID,
-				IDExternal:      "sample_email_2",
-				Deeplink:        "generaltask.com",
-				Title:           "Respond to this email...eventually",
-				SourceID:        external.TASK_SOURCE_ID_GMAIL,
-				TimeAllocation:  (time.Minute * 2).Nanoseconds(),
-				SourceAccountID: "elon@gmail.com",
+				ID:                e2ID,
+				IDExternal:        "sample_email_2",
+				Deeplink:          "generaltask.com",
+				Title:             "Respond to this email...eventually",
+				SourceID:          external.TASK_SOURCE_ID_GMAIL,
+				TimeAllocation:    (time.Minute * 2).Nanoseconds(),
+				SourceAccountID:   "elon@gmail.com",
+				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
 			SenderDomain: "yahoo.com",
-			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 		}
 
 		t1ID := primitive.NewObjectID()
@@ -439,15 +439,15 @@ func TestMergeTasks(t *testing.T) {
 		e1ID := primitive.NewObjectID()
 		e1 := database.Email{
 			TaskBase: database.TaskBase{
-				ID:             e1ID,
-				IDExternal:     "sample_email",
-				Deeplink:       "generaltask.com",
-				Title:          "Respond to this email",
-				SourceID:       external.TASK_SOURCE_ID_GMAIL,
-				TimeAllocation: (time.Minute * 5).Nanoseconds(),
+				ID:                e1ID,
+				IDExternal:        "sample_email",
+				Deeplink:          "generaltask.com",
+				Title:             "Respond to this email",
+				SourceID:          external.TASK_SOURCE_ID_GMAIL,
+				TimeAllocation:    (time.Minute * 5).Nanoseconds(),
+				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
 			SenderDomain: "gmail.com",
-			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 		}
 
 		result, err := MergeTasks(
@@ -677,29 +677,29 @@ func TestMergeTasks(t *testing.T) {
 		e1ID := primitive.NewObjectID()
 		e1 := database.Email{
 			TaskBase: database.TaskBase{
-				ID:             e1ID,
-				IDExternal:     "sample_email",
-				Deeplink:       "generaltask.com",
-				Title:          "Respond to this email",
-				SourceID:       external.TASK_SOURCE_ID_GMAIL,
-				TimeAllocation: (time.Minute * 5).Nanoseconds(),
+				ID:                e1ID,
+				IDExternal:        "sample_email",
+				Deeplink:          "generaltask.com",
+				Title:             "Respond to this email",
+				SourceID:          external.TASK_SOURCE_ID_GMAIL,
+				TimeAllocation:    (time.Minute * 5).Nanoseconds(),
+				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
 			SenderDomain: "gmail.com",
-			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 		}
 
 		e2ID := primitive.NewObjectID()
 		e2 := database.Email{
 			TaskBase: database.TaskBase{
-				ID:             e2ID,
-				IDExternal:     "sample_email",
-				Deeplink:       "generaltask.com",
-				Title:          "Respond to this email but sent more recently",
-				SourceID:       external.TASK_SOURCE_ID_GMAIL,
-				TimeAllocation: (time.Minute * 5).Nanoseconds(),
+				ID:                e2ID,
+				IDExternal:        "sample_email",
+				Deeplink:          "generaltask.com",
+				Title:             "Respond to this email but sent more recently",
+				SourceID:          external.TASK_SOURCE_ID_GMAIL,
+				TimeAllocation:    (time.Minute * 5).Nanoseconds(),
+				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Minute)),
 			},
 			SenderDomain: "gmail.com",
-			TimeSent:     primitive.NewDateTimeFromTime(time.Now().Add(-time.Minute)),
 		}
 
 		err := settings.UpdateUserSetting(

@@ -586,9 +586,9 @@ func compareEmails(e1 *database.Email, e2 *database.Email, newestEmailsFirst boo
 	} else if e1.SenderDomain != e1Domain && e2.SenderDomain == e2Domain {
 		return false
 	} else if newestEmailsFirst {
-		return e1.TimeSent > e2.TimeSent
+		return e1.TaskBase.CreatedAtExternal > e2.TaskBase.CreatedAtExternal
 	} else {
-		return e1.TimeSent < e2.TimeSent
+		return e1.TaskBase.CreatedAtExternal < e2.TaskBase.CreatedAtExternal
 	}
 }
 
