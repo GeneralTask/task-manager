@@ -53,6 +53,7 @@ export const DeadlineIndicator = styled.div`
   border-radius: 8px;
   display: flex;
   height: 1.1em;
+  display: none;  /* hide Deadline Indicator since not yet implemented on backend */
 `
 export const CalendarDate = styled.div`
   white-space: nowrap;
