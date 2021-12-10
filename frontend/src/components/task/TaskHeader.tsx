@@ -63,7 +63,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
         </DeadlineIndicator>
         {
           props.isExpanded ?
-            <DoneButton onClick={() => {
+            props.task.source.is_completable && <DoneButton onClick={() => {
               done(props.task.id, dispatch, fetchTasks)
             }}>
             </DoneButton> :
