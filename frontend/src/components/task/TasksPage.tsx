@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 import { FetchStatusEnum } from '../../redux/enums'
-import GTButton from '../common/GTButton'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
 import { device } from '../../helpers/styles'
@@ -29,6 +28,16 @@ const BtnContainer = styled.div`
     width: 10%;
     display: flex;
     justify-content: flex-end;
+`
+const NewTaskButton = styled.button`
+    font-size: 40px;
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: inherit;
+    font-weight: lighter;
 `
 
 export default function TasksPage(): JSX.Element {
@@ -81,13 +90,13 @@ function CreateNewTaskButton(): JSX.Element {
     return (
         <BtnContainer>
             {showButton &&
-                <GTButton
-                    theme='light'
+                <NewTaskButton
                     onClick={() => {
                         dispatch(setShowCreateTaskForm(true))
                     }}>
-                    New
-                </GTButton>}
+                    +
+                </NewTaskButton>
+            }
         </BtnContainer>
     )
 }
