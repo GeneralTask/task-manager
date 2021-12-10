@@ -80,9 +80,6 @@ interface TaskGroupProps {
 const ScheduledTask: React.FC<TaskGroupProps> = ({ taskGroup, indices }: TaskGroupProps) => {
   return (
     <TaskGroup>
-      <TimeAnnotationLeft>
-        <AlignRight>{parseDateTime(taskGroup.datetime_start).toLocaleString(DateTime.TIME_SIMPLE)}</AlignRight>
-      </TimeAnnotationLeft>
       <Tasks>
         <TaskDropContainer task={taskGroup.tasks[0]} dragDisabled={true} indices={{ ...indices, task: 0 }} />
       </Tasks>
