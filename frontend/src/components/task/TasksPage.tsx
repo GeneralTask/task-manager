@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 import { FetchStatusEnum } from '../../redux/enums'
-import GTButton from '../common/GTButton'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
 import { device } from '../../helpers/styles'
