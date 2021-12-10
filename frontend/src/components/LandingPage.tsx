@@ -100,7 +100,7 @@ const LandingPage: React.FC = () => {
   )
 }
 
-const Waitlist = () => {
+const Waitlist: React.FC = () => {
   const [waitlistState, setWaitlistState] = useState(WaitlistState.NONE)
   const [email, setEmail] = useState('')
 
