@@ -30,6 +30,16 @@ const BtnContainer = styled.div`
     display: flex;
     justify-content: flex-end;
 `
+const NewTaskButton = styled.button`
+    font-size: 40px;
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: inherit;
+    font-weight: lighter;
+`
 
 export default function TasksPage(): JSX.Element {
     const task_sections = useAppSelector((state) => state.tasks_page.task_sections)
@@ -81,13 +91,13 @@ function CreateNewTaskButton(): JSX.Element {
     return (
         <BtnContainer>
             {showButton &&
-                <GTButton
-                    theme='light'
+                <NewTaskButton
                     onClick={() => {
                         dispatch(setShowCreateTaskForm(true))
                     }}>
-                    New
-                </GTButton>}
+                    +
+                </NewTaskButton>
+            }
         </BtnContainer>
     )
 }
