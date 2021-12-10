@@ -1,7 +1,6 @@
 import { WAITLIST_URL } from '../constants'
 import React, { useState } from 'react'
 import { getAuthToken, getHeaders } from '../helpers/utils'
-
 import GLButton from './login/GoogleLoginButton'
 import { device, TEXT_GRAY } from '../helpers/styles'
 import TasksPage from './task/TasksPage'
@@ -73,7 +72,6 @@ const WaitlistMessage = styled.div<{ visibility: string, backgroundColor: string
   color: ${props => props.color};
 `
 
-
 enum WaitlistState {
   NONE,
   SUCCESS,
@@ -86,21 +84,19 @@ const LandingPage: React.FC = () => {
     return <TasksPage />
   }
   return (
-    <>
-      <Container>
-        <Title>
-          The task manager for
-          <br /> highly productive people.
-        </Title>
-        <Subtitle>
-          General Task pulls together your emails, messages, and tasks
-          <br />
-          and prioritizes what matters most.
-        </Subtitle>
-        <Waitlist />
-        <GLButton />
-      </Container>
-    </>
+    <Container>
+      <Title>
+        The task manager for
+        <br /> highly productive people.
+      </Title>
+      <Subtitle>
+        General Task pulls together your emails, messages, and tasks
+        <br />
+        and prioritizes what matters most.
+      </Subtitle>
+      <Waitlist />
+      <GLButton />
+    </Container>
   )
 }
 
@@ -149,7 +145,6 @@ const Waitlist = () => {
       <WaitlistMessage visibility={messageVisibility} backgroundColor={messageBackgroundColor} color={messageTextColor}>
         {messageText}
       </WaitlistMessage>
-
     </WaitlistDiv>
   )
 }
@@ -170,7 +165,6 @@ const joinWaitlist = async (email: string, setWaitlistState: (state: WaitlistSta
   else {
     setWaitlistState(WaitlistState.ERROR)
   }
-
 }
 
 export default LandingPage
