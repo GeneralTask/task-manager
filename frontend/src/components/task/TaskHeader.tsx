@@ -18,8 +18,10 @@ import {
   CalendarIcon,
   DragHandler,
   Domino,
-  DoneButton
+  DoneButton,
+  JoinConferenceButtonContainer
 } from './TaskHeader-style'
+import JoinConferenceButton from './JoinConferenceButton'
 
 interface Props {
   task: TTask,
@@ -55,6 +57,12 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
         <Title>{props.task.title}</Title>
       </HeaderLeft>
       <HeaderRight>
+        {
+          props.task.conference_call &&
+          <JoinConferenceButtonContainer>
+            <JoinConferenceButton conferenceCall={props.task.conference_call}></JoinConferenceButton>
+          </JoinConferenceButtonContainer>
+        }
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
           <CalendarIconContainer>

@@ -42,7 +42,9 @@ export const HeaderRight = styled.div`
   color:${TEXT_GRAY};
   height: 100%;
 `
-
+export const JoinConferenceButtonContainer = styled.div`
+  margin-right: 10px;
+`
 export const DeadlineIndicator = styled.div`
   color: ${TEXT_BLACK};
   font-size: 13px;
