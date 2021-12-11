@@ -49,6 +49,7 @@ type TaskResult struct {
 	Body           string             `json:"body"`
 	TimeAllocation int64              `json:"time_allocated"`
 	ConferenceCall *ConferenceCall    `json:"conference_call"`
+	SentAt         string             `json:"sent_at"`
 }
 
 type CalendarItem struct {
@@ -558,6 +559,7 @@ func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 		Body:           t.Body,
 		TimeAllocation: t.TimeAllocation,
 		ConferenceCall: (*ConferenceCall)(t.ConferenceCall),
+		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
 	}
 }
 
@@ -584,9 +586,9 @@ func compareEmails(e1 *database.Email, e2 *database.Email, newestEmailsFirst boo
 	} else if e1.SenderDomain != e1Domain && e2.SenderDomain == e2Domain {
 		return false
 	} else if newestEmailsFirst {
-		return e1.TimeSent > e2.TimeSent
+		return e1.TaskBase.CreatedAtExternal > e2.TaskBase.CreatedAtExternal
 	} else {
-		return e1.TimeSent < e2.TimeSent
+		return e1.TaskBase.CreatedAtExternal < e2.TaskBase.CreatedAtExternal
 	}
 }
 

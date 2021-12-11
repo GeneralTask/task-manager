@@ -134,22 +134,24 @@ func (Gmail GmailSource) GetEmails(userID primitive.ObjectID, accountID string, 
 				timeAllocation = time.Minute * 2
 			}
 
+			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
+
 			email := &database.Email{
 				TaskBase: database.TaskBase{
-					UserID:          userID,
-					IDExternal:      message.Id,
-					IDTaskSection:   constants.IDTaskSectionToday,
-					Sender:          senderName,
-					SourceID:        TASK_SOURCE_ID_GMAIL,
-					Deeplink:        fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, threadListItem.Id),
-					Title:           title,
-					Body:            *body,
-					TimeAllocation:  timeAllocation.Nanoseconds(),
-					SourceAccountID: accountID,
+					UserID:            userID,
+					IDExternal:        message.Id,
+					IDTaskSection:     constants.IDTaskSectionToday,
+					Sender:            senderName,
+					SourceID:          TASK_SOURCE_ID_GMAIL,
+					Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, threadListItem.Id),
+					Title:             title,
+					Body:              *body,
+					TimeAllocation:    timeAllocation.Nanoseconds(),
+					SourceAccountID:   accountID,
+					CreatedAtExternal: timeSent,
 				},
 				SenderDomain: senderDomain,
 				ThreadID:     threadListItem.Id,
-				TimeSent:     primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0)),
 			}
 			dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.SourceID, email)
 			if err != nil {

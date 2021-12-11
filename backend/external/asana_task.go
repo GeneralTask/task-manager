@@ -27,11 +27,12 @@ type AsanaUserInfoResponse struct {
 
 type AsanaTasksResponse struct {
 	Data []struct {
-		GID          string `json:"gid"`
-		DueOn        string `json:"due_on"`
-		HTMLNotes    string `json:"html_notes"`
-		Name         string `json:"name"`
-		PermalinkURL string `json:"permalink_url"`
+		GID          string             `json:"gid"`
+		DueOn        string             `json:"due_on"`
+		HTMLNotes    string             `json:"html_notes"`
+		Name         string             `json:"name"`
+		PermalinkURL string             `json:"permalink_url"`
+		CreatedAt    primitive.DateTime `json:"created_at"`
 	} `json:"data"`
 }
 
@@ -91,15 +92,16 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	for _, asanaTask := range asanaTasks.Data {
 		task := &database.Task{
 			TaskBase: database.TaskBase{
-				UserID:          userID,
-				IDExternal:      asanaTask.GID,
-				IDTaskSection:   constants.IDTaskSectionToday,
-				Deeplink:        asanaTask.PermalinkURL,
-				SourceID:        TASK_SOURCE_ID_ASANA,
-				Title:           asanaTask.Name,
-				Body:            asanaTask.HTMLNotes,
-				TimeAllocation:  settings.GetDefaultTaskDuration(db, userID),
-				SourceAccountID: accountID,
+				UserID:            userID,
+				IDExternal:        asanaTask.GID,
+				IDTaskSection:     constants.IDTaskSectionToday,
+				Deeplink:          asanaTask.PermalinkURL,
+				SourceID:          TASK_SOURCE_ID_ASANA,
+				Title:             asanaTask.Name,
+				Body:              asanaTask.HTMLNotes,
+				TimeAllocation:    settings.GetDefaultTaskDuration(db, userID),
+				SourceAccountID:   accountID,
+				CreatedAtExternal: asanaTask.CreatedAt,
 			},
 		}
 		dueDate, err := time.Parse("2006-01-02", asanaTask.DueOn)
