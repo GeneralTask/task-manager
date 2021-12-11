@@ -100,7 +100,7 @@ const LandingPage: React.FC = () => {
   )
 }
 
-const Waitlist: React.FC = () => {
+export const Waitlist: React.FC = () => {
   const [waitlistState, setWaitlistState] = useState(WaitlistState.NONE)
   const [email, setEmail] = useState('')
 
@@ -137,12 +137,12 @@ const Waitlist: React.FC = () => {
         joinWaitlist(email, setWaitlistState)
       }}>
         <WaitlistInput placeholder="Enter email address" value={email} onChange={e => setEmail(e.target.value)} />
-        <JoinWaitlistButton role="submit">
+        <JoinWaitlistButton data-testid="join-waitlist-button" role="submit">
           Join the Waitlist
         </JoinWaitlistButton>
       </WaitlistInputs>
 
-      <WaitlistMessage visibility={messageVisibility} backgroundColor={messageBackgroundColor} color={messageTextColor}>
+      <WaitlistMessage data-testid="waitlist-message" visibility={messageVisibility} backgroundColor={messageBackgroundColor} color={messageTextColor}>
         {messageText}
       </WaitlistMessage>
     </WaitlistDiv>
