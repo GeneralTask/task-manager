@@ -3,11 +3,10 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { Waitlist } from '../LandingPage'
 import userEvent from '@testing-library/user-event'
 import { WAITLIST_URL } from '../../constants'
-
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 
-const server = setupServer(rest.post(WAITLIST_URL, (_, res) => res()))
+const server = setupServer()
 beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
@@ -40,7 +39,7 @@ test('success message shows after OK response', async () => {
     })
 })
 
-test('exists messages shows after 302 response', async () => {
+test('exists message shows after 302 response', async () => {
     server.use(
         rest.post(WAITLIST_URL, (_, res, ctx) => {
             return res(ctx.status(302))
