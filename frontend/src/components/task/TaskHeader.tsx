@@ -1,19 +1,27 @@
 import './Task.css'
-
-import * as styles from './TaskHeader-style'
-
 import { Action, Dispatch } from '@reduxjs/toolkit'
-import { NOW, TASKS_MODIFY_URL } from '../../constants'
+import { TASKS_MODIFY_URL } from '../../constants'
 import React, { useCallback } from 'react'
 import { collapseBody, expandBody, removeTaskByID } from '../../redux/tasksPageSlice'
 import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
-
-import GTButton from '../common/GTButton'
-import JoinConferenceButton from './JoinConferenceButton'
 import { TTask } from '../../helpers/types'
-import { flex } from '../../helpers/styles'
 import { useAppDispatch } from '../../redux/hooks'
-import { useCountdown } from './TaskWrappers'
+import {
+  TaskHeaderContainer,
+  HeaderLeft,
+  Icon,
+  Title,
+  HeaderRight,
+  DeadlineIndicator,
+  CalendarDate,
+  CalendarIconContainer,
+  CalendarIcon,
+  DragHandler,
+  Domino,
+  DoneButton,
+  JoinConferenceButtonContainer
+} from './TaskHeader-style'
+import JoinConferenceButton from './JoinConferenceButton'
 
 interface Props {
   task: TTask,
@@ -26,10 +34,11 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
   const dispatch = useAppDispatch()
   const fetchTasks = useFetchTasks()
 
-  const countdown = useCountdown(props.datetimeStart)
+  const today = new Date()
+  const dd = today.getDate()
+  const month = today.toLocaleDateString('default', { month: 'short' })
 
   const hoverEffectEnabled = !!(props.task.body || props.task.deeplink)
-
   const onClick = useCallback(() => {
     if (hoverEffectEnabled) {
       if (props.isExpanded) {
@@ -42,47 +51,36 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
   }, [hoverEffectEnabled, props.isExpanded])
 
   return (
-    <styles.Header hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
-      <styles.HeaderLeft>
-        {props.dragDisabled ?
-          <styles.Spacer ref={ref}>
-            <styles.Domino src="images/domino.svg" alt="" />
-          </styles.Spacer>
-          :
-          <styles.DragSection ref={ref}>
-            <styles.Domino src="images/domino.svg" alt="" />
-          </styles.DragSection>
-        }
-        <styles.Icon src={props.task.source.logo} alt="icon"></styles.Icon>
-        {props.isExpanded ? <styles.Title>{props.task.title}</styles.Title> : <styles.TitleWrap>{props.task.title}</styles.TitleWrap>}
-      </styles.HeaderLeft>
-      <styles.HeaderRight>
-        {countdown
-          ? <flex.flex>
-            {countdown !== NOW && <>in < styles.Space /></>}
-            <styles.Black>{countdown}</styles.Black>
-          </flex.flex>
-          : props.isExpanded
-            ? props.task.sender
-            : <styles.Truncated>{props.task.sender}</styles.Truncated>
-        }
+    <TaskHeaderContainer hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
+      <HeaderLeft>
+        <Icon src={props.task.source.logo} alt="icon"></Icon>
+        <Title>{props.task.title}</Title>
+      </HeaderLeft>
+      <HeaderRight>
         {
           props.task.conference_call &&
-          <styles.HoverButton>
-            <JoinConferenceButton conferenceCall={props.task.conference_call} />
-          </styles.HoverButton>
+          <JoinConferenceButtonContainer>
+            <JoinConferenceButton conferenceCall={props.task.conference_call}></JoinConferenceButton>
+          </JoinConferenceButtonContainer>
         }
-        {props.task.source.is_completable &&
-          <styles.HoverButton><GTButton theme="black" onClick={(e) => {
-            if (e != null) {
-              e.stopPropagation()
-            }
-            done(props.task.id, dispatch, fetchTasks)
-          }}
-          >
-            Done</GTButton></styles.HoverButton>}
-      </styles.HeaderRight>
-    </styles.Header>
+        <DeadlineIndicator>
+          <CalendarDate>{`${dd} ${month}`}</CalendarDate>
+          <CalendarIconContainer>
+            <CalendarIcon src="images/calendar-icon.png" alt="calendar" />
+          </CalendarIconContainer>
+        </DeadlineIndicator>
+        {
+          props.isExpanded ?
+            props.task.source.is_completable && <DoneButton onClick={() => {
+              done(props.task.id, dispatch, fetchTasks)
+            }}>
+            </DoneButton> :
+            <DragHandler ref={ref}>
+              <Domino src="images/domino.svg" alt="" />
+            </DragHandler>
+        }
+      </HeaderRight >
+    </TaskHeaderContainer >
   )
 })
 

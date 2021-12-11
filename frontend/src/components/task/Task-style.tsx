@@ -11,15 +11,17 @@ export const DraggableContainer = styled.div`
     position: relative;
 `
 
-export const Container = styled.div<{ opacity: number }>`
+export const TaskContainer = styled.div<{ opacity: number, isExpanded: boolean }>`
   padding: 0;
   font-family: 'Ellipsis', 'Gothic A1', sans-serif;
   border: 1px solid ${BORDER_PRIMARY};
-  border-radius: 2px;
+  border-radius: 7px;
   width: 100%;
   outline: none;
   background-color: white;
-  opacity: ${props => props.opacity}
+  opacity: ${props => props.opacity};
+  min-height: 50px;
+  box-shadow: ${props => props.isExpanded ? `2px 5px 8px ${BORDER_PRIMARY}` : 'none'};
 `
 
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
