@@ -25,6 +25,7 @@ export const EmailViewDiv = styled.div`
 `
 export const EmailSubjectHeader = styled.h4`
   margin-bottom: 20px;
+  display: none;
 `
 export const EmailMessage = styled.div`
   margin: 10px;
