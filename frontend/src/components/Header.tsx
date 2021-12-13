@@ -58,7 +58,7 @@ interface Props {
   isLoggedIn: boolean,
 }
 
-const Header: React.FC<Props> = ({ isLoggedIn }: Props) => {
+const LegacyHeader: React.FC<Props> = ({ isLoggedIn }: Props) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false)
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
@@ -95,4 +95,4 @@ const Header: React.FC<Props> = ({ isLoggedIn }: Props) => {
   )
 }
 
-export default React.memo(Header)
+export default React.memo(LegacyHeader)
