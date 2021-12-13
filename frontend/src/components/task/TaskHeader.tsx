@@ -23,14 +23,14 @@ import {
 } from './TaskHeader-style'
 import JoinConferenceButton from './JoinConferenceButton'
 
-interface Props {
+interface TaskHeaderProps {
   task: TTask,
   datetimeStart: string | null, // null if unscheduled_task
   dragDisabled: boolean,
   isExpanded: boolean,
 }
 
-const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) => {
+const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: TaskHeaderProps, ref) => {
   const dispatch = useAppDispatch()
   const fetchTasks = useFetchTasks()
 
@@ -76,7 +76,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
             }}>
             </DoneButton> :
             <DragHandler ref={ref}>
-              <Domino src="images/domino.svg" alt="" />
+              <Domino src="images/domino.svg" alt="drag-handler" />
             </DragHandler>
         }
       </HeaderRight >
@@ -103,3 +103,4 @@ const done = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTa
 }
 
 export default TaskHeader
+export type { TaskHeaderProps }
