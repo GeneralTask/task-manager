@@ -15,6 +15,10 @@ type TaskModifyParams struct {
 	IDOrdering    *int    `json:"id_ordering"`
 	IDTaskSection *string `json:"id_task_section"`
 	IsCompleted   *bool   `json:"is_completed"`
+	Title         *string `json:"title"`
+	Body          *string `json:"body"`
+	DueDate       *int    `json:"due_date"`
+	TimeDuration  *string `json:"time_duration"`
 }
 
 func (api *API) TaskModify(c *gin.Context) {
@@ -28,7 +32,13 @@ func (api *API) TaskModify(c *gin.Context) {
 	var modifyParams TaskModifyParams
 	err = c.BindJSON(&modifyParams)
 
-	if err != nil || (modifyParams.IsCompleted == nil && modifyParams.IDOrdering == nil && modifyParams.IDTaskSection == nil) {
+	if err != nil || (modifyParams.IsCompleted == nil &&
+		modifyParams.IDOrdering == nil &&
+		modifyParams.IDTaskSection == nil &&
+		modifyParams.Title == nil &&
+		modifyParams.Body == nil &&
+		modifyParams.DueDate == nil &&
+		modifyParams.TimeDuration == nil) {
 		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
 		return
 	}
@@ -57,6 +67,12 @@ func (api *API) TaskModify(c *gin.Context) {
 		}
 	} else if modifyParams.IDOrdering != nil || modifyParams.IDTaskSection != nil {
 		ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection)
+	} else if modifyParams.Title != nil {
+		if *modifyParams.Title != "" {
+			EditTaskTitle(api, c, taskID, userID, *modifyParams.Title)
+		} else {
+			c.JSON(400, gin.H{"detail": "Title cannot be empty"})
+		}
 	} else {
 		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
 		return
@@ -189,6 +205,52 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	}
 	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
 		log.Println("failed to update task to be complete", res)
+		Handle500(c)
+		return
+	}
+	c.JSON(200, gin.H{})
+}
+
+func EditTaskTitle(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, title string) {
+	parentCtx := c.Request.Context()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
+
+	var task database.TaskBase
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	if taskCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": taskID},
+			{"user_id": userID},
+		}}).Decode(&task) != nil {
+		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
+		return
+	}
+
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	res, err := taskCollection.UpdateOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": taskID},
+			{"user_id": userID},
+		}},
+		bson.M{"$set": bson.M{"title": title}},
+	)
+	if err != nil {
+		log.Printf("failed to update internal DB with title: %v", err)
+		Handle500(c)
+		return
+	}
+	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
+		log.Println("failed to update task title", res)
 		Handle500(c)
 		return
 	}
