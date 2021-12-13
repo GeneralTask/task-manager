@@ -582,3 +582,73 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 }
+
+func TestEditFields(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
+
+	t.Run("Edit Title Success", func(t *testing.T) {
+		authToken := login("approved@generaltask.com", "")
+		userID := getUserIDFromAuthToken(t, db, authToken)
+
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			database.TaskBase{
+				UserID: userID,
+				Title:  "Test task",
+			},
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"title": "New title"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		var task database.TaskBase
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "New title", task.Title)
+	})
+
+	t.Run("Edit Title Empty", func(t *testing.T) {
+		authToken := login("approved@generaltask.com", "")
+		userID := getUserIDFromAuthToken(t, db, authToken)
+
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			database.TaskBase{
+				UserID: userID,
+				Title:  "Test task",
+			},
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"title": ""}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	})
+}
