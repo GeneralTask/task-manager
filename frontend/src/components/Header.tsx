@@ -71,7 +71,7 @@ const Header: React.FC<Props> = ({ isLoggedIn }: Props) => {
   }, [deviceSize])
 
   return (
-    <>
+    <div>
       <HeaderDiv>
         <div>
           <Link to={LANDING_PATH}><Logo>General Task</Logo></Link>
@@ -91,7 +91,7 @@ const Header: React.FC<Props> = ({ isLoggedIn }: Props) => {
         <Link to={SETTINGS_PATH}><Button>Settings</Button></Link>
         <Logout onClick={logout} disabled={!getAuthToken()}>Logout</Logout>
       </DropDown>}
-    </>
+    </div>
   )
 }
 
