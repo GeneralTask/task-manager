@@ -67,7 +67,7 @@ export default function TasksPage(): JSX.Element {
     )
 
     return (
-        <>
+        <div>
             <Header>
                 <BtnContainer />
                 Tasks
@@ -75,7 +75,7 @@ export default function TasksPage(): JSX.Element {
             </Header>
             <TaskStatus />
             {TaskSectionElements}
-        </>
+        </div>
     )
 }
 
