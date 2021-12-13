@@ -75,6 +75,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
               done(props.task.id, dispatch, fetchTasks)
             }}>
             </DoneButton> :
+            !props.dragDisabled &&
             <DragHandler ref={ref}>
               <Domino src="images/domino.svg" alt="" />
             </DragHandler>
