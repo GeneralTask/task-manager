@@ -780,4 +780,68 @@ func TestEditFields(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	})
+
+	t.Run("Edit Time Duration Success", func(t *testing.T) {
+		authToken := login("approved@generaltask.com", "")
+		userID := getUserIDFromAuthToken(t, db, authToken)
+
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			database.Task{
+				TaskBase: database.TaskBase{
+					UserID:         userID,
+					TimeAllocation: 1000,
+				},
+			},
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"time_duration": 20}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		var task database.Task
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(20*1000*1000), task.TaskBase.TimeAllocation)
+	})
+
+	t.Run("Edit Time Duration Negative", func(t *testing.T) {
+		authToken := login("approved@generaltask.com", "")
+		userID := getUserIDFromAuthToken(t, db, authToken)
+
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			database.TaskBase{
+				UserID: userID,
+			},
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"time_duration": -20}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	})
 }
