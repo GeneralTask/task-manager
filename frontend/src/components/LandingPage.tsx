@@ -5,6 +5,7 @@ import GLButton from './login/GoogleLoginButton'
 import { device, TEXT_GRAY } from '../helpers/styles'
 import TasksPage from './task/TasksPage'
 import styled from 'styled-components'
+import LegacyHeader from './Header'
 
 const Container = styled.div`
   margin: auto;
@@ -84,19 +85,22 @@ const LandingPage: React.FC = () => {
     return <TasksPage />
   }
   return (
-    <Container>
-      <Title>
-        The task manager for
-        <br /> highly productive people.
-      </Title>
-      <Subtitle>
-        General Task pulls together your emails, messages, and tasks
-        <br />
-        and prioritizes what matters most.
-      </Subtitle>
-      <Waitlist />
-      <GLButton />
-    </Container>
+    <div>
+      <LegacyHeader isLoggedIn={Boolean(getAuthToken())} />
+      <Container>
+        <Title>
+          The task manager for
+          <br /> highly productive people.
+        </Title>
+        <Subtitle>
+          General Task pulls together your emails, messages, and tasks
+          <br />
+          and prioritizes what matters most.
+        </Subtitle>
+        <Waitlist />
+        <GLButton />
+      </Container>
+    </div>
   )
 }
 

@@ -58,7 +58,7 @@ interface Props {
   isLoggedIn: boolean,
 }
 
-const Header: React.FC<Props> = ({ isLoggedIn }: Props) => {
+const LegacyHeader: React.FC<Props> = ({ isLoggedIn }: Props) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false)
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
@@ -71,7 +71,7 @@ const Header: React.FC<Props> = ({ isLoggedIn }: Props) => {
   }, [deviceSize])
 
   return (
-    <>
+    <div>
       <HeaderDiv>
         <div>
           <Link to={LANDING_PATH}><Logo>General Task</Logo></Link>
@@ -91,8 +91,8 @@ const Header: React.FC<Props> = ({ isLoggedIn }: Props) => {
         <Link to={SETTINGS_PATH}><Button>Settings</Button></Link>
         <Logout onClick={logout} disabled={!getAuthToken()}>Logout</Logout>
       </DropDown>}
-    </>
+    </div>
   )
 }
 
-export default React.memo(Header)
+export default React.memo(LegacyHeader)

@@ -1,5 +1,10 @@
 import { FetchStatusEnum } from '../redux/enums'
 
+export enum NavbarPages {
+    TASKS_PAGE = 'task_page',
+    SETTINGS_PAGE = 'settings_page',
+    LOGOUT = 'logout'
+}
 export enum TTaskGroupType {
     SCHEDULED_TASK = 'scheduled_task',
     UNSCHEDULED_GROUP = 'unscheduled_group',

@@ -7,7 +7,6 @@ import { ToastContainer, Zoom, toast } from 'react-toastify'
 
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import Header from './components/Header'
 import LandingPage from './components/LandingPage'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import { Provider } from 'react-redux'
@@ -22,7 +21,6 @@ const App: React.FC = () => {
       <ToastContainer draggable={false} transition={Zoom} autoClose={TOAST_DURATION} position={toast.POSITION.BOTTOM_RIGHT} />
       <DndProvider backend={HTML5Backend}>
         <BrowserRouter>
-          <Header isLoggedIn={Boolean(getAuthToken())} />
           <Switch>
             {/* Settings page, only accessible if logged in */}
             {getAuthToken() ? <Route path={SETTINGS_PATH} component={Settings} /> : null}
