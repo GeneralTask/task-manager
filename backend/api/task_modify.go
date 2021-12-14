@@ -83,6 +83,12 @@ func (api *API) TaskModify(c *gin.Context) {
 	} else if modifyParams.DueDate != nil {
 		dueDate := primitive.NewDateTimeFromTime(*modifyParams.DueDate)
 		UpdateTaskDueDate(api, c, taskID, userID, dueDate)
+	} else if modifyParams.TimeDuration != nil {
+		if *modifyParams.TimeDuration < 0 {
+			c.JSON(400, gin.H{"detail": "Time duration cannot be negative"})
+		} else {
+			UpdateTaskTimeDuration(api, c, taskID, userID, *modifyParams.TimeDuration)
+		}
 	} else {
 		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
 		return
@@ -353,6 +359,52 @@ func UpdateTaskDueDate(api *API, c *gin.Context, taskID primitive.ObjectID, user
 	}
 	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
 		log.Println("failed to update task due date", res)
+		Handle500(c)
+		return
+	}
+	c.JSON(200, gin.H{})
+}
+
+func UpdateTaskTimeDuration(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, timeDuration int) {
+	parentCtx := c.Request.Context()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
+
+	var task database.TaskBase
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	if taskCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": taskID},
+			{"user_id": userID},
+		}}).Decode(&task) != nil {
+		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
+		return
+	}
+
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	res, err := taskCollection.UpdateOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": taskID},
+			{"user_id": userID},
+		}},
+		bson.M{"$set": bson.M{"time_allocated": timeDuration * 1000 * 1000}},
+	)
+	if err != nil {
+		log.Printf("failed to update internal DB with time duration: %v", err)
+		Handle500(c)
+		return
+	}
+	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
+		log.Println("failed to update task time duration", res)
 		Handle500(c)
 		return
 	}
