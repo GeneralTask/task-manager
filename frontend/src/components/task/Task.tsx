@@ -17,8 +17,6 @@ interface Props {
   isOver: boolean,
   dropDirection: boolean,
   indices: Indices,
-  emailSender?: string | null,
-  emailSentTime?: string | null,
 }
 
 export default function Task(props: Props): JSX.Element {
@@ -54,10 +52,9 @@ export default function Task(props: Props): JSX.Element {
           task_id={task.id}
           deeplink={task.deeplink}
           source={task.source}
-          isExpanded={isBodyExpanded}
+          sent_at={task.sent_at}
           sender={task.sender}
-          emailSender={task.emailSender}
-          emailSentTime={task.emailSentTime}
+          isExpanded={isBodyExpanded}
         />
       </TaskContainer>
       <DropIndicatorBelow isVisible={isOver && !dropDirection} />
