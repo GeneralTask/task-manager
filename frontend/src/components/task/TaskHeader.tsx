@@ -63,6 +63,12 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
             <JoinConferenceButton conferenceCall={props.task.conference_call}></JoinConferenceButton>
           </JoinConferenceButtonContainer>
         }
+        {
+          props.task.source.name == 'General Task' &&
+          <DoneButton onClick={() => {
+            done(props.task.id, dispatch, fetchTasks)
+          }} />
+        }
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
           <CalendarIconContainer>

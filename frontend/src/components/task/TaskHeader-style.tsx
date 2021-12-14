@@ -9,6 +9,7 @@ export const DoneButton = styled.div`
   border-radius: 50%;
   margin-right: 0px;
   margin: 0 12px 0 8px;
+  cursor: pointer;
 `
 export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
   font-size: 15px;
