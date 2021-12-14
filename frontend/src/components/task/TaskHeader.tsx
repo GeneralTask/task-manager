@@ -63,6 +63,12 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
             <JoinConferenceButton conferenceCall={props.task.conference_call}></JoinConferenceButton>
           </JoinConferenceButtonContainer>
         }
+        {
+          props.task.source.name == 'General Task' &&
+          <DoneButton onClick={() => {
+            done(props.task.id, dispatch, fetchTasks)
+          }} />
+        }
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
           <CalendarIconContainer>
@@ -73,8 +79,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
           props.isExpanded ?
             props.task.source.is_completable && <DoneButton onClick={() => {
               done(props.task.id, dispatch, fetchTasks)
-            }}>
-            </DoneButton> :
+            }} /> :
             <DragHandler ref={ref}>
               <Domino src="images/domino.svg" alt="" />
             </DragHandler>
