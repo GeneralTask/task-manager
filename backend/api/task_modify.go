@@ -75,7 +75,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	userID := userIDRaw.(primitive.ObjectID)
 
 	task, err := GetTask(api, c, taskID, userID)
-	if err == nil {
+	if err != nil {
 		// status is handled in GetTask
 		return
 	}
@@ -194,12 +194,13 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 	var task database.Task
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	if taskCollection.FindOne(
+	err = taskCollection.FindOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
 			{"_id": taskID},
 			{"user_id": userID},
-		}}).Decode(&task) != nil {
+		}}).Decode(&task)
+	if err != nil {
 		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
 		return nil, err
 	}
@@ -259,7 +260,7 @@ func UpdateTaskTimeDuration(api *API, c *gin.Context, taskID primitive.ObjectID,
 		c.JSON(400, gin.H{"detail": "Time duration cannot be negative"})
 		return false
 	}
-	updateParams.TimeAllocation = int64(timeDuration)
+	updateParams.TimeAllocation = int64(timeDuration * 1000 * 1000)
 	return true
 }
 

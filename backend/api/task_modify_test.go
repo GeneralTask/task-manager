@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -426,7 +425,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"Task not found.\",\"taskId\":\""+taskIDHex+"\"}", string(body))
 	})
 	t.Run("MissingOrderingID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -687,73 +686,6 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, "New Body", task.Body)
-	})
-
-	t.Run("Edit Body Empty", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
-
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		insertResult, err := taskCollection.InsertOne(
-			dbCtx,
-			database.TaskBase{
-				UserID: userID,
-				Body:   "Test Body",
-			},
-		)
-		assert.NoError(t, err)
-		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
-
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"body": ""}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-	})
-
-	t.Run("Edit Due Date Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
-
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-
-		insertResult, err := taskCollection.InsertOne(
-			dbCtx,
-			database.Task{
-				TaskBase: database.TaskBase{
-					UserID: userID,
-				},
-			},
-		)
-		assert.NoError(t, err)
-		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
-
-		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
-		assert.NoError(t, err)
-
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+insertedTaskID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"due_date": "`+dueDate.Format(time.RFC3339)+`"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
-		var task database.Task
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
-		assert.NoError(t, err)
-
-		assert.Equal(t, primitive.NewDateTimeFromTime(dueDate), task.DueDate)
 	})
 
 	t.Run("Edit Due Date Empty", func(t *testing.T) {
