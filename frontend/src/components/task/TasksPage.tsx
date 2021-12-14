@@ -17,6 +17,11 @@ const TasksPageContainer = styled.div`
     display:flex;
     height: 100%;
 `
+const TasksContentContainer = styled.div`
+    width: 100% ;
+    overflow: scroll;
+    padding-top: 50px;
+`
 const Header = styled.div`
     display: flex;
     justify-content: space-between;
@@ -75,7 +80,7 @@ export default function TasksPage(): JSX.Element {
     return (
         <TasksPageContainer>
             <Navbar currentPage={NavbarPages.TASKS_PAGE} />
-            <div>
+            <TasksContentContainer>
                 <Header>
                     <BtnContainer />
                     Tasks
@@ -83,7 +88,7 @@ export default function TasksPage(): JSX.Element {
                 </Header>
                 <TaskStatus />
                 {TaskSectionElements}
-            </div>
+            </TasksContentContainer>
         </TasksPageContainer>
     )
 }
