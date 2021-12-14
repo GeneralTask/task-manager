@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { LANDING_PATH, SETTINGS_PATH } from '../constants'
 import { NavbarPages } from '../helpers/types'
+import { logout } from '../helpers/utils'
 
 const NavbarContainer = styled.div`
     min-width: 275px;
@@ -67,7 +68,11 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
             },
             {
                 page: NavbarPages.SETTINGS_PAGE,
-                link: <NavbarLink to={SETTINGS_PATH}> <NavbarLinkButton>⚙ Settings</NavbarLinkButton></NavbarLink>
+                link: <NavbarLink to={SETTINGS_PATH}><NavbarLinkButton>⚙ Settings</NavbarLinkButton></NavbarLink>
+            },
+            {
+                page: NavbarPages.LOGOUT,
+                link: <NavbarLink to={LANDING_PATH} onClick={logout}><NavbarLinkButton> Logout</NavbarLinkButton></NavbarLink>
             }
         ]
     const navbarJSXElements = linkElements.map(element => (
