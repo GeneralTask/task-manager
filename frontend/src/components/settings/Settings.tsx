@@ -4,7 +4,14 @@ import Accounts from './Accounts'
 import Preferences from './Preferences'
 import React from 'react'
 import styled from 'styled-components'
+import Navbar from '../Navbar'
+import { NavbarPages } from '../../helpers/types'
 
+
+const SettingsPageContainer = styled.div`
+    display:flex;
+    height: 100%;
+`
 const Header = styled.div`
     text-align: center;
     font-size: 32px; 
@@ -27,21 +34,24 @@ const Setting = styled.div`
 
 const Settings: React.FC = () => {
     return (
-        <div>
-            <Header>
-                Settings
-            </Header>
-            <Setting>
-                <Body>
-                    <Accounts />
-                </Body>
-            </Setting>
-            <Setting>
-                <Body>
-                    <Preferences />
-                </Body>
-            </Setting>
-        </div>
+        <SettingsPageContainer>
+            <Navbar currentPage={NavbarPages.SETTINGS_PAGE} />
+            <div style={{ width: '100%' }}>
+                <Header>
+                    Settings
+                </Header>
+                <Setting>
+                    <Body>
+                        <Accounts />
+                    </Body>
+                </Setting>
+                <Setting>
+                    <Body>
+                        <Preferences />
+                    </Body>
+                </Setting>
+            </div>
+        </SettingsPageContainer>
     )
 }
 

@@ -10,7 +10,13 @@ import styled from 'styled-components'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import { useFetchTasks } from '../../helpers/utils'
+import Navbar from '../Navbar'
+import { NavbarPages } from '../../helpers/types'
 
+const TasksPageContainer = styled.div`
+    display:flex;
+    height: 100%;
+`
 const Header = styled.div`
     display: flex;
     justify-content: space-between;
@@ -67,15 +73,18 @@ export default function TasksPage(): JSX.Element {
     )
 
     return (
-        <div>
-            <Header>
-                <BtnContainer />
-                Tasks
-                <CreateNewTaskButton />
-            </Header>
-            <TaskStatus />
-            {TaskSectionElements}
-        </div>
+        <TasksPageContainer>
+            <Navbar currentPage={NavbarPages.TASKS_PAGE} />
+            <div>
+                <Header>
+                    <BtnContainer />
+                    Tasks
+                    <CreateNewTaskButton />
+                </Header>
+                <TaskStatus />
+                {TaskSectionElements}
+            </div>
+        </TasksPageContainer>
     )
 }
 

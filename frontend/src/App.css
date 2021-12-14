@@ -4,6 +4,11 @@
   unicode-range: U+2026;
 }
 
+html, body, #root {
+  margin: 0;
+  height: 100%;
+}
+
 body{
   font-family: 'Ellipsis', 'Gothic A1', sans-serif;
 }
