@@ -79,8 +79,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) =
           props.isExpanded ?
             props.task.source.is_completable && <DoneButton onClick={() => {
               done(props.task.id, dispatch, fetchTasks)
-            }}>
-            </DoneButton> :
+            }} /> :
             <DragHandler ref={ref}>
               <Domino src="images/domino.svg" alt="" />
             </DragHandler>
