@@ -12,6 +12,11 @@ const SettingsPageContainer = styled.div`
     display:flex;
     height: 100%;
 `
+const SettingsContentContainer = styled.div`
+    width: 100%;
+    overflow: scroll;
+    padding-top: 50px;
+`
 const Header = styled.div`
     text-align: center;
     font-size: 32px; 
@@ -36,7 +41,7 @@ const Settings: React.FC = () => {
     return (
         <SettingsPageContainer>
             <Navbar currentPage={NavbarPages.SETTINGS_PAGE} />
-            <div style={{ width: '100%' }}>
+            <SettingsContentContainer>
                 <Header>
                     Settings
                 </Header>
@@ -50,7 +55,7 @@ const Settings: React.FC = () => {
                         <Preferences />
                     </Body>
                 </Setting>
-            </div>
+            </SettingsContentContainer>
         </SettingsPageContainer>
     )
 }
