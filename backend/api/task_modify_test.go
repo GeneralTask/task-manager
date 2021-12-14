@@ -445,7 +445,8 @@ func TestTaskReorder(t *testing.T) {
 	t.Run("BadTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
+		taskIDHex := primitive.NewObjectID().Hex()
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -454,7 +455,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"Task not found.\",\"taskId\":\""+taskIDHex+"\"}", string(body))
 	})
 	t.Run("WrongFormatTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")

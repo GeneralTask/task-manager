@@ -33,13 +33,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	var modifyParams TaskModifyParams
 	err = c.BindJSON(&modifyParams)
 
-	if err != nil || (modifyParams.IsCompleted == nil &&
-		modifyParams.IDOrdering == nil &&
-		modifyParams.IDTaskSection == nil &&
-		modifyParams.Title == nil &&
-		modifyParams.Body == nil &&
-		modifyParams.DueDate == nil &&
-		modifyParams.TimeDuration == nil) {
+	if err != nil {
 		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
 		return
 	}
@@ -52,48 +46,72 @@ func (api *API) TaskModify(c *gin.Context) {
 		}
 	}
 
-	if modifyParams.IsCompleted != nil && modifyParams.IDOrdering != nil {
-		c.JSON(400, gin.H{"detail": "Cannot reorder and mark as complete"})
+	isEditingFields := modifyParams.Title != nil ||
+		modifyParams.Body != nil ||
+		modifyParams.DueDate != nil ||
+		modifyParams.TimeDuration != nil
+
+	isMarkingComplete := modifyParams.IsCompleted != nil
+
+	isReordering := modifyParams.IDOrdering != nil || modifyParams.IDTaskSection != nil
+
+	actionCount := 0
+	if isEditingFields {
+		actionCount++
+	}
+	if isMarkingComplete {
+		actionCount++
+	}
+	if isReordering {
+		actionCount++
+	}
+
+	if actionCount != 1 {
+		c.JSON(400, gin.H{"detail": "Cannot reorder, mark as complete, or edit fields in the same request"})
 		return
 	}
 
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	if modifyParams.IsCompleted != nil {
-		if *modifyParams.IsCompleted {
-			MarkTaskComplete(api, c, taskID, userID)
-		} else {
-			c.JSON(400, gin.H{"detail": "Tasks can only be marked as complete."})
-		}
-	} else if modifyParams.IDOrdering != nil || modifyParams.IDTaskSection != nil {
+	task, err := GetTask(api, c, taskID, userID)
+	if err == nil {
+		// status is handled in GetTask
+		return
+	}
+
+	updateParams := &database.Task{}
+
+	isValid := true
+
+	if isMarkingComplete {
+		isValid = MarkTaskComplete(api, c, taskID, userID, updateParams, task, modifyParams.IsCompleted)
+	} else if isReordering {
 		ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection)
-	} else if modifyParams.Title != nil {
-		if *modifyParams.Title != "" {
-			UpdateTaskTitle(api, c, taskID, userID, *modifyParams.Title)
-		} else {
-			c.JSON(400, gin.H{"detail": "Title cannot be empty"})
+		return
+	} else if isEditingFields {
+		if modifyParams.Title != nil {
+			isValid = isValid && UpdateTaskTitle(api, c, taskID, userID, updateParams, modifyParams.Title)
 		}
-	} else if modifyParams.Body != nil {
-		if *modifyParams.Body != "" {
-			UpdateTaskBody(api, c, taskID, userID, *modifyParams.Body)
-		} else {
-			c.JSON(400, gin.H{"detail": "Body cannot be empty"})
+		if modifyParams.Body != nil {
+			isValid = isValid && UpdateTaskBody(api, c, taskID, userID, updateParams, modifyParams.Body)
 		}
-	} else if modifyParams.DueDate != nil {
-		dueDate := primitive.NewDateTimeFromTime(*modifyParams.DueDate)
-		UpdateTaskDueDate(api, c, taskID, userID, dueDate)
-	} else if modifyParams.TimeDuration != nil {
-		if *modifyParams.TimeDuration < 0 {
-			c.JSON(400, gin.H{"detail": "Time duration cannot be negative"})
-		} else {
-			UpdateTaskTimeDuration(api, c, taskID, userID, *modifyParams.TimeDuration)
+		if modifyParams.DueDate != nil {
+			isValid = isValid && UpdateTaskDueDate(api, c, taskID, userID, updateParams, modifyParams.DueDate)
+		}
+		if modifyParams.TimeDuration != nil {
+			UpdateTaskTimeDuration(api, c, taskID, userID, updateParams, *modifyParams.TimeDuration)
 		}
 	} else {
 		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
 		return
 	}
+	if !isValid {
+		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
+		return
+	}
 
+	UpdateTask(api, c, taskID, userID, updateParams, task)
 }
 
 func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string) {
@@ -163,17 +181,17 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 	c.JSON(200, gin.H{})
 }
 
-func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) {
+func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) (*database.Task, error) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
-		return
+		return nil, err
 	}
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
-	var task database.TaskBase
+	var task database.Task
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	if taskCollection.FindOne(
@@ -183,51 +201,69 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 			{"user_id": userID},
 		}}).Decode(&task) != nil {
 		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
-		return
+		return nil, err
 	}
+	return &task, nil
+}
 
+func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *database.Task, task *database.Task, isCompleted *bool) bool {
+	if !*isCompleted {
+		c.JSON(400, gin.H{"detail": "Tasks can only be marked as complete."})
+		return false
+	}
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
 	if err != nil {
 		log.Printf("failed to load external task source: %v", err)
 		Handle500(c)
-		return
+		return false
 	}
 
 	if !taskSourceResult.Details.IsCompletable {
 		c.JSON(400, gin.H{"detail": "cannot be marked done"})
-		return
+		return false
 	}
 
 	err = taskSourceResult.Source.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
 	if err != nil {
 		log.Printf("failed to mark task as complete: %v", err)
 		c.JSON(503, gin.H{"detail": "Failed to mark task as complete"})
-		return
+		return false
 	}
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	res, err := taskCollection.UpdateOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": taskID},
-			{"user_id": userID},
-		}},
-		bson.M{"$set": bson.M{"is_completed": true}},
-	)
-	if err != nil {
-		log.Printf("failed to update internal DB with completion status: %v", err)
-		Handle500(c)
-		return
-	}
-	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
-		log.Println("failed to update task to be complete", res)
-		Handle500(c)
-		return
-	}
-	c.JSON(200, gin.H{})
+
+	updateParams.IsCompleted = true
+	return true
 }
 
-func UpdateTaskTitle(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, title string) {
+func UpdateTaskTitle(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *database.Task, title *string) bool {
+	if *title == "" {
+		c.JSON(400, gin.H{"detail": "Title cannot be empty"})
+		return false
+	}
+	updateParams.Title = *title
+	return true
+}
+
+func UpdateTaskBody(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *database.Task, body *string) bool {
+	updateParams.Body = *body
+	return true
+}
+
+func UpdateTaskDueDate(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *database.Task, dueDateTime *time.Time) bool {
+	dueDate := primitive.NewDateTimeFromTime(*dueDateTime)
+	updateParams.DueDate = dueDate
+	return true
+}
+
+func UpdateTaskTimeDuration(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *database.Task, timeDuration int) bool {
+	if timeDuration < 0 {
+		c.JSON(400, gin.H{"detail": "Time duration cannot be negative"})
+		return false
+	}
+	updateParams.TimeAllocation = int64(timeDuration)
+	return true
+}
+
+func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *database.Task, task *database.Task) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -237,20 +273,7 @@ func UpdateTaskTitle(api *API, c *gin.Context, taskID primitive.ObjectID, userID
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
-	var task database.TaskBase
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	if taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": taskID},
-			{"user_id": userID},
-		}}).Decode(&task) != nil {
-		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
-		return
-	}
-
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	res, err := taskCollection.UpdateOne(
 		dbCtx,
@@ -258,153 +281,15 @@ func UpdateTaskTitle(api *API, c *gin.Context, taskID primitive.ObjectID, userID
 			{"_id": taskID},
 			{"user_id": userID},
 		}},
-		bson.M{"$set": bson.M{"title": title}},
+		bson.M{"$set": updateParams},
 	)
 	if err != nil {
-		log.Printf("failed to update internal DB with title: %v", err)
+		log.Printf("failed to update internal DB: %v", err)
 		Handle500(c)
 		return
 	}
 	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
-		log.Println("failed to update task title", res)
-		Handle500(c)
-		return
-	}
-	c.JSON(200, gin.H{})
-}
-
-func UpdateTaskBody(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, body string) {
-	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-	taskCollection := database.GetTaskCollection(db)
-
-	var task database.TaskBase
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	if taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": taskID},
-			{"user_id": userID},
-		}}).Decode(&task) != nil {
-		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
-		return
-	}
-
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	res, err := taskCollection.UpdateOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": taskID},
-			{"user_id": userID},
-		}},
-		bson.M{"$set": bson.M{"body": body}},
-	)
-	if err != nil {
-		log.Printf("failed to update internal DB with body: %v", err)
-		Handle500(c)
-		return
-	}
-	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
-		log.Println("failed to update task body", res)
-		Handle500(c)
-		return
-	}
-	c.JSON(200, gin.H{})
-}
-
-func UpdateTaskDueDate(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, dueDate primitive.DateTime) {
-	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-	taskCollection := database.GetTaskCollection(db)
-
-	var task database.TaskBase
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	if taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": taskID},
-			{"user_id": userID},
-		}}).Decode(&task) != nil {
-		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
-		return
-	}
-
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	res, err := taskCollection.UpdateOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": taskID},
-			{"user_id": userID},
-		}},
-		bson.M{"$set": bson.M{"due_date": dueDate}},
-	)
-	if err != nil {
-		log.Printf("failed to update internal DB with due date: %v", err)
-		Handle500(c)
-		return
-	}
-	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
-		log.Println("failed to update task due date", res)
-		Handle500(c)
-		return
-	}
-	c.JSON(200, gin.H{})
-}
-
-func UpdateTaskTimeDuration(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, timeDuration int) {
-	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-	taskCollection := database.GetTaskCollection(db)
-
-	var task database.TaskBase
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	if taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": taskID},
-			{"user_id": userID},
-		}}).Decode(&task) != nil {
-		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
-		return
-	}
-
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	res, err := taskCollection.UpdateOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": taskID},
-			{"user_id": userID},
-		}},
-		bson.M{"$set": bson.M{"time_allocated": timeDuration * 1000 * 1000}},
-	)
-	if err != nil {
-		log.Printf("failed to update internal DB with time duration: %v", err)
-		Handle500(c)
-		return
-	}
-	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
-		log.Println("failed to update task time duration", res)
+		log.Println("failed to update task", res)
 		Handle500(c)
 		return
 	}
