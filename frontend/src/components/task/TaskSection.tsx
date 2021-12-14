@@ -45,31 +45,33 @@ interface Props {
 }
 
 export default function TaskSection(props: Props): JSX.Element {
-    return <>
-        <TaskSectionHeader task_section_index={props.task_section_index} isToday={props.task_section.is_today} name={props.task_section.name} />
-        {props.task_section.is_today && <TaskCreate />}
-        {
-            props.task_section.task_groups.map((group: TTaskGroup, task_group_index: number) => {
-                if (group.tasks && !group.tasks.length) {
-                    return (<flex.flex key={task_group_index}>
-                        <TaskWrapperSides />
-                    </flex.flex>)
-                }
-                return (
-                    <div key={task_group_index}>
-                        {
-                            group.tasks.length > 0 &&
-                            <TaskGroup taskGroup={group}
-                                showTimeAnnotations={props.task_section.is_today}
-                                indices={{
-                                    group: task_group_index,
-                                    section: props.task_section_index,
-                                }}
-                            />
-                        }
-                    </div>
-                )
-            })
-        }
-    </>
+    return (
+        <div>
+            <TaskSectionHeader task_section_index={props.task_section_index} isToday={props.task_section.is_today} name={props.task_section.name} />
+            {props.task_section.is_today && <TaskCreate />}
+            {
+                props.task_section.task_groups.map((group: TTaskGroup, task_group_index: number) => {
+                    if (group.tasks && !group.tasks.length) {
+                        return (<flex.flex key={task_group_index}>
+                            <TaskWrapperSides />
+                        </flex.flex>)
+                    }
+                    return (
+                        <div key={task_group_index}>
+                            {
+                                group.tasks.length > 0 &&
+                                <TaskGroup taskGroup={group}
+                                    showTimeAnnotations={props.task_section.is_today}
+                                    indices={{
+                                        group: task_group_index,
+                                        section: props.task_section_index,
+                                    }}
+                                />
+                            }
+                        </div>
+                    )
+                })
+            }
+        </div>
+    )
 }

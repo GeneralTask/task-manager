@@ -17,23 +17,13 @@ interface Props {
     source: TTaskSource,
     isExpanded: boolean,
     sender: string | null,
-    emailSender: string | null,
-    emailSentTime: string | null,
+    sent_at: string | null,
 }
-
-interface ReplyProps {
-    task_id: string,
-    sender: string | null,
-    body: string,
-    emailSender: string | null,
-    emailSentTime: string | null,
-}
-
 
 // no body: no body
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
-const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, isExpanded, emailSender, emailSentTime }: Props) => {
+const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, isExpanded, sent_at }: Props) => {
     return (
         <div>
             {Boolean(body || deeplink) && (
@@ -41,7 +31,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, is
                     {body && (
                         <TaskBodyDiv>
                             <EmailBody body={body} task_id={task_id} />
-                            {source.is_replyable && <Reply task_id={task_id} sender={sender} body={body} emailSender={emailSender} emailSentTime={emailSentTime} />}
+                            {source.is_replyable && <Reply task_id={task_id} sender={sender} body={body} sent_at={sent_at} />}
                         </TaskBodyDiv>
                     )}
                     {deeplink && (
@@ -80,11 +70,10 @@ const EmailBody: React.FC<EmailViewProps> = (props: EmailViewProps) => {
 interface EmailQuoteProps {
     sender: string | null,
     body: string,
-    emailSender: string | null,
-    emailSentTime: string | null,
+    sent_at: string | null,
 }
 
-function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProps): JSX.Element {
+function EmailQuote({ sender, body, sent_at }: EmailQuoteProps): JSX.Element {
     const newMessageStyles = {
         color: TEXT_BLACK
     }
@@ -102,7 +91,7 @@ function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProp
         allowedAttributes: false,
         allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'center'])
     }
-    const emailDate = new Date(emailSentTime || '')
+    const emailDate = new Date(sent_at || '')
     const month = emailDate.toLocaleString('default', { month: 'short' })
     const hours = emailDate.getHours()
     const minutes = emailDate.getMinutes()
@@ -114,7 +103,7 @@ function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProp
     else timeString = `${hours}:${minutes} AM`
 
     const emailSenderQuote = `On ${month} ${date}, ${year} at ${timeString},
-                ${sender} <${emailSender}> wrote:`
+                ${sender} wrote:`
 
     return (
         <div>
@@ -124,7 +113,7 @@ function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProp
                 <br />
             </div>
             <div style={emailBlockStyles}>
-                {sender && emailSender && emailSentTime && <div>{emailSenderQuote}</div>}
+                {sender && sent_at && <div>{emailSenderQuote}</div>}
                 <div style={emailQuoteStyles}>
                     <div
                         dangerouslySetInnerHTML={{ __html: sanitizeHtml(body, whitelistedHTMLAttributes) }}
@@ -135,10 +124,16 @@ function EmailQuote({ sender, body, emailSender, emailSentTime }: EmailQuoteProp
     )
 }
 
+interface ReplyProps {
+    task_id: string,
+    sender: string | null,
+    body: string,
+    sent_at: string | null,
+}
 
-const Reply: React.FC<ReplyProps> = ({ task_id, sender, body, emailSender, emailSentTime }: ReplyProps) => {
+const Reply: React.FC<ReplyProps> = ({ task_id, sender, body, sent_at }: ReplyProps) => {
     const fetchTasks = useFetchTasks()
-    const [text, setText] = useState(ReactDOMServer.renderToStaticMarkup(<EmailQuote sender={sender} body={body} emailSender={emailSender} emailSentTime={emailSentTime} />))
+    const [text, setText] = useState(ReactDOMServer.renderToStaticMarkup(<EmailQuote sender={sender} body={body} sent_at={sent_at} />))
 
     return <ReplyDiv>
         <ContentEditable
