@@ -1,18 +1,16 @@
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   cluster_name    = local.cluster_name
-  cluster_version = "1.21"
-  subnets         = [aws_subnet.primary-az1.id, aws_subnet.primary-az2.id]
+  cluster_version = "1.20"
+  subnets         = [module.vpc.private_subnets[0], module.vpc.public_subnets[1]]
+
+  cluster_endpoint_private_access = true
 
   tags = {
     Environment = "production"
     GithubRepo  = "terraform-aws-eks"
     GithubOrg   = "terraform-aws-modules"
   }
-
-  # callout: https://github.com/terraform-aws-modules/terraform-aws-eks/blob/fb3a7ce450d42ebab1395720ed5f1ca49d6e14bb/docs/faq.md#networking
-  # save https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/examples/complete/main.tf
-
 
   vpc_id = module.vpc.vpc_id
 
