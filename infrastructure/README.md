@@ -10,3 +10,9 @@ Grab the cluster name from the terraform cloud state.
 aws configure
 aws eks --region us-west-2 update-kubeconfig --name INSERT_CLUSTER_NAME
 ```
+
+## Appendix
+
+Useful debugging links
+
+- https://github.com/terraform-aws-modules/terraform-aws-eks/issues/911
