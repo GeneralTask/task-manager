@@ -592,15 +592,41 @@ func TestEditFields(t *testing.T) {
 	authToken := login("approved@generaltask.com", "")
 	userID := getUserIDFromAuthToken(t, db, authToken)
 
+	sampleTask := database.Task{
+		TaskBase: database.TaskBase{
+			IDExternal:       "ID External",
+			IDOrdering:       1,
+			IDTaskSection:    constants.IDTaskSectionToday,
+			IsCompleted:      false,
+			Sender:           "Sender",
+			SourceID:         "Source ID",
+			SourceAccountID:  "Source Account ID",
+			Deeplink:         "Deeplink",
+			Title:            "Initial Title",
+			Body:             "Initial Body",
+			HasBeenReordered: false,
+			TimeAllocation:   60 * 60 * 1000 * 1000,
+			ConferenceCall: &database.ConferenceCall{
+				Platform: "Google Meet",
+				Logo:     "https://google.com/logo.png",
+				URL:      "https://meet.google.com/",
+			},
+			CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now()),
+		},
+		DueDate:            primitive.NewDateTimeFromTime(time.Now()),
+		PriorityID:         "Priority ID",
+		PriorityNormalized: 5.0,
+		TaskNumber:         3,
+	}
+
 	t.Run("Edit Title Success", func(t *testing.T) {
+		initialTask := sampleTask
+		initialTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			database.TaskBase{
-				UserID: userID,
-				Title:  "Test task",
-			},
+			initialTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -625,14 +651,13 @@ func TestEditFields(t *testing.T) {
 	})
 
 	t.Run("Edit Title Empty", func(t *testing.T) {
+		initialTask := sampleTask
+		initialTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			database.TaskBase{
-				UserID: userID,
-				Title:  "Test task",
-			},
+			initialTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -649,14 +674,13 @@ func TestEditFields(t *testing.T) {
 	})
 
 	t.Run("Edit Body Success", func(t *testing.T) {
+		initialTask := sampleTask
+		initialTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			database.TaskBase{
-				UserID: userID,
-				Body:   "Test Body",
-			},
+			initialTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -680,18 +704,13 @@ func TestEditFields(t *testing.T) {
 		assert.Equal(t, "New Body", task.Body)
 	})
 	t.Run("Edit Due Date Success", func(t *testing.T) {
-
+		initialTask := sampleTask
+		initialTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			database.Task{
-				TaskBase: database.TaskBase{
-					UserID: userID,
-				},
-				DueDate: primitive.NewDateTimeFromTime(time.Now()),
-			},
+			initialTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -718,14 +737,13 @@ func TestEditFields(t *testing.T) {
 		assert.Equal(t, primitive.NewDateTimeFromTime(dueDate), task.DueDate)
 	})
 	t.Run("Edit Due Date Empty", func(t *testing.T) {
-
+		initialTask := sampleTask
+		initialTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			database.TaskBase{
-				UserID: userID,
-			},
+			initialTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -741,18 +759,13 @@ func TestEditFields(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	})
 	t.Run("Edit Time Duration Success", func(t *testing.T) {
-
+		initialTask := sampleTask
+		initialTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			database.Task{
-				TaskBase: database.TaskBase{
-					UserID:         userID,
-					TimeAllocation: 1000,
-				},
-			},
+			initialTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -776,14 +789,13 @@ func TestEditFields(t *testing.T) {
 		assert.Equal(t, int64(20*1000*1000), task.TaskBase.TimeAllocation)
 	})
 	t.Run("Edit Time Duration Negative", func(t *testing.T) {
-
+		initialTask := sampleTask
+		initialTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			database.TaskBase{
-				UserID: userID,
-			},
+			initialTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -799,20 +811,13 @@ func TestEditFields(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	})
 	t.Run("Edit multiple fields success", func(t *testing.T) {
-
+		initialTask := sampleTask
+		initialTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			database.Task{
-				TaskBase: database.TaskBase{
-					UserID:         userID,
-					TimeAllocation: 1000,
-					Title:          "Old Title",
-					Body:           "Old Body",
-				},
-				DueDate: primitive.NewDateTimeFromTime(time.Now()),
-			},
+			initialTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
