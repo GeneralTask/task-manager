@@ -83,12 +83,12 @@ func (api *API) TaskModify(c *gin.Context) {
 	updateParams := &database.Task{}
 
 	isValid := true
-
+	if isReordering {
+		ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection, task)
+		return
+	}
 	if isMarkingComplete {
 		isValid = MarkTaskComplete(api, c, taskID, userID, updateParams, task, modifyParams.IsCompleted)
-	} else if isReordering {
-		ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection)
-		return
 	} else if isEditingFields {
 		if modifyParams.Title != nil {
 			isValid = isValid && UpdateTaskTitle(api, c, taskID, userID, updateParams, modifyParams.Title)
@@ -100,7 +100,7 @@ func (api *API) TaskModify(c *gin.Context) {
 			isValid = isValid && UpdateTaskDueDate(api, c, taskID, userID, updateParams, modifyParams.DueDate)
 		}
 		if modifyParams.TimeDuration != nil {
-			UpdateTaskTimeDuration(api, c, taskID, userID, updateParams, *modifyParams.TimeDuration)
+			isValid = isValid && UpdateTaskTimeDuration(api, c, taskID, userID, updateParams, *modifyParams.TimeDuration)
 		}
 	} else {
 		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
@@ -114,7 +114,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	UpdateTask(api, c, taskID, userID, updateParams, task)
 }
 
-func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string) {
+func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string, task *database.Task) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -132,13 +132,6 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		IDTaskSection, _ = primitive.ObjectIDFromHex(*IDTaskSectionHex)
 		updateParams["id_task_section"] = IDTaskSection
 	} else {
-		var task database.TaskBase
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
-		if err != nil {
-			log.Printf("failed to load task in db: %v", err)
-		}
 		IDTaskSection = task.IDTaskSection
 	}
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
