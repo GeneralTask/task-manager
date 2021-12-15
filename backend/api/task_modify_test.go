@@ -289,10 +289,11 @@ func TestTaskReorder(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
-	t.Run("Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
 
+	authToken := login("approved@generaltask.com", "")
+	userID := getUserIDFromAuthToken(t, db, authToken)
+
+	t.Run("Success", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
@@ -500,8 +501,6 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
 	})
 	t.Run("OnlyReorderTaskSections", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -538,8 +537,6 @@ func TestTaskReorder(t *testing.T) {
 		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("OnlyReorderingID", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -592,10 +589,10 @@ func TestEditFields(t *testing.T) {
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
-	t.Run("Edit Title Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
+	authToken := login("approved@generaltask.com", "")
+	userID := getUserIDFromAuthToken(t, db, authToken)
 
+	t.Run("Edit Title Success", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
@@ -628,9 +625,6 @@ func TestEditFields(t *testing.T) {
 	})
 
 	t.Run("Edit Title Empty", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
-
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
@@ -655,9 +649,6 @@ func TestEditFields(t *testing.T) {
 	})
 
 	t.Run("Edit Body Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
-
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
@@ -688,10 +679,7 @@ func TestEditFields(t *testing.T) {
 
 		assert.Equal(t, "New Body", task.Body)
 	})
-
 	t.Run("Edit Due Date Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -729,10 +717,7 @@ func TestEditFields(t *testing.T) {
 
 		assert.Equal(t, primitive.NewDateTimeFromTime(dueDate), task.DueDate)
 	})
-
 	t.Run("Edit Due Date Empty", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -755,10 +740,7 @@ func TestEditFields(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	})
-
 	t.Run("Edit Time Duration Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -793,10 +775,7 @@ func TestEditFields(t *testing.T) {
 
 		assert.Equal(t, int64(20*1000*1000), task.TaskBase.TimeAllocation)
 	})
-
 	t.Run("Edit Time Duration Negative", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -819,10 +798,7 @@ func TestEditFields(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	})
-
 	t.Run("Edit multiple fields success", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
