@@ -10,6 +10,10 @@ module "eks" {
     GithubOrg   = "terraform-aws-modules"
   }
 
+  # callout: https://github.com/terraform-aws-modules/terraform-aws-eks/blob/fb3a7ce450d42ebab1395720ed5f1ca49d6e14bb/docs/faq.md#networking
+  # save https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/examples/complete/main.tf
+
+
   vpc_id = module.vpc.vpc_id
 
   worker_groups = [
