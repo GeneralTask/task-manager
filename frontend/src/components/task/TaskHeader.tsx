@@ -17,12 +17,20 @@ import {
   CalendarIconContainer,
   CalendarIcon,
   DragHandler,
-  Domino,
+  DominoContainer,
+  DominoDot,
   DoneButton,
   JoinConferenceButtonContainer
 } from './TaskHeader-style'
 import JoinConferenceButton from './JoinConferenceButton'
 
+function Domino(): JSX.Element {
+  return (
+    <DominoContainer>
+      {Array(6).fill(0).map(() => <DominoDot />)}
+    </DominoContainer>
+  )
+}
 interface TaskHeaderProps {
   task: TTask,
   datetimeStart: string | null, // null if unscheduled_task
@@ -82,7 +90,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
             }} /> :
             !props.dragDisabled &&
             <DragHandler ref={ref}>
-              <Domino src="images/domino.svg" alt="drag-handler" />
+              <Domino />
             </DragHandler>
         }
       </HeaderRight >
