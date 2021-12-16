@@ -81,7 +81,7 @@ export const DragHandler = styled.div`
   display: flex;
   align-items: center;
   cursor: move;
-  margin-right: 0px;
+  margin-right: 4px;
   height: 40%;
   display: inline;
 `
