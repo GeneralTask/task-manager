@@ -80,7 +80,6 @@ export const DragHandler = styled.div`
   cursor: grab;
   display: flex;
   align-items: center;
-  padding: 0 0 0 0;
   cursor: move;
   margin-right: 0px;
   height: 40%;
