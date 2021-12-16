@@ -6,7 +6,7 @@ import { NavbarPages } from '../helpers/types'
 import { logout } from '../helpers/utils'
 
 const NavbarContainer = styled.div`
-    min-width: 275px;
+    flex: 0 0 275px;
     background-color: #27272A;
     color: white;
     height: 100%;
