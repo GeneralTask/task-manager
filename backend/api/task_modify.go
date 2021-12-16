@@ -22,6 +22,14 @@ type TaskModifyParams struct {
 	TimeDuration  *int       `json:"time_duration"`
 }
 
+type UpdateParams struct {
+	Title          string             `bson:"title,omitempty"`
+	Body           string             `bson:"body,omitempty"`
+	DueDate        primitive.DateTime `bson:"due_date,omitempty"`
+	TimeAllocation int64              `bson:"time_allocated,omitempty"`
+	IsCompleted    bool               `bson:"is_completed,omitempty"`
+}
+
 func (api *API) TaskModify(c *gin.Context) {
 	taskIDHex := c.Param("task_id")
 	taskID, err := primitive.ObjectIDFromHex(taskIDHex)
@@ -80,7 +88,7 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
-	updateParams := &database.Task{}
+	updateParams := &UpdateParams{}
 
 	isValid := true
 	if isReordering {
@@ -200,7 +208,7 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 	return &task, nil
 }
 
-func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *database.Task, task *database.Task, isCompleted *bool) bool {
+func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *UpdateParams, task *database.Task, isCompleted *bool) bool {
 	if !*isCompleted {
 		c.JSON(400, gin.H{"detail": "Tasks can only be marked as complete."})
 		return false
@@ -228,7 +236,7 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	return true
 }
 
-func UpdateTaskTitle(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *database.Task, title *string) bool {
+func UpdateTaskTitle(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *UpdateParams, title *string) bool {
 	if *title == "" {
 		c.JSON(400, gin.H{"detail": "Title cannot be empty"})
 		return false
@@ -237,18 +245,18 @@ func UpdateTaskTitle(api *API, c *gin.Context, taskID primitive.ObjectID, userID
 	return true
 }
 
-func UpdateTaskBody(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *database.Task, body *string) bool {
+func UpdateTaskBody(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *UpdateParams, body *string) bool {
 	updateParams.Body = *body
 	return true
 }
 
-func UpdateTaskDueDate(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *database.Task, dueDateTime *time.Time) bool {
+func UpdateTaskDueDate(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *UpdateParams, dueDateTime *time.Time) bool {
 	dueDate := primitive.NewDateTimeFromTime(*dueDateTime)
 	updateParams.DueDate = dueDate
 	return true
 }
 
-func UpdateTaskTimeDuration(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *database.Task, timeDuration int) bool {
+func UpdateTaskTimeDuration(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *UpdateParams, timeDuration int) bool {
 	if timeDuration < 0 {
 		c.JSON(400, gin.H{"detail": "Time duration cannot be negative"})
 		return false
@@ -257,7 +265,7 @@ func UpdateTaskTimeDuration(api *API, c *gin.Context, taskID primitive.ObjectID,
 	return true
 }
 
-func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *database.Task, task *database.Task) {
+func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *UpdateParams, task *database.Task) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
