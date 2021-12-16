@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-
 import { FetchStatusEnum } from '../../redux/enums'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
-import { device } from '../../helpers/styles'
 import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
@@ -12,6 +10,7 @@ import { useFetchSettings } from '../settings/Preferences'
 import { useFetchTasks } from '../../helpers/utils'
 import Navbar from '../Navbar'
 import { NavbarPages } from '../../helpers/types'
+import { BACKGROUND_WHITE } from '../../helpers/styles'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 
 const TasksPageContainer = styled.div`
@@ -19,37 +18,39 @@ const TasksPageContainer = styled.div`
     height: 100%;
 `
 const TasksContentContainer = styled.div`
-    width: 100% ;
+    flex: 1;
+    display: flex;
     overflow: scroll;
     padding-top: 50px;
+    flex-direction: column;
 `
 const Header = styled.div`
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    text-align: center;
-    font-size: 32px; 
-    margin: auto;
     margin-bottom: 24px;
-    width: 70%;
-    @media ${device.mobile}{
-        width: 60%;
-    }
+    width: 60%;
+    align-self: center;
+    justify-content:center;
+    position: relative;
+`
+const HeaderText = styled.div`
+    font-size: 32px; 
 `
 const BtnContainer = styled.div`
-    width: 10%;
+    position: absolute;
+    right: 0;
     display: flex;
     justify-content: flex-end;
+    height: 100%;
 `
 const NewTaskButton = styled.button`
-    font-size: 40px;
-    background: none;
-    color: inherit;
     border: none;
     padding: 0;
     cursor: pointer;
-    outline: inherit;
-    font-weight: lighter;
+    background-color: ${BACKGROUND_WHITE};
+`
+const PlusImage = styled.img`
+    height: 100%;
+    width: 100%;
 `
 
 export default function TasksPage(): JSX.Element {
@@ -83,8 +84,9 @@ export default function TasksPage(): JSX.Element {
             <Navbar currentPage={NavbarPages.TASKS_PAGE} />
             <TasksContentContainer>
                 <Header>
-                    <BtnContainer />
-                    Tasks
+                    <HeaderText>
+                        Tasks
+                    </HeaderText>
                     <CreateNewTaskButton />
                 </Header>
                 <TaskStatus />
@@ -110,7 +112,7 @@ function CreateNewTaskButton(): JSX.Element {
                     onClick={() => {
                         dispatch(setShowCreateTaskForm(true))
                     }}>
-                    +
+                    <PlusImage src="images/plus.svg" alt="create new task"></PlusImage>
                 </NewTaskButton>
             }
         </BtnContainer>
