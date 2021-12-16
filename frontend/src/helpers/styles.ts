@@ -45,4 +45,16 @@ export const NoSelect = styled.div`
 export const Margin = {
   ml10: '0 0 0 10px', // margin-left: 10px
 }
+
 export const DOMINO_COLOR = '#A1A1AA'
+
+export const CELL_HEIGHT = 64
+export const TABLE_WIDTH_PERCENTAGE = 95
+export const CELL_TIME_WIDTH = 43
+export const CELL_BORDER_WIDTH = 3
+export const CELL_LEFT_MARGIN = 10
+export const EVENT_CONTAINER_COLOR = '#FAFAFA'
+export const EVENT_TITLE_TEXT_COLOR = '#3F3F46'
+export const EVENT_TIME_TEXT_COLOR = '#71717A'
+export const CALENDAR_TD_COLOR = '#E4E3E7'
+export const CALENDAR_TIME_COLOR = '#A1A1AA'
