@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
+import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY, DOMINO_COLOR } from '../../helpers/styles'
 
 export const DoneButton = styled.div`
   background: #8A67DE;
@@ -85,8 +85,19 @@ export const DragHandler = styled.div`
   height: 40%;
   display: inline;
 `
-export const Domino = styled.img`
+export const DominoContainer = styled.div`
   height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  width: 10px;
+`
+export const DominoDot = styled.div`
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: ${DOMINO_COLOR};
+  margin-right: 2px;
+  margin-bottom: 2px;
 `
 export const Icon = styled.img`
   max-width: 19px;

@@ -46,6 +46,7 @@ export const Margin = {
   ml10: '0 0 0 10px', // margin-left: 10px
 }
 
+export const DOMINO_COLOR = '#A1A1AA'
 
 export const CELL_HEIGHT = 64
 export const TABLE_WIDTH_PERCENTAGE = 95
