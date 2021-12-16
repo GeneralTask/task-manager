@@ -12,6 +12,7 @@ import { useFetchSettings } from '../settings/Preferences'
 import { useFetchTasks } from '../../helpers/utils'
 import Navbar from '../Navbar'
 import { NavbarPages } from '../../helpers/types'
+import CalendarSidebar from '../calendar/CalendarSidebar'
 
 const TasksPageContainer = styled.div`
     display:flex;
@@ -89,6 +90,7 @@ export default function TasksPage(): JSX.Element {
                 <TaskStatus />
                 {TaskSectionElements}
             </TasksContentContainer>
+            <CalendarSidebar />
         </TasksPageContainer>
     )
 }
