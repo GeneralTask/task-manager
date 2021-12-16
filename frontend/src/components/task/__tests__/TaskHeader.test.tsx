@@ -24,7 +24,8 @@ const commonTaskProp = {
     body: null,
     conference_call: null,
     emailSender: null,
-    emailSentTime: null
+    emailSentTime: null,
+    sent_at: null,
 }
 
 const scheduledTaskHeaderProps: TaskHeaderProps = {
@@ -50,10 +51,10 @@ test('Scheduled task header does not have drag handler', () => {
             </DndProvider>
         </Provider>
     )
-    expect(screen.queryByAltText('drag-handler')).toBeNull()
+    expect(screen.queryByTestId('domino-handler')).toBeNull()
 })
 
-test('Uncheduled task does have drag handler', () => {
+test('Uncheduled task does have drag handler', async () => {
     render(
         <Provider store={store}>
             <DndProvider backend={HTML5Backend}>
@@ -61,5 +62,5 @@ test('Uncheduled task does have drag handler', () => {
             </DndProvider>
         </Provider>
     )
-    expect(screen.queryByAltText('drag-handler')).toBeInTheDocument()
+    expect(screen.queryByTestId('domino-handler')).toBeTruthy()
 })
