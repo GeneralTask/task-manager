@@ -75,7 +75,10 @@ func (api *API) TaskModify(c *gin.Context) {
 		actionCount++
 	}
 
-	if actionCount != 1 {
+	if actionCount == 0 {
+		c.JSON(400, gin.H{"detail": "Parameter missing"})
+		return
+	} else if actionCount > 1 {
 		c.JSON(400, gin.H{"detail": "Cannot reorder, mark as complete, or edit fields in the same request"})
 		return
 	}
