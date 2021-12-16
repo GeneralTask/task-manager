@@ -658,6 +658,9 @@ func TestEditFields(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
 
 		var task database.Task
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -690,6 +693,10 @@ func TestEditFields(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Title cannot be empty\"}", string(body))
 	})
 
 	t.Run("Edit Body Success", func(t *testing.T) {
@@ -713,6 +720,9 @@ func TestEditFields(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
 
 		var task database.Task
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -747,6 +757,9 @@ func TestEditFields(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
 
 		var task database.Task
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -778,6 +791,10 @@ func TestEditFields(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Parameter missing or malformatted\"}", string(body))
 	})
 	t.Run("Edit Time Duration Success", func(t *testing.T) {
 		expectedTask := sampleTask
@@ -800,6 +817,9 @@ func TestEditFields(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
 
 		var task database.Task
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -831,6 +851,10 @@ func TestEditFields(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Time duration cannot be negative\"}", string(body))
 	})
 	t.Run("Edit multiple fields success", func(t *testing.T) {
 		expectedTask := sampleTask
@@ -860,7 +884,7 @@ func TestEditFields(t *testing.T) {
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
-		// assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
@@ -877,5 +901,40 @@ func TestEditFields(t *testing.T) {
 		expectedTask.TimeAllocation = int64(20 * 1000 * 1000)
 
 		assertTasksEqual(t, &expectedTask, &task)
+	})
+
+	t.Run("Edit multiple fields empty title", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
+		assert.NoError(t, err)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{
+				"time_duration": 20,
+				"due_date": "`+dueDate.Format(time.RFC3339)+`",
+				"title": "",
+				"body": "New Body"
+				}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Title cannot be empty\"}", string(body))
 	})
 }
