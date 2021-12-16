@@ -620,13 +620,13 @@ func TestEditFields(t *testing.T) {
 	}
 
 	t.Run("Edit Title Success", func(t *testing.T) {
-		initialTask := sampleTask
-		initialTask.UserID = userID
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			initialTask,
+			expectedTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -647,17 +647,18 @@ func TestEditFields(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
-		assert.Equal(t, "New title", task.Title)
+		expectedTask.Title = "New title"
+		assert.Equal(t, expectedTask, task)
 	})
 
 	t.Run("Edit Title Empty", func(t *testing.T) {
-		initialTask := sampleTask
-		initialTask.UserID = userID
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			initialTask,
+			expectedTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -674,13 +675,13 @@ func TestEditFields(t *testing.T) {
 	})
 
 	t.Run("Edit Body Success", func(t *testing.T) {
-		initialTask := sampleTask
-		initialTask.UserID = userID
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			initialTask,
+			expectedTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -701,16 +702,17 @@ func TestEditFields(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
-		assert.Equal(t, "New Body", task.Body)
+		expectedTask.Body = "New Body"
+		assert.Equal(t, expectedTask, task)
 	})
 	t.Run("Edit Due Date Success", func(t *testing.T) {
-		initialTask := sampleTask
-		initialTask.UserID = userID
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			initialTask,
+			expectedTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -734,16 +736,17 @@ func TestEditFields(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
-		assert.Equal(t, primitive.NewDateTimeFromTime(dueDate), task.DueDate)
+		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		assert.Equal(t, expectedTask, task)
 	})
 	t.Run("Edit Due Date Empty", func(t *testing.T) {
-		initialTask := sampleTask
-		initialTask.UserID = userID
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			initialTask,
+			expectedTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -759,13 +762,13 @@ func TestEditFields(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	})
 	t.Run("Edit Time Duration Success", func(t *testing.T) {
-		initialTask := sampleTask
-		initialTask.UserID = userID
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			initialTask,
+			expectedTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -786,16 +789,17 @@ func TestEditFields(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
-		assert.Equal(t, int64(20*1000*1000), task.TaskBase.TimeAllocation)
+		expectedTask.TimeAllocation = int64(20 * 1000 * 1000)
+		assert.Equal(t, expectedTask, task)
 	})
 	t.Run("Edit Time Duration Negative", func(t *testing.T) {
-		initialTask := sampleTask
-		initialTask.UserID = userID
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			initialTask,
+			expectedTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -811,13 +815,13 @@ func TestEditFields(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	})
 	t.Run("Edit multiple fields success", func(t *testing.T) {
-		initialTask := sampleTask
-		initialTask.UserID = userID
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
-			initialTask,
+			expectedTask,
 		)
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -849,6 +853,11 @@ func TestEditFields(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
-		assert.Equal(t, primitive.NewDateTimeFromTime(dueDate), task.DueDate)
+		expectedTask.Title = "New Title"
+		expectedTask.Body = "New Body"
+		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		expectedTask.TimeAllocation = int64(20 * 1000 * 1000)
+
+		assert.Equal(t, expectedTask, task)
 	})
 }
