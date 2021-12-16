@@ -937,4 +937,31 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"Title cannot be empty\"}", string(body))
 	})
+
+	t.Run("Edit zero fields", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Parameter missing\"}", string(body))
+	})
 }
