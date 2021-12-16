@@ -63,12 +63,12 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
     }[] = [
             {
                 page: NavbarPages.TASKS_PAGE,
-                link: <NavbarLink to={LANDING_PATH}><NavbarLinkButton>📝 Tasks</NavbarLinkButton></NavbarLink>,
+                link: <NavbarLink to={LANDING_PATH}><NavbarLinkButton>Tasks</NavbarLinkButton></NavbarLink>,
 
             },
             {
                 page: NavbarPages.SETTINGS_PAGE,
-                link: <NavbarLink to={SETTINGS_PATH}><NavbarLinkButton>⚙ Settings</NavbarLinkButton></NavbarLink>
+                link: <NavbarLink to={SETTINGS_PATH}><NavbarLinkButton>Settings</NavbarLinkButton></NavbarLink>
             },
             {
                 page: NavbarPages.LOGOUT,
