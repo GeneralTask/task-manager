@@ -22,6 +22,7 @@ type TaskModifyParams struct {
 	TimeDuration  *int       `json:"time_duration"`
 }
 
+// using a separate struct with omitempty so that other task fields are not overwritten
 type UpdateParams struct {
 	Title          string             `bson:"title,omitempty"`
 	Body           string             `bson:"body,omitempty"`
@@ -115,7 +116,7 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 	if !isValid {
-		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
+		// if isValid is false, then a json response has already been set
 		return
 	}
 
