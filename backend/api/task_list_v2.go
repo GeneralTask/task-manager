@@ -263,11 +263,9 @@ func MergeTasksV2(
 	}, nil
 }
 
-func getTaskResults()
-
 func extractSectionTasksV2(allUnscheduledTasks *[]interface{}) ([]*TaskResultV2, []*TaskResultV2, []interface{}) {
-	var blockedTasks []*TaskResultV2
-	var backlogTasks []*TaskResultV2
+	blockedTasks := make([]*TaskResultV2, 0)
+	backlogTasks := make([]*TaskResultV2, 0)
 	var allOtherTasks []interface{}
 	for _, task := range *allUnscheduledTasks {
 		switch task := task.(type) {
