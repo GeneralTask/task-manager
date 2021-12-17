@@ -10,7 +10,7 @@ import { useFetchSettings } from '../settings/Preferences'
 import { useFetchTasks } from '../../helpers/utils'
 import Navbar from '../Navbar'
 import { NavbarPages } from '../../helpers/types'
-import { BACKGROUND_WHITE, TASKS_BACKROUND } from '../../helpers/styles'
+import { TASKS_BACKROUND } from '../../helpers/styles'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 
 const TasksPageContainer = styled.div`
