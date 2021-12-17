@@ -142,7 +142,15 @@ func TestMergeTasksV2V2(t *testing.T) {
 		//need to improve these asserts to compare values as well but a pain with casting
 		//for now so we'll compare JSON later.
 		assert.Equal(t, 3, len(result))
-		assert.Equal(t, 5, len(result[0].Tasks))
+		assert.Equal(t, 7, len(result[0].Tasks))
+		todayTasks := result[0].Tasks
+		assert.Equal(t, e1aID, todayTasks[0].ID)
+		assert.Equal(t, e1ID, todayTasks[1].ID)
+		assert.Equal(t, t1ID, todayTasks[2].ID)
+		assert.Equal(t, t3ID, todayTasks[3].ID)
+		assert.Equal(t, t4ID, todayTasks[4].ID)
+		assert.Equal(t, t2ID, todayTasks[5].ID)
+		assert.Equal(t, e2ID, todayTasks[6].ID)
 	})
 	t.Run("ReorderingPersist", func(t *testing.T) {
 		// Tested here: existing DB ordering IDs are kept (except cal events)
@@ -196,7 +204,10 @@ func TestMergeTasksV2V2(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, 3, len(result))
-		assert.Equal(t, 5, len(result[0].Tasks))
+		assert.Equal(t, 2, len(result[0].Tasks))
+		todayTasks := result[0].Tasks
+		assert.Equal(t, t1.ID, todayTasks[0].ID)
+		assert.Equal(t, t2.ID, todayTasks[1].ID)
 	})
 	t.Run("ReorderingOldNew", func(t *testing.T) {
 		// Tested here:
@@ -243,25 +254,9 @@ func TestMergeTasksV2V2(t *testing.T) {
 		assert.NoError(t, err)
 		t2.ID = t2Res.ID
 
-		c1 := database.CalendarEvent{
-			TaskBase: database.TaskBase{
-				IDOrdering: 3,
-				IDExternal: "standard_event",
-				Deeplink:   "generaltask.com",
-				Title:      "Standard Event",
-				SourceID:   external.TASK_SOURCE_ID_GCAL,
-				UserID:     userID,
-			},
-			DatetimeStart: primitive.NewDateTimeFromTime(time.Now().Add(20 * time.Minute)),
-			DatetimeEnd:   primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 2)),
-		}
-		c1Res, err := database.GetOrCreateTask(db, userID, "standard_event", external.TASK_SOURCE_ID_GCAL, c1)
-		assert.NoError(t, err)
-		c1.ID = c1Res.ID
-
 		result, err := MergeTasksV2(
 			db,
-			&[]database.TaskBase{c1.TaskBase, t2.TaskBase},
+			&[]database.TaskBase{t2.TaskBase},
 			[]*database.Email{},
 			[]*database.Task{&t1, &t2},
 			userID,
@@ -269,7 +264,10 @@ func TestMergeTasksV2V2(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, 3, len(result))
-		assert.Equal(t, 5, len(result[0].Tasks))
+		assert.Equal(t, 2, len(result[0].Tasks))
+		todayTasks := result[0].Tasks
+		assert.Equal(t, t1.ID, todayTasks[0].ID)
+		assert.Equal(t, t2.ID, todayTasks[1].ID)
 	})
 	t.Run("ReorderingOldMoveUp", func(t *testing.T) {
 		// Tested here: completed tasks cause reordered tasks to move up in list
@@ -338,7 +336,10 @@ func TestMergeTasksV2V2(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, 3, len(result))
-		assert.Equal(t, 5, len(result[0].Tasks))
+		assert.Equal(t, 2, len(result[0].Tasks))
+		todayTasks := result[0].Tasks
+		assert.Equal(t, t2.ID, todayTasks[0].ID)
+		assert.Equal(t, e1.ID, todayTasks[1].ID)
 	})
 
 	t.Run("FirstTaskPersists", func(t *testing.T) {
@@ -429,7 +430,12 @@ func TestMergeTasksV2V2(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, 3, len(result))
-		assert.Equal(t, 5, len(result[0].Tasks))
+		assert.Equal(t, 4, len(result[0].Tasks))
+		todayTasks := result[0].Tasks
+		assert.Equal(t, t1.ID, todayTasks[0].ID)
+		assert.Equal(t, t3.ID, todayTasks[1].ID)
+		assert.Equal(t, t4.ID, todayTasks[2].ID)
+		assert.Equal(t, t2.ID, todayTasks[3].ID)
 	})
 	t.Run("SectionTasksStay", func(t *testing.T) {
 		userID := primitive.NewObjectID()
@@ -515,15 +521,21 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 		result, err := MergeTasksV2(
 			db,
-			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
+			&[]database.TaskBase{t1.TaskBase, t2.TaskBase, t3.TaskBase, t4.TaskBase},
 			[]*database.Email{},
-			[]*database.Task{&t1, &t2},
+			[]*database.Task{&t1, &t2, &t3, &t4},
 			userID,
 		)
 		assert.NoError(t, err)
 
 		assert.Equal(t, 3, len(result))
-		assert.Equal(t, 5, len(result[0].Tasks))
+		assert.Equal(t, 0, len(result[0].Tasks))
+		assert.Equal(t, 2, len(result[1].Tasks))
+		assert.Equal(t, 2, len(result[2].Tasks))
+		assert.Equal(t, t2.ID, result[1].Tasks[0].ID)
+		assert.Equal(t, t1.ID, result[1].Tasks[1].ID)
+		assert.Equal(t, t4.ID, result[2].Tasks[0].ID)
+		assert.Equal(t, t3.ID, result[2].Tasks[1].ID)
 	})
 	t.Run("EmailOrderingOldestFirst", func(t *testing.T) {
 		userID := primitive.NewObjectID()
@@ -573,6 +585,9 @@ func TestMergeTasksV2V2(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, 3, len(result))
-		assert.Equal(t, 5, len(result[0].Tasks))
+		assert.Equal(t, 2, len(result[0].Tasks))
+		todayTasks := result[0].Tasks
+		assert.Equal(t, e1ID, todayTasks[0].ID)
+		assert.Equal(t, e2ID, todayTasks[1].ID)
 	})
 }
