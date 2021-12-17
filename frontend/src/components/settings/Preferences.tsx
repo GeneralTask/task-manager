@@ -1,30 +1,39 @@
 import React, { useCallback } from 'react'
 import { TSetting, TSettingChoice } from '../../helpers/types'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-
 import { SETTINGS_URL } from '../../constants'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import { setSettings } from '../../redux/settingsSlice'
 import styled from 'styled-components'
 import { useEffect } from 'react'
 
-const PreferenceDiv = styled.div`
-  margin: auto;
-  width: 90%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 18px;
-  margin-bottom: 30px;
+const PreferencesContainer = styled.div`
+    display: flex;
+    flex-direction: column;
 `
-
+const PreferencesHeaderText = styled.div`
+	font-size: 1.5em; 
+	font-weight: bold;
+	min-width: 330px;
+`
+const PreferenceContainer = styled.div`
+    margin: 20px 0px 0px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+`
+const PreferenceText = styled.div`
+    min-width: 300px;
+`
 const Select = styled.select`
     height: 30px;
     display: flex;
     align-items: center;
-    padding: 0 4px 0 4px;
+    padding: 0 4px;
     border: 2px solid black;
     border-radius: 4px;
+    min-width: 140px;
 `
 
 interface Props {
@@ -52,29 +61,35 @@ const Preferences: React.FC = () => {
     useEffect(() => {
         fetchSettings()
     }, [])
+    if (settings.length === 0) return (null)
     return (
-        <div>
-            {settings.length ? <h2>Preferences</h2> : null}
-            {settings.map((setting: TSetting, index: number) =>
-                <Preference setting={setting} key={index} fetchSettings={fetchSettings} />)
+        <PreferencesContainer>
+            <PreferencesHeaderText>Preferences</PreferencesHeaderText>
+            {
+                settings.map((setting: TSetting) =>
+                    <Preference setting={setting} key={setting.field_key} fetchSettings={fetchSettings} />
+                )
             }
-        </div>
+        </PreferencesContainer>
     )
 }
 
 const Preference: React.FC<Props> = ({ setting, fetchSettings }: Props) => {
+    const selectOnChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        await changeSetting(setting.field_key, e.target.value)
+        fetchSettings()
+    }
     return (
-        <PreferenceDiv>
-            <div>{setting.field_name}</div>
-            <Select onChange={async (e) => {
-                await changeSetting(setting.field_key, e.target.value)
-                await fetchSettings()
-            }} defaultValue={setting.field_value}>
-                {setting.choices.map((choice: TSettingChoice, i) =>
-                    <option value={choice.choice_key} key={i}>{choice.choice_name}</option>
-                )}
+        <PreferenceContainer>
+            <PreferenceText>{setting.field_name}</PreferenceText>
+            <Select onChange={selectOnChange} defaultValue={setting.field_value}>
+                {
+                    setting.choices.map((choice: TSettingChoice) =>
+                        <option value={choice.choice_key} key={choice.choice_key}>{choice.choice_name}</option>
+                    )
+                }
             </Select>
-        </PreferenceDiv>
+        </PreferenceContainer>
     )
 }
 

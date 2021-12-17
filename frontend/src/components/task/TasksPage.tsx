@@ -29,7 +29,7 @@ const Header = styled.div`
     margin-bottom: 24px;
     width: 60%;
     align-self: center;
-    justify-content:center;
+    justify-content: flex-start;
     position: relative;
 `
 const HeaderText = styled.div`

@@ -1,7 +1,6 @@
 import { CHEVRON_DOWN, JIRA_URL, ASANA_URL, LOGIN_URL, SUPPORTED_TYPES_URL } from '../../constants'
 import React, { useEffect, useRef, useState } from 'react'
-import { BACKGROUND_HOVER, BORDER_PRIMARY } from '../../helpers/styles'
-
+import { BACKGROUND_HOVER } from '../../helpers/styles'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'
 
@@ -13,38 +12,42 @@ const Logo = styled.img`
     margin-left: 5px;
 `
 const DropdownContainer = styled.div`
-    width: 150px;
+    min-width: 180px;
+    position: relative;
 `
 const DropdownToggle = styled.div`
     border: 2.5px solid black;
     border-radius: 4px;
-    padding: 4px 8px 4px 8px;
-    width: 100%;
+    padding: 4px 8px;
     display: flex;
     justify-content: space-between; 
     align-items: center;
     cursor: pointer;
+`
+const DropdownText = styled.div`
+    margin-right: 5px;
 `
 const Chevron = styled.img`
     width: 15px;
 `
 const Selector = styled.div`
     position: absolute;
-    width: 150px;
+    width: 100%;
+    border: 1px ${BACKGROUND_HOVER} solid;
+
 `
 const OptionContainer = styled.div`
+    padding: 5px;
     position: relative;
     display: flex; 
     align-items: center;
-    border: 2px solid ${BORDER_PRIMARY};
     border-top: 0;
-    padding: 8.5px;
     background-color: white;
-    width: 100%;
     cursor: pointer;
     &:hover{
         background-color: ${BACKGROUND_HOVER};
     }
+    border: 1px ${BACKGROUND_HOVER} solid;
 `
 
 interface SupportedType {
@@ -163,7 +166,7 @@ const Dropdown = ({ supportedTypes, refetchLinkedAccounts }: DropdownProps) => {
     return (
         <DropdownContainer ref={ref}>
             <DropdownToggle onClick={() => { setExpanded(!isExpanded) }}>
-                Add new account
+                <DropdownText>Add new account</DropdownText>
                 <Chevron src={CHEVRON_DOWN} />
             </DropdownToggle>
             {isExpanded && <Selector onBlur={() => { setExpanded(false) }}>
