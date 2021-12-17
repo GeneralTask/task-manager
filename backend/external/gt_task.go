@@ -18,7 +18,7 @@ func (GeneralTask GeneralTaskTaskSource) GetEmails(userID primitive.ObjectID, ac
 	result <- emptyEmailResult(nil)
 }
 
-func (GeneralTask GeneralTaskTaskSource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
+func (GeneralTask GeneralTaskTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 

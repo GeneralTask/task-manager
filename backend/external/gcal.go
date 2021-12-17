@@ -24,7 +24,7 @@ func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, 
 	result <- emptyEmailResult(nil)
 }
 
-func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
+func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	parentCtx := context.Background()
 	events := []*database.CalendarEvent{}
 
@@ -63,30 +63,10 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 		return
 	}
 
-	t := time.Now()
-	// adjust timestamp by timezone offset to get correct year / month / day
-	t = t.Add(time.Minute * -time.Duration(timezoneOffsetMinutes))
-	//Javascript returns timezone offsets with the opposite parity so we need to convert negatives to positives
-	//and vice versa.
-
-	var timeZoneName string
-	if timezoneOffsetMinutes > 0 {
-		timeZoneName = fmt.Sprintf("UTC-%d", timezoneOffsetMinutes/constants.MINUTE)
-	} else if timezoneOffsetMinutes < 0 {
-		timeZoneName = fmt.Sprintf("UTC+%d", -timezoneOffsetMinutes/constants.MINUTE)
-	} else {
-		timeZoneName = "UTC"
-	}
-	location := time.FixedZone(timeZoneName, -timezoneOffsetMinutes*constants.MINUTE)
-	//strip out hours/minutes/seconds of today to find the start of the day
-	todayStartTime := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, location)
-	//get end of day but adding one day to start of day and then subtracting a second to get day at 11:59:59PM
-	todayEndTime := todayStartTime.AddDate(0, 0, 1).Add(-time.Second)
-
 	calendarResponse, err := calendarService.Events.
 		List("primary").
-		TimeMin(time.Now().Format(time.RFC3339)).
-		TimeMax(todayEndTime.Format(time.RFC3339)).
+		TimeMin(startTime.Format(time.RFC3339)).
+		TimeMax(endTime.Format(time.RFC3339)).
 		SingleEvents(true).
 		OrderBy("startTime").
 		Do()
