@@ -47,7 +47,6 @@ const NewTaskButton = styled.button`
     border: none;
     padding: 0;
     cursor: pointer;
-    background-color: ${BACKGROUND_WHITE};
 `
 const PlusImage = styled.img`
     height: 100%;
