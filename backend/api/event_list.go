@@ -20,12 +20,12 @@ type EventListParams struct {
 
 type EventResult struct {
 	ID             primitive.ObjectID `json:"id"`
-	Source         TaskSource         `json:"source"`
 	Deeplink       string             `json:"deeplink"`
 	Title          string             `json:"title"`
 	Body           string             `json:"body"`
 	ConferenceCall *ConferenceCall    `json:"conference_call"`
-	SentAt         string             `json:"sent_at"`
+	DatetimeEnd    primitive.DateTime `bson:"datetime_end,omitempty"`
+	DatetimeStart  primitive.DateTime `bson:"datetime_start,omitempty"`
 }
 
 func (api *API) EventsList(c *gin.Context) {
@@ -95,13 +95,28 @@ func (api *API) EventsList(c *gin.Context) {
 		}
 	}
 
-	calendarEvents := []*database.CalendarEvent{}
+	calendarEvents := []EventResult{}
 	for _, calendarEventChannel := range calendarEventChannels {
 		calendarResult := <-calendarEventChannel
 		if calendarResult.Error != nil {
 			continue
 		}
-		calendarEvents = append(calendarEvents, calendarResult.CalendarEvents...)
+		for _, event := range calendarResult.CalendarEvents {
+			calendarEvents = append(calendarEvents, EventResult{
+				ID:       event.ID,
+				Deeplink: event.Deeplink,
+				Title:    event.Title,
+				Body:     event.Body,
+				ConferenceCall: &ConferenceCall{
+					Platform: event.ConferenceCall.Platform,
+					Logo:     event.ConferenceCall.Logo,
+					URL:      event.ConferenceCall.URL,
+				},
+				DatetimeEnd:   event.DatetimeEnd,
+				DatetimeStart: event.DatetimeStart,
+			})
+		}
 	}
+
 	c.JSON(200, calendarEvents)
 }
