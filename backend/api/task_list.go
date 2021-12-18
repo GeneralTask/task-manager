@@ -234,7 +234,7 @@ func getTodayRangeFromOffset(timezoneOffsetMinutes int) (time.Time, time.Time) {
 	todayStartTime := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, location)
 	//get end of day but adding one day to start of day and then subtracting a second to get day at 11:59:59PM
 	todayEndTime := todayStartTime.AddDate(0, 0, 1).Add(-time.Second)
-	return t, todayEndTime
+	return time.Now(), todayEndTime
 }
 
 func MergeTasks(
