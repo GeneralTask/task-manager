@@ -1,0 +1,122 @@
+package api
+
+import (
+	"context"
+	"log"
+	"time"
+
+	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
+type EventListParams struct {
+	DatetimeStart *time.Time `json:"datetime_start" binding:"required"`
+	DatetimeEnd   *time.Time `json:"datetime_end" binding:"required"`
+}
+
+type EventResult struct {
+	ID             primitive.ObjectID `json:"id"`
+	Deeplink       string             `json:"deeplink"`
+	Title          string             `json:"title"`
+	Body           string             `json:"body"`
+	ConferenceCall *ConferenceCall    `json:"conference_call"`
+	DatetimeEnd    primitive.DateTime `bson:"datetime_end,omitempty"`
+	DatetimeStart  primitive.DateTime `bson:"datetime_start,omitempty"`
+}
+
+func (api *API) EventsList(c *gin.Context) {
+	parentCtx := c.Request.Context()
+
+	var eventListParams EventListParams
+	err := c.BindJSON(&eventListParams)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "Invalid or missing parameter."})
+		return
+	}
+
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	userID, _ := c.Get("user")
+	var userObject database.User
+	userCollection := database.GetUserCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
+
+	if err != nil {
+		log.Printf("failed to find user: %v", err)
+		Handle500(c)
+		return
+	}
+
+	var tokens []database.ExternalAPIToken
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := externalAPITokenCollection.Find(
+		dbCtx,
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		log.Printf("failed to fetch api tokens: %v", err)
+		Handle500(c)
+		return
+	}
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &tokens)
+	if err != nil {
+		log.Printf("failed to iterate through api tokens: %v", err)
+		Handle500(c)
+		return
+	}
+
+	calendarEventChannels := []chan external.CalendarResult{}
+	// Loop through linked accounts and fetch relevant items
+	for _, token := range tokens {
+		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
+		if err != nil {
+			log.Printf("error loading task service: %v", err)
+			continue
+		}
+		for _, taskSource := range taskServiceResult.Sources {
+			var calendarEvents = make(chan external.CalendarResult)
+			go taskSource.GetEvents(userID.(primitive.ObjectID), token.AccountID, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd, calendarEvents)
+			calendarEventChannels = append(calendarEventChannels, calendarEvents)
+		}
+	}
+
+	calendarEvents := []EventResult{}
+	for _, calendarEventChannel := range calendarEventChannels {
+		calendarResult := <-calendarEventChannel
+		if calendarResult.Error != nil {
+			continue
+		}
+		for _, event := range calendarResult.CalendarEvents {
+			calendarEvents = append(calendarEvents, EventResult{
+				ID:       event.ID,
+				Deeplink: event.Deeplink,
+				Title:    event.Title,
+				Body:     event.Body,
+				ConferenceCall: &ConferenceCall{
+					Platform: event.ConferenceCall.Platform,
+					Logo:     event.ConferenceCall.Logo,
+					URL:      event.ConferenceCall.URL,
+				},
+				DatetimeEnd:   event.DatetimeEnd,
+				DatetimeStart: event.DatetimeStart,
+			})
+		}
+	}
+
+	c.JSON(200, calendarEvents)
+}

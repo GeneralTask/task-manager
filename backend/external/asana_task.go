@@ -40,7 +40,7 @@ func (AsanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID 
 	result <- emptyEmailResult(nil)
 }
 
-func (AsanaTask AsanaTaskSource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
+func (AsanaTask AsanaTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 

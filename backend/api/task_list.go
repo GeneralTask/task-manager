@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sort"
 	"strconv"
@@ -144,6 +145,7 @@ func (api *API) TasksList(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "Invalid timezone offset"})
 		return
 	}
+	startTime, endTime := getTodayRangeFromOffset(int(timezoneOffset))
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
@@ -153,7 +155,7 @@ func (api *API) TasksList(c *gin.Context) {
 		}
 		for _, taskSource := range taskServiceResult.Sources {
 			var calendarEvents = make(chan external.CalendarResult)
-			go taskSource.GetEvents(userID.(primitive.ObjectID), token.AccountID, int(timezoneOffset), calendarEvents)
+			go taskSource.GetEvents(userID.(primitive.ObjectID), token.AccountID, startTime, endTime, calendarEvents)
 			calendarEventChannels = append(calendarEventChannels, calendarEvents)
 
 			var emails = make(chan external.EmailResult)
@@ -210,6 +212,29 @@ func (api *API) TasksList(c *gin.Context) {
 		return
 	}
 	c.JSON(200, allTasks)
+}
+
+func getTodayRangeFromOffset(timezoneOffsetMinutes int) (time.Time, time.Time) {
+	t := time.Now()
+	// adjust timestamp by timezone offset to get correct year / month / day
+	t = t.Add(time.Minute * -time.Duration(timezoneOffsetMinutes))
+	//Javascript returns timezone offsets with the opposite parity so we need to convert negatives to positives
+	//and vice versa.
+
+	var timeZoneName string
+	if timezoneOffsetMinutes > 0 {
+		timeZoneName = fmt.Sprintf("UTC-%d", timezoneOffsetMinutes/constants.MINUTE)
+	} else if timezoneOffsetMinutes < 0 {
+		timeZoneName = fmt.Sprintf("UTC+%d", -timezoneOffsetMinutes/constants.MINUTE)
+	} else {
+		timeZoneName = "UTC"
+	}
+	location := time.FixedZone(timeZoneName, -timezoneOffsetMinutes*constants.MINUTE)
+	//strip out hours/minutes/seconds of today to find the start of the day
+	todayStartTime := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, location)
+	//get end of day but adding one day to start of day and then subtracting a second to get day at 11:59:59PM
+	todayEndTime := todayStartTime.AddDate(0, 0, 1).Add(-time.Second)
+	return time.Now(), todayEndTime
 }
 
 func MergeTasks(

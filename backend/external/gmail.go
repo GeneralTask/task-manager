@@ -214,7 +214,7 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 	return &bodyString, nil
 }
 
-func (Gmail GmailSource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
+func (Gmail GmailSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 

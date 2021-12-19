@@ -115,7 +115,7 @@ func (JIRA JIRASource) GetEmails(userID primitive.ObjectID, accountID string, re
 	result <- emptyEmailResult(nil)
 }
 
-func (JIRA JIRASource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
+func (JIRA JIRASource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 
