@@ -12,7 +12,6 @@ export const TaskBodyDiv = styled.div`
   margin: auto;
   width: 95%;
 `
-// background color for EmailBodyDiv needs to be defined
 export const EmailViewDiv = styled.div`
   width: auto;
   overflow: scroll;
@@ -21,7 +20,6 @@ export const EmailViewDiv = styled.div`
   padding: 10px;
   margin-top: 10px;
   margin-bottom: 50px;
-  background: WhiteSmoke; 
 `
 export const EmailSubjectHeader = styled.h4`
   margin-bottom: 20px;
