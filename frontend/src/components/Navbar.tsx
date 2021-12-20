@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { LANDING_PATH, SETTINGS_PATH } from '../constants'
+import { UNSELECTED_NAVBAR_COLOR } from '../helpers/styles'
 import { NavbarPages } from '../helpers/types'
 import { logout } from '../helpers/utils'
 
@@ -33,16 +34,19 @@ const NavbarLink = styled(Link)`
     height: 100%;
     cursor: pointer;
 `
-const NavbarLinkButton = styled.button`
-    font-weight: bold;
-    font-size: 16px;
+const NavbarLinkButton = styled.button<{ isCurrentPage: boolean }>`
+    font-style: normal;
+    font-weight: ${props => props.isCurrentPage ? '600' : 'normal'};
+    font-size: 20px;
+    letter-spacing: 0.01em;
     background-color: inherit;
     height: 45px;
-    color: white;
+    color: ${props => props.isCurrentPage ? 'white' : UNSELECTED_NAVBAR_COLOR};;
     border: none;
     padding-left: 10px;
     cursor: pointer;
 `
+
 
 interface NavbarProps {
     currentPage: NavbarPages
@@ -55,16 +59,32 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
     }[] = [
             {
                 page: NavbarPages.TASKS_PAGE,
-                link: <NavbarLink to={LANDING_PATH}><NavbarLinkButton>Tasks</NavbarLinkButton></NavbarLink>,
-
+                link: (
+                    <NavbarLink to={LANDING_PATH}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.TASKS_PAGE}>
+                            Tasks
+                        </NavbarLinkButton>
+                    </NavbarLink>
+                ),
             },
             {
                 page: NavbarPages.SETTINGS_PAGE,
-                link: <NavbarLink to={SETTINGS_PATH}><NavbarLinkButton>Settings</NavbarLinkButton></NavbarLink>
+                link: (
+                    <NavbarLink to={SETTINGS_PATH}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.SETTINGS_PAGE}>
+                            Settings
+                        </NavbarLinkButton>
+                    </NavbarLink>
+                ),
             },
             {
                 page: NavbarPages.LOGOUT,
-                link: <NavbarLink to={LANDING_PATH} onClick={logout}><NavbarLinkButton> Logout</NavbarLinkButton></NavbarLink>
+                link: (
+                    <NavbarLink to={LANDING_PATH} onClick={logout}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.LOGOUT}>
+                            Logout</NavbarLinkButton>
+                    </NavbarLink>
+                ),
             }
         ]
     const navbarJSXElements = linkElements.map(element => (
