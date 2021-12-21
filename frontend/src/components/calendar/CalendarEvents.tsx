@@ -1,6 +1,7 @@
 import React from 'react'
 import { TTaskGroup, TTaskGroupType } from '../../helpers/types'
 import { useAppSelector } from '../../redux/hooks'
+import { TimeIndicator } from './TimeIndicator'
 import styled from 'styled-components'
 import {
     EVENT_CONTAINER_COLOR,
@@ -169,6 +170,7 @@ export default function CalendarEvents(): JSX.Element {
     return (
         <EventsContainer>
             {eventBodies}
+            <TimeIndicator />
             <CalendarTable></CalendarTable>
         </EventsContainer>
     )
