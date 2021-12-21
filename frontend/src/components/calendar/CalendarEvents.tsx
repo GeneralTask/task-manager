@@ -1,6 +1,9 @@
 import React from 'react'
 import { TTaskGroup, TTaskGroupType } from '../../helpers/types'
 import { useAppSelector } from '../../redux/hooks'
+import { CELL_HEIGHT } from '../../helpers/styles'
+import { CalendarRow, CalendarTD, CalendarCell, CellTime, CalendarTableStyle, EventBodyStyle, EventDescription, EventTitle, EventTime, EventFill, EventsContainer } from './CalendarEvents-styles'
+
 import styled from 'styled-components'
 import {
     TABLE_WIDTH_PERCENTAGE,
@@ -140,8 +143,7 @@ function EventBody({ event }: EventBodyProps): JSX.Element | null {
                     {`${startTimeString} - ${endTimeString}`}
                 </EventTime>
             </EventDescription>
-            <EventFill>
-            </EventFill>
+            <EventFill />
         </EventBodyStyle>
     )
 }

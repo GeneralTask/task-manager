@@ -61,6 +61,12 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
   return (
     <TaskHeaderContainer hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
       <HeaderLeft>
+        {
+          !props.dragDisabled &&
+          <DragHandler ref={ref}>
+            <Domino />
+          </DragHandler>
+        }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
         <Title>{props.task.title}</Title>
       </HeaderLeft>
@@ -84,14 +90,9 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           </CalendarIconContainer>
         </DeadlineIndicator>
         {
-          props.isExpanded ?
-            props.task.source.is_completable && <DoneButton onClick={() => {
-              done(props.task.id, dispatch, fetchTasks)
-            }} /> :
-            !props.dragDisabled &&
-            <DragHandler ref={ref}>
-              <Domino />
-            </DragHandler>
+          props.isExpanded && props.task.source.is_completable && <DoneButton onClick={() => {
+            done(props.task.id, dispatch, fetchTasks)
+          }} />
         }
       </HeaderRight >
     </TaskHeaderContainer >
