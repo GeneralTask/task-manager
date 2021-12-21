@@ -3,7 +3,6 @@ import { TTaskGroup, TTaskGroupType } from '../../helpers/types'
 import { useAppSelector } from '../../redux/hooks'
 import styled from 'styled-components'
 import {
-    EVENT_CONTAINER_COLOR,
     TABLE_WIDTH_PERCENTAGE,
     CELL_HEIGHT,
     CALENDAR_TD_COLOR,
@@ -12,7 +11,8 @@ import {
     CELL_BORDER_WIDTH,
     CELL_LEFT_MARGIN,
     EVENT_TITLE_TEXT_COLOR,
-    EVENT_TIME_TEXT_COLOR
+    EVENT_TIME_TEXT_COLOR,
+    BACKGROUND_WHITE
 } from '../../helpers/styles'
 
 const EventsContainer = styled.div`
@@ -21,7 +21,7 @@ const EventsContainer = styled.div`
     flex: 1;
     display: flex;
     overflow: scroll;
-    background-color: ${EVENT_CONTAINER_COLOR};
+    background-color: ${BACKGROUND_WHITE};
     justify-content: center;
     position: relative;
 `
