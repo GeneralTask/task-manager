@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { CELL_HEIGHT } from '../../helpers/styles'
+import { CALENDAR_INDICATOR_COLOR, CELL_HEIGHT } from '../../helpers/styles'
 
 interface TimeIndicatorContainerProps {
     topOffset: number
 }
 const TimeIndicatorContainer = styled.div<TimeIndicatorContainerProps>`
     width: 100%;
-    background-color: #D7470A;
+    background-color: ${CALENDAR_INDICATOR_COLOR};
     height: 1px;
     position: absolute;
     top: ${props => props.topOffset}px;
