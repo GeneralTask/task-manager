@@ -21,8 +21,7 @@ const EventsContainer = styled.div`
     flex: 1;
     display: flex;
     overflow: scroll;
-    background-color: ${EVENT_CONTAINER_COLOR}
-    align-items: center;
+    background-color: ${EVENT_CONTAINER_COLOR};
     justify-content: center;
     position: relative;
 `
@@ -69,6 +68,10 @@ const EventFill = styled.div`
     opacity: 15%;
     border-radius: 0 10px 10px 0;
 `
+const EventFillContinues = styled(EventFill)`
+    border-radius: 0 10px 0 0;
+    `
+
 const EventDescription = styled.div`
     position: absolute;
     opacity: 100%;
@@ -117,11 +120,15 @@ function EventBody({ event }: EventBodyProps): JSX.Element | null {
 
     // calculate ratio of minutes to height of all cells
     const timeDurationMinutes = event.time_duration / 60
-    const eventBodyHeight = timeDurationMinutes / (24 * 60) * (CELL_HEIGHT * 24)
+    let eventBodyHeight = timeDurationMinutes / (24 * 60) * (CELL_HEIGHT * 24)
 
     const startTime = new Date(event.datetime_start)
     const endTime = new Date(startTime.toString())
     endTime.setTime(endTime.getTime() + event.time_duration / 60 * 60000)
+    const rollsOverMidnight = endTime.getDay() !== startTime.getDay()
+    if (rollsOverMidnight) {
+        eventBodyHeight -= endTime.getHours() * CELL_HEIGHT
+    }
 
     const startTimeHours = startTime.getHours() - 1
     const startTimeMinutes = startTime.getMinutes()
@@ -141,8 +148,7 @@ function EventBody({ event }: EventBodyProps): JSX.Element | null {
                     {`${startTimeString} - ${endTimeString}`}
                 </EventTime>
             </EventDescription>
-            <EventFill>
-            </EventFill>
+            {rollsOverMidnight ? <EventFillContinues /> : <EventFill />}
         </EventBodyStyle>
     )
 }
