@@ -21,8 +21,7 @@ const EventsContainer = styled.div`
     flex: 1;
     display: flex;
     overflow: scroll;
-    background-color: ${EVENT_CONTAINER_COLOR}
-    align-items: center;
+    background-color: ${EVENT_CONTAINER_COLOR};
     justify-content: center;
     position: relative;
 `
