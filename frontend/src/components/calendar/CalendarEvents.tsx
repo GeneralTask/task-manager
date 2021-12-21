@@ -171,7 +171,7 @@ export default function CalendarEvents(): JSX.Element {
         <EventsContainer>
             {eventBodies}
             <TimeIndicator />
-            <CalendarTable></CalendarTable>
+            <CalendarTable />
         </EventsContainer>
     )
 }
