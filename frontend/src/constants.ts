@@ -29,6 +29,7 @@ export const GOOGLE_LIGHT_NORMAL = '/assets/google_signin_buttons/btn_google_sig
 //images
 export const CHEVRON_DOWN = '/images/chevron-arrow-down.svg'
 export const DONE_BUTTON = '/images/CheckCircle.svg'
+export const PLUS_ICON = '/images/plus.svg'
 
 //Misc. strings
 export const TASK_STATUS_FETCH_ERROR = 'There was an error fetching tasks'
