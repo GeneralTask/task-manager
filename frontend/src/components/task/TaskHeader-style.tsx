@@ -5,8 +5,6 @@ export const DoneButton = styled.img`
   position: static;
   width: 24px;
   height: 24px;
-  left: 0px;
-  top: 0px;
   flex: none;
   order: 0;
   flex-grow: 0;
