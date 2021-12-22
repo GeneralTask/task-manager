@@ -1,15 +1,16 @@
 import styled from 'styled-components'
 import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY, DOMINO_COLOR } from '../../helpers/styles'
 
-export const DoneButton = styled.div`
-  background: #8A67DE;
-  border: none;
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  margin-right: 0px;
-  margin: 0 12px 0 8px;
-  cursor: pointer;
+export const DoneButton = styled.img`
+  position: static;
+  width: 24px;
+  height: 24px;
+  left: 0px;
+  top: 0px;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  margin-left: 12px;
 `
 export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
   font-size: 15px;

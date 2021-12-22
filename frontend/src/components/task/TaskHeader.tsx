@@ -1,6 +1,6 @@
 import './Task.css'
 import { Action, Dispatch } from '@reduxjs/toolkit'
-import { TASKS_MODIFY_URL } from '../../constants'
+import { TASKS_MODIFY_URL, DONE_BUTTON } from '../../constants'
 import React, { useCallback } from 'react'
 import { collapseBody, expandBody, removeTaskByID } from '../../redux/tasksPageSlice'
 import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
@@ -61,6 +61,13 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
   return (
     <TaskHeaderContainer hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
       <HeaderLeft>
+        {
+          !props.isExpanded &&
+          // props.task.source.is_completable &&  TODO: removal necessary for UI consistency
+          <DoneButton src={DONE_BUTTON} onClick={() => {
+            done(props.task.id, dispatch, fetchTasks)
+          }} />
+        }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
         <Title>{props.task.title}</Title>
       </HeaderLeft>
@@ -73,7 +80,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         }
         {
           props.task.source.name == 'General Task' &&
-          <DoneButton onClick={() => {
+          <DoneButton src={DONE_BUTTON} onClick={() => {
             done(props.task.id, dispatch, fetchTasks)
           }} />
         }
@@ -84,14 +91,10 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           </CalendarIconContainer>
         </DeadlineIndicator>
         {
-          props.isExpanded ?
-            props.task.source.is_completable && <DoneButton onClick={() => {
-              done(props.task.id, dispatch, fetchTasks)
-            }} /> :
-            !props.dragDisabled &&
-            <DragHandler ref={ref}>
-              <Domino />
-            </DragHandler>
+          !props.dragDisabled &&
+          <DragHandler ref={ref}>
+            <Domino />
+          </DragHandler>
         }
       </HeaderRight >
     </TaskHeaderContainer >
