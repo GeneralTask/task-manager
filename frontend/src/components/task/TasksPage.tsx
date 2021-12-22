@@ -24,6 +24,7 @@ const TasksContentContainer = styled.div`
     padding-top: 50px;
     flex-direction: column;
     background-color: ${TASKS_BACKROUND};
+    min-width: 600px;
 `
 const Header = styled.div`
     display: flex;
@@ -32,6 +33,7 @@ const Header = styled.div`
     align-self: center;
     justify-content: flex-start;
     position: relative;
+    min-width: 500px;
 `
 const HeaderText = styled.div`
     font-size: 32px; 
