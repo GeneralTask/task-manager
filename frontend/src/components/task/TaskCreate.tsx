@@ -8,8 +8,8 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import GTButton from '../common/GTButton'
 import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
-import parse from 'parse-duration'
-import { parseDate } from '../../helpers/TimeParser'
+// import parse from 'parse-duration'
+// import { parseDate } from '../../helpers/TimeParser'
 import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
 
 export default function TaskCreate(): JSX.Element {
@@ -17,12 +17,12 @@ export default function TaskCreate(): JSX.Element {
     const dispatch = useAppDispatch()
 
     const [title, setTitle] = useState('')
-    const [timeEstimate, setTimeEstimate] = useState('')
-    const [dueDate, setDueDate] = useState('')
+    // const [timeEstimate, setTimeEstimate] = useState('')
+    // const [dueDate, setDueDate] = useState('')
 
     const [titleError, setTitleError] = useState('')
-    const [timeEstimateError, setTimeEstimateError] = useState('')
-    const [dueDateError, setDueDateError] = useState('')
+    // const [timeEstimateError, setTimeEstimateError] = useState('')
+    // const [dueDateError, setDueDateError] = useState('')
 
     const fetchTasks = useFetchTasks()
 
@@ -35,56 +35,56 @@ export default function TaskCreate(): JSX.Element {
                         e.preventDefault()
 
                         let tempTitleError = ''
-                        let tempTimeEstimateError = ''
-                        let tempDueDateError = ''
+                        // let tempTimeEstimateError = ''
+                        // let tempDueDateError = ''
 
                         if (title === '') {
                             tempTitleError = 'Title is required'
                         }
 
-                        const timeEstimateNum = -1
-                        if (timeEstimate !== '') {
-                            let timeEstimateNum = parse(timeEstimate, 's')
-                            if (timeEstimateNum == null) {
-                                tempTimeEstimateError = 'Unable to parse time estimate'
-                            }
-                            else if (timeEstimateNum <= 0) {
-                                tempTimeEstimateError = 'Time estimate must be positive'
-                            }
-                            timeEstimateNum *= 1000
-                        }
+                        // const timeEstimateNum = -1
+                        // if (timeEstimate !== '') {
+                        //     let timeEstimateNum = parse(timeEstimate, 's')
+                        //     if (timeEstimateNum == null) {
+                        //         tempTimeEstimateError = 'Unable to parse time estimate'
+                        //     }
+                        //     else if (timeEstimateNum <= 0) {
+                        //         tempTimeEstimateError = 'Time estimate must be positive'
+                        //     }
+                        //     timeEstimateNum *= 1000
+                        // }
 
-                        let parsedDueDate = ''
-                        if (dueDate !== '') {
-                            const parsedDate = parseDate(dueDate)
+                        // let parsedDueDate = ''
+                        // if (dueDate !== '') {
+                        //     const parsedDate = parseDate(dueDate)
 
-                            if (parsedDate == null) {
-                                tempDueDateError = 'Could not parse due date'
-                            }
-                            else {
-                                parsedDueDate = parsedDate.toISOString()
-                            }
-                        }
+                        //     if (parsedDate == null) {
+                        //         tempDueDateError = 'Could not parse due date'
+                        //     }
+                        //     else {
+                        //         parsedDueDate = parsedDate.toISOString()
+                        //     }
+                        // }
 
                         setTitleError(tempTitleError)
-                        setTimeEstimateError(tempTimeEstimateError)
-                        setDueDateError(tempDueDateError)
+                        // setTimeEstimateError(tempTimeEstimateError)
+                        // setDueDateError(tempDueDateError)
 
-                        if (tempTitleError === '' && tempTimeEstimateError === '' && tempDueDateError === '') {
+                        if (tempTitleError === '') {
                             // no errors
                             const body: TTaskCreateParams = {
                                 title,
                             }
-                            if (timeEstimateNum > 0) {
-                                body.time_duration = timeEstimateNum * 60
-                            }
-                            if (dueDate !== '' && parsedDueDate != null) {
-                                body.due_date = parsedDueDate
-                            }
+                            // if (timeEstimateNum > 0) {
+                            //     body.time_duration = timeEstimateNum * 60
+                            // }
+                            // if (dueDate !== '' && parsedDueDate != null) {
+                            //     body.due_date = parsedDueDate
+                            // }
 
                             setTitle('')
-                            setTimeEstimate('')
-                            setDueDate('')
+                            // setTimeEstimate('')
+                            // setDueDate('')
 
                             await makeAuthorizedRequest({
                                 url: TASKS_CREATE_URL + GT_TASK_SOURCE_ID + '/',
@@ -100,7 +100,7 @@ export default function TaskCreate(): JSX.Element {
                             error={titleError !== ''}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
                         />
-                        <styles.InputTimeEstimate
+                        {/* <styles.InputTimeEstimate
                             placeholder='Time Estimate'
                             value={timeEstimate}
                             error={timeEstimateError !== ''}
@@ -111,7 +111,7 @@ export default function TaskCreate(): JSX.Element {
                             value={dueDate}
                             error={dueDateError !== ''}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDueDate(event.target.value)}
-                        />
+                        /> */}
                         <styles.SaveBtnDiv>
                             <GTButton theme='black' width='80%' type='submit' >Save</GTButton>
                         </styles.SaveBtnDiv>
@@ -128,7 +128,7 @@ export default function TaskCreate(): JSX.Element {
                         <span>{titleError}</span>
                     </flex.alignItemsCenter>
                     }
-                    {timeEstimateError && <flex.alignItemsCenter>
+                    {/* {timeEstimateError && <flex.alignItemsCenter>
                         <styles.ErrorIcon src='/images/error.svg' />
                         <span>{timeEstimateError}</span>
                     </flex.alignItemsCenter>
@@ -137,7 +137,7 @@ export default function TaskCreate(): JSX.Element {
                         <styles.ErrorIcon src='/images/error.svg' />
                         <span>{dueDateError}</span>
                     </flex.alignItemsCenter>
-                    }
+                    } */}
                 </styles.ErrorContainer>
             </styles.OuterContainer>
         </>}
