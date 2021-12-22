@@ -17,7 +17,7 @@ export const Form = styled.form`
     display: flex;
     align-items: center;
     border: 1px solid ${BORDER_PRIMARY};
-    border-radius: 2px;
+    border-radius: 8px;
     flex-wrap: wrap;
     justify-content: space-between;
     width: 70%;
@@ -29,6 +29,7 @@ export const Form = styled.form`
 export const Input = styled.input<{ error: boolean }>`
     font-size: 16px;
     border: ${props => props.error ? `1px solid ${BORDER_ERROR} !important` : 'none'};
+    border-radius: 8px;
     outline: none;
     width: 100%;
     height: 32px;
@@ -41,26 +42,26 @@ export const InputTitle = styled(Input)`
     width: 100%;
     border-bottom: 1px solid ${BORDER_PRIMARY};
     @media ${device.mobile}{
-        width: 50%;
+        width: 100%;
         border-bottom: none;
         border-right: 1px solid ${BORDER_PRIMARY};
     }
 `
-export const InputTimeEstimate = styled(Input)`
-    width: 100%;
-    border-bottom: 1px solid ${BORDER_PRIMARY};
-    @media ${device.mobile}{
-        width: 25%;
-        border-bottom: none;
-        border-right: 1px solid ${BORDER_PRIMARY};
-    }
-`
-export const InputDueDate = styled(Input)`
-    width: 60%;
-    @media ${device.mobile}{
-        width: 15%;
-    }
-`
+// export const InputTimeEstimate = styled(Input)`
+//     width: 100%;
+//     border-bottom: 1px solid ${BORDER_PRIMARY};
+//     @media ${device.mobile}{
+//         width: 25%;
+//         border-bottom: none;
+//         border-right: 1px solid ${BORDER_PRIMARY};
+//     }
+// `
+// export const InputDueDate = styled(Input)`
+//     width: 60%;
+//     @media ${device.mobile}{
+//         width: 15%;
+//     }
+// `
 export const SaveBtnDiv = styled.div`
     display: flex;
     justify-content: flex-end;
