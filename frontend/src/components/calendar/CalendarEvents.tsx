@@ -1,6 +1,7 @@
 import React from 'react'
 import { TTaskGroup, TTaskGroupType } from '../../helpers/types'
 import { useAppSelector } from '../../redux/hooks'
+import { TimeIndicator } from './TimeIndicator'
 import { CELL_HEIGHT } from '../../helpers/styles'
 import { CalendarRow, CalendarTD, CalendarCell, CellTime, CalendarTableStyle, EventBodyStyle, EventDescription, EventTitle, EventTime, EventFill, EventsContainer } from './CalendarEvents-styles'
 
@@ -82,7 +83,8 @@ export default function CalendarEvents(): JSX.Element {
     return (
         <EventsContainer>
             {eventBodies}
-            <CalendarTable></CalendarTable>
+            <TimeIndicator />
+            <CalendarTable />
         </EventsContainer>
     )
 }
