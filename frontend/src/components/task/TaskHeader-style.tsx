@@ -11,6 +11,7 @@ export const DoneButton = styled.img`
   order: 0;
   flex-grow: 0;
   margin-left: 12px;
+  cursor: pointer;
 `
 export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
   font-size: 15px;
