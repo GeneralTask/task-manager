@@ -1,11 +1,11 @@
 import * as styles from './TaskCreate-style'
 
-import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
+import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL, PLUS_ICON } from '../../constants'
 import React, { useState } from 'react'
 import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
-import GTButton from '../common/GTButton'
+// import GTButton from '../common/GTButton'
 import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
 // import parse from 'parse-duration'
@@ -94,6 +94,7 @@ export default function TaskCreate(): JSX.Element {
                             await fetchTasks()
                         }
                     }}>
+                        <styles.PlusIcon src={PLUS_ICON} />
                         <styles.InputTitle
                             placeholder='Describe Task'
                             value={title}
@@ -112,15 +113,15 @@ export default function TaskCreate(): JSX.Element {
                             error={dueDateError !== ''}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDueDate(event.target.value)}
                         /> */}
-                        <styles.SaveBtnDiv>
+                        {/* <styles.SaveBtnDiv>
                             <GTButton theme='black' width='80%' type='submit' >Save</GTButton>
-                        </styles.SaveBtnDiv>
+                        </styles.SaveBtnDiv> */}
                     </styles.Form>
-                    <styles.Side>
-                        <styles.CloseButton src="images/close.svg" onClick={() => {
+                    <styles.Side />
+                    {/* <styles.CloseButton src="images/close.svg" onClick={() => {
                             dispatch(setShowCreateTaskForm(false))
                         }} />
-                    </styles.Side>
+                    </styles.Side> */}
                 </styles.InnerContainer >
                 <styles.ErrorContainer>
                     {titleError && <flex.alignItemsCenter>
