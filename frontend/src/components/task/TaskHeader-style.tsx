@@ -32,6 +32,7 @@ export const HeaderLeft = styled.div`
   flex-direction: row;
   flex-basis: auto;
   width: 60%;
+  padding-left: 12px;
 `
 export const HeaderRight = styled.div`
   display: flex;
@@ -79,9 +80,8 @@ export const DragHandler = styled.div`
   cursor: grab;
   display: flex;
   align-items: center;
-  padding: 0 12px 0 8px;
   cursor: move;
-  margin-right: 0px;
+  margin-right: 4px;
   height: 40%;
   display: inline;
 `
@@ -90,18 +90,18 @@ export const DominoContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   width: 10px;
+  align-items: center;
 `
 export const DominoDot = styled.div`
   width: 3px;
   height: 3px;
   border-radius: 50%;
   background-color: ${DOMINO_COLOR};
-  margin-right: 2px;
-  margin-bottom: 2px;
+  margin: 1px;
 `
 export const Icon = styled.img`
   max-width: 19px;
-  margin-left: 15px;
+  margin-left: 8px;
 `
 export const Title = styled.div`
   margin-left: 15px;

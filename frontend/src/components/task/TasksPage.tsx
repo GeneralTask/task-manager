@@ -10,7 +10,7 @@ import { useFetchSettings } from '../settings/Preferences'
 import { useFetchTasks } from '../../helpers/utils'
 import Navbar from '../Navbar'
 import { NavbarPages } from '../../helpers/types'
-import { BACKGROUND_WHITE } from '../../helpers/styles'
+import { TASKS_BACKROUND } from '../../helpers/styles'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 
 const TasksPageContainer = styled.div`
@@ -23,6 +23,8 @@ const TasksContentContainer = styled.div`
     overflow: scroll;
     padding-top: 50px;
     flex-direction: column;
+    background-color: ${TASKS_BACKROUND};
+    min-width: 600px;
 `
 const Header = styled.div`
     display: flex;
@@ -31,6 +33,7 @@ const Header = styled.div`
     align-self: center;
     justify-content: flex-start;
     position: relative;
+    min-width: 500px;
 `
 const HeaderText = styled.div`
     font-size: 32px; 
@@ -46,7 +49,7 @@ const NewTaskButton = styled.button`
     border: none;
     padding: 0;
     cursor: pointer;
-    background-color: ${BACKGROUND_WHITE};
+    background-color: transparent;
 `
 const PlusImage = styled.img`
     height: 100%;
