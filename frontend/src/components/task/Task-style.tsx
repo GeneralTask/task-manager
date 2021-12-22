@@ -1,12 +1,10 @@
 import styled, { css } from 'styled-components'
-import { BORDER_PRIMARY, device } from '../../helpers/styles'
+import { BORDER_PRIMARY } from '../../helpers/styles'
 
 
 export const DraggableContainer = styled.div`
-    width: 70%;
-    @media ${device.mobile}{
-        width: 60%;
-    }
+    width: 60%;
+    min-width: 500px;
     margin: 5px 0;
     position: relative;
 `
