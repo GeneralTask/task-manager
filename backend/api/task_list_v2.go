@@ -24,6 +24,7 @@ type TaskResultV2 struct {
 	Deeplink       string             `json:"deeplink"`
 	Title          string             `json:"title"`
 	Body           string             `json:"body"`
+	Sender         string             `json:"sender"`
 	TimeAllocation int64              `json:"time_allocated"`
 	SentAt         string             `json:"sent_at"`
 }
@@ -376,6 +377,7 @@ func taskBaseToTaskResultV2(t *database.TaskBase) *TaskResultV2 {
 		Title:          t.Title,
 		Body:           t.Body,
 		TimeAllocation: t.TimeAllocation,
+		Sender:         t.Sender,
 		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
 	}
 }
