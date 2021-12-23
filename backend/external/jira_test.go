@@ -80,8 +80,8 @@ func TestLoadJIRATasks(t *testing.T) {
 				Title:         "Sample Taskeroni",
 				SourceID:      TASK_SOURCE_ID_JIRA,
 				UserID:        *userID,
+				DueDate:       primitive.NewDateTimeFromTime(dueDate),
 			},
-			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
 
 		var JIRATasks = make(chan TaskResult)
@@ -123,8 +123,8 @@ func TestLoadJIRATasks(t *testing.T) {
 				SourceID:        TASK_SOURCE_ID_JIRA,
 				UserID:          *userID,
 				SourceAccountID: "someAccountID",
+				DueDate:         primitive.NewDateTimeFromTime(dueDate),
 			},
-			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
 		database.GetOrCreateTask(
 			db,
@@ -172,9 +172,9 @@ func TestLoadJIRATasks(t *testing.T) {
 				Title:         "Sample Taskeroni",
 				SourceID:      TASK_SOURCE_ID_JIRA,
 				UserID:        *userID,
+				DueDate:       primitive.NewDateTimeFromTime(dueDate),
 			},
 			PriorityID: "something_that_will_change",
-			DueDate:    primitive.NewDateTimeFromTime(dueDate),
 		}
 		database.GetOrCreateTask(
 			db,
@@ -227,9 +227,9 @@ func TestLoadJIRATasks(t *testing.T) {
 				Title:            "Sample Taskeroni",
 				SourceID:         TASK_SOURCE_ID_JIRA,
 				UserID:           *userID,
+				DueDate:          primitive.NewDateTimeFromTime(dueDate),
 			},
 			PriorityID: "something_that_will_change",
-			DueDate:    primitive.NewDateTimeFromTime(dueDate),
 		}
 		database.GetOrCreateTask(
 			db,

@@ -121,8 +121,8 @@ func TestLoadAsanaTasks(t *testing.T) {
 				SourceAccountID:   "wrong",
 				UserID:            userID,
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+				DueDate:           primitive.NewDateTimeFromTime(dueDate),
 			},
-			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
 
 		var taskResult = make(chan TaskResult)
@@ -164,8 +164,8 @@ func TestLoadAsanaTasks(t *testing.T) {
 				SourceAccountID:   "sugapapa",
 				UserID:            userID,
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+				DueDate:           primitive.NewDateTimeFromTime(dueDate),
 			},
-			DueDate: primitive.NewDateTimeFromTime(dueDate),
 		}
 		database.GetOrCreateTask(
 			db,
