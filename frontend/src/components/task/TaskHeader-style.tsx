@@ -16,10 +16,8 @@ export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, sho
   font-size: 15px;
   border-radius: 6px;
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  height: 100%;
   cursor: ${props => props.hoverEffect ? 'pointer' : 'inherit'};
   &:hover {
     background-color: ${BACKGROUND_HOVER};
@@ -34,7 +32,6 @@ export const HeaderLeft = styled.div`
   flex-direction: row;
   flex-basis: auto;
   width: 100%;
-  padding-left: 12px;
 `
 export const HeaderRight = styled.div`
   display: flex;
@@ -93,6 +90,7 @@ export const DominoContainer = styled.div`
   flex-wrap: wrap;
   width: 10px;
   align-items: center;
+  margin-left: 12px;
 `
 export const DominoDot = styled.div`
   width: 3px;
@@ -105,13 +103,19 @@ export const Icon = styled.img`
   max-width: 19px;
   margin-left: 8px;
 `
-export const Title = styled.div`
-  margin-left: 15px;
+export const Title = styled.div<{ isExpanded: boolean }>`
   color:${TEXT_BLACK};
-  white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
-
+  ${({ isExpanded }) => isExpanded ? `
+    word-wrap: break-word;
+    min-width: 0px;
+    flex-basis: auto;
+    flex-grow: 1;
+    margin: 10px 15px`: `
+    white-space: nowrap;
+    overflow: hidden;
+    margin-left: 15px;`
+  }
 `
 export const Truncated = styled.div`
   white-space: nowrap;
