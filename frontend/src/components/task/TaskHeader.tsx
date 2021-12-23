@@ -2,7 +2,7 @@ import './Task.css'
 import { Action, Dispatch } from '@reduxjs/toolkit'
 import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
 import React, { useCallback } from 'react'
-import { collapseBody, expandBody, removeTaskByID } from '../../redux/tasksPageSlice'
+import { collapseBody, expandBody, removeTaskByID, setShowDatePicker } from '../../redux/tasksPageSlice'
 import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
 import { TTask } from '../../helpers/types'
 import { useAppDispatch } from '../../redux/hooks'
@@ -130,20 +130,7 @@ const done = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTa
 }
 
 const editDueDate = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {
-  try {
-    const response = await makeAuthorizedRequest({
-      url: TASKS_MODIFY_URL + task_id + '/',
-      method: 'PATCH',
-      body: JSON.stringify({ 'due_date': '2020-01-01' })
-    })
-
-    if (!response.ok) {
-      throw new Error('PATCH /tasks/modify Edit Due Date failed: ' + response.text())
-    }
-    await fetchTasks()
-  } catch (e) {
-    console.log({ e })
-  }
+  dispatch(setShowDatePicker(true))
 }
 
 const editTimeEstimate = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {

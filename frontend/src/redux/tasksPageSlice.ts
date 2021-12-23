@@ -9,6 +9,7 @@ export interface TasksPageState {
     tasks_fetch_status: TFetchStatus,
     expanded_body: string | null,
     show_create_task_form: boolean,
+    show_date_picker: boolean,
 }
 
 const initialState: TasksPageState = {
@@ -19,6 +20,7 @@ const initialState: TasksPageState = {
     },
     expanded_body: null,
     show_create_task_form: false,
+    show_date_picker: false,
 }
 
 export const tasksPageSlice = createSlice({
@@ -53,6 +55,10 @@ export const tasksPageSlice = createSlice({
         },
         setShowCreateTaskForm(state, action: PayloadAction<boolean>) {
             state.show_create_task_form = action.payload
+        },
+        setShowDatePicker(state, action: PayloadAction<boolean>) {
+            state.show_date_picker = action.payload
+            console.log('setShowDatePicker', state.show_date_picker)
         }
     },
 })
@@ -65,6 +71,7 @@ export const {
     expandBody,
     collapseBody,
     setShowCreateTaskForm,
+    setShowDatePicker,
 } = tasksPageSlice.actions
 
 export default tasksPageSlice.reducer
