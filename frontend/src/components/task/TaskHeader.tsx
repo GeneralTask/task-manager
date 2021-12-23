@@ -1,6 +1,6 @@
 import './Task.css'
 import { Action, Dispatch } from '@reduxjs/toolkit'
-import { TASKS_MODIFY_URL, DONE_BUTTON } from '../../constants'
+import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
 import React, { useCallback } from 'react'
 import { collapseBody, expandBody, removeTaskByID } from '../../redux/tasksPageSlice'
 import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
@@ -20,6 +20,7 @@ import {
   DominoContainer,
   DominoDot,
   DoneButton,
+  ButtonRight,
   JoinConferenceButtonContainer
 } from './TaskHeader-style'
 import JoinConferenceButton from './JoinConferenceButton'
@@ -78,6 +79,21 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         <Title>{props.task.title}</Title>
       </HeaderLeft>
       <HeaderRight>
+        <ButtonRight src={EXPAND_ICON} onClick={() => {
+          // TODO: expand/collapse task body
+          dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
+        }} />
+        <ButtonRight src={TIME_ICON} onClick={() => {
+          // TODO: allow editing of task time estimate
+          editTimeEstimate(props.task.id, dispatch, fetchTasks)
+        }} />
+        <ButtonRight src={BLANK_CALENDAR_ICON} onClick={() => {
+          // TODO: allow editing of task due date
+          editDueDate(props.task.id, dispatch, fetchTasks)
+        }} />
+        {/* <ButtonRight src={TRASH_ICON} onClick={() => {
+          deleteTask(props.task.id, dispatch, fetchTasks)
+        }} /> */}
         {
           props.task.conference_call &&
           <JoinConferenceButtonContainer>
@@ -106,6 +122,40 @@ const done = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTa
 
     if (!response.ok) {
       throw new Error('PATCH /tasks/modify Mark as Done failed: ' + response.text())
+    }
+    await fetchTasks()
+  } catch (e) {
+    console.log({ e })
+  }
+}
+
+const editDueDate = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {
+  try {
+    const response = await makeAuthorizedRequest({
+      url: TASKS_MODIFY_URL + task_id + '/',
+      method: 'PATCH',
+      body: JSON.stringify({ 'due_date': '2020-01-01' })
+    })
+
+    if (!response.ok) {
+      throw new Error('PATCH /tasks/modify Edit Due Date failed: ' + response.text())
+    }
+    await fetchTasks()
+  } catch (e) {
+    console.log({ e })
+  }
+}
+
+const editTimeEstimate = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {
+  try {
+    const response = await makeAuthorizedRequest({
+      url: TASKS_MODIFY_URL + task_id + '/',
+      method: 'PATCH',
+      body: JSON.stringify({ 'time_estimate': '1' })
+    })
+
+    if (!response.ok) {
+      throw new Error('PATCH /tasks/modify Edit Time Estimate failed: ' + response.text())
     }
     await fetchTasks()
   } catch (e) {
