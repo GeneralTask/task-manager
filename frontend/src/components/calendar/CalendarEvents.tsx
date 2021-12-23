@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { Ref, useEffect, useRef } from 'react'
 import { TTaskGroup, TTaskGroupType } from '../../helpers/types'
 import { useAppSelector } from '../../redux/hooks'
 import { TimeIndicator } from './TimeIndicator'
-import { CELL_HEIGHT } from '../../helpers/styles'
+import { CALENDAR_DEFAULT_SCROLL_HOUR, CELL_HEIGHT } from '../../helpers/styles'
 import { CalendarRow, CalendarTD, CalendarCell, CellTime, CalendarTableStyle, EventBodyStyle, EventDescription, EventTitle, EventTime, EventFill, EventFillContinues, EventsContainer } from './CalendarEvents-styles'
 
 function CalendarTable(): JSX.Element {
@@ -61,6 +61,7 @@ function EventBody({ event }: EventBodyProps): JSX.Element | null {
 }
 
 export default function CalendarEvents(): JSX.Element {
+    const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
     const scheduledGroups = useAppSelector((state) => {
         const scheduledGroups = []
         const sections = state.tasks_page.task_sections
@@ -74,13 +75,18 @@ export default function CalendarEvents(): JSX.Element {
         }
         return scheduledGroups
     })
+    useEffect(() => {
+        if (eventsContainerRef.current) {
+            eventsContainerRef.current.scrollTop = CELL_HEIGHT * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
+        }
+    }, [])
     const eventBodies = scheduledGroups.map((event: TTaskGroup) => {
         if (event.datetime_start == null) return
         if (event.tasks == null || event.tasks.length === 0) return
         return <EventBody key={event.tasks[0].id} event={event} />
     })
     return (
-        <EventsContainer>
+        <EventsContainer ref={eventsContainerRef}>
             {eventBodies}
             <TimeIndicator />
             <CalendarTable />
