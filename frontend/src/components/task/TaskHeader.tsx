@@ -75,7 +75,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           }} />
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
-        <Title>{props.task.title}</Title>
+        <Title isExpanded={!props.isExpanded}>{props.task.title}</Title>
       </HeaderLeft>
       <HeaderRight>
         {
