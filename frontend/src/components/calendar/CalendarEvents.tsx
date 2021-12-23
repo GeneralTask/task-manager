@@ -29,17 +29,13 @@ interface EventBodyProps {
 function EventBody({ event }: EventBodyProps): JSX.Element | null {
     if (event.datetime_start == null) return null
 
-    // calculate ratio of minutes to height of all cells
-    const timeDurationMinutes = event.time_duration / 60
-    let eventBodyHeight = timeDurationMinutes / (24 * 60) * (CELL_HEIGHT * 24)
 
     const startTime = new Date(event.datetime_start)
-    const endTime = new Date(startTime.toString())
-    endTime.setTime(endTime.getTime() + event.time_duration / 60 * 60000)
+    const endTime = new Date(startTime.getTime() + (event.time_duration * 1000))
+
     const rollsOverMidnight = endTime.getDay() !== startTime.getDay()
-    if (rollsOverMidnight) {
-        eventBodyHeight -= endTime.getHours() * CELL_HEIGHT
-    }
+    // const eventBodyHeight = (event.time_duration / 3600 - (rollsOverMidnight ? endTime.getHours() : 0)) * CELL_HEIGHT
+    const eventBodyHeight = (new Date().setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600 * CELL_HEIGHT
 
     const startTimeHours = startTime.getHours() - 1
     const startTimeMinutes = startTime.getMinutes()
