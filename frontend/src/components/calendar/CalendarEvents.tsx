@@ -34,8 +34,7 @@ function EventBody({ event }: EventBodyProps): JSX.Element | null {
     const endTime = new Date(startTime.getTime() + (event.time_duration * 1000))
 
     const rollsOverMidnight = endTime.getDay() !== startTime.getDay()
-    // const eventBodyHeight = (event.time_duration / 3600 - (rollsOverMidnight ? endTime.getHours() : 0)) * CELL_HEIGHT
-    const eventBodyHeight = (new Date().setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600 * CELL_HEIGHT
+    const eventBodyHeight = rollsOverMidnight ? (new Date(startTime).setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600 * CELL_HEIGHT : event.time_duration / 3600 * CELL_HEIGHT
 
     const startTimeHours = startTime.getHours() - 1
     const startTimeMinutes = startTime.getMinutes()
