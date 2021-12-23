@@ -2,7 +2,7 @@ import React, { Ref, useEffect, useRef } from 'react'
 import { TTaskGroup, TTaskGroupType } from '../../helpers/types'
 import { useAppSelector } from '../../redux/hooks'
 import { TimeIndicator } from './TimeIndicator'
-import { CELL_HEIGHT } from '../../helpers/styles'
+import { CALENDAR_DEFAULT_SCROLL_HOUR, CELL_HEIGHT } from '../../helpers/styles'
 import { CalendarRow, CalendarTD, CalendarCell, CellTime, CalendarTableStyle, EventBodyStyle, EventDescription, EventTitle, EventTime, EventFill, EventFillContinues, EventsContainer } from './CalendarEvents-styles'
 
 function CalendarTable(): JSX.Element {
@@ -77,7 +77,7 @@ export default function CalendarEvents(): JSX.Element {
     })
     useEffect(() => {
         if (eventsContainerRef.current) {
-            eventsContainerRef.current.scrollTop = CELL_HEIGHT * 7
+            eventsContainerRef.current.scrollTop = CELL_HEIGHT * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
         }
     }, [])
     const eventBodies = scheduledGroups.map((event: TTaskGroup) => {
