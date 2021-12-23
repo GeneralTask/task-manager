@@ -1,6 +1,6 @@
 import './Task.css'
 import { Action, Dispatch } from '@reduxjs/toolkit'
-import { TASKS_MODIFY_URL } from '../../constants'
+import { TASKS_MODIFY_URL, DONE_BUTTON } from '../../constants'
 import React, { useCallback } from 'react'
 import { collapseBody, expandBody, removeTaskByID } from '../../redux/tasksPageSlice'
 import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
@@ -67,6 +67,13 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
             <Domino />
           </DragHandler>
         }
+        {
+          !props.isExpanded &&
+          props.task.source.is_completable &&
+          <DoneButton src={DONE_BUTTON} onClick={() => {
+            done(props.task.id, dispatch, fetchTasks)
+          }} />
+        }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
         <Title>{props.task.title}</Title>
       </HeaderLeft>
@@ -77,23 +84,12 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
             <JoinConferenceButton conferenceCall={props.task.conference_call}></JoinConferenceButton>
           </JoinConferenceButtonContainer>
         }
-        {
-          props.task.source.name == 'General Task' &&
-          <DoneButton onClick={() => {
-            done(props.task.id, dispatch, fetchTasks)
-          }} />
-        }
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
           <CalendarIconContainer>
             <CalendarIcon src="images/calendar-icon.png" alt="calendar" />
           </CalendarIconContainer>
         </DeadlineIndicator>
-        {
-          props.isExpanded && props.task.source.is_completable && <DoneButton onClick={() => {
-            done(props.task.id, dispatch, fetchTasks)
-          }} />
-        }
       </HeaderRight >
     </TaskHeaderContainer >
   )
