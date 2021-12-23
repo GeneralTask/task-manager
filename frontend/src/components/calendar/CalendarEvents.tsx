@@ -3,7 +3,7 @@ import { TTaskGroup, TTaskGroupType } from '../../helpers/types'
 import { useAppSelector } from '../../redux/hooks'
 import { TimeIndicator } from './TimeIndicator'
 import { CELL_HEIGHT } from '../../helpers/styles'
-import { CalendarRow, CalendarTD, CalendarCell, CellTime, CalendarTableStyle, EventBodyStyle, EventDescription, EventTitle, EventTime, EventFill, EventsContainer } from './CalendarEvents-styles'
+import { CalendarRow, CalendarTD, CalendarCell, CellTime, CalendarTableStyle, EventBodyStyle, EventDescription, EventTitle, EventTime, EventFill, EventFillContinues, EventsContainer } from './CalendarEvents-styles'
 
 function CalendarTable(): JSX.Element {
     const hourElements = Array(24).fill(0).map((_, index) => (
@@ -30,13 +30,12 @@ interface EventBodyProps {
 function EventBody({ event }: EventBodyProps): JSX.Element | null {
     if (event.datetime_start == null) return null
 
-    // calculate ratio of minutes to height of all cells
-    const timeDurationMinutes = event.time_duration / 60
-    const eventBodyHeight = timeDurationMinutes / (24 * 60) * (CELL_HEIGHT * 24)
 
     const startTime = new Date(event.datetime_start)
-    const endTime = new Date(startTime.toString())
-    endTime.setTime(endTime.getTime() + event.time_duration / 60 * 60000)
+    const endTime = new Date(startTime.getTime() + (event.time_duration * 1000))
+
+    const rollsOverMidnight = endTime.getDay() !== startTime.getDay()
+    const eventBodyHeight = rollsOverMidnight ? (new Date(startTime).setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600 * CELL_HEIGHT : event.time_duration / 3600 * CELL_HEIGHT
 
     const startTimeHours = startTime.getHours() - 1
     const startTimeMinutes = startTime.getMinutes()
@@ -56,7 +55,7 @@ function EventBody({ event }: EventBodyProps): JSX.Element | null {
                     {`${startTimeString} - ${endTimeString}`}
                 </EventTime>
             </EventDescription>
-            <EventFill />
+            {rollsOverMidnight ? <EventFillContinues /> : <EventFill />}
         </EventBodyStyle>
     )
 }
