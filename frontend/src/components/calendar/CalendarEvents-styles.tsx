@@ -16,9 +16,11 @@ export const CalendarTableStyle = styled.table`
     width: ${TABLE_WIDTH_PERCENTAGE}%;
 `
 export const CalendarRow = styled.tr`
+    display: block;
     height: ${CELL_HEIGHT}px;
 `
 export const CalendarTD = styled.td`
+    display: block;
     border-top: 1px solid ${CALENDAR_TD_COLOR};
     height: 100%;
 `

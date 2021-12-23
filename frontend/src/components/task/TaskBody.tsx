@@ -57,11 +57,13 @@ const EmailBody: React.FC<EmailViewProps> = (props: EmailViewProps) => {
         allowedAttributes: false,
         allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'a', 'center'])
     }
+    const transformTags = { 'a': sanitizeHtml.simpleTransform('a', { target: '_blank' }, true) }
+    const cleanHTML = sanitizeHtml(props.body, { ...whitelistedHTMLAttributes, transformTags })
     return (
         <EmailViewDiv>
             <EmailMessage>
                 <EmailSubjectHeader>Subject: {'{email subject}'} </EmailSubjectHeader>
-                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(props.body, whitelistedHTMLAttributes) }} />
+                <div dangerouslySetInnerHTML={{ __html: cleanHTML }} />
             </EmailMessage>
         </EmailViewDiv>
     )

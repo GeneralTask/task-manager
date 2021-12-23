@@ -1,5 +1,5 @@
 import { CurrentTimeText, HeaderText, InsideHeader, Spanbar, TaskSectionHeaderContainer, TimeAnnotation, TimeAnnotationRight } from './TaskSectionHeader-style'
-import { DeviceSize, makeAuthorizedRequest, sectionDropReorder, useDeviceSize, useFetchTasks } from '../../helpers/utils'
+import { makeAuthorizedRequest, sectionDropReorder, useFetchTasks } from '../../helpers/utils'
 import { Indices, ItemTypes, TTaskSection } from '../../helpers/types'
 import React, { RefObject, useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
@@ -65,26 +65,19 @@ export default function TaskSectionHeader(props: Props): JSX.Element {
   )
 }
 
-function CurrentTime() {
+function CurrentTime(): JSX.Element {
   const [timeStr, setTimeStr] = useState('')
-  const deviceSize = useDeviceSize()
-
   useEffect(() => {
-    if (deviceSize !== DeviceSize.MOBILE) {
+    setTimeStr(DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS))
+    const interval = setInterval(() => {
       setTimeStr(DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS))
-      const interval = setInterval(() => {
-        setTimeStr(DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS))
-      }, 1000)
+    }, 1000)
 
-      return () => {
-        clearInterval(interval)
-      }
+    return () => {
+      clearInterval(interval)
     }
-    else {
-      setTimeStr('')
-    }
-  }, [deviceSize])
-  return <>
-    {deviceSize !== DeviceSize.MOBILE && <CurrentTimeText>{timeStr}</CurrentTimeText>}
-  </>
+
+
+  }, [])
+  return <CurrentTimeText>{timeStr}</CurrentTimeText>
 }
