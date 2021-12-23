@@ -54,7 +54,7 @@ export const EventFill = styled.div`
     border-radius: 8px;
 `
 export const EventFillContinues = styled(EventFill)`
-    border-radius: 8px, 8px, 0, 0;
+    border-radius: 8px 8px 0 0;
 `
 export const EventDescription = styled.div`
     position: absolute;
