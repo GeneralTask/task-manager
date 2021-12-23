@@ -3,18 +3,16 @@ import * as styles from './TaskCreate-style'
 import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL, PLUS_ICON } from '../../constants'
 import React, { useState } from 'react'
 import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { useAppSelector } from '../../redux/hooks'
 
 // import GTButton from '../common/GTButton'
 import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
 // import parse from 'parse-duration'
 // import { parseDate } from '../../helpers/TimeParser'
-import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
 
 export default function TaskCreate(): JSX.Element {
     const showCreateTaskForm = useAppSelector(state => state.tasks_page.show_create_task_form)
-    const dispatch = useAppDispatch()
 
     const [title, setTitle] = useState('')
     // const [timeEstimate, setTimeEstimate] = useState('')
