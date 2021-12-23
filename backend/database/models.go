@@ -73,6 +73,7 @@ type TaskBase struct {
 	Title            string             `bson:"title"`
 	Body             string             `bson:"body"`
 	HasBeenReordered bool               `bson:"has_been_reordered"`
+	DueDate          primitive.DateTime `bson:"due_date"`
 	//time in nanoseconds
 	TimeAllocation    int64              `bson:"time_allocated"`
 	ConferenceCall    *ConferenceCall    `bson:"conference_call"`
@@ -100,10 +101,9 @@ type Email struct {
 
 type Task struct {
 	TaskBase           `bson:",inline"`
-	DueDate            primitive.DateTime `bson:"due_date"`
-	PriorityID         string             `bson:"priority_id"`
-	PriorityNormalized float64            `bson:"priority_normalized"`
-	TaskNumber         int                `bson:"task_number"`
+	PriorityID         string  `bson:"priority_id"`
+	PriorityNormalized float64 `bson:"priority_normalized"`
+	TaskNumber         int     `bson:"task_number"`
 }
 
 type TaskChangeableFields struct {
