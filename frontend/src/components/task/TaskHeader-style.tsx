@@ -12,6 +12,7 @@ export const DoneButton = styled.img`
   cursor: pointer;
 `
 export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
+  position: relative;
   font-size: 15px;
   border-radius: 6px;
   display: flex;
@@ -26,12 +27,13 @@ export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, sho
   min-height: 50px;
 `
 export const HeaderLeft = styled.div`
+  box-sizing: border-box;
   text-align: left; 
   display: flex;
   align-items: center;
   flex-direction: row;
   flex-basis: auto;
-  width: 60%;
+  width: 100%;
   padding-left: 12px;
 `
 export const HeaderRight = styled.div`
