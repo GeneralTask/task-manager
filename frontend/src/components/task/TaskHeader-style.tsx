@@ -107,14 +107,14 @@ export const Title = styled.div<{ isExpanded: boolean }>`
   color:${TEXT_BLACK};
   text-overflow: ellipsis;
   ${({ isExpanded }) => isExpanded ? `
-    white-space: nowrap;
-    overflow: hidden;
-    margin-left: 15px;`: `
     word-wrap: break-word;
     min-width: 0px;
     flex-basis: auto;
     flex-grow: 1;
-    margin: 10px 15px`
+    margin: 10px 15px`: `
+    white-space: nowrap;
+    overflow: hidden;
+    margin-left: 15px;`
   }
 `
 export const Truncated = styled.div`
