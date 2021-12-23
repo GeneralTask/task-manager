@@ -25,6 +25,7 @@ type TaskResultV2 struct {
 	Title          string             `json:"title"`
 	Body           string             `json:"body"`
 	Sender         string             `json:"sender"`
+	DueDate        string             `json:"due_date"`
 	TimeAllocation int64              `json:"time_allocated"`
 	SentAt         string             `json:"sent_at"`
 }
@@ -379,5 +380,6 @@ func taskBaseToTaskResultV2(t *database.TaskBase) *TaskResultV2 {
 		TimeAllocation: t.TimeAllocation,
 		Sender:         t.Sender,
 		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
+		DueDate:        t.DueDate.Time().Format("2006-01-02"),
 	}
 }
