@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function TaskSectionHeader(props: Props): JSX.Element {
-  const taskSections = useAppSelector((state) => state.tasks_page.task_sections)
+  const taskSections = useAppSelector((state) => state.tasks_page.tasks.task_sections)
   const dispatch = useAppDispatch()
   const fetchTasks = useFetchTasks()
   const taskSectionsRef = useRef<TTaskSection[]>(taskSections)
@@ -36,7 +36,6 @@ export default function TaskSectionHeader(props: Props): JSX.Element {
       const patchBody = JSON.stringify({
         id_task_section: taskSectionsRef.current[props.task_section_index].id,
         id_ordering: updatedTaskSections[props.task_section_index]
-          .task_groups[0]
           .tasks[0]
           .id_ordering
       })

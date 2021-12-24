@@ -13,7 +13,7 @@ import { parseDate } from '../../helpers/TimeParser'
 import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
 
 export default function TaskCreate(): JSX.Element {
-    const showCreateTaskForm = useAppSelector(state => state.tasks_page.show_create_task_form)
+    const showCreateTaskForm = useAppSelector(state => state.tasks_page.tasks.show_create_task_form)
     const dispatch = useAppDispatch()
 
     const [title, setTitle] = useState('')
@@ -25,6 +25,8 @@ export default function TaskCreate(): JSX.Element {
     const [dueDateError, setDueDateError] = useState('')
 
     const fetchTasks = useFetchTasks()
+
+    console.log({ showCreateTaskForm })
 
     return <>
         {showCreateTaskForm && <>

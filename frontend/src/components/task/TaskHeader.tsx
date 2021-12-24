@@ -19,10 +19,8 @@ import {
   DragHandler,
   DominoContainer,
   DominoDot,
-  DoneButton,
-  JoinConferenceButtonContainer
+  DoneButton
 } from './TaskHeader-style'
-import JoinConferenceButton from './JoinConferenceButton'
 
 function Domino(): JSX.Element {
   return (
@@ -33,7 +31,6 @@ function Domino(): JSX.Element {
 }
 interface TaskHeaderProps {
   task: TTask,
-  datetimeStart: string | null, // null if unscheduled_task
   dragDisabled: boolean,
   isExpanded: boolean,
 }
@@ -78,12 +75,6 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         <Title isExpanded={props.isExpanded}>{props.task.title}</Title>
       </HeaderLeft>
       <HeaderRight>
-        {
-          props.task.conference_call &&
-          <JoinConferenceButtonContainer>
-            <JoinConferenceButton conferenceCall={props.task.conference_call}></JoinConferenceButton>
-          </JoinConferenceButtonContainer>
-        }
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
           <CalendarIconContainer>

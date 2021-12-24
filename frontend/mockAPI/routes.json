@@ -1,3 +1,4 @@
 {
+    "/tasks/v2/": "/tasks_v2/",
     "/linked_accounts/supported_types/": "/linked_accounts_supported_types/"
 }
