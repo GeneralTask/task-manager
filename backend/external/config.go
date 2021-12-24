@@ -10,18 +10,21 @@ const (
 	TASK_SERVICE_ID_ASANA     = "asana"
 	TASK_SERVICE_ID_ATLASSIAN = "atlassian"
 	TASK_SERVICE_ID_GT        = "gt"
+	TASK_SERVICE_ID_GITHUB    = "github"
 	TASK_SERVICE_ID_GOOGLE    = "google"
 	TASK_SERVICE_ID_SLACK     = "slack"
 	TASK_SERVICE_ID_TRELLO    = "trello"
 
-	TASK_SOURCE_ID_ASANA   = "asana_task"
-	TASK_SOURCE_ID_GCAL    = "gcal"
-	TASK_SOURCE_ID_GT_TASK = "gt_task"
-	TASK_SOURCE_ID_GMAIL   = "gmail"
-	TASK_SOURCE_ID_JIRA    = "jira"
+	TASK_SOURCE_ID_ASANA     = "asana_task"
+	TASK_SOURCE_ID_GCAL      = "gcal"
+	TASK_SOURCE_ID_GITHUB_PR = "github_pr"
+	TASK_SOURCE_ID_GT_TASK   = "gt_task"
+	TASK_SOURCE_ID_GMAIL     = "gmail"
+	TASK_SOURCE_ID_JIRA      = "jira"
 )
 
 type Config struct {
+	Github                OauthConfigWrapper
 	GoogleLoginConfig     OauthConfigWrapper
 	GoogleAuthorizeConfig OauthConfigWrapper
 	Slack                 OauthConfigWrapper
@@ -35,6 +38,7 @@ func GetConfig() Config {
 	return Config{
 		GoogleLoginConfig:     getGoogleLoginConfig(),
 		GoogleAuthorizeConfig: getGoogleLinkConfig(),
+		Github:                getGithubConfig(),
 		Slack:                 getSlackConfig(),
 		Trello:                getTrelloConfig(),
 		Asana:                 getAsanaConfig(),
@@ -79,6 +83,7 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 		OverrideURLs: config.GoogleOverrideURLs,
 	}
 	asanaService := AsanaService{Config: config.Asana}
+	githubService := GithubService{Config: config.Github}
 	return map[string]TaskSourceResult{
 		TASK_SOURCE_ID_GCAL: {
 			Details: TaskSourceGoogleCalendar,
@@ -100,6 +105,10 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 			Details: TaskSourceAsana,
 			Source:  AsanaTaskSource{Asana: asanaService},
 		},
+		TASK_SOURCE_ID_GITHUB_PR: {
+			Details: TaskSourceGithubPR,
+			Source:  GithubPRSource{Github: githubService},
+		},
 	}
 }
 
@@ -111,6 +120,7 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 		LinkConfig:   config.GoogleAuthorizeConfig,
 		OverrideURLs: config.GoogleOverrideURLs,
 	}
+	githubService := GithubService{Config: config.Github}
 	return map[string]TaskServiceResult{
 		TASK_SERVICE_ID_ATLASSIAN: {
 			Service: atlassianService,
@@ -134,6 +144,11 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 			Service: SlackService{Config: config.Slack},
 			Details: TaskServiceSlack,
 			Sources: []TaskSource{},
+		},
+		TASK_SERVICE_ID_GITHUB: {
+			Service: githubService,
+			Details: TaskServiceGithub,
+			Sources: []TaskSource{GithubPRSource{Github: githubService}},
 		},
 		TASK_SERVICE_ID_TRELLO: {
 			Service: TrelloService{Config: config.Trello},
@@ -176,6 +191,14 @@ var TaskServiceGeneralTask = TaskServiceDetails{
 	Logo:         "/images/favicon.ico",
 	AuthType:     AuthTypeOauth2,
 	IsLinkable:   false,
+	IsSignupable: false,
+}
+var TaskServiceGithub = TaskServiceDetails{
+	ID:           TASK_SERVICE_ID_GITHUB,
+	Name:         "Github",
+	Logo:         "/images/github.svg",
+	AuthType:     AuthTypeOauth2,
+	IsLinkable:   true,
 	IsSignupable: false,
 }
 var TaskServiceGoogle = TaskServiceDetails{
@@ -232,6 +255,14 @@ var TaskSourceGoogleCalendar = TaskSourceDetails{
 	ID:            TASK_SOURCE_ID_GCAL,
 	Name:          "Google Calendar",
 	Logo:          "/images/gcal.svg",
+	IsCompletable: false,
+	IsCreatable:   false,
+	IsReplyable:   false,
+}
+var TaskSourceGithubPR = TaskSourceDetails{
+	ID:            TASK_SOURCE_ID_GITHUB_PR,
+	Name:          "Git PR",
+	Logo:          "/images/github.svg",
 	IsCompletable: false,
 	IsCreatable:   false,
 	IsReplyable:   false,

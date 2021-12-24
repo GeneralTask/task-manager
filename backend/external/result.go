@@ -18,6 +18,11 @@ type TaskResult struct {
 	Error           error
 }
 
+type PullRequestResult struct {
+	PullRequests []*database.PullRequest
+	Error        error
+}
+
 func emptyCalendarResult(err error) CalendarResult {
 	return CalendarResult{
 		CalendarEvents: []*database.CalendarEvent{},
@@ -38,5 +43,12 @@ func emptyTaskResult(err error) TaskResult {
 		Tasks:           []*database.Task{},
 		PriorityMapping: &priorities,
 		Error:           err,
+	}
+}
+
+func emptyPullRequestResult(err error) PullRequestResult {
+	return PullRequestResult{
+		PullRequests: []*database.PullRequest{},
+		Error:        err,
 	}
 }

@@ -142,6 +142,10 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	}
 }
 
+func (AsanaTask AsanaTaskSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+	result <- emptyPullRequestResult(nil)
+}
+
 func (AsanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
