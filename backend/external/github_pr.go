@@ -22,7 +22,7 @@ func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID strin
 	result <- emptyEmailResult(nil)
 }
 
-func (gitPR GithubPRSource) GetEvents(userID primitive.ObjectID, accountID string, timezoneOffsetMinutes int, result chan<- CalendarResult) {
+func (gitPR GithubPRSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 
