@@ -132,7 +132,7 @@ function CreateNewTaskButton(): JSX.Element {
     const { showButton } = useAppSelector(state => ({
         showButton:
             state.tasks_page.tasks.task_sections.length !== 0 ||
-            state.tasks_page.tasks.tasks_fetch_status.status !== FetchStatusEnum.LOADING
+            state.tasks_page.tasks.fetch_status !== FetchStatusEnum.LOADING
         ,
     }))
     const dispatch = useAppDispatch()
