@@ -10,7 +10,10 @@ export interface TasksPageState {
         expanded_body: string | null,
         show_create_task_form: boolean,
     },
-    events: TEvent[],
+    events: {
+        event_list: TEvent[],
+        fetch_status: FetchStatusEnum,
+    },
 }
 
 const initialState: TasksPageState = {
@@ -20,7 +23,10 @@ const initialState: TasksPageState = {
         expanded_body: null,
         show_create_task_form: false,
     },
-    events: [],
+    events: {
+        event_list: [],
+        fetch_status: FetchStatusEnum.LOADING,
+    },
 }
 
 export const tasksPageSlice = createSlice({
@@ -53,8 +59,11 @@ export const tasksPageSlice = createSlice({
             state.tasks.show_create_task_form = action.payload
         },
         setEvents(state, action: PayloadAction<TEvent[]>) {
-            state.events = action.payload
-        }
+            state.events.event_list = action.payload
+        },
+        setEventsFetchStatus(state, action: PayloadAction<FetchStatusEnum>) {
+            state.events.fetch_status = action.payload
+        },
     },
 })
 
@@ -66,6 +75,7 @@ export const {
     collapseBody,
     setShowCreateTaskForm,
     setEvents,
+    setEventsFetchStatus,
 } = tasksPageSlice.actions
 
 export default tasksPageSlice.reducer

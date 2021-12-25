@@ -93,7 +93,7 @@ function useFetchEvents(): () => Promise<void> {
 
 export default function CalendarEvents(): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
-    const events = useAppSelector((state) => state.tasks_page.events)
+    const event_list = useAppSelector((state) => state.tasks_page.events.event_list)
     const fetchEvents = useFetchEvents()
     useInterval(fetchEvents, TASKS_FETCH_INTERVAL)
 
@@ -105,7 +105,7 @@ export default function CalendarEvents(): JSX.Element {
 
     return (
         <EventsContainer ref={eventsContainerRef}>
-            {events.map((event) => <EventBody key={event.id} event={event} />)}
+            {event_list.map((event) => <EventBody key={event.id} event={event} />)}
             <TimeIndicator />
             <CalendarTable />
         </EventsContainer>
