@@ -3,3 +3,10 @@ export enum FetchStatusEnum {
     SUCCESS,
     ERROR,
 }
+
+export enum AbortID {
+    TASKS,
+    EVENTS,
+    LINKED_ACCOUNTS,
+    SETTINGS,
+}

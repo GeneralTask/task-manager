@@ -2,7 +2,8 @@ import * as styles from './TaskCreate-style'
 
 import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
 import React, { useState } from 'react'
-import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
+import { makeAuthorizedRequest } from '../../helpers/utils'
+import { useFetchTasks } from './TasksPage'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 import GTButton from '../common/GTButton'

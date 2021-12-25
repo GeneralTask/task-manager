@@ -1,18 +1,19 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { FetchStatusEnum } from '../../redux/enums'
+import { AbortID, FetchStatusEnum } from '../../redux/enums'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
-import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
+import { setShowCreateTaskForm, setTasks, setTasksFetchStatus } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
-import { useFetchTasks, useInterval } from '../../helpers/utils'
 import Navbar from '../Navbar'
 import { NavbarPages } from '../../helpers/types'
 import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
 import CalendarSidebar from '../calendar/CalendarSidebar'
-import { TASKS_FETCH_INTERVAL } from '../../constants'
+import { useDragDropManager } from 'react-dnd'
+import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
+import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 
 const TasksPageContainer = styled.div`
     display:flex;
@@ -56,6 +57,37 @@ const PlusImage = styled.img`
     height: 100%;
     width: 100%;
 `
+
+export const useFetchTasks = (): () => Promise<void> => {
+    const dispatch = useAppDispatch()
+    const dragDropMonitor = useDragDropManager().getMonitor()
+
+    const fetchTasks = useCallback(async () => {
+        const isDragging = dragDropMonitor.isDragging()
+        if (isDragging) {
+            return
+        }
+        try {
+            dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING))
+            const response = await makeAuthorizedRequest({
+                url: TASKS_URL,
+                method: 'GET',
+                abortID: AbortID.TASKS,
+            })
+            if (!response.ok) {
+                dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
+            } else {
+                const resj = await response.json()
+                dispatch(setTasksFetchStatus(FetchStatusEnum.SUCCESS))
+                dispatch(setTasks(resj))
+            }
+        } catch (e) {
+            console.log({ e })
+        }
+    }, [])
+
+    return fetchTasks
+}
 
 export default function TasksPage(): JSX.Element {
     const task_sections = useAppSelector((state) => state.tasks_page.tasks.task_sections)
