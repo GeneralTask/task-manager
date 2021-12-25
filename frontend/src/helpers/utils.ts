@@ -4,20 +4,15 @@ import {
     LINKED_ACCOUNTS_URL,
     LOGOUT_URL,
     REACT_APP_COOKIE_DOMAIN,
-    REACT_APP_FRONTEND_BASE_URL,
-    TASKS_URL
+    REACT_APP_FRONTEND_BASE_URL
 } from '../constants'
-import { setTasks, setTasksFetchAbortFunction, setTasksFetchStatus } from '../redux/tasksPageSlice'
-import { useAppDispatch, useAppSelector } from '../redux/hooks'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import Cookies from 'js-cookie'
-import { FetchStatusEnum } from '../redux/enums'
 import _ from 'lodash'
-import { useDragDropManager } from 'react-dnd'
+import { AbortID } from '../redux/enums'
 
 // This invalidates the cookie on the frontend
-// We'll probably want to set up a more robust logout involving the backend
 export const logout = async (): Promise<void> => {
     await makeAuthorizedRequest({
         url: LOGOUT_URL,
@@ -42,24 +37,23 @@ export const getHeaders = (): Record<string, string> => {
     })
 }
 
+const abortControllers = new Map<AbortID, AbortController>([
+    [AbortID.TASKS, new AbortController()]
+])
+
 interface fetchParams {
     url: string,
     method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
     params?: Record<string, string>,
     body?: string,
     logoutReq?: boolean,
-    // optional function that *accepts* an abort function
-    abortCallback?: (abort_fetch: () => void) => void,
+    abortID?: AbortID,
 }
 
 export const makeAuthorizedRequest = async (params: fetchParams): Promise<Response> => {
-    const body = params.body ?? null
-    let signal: AbortSignal | undefined = undefined
-    if (params.abortCallback != null) {
-        const controller = new AbortController()
-        signal = controller.signal
-        // pass our abort function back to the caller
-        params.abortCallback(() => controller.abort())
+    if (params.abortID != null) {
+        abortControllers.get(params.abortID)?.abort()
+        abortControllers.set(params.abortID, new AbortController())
     }
     let url = params.url
     if (params.params != null) {
@@ -70,8 +64,8 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
         method: params.method,
         mode: 'cors',
         headers: getHeaders(),
-        body,
-        signal: signal,
+        body: params.body,
+        signal: params.abortID != null ? abortControllers.get(params.abortID)?.signal : undefined,
     })
     if (!params?.logoutReq && response.status === 401) {
         logout()
@@ -80,55 +74,6 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
 }
 
 export const getLinkedAccountsURL = (account_id: string): string => LINKED_ACCOUNTS_URL + account_id + '/'
-
-// making this a hook for now before we switch over to RTK Query
-export const useFetchTasks = (): () => Promise<void> => {
-    const dispatch = useAppDispatch()
-    const { tasksFetchStatus } = useAppSelector(state => ({
-        tasksFetchStatus: state.tasks_page.tasks.tasks_fetch_status,
-    }))
-    const fetchStatusRef = useRef(tasksFetchStatus)
-    useEffect(() => {
-        fetchStatusRef.current = tasksFetchStatus
-    }, [tasksFetchStatus])
-
-    const dragDropMonitor = useDragDropManager().getMonitor()
-
-    const fetchTasks = useCallback(async () => {
-        const isDragging = dragDropMonitor.isDragging()
-        const fetchStatus = fetchStatusRef.current
-        if (isDragging) {
-            return
-        }
-        if (fetchStatus.status === FetchStatusEnum.LOADING) {
-            // abort inflight request
-            fetchStatus.abort_fetch()
-            setTasksFetchAbortFunction(emptyFunction)
-        }
-        try {
-            const response = await makeAuthorizedRequest({
-                url: TASKS_URL,
-                method: 'GET',
-                abortCallback: (abort_fetch: () => void) => {
-                    // get abort function from makeAuthorizedRequest, then make it available in redux state
-                    dispatch(setTasksFetchAbortFunction(abort_fetch))
-                    dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING))
-                }
-            })
-            if (!response.ok) {
-                dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
-            } else {
-                const resj = await response.json()
-                dispatch(setTasksFetchStatus(FetchStatusEnum.SUCCESS))
-                dispatch(setTasks(resj))
-            }
-        } catch (e) {
-            console.log({ e })
-        }
-    }, [])
-
-    return fetchTasks
-}
 
 export enum DeviceSize {
     MOBILE,

@@ -1,5 +1,6 @@
 import { CurrentTimeText, HeaderText, InsideHeader, Spanbar, TaskSectionHeaderContainer, TimeAnnotation, TimeAnnotationRight } from './TaskSectionHeader-style'
-import { makeAuthorizedRequest, sectionDropReorder, useFetchTasks } from '../../helpers/utils'
+import { makeAuthorizedRequest, sectionDropReorder } from '../../helpers/utils'
+import { useFetchTasks } from './TasksPage'
 import { Indices, ItemTypes, TTaskSection } from '../../helpers/types'
 import React, { RefObject, useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'

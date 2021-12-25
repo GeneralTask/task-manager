@@ -6,6 +6,7 @@ import { makeAuthorizedRequest } from '../../helpers/utils'
 import { setSettings } from '../../redux/settingsSlice'
 import styled from 'styled-components'
 import { useEffect } from 'react'
+import { AbortID } from '../../redux/enums'
 
 const PreferencesContainer = styled.div`
     display: flex;
@@ -47,6 +48,7 @@ export const useFetchSettings = (): () => Promise<void> => {
         const response = await makeAuthorizedRequest({
             url: SETTINGS_URL,
             method: 'GET',
+            abortID: AbortID.SETTINGS,
         })
         if (response.ok) {
             const settings = await response.json()

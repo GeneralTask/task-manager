@@ -3,7 +3,7 @@ import styled, { keyframes } from 'styled-components'
 import { FetchStatusEnum } from '../../redux/enums'
 import React from 'react'
 import { useAppSelector } from '../../redux/hooks'
-import { useFetchTasks } from '../../helpers/utils'
+import { useFetchTasks } from './TasksPage'
 
 const spin = keyframes`
     from {
