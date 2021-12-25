@@ -26,8 +26,6 @@ export default function TaskCreate(): JSX.Element {
 
     const fetchTasks = useFetchTasks()
 
-    console.log({ showCreateTaskForm })
-
     return <>
         {showCreateTaskForm && <>
             <styles.OuterContainer>
