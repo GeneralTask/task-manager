@@ -1,5 +1,3 @@
-import { FetchStatusEnum } from '../redux/enums'
-
 export enum NavbarPages {
     TASKS_PAGE = 'task_page',
     SETTINGS_PAGE = 'settings_page',
@@ -80,11 +78,6 @@ export const ItemTypes = {
 export interface DropResult {
     id: string,
     dropDisabled: boolean
-}
-
-export interface TFetchStatus {
-    status: FetchStatusEnum,
-    abort_fetch: () => void,
 }
 
 export interface TTaskCreateParams {

@@ -16,7 +16,7 @@ export default function TaskStatus(): JSX.Element {
 
     const { isTaskSectionsEmpty, fetchStatus } = useAppSelector(state => ({
         isTaskSectionsEmpty: state.tasks_page.tasks.task_sections.length === 0,
-        fetchStatus: state.tasks_page.tasks.tasks_fetch_status.status,
+        fetchStatus: state.tasks_page.tasks.fetch_status,
     }))
 
     switch (fetchStatus) {
