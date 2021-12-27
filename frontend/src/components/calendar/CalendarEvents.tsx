@@ -101,7 +101,6 @@ export default function CalendarEvents({ date }: CalendarEventsProps): JSX.Eleme
     const fetchEventsForDate = useCallback(() => {
         fetchEvents(date)
     }, [date])
-    console.log('calendar events')
 
     useInterval(fetchEventsForDate, TASKS_FETCH_INTERVAL)
 
