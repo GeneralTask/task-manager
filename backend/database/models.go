@@ -138,7 +138,7 @@ type WaitlistEntry struct {
 }
 
 type ConferenceCall struct {
-	Platform string `json:"platform" bson:"platform"`
-	Logo     string `json:"logo"     bson:"logo"`
-	URL      string `json:"url"      bson:"url"`
+	Platform string ` bson:"platform"`
+	Logo     string ` bson:"logo"`
+	URL      string ` bson:"url"`
 }
