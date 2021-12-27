@@ -21,7 +21,6 @@ type GithubService struct {
 }
 
 func getGithubConfig() *OauthConfig {
-	log.Println("server url:", config.GetConfigValue("SERVER_URL"))
 	return &OauthConfig{Config: &oauth2.Config{
 		ClientID:     config.GetConfigValue("GITHUB_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("GITHUB_OAUTH_CLIENT_SECRET"),
