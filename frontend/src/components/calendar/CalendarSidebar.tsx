@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import CalendarShifter from './CalendarDateShifter'
 import CalendarEvents from './CalendarEvents'
 import CalendarHeader from './CalendarHeader'
 
@@ -19,7 +18,7 @@ export default function CalendarSidebar(): JSX.Element {
     return (
         <CalendarSidebarContainer>
             <CalendarHeader date={date} setDate={setDate} />
-            <CalendarEvents />
+            <CalendarEvents date={date} />
         </CalendarSidebarContainer>
     )
 }

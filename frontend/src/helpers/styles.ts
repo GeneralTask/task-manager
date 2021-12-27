@@ -25,6 +25,7 @@ export const BACKGROUND_PRIMARY_HOVER = '#0069d9'
 export const BORDER_PRIMARY_HOVER = '#0062cc'
 export const TASKS_BACKROUND = '#F8F8F8'
 export const TASKS_BACKGROUND_GRADIENT = '#F6F4FE'
+export const ICON_HOVER = '#F4F4F5'
 
 export const DIVIDER_LIGHTGRAY = '#DDDDDD'
 
