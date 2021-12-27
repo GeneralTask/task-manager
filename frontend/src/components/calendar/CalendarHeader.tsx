@@ -1,40 +1,39 @@
 import React, { Dispatch } from 'react'
 import styled from 'styled-components'
+import { flex } from '../../helpers/styles'
 
 const CalendarHeaderContainer = styled.div`
     height: 50px;
     display: flex;
     justify-content: space-between;
-    margin-top: 50px;
-    padding: 0px 50px;
+    margin-top: 24px;
+    padding: 0px 24px;
 `
 const DateDisplay = styled.div`
-    font-size: 30px;
-`
-const TodayButton = styled.button`
-    height: 37.5px;
-    background: inherit;
-    border: 1px solid black;
-    padding: 0px 10px;
-    cursor: pointer;
-    border-radius: 10px;
-    color: black;
-    font-size: 15px;
+    margin-left: 40px;
+    font-size: 24px;
+    font-weight: 600;
 `
 
 interface CalendarHeaderProps {
-    month: string,
-    year: number,
+    date: Date,
     setDate: Dispatch<Date>
 }
-export default function CalendarHeader({ month, year, setDate }: CalendarHeaderProps): JSX.Element {
-    const setDateToday = () => {
-        setDate(new Date())
-    }
+export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
+    const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' })
+    const dayNum = date.getDate()
+    const month = date.toLocaleString('default', { month: 'short' })
     return (
         <CalendarHeaderContainer>
-            <DateDisplay>{`${month} ${year}`}</DateDisplay>
-            <TodayButton onClick={setDateToday}>Today</TodayButton>
+            <flex.flex>
+                <button>{'|->'}</button>
+                <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay>
+            </flex.flex>
+            <flex.flex>
+                <img src="images/CalendarBlank.svg" alt="Choose a date" />
+                <img src="images/CaretLeft.svg" alt="Show previous day" />
+                <img src="images/CaretRight.svg" alt="Show next day" />
+            </flex.flex>
         </CalendarHeaderContainer>
     )
 }
