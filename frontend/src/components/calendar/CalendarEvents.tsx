@@ -98,9 +98,12 @@ export default function CalendarEvents({ date }: CalendarEventsProps): JSX.Eleme
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
     const event_list = useAppSelector((state) => state.tasks_page.events.event_list)
     const fetchEvents = useFetchEvents()
+    const fetchEventsForDate = useCallback(() => {
+        fetchEvents(date)
+    }, [date])
     console.log('calendar events')
 
-    useInterval(() => fetchEvents(date), TASKS_FETCH_INTERVAL)
+    useInterval(fetchEventsForDate, TASKS_FETCH_INTERVAL)
 
     const [isToday, setIsToday] = useState(true)
     useEffect(() => {
