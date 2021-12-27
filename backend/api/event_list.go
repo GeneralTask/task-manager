@@ -29,7 +29,7 @@ type EventResult struct {
 	Deeplink       string             `json:"deeplink"`
 	Title          string             `json:"title"`
 	Body           string             `json:"body"`
-	ConferenceCall ConferenceCall     `json:"conference_call"`
+	ConferenceCall *ConferenceCall    `json:"conference_call"`
 	DatetimeEnd    primitive.DateTime `json:"datetime_end,omitempty"`
 	DatetimeStart  primitive.DateTime `json:"datetime_start,omitempty"`
 }
@@ -123,7 +123,7 @@ func (api *API) EventsList(c *gin.Context) {
 				Deeplink:       event.Deeplink,
 				Title:          event.Title,
 				Body:           event.Body,
-				ConferenceCall: *conferenceCall,
+				ConferenceCall: conferenceCall,
 				DatetimeEnd:    event.DatetimeEnd,
 				DatetimeStart:  event.DatetimeStart,
 			})
