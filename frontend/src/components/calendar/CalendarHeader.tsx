@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import styled from 'styled-components'
 import { flex, ICON_HOVER } from '../../helpers/styles'
 
@@ -42,16 +42,16 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
     const dayNum = date.getDate()
     const month = date.toLocaleString('default', { month: 'short' })
 
-    const selectNextDay = () => setDate(date => {
+    const selectNextDay = useCallback(() => setDate(date => {
         const newDate = new Date(date)
         newDate.setDate(date.getDate() + 1)
         return newDate
-    })
-    const selectPreviousDay = () => setDate(date => {
+    }), [date, setDate])
+    const selectPreviousDay = useCallback(() => setDate(date => {
         const newDate = new Date(date)
         newDate.setDate(date.getDate() - 1)
         return newDate
-    })
+    }), [date, setDate])
 
     return (
         <CalendarHeaderContainer>
