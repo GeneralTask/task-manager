@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"go.mongodb.org/mongo-driver/bson"
@@ -218,6 +219,15 @@ func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userI
 	return nil
 }
 
+func InsertLogEvent(db *mongo.Database, eventType string) {
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+	GetLogEventsCollection(db).InsertOne(dbCtx, &LogEvent{
+		EventType: eventType,
+		CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
+	})
+}
+
 func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("state_tokens")
 }
@@ -260,4 +270,8 @@ func GetJiraPrioritiesCollection(db *mongo.Database) *mongo.Collection {
 
 func GetOauth1RequestsSecretsCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("oauth1_request_secrets")
+}
+
+func GetLogEventsCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("log_events")
 }
