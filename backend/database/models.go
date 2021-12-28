@@ -142,3 +142,9 @@ type ConferenceCall struct {
 	Logo     string ` bson:"logo"`
 	URL      string ` bson:"url"`
 }
+
+type LogEvent struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	EventType string             `bson:"event_type"`
+	CreatedAt primitive.DateTime `bson:"created_at"`
+}

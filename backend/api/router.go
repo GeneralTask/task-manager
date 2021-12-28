@@ -37,5 +37,6 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/ping/", handlers.Ping)
 	router.GET("/settings/", handlers.SettingsList)
 	router.PATCH("/settings/", handlers.SettingsModify)
+	router.POST("/log_events/", handlers.LogEventAdd)
 	return router
 }

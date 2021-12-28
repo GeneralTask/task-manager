@@ -1,9 +1,12 @@
 package database
 
 import (
+	"context"
 	"testing"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -55,5 +58,21 @@ func TestGetActiveTasks(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
 		assert.Equal(t, task1.ID, (*tasks)[0].ID)
+	})
+}
+
+func TestInsertLogEvent(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	t.Run("Success", func(t *testing.T) {
+		InsertLogEvent(db, "dogecoin_to_the_moon")
+
+		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+		defer cancel()
+		logEventsCollection := GetLogEventsCollection(db)
+		count, err := logEventsCollection.CountDocuments(dbCtx, bson.M{"event_type": "dogecoin_to_the_moon"})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
 	})
 }
