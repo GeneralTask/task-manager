@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"log"
+	"sort"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -117,6 +118,12 @@ func (api *API) EventsList(c *gin.Context) {
 			})
 		}
 	}
+
+	sort.SliceStable(calendarEvents, func(i, j int) bool {
+		a := calendarEvents[i]
+		b := calendarEvents[j]
+		return a.DatetimeStart < b.DatetimeStart
+	})
 
 	c.JSON(200, calendarEvents)
 }
