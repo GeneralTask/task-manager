@@ -11,13 +11,13 @@ import { TaskBodyDiv, Deeplink, ReplyDiv, ExpandedBody, EmailMessage, ReplyInput
 import sanitizeHtml from 'sanitize-html'
 
 interface Props {
-    body: string | null,
+    body: string,
     task_id: string,
-    deeplink: string | null,
+    deeplink: string,
     source: TTaskSource,
     isExpanded: boolean,
-    sender: string | null,
-    sent_at: string | null,
+    sender: string,
+    sent_at: string,
 }
 
 // no body: no body

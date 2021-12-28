@@ -27,7 +27,7 @@ const Container = styled.div`
 
 const RefreshButton = (): JSX.Element => {
     const isLoading = useAppSelector(
-        state => state.tasks_page.tasks_fetch_status.status
+        state => state.tasks_page.tasks.tasks_fetch_status.status
     ) === FetchStatusEnum.LOADING
     const fetchTasks = useFetchTasks()
     return <Container onClick={fetchTasks}>

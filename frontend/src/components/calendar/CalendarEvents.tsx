@@ -1,9 +1,12 @@
-import React, { Ref, useEffect, useRef } from 'react'
-import { TTaskGroup, TTaskGroupType } from '../../helpers/types'
-import { useAppSelector } from '../../redux/hooks'
-import { TimeIndicator } from './TimeIndicator'
+import React, { Ref, useCallback, useEffect, useRef } from 'react'
+import { TEvent } from '../../helpers/types'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { CALENDAR_DEFAULT_SCROLL_HOUR, CELL_HEIGHT } from '../../helpers/styles'
-import { CalendarRow, CalendarTD, CalendarCell, CellTime, CalendarTableStyle, EventBodyStyle, EventDescription, EventTitle, EventTime, EventFill, EventFillContinues, EventsContainer } from './CalendarEvents-styles'
+import { CalendarRow, CalendarTD, CalendarCell, CellTime, CalendarTableStyle, EventBodyStyle, EventDescription, EventTitle, EventTime, EventFill, EventsContainer, EventFillContinues } from './CalendarEvents-styles'
+import { EVENTS_URL, TASKS_FETCH_INTERVAL } from '../../constants'
+import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
+import { setEvents } from '../../redux/tasksPageSlice'
+import { TimeIndicator } from './TimeIndicator'
 
 function CalendarTable(): JSX.Element {
     const hourElements = Array(24).fill(0).map((_, index) => (
@@ -25,17 +28,16 @@ function CalendarTable(): JSX.Element {
 }
 
 interface EventBodyProps {
-    event: TTaskGroup
+    event: TEvent,
 }
-function EventBody({ event }: EventBodyProps): JSX.Element | null {
-    if (event.datetime_start == null) return null
-
-
+function EventBody({ event }: EventBodyProps): JSX.Element {
     const startTime = new Date(event.datetime_start)
-    const endTime = new Date(startTime.getTime() + (event.time_duration * 1000))
+    const endTime = new Date(event.datetime_end)
+    const timeDurationHours = (endTime.getTime() - startTime.getTime()) / 1000 / 60 / 60
 
     const rollsOverMidnight = endTime.getDay() !== startTime.getDay()
-    const eventBodyHeight = rollsOverMidnight ? (new Date(startTime).setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600 * CELL_HEIGHT : event.time_duration / 3600 * CELL_HEIGHT
+    const eventBodyHeight = rollsOverMidnight ?
+        (new Date(startTime).setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600 * CELL_HEIGHT : timeDurationHours * CELL_HEIGHT
 
     const startTimeHours = startTime.getHours() - 1
     const startTimeMinutes = startTime.getMinutes()
@@ -46,10 +48,10 @@ function EventBody({ event }: EventBodyProps): JSX.Element | null {
     const endTimeString = endTime.toLocaleString('en-US', MMHH)
 
     return (
-        <EventBodyStyle key={event.tasks[0].id} topOffset={topOffset} eventBodyHeight={eventBodyHeight}>
+        <EventBodyStyle key={event.id} topOffset={topOffset} eventBodyHeight={eventBodyHeight}>
             <EventDescription>
                 <EventTitle>
-                    {event.tasks[0].title}
+                    {event.title}
                 </EventTitle>
                 <EventTime>
                     {`${startTimeString} - ${endTimeString}`}
@@ -60,36 +62,51 @@ function EventBody({ event }: EventBodyProps): JSX.Element | null {
     )
 }
 
+function useFetchEvents(): () => Promise<void> {
+    const dispatch = useAppDispatch()
+    const fetchEvents = useCallback(async () => {
+        try {
+            const start = new Date()
+            start.setHours(0, 0, 0, 0)
+            const end = new Date()
+            end.setHours(23, 59, 59, 999)
+            const response = await makeAuthorizedRequest({
+                url: EVENTS_URL,
+                method: 'GET',
+                params: {
+                    datetime_start: start.toISOString(),
+                    datetime_end: end.toISOString(),
+                }
+            })
+            if (response.ok) {
+                const resj = await response.json()
+                dispatch(setEvents(resj))
+            }
+        } catch (e) {
+            console.log({ e })
+        }
+    }, [])
+    return fetchEvents
+}
+
 export default function CalendarEvents(): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
-    const scheduledGroups = useAppSelector((state) => {
-        const scheduledGroups = []
-        const sections = state.tasks_page.task_sections
-        for (const section of sections) {
-            const groups = section.task_groups
-            for (const group of groups) {
-                if (group.type === TTaskGroupType.SCHEDULED_TASK) {
-                    scheduledGroups.push(group)
-                }
-            }
-        }
-        return scheduledGroups
-    })
+    const events = useAppSelector((state) => state.tasks_page.events)
+    const fetchEvents = useFetchEvents()
+    useInterval(fetchEvents, TASKS_FETCH_INTERVAL)
+
     useEffect(() => {
         if (eventsContainerRef.current) {
             eventsContainerRef.current.scrollTop = CELL_HEIGHT * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
         }
     }, [])
-    const eventBodies = scheduledGroups.map((event: TTaskGroup) => {
-        if (event.datetime_start == null) return
-        if (event.tasks == null || event.tasks.length === 0) return
-        return <EventBody key={event.tasks[0].id} event={event} />
-    })
+
     return (
         <EventsContainer ref={eventsContainerRef}>
-            {eventBodies}
+            {events.map((event) => <EventBody key={event.id} event={event} />)}
             <TimeIndicator />
             <CalendarTable />
         </EventsContainer>
     )
 }
+

@@ -13,16 +13,15 @@ import { useDrag } from 'react-dnd'
 interface Props {
   task: TTask,
   dragDisabled: boolean,
-  datetimeStart: string | null, // null if unscheduled_task
   isOver: boolean,
   dropDirection: boolean,
   indices: Indices,
 }
 
 export default function Task(props: Props): JSX.Element {
-  const { task, datetimeStart, dragDisabled, isOver, dropDirection } = props
+  const { task, dragDisabled, isOver, dropDirection } = props
   const { isBodyExpanded } = useAppSelector(state => ({
-    isBodyExpanded: state.tasks_page.expanded_body === task.id,
+    isBodyExpanded: state.tasks_page.tasks.expanded_body === task.id,
   }))
   const indicesRef = React.useRef<Indices>()
   indicesRef.current = props.indices
@@ -42,7 +41,6 @@ export default function Task(props: Props): JSX.Element {
       <TaskContainer opacity={opacity} isExpanded={isBodyExpanded}>
         <TaskHeader
           task={task}
-          datetimeStart={datetimeStart}
           dragDisabled={dragDisabled}
           isExpanded={isBodyExpanded}
           ref={drag}

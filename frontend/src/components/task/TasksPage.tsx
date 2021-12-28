@@ -7,11 +7,12 @@ import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
-import { useFetchTasks } from '../../helpers/utils'
+import { useFetchTasks, useInterval } from '../../helpers/utils'
 import Navbar from '../Navbar'
 import { NavbarPages } from '../../helpers/types'
 import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
 import CalendarSidebar from '../calendar/CalendarSidebar'
+import { TASKS_FETCH_INTERVAL } from '../../constants'
 
 const TasksPageContainer = styled.div`
     display:flex;
@@ -57,7 +58,7 @@ const PlusImage = styled.img`
 `
 
 export default function TasksPage(): JSX.Element {
-    const task_sections = useAppSelector((state) => state.tasks_page.task_sections)
+    const task_sections = useAppSelector((state) => state.tasks_page.tasks.task_sections)
     const fetchTasks = useFetchTasks()
     const fetchSettings = useFetchSettings()
     const fetchLinkedAccounts = useFetchLinkedAccounts()
@@ -65,14 +66,9 @@ export default function TasksPage(): JSX.Element {
         // fetch settings and linked accounts once on tasks page load
         fetchSettings()
         fetchLinkedAccounts()
-
-        fetchTasks()
-
-        const interval: NodeJS.Timeout = setInterval(fetchTasks, 1000 * 60)
-        return () => {
-            clearInterval(interval)
-        }
     }, [])
+
+    useInterval(fetchTasks, TASKS_FETCH_INTERVAL)
 
     const TaskSectionElements = task_sections.map(
         (task_section, index) => <TaskSection
@@ -103,8 +99,8 @@ export default function TasksPage(): JSX.Element {
 function CreateNewTaskButton(): JSX.Element {
     const { showButton } = useAppSelector(state => ({
         showButton:
-            state.tasks_page.task_sections.length !== 0 ||
-            state.tasks_page.tasks_fetch_status.status !== FetchStatusEnum.LOADING
+            state.tasks_page.tasks.task_sections.length !== 0 ||
+            state.tasks_page.tasks.tasks_fetch_status.status !== FetchStatusEnum.LOADING
         ,
     }))
     const dispatch = useAppDispatch()

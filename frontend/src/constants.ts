@@ -6,7 +6,7 @@ export const {
 } = process.env
 
 // Backend Endpoints
-export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
+export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/v2/'
 export const TASKS_MODIFY_URL = REACT_APP_API_BASE_URL + '/tasks/modify/'
 export const TASKS_CREATE_URL = REACT_APP_API_BASE_URL + '/tasks/create/'
 export const ASANA_URL = REACT_APP_API_BASE_URL + '/link/asana/'
@@ -17,6 +17,8 @@ export const SETTINGS_URL = REACT_APP_API_BASE_URL + '/settings/'
 export const WAITLIST_URL = REACT_APP_API_BASE_URL + '/waitlist/'
 export const LINKED_ACCOUNTS_URL = REACT_APP_API_BASE_URL + '/linked_accounts/'
 export const SUPPORTED_TYPES_URL = REACT_APP_API_BASE_URL + '/linked_accounts/supported_types/'
+
+export const EVENTS_URL = REACT_APP_API_BASE_URL + '/events/'
 
 // Frontend paths
 export const LANDING_PATH = '/'
@@ -35,6 +37,7 @@ export const TASK_STATUS_FETCH_ERROR = 'There was an error fetching tasks'
 export const TASK_STATUS_NO_TASKS = 'No Tasks'
 export const MAX_TASK_BODY_HEIGHT = 495
 export const TOAST_DURATION = 5000
+export const TASKS_FETCH_INTERVAL = 30
 
 export const GT_TASK_SOURCE_ID = 'gt_task'
 export const NOW = 'Now'

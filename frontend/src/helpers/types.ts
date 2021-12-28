@@ -5,10 +5,6 @@ export enum NavbarPages {
     SETTINGS_PAGE = 'settings_page',
     LOGOUT = 'logout'
 }
-export enum TTaskGroupType {
-    SCHEDULED_TASK = 'scheduled_task',
-    UNSCHEDULED_GROUP = 'unscheduled_group',
-}
 
 export interface TTaskSource {
     name: string,
@@ -25,31 +21,30 @@ export interface TConferenceCall {
 
 export interface TTask {
     id: string,
-    id_external: string,
     id_ordering: number,
-    datetime_end: string | null,
-    datetime_start: string | null,
-    deeplink: string | null,
-    sender: string | null,
     title: string,
-    source: TTaskSource
-    body: string | null
-    conference_call: TConferenceCall | null,
-    sent_at: string | null,
+    deeplink: string,
+    body: string
+    sent_at: string,
+    time_allocated: number,
+    source: TTaskSource,
+    sender: string,
 }
 
-export interface TTaskGroup {
-    type: TTaskGroupType,
-    time_duration: number,
-    datetime_start: string | null,
-    tasks: TTask[]
+export interface TEvent {
+    id: string,
+    title: string,
+    body: string,
+    deeplink: string,
+    datetime_start: string,
+    datetime_end: string,
+    conference_call: TConferenceCall | null,
 }
 
 export interface TTaskSection {
     id: string,
     name: string,
-    is_today: boolean,
-    task_groups: TTaskGroup[],
+    tasks: TTask[],
 }
 
 export interface TSettingChoice {
@@ -74,7 +69,6 @@ export interface TLinkedAccount {
 
 export interface Indices {
     task: number,
-    group: number,
     section: number,
 }
 

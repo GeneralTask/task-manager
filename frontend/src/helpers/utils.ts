@@ -1,4 +1,4 @@
-import { Indices, TTaskGroupType, TTaskSection } from './types'
+import { Indices, TTaskSection } from './types'
 import {
     LANDING_PATH,
     LINKED_ACCOUNTS_URL,
@@ -45,8 +45,8 @@ export const getHeaders = (): Record<string, string> => {
 interface fetchParams {
     url: string,
     method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+    params?: Record<string, string>,
     body?: string,
-
     logoutReq?: boolean,
     // optional function that *accepts* an abort function
     abortCallback?: (abort_fetch: () => void) => void,
@@ -61,7 +61,12 @@ export const makeAuthorizedRequest = async (params: fetchParams): Promise<Respon
         // pass our abort function back to the caller
         params.abortCallback(() => controller.abort())
     }
-    const response = await fetch(params.url, {
+    let url = params.url
+    if (params.params != null) {
+        url += '?'
+        url += new URLSearchParams(params.params).toString()
+    }
+    const response = await fetch(url, {
         method: params.method,
         mode: 'cors',
         headers: getHeaders(),
@@ -80,7 +85,7 @@ export const getLinkedAccountsURL = (account_id: string): string => LINKED_ACCOU
 export const useFetchTasks = (): () => Promise<void> => {
     const dispatch = useAppDispatch()
     const { tasksFetchStatus } = useAppSelector(state => ({
-        tasksFetchStatus: state.tasks_page.tasks_fetch_status,
+        tasksFetchStatus: state.tasks_page.tasks.tasks_fetch_status,
     }))
     const fetchStatusRef = useRef(tasksFetchStatus)
     useEffect(() => {
@@ -157,33 +162,21 @@ export function emptyFunction(): void { }
 export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
     return task_sections.map((section) => {
         let idOrdering = 1
-        section.task_groups.forEach((group) => {
-            group.tasks.forEach((task) => task.id_ordering = idOrdering++)
-        })
+        section.tasks.forEach((task) => task.id_ordering = idOrdering++)
         return section
     })
 }
 
 export function taskDropReorder(staleTaskSections: TTaskSection[], dragIndices: Indices, dropIndices: Indices, isLowerHalf: boolean): TTaskSection[] {
     const taskSections = _.cloneDeep(staleTaskSections)
-    const dragTaskObject = taskSections[dragIndices.section].task_groups[dragIndices.group].tasks.splice(dragIndices.task, 1)[0]
-    const taskGroup = taskSections[dropIndices.section].task_groups[dropIndices.group]
-
-    if (taskGroup.type === TTaskGroupType.SCHEDULED_TASK) {
-        if (isLowerHalf) {
-            taskSections[dropIndices.section].task_groups[dropIndices.group + 1].tasks.push(dragTaskObject)
-        }
-        else taskSections[dropIndices.section].task_groups[dropIndices.group - 1].tasks.push(dragTaskObject)
+    const dragTaskObject = taskSections[dragIndices.section].tasks.splice(dragIndices.task, 1)[0]
+    const taskGroup = taskSections[dropIndices.section]
+    if (dragIndices.section === dropIndices.section
+        && dragIndices.task < dropIndices.task) {
+        taskGroup.tasks.splice(dropIndices.task + Number(isLowerHalf) - 1, 0, dragTaskObject)
     }
     else {
-        if (dragIndices.section === dropIndices.section
-            && dragIndices.group === dropIndices.group
-            && dragIndices.task < dropIndices.task) {
-            taskGroup.tasks.splice(dropIndices.task + Number(isLowerHalf) - 1, 0, dragTaskObject)
-        }
-        else {
-            taskGroup.tasks.splice(dropIndices.task + Number(isLowerHalf), 0, dragTaskObject)
-        }
+        taskGroup.tasks.splice(dropIndices.task + Number(isLowerHalf), 0, dragTaskObject)
     }
     return updateOrderingIds(taskSections)
 }
@@ -191,13 +184,21 @@ export function taskDropReorder(staleTaskSections: TTaskSection[], dragIndices: 
 export function sectionDropReorder(staleTaskSections: TTaskSection[], newSectionIndex: number, indices: Indices): TTaskSection[] {
     const taskSections = _.cloneDeep(staleTaskSections)
 
-    const dragTaskObject = taskSections[indices.section].task_groups[indices.group].tasks[indices.task]
-    taskSections[indices.section].task_groups[indices.group].tasks.splice(indices.task, 1)
+    const dragTaskObject = taskSections[indices.section].tasks[indices.task]
+    taskSections[indices.section].tasks.splice(indices.task, 1)
 
     const section = taskSections[newSectionIndex]
-    if (section == null || section.task_groups.length === 0) return taskSections
-    if (section.task_groups[0].type !== TTaskGroupType.UNSCHEDULED_GROUP) return taskSections
-    section.task_groups[0].tasks.splice(0, 0, dragTaskObject)
+    if (section == null) return taskSections
+    section.tasks.splice(0, 0, dragTaskObject)
 
     return updateOrderingIds(taskSections)
+}
+
+// duration in seconds
+export function useInterval(func: () => void, duration: number): void {
+    useEffect(() => {
+        func()
+        const interval = setInterval(func, duration * 1000)
+        return () => clearInterval(interval)
+    }, [func, duration])
 }
