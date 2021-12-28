@@ -11,7 +11,7 @@ resource "random_string" "suffix" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "2.6.0"
+  version = "~> 3.0"
 
   name                 = "backend-vpc"
   cidr                 = "10.0.0.0/16"
@@ -21,6 +21,7 @@ module "vpc" {
   enable_nat_gateway   = true
   single_nat_gateway   = true
   enable_dns_hostnames = true
+  enable_dns_support   = true
 
   tags = {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"

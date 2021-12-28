@@ -25,7 +25,7 @@ resource "kubernetes_deployment" "backend" {
       }
       spec {
         container {
-          image = "johngeneraltask/task-manager:360fd23"
+          image = "johngeneraltask/task-manager:2b8c1d3"
           name  = "task-manager"
           env {
             name = "MONGO_URI"

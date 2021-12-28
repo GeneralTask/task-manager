@@ -1,8 +1,10 @@
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   cluster_name    = local.cluster_name
-  cluster_version = "1.17"
-  subnets         = [aws_subnet.primary-az1.id, aws_subnet.primary-az2.id]
+  cluster_version = "1.20"
+  subnets         = [module.vpc.private_subnets[0], module.vpc.public_subnets[1]]
+
+  cluster_endpoint_private_access = true
 
   tags = {
     Environment = "production"
