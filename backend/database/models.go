@@ -145,6 +145,7 @@ type ConferenceCall struct {
 
 type LogEvent struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	UserID    primitive.ObjectID `bson:"user_id"`
 	EventType string             `bson:"event_type"`
 	CreatedAt primitive.DateTime `bson:"created_at"`
 }

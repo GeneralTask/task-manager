@@ -12,6 +12,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // API is the object containing API route handlers
@@ -83,6 +84,22 @@ func TokenMiddleware(c *gin.Context) {
 		return
 	}
 	c.Set("user", internalToken.UserID)
+}
+
+func LoggingMiddleware(c *gin.Context) {
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		c.AbortWithStatusJSON(500, gin.H{"detail": "internal server error"})
+		return
+	}
+	defer dbCleanup()
+	eventType := "api_hit_" + c.Request.URL.Path
+	log.Println("event type:", eventType)
+	userID, exists := c.Get("user")
+	if !exists {
+		userID = primitive.NilObjectID
+	}
+	database.InsertLogEvent(db, userID.(primitive.ObjectID), eventType)
 }
 
 func getToken(c *gin.Context) (string, error) {

@@ -219,10 +219,11 @@ func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userI
 	return nil
 }
 
-func InsertLogEvent(db *mongo.Database, eventType string) error {
+func InsertLogEvent(db *mongo.Database, userID primitive.ObjectID, eventType string) error {
 	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
 	defer cancel()
 	_, err := GetLogEventsCollection(db).InsertOne(dbCtx, &LogEvent{
+		UserID:    userID,
 		EventType: eventType,
 		CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
 	})
