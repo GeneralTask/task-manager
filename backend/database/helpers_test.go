@@ -66,7 +66,7 @@ func TestInsertLogEvent(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	t.Run("Success", func(t *testing.T) {
-		InsertLogEvent(db, "dogecoin_to_the_moon")
+		InsertLogEvent(db, primitive.NewObjectID(), "dogecoin_to_the_moon")
 
 		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
 		defer cancel()

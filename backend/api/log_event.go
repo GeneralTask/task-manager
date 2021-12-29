@@ -5,6 +5,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type LogEventParams struct {
@@ -27,7 +28,8 @@ func (api *API) LogEventAdd(c *gin.Context) {
 	}
 	defer dbCleanup()
 
-	err = database.InsertLogEvent(db, params.EventType)
+	userID, _ := c.Get("user")
+	err = database.InsertLogEvent(db, userID.(primitive.ObjectID), params.EventType)
 	if err != nil {
 		log.Printf("failed to insert waitlist entry: %v", err)
 		Handle500(c)
