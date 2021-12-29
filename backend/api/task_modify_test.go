@@ -623,6 +623,7 @@ func TestEditFields(t *testing.T) {
 			Title:            "Initial Title",
 			Body:             "Initial Body",
 			HasBeenReordered: false,
+			DueDate:          primitive.NewDateTimeFromTime(time.Now()),
 			TimeAllocation:   60 * 60 * 1000 * 1000,
 			ConferenceCall: &database.ConferenceCall{
 				Platform: "Google Meet",
@@ -631,7 +632,6 @@ func TestEditFields(t *testing.T) {
 			},
 			CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now()),
 		},
-		DueDate:            primitive.NewDateTimeFromTime(time.Now()),
 		PriorityID:         "Priority ID",
 		PriorityNormalized: 5.0,
 		TaskNumber:         3,
