@@ -1,7 +1,7 @@
 import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 import { TASKS_URL } from '../../constants'
 import React, { useState } from 'react'
-import { makeAuthorizedRequest } from '../../helpers/utils'
+import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'
 import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
@@ -10,6 +10,7 @@ import { TTask } from '../../helpers/types'
 import { toast } from 'react-toastify'
 import { TaskBodyDiv, Deeplink, ReplyDiv, ExpandedBody, EmailMessage, ReplyInputStyle, EmailViewDiv, EmailSubjectHeader } from './TaskBody-style'
 import sanitizeHtml from 'sanitize-html'
+import { LogEvents } from '../../redux/enums'
 
 interface Props {
     task: TTask,
@@ -34,7 +35,9 @@ const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
                     {deeplink && (
                         <Deeplink>
                             <p>
-                                See more in <a href={deeplink} target="_blank">{source.name}</a>
+                                See more in <a href={deeplink} target="_blank" onClick={() => {
+                                    logEvent(LogEvents.TASK_DEEPLINK_CLICKED)
+                                }}>{source.name}</a>
                             </p>
                         </Deeplink>
                     )}

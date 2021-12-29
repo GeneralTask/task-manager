@@ -1,7 +1,6 @@
 import { Indices, ItemTypes, TTask, TTaskSection } from '../../helpers/types'
 import React, { RefObject, useRef, useState } from 'react'
-import { makeAuthorizedRequest, taskDropReorder } from '../../helpers/utils'
-import { useFetchTasks } from './TasksPage'
+import { logEvent, makeAuthorizedRequest, taskDropReorder } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 import { TASKS_MODIFY_URL } from '../../constants'
@@ -9,6 +8,8 @@ import Task from './Task'
 import { setTasks } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
+import { LogEvents } from '../../redux/enums'
+import { useFetchTasks } from './TasksPage'
 
 const DropOverlay = styled.div`
   width: 100%;
@@ -85,6 +86,8 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
             if (dragSection !== dropSection) {
                 updatedOrderingId -= 1
             }
+
+            logEvent(LogEvents.TASK_REORDERED)
             makeAuthorizedRequest({
                 url: TASKS_MODIFY_URL + item.id + '/',
                 method: 'PATCH',

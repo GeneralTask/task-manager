@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { AbortID, FetchStatusEnum } from '../../redux/enums'
+import { AbortID, FetchStatusEnum, LogEvents } from '../../redux/enums'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
 import { setShowCreateTaskForm, setTasks, setTasksFetchStatus } from '../../redux/tasksPageSlice'
@@ -13,7 +13,7 @@ import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import { useDragDropManager } from 'react-dnd'
 import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
-import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
+import { makeAuthorizedRequest, useInterval, logEvent } from '../../helpers/utils'
 
 const TasksPageContainer = styled.div`
     display:flex;
@@ -131,13 +131,17 @@ function CreateNewTaskButton(): JSX.Element {
         ,
     }))
     const dispatch = useAppDispatch()
+
+    const onClick = useCallback(() => {
+        dispatch(setShowCreateTaskForm(true))
+        logEvent(LogEvents.SHOW_TASK_CREATE_FORM)
+    }, [])
+
     return (
         <BtnContainer>
             {showButton &&
                 <NewTaskButton
-                    onClick={() => {
-                        dispatch(setShowCreateTaskForm(true))
-                    }}>
+                    onClick={onClick}>
                     <PlusImage src="images/plus.svg" alt="create new task"></PlusImage>
                 </NewTaskButton>
             }
