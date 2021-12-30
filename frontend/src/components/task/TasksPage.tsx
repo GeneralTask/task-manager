@@ -89,7 +89,7 @@ export const useFetchTasks = (): () => Promise<void> => {
     return fetchTasks
 }
 
-export default function TasksPage(): JSX.Element {
+function Tasks(): JSX.Element {
     const task_sections = useAppSelector((state) => state.tasks_page.tasks.task_sections)
     const fetchTasks = useFetchTasks()
     const fetchSettings = useFetchSettings()
@@ -109,22 +109,17 @@ export default function TasksPage(): JSX.Element {
             key={index}
         />
     )
-
     return (
-        <TasksPageContainer>
-            <Navbar currentPage={NavbarPages.TASKS_PAGE} />
-            <TasksContentContainer>
-                <Header>
-                    <HeaderText>
-                        Tasks
-                    </HeaderText>
-                    <CreateNewTaskButton />
-                </Header>
-                <TaskStatus />
-                {TaskSectionElements}
-            </TasksContentContainer>
-            <CalendarSidebar />
-        </TasksPageContainer>
+        <TasksContentContainer>
+            <Header>
+                <HeaderText>
+                    Tasks
+                </HeaderText>
+                <CreateNewTaskButton />
+            </Header>
+            <TaskStatus />
+            {TaskSectionElements}
+        </TasksContentContainer>
     )
 }
 
@@ -147,5 +142,15 @@ function CreateNewTaskButton(): JSX.Element {
                 </NewTaskButton>
             }
         </BtnContainer>
+    )
+}
+
+export default function TasksPage(): JSX.Element {
+    return (
+        <TasksPageContainer>
+            <Navbar currentPage={NavbarPages.TASKS_PAGE} />
+            <Tasks />
+            <CalendarSidebar />
+        </TasksPageContainer>
     )
 }

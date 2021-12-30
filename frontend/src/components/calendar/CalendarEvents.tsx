@@ -1,4 +1,4 @@
-import React, { Ref, useCallback, useEffect, useRef } from 'react'
+import React, { Ref, useCallback, useEffect, useRef, useState } from 'react'
 import { TEvent } from '../../helpers/types'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { CALENDAR_DEFAULT_SCROLL_HOUR, CELL_HEIGHT } from '../../helpers/styles'
@@ -63,13 +63,13 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
     )
 }
 
-function useFetchEvents(): () => Promise<void> {
+function useFetchEvents(): (date: Date) => Promise<void> {
     const dispatch = useAppDispatch()
-    const fetchEvents = useCallback(async () => {
+    const fetchEvents = useCallback(async (date: Date) => {
         try {
-            const start = new Date()
+            const start = new Date(date)
             start.setHours(0, 0, 0, 0)
-            const end = new Date()
+            const end = new Date(date)
             end.setHours(23, 59, 59, 999)
             const response = await makeAuthorizedRequest({
                 url: EVENTS_URL,
@@ -91,11 +91,28 @@ function useFetchEvents(): () => Promise<void> {
     return fetchEvents
 }
 
-export default function CalendarEvents(): JSX.Element {
+interface CalendarEventsProps {
+    date: Date,
+}
+export default function CalendarEvents({ date }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
-    const events = useAppSelector((state) => state.tasks_page.events)
+    const event_list = useAppSelector((state) => state.tasks_page.events.event_list)
     const fetchEvents = useFetchEvents()
-    useInterval(fetchEvents, TASKS_FETCH_INTERVAL)
+    const fetchEventsForDate = useCallback(() => {
+        fetchEvents(date)
+    }, [date])
+
+    useInterval(fetchEventsForDate, TASKS_FETCH_INTERVAL)
+
+    const [isToday, setIsToday] = useState(true)
+    useEffect(() => {
+        const today = new Date()
+        setIsToday(
+            today.getDate() === date.getDate() &&
+            today.getMonth() === date.getMonth() &&
+            today.getFullYear() === date.getFullYear()
+        )
+    }, [date])
 
     useEffect(() => {
         if (eventsContainerRef.current) {
@@ -105,8 +122,8 @@ export default function CalendarEvents(): JSX.Element {
 
     return (
         <EventsContainer ref={eventsContainerRef}>
-            {events.map((event) => <EventBody key={event.id} event={event} />)}
-            <TimeIndicator />
+            {event_list.map((event) => <EventBody key={event.id} event={event} />)}
+            {isToday && <TimeIndicator />}
             <CalendarTable />
         </EventsContainer>
     )
