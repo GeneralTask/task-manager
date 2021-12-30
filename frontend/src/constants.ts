@@ -17,6 +17,7 @@ export const SETTINGS_URL = REACT_APP_API_BASE_URL + '/settings/'
 export const WAITLIST_URL = REACT_APP_API_BASE_URL + '/waitlist/'
 export const LINKED_ACCOUNTS_URL = REACT_APP_API_BASE_URL + '/linked_accounts/'
 export const SUPPORTED_TYPES_URL = REACT_APP_API_BASE_URL + '/linked_accounts/supported_types/'
+export const LOG_EVENTS_URL = REACT_APP_API_BASE_URL + '/log_events/'
 
 export const EVENTS_URL = REACT_APP_API_BASE_URL + '/events/'
 

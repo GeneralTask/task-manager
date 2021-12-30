@@ -3,7 +3,7 @@ import { Action, Dispatch } from '@reduxjs/toolkit'
 import { TASKS_MODIFY_URL, DONE_BUTTON } from '../../constants'
 import React, { useCallback } from 'react'
 import { collapseBody, expandBody, removeTaskByID } from '../../redux/tasksPageSlice'
-import { makeAuthorizedRequest } from '../../helpers/utils'
+import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'
 import { TTask } from '../../helpers/types'
 import { useAppDispatch } from '../../redux/hooks'
@@ -22,6 +22,7 @@ import {
   DominoDot,
   DoneButton
 } from './TaskHeader-style'
+import { LogEvents } from '../../redux/enums'
 
 function Domino(): JSX.Element {
   return (
@@ -49,12 +50,19 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
     if (hoverEffectEnabled) {
       if (props.isExpanded) {
         dispatch(collapseBody())
+        logEvent(LogEvents.TASK_COLLAPSED)
       }
       else {
         dispatch(expandBody(props.task.id))
+        logEvent(LogEvents.TASK_EXPANDED)
       }
     }
   }, [hoverEffectEnabled, props.isExpanded])
+
+  const onDoneButtonClick = useCallback(() => {
+    done(props.task.id, dispatch, fetchTasks)
+    logEvent(LogEvents.TASK_MARK_AS_DONE)
+  }, [])
 
   return (
     <TaskHeaderContainer hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
@@ -68,9 +76,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         {
           !props.isExpanded &&
           props.task.source.is_completable &&
-          <DoneButton src={DONE_BUTTON} onClick={() => {
-            done(props.task.id, dispatch, fetchTasks)
-          }} />
+          <DoneButton src={DONE_BUTTON} onClick={onDoneButtonClick} />
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
         <Title isExpanded={props.isExpanded}>{props.task.title}</Title>

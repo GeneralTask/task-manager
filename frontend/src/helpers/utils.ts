@@ -3,12 +3,14 @@ import {
     LANDING_PATH,
     LINKED_ACCOUNTS_URL,
     LOGOUT_URL,
+    LOG_EVENTS_URL,
     REACT_APP_COOKIE_DOMAIN,
     REACT_APP_FRONTEND_BASE_URL
 } from '../constants'
 import { useEffect, useState } from 'react'
 
 import Cookies from 'js-cookie'
+import { LogEvents } from '../redux/enums'
 import _ from 'lodash'
 import { AbortID } from '../redux/enums'
 
@@ -146,4 +148,12 @@ export function useInterval(func: () => void, duration: number): void {
         const interval = setInterval(func, duration * 1000)
         return () => clearInterval(interval)
     }, [func, duration])
+}
+
+export function logEvent(event_type: LogEvents): void {
+    makeAuthorizedRequest({
+        url: LOG_EVENTS_URL,
+        method: 'POST',
+        body: JSON.stringify({ event_type }),
+    })
 }
