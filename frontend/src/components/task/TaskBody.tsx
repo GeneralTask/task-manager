@@ -5,33 +5,29 @@ import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
 import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
 import ReactDOMServer from 'react-dom/server'
-import { TTaskSource } from '../../helpers/types'
+import { TTask } from '../../helpers/types'
 import { toast } from 'react-toastify'
 import { TaskBodyDiv, Deeplink, ReplyDiv, ExpandedBody, EmailMessage, ReplyInputStyle, EmailViewDiv, EmailSubjectHeader } from './TaskBody-style'
 import sanitizeHtml from 'sanitize-html'
 
 interface Props {
-    body: string,
-    task_id: string,
-    deeplink: string,
-    source: TTaskSource,
+    task: TTask,
     isExpanded: boolean,
-    sender: string,
-    sent_at: string,
 }
 
 // no body: no body
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
-const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, isExpanded, sent_at }: Props) => {
+const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
+    const { body, id, sender, deeplink, source, sent_at } = task
     return (
         <div>
             {Boolean(body || deeplink) && (
                 <ExpandedBody isExpanded={isExpanded}>
                     {body && (
                         <TaskBodyDiv>
-                            <EmailBody body={body} task_id={task_id} />
-                            {source.is_replyable && <Reply task_id={task_id} sender={sender} body={body} sent_at={sent_at} />}
+                            <EmailBody body={body} task_id={id} />
+                            {source.is_replyable && <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />}
                         </TaskBodyDiv>
                     )}
                     {deeplink && (
@@ -45,7 +41,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, is
             )}
         </div>
     )
-}
+})
 
 interface EmailViewProps {
     body: string,
