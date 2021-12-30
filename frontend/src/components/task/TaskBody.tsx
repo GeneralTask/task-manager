@@ -23,7 +23,7 @@ interface Props {
 // no body: no body
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
-const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, isExpanded, sent_at }: Props) => {
+const TaskBody: React.FC<Props> = React.memo(({ body, task_id, sender, deeplink, source, isExpanded, sent_at }: Props) => {
     return (
         <div>
             {Boolean(body || deeplink) && (
@@ -45,7 +45,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, is
             )}
         </div>
     )
-}
+})
 
 interface EmailViewProps {
     body: string,
