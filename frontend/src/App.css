@@ -1,16 +1,19 @@
 @font-face {
-  font-family: 'Ellipsis';
-  src: local('Arial');
+  font-family: "Ellipsis";
+  src: local("Arial");
   unicode-range: U+2026;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   margin: 0;
   height: 100%;
+  scrollbar-width: thin;
 }
 
-body{
-  font-family: 'Ellipsis', 'Gothic A1', sans-serif;
+body {
+  font-family: "Ellipsis", "Gothic A1", sans-serif;
 }
 
 .App {
