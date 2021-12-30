@@ -46,12 +46,7 @@ export default function Task(props: Props): JSX.Element {
           ref={drag}
         />
         <TaskBody
-          body={task.body}
-          task_id={task.id}
-          deeplink={task.deeplink}
-          source={task.source}
-          sent_at={task.sent_at}
-          sender={task.sender}
+          task={task}
           isExpanded={isBodyExpanded}
         />
       </TaskContainer>
