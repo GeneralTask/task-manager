@@ -1,6 +1,7 @@
 import { Indices, ItemTypes, TTask, TTaskSection } from '../../helpers/types'
 import React, { RefObject, useRef, useState } from 'react'
-import { makeAuthorizedRequest, taskDropReorder, useFetchTasks } from '../../helpers/utils'
+import { makeAuthorizedRequest, taskDropReorder } from '../../helpers/utils'
+import { useFetchTasks } from './TasksPage'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 import { TASKS_MODIFY_URL } from '../../constants'

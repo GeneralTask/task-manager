@@ -7,6 +7,7 @@ import { EVENTS_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import { setEvents } from '../../redux/tasksPageSlice'
 import { TimeIndicator } from './TimeIndicator'
+import { AbortID } from '../../redux/enums'
 
 function CalendarTable(): JSX.Element {
     const hourElements = Array(24).fill(0).map((_, index) => (
@@ -76,7 +77,8 @@ function useFetchEvents(): () => Promise<void> {
                 params: {
                     datetime_start: start.toISOString(),
                     datetime_end: end.toISOString(),
-                }
+                },
+                abortID: AbortID.EVENTS,
             })
             if (response.ok) {
                 const resj = await response.json()

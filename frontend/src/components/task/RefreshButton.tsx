@@ -3,7 +3,7 @@ import styled, { keyframes } from 'styled-components'
 import { FetchStatusEnum } from '../../redux/enums'
 import React from 'react'
 import { useAppSelector } from '../../redux/hooks'
-import { useFetchTasks } from '../../helpers/utils'
+import { useFetchTasks } from './TasksPage'
 
 const spin = keyframes`
     from {
@@ -27,7 +27,7 @@ const Container = styled.div`
 
 const RefreshButton = (): JSX.Element => {
     const isLoading = useAppSelector(
-        state => state.tasks_page.tasks.tasks_fetch_status.status
+        state => state.tasks_page.tasks.fetch_status
     ) === FetchStatusEnum.LOADING
     const fetchTasks = useFetchTasks()
     return <Container onClick={fetchTasks}>

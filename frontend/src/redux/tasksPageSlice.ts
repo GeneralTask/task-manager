@@ -1,13 +1,12 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { TEvent, TFetchStatus, TTaskSection } from '../helpers/types'
+import { TEvent, TTaskSection } from '../helpers/types'
 
 import { FetchStatusEnum } from './enums'
-import { emptyFunction } from '../helpers/utils'
 
 export interface TasksPageState {
     tasks: {
         task_sections: TTaskSection[],
-        tasks_fetch_status: TFetchStatus,
+        fetch_status: FetchStatusEnum,
         expanded_body: string | null,
         show_create_task_form: boolean,
     },
@@ -17,10 +16,7 @@ export interface TasksPageState {
 const initialState: TasksPageState = {
     tasks: {
         task_sections: [],
-        tasks_fetch_status: {
-            status: FetchStatusEnum.LOADING,
-            abort_fetch: emptyFunction,
-        },
+        fetch_status: FetchStatusEnum.LOADING,
         expanded_body: null,
         show_create_task_form: false,
     },
@@ -35,10 +31,7 @@ export const tasksPageSlice = createSlice({
             state.tasks.task_sections = action.payload
         },
         setTasksFetchStatus: (state, action: PayloadAction<FetchStatusEnum>) => {
-            state.tasks.tasks_fetch_status.status = action.payload
-        },
-        setTasksFetchAbortFunction: (state, action: PayloadAction<() => void>) => {
-            state.tasks.tasks_fetch_status.abort_fetch = action.payload
+            state.tasks.fetch_status = action.payload
         },
         removeTaskByID(state, action: PayloadAction<string>) {
             for (const task_section of state.tasks.task_sections) {
@@ -68,7 +61,6 @@ export const tasksPageSlice = createSlice({
 export const {
     setTasks,
     setTasksFetchStatus,
-    setTasksFetchAbortFunction,
     removeTaskByID,
     expandBody,
     collapseBody,
