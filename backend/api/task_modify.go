@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
@@ -13,22 +14,17 @@ import (
 )
 
 type TaskModifyParams struct {
-	IDOrdering    *int       `json:"id_ordering"`
-	IDTaskSection *string    `json:"id_task_section"`
-	IsCompleted   *bool      `json:"is_completed"`
-	Title         *string    `json:"title"`
-	Body          *string    `json:"body"`
-	DueDate       *time.Time `json:"due_date"`
-	TimeDuration  *int       `json:"time_duration"`
+	IDOrdering    *int    `json:"id_ordering"`
+	IDTaskSection *string `json:"id_task_section"`
 }
 
 // using a separate struct with omitempty so that other task fields are not overwritten
 type UpdateParams struct {
-	Title          string             `bson:"title,omitempty"`
-	Body           string             `bson:"body,omitempty"`
-	DueDate        primitive.DateTime `bson:"due_date,omitempty"`
-	TimeAllocation int64              `bson:"time_allocated,omitempty"`
-	IsCompleted    bool               `bson:"is_completed,omitempty"`
+	Title          string             `json:"title" bson:"title,omitempty"`
+	Body           string             `json:"body" bson:"body,omitempty"`
+	DueDate        primitive.DateTime `json:"due_date" bson:"due_date,omitempty"`
+	TimeAllocation int64              `json:"time_duration" bson:"time_allocated,omitempty"`
+	IsCompleted    *bool              `json:"is_completed" bson:"is_completed,omitempty"`
 }
 
 func (api *API) TaskModify(c *gin.Context) {
@@ -47,40 +43,20 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
+	var updateParams UpdateParams
+	err = c.BindJSON(&updateParams)
+
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
+		return
+	}
+
 	if modifyParams.IDTaskSection != nil {
 		IDTaskSection, err := primitive.ObjectIDFromHex(*modifyParams.IDTaskSection)
 		if err != nil || (IDTaskSection != constants.IDTaskSectionToday && IDTaskSection != constants.IDTaskSectionBlocked && IDTaskSection != constants.IDTaskSectionBacklog) {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
 		}
-	}
-
-	isEditingFields := modifyParams.Title != nil ||
-		modifyParams.Body != nil ||
-		modifyParams.DueDate != nil ||
-		modifyParams.TimeDuration != nil
-
-	isMarkingComplete := modifyParams.IsCompleted != nil
-
-	isReordering := modifyParams.IDOrdering != nil || modifyParams.IDTaskSection != nil
-
-	actionCount := 0
-	if isEditingFields {
-		actionCount++
-	}
-	if isMarkingComplete {
-		actionCount++
-	}
-	if isReordering {
-		actionCount++
-	}
-
-	if actionCount == 0 {
-		c.JSON(400, gin.H{"detail": "Parameter missing"})
-		return
-	} else if actionCount > 1 {
-		c.JSON(400, gin.H{"detail": "Cannot reorder, mark as complete, or edit fields in the same request"})
-		return
 	}
 
 	userIDRaw, _ := c.Get("user")
@@ -92,15 +68,16 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
-	updateParams := &UpdateParams{}
-
 	isValid := true
-	if isReordering {
-		ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection, task)
-		return
+	// reorder task
+	if modifyParams.IDOrdering != nil || modifyParams.IDTaskSection != nil {
+		err = ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection, task)
+		if err != nil {
+			return
+		}
 	}
-	if isMarkingComplete {
-		isValid = MarkTaskComplete(api, c, taskID, userID, updateParams, task, modifyParams.IsCompleted)
+	if modifyParams.IsCompleted != nil {
+		isValid = MarkTaskComplete(api, c, taskID, userID, &updateParams, task, modifyParams.IsCompleted)
 	} else if isEditingFields {
 		if modifyParams.Title != nil {
 			isValid = isValid && UpdateTaskTitle(api, c, taskID, userID, updateParams, modifyParams.Title)
@@ -126,12 +103,12 @@ func (api *API) TaskModify(c *gin.Context) {
 	UpdateTask(api, c, taskID, userID, updateParams, task)
 }
 
-func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string, task *database.Task) {
+func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string, task *database.Task) error {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
-		return
+		return err
 	}
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
@@ -159,11 +136,11 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 	if err != nil {
 		log.Printf("failed to update task in db: %v", err)
 		Handle500(c)
-		return
+		return err
 	}
 	if result.MatchedCount != 1 {
 		Handle404(c)
-		return
+		return errors.New("task not found")
 	}
 	// Move back other tasks to ensure ordering is preserved (gaps are removed in GET task list)
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -181,9 +158,9 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 	if err != nil {
 		log.Printf("failed to move back other tasks in db: %v", err)
 		Handle500(c)
-		return
+		return err
 	}
-	c.JSON(200, gin.H{})
+	return nil
 }
 
 func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) (*database.Task, error) {
@@ -212,32 +189,32 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 	return &task, nil
 }
 
-func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *UpdateParams, task *database.Task, isCompleted *bool) bool {
+func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *UpdateParams, task *database.Task, isCompleted *bool) error {
 	if !*isCompleted {
 		c.JSON(400, gin.H{"detail": "Tasks can only be marked as complete."})
-		return false
+		return errors.New("Tasks can only be marked as complete.")
 	}
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
 	if err != nil {
 		log.Printf("failed to load external task source: %v", err)
 		Handle500(c)
-		return false
+		return err
 	}
 
 	if !taskSourceResult.Details.IsCompletable {
 		c.JSON(400, gin.H{"detail": "cannot be marked done"})
-		return false
+		return errors.New("cannot be marked done")
 	}
 
 	err = taskSourceResult.Source.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
 	if err != nil {
 		log.Printf("failed to mark task as complete: %v", err)
 		c.JSON(503, gin.H{"detail": "Failed to mark task as complete"})
-		return false
+		return err
 	}
 
 	updateParams.IsCompleted = true
-	return true
+	return nil
 }
 
 func UpdateTaskTitle(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *UpdateParams, title *string) bool {
