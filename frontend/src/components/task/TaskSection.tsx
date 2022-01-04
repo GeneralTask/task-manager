@@ -23,7 +23,7 @@ export default function TaskSection(props: Props): JSX.Element {
             <TaskSectionHeader task_section_index={props.task_section_index} isToday={isToday} name={props.task_section.name} />
             {isToday && <TaskCreate />}
             {
-                props.task_section.tasks.map((task: TTask, task_index: number) => {
+                props.task_section.tasks && props.task_section.tasks.map((task: TTask, task_index: number) => {
                     return (
                         <div key={task_index}>
                             <flex.flex>
