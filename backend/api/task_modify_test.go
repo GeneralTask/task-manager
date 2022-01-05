@@ -315,7 +315,13 @@ func TestMarkAsComplete(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+gmailTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
+			bytes.NewBuffer([]byte(`{
+				"time_duration": 20,
+				"due_date": "`+dueDate.Format(time.RFC3339)+`",
+				"title": "New Title",
+				"body": "New Body",
+				"is_completed": true
+				}`)))
 		var task database.TaskBase
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
