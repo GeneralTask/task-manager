@@ -4,6 +4,15 @@
   "author": "General Task",
   "version": "0.1.0",
   "private": true,
+  "build": {
+    "appId": "com.electron.generaltask",
+    "productName": "General Task",
+    "copyright": "Copyright © 2022 General Task, Inc. ",
+    "mac": { 
+      "category": "public.app-category.productivity",
+      "target": "dmg"
+    }
+  },
   "dependencies": {
     "@cloudflare/wrangler": "^1.16.1",
     "@reduxjs/toolkit": "^1.6.2",
