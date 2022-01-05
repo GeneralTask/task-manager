@@ -106,6 +106,7 @@ export default function TaskCreate(): JSX.Element {
                     }}>
                         <styles.PlusIcon src={PLUS_ICON} />
                         <styles.InputTitle
+                            autoFocus
                             placeholder='Describe Task'
                             value={title}
                             error={titleError !== ''}

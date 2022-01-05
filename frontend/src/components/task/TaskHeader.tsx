@@ -84,20 +84,16 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
       </HeaderLeft>
       <HeaderRight>
         <ButtonRight src={EXPAND_ICON} onClick={() => {
-          // TODO: expand/collapse task body
           dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
         }} />
         <ButtonRight src={TIME_ICON} onClick={() => {
-          // TODO: allow editing of task time estimate
+          // TODO: allow editing of task time estimate, blocker backend API
           editTimeEstimate(props.task.id, dispatch, fetchTasks)
         }} />
         <ButtonRight src={BLANK_CALENDAR_ICON} onClick={() => {
-          // TODO: allow editing of task due date
+          // TODO: allow editing of task due date, blocker backend API
           editDueDate(props.task.id, dispatch, fetchTasks)
         }} />
-        {/* <ButtonRight src={TRASH_ICON} onClick={() => {
-          deleteTask(props.task.id, dispatch, fetchTasks)
-        }} /> */}
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
           <CalendarIconContainer>
