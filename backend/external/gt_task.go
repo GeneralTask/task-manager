@@ -52,6 +52,10 @@ func (GeneralTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 	result <- TaskResult{Tasks: tasks, Error: nil}
 }
 
+func (GeneralTask GeneralTaskTaskSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+	result <- emptyPullRequestResult(nil)
+}
+
 func (GeneralTask GeneralTaskTaskSource) MarkAsDone(userID primitive.ObjectID, accountID string, taskID string) error {
 	return nil
 }

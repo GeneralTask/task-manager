@@ -34,12 +34,6 @@ type TaskSource struct {
 	IsReplyable   bool   `json:"is_replyable"`
 }
 
-type ConferenceCall struct {
-	Platform string `json:"platform"`
-	Logo     string `json:"logo"`
-	URL      string `json:"url"`
-}
-
 type TaskResult struct {
 	ID             primitive.ObjectID `json:"id"`
 	IDOrdering     int                `json:"id_ordering"`

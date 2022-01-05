@@ -80,6 +80,16 @@ type TaskBase struct {
 	CreatedAtExternal primitive.DateTime `bson:"created_at_external"`
 }
 
+type PullRequest struct {
+	TaskBase `bson:",inline"`
+	Opened   primitive.DateTime `bson:"opened"`
+}
+
+type PullRequestChangeableFields struct {
+	Title string `bson:"title,omitempty"`
+	Body  string `bson:"body,omitempty"`
+}
+
 type CalendarEvent struct {
 	TaskBase      `bson:",inline"`
 	DatetimeEnd   primitive.DateTime `bson:"datetime_end"`
@@ -131,4 +141,11 @@ type ConferenceCall struct {
 	Platform string `bson:"platform"`
 	Logo     string `bson:"logo"`
 	URL      string `bson:"url"`
+}
+
+type LogEvent struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	UserID    primitive.ObjectID `bson:"user_id"`
+	EventType string             `bson:"event_type"`
+	CreatedAt primitive.DateTime `bson:"created_at"`
 }

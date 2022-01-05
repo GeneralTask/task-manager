@@ -1,12 +1,16 @@
 package api
 
 import (
+	"context"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func TestCORSHeaders(t *testing.T) {
@@ -69,6 +73,51 @@ func TestAuthenticationMiddleware(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "\"success\"", string(body))
+	})
+}
+
+func TestLoggingMiddleware(t *testing.T) {
+	authToken := login("approved@generaltask.com", "")
+	t.Run("Success", func(t *testing.T) {
+		router := GetRouter(GetAPI())
+
+		request, _ := http.NewRequest("GET", "/bing_bong/", nil)
+		request.Header.Add("Authorization", authToken)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
+		defer dbCleanup()
+		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+		defer cancel()
+		count, err := database.GetLogEventsCollection(db).CountDocuments(
+			dbCtx,
+			bson.M{"event_type": "api_hit_/bing_bong/"},
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+	})
+	t.Run("Unauthorized", func(t *testing.T) {
+		router := GetRouter(GetAPI())
+
+		request, _ := http.NewRequest("GET", "/bing_bong_two/", nil)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
+		defer dbCleanup()
+		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+		defer cancel()
+		count, err := database.GetLogEventsCollection(db).CountDocuments(
+			dbCtx,
+			bson.M{"event_type": "api_hit_/bing_bong_two/"},
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
 	})
 }
 

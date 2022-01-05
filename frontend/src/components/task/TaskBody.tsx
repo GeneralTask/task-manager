@@ -1,43 +1,43 @@
 import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 import { TASKS_URL } from '../../constants'
 import React, { useState } from 'react'
-import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
+import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
+import { useFetchTasks } from './TasksPage'
 import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
 import ReactDOMServer from 'react-dom/server'
-import { TTaskSource } from '../../helpers/types'
+import { TTask } from '../../helpers/types'
 import { toast } from 'react-toastify'
 import { TaskBodyDiv, Deeplink, ReplyDiv, ExpandedBody, EmailMessage, ReplyInputStyle, EmailViewDiv, EmailSubjectHeader } from './TaskBody-style'
 import sanitizeHtml from 'sanitize-html'
+import { LogEvents } from '../../redux/enums'
 
 interface Props {
-    body: string | null,
-    task_id: string,
-    deeplink: string | null,
-    source: TTaskSource,
+    task: TTask,
     isExpanded: boolean,
-    sender: string | null,
-    sent_at: string | null,
 }
 
 // no body: no body
 // has_body, expanded_body != task_id: no body
 // has_body, expanded_body == task_id: show body
-const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, isExpanded, sent_at }: Props) => {
+const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
+    const { body, id, sender, deeplink, source, sent_at } = task
     return (
         <div>
             {Boolean(body || deeplink) && (
                 <ExpandedBody isExpanded={isExpanded}>
                     {body && (
                         <TaskBodyDiv>
-                            <EmailBody body={body} task_id={task_id} />
-                            {source.is_replyable && <Reply task_id={task_id} sender={sender} body={body} sent_at={sent_at} />}
+                            <EmailBody body={body} task_id={id} />
+                            {source.is_replyable && <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />}
                         </TaskBodyDiv>
                     )}
                     {deeplink && (
                         <Deeplink>
                             <p>
-                                See more in <a href={deeplink} target="_blank">{source.name}</a>
+                                See more in <a href={deeplink} target="_blank" onClick={() => {
+                                    logEvent(LogEvents.TASK_DEEPLINK_CLICKED)
+                                }}>{source.name}</a>
                             </p>
                         </Deeplink>
                     )}
@@ -45,7 +45,7 @@ const TaskBody: React.FC<Props> = ({ body, task_id, sender, deeplink, source, is
             )}
         </div>
     )
-}
+})
 
 interface EmailViewProps {
     body: string,

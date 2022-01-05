@@ -1,40 +1,73 @@
-import React, { Dispatch } from 'react'
+import React, { useCallback } from 'react'
 import styled from 'styled-components'
+import { flex, ICON_HOVER } from '../../helpers/styles'
 
 const CalendarHeaderContainer = styled.div`
     height: 50px;
     display: flex;
     justify-content: space-between;
-    margin-top: 50px;
-    padding: 0px 50px;
+    margin-top: 24px;
+    padding: 0px 24px;
 `
 const DateDisplay = styled.div`
-    font-size: 30px;
+    margin-left: 40px;
+    font-size: 24px;
+    font-weight: 600;
 `
-const TodayButton = styled.button`
-    height: 37.5px;
-    background: inherit;
-    border: 1px solid black;
-    padding: 0px 10px;
+const HoverButton = styled.button`
+    background-color: transparent;
     cursor: pointer;
-    border-radius: 10px;
-    color: black;
-    font-size: 15px;
+    height: fit-content;
+    width: fit-content;
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+        background: ${ICON_HOVER};
+    }
+`
+const Icon = styled.img`
+    height: 28px;
+    width: 28px;
 `
 
 interface CalendarHeaderProps {
-    month: string,
-    year: number,
-    setDate: Dispatch<Date>
+    date: Date,
+    setDate: React.Dispatch<React.SetStateAction<Date>>
 }
-export default function CalendarHeader({ month, year, setDate }: CalendarHeaderProps): JSX.Element {
-    const setDateToday = () => {
-        setDate(new Date())
-    }
+export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
+    const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' })
+    const dayNum = date.getDate()
+    const month = date.toLocaleString('default', { month: 'short' })
+
+    const selectNextDay = useCallback(() => setDate(date => {
+        const newDate = new Date(date)
+        newDate.setDate(date.getDate() + 1)
+        return newDate
+    }), [date, setDate])
+    const selectPreviousDay = useCallback(() => setDate(date => {
+        const newDate = new Date(date)
+        newDate.setDate(date.getDate() - 1)
+        return newDate
+    }), [date, setDate])
+
     return (
         <CalendarHeaderContainer>
-            <DateDisplay>{`${month} ${year}`}</DateDisplay>
-            <TodayButton onClick={setDateToday}>Today</TodayButton>
+            <flex.flex>
+                <HoverButton><Icon src="images/collapse.svg" alt="Collapse calendar" /></HoverButton>
+                <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay>
+            </flex.flex>
+            <flex.flex>
+                <HoverButton><Icon src="images/CalendarBlank.svg" alt="Choose a date" /></HoverButton>
+                <HoverButton onClick={selectPreviousDay}>
+                    <Icon src="images/CaretLeft.svg" alt="Show previous day" />
+                </HoverButton>
+                <HoverButton onClick={selectNextDay}>
+                    <Icon src="images/CaretRight.svg" alt="Show next day" />
+                </HoverButton>
+            </flex.flex>
         </CalendarHeaderContainer>
     )
 }

@@ -1,26 +1,32 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { TFetchStatus, TTaskSection } from '../helpers/types'
+import { TEvent, TTaskSection } from '../helpers/types'
 
 import { FetchStatusEnum } from './enums'
-import { emptyFunction } from '../helpers/utils'
 
 export interface TasksPageState {
-    task_sections: TTaskSection[],
-    tasks_fetch_status: TFetchStatus,
-    expanded_body: string | null,
-    show_create_task_form: boolean,
-    show_date_picker: boolean,
+    tasks: {
+        task_sections: TTaskSection[],
+        fetch_status: FetchStatusEnum,
+        expanded_body: string | null,
+        show_create_task_form: boolean,
+    },
+    events: {
+        event_list: TEvent[],
+        fetch_status: FetchStatusEnum,
+    },
 }
 
 const initialState: TasksPageState = {
-    task_sections: [],
-    tasks_fetch_status: {
-        status: FetchStatusEnum.LOADING,
-        abort_fetch: emptyFunction,
+    tasks: {
+        task_sections: [],
+        fetch_status: FetchStatusEnum.LOADING,
+        expanded_body: null,
+        show_create_task_form: false,
     },
-    expanded_body: null,
-    show_create_task_form: false,
-    show_date_picker: false,
+    events: {
+        event_list: [],
+        fetch_status: FetchStatusEnum.LOADING,
+    },
 }
 
 export const tasksPageSlice = createSlice({
@@ -28,50 +34,48 @@ export const tasksPageSlice = createSlice({
     initialState,
     reducers: {
         setTasks: (state, action: PayloadAction<TTaskSection[]>) => {
-            state.task_sections = action.payload
+            state.tasks.task_sections = action.payload
         },
         setTasksFetchStatus: (state, action: PayloadAction<FetchStatusEnum>) => {
-            state.tasks_fetch_status.status = action.payload
-        },
-        setTasksFetchAbortFunction: (state, action: PayloadAction<() => void>) => {
-            state.tasks_fetch_status.abort_fetch = action.payload
+            state.tasks.fetch_status = action.payload
         },
         removeTaskByID(state, action: PayloadAction<string>) {
-            for (const task_section of state.task_sections) {
-                for (const task_group of task_section.task_groups) {
-                    for (let i = 0; i < task_group.tasks.length; i++) {
-                        if (task_group.tasks[i].id === action.payload) {
-                            task_group.tasks.splice(i, 1)
-                        }
+            for (const task_section of state.tasks.task_sections) {
+                for (let i = 0; i < task_section.tasks.length; i++) {
+                    if (task_section.tasks[i].id === action.payload) {
+                        task_section.tasks.splice(i, 1)
                     }
+
                 }
             }
         },
         expandBody(state, action: PayloadAction<string>) {
-            state.expanded_body = action.payload
+            state.tasks.expanded_body = action.payload
         },
         collapseBody(state) {
-            state.expanded_body = null
+            state.tasks.expanded_body = null
         },
         setShowCreateTaskForm(state, action: PayloadAction<boolean>) {
-            state.show_create_task_form = action.payload
+            state.tasks.show_create_task_form = action.payload
         },
-        setShowDatePicker(state, action: PayloadAction<boolean>) {
-            state.show_date_picker = action.payload
-            console.log('setShowDatePicker', state.show_date_picker)
-        }
+        setEvents(state, action: PayloadAction<TEvent[]>) {
+            state.events.event_list = action.payload
+        },
+        setEventsFetchStatus(state, action: PayloadAction<FetchStatusEnum>) {
+            state.events.fetch_status = action.payload
+        },
     },
 })
 
 export const {
     setTasks,
     setTasksFetchStatus,
-    setTasksFetchAbortFunction,
     removeTaskByID,
     expandBody,
     collapseBody,
     setShowCreateTaskForm,
-    setShowDatePicker,
+    setEvents,
+    setEventsFetchStatus,
 } = tasksPageSlice.actions
 
 export default tasksPageSlice.reducer

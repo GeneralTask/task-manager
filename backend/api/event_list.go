@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"log"
+	"sort"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -14,8 +15,14 @@ import (
 )
 
 type EventListParams struct {
-	DatetimeStart *time.Time `json:"datetime_start" binding:"required"`
-	DatetimeEnd   *time.Time `json:"datetime_end" binding:"required"`
+	DatetimeStart *time.Time `form:"datetime_start" binding:"required"`
+	DatetimeEnd   *time.Time `form:"datetime_end" binding:"required"`
+}
+
+type ConferenceCall struct {
+	Platform string `json:"platform"`
+	Logo     string `json:"logo"`
+	URL      string `json:"url"`
 }
 
 type EventResult struct {
@@ -24,15 +31,15 @@ type EventResult struct {
 	Title          string             `json:"title"`
 	Body           string             `json:"body"`
 	ConferenceCall *ConferenceCall    `json:"conference_call"`
-	DatetimeEnd    primitive.DateTime `bson:"datetime_end,omitempty"`
-	DatetimeStart  primitive.DateTime `bson:"datetime_start,omitempty"`
+	DatetimeEnd    primitive.DateTime `json:"datetime_end,omitempty"`
+	DatetimeStart  primitive.DateTime `json:"datetime_start,omitempty"`
 }
 
 func (api *API) EventsList(c *gin.Context) {
 	parentCtx := c.Request.Context()
 
 	var eventListParams EventListParams
-	err := c.BindJSON(&eventListParams)
+	err := c.BindQuery(&eventListParams)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "Invalid or missing parameter."})
 		return
@@ -102,21 +109,33 @@ func (api *API) EventsList(c *gin.Context) {
 			continue
 		}
 		for _, event := range calendarResult.CalendarEvents {
-			calendarEvents = append(calendarEvents, EventResult{
-				ID:       event.ID,
-				Deeplink: event.Deeplink,
-				Title:    event.Title,
-				Body:     event.Body,
-				ConferenceCall: &ConferenceCall{
+			var conferenceCall *ConferenceCall
+			if event.ConferenceCall == nil {
+				conferenceCall = nil
+			} else {
+				conferenceCall = &ConferenceCall{
 					Platform: event.ConferenceCall.Platform,
 					Logo:     event.ConferenceCall.Logo,
 					URL:      event.ConferenceCall.URL,
-				},
-				DatetimeEnd:   event.DatetimeEnd,
-				DatetimeStart: event.DatetimeStart,
+				}
+			}
+			calendarEvents = append(calendarEvents, EventResult{
+				ID:             event.ID,
+				Deeplink:       event.Deeplink,
+				Title:          event.Title,
+				Body:           event.Body,
+				ConferenceCall: conferenceCall,
+				DatetimeEnd:    event.DatetimeEnd,
+				DatetimeStart:  event.DatetimeStart,
 			})
 		}
 	}
+
+	sort.SliceStable(calendarEvents, func(i, j int) bool {
+		a := calendarEvents[i]
+		b := calendarEvents[j]
+		return a.DatetimeStart < b.DatetimeStart
+	})
 
 	c.JSON(200, calendarEvents)
 }

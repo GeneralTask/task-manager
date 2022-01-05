@@ -25,6 +25,7 @@ export const BACKGROUND_PRIMARY_HOVER = '#0069d9'
 export const BORDER_PRIMARY_HOVER = '#0062cc'
 export const TASKS_BACKROUND = '#F8F8F8'
 export const TASKS_BACKGROUND_GRADIENT = '#F6F4FE'
+export const ICON_HOVER = '#F4F4F5'
 
 export const DIVIDER_LIGHTGRAY = '#DDDDDD'
 
@@ -62,3 +63,4 @@ export const EVENT_TIME_TEXT_COLOR = '#71717A'
 export const CALENDAR_TD_COLOR = '#E4E3E7'
 export const CALENDAR_TIME_COLOR = '#A1A1AA'
 export const CALENDAR_INDICATOR_COLOR = '#D7470A'
+export const CALENDAR_DEFAULT_SCROLL_HOUR = 8

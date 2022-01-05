@@ -1,6 +1,6 @@
-import { Indices, ItemTypes, TTask, TTaskGroupType, TTaskSection } from '../../helpers/types'
+import { Indices, ItemTypes, TTask, TTaskSection } from '../../helpers/types'
 import React, { RefObject, useRef, useState } from 'react'
-import { makeAuthorizedRequest, taskDropReorder, useFetchTasks } from '../../helpers/utils'
+import { logEvent, makeAuthorizedRequest, taskDropReorder } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 import { TASKS_MODIFY_URL } from '../../constants'
@@ -8,6 +8,8 @@ import Task from './Task'
 import { setTasks } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
+import { LogEvents } from '../../redux/enums'
+import { useFetchTasks } from './TasksPage'
 
 const DropOverlay = styled.div`
   width: 100%;
@@ -31,7 +33,7 @@ const DropDirection = {
 const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisabled, indices }: TaskDropContainerProps) => {
     const fetchTasks = useFetchTasks()
     const { taskSections } = useAppSelector(state => ({
-        taskSections: state.tasks_page.task_sections,
+        taskSections: state.tasks_page.tasks.task_sections,
     }))
     const dispatch = useAppDispatch()
     const indicesRef = React.useRef<Indices>()
@@ -54,8 +56,8 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
             if (indicesRef.current == null) return
 
             const taskSections = taskSectionsRef.current
-            const { section: dropSection, group: dropGroup, task: dropTask } = indicesRef.current
-            const { section: dragSection, group: dragGroup, task: dragTask } = item.indicesRef.current
+            const { section: dropSection } = indicesRef.current
+            const { section: dragSection, task: dragTask } = item.indicesRef.current
 
             const boundingRect = dropRef.current.getBoundingClientRect()
             let isLowerHalf = false
@@ -66,7 +68,6 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
             }
 
             const previousOrderingId = taskSections[dragSection]
-                .task_groups[dragGroup]
                 .tasks[dragTask]
                 .id_ordering
 
@@ -74,23 +75,19 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
             dispatch(setTasks(updatedTaskSections))
 
             let updatedOrderingId = null
-            if (taskSections[dropSection].task_groups[dropGroup].type === TTaskGroupType.SCHEDULED_TASK) {
-                updatedOrderingId = taskSections[dropSection].task_groups[dropGroup].tasks[dropTask].id_ordering
+            updatedOrderingId = updatedTaskSections[dropSection]
+                .tasks
+                .find(task => task.id === item.id)
+                ?.id_ordering
+            if (updatedOrderingId == null) return
+            if (dragSection === dropSection && updatedOrderingId < previousOrderingId) {
+                updatedOrderingId -= 1
             }
-            else {
-                updatedOrderingId = updatedTaskSections[dropSection]
-                    .task_groups[dropGroup]
-                    .tasks
-                    .find(task => task.id === item.id)
-                    ?.id_ordering
-                if (updatedOrderingId == null) return
-                if (dragSection === dropSection && dragGroup === dropGroup && updatedOrderingId < previousOrderingId) {
-                    updatedOrderingId -= 1
-                }
-                if (dragSection !== dropSection || dragGroup !== dropGroup) {
-                    updatedOrderingId -= 1
-                }
+            if (dragSection !== dropSection) {
+                updatedOrderingId -= 1
             }
+
+            logEvent(LogEvents.TASK_REORDERED)
             makeAuthorizedRequest({
                 url: TASKS_MODIFY_URL + item.id + '/',
                 method: 'PATCH',
@@ -122,7 +119,6 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
     return (
         <DropOverlay ref={dropRef}>
             <Task task={task}
-                datetimeStart={null}
                 dragDisabled={dragDisabled}
                 key={task.id}
                 isOver={isOver}

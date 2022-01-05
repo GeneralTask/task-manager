@@ -1,18 +1,22 @@
 import * as styles from './TaskCreate-style'
 
-import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL, PLUS_ICON } from '../../constants'
-import React, { useState } from 'react'
-import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
-import { useAppSelector } from '../../redux/hooks'
+import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
+import React, { useCallback, useState } from 'react'
+import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
+import { useFetchTasks } from './TasksPage'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 // import GTButton from '../common/GTButton'
 import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
-// import parse from 'parse-duration'
-// import { parseDate } from '../../helpers/TimeParser'
+import parse from 'parse-duration'
+import { parseDate } from '../../helpers/TimeParser'
+import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
+import { LogEvents } from '../../redux/enums'
 
 export default function TaskCreate(): JSX.Element {
-    const showCreateTaskForm = useAppSelector(state => state.tasks_page.show_create_task_form)
+    const showCreateTaskForm = useAppSelector(state => state.tasks_page.tasks.show_create_task_form)
+    const dispatch = useAppDispatch()
 
     const [title, setTitle] = useState('')
     // const [timeEstimate, setTimeEstimate] = useState('')
@@ -23,6 +27,11 @@ export default function TaskCreate(): JSX.Element {
     // const [dueDateError, setDueDateError] = useState('')
 
     const fetchTasks = useFetchTasks()
+
+    const closeCreateTaskForm = useCallback(() => {
+        dispatch(setShowCreateTaskForm(false))
+        logEvent(LogEvents.HIDE_TASK_CREATE_FORM)
+    }, [])
 
     return <>
         {showCreateTaskForm && <>
@@ -84,11 +93,14 @@ export default function TaskCreate(): JSX.Element {
                             // setTimeEstimate('')
                             // setDueDate('')
 
-                            await makeAuthorizedRequest({
+                            const response = await makeAuthorizedRequest({
                                 url: TASKS_CREATE_URL + GT_TASK_SOURCE_ID + '/',
                                 method: 'POST',
                                 body: JSON.stringify(body),
                             })
+                            if (response.ok) {
+                                logEvent(LogEvents.TASK_CREATED)
+                            }
                             await fetchTasks()
                         }
                     }}>
@@ -115,11 +127,9 @@ export default function TaskCreate(): JSX.Element {
                             <GTButton theme='black' width='80%' type='submit' >Save</GTButton>
                         </styles.SaveBtnDiv> */}
                     </styles.Form>
-                    <styles.Side />
-                    {/* <styles.CloseButton src="images/close.svg" onClick={() => {
-                            dispatch(setShowCreateTaskForm(false))
-                        }} />
-                    </styles.Side> */}
+                    <styles.Side>
+                        <styles.CloseButton src="images/close.svg" onClick={closeCreateTaskForm} />
+                    </styles.Side>
                 </styles.InnerContainer >
                 <styles.ErrorContainer>
                     {titleError && <flex.alignItemsCenter>

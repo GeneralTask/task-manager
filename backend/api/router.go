@@ -24,6 +24,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.POST("/logout/", handlers.Logout)
 
 	router.Use(TokenMiddleware)
+	router.Use(LoggingMiddleware)
 	// Authenticated endpoints
 	router.GET("/linked_accounts/", handlers.LinkedAccountsList)
 	router.GET("/linked_accounts/supported_types/", handlers.SupportedAccountTypesList)
@@ -37,5 +38,6 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/ping/", handlers.Ping)
 	router.GET("/settings/", handlers.SettingsList)
 	router.PATCH("/settings/", handlers.SettingsModify)
+	router.POST("/log_events/", handlers.LogEventAdd)
 	return router
 }

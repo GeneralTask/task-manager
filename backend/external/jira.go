@@ -269,6 +269,10 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	}
 }
 
+func (JIRA JIRASource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+	result <- emptyPullRequestResult(nil)
+}
+
 func (JIRA JIRASource) fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID primitive.ObjectID) *map[string]int {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)

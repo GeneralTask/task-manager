@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M13 2.5H3C2.72386 2.5 2.5 2.72386 2.5 3V13C2.5 13.2761 2.72386 13.5 3 13.5H13C13.2761 13.5 13.5 13.2761 13.5 13V3C13.5 2.72386 13.2761 2.5 13 2.5Z" stroke="#52525B" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M11 1.5V3.5" stroke="#52525B" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M5 1.5V3.5" stroke="#52525B" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M2.5 5.5H13.5" stroke="#52525B" stroke-linecap="round" stroke-linejoin="round"/>
+=======
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M16.25 3.125H3.75C3.40482 3.125 3.125 3.40482 3.125 3.75V16.25C3.125 16.5952 3.40482 16.875 3.75 16.875H16.25C16.5952 16.875 16.875 16.5952 16.875 16.25V3.75C16.875 3.40482 16.5952 3.125 16.25 3.125Z" stroke="#52525B" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13.75 1.875V4.375" stroke="#52525B" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.25 1.875V4.375" stroke="#52525B" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M3.125 6.875H16.875" stroke="#52525B" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="5" y="12" width="3" height="3" rx="1" fill="#52525B"/>
+>>>>>>> master
 </svg>

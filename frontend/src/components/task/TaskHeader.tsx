@@ -2,8 +2,9 @@ import './Task.css'
 import { Action, Dispatch } from '@reduxjs/toolkit'
 import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
 import React, { useCallback } from 'react'
-import { collapseBody, expandBody, removeTaskByID, setShowDatePicker } from '../../redux/tasksPageSlice'
-import { makeAuthorizedRequest, useFetchTasks } from '../../helpers/utils'
+import { collapseBody, expandBody, removeTaskByID } from '../../redux/tasksPageSlice'
+import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
+import { useFetchTasks } from './TasksPage'
 import { TTask } from '../../helpers/types'
 import { useAppDispatch } from '../../redux/hooks'
 import {
@@ -20,10 +21,9 @@ import {
   DominoContainer,
   DominoDot,
   DoneButton,
-  ButtonRight,
-  JoinConferenceButtonContainer
+  ButtonRight
 } from './TaskHeader-style'
-import JoinConferenceButton from './JoinConferenceButton'
+import { LogEvents } from '../../redux/enums'
 
 function Domino(): JSX.Element {
   return (
@@ -34,7 +34,6 @@ function Domino(): JSX.Element {
 }
 interface TaskHeaderProps {
   task: TTask,
-  datetimeStart: string | null, // null if unscheduled_task
   dragDisabled: boolean,
   isExpanded: boolean,
 }
@@ -52,12 +51,19 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
     if (hoverEffectEnabled) {
       if (props.isExpanded) {
         dispatch(collapseBody())
+        logEvent(LogEvents.TASK_COLLAPSED)
       }
       else {
         dispatch(expandBody(props.task.id))
+        logEvent(LogEvents.TASK_EXPANDED)
       }
     }
   }, [hoverEffectEnabled, props.isExpanded])
+
+  const onDoneButtonClick = useCallback(() => {
+    done(props.task.id, dispatch, fetchTasks)
+    logEvent(LogEvents.TASK_MARK_AS_DONE)
+  }, [])
 
   return (
     <TaskHeaderContainer hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
@@ -71,12 +77,10 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         {
           !props.isExpanded &&
           props.task.source.is_completable &&
-          <DoneButton src={DONE_BUTTON} onClick={() => {
-            done(props.task.id, dispatch, fetchTasks)
-          }} />
+          <DoneButton src={DONE_BUTTON} onClick={onDoneButtonClick} />
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
-        <Title>{props.task.title}</Title>
+        <Title isExpanded={props.isExpanded}>{props.task.title}</Title>
       </HeaderLeft>
       <HeaderRight>
         <ButtonRight src={EXPAND_ICON} onClick={() => {
@@ -94,12 +98,6 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         {/* <ButtonRight src={TRASH_ICON} onClick={() => {
           deleteTask(props.task.id, dispatch, fetchTasks)
         }} /> */}
-        {
-          props.task.conference_call &&
-          <JoinConferenceButtonContainer>
-            <JoinConferenceButton conferenceCall={props.task.conference_call}></JoinConferenceButton>
-          </JoinConferenceButtonContainer>
-        }
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
           <CalendarIconContainer>
@@ -130,7 +128,7 @@ const done = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTa
 }
 
 const editDueDate = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {
-  dispatch(setShowDatePicker(true))
+  // TODO: show date picker
 }
 
 const editTimeEstimate = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {

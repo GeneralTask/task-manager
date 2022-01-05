@@ -10,6 +10,7 @@ type TaskSource interface {
 	GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult)
 	GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult)
 	GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult)
+	GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult)
 	MarkAsDone(userID primitive.ObjectID, accountID string, taskID string) error
 	Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error
 	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error
