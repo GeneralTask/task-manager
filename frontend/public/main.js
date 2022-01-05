@@ -1,7 +1,6 @@
 const { app, BrowserWindow, shell, session } = require('electron')
 const path = require('path')
 
-
 const createWindow = () => {
     const mainWindow = new BrowserWindow({
         width: 1400,
@@ -14,9 +13,9 @@ const createWindow = () => {
     mainWindow.loadURL(url)
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (url.startsWith('http://') || url.startsWith('https://')) {
-            shell.openExternal(url);
+            shell.openExternal(url)
         }
-        return { action: 'deny' };
+        return { action: 'deny' }
     })
 }
 
