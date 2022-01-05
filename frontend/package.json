@@ -8,7 +8,7 @@
     "appId": "com.electron.generaltask",
     "productName": "General Task",
     "copyright": "Copyright © 2022 General Task, Inc. ",
-    "mac": { 
+    "mac": {
       "category": "public.app-category.productivity",
       "target": "dmg"
     }
