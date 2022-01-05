@@ -1,3 +1,4 @@
+/* eslint @typescript-eslint/no-var-requires: "off" */
 const { app, BrowserWindow, shell, session } = require('electron')
 const path = require('path')
 
