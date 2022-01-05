@@ -49,7 +49,7 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
 `
 export const EventFill = styled.div`
     width: 100%;
-    height: 100%;
+    height: 97%;
     background-color: black;
     opacity: 15%;
     border-radius: 8px;
