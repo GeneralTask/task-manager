@@ -1,11 +1,12 @@
 import React, { useCallback } from 'react'
 import { flex } from '../../helpers/styles'
+import ExpandCollapse from '../common/ExpandCollapse'
 import { CalendarHeaderContainer, HoverButton, Icon, DateDisplay } from './CalendarHeader-styles'
 
 interface CalendarHeaderProps {
     date: Date,
     setDate: React.Dispatch<React.SetStateAction<Date>>,
-    setIsShown: React.Dispatch<React.SetStateAction<boolean>>,
+    setIsShown: (b: boolean) => void,
 }
 export default function CalendarHeader({ date, setDate, setIsShown }: CalendarHeaderProps): JSX.Element {
     const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' })
@@ -26,9 +27,7 @@ export default function CalendarHeader({ date, setDate, setIsShown }: CalendarHe
     return (
         <CalendarHeaderContainer>
             <flex.flex>
-                <HoverButton onClick={() => setIsShown(false)}>
-                    <Icon src="images/collapse.svg" alt="Collapse calendar" />
-                </HoverButton>
+                <ExpandCollapse direction="right" onClick={() => setIsShown(false)} />
                 <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay>
             </flex.flex>
             <flex.flex>
