@@ -312,6 +312,8 @@ func TestMarkAsComplete(t *testing.T) {
 	// }
 	t.Run("Mark complete and edit fields success", func(t *testing.T) {
 		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
+		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
+		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+gmailTaskIDHex+"/",
