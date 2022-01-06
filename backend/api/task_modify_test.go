@@ -650,7 +650,7 @@ func TestEditFields(t *testing.T) {
 			IDTaskSection:    constants.IDTaskSectionToday,
 			IsCompleted:      false,
 			Sender:           "Sender",
-			SourceID:         "Source ID",
+			SourceID:         "gt_task",
 			SourceAccountID:  "Source Account ID",
 			Deeplink:         "Deeplink",
 			Title:            "Initial Title",

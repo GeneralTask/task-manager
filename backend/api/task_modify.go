@@ -57,43 +57,54 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
-	isValid := false
-	// reorder task
+	updateTask := false
+
+	// handle edit fields
+	// check if all edit fields are empty
+	if modifyParams.TaskChangeableFields != (database.TaskChangeableFields{IsCompleted: modifyParams.IsCompleted}) {
+		if !ValidateFields(c, &modifyParams.TaskChangeableFields) {
+			return
+		}
+
+		taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
+		if err != nil {
+			log.Printf("failed to load external task source: %v", err)
+			Handle500(c)
+			return
+		}
+
+		// update external task
+		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.ID, &modifyParams.TaskChangeableFields)
+		if err != nil {
+			log.Printf("failed to update external task source: %v", err)
+			Handle500(c)
+			return
+		}
+
+		updateTask = true
+	}
+
+	// handle reorder task
 	if modifyParams.IDOrdering != nil || modifyParams.IDTaskSection != nil {
 		err = ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection, task)
 		if err != nil {
 			return
 		}
-		isValid = true
 	}
-	// mark complete
+	// handle mark complete
 	if modifyParams.IsCompleted != nil {
 		err = MarkTaskComplete(api, c, taskID, userID, task, modifyParams.IsCompleted)
 		if err != nil {
 			return
 		}
-		isValid = true
+		updateTask = true
 	}
 
-	// check if all edit fields are empty
-	if isValid && modifyParams.TaskChangeableFields == (database.TaskChangeableFields{}) {
-		c.JSON(200, gin.H{})
-		return
-	} else if !ValidateFields(c, &modifyParams.TaskChangeableFields) {
-		return
+	if updateTask {
+		UpdateTask(api, c, taskID, userID, &modifyParams.TaskChangeableFields, task)
 	}
 
-	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
-	if err != nil {
-		log.Printf("failed to load external task source: %v", err)
-		Handle500(c)
-		return
-	}
-
-	// update external task
-	taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.ID, &modifyParams.TaskChangeableFields)
-
-	UpdateTask(api, c, taskID, userID, &modifyParams.TaskChangeableFields, task)
+	c.JSON(200, gin.H{})
 }
 
 func ValidateFields(c *gin.Context, updateFields *database.TaskChangeableFields) bool {
@@ -255,5 +266,4 @@ func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID prim
 		Handle500(c)
 		return
 	}
-	c.JSON(200, gin.H{})
 }
