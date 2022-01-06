@@ -238,7 +238,7 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			task.SourceID,
 			task,
 			database.TaskChangeableFields{
-				Title:              task.Title,
+				Title:              &task.Title,
 				DueDate:            task.DueDate,
 				PriorityID:         task.PriorityID,
 				PriorityNormalized: float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength),

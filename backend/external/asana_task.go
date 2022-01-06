@@ -116,7 +116,7 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task.SourceID,
 			task,
 			database.TaskChangeableFields{
-				Title:   task.Title,
+				Title:   &task.Title,
 				DueDate: task.DueDate,
 			},
 		)
