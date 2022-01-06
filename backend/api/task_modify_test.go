@@ -15,28 +15,11 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/settings"
+	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
-
-func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
-	assert.Equal(t, a.UserID, b.UserID)
-	assert.Equal(t, a.IDExternal, b.IDExternal)
-	assert.Equal(t, a.IDOrdering, b.IDOrdering)
-	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
-	assert.Equal(t, a.IsCompleted, b.IsCompleted)
-	assert.Equal(t, a.Sender, b.Sender)
-	assert.Equal(t, a.SourceID, b.SourceID)
-	assert.Equal(t, a.SourceAccountID, b.SourceAccountID)
-	assert.Equal(t, a.Deeplink, b.Deeplink)
-	assert.Equal(t, a.Title, b.Title)
-	assert.Equal(t, a.Body, b.Body)
-	assert.Equal(t, a.HasBeenReordered, b.HasBeenReordered)
-	assert.Equal(t, a.TimeAllocation, b.TimeAllocation)
-	assert.Equal(t, a.ConferenceCall, b.ConferenceCall)
-	assert.Equal(t, a.CreatedAtExternal, b.CreatedAtExternal)
-}
 
 func TestMarkAsComplete(t *testing.T) {
 	parentCtx := context.Background()
@@ -702,7 +685,7 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 
 		expectedTask.Title = "New title"
-		assertTasksEqual(t, &expectedTask, &task)
+		utils.AssertTasksEqual(t, &expectedTask, &task)
 	})
 
 	t.Run("Edit Title Empty", func(t *testing.T) {
@@ -764,7 +747,7 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 
 		expectedTask.Body = "New Body"
-		assertTasksEqual(t, &expectedTask, &task)
+		utils.AssertTasksEqual(t, &expectedTask, &task)
 	})
 	t.Run("Edit Due Date Success", func(t *testing.T) {
 		expectedTask := sampleTask
@@ -801,7 +784,7 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 
 		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
-		assertTasksEqual(t, &expectedTask, &task)
+		utils.AssertTasksEqual(t, &expectedTask, &task)
 	})
 	t.Run("Edit Due Date Empty", func(t *testing.T) {
 		expectedTask := sampleTask
@@ -861,7 +844,7 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 
 		expectedTask.TimeAllocation = int64(20 * 1000 * 1000)
-		assertTasksEqual(t, &expectedTask, &task)
+		utils.AssertTasksEqual(t, &expectedTask, &task)
 	})
 	t.Run("Edit Time Duration Negative", func(t *testing.T) {
 		expectedTask := sampleTask
@@ -933,7 +916,7 @@ func TestEditFields(t *testing.T) {
 		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		expectedTask.TimeAllocation = int64(20 * 1000 * 1000)
 
-		assertTasksEqual(t, &expectedTask, &task)
+		utils.AssertTasksEqual(t, &expectedTask, &task)
 	})
 
 	t.Run("Edit multiple fields empty title", func(t *testing.T) {
@@ -1063,6 +1046,6 @@ func TestEditFields(t *testing.T) {
 	// 	expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
 	// 	expectedTask.TimeAllocation = int64(20 * 1000 * 1000)
 
-	// 	assertTasksEqual(t, &expectedTask, &task)
+	// 	utils.AssertTasksEqual(t, &expectedTask, &task)
 	// })
 }
