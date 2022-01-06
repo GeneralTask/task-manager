@@ -117,10 +117,14 @@ type Task struct {
 }
 
 type TaskChangeableFields struct {
-	Title              string             `json:"title" bson:"title,omitempty"`
-	DueDate            primitive.DateTime `bson:"due_date,omitempty"`
-	PriorityID         string             `bson:"priority_id,omitempty"`
-	PriorityNormalized float64            `bson:"priority_normalized,omitempty"`
+	PriorityID         string  `bson:"priority_id,omitempty"`
+	PriorityNormalized float64 `bson:"priority_normalized,omitempty"`
+
+	Title          *string            `json:"title" bson:"title,omitempty"`
+	Body           *string            `json:"body" bson:"body,omitempty"`
+	DueDate        primitive.DateTime `json:"due_date" bson:"due_date,omitempty"`
+	TimeAllocation *int64             `json:"time_duration" bson:"time_allocated,omitempty"`
+	IsCompleted    *bool              `json:"is_completed" bson:"is_completed,omitempty"`
 }
 
 type UserSetting struct {

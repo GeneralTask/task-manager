@@ -116,7 +116,7 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task.SourceID,
 			task,
 			database.TaskChangeableFields{
-				Title:   task.Title,
+				Title:   &task.Title,
 				DueDate: task.DueDate,
 			},
 		)
@@ -174,4 +174,8 @@ func (AsanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID stri
 
 func (AsanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("cannot create new asana task")
+}
+
+func (AsanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
+	return nil
 }

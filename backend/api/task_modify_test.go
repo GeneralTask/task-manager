@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/settings"
+	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -280,6 +282,39 @@ func TestMarkAsComplete(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": calendarTaskID}).Decode(&task)
 		assert.Equal(t, false, task.IsCompleted)
 	})
+
+	t.Run("Mark complete and edit fields success", func(t *testing.T) {
+		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
+		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
+		assert.NoError(t, err)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+gmailTaskIDHex+"/",
+			bytes.NewBuffer([]byte(`{
+				"time_duration": 20,
+				"due_date": "`+dueDate.Format(time.RFC3339)+`",
+				"title": "New Title",
+				"body": "New Body",
+				"is_completed": true
+				}`)))
+		var task database.TaskBase
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, true, task.IsCompleted)
+
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, true, task.IsCompleted)
+	})
 }
 
 func TestTaskReorder(t *testing.T) {
@@ -288,10 +323,11 @@ func TestTaskReorder(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
-	t.Run("Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
 
+	authToken := login("approved@generaltask.com", "")
+	userID := getUserIDFromAuthToken(t, db, authToken)
+
+	t.Run("Success", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
@@ -425,7 +461,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"Task not found.\",\"taskId\":\""+taskIDHex+"\"}", string(body))
 	})
 	t.Run("MissingOrderingID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -444,7 +480,8 @@ func TestTaskReorder(t *testing.T) {
 	t.Run("BadTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
+		taskIDHex := primitive.NewObjectID().Hex()
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -453,7 +490,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"Task not found.\",\"taskId\":\""+taskIDHex+"\"}", string(body))
 	})
 	t.Run("WrongFormatTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -498,8 +535,6 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
 	})
 	t.Run("OnlyReorderTaskSections", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -536,8 +571,6 @@ func TestTaskReorder(t *testing.T) {
 		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("OnlyReorderingID", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -580,5 +613,371 @@ func TestTaskReorder(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
+}
+
+func TestEditFields(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
+
+	authToken := login("approved@generaltask.com", "")
+	userID := getUserIDFromAuthToken(t, db, authToken)
+
+	sampleTask := database.Task{
+		TaskBase: database.TaskBase{
+			IDExternal:       "ID External",
+			IDOrdering:       1,
+			IDTaskSection:    constants.IDTaskSectionToday,
+			IsCompleted:      false,
+			Sender:           "Sender",
+			SourceID:         "gt_task",
+			SourceAccountID:  "Source Account ID",
+			Deeplink:         "Deeplink",
+			Title:            "Initial Title",
+			Body:             "Initial Body",
+			HasBeenReordered: false,
+			DueDate:          primitive.NewDateTimeFromTime(time.Now()),
+			TimeAllocation:   60 * 60 * 1000 * 1000,
+			ConferenceCall: &database.ConferenceCall{
+				Platform: "Google Meet",
+				Logo:     "https://google.com/logo.png",
+				URL:      "https://meet.google.com/",
+			},
+			CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now()),
+		},
+		PriorityID:         "Priority ID",
+		PriorityNormalized: 5.0,
+		TaskNumber:         3,
+	}
+
+	t.Run("Edit Title Success", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"title": "New title"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		var task database.Task
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+
+		expectedTask.Title = "New title"
+		utils.AssertTasksEqual(t, &expectedTask, &task)
+	})
+
+	t.Run("Edit Title Empty", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"title": ""}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Title cannot be empty\"}", string(body))
+	})
+
+	t.Run("Edit Body Success", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"body": "New Body"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		var task database.Task
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+
+		expectedTask.Body = "New Body"
+		utils.AssertTasksEqual(t, &expectedTask, &task)
+	})
+	t.Run("Edit Due Date Success", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
+		assert.NoError(t, err)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"due_date": "`+dueDate.Format(time.RFC3339)+`"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		var task database.Task
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+
+		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		utils.AssertTasksEqual(t, &expectedTask, &task)
+	})
+	t.Run("Edit Due Date Empty", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"due_date": ""}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Parameter missing or malformatted\"}", string(body))
+	})
+	t.Run("Edit Time Duration Success", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"time_duration": 20}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		var task database.Task
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+
+		expectedTask.TimeAllocation = int64(20 * 1000 * 1000)
+		utils.AssertTasksEqual(t, &expectedTask, &task)
+	})
+	t.Run("Edit Time Duration Negative", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"time_duration": -20}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Time duration cannot be negative\"}", string(body))
+	})
+	t.Run("Edit multiple fields success", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
+		assert.NoError(t, err)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{
+				"time_duration": 20,
+				"due_date": "`+dueDate.Format(time.RFC3339)+`",
+				"title": "New Title",
+				"body": "New Body"
+				}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		var task database.Task
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+
+		expectedTask.Title = "New Title"
+		expectedTask.Body = "New Body"
+		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		expectedTask.TimeAllocation = int64(20 * 1000 * 1000)
+
+		utils.AssertTasksEqual(t, &expectedTask, &task)
+	})
+
+	t.Run("Edit multiple fields empty title", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
+		assert.NoError(t, err)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{
+				"time_duration": 20,
+				"due_date": "`+dueDate.Format(time.RFC3339)+`",
+				"title": "",
+				"body": "New Body"
+				}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Title cannot be empty\"}", string(body))
+	})
+
+	t.Run("Edit zero fields", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"Parameter missing\"}", string(body))
 	})
 }

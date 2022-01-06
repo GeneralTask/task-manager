@@ -200,3 +200,7 @@ func GetConferenceCall(event *calendar.Event, accountID string) *database.Confer
 
 	return conferenceCall
 }
+
+func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
+	return nil
+}

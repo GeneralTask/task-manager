@@ -96,3 +96,7 @@ func (GeneralTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 	_, err = taskCollection.InsertOne(dbCtx, newTask)
 	return err
 }
+
+func (GeneralTask GeneralTaskTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
+	return nil
+}

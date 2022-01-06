@@ -7,3 +7,5 @@ const WEEK int = 7 * DAY
 const FORTNITE int = 14 * DAY
 const MONTH int = 30 * DAY
 const YEAR int = 365 * DAY
+
+const NANOSECONDS_IN_SECOND int64 = 1000 * 1000

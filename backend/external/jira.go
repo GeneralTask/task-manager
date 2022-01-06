@@ -238,7 +238,7 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			task.SourceID,
 			task,
 			database.TaskChangeableFields{
-				Title:              task.Title,
+				Title:              &task.Title,
 				DueDate:            task.DueDate,
 				PriorityID:         task.PriorityID,
 				PriorityNormalized: float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength),
@@ -382,4 +382,8 @@ func (JIRA JIRASource) Reply(userID primitive.ObjectID, accountID string, taskID
 
 func (JIRA JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
+}
+
+func (JIRA JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
+	return nil
 }
