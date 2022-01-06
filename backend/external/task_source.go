@@ -3,6 +3,7 @@ package external
 import (
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -14,6 +15,7 @@ type TaskSource interface {
 	MarkAsDone(userID primitive.ObjectID, accountID string, taskID string) error
 	Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error
 	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error
+	ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error
 }
 
 type TaskCreationObject struct {

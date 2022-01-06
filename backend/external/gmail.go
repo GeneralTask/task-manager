@@ -463,3 +463,7 @@ func (Gmail GmailSource) Reply(userID primitive.ObjectID, accountID string, task
 func (Gmail GmailSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
 }
+
+func (Gmail GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
+	return nil
+}

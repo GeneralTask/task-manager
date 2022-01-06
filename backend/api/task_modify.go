@@ -12,19 +12,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// using a separate struct with omitempty so that other task fields are not overwritten
-type UpdateParams struct {
-	Title          *string            `json:"title" bson:"title,omitempty"`
-	Body           *string            `json:"body" bson:"body,omitempty"`
-	DueDate        primitive.DateTime `json:"due_date" bson:"due_date,omitempty"`
-	TimeAllocation int64              `json:"time_duration" bson:"time_allocated,omitempty"`
-	IsCompleted    *bool              `json:"is_completed" bson:"is_completed,omitempty"`
-}
-
 type TaskModifyParams struct {
 	IDOrdering    *int    `json:"id_ordering"`
 	IDTaskSection *string `json:"id_task_section"`
-	UpdateParams
+	database.TaskChangeableFields
 }
 
 func (api *API) TaskModify(c *gin.Context) {
@@ -85,26 +76,29 @@ func (api *API) TaskModify(c *gin.Context) {
 	}
 
 	// check if all edit fields are empty
-	if isValid && modifyParams.UpdateParams == (UpdateParams{}) {
+	if isValid && modifyParams.TaskChangeableFields == (database.TaskChangeableFields{}) {
 		c.JSON(200, gin.H{})
 		return
-	} else if !ValidateFields(c, &modifyParams.UpdateParams) {
+	} else if !ValidateFields(c, &modifyParams.TaskChangeableFields) {
 		return
 	}
 
-	UpdateTask(api, c, taskID, userID, &modifyParams.UpdateParams, task)
+	UpdateTask(api, c, taskID, userID, &modifyParams.TaskChangeableFields, task)
 }
 
-func ValidateFields(c *gin.Context, updateParams *UpdateParams) bool {
-	if updateParams.Title != nil && *updateParams.Title == "" {
+func ValidateFields(c *gin.Context, updateFields *database.TaskChangeableFields) bool {
+	if updateFields.Title != nil && *updateFields.Title == "" {
 		c.JSON(400, gin.H{"detail": "Title cannot be empty"})
 		return false
 	}
-	if updateParams.TimeAllocation < 0 {
-		c.JSON(400, gin.H{"detail": "Time duration cannot be negative"})
-		return false
+	if updateFields.TimeAllocation != nil {
+		if *updateFields.TimeAllocation < 0 {
+			c.JSON(400, gin.H{"detail": "Time duration cannot be negative"})
+			return false
+		} else {
+			*updateFields.TimeAllocation *= 1000 * 1000
+		}
 	}
-	updateParams.TimeAllocation *= 1000 * 1000
 	return true
 }
 
@@ -117,14 +111,14 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 	}
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
-	updateParams := bson.M{"has_been_reordered": true}
+	updateFields := bson.M{"has_been_reordered": true}
 	if IDOrdering != nil {
-		updateParams["id_ordering"] = *IDOrdering
+		updateFields["id_ordering"] = *IDOrdering
 	}
 	var IDTaskSection primitive.ObjectID
 	if IDTaskSectionHex != nil {
 		IDTaskSection, _ = primitive.ObjectIDFromHex(*IDTaskSectionHex)
-		updateParams["id_task_section"] = IDTaskSection
+		updateFields["id_task_section"] = IDTaskSection
 	} else {
 		IDTaskSection = task.IDTaskSection
 	}
@@ -136,7 +130,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 			{"_id": taskID},
 			{"user_id": userID},
 		}},
-		bson.M{"$set": updateParams},
+		bson.M{"$set": updateFields},
 	)
 	if err != nil {
 		log.Printf("failed to update task in db: %v", err)
@@ -221,16 +215,7 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	return nil
 }
 
-func UpdateTaskTimeDuration(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *UpdateParams, timeDuration int) bool {
-	if timeDuration < 0 {
-		c.JSON(400, gin.H{"detail": "Time duration cannot be negative"})
-		return false
-	}
-	updateParams.TimeAllocation = int64(timeDuration * 1000 * 1000)
-	return true
-}
-
-func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateParams *UpdateParams, task *database.Task) {
+func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields, task *database.Task) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -248,7 +233,7 @@ func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID prim
 			{"_id": taskID},
 			{"user_id": userID},
 		}},
-		bson.M{"$set": updateParams},
+		bson.M{"$set": updateFields},
 	)
 	if err != nil {
 		log.Printf("failed to update internal DB: %v", err)
