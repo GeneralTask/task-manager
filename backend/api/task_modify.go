@@ -57,7 +57,7 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
-	updateTask := false
+	updateTaskInDB := false
 
 	// handle edit fields
 	// check if all edit fields are empty
@@ -81,7 +81,7 @@ func (api *API) TaskModify(c *gin.Context) {
 			return
 		}
 
-		updateTask = true
+		updateTaskInDB = true
 	}
 
 	// handle reorder task
@@ -93,14 +93,14 @@ func (api *API) TaskModify(c *gin.Context) {
 	}
 	// handle mark complete
 	if modifyParams.IsCompleted != nil {
-		err = MarkTaskComplete(api, c, taskID, userID, task, modifyParams.IsCompleted)
+		err = MarkTaskComplete(api, c, taskID, userID, task, *modifyParams.IsCompleted)
 		if err != nil {
 			return
 		}
-		updateTask = true
+		updateTaskInDB = true
 	}
 
-	if updateTask {
+	if updateTaskInDB {
 		UpdateTask(api, c, taskID, userID, &modifyParams.TaskChangeableFields, task)
 	}
 
@@ -117,7 +117,7 @@ func ValidateFields(c *gin.Context, updateFields *database.TaskChangeableFields)
 			c.JSON(400, gin.H{"detail": "Time duration cannot be negative"})
 			return false
 		} else {
-			*updateFields.TimeAllocation *= 1000 * 1000
+			*updateFields.TimeAllocation *= constants.NANOSECONDS_IN_SECOND
 		}
 	}
 	return true
@@ -209,8 +209,8 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 	return &task, nil
 }
 
-func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, task *database.Task, isCompleted *bool) error {
-	if !*isCompleted {
+func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, task *database.Task, isCompleted bool) error {
+	if !isCompleted {
 		c.JSON(400, gin.H{"detail": "Tasks can only be marked as complete."})
 		return errors.New("tasks can only be marked as complete")
 	}
