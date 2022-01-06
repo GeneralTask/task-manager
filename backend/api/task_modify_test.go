@@ -300,16 +300,6 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.Equal(t, false, task.IsCompleted)
 	})
 
-	// t.Run("Mark complete and edit fields success", func(t *testing.T) {
-	// bytes.NewBuffer([]byte(`{
-	// 	"time_duration": 20,
-	// 	"due_date": "`+dueDate.Format(time.RFC3339)+`",
-	// 	"title": "New Title",
-	// 	"body": "New Body",
-	// 	"is_completed": true
-	// 	}`)))
-
-	// }
 	t.Run("Mark complete and edit fields success", func(t *testing.T) {
 		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
@@ -328,7 +318,8 @@ func TestMarkAsComplete(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&task)
-		assert.Equal(t, false, task.IsCompleted)
+		assert.NoError(t, err)
+		assert.Equal(t, true, task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -338,6 +329,7 @@ func TestMarkAsComplete(t *testing.T) {
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&task)
+		assert.NoError(t, err)
 		assert.Equal(t, true, task.IsCompleted)
 	})
 }
