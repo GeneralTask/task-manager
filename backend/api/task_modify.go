@@ -83,6 +83,16 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
+	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
+	if err != nil {
+		log.Printf("failed to load external task source: %v", err)
+		Handle500(c)
+		return
+	}
+
+	// update external task
+	taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.ID, &modifyParams.TaskChangeableFields)
+
 	UpdateTask(api, c, taskID, userID, &modifyParams.TaskChangeableFields, task)
 }
 
