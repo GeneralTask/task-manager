@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { AbortID, FetchStatusEnum, LogEvents } from '../../redux/enums'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
-import { setShowCreateTaskForm, setTasks, setTasksFetchStatus } from '../../redux/tasksPageSlice'
+import { setShowCalendarSidebar, setShowCreateTaskForm, setTasks, setTasksFetchStatus } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
@@ -96,12 +96,7 @@ export const useFetchTasks = (): () => Promise<void> => {
     return fetchTasks
 }
 
-interface Props {
-    calendarSidebarShown: boolean,
-    setCalendarSidebarShown: (b: boolean) => void,
-}
-
-function Tasks(props: Props): JSX.Element {
+function Tasks(): JSX.Element {
     const task_sections = useAppSelector((state) => state.tasks_page.tasks.task_sections)
     const fetchTasks = useFetchTasks()
     const fetchSettings = useFetchSettings()
@@ -124,11 +119,7 @@ function Tasks(props: Props): JSX.Element {
     return (
         <TasksContentContainer>
             <TopBanner>
-                {!props.calendarSidebarShown &&
-                    <ExpandCollapse
-                        direction="left"
-                        onClick={() => props.setCalendarSidebarShown(true)}
-                    />}
+                <CollapseCalendarSidebar />
             </TopBanner>
             <Header>
                 <HeaderText>
@@ -141,6 +132,18 @@ function Tasks(props: Props): JSX.Element {
         </TasksContentContainer>
     )
 }
+
+const CollapseCalendarSidebar = React.memo(() => {
+    const dispatch = useAppDispatch()
+    const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
+    if (!calendarSidebarShown) {
+        return <ExpandCollapse
+            direction="left"
+            onClick={() => dispatch(setShowCalendarSidebar(true))}
+        />
+    }
+    else return <></>
+})
 
 function CreateNewTaskButton(): JSX.Element {
     const { showButton } = useAppSelector(state => ({
@@ -169,18 +172,12 @@ function CreateNewTaskButton(): JSX.Element {
 }
 
 export default function TasksPage(): JSX.Element {
-    const [calendarSidebarShown, setCalendarSidebarShown] = useState<boolean>(true)
-
     return (
         <TasksPageContainer>
             <Navbar currentPage={NavbarPages.TASKS_PAGE} />
-            <Tasks
-                calendarSidebarShown={calendarSidebarShown}
-                setCalendarSidebarShown={setCalendarSidebarShown}
-            />
-            {calendarSidebarShown && <CalendarSidebar
-                setCalendarSidebarShown={setCalendarSidebarShown}
-            />}
+            <Tasks />
+            <CalendarSidebar />
         </TasksPageContainer>
     )
 }
+

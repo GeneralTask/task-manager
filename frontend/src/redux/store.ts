@@ -7,9 +7,6 @@ export const store = configureStore({
         tasks_page: tasksPageReducer,
         settings_page: settingsReducer,
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-        serializableCheck: false
-    }),
     devTools: true,
 })
 

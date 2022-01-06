@@ -1,14 +1,17 @@
 import React, { useCallback } from 'react'
 import { flex } from '../../helpers/styles'
+import { useAppDispatch } from '../../redux/hooks'
+import { setShowCalendarSidebar } from '../../redux/tasksPageSlice'
 import ExpandCollapse from '../common/ExpandCollapse'
 import { CalendarHeaderContainer, HoverButton, Icon, DateDisplay } from './CalendarHeader-styles'
 
 interface CalendarHeaderProps {
     date: Date,
     setDate: React.Dispatch<React.SetStateAction<Date>>,
-    setIsShown: (b: boolean) => void,
 }
-export default function CalendarHeader({ date, setDate, setIsShown }: CalendarHeaderProps): JSX.Element {
+export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
+    const dispatch = useAppDispatch()
+
     const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' })
     const dayNum = date.getDate()
     const month = date.toLocaleString('default', { month: 'short' })
@@ -27,7 +30,7 @@ export default function CalendarHeader({ date, setDate, setIsShown }: CalendarHe
     return (
         <CalendarHeaderContainer>
             <flex.flex>
-                <ExpandCollapse direction="right" onClick={() => setIsShown(false)} />
+                <ExpandCollapse direction="right" onClick={() => dispatch(setShowCalendarSidebar(false))} />
                 <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay>
             </flex.flex>
             <flex.flex>
