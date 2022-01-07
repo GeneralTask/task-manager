@@ -1,21 +1,16 @@
 import React, { useState } from 'react'
-import styled from 'styled-components'
-import { EVENT_CONTAINER_COLOR } from '../../helpers/styles'
+import { useAppSelector } from '../../redux/hooks'
 import CalendarEvents from './CalendarEvents'
 import CalendarHeader from './CalendarHeader'
+import { CalendarSidebarContainer } from './CalendarHeader-styles'
 
-const CalendarSidebarContainer = styled.div`
-    min-width: 475px;
-    height: 100%;
-    background-color: ${EVENT_CONTAINER_COLOR};
-    box-shadow: -5px 0px 20px 5px whitesmoke;
-    display: flex;
-    flex-direction: column;
-    overflow: scroll;
-`
 export default function CalendarSidebar(): JSX.Element {
     const [date, setDate] = useState<Date>(new Date())
+    const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
 
+    if (!calendarSidebarShown) {
+        return <></>
+    }
     return (
         <CalendarSidebarContainer>
             <CalendarHeader date={date} setDate={setDate} />

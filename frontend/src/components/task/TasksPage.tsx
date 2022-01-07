@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { AbortID, FetchStatusEnum, LogEvents } from '../../redux/enums'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
-import { setShowCreateTaskForm, setTasks, setTasksFetchStatus } from '../../redux/tasksPageSlice'
+import { setShowCalendarSidebar, setShowCreateTaskForm, setTasks, setTasksFetchStatus } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
@@ -14,6 +14,7 @@ import CalendarSidebar from '../calendar/CalendarSidebar'
 import { useDragDropManager } from 'react-dnd'
 import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
 import { makeAuthorizedRequest, useInterval, logEvent } from '../../helpers/utils'
+import ExpandCollapse from '../common/ExpandCollapse'
 
 const TasksPageContainer = styled.div`
     display:flex;
@@ -23,7 +24,6 @@ const TasksContentContainer = styled.div`
     flex: 1;
     display: flex;
     overflow: scroll;
-    padding-top: 50px;
     flex-direction: column;
     background-image: linear-gradient(${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
     min-width: 600px;
@@ -56,6 +56,13 @@ const NewTaskButton = styled.button`
 const PlusImage = styled.img`
     height: 100%;
     width: 100%;
+`
+const TopBanner = styled.div`
+    display: flex;
+    justify-content: end;
+    /* width: 100%; */
+    margin-top: 24px;
+    padding-right: 24px;    
 `
 
 export const useFetchTasks = (): () => Promise<void> => {
@@ -111,6 +118,9 @@ function Tasks(): JSX.Element {
     )
     return (
         <TasksContentContainer>
+            <TopBanner>
+                <CollapseCalendarSidebar />
+            </TopBanner>
             <Header>
                 <HeaderText>
                     Tasks
@@ -122,6 +132,18 @@ function Tasks(): JSX.Element {
         </TasksContentContainer>
     )
 }
+
+const CollapseCalendarSidebar = React.memo(() => {
+    const dispatch = useAppDispatch()
+    const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
+    if (!calendarSidebarShown) {
+        return <ExpandCollapse
+            direction="left"
+            onClick={() => dispatch(setShowCalendarSidebar(true))}
+        />
+    }
+    else return <></>
+})
 
 function CreateNewTaskButton(): JSX.Element {
     const { showButton } = useAppSelector(state => ({
@@ -158,3 +180,4 @@ export default function TasksPage(): JSX.Element {
         </TasksPageContainer>
     )
 }
+
