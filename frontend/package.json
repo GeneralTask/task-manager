@@ -1,7 +1,18 @@
 {
-  "name": "frontend",
+  "name": "generaltask",
+  "main": "public/main.js",
+  "author": "General Task",
   "version": "0.1.0",
   "private": true,
+  "build": {
+    "appId": "com.electron.generaltask",
+    "productName": "General Task",
+    "copyright": "Copyright © 2022 General Task, Inc. ",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dmg"
+    }
+  },
   "dependencies": {
     "@cloudflare/wrangler": "^1.16.1",
     "@reduxjs/toolkit": "^1.6.2",
@@ -34,14 +45,16 @@
     "redux": "^4.1.0",
     "sanitize-html": "^2.6.0",
     "styled-components": "^5.3.3",
-    "typescript": "^4.0.7",
+    "typescript": "~4.0.5",
     "web-vitals": "^0.2.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron": "electron .\\",
+    "electron-dev": "APP_DEV=true electron .\\"
   },
   "eslintConfig": {
     "extends": [
@@ -68,6 +81,7 @@
     "@types/react-router-dom": "^5.1.7",
     "@types/sanitize-html": "^2.6.0",
     "@types/styled-components": "^5.1.15",
+    "electron": "^16.0.5",
     "eslint": "^7.27.0",
     "eslint-plugin-unused-imports": "^1.1.1",
     "json-server": "^0.16.3",
