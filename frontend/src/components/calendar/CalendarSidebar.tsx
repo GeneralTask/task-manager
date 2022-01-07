@@ -1,20 +1,40 @@
-import React, { useState } from 'react'
-import { useAppSelector } from '../../redux/hooks'
+import React, { useCallback, useEffect, useState } from 'react'
+import { dateIsToday, useInterval } from '../../helpers/utils'
+
 import CalendarEvents from './CalendarEvents'
 import CalendarHeader from './CalendarHeader'
 import { CalendarSidebarContainer } from './CalendarHeader-styles'
+import { useAppSelector } from '../../redux/hooks'
 
-export default function CalendarSidebar(): JSX.Element {
+function Calendar(): JSX.Element {
     const [date, setDate] = useState<Date>(new Date())
-    const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
+    const [selectedDateIsToday, setSelectedDateIsToday] = useState<boolean>(true)
 
-    if (!calendarSidebarShown) {
-        return <></>
-    }
+    // keep track of when the selected date is supposed to be today
+    useEffect(() => {
+        setSelectedDateIsToday(dateIsToday(date))
+    }, [date])
+
+    // check if the selected date is supposed to be today, but it isn't  (e.g. we passed midnight)
+    useInterval(useCallback(() => {
+        if (selectedDateIsToday && !dateIsToday(date)) {
+            setDate(new Date())
+        }
+    }, [date, selectedDateIsToday]), 1, false)
+
     return (
         <CalendarSidebarContainer>
             <CalendarHeader date={date} setDate={setDate} />
-            <CalendarEvents date={date} />
+            <CalendarEvents date={date} isToday={selectedDateIsToday} />
         </CalendarSidebarContainer>
     )
+}
+
+// wrapper component for selector
+export default function CalendarSidebar(): JSX.Element {
+    const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
+    if (!calendarSidebarShown) {
+        return <></>
+    }
+    else return <Calendar />
 }

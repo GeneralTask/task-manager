@@ -9,10 +9,10 @@ import {
 } from '../constants'
 import { useEffect, useState } from 'react'
 
+import { AbortID } from '../redux/enums'
 import Cookies from 'js-cookie'
 import { LogEvents } from '../redux/enums'
 import _ from 'lodash'
-import { AbortID } from '../redux/enums'
 
 // This invalidates the cookie on the frontend
 export const logout = async (): Promise<void> => {
@@ -142,12 +142,12 @@ export function sectionDropReorder(staleTaskSections: TTaskSection[], newSection
 }
 
 // duration in seconds
-export function useInterval(func: () => void, duration: number): void {
+export function useInterval(func: () => void, seconds: number, callFuncImmediately = true): void {
     useEffect(() => {
-        func()
-        const interval = setInterval(func, duration * 1000)
+        if (callFuncImmediately) func()
+        const interval = setInterval(func, seconds * 1000)
         return () => clearInterval(interval)
-    }, [func, duration])
+    }, [func, seconds])
 }
 
 export function logEvent(event_type: LogEvents): void {
@@ -156,4 +156,9 @@ export function logEvent(event_type: LogEvents): void {
         method: 'POST',
         body: JSON.stringify({ event_type }),
     })
+}
+
+export function dateIsToday(date: Date): boolean {
+    const today = new Date()
+    return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()
 }
