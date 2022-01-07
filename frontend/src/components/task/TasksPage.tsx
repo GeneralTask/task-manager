@@ -173,11 +173,13 @@ function CreateNewTaskButton(): JSX.Element {
 }
 
 export default function TasksPage(): JSX.Element {
+    const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
+
     return (
         <TasksPageContainer>
             <Navbar currentPage={NavbarPages.TASKS_PAGE} />
             <Tasks />
-            <CalendarSidebar />
+            {calendarSidebarShown && <CalendarSidebar />}
         </TasksPageContainer>
     )
 }
