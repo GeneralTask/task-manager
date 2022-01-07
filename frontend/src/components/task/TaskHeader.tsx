@@ -2,7 +2,7 @@ import './Task.css'
 import { Action, Dispatch } from '@reduxjs/toolkit'
 import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
 import React, { useCallback } from 'react'
-import { collapseBody, expandBody, removeTaskByID } from '../../redux/tasksPageSlice'
+import { collapseBody, expandBody, removeTaskByID, showDatePicker } from '../../redux/tasksPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'
 import { TTask } from '../../helpers/types'
@@ -24,6 +24,7 @@ import {
   ButtonRight
 } from './TaskHeader-style'
 import { LogEvents } from '../../redux/enums'
+import { DatePicker } from '../calendar/DatePicker'
 
 function Domino(): JSX.Element {
   return (
@@ -36,6 +37,7 @@ interface TaskHeaderProps {
   task: TTask,
   dragDisabled: boolean,
   isExpanded: boolean,
+  isDatePickerVisible: boolean,
 }
 
 const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: TaskHeaderProps, ref) => {
@@ -83,6 +85,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         <Title isExpanded={props.isExpanded}>{props.task.title}</Title>
       </HeaderLeft>
       <HeaderRight>
+        <DatePicker />
         <ButtonRight src={EXPAND_ICON} onClick={() => {
           dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
         }} />
@@ -92,7 +95,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         }} />
         <ButtonRight src={BLANK_CALENDAR_ICON} onClick={() => {
           // TODO: allow editing of task due date, blocker backend API
-          editDueDate(props.task.id, dispatch, fetchTasks)
+          editDueDate(props.task.id, dispatch)
         }} />
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
@@ -123,8 +126,9 @@ const done = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTa
   }
 }
 
-const editDueDate = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {
+const editDueDate = (task_id: string, dispatch: Dispatch<Action<string>>) => {
   // TODO: show date picker
+  dispatch(showDatePicker(task_id))
 }
 
 const editTimeEstimate = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {

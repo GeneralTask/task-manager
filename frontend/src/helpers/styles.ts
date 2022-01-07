@@ -14,11 +14,13 @@ export const flex = {
   centerXY: styled.div`display: flex; justify-content: space-between; align-items: center`,
 }
 
-export const TEXT_GRAY = '#969696'
 export const TEXT_BLACK = '#000000'
-export const TEXT_WHITE = '#ffffff'
-export const TEXT_BLACK_HOVER = '#464646'
+export const TEXT_DARKGRAY = '#333333'
+export const TEXT_GRAY = '#969696'
 export const TEXT_LIGHTGRAY = '#CCCCCC'
+export const TEXT_WHITE = '#ffffff'
+
+export const TEXT_BLACK_HOVER = '#464646'
 
 export const BACKGROUND_PRIMARY = '#007bff'
 export const BACKGROUND_PRIMARY_HOVER = '#0069d9'

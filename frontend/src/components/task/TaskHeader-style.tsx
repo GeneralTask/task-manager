@@ -20,6 +20,10 @@ export const ButtonRight = styled.img`
   flex-grow: 0;
   margin-right: 12px;
   cursor: pointer;
+  &:hover {
+    background-color: ${BACKGROUND_HOVER};
+  }
+  border-radius: 4px;
 `
 export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
   position: relative;
@@ -29,9 +33,9 @@ export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, sho
   justify-content: space-between;
   align-items: center;
   cursor: ${props => props.hoverEffect ? 'pointer' : 'inherit'};
-  &:hover {
-    background-color: ${BACKGROUND_HOVER};
-  }
+  // &:hover {
+  //   background-color: ${BACKGROUND_HOVER};
+  // }
   min-height: 50px;
 `
 export const HeaderLeft = styled.div`
