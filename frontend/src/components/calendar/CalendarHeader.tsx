@@ -60,7 +60,9 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                 <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay>
             </flex.flex>
             <flex.flex>
-                <HoverButton><Icon src="images/CalendarBlank.svg" alt="Choose a date" /></HoverButton>
+                <HoverButton onClick={() => setDate(new Date())}>
+                    <Icon src="images/CalendarBlank.svg" alt="Today" />
+                </HoverButton>
                 <HoverButton onClick={selectPreviousDay}>
                     <Icon src="images/CaretLeft.svg" alt="Show previous day" />
                 </HoverButton>
