@@ -14,11 +14,13 @@
       "build/**/*",
       "node_modules/**/*"
     ],
+    "afterSign": "./public/notarize.js",
     "icon": "build/icon.png",
     "mac": {
       "category": "public.app-category.productivity",
       "target": "dmg",
       "hardenedRuntime": true,
+      "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist"
     }
@@ -37,6 +39,7 @@
     "chokidar": "^3.5.1",
     "chrono-node": "^2.3.4",
     "electron-is-dev": "^2.0.0",
+    "electron-notarize": "^1.1.1",
     "humanize-duration": "^3.27.0",
     "js-cookie": "^2.2.1",
     "lodash": "^4.17.21",
