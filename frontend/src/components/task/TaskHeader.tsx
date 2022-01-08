@@ -74,7 +74,6 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           </DragHandler>
         }
         {
-          !props.isExpanded &&
           props.task.source.is_completable &&
           <DoneButton src={DONE_BUTTON} onClick={onDoneButtonClick} />
         }
