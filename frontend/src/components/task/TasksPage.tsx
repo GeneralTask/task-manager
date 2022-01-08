@@ -1,20 +1,21 @@
-import React, { useCallback, useEffect } from 'react'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { AbortID, FetchStatusEnum, LogEvents } from '../../redux/enums'
-import TaskSection from './TaskSection'
-import TaskStatus from './TaskStatus'
+import React, { useCallback, useEffect } from 'react'
+import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
+import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
+import { logEvent, makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import { setShowCalendarSidebar, setShowCreateTaskForm, setTasks, setTasksFetchStatus } from '../../redux/tasksPageSlice'
-import styled from 'styled-components'
-import { useFetchLinkedAccounts } from '../settings/Accounts'
-import { useFetchSettings } from '../settings/Preferences'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+
+import CalendarSidebar from '../calendar/CalendarSidebar'
+import ExpandCollapse from '../common/ExpandCollapse'
 import Navbar from '../Navbar'
 import { NavbarPages } from '../../helpers/types'
-import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
-import CalendarSidebar from '../calendar/CalendarSidebar'
+import TaskSection from './TaskSection'
+import TaskStatus from './TaskStatus'
+import styled from 'styled-components'
 import { useDragDropManager } from 'react-dnd'
-import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
-import { makeAuthorizedRequest, useInterval, logEvent } from '../../helpers/utils'
-import ExpandCollapse from '../common/ExpandCollapse'
+import { useFetchLinkedAccounts } from '../settings/Accounts'
+import { useFetchSettings } from '../settings/Preferences'
 
 const TasksPageContainer = styled.div`
     display:flex;
@@ -172,12 +173,13 @@ function CreateNewTaskButton(): JSX.Element {
 }
 
 export default function TasksPage(): JSX.Element {
+    const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
+
     return (
         <TasksPageContainer>
             <Navbar currentPage={NavbarPages.TASKS_PAGE} />
             <Tasks />
-            <CalendarSidebar />
+            {calendarSidebarShown && <CalendarSidebar />}
         </TasksPageContainer>
     )
 }
-
