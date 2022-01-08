@@ -90,6 +90,7 @@ export const useFetchTasks = (): () => Promise<void> => {
                 dispatch(setTasks(resj))
             }
         } catch (e) {
+            dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
             console.log({ e })
         }
     }, [])

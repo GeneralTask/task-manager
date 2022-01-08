@@ -45,14 +45,19 @@ interface Props {
 export const useFetchSettings = (): () => Promise<void> => {
     const dispatch = useAppDispatch()
     return useCallback(async () => {
-        const response = await makeAuthorizedRequest({
-            url: SETTINGS_URL,
-            method: 'GET',
-            abortID: AbortID.SETTINGS,
-        })
-        if (response.ok) {
-            const settings = await response.json()
-            dispatch(setSettings(settings))
+        try {
+            const response = await makeAuthorizedRequest({
+                url: SETTINGS_URL,
+                method: 'GET',
+                abortID: AbortID.SETTINGS,
+            })
+            if (response.ok) {
+                const settings = await response.json()
+                dispatch(setSettings(settings))
+            }
+        }
+        catch (e) {
+            console.log({ e })
         }
     }, [dispatch])
 }

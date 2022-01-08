@@ -33,22 +33,23 @@ export const useFetchLinkedAccounts = (
 ): () => Promise<void> => {
 	const dispatch = useAppDispatch()
 	return useCallback(async () => {
-		setIsLoading(true)
-		const response = await makeAuthorizedRequest({
-			url: LINKED_ACCOUNTS_URL,
-			method: 'GET',
-			abortID: AbortID.LINKED_ACCOUNTS,
-		})
-		if (response.ok) {
-			try {
+		try {
+			setIsLoading(true)
+			const response = await makeAuthorizedRequest({
+				url: LINKED_ACCOUNTS_URL,
+				method: 'GET',
+				abortID: AbortID.LINKED_ACCOUNTS,
+			})
+			if (response.ok) {
 				const accounts: TLinkedAccount[] = await response.json()
 				dispatch(setLinkedAccounts(accounts))
 			}
-			catch (e) {
-				console.log({ e })
-			}
+		} catch (e) {
+			console.log({ e })
+		} finally {
+			setIsLoading(false)
 		}
-		setIsLoading(false)
+
 	}, [dispatch, setIsLoading])
 }
 
