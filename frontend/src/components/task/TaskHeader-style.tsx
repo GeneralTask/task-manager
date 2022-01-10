@@ -106,11 +106,10 @@ export const Icon = styled.img`
 export const Title = styled.div<{ isExpanded: boolean }>`
   color:${TEXT_BLACK};
   text-overflow: ellipsis;
+  user-select: text;
   ${({ isExpanded }) => isExpanded ? `
     word-wrap: break-word;
     min-width: 0px;
-    flex-basis: auto;
-    flex-grow: 1;
     margin: 10px 15px`: `
     white-space: nowrap;
     overflow: hidden;

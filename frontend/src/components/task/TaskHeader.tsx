@@ -69,7 +69,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
       <HeaderLeft>
         {
           !props.dragDisabled &&
-          <DragHandler ref={ref}>
+          <DragHandler ref={ref} onClick={(e) => e.stopPropagation()}>
             <Domino />
           </DragHandler>
         }
@@ -78,7 +78,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           <DoneButton src={DONE_BUTTON} onClick={onDoneButtonClick} />
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
-        <Title isExpanded={props.isExpanded}>{props.task.title}</Title>
+        <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.task.title} </Title>
       </HeaderLeft>
       <HeaderRight>
         <DeadlineIndicator>
