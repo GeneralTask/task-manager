@@ -9,12 +9,15 @@ export const PickerContainer = styled.div`
     width: 250px;
     height: 350px;
     margin: 0 auto;
-    position: relative;
-    color: black;
+    position: absolute;
+    background-color: white;
     border-radius: 10px;
     // border: 1px solid black;
     margin: 10px;
     box-shadow: 0 0 5px lightgray;
+    z-index: 1;
+    top: 50%;
+    left: 50%;
 `
 
 export const TopNav = styled.div`

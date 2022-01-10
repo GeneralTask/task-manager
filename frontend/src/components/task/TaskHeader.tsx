@@ -87,9 +87,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         <Title isExpanded={props.isExpanded}>{props.task.title}</Title>
       </HeaderLeft>
       <HeaderRight>
-        {
-          date_picker === props.task.id && <DatePicker />
-        }
+        
         <ButtonRight src={EXPAND_ICON} onClick={(e) => {
           e.stopPropagation()
           dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
@@ -111,6 +109,9 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           </CalendarIconContainer>
         </DeadlineIndicator>
       </HeaderRight >
+      {
+        date_picker === props.task.id && <DatePicker />
+      }
     </TaskHeaderContainer >
   )
 })
