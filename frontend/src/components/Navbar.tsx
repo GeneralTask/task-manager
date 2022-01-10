@@ -55,14 +55,34 @@ interface NavbarProps {
 const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
     const linkElements: {
         page: NavbarPages,
-        link: ReactElement<Link>
+        link: ReactElement<typeof Link>
     }[] = [
             {
-                page: NavbarPages.TASKS_PAGE,
+                page: NavbarPages.TODAY_PAGE,
                 link: (
-                    <NavbarLink to={LANDING_PATH}>
-                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.TASKS_PAGE}>
-                            Tasks
+                    <NavbarLink to={'/tasks/today'}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.TODAY_PAGE}>
+                            Today
+                        </NavbarLinkButton>
+                    </NavbarLink>
+                ),
+            },
+            {
+                page: NavbarPages.BLOCKED_PAGE,
+                link: (
+                    <NavbarLink to={'/tasks/blocked'}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BLOCKED_PAGE}>
+                            Blocked
+                        </NavbarLinkButton>
+                    </NavbarLink>
+                ),
+            },
+            {
+                page: NavbarPages.BACKLOG_PAGE,
+                link: (
+                    <NavbarLink to={'/tasks/backlog'}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BACKLOG_PAGE}>
+                            Backlog
                         </NavbarLinkButton>
                     </NavbarLink>
                 ),
@@ -88,7 +108,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
             }
         ]
     const navbarJSXElements = linkElements.map(element => (
-        <NavbarListItem isCurrentPage={currentPage === element.page}>
+        <NavbarListItem key={element.page} isCurrentPage={currentPage === element.page}>
             {element.link}
         </NavbarListItem>
     ))

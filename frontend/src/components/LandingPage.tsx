@@ -3,9 +3,9 @@ import React, { useState } from 'react'
 import { getAuthToken, getHeaders } from '../helpers/utils'
 import GLButton from './login/GoogleLoginButton'
 import { device, TEXT_GRAY } from '../helpers/styles'
-import TasksPage from './task/TasksPage'
 import styled from 'styled-components'
 import LegacyHeader from './Header'
+import { Navigate } from 'react-router-dom'
 
 const Container = styled.div`
   margin: auto;
@@ -82,7 +82,7 @@ enum WaitlistState {
 
 const LandingPage: React.FC = () => {
   if (getAuthToken()) {
-    return <TasksPage />
+    return <Navigate to='/tasks/today' />
   }
   return (
     <div>

@@ -16,6 +16,7 @@ import styled from 'styled-components'
 import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
+import { Navigate, useParams } from 'react-router-dom'
 
 const TasksPageContainer = styled.div`
     display:flex;
@@ -98,8 +99,23 @@ export const useFetchTasks = (): () => Promise<void> => {
     return fetchTasks
 }
 
-function Tasks(): JSX.Element {
+interface TasksProps {
+    currentPage: NavbarPages
+}
+function Tasks({ currentPage }: TasksProps): JSX.Element {
     const task_sections = useAppSelector((state) => state.tasks_page.tasks.task_sections)
+    const [currentSection, headerText] = (() => {
+        switch (currentPage) {
+            case NavbarPages.TODAY_PAGE:
+                return [task_sections[0], 'Today']
+            case NavbarPages.BACKLOG_PAGE:
+                return [task_sections[1], 'Backlog']
+            case NavbarPages.BLOCKED_PAGE:
+                return [task_sections[2], 'Blocked']
+            default:
+                return [task_sections[0], 'Today']
+        }
+    })()
     const fetchTasks = useFetchTasks()
     const fetchSettings = useFetchSettings()
     const fetchLinkedAccounts = useFetchLinkedAccounts()
@@ -111,13 +127,11 @@ function Tasks(): JSX.Element {
 
     useInterval(fetchTasks, TASKS_FETCH_INTERVAL)
 
-    const TaskSectionElements = task_sections.map(
-        (task_section, index) => <TaskSection
-            task_section={task_section}
-            task_section_index={index}
-            key={index}
-        />
-    )
+    const TaskSectionElement = <TaskSection
+        task_section={currentSection}
+        task_section_index={0}
+    />
+
     return (
         <TasksContentContainer>
             <TopBanner>
@@ -125,12 +139,12 @@ function Tasks(): JSX.Element {
             </TopBanner>
             <Header>
                 <HeaderText>
-                    Tasks
+                    {headerText}
                 </HeaderText>
                 <CreateNewTaskButton />
             </Header>
             <TaskStatus />
-            {TaskSectionElements}
+            {TaskSectionElement}
         </TasksContentContainer>
     )
 }
@@ -175,11 +189,13 @@ function CreateNewTaskButton(): JSX.Element {
 
 export default function TasksPage(): JSX.Element {
     const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
-
+    const section = `${useParams().section}_page`
+    const currentPage = Object.values(NavbarPages).find(page => page === section)
+    if (currentPage == null) return <Navigate to='/' />
     return (
         <TasksPageContainer>
-            <Navbar currentPage={NavbarPages.TASKS_PAGE} />
-            <Tasks />
+            <Navbar currentPage={currentPage} />
+            <Tasks currentPage={currentPage} />
             {calendarSidebarShown && <CalendarSidebar />}
         </TasksPageContainer>
     )
