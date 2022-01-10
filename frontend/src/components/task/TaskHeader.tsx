@@ -24,7 +24,7 @@ import {
   ButtonRight
 } from './TaskHeader-style'
 import { LogEvents } from '../../redux/enums'
-import { DatePicker } from '../calendar/DatePicker'
+import DatePicker from '../calendar/DatePicker'
 
 function Domino(): JSX.Element {
   return (

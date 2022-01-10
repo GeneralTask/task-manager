@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { TEXT_DARKGRAY, DIVIDER_LIGHTGRAY } from '../../helpers/styles'
+import { TEXT_DARKGRAY, DIVIDER_LIGHTGRAY, ICON_HOVER } from '../../helpers/styles'
 
 
 
@@ -28,7 +28,7 @@ export const TopNav = styled.div`
     border-radius: 10px 10px 0 0;
 `
 
-export const MonthTable = styled.div`
+export const MonthContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -54,6 +54,21 @@ export const Icon = styled.img`
 
 export const MonthYearHeader = styled.div`
     font-size: 16px;
-    font-weight: 600;
     color: ${TEXT_DARKGRAY};
+`
+
+export const HoverButton = styled.button`
+    background-color: transparent;
+    cursor: pointer;
+    height: fit-content;
+    width: fit-content;
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    &:hover {
+        background: ${ICON_HOVER};
+    }
 `
