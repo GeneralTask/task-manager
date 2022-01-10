@@ -35,6 +35,48 @@ export default function DatePicker(): JSX.Element {
         const temp_date = new Date(date.getFullYear(), date.getMonth() + 1, 0)
         return temp_date.getDay()
     }
+
+    const getDays = (amount: number, startDay: number): JSX.Element => {
+        const month = date.getMonth()
+        const year = date.getFullYear()
+
+        return (
+            <>
+                {[...Array(amount)].map((i, index) => {
+                    const day = index + startDay
+                    const tmpDate = new Date(year, month, day)
+                    return (
+                        <>
+                            <td key={i}>
+                                <HoverButton onClick={() => setDate(tmpDate)}>
+                                    {tmpDate.getDate()}
+                                </HoverButton>
+                            </td>
+                            {
+                                tmpDate.getDay() === 6 && <tr key={index}></tr>
+                            }
+                        </>
+                    )
+                })}
+            </>
+        )
+    }
+
+    const getAllDays = (): JSX.Element => {
+        return (
+            <>
+                {
+                    getDays(firstDayOfMonth(), -firstDayOfMonth()+1)
+                }
+                {
+                    getDays(daysInMonth(), 1)
+                }
+                {
+                    getDays(6-lastDayOfMonth(), daysInMonth()+1)
+                }
+            </>
+        )
+    }
         
 
     const monthTable = (): JSX.Element => {
@@ -55,58 +97,7 @@ export default function DatePicker(): JSX.Element {
                 </thead>
                 <tbody>
                     {
-                        [...Array(firstDayOfMonth())].map((i, index) => {
-                            const day = index - firstDayOfMonth() + 1
-                            const tmpDate = new Date(year, month, day)
-                            return (
-                                <>
-                                    <td key={i}>
-                                        <HoverButton onClick={() => setDate(tmpDate)}>
-                                            {tmpDate.getDate()}
-                                        </HoverButton>
-                                    </td>
-                                    {
-                                        tmpDate.getDay() === 6 && <tr key={index}></tr>
-                                    }
-                                </>
-                            )
-                        })
-                    }
-                    {
-                        [...Array(daysInMonth())].map((i, index) => {
-                            const day = index + 1
-                            const tmpDate = new Date(year, month, day)
-                            return (
-                                <>
-                                    <td key={i}>
-                                        <HoverButton onClick={() => setDate(tmpDate)}>
-                                            {tmpDate.getDate()}
-                                        </HoverButton>
-                                    </td>
-                                    {
-                                        tmpDate.getDay() === 6 && <tr key={index}></tr>
-                                    }
-                                </>
-                            )
-                        })
-                    }
-                    {
-                        [...Array(6-lastDayOfMonth())].map((i, index) => {
-                            const day = index + daysInMonth() + 1
-                            const tmpDate = new Date(year, month, day)
-                            return (
-                                <>
-                                    <td key={i}>
-                                        <HoverButton onClick={() => setDate(tmpDate)}>
-                                            {tmpDate.getDate()}
-                                        </HoverButton>
-                                    </td>
-                                    {
-                                        tmpDate.getDay() === 6 && <tr key={index}></tr>
-                                    }
-                                </>
-                            )
-                        })
+                        getAllDays()
                     }
                 </tbody>
             </table>
