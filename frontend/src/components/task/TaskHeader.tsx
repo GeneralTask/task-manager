@@ -90,14 +90,17 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         {
           date_picker === props.task.id && <DatePicker />
         }
-        <ButtonRight src={EXPAND_ICON} onClick={() => {
+        <ButtonRight src={EXPAND_ICON} onClick={(e) => {
+          e.stopPropagation()
           dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
         }} />
-        <ButtonRight src={TIME_ICON} onClick={() => {
+        <ButtonRight src={TIME_ICON} onClick={(e) => {
+          e.stopPropagation()
           // TODO: allow editing of task time estimate, blocker backend API
           editTimeEstimate(props.task.id, dispatch, fetchTasks)
         }} />
-        <ButtonRight src={BLANK_CALENDAR_ICON} onClick={() => {
+        <ButtonRight src={BLANK_CALENDAR_ICON} onClick={(e) => {
+          e.stopPropagation()
           // TODO: allow editing of task due date, blocker backend API
           editDueDate(props.task.id, date_picker === props.task.id, dispatch)
         }} />
@@ -132,7 +135,6 @@ const done = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTa
 
 const editDueDate = (task_id: string, open: boolean, dispatch: Dispatch<Action<string>>) => {
   dispatch(open ? hideDatePicker() : showDatePicker(task_id))
-  // dispatch(date_picker ? hideDatePicker() : showDatePicker(task_id))
 }
 
 const editTimeEstimate = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {
