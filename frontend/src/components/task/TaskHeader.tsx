@@ -100,8 +100,12 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         <ButtonRight src={BLANK_CALENDAR_ICON} onClick={(e) => {
           e.stopPropagation()
           // TODO: allow editing of task due date, blocker backend API
-          editDueDate(props.task.id, date_picker === props.task.id, dispatch)
+          dispatch(date_picker === props.task.id ? hideDatePicker() : showDatePicker(props.task.id))
+          
         }} />
+        {
+          date_picker === props.task.id && <DatePicker task_id={props.task.id} />
+        }
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
           <CalendarIconContainer>
@@ -109,9 +113,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           </CalendarIconContainer>
         </DeadlineIndicator>
       </HeaderRight >
-      {
-        date_picker === props.task.id && <DatePicker />
-      }
+      
     </TaskHeaderContainer >
   )
 })
@@ -132,10 +134,6 @@ const done = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTa
   } catch (e) {
     console.log({ e })
   }
-}
-
-const editDueDate = (task_id: string, open: boolean, dispatch: Dispatch<Action<string>>) => {
-  dispatch(open ? hideDatePicker() : showDatePicker(task_id))
 }
 
 const editTimeEstimate = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {

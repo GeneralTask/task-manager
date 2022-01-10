@@ -1,12 +1,19 @@
-import React, {useCallback, useState} from 'react'
+import React, {Dispatch, useCallback, useState} from 'react'
+import { Action } from 'redux'
+import { TASKS_MODIFY_URL } from '../../constants'
+import { makeAuthorizedRequest } from '../../helpers/utils'
+import { useAppDispatch } from '../../redux/hooks'
+import { hideDatePicker } from '../../redux/tasksPageSlice'
+import { useFetchTasks } from '../task/TasksPage'
 import {BottomBar, PickerContainer, TopNav, MonthContainer, Icon, MonthYearHeader, HoverButton} from './DatePicker-style'
 
 
-// interface DatePickerProps {
-//     date: Date,
-//     setDate: React.Dispatch<React.SetStateAction<Date>>
-// }
-export default function DatePicker(): JSX.Element {
+interface DatePickerProps {
+    task_id: string
+}
+export default function DatePicker({task_id}: DatePickerProps): JSX.Element {
+    const dispatch = useAppDispatch()
+    const fetchTasks = useFetchTasks()
     
     const [date, setDate] = useState<Date>(new Date())
     const monthyear = date.toLocaleDateString('default', { month: 'long', year: 'numeric' }).toUpperCase()
@@ -48,7 +55,12 @@ export default function DatePicker(): JSX.Element {
                     return (
                         <>
                             <td key={i}>
-                                <HoverButton onClick={() => setDate(tmpDate)}>
+                                <HoverButton onClick={() => {
+                                        setDate(tmpDate)
+                                        // TODO: change date to tmpDate
+                                        editDueDate(task_id, tmpDate.toISOString(), dispatch, fetchTasks)
+                                    }
+                                }>
                                     {tmpDate.getDate()}
                                 </HoverButton>
                             </td>
@@ -124,3 +136,21 @@ export default function DatePicker(): JSX.Element {
         </PickerContainer>
     )
 }
+
+const editDueDate = async (task_id: string, due_date: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {
+    try {
+        dispatch(hideDatePicker())
+        const response = await makeAuthorizedRequest({
+            url: TASKS_MODIFY_URL + task_id + '/',
+            method: 'PATCH',
+            body: JSON.stringify({ 'due_date': due_date })
+        })
+  
+        if (!response.ok) {
+        throw new Error('PATCH /tasks/modify Edit Due Date failed: ' + response.text())
+        }
+        await fetchTasks()
+    } catch (e) {
+        console.log({ e })
+    }
+  }
