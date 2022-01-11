@@ -17,6 +17,7 @@ import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import { Navigate, useParams } from 'react-router-dom'
+import plust from ''
 
 const TasksPageContainer = styled.div`
     display:flex;
@@ -180,7 +181,7 @@ function CreateNewTaskButton(): JSX.Element {
             {showButton &&
                 <NewTaskButton
                     onClick={onClick}>
-                    <PlusImage src="images/plus.svg" alt="create new task"></PlusImage>
+                    <PlusImage src={`${process.env.PUBLIC_URL}/images/plus.svg`} alt="create new task" />
                 </NewTaskButton>
             }
         </BtnContainer>

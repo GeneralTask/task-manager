@@ -127,7 +127,7 @@ export default function TaskCreate(): JSX.Element {
                         </styles.SaveBtnDiv>
                     </styles.Form>
                     <styles.Side>
-                        <styles.CloseButton src="images/close.svg" onClick={closeCreateTaskForm} />
+                        <styles.CloseButton src={`${process.env.PUBLIC_URL}/images/close.svg`} onClick={closeCreateTaskForm} />
                     </styles.Side>
                 </styles.InnerContainer >
                 <styles.ErrorContainer>

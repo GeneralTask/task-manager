@@ -35,13 +35,13 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
             </flex.flex>
             <flex.flex>
                 <HoverButton onClick={() => setDate(new Date())}>
-                    <Icon src="images/CalendarBlank.svg" alt="Today" />
+                    <Icon src={`${process.env.PUBLIC_URL}/images/CalendarBlank.svg`} alt="Today" />
                 </HoverButton>
                 <HoverButton onClick={selectPreviousDay}>
-                    <Icon src="images/CaretLeft.svg" alt="Show previous day" />
+                    <Icon src={`${process.env.PUBLIC_URL}/images/CaretLeft.svg`} alt="Show previous day" />
                 </HoverButton>
                 <HoverButton onClick={selectNextDay}>
-                    <Icon src="images/CaretRight.svg" alt="Show next day" />
+                    <Icon src={`${process.env.PUBLIC_URL}/images/CaretRight.svg`} alt="Show next day" />
                 </HoverButton>
             </flex.flex>
         </CalendarHeaderContainer>
