@@ -135,6 +135,7 @@ export function navbarDropReorder(staleTaskSections: TTaskSection[], newSectionI
 
     const section = taskSections[newSectionIndex]
     if (section == null) return taskSections
+    if (section.tasks == null) section.tasks = []
     section.tasks.splice(0, 0, dragTaskObject)
 
     return updateOrderingIds(taskSections)
