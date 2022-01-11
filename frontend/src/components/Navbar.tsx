@@ -1,10 +1,14 @@
-import React, { ReactElement } from 'react'
+import React, { ReactElement, RefObject, useRef } from 'react'
+import { useDrop } from 'react-dnd'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import { LANDING_PATH, SETTINGS_PATH } from '../constants'
+import { LANDING_PATH, SETTINGS_PATH, TASKS_MODIFY_URL } from '../constants'
 import { UNSELECTED_NAVBAR_COLOR } from '../helpers/styles'
-import { NavbarPages } from '../helpers/types'
-import { logout } from '../helpers/utils'
+import { Indices, ItemTypes, NavbarPages, TTaskSection } from '../helpers/types'
+import { logout, makeAuthorizedRequest, navbarDropReorder } from '../helpers/utils'
+import { useAppDispatch, useAppSelector } from '../redux/hooks'
+import { setTasks } from '../redux/tasksPageSlice'
+import { useFetchTasks } from './task/TasksPage'
 
 const NavbarContainer = styled.div`
     flex: 0 0 275px;
@@ -12,6 +16,7 @@ const NavbarContainer = styled.div`
     color: white;
     height: 100%;
 `
+
 const NavbarList = styled.div`
     display: flex;
     flex-direction: column;
@@ -19,15 +24,17 @@ const NavbarList = styled.div`
     width: 100%;
     margin-top: 40px;
 `
-const NavbarListItem = styled.div<{ isCurrentPage: boolean }>`
+const NavbarItemDroppableDiv = styled.div<{ isCurrentPage: boolean }>`
     width: 92.5%;
-    display: flex;
-    background-color: ${props => props.isCurrentPage ? '#3F3F46' : 'inherit'};
     border-radius: 10px;
     margin-bottom: 10px;
+    background-color: ${props => props.isCurrentPage ? '#3F3F46' : 'inherit'};
     &:hover {
         background-color: #3F3F46;
     }
+`
+const NavbarListItem = styled.div`
+    display: flex;
 `
 const NavbarLink = styled(Link)`
     width: 100%;
@@ -46,7 +53,71 @@ const NavbarLinkButton = styled.button<{ isCurrentPage: boolean }>`
     padding-left: 10px;
     cursor: pointer;
 `
+interface NavbarItemDroppableContainerProps {
+    children: ReactElement<typeof NavbarElements>,
+    page: NavbarPages,
+    isCurrentPage: boolean,
+}
 
+const NavbarItemDroppableContainer = (props: NavbarItemDroppableContainerProps): JSX.Element => {
+    const fetchTasks = useFetchTasks()
+    const { taskSections } = useAppSelector(state => ({
+        taskSections: state.tasks_page.tasks.task_sections,
+    }))
+    const taskSectionsRef = useRef<TTaskSection[]>()
+    taskSectionsRef.current = taskSections
+
+
+    const dispatch = useAppDispatch()
+    const [, drop] = useDrop(() => ({
+        accept: ItemTypes.TASK,
+        drop: (item: { id: string, indicesRef: RefObject<Indices> }) => {
+            if (props.page === NavbarPages.SETTINGS_PAGE || props.page === NavbarPages.LOGOUT) return
+            if (item.indicesRef.current == null) return
+            if (taskSectionsRef.current == null) return
+
+            let updatedTaskSections: TTaskSection[]
+            let taskSectionIndex: number
+            switch (props.page) {
+                case NavbarPages.TODAY_PAGE:
+                    updatedTaskSections = navbarDropReorder(taskSectionsRef.current, 0, item.indicesRef.current)
+                    dispatch(setTasks(updatedTaskSections))
+                    taskSectionIndex = 0
+                    break
+                case NavbarPages.BLOCKED_PAGE:
+                    updatedTaskSections = navbarDropReorder(taskSectionsRef.current, 1, item.indicesRef.current)
+                    dispatch(setTasks(updatedTaskSections))
+                    taskSectionIndex = 1
+                    break
+                case NavbarPages.BACKLOG_PAGE:
+                    updatedTaskSections = navbarDropReorder(taskSectionsRef.current, 2, item.indicesRef.current)
+                    dispatch(setTasks(updatedTaskSections))
+                    taskSectionIndex = 2
+                    break
+                default:
+                    updatedTaskSections = taskSectionsRef.current
+                    taskSectionIndex = 0
+                    break
+            }
+            const patchBody = JSON.stringify({
+                id_task_section: taskSectionsRef.current[taskSectionIndex].id,
+                id_ordering: updatedTaskSections[taskSectionIndex].tasks[0].id_ordering
+            })
+            makeAuthorizedRequest({
+                url: TASKS_MODIFY_URL + item.id + '/',
+                method: 'PATCH',
+                body: patchBody,
+            }).then(fetchTasks).catch((error) => {
+                throw new Error('PATCH /tasks/ failed' + error)
+            })
+        }
+    }))
+    return (
+        <NavbarItemDroppableDiv isCurrentPage={props.isCurrentPage} ref={drop}>
+            {props.children}
+        </NavbarItemDroppableDiv>
+    )
+}
 
 interface NavbarProps {
     currentPage: NavbarPages
@@ -108,9 +179,12 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
             }
         ]
     const navbarJSXElements = linkElements.map(element => (
-        <NavbarListItem key={element.page} isCurrentPage={currentPage === element.page}>
-            {element.link}
-        </NavbarListItem>
+        <NavbarItemDroppableContainer key={element.page} page={element.page} isCurrentPage={currentPage === element.page}>
+            <NavbarListItem >
+                {element.link}
+            </NavbarListItem>
+        </NavbarItemDroppableContainer>
+
     ))
     return (
         <NavbarList>

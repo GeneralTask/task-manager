@@ -104,16 +104,16 @@ interface TasksProps {
 }
 function Tasks({ currentPage }: TasksProps): JSX.Element {
     const task_sections = useAppSelector((state) => state.tasks_page.tasks.task_sections)
-    const [currentSection, headerText] = (() => {
+    const [currentSection, headerText, sectionIndex] = (() => {
         switch (currentPage) {
             case NavbarPages.TODAY_PAGE:
-                return [task_sections[0], 'Today']
-            case NavbarPages.BACKLOG_PAGE:
-                return [task_sections[1], 'Backlog']
+                return [task_sections[0], 'Today', 0]
             case NavbarPages.BLOCKED_PAGE:
-                return [task_sections[2], 'Blocked']
+                return [task_sections[1], 'Blocked', 1]
+            case NavbarPages.BACKLOG_PAGE:
+                return [task_sections[2], 'Backlog', 2]
             default:
-                return [task_sections[0], 'Today']
+                return [task_sections[0], 'Today', 0]
         }
     })()
     const fetchTasks = useFetchTasks()
@@ -126,10 +126,9 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
     }, [])
 
     useInterval(fetchTasks, TASKS_FETCH_INTERVAL)
-
     const TaskSectionElement = <TaskSection
         task_section={currentSection}
-        task_section_index={0}
+        task_section_index={sectionIndex}
     />
 
     return (
