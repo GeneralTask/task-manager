@@ -38,6 +38,7 @@ export const BLANK_CALENDAR_ICON = '/images/CalendarBlank.svg'
 export const EXPAND_ICON = '/images/ArrowsOutSimple.svg'
 export const TIME_ICON = '/images/Timer.svg'
 export const TRASH_ICON = '/images/TrashSimple.svg'
+export const CLOSE_ICON = '/images/close.svg'
 
 //Misc. strings
 export const TASK_STATUS_FETCH_ERROR = 'There was an error fetching tasks'

@@ -2,7 +2,7 @@ import './Task.css'
 import { Action, Dispatch } from '@reduxjs/toolkit'
 import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
 import React, { useCallback } from 'react'
-import { collapseBody, expandBody, hideDatePicker, removeTaskByID, showDatePicker } from '../../redux/tasksPageSlice'
+import { collapseBody, expandBody, hideDatePicker, hideTimeEstimate, removeTaskByID, showDatePicker, showTimeEstimate } from '../../redux/tasksPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'
 import { TTask } from '../../helpers/types'
@@ -25,6 +25,7 @@ import {
 } from './TaskHeader-style'
 import { LogEvents } from '../../redux/enums'
 import DatePicker from '../calendar/DatePicker'
+import TimeEstimate from '../calendar/TimeEstimate'
 
 function Domino(): JSX.Element {
   return (
@@ -45,6 +46,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
   const fetchTasks = useFetchTasks()
 
   const date_picker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
+  const time_estimate = useAppSelector((state) => state.tasks_page.tasks.time_estimate)
 
   const today = new Date()
   const dd = today.getDate()
@@ -95,8 +97,11 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         <ButtonRight src={TIME_ICON} onClick={(e) => {
           e.stopPropagation()
           // TODO: allow editing of task time estimate, blocker backend API
-          editTimeEstimate(props.task.id, dispatch, fetchTasks)
+          dispatch(time_estimate === props.task.id ? hideTimeEstimate() : showTimeEstimate(props.task.id))
         }} />
+        {
+          time_estimate === props.task.id && <TimeEstimate task_id={props.task.id}/>
+        }
         <ButtonRight src={BLANK_CALENDAR_ICON} onClick={(e) => {
           e.stopPropagation()
           // TODO: allow editing of task due date, blocker backend API
