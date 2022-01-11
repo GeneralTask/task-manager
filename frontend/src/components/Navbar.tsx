@@ -24,7 +24,7 @@ const NavbarList = styled.div`
     width: 100%;
     margin-top: 40px;
 `
-const NavbarItemDroppableDiv = styled.div<{ isCurrentPage: boolean }>`
+const NavbarItemDroppableDiv = styled.div<{ isCurrentPage: boolean, isOverDroppable: boolean }>`
     width: 92.5%;
     border-radius: 10px;
     margin-bottom: 10px;
@@ -32,6 +32,9 @@ const NavbarItemDroppableDiv = styled.div<{ isCurrentPage: boolean }>`
     &:hover {
         background-color: #3F3F46;
     }
+    border-width: medium;
+    border-style: solid;
+    border-color: ${props => props.isOverDroppable ? 'white' : '#27272A'};
 `
 const NavbarListItem = styled.div`
     display: flex;
@@ -69,8 +72,11 @@ const NavbarItemDroppableContainer = (props: NavbarItemDroppableContainerProps):
 
 
     const dispatch = useAppDispatch()
-    const [, drop] = useDrop(() => ({
+    const [{ isOverDroppable }, drop] = useDrop(() => ({
         accept: ItemTypes.TASK,
+        collect: monitor => ({
+            isOverDroppable: monitor.isOver() && (props.page !== NavbarPages.SETTINGS_PAGE && props.page !== NavbarPages.LOGOUT),
+        }),
         drop: (item: { id: string, indicesRef: RefObject<Indices> }) => {
             if (props.page === NavbarPages.SETTINGS_PAGE || props.page === NavbarPages.LOGOUT) return
             if (item.indicesRef.current == null) return
@@ -113,7 +119,7 @@ const NavbarItemDroppableContainer = (props: NavbarItemDroppableContainerProps):
         }
     }))
     return (
-        <NavbarItemDroppableDiv isCurrentPage={props.isCurrentPage} ref={drop}>
+        <NavbarItemDroppableDiv ref={drop} isCurrentPage={props.isCurrentPage} isOverDroppable={isOverDroppable} >
             {props.children}
         </NavbarItemDroppableDiv>
     )
