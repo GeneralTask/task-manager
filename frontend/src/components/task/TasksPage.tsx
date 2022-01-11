@@ -17,7 +17,6 @@ import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import { Navigate, useParams } from 'react-router-dom'
-import plust from ''
 
 const TasksPageContainer = styled.div`
     display:flex;
