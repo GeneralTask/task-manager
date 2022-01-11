@@ -2,15 +2,17 @@ import React, { ReactElement } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { LANDING_PATH, SETTINGS_PATH } from '../constants'
-import { UNSELECTED_NAVBAR_COLOR } from '../helpers/styles'
+import { BACKGROUND_HOVER, SHADOW_PRIMARY, TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND, TEXT_BLACK, TEXT_GRAY } from '../helpers/styles'
 import { NavbarPages } from '../helpers/types'
 import { logout } from '../helpers/utils'
 
 const NavbarContainer = styled.div`
     flex: 0 0 275px;
-    background-color: #27272A;
+    background-image: linear-gradient(to bottom right, ${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
     color: white;
     height: 100%;
+    z-index: 1;
+    box-shadow: ${SHADOW_PRIMARY};
 `
 const NavbarList = styled.div`
     display: flex;
@@ -22,11 +24,11 @@ const NavbarList = styled.div`
 const NavbarListItem = styled.div<{ isCurrentPage: boolean }>`
     width: 92.5%;
     display: flex;
-    background-color: ${props => props.isCurrentPage ? '#3F3F46' : 'inherit'};
+    background-color: ${props => props.isCurrentPage ? BACKGROUND_HOVER : 'inherit'};
     border-radius: 10px;
     margin-bottom: 10px;
     &:hover {
-        background-color: #3F3F46;
+        background-color: ${BACKGROUND_HOVER};
     }
 `
 const NavbarLink = styled(Link)`
@@ -41,7 +43,7 @@ const NavbarLinkButton = styled.button<{ isCurrentPage: boolean }>`
     letter-spacing: 0.01em;
     background-color: inherit;
     height: 45px;
-    color: ${props => props.isCurrentPage ? 'white' : UNSELECTED_NAVBAR_COLOR};;
+    color: ${props => props.isCurrentPage ? TEXT_BLACK : TEXT_GRAY};;
     border: none;
     padding-left: 10px;
     cursor: pointer;
