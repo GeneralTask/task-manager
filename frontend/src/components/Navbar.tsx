@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { LANDING_PATH, SETTINGS_PATH } from '../constants'
-import { BACKGROUND_HOVER, SHADOW_PRIMARY, TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND, TEXT_BLACK, TEXT_GRAY, UNSELECTED_NAVBAR_COLOR } from '../helpers/styles'
+import { BACKGROUND_HOVER, SHADOW_PRIMARY, TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND, TEXT_BLACK, TEXT_GRAY } from '../helpers/styles'
 import { NavbarPages } from '../helpers/types'
 import { logout } from '../helpers/utils'
 
