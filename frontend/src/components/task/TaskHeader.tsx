@@ -141,22 +141,5 @@ const done = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTa
   }
 }
 
-const editTimeEstimate = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {
-  try {
-    const response = await makeAuthorizedRequest({
-      url: TASKS_MODIFY_URL + task_id + '/',
-      method: 'PATCH',
-      body: JSON.stringify({ 'time_estimate': '1' })
-    })
-
-    if (!response.ok) {
-      throw new Error('PATCH /tasks/modify Edit Time Estimate failed: ' + response.text())
-    }
-    await fetchTasks()
-  } catch (e) {
-    console.log({ e })
-  }
-}
-
 export default TaskHeader
 export type { TaskHeaderProps }

@@ -5,7 +5,7 @@ import { makeAuthorizedRequest } from '../../helpers/utils'
 import { useAppDispatch } from '../../redux/hooks'
 import { hideTimeEstimate } from '../../redux/tasksPageSlice'
 import { useFetchTasks } from '../task/TasksPage'
-import { Header, TimeEstimateContainer, TopNav, CloseButton, TimeInput, TimeButton } from './TimeEstimate-style'
+import { Header, TimeEstimateContainer, TopNav, CloseButton, TimeButton } from './TimeEstimate-style'
 
 interface TimeEstimateProps {
     task_id: string

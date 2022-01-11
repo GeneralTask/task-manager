@@ -9,8 +9,6 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 // import GTButton from '../common/GTButton'
 import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
-import parse from 'parse-duration'
-import { parseDate } from '../../helpers/TimeParser'
 import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
 import { LogEvents } from '../../redux/enums'
 

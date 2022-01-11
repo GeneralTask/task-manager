@@ -92,8 +92,6 @@ export default function DatePicker({task_id}: DatePickerProps): JSX.Element {
         
 
     const monthTable = (): JSX.Element => {
-        const month = date.getMonth()
-        const year = date.getFullYear()
         return (
             <table>
                 <thead>
