@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { EVENT_CONTAINER_COLOR, ICON_HOVER } from '../../helpers/styles'
+import { EVENT_CONTAINER_COLOR, ICON_HOVER, SHADOW_PRIMARY } from '../../helpers/styles'
 
 export const CalendarHeaderContainer = styled.div`
     height: 50px;
