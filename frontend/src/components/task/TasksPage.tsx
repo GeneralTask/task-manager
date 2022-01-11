@@ -17,6 +17,8 @@ import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import { Navigate, useParams } from 'react-router-dom'
+import TaskSectionHeader from './TaskSectionHeader'
+import RefreshButton from './RefreshButton'
 
 const TasksPageContainer = styled.div`
     display:flex;
@@ -140,6 +142,7 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
                 <HeaderText>
                     {headerText}
                 </HeaderText>
+                <RefreshButton />
                 <CreateNewTaskButton />
             </Header>
             <TaskStatus />
