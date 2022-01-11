@@ -98,7 +98,18 @@ interface CalendarEventsProps {
 }
 export default function CalendarEvents({ date, isToday }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
-    const event_list = useAppSelector((state) => state.tasks_page.events.event_list)
+
+    const startDate = new Date(date)
+    startDate.setHours(0, 0, 0, 0)
+    const start = startDate.toISOString()
+    const endDate = new Date(startDate)
+    endDate.setDate(startDate.getDate() + 1)
+    const end = endDate.toISOString()
+
+    const event_list = useAppSelector(
+        (state) => state.tasks_page.events.event_list
+    ).filter(event => (event.datetime_end >= start && event.datetime_start <= end))
+
     const fetchEvents = useFetchEvents()
     const fetchEventsForDate = useCallback(() => {
         fetchEvents(date)
