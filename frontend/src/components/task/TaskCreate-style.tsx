@@ -1,4 +1,4 @@
-import { BORDER_ERROR, BORDER_PRIMARY, TEXT_LIGHTGRAY, device } from '../../helpers/styles'
+import { BORDER_ERROR, BORDER_PRIMARY, TEXT_LIGHTGRAY, BACKGROUND_WHITE, device } from '../../helpers/styles'
 
 import styled from 'styled-components'
 
@@ -17,7 +17,8 @@ export const Form = styled.form`
     display: flex;
     align-items: center;
     border: 1px solid ${BORDER_PRIMARY};
-    border-radius: 2px;
+    background-color: ${BACKGROUND_WHITE};
+    border-radius: 8px;
     flex-wrap: wrap;
     justify-content: space-between;
     width: 70%;
@@ -29,6 +30,7 @@ export const Form = styled.form`
 export const Input = styled.input<{ error: boolean }>`
     font-size: 16px;
     border: ${props => props.error ? `1px solid ${BORDER_ERROR} !important` : 'none'};
+    border-radius: 8px;
     outline: none;
     width: 100%;
     height: 32px;
@@ -39,38 +41,11 @@ export const Input = styled.input<{ error: boolean }>`
 `
 export const InputTitle = styled(Input)`
     width: 100%;
-    border-bottom: 1px solid ${BORDER_PRIMARY};
-    @media ${device.mobile}{
-        width: 50%;
-        border-bottom: none;
-        border-right: 1px solid ${BORDER_PRIMARY};
-    }
 `
-export const InputTimeEstimate = styled(Input)`
-    width: 100%;
-    border-bottom: 1px solid ${BORDER_PRIMARY};
-    @media ${device.mobile}{
-        width: 25%;
-        border-bottom: none;
-        border-right: 1px solid ${BORDER_PRIMARY};
-    }
-`
-export const InputDueDate = styled(Input)`
-    width: 60%;
-    @media ${device.mobile}{
-        width: 15%;
-    }
-`
-export const SaveBtnDiv = styled.div`
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    height: 100%;
-    width: 20%;
-    margin-right: 6px;
-    @media ${device.mobile}{
-        width: 10%;
-    }
+export const PlusIcon = styled.img`
+    width: 24px;
+    height: 24px;
+    margin-left: 8px;
 `
 export const ErrorContainer = styled.div`
     color: red;

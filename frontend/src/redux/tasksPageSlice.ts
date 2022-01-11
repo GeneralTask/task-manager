@@ -8,6 +8,8 @@ export interface TasksPageState {
         task_sections: TTaskSection[],
         fetch_status: FetchStatusEnum,
         expanded_body: string | null,
+        date_picker: string | null,
+        time_estimate: string | null,
         show_create_task_form: boolean,
     },
     events: {
@@ -22,6 +24,8 @@ const initialState: TasksPageState = {
         task_sections: [],
         fetch_status: FetchStatusEnum.LOADING,
         expanded_body: null,
+        date_picker: null,
+        time_estimate: null,
         show_create_task_form: false,
     },
     events: {
@@ -57,6 +61,18 @@ export const tasksPageSlice = createSlice({
         collapseBody(state) {
             state.tasks.expanded_body = null
         },
+        showDatePicker(state, action: PayloadAction<string>) {
+            state.tasks.date_picker = action.payload
+        },
+        hideDatePicker(state) {
+            state.tasks.date_picker = null
+        },
+        showTimeEstimate(state, action: PayloadAction<string>) {
+            state.tasks.time_estimate = action.payload
+        },
+        hideTimeEstimate(state) {
+            state.tasks.time_estimate = null
+        },
         setShowCreateTaskForm(state, action: PayloadAction<boolean>) {
             state.tasks.show_create_task_form = action.payload
         },
@@ -81,6 +97,10 @@ export const {
     expandBody,
     collapseBody,
     setShowCreateTaskForm,
+    showDatePicker,
+    hideDatePicker,
+    showTimeEstimate,
+    hideTimeEstimate,
     setEvents,
     setEventsFetchStatus,
     setShowCalendarSidebar,

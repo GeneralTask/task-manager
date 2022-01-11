@@ -1,12 +1,12 @@
 import './Task.css'
 import { Action, Dispatch } from '@reduxjs/toolkit'
-import { TASKS_MODIFY_URL, DONE_BUTTON } from '../../constants'
+import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
 import React, { useCallback } from 'react'
-import { collapseBody, expandBody, removeTaskByID } from '../../redux/tasksPageSlice'
+import { collapseBody, expandBody, removeTaskByID, hideDatePicker, hideTimeEstimate, showDatePicker, showTimeEstimate } from '../../redux/tasksPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'
 import { TTask } from '../../helpers/types'
-import { useAppDispatch } from '../../redux/hooks'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import {
   TaskHeaderContainer,
   HeaderLeft,
@@ -20,9 +20,12 @@ import {
   DragHandler,
   DominoContainer,
   DominoDot,
-  DoneButton
+  DoneButton,
+  ButtonRight
 } from './TaskHeader-style'
 import { LogEvents } from '../../redux/enums'
+import DatePicker from '../calendar/DatePicker'
+import TimeEstimate from '../calendar/TimeEstimate'
 
 function Domino(): JSX.Element {
   return (
@@ -35,12 +38,16 @@ interface TaskHeaderProps {
   task: TTask,
   dragDisabled: boolean,
   isExpanded: boolean,
+  isDatePickerVisible: boolean,
 }
 
 const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: TaskHeaderProps, ref) => {
   const dispatch = useAppDispatch()
   const fetchTasks = useFetchTasks()
 
+  const date_picker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
+  const time_estimate = useAppSelector((state) => state.tasks_page.tasks.time_estimate)
+  
   const today = new Date()
   const dd = today.getDate()
   const month = today.toLocaleDateString('default', { month: 'short' })
@@ -81,6 +88,25 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.task.title} </Title>
       </HeaderLeft>
       <HeaderRight>
+        <ButtonRight src={EXPAND_ICON} onClick={(e) => {
+          e.stopPropagation()
+          dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
+        }} />
+        <ButtonRight src={TIME_ICON} onClick={(e) => {
+          e.stopPropagation()
+          dispatch(time_estimate === props.task.id ? hideTimeEstimate() : showTimeEstimate(props.task.id))
+        }} />
+        {
+          time_estimate === props.task.id && <TimeEstimate task_id={props.task.id}/>
+        }
+        <ButtonRight src={BLANK_CALENDAR_ICON} onClick={(e) => {
+          e.stopPropagation()
+          dispatch(date_picker === props.task.id ? hideDatePicker() : showDatePicker(props.task.id))
+
+        }} />
+        {
+          date_picker === props.task.id && <DatePicker task_id={props.task.id} />
+        }
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
           <CalendarIconContainer>
