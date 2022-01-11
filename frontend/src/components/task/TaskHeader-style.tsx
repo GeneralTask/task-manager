@@ -44,17 +44,17 @@ export const HeaderLeft = styled.div`
   display: flex;
   align-items: center;
   flex-direction: row;
-  flex-basis: auto;
-  width: 100%;
+  flex-grow: 1;
+  min-width: 0;
 `
 export const HeaderRight = styled.div`
   display: flex;
-  flex: content;
   align-items: center;
   flex-direction: row;
   justify-content: flex-end;
   color:${TEXT_GRAY};
   height: 100%;
+  flex: content;
 `
 export const JoinConferenceButtonContainer = styled.div`
   margin-right: 10px;
@@ -129,9 +129,4 @@ export const Title = styled.div<{ isExpanded: boolean }>`
     overflow: hidden;
     margin-left: 15px;`
   }
-`
-export const Truncated = styled.div`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 `
