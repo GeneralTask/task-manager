@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: 14
       - name: Install
-        run: npm install @typescript-eslint/eslint-plugin@latest --save-dev
+        run: npm install @typescript-eslint/eslint-plugin@latest --save-dev; npm install --save typescript;
       - name: Run eslint on changed files
         uses: tj-actions/eslint-changed-files@v6.3
         with:
