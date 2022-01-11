@@ -64,14 +64,10 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
     )
 }
 
-function useFetchEvents(): (date: Date) => Promise<void> {
+function useFetchEvents(): (start: Date, end: Date) => Promise<void> {
     const dispatch = useAppDispatch()
-    const fetchEvents = useCallback(async (date: Date) => {
+    const fetchEvents = useCallback(async (start: Date, end: Date) => {
         try {
-            const start = new Date(date)
-            start.setHours(0, 0, 0, 0)
-            const end = new Date(date)
-            end.setHours(23, 59, 59, 999)
             const response = await makeAuthorizedRequest({
                 url: EVENTS_URL,
                 method: 'GET',
@@ -111,11 +107,19 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
     ).filter(event => (event.datetime_end >= start && event.datetime_start <= end))
 
     const fetchEvents = useFetchEvents()
-    const fetchEventsForDate = useCallback(() => {
-        fetchEvents(date)
+    const fetchEventsAroundDate = useCallback(() => {
+        const start = new Date(date)
+        start.setDate(date.getDate() - 3)
+        start.setHours(0, 0, 0, 0)
+
+        const end = new Date(date)
+        end.setDate(date.getDate() + 3)
+        end.setHours(23, 59, 59, 999)
+
+        fetchEvents(start, end)
     }, [date])
 
-    useInterval(fetchEventsForDate, TASKS_FETCH_INTERVAL)
+    useInterval(fetchEventsAroundDate, TASKS_FETCH_INTERVAL)
 
     useEffect(() => {
         if (eventsContainerRef.current) {
