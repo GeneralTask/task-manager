@@ -5,7 +5,7 @@ import React, { Ref, useCallback, useEffect, useRef } from 'react'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
-import { AbortID } from '../../redux/enums'
+import { AbortID } from '../../helpers/enums'
 import { TEvent } from '../../helpers/types'
 import { TimeIndicator } from './TimeIndicator'
 import { setEvents } from '../../redux/tasksPageSlice'

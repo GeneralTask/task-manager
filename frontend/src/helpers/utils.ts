@@ -9,9 +9,9 @@ import {
 } from '../constants'
 import { useEffect, useState } from 'react'
 
-import { AbortID } from '../redux/enums'
+import { AbortID } from './enums'
 import Cookies from 'js-cookie'
-import { LogEvents } from '../redux/enums'
+import { LogEvents } from './enums'
 import _ from 'lodash'
 
 // This invalidates the cookie on the frontend
