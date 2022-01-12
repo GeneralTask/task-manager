@@ -29,7 +29,7 @@ const TasksContentContainer = styled.div`
     display: flex;
     overflow: scroll;
     flex-direction: column;
-    background-image: linear-gradient(${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
+    background-image: linear-gradient(to bottom right, ${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
     min-width: 600px;
 `
 const Header = styled.div`

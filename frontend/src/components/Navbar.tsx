@@ -3,18 +3,20 @@ import { useDrop } from 'react-dnd'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { LANDING_PATH, SETTINGS_PATH, TASKS_MODIFY_URL } from '../constants'
-import { UNSELECTED_NAVBAR_COLOR } from '../helpers/styles'
 import { Indices, ItemTypes, NavbarPages, TTaskSection } from '../helpers/types'
 import { logout, makeAuthorizedRequest, navbarDropReorder } from '../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import { setTasks } from '../redux/tasksPageSlice'
 import { useFetchTasks } from './task/TasksPage'
+import { BACKGROUND_HOVER, SHADOW_PRIMARY, TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND, TEXT_BLACK, TEXT_GRAY } from '../helpers/styles'
 
 const NavbarContainer = styled.div`
     flex: 0 0 275px;
-    background-color: #27272A;
+    background-image: linear-gradient(to bottom right, ${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
     color: white;
     height: 100%;
+    z-index: 1;
+    box-shadow: ${SHADOW_PRIMARY};
 `
 
 const NavbarList = styled.div`
@@ -26,11 +28,13 @@ const NavbarList = styled.div`
 `
 const NavbarItemDroppableDiv = styled.div<{ isCurrentPage: boolean, isOverDroppable: boolean }>`
     width: 92.5%;
+    display: flex;
+    background-color: ${props => props.isCurrentPage ? BACKGROUND_HOVER : 'inherit'};
     border-radius: 10px;
     margin-bottom: 10px;
     background-color: ${props => props.isCurrentPage ? '#3F3F46' : 'inherit'};
     &:hover {
-        background-color: #3F3F46;
+        background-color: ${BACKGROUND_HOVER};
     }
     border-width: medium;
     border-style: solid;
@@ -51,7 +55,7 @@ const NavbarLinkButton = styled.button<{ isCurrentPage: boolean }>`
     letter-spacing: 0.01em;
     background-color: inherit;
     height: 45px;
-    color: ${props => props.isCurrentPage ? 'white' : UNSELECTED_NAVBAR_COLOR};;
+    color: ${props => props.isCurrentPage ? TEXT_BLACK : TEXT_GRAY};;
     border: none;
     padding-left: 10px;
     cursor: pointer;
