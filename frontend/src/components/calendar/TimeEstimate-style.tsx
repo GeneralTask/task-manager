@@ -17,6 +17,7 @@ export const TimeEstimateContainer = styled.div`
     top: 100%;
     right: 0;
     padding: 10px;
+    cursor: default;
 `
 
 export const TopNav = styled.div`
@@ -65,4 +66,5 @@ export const TimeButton = styled.div`
     &:hover {
         background-color: ${ICON_HOVER};
     }
+    cursor: pointer;
 `

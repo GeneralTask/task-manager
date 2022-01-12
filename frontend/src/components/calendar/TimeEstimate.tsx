@@ -15,7 +15,9 @@ export default function TimeEstimate({task_id}: TimeEstimateProps): JSX.Element 
     const fetchTasks = useFetchTasks()
 
     return (
-        <TimeEstimateContainer>
+        <TimeEstimateContainer onClick={(e) => {
+            e.stopPropagation()
+        }}>
             <TopNav>
                 <Header>Set Duration</Header>
                 <CloseButton src={CLOSE_ICON} alt="close" onClick={

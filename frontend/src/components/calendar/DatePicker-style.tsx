@@ -15,6 +15,7 @@ export const PickerContainer = styled.div`
     z-index: 1;
     top: 100%;
     right: 0;
+    cursor: default;
 `
 
 export const TopNav = styled.div`

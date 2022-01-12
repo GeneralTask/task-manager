@@ -118,7 +118,9 @@ export default function DatePicker({task_id}: DatePickerProps): JSX.Element {
 
 
     return (
-        <PickerContainer>
+        <PickerContainer onClick={(e) => {
+            e.stopPropagation()
+        }}>
             <TopNav>
                 <HoverButton onClick={(e) => {
                     e.stopPropagation()
