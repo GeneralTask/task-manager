@@ -13,8 +13,8 @@ export const PickerContainer = styled.div`
     margin: 10px;
     box-shadow: 0 0 5px lightgray;
     z-index: 1;
-    top: 50%;
-    left: 50%;
+    top: 100%;
+    right: 0;
 `
 
 export const TopNav = styled.div`

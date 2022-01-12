@@ -55,7 +55,8 @@ export default function DatePicker({task_id}: DatePickerProps): JSX.Element {
                     return (
                         <>
                             <td key={i}>
-                                <HoverButton onClick={() => {
+                                <HoverButton onClick={(e) => {
+                                        e.stopPropagation()
                                         setDate(tmpDate)
                                         // TODO: change date to tmpDate
                                         editDueDate(task_id, tmpDate.toISOString(), dispatch, fetchTasks)
@@ -119,11 +120,17 @@ export default function DatePicker({task_id}: DatePickerProps): JSX.Element {
     return (
         <PickerContainer>
             <TopNav>
-                <HoverButton onClick={prevMonth}>
+                <HoverButton onClick={(e) => {
+                    e.stopPropagation()
+                    prevMonth()
+                }}>
                     <Icon src="images/CaretLeft.svg" alt="Previous Month"/>
                 </HoverButton>
                 <MonthYearHeader>{monthyear}</MonthYearHeader>
-                <HoverButton onClick={nextMonth}>
+                <HoverButton onClick={(e) => {
+                    e.stopPropagation()
+                    nextMonth()
+                }}>
                     <Icon src="images/CaretRight.svg" alt="Next Month"/>
                 </HoverButton>
             </TopNav>

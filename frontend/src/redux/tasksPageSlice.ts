@@ -62,12 +62,14 @@ export const tasksPageSlice = createSlice({
             state.tasks.expanded_body = null
         },
         showDatePicker(state, action: PayloadAction<string>) {
+            state.tasks.time_estimate = null
             state.tasks.date_picker = action.payload
         },
         hideDatePicker(state) {
             state.tasks.date_picker = null
         },
         showTimeEstimate(state, action: PayloadAction<string>) {
+            state.tasks.date_picker = null
             state.tasks.time_estimate = action.payload
         },
         hideTimeEstimate(state) {
