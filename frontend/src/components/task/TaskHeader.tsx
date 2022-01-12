@@ -21,7 +21,9 @@ import {
   DominoContainer,
   DominoDot,
   DoneButton,
-  ButtonRight
+  ButtonRight,
+  ButtonIcon,
+  ButtonText
 } from './TaskHeader-style'
 import { LogEvents } from '../../redux/enums'
 import DatePicker from '../calendar/DatePicker'
@@ -88,25 +90,41 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.task.title} </Title>
       </HeaderLeft>
       <HeaderRight>
-        <ButtonRight src={EXPAND_ICON} onClick={(e) => {
+        <ButtonRight onClick={(e) => {
           e.stopPropagation()
           dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
-        }} />
-        <ButtonRight src={TIME_ICON} onClick={(e) => {
+        }}>
+          <ButtonIcon src={EXPAND_ICON} alt="expand" />
+        </ButtonRight>
+        <ButtonRight onClick={(e) => {
           e.stopPropagation()
           dispatch(time_estimate === props.task.id ? hideTimeEstimate() : showTimeEstimate(props.task.id))
-        }} />
-        {
-          time_estimate === props.task.id && <TimeEstimate task_id={props.task.id}/>
-        }
-        <ButtonRight src={BLANK_CALENDAR_ICON} onClick={(e) => {
+        }}>
+          {
+            props.task.time_allocated === 3600000000000 ? 
+            <ButtonIcon src={TIME_ICON} alt="time estimate"/> :
+            <ButtonText>
+              {(props.task.time_allocated / 60000000).toFixed(0) + ' min'}
+            </ButtonText>
+          }
+        </ButtonRight>
+        <ButtonRight onClick={(e) => {
           e.stopPropagation()
           dispatch(date_picker === props.task.id ? hideDatePicker() : showDatePicker(props.task.id))
 
-        }} />
-        {
-          date_picker === props.task.id && <DatePicker task_id={props.task.id} />
-        }
+        }}>
+          {
+            props.task.due_date === '1969-12-31' ? 
+            <ButtonIcon src={BLANK_CALENDAR_ICON} alt='due date'/> :
+            <ButtonText>
+              {new Date(new Date(props.task.due_date).valueOf() + 86400000).toLocaleDateString('default', { day: 'numeric', month: 'short' })}
+            </ButtonText>
+          }
+        </ButtonRight>
+
+        { time_estimate === props.task.id && <TimeEstimate task_id={props.task.id}/> }
+        { date_picker === props.task.id && <DatePicker task_id={props.task.id} /> }
+
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
           <CalendarIconContainer>

@@ -11,18 +11,32 @@ export const DoneButton = styled.img`
   margin-left: 12px;
   cursor: pointer;
 `
-export const ButtonRight = styled.img`
+export const ButtonRight = styled.div`
   position: static;
-  width: 20px;
+  min-width: 20px;
   height: 20px;
   flex: none;
   order: 0;
   flex-grow: 0;
-  margin-right: 12px;
+  margin-right: 5px;
   cursor: pointer;
   &:hover {
     background-color: ${BACKGROUND_HOVER};
   }
+  border-radius: 4px;
+`
+export const ButtonIcon = styled.img`
+  position: static;
+  width: 100%;
+  height: 100%;
+`
+export const ButtonText = styled.div`
+  font-size: 14px;
+  padding: 0 0.2em;
+  vertical-align: middle;
+  position: static;
+  background-color: ${BACKGROUND_HOVER};
+  height: 100%;
   border-radius: 4px;
 `
 export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
@@ -52,9 +66,10 @@ export const HeaderRight = styled.div`
   align-items: center;
   flex-direction: row;
   justify-content: flex-end;
-  color:${TEXT_GRAY};
+  color:${TEXT_BLACK};
   height: 100%;
-  flex: content;
+  flex: none;
+
 `
 export const JoinConferenceButtonContainer = styled.div`
   margin-right: 10px;

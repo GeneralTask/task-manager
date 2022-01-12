@@ -25,6 +25,7 @@ export interface TTask {
     body: string
     sent_at: string,
     time_allocated: number,
+    due_date: string,
     source: TTaskSource,
     sender: string,
 }

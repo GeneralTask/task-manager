@@ -87,6 +87,7 @@ export const useFetchTasks = (): () => Promise<void> => {
             } else {
                 const resj = await response.json()
                 dispatch(setTasksFetchStatus(FetchStatusEnum.SUCCESS))
+                console.log('resj', resj)
                 dispatch(setTasks(resj))
             }
         } catch (e) {
