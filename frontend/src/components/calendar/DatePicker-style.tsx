@@ -30,7 +30,7 @@ export const TopNav = styled.div`
 
 export const MonthContainer = styled.div`
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     height: 70%;
     width: 100%;
