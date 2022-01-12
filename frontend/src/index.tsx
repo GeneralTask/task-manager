@@ -14,27 +14,32 @@ import store from './redux/store'
 import Settings from './components/settings/Settings'
 import PrivateOutlet from './components/PrivateOutlet'
 import TasksPage from './components/task/TasksPage'
+import { PersistGate } from 'redux-persist/integration/react'
+import persistStore from 'redux-persist/es/persistStore'
 
+const persistor = persistStore(store)
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <ToastContainer draggable={false} transition={Zoom} autoClose={TOAST_DURATION} position={toast.POSITION.BOTTOM_RIGHT} />
-      <DndProvider backend={HTML5Backend}>
-        <BrowserRouter>
-          <Routes>
-            <Route path='*' element={<Navigate to='/' />} />
-            <Route path='/' element={<App />}>
-              <Route index element={<LandingPage />} />
-              <Route path='tasks/:section' element={<PrivateOutlet />} >
-                <Route index element={<TasksPage />} />
+      <PersistGate loading={null} persistor={persistor}>
+        <ToastContainer draggable={false} transition={Zoom} autoClose={TOAST_DURATION} position={toast.POSITION.BOTTOM_RIGHT} />
+        <DndProvider backend={HTML5Backend}>
+          <BrowserRouter>
+            <Routes>
+              <Route path='*' element={<Navigate to='/' />} />
+              <Route path='/' element={<App />}>
+                <Route index element={<LandingPage />} />
+                <Route path='tasks/:section' element={<PrivateOutlet />} >
+                  <Route index element={<TasksPage />} />
+                </Route>
+                <Route path="settings" element={<PrivateOutlet />} >
+                  <Route index element={<Settings />} />
+                </Route>
               </Route>
-              <Route path="settings" element={<PrivateOutlet />} >
-                <Route index element={<Settings />} />
-              </Route>
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </DndProvider>
+            </Routes>
+          </BrowserRouter>
+        </DndProvider>
+      </PersistGate>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')
