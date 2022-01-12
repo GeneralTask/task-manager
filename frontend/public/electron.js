@@ -1,12 +1,14 @@
 /* eslint @typescript-eslint/no-var-requires: "off" */
 const { app, BrowserWindow, shell, session } = require('electron')
 const path = require('path')
+const PROTOCOL_PREFIX = 'generaltask'
 
 const createWindow = () => {
     const mainWindow = new BrowserWindow({
         width: 1400,
         height: 800,
         webPreferences: {
+            preload: path.join(__dirname, "preload.js"),
             nodeIntegration: true,
         }
     })
@@ -33,6 +35,11 @@ app.whenReady().then(() => {
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length == 0) createWindow()
     })
+})
+
+app.setAsDefaultProtocolClient(PROTOCOL_PREFIX)
+app.on('open-url', (event,) => {
+    event.preventDefault()
 })
 
 app.on('window-all-closed', () => {
