@@ -42,6 +42,7 @@ const NavbarItemDroppableDiv = styled.div<{ isCurrentPage: boolean, isOverDroppa
 `
 const NavbarListItem = styled.div`
     display: flex;
+    width: 100%;
 `
 const NavbarLink = styled(Link)`
     width: 100%;
