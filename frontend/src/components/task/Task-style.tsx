@@ -12,7 +12,6 @@ export const DraggableContainer = styled.div`
 export const TaskContainer = styled.div<{ opacity: number, isExpanded: boolean }>`
   padding: 0;
   font-family: 'Ellipsis', 'Gothic A1', sans-serif;
-  /* border: 1px solid ${BORDER_PRIMARY}; */
   border-radius: 12px;
   width: 100%;
   outline: none;
