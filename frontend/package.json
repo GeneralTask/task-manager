@@ -74,6 +74,11 @@
     "pack": "build --em.main=build/main.js",
     "dist": "electron-builder"
   },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!(react-native|my-project|redux-persist)/)"
+    ]
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
