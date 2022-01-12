@@ -8,7 +8,7 @@ import { logout, makeAuthorizedRequest, navbarDropReorder } from '../helpers/uti
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import { setTasks } from '../redux/tasksPageSlice'
 import { useFetchTasks } from './task/TasksPage'
-import { BACKGROUND_HOVER, SHADOW_PRIMARY, TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND, TEXT_BLACK, TEXT_GRAY } from '../helpers/styles'
+import { BACKGROUND_HOVER, BORDER_PRIMARY, SHADOW_PRIMARY, TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND, TEXT_BLACK, TEXT_GRAY } from '../helpers/styles'
 
 const NavbarContainer = styled.div`
     flex: 0 0 275px;
@@ -32,13 +32,13 @@ const NavbarItemDroppableDiv = styled.div<{ isCurrentPage: boolean, isOverDroppa
     background-color: ${props => props.isCurrentPage ? BACKGROUND_HOVER : 'inherit'};
     border-radius: 10px;
     margin-bottom: 10px;
-    background-color: ${props => props.isCurrentPage ? '#3F3F46' : 'inherit'};
+    background-color: ${props => props.isCurrentPage ? 'rgba(24, 24, 27, 0.04)' : 'inherit'};
     &:hover {
         background-color: ${BACKGROUND_HOVER};
     }
     border-width: medium;
     border-style: solid;
-    border-color: ${props => props.isOverDroppable ? 'white' : '#27272A'};
+    border-color: ${props => props.isOverDroppable ? BORDER_PRIMARY : 'transparent'};
 `
 const NavbarListItem = styled.div`
     display: flex;
