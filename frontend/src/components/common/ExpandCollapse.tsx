@@ -31,7 +31,7 @@ export default function ExpandCollapse({ direction, onClick }: Props): JSX.Eleme
         <HoverButton onClick={onClick}>
             <Icon
                 facingLeft={direction === 'left'}
-                src="images/expand-collapse.svg"
+                src={`${process.env.PUBLIC_URL}/images/expand-collapse.svg`}
                 alt="Show calendar"
             />
         </HoverButton>

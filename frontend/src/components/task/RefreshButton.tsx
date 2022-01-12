@@ -39,8 +39,8 @@ const RefreshButton = (): JSX.Element => {
 
     return <Container onClick={refresh}>
         {isLoading
-            ? <SpinningRefreshBtn src="images/refresh.svg" />
-            : <RefreshBtn src="images/refresh.svg" />
+            ? <SpinningRefreshBtn src={`${process.env.PUBLIC_URL}/images/refresh.svg`} />
+            : <RefreshBtn src={`${process.env.PUBLIC_URL}/images/refresh.svg`} />
         }
     </Container>
 }

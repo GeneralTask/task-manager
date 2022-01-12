@@ -1,5 +1,7 @@
 export enum NavbarPages {
-    TASKS_PAGE = 'task_page',
+    TODAY_PAGE = 'today_page',
+    BLOCKED_PAGE = 'blocked_page',
+    BACKLOG_PAGE = 'backlog_page',
     SETTINGS_PAGE = 'settings_page',
     LOGOUT = 'logout'
 }

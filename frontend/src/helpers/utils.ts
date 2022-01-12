@@ -128,6 +128,19 @@ export function taskDropReorder(staleTaskSections: TTaskSection[], dragIndices: 
     return updateOrderingIds(taskSections)
 }
 
+export function navbarDropReorder(staleTaskSections: TTaskSection[], newSectionIndex: number, indices: Indices): TTaskSection[] {
+    const taskSections = _.cloneDeep(staleTaskSections)
+    const dragTaskObject = taskSections[indices.section].tasks[indices.task]
+    taskSections[indices.section].tasks.splice(indices.task, 1)
+
+    const section = taskSections[newSectionIndex]
+    if (section == null) return taskSections
+    if (section.tasks == null) section.tasks = []
+    section.tasks.splice(0, 0, dragTaskObject)
+
+    return updateOrderingIds(taskSections)
+}
+
 export function sectionDropReorder(staleTaskSections: TTaskSection[], newSectionIndex: number, indices: Indices): TTaskSection[] {
     const taskSections = _.cloneDeep(staleTaskSections)
 
