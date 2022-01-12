@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { BORDER_PRIMARY } from '../../helpers/styles'
+import { BORDER_PRIMARY, SHADOW_EXPANDED, SHADOW_PRIMARY } from '../../helpers/styles'
 
 
 export const DraggableContainer = styled.div`
@@ -12,14 +12,13 @@ export const DraggableContainer = styled.div`
 export const TaskContainer = styled.div<{ opacity: number, isExpanded: boolean }>`
   padding: 0;
   font-family: 'Ellipsis', 'Gothic A1', sans-serif;
-  border: 1px solid ${BORDER_PRIMARY};
-  border-radius: 7px;
+  border-radius: 12px;
   width: 100%;
   outline: none;
   background-color: white;
   opacity: ${props => props.opacity};
   min-height: 50px;
-  box-shadow: ${props => props.isExpanded ? `2px 5px 8px ${BORDER_PRIMARY}` : 'none'};
+  box-shadow: ${props => props.isExpanded ? SHADOW_EXPANDED : SHADOW_PRIMARY};
 `
 
 const DropIndicatorStyles = css<{ isVisible: boolean }>`

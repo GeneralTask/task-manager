@@ -14,7 +14,7 @@ export const DoneButton = styled.img`
 export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
   position: relative;
   font-size: 15px;
-  border-radius: 6px;
+  border-radius: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
