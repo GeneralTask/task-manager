@@ -75,7 +75,10 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         }
         {
           props.task.source.is_completable &&
-          <DoneButton src={DONE_BUTTON} onClick={onDoneButtonClick} />
+          <DoneButton src={DONE_BUTTON} onClick={(e) =>{
+            e.stopPropagation()
+            onDoneButtonClick()
+          }}/>
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
         <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.task.title} </Title>
