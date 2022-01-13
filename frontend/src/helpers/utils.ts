@@ -9,9 +9,9 @@ import {
 } from '../constants'
 import { useEffect, useState } from 'react'
 
-import { AbortID } from '../redux/enums'
+import { AbortID } from './enums'
 import Cookies from 'js-cookie'
-import { LogEvents } from '../redux/enums'
+import { LogEvents } from './enums'
 import _ from 'lodash'
 
 // This invalidates the cookie on the frontend
@@ -125,6 +125,19 @@ export function taskDropReorder(staleTaskSections: TTaskSection[], dragIndices: 
     else {
         taskGroup.tasks.splice(dropIndices.task + Number(isLowerHalf), 0, dragTaskObject)
     }
+    return updateOrderingIds(taskSections)
+}
+
+export function navbarDropReorder(staleTaskSections: TTaskSection[], newSectionIndex: number, indices: Indices): TTaskSection[] {
+    const taskSections = _.cloneDeep(staleTaskSections)
+    const dragTaskObject = taskSections[indices.section].tasks[indices.task]
+    taskSections[indices.section].tasks.splice(indices.task, 1)
+
+    const section = taskSections[newSectionIndex]
+    if (section == null) return taskSections
+    if (section.tasks == null) section.tasks = []
+    section.tasks.splice(0, 0, dragTaskObject)
+
     return updateOrderingIds(taskSections)
 }
 

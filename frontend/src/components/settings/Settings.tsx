@@ -3,7 +3,8 @@ import Preferences from './Preferences'
 import React from 'react'
 import styled from 'styled-components'
 import Navbar from '../Navbar'
-import { NavbarPages } from '../../helpers/types'
+import { NavbarPages } from '../../helpers/enums'
+import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
 
 const SettingsPageContainer = styled.div`
     display:flex;
@@ -11,6 +12,7 @@ const SettingsPageContainer = styled.div`
 `
 const SettingsContentContainer = styled.div`
     display: flex;
+    background-image: linear-gradient(to bottom right, ${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
     flex-direction: column;
     align-items: center;
     width: 100%;

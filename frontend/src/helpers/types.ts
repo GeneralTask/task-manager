@@ -1,8 +1,4 @@
-export enum NavbarPages {
-    TASKS_PAGE = 'task_page',
-    SETTINGS_PAGE = 'settings_page',
-    LOGOUT = 'logout'
-}
+export type Datestring = string
 
 export interface TTaskSource {
     name: string,

@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components'
 
-import { FetchStatusEnum, LogEvents } from '../../redux/enums'
+import { FetchStatusEnum, LogEvents } from '../../helpers/enums'
 import React, { useCallback } from 'react'
 import { useAppSelector } from '../../redux/hooks'
 import { useFetchTasks } from './TasksPage'
@@ -39,8 +39,8 @@ const RefreshButton = (): JSX.Element => {
 
     return <Container onClick={refresh}>
         {isLoading
-            ? <SpinningRefreshBtn src="images/refresh.svg" />
-            : <RefreshBtn src="images/refresh.svg" />
+            ? <SpinningRefreshBtn src={`${process.env.PUBLIC_URL}/images/refresh.svg`} />
+            : <RefreshBtn src={`${process.env.PUBLIC_URL}/images/refresh.svg`} />
         }
     </Container>
 }

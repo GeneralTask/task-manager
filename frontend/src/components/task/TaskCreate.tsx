@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
 import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
-import { LogEvents } from '../../redux/enums'
+import { LogEvents } from '../../helpers/enums'
 
 export default function TaskCreate(): JSX.Element {
     const showCreateTaskForm = useAppSelector(state => state.tasks_page.tasks.show_create_task_form)
@@ -69,7 +69,7 @@ export default function TaskCreate(): JSX.Element {
                         />
                     </styles.Form>
                     <styles.Side>
-                        <styles.CloseButton src="images/close.svg" onClick={closeCreateTaskForm} />
+                        <styles.CloseButton src={`${process.env.PUBLIC_URL}/images/close.svg`} onClick={closeCreateTaskForm} />
                     </styles.Side>
                 </styles.InnerContainer >
                 <styles.ErrorContainer>
