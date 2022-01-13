@@ -104,7 +104,7 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
 
     const event_list = useAppSelector(
         (state) => state.tasks_page.events.event_list
-    ).filter((event: { datetime_end: string; datetime_start: string }) => (event.datetime_end >= start && event.datetime_start <= end))
+    ).filter((event: TEvent) => (event.datetime_end >= start && event.datetime_start <= end))
 
     const fetchEvents = useFetchEvents()
     const fetchEventsAroundDate = useCallback(() => {
@@ -129,7 +129,7 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
 
     return (
         <EventsContainer ref={eventsContainerRef}>
-            {event_list.map((event) => <EventBody key={event.id} event={event} />)}
+            {event_list.map((event: TEvent) => <EventBody key={event.id} event={event} />)}
             {isToday && <TimeIndicator />}
             <CalendarTable />
         </EventsContainer>

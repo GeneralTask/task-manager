@@ -55,7 +55,7 @@ export const useFetchLinkedAccounts = (
 
 const Accounts: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(true)
-	const linkedAccounts = useAppSelector((state) => state.settings_page.linked_accounts)
+	const linkedAccounts: TLinkedAccount[] = useAppSelector((state) => state.settings_page.linked_accounts)
 	const dispatch = useAppDispatch()
 	const fetchLinkedAccounts = useFetchLinkedAccounts(setIsLoading)
 
