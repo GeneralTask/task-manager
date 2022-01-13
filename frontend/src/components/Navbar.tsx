@@ -2,7 +2,7 @@ import React, { ReactElement, RefObject, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import { LANDING_PATH, SETTINGS_PATH, TASKS_MODIFY_URL } from '../constants'
+import { SETTINGS_PATH, TASKS_MODIFY_URL } from '../constants'
 import { Indices, ItemTypes, TTaskSection } from '../helpers/types'
 import { NavbarPages } from '../helpers/enums'
 import { logout, makeAuthorizedRequest, navbarDropReorder } from '../helpers/utils'
@@ -45,6 +45,11 @@ const NavbarListItem = styled.div`
     width: 100%;
 `
 const NavbarLink = styled(Link)`
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+`
+const NavbarLogout = styled.div`
     width: 100%;
     height: 100%;
     cursor: pointer;
@@ -195,10 +200,10 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
             {
                 page: NavbarPages.LOGOUT,
                 link: (
-                    <NavbarLink to={LANDING_PATH} onClick={logout}>
+                    <NavbarLogout onClick={logout}>
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.LOGOUT}>
                             Logout</NavbarLinkButton>
-                    </NavbarLink>
+                    </NavbarLogout>
                 ),
             }
         ]
