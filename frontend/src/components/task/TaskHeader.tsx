@@ -1,12 +1,12 @@
 import './Task.css'
 import { Action, Dispatch } from '@reduxjs/toolkit'
-import { TASKS_MODIFY_URL, DONE_BUTTON } from '../../constants'
+import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
 import React, { useCallback } from 'react'
-import { collapseBody, expandBody, removeTaskByID } from '../../redux/tasksPageSlice'
+import { collapseBody, expandBody, removeTaskByID, hideDatePicker, hideTimeEstimate, showDatePicker, showTimeEstimate } from '../../redux/tasksPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'
 import { TTask } from '../../helpers/types'
-import { useAppDispatch } from '../../redux/hooks'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import {
   TaskHeaderContainer,
   HeaderLeft,
@@ -20,9 +20,16 @@ import {
   DragHandler,
   DominoContainer,
   DominoDot,
-  DoneButton
+  DoneButton,
+  ButtonRight,
+  ButtonIcon,
+  DueDateButtonText,
+  TimeEstimateButtonText
 } from './TaskHeader-style'
 import { LogEvents } from '../../helpers/enums'
+import DatePicker from '../calendar/DatePicker'
+import TimeEstimate from '../calendar/TimeEstimate'
+import { Duration } from 'luxon'
 
 function Domino(): JSX.Element {
   return (
@@ -40,6 +47,13 @@ interface TaskHeaderProps {
 const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: TaskHeaderProps, ref) => {
   const dispatch = useAppDispatch()
   const fetchTasks = useFetchTasks()
+
+  const date_picker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
+  const time_estimate = useAppSelector((state) => state.tasks_page.tasks.time_estimate)
+
+  const time_allocated_millis = isNaN(props.task.time_allocated) ? 0 : props.task.time_allocated
+  const time_allocated = Duration.fromMillis(time_allocated_millis / 1000).shiftTo('hours', 'minutes')
+  const due_date = new Date(new Date(props.task.due_date).valueOf() + 86400000).toLocaleDateString('default', { day: 'numeric', month: 'short' })
 
   const today = new Date()
   const dd = today.getDate()
@@ -81,6 +95,47 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.task.title} </Title>
       </HeaderLeft>
       <HeaderRight>
+        {hoverEffectEnabled &&
+          <ButtonRight onClick={(e) => {
+            e.stopPropagation()
+            dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
+          }}>
+            <ButtonIcon src={EXPAND_ICON} alt="expand" />
+          </ButtonRight>
+        }
+        {props.task.source.name === 'General Task' && <>
+          <ButtonRight onClick={(e) => {
+            e.stopPropagation()
+            dispatch(time_estimate === props.task.id ? hideTimeEstimate() : showTimeEstimate(props.task.id))
+          }}>
+            {
+              props.task.time_allocated > 3600000000000 ?
+                <ButtonIcon src={TIME_ICON} alt="time estimate" /> :
+                <TimeEstimateButtonText>
+                  {
+                    time_allocated.hours > 0 ?
+                      `${time_allocated.hours}hr${time_allocated.minutes}m` :
+                      `${time_allocated.minutes}m`
+                  }
+                </TimeEstimateButtonText>
+            }
+          </ButtonRight>
+          <ButtonRight onClick={(e) => {
+            e.stopPropagation()
+            dispatch(date_picker === props.task.id ? hideDatePicker() : showDatePicker(props.task.id))
+
+          }}>
+            {
+              props.task.due_date === '1969-12-31' ?
+                <ButtonIcon src={BLANK_CALENDAR_ICON} alt='due date' /> :
+                <DueDateButtonText>{due_date}</DueDateButtonText>
+            }
+          </ButtonRight>
+
+          {time_estimate === props.task.id && <TimeEstimate task_id={props.task.id} />}
+          {date_picker === props.task.id && <DatePicker task_id={props.task.id} />}
+        </>}
+
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
           <CalendarIconContainer>
