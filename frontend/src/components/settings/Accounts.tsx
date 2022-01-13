@@ -6,7 +6,7 @@ import AddNewAccountDropdown from './AddNewAccountDropdown'
 import DotSpinner from '../common/DotSpinner'
 import { LINKED_ACCOUNTS_URL } from '../../constants'
 import { TLinkedAccount } from '../../helpers/types'
-import { setLinkedAccounts } from '../../redux/settingsSlice'
+import { setLinkedAccounts } from '../../redux/userDataSlice'
 import styled from 'styled-components'
 import { AbortID } from '../../helpers/enums'
 
@@ -55,7 +55,7 @@ export const useFetchLinkedAccounts = (
 
 const Accounts: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(true)
-	const linkedAccounts = useAppSelector((state) => state.settings_page.linked_accounts)
+	const linkedAccounts = useAppSelector((state) => state.user_data.linked_accounts)
 	const dispatch = useAppDispatch()
 	const fetchLinkedAccounts = useFetchLinkedAccounts(setIsLoading)
 

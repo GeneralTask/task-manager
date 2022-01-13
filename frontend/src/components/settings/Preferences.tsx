@@ -3,7 +3,7 @@ import { TSetting, TSettingChoice } from '../../helpers/types'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { SETTINGS_URL } from '../../constants'
 import { makeAuthorizedRequest } from '../../helpers/utils'
-import { setSettings } from '../../redux/settingsSlice'
+import { setSettings } from '../../redux/userDataSlice'
 import styled from 'styled-components'
 import { useEffect } from 'react'
 import { AbortID } from '../../helpers/enums'
@@ -63,7 +63,7 @@ export const useFetchSettings = (): () => Promise<void> => {
 }
 
 const Preferences: React.FC = () => {
-    const settings = useAppSelector((state) => state.settings_page.settings)
+    const settings = useAppSelector((state) => state.user_data.settings)
     const fetchSettings = useFetchSettings()
     useEffect(() => {
         fetchSettings()

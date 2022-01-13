@@ -13,7 +13,7 @@ import { AbortID } from './enums'
 import Cookies from 'js-cookie'
 import { LogEvents } from './enums'
 import _ from 'lodash'
-import { setAuthToken } from '../redux/settingsSlice'
+import { setAuthToken } from '../redux/userDataSlice'
 import store from '../redux/store'
 
 // This invalidates the cookie on the frontend
@@ -29,7 +29,7 @@ export const logout = async (): Promise<void> => {
 }
 
 
-export const getAuthToken = (): string | undefined => store.getState().settings_page.authToken
+export const getAuthToken = (): string | undefined => store.getState().user_data.authToken
 
 export const getHeaders = (): Record<string, string> => {
     const date = new Date()

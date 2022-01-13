@@ -3,7 +3,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 import { useAppDispatch } from './redux/hooks'
-import { setAuthToken } from './redux/settingsSlice'
+import { setAuthToken } from './redux/userDataSlice'
 import Cookies from 'js-cookie'
 
 const App: React.FC = () => {

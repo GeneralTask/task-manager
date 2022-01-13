@@ -1,20 +1,20 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { TLinkedAccount, TSetting } from '../helpers/types'
 
-export interface SettingsState {
+export interface UserDataState {
     linked_accounts: TLinkedAccount[],
     settings: TSetting[],
     authToken: string | undefined,
 }
 
-const initialState: SettingsState = {
+const initialState: UserDataState = {
     linked_accounts: [],
     settings: [],
     authToken: undefined,
 }
 
-export const settingsSlice = createSlice({
-    name: 'settings',
+export const userDataSlice = createSlice({
+    name: 'userData',
     initialState,
     reducers: {
         setSettings(state, action: PayloadAction<TSetting[]>) {
@@ -29,6 +29,6 @@ export const settingsSlice = createSlice({
     },
 })
 
-export const { setSettings, setLinkedAccounts, setAuthToken } = settingsSlice.actions
+export const { setSettings, setLinkedAccounts, setAuthToken } = userDataSlice.actions
 
-export default settingsSlice.reducer
+export default userDataSlice.reducer
