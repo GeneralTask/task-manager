@@ -22,7 +22,7 @@ import {
   DominoDot,
   DoneButton
 } from './TaskHeader-style'
-import { LogEvents } from '../../redux/enums'
+import { LogEvents } from '../../helpers/enums'
 
 function Domino(): JSX.Element {
   return (

@@ -24,3 +24,11 @@ export enum LogEvents {
     // for when the refresh spinner is clicked by the user
     MANUAL_TASKS_REFRESH_CLICK = 'manual_tasks_refresh_click',
 }
+
+export enum NavbarPages {
+    TODAY_PAGE = 'today_page',
+    BLOCKED_PAGE = 'blocked_page',
+    BACKLOG_PAGE = 'backlog_page',
+    SETTINGS_PAGE = 'settings_page',
+    LOGOUT = 'logout'
+}

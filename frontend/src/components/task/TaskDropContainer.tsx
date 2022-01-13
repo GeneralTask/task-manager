@@ -8,7 +8,7 @@ import Task from './Task'
 import { setTasks } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
-import { LogEvents } from '../../redux/enums'
+import { LogEvents } from '../../helpers/enums'
 import { useFetchTasks } from './TasksPage'
 
 const DropOverlay = styled.div`

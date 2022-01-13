@@ -3,7 +3,7 @@ import Preferences from './Preferences'
 import React from 'react'
 import styled from 'styled-components'
 import Navbar from '../Navbar'
-import { NavbarPages } from '../../helpers/types'
+import { NavbarPages } from '../../helpers/enums'
 import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
 
 const SettingsPageContainer = styled.div`

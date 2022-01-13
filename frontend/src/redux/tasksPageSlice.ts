@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { TEvent, TTaskSection } from '../helpers/types'
 
-import { FetchStatusEnum } from './enums'
+import { FetchStatusEnum } from '../helpers/enums'
 
 export interface TasksPageState {
     tasks: {

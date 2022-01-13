@@ -10,7 +10,7 @@ import { TTask } from '../../helpers/types'
 import { toast } from 'react-toastify'
 import { TaskBodyDiv, Deeplink, ReplyDiv, ExpandedBody, EmailMessage, ReplyInputStyle, EmailViewDiv, EmailSubjectHeader } from './TaskBody-style'
 import sanitizeHtml from 'sanitize-html'
-import { LogEvents } from '../../redux/enums'
+import { LogEvents } from '../../helpers/enums'
 
 interface Props {
     task: TTask,

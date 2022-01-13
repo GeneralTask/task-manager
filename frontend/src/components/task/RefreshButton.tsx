@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components'
 
-import { FetchStatusEnum, LogEvents } from '../../redux/enums'
+import { FetchStatusEnum, LogEvents } from '../../helpers/enums'
 import React, { useCallback } from 'react'
 import { useAppSelector } from '../../redux/hooks'
 import { useFetchTasks } from './TasksPage'

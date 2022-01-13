@@ -8,7 +8,7 @@ import { LINKED_ACCOUNTS_URL } from '../../constants'
 import { TLinkedAccount } from '../../helpers/types'
 import { setLinkedAccounts } from '../../redux/settingsSlice'
 import styled from 'styled-components'
-import { AbortID } from '../../redux/enums'
+import { AbortID } from '../../helpers/enums'
 
 const FETCH_LINKED_ACCOUNTS_INTERVAL = 1000 * 30 // every thirty seconds
 const AccountsContainer = styled.div`
