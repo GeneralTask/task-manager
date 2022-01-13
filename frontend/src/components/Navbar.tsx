@@ -49,6 +49,11 @@ const NavbarLink = styled(Link)`
     height: 100%;
     cursor: pointer;
 `
+const NavbarLogout = styled.div`
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+`
 const NavbarLinkButton = styled.button<{ isCurrentPage: boolean }>`
     font-style: normal;
     font-weight: ${props => props.isCurrentPage ? '600' : 'normal'};
@@ -195,10 +200,10 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
             {
                 page: NavbarPages.LOGOUT,
                 link: (
-                    <NavbarLink to={LANDING_PATH} onClick={logout}>
+                    <NavbarLogout onClick={logout}>
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.LOGOUT}>
                             Logout</NavbarLinkButton>
-                    </NavbarLink>
+                    </NavbarLogout>
                 ),
             }
         ]
