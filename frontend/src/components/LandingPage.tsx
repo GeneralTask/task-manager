@@ -6,7 +6,6 @@ import { device, TEXT_GRAY } from '../helpers/styles'
 import styled from 'styled-components'
 import LegacyHeader from './Header'
 import { Navigate } from 'react-router-dom'
-import { useAppSelector } from '../redux/hooks'
 
 const Container = styled.div`
   margin: auto;
