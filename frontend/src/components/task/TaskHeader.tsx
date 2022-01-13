@@ -96,12 +96,14 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.task.title} </Title>
       </HeaderLeft>
       <HeaderRight>
-        <ButtonRight onClick={(e) => {
-          e.stopPropagation()
-          dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
-        }}>
-          <ButtonIcon src={EXPAND_ICON} alt="expand" />
-        </ButtonRight>
+        { hoverEffectEnabled &&
+          <ButtonRight onClick={(e) => {
+            e.stopPropagation()
+            dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
+          }}>
+            <ButtonIcon src={EXPAND_ICON} alt="expand" />
+          </ButtonRight>
+        }
         { props.task.source.name === 'General Task' && <>
           <ButtonRight onClick={(e) => {
             e.stopPropagation()
