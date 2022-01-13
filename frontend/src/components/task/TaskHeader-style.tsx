@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY, DOMINO_COLOR } from '../../helpers/styles'
+import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, DOMINO_COLOR } from '../../helpers/styles'
 
 export const DoneButton = styled.img`
   position: static;
