@@ -18,25 +18,37 @@ export const ButtonRight = styled.div`
   flex: none;
   order: 0;
   flex-grow: 0;
-  margin-right: 5px;
+  margin-right: 9px;
   cursor: pointer;
   &:hover {
     background-color: ${BACKGROUND_HOVER};
   }
-  border-radius: 4px;
+  border-radius: 7px;
 `
 export const ButtonIcon = styled.img`
   position: static;
   width: 100%;
   height: 100%;
 `
-export const ButtonText = styled.div`
+export const DueDateButtonText = styled.div`
   font-size: 12px;
+  font-weight: bold;
   padding: 0 0.4em;
   position: static;
   background-color: ${BACKGROUND_HOVER};
+  outline: 2px solid ${BACKGROUND_HOVER};
   height: 100%;
-  border-radius: 4px;
+  border-radius: 7px;
+  line-height: 1.7em;
+`
+export const TimeEstimateButtonText = styled.div`
+  font-size: 12px;
+  font-weight: bold;
+  padding: 0 0.4em;
+  position: static;
+  outline: 2px solid ${BACKGROUND_HOVER};
+  height: 100%;
+  border-radius: 7px;
   line-height: 1.7em;
 `
 export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`

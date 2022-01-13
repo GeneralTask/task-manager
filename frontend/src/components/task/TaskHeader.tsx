@@ -23,7 +23,8 @@ import {
   DoneButton,
   ButtonRight,
   ButtonIcon,
-  ButtonText
+  DueDateButtonText,
+  TimeEstimateButtonText
 } from './TaskHeader-style'
 import { LogEvents } from '../../redux/enums'
 import DatePicker from '../calendar/DatePicker'
@@ -108,13 +109,13 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           {
             props.task.time_allocated > 3600000000000 ? 
             <ButtonIcon src={TIME_ICON} alt="time estimate"/> :
-            <ButtonText>
+            <TimeEstimateButtonText>
               {
                 time_allocated.hours > 0 ?
                 `${time_allocated.hours}hr${time_allocated.minutes}m` :
                 `${time_allocated.minutes}m`
               }
-            </ButtonText>
+            </TimeEstimateButtonText>
           }
         </ButtonRight>
         <ButtonRight onClick={(e) => {
@@ -125,7 +126,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           {
             props.task.due_date === '1969-12-31' ? 
             <ButtonIcon src={BLANK_CALENDAR_ICON} alt='due date'/> :
-            <ButtonText>{due_date}</ButtonText>
+            <DueDateButtonText>{due_date}</DueDateButtonText>
           }
         </ButtonRight>
 
