@@ -126,14 +126,14 @@ export default function DatePicker({task_id}: DatePickerProps): JSX.Element {
                     e.stopPropagation()
                     prevMonth()
                 }}>
-                    <Icon src="images/CaretLeft.svg" alt="Previous Month"/>
+                    <Icon src={`${process.env.PUBLIC_URL}/images/CaretLeft.svg`} alt="Previous Month"/>
                 </HoverButton>
                 <MonthYearHeader>{monthyear}</MonthYearHeader>
                 <HoverButton onClick={(e) => {
                     e.stopPropagation()
                     nextMonth()
                 }}>
-                    <Icon src="images/CaretRight.svg" alt="Next Month"/>
+                    <Icon src={`${process.env.PUBLIC_URL}/images/CaretRight.svg`} alt="Next Month"/>
                 </HoverButton>
             </TopNav>
             <MonthContainer>{monthTable()}</MonthContainer>
