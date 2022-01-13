@@ -26,7 +26,7 @@ import {
   DueDateButtonText,
   TimeEstimateButtonText
 } from './TaskHeader-style'
-import { LogEvents } from '../../redux/enums'
+import { LogEvents } from '../../helpers/enums'
 import DatePicker from '../calendar/DatePicker'
 import TimeEstimate from '../calendar/TimeEstimate'
 import { Duration } from 'luxon'
