@@ -8,7 +8,7 @@ const createWindow = () => {
         height: 800,
         webPreferences: {
             nodeIntegration: true,
-        }
+        },
     })
     const url = process.env.APP_DEV ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`
     mainWindow.loadURL(url)
@@ -25,8 +25,10 @@ app.whenReady().then(() => {
         callback({
             responseHeaders: {
                 ...details.responseHeaders,
-                'Content-Security-Policy': ['connect-src \'self\' *.generaltask.com default-src \'none\'img-src \'self\'manifest-src \'self\'script-src-elem \'self\'style-src-elem \'self\'']
-            }
+                'Content-Security-Policy': [
+                    "connect-src 'self' *.generaltask.com default-src 'none'img-src 'self'manifest-src 'self'script-src-elem 'self'style-src-elem 'self'",
+                ],
+            },
         })
     })
     createWindow()

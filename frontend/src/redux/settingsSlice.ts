@@ -2,8 +2,8 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { TLinkedAccount, TSetting } from '../helpers/types'
 
 export interface SettingsState {
-    linked_accounts: TLinkedAccount[],
-    settings: TSetting[],
+    linked_accounts: TLinkedAccount[]
+    settings: TSetting[]
 }
 
 const initialState: SettingsState = {

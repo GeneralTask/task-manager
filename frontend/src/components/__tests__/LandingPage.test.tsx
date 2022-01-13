@@ -15,13 +15,12 @@ test('error message shows after ERROR response', async () => {
     server.use(
         rest.post(WAITLIST_URL, (_, res, ctx) => {
             return res(ctx.status(400))
-        }),
+        })
     )
     render(<Waitlist />)
     userEvent.click(screen.getByTestId('join-waitlist-button'))
     await waitFor(() => {
-        expect(screen.getByTestId('waitlist-message').innerHTML)
-            .toBe('There was an error adding you to the waitlist')
+        expect(screen.getByTestId('waitlist-message').innerHTML).toBe('There was an error adding you to the waitlist')
     })
 })
 
@@ -29,13 +28,12 @@ test('success message shows after OK response', async () => {
     server.use(
         rest.post(WAITLIST_URL, (_, res, ctx) => {
             return res(ctx.status(200))
-        }),
+        })
     )
     render(<Waitlist />)
     userEvent.click(screen.getByTestId('join-waitlist-button'))
     await waitFor(() => {
-        expect(screen.getByTestId('waitlist-message').innerHTML)
-            .toBe('You\'ve been added to the waitlist!')
+        expect(screen.getByTestId('waitlist-message').innerHTML).toBe("You've been added to the waitlist!")
     })
 })
 
@@ -43,12 +41,11 @@ test('exists message shows after 302 response', async () => {
     server.use(
         rest.post(WAITLIST_URL, (_, res, ctx) => {
             return res(ctx.status(302))
-        }),
+        })
     )
     render(<Waitlist />)
     userEvent.click(screen.getByTestId('join-waitlist-button'))
     await waitFor(() => {
-        expect(screen.getByTestId('waitlist-message').innerHTML)
-            .toBe('This email already exists in the waitlist')
+        expect(screen.getByTestId('waitlist-message').innerHTML).toBe('This email already exists in the waitlist')
     })
 })

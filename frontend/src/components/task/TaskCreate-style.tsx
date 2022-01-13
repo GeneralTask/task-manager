@@ -21,26 +21,26 @@ export const Form = styled.form`
     flex-wrap: wrap;
     justify-content: space-between;
     width: 70%;
-    @media ${device.mobile}{
+    @media ${device.mobile} {
         flex-wrap: nowrap;
         width: 60%;
     }
 `
 export const Input = styled.input<{ error: boolean }>`
     font-size: 16px;
-    border: ${props => props.error ? `1px solid ${BORDER_ERROR} !important` : 'none'};
+    border: ${(props) => (props.error ? `1px solid ${BORDER_ERROR} !important` : 'none')};
     outline: none;
     width: 100%;
     height: 32px;
     padding: 8px 16px;
     &::placeholder {
-        color: ${TEXT_LIGHTGRAY}
+        color: ${TEXT_LIGHTGRAY};
     }
 `
 export const InputTitle = styled(Input)`
     width: 100%;
     border-bottom: 1px solid ${BORDER_PRIMARY};
-    @media ${device.mobile}{
+    @media ${device.mobile} {
         width: 50%;
         border-bottom: none;
         border-right: 1px solid ${BORDER_PRIMARY};
@@ -49,7 +49,7 @@ export const InputTitle = styled(Input)`
 export const InputTimeEstimate = styled(Input)`
     width: 100%;
     border-bottom: 1px solid ${BORDER_PRIMARY};
-    @media ${device.mobile}{
+    @media ${device.mobile} {
         width: 25%;
         border-bottom: none;
         border-right: 1px solid ${BORDER_PRIMARY};
@@ -57,7 +57,7 @@ export const InputTimeEstimate = styled(Input)`
 `
 export const InputDueDate = styled(Input)`
     width: 60%;
-    @media ${device.mobile}{
+    @media ${device.mobile} {
         width: 15%;
     }
 `
@@ -68,7 +68,7 @@ export const SaveBtnDiv = styled.div`
     height: 100%;
     width: 20%;
     margin-right: 6px;
-    @media ${device.mobile}{
+    @media ${device.mobile} {
         width: 10%;
     }
 `
@@ -79,8 +79,8 @@ export const ErrorContainer = styled.div`
     padding-left: 4px;
     margin: auto;
     width: 70%;
-    margin-top: 8px;    
-    @media ${device.mobile}{
+    margin-top: 8px;
+    @media ${device.mobile} {
         width: 60%;
     }
 `

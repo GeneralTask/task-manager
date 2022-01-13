@@ -1,7 +1,6 @@
 import styled, { css } from 'styled-components'
 import { BORDER_PRIMARY, SHADOW_EXPANDED, SHADOW_PRIMARY } from '../../helpers/styles'
 
-
 export const DraggableContainer = styled.div`
     width: 60%;
     min-width: 500px;
@@ -9,16 +8,19 @@ export const DraggableContainer = styled.div`
     position: relative;
 `
 
-export const TaskContainer = styled.div<{ opacity: number, isExpanded: boolean }>`
-  padding: 0;
-  font-family: 'Ellipsis', 'Gothic A1', sans-serif;
-  border-radius: 12px;
-  width: 100%;
-  outline: none;
-  background-color: white;
-  opacity: ${props => props.opacity};
-  min-height: 50px;
-  box-shadow: ${props => props.isExpanded ? SHADOW_EXPANDED : SHADOW_PRIMARY};
+export const TaskContainer = styled.div<{
+    opacity: number
+    isExpanded: boolean
+}>`
+    padding: 0;
+    font-family: 'Ellipsis', 'Gothic A1', sans-serif;
+    border-radius: 12px;
+    width: 100%;
+    outline: none;
+    background-color: white;
+    opacity: ${(props) => props.opacity};
+    min-height: 50px;
+    box-shadow: ${(props) => (props.isExpanded ? SHADOW_EXPANDED : SHADOW_PRIMARY)};
 `
 
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
@@ -30,7 +32,7 @@ const DropIndicatorStyles = css<{ isVisible: boolean }>`
     color: ${BORDER_PRIMARY};
     border-color: ${BORDER_PRIMARY};
     background-color: ${BORDER_PRIMARY};
-    visibility: ${props => props.isVisible ? 'visible' : 'hidden'};
+    visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
 `
 
 export const DropIndicatorAbove = styled.hr`

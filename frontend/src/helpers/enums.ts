@@ -30,5 +30,5 @@ export enum NavbarPages {
     BLOCKED_PAGE = 'blocked_page',
     BACKLOG_PAGE = 'backlog_page',
     SETTINGS_PAGE = 'settings_page',
-    LOGOUT = 'logout'
+    LOGOUT = 'logout',
 }

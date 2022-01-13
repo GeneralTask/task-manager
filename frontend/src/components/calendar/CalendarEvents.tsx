@@ -1,5 +1,18 @@
 import { CALENDAR_DEFAULT_SCROLL_HOUR, CELL_HEIGHT } from '../../helpers/styles'
-import { CalendarCell, CalendarRow, CalendarTD, CalendarTableStyle, CellTime, EventBodyStyle, EventDescription, EventFill, EventFillContinues, EventTime, EventTitle, EventsContainer } from './CalendarEvents-styles'
+import {
+    CalendarCell,
+    CalendarRow,
+    CalendarTD,
+    CalendarTableStyle,
+    CellTime,
+    EventBodyStyle,
+    EventDescription,
+    EventFill,
+    EventFillContinues,
+    EventTime,
+    EventTitle,
+    EventsContainer,
+} from './CalendarEvents-styles'
 import { EVENTS_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import React, { Ref, useCallback, useEffect, useRef } from 'react'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
@@ -11,26 +24,26 @@ import { TimeIndicator } from './TimeIndicator'
 import { setEvents } from '../../redux/tasksPageSlice'
 
 function CalendarTable(): JSX.Element {
-    const hourElements = Array(24).fill(0).map((_, index) => (
-        <CalendarRow key={index}>
-            <CalendarTD>
-                <CalendarCell>
-                    <CellTime>{`${(index) % 12 + 1}:00`}</CellTime>
-                </CalendarCell>
-            </CalendarTD>
-        </CalendarRow>
-    ))
+    const hourElements = Array(24)
+        .fill(0)
+        .map((_, index) => (
+            <CalendarRow key={index}>
+                <CalendarTD>
+                    <CalendarCell>
+                        <CellTime>{`${(index % 12) + 1}:00`}</CellTime>
+                    </CalendarCell>
+                </CalendarTD>
+            </CalendarRow>
+        ))
     return (
         <CalendarTableStyle>
-            <tbody>
-                {hourElements}
-            </tbody>
+            <tbody>{hourElements}</tbody>
         </CalendarTableStyle>
     )
 }
 
 interface EventBodyProps {
-    event: TEvent,
+    event: TEvent
 }
 function EventBody({ event }: EventBodyProps): JSX.Element {
     const startTime = new Date(event.datetime_start)
@@ -38,12 +51,13 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
     const timeDurationHours = (endTime.getTime() - startTime.getTime()) / 1000 / 60 / 60
 
     const rollsOverMidnight = endTime.getDay() !== startTime.getDay()
-    const eventBodyHeight = rollsOverMidnight ?
-        (new Date(startTime).setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600 * CELL_HEIGHT : timeDurationHours * CELL_HEIGHT
+    const eventBodyHeight = rollsOverMidnight
+        ? ((new Date(startTime).setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600) * CELL_HEIGHT
+        : timeDurationHours * CELL_HEIGHT
 
     const startTimeHours = startTime.getHours() - 1
     const startTimeMinutes = startTime.getMinutes()
-    const topOffset = ((60 * startTimeHours) + startTimeMinutes) * (CELL_HEIGHT / 60)
+    const topOffset = (60 * startTimeHours + startTimeMinutes) * (CELL_HEIGHT / 60)
 
     const MMHH = { hour: 'numeric', minute: 'numeric', hour12: true } as const
     const startTimeString = startTime.toLocaleString('en-US', MMHH).replace(/AM|PM/, '')
@@ -52,12 +66,8 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
     return (
         <EventBodyStyle key={event.id} topOffset={topOffset} eventBodyHeight={eventBodyHeight}>
             <EventDescription>
-                <EventTitle>
-                    {event.title}
-                </EventTitle>
-                <EventTime>
-                    {`${startTimeString} - ${endTimeString}`}
-                </EventTime>
+                <EventTitle>{event.title}</EventTitle>
+                <EventTime>{`${startTimeString} - ${endTimeString}`}</EventTime>
             </EventDescription>
             {rollsOverMidnight ? <EventFillContinues /> : <EventFill />}
         </EventBodyStyle>
@@ -89,8 +99,8 @@ function useFetchEvents(): (start: Date, end: Date) => Promise<void> {
 }
 
 interface CalendarEventsProps {
-    date: Date,
-    isToday: boolean,
+    date: Date
+    isToday: boolean
 }
 export default function CalendarEvents({ date, isToday }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
@@ -102,9 +112,9 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
     endDate.setDate(startDate.getDate() + 1)
     const end = endDate.toISOString()
 
-    const event_list = useAppSelector(
-        (state) => state.tasks_page.events.event_list
-    ).filter(event => (event.datetime_end >= start && event.datetime_start <= end))
+    const event_list = useAppSelector((state) => state.tasks_page.events.event_list).filter(
+        (event) => event.datetime_end >= start && event.datetime_start <= end
+    )
 
     const fetchEvents = useFetchEvents()
     const fetchEventsAroundDate = useCallback(() => {
@@ -129,10 +139,11 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
 
     return (
         <EventsContainer ref={eventsContainerRef}>
-            {event_list.map((event) => <EventBody key={event.id} event={event} />)}
+            {event_list.map((event) => (
+                <EventBody key={event.id} event={event} />
+            ))}
             {isToday && <TimeIndicator />}
             <CalendarTable />
         </EventsContainer>
     )
 }
-

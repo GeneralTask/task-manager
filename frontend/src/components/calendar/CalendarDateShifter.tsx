@@ -10,7 +10,7 @@ const CalendarShifterContainer = styled.div`
 `
 const Shifter = styled.button`
     width: 30px;
-    background-color: #F4F4F4;
+    background-color: #f4f4f4;
     border: none;
     cursor: pointer;
     border-radius: 5px;
@@ -41,7 +41,7 @@ const DateStyle = styled.div`
     text-align: center;
 `
 interface CalendarShifterProps {
-    date: Date,
+    date: Date
     setDate: Dispatch<Date>
 }
 export default function CalendarShifter({ date, setDate }: CalendarShifterProps): JSX.Element {
@@ -60,16 +60,12 @@ export default function CalendarShifter({ date, setDate }: CalendarShifterProps)
     }
     return (
         <CalendarShifterContainer>
-            <Shifter onClick={() => decrementDate()}>
-                &lt;
-            </Shifter>
+            <Shifter onClick={() => decrementDate()}>&lt;</Shifter>
             <CenterDateDisplay>
                 <DayStyle>{day}</DayStyle>
                 <DateStyle>{monthlyDate}</DateStyle>
             </CenterDateDisplay>
-            <Shifter onClick={() => incrementDate()}>
-                &gt;
-            </Shifter>
-        </CalendarShifterContainer >
+            <Shifter onClick={() => incrementDate()}>&gt;</Shifter>
+        </CalendarShifterContainer>
     )
 }

@@ -1,243 +1,243 @@
 {
-  "events": [
-    {
-      "id": "f2aba811-2bfd-4558-9ef0-96048a1e6b0b",
-      "title": "Chat with Scott",
-      "body": "<div>hello world<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>Goodbye world<div>",
-      "deeplink": "https://calendar.google.com",
-      "datetime_start": "2019-12-12T12:00:00-08:00",
-      "datetime_end": "2019-12-12T13:00:00-08:00",
-      "conference_call": null
-    },
-    {
-      "id": "c72b41a6-c0d5-46bb-b868-f7021bdd8ae9",
-      "title": "Lunch Break",
-      "body": "",
-      "deeplink": "https://calendar.google.com",
-      "datetime_start": "2021-03-11T12:00:00-07:00",
-      "datetime_end": "2021-03-11T13:00:00-07:00",
-      "conference_call": null
-    }
-  ],
-  "tasks_v2": [
-    {
-      "id": "task-section-1-id",
-      "name": "Today",
-      "tasks": [
+    "events": [
         {
-          "id": "1",
-          "id_ordering": 1,
-          "title": "Hey, can you help me put out this fire?",
-          "deeplink": "https://slack.com",
-          "body": "",
-          "sent_at": "2020-04-01T00:00:00.000Z",
-          "time_allocated": 3600,
-          "source": {
+            "id": "f2aba811-2bfd-4558-9ef0-96048a1e6b0b",
+            "title": "Chat with Scott",
+            "body": "<div>hello world<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>Goodbye world<div>",
+            "deeplink": "https://calendar.google.com",
+            "datetime_start": "2019-12-12T12:00:00-08:00",
+            "datetime_end": "2019-12-12T13:00:00-08:00",
+            "conference_call": null
+        },
+        {
+            "id": "c72b41a6-c0d5-46bb-b868-f7021bdd8ae9",
+            "title": "Lunch Break",
+            "body": "",
+            "deeplink": "https://calendar.google.com",
+            "datetime_start": "2021-03-11T12:00:00-07:00",
+            "datetime_end": "2021-03-11T13:00:00-07:00",
+            "conference_call": null
+        }
+    ],
+    "tasks_v2": [
+        {
+            "id": "task-section-1-id",
+            "name": "Today",
+            "tasks": [
+                {
+                    "id": "1",
+                    "id_ordering": 1,
+                    "title": "Hey, can you help me put out this fire?",
+                    "deeplink": "https://slack.com",
+                    "body": "",
+                    "sent_at": "2020-04-01T00:00:00.000Z",
+                    "time_allocated": 3600,
+                    "source": {
+                        "name": "Slack",
+                        "logo": "/images/slack.svg",
+                        "is_completable": true,
+                        "is_replyable": true
+                    },
+                    "sender": "@hackerdog"
+                },
+                {
+                    "id": "2",
+                    "id_ordering": 2,
+                    "title": "Urgent question about tomorrow's presentation",
+                    "deeplink": "https://gmail.com",
+                    "body": "<html><body><div><img src='https://5mpublishing.sirv.com/poultry%2Farticles%2Fother-poultry%2Fduck-6.jpeg?scale.option=fill&scale.width=700&scale.height=350&crop.width=700&crop.height=350&crop.y=center&crop.x=center'/></div></body></html>",
+                    "sent_at": "2020-04-01T00:00:00.000Z",
+                    "time_allocated": 3600,
+                    "source": {
+                        "name": "Gmail",
+                        "logo": "/images/gmail.svg",
+                        "is_completable": true,
+                        "is_replyable": true
+                    },
+                    "sender": "@hackerdog",
+                    "emailSender": "nolan@generaltask.com",
+                    "emailSentTime": "2021-12-06T07:39:00-15:13"
+                },
+                {
+                    "id": "4",
+                    "id_ordering": 4,
+                    "title": "Write presentation for tomorrow",
+                    "deeplink": "https://asana.com",
+                    "body": "",
+                    "sent_at": "2020-04-01T00:00:00.000Z",
+                    "time_allocated": 3600,
+                    "source": {
+                        "name": "Asana",
+                        "logo": "/images/asana.svg",
+                        "is_completable": false,
+                        "is_replyable": false
+                    },
+                    "sender": "@hackerdog"
+                },
+                {
+                    "id": "5",
+                    "id_ordering": 5,
+                    "title": "Your Amazon.com Store Card Statement from Synchrony Bank is Available Online Your Amazon.com Store Card Statement from Synchrony Bank is Available Online",
+                    "deeplink": "https://gmail.com",
+                    "body": "<div>hello world<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>sup<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>Goodbye world<div>",
+                    "sent_at": "2020-04-01T00:00:00.000Z",
+                    "time_allocated": 3600,
+                    "source": {
+                        "name": "Gmail",
+                        "logo": "/images/gmail.svg",
+                        "is_completable": true,
+                        "is_replyable": true
+                    },
+                    "sender": "Amazon.com Store Card Customer Service",
+                    "emailSender": "amazon@bezos.com",
+                    "emailSentTime": "2021-12-06T07:39:00-15:13"
+                }
+            ]
+        },
+        {
+            "id": "task-section-2-id",
+            "name": "Backlog",
+            "tasks": [
+                {
+                    "id": "task-6",
+                    "id_ordering": 1,
+                    "logo_url": "/images/asana.svg",
+                    "title": "Fix all the bugs",
+                    "deeplink": "",
+                    "body": null,
+                    "sent_at": "2020-04-01T00:00:00.000Z",
+                    "time_allocated": 3600,
+                    "source": {
+                        "name": "Asana",
+                        "logo": "/images/asana.svg",
+                        "is_completable": false,
+                        "is_replyable": false
+                    },
+                    "sender": "Zuck"
+                },
+                {
+                    "id": "task-7",
+                    "id_ordering": 2,
+                    "title": "Hey, can you write some more tests?",
+                    "deeplink": "https://gmail.com",
+                    "body": "<html><body><div><img src='https://5mpublishing.sirv.com/poultry%2Farticles%2Fother-poultry%2Fduck-6.jpeg?scale.option=fill&scale.width=700&scale.height=350&crop.width=700&crop.height=350&crop.y=center&crop.x=center'/></div></body></html>",
+                    "sent_at": "2020-04-01T00:00:00.000Z",
+                    "time_allocated": 3600,
+                    "source": {
+                        "name": "Gmail",
+                        "logo": "/images/gmail.svg",
+                        "is_completable": true,
+                        "is_replyable": true
+                    },
+                    "sender": "Jeff",
+                    "emailSender": "foo@bar.com",
+                    "emailSentTime": "2021-12-06T07:39:00-10:13"
+                }
+            ]
+        },
+        {
+            "id": "task-section-2-id",
+            "name": "Blocked",
+            "tasks": [
+                {
+                    "id": "task-8",
+                    "id_ordering": 1,
+                    "logo_url": "/images/asana.svg",
+                    "title": "ML-powered task prioritization",
+                    "deeplink": "",
+                    "body": null,
+                    "sent_at": "2020-04-01T00:00:00.000Z",
+                    "time_allocated": 3600,
+                    "source": {
+                        "name": "Asana",
+                        "logo": "/images/asana.svg",
+                        "is_completable": false,
+                        "is_replyable": false
+                    },
+                    "sender": "Zuck"
+                }
+            ]
+        }
+    ],
+    "settings": [
+        {
+            "field_key": "email_done_preference",
+            "field_value": "archive",
+            "field_name": "'Done' action for emails",
+            "choices": [
+                {
+                    "choice_key": "archive",
+                    "choice_name": "Archive"
+                },
+                {
+                    "choice_key": "mark_as_read",
+                    "choice_name": "Mark as read"
+                }
+            ]
+        },
+        {
+            "field_key": "duck",
+            "field_value": "duck",
+            "field_name": "duck",
+            "choices": [
+                {
+                    "choice_key": "duck",
+                    "choice_name": "duck"
+                },
+                {
+                    "choice_key": "duck",
+                    "choice_name": "duck"
+                },
+                {
+                    "choice_key": "duck",
+                    "choice_name": "duck"
+                }
+            ]
+        }
+    ],
+    "linked_accounts": [
+        {
+            "id": "id-1",
+            "display_id": "scottmai702@gmail.com",
+            "name": "Google",
+            "logo": "/images/google.svg",
+            "is_unlinkable": false
+        },
+        {
+            "id": "id-2",
+            "display_id": "Slacker",
             "name": "Slack",
             "logo": "/images/slack.svg",
-            "is_completable": true,
-            "is_replyable": true
-          },
-          "sender": "@hackerdog"
+            "is_unlinkable": true
         },
         {
-          "id": "2",
-          "id_ordering": 2,
-          "title": "Urgent question about tomorrow's presentation",
-          "deeplink": "https://gmail.com",
-          "body": "<html><body><div><img src='https://5mpublishing.sirv.com/poultry%2Farticles%2Fother-poultry%2Fduck-6.jpeg?scale.option=fill&scale.width=700&scale.height=350&crop.width=700&crop.height=350&crop.y=center&crop.x=center'/></div></body></html>",
-          "sent_at": "2020-04-01T00:00:00.000Z",
-          "time_allocated": 3600,
-          "source": {
-            "name": "Gmail",
-            "logo": "/images/gmail.svg",
-            "is_completable": true,
-            "is_replyable": true
-          },
-          "sender": "@hackerdog",
-          "emailSender": "nolan@generaltask.com",
-          "emailSentTime": "2021-12-06T07:39:00-15:13"
-        },
-        {
-          "id": "4",
-          "id_ordering": 4,
-          "title": "Write presentation for tomorrow",
-          "deeplink": "https://asana.com",
-          "body": "",
-          "sent_at": "2020-04-01T00:00:00.000Z",
-          "time_allocated": 3600,
-          "source": {
-            "name": "Asana",
-            "logo": "/images/asana.svg",
-            "is_completable": false,
-            "is_replyable": false
-          },
-          "sender": "@hackerdog"
-        },
-        {
-          "id": "5",
-          "id_ordering": 5,
-          "title": "Your Amazon.com Store Card Statement from Synchrony Bank is Available Online Your Amazon.com Store Card Statement from Synchrony Bank is Available Online",
-          "deeplink": "https://gmail.com",
-          "body": "<div>hello world<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>sup<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>Goodbye world<div>",
-          "sent_at": "2020-04-01T00:00:00.000Z",
-          "time_allocated": 3600,
-          "source": {
-            "name": "Gmail",
-            "logo": "/images/gmail.svg",
-            "is_completable": true,
-            "is_replyable": true
-          },
-          "sender": "Amazon.com Store Card Customer Service",
-          "emailSender": "amazon@bezos.com",
-          "emailSentTime": "2021-12-06T07:39:00-15:13"
+            "id": "id-3",
+            "display_id": "Treller",
+            "name": "Trello",
+            "logo": "/images/trello.svg",
+            "is_unlinkable": true
         }
-      ]
-    },
-    {
-      "id": "task-section-2-id",
-      "name": "Backlog",
-      "tasks": [
+    ],
+    "linked_accounts_supported_types": [
         {
-          "id": "task-6",
-          "id_ordering": 1,
-          "logo_url": "/images/asana.svg",
-          "title": "Fix all the bugs",
-          "deeplink": "",
-          "body": null,
-          "sent_at": "2020-04-01T00:00:00.000Z",
-          "time_allocated": 3600,
-          "source": {
-            "name": "Asana",
-            "logo": "/images/asana.svg",
-            "is_completable": false,
-            "is_replyable": false
-          },
-          "sender": "Zuck"
+            "authorization_url ": "https://www.google.com/",
+            "name": "Google",
+            "logo": "/images/google.svg"
         },
         {
-          "id": "task-7",
-          "id_ordering": 2,
-          "title": "Hey, can you write some more tests?",
-          "deeplink": "https://gmail.com",
-          "body": "<html><body><div><img src='https://5mpublishing.sirv.com/poultry%2Farticles%2Fother-poultry%2Fduck-6.jpeg?scale.option=fill&scale.width=700&scale.height=350&crop.width=700&crop.height=350&crop.y=center&crop.x=center'/></div></body></html>",
-          "sent_at": "2020-04-01T00:00:00.000Z",
-          "time_allocated": 3600,
-          "source": {
-            "name": "Gmail",
-            "logo": "/images/gmail.svg",
-            "is_completable": true,
-            "is_replyable": true
-          },
-          "sender": "Jeff",
-          "emailSender": "foo@bar.com",
-          "emailSentTime": "2021-12-06T07:39:00-10:13"
-        }
-      ]
-    },
-    {
-      "id": "task-section-2-id",
-      "name": "Blocked",
-      "tasks": [
-        {
-          "id": "task-8",
-          "id_ordering": 1,
-          "logo_url": "/images/asana.svg",
-          "title": "ML-powered task prioritization",
-          "deeplink": "",
-          "body": null,
-          "sent_at": "2020-04-01T00:00:00.000Z",
-          "time_allocated": 3600,
-          "source": {
-            "name": "Asana",
-            "logo": "/images/asana.svg",
-            "is_completable": false,
-            "is_replyable": false
-          },
-          "sender": "Zuck"
-        }
-      ]
-    }
-  ],
-  "settings": [
-    {
-      "field_key": "email_done_preference",
-      "field_value": "archive",
-      "field_name": "'Done' action for emails",
-      "choices": [
-        {
-          "choice_key": "archive",
-          "choice_name": "Archive"
+            "authorization_url ": "https://www.slack.com/",
+            "name": "Slack",
+            "logo": "/images/slack.svg"
         },
         {
-          "choice_key": "mark_as_read",
-          "choice_name": "Mark as read"
-        }
-      ]
-    },
-    {
-      "field_key": "duck",
-      "field_value": "duck",
-      "field_name": "duck",
-      "choices": [
-        {
-          "choice_key": "duck",
-          "choice_name": "duck"
+            "authorization_url ": "https://www.trello.com/",
+            "name": "Trello",
+            "logo": "/images/trello.svg"
         },
         {
-          "choice_key": "duck",
-          "choice_name": "duck"
-        },
-        {
-          "choice_key": "duck",
-          "choice_name": "duck"
+            "authorization_url ": "/link/jira/",
+            "name": "Jira",
+            "logo": "/images/jira.svg"
         }
-      ]
-    }
-  ],
-  "linked_accounts": [
-    {
-      "id": "id-1",
-      "display_id": "scottmai702@gmail.com",
-      "name": "Google",
-      "logo": "/images/google.svg",
-      "is_unlinkable": false
-    },
-    {
-      "id": "id-2",
-      "display_id": "Slacker",
-      "name": "Slack",
-      "logo": "/images/slack.svg",
-      "is_unlinkable": true
-    },
-    {
-      "id": "id-3",
-      "display_id": "Treller",
-      "name": "Trello",
-      "logo": "/images/trello.svg",
-      "is_unlinkable": true
-    }
-  ],
-  "linked_accounts_supported_types": [
-    {
-      "authorization_url ": "https://www.google.com/",
-      "name": "Google",
-      "logo": "/images/google.svg"
-    },
-    {
-      "authorization_url ": "https://www.slack.com/",
-      "name": "Slack",
-      "logo": "/images/slack.svg"
-    },
-    {
-      "authorization_url ": "https://www.trello.com/",
-      "name": "Trello",
-      "logo": "/images/trello.svg"
-    },
-    {
-      "authorization_url ": "/link/jira/",
-      "name": "Jira",
-      "logo": "/images/jira.svg"
-    }
-  ]
+    ]
 }

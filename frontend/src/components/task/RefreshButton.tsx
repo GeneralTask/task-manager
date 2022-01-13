@@ -25,11 +25,8 @@ const Container = styled.div`
     cursor: pointer;
 `
 
-
 const RefreshButton = (): JSX.Element => {
-    const isLoading = useAppSelector(
-        state => state.tasks_page.tasks.fetch_status
-    ) === FetchStatusEnum.LOADING
+    const isLoading = useAppSelector((state) => state.tasks_page.tasks.fetch_status) === FetchStatusEnum.LOADING
     const fetchTasks = useFetchTasks()
 
     const refresh = useCallback(() => {
@@ -37,12 +34,15 @@ const RefreshButton = (): JSX.Element => {
         logEvent(LogEvents.MANUAL_TASKS_REFRESH_CLICK)
     }, [])
 
-    return <Container onClick={refresh}>
-        {isLoading
-            ? <SpinningRefreshBtn src={`${process.env.PUBLIC_URL}/images/refresh.svg`} />
-            : <RefreshBtn src={`${process.env.PUBLIC_URL}/images/refresh.svg`} />
-        }
-    </Container>
+    return (
+        <Container onClick={refresh}>
+            {isLoading ? (
+                <SpinningRefreshBtn src={`${process.env.PUBLIC_URL}/images/refresh.svg`} />
+            ) : (
+                <RefreshBtn src={`${process.env.PUBLIC_URL}/images/refresh.svg`} />
+            )}
+        </Container>
+    )
 }
 
 export default React.memo(RefreshButton)

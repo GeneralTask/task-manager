@@ -15,7 +15,7 @@ import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
 import { LogEvents } from '../../helpers/enums'
 
 export default function TaskCreate(): JSX.Element {
-    const showCreateTaskForm = useAppSelector(state => state.tasks_page.tasks.show_create_task_form)
+    const showCreateTaskForm = useAppSelector((state) => state.tasks_page.tasks.show_create_task_form)
     const dispatch = useAppDispatch()
 
     const [title, setTitle] = useState('')
@@ -33,121 +33,143 @@ export default function TaskCreate(): JSX.Element {
         logEvent(LogEvents.HIDE_TASK_CREATE_FORM)
     }, [])
 
-    return <>
-        {showCreateTaskForm && <>
-            <styles.OuterContainer>
-                <styles.InnerContainer>
-                    <styles.Side />
-                    <styles.Form onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
-                        e.preventDefault()
+    return (
+        <>
+            {showCreateTaskForm && (
+                <>
+                    <styles.OuterContainer>
+                        <styles.InnerContainer>
+                            <styles.Side />
+                            <styles.Form
+                                onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+                                    e.preventDefault()
 
-                        let tempTitleError = ''
-                        let tempTimeEstimateError = ''
-                        let tempDueDateError = ''
+                                    let tempTitleError = ''
+                                    let tempTimeEstimateError = ''
+                                    let tempDueDateError = ''
 
-                        if (title === '') {
-                            tempTitleError = 'Title is required'
-                        }
+                                    if (title === '') {
+                                        tempTitleError = 'Title is required'
+                                    }
 
-                        const timeEstimateNum = -1
-                        if (timeEstimate !== '') {
-                            let timeEstimateNum = parse(timeEstimate, 's')
-                            if (timeEstimateNum == null) {
-                                tempTimeEstimateError = 'Unable to parse time estimate'
-                            }
-                            else if (timeEstimateNum <= 0) {
-                                tempTimeEstimateError = 'Time estimate must be positive'
-                            }
-                            timeEstimateNum *= 1000
-                        }
+                                    const timeEstimateNum = -1
+                                    if (timeEstimate !== '') {
+                                        let timeEstimateNum = parse(timeEstimate, 's')
+                                        if (timeEstimateNum == null) {
+                                            tempTimeEstimateError = 'Unable to parse time estimate'
+                                        } else if (timeEstimateNum <= 0) {
+                                            tempTimeEstimateError = 'Time estimate must be positive'
+                                        }
+                                        timeEstimateNum *= 1000
+                                    }
 
-                        let parsedDueDate = ''
-                        if (dueDate !== '') {
-                            const parsedDate = parseDate(dueDate)
+                                    let parsedDueDate = ''
+                                    if (dueDate !== '') {
+                                        const parsedDate = parseDate(dueDate)
 
-                            if (parsedDate == null) {
-                                tempDueDateError = 'Could not parse due date'
-                            }
-                            else {
-                                parsedDueDate = parsedDate.toISOString()
-                            }
-                        }
+                                        if (parsedDate == null) {
+                                            tempDueDateError = 'Could not parse due date'
+                                        } else {
+                                            parsedDueDate = parsedDate.toISOString()
+                                        }
+                                    }
 
-                        setTitleError(tempTitleError)
-                        setTimeEstimateError(tempTimeEstimateError)
-                        setDueDateError(tempDueDateError)
+                                    setTitleError(tempTitleError)
+                                    setTimeEstimateError(tempTimeEstimateError)
+                                    setDueDateError(tempDueDateError)
 
-                        if (tempTitleError === '' && tempTimeEstimateError === '' && tempDueDateError === '') {
-                            // no errors
-                            const body: TTaskCreateParams = {
-                                title,
-                            }
-                            if (timeEstimateNum > 0) {
-                                body.time_duration = timeEstimateNum * 60
-                            }
-                            if (dueDate !== '' && parsedDueDate != null) {
-                                body.due_date = parsedDueDate
-                            }
+                                    if (
+                                        tempTitleError === '' &&
+                                        tempTimeEstimateError === '' &&
+                                        tempDueDateError === ''
+                                    ) {
+                                        // no errors
+                                        const body: TTaskCreateParams = {
+                                            title,
+                                        }
+                                        if (timeEstimateNum > 0) {
+                                            body.time_duration = timeEstimateNum * 60
+                                        }
+                                        if (dueDate !== '' && parsedDueDate != null) {
+                                            body.due_date = parsedDueDate
+                                        }
 
-                            setTitle('')
-                            setTimeEstimate('')
-                            setDueDate('')
+                                        setTitle('')
+                                        setTimeEstimate('')
+                                        setDueDate('')
 
-                            const response = await makeAuthorizedRequest({
-                                url: TASKS_CREATE_URL + GT_TASK_SOURCE_ID + '/',
-                                method: 'POST',
-                                body: JSON.stringify(body),
-                            })
-                            if (response.ok) {
-                                logEvent(LogEvents.TASK_CREATED)
-                            }
-                            await fetchTasks()
-                        }
-                    }}>
-                        <styles.InputTitle
-                            placeholder='Describe Task'
-                            value={title}
-                            error={titleError !== ''}
-                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
-                        />
-                        <styles.InputTimeEstimate
-                            placeholder='Time Estimate'
-                            value={timeEstimate}
-                            error={timeEstimateError !== ''}
-                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTimeEstimate(event.target.value)}
-                        />
-                        <styles.InputDueDate
-                            placeholder='Due Date'
-                            value={dueDate}
-                            error={dueDateError !== ''}
-                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDueDate(event.target.value)}
-                        />
-                        <styles.SaveBtnDiv>
-                            <GTButton theme='black' width='80%' type='submit' >Save</GTButton>
-                        </styles.SaveBtnDiv>
-                    </styles.Form>
-                    <styles.Side>
-                        <styles.CloseButton src={`${process.env.PUBLIC_URL}/images/close.svg`} onClick={closeCreateTaskForm} />
-                    </styles.Side>
-                </styles.InnerContainer >
-                <styles.ErrorContainer>
-                    {titleError && <flex.alignItemsCenter>
-                        <styles.ErrorIcon src='/images/error.svg' />
-                        <span>{titleError}</span>
-                    </flex.alignItemsCenter>
-                    }
-                    {timeEstimateError && <flex.alignItemsCenter>
-                        <styles.ErrorIcon src='/images/error.svg' />
-                        <span>{timeEstimateError}</span>
-                    </flex.alignItemsCenter>
-                    }
-                    {dueDateError && <flex.alignItemsCenter>
-                        <styles.ErrorIcon src='/images/error.svg' />
-                        <span>{dueDateError}</span>
-                    </flex.alignItemsCenter>
-                    }
-                </styles.ErrorContainer>
-            </styles.OuterContainer>
-        </>}
-    </>
+                                        const response = await makeAuthorizedRequest({
+                                            url: TASKS_CREATE_URL + GT_TASK_SOURCE_ID + '/',
+                                            method: 'POST',
+                                            body: JSON.stringify(body),
+                                        })
+                                        if (response.ok) {
+                                            logEvent(LogEvents.TASK_CREATED)
+                                        }
+                                        await fetchTasks()
+                                    }
+                                }}
+                            >
+                                <styles.InputTitle
+                                    placeholder="Describe Task"
+                                    value={title}
+                                    error={titleError !== ''}
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                                        setTitle(event.target.value)
+                                    }
+                                />
+                                <styles.InputTimeEstimate
+                                    placeholder="Time Estimate"
+                                    value={timeEstimate}
+                                    error={timeEstimateError !== ''}
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                                        setTimeEstimate(event.target.value)
+                                    }
+                                />
+                                <styles.InputDueDate
+                                    placeholder="Due Date"
+                                    value={dueDate}
+                                    error={dueDateError !== ''}
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                                        setDueDate(event.target.value)
+                                    }
+                                />
+                                <styles.SaveBtnDiv>
+                                    <GTButton theme="black" width="80%" type="submit">
+                                        Save
+                                    </GTButton>
+                                </styles.SaveBtnDiv>
+                            </styles.Form>
+                            <styles.Side>
+                                <styles.CloseButton
+                                    src={`${process.env.PUBLIC_URL}/images/close.svg`}
+                                    onClick={closeCreateTaskForm}
+                                />
+                            </styles.Side>
+                        </styles.InnerContainer>
+                        <styles.ErrorContainer>
+                            {titleError && (
+                                <flex.alignItemsCenter>
+                                    <styles.ErrorIcon src="/images/error.svg" />
+                                    <span>{titleError}</span>
+                                </flex.alignItemsCenter>
+                            )}
+                            {timeEstimateError && (
+                                <flex.alignItemsCenter>
+                                    <styles.ErrorIcon src="/images/error.svg" />
+                                    <span>{timeEstimateError}</span>
+                                </flex.alignItemsCenter>
+                            )}
+                            {dueDateError && (
+                                <flex.alignItemsCenter>
+                                    <styles.ErrorIcon src="/images/error.svg" />
+                                    <span>{dueDateError}</span>
+                                </flex.alignItemsCenter>
+                            )}
+                        </styles.ErrorContainer>
+                    </styles.OuterContainer>
+                </>
+            )}
+        </>
+    )
 }
