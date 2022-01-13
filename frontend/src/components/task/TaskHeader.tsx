@@ -52,7 +52,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
   const date_picker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
   const time_estimate = useAppSelector((state) => state.tasks_page.tasks.time_estimate)
 
-  const time_allocated_millis = props.task.time_allocated / 1000
+  const time_allocated_millis = isNaN(props.task.time_allocated / 1000) ? 0 : props.task.time_allocated / 1000
   const time_allocated = Duration.fromMillis(time_allocated_millis).shiftTo('hours', 'minutes')
   const due_date = new Date(new Date(props.task.due_date).valueOf() + 86400000).toLocaleDateString('default', { day: 'numeric', month: 'short' })
   
