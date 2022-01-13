@@ -5,7 +5,7 @@ import React, { Ref, useCallback, useEffect, useRef } from 'react'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
-import { AbortID } from '../../redux/enums'
+import { AbortID } from '../../helpers/enums'
 import { TEvent } from '../../helpers/types'
 import { TimeIndicator } from './TimeIndicator'
 import { setEvents } from '../../redux/tasksPageSlice'
@@ -64,14 +64,10 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
     )
 }
 
-function useFetchEvents(): (date: Date) => Promise<void> {
+function useFetchEvents(): (start: Date, end: Date) => Promise<void> {
     const dispatch = useAppDispatch()
-    const fetchEvents = useCallback(async (date: Date) => {
+    const fetchEvents = useCallback(async (start: Date, end: Date) => {
         try {
-            const start = new Date(date)
-            start.setHours(0, 0, 0, 0)
-            const end = new Date(date)
-            end.setHours(23, 59, 59, 999)
             const response = await makeAuthorizedRequest({
                 url: EVENTS_URL,
                 method: 'GET',
@@ -98,13 +94,32 @@ interface CalendarEventsProps {
 }
 export default function CalendarEvents({ date, isToday }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
-    const event_list = useAppSelector((state) => state.tasks_page.events.event_list)
+
+    const startDate = new Date(date)
+    startDate.setHours(0, 0, 0, 0)
+    const start = startDate.toISOString()
+    const endDate = new Date(startDate)
+    endDate.setDate(startDate.getDate() + 1)
+    const end = endDate.toISOString()
+
+    const event_list = useAppSelector(
+        (state) => state.tasks_page.events.event_list
+    ).filter(event => (event.datetime_end >= start && event.datetime_start <= end))
+
     const fetchEvents = useFetchEvents()
-    const fetchEventsForDate = useCallback(() => {
-        fetchEvents(date)
+    const fetchEventsAroundDate = useCallback(() => {
+        const start = new Date(date)
+        start.setDate(date.getDate() - 3)
+        start.setHours(0, 0, 0, 0)
+
+        const end = new Date(date)
+        end.setDate(date.getDate() + 3)
+        end.setHours(23, 59, 59, 999)
+
+        fetchEvents(start, end)
     }, [date])
 
-    useInterval(fetchEventsForDate, TASKS_FETCH_INTERVAL)
+    useInterval(fetchEventsAroundDate, TASKS_FETCH_INTERVAL)
 
     useEffect(() => {
         if (eventsContainerRef.current) {

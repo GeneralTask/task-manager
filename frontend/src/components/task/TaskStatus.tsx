@@ -1,7 +1,7 @@
 import { TASK_STATUS_FETCH_ERROR, TASK_STATUS_NO_TASKS } from '../../constants'
 
 import DotSpinner from '../common/DotSpinner'
-import { FetchStatusEnum } from '../../redux/enums'
+import { FetchStatusEnum } from '../../helpers/enums'
 import React from 'react'
 import styled from 'styled-components'
 import { useAppSelector } from '../../redux/hooks'

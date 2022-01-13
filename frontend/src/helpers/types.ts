@@ -1,10 +1,4 @@
-export enum NavbarPages {
-    TODAY_PAGE = 'today_page',
-    BLOCKED_PAGE = 'blocked_page',
-    BACKLOG_PAGE = 'backlog_page',
-    SETTINGS_PAGE = 'settings_page',
-    LOGOUT = 'logout'
-}
+export type Datestring = string
 
 export interface TTaskSource {
     name: string,

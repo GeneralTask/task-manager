@@ -3,12 +3,13 @@ import { useDrop } from 'react-dnd'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { LANDING_PATH, SETTINGS_PATH, TASKS_MODIFY_URL } from '../constants'
-import { Indices, ItemTypes, NavbarPages, TTaskSection } from '../helpers/types'
+import { Indices, ItemTypes, TTaskSection } from '../helpers/types'
+import { NavbarPages } from '../helpers/enums'
 import { logout, makeAuthorizedRequest, navbarDropReorder } from '../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import { setTasks } from '../redux/tasksPageSlice'
 import { useFetchTasks } from './task/TasksPage'
-import { BACKGROUND_HOVER, BORDER_PRIMARY, SHADOW_PRIMARY, TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND, TEXT_BLACK, TEXT_GRAY } from '../helpers/styles'
+import { BACKGROUND_HOVER, BORDER_PRIMARY, flex, SHADOW_PRIMARY, TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND, TEXT_BLACK, TEXT_GRAY } from '../helpers/styles'
 
 const NavbarContainer = styled.div`
     flex: 0 0 275px;
@@ -24,7 +25,6 @@ const NavbarList = styled.div`
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin-top: 40px;
 `
 const NavbarItemDroppableDiv = styled.div<{ isCurrentPage: boolean, isOverDroppable: boolean }>`
     width: 92.5%;
@@ -42,6 +42,7 @@ const NavbarItemDroppableDiv = styled.div<{ isCurrentPage: boolean, isOverDroppa
 `
 const NavbarListItem = styled.div`
     display: flex;
+    width: 100%;
 `
 const NavbarLink = styled(Link)`
     width: 100%;
@@ -60,6 +61,19 @@ const NavbarLinkButton = styled.button<{ isCurrentPage: boolean }>`
     padding-left: 10px;
     cursor: pointer;
 `
+const Icon = styled.img`
+    width: 48px;
+    height: 48px;
+    padding: 1em;
+`
+
+const NavbarHeader = (): JSX.Element => {
+    return (
+        <flex.flex>
+            <Icon src={`${process.env.PUBLIC_URL}/images/LOGO.svg`} />
+        </flex.flex>
+    )
+}
 interface NavbarItemDroppableContainerProps {
     children: ReactElement<typeof NavbarElements>,
     page: NavbarPages,
@@ -205,7 +219,8 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
 
 const Navbar = ({ currentPage }: NavbarProps): JSX.Element => (
     <NavbarContainer>
-        <NavbarElements currentPage={currentPage}></NavbarElements>
+        <NavbarHeader />
+        <NavbarElements currentPage={currentPage} />
     </NavbarContainer>
 )
 

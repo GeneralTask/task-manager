@@ -12,7 +12,7 @@ import { flex } from '../../helpers/styles'
 import parse from 'parse-duration'
 import { parseDate } from '../../helpers/TimeParser'
 import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
-import { LogEvents } from '../../redux/enums'
+import { LogEvents } from '../../helpers/enums'
 
 export default function TaskCreate(): JSX.Element {
     const showCreateTaskForm = useAppSelector(state => state.tasks_page.tasks.show_create_task_form)

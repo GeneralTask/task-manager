@@ -6,7 +6,7 @@ import { makeAuthorizedRequest } from '../../helpers/utils'
 import { setSettings } from '../../redux/settingsSlice'
 import styled from 'styled-components'
 import { useEffect } from 'react'
-import { AbortID } from '../../redux/enums'
+import { AbortID } from '../../helpers/enums'
 
 const PreferencesContainer = styled.div`
     display: flex;
