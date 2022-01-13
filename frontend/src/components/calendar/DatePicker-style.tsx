@@ -32,9 +32,10 @@ export const TopNav = styled.div`
 export const MonthContainer = styled.div`
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: start;
     height: 70%;
     width: 100%;
+    margin-top: 2em;
 `
 
 export const BottomBar = styled.div`

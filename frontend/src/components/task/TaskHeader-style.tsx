@@ -31,13 +31,13 @@ export const ButtonIcon = styled.img`
   height: 100%;
 `
 export const ButtonText = styled.div`
-  font-size: 14px;
-  padding: 0 0.2em;
-  vertical-align: middle;
+  font-size: 12px;
+  padding: 0 0.4em;
   position: static;
   background-color: ${BACKGROUND_HOVER};
   height: 100%;
   border-radius: 4px;
+  line-height: 1.7em;
 `
 export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
   position: relative;

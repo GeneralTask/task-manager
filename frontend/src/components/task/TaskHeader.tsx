@@ -28,6 +28,7 @@ import {
 import { LogEvents } from '../../redux/enums'
 import DatePicker from '../calendar/DatePicker'
 import TimeEstimate from '../calendar/TimeEstimate'
+import { Duration } from 'luxon'
 
 function Domino(): JSX.Element {
   return (
@@ -49,6 +50,10 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
 
   const date_picker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
   const time_estimate = useAppSelector((state) => state.tasks_page.tasks.time_estimate)
+
+  const time_allocated_millis = props.task.time_allocated / 1000
+  const time_allocated = Duration.fromMillis(time_allocated_millis).shiftTo('hours', 'minutes')
+  const due_date = new Date(new Date(props.task.due_date).valueOf() + 86400000).toLocaleDateString('default', { day: 'numeric', month: 'short' })
   
   const today = new Date()
   const dd = today.getDate()
@@ -101,10 +106,14 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           dispatch(time_estimate === props.task.id ? hideTimeEstimate() : showTimeEstimate(props.task.id))
         }}>
           {
-            props.task.time_allocated === 3600000000000 ? 
+            props.task.time_allocated > 3600000000000 ? 
             <ButtonIcon src={TIME_ICON} alt="time estimate"/> :
             <ButtonText>
-              {(props.task.time_allocated / 60000000).toFixed(0) + ' min'}
+              {
+                time_allocated.hours > 0 ?
+                `${time_allocated.hours}hr${time_allocated.minutes}m` :
+                `${time_allocated.minutes}m`
+              }
             </ButtonText>
           }
         </ButtonRight>
@@ -116,9 +125,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           {
             props.task.due_date === '1969-12-31' ? 
             <ButtonIcon src={BLANK_CALENDAR_ICON} alt='due date'/> :
-            <ButtonText>
-              {new Date(new Date(props.task.due_date).valueOf() + 86400000).toLocaleDateString('default', { day: 'numeric', month: 'short' })}
-            </ButtonText>
+            <ButtonText>{due_date}</ButtonText>
           }
         </ButtonRight>
 
