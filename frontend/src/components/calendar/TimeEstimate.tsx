@@ -14,6 +14,8 @@ export default function TimeEstimate({task_id}: TimeEstimateProps): JSX.Element 
     const dispatch = useAppDispatch()
     const fetchTasks = useFetchTasks()
 
+    const timeValues = [5, 10, 15, 30, 45, 60]
+
     return (
         <TimeEstimateContainer onClick={(e) => {
             e.stopPropagation()
@@ -27,9 +29,8 @@ export default function TimeEstimate({task_id}: TimeEstimateProps): JSX.Element 
                     }
                 } />
             </TopNav>
-            {/* <TimeInput type="number" placeholder="1:00" /> */}
             {
-                [5, 10, 15, 30, 45, 60].map((val, i) => {
+                timeValues.map((val, i) => {
                     return (
                         <TimeButton key={i} onClick={
                             (e) => {
@@ -58,7 +59,7 @@ const editTimeEstimate = async (task_id: string, time_estimate: number, dispatch
         if (!response.ok) {
         throw new Error('PATCH /tasks/modify Edit Time Estimate failed: ' + response.text())
         }
-        await fetchTasks()
+        fetchTasks()
     } catch (e) {
         console.log({ e })
     }

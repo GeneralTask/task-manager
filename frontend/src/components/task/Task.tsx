@@ -43,7 +43,6 @@ export default function Task(props: Props): JSX.Element {
           task={task}
           dragDisabled={dragDisabled}
           isExpanded={isBodyExpanded}
-          isDatePickerVisible={true}
           ref={drag}
         />
         <TaskBody

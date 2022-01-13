@@ -2,7 +2,6 @@ import styled from 'styled-components'
 import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, DOMINO_COLOR } from '../../helpers/styles'
 
 export const DoneButton = styled.img`
-  position: static;
   width: 24px;
   height: 24px;
   flex: none;
@@ -12,7 +11,6 @@ export const DoneButton = styled.img`
   cursor: pointer;
 `
 export const ButtonRight = styled.div`
-  position: static;
   min-width: 20px;
   height: 20px;
   flex: none;
@@ -26,7 +24,6 @@ export const ButtonRight = styled.div`
   border-radius: 7px;
 `
 export const ButtonIcon = styled.img`
-  position: static;
   width: 100%;
   height: 100%;
 `
@@ -34,7 +31,6 @@ export const DueDateButtonText = styled.div`
   font-size: 12px;
   font-weight: bold;
   padding: 0 0.4em;
-  position: static;
   background-color: ${BACKGROUND_HOVER};
   outline: 2px solid ${BACKGROUND_HOVER};
   height: 100%;
@@ -59,9 +55,6 @@ export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, sho
   justify-content: space-between;
   align-items: center;
   cursor: ${props => props.hoverEffect ? 'pointer' : 'inherit'};
-  /* &:hover {
-    background-color: ${BACKGROUND_HOVER};
-  } */
   min-height: 50px;
 `
 export const HeaderLeft = styled.div`

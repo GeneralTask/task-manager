@@ -5,12 +5,9 @@ export const PickerContainer = styled.div`
     display: block;
     width: 250px;
     height: 350px;
-    margin: 0 auto;
     position: absolute;
     background-color: white;
     border-radius: 10px;
-    // border: 1px solid black;
-    margin: 10px;
     box-shadow: 0 0 5px lightgray;
     z-index: 1;
     top: 100%;
@@ -22,7 +19,6 @@ export const TopNav = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    // padding: 0 10px;
     height: 15%;
     width: 100%;
     border-bottom: 1px solid ${DIVIDER_LIGHTGRAY};

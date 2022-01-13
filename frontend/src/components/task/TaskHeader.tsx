@@ -42,7 +42,6 @@ interface TaskHeaderProps {
   task: TTask,
   dragDisabled: boolean,
   isExpanded: boolean,
-  isDatePickerVisible: boolean,
 }
 
 const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: TaskHeaderProps, ref) => {
@@ -52,10 +51,10 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
   const date_picker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
   const time_estimate = useAppSelector((state) => state.tasks_page.tasks.time_estimate)
 
-  const time_allocated_millis = isNaN(props.task.time_allocated / 1000) ? 0 : props.task.time_allocated / 1000
-  const time_allocated = Duration.fromMillis(time_allocated_millis).shiftTo('hours', 'minutes')
+  const time_allocated_millis = isNaN(props.task.time_allocated) ? 0 : props.task.time_allocated
+  const time_allocated = Duration.fromMillis(time_allocated_millis / 1000).shiftTo('hours', 'minutes')
   const due_date = new Date(new Date(props.task.due_date).valueOf() + 86400000).toLocaleDateString('default', { day: 'numeric', month: 'short' })
-  
+
   const today = new Date()
   const dd = today.getDate()
   const month = today.toLocaleDateString('default', { month: 'short' })
@@ -96,7 +95,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.task.title} </Title>
       </HeaderLeft>
       <HeaderRight>
-        { hoverEffectEnabled &&
+        {hoverEffectEnabled &&
           <ButtonRight onClick={(e) => {
             e.stopPropagation()
             dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
@@ -104,21 +103,21 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
             <ButtonIcon src={EXPAND_ICON} alt="expand" />
           </ButtonRight>
         }
-        { props.task.source.name === 'General Task' && <>
+        {props.task.source.name === 'General Task' && <>
           <ButtonRight onClick={(e) => {
             e.stopPropagation()
             dispatch(time_estimate === props.task.id ? hideTimeEstimate() : showTimeEstimate(props.task.id))
           }}>
             {
-              props.task.time_allocated > 3600000000000 ? 
-              <ButtonIcon src={TIME_ICON} alt="time estimate"/> :
-              <TimeEstimateButtonText>
-                {
-                  time_allocated.hours > 0 ?
-                  `${time_allocated.hours}hr${time_allocated.minutes}m` :
-                  `${time_allocated.minutes}m`
-                }
-              </TimeEstimateButtonText>
+              props.task.time_allocated > 3600000000000 ?
+                <ButtonIcon src={TIME_ICON} alt="time estimate" /> :
+                <TimeEstimateButtonText>
+                  {
+                    time_allocated.hours > 0 ?
+                      `${time_allocated.hours}hr${time_allocated.minutes}m` :
+                      `${time_allocated.minutes}m`
+                  }
+                </TimeEstimateButtonText>
             }
           </ButtonRight>
           <ButtonRight onClick={(e) => {
@@ -127,14 +126,14 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
 
           }}>
             {
-              props.task.due_date === '1969-12-31' ? 
-              <ButtonIcon src={BLANK_CALENDAR_ICON} alt='due date'/> :
-              <DueDateButtonText>{due_date}</DueDateButtonText>
+              props.task.due_date === '1969-12-31' ?
+                <ButtonIcon src={BLANK_CALENDAR_ICON} alt='due date' /> :
+                <DueDateButtonText>{due_date}</DueDateButtonText>
             }
           </ButtonRight>
 
-          { time_estimate === props.task.id && <TimeEstimate task_id={props.task.id}/> }
-          { date_picker === props.task.id && <DatePicker task_id={props.task.id} /> }
+          {time_estimate === props.task.id && <TimeEstimate task_id={props.task.id} />}
+          {date_picker === props.task.id && <DatePicker task_id={props.task.id} />}
         </>}
 
         <DeadlineIndicator>

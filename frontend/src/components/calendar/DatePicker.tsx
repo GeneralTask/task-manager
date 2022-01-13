@@ -76,19 +76,17 @@ export default function DatePicker({task_id}: DatePickerProps): JSX.Element {
     }
 
     const getAllDays = (): JSX.Element => {
-        return (
-            <>
-                {
-                    getDays(firstDayOfMonth(), -firstDayOfMonth()+1)
-                }
-                {
-                    getDays(daysInMonth(), 1)
-                }
-                {
-                    getDays(6-lastDayOfMonth(), daysInMonth()+1)
-                }
-            </>
-        )
+        return (<>
+            {
+                getDays(firstDayOfMonth(), -firstDayOfMonth()+1)
+            }
+            {
+                getDays(daysInMonth(), 1)
+            }
+            {
+                getDays(6-lastDayOfMonth(), daysInMonth()+1)
+            }
+        </>)
     }
 
 
@@ -137,9 +135,7 @@ export default function DatePicker({task_id}: DatePickerProps): JSX.Element {
                 </HoverButton>
             </TopNav>
             <MonthContainer>{monthTable()}</MonthContainer>
-            <BottomBar>
-
-            </BottomBar>
+            <BottomBar/>
         </PickerContainer>
     )
 }
@@ -156,7 +152,7 @@ const editDueDate = async (task_id: string, due_date: string, dispatch: Dispatch
         if (!response.ok) {
         throw new Error('PATCH /tasks/modify Edit Due Date failed: ' + response.text())
         }
-        await fetchTasks()
+        fetchTasks()
     } catch (e) {
         console.log({ e })
     }

@@ -4,18 +4,14 @@ import { TEXT_DARKGRAY, DIVIDER_LIGHTGRAY, ICON_HOVER } from '../../helpers/styl
 export const TimeEstimateContainer = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
     width: 150px;
     height: 400px;
-    margin: 0 auto;
     position: absolute;
     background-color: white;
     border-radius: 10px;
-    margin: 10px;
     box-shadow: 0 0 5px lightgray;
     z-index: 1;
     top: 100%;
-    right: 0;
     padding: 10px;
     cursor: default;
 `
@@ -24,11 +20,9 @@ export const TopNav = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    // padding: 10px;
     height: 10%;
     width: 100%;
     border-bottom: 1px solid ${DIVIDER_LIGHTGRAY};
-    // border-radius: 10px 10px 0 0;
 `
 
 export const Header = styled.div`
