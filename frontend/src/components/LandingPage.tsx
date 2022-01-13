@@ -6,6 +6,7 @@ import { device, TEXT_GRAY } from '../helpers/styles'
 import styled from 'styled-components'
 import LegacyHeader from './Header'
 import { Navigate } from 'react-router-dom'
+import { useAppSelector } from '../redux/hooks'
 
 const Container = styled.div`
   margin: auto;
@@ -81,9 +82,7 @@ enum WaitlistState {
 }
 
 const LandingPage: React.FC = () => {
-  if (getAuthToken()) {
-    return <Navigate to='/tasks/today' />
-  }
+  if (getAuthToken()) return <Navigate to='/tasks/today' />
   return (
     <div>
       <LegacyHeader isLoggedIn={Boolean(getAuthToken())} />

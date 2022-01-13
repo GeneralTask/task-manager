@@ -4,11 +4,13 @@ import { TLinkedAccount, TSetting } from '../helpers/types'
 export interface SettingsState {
     linked_accounts: TLinkedAccount[],
     settings: TSetting[],
+    authToken: string | undefined,
 }
 
 const initialState: SettingsState = {
     linked_accounts: [],
     settings: [],
+    authToken: undefined,
 }
 
 export const settingsSlice = createSlice({
@@ -21,9 +23,12 @@ export const settingsSlice = createSlice({
         setLinkedAccounts(state, action: PayloadAction<TLinkedAccount[]>) {
             state.linked_accounts = action.payload
         },
+        setAuthToken(state, action: PayloadAction<string | undefined>) {
+            state.authToken = action.payload
+        }
     },
 })
 
-export const { setSettings, setLinkedAccounts } = settingsSlice.actions
+export const { setSettings, setLinkedAccounts, setAuthToken } = settingsSlice.actions
 
 export default settingsSlice.reducer
