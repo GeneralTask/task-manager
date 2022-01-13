@@ -122,7 +122,7 @@ export const Waitlist: React.FC = () => {
             messageText = ''
             break
         case WaitlistState.SUCCESS:
-            messageText = "You've been added to the waitlist!"
+            messageText = 'You\'ve been added to the waitlist!'
             messageTextColor = '#4F8A10'
             messageBackgroundColor = '#DFF2BF'
             break
