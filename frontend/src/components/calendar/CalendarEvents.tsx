@@ -104,7 +104,7 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
 
     const event_list = useAppSelector(
         (state) => state.tasks_page.events.event_list
-    ).filter(event => (event.datetime_end >= start && event.datetime_start <= end))
+    ).filter((event: { datetime_end: string; datetime_start: string }) => (event.datetime_end >= start && event.datetime_start <= end))
 
     const fetchEvents = useFetchEvents()
     const fetchEventsAroundDate = useCallback(() => {
