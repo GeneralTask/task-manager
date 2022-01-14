@@ -1,6 +1,5 @@
 import { AbortID, FetchStatusEnum, LogEvents } from '../../helpers/enums'
 import React, { useCallback, useEffect } from 'react'
-import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
 import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
 import { logEvent, makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import {
@@ -23,17 +22,15 @@ import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import { Navigate, useParams } from 'react-router-dom'
 import RefreshButton from './RefreshButton'
+import EventAlert from '../alert/EventAlert'
 
 const TasksPageContainer = styled.div`
     display: flex;
     height: 100%;
 `
 const TasksContentContainer = styled.div`
-    flex: 1;
     display: flex;
-    overflow: scroll;
     flex-direction: column;
-    background-image: linear-gradient(to bottom right, ${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
     min-width: 600px;
 `
 const Header = styled.div`
@@ -189,7 +186,9 @@ export default function TasksPage(): JSX.Element {
     return (
         <TasksPageContainer>
             <Navbar currentPage={currentPage} />
-            <Tasks currentPage={currentPage} />
+            <EventAlert>
+                <Tasks currentPage={currentPage} />
+            </EventAlert>
             {calendarSidebarShown && <CalendarSidebar />}
         </TasksPageContainer>
     )
