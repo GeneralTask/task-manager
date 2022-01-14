@@ -47,6 +47,36 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     position: absolute;
     right: calc(${(100 - TABLE_WIDTH_PERCENTAGE) / 2}%);
 `
+export const EventInfo = styled.div`
+    /* position: absolute;
+    z-index: 1; */
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    height: 100%;
+    width: 100%;
+`
+export const EventTitle = styled.div`
+    font-style: normal;
+    font-size: 14px;
+    font-weight: 600;
+    color: ${EVENT_TITLE_TEXT_COLOR};
+    margin-right: 8px;
+
+    float: left;
+    max-height: 100%;
+`
+export const EventTime = styled.div`
+    font-style: normal;
+    font-size: 13px;
+    font-weight: 600;
+    color: ${EVENT_TIME_TEXT_COLOR};
+    /* margin-top: 2px; */
+
+    float: left;
+    height: 100%;
+`
 export const EventFill = styled.div`
     width: 100%;
     height: 97%;
@@ -56,23 +86,4 @@ export const EventFill = styled.div`
 `
 export const EventFillContinues = styled(EventFill)`
     border-radius: 8px 8px 0 0;
-`
-export const EventDescription = styled.div`
-    position: absolute;
-    opacity: 100%;
-    padding: 12px;
-    z-index: 1;
-`
-export const EventTitle = styled.div`
-    font-style: normal;
-    font-size: 14px;
-    font-weight: 600;
-    color: ${EVENT_TITLE_TEXT_COLOR};
-`
-export const EventTime = styled.div`
-    font-style: normal;
-    font-size: 13px;
-    font-weight: 600;
-    color: ${EVENT_TIME_TEXT_COLOR};
-    margin-top: 2px;
 `

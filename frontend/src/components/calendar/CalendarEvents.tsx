@@ -1,5 +1,5 @@
 import { CALENDAR_DEFAULT_SCROLL_HOUR, CELL_HEIGHT } from '../../helpers/styles'
-import { CalendarCell, CalendarRow, CalendarTD, CalendarTableStyle, CellTime, EventBodyStyle, EventDescription, EventFill, EventFillContinues, EventTime, EventTitle, EventsContainer } from './CalendarEvents-styles'
+import { CalendarCell, CalendarRow, CalendarTD, CalendarTableStyle, CellTime, EventBodyStyle, EventInfo, EventFill, EventFillContinues, EventTime, EventTitle, EventsContainer } from './CalendarEvents-styles'
 import { EVENTS_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import React, { Ref, useCallback, useEffect, useRef } from 'react'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
@@ -28,6 +28,28 @@ function CalendarTable(): JSX.Element {
         </CalendarTableStyle>
     )
 }
+/*
+Styling classes for various event based on size (inspired by google calendar)
+    - If there's room for multiple lines, use multiple lines
+    - Otherwise, push onto one line
+    - Truncate task title first, hide times if doesn't fit
+    - Its okay to remove padding for very short tasks
+
+Various classes of tasks based on duration
+    - 0-29 minutes
+        - Constant size (15 minutes)
+        - Smaller font size
+        - All on one line
+        - Center-align text
+    - 30-44 minutes:
+        - Normal font size
+        - All on one line
+        - Attach text to top of event (with padding)
+    - 45+ minutes:
+        - Two vertical sessions - title on first, times on second
+        - times on bottom is set
+        - title on top grows to fill the rest of the task
+*/
 
 interface EventBodyProps {
     event: TEvent,
@@ -35,7 +57,8 @@ interface EventBodyProps {
 function EventBody({ event }: EventBodyProps): JSX.Element {
     const startTime = new Date(event.datetime_start)
     const endTime = new Date(event.datetime_end)
-    const timeDurationHours = (endTime.getTime() - startTime.getTime()) / 1000 / 60 / 60
+    const timeDurationMinutes = (endTime.getTime() - startTime.getTime()) / 1000 / 60
+    const timeDurationHours = timeDurationMinutes / 60
 
     const rollsOverMidnight = endTime.getDay() !== startTime.getDay()
     const eventBodyHeight = rollsOverMidnight ?
@@ -51,14 +74,23 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
 
     return (
         <EventBodyStyle key={event.id} topOffset={topOffset} eventBodyHeight={eventBodyHeight}>
-            <EventDescription>
-                <EventTitle>
-                    {event.title}
-                </EventTitle>
-                <EventTime>
-                    {`${startTimeString} - ${endTimeString}`}
-                </EventTime>
-            </EventDescription>
+            <div style={{
+                height: '100%',
+                width: '100%',
+                position: 'absolute',
+                zIndex: 1,
+                // display: 'block',
+                // margin: '12px 0',
+            }}>
+                <EventInfo>
+                    <EventTitle>
+                        {event.title}
+                    </EventTitle>
+                    <EventTime>
+                        {`${startTimeString} - ${endTimeString}`}
+                    </EventTime>
+                </EventInfo>
+            </div>
             {rollsOverMidnight ? <EventFillContinues /> : <EventFill />}
         </EventBodyStyle>
     )
