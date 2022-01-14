@@ -89,10 +89,10 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         }
         {
           props.task.source.is_completable &&
-          <DoneButton src={DONE_BUTTON} onClick={(e) =>{
+          <DoneButton src={DONE_BUTTON} onClick={(e) => {
             e.stopPropagation()
             onDoneButtonClick()
-          }}/>
+          }} />
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
         <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.task.title} </Title>
@@ -112,7 +112,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
             dispatch(time_estimate === props.task.id ? hideTimeEstimate() : showTimeEstimate(props.task.id))
           }}>
             {
-              props.task.time_allocated > 3600000000000 ?
+              props.task.time_allocated >= 3600000000000 ?
                 <ButtonIcon src={TIME_ICON} alt="time estimate" /> :
                 <TimeEstimateButtonText>
                   {
