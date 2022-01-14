@@ -59,7 +59,7 @@ export default function EventAlert({ children }: EventAlertProps): JSX.Element {
         eventAlertElement = (
             <EventAlertContentContainer id='event-alert'>
                 <EventAlertHeader>
-                    Your meeting&nbsp;
+                    Your event&nbsp;
                     <EventAlertEventTitle>{nextSoonEvent.title}</EventAlertEventTitle>
                     &nbsp;in {Math.ceil((tempDate.getTime() - new Date().getTime()) / 1000 / 60)} minutes.
                 </EventAlertHeader>
