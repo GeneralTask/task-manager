@@ -26,7 +26,7 @@ app.whenReady().then(() => {
             responseHeaders: {
                 ...details.responseHeaders,
                 'Content-Security-Policy': [
-                    "connect-src 'self' *.generaltask.com default-src 'none'img-src 'self'manifest-src 'self'script-src-elem 'self'style-src-elem 'self'",
+                    `connect-src 'self' *.generaltask.com default-src 'none'img-src 'self'manifest-src 'self'script-src-elem 'self'style-src-elem 'self'`,
                 ],
             },
         })

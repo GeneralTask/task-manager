@@ -33,7 +33,7 @@ test('success message shows after OK response', async () => {
     render(<Waitlist />)
     userEvent.click(screen.getByTestId('join-waitlist-button'))
     await waitFor(() => {
-        expect(screen.getByTestId('waitlist-message').innerHTML).toBe("You've been added to the waitlist!")
+        expect(screen.getByTestId('waitlist-message').innerHTML).toBe(`You've been added to the waitlist!`)
     })
 })
 
