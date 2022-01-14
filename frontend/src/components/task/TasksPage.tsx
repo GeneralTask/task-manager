@@ -1,6 +1,5 @@
 import { AbortID, FetchStatusEnum, LogEvents } from '../../helpers/enums'
 import React, { useCallback, useEffect } from 'react'
-import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
 import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
 import { logEvent, makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import {
