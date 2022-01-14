@@ -9,7 +9,7 @@
 <defs>
 <filter id="filter0_d_1140_28758" x="0.439379" y="0.191511" width="26.3212" height="21.3035" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<!-- <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/> -->
 <feOffset dy="0.352124"/>
 <feGaussianBlur stdDeviation="0.880309"/>
 <feComposite in2="hardAlpha" operator="out"/>
