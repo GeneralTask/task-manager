@@ -84,7 +84,7 @@ export const EventTime = styled.div`
 `
 export const EventFill = styled.div`
     width: 100%;
-    height: 97%;
+    height: 100%;
     background-color: black;
     opacity: 15%;
     border-radius: 8px;
