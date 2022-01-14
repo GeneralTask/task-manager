@@ -12,105 +12,116 @@ import { AbortID } from '../../helpers/enums'
 
 const FETCH_LINKED_ACCOUNTS_INTERVAL = 1000 * 30 // every thirty seconds
 const AccountsContainer = styled.div`
-	display: flex;
-	flex-direction: column;
+    display: flex;
+    flex-direction: column;
 `
 const AccountsHeader = styled.div`
-	display: flex;
-	justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
 `
 const AccountsHeaderText = styled.div`
-	font-size: 1.5em; 
-	font-weight: bold;
-	min-width: 290px;
+    font-size: 1.5em;
+    font-weight: bold;
+    min-width: 290px;
 `
 const AccountsBody = styled.div`
-	margin-top: 20px;
+    margin-top: 20px;
 `
 
-export const useFetchLinkedAccounts = (
-	setIsLoading: (x: boolean) => void = emptyFunction,
-): () => Promise<void> => {
-	const dispatch = useAppDispatch()
-	return useCallback(async () => {
-		try {
-			setIsLoading(true)
-			const response = await makeAuthorizedRequest({
-				url: LINKED_ACCOUNTS_URL,
-				method: 'GET',
-				abortID: AbortID.LINKED_ACCOUNTS,
-			})
-			if (response.ok) {
-				const accounts: TLinkedAccount[] = await response.json()
-				dispatch(setLinkedAccounts(accounts))
-			}
-		} catch (e) {
-			console.log({ e })
-		} finally {
-			setIsLoading(false)
-		}
-
-	}, [dispatch, setIsLoading])
+export const useFetchLinkedAccounts = (setIsLoading: (x: boolean) => void = emptyFunction): (() => Promise<void>) => {
+    const dispatch = useAppDispatch()
+    return useCallback(async () => {
+        try {
+            setIsLoading(true)
+            const response = await makeAuthorizedRequest({
+                url: LINKED_ACCOUNTS_URL,
+                method: 'GET',
+                abortID: AbortID.LINKED_ACCOUNTS,
+            })
+            if (response.ok) {
+                const accounts: TLinkedAccount[] = await response.json()
+                dispatch(setLinkedAccounts(accounts))
+            }
+        } catch (e) {
+            console.log({ e })
+        } finally {
+            setIsLoading(false)
+        }
+    }, [dispatch, setIsLoading])
 }
 
 const Accounts: React.FC = () => {
-	const [isLoading, setIsLoading] = useState(true)
-	const linkedAccounts = useAppSelector((state) => state.settings_page.linked_accounts)
-	const dispatch = useAppDispatch()
-	const fetchLinkedAccounts = useFetchLinkedAccounts(setIsLoading)
+    const [isLoading, setIsLoading] = useState(true)
+    const linkedAccounts = useAppSelector((state) => state.settings_page.linked_accounts)
+    const dispatch = useAppDispatch()
+    const fetchLinkedAccounts = useFetchLinkedAccounts(setIsLoading)
 
-	useEffect(() => {
-		fetchLinkedAccounts()
-		const interval = setInterval(() => { fetchLinkedAccounts() }, FETCH_LINKED_ACCOUNTS_INTERVAL)
-		return () => {
-			clearInterval(interval)
-		}
-	}, [])
+    useEffect(() => {
+        fetchLinkedAccounts()
+        const interval = setInterval(() => {
+            fetchLinkedAccounts()
+        }, FETCH_LINKED_ACCOUNTS_INTERVAL)
+        return () => {
+            clearInterval(interval)
+        }
+    }, [])
 
-	async function removeLink(
-		account: TLinkedAccount,
-	) {
-		const confirmation = confirm(`Are you sure you want to unlink your ${account.name} account (${account.display_id})?`)
-		if (confirmation) {
-			const newAccounts = linkedAccounts.filter((linkedAccount: TLinkedAccount) => linkedAccount.id != account.id)
+    async function removeLink(account: TLinkedAccount) {
+        const confirmation = confirm(
+            `Are you sure you want to unlink your ${account.name} account (${account.display_id})?`
+        )
+        if (confirmation) {
+            const newAccounts = linkedAccounts.filter((linkedAccount: TLinkedAccount) => linkedAccount.id != account.id)
 
-			dispatch(setLinkedAccounts(newAccounts))
+            dispatch(setLinkedAccounts(newAccounts))
 
-			await makeAuthorizedRequest({
-				url: getLinkedAccountsURL(account.id),
-				method: 'DELETE',
+            await makeAuthorizedRequest({
+                url: getLinkedAccountsURL(account.id),
+                method: 'DELETE',
+            })
+            await fetchLinkedAccounts()
+        }
+    }
 
-			})
-			await fetchLinkedAccounts()
-		}
-	}
-
-	if (isLoading && linkedAccounts.length === 0) return <DotSpinner />
-	else if (linkedAccounts.length === 0) {
-		return (
-			<AccountsContainer>
-				<AccountsHeader>
-					<AccountsHeaderText>No linked accounts!</AccountsHeaderText>
-					<AddNewAccountDropdown refetchLinkedAccounts={() => { fetchLinkedAccounts() }} />
-				</AccountsHeader>
-			</AccountsContainer>
-		)
-	}
-	else {
-		return (
-			<AccountsContainer>
-				<AccountsHeader>
-					<AccountsHeaderText>Accounts</AccountsHeaderText>
-					<AddNewAccountDropdown refetchLinkedAccounts={() => { fetchLinkedAccounts() }} />
-				</AccountsHeader>
-				<AccountsBody>
-					{linkedAccounts.map(((account, index) =>
-						<Account linkedAccount={account} key={index} removeLink={() => { removeLink(account) }} />
-					))}
-				</AccountsBody>
-			</AccountsContainer>
-		)
-	}
+    if (isLoading && linkedAccounts.length === 0) return <DotSpinner />
+    else if (linkedAccounts.length === 0) {
+        return (
+            <AccountsContainer>
+                <AccountsHeader>
+                    <AccountsHeaderText>No linked accounts!</AccountsHeaderText>
+                    <AddNewAccountDropdown
+                        refetchLinkedAccounts={() => {
+                            fetchLinkedAccounts()
+                        }}
+                    />
+                </AccountsHeader>
+            </AccountsContainer>
+        )
+    } else {
+        return (
+            <AccountsContainer>
+                <AccountsHeader>
+                    <AccountsHeaderText>Accounts</AccountsHeaderText>
+                    <AddNewAccountDropdown
+                        refetchLinkedAccounts={() => {
+                            fetchLinkedAccounts()
+                        }}
+                    />
+                </AccountsHeader>
+                <AccountsBody>
+                    {linkedAccounts.map((account, index) => (
+                        <Account
+                            linkedAccount={account}
+                            key={index}
+                            removeLink={() => {
+                                removeLink(account)
+                            }}
+                        />
+                    ))}
+                </AccountsBody>
+            </AccountsContainer>
+        )
+    }
 }
 
 export default Accounts

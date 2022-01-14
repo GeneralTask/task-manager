@@ -1,5 +1,15 @@
 import styled from 'styled-components'
-import { TABLE_WIDTH_PERCENTAGE, CELL_HEIGHT, CALENDAR_TD_COLOR, CALENDAR_TIME_COLOR, CELL_TIME_WIDTH, CELL_BORDER_WIDTH, CELL_LEFT_MARGIN, EVENT_TITLE_TEXT_COLOR, EVENT_TIME_TEXT_COLOR } from '../../helpers/styles'
+import {
+    TABLE_WIDTH_PERCENTAGE,
+    CELL_HEIGHT,
+    CALENDAR_TD_COLOR,
+    CALENDAR_TIME_COLOR,
+    CELL_TIME_WIDTH,
+    CELL_BORDER_WIDTH,
+    CELL_LEFT_MARGIN,
+    EVENT_TITLE_TEXT_COLOR,
+    EVENT_TIME_TEXT_COLOR,
+} from '../../helpers/styles'
 
 export const EventsContainer = styled.div`
     width: 100%;
@@ -42,8 +52,8 @@ interface EventBodyStyleProps {
 }
 export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     width: calc(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_TIME_WIDTH}px - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px);
-    height: ${props => props.eventBodyHeight}px;
-    top: ${props => props.topOffset}px;
+    height: ${(props) => props.eventBodyHeight}px;
+    top: ${(props) => props.topOffset}px;
     position: absolute;
     right: calc(${(100 - TABLE_WIDTH_PERCENTAGE) / 2}%);
 `

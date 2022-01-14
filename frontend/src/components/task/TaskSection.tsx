@@ -11,16 +11,17 @@ const TaskWrapperSides = styled.div`
 `
 
 interface Props {
-    task_section: TTaskSection,
-    task_section_index: number,
+    task_section: TTaskSection
+    task_section_index: number
 }
 
 export default function TaskSection(props: Props): JSX.Element {
     return (
         <div>
             <TaskCreate />
-            {
-                props.task_section && props.task_section.tasks && props.task_section.tasks.map((task: TTask, task_index: number) => {
+            {props.task_section &&
+                props.task_section.tasks &&
+                props.task_section.tasks.map((task: TTask, task_index: number) => {
                     return (
                         <div key={task_index}>
                             <flex.flex>
@@ -37,8 +38,7 @@ export default function TaskSection(props: Props): JSX.Element {
                             />
                         </div>
                     )
-                })
-            }
+                })}
         </div>
     )
 }

@@ -12,27 +12,31 @@ import { LogEvents } from '../../helpers/enums'
 import { useFetchTasks } from './TasksPage'
 
 const DropOverlay = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 `
 
 interface TaskDropContainerProps {
-    task: TTask,
-    dragDisabled: boolean,
-    indices: Indices,
+    task: TTask
+    dragDisabled: boolean
+    indices: Indices
 }
 
 const DropDirection = {
-    'Up': true,
-    'Down': false,
+    Up: true,
+    Down: false,
 }
 
-const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisabled, indices }: TaskDropContainerProps) => {
+const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
+    task,
+    dragDisabled,
+    indices,
+}: TaskDropContainerProps) => {
     const fetchTasks = useFetchTasks()
-    const { taskSections } = useAppSelector(state => ({
+    const { taskSections } = useAppSelector((state) => ({
         taskSections: state.tasks_page.tasks.task_sections,
     }))
     const dispatch = useAppDispatch()
@@ -45,10 +49,10 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
 
     const [{ isOver }, drop] = useDrop(() => ({
         accept: ItemTypes.TASK,
-        collect: monitor => {
+        collect: (monitor) => {
             return { isOver: monitor.isOver() }
         },
-        drop: (item: { id: string, indicesRef: RefObject<Indices> }, monitor) => {
+        drop: (item: { id: string; indicesRef: RefObject<Indices> }, monitor) => {
             if (item.id === task.id) return
             if (item.indicesRef.current == null) return
             if (taskSectionsRef.current == null) return
@@ -67,18 +71,18 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
                 isLowerHalf = !!(clientOffsetY && clientOffsetY > dropMiddleY)
             }
 
-            const previousOrderingId = taskSections[dragSection]
-                .tasks[dragTask]
-                .id_ordering
+            const previousOrderingId = taskSections[dragSection].tasks[dragTask].id_ordering
 
-            const updatedTaskSections = taskDropReorder(taskSections, item.indicesRef.current, indicesRef.current, isLowerHalf)
+            const updatedTaskSections = taskDropReorder(
+                taskSections,
+                item.indicesRef.current,
+                indicesRef.current,
+                isLowerHalf
+            )
             dispatch(setTasks(updatedTaskSections))
 
             let updatedOrderingId = null
-            updatedOrderingId = updatedTaskSections[dropSection]
-                .tasks
-                .find(task => task.id === item.id)
-                ?.id_ordering
+            updatedOrderingId = updatedTaskSections[dropSection].tasks.find((task) => task.id === item.id)?.id_ordering
             if (updatedOrderingId == null) return
             if (dragSection === dropSection && updatedOrderingId < previousOrderingId) {
                 updatedOrderingId -= 1
@@ -94,10 +98,12 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
                 body: JSON.stringify({
                     id_task_section: taskSections[indices.section].id,
                     id_ordering: updatedOrderingId + 1,
-                })
-            }).then(fetchTasks).catch((error) => {
-                throw new Error('PATCH /tasks/ failed' + error)
+                }),
             })
+                .then(fetchTasks)
+                .catch((error) => {
+                    throw new Error('PATCH /tasks/ failed' + error)
+                })
         },
         hover: (_, monitor) => {
             if (!dropRef.current) return
@@ -106,19 +112,19 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, dragDisable
             if (boundingRect != null) {
                 const dropMiddleY = (boundingRect.bottom - boundingRect.top) / 2 + boundingRect.top
                 const clientOffsetY = monitor.getClientOffset()?.y
-                if (clientOffsetY && (clientOffsetY <= dropMiddleY)) {
+                if (clientOffsetY && clientOffsetY <= dropMiddleY) {
                     setDropDirection(DropDirection.Up)
-                }
-                else {
+                } else {
                     setDropDirection(DropDirection.Down)
                 }
             }
-        }
+        },
     }))
     drop(dropRef)
     return (
         <DropOverlay ref={dropRef}>
-            <Task task={task}
+            <Task
+                task={task}
                 dragDisabled={dragDisabled}
                 key={task.id}
                 isOver={isOver}

@@ -3,7 +3,12 @@ import React, { useCallback, useEffect } from 'react'
 import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
 import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
 import { logEvent, makeAuthorizedRequest, useInterval } from '../../helpers/utils'
-import { setShowCalendarSidebar, setShowCreateTaskForm, setTasks, setTasksFetchStatus } from '../../redux/tasksPageSlice'
+import {
+    setShowCalendarSidebar,
+    setShowCreateTaskForm,
+    setTasks,
+    setTasksFetchStatus,
+} from '../../redux/tasksPageSlice'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 import CalendarSidebar from '../calendar/CalendarSidebar'
@@ -20,7 +25,7 @@ import { Navigate, useParams } from 'react-router-dom'
 import RefreshButton from './RefreshButton'
 
 const TasksPageContainer = styled.div`
-    display:flex;
+    display: flex;
     height: 100%;
 `
 const TasksContentContainer = styled.div`
@@ -41,7 +46,7 @@ const Header = styled.div`
     min-width: 500px;
 `
 const HeaderText = styled.div`
-    font-size: 32px; 
+    font-size: 32px;
 `
 const BtnContainer = styled.div`
     position: absolute;
@@ -65,10 +70,10 @@ const TopBanner = styled.div`
     justify-content: end;
     /* width: 100%; */
     margin-top: 24px;
-    padding-right: 24px;    
+    padding-right: 24px;
 `
 
-export const useFetchTasks = (): () => Promise<void> => {
+export const useFetchTasks = (): (() => Promise<void>) => {
     const dispatch = useAppDispatch()
     const dragDropMonitor = useDragDropManager().getMonitor()
 
@@ -126,10 +131,7 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
     }, [])
 
     useInterval(fetchTasks, TASKS_FETCH_INTERVAL)
-    const TaskSectionElement = <TaskSection
-        task_section={currentSection}
-        task_section_index={sectionIndex}
-    />
+    const TaskSectionElement = <TaskSection task_section={currentSection} task_section_index={sectionIndex} />
 
     return (
         <TasksContentContainer>
@@ -137,9 +139,7 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
                 <CollapseCalendarSidebar />
             </TopBanner>
             <Header>
-                <HeaderText>
-                    {headerText}
-                </HeaderText>
+                <HeaderText>{headerText}</HeaderText>
                 <RefreshButton />
                 <CreateNewTaskButton />
             </Header>
@@ -153,20 +153,15 @@ const CollapseCalendarSidebar = React.memo(() => {
     const dispatch = useAppDispatch()
     const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
     if (!calendarSidebarShown) {
-        return <ExpandCollapse
-            direction="left"
-            onClick={() => dispatch(setShowCalendarSidebar(true))}
-        />
-    }
-    else return <></>
+        return <ExpandCollapse direction="left" onClick={() => dispatch(setShowCalendarSidebar(true))} />
+    } else return <></>
 })
 
 function CreateNewTaskButton(): JSX.Element {
-    const { showButton } = useAppSelector(state => ({
+    const { showButton } = useAppSelector((state) => ({
         showButton:
             state.tasks_page.tasks.task_sections.length !== 0 ||
-            state.tasks_page.tasks.fetch_status !== FetchStatusEnum.LOADING
-        ,
+            state.tasks_page.tasks.fetch_status !== FetchStatusEnum.LOADING,
     }))
     const dispatch = useAppDispatch()
 
@@ -177,12 +172,11 @@ function CreateNewTaskButton(): JSX.Element {
 
     return (
         <BtnContainer>
-            {showButton &&
-                <NewTaskButton
-                    onClick={onClick}>
+            {showButton && (
+                <NewTaskButton onClick={onClick}>
                     <PlusImage src={`${process.env.PUBLIC_URL}/images/plus.svg`} alt="create new task" />
                 </NewTaskButton>
-            }
+            )}
         </BtnContainer>
     )
 }
@@ -190,8 +184,8 @@ function CreateNewTaskButton(): JSX.Element {
 export default function TasksPage(): JSX.Element {
     const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
     const section = `${useParams().section}_page`
-    const currentPage = Object.values(NavbarPages).find(page => page === section)
-    if (currentPage == null) return <Navigate to='/' />
+    const currentPage = Object.values(NavbarPages).find((page) => page === section)
+    if (currentPage == null) return <Navigate to="/" />
     return (
         <TasksPageContainer>
             <Navbar currentPage={currentPage} />

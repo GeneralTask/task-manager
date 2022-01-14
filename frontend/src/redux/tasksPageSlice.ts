@@ -13,10 +13,10 @@ export interface TasksPageState {
         show_create_task_form: boolean,
     },
     events: {
-        event_list: TEvent[],
-        fetch_status: FetchStatusEnum,
-        show_calendar_sidebar: boolean,
-    },
+        event_list: TEvent[]
+        fetch_status: FetchStatusEnum
+        show_calendar_sidebar: boolean
+    }
 }
 
 const initialState: TasksPageState = {
@@ -51,7 +51,6 @@ export const tasksPageSlice = createSlice({
                     if (task_section.tasks[i].id === action.payload) {
                         task_section.tasks.splice(i, 1)
                     }
-
                 }
             }
         },
@@ -88,7 +87,7 @@ export const tasksPageSlice = createSlice({
         },
         setShowCalendarSidebar(state, action: PayloadAction<boolean>) {
             state.events.show_calendar_sidebar = action.payload
-        }
+        },
     },
 })
 

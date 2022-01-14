@@ -1,12 +1,10 @@
 {
     "parser": "@typescript-eslint/parser",
-    "plugins": ["@typescript-eslint", "unused-imports"],        
+    "plugins": ["@typescript-eslint", "unused-imports"],
     "rules": {
-      "semi": ["error", "never"],
-      "quotes": [2, "single"],
-      "unused-imports/no-unused-imports": "warn",
+        "semi": ["error", "never"],
+        "quotes": [2, "single"],
+        "unused-imports/no-unused-imports": "warn"
     },
-    "extends": ["plugin:@typescript-eslint/recommended"]
-  }
-  
-  
+    "extends": ["plugin:@typescript-eslint/recommended", "prettier"]
+}

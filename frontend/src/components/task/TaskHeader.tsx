@@ -33,15 +33,19 @@ import { Duration } from 'luxon'
 
 function Domino(): JSX.Element {
   return (
-    <DominoContainer data-testid="domino-handler" >
-      {Array(6).fill(0).map((_, index) => <DominoDot key={index} />)}
+    <DominoContainer data-testid="domino-handler">
+      {Array(6)
+        .fill(0)
+        .map((_, index) => (
+          <DominoDot key={index} />
+        ))}
     </DominoContainer>
   )
 }
 interface TaskHeaderProps {
-  task: TTask,
-  dragDisabled: boolean,
-  isExpanded: boolean,
+  task: TTask
+  dragDisabled: boolean
+  isExpanded: boolean
 }
 
 const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: TaskHeaderProps, ref) => {
@@ -65,8 +69,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
       if (props.isExpanded) {
         dispatch(collapseBody())
         logEvent(LogEvents.TASK_COLLAPSED)
-      }
-      else {
+      } else {
         dispatch(expandBody(props.task.id))
         logEvent(LogEvents.TASK_EXPANDED)
       }
@@ -89,10 +92,10 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         }
         {
           props.task.source.is_completable &&
-          <DoneButton src={DONE_BUTTON} onClick={(e) =>{
+          <DoneButton src={DONE_BUTTON} onClick={(e) => {
             e.stopPropagation()
             onDoneButtonClick()
-          }}/>
+          }} />
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
         <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.task.title} </Title>
@@ -156,7 +159,7 @@ const done = async (task_id: string, dispatch: Dispatch<Action<string>>, fetchTa
     const response = await makeAuthorizedRequest({
       url: TASKS_MODIFY_URL + task_id + '/',
       method: 'PATCH',
-      body: JSON.stringify({ 'is_completed': true })
+      body: JSON.stringify({ is_completed: true }),
     })
 
     if (!response.ok) {
