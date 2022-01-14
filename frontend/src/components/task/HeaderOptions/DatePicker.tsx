@@ -1,10 +1,11 @@
 import React, { Dispatch, useCallback, useState } from 'react'
 import { Action } from 'redux'
-import { TASKS_MODIFY_URL } from '../../constants'
-import { makeAuthorizedRequest } from '../../helpers/utils'
-import { useAppDispatch } from '../../redux/hooks'
-import { hideDatePicker } from '../../redux/tasksPageSlice'
-import { useFetchTasks } from '../task/TasksPage'
+import { TASKS_MODIFY_URL } from '../../../constants'
+import { makeAuthorizedRequest } from '../../../helpers/utils'
+import { useAppDispatch } from '../../../redux/hooks'
+import { hideDatePicker } from '../../../redux/tasksPageSlice'
+import { useFetchTasks } from '../TasksPage'
+
 import { BottomBar, PickerContainer, TopNav, MonthContainer, Icon, MonthYearHeader, HoverButton } from './DatePicker-style'
 
 interface DatePickerProps {

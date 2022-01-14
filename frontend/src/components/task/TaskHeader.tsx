@@ -27,9 +27,10 @@ import {
   TimeEstimateButtonText
 } from './TaskHeader-style'
 import { LogEvents } from '../../helpers/enums'
-import DatePicker from '../calendar/DatePicker'
-import TimeEstimate from '../calendar/TimeEstimate'
 import { Duration } from 'luxon'
+
+import TimeEstimate from './HeaderOptions/TimeEstimatePicker'
+import DatePicker from './HeaderOptions/DatePicker'
 
 function Domino(): JSX.Element {
   return (

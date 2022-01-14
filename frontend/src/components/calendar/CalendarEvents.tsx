@@ -20,8 +20,8 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 import { AbortID } from '../../helpers/enums'
 import { TEvent } from '../../helpers/types'
-import { TimeIndicator } from './TimeIndicator'
 import { setEvents } from '../../redux/tasksPageSlice'
+import { TimeIndicator } from './TimeIndicator'
 
 function CalendarTable(): JSX.Element {
     const hourElements = Array(24)
