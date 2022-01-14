@@ -79,17 +79,18 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
     const endTimeString = endTime.toLocaleString('en-US', MMHH)
 
     let eventLength = EventLength.long
-    if (startTimeMinutes < EventLength.medium) {
+    if (timeDurationMinutes < EventLength.medium) {
         eventLength = EventLength.medium
-    } else if (startTimeMinutes < EventLength.short) {
+    } else if (timeDurationMinutes < EventLength.short) {
         eventLength = EventLength.short
     }
+    const isLongEvent = eventLength === EventLength.long
 
     return (
         <EventBodyStyle key={event.id} topOffset={topOffset} eventBodyHeight={eventBodyHeight}>
             <EventInfoContainer >
-                <EventInfo>
-                    <EventTitle>
+                <EventInfo isLongEvent={isLongEvent}>
+                    <EventTitle >
                         {event.title}
                     </EventTitle>
                     <EventTime>
