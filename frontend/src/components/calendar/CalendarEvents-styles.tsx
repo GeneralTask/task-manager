@@ -59,9 +59,11 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     overflow: hidden;
     white-space: nowrap;    
     margin: 0 12px;
-    /* height: 100%; */
-    /* display: flex; */
-    ${props => props.isLongEvent ? 'height: 100%;' : 'display: flex;'}
+    align-items: center;
+    ${props => props.isLongEvent
+        ? 'height: 100%; margin-top: 18px;'
+        : 'display: flex;'
+    }
 `
 export const EventTitle = styled.div`
     font-style: normal;
@@ -69,20 +71,16 @@ export const EventTitle = styled.div`
     font-weight: 600;
     color: ${EVENT_TITLE_TEXT_COLOR};
     margin-right: 8px;
-
     float: left;
     max-height: 100%;
-    /* text-overflow: ellipsis; */
 `
 export const EventTime = styled.div`
     font-style: normal;
     font-size: 13px;
     font-weight: 600;
     color: ${EVENT_TIME_TEXT_COLOR};
-    max-height: 100%;
-
     float: left;
-    height: 100%;
+    max-height: 100%;
 `
 export const EventFill = styled.div`
     width: 100%;

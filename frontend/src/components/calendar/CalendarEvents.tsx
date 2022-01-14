@@ -1,4 +1,4 @@
-import { CALENDAR_DEFAULT_SCROLL_HOUR, CELL_HEIGHT, flex } from '../../helpers/styles'
+import { CALENDAR_DEFAULT_SCROLL_HOUR, CELL_HEIGHT } from '../../helpers/styles'
 import { CalendarCell, CalendarRow, CalendarTD, CalendarTableStyle, CellTime, EventBodyStyle, EventInfo, EventFill, EventFillContinues, EventTime, EventTitle, EventsContainer, EventInfoContainer } from './CalendarEvents-styles'
 import { EVENTS_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import React, { Ref, useCallback, useEffect, useRef } from 'react'
@@ -9,6 +9,9 @@ import { AbortID } from '../../helpers/enums'
 import { TEvent } from '../../helpers/types'
 import { TimeIndicator } from './TimeIndicator'
 import { setEvents } from '../../redux/tasksPageSlice'
+
+const LONG_EVENT_THRESHOLD = 45 // minutes
+const MINIMUM_BODY_HEIGHT = 15 // minutes
 
 function CalendarTable(): JSX.Element {
     const hourElements = Array(24).fill(0).map((_, index) => (
@@ -29,33 +32,12 @@ function CalendarTable(): JSX.Element {
     )
 }
 /*
-Styling classes for various event based on size (inspired by google calendar)
+Styling guidelines for events based on duration (inspired by google calendar)
     - If there's room for multiple lines, use multiple lines
     - Otherwise, push onto one line
     - Truncate task title first, hide times if doesn't fit
     - Its okay to remove padding for very short tasks
-
-Various classes of tasks based on duration
-    - 0-29 minutes
-        - Constant size (15 minutes)
-        - Smaller font size
-        - All on one line
-        - Center-align text
-    - 30-44 minutes:
-        - Normal font size
-        - All on one line
-        - Attach text to top of event (with padding)
-    - 45+ minutes:
-        - Two vertical sessions - title on first, times on second
-        - times on bottom is set
-        - title on top grows to fill the rest of the task
 */
-
-enum EventLength {
-    short = 30,
-    medium = 45,
-    long = 60,
-}
 
 interface EventBodyProps {
     event: TEvent,
@@ -67,8 +49,8 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
     const timeDurationHours = timeDurationMinutes / 60
 
     const rollsOverMidnight = endTime.getDay() !== startTime.getDay()
-    const eventBodyHeight = rollsOverMidnight ?
-        (new Date(startTime).setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600 * CELL_HEIGHT : timeDurationHours * CELL_HEIGHT
+    const eventBodyHeight = Math.max(MINIMUM_BODY_HEIGHT, rollsOverMidnight ?
+        (new Date(startTime).setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600 * CELL_HEIGHT : timeDurationHours * CELL_HEIGHT)
 
     const startTimeHours = startTime.getHours() - 1
     const startTimeMinutes = startTime.getMinutes()
@@ -78,13 +60,7 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
     const startTimeString = startTime.toLocaleString('en-US', MMHH).replace(/AM|PM/, '')
     const endTimeString = endTime.toLocaleString('en-US', MMHH)
 
-    let eventLength = EventLength.long
-    if (timeDurationMinutes < EventLength.medium) {
-        eventLength = EventLength.medium
-    } else if (timeDurationMinutes < EventLength.short) {
-        eventLength = EventLength.short
-    }
-    const isLongEvent = eventLength === EventLength.long
+    const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
 
     return (
         <EventBodyStyle key={event.id} topOffset={topOffset} eventBodyHeight={eventBodyHeight}>
