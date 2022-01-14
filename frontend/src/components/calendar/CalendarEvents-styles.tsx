@@ -48,14 +48,11 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     right: calc(${(100 - TABLE_WIDTH_PERCENTAGE) / 2}%);
 `
 export const EventInfo = styled.div`
-    /* position: absolute;
-    z-index: 1; */
-    display: block;
+    display: flex;
     overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
-    height: 100%;
-    width: 100%;
+    /* height: 100%;    */
+    margin: 0 12px;
 `
 export const EventTitle = styled.div`
     font-style: normal;
@@ -64,17 +61,18 @@ export const EventTitle = styled.div`
     color: ${EVENT_TITLE_TEXT_COLOR};
     margin-right: 8px;
 
-    float: left;
+    /* float: left; */
     max-height: 100%;
+    /* text-overflow: ellipsis; */
 `
 export const EventTime = styled.div`
     font-style: normal;
     font-size: 13px;
     font-weight: 600;
     color: ${EVENT_TIME_TEXT_COLOR};
-    /* margin-top: 2px; */
+    max-height: 100%;
 
-    float: left;
+    /* float: left; */
     height: 100%;
 `
 export const EventFill = styled.div`

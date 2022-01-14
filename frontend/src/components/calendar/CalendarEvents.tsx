@@ -1,4 +1,4 @@
-import { CALENDAR_DEFAULT_SCROLL_HOUR, CELL_HEIGHT } from '../../helpers/styles'
+import { CALENDAR_DEFAULT_SCROLL_HOUR, CELL_HEIGHT, flex } from '../../helpers/styles'
 import { CalendarCell, CalendarRow, CalendarTD, CalendarTableStyle, CellTime, EventBodyStyle, EventInfo, EventFill, EventFillContinues, EventTime, EventTitle, EventsContainer } from './CalendarEvents-styles'
 import { EVENTS_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import React, { Ref, useCallback, useEffect, useRef } from 'react'
@@ -51,6 +51,12 @@ Various classes of tasks based on duration
         - title on top grows to fill the rest of the task
 */
 
+enum EventLength {
+    short = 30,
+    medium = 45,
+    long = 60,
+}
+
 interface EventBodyProps {
     event: TEvent,
 }
@@ -72,6 +78,13 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
     const startTimeString = startTime.toLocaleString('en-US', MMHH).replace(/AM|PM/, '')
     const endTimeString = endTime.toLocaleString('en-US', MMHH)
 
+    let eventLength = EventLength.long
+    if (startTimeMinutes < EventLength.medium) {
+        eventLength = EventLength.medium
+    } else if (startTimeMinutes < EventLength.short) {
+        eventLength = EventLength.short
+    }
+
     return (
         <EventBodyStyle key={event.id} topOffset={topOffset} eventBodyHeight={eventBodyHeight}>
             <div style={{
@@ -79,6 +92,9 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
                 width: '100%',
                 position: 'absolute',
                 zIndex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                // margin: ,
                 // display: 'block',
                 // margin: '12px 0',
             }}>
