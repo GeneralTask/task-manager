@@ -47,7 +47,7 @@ export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
         return (
             <>
                 {
-                    Array(amount).map((i, index) => {
+                    [...Array(amount)].map((i, index) => {
                         const day = index + startDay
                         const tmpDate = new Date(year, month, day)
                         const hoverButtonClick = (event: React.MouseEvent) => {
