@@ -1,49 +1,80 @@
 import styled from 'styled-components'
-import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY, DOMINO_COLOR } from '../../helpers/styles'
+import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, DOMINO_COLOR } from '../../helpers/styles'
 
 export const DoneButton = styled.img`
-    position: static;
-    width: 24px;
-    height: 24px;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-    margin-left: 12px;
-    cursor: pointer;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  margin-left: 12px;
+  cursor: pointer;
 `
-export const TaskHeaderContainer = styled(NoSelect)<{
-    hoverEffect: boolean
-    showButtons: boolean
-}>`
-    position: relative;
-    font-size: 15px;
-    border-radius: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: ${(props) => (props.hoverEffect ? 'pointer' : 'inherit')};
-    &:hover {
-        background-color: ${BACKGROUND_HOVER};
-    }
-    min-height: 50px;
+export const ButtonRight = styled.div`
+  min-width: 20px;
+  height: 20px;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  margin-right: 9px;
+  cursor: pointer;
+  &:hover {
+    background-color: ${BACKGROUND_HOVER};
+  }
+  border-radius: 7px;
+`
+export const ButtonIcon = styled.img`
+  width: 100%;
+  height: 100%;
+`
+export const DueDateButtonText = styled.div`
+  font-size: 12px;
+  font-weight: bold;
+  padding: 0 0.4em;
+  background-color: ${BACKGROUND_HOVER};
+  outline: 2px solid ${BACKGROUND_HOVER};
+  height: 100%;
+  border-radius: 7px;
+  line-height: 1.7em;
+`
+export const TimeEstimateButtonText = styled.div`
+  font-size: 12px;
+  font-weight: bold;
+  padding: 0 0.4em;
+  position: static;
+  outline: 2px solid ${BACKGROUND_HOVER};
+  height: 100%;
+  border-radius: 7px;
+  line-height: 1.7em;
+`
+export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
+  position: relative;
+  font-size: 15px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: ${props => props.hoverEffect ? 'pointer' : 'inherit'};
+  min-height: 50px;
 `
 export const HeaderLeft = styled.div`
-    box-sizing: border-box;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    flex-basis: auto;
-    width: 100%;
+  box-sizing: border-box;
+  text-align: left; 
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-grow: 1;
+  min-width: 0;
 `
 export const HeaderRight = styled.div`
-    display: flex;
-    flex: content;
-    align-items: center;
-    flex-direction: row;
-    justify-content: flex-end;
-    color: ${TEXT_GRAY};
-    height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-end;
+  color:${TEXT_BLACK};
+  height: 100%;
+  flex: none;
+
 `
 export const JoinConferenceButtonContainer = styled.div`
     margin-right: 10px;
@@ -111,18 +142,13 @@ export const Title = styled.div<{ isExpanded: boolean }>`
     text-overflow: ellipsis;
     user-select: text;
     ${({ isExpanded }) =>
-        isExpanded
-            ? `
+    isExpanded
+      ? `
     word-wrap: break-word;
     min-width: 0px;
     margin: 10px 15px`
-            : `
+      : `
     white-space: nowrap;
     overflow: hidden;
     margin-left: 15px;`}
-`
-export const Truncated = styled.div`
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 `

@@ -19,10 +19,11 @@ export interface TTask {
     title: string
     deeplink: string
     body: string
-    sent_at: string
-    time_allocated: number
-    source: TTaskSource
-    sender: string
+    sent_at: string,
+    time_allocated: number,
+    due_date: string,
+    source: TTaskSource,
+    sender: string,
 }
 
 export interface TEvent {
