@@ -47,6 +47,14 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     position: absolute;
     right: calc(${(100 - TABLE_WIDTH_PERCENTAGE) / 2}%);
 `
+export const EventInfoContainer = styled.div`
+    display: flex;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: 1;
+`
 export const EventInfo = styled.div`
     display: flex;
     overflow: hidden;

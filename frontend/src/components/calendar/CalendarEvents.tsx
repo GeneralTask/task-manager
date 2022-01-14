@@ -1,5 +1,5 @@
 import { CALENDAR_DEFAULT_SCROLL_HOUR, CELL_HEIGHT, flex } from '../../helpers/styles'
-import { CalendarCell, CalendarRow, CalendarTD, CalendarTableStyle, CellTime, EventBodyStyle, EventInfo, EventFill, EventFillContinues, EventTime, EventTitle, EventsContainer } from './CalendarEvents-styles'
+import { CalendarCell, CalendarRow, CalendarTD, CalendarTableStyle, CellTime, EventBodyStyle, EventInfo, EventFill, EventFillContinues, EventTime, EventTitle, EventsContainer, EventInfoContainer } from './CalendarEvents-styles'
 import { EVENTS_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import React, { Ref, useCallback, useEffect, useRef } from 'react'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
@@ -87,17 +87,7 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
 
     return (
         <EventBodyStyle key={event.id} topOffset={topOffset} eventBodyHeight={eventBodyHeight}>
-            <div style={{
-                height: '100%',
-                width: '100%',
-                position: 'absolute',
-                zIndex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                // margin: ,
-                // display: 'block',
-                // margin: '12px 0',
-            }}>
+            <EventInfoContainer >
                 <EventInfo>
                     <EventTitle>
                         {event.title}
@@ -106,7 +96,7 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
                         {`${startTimeString} - ${endTimeString}`}
                     </EventTime>
                 </EventInfo>
-            </div>
+            </EventInfoContainer>
             {rollsOverMidnight ? <EventFillContinues /> : <EventFill />}
         </EventBodyStyle>
     )
