@@ -62,7 +62,7 @@ export default function EventAlert({ children }: EventAlertProps): JSX.Element {
                     <EventAlertHeader>
                         Your event&nbsp;
                         <EventAlertEventTitle>{event.title}</EventAlertEventTitle>
-                        &nbsp;in {Math.ceil((tempDate.getTime() - new Date().getTime()) / 1000 / 60)} minutes.
+                        &nbsp;starts in {Math.ceil((tempDate.getTime() - new Date().getTime()) / 1000 / 60)} minutes.
                     </EventAlertHeader>
                     {event.conference_call && <JoinConferenceButton conferenceCall={event.conference_call} />}
                 </EventAlertContentContainer>
