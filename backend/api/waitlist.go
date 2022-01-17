@@ -24,11 +24,11 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 	err := c.BindJSON(&params)
 	if err != nil || params.Email == "" {
 		log.Printf("error: %v", err)
-		c.JSON(400, gin.H{"detail": "Invalid or missing 'email' parameter."})
+		c.JSON(400, gin.H{"detail": "invalid or missing 'email' parameter."})
 		return
 	}
 	if !utils.IsEmailValid(params.Email) {
-		c.JSON(400, gin.H{"detail": "Invalid email format."})
+		c.JSON(400, gin.H{"detail": "invalid email format."})
 		return
 	}
 	email := strings.ToLower(params.Email)
@@ -50,7 +50,7 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 		return
 	}
 	if count > 0 {
-		c.JSON(302, gin.H{"detail": "Email already exists in system"})
+		c.JSON(302, gin.H{"detail": "email already exists in system"})
 		return
 	}
 
