@@ -74,6 +74,24 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
     )
 }
 
+function getISOString(date: Date): string {
+    const tzo = -date.getTimezoneOffset()
+    const dif = tzo >= 0 ? '+' : '-'
+    const pad = (num: number) => {
+        const norm = Math.floor(Math.abs(num))
+        return (norm < 10 ? '0' : '') + norm
+    }
+
+    return date.getFullYear() +
+        '-' + pad(date.getMonth() + 1) +
+        '-' + pad(date.getDate()) +
+        'T' + pad(date.getHours()) +
+        ':' + pad(date.getMinutes()) +
+        ':' + pad(date.getSeconds()) +
+        dif + pad(tzo / 60) +
+        ':' + pad(tzo % 60)
+}
+
 function useFetchEvents(): (start: Date, end: Date) => Promise<void> {
     const dispatch = useAppDispatch()
     const fetchEvents = useCallback(async (start: Date, end: Date) => {
@@ -82,8 +100,8 @@ function useFetchEvents(): (start: Date, end: Date) => Promise<void> {
                 url: EVENTS_URL,
                 method: 'GET',
                 params: {
-                    datetime_start: start.toISOString(),
-                    datetime_end: end.toISOString(),
+                    datetime_start: getISOString(start),
+                    datetime_end: getISOString(end),
                 },
                 abortID: AbortID.EVENTS,
             })
@@ -112,6 +130,17 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
     endDate.setDate(startDate.getDate() + 1)
     const end = endDate.toISOString()
 
+    console.log({ start, end })
+
+    useAppSelector((state) => state.tasks_page.events.event_list).filter(
+        (event) => {
+            const duck = event.datetime_end >= start && event.datetime_start <= end
+            if (duck) {
+                console.log(event)
+            }
+            return duck
+        }
+    )
     const event_list = useAppSelector((state) => state.tasks_page.events.event_list).filter(
         (event) => event.datetime_end >= start && event.datetime_start <= end
     )
