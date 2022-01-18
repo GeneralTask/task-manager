@@ -24,6 +24,7 @@ export const EVENTS_URL = REACT_APP_API_BASE_URL + '/events/'
 // Frontend paths
 export const LANDING_PATH = '/'
 export const SETTINGS_PATH = '/settings/'
+export const MESSAGES_PATH = '/messages/'
 export const PRIVACY_PATH = '/privacy/'
 
 //Google Sign-In SVGs

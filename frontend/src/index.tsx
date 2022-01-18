@@ -14,6 +14,7 @@ import store from './redux/store'
 import Settings from './components/settings/Settings'
 import PrivateOutlet from './components/PrivateOutlet'
 import TasksPage from './components/task/TasksPage'
+import MessagesPage from './components/messages/MessagesPage'
 
 ReactDOM.render(
     <React.StrictMode>
@@ -32,6 +33,9 @@ ReactDOM.render(
                             <Route index element={<LandingPage />} />
                             <Route path="tasks/:section" element={<PrivateOutlet />}>
                                 <Route index element={<TasksPage />} />
+                            </Route>
+                            <Route path="messages" element={<PrivateOutlet />}>
+                                <Route index element={<MessagesPage />} />
                             </Route>
                             <Route path="settings" element={<PrivateOutlet />}>
                                 <Route index element={<Settings />} />
