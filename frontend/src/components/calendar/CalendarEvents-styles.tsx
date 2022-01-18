@@ -65,14 +65,15 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
         : 'display: flex;'
     }
 `
-export const EventTitle = styled.div`
+export const EventTitle = styled.div<{ isLongEvent: boolean }>`
     font-style: normal;
     font-size: 14px;
     font-weight: 600;
     color: ${EVENT_TITLE_TEXT_COLOR};
     margin-right: 8px;
-    float: left;
+    /* float: left; */
     max-height: 100%;
+    ${props => props.isLongEvent && 'font-weight: 600;'}
 `
 export const EventTime = styled.div`
     font-style: normal;

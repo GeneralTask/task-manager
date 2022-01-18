@@ -66,7 +66,7 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
         <EventBodyStyle key={event.id} topOffset={topOffset} eventBodyHeight={eventBodyHeight}>
             <EventInfoContainer >
                 <EventInfo isLongEvent={isLongEvent}>
-                    <EventTitle >
+                    <EventTitle isLongEvent={isLongEvent}>
                         {event.title}
                     </EventTitle>
                     <EventTime>
