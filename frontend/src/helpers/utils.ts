@@ -102,7 +102,7 @@ export const useDeviceSize = (): DeviceSize => {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export function emptyFunction(): void { }
+export function emptyFunction(): void {}
 
 export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
     return task_sections.map((section) => {
