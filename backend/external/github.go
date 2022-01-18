@@ -54,16 +54,16 @@ func GetGithubToken(externalAPITokenCollection *mongo.Collection, userID primiti
 	return &token, nil
 }
 
-func (Github GithubService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	authURL := Github.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+func (github GithubService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
+	authURL := github.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
 }
 
-func (Github GithubService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
+func (github GithubService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
 	return nil, errors.New("github does not support signup")
 }
 
-func (Github GithubService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
+func (github GithubService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -73,7 +73,7 @@ func (Github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := Github.Config.Exchange(extCtx, *params.Oauth2Code)
+	token, err := github.Config.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
 		log.Printf("failed to fetch token from Github: %v", err)
 		return errors.New("internal server error")
@@ -111,6 +111,6 @@ func (Github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 	return nil
 }
 
-func (Github GithubService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
+func (github GithubService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
 	return primitive.NilObjectID, nil, errors.New("github does not support signup")
 }

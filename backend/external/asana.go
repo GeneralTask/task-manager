@@ -41,16 +41,16 @@ func getAsanaConfig() *OauthConfig {
 	}}
 }
 
-func (Asana AsanaService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	authURL := Asana.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+func (asana AsanaService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
+	authURL := asana.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
 }
 
-func (Asana AsanaService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
+func (asana AsanaService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
 	return nil, errors.New("asana does not support signup")
 }
 
-func (Asana AsanaService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
+func (asana AsanaService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -60,7 +60,7 @@ func (Asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := Asana.Config.Exchange(extCtx, *params.Oauth2Code)
+	token, err := asana.Config.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
 		log.Printf("failed to fetch token from Asana: %v", err)
 		return errors.New("internal server error")
@@ -108,7 +108,7 @@ func (Asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 	return nil
 }
 
-func (Asana AsanaService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
+func (asana AsanaService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
 	return primitive.NilObjectID, nil, errors.New("asana does not support signup")
 }
 
