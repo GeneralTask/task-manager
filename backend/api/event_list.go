@@ -41,7 +41,7 @@ func (api *API) EventsList(c *gin.Context) {
 	var eventListParams EventListParams
 	err := c.BindQuery(&eventListParams)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "Invalid or missing parameter."})
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter."})
 		return
 	}
 

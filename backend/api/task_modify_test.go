@@ -461,7 +461,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Task not found.\",\"taskId\":\""+taskIDHex+"\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"task not found.\",\"taskId\":\""+taskIDHex+"\"}", string(body))
 	})
 	t.Run("MissingOrderingID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -475,7 +475,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Parameter missing or malformatted\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"parameter missing or malformatted\"}", string(body))
 	})
 	t.Run("BadTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -490,7 +490,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Task not found.\",\"taskId\":\""+taskIDHex+"\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"task not found.\",\"taskId\":\""+taskIDHex+"\"}", string(body))
 	})
 	t.Run("WrongFormatTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -712,7 +712,7 @@ func TestEditFields(t *testing.T) {
 
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Title cannot be empty\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"title cannot be empty\"}", string(body))
 	})
 
 	t.Run("Edit Body Success", func(t *testing.T) {
@@ -810,7 +810,7 @@ func TestEditFields(t *testing.T) {
 
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Parameter missing or malformatted\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"parameter missing or malformatted\"}", string(body))
 	})
 	t.Run("Edit Time Duration Success", func(t *testing.T) {
 		expectedTask := sampleTask
@@ -870,7 +870,7 @@ func TestEditFields(t *testing.T) {
 
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Time duration cannot be negative\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"time duration cannot be negative\"}", string(body))
 	})
 	t.Run("Edit multiple fields success", func(t *testing.T) {
 		expectedTask := sampleTask
@@ -951,7 +951,7 @@ func TestEditFields(t *testing.T) {
 
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Title cannot be empty\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"title cannot be empty\"}", string(body))
 	})
 
 	t.Run("Edit zero fields", func(t *testing.T) {
@@ -978,6 +978,6 @@ func TestEditFields(t *testing.T) {
 
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Parameter missing\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"parameter missing\"}", string(body))
 	})
 }
