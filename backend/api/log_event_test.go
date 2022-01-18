@@ -34,7 +34,7 @@ func TestLogEventAdd(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Invalid or missing 'event_type' parameter.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or missing 'event_type' parameter.\"}", string(body))
 	})
 	t.Run("MissingEventType", func(t *testing.T) {
 		router := GetRouter(GetAPI())
@@ -48,7 +48,7 @@ func TestLogEventAdd(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Invalid or missing 'event_type' parameter.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or missing 'event_type' parameter.\"}", string(body))
 	})
 	t.Run("BadEventType", func(t *testing.T) {
 		router := GetRouter(GetAPI())
@@ -62,7 +62,7 @@ func TestLogEventAdd(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Invalid or missing 'event_type' parameter.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or missing 'event_type' parameter.\"}", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
 		addLogEvent(t, authToken)

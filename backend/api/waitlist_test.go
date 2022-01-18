@@ -24,7 +24,7 @@ func TestWaitlistAdd(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Invalid or missing 'email' parameter.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or missing 'email' parameter.\"}", string(body))
 	})
 	t.Run("MissingEmail", func(t *testing.T) {
 		router := GetRouter(GetAPI())
@@ -37,7 +37,7 @@ func TestWaitlistAdd(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Invalid or missing 'email' parameter.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or missing 'email' parameter.\"}", string(body))
 	})
 	t.Run("BadEmail", func(t *testing.T) {
 		router := GetRouter(GetAPI())
@@ -50,11 +50,11 @@ func TestWaitlistAdd(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Invalid email format.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid email format.\"}", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
 		sendWaitlistRequest(t, http.StatusCreated, "{}")
-		sendWaitlistRequest(t, http.StatusFound, "{\"detail\":\"Email already exists in system\"}")
+		sendWaitlistRequest(t, http.StatusFound, "{\"detail\":\"email already exists in system\"}")
 
 		db, dbCleanup, err := database.GetDBConnection()
 		assert.NoError(t, err)

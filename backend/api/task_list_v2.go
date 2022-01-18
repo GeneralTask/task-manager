@@ -94,7 +94,7 @@ func (api *API) TasksListV2(c *gin.Context) {
 	emailChannels := []chan external.EmailResult{}
 	taskChannels := []chan external.TaskResult{}
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "Invalid timezone offset"})
+		c.JSON(400, gin.H{"detail": "invalid timezone offset"})
 		return
 	}
 	// Loop through linked accounts and fetch relevant items
