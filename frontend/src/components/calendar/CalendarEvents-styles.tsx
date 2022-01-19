@@ -16,7 +16,7 @@ export const EventsContainer = styled.div`
     margin-top: 24px;
     flex: 1;
     display: flex;
-    overflow: scroll;
+    overflow: auto;
     justify-content: center;
     position: relative;
 `
