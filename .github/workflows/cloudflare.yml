@@ -1,10 +1,12 @@
-name: Cloudflare
-on: 
+name: "Cloudflare Auto Deploy"
+on:
+  push:
+    branches:
+      - master
   workflow_dispatch:
     inputs:
-        tags:
-          description: 'Deploy frontend to Cloudflare!'
-
+      tags:
+        description: "Manually deploy frontend to Cloudflare"
 
 jobs:
   build:
@@ -14,18 +16,17 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v2.0.0 
+      - uses: actions/checkout@v2.0.0
 
       - name: install dependencies
-        run: 'npm install'
+        run: "yarn install"
 
       - name: build
-        run: 'npm run build'
+        run: "yarn run build"
 
-      - name: deploy using wrangler 
-        run: 'npx wrangler publish'
-        
+      - name: deploy using wrangler
+        run: "npx wrangler publish"
+
         env:
           CF_EMAIL: ${{secrets.CF_EMAIL}}
           CF_API_KEY: ${{secrets.CF_API_KEY}}
-
