@@ -29,6 +29,6 @@ type TrelloCard struct {
 	URL       string   `json:"url"`
 }
 
-func (Trello TrelloService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
+func (trello TrelloService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
 }

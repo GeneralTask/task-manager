@@ -32,7 +32,7 @@ func getTrelloConfig() *oauth1.Config {
 	}
 }
 
-func (Trello TrelloService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
+func (trello TrelloService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -41,7 +41,7 @@ func (Trello TrelloService) GetLinkURL(stateTokenID primitive.ObjectID, userID p
 	}
 	defer dbCleanup()
 
-	requestToken, requestSecret, err := Trello.Config.RequestToken()
+	requestToken, requestSecret, err := trello.Config.RequestToken()
 	if err != nil {
 		log.Printf("failed to get request token for link URL")
 		return nil, err
@@ -62,16 +62,16 @@ func (Trello TrelloService) GetLinkURL(stateTokenID primitive.ObjectID, userID p
 		log.Printf("failed to create new request secret: %v", err)
 		return nil, err
 	}
-	authURL, _ := Trello.Config.AuthorizationURL(requestToken)
+	authURL, _ := trello.Config.AuthorizationURL(requestToken)
 	authURLStr := authURL.String()
 	return &authURLStr, nil
 }
 
-func (Trello TrelloService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
+func (trello TrelloService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
 	return nil, errors.New("trello does not support signup")
 }
 
-func (Trello TrelloService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
+func (trello TrelloService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -87,7 +87,7 @@ func (Trello TrelloService) HandleLinkCallback(params CallbackParams, userID pri
 		log.Printf("failed to load request secret: %v", err)
 	}
 
-	accessToken, accessSecret, err := Trello.Config.AccessToken(*params.Oauth1Token, secret.RequestSecret, *params.Oauth1Verifier)
+	accessToken, accessSecret, err := trello.Config.AccessToken(*params.Oauth1Token, secret.RequestSecret, *params.Oauth1Verifier)
 	if err != nil {
 		log.Printf("failed to fetch token from trello: %v", err)
 		return errors.New("internal server error")
@@ -122,6 +122,6 @@ func (Trello TrelloService) HandleLinkCallback(params CallbackParams, userID pri
 	return nil
 }
 
-func (Trello TrelloService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
+func (trello TrelloService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
 	return primitive.NilObjectID, nil, errors.New("trello does not support signup")
 }
