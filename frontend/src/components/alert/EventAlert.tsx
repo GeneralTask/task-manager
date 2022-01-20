@@ -53,13 +53,15 @@ export default function EventAlert({ children }: EventAlertProps): JSX.Element {
     const eventList = useAppSelector((state) => state.tasks_page.events.event_list)
     const soonEvents = eventList.filter((event) => {
         const eventDate = new Date(event.datetime_start)
+        const eventDuration = ((new Date(event.datetime_end)).getTime() - eventDate.getTime()) / 1000 / 60
         const minutesUntilEvent = Math.ceil((eventDate.getTime() - new Date().getTime()) / 1000 / 60)
-        return minutesUntilEvent >= 0 && minutesUntilEvent < 20
+        return minutesUntilEvent > (-1 * eventDuration) && minutesUntilEvent < 20
     })
     const eventAlertElements: JSX.Element[] = []
     if (soonEvents.length > 0) {
         for (const event of soonEvents) {
             const tempDate = new Date(event.datetime_start)
+            const eventDuration = Math.ceil((tempDate.getTime() - new Date().getTime()) / 1000 / 60)
             eventAlertElements.push(
                 <EventAlertContentContainer className='event-alert'>
                     <EventAlertHeader>
@@ -68,10 +70,9 @@ export default function EventAlert({ children }: EventAlertProps): JSX.Element {
                         </EventAlertHeaderChild>
                         <EventAlertEventTitle>{event.title}</EventAlertEventTitle>
                         <EventAlertHeaderChild>
-                            &nbsp;starts in {Math.ceil((tempDate.getTime() - new Date().getTime()) / 1000 / 60)} minutes.
+                            &nbsp;{eventDuration > 0 ? `starts in ${eventDuration} minutes` : 'is now.'}
                         </EventAlertHeaderChild>
                         {event.conference_call && <JoinConferenceButton conferenceCall={event.conference_call} />}
-
                     </EventAlertHeader>
                 </EventAlertContentContainer>
             )
