@@ -19,11 +19,30 @@ export interface TTask {
     title: string
     deeplink: string
     body: string
-    sent_at: string,
-    time_allocated: number,
-    due_date: string,
-    source: TTaskSource,
-    sender: string,
+    sent_at: string
+    time_allocated: number
+    due_date: string
+    source: TTaskSource
+    sender: string
+}
+
+export interface TMessageSource {
+    account_id: string // Account ID for the message (eg. Recipient email address)
+    name: string // Human readable name of the source
+    logo: string // Relative URL to the logo to display
+    is_completable: boolean // Whether to show the done button
+    is_replyable: boolean // Whether to show the reply button
+}
+
+export interface TMessage {
+    id: string
+    title: string
+    deeplink: string
+    body: string
+    sender: string
+    sent_at: string
+    is_unread: boolean
+    source: TMessageSource
 }
 
 export interface TEvent {

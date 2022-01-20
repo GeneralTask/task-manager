@@ -25,40 +25,6 @@
             "name": "Today",
             "tasks": [
                 {
-                    "id": "1",
-                    "id_ordering": 1,
-                    "title": "Hey, can you help me put out this fire?",
-                    "deeplink": "https://slack.com",
-                    "body": "",
-                    "sent_at": "2020-04-01T00:00:00.000Z",
-                    "time_allocated": 3600,
-                    "source": {
-                        "name": "Slack",
-                        "logo": "/images/slack.svg",
-                        "is_completable": true,
-                        "is_replyable": true
-                    },
-                    "sender": "@hackerdog"
-                },
-                {
-                    "id": "2",
-                    "id_ordering": 2,
-                    "title": "Urgent question about tomorrow's presentation",
-                    "deeplink": "https://gmail.com",
-                    "body": "<html><body><div><img src='https://5mpublishing.sirv.com/poultry%2Farticles%2Fother-poultry%2Fduck-6.jpeg?scale.option=fill&scale.width=700&scale.height=350&crop.width=700&crop.height=350&crop.y=center&crop.x=center'/></div></body></html>",
-                    "sent_at": "2020-04-01T00:00:00.000Z",
-                    "time_allocated": 3600,
-                    "source": {
-                        "name": "Gmail",
-                        "logo": "/images/gmail.svg",
-                        "is_completable": true,
-                        "is_replyable": true
-                    },
-                    "sender": "@hackerdog",
-                    "emailSender": "nolan@generaltask.com",
-                    "emailSentTime": "2021-12-06T07:39:00-15:13"
-                },
-                {
                     "id": "4",
                     "id_ordering": 4,
                     "title": "Write presentation for tomorrow",
@@ -73,24 +39,6 @@
                         "is_replyable": false
                     },
                     "sender": "@hackerdog"
-                },
-                {
-                    "id": "5",
-                    "id_ordering": 5,
-                    "title": "Your Amazon.com Store Card Statement from Synchrony Bank is Available Online Your Amazon.com Store Card Statement from Synchrony Bank is Available Online",
-                    "deeplink": "https://gmail.com",
-                    "body": "<div>hello world<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>sup<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>Goodbye world<div>",
-                    "sent_at": "2020-04-01T00:00:00.000Z",
-                    "time_allocated": 3600,
-                    "source": {
-                        "name": "Gmail",
-                        "logo": "/images/gmail.svg",
-                        "is_completable": true,
-                        "is_replyable": true
-                    },
-                    "sender": "Amazon.com Store Card Customer Service",
-                    "emailSender": "amazon@bezos.com",
-                    "emailSentTime": "2021-12-06T07:39:00-15:13"
                 }
             ]
         },
@@ -114,24 +62,6 @@
                         "is_replyable": false
                     },
                     "sender": "Zuck"
-                },
-                {
-                    "id": "task-7",
-                    "id_ordering": 2,
-                    "title": "Hey, can you write some more tests?",
-                    "deeplink": "https://gmail.com",
-                    "body": "<html><body><div><img src='https://5mpublishing.sirv.com/poultry%2Farticles%2Fother-poultry%2Fduck-6.jpeg?scale.option=fill&scale.width=700&scale.height=350&crop.width=700&crop.height=350&crop.y=center&crop.x=center'/></div></body></html>",
-                    "sent_at": "2020-04-01T00:00:00.000Z",
-                    "time_allocated": 3600,
-                    "source": {
-                        "name": "Gmail",
-                        "logo": "/images/gmail.svg",
-                        "is_completable": true,
-                        "is_replyable": true
-                    },
-                    "sender": "Jeff",
-                    "emailSender": "foo@bar.com",
-                    "emailSentTime": "2021-12-06T07:39:00-10:13"
                 }
             ]
         },
@@ -157,6 +87,68 @@
                     "sender": "Zuck"
                 }
             ]
+        }
+    ],
+    "messages": [
+        {
+            "id": "1",
+            "title": "Your Amazon.com Store Card Statement from Synchrony Bank is Available Online Your Amazon.com Store Card Statement from Synchrony Bank is Available Online",
+            "deeplink": "https://gmail.com",
+            "body": "<div>hello world<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>sup<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>Goodbye world<div>",
+            "sent_at": "2022-01-18T00:00:00.000Z",
+            "is_unread": true,
+            "source": {
+                "name": "Gmail",
+                "logo": "/images/gmail.svg",
+                "is_completable": true,
+                "is_replyable": true
+            },
+            "sender": "Amazon.com Store Card Customer Service"
+        },
+        {
+            "id": "2",
+            "title": "Hey, can you write some more tests?",
+            "deeplink": "https://gmail.com",
+            "body": "<html><body><div><img src='https://5mpublishing.sirv.com/poultry%2Farticles%2Fother-poultry%2Fduck-6.jpeg?scale.option=fill&scale.width=700&scale.height=350&crop.width=700&crop.height=350&crop.y=center&crop.x=center'/></div></body></html>",
+            "sent_at": "2022-01-18T00:00:00.000Z",
+            "is_unread": true,
+            "source": {
+                "name": "Gmail",
+                "logo": "/images/gmail.svg",
+                "is_completable": true,
+                "is_replyable": true
+            },
+            "sender": "Jeff"
+        },
+        {
+            "id": "3",
+            "title": "Urgent question about tomorrow's presentation",
+            "deeplink": "https://gmail.com",
+            "body": "<html><body><div><img src='https://5mpublishing.sirv.com/poultry%2Farticles%2Fother-poultry%2Fduck-6.jpeg?scale.option=fill&scale.width=700&scale.height=350&crop.width=700&crop.height=350&crop.y=center&crop.x=center'/></div></body></html>",
+            "sent_at": "2022-01-18T00:00:00.000Z",
+            "is_unread": true,
+            "source": {
+                "name": "Gmail",
+                "logo": "/images/gmail.svg",
+                "is_completable": true,
+                "is_replyable": true
+            },
+            "sender": "@hackerdog"
+        },
+        {
+            "id": "4",
+            "title": "Hey, can you help me put out this fire?",
+            "deeplink": "https://slack.com",
+            "body": "hey ;)",
+            "sent_at": "2022-01-20T00:00:00.000Z",
+            "is_unread": true,
+            "source": {
+                "name": "Slack",
+                "logo": "/images/slack.svg",
+                "is_completable": true,
+                "is_replyable": true
+            },
+            "sender": "@hackerdog"
         }
     ],
     "settings": [

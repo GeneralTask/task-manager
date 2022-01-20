@@ -1,4 +1,5 @@
 {
     "/tasks/v2/": "/tasks_v2/",
+    "/messages/": "/messages/",
     "/linked_accounts/supported_types/": "/linked_accounts_supported_types/"
 }

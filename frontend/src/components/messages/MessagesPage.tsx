@@ -1,15 +1,22 @@
-import React from 'react'
+import React, { useCallback, useEffect } from 'react'
 import styled from 'styled-components'
-import { NavbarPages } from '../../helpers/enums'
+import { MESSAGES_FETCH_INTERVAL, MESSAGES_URL } from '../../constants'
+import { AbortID, FetchStatusEnum, NavbarPages } from '../../helpers/enums'
 import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
+import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { setMessages, setMessagesFetchStatus } from '../../redux/messagesPageSlice'
 import { setShowCalendarSidebar } from '../../redux/tasksPageSlice'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import ExpandCollapse from '../common/ExpandCollapse'
 import Navbar from '../Navbar'
+import { useFetchLinkedAccounts } from '../settings/Accounts'
+import { useFetchSettings } from '../settings/Preferences'
+import Message from './Message'
 
 const MessagesPageContainer = styled.div`
     display: flex;
+    
     height: 100%;
     background-image: linear-gradient(to bottom right, ${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
 `
@@ -17,10 +24,12 @@ const MessagesPageContainer = styled.div`
 const MessagesContentContainer = styled.div`
     display: flex;
     flex-direction: column;
+    align-items: center;
     width: 100%;
     min-width: 600px;
+    padding-top: 10px;
     flex: 1;
-    overflow: scroll;
+    overflow-y: auto;
     position: relative;
 `
 const Header = styled.div`
@@ -41,6 +50,31 @@ const TopBanner = styled.div`
     padding-right: 24px;
 `
 
+export const useFetchMessages = (): (() => Promise<void>) => {
+    const dispatch = useAppDispatch()
+    const fetchMessages = useCallback(async () => {
+        try {
+            dispatch(setMessagesFetchStatus(FetchStatusEnum.LOADING))
+            const response = await makeAuthorizedRequest({
+                url: MESSAGES_URL,
+                method: 'GET',
+                abortID: AbortID.MESSAGES,
+            })
+            if (!response.ok) {
+                dispatch(setMessagesFetchStatus(FetchStatusEnum.ERROR))
+            } else {
+                const resj = await response.json()
+                dispatch(setMessagesFetchStatus(FetchStatusEnum.SUCCESS))
+                dispatch(setMessages(resj))
+            }
+        } catch (e) {
+            console.log({ e })
+        }
+    }, [])
+
+    return fetchMessages
+}
+
 const CollapseCalendarSidebar = React.memo(() => {
     const dispatch = useAppDispatch()
     const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
@@ -49,23 +83,39 @@ const CollapseCalendarSidebar = React.memo(() => {
     } else return <></>
 })
 
+function Messages(): JSX.Element {
+    const messages_array = useAppSelector((state) => state.messages_page.messages.messages_array)
+    console.log('MESSAGES', messages_array)
+    const fetchMessages = useFetchMessages()
+    const fetchSettings = useFetchSettings()
+    const fetchLinkedAccounts = useFetchLinkedAccounts()
+    useEffect(() => {
+        // fetch settings and linked accounts once on tasks page load
+        fetchSettings()
+        fetchLinkedAccounts()
+    }, [])
+
+    useInterval(fetchMessages, MESSAGES_FETCH_INTERVAL)
+
+    return (
+        <MessagesContentContainer>
+            <TopBanner>
+                <CollapseCalendarSidebar />
+            </TopBanner>
+            <Header>Messages</Header>
+            {messages_array.map((message) => (
+                <Message message={message} />
+            ))}
+        </MessagesContentContainer>
+    )
+}
+
 const MessagesPage: React.FC = () => {
     const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
     return (
         <MessagesPageContainer>
             <Navbar currentPage={NavbarPages.MESSAGES_PAGE} />
-            <MessagesContentContainer>
-                <TopBanner>
-                    <CollapseCalendarSidebar />
-                </TopBanner>
-                <Header>Messages</Header>
-                {/* <Setting>
-                    <Accounts />
-                </Setting>
-                <Setting>
-                    <Preferences />
-                </Setting> */}
-            </MessagesContentContainer>
+            <Messages />
             {calendarSidebarShown && <CalendarSidebar />}
         </MessagesPageContainer>
     )
