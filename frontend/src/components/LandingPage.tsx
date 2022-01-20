@@ -1,11 +1,12 @@
 import { WAITLIST_URL } from '../constants'
 import React, { useState } from 'react'
-import { getAuthToken, getHeaders } from '../helpers/utils'
+import { getHeaders } from '../helpers/utils'
 import GLButton from './login/GoogleLoginButton'
 import { device, TEXT_GRAY } from '../helpers/styles'
 import styled from 'styled-components'
 import LegacyHeader from './Header'
 import { Navigate } from 'react-router-dom'
+import { useAppSelector } from '../redux/hooks'
 
 const Container = styled.div`
   margin: auto;
@@ -81,10 +82,12 @@ enum WaitlistState {
 }
 
 const LandingPage: React.FC = () => {
-  if (getAuthToken()) return <Navigate to='/tasks/today' />
+  const { authToken } = useAppSelector(store => ({ authToken: store.user_data.auth_token }))
+  if (authToken) return <Navigate to='/tasks/today' />
+
   return (
     <div>
-      <LegacyHeader isLoggedIn={Boolean(getAuthToken())} />
+      <LegacyHeader isLoggedIn={true} />
       <Container>
         <Title>
           The task manager for

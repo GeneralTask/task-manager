@@ -29,7 +29,7 @@ export const logout = async (): Promise<void> => {
 }
 
 
-export const getAuthToken = (): string | undefined => store.getState().user_data.authToken
+export const getAuthToken = (): string | undefined => store.getState().user_data.auth_token
 
 export const getHeaders = (): Record<string, string> => {
     const date = new Date()
