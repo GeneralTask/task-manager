@@ -2,15 +2,7 @@ name: "Cloudflare Auto Deploy"
 on:
   push:
     branches:
-<<<<<<< HEAD
-<<<<<<< HEAD
       - master
-=======
-      - main
->>>>>>> add master push and yarn
-=======
-      - master
->>>>>>> master
   workflow_dispatch:
     inputs:
       tags:
