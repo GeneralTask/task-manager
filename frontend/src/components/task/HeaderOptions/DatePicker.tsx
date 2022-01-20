@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import React, { Dispatch, useCallback, useState } from 'react'
 import { Action } from 'redux'
 import { TASKS_MODIFY_URL } from '../../../constants'
@@ -14,18 +15,14 @@ interface DatePickerProps {
 export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
     const dispatch = useAppDispatch()
     const fetchTasks = useFetchTasks()
-    const [date, setDate] = useState<Date>(new Date())
-    const monthyear = date.toLocaleDateString('default', { month: 'long', year: 'numeric' }).toUpperCase()
+    const [date, setDate] = useState<DateTime>(new DateTime().startOf('month'))
+    const monthyear = date.toLocaleString({ month: 'long', year: 'numeric' }).toUpperCase()
 
     const nextMonth = useCallback(() => setDate(date => {
-        const newDate = new Date(date)
-        newDate.setMonth(date.getMonth() + 1)
-        return newDate
+        return date.plus({ months: 1 })
     }), [date, setDate])
     const prevMonth = useCallback(() => setDate(date => {
-        const newDate = new Date(date)
-        newDate.setMonth(date.getMonth() - 1)
-        return newDate
+        return date.minus({ months: 1 })
     }), [date, setDate])
 
     const daysInMonth = (): number => {
@@ -59,12 +56,14 @@ export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
                         }
                         return (
                             <>
-                                <td key={i}>
-                                    <HoverButton onClick={hoverButtonClick}>
-                                        {tmpDate.getDate()}
-                                    </HoverButton>
-                                </td>
-                                {tmpDate.getDay() === 6 && <tr key={index}></tr>}
+                                <tr key={index}>
+                                    <td key={i}>
+                                        <HoverButton onClick={hoverButtonClick}>
+                                            {tmpDate.getDate()}
+                                        </HoverButton>
+                                    </td>
+                                    {tmpDate.getDay() === 6 && <tr key={index}></tr>}
+                                </tr>
                             </>
                         )
                     })
@@ -73,12 +72,15 @@ export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
         )
     }
 
-    const getAllDays = (): JSX.Element =>
-        <>
-            {getDays(firstDayOfMonth(), -firstDayOfMonth() + 1)}
-            {getDays(daysInMonth(), 1)}
-            {getDays(6 - lastDayOfMonth(), daysInMonth() + 1)}
-        </>
+    const getAllDays = (): JSX.Element => {
+        return (
+            <>
+                {getDays(firstDayOfMonth(), -firstDayOfMonth() + 1)}
+                {getDays(daysInMonth(), 1)}
+                {getDays(6 - lastDayOfMonth(), daysInMonth() + 1)}
+            </>
+        )
+    }
 
     const monthTable = (): JSX.Element => {
         const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
