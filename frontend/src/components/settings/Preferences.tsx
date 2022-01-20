@@ -13,9 +13,9 @@ const PreferencesContainer = styled.div`
     flex-direction: column;
 `
 const PreferencesHeaderText = styled.div`
-	font-size: 1.5em; 
-	font-weight: bold;
-	min-width: 330px;
+    font-size: 1.5em;
+    font-weight: bold;
+    min-width: 330px;
 `
 const PreferenceContainer = styled.div`
     margin: 20px 0px 0px 30px;
@@ -38,11 +38,11 @@ const Select = styled.select`
 `
 
 interface Props {
-    setting: TSetting,
-    fetchSettings: () => void,
+    setting: TSetting
+    fetchSettings: () => void
 }
 
-export const useFetchSettings = (): () => Promise<void> => {
+export const useFetchSettings = (): (() => Promise<void>) => {
     const dispatch = useAppDispatch()
     return useCallback(async () => {
         try {
@@ -55,8 +55,7 @@ export const useFetchSettings = (): () => Promise<void> => {
                 const settings = await response.json()
                 dispatch(setSettings(settings))
             }
-        }
-        catch (e) {
+        } catch (e) {
             console.log({ e })
         }
     }, [dispatch])
@@ -68,15 +67,13 @@ const Preferences: React.FC = () => {
     useEffect(() => {
         fetchSettings()
     }, [])
-    if (settings.length === 0) return (null)
+    if (settings.length === 0) return null
     return (
         <PreferencesContainer>
             <PreferencesHeaderText>Preferences</PreferencesHeaderText>
-            {
-                settings.map((setting: TSetting) =>
-                    <Preference setting={setting} key={setting.field_key} fetchSettings={fetchSettings} />
-                )
-            }
+            {settings.map((setting: TSetting) => (
+                <Preference setting={setting} key={setting.field_key} fetchSettings={fetchSettings} />
+            ))}
         </PreferencesContainer>
     )
 }
@@ -90,11 +87,11 @@ const Preference: React.FC<Props> = ({ setting, fetchSettings }: Props) => {
         <PreferenceContainer>
             <PreferenceText>{setting.field_name}</PreferenceText>
             <Select onChange={selectOnChange} defaultValue={setting.field_value}>
-                {
-                    setting.choices.map((choice: TSettingChoice) =>
-                        <option value={choice.choice_key} key={choice.choice_key}>{choice.choice_name}</option>
-                    )
-                }
+                {setting.choices.map((choice: TSettingChoice) => (
+                    <option value={choice.choice_key} key={choice.choice_key}>
+                        {choice.choice_name}
+                    </option>
+                ))}
             </Select>
         </PreferenceContainer>
     )

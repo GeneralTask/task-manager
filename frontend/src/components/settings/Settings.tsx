@@ -7,7 +7,7 @@ import { NavbarPages } from '../../helpers/enums'
 import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
 
 const SettingsPageContainer = styled.div`
-    display:flex;
+    display: flex;
     height: 100%;
 `
 const SettingsContentContainer = styled.div`
@@ -21,7 +21,7 @@ const SettingsContentContainer = styled.div`
     position: relative;
 `
 const Header = styled.div`
-    font-size: 32px; 
+    font-size: 32px;
     margin-bottom: 24px;
     width: 60%;
 `
@@ -35,9 +35,7 @@ const Settings: React.FC = () => {
         <SettingsPageContainer>
             <Navbar currentPage={NavbarPages.SETTINGS_PAGE} />
             <SettingsContentContainer>
-                <Header>
-                    Settings
-                </Header>
+                <Header>Settings</Header>
                 <Setting>
                     <Accounts />
                 </Setting>

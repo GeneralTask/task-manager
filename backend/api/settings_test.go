@@ -91,7 +91,7 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Parameters missing or malformatted.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"parameters missing or malformatted.\"}", string(body))
 	})
 	t.Run("InvalidPayload", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -107,7 +107,7 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Parameters missing or malformatted.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"parameters missing or malformatted.\"}", string(body))
 	})
 	t.Run("BadKey", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -123,7 +123,7 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Failed to update settings: invalid setting: dogecoin\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"failed to update settings: invalid setting: dogecoin\"}", string(body))
 	})
 	t.Run("BadValue", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -139,7 +139,7 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Failed to update settings: invalid value: tothemoon\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"failed to update settings: invalid value: tothemoon\"}", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")

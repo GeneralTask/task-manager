@@ -15,11 +15,15 @@ export default function CalendarSidebar(): JSX.Element {
     }, [date])
 
     // check if the selected date is supposed to be today, but it isn't  (e.g. we passed midnight)
-    useInterval(useCallback(() => {
-        if (selectedDateIsToday && !dateIsToday(date)) {
-            setDate(new Date())
-        }
-    }, [date, selectedDateIsToday]), 1, false)
+    useInterval(
+        useCallback(() => {
+            if (selectedDateIsToday && !dateIsToday(date)) {
+                setDate(new Date())
+            }
+        }, [date, selectedDateIsToday]),
+        1,
+        false
+    )
 
     return (
         <CalendarSidebarContainer>

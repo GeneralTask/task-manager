@@ -19,12 +19,12 @@ export const HoverButton = styled.button`
 export const Icon = styled.img<{ facingLeft: boolean }>`
     height: 28px;
     width: 28px;
-    transform: ${props => props.facingLeft ? 'scaleX(-1)' : 'none'};
+    transform: ${(props) => (props.facingLeft ? 'scaleX(-1)' : 'none')};
 `
 
 interface Props {
-    direction: 'left' | 'right',
-    onClick: () => void,
+    direction: 'left' | 'right'
+    onClick: () => void
 }
 export default function ExpandCollapse({ direction, onClick }: Props): JSX.Element {
     return (

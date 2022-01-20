@@ -2,7 +2,7 @@ export const {
     REACT_APP_API_BASE_URL,
     REACT_APP_FRONTEND_BASE_URL,
     REACT_APP_COOKIE_DOMAIN,
-    ACCESS_CONTROL_ALLOW_ORIGIN
+    ACCESS_CONTROL_ALLOW_ORIGIN,
 } = process.env
 
 // Backend Endpoints
@@ -31,7 +31,13 @@ export const GOOGLE_LIGHT_NORMAL = '/assets/google_signin_buttons/btn_google_sig
 
 //images
 export const CHEVRON_DOWN = '/images/chevron-arrow-down.svg'
+export const PLUS_ICON = '/images/plus.svg'
 export const DONE_BUTTON = '/images/CheckCircle.svg'
+export const BLANK_CALENDAR_ICON = '/images/CalendarBlank.svg'
+export const EXPAND_ICON = '/images/ArrowsOutSimple.svg'
+export const TIME_ICON = '/images/Timer.svg'
+export const TRASH_ICON = '/images/TrashSimple.svg'
+export const CLOSE_ICON = '/images/close.svg'
 
 //Misc. strings
 export const TASK_STATUS_FETCH_ERROR = 'There was an error fetching tasks'

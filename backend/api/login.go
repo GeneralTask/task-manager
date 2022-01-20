@@ -87,7 +87,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 			return
 		}
 		if stateTokenID != stateTokenIDFromCookie {
-			c.JSON(400, gin.H{"detail": "State token does not match cookie"})
+			c.JSON(400, gin.H{"detail": "state token does not match cookie"})
 			return
 		}
 		err = database.DeleteStateToken(db, stateTokenID, nil)
@@ -124,7 +124,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 	isGTUser := strings.HasSuffix(lowerEmail, "@generaltask.com")
 	if _, contains := constants.ALLOWED_USERNAMES[lowerEmail]; !contains && !isGTUser && count == 0 {
-		c.JSON(403, gin.H{"detail": "Email has not been approved."})
+		c.JSON(403, gin.H{"detail": "email has not been approved."})
 		return
 	}
 

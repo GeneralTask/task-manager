@@ -17,7 +17,7 @@ func (api *API) LogEventAdd(c *gin.Context) {
 	err := c.BindJSON(&params)
 	if err != nil {
 		log.Printf("error: %v", err)
-		c.JSON(400, gin.H{"detail": "Invalid or missing 'event_type' parameter."})
+		c.JSON(400, gin.H{"detail": "invalid or missing 'event_type' parameter."})
 		return
 	}
 

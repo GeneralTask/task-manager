@@ -16,9 +16,10 @@ const GoogleLoginImage = styled.img`
     margin-right: auto;
 `
 
-const GoogleLoginButton: React.FC = () =>
+const GoogleLoginButton: React.FC = () => (
     <GoogleLoginLink href={LOGIN_URL}>
-        <GoogleLoginImage alt="Sign in with Google" src={process.env.PUBLIC_URL + GOOGLE_LIGHT_NORMAL}/>
+        <GoogleLoginImage alt="Sign in with Google" src={process.env.PUBLIC_URL + GOOGLE_LIGHT_NORMAL} />
     </GoogleLoginLink>
+)
 
 export default GoogleLoginButton

@@ -9,69 +9,73 @@ import { Navigate } from 'react-router-dom'
 import { useAppSelector } from '../redux/hooks'
 
 const Container = styled.div`
-  margin: auto;
+    margin: auto;
 `
 const Title = styled.div`
-  font-size: 35px;
-  text-align: center;
-  margin-top: 60px;
-  margin-bottom: 40px;
-  @media ${device.mobile} {
-    font-size: 58px;
-  }
+    font-size: 35px;
+    text-align: center;
+    margin-top: 60px;
+    margin-bottom: 40px;
+    @media ${device.mobile} {
+        font-size: 58px;
+    }
 `
 const Subtitle = styled.div`
-  font-size: 18px;
-  color: ${TEXT_GRAY};
-  text-align: center;
-  margin-bottom: 30px;
-  @media ${device.mobile} {
-    font-size: 27px;
-  }
+    font-size: 18px;
+    color: ${TEXT_GRAY};
+    text-align: center;
+    margin-bottom: 30px;
+    @media ${device.mobile} {
+        font-size: 27px;
+    }
 `
 const WaitlistInput = styled.input`
-  width: 60%;
-  height: 100%;
-  border: 1.5px solid black;
-  border-radius: 2px 0 0 2px;
-  color: ${TEXT_GRAY};
-  box-sizing: border-box;
-  text-align: center;
+    width: 60%;
+    height: 100%;
+    border: 1.5px solid black;
+    border-radius: 2px 0 0 2px;
+    color: ${TEXT_GRAY};
+    box-sizing: border-box;
+    text-align: center;
 `
 const JoinWaitlistButton = styled.button`
-  width: 40%;
-  height: 100%;
-  border: 1.5px solid black;
-  border-radius: 0 2px 2px 0;
-  color: white;
-  background-color: black;
-  cursor: pointer;
+    width: 40%;
+    height: 100%;
+    border: 1.5px solid black;
+    border-radius: 0 2px 2px 0;
+    color: white;
+    background-color: black;
+    cursor: pointer;
 `
 const WaitlistDiv = styled.div`
-  width: 90%;
-  margin: auto;
-  margin-bottom: 40px;
-  @media ${device.mobile} {
-    width: 500px;
-  }
+    width: 90%;
+    margin: auto;
+    margin-bottom: 40px;
+    @media ${device.mobile} {
+        width: 500px;
+    }
 `
 const WaitlistInputs = styled.form`
-  height: 34px;
-  display: flex;
-  justify-content: center;
-  width: 100%;
+    height: 34px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
 `
-const WaitlistMessage = styled.div<{ visibility: string, backgroundColor: string, color: string }>`
-  height: 34px;
-  background-color: red;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  visibility: ${props => props.visibility};
-  background-color: ${props => props.backgroundColor};
-  border: 1.5px solid ${props => props.color};
-  border-top: none;
-  color: ${props => props.color};
+const WaitlistMessage = styled.div<{
+  visibility: string
+  backgroundColor: string
+  color: string
+}>`
+    height: 34px;
+    background-color: red;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: ${(props) => props.visibility};
+    background-color: ${(props) => props.backgroundColor};
+    border: 1.5px solid ${(props) => props.color};
+    border-top: none;
+    color: ${(props) => props.color};
 `
 
 enum WaitlistState {
@@ -137,17 +141,28 @@ export const Waitlist: React.FC = () => {
 
   return (
     <WaitlistDiv>
-      <WaitlistInputs onSubmit={(e) => {
-        e.preventDefault()
-        joinWaitlist(email, setWaitlistState)
-      }}>
-        <WaitlistInput placeholder="Enter email address" value={email} onChange={e => setEmail(e.target.value)} />
+      <WaitlistInputs
+        onSubmit={(e) => {
+          e.preventDefault()
+          joinWaitlist(email, setWaitlistState)
+        }}
+      >
+        <WaitlistInput
+          placeholder="Enter email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
         <JoinWaitlistButton data-testid="join-waitlist-button" role="submit">
           Join the Waitlist
         </JoinWaitlistButton>
       </WaitlistInputs>
 
-      <WaitlistMessage data-testid="waitlist-message" visibility={messageVisibility} backgroundColor={messageBackgroundColor} color={messageTextColor}>
+      <WaitlistMessage
+        data-testid="waitlist-message"
+        visibility={messageVisibility}
+        backgroundColor={messageBackgroundColor}
+        color={messageTextColor}
+      >
         {messageText}
       </WaitlistMessage>
     </WaitlistDiv>
@@ -163,11 +178,9 @@ const joinWaitlist = async (email: string, setWaitlistState: (state: WaitlistSta
   })
   if (response.ok) {
     setWaitlistState(WaitlistState.SUCCESS)
-  }
-  else if (response.status === 302) {
+  } else if (response.status === 302) {
     setWaitlistState(WaitlistState.EXISTS)
-  }
-  else {
+  } else {
     setWaitlistState(WaitlistState.ERROR)
   }
 }

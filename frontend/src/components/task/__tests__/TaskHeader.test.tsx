@@ -19,7 +19,7 @@ const commonTaskProp = {
         name: 'source',
         logo: 'logo',
         is_completable: false,
-        is_replyable: true
+        is_replyable: true,
     },
     body: null,
     conference_call: null,
@@ -32,16 +32,15 @@ const scheduledTaskHeaderProps: TaskHeaderProps = {
     task: commonTaskProp,
     datetimeStart: null,
     dragDisabled: true,
-    isExpanded: false
+    isExpanded: false,
 }
 
 const unscheduledTaskHeaderProps: TaskHeaderProps = {
     task: commonTaskProp,
     datetimeStart: null,
     dragDisabled: false,
-    isExpanded: false
+    isExpanded: false,
 }
-
 
 test('Scheduled task header does not have drag handler', () => {
     render(

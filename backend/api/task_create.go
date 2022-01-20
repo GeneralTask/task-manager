@@ -32,7 +32,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 	var taskCreateParams TaskCreateParams
 	err = c.BindJSON(&taskCreateParams)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "Invalid or missing parameter."})
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter."})
 		return
 	}
 
@@ -59,7 +59,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 			}},
 		)
 		if err != nil || count <= 0 {
-			c.JSON(404, gin.H{"detail": "Account ID not found"})
+			c.JSON(404, gin.H{"detail": "account ID not found"})
 			return
 		}
 	} else {
@@ -80,7 +80,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 	}
 	err = taskSourceResult.Source.CreateNewTask(userID, taskCreateParams.AccountID, taskCreationObject)
 	if err != nil {
-		c.JSON(503, gin.H{"detail": "Failed to create task"})
+		c.JSON(503, gin.H{"detail": "failed to create task"})
 		return
 	}
 	c.JSON(200, gin.H{})

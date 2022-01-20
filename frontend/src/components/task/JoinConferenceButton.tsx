@@ -18,18 +18,20 @@ const Link = styled.a`
 `
 
 interface Props {
-    conferenceCall: TConferenceCall,
+    conferenceCall: TConferenceCall
 }
 
 function JoinConferenceButton({ conferenceCall }: Props): JSX.Element {
-    return <Link href={conferenceCall.url} target="_blank" onClick={(e) => e.stopPropagation()}>
-        <GTButton theme="black" margin={Margin.ml10} >
-            <JoinConference>
-                <Logo src={conferenceCall.logo} />
-                Join Meeting
-            </JoinConference>
-        </GTButton>
-    </Link>
+    return (
+        <Link href={conferenceCall.url} target="_blank" onClick={(e) => e.stopPropagation()}>
+            <GTButton theme="black" margin={Margin.ml10}>
+                <JoinConference>
+                    <Logo src={conferenceCall.logo} />
+                    Join Meeting
+                </JoinConference>
+            </GTButton>
+        </Link>
+    )
 }
 
 export default JoinConferenceButton

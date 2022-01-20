@@ -4,7 +4,7 @@ import { getAuthToken } from '../helpers/utils'
 
 function PrivateOutlet(): JSX.Element {
     const authToken = getAuthToken()
-    return authToken ? <Outlet /> : <Navigate to='/' />
+    return authToken ? <Outlet /> : <Navigate to="/" />
 }
 
 export default PrivateOutlet
