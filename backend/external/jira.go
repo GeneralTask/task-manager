@@ -46,13 +46,13 @@ type JIRATaskList struct {
 	Issues []JIRATask `json:"issues"`
 }
 
-func (JIRA JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken string) error {
+func (jira JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken string) error {
 	parentCtx := context.Background()
 	var baseURL string
-	if JIRA.Atlassian.Config.ConfigValues.PriorityListURL != nil {
-		baseURL = *JIRA.Atlassian.Config.ConfigValues.PriorityListURL
-	} else if siteConfiguration, _ := JIRA.Atlassian.getSiteConfiguration(userID); siteConfiguration != nil {
-		baseURL = JIRA.getAPIBaseURL(*siteConfiguration)
+	if jira.Atlassian.Config.ConfigValues.PriorityListURL != nil {
+		baseURL = *jira.Atlassian.Config.ConfigValues.PriorityListURL
+	} else if siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID); siteConfiguration != nil {
+		baseURL = jira.getAPIBaseURL(*siteConfiguration)
 	} else {
 		return errors.New("could not form base url")
 	}
@@ -107,30 +107,30 @@ func (JIRA JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken 
 	return err
 }
 
-func (JIRA JIRASource) getAPIBaseURL(siteConfiguration database.AtlassianSiteConfiguration) string {
+func (jira JIRASource) getAPIBaseURL(siteConfiguration database.AtlassianSiteConfiguration) string {
 	return "https://api.atlassian.com/ex/jira/" + siteConfiguration.CloudID
 }
 
-func (JIRA JIRASource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (jira JIRASource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
 	result <- emptyEmailResult(nil)
 }
 
-func (JIRA JIRASource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (jira JIRASource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 
-func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	authToken, _ := JIRA.Atlassian.getToken(userID, accountID)
-	siteConfiguration, _ := JIRA.Atlassian.getSiteConfiguration(userID)
+func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+	authToken, _ := jira.Atlassian.getToken(userID, accountID)
+	siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
 
 	if authToken == nil || siteConfiguration == nil {
 		result <- emptyTaskResult(errors.New("missing authToken or siteConfiguration"))
 		return
 	}
 
-	apiBaseURL := JIRA.getAPIBaseURL(*siteConfiguration)
-	if JIRA.Atlassian.Config.ConfigValues.APIBaseURL != nil {
-		apiBaseURL = *JIRA.Atlassian.Config.ConfigValues.APIBaseURL
+	apiBaseURL := jira.getAPIBaseURL(*siteConfiguration)
+	if jira.Atlassian.Config.ConfigValues.APIBaseURL != nil {
+		apiBaseURL = *jira.Atlassian.Config.ConfigValues.APIBaseURL
 	}
 	JQL := "assignee=currentuser() AND status != Done"
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
@@ -204,7 +204,7 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 		tasks = append(tasks, task)
 	}
 
-	cachedMapping := JIRA.fetchLocalPriorityMapping(database.GetJiraPrioritiesCollection(db), userID)
+	cachedMapping := jira.fetchLocalPriorityMapping(database.GetJiraPrioritiesCollection(db), userID)
 
 	//If a priority exists that isn't cached refresh the whole list.
 	var needsRefresh bool
@@ -219,13 +219,13 @@ func (JIRA JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	}
 
 	if needsRefresh {
-		err = JIRA.GetListOfPriorities(userID, authToken.AccessToken)
+		err = jira.GetListOfPriorities(userID, authToken.AccessToken)
 		if err != nil {
 			log.Printf("failed to fetch priorities: %v", err)
 			result <- emptyTaskResult(err)
 			return
 		}
-		cachedMapping = JIRA.fetchLocalPriorityMapping(database.GetJiraPrioritiesCollection(db), userID)
+		cachedMapping = jira.fetchLocalPriorityMapping(database.GetJiraPrioritiesCollection(db), userID)
 	}
 	priorityLength := len(*cachedMapping)
 
@@ -297,9 +297,9 @@ func (JIRA JIRASource) fetchLocalPriorityMapping(prioritiesCollection *mongo.Col
 	return &result
 }
 
-func (JIRA JIRASource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
-	token, _ := JIRA.Atlassian.getToken(userID, accountID)
-	siteConfiguration, _ := JIRA.Atlassian.getSiteConfiguration(userID)
+func (jira JIRASource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
+	token, _ := jira.Atlassian.getToken(userID, accountID)
+	siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
 	if token == nil || siteConfiguration == nil {
 		return errors.New("missing token or siteConfiguration")
 	}
@@ -307,22 +307,22 @@ func (JIRA JIRASource) MarkAsDone(userID primitive.ObjectID, accountID string, i
 	//first get the list of transitions
 	var apiBaseURL string
 
-	if JIRA.Atlassian.Config.ConfigValues.TransitionURL != nil {
-		apiBaseURL = *JIRA.Atlassian.Config.ConfigValues.TransitionURL
+	if jira.Atlassian.Config.ConfigValues.TransitionURL != nil {
+		apiBaseURL = *jira.Atlassian.Config.ConfigValues.TransitionURL
 	} else {
-		apiBaseURL = JIRA.getAPIBaseURL(*siteConfiguration)
+		apiBaseURL = jira.getAPIBaseURL(*siteConfiguration)
 	}
 
-	finalTransitionID := JIRA.getFinalTransitionID(apiBaseURL, token.AccessToken, issueID)
+	finalTransitionID := jira.getFinalTransitionID(apiBaseURL, token.AccessToken, issueID)
 
 	if finalTransitionID == nil {
 		return errors.New("final transition not found")
 	}
 
-	return JIRA.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
+	return jira.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
 }
 
-func (JIRA JIRASource) getFinalTransitionID(apiBaseURL string, AtlassianAuthToken string, jiraCloudID string) *string {
+func (jira JIRASource) getFinalTransitionID(apiBaseURL string, AtlassianAuthToken string, jiraCloudID string) *string {
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + jiraCloudID + "/transitions"
 
 	req, _ := http.NewRequest("GET", transitionsURL, nil)
@@ -365,7 +365,7 @@ func (JIRA JIRASource) getFinalTransitionID(apiBaseURL string, AtlassianAuthToke
 	return &typedTransitionID
 }
 
-func (JIRA JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken string, issueID string, newTransitionID string) error {
+func (jira JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken string, issueID string, newTransitionID string) error {
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID + "/transitions"
 	params := []byte(`{"transition": {"id": "` + newTransitionID + `"}}`)
 	req, _ := http.NewRequest("POST", transitionsURL, bytes.NewBuffer(params))
@@ -376,14 +376,14 @@ func (JIRA JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken s
 	return err
 }
 
-func (JIRA JIRASource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+func (jira JIRASource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
 	return errors.New("cannot reply to a JIRA task")
 }
 
-func (JIRA JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
+func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (JIRA JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
+func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
 	return nil
 }

@@ -20,8 +20,8 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 import { AbortID } from '../../helpers/enums'
 import { TEvent } from '../../helpers/types'
-import { TimeIndicator } from './TimeIndicator'
 import { setEvents } from '../../redux/tasksPageSlice'
+import { TimeIndicator } from './TimeIndicator'
 
 function CalendarTable(): JSX.Element {
     const hourElements = Array(24)
@@ -107,13 +107,11 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
 
     const startDate = new Date(date)
     startDate.setHours(0, 0, 0, 0)
-    const start = startDate.toISOString()
     const endDate = new Date(startDate)
     endDate.setDate(startDate.getDate() + 1)
-    const end = endDate.toISOString()
 
     const event_list = useAppSelector((state) => state.tasks_page.events.event_list).filter(
-        (event) => event.datetime_end >= start && event.datetime_start <= end
+        (event) => new Date(event.datetime_end) >= startDate && new Date(event.datetime_start) <= endDate
     )
 
     const fetchEvents = useFetchEvents()
