@@ -61,7 +61,7 @@ export default function EventAlert({ children }: EventAlertProps): JSX.Element {
         for (const event of soonEvents) {
             const tempDate = new Date(event.datetime_start)
             eventAlertElements.push(
-                <EventAlertContentContainer className='event-alert'>
+                <EventAlertContentContainer className='event-alert' key={event.id}>
                     <EventAlertHeader>
                         <EventAlertHeaderChild>
                             Your event&nbsp;
