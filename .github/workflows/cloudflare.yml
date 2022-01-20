@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       tags:
-        description: "Manually deploy frontend to Cloudflare"
+        description: "Deploy frontend to Cloudflare"
 
 jobs:
   build:
