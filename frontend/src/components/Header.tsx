@@ -87,7 +87,7 @@ const LegacyHeader: React.FC<Props> = ({ isLoggedIn }: Props) => {
                 {isLoggedIn && (
                     <Right>
                         {deviceSize === DeviceSize.MOBILE ? (
-                            <Hamburger src="images/hamburger.svg" onClick={toggleMenu} />
+                            <Hamburger src="/images/hamburger.svg" onClick={toggleMenu} />
                         ) : (
                             <>
                                 <Link to={LANDING_PATH}>

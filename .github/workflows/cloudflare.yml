@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tags:
-        description: "Manually deploy frontend to Cloudflare"
+        description: "Deploy frontend to Cloudflare"
 
 jobs:
   build:
@@ -21,11 +21,14 @@ jobs:
       - name: install dependencies
         run: "yarn install"
 
+      - name: install wrangler
+        run: "yarn global add @cloudflare/wrangler"
+
       - name: build
         run: "yarn run build"
 
       - name: deploy using wrangler
-        run: "npx wrangler publish"
+        run: "wrangler publish"
 
         env:
           CF_EMAIL: ${{secrets.CF_EMAIL}}
