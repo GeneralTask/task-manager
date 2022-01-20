@@ -87,7 +87,7 @@ const Icon = styled.img`
 const NavbarHeader = (): JSX.Element => {
     return (
         <flex.flex>
-            <Icon src={`${process.env.PUBLIC_URL}/images/LOGO.svg`} />
+            <Icon src={`${process.env.PUBLIC_URL}/images/Logo.svg`} />
         </flex.flex>
     )
 }
@@ -171,53 +171,53 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
         page: NavbarPages
         link: ReactElement<typeof Link>
     }[] = [
-        {
-            page: NavbarPages.TODAY_PAGE,
-            link: (
-                <NavbarLink to={'/tasks/today'}>
-                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.TODAY_PAGE}>Today</NavbarLinkButton>
-                </NavbarLink>
-            ),
-        },
-        {
-            page: NavbarPages.BLOCKED_PAGE,
-            link: (
-                <NavbarLink to={'/tasks/blocked'}>
-                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BLOCKED_PAGE}>
-                        Blocked
-                    </NavbarLinkButton>
-                </NavbarLink>
-            ),
-        },
-        {
-            page: NavbarPages.BACKLOG_PAGE,
-            link: (
-                <NavbarLink to={'/tasks/backlog'}>
-                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BACKLOG_PAGE}>
-                        Backlog
-                    </NavbarLinkButton>
-                </NavbarLink>
-            ),
-        },
-        {
-            page: NavbarPages.SETTINGS_PAGE,
-            link: (
-                <NavbarLink to={SETTINGS_PATH}>
-                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.SETTINGS_PAGE}>
-                        Settings
-                    </NavbarLinkButton>
-                </NavbarLink>
-            ),
-        },
-        {
-            page: NavbarPages.LOGOUT,
-            link: (
-                <NavbarLogout onClick={logout}>
-                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.LOGOUT}>Logout</NavbarLinkButton>
-                </NavbarLogout>
-            ),
-        },
-    ]
+            {
+                page: NavbarPages.TODAY_PAGE,
+                link: (
+                    <NavbarLink to={'/tasks/today'}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.TODAY_PAGE}>Today</NavbarLinkButton>
+                    </NavbarLink>
+                ),
+            },
+            {
+                page: NavbarPages.BLOCKED_PAGE,
+                link: (
+                    <NavbarLink to={'/tasks/blocked'}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BLOCKED_PAGE}>
+                            Blocked
+                        </NavbarLinkButton>
+                    </NavbarLink>
+                ),
+            },
+            {
+                page: NavbarPages.BACKLOG_PAGE,
+                link: (
+                    <NavbarLink to={'/tasks/backlog'}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BACKLOG_PAGE}>
+                            Backlog
+                        </NavbarLinkButton>
+                    </NavbarLink>
+                ),
+            },
+            {
+                page: NavbarPages.SETTINGS_PAGE,
+                link: (
+                    <NavbarLink to={SETTINGS_PATH}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.SETTINGS_PAGE}>
+                            Settings
+                        </NavbarLinkButton>
+                    </NavbarLink>
+                ),
+            },
+            {
+                page: NavbarPages.LOGOUT,
+                link: (
+                    <NavbarLogout onClick={logout}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.LOGOUT}>Logout</NavbarLinkButton>
+                    </NavbarLogout>
+                ),
+            },
+        ]
     const navbarJSXElements = linkElements.map((element) => (
         <NavbarItemDroppableContainer
             key={element.page}
