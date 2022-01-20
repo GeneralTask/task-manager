@@ -1,4 +1,5 @@
 name = "frontend"
+compatibility_date = "2022-01-20"
 type = "webpack"
 account_id = "91d7983e0bff08e0cf76f81cf79abe50"
 route = "generaltask.com/*"
