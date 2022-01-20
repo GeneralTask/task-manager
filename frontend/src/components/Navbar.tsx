@@ -87,7 +87,7 @@ const Icon = styled.img`
 const NavbarHeader = (): JSX.Element => {
     return (
         <flex.flex>
-            <Icon src={`${process.env.PUBLIC_URL}/images/LOGO.svg`} />
+            <Icon src={`${process.env.PUBLIC_URL}/images/Logo.svg`} />
         </flex.flex>
     )
 }
