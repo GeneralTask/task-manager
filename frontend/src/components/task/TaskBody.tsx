@@ -8,13 +8,22 @@ import GTButton from '../common/GTButton'
 import ReactDOMServer from 'react-dom/server'
 import { TTask } from '../../helpers/types'
 import { toast } from 'react-toastify'
-import { TaskBodyDiv, Deeplink, ReplyDiv, ExpandedBody, EmailMessage, ReplyInputStyle, EmailViewDiv, EmailSubjectHeader } from './TaskBody-style'
+import {
+    TaskBodyDiv,
+    Deeplink,
+    ReplyDiv,
+    ExpandedBody,
+    EmailMessage,
+    ReplyInputStyle,
+    EmailViewDiv,
+    EmailSubjectHeader,
+} from './TaskBody-style'
 import sanitizeHtml from 'sanitize-html'
 import { LogEvents } from '../../helpers/enums'
 
 interface Props {
-    task: TTask,
-    isExpanded: boolean,
+    task: TTask
+    isExpanded: boolean
 }
 
 // no body: no body
@@ -29,15 +38,24 @@ const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
                     {body && (
                         <TaskBodyDiv>
                             <EmailBody body={body} task_id={id} />
-                            {source.is_replyable && <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />}
+                            {source.is_replyable && (
+                                <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />
+                            )}
                         </TaskBodyDiv>
                     )}
                     {deeplink && (
                         <Deeplink>
                             <p>
-                                See more in <a href={deeplink} target="_blank" onClick={() => {
-                                    logEvent(LogEvents.TASK_DEEPLINK_CLICKED)
-                                }}>{source.name}</a>
+                                See more in{' '}
+                                <a
+                                    href={deeplink}
+                                    target="_blank"
+                                    onClick={() => {
+                                        logEvent(LogEvents.TASK_DEEPLINK_CLICKED)
+                                    }}
+                                >
+                                    {source.name}
+                                </a>
                             </p>
                         </Deeplink>
                     )}
@@ -48,17 +66,22 @@ const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
 })
 
 interface EmailViewProps {
-    body: string,
-    task_id: string,
+    body: string
+    task_id: string
 }
 
 const EmailBody: React.FC<EmailViewProps> = (props: EmailViewProps) => {
     const whitelistedHTMLAttributes: sanitizeHtml.IOptions = {
         allowedAttributes: false,
-        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'a', 'center'])
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'a', 'center']),
     }
-    const transformTags = { 'a': sanitizeHtml.simpleTransform('a', { target: '_blank' }, true) }
-    const cleanHTML = sanitizeHtml(props.body, { ...whitelistedHTMLAttributes, transformTags })
+    const transformTags = {
+        a: sanitizeHtml.simpleTransform('a', { target: '_blank' }, true),
+    }
+    const cleanHTML = sanitizeHtml(props.body, {
+        ...whitelistedHTMLAttributes,
+        transformTags,
+    })
     return (
         <EmailViewDiv>
             <EmailMessage>
@@ -70,14 +93,14 @@ const EmailBody: React.FC<EmailViewProps> = (props: EmailViewProps) => {
 }
 
 interface EmailQuoteProps {
-    sender: string | null,
-    body: string,
-    sent_at: string | null,
+    sender: string | null
+    body: string
+    sent_at: string | null
 }
 
 function EmailQuote({ sender, body, sent_at }: EmailQuoteProps): JSX.Element {
     const newMessageStyles = {
-        color: TEXT_BLACK
+        color: TEXT_BLACK,
     }
     const emailBlockStyles = {
         color: `${TEXT_GRAY}`,
@@ -86,12 +109,12 @@ function EmailQuote({ sender, body, sent_at }: EmailQuoteProps): JSX.Element {
     const emailQuoteStyles = {
         margin: '0px 0px 0px 0.8ex',
         borderLeft: `1px solid ${BORDER_PRIMARY}`,
-        paddingLeft: '1ex'
+        paddingLeft: '1ex',
     }
 
     const whitelistedHTMLAttributes: sanitizeHtml.IOptions = {
         allowedAttributes: false,
-        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'center'])
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'center']),
     }
     const emailDate = new Date(sent_at || '')
     const month = emailDate.toLocaleString('default', { month: 'short' })
@@ -109,7 +132,7 @@ function EmailQuote({ sender, body, sent_at }: EmailQuoteProps): JSX.Element {
 
     return (
         <div>
-            <div style={newMessageStyles} >
+            <div style={newMessageStyles}>
                 <br />
                 <br />
                 <br />
@@ -118,54 +141,60 @@ function EmailQuote({ sender, body, sent_at }: EmailQuoteProps): JSX.Element {
                 {sender && sent_at && <div>{emailSenderQuote}</div>}
                 <div style={emailQuoteStyles}>
                     <div
-                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(body, whitelistedHTMLAttributes) }}
+                        dangerouslySetInnerHTML={{
+                            __html: sanitizeHtml(body, whitelistedHTMLAttributes),
+                        }}
                     />
                 </div>
-            </div >
-        </div >
+            </div>
+        </div>
     )
 }
 
 interface ReplyProps {
-    task_id: string,
-    sender: string | null,
-    body: string,
-    sent_at: string | null,
+    task_id: string
+    sender: string | null
+    body: string
+    sent_at: string | null
 }
 
 const Reply: React.FC<ReplyProps> = ({ task_id, sender, body, sent_at }: ReplyProps) => {
     const fetchTasks = useFetchTasks()
-    const [text, setText] = useState(ReactDOMServer.renderToStaticMarkup(<EmailQuote sender={sender} body={body} sent_at={sent_at} />))
+    const [text, setText] = useState(
+        ReactDOMServer.renderToStaticMarkup(<EmailQuote sender={sender} body={body} sent_at={sent_at} />)
+    )
 
-    return <ReplyDiv>
-        <ContentEditable
-            className="reply-input"
-            html={text}
-            style={ReplyInputStyle}
-            onChange={(e) => setText(e.target.value)}
-        />
-        <GTButton
-            theme="black"
-            height="42px"
-            width="5.5em"
-            onClick={async () => {
-                const response = await makeAuthorizedRequest({
-                    url: TASKS_URL + 'reply/' + task_id + '/',
-                    method: 'POST',
-                    body: JSON.stringify({ body: text }),
-                })
-                setText('')
-                fetchTasks()
-                if (response.ok) {
-                    toast.success(`Replied to ${sender ?? 'email'}!`)
-                }
-                else {
-                    toast.error(`There was an error replying to ${sender ?? 'email'}`)
-                }
-            }}
-        >
-            Reply</GTButton>
-    </ReplyDiv >
+    return (
+        <ReplyDiv>
+            <ContentEditable
+                className="reply-input"
+                html={text}
+                style={ReplyInputStyle}
+                onChange={(e) => setText(e.target.value)}
+            />
+            <GTButton
+                theme="black"
+                height="42px"
+                width="5.5em"
+                onClick={async () => {
+                    const response = await makeAuthorizedRequest({
+                        url: TASKS_URL + 'reply/' + task_id + '/',
+                        method: 'POST',
+                        body: JSON.stringify({ body: text }),
+                    })
+                    setText('')
+                    fetchTasks()
+                    if (response.ok) {
+                        toast.success(`Replied to ${sender ?? 'email'}!`)
+                    } else {
+                        toast.error(`There was an error replying to ${sender ?? 'email'}`)
+                    }
+                }}
+            >
+                Reply
+            </GTButton>
+        </ReplyDiv>
+    )
 }
 
 export default TaskBody

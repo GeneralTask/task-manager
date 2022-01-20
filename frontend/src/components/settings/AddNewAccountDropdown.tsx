@@ -4,7 +4,7 @@ import { BACKGROUND_HOVER } from '../../helpers/styles'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'
 
-const WINDOW_POLL_RATE = 10 // rate at which we check if a window has been closed (in milliseconds) 
+const WINDOW_POLL_RATE = 10 // rate at which we check if a window has been closed (in milliseconds)
 
 const Logo = styled.img`
     width: 20px;
@@ -20,7 +20,7 @@ const DropdownToggle = styled.div`
     border-radius: 4px;
     padding: 4px 8px;
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
     cursor: pointer;
 `
@@ -34,40 +34,39 @@ const Selector = styled.div`
     position: absolute;
     width: 100%;
     border: 1px ${BACKGROUND_HOVER} solid;
-
 `
 const OptionContainer = styled.div`
     padding: 5px;
     position: relative;
-    display: flex; 
+    display: flex;
     align-items: center;
     border-top: 0;
     background-color: white;
     cursor: pointer;
-    &:hover{
+    &:hover {
         background-color: ${BACKGROUND_HOVER};
     }
     border: 1px ${BACKGROUND_HOVER} solid;
 `
 
 interface SupportedType {
-    name: string,
-    logo: string,
-    authorization_url: string,
+    name: string
+    logo: string
+    authorization_url: string
 }
 
 interface OptionProps {
-    st: SupportedType,
-    refetchLinkedAccounts: () => void,
+    st: SupportedType
+    refetchLinkedAccounts: () => void
 }
 
 interface DropdownProps {
-    supportedTypes: SupportedType[],
-    refetchLinkedAccounts: () => void,
+    supportedTypes: SupportedType[]
+    refetchLinkedAccounts: () => void
 }
 
 interface Props {
-    refetchLinkedAccounts: () => void,
+    refetchLinkedAccounts: () => void
 }
 
 const AddNewAccountDropdown: React.FC<Props> = (props: Props) => {
@@ -75,17 +74,10 @@ const AddNewAccountDropdown: React.FC<Props> = (props: Props) => {
     useEffect(() => {
         fetchSupportedTypes(setSupportedTypes)
     }, [])
-    return (
-        <Dropdown
-            supportedTypes={supportedTypes}
-            refetchLinkedAccounts={props.refetchLinkedAccounts}
-        />
-    )
+    return <Dropdown supportedTypes={supportedTypes} refetchLinkedAccounts={props.refetchLinkedAccounts} />
 }
 
-const fetchSupportedTypes = async (
-    setSupportedTypes: React.Dispatch<React.SetStateAction<SupportedType[]>>
-) => {
+const fetchSupportedTypes = async (setSupportedTypes: React.Dispatch<React.SetStateAction<SupportedType[]>>) => {
     try {
         const response = await makeAuthorizedRequest({
             url: SUPPORTED_TYPES_URL,
@@ -93,54 +85,55 @@ const fetchSupportedTypes = async (
         })
         if (response.ok) {
             setSupportedTypes(await response.json())
-        }
-        else {
+        } else {
             throw 'error fetching supported types'
         }
-    }
-    // dummy data in 
-    catch {
+    } catch {
+        // dummy data in
         setSupportedTypes([
             {
                 authorization_url: LOGIN_URL,
                 name: 'Google',
-                logo: '/images/google.svg'
+                logo: '/images/google.svg',
             },
             {
                 authorization_url: JIRA_URL,
                 name: 'Jira',
-                logo: '/images/jira.svg'
+                logo: '/images/jira.svg',
             },
             {
                 authorization_url: ASANA_URL,
                 name: 'Asana',
-                logo: '/images/asana.svg'
-            }
+                logo: '/images/asana.svg',
+            },
         ])
     }
 }
 
 const Option = ({ st, refetchLinkedAccounts }: OptionProps) => {
     return (
-        <OptionContainer onClick={() => {
-            const win = window.open(
-                st.authorization_url,
-                st.name,
-                'height=640,width=960,toolbar=no,menubar=no,scrollbars=no,location=no,status=no'
-            )
-            if (win != null) {
-                // check every WINDOW_POLL_RATE if the window has been closed
-                const timer = setInterval(() => {
-                    if (win.closed) {
-                        clearInterval(timer)
-                        refetchLinkedAccounts()
-                    }
-                }, WINDOW_POLL_RATE)
-            }
-        }}>
+        <OptionContainer
+            onClick={() => {
+                const win = window.open(
+                    st.authorization_url,
+                    st.name,
+                    'height=640,width=960,toolbar=no,menubar=no,scrollbars=no,location=no,status=no'
+                )
+                if (win != null) {
+                    // check every WINDOW_POLL_RATE if the window has been closed
+                    const timer = setInterval(() => {
+                        if (win.closed) {
+                            clearInterval(timer)
+                            refetchLinkedAccounts()
+                        }
+                    }, WINDOW_POLL_RATE)
+                }
+            }}
+        >
             <Logo src={st.logo} />
             <div>{st.name}</div>
-        </OptionContainer>)
+        </OptionContainer>
+    )
 }
 
 const Dropdown = ({ supportedTypes, refetchLinkedAccounts }: DropdownProps) => {
@@ -165,16 +158,27 @@ const Dropdown = ({ supportedTypes, refetchLinkedAccounts }: DropdownProps) => {
 
     return (
         <DropdownContainer ref={ref}>
-            <DropdownToggle onClick={() => { setExpanded(!isExpanded) }}>
+            <DropdownToggle
+                onClick={() => {
+                    setExpanded(!isExpanded)
+                }}
+            >
                 <DropdownText>Add new account</DropdownText>
                 <Chevron src={CHEVRON_DOWN} />
             </DropdownToggle>
-            {isExpanded && <Selector onBlur={() => { setExpanded(false) }}>
-                {supportedTypes.map((st, i) => <Option st={st} refetchLinkedAccounts={refetchLinkedAccounts} key={i} />)}
-            </Selector>}
+            {isExpanded && (
+                <Selector
+                    onBlur={() => {
+                        setExpanded(false)
+                    }}
+                >
+                    {supportedTypes.map((st, i) => (
+                        <Option st={st} refetchLinkedAccounts={refetchLinkedAccounts} key={i} />
+                    ))}
+                </Selector>
+            )}
         </DropdownContainer>
     )
 }
-
 
 export default AddNewAccountDropdown

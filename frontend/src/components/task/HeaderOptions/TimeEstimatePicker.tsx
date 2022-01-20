@@ -1,16 +1,19 @@
 import React, { Dispatch } from 'react'
 import { Action } from 'redux'
-import { CLOSE_ICON, TASKS_MODIFY_URL } from '../../constants'
-import { makeAuthorizedRequest } from '../../helpers/utils'
-import { useAppDispatch } from '../../redux/hooks'
-import { hideTimeEstimate } from '../../redux/tasksPageSlice'
-import { useFetchTasks } from '../task/TasksPage'
-import { Header, TimeEstimateContainer, TopNav, CloseButton, TimeButton } from './TimeEstimate-style'
+import { CLOSE_ICON, TASKS_MODIFY_URL } from '../../../constants'
+import { makeAuthorizedRequest } from '../../../helpers/utils'
+import { useAppDispatch } from '../../../redux/hooks'
+import { hideTimeEstimate } from '../../../redux/tasksPageSlice'
+import { CloseButton } from '../TaskCreate-style'
+import { useFetchTasks } from '../TasksPage'
+import { TopNav } from './DatePicker-style'
+import { TimeEstimateContainer, Header, TimeButton } from './TimeEstimate-style'
+
 
 interface TimeEstimateProps {
     task_id: string
 }
-export default function TimeEstimate({task_id}: TimeEstimateProps): JSX.Element {
+export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Element {
     const dispatch = useAppDispatch()
     const fetchTasks = useFetchTasks()
 
@@ -57,7 +60,7 @@ const editTimeEstimate = async (task_id: string, time_estimate: number, dispatch
         })
 
         if (!response.ok) {
-        throw new Error('PATCH /tasks/modify Edit Time Estimate failed: ' + response.text())
+            throw new Error('PATCH /tasks/modify Edit Time Estimate failed: ' + response.text())
         }
         fetchTasks()
     } catch (e) {

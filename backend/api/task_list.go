@@ -136,7 +136,7 @@ func (api *API) TasksList(c *gin.Context) {
 	taskChannels := []chan external.TaskResult{}
 	timezoneOffset, err := strconv.ParseInt(c.GetHeader("Timezone-Offset"), 10, 64)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "Invalid timezone offset"})
+		c.JSON(400, gin.H{"detail": "invalid timezone offset"})
 		return
 	}
 	startTime, endTime := getTodayRangeFromOffset(int(timezoneOffset))

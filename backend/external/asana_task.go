@@ -36,15 +36,15 @@ type AsanaTasksResponse struct {
 	} `json:"data"`
 }
 
-func (AsanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (asanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
 	result <- emptyEmailResult(nil)
 }
 
-func (AsanaTask AsanaTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (asanaTask AsanaTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 
-func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		result <- emptyTaskResult(err)
@@ -55,8 +55,8 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	client := getAsanaHttpClient(db, userID, accountID)
 
 	userInfoURL := "https://app.asana.com/api/1.0/users/me"
-	if AsanaTask.Asana.ConfigValues.UserInfoURL != nil {
-		userInfoURL = *AsanaTask.Asana.ConfigValues.UserInfoURL
+	if asanaTask.Asana.ConfigValues.UserInfoURL != nil {
+		userInfoURL = *asanaTask.Asana.ConfigValues.UserInfoURL
 		client = http.DefaultClient
 	}
 
@@ -73,8 +73,8 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	workspaceID := userInfo.Data.Workspaces[0].ID
 
 	taskFetchURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/?assignee=me&workspace=%s&completed_since=2022-01-01&opt_fields=this.html_notes,this.name,this.due_at,this.due_on,this.permalink_url", workspaceID)
-	if AsanaTask.Asana.ConfigValues.TaskFetchURL != nil {
-		taskFetchURL = *AsanaTask.Asana.ConfigValues.TaskFetchURL
+	if asanaTask.Asana.ConfigValues.TaskFetchURL != nil {
+		taskFetchURL = *asanaTask.Asana.ConfigValues.TaskFetchURL
 		client = http.DefaultClient
 	} else if client == nil {
 		client = getAsanaHttpClient(db, userID, accountID)
@@ -89,22 +89,22 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	}
 
 	var tasks []*database.Task
-	for _, asanaTask := range asanaTasks.Data {
+	for _, asanaTaskData := range asanaTasks.Data {
 		task := &database.Task{
 			TaskBase: database.TaskBase{
 				UserID:            userID,
-				IDExternal:        asanaTask.GID,
+				IDExternal:        asanaTaskData.GID,
 				IDTaskSection:     constants.IDTaskSectionToday,
-				Deeplink:          asanaTask.PermalinkURL,
+				Deeplink:          asanaTaskData.PermalinkURL,
 				SourceID:          TASK_SOURCE_ID_ASANA,
-				Title:             asanaTask.Name,
-				Body:              asanaTask.HTMLNotes,
+				Title:             asanaTaskData.Name,
+				Body:              asanaTaskData.HTMLNotes,
 				TimeAllocation:    settings.GetDefaultTaskDuration(db, userID),
 				SourceAccountID:   accountID,
-				CreatedAtExternal: asanaTask.CreatedAt,
+				CreatedAtExternal: asanaTaskData.CreatedAt,
 			},
 		}
-		dueDate, err := time.Parse("2006-01-02", asanaTask.DueOn)
+		dueDate, err := time.Parse("2006-01-02", asanaTaskData.DueOn)
 		if err == nil {
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
@@ -142,11 +142,11 @@ func (AsanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	}
 }
 
-func (AsanaTask AsanaTaskSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+func (asanaTask AsanaTaskSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
 	result <- emptyPullRequestResult(nil)
 }
 
-func (AsanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
+func (asanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
@@ -156,8 +156,8 @@ func (AsanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID
 	client := getAsanaHttpClient(db, userID, accountID)
 
 	taskUpdateURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/%s/", issueID)
-	if AsanaTask.Asana.ConfigValues.TaskUpdateURL != nil {
-		taskUpdateURL = *AsanaTask.Asana.ConfigValues.TaskUpdateURL
+	if asanaTask.Asana.ConfigValues.TaskUpdateURL != nil {
+		taskUpdateURL = *asanaTask.Asana.ConfigValues.TaskUpdateURL
 		client = http.DefaultClient
 	}
 	err = requestJSON(client, "PUT", taskUpdateURL, `{"data": {"completed": true}}`, EmptyResponsePlaceholder)
@@ -168,14 +168,14 @@ func (AsanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID
 	return nil
 }
 
-func (AsanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
 	return errors.New("cannot reply to an asana task")
 }
 
-func (AsanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
+func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("cannot create new asana task")
 }
 
-func (AsanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
+func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
 	return nil
 }

@@ -6,8 +6,8 @@ import ExpandCollapse from '../common/ExpandCollapse'
 import { CalendarHeaderContainer, HoverButton, Icon, DateDisplay } from './CalendarHeader-styles'
 
 interface CalendarHeaderProps {
-    date: Date,
-    setDate: React.Dispatch<React.SetStateAction<Date>>,
+    date: Date
+    setDate: React.Dispatch<React.SetStateAction<Date>>
 }
 export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
     const dispatch = useAppDispatch()
@@ -16,16 +16,24 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
     const dayNum = date.getDate()
     const month = date.toLocaleString('default', { month: 'short' })
 
-    const selectNextDay = useCallback(() => setDate(date => {
-        const newDate = new Date(date)
-        newDate.setDate(date.getDate() + 1)
-        return newDate
-    }), [date, setDate])
-    const selectPreviousDay = useCallback(() => setDate(date => {
-        const newDate = new Date(date)
-        newDate.setDate(date.getDate() - 1)
-        return newDate
-    }), [date, setDate])
+    const selectNextDay = useCallback(
+        () =>
+            setDate((date) => {
+                const newDate = new Date(date)
+                newDate.setDate(date.getDate() + 1)
+                return newDate
+            }),
+        [date, setDate]
+    )
+    const selectPreviousDay = useCallback(
+        () =>
+            setDate((date) => {
+                const newDate = new Date(date)
+                newDate.setDate(date.getDate() - 1)
+                return newDate
+            }),
+        [date, setDate]
+    )
 
     return (
         <CalendarHeaderContainer>

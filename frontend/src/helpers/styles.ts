@@ -1,17 +1,29 @@
 import styled from 'styled-components'
 
 export const device = {
-  mobile: '(min-width: 768px)',
-  tablet: '(min-width: 1280px)',
-  laptop: '(min-width: 1324px)',
-  desktop: '(min-width: 2560px)',
+    mobile: '(min-width: 768px)',
+    tablet: '(min-width: 1280px)',
+    laptop: '(min-width: 1324px)',
+    desktop: '(min-width: 2560px)',
 }
 
 export const flex = {
-  flex: styled.div`display: flex;`,
-  alignItemsCenter: styled.div`display: flex; align-items: center`,
-  justifyContentSpaceBetween: styled.div`display: flex; justify-content: space-between`,
-  centerXY: styled.div`display: flex; justify-content: space-between; align-items: center`,
+    flex: styled.div`
+        display: flex;
+    `,
+    alignItemsCenter: styled.div`
+        display: flex;
+        align-items: center;
+    `,
+    justifyContentSpaceBetween: styled.div`
+        display: flex;
+        justify-content: space-between;
+    `,
+    centerXY: styled.div`
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    `,
 }
 
 export const TEXT_GRAY = '#969696'
@@ -38,19 +50,20 @@ export const BACKGROUND_HOVER = '#e3e3e3'
 
 export const SHADOW_PRIMARY = '0px 0px 10px rgba(0, 0, 0, 0.06)'
 export const SHADOW_EXPANDED = '0px 0px 10px rgba(0, 0, 0, 0.12)'
+export const SHADOW_EVENT_ALERT = '0px 4px 20px rgba(43, 43, 43, 0.08)'
 
 export const NoSelect = styled.div`
-  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Old versions of Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
 `
 
 export const Margin = {
-  ml10: '0 0 0 10px', // margin-left: 10px
+    ml10: '0 0 0 10px', // margin-left: 10px
 }
 
 export const UNSELECTED_NAVBAR_COLOR = '#A1A1AA'

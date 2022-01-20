@@ -32,16 +32,16 @@ func getSlackConfig() *OauthConfig {
 	}}
 }
 
-func (Slack SlackService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	authURL := Slack.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+func (slack SlackService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
+	authURL := slack.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
 }
 
-func (Slack SlackService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
+func (slack SlackService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
 	return nil, errors.New("slack does not support signup")
 }
 
-func (Slack SlackService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
+func (slack SlackService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -51,7 +51,7 @@ func (Slack SlackService) HandleLinkCallback(params CallbackParams, userID primi
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := Slack.Config.Exchange(extCtx, *params.Oauth2Code)
+	token, err := slack.Config.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
 		log.Printf("failed to fetch token from Slack: %v", err)
 		return errors.New("internal server error")
@@ -87,10 +87,10 @@ func (Slack SlackService) HandleLinkCallback(params CallbackParams, userID primi
 	return nil
 }
 
-func (Slack SlackService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
+func (slack SlackService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
 	return primitive.NilObjectID, nil, errors.New("slack does not support signup")
 }
 
-func (Slack SlackService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
+func (slack SlackService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
 }

@@ -14,7 +14,7 @@ const Status = styled.div`
 export default function TaskStatus(): JSX.Element {
     let content: JSX.Element | null = null
 
-    const { isTaskSectionsEmpty, fetchStatus } = useAppSelector(state => ({
+    const { isTaskSectionsEmpty, fetchStatus } = useAppSelector((state) => ({
         isTaskSectionsEmpty: state.tasks_page.tasks.task_sections.length === 0,
         fetchStatus: state.tasks_page.tasks.fetch_status,
     }))
@@ -40,9 +40,5 @@ export default function TaskStatus(): JSX.Element {
             content = null
     }
 
-    return (
-        <>
-            {content && <Status>{content}</Status>}
-        </>
-    )
+    return <>{content && <Status>{content}</Status>}</>
 }

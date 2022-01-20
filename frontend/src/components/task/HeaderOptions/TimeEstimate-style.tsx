@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { TEXT_DARKGRAY, DIVIDER_LIGHTGRAY, ICON_HOVER } from '../../helpers/styles'
+import { DIVIDER_LIGHTGRAY, ICON_HOVER, TEXT_DARKGRAY } from '../../../helpers/styles'
 
 export const TimeEstimateContainer = styled.div`
     display: flex;

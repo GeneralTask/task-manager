@@ -1,10 +1,11 @@
 import React, { Dispatch, useCallback, useState } from 'react'
 import { Action } from 'redux'
-import { TASKS_MODIFY_URL } from '../../constants'
-import { makeAuthorizedRequest } from '../../helpers/utils'
-import { useAppDispatch } from '../../redux/hooks'
-import { hideDatePicker } from '../../redux/tasksPageSlice'
-import { useFetchTasks } from '../task/TasksPage'
+import { TASKS_MODIFY_URL } from '../../../constants'
+import { makeAuthorizedRequest } from '../../../helpers/utils'
+import { useAppDispatch } from '../../../redux/hooks'
+import { hideDatePicker } from '../../../redux/tasksPageSlice'
+import { useFetchTasks } from '../TasksPage'
+
 import { BottomBar, PickerContainer, TopNav, MonthContainer, Icon, MonthYearHeader, HoverButton } from './DatePicker-style'
 
 interface DatePickerProps {
@@ -47,7 +48,7 @@ export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
         return (
             <>
                 {
-                    Array(amount).map((i, index) => {
+                    [...Array(amount)].map((i, index) => {
                         const day = index + startDay
                         const tmpDate = new Date(year, month, day)
                         const hoverButtonClick = (event: React.MouseEvent) => {

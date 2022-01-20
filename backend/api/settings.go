@@ -36,7 +36,7 @@ func (api *API) SettingsModify(c *gin.Context) {
 	var settingsMap map[string]string
 	err := c.BindJSON(&settingsMap)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "Parameters missing or malformatted."})
+		c.JSON(400, gin.H{"detail": "parameters missing or malformatted."})
 		return
 	}
 	db, dbCleanup, err := database.GetDBConnection()
@@ -49,7 +49,7 @@ func (api *API) SettingsModify(c *gin.Context) {
 	for key, value := range settingsMap {
 		err = settings.UpdateUserSetting(db, userID.(primitive.ObjectID), key, value)
 		if err != nil {
-			c.JSON(400, gin.H{"detail": fmt.Sprintf("Failed to update settings: %v", err)})
+			c.JSON(400, gin.H{"detail": fmt.Sprintf("failed to update settings: %v", err)})
 			return
 		}
 	}

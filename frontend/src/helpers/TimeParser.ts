@@ -3,7 +3,7 @@ import { ParsingContext } from 'chrono-node/dist/chrono'
 import ENCasualTimeParser from 'chrono-node/dist/locales/en/parsers/ENCasualTimeParser'
 
 // Overrides the built-in ENCasualTimeParser, but assigns parsed hour with certainty instead of implying it
-// i.e. for input 'noon', instead of implying this means 12:00, 
+// i.e. for input 'noon', instead of implying this means 12:00,
 // we assign the hour to be 12:00 with certainty
 class ENCertainCasualTimeParser extends ENCasualTimeParser {
     innerExtract(context: ParsingContext, match: RegExpMatchArray) {
@@ -20,9 +20,7 @@ class ENCertainCasualTimeParser extends ENCasualTimeParser {
 export const TimeParser = casual.clone()
 
 // remove the built-in ENCasualTimeParser
-TimeParser.parsers = TimeParser.parsers.filter(
-    parser => !(parser instanceof ENCasualTimeParser)
-)
+TimeParser.parsers = TimeParser.parsers.filter((parser) => !(parser instanceof ENCasualTimeParser))
 
 // insert our overrided parser
 TimeParser.parsers.push(new ENCertainCasualTimeParser())
@@ -37,18 +35,21 @@ TimeParser.refiners.push({
         results.forEach((result) => {
             const day = result.start.get('day')
             const month = result.start.get('month')
-            if (day != null && month != null &&
+            if (
+                day != null &&
+                month != null &&
                 // if the parsed day is today
-                day === nowDay && month === nowMonth &&
+                day === nowDay &&
+                month === nowMonth &&
                 // and if the parsed time is before right now (- 10 seconds so that 'today' still counts as today)
-                result.start.date().getTime() < (now.getTime() - 10000)) {
-
+                result.start.date().getTime() < now.getTime() - 10000
+            ) {
                 // then set the day to tomorrow
                 result.start.assign('day', day + 1)
             }
         })
         return results
-    }
+    },
 })
 
 // if we are not sure about the hour of the due date, set the time to 11:59 PM
@@ -63,13 +64,10 @@ TimeParser.refiners.push({
             }
         })
         return results
-    }
+    },
 })
 
-export const parseDate = (dueDate: string): Date | null => TimeParser.parseDate(
-    dueDate,
-    new Date(),
-    {
-        forwardDate: true
-    },
-)
+export const parseDate = (dueDate: string): Date | null =>
+    TimeParser.parseDate(dueDate, new Date(), {
+        forwardDate: true,
+    })
