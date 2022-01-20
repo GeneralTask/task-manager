@@ -29,7 +29,7 @@ jobs:
       - name: install dependencies
         run: "yarn install"
 
-      - name install wrangler
+      - name: install wrangler
         run: "yarn global add @cloudflare/wrangler"
 
       - name: build
