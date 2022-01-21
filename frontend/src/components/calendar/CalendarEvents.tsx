@@ -6,12 +6,13 @@ import {
     CalendarTableStyle,
     CellTime,
     EventBodyStyle,
-    EventDescription,
     EventFill,
     EventFillContinues,
     EventTime,
     EventTitle,
     EventsContainer,
+    EventInfo,
+    EventInfoContainer,
 } from './CalendarEvents-styles'
 import { EVENTS_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import React, { Ref, useCallback, useEffect, useRef } from 'react'
@@ -22,6 +23,9 @@ import { AbortID } from '../../helpers/enums'
 import { TEvent } from '../../helpers/types'
 import { setEvents } from '../../redux/tasksPageSlice'
 import { TimeIndicator } from './TimeIndicator'
+
+const LONG_EVENT_THRESHOLD = 45 // minutes
+const MINIMUM_BODY_HEIGHT = 15 // minutes
 
 function CalendarTable(): JSX.Element {
     const hourElements = Array(24)
@@ -41,6 +45,13 @@ function CalendarTable(): JSX.Element {
         </CalendarTableStyle>
     )
 }
+/*
+Styling guidelines for events based on duration (inspired by google calendar)
+    - If there's room for multiple lines, use multiple lines
+    - Otherwise, push onto one line
+    - Truncate task title first, hide times if doesn't fit
+    - Its okay to remove padding for very short tasks
+*/
 
 interface EventBodyProps {
     event: TEvent
@@ -48,12 +59,13 @@ interface EventBodyProps {
 function EventBody({ event }: EventBodyProps): JSX.Element {
     const startTime = new Date(event.datetime_start)
     const endTime = new Date(event.datetime_end)
-    const timeDurationHours = (endTime.getTime() - startTime.getTime()) / 1000 / 60 / 60
+    const timeDurationMinutes = (endTime.getTime() - startTime.getTime()) / 1000 / 60
+    const timeDurationHours = timeDurationMinutes / 60
 
     const rollsOverMidnight = endTime.getDay() !== startTime.getDay()
-    const eventBodyHeight = rollsOverMidnight
+    const eventBodyHeight = Math.max(MINIMUM_BODY_HEIGHT, rollsOverMidnight
         ? ((new Date(startTime).setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600) * CELL_HEIGHT
-        : timeDurationHours * CELL_HEIGHT
+        : timeDurationHours * CELL_HEIGHT)
 
     const startTimeHours = startTime.getHours() - 1
     const startTimeMinutes = startTime.getMinutes()
@@ -63,14 +75,22 @@ function EventBody({ event }: EventBodyProps): JSX.Element {
     const startTimeString = startTime.toLocaleString('en-US', MMHH).replace(/AM|PM/, '')
     const endTimeString = endTime.toLocaleString('en-US', MMHH)
 
+    const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
+
     return (
         <EventBodyStyle key={event.id} topOffset={topOffset} eventBodyHeight={eventBodyHeight}>
-            <EventDescription>
-                <EventTitle>{event.title}</EventTitle>
-                <EventTime>{`${startTimeString} - ${endTimeString}`}</EventTime>
-            </EventDescription>
+            <EventInfoContainer >
+                <EventInfo isLongEvent={isLongEvent}>
+                    <EventTitle isLongEvent={isLongEvent}>
+                        {event.title}
+                    </EventTitle>
+                    <EventTime>
+                        {`${startTimeString} - ${endTimeString}`}
+                    </EventTime>
+                </EventInfo>
+            </EventInfoContainer>
             {rollsOverMidnight ? <EventFillContinues /> : <EventFill />}
-        </EventBodyStyle>
+        </EventBodyStyle >
     )
 }
 

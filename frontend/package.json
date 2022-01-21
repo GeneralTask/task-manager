@@ -2,7 +2,7 @@
     "name": "generaltask",
     "main": "public/electron.js",
     "author": "General Task",
-    "homepage": "./",
+    "homepage": "",
     "description": "General Task",
     "version": "0.1.0",
     "private": true,

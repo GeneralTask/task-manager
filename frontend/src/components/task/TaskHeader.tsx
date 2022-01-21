@@ -146,7 +146,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
           <CalendarIconContainer>
-            <CalendarIcon src="images/calendar-icon.png" alt="calendar" />
+            <CalendarIcon src="/images/calendar-icon.png" alt="calendar" />
           </CalendarIconContainer>
         </DeadlineIndicator>
       </HeaderRight >

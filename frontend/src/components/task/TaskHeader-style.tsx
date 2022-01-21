@@ -141,6 +141,7 @@ export const Title = styled.div<{ isExpanded: boolean }>`
     color: ${TEXT_BLACK};
     text-overflow: ellipsis;
     user-select: text;
+    cursor: text;
     ${({ isExpanded }) =>
     isExpanded
       ? `

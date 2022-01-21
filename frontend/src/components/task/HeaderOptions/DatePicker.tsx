@@ -45,7 +45,7 @@ export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
         }
         return weekDays
     }
-
+    
     const getFullMonth = (): JSX.Element => {
         const weeks: JSX.Element[] = []
         const startDayOfMonth = date.startOf('month')

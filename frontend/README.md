@@ -18,15 +18,15 @@ Edit the mock API contents in mock-api.json
 
 2. `cd frontend/`
 
-3. `npm install`
+3. `yarn install`
 
 4. Authenticate with cloudflare (get credentials from John): `wrangler login`
 
-5. `npm run build` - this builds with generaltask.io links built in
+5. `yarn run build` - this builds with generaltask.com links built in
 
-6. `wrangler publish`
+6. `npx wrangler publish`
 
-7. Check out your work at https://generaltask.io
+7. Check out your work at https://generaltask.com
 
 ---
 
@@ -38,7 +38,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-### `npm start`
+### `yarn start`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
@@ -46,7 +46,7 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
 
-### `npm test`
+### `yarn test`
 
 Launches the test runner in the interactive watch mode.\
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
