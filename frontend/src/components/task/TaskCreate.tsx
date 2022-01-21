@@ -1,6 +1,6 @@
 import * as styles from './TaskCreate-style'
 
-import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL, PLUS_ICON } from '../../constants'
+import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
 import React, { useCallback, useState } from 'react'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'

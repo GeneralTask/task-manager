@@ -1,4 +1,4 @@
-import { BORDER_ERROR, BORDER_PRIMARY, TEXT_LIGHTGRAY, BACKGROUND_WHITE, device, SHADOW_PRIMARY } from '../../helpers/styles'
+import { BORDER_PRIMARY, TEXT_LIGHTGRAY, BACKGROUND_WHITE, device, SHADOW_PRIMARY } from '../../helpers/styles'
 
 import styled from 'styled-components'
 
