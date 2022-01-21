@@ -6,7 +6,7 @@ import JoinConferenceButton from '../task/JoinConferenceButton'
 
 const EventAlertContainer = styled.div`
     flex: 1;
-    overflow: scroll;
+    overflow-y: auto;
     flex-direction: column;
     background-image: linear-gradient(to bottom right, ${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
     min-width: 600px;
