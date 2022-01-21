@@ -1,23 +1,28 @@
 # task-manager
+
 A manager of tasks.
 
 ## Frontend testing
 
-First, install npm.
+First, install node.
+Then, install yarn: `npm install -g yarn` (can use brew too)
 
 ```
 cd frontend
-npm install
-npm start
+yarn install
+yarn start
 ```
 
 ## Pre-Commit
+
 Install pre-commit by
+
 ```
 brew install pre-commit
 ```
 
 Then inside of the `task-manager` directory add pre-commit to the project using:
+
 ```
 pre-commit install
 ```
@@ -52,6 +57,7 @@ docker-compose up -d
 ```
 
 To clear the test cache:
+
 ```
 go clean -testcache
 ```
