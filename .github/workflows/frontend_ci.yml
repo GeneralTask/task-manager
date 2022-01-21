@@ -2,18 +2,17 @@ name: Frontend CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     env:
       REACT_APP_API_BASE_URL: http://localhost:8080
-    
+
     defaults:
       run:
         working-directory: frontend
@@ -24,6 +23,6 @@ jobs:
         with:
           node-version: 14
       - name: Install dependencies
-        run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
+        run: yarn install --frozen-lockfile
+      - run: yarn run build --if-present
+      - run: yarn test --watchAll=false
