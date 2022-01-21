@@ -63,7 +63,7 @@ export default function EventAlert({ children }: EventAlertProps): JSX.Element {
             const tempDate = new Date(event.datetime_start)
             const eventDuration = Math.ceil((tempDate.getTime() - new Date().getTime()) / 1000 / 60)
             eventAlertElements.push(
-                <EventAlertContentContainer className='event-alert'>
+                <EventAlertContentContainer className='event-alert' key={event.id}>
                     <EventAlertHeader>
                         <EventAlertHeaderChild>
                             Your event&nbsp;
