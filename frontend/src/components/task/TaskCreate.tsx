@@ -60,11 +60,9 @@ export default function TaskCreate(): JSX.Element {
                             await fetchTasks()
                         }
                     }}>
-                        <styles.PlusIcon src={PLUS_ICON} alt="create new task" />
                         <styles.InputTitle
                             placeholder='Describe Task'
                             value={title}
-                            error={titleError !== ''}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
                         />
                     </styles.Form>
