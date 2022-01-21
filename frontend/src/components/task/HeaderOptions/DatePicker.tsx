@@ -36,7 +36,7 @@ export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
                 editDueDate(task_id, day.toISO(), dispatch, fetchTasks)
             }
             weekDays.push(
-                <td key={weekNumber * 7 + curDay}>
+                <td key={curDay}>
                     <HoverButton onClick={hoverButtonClick}>
                         {day.day}
                     </HoverButton>
@@ -66,8 +66,8 @@ export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
         return (
             <table>
                 <thead>
-                    <tr>
-                        {days.map((day) => <th>{day}</th>)}
+                    <tr key={'header'}>
+                        {days.map((day, index) => <th key={index}>{day}</th>)}
                     </tr>
                 </thead>
                 <tbody>
