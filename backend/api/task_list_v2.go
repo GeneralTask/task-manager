@@ -371,6 +371,7 @@ func taskBaseToTaskResultV2(t *database.TaskBase) *TaskResultV2 {
 	} else {
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
+	log.Println("due date:", dueDate, "due date time:", t.DueDate.Time().Unix(), t.DueDate.Time().IsZero(), t.DueDate)
 	return &TaskResultV2{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
