@@ -366,12 +366,13 @@ func taskBaseToTaskResultV2(t *database.TaskBase) *TaskResultV2 {
 	// Normally we need to use api.ExternalConfig but we are just using the source details constants here
 	taskSourceResult, _ := external.GetConfig().GetTaskSourceResult(t.SourceID)
 	var dueDate string
-	if t.DueDate.Time().IsZero() {
+	if t.DueDate.Time().Unix() == int64(0) {
 		dueDate = ""
 	} else {
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
 	log.Println("due date:", dueDate, "due date time:", t.DueDate.Time().Unix(), t.DueDate.Time().IsZero(), t.DueDate)
+	log.Println(t.DueDate.Time().Second(), t.DueDate.Time().Nanosecond())
 	return &TaskResultV2{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
