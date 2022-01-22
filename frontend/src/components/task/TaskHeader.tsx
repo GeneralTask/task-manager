@@ -88,6 +88,13 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
     title_text.current = e.target.value
   }
 
+  const handleTitleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      e.currentTarget.blur()
+    }
+  }
+
   const handleTitleBlur = () => {
     makeAuthorizedRequest({
       url: TASKS_MODIFY_URL + props.task.id + '/',
@@ -121,7 +128,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           }} />
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
-        <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()} onChange={(e) => handleTitleChange(e)} onBlur={handleTitleBlur}>
+        <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()} onChange={(e) => handleTitleChange(e)} onBlur={handleTitleBlur} onKeyPress={(e) => handleTitleKeyPress(e)} >
           {props.task.title}
         </Title>
       </HeaderLeft>
