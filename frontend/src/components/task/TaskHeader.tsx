@@ -27,7 +27,7 @@ import {
   TimeEstimateButtonText
 } from './TaskHeader-style'
 import { LogEvents } from '../../helpers/enums'
-import { Duration } from 'luxon'
+import { DateTime, Duration } from 'luxon'
 
 import TimeEstimate from './HeaderOptions/TimeEstimatePicker'
 import DatePicker from './HeaderOptions/DatePicker'
@@ -58,7 +58,8 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
 
   const time_allocated_millis = isNaN(props.task.time_allocated) ? 0 : props.task.time_allocated
   const time_allocated = Duration.fromMillis(time_allocated_millis / 1000).shiftTo('hours', 'minutes')
-  const due_date = new Date(new Date(props.task.due_date).valueOf() + 86400000).toLocaleDateString('default', { day: 'numeric', month: 'short' })
+  // const due_date = new Date(new Date(props.task.due_date).valueOf() + 86400000).toLocaleDateString('default', { day: 'numeric', month: 'short' })
+  const due_date = DateTime.fromFormat(props.task.due_date, 'yyyy-MM-dd').toLocaleString({ day: 'numeric', month: 'short' })
 
   const today = new Date()
   const dd = today.getDate()
@@ -133,7 +134,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
 
           }}>
             {
-              props.task.due_date === '1969-12-31' ?
+              props.task.due_date === '' ?
                 <ButtonIcon src={BLANK_CALENDAR_ICON} alt='due date' /> :
                 <DueDateButtonText>{due_date}</DueDateButtonText>
             }
