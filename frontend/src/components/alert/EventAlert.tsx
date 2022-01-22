@@ -32,6 +32,7 @@ const EventAlertHeader = styled.div`
     width: 100%;
     flex-direction: row;
     align-items: center;
+    justify-content: center;
 `
 const EventAlertHeaderChild = styled.div`
     white-space: nowrap;
