@@ -122,7 +122,7 @@ func (api *API) MessagesList(c *gin.Context) {
 		emails[index].TaskBase.Body = "<base target=\"_blank\">" + emails[index].TaskBase.Body
 	}
 
-	orderedMessages, err := OrderMessages(
+	orderedMessages, err := orderMessages(
 		db,
 		currentTasks,
 		emails,
@@ -135,17 +135,12 @@ func (api *API) MessagesList(c *gin.Context) {
 	c.JSON(200, orderedMessages)
 }
 
-func OrderMessages(
+func orderMessages(
 	db *mongo.Database,
 	currentTasks *[]database.TaskBase,
 	emails []*database.Email,
 	userID primitive.ObjectID,
 ) ([]*message, error) {
-	// err := markCompletedMessages(db, currentTasks, &emails)
-	// if err != nil {
-	// 	return []*message{}, err
-	// }
-
 	orderingSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailOrderingPreference)
 	if err != nil {
 		log.Printf("failed to fetch email ordering setting: %v", err)
@@ -164,103 +159,6 @@ func OrderMessages(
 	}
 	return messages, nil
 }
-
-// func extractSectionTasksV2 ([]*TaskResultV2, []*TaskResultV2, []interface{}) {
-// 	blockedTasks := make([]*TaskResultV2, 0)
-// 	backlogTasks := make([]*TaskResultV2, 0)
-// 	var allOtherTasks []interface{}
-// 	for _, task := range *allUnscheduledTasks {
-// 		switch task := task.(type) {
-// 		case *database.Email:
-// 			if task.IDTaskSection == constants.IDTaskSectionBlocked {
-// 				blockedTasks = append(blockedTasks, taskBaseToTaskResultV2(&task.TaskBase))
-// 				continue
-// 			}
-// 			if task.IDTaskSection == constants.IDTaskSectionBacklog {
-// 				backlogTasks = append(backlogTasks, taskBaseToTaskResultV2(&task.TaskBase))
-// 				continue
-// 			}
-// 		case *database.Task:
-// 			if task.IDTaskSection == constants.IDTaskSectionBlocked {
-// 				blockedTasks = append(blockedTasks, taskBaseToTaskResultV2(&task.TaskBase))
-// 				continue
-// 			}
-// 			if task.IDTaskSection == constants.IDTaskSectionBacklog {
-// 				backlogTasks = append(backlogTasks, taskBaseToTaskResultV2(&task.TaskBase))
-// 				continue
-// 			}
-// 		}
-// 		allOtherTasks = append(allOtherTasks, task)
-// 	}
-// 	return blockedTasks, backlogTasks, allOtherTasks
-// }
-
-func markCompletedMessages(
-	db *mongo.Database,
-	currentTasks *[]database.TaskBase,
-	unscheduledTasks *[]interface{},
-) error {
-	// decrements IDOrdering for tasks behind newly completed tasks
-	parentCtx := context.Background()
-	tasksCollection := database.GetTaskCollection(db)
-	var newTasks []*database.TaskBase
-	newTaskIDs := make(map[primitive.ObjectID]bool)
-	for _, unscheduledTask := range *unscheduledTasks {
-		taskBase := getTaskBase(unscheduledTask)
-		newTasks = append(newTasks, taskBase)
-		newTaskIDs[taskBase.ID] = true
-	}
-	// There's a more efficient way to do this but this way is easy to understand
-	for _, currentTask := range *currentTasks {
-		if !newTaskIDs[currentTask.ID] {
-			dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-			defer cancel()
-			res, err := tasksCollection.UpdateOne(
-				dbCtx,
-				bson.M{"_id": currentTask.ID},
-				bson.M{"$set": bson.M{"is_completed": true}},
-			)
-			if err != nil {
-				log.Printf("failed to update task ordering ID: %v", err)
-				return err
-			}
-			if res.MatchedCount != 1 {
-				log.Printf("did not find task to mark completed (ID=%v)", currentTask.ID)
-			}
-			for _, newTask := range newTasks {
-				if newTask.IDOrdering > currentTask.IDOrdering {
-					newTask.IDOrdering -= 1
-				}
-			}
-		}
-	}
-	return nil
-}
-
-// func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResultV2) error {
-// 	parentCtx := context.Background()
-// 	tasksCollection := database.GetTaskCollection(db)
-// 	orderingID := 1
-// 	for _, task := range *tasks {
-// 		task.IDOrdering = orderingID
-// 		orderingID += 1
-// 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-// 		defer cancel()
-// 		res, err := tasksCollection.UpdateOne(
-// 			dbCtx,
-// 			bson.M{"_id": task.ID},
-// 			bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
-// 		)
-// 		if err != nil {
-// 			log.Printf("failed to update task ordering ID: %v", err)
-// 			return err
-// 		}
-// 		if res.MatchedCount != 1 {
-// 			log.Printf("did not find task to update ordering ID (ID=%v)", task.ID)
-// 		}
-// 	}
-// 	return nil
-// }
 
 func emailToMessage(e *database.Email) *message {
 	// Normally we need to use api.ExternalConfig but we are just using the source details constants here
