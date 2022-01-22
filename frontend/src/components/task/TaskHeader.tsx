@@ -133,7 +133,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
 
           }}>
             {
-              props.task.due_date === '1969-12-31' ?
+              props.task.due_date === '' ?
                 <ButtonIcon src={BLANK_CALENDAR_ICON} alt='due date' /> :
                 <DueDateButtonText>{due_date}</DueDateButtonText>
             }
