@@ -31,7 +31,6 @@ import { Duration } from 'luxon'
 
 import TimeEstimate from './HeaderOptions/TimeEstimatePicker'
 import DatePicker from './HeaderOptions/DatePicker'
-import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
 
 function Domino(): JSX.Element {
   return (
@@ -85,8 +84,8 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
     logEvent(LogEvents.TASK_MARK_AS_DONE)
   }, [])
 
-  const handleTitleChange = (event: ContentEditableEvent) => {
-    title_text.current = event.target.value
+  const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    title_text.current = e.target.value
   }
 
   const handleTitleBlur = () => {
@@ -99,7 +98,6 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         if (!response.ok) {
           throw new Error('PATCH /tasks/modify failed: ' + response.text())
         }
-        fetchTasks()
       })
       .catch(e => {
         console.log({ e })
@@ -123,15 +121,8 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           }} />
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
-        <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>
-          <ContentEditable
-            className="reply-input"
-            html={props.task.title}
-            // style={none}
-            onChange={handleTitleChange}
-            onBlur={handleTitleBlur}
-            onFocus={(e) => { e.stopPropagation() }}
-          />
+        <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()} onChange={(e) => handleTitleChange(e)} onBlur={handleTitleBlur}>
+          {props.task.title}
         </Title>
       </HeaderLeft>
       <HeaderRight>
