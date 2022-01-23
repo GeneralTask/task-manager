@@ -1,13 +1,16 @@
 import styled from 'styled-components'
 import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, DOMINO_COLOR } from '../../helpers/styles'
 
+export const DoneButtonContainer = styled.div`
+  margin-left: 12px;
+`
 export const DoneButton = styled.img`
+  display: block;
   width: 24px;
   height: 24px;
   flex: none;
   order: 0;
   flex-grow: 0;
-  margin-left: 12px;
   cursor: pointer;
 `
 export const ButtonRight = styled.div`

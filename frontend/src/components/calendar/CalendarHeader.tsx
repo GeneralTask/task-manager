@@ -3,6 +3,7 @@ import { flex } from '../../helpers/styles'
 import { useAppDispatch } from '../../redux/hooks'
 import { setShowCalendarSidebar } from '../../redux/tasksPageSlice'
 import ExpandCollapse from '../common/ExpandCollapse'
+import Tooltip from '../common/Tooltip'
 import { CalendarHeaderContainer, HoverButton, Icon, DateDisplay } from './CalendarHeader-styles'
 
 interface CalendarHeaderProps {
@@ -42,9 +43,11 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                 <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay>
             </flex.flex>
             <flex.flex>
-                <HoverButton onClick={() => setDate(new Date())}>
-                    <Icon src={`${process.env.PUBLIC_URL}/images/CalendarBlank.svg`} alt="Today" />
-                </HoverButton>
+                <Tooltip text="Today" direction='below' >
+                    <HoverButton onClick={() => setDate(new Date())}>
+                        <Icon src={`${process.env.PUBLIC_URL}/images/CalendarBlank.svg`} alt="Today" />
+                    </HoverButton>
+                </Tooltip>
                 <HoverButton onClick={selectPreviousDay}>
                     <Icon src={`${process.env.PUBLIC_URL}/images/CaretLeft.svg`} alt="Show previous day" />
                 </HoverButton>

@@ -46,8 +46,7 @@ const HeaderText = styled.div`
     font-size: 32px;
 `
 const BtnContainer = styled.div`
-    position: absolute;
-    right: 0;
+    margin-left: auto;
     display: flex;
     justify-content: flex-end;
     height: 100%;

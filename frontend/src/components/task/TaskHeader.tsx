@@ -24,13 +24,15 @@ import {
   ButtonRight,
   ButtonIcon,
   DueDateButtonText,
-  TimeEstimateButtonText
+  TimeEstimateButtonText,
+  DoneButtonContainer
 } from './TaskHeader-style'
 import { LogEvents } from '../../helpers/enums'
 import { Duration } from 'luxon'
 
 import TimeEstimate from './HeaderOptions/TimeEstimatePicker'
 import DatePicker from './HeaderOptions/DatePicker'
+import Tooltip from '../common/Tooltip'
 
 function Domino(): JSX.Element {
   return (
@@ -93,55 +95,66 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         }
         {
           props.task.source.is_completable &&
-          <DoneButton src={DONE_BUTTON} onClick={(e) => {
-            e.stopPropagation()
-            onDoneButtonClick()
-          }} />
+          <DoneButtonContainer>
+            <Tooltip text="Mark as done">
+              <DoneButton src={DONE_BUTTON} onClick={(e) => {
+                e.stopPropagation()
+                onDoneButtonClick()
+              }} />
+            </Tooltip>
+          </DoneButtonContainer>
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
         <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.task.title} </Title>
       </HeaderLeft>
       <HeaderRight>
-        {hoverEffectEnabled &&
+        {
+          hoverEffectEnabled &&
           <ButtonRight onClick={(e) => {
             e.stopPropagation()
             dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
           }}>
-            <ButtonIcon src={EXPAND_ICON} alt="expand" />
+            <Tooltip text={'Expand'}>
+              <ButtonIcon src={EXPAND_ICON} alt="expand" />
+            </Tooltip>
+
           </ButtonRight>
         }
-        {props.task.source.name === 'General Task' && <>
-          <ButtonRight onClick={(e) => {
-            e.stopPropagation()
-            dispatch(time_estimate === props.task.id ? hideTimeEstimate() : showTimeEstimate(props.task.id))
-          }}>
-            {
-              props.task.time_allocated >= 3600000000000 ?
-                <ButtonIcon src={TIME_ICON} alt="time estimate" /> :
-                <TimeEstimateButtonText>
-                  {
-                    time_allocated.hours > 0 ?
-                      `${time_allocated.hours}hr${time_allocated.minutes}m` :
-                      `${time_allocated.minutes}m`
-                  }
-                </TimeEstimateButtonText>
-            }
-          </ButtonRight>
-          <ButtonRight onClick={(e) => {
-            e.stopPropagation()
-            dispatch(date_picker === props.task.id ? hideDatePicker() : showDatePicker(props.task.id))
+        {
+          props.task.source.name === 'General Task' &&
+          <>
+            <ButtonRight onClick={(e) => {
+              e.stopPropagation()
+              dispatch(time_estimate === props.task.id ? hideTimeEstimate() : showTimeEstimate(props.task.id))
+            }}>
+              {
+                props.task.time_allocated >= 3600000000000 ?
+                  <ButtonIcon src={TIME_ICON} alt="time estimate" /> :
+                  <TimeEstimateButtonText>
+                    {
+                      time_allocated.hours > 0 ?
+                        `${time_allocated.hours}hr${time_allocated.minutes}m` :
+                        `${time_allocated.minutes}m`
+                    }
+                  </TimeEstimateButtonText>
+              }
+            </ButtonRight>
+            <ButtonRight onClick={(e) => {
+              e.stopPropagation()
+              dispatch(date_picker === props.task.id ? hideDatePicker() : showDatePicker(props.task.id))
 
-          }}>
-            {
-              props.task.due_date === '' ?
-                <ButtonIcon src={BLANK_CALENDAR_ICON} alt='due date' /> :
-                <DueDateButtonText>{due_date}</DueDateButtonText>
-            }
-          </ButtonRight>
+            }}>
+              {
+                props.task.due_date === '' ?
+                  <ButtonIcon src={BLANK_CALENDAR_ICON} alt='due date' /> :
+                  <DueDateButtonText>{due_date}</DueDateButtonText>
+              }
+            </ButtonRight>
 
-          {time_estimate === props.task.id && <TimeEstimate task_id={props.task.id} />}
-          {date_picker === props.task.id && <DatePicker task_id={props.task.id} />}
-        </>}
+            {time_estimate === props.task.id && <TimeEstimate task_id={props.task.id} />}
+            {date_picker === props.task.id && <DatePicker task_id={props.task.id} />}
+          </>
+        }
 
         <DeadlineIndicator>
           <CalendarDate>{`${dd} ${month}`}</CalendarDate>
