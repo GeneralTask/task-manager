@@ -85,7 +85,6 @@ const CollapseCalendarSidebar = React.memo(() => {
 
 function Messages(): JSX.Element {
     const messages_array = useAppSelector((state) => state.messages_page.messages.messages_array)
-    console.log('MESSAGES', messages_array)
     const fetchMessages = useFetchMessages()
     const fetchSettings = useFetchSettings()
     const fetchLinkedAccounts = useFetchLinkedAccounts()
