@@ -19,7 +19,7 @@ function handleKeyboardShortcuts(e: KeyboardEvent, dispatch: Dispatch): void {
     if (e.shiftKey) {
         keyName += 'shift+'
     }
-    keyName += e.key
+    keyName += e.key.toLowerCase()
 
     const handler = keyboardShortcuts.get(keyName)
     if (handler != null) {
