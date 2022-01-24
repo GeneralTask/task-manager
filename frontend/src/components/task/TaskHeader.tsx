@@ -1,7 +1,7 @@
 import './Task.css'
 import { Action, Dispatch } from '@reduxjs/toolkit'
 import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
-import React, { useCallback } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { collapseBody, expandBody, removeTaskByID, hideDatePicker, hideTimeEstimate, showDatePicker, showTimeEstimate } from '../../redux/tasksPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'
@@ -53,6 +53,8 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
   const dispatch = useAppDispatch()
   const fetchTasks = useFetchTasks()
 
+  const title_text = useRef(props.task.title)
+
   const date_picker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
   const time_estimate = useAppSelector((state) => state.tasks_page.tasks.time_estimate)
 
@@ -82,6 +84,34 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
     logEvent(LogEvents.TASK_MARK_AS_DONE)
   }, [])
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    title_text.current = e.target.value
+  }
+
+  const handleTitleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      e.currentTarget.blur()
+    }
+  }
+
+  const handleTitleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    e.target.scrollLeft = 0
+    makeAuthorizedRequest({
+      url: TASKS_MODIFY_URL + props.task.id + '/',
+      method: 'PATCH',
+      body: JSON.stringify({ title: title_text.current }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('PATCH /tasks/modify failed: ' + response.text())
+        }
+      })
+      .catch(e => {
+        console.log({ e })
+      })
+  }
+
   return (
     <TaskHeaderContainer hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
       <HeaderLeft>
@@ -99,7 +129,13 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           }} />
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
-        <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.task.title} </Title>
+        <Title isExpanded={props.isExpanded}
+          onClick={(e) => e.stopPropagation()}
+          onChange={(e) => handleTitleChange(e)}
+          onBlur={(e) => handleTitleBlur(e)}
+          onKeyPress={(e) => handleTitleKeyPress(e)} >
+          {props.task.title}
+        </Title>
       </HeaderLeft>
       <HeaderRight>
         {hoverEffectEnabled &&
