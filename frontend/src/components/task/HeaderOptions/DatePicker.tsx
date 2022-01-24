@@ -1,3 +1,4 @@
+import { DateTime, Info } from 'luxon'
 import React, { Dispatch, useCallback, useState } from 'react'
 import { Action } from 'redux'
 import { TASKS_MODIFY_URL } from '../../../constants'
@@ -14,83 +15,63 @@ interface DatePickerProps {
 export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
     const dispatch = useAppDispatch()
     const fetchTasks = useFetchTasks()
-    const [date, setDate] = useState<Date>(new Date())
-    const monthyear = date.toLocaleDateString('default', { month: 'long', year: 'numeric' }).toUpperCase()
+    const [date, setDate] = useState<DateTime>(DateTime.local().startOf('month'))
+    const monthyear = date.toLocaleString({ month: 'long', year: 'numeric' }).toUpperCase()
 
     const nextMonth = useCallback(() => setDate(date => {
-        const newDate = new Date(date)
-        newDate.setMonth(date.getMonth() + 1)
-        return newDate
+        return date.plus({ months: 1 })
     }), [date, setDate])
     const prevMonth = useCallback(() => setDate(date => {
-        const newDate = new Date(date)
-        newDate.setMonth(date.getMonth() - 1)
-        return newDate
+        return date.minus({ months: 1 })
     }), [date, setDate])
 
-    const daysInMonth = (): number => {
-        const temp_date = new Date(date.getFullYear(), date.getMonth() + 1, 0)
-        return temp_date.getDate()
+    const getWeek = (weekNumber: number, weekYear: number): JSX.Element[] => {
+        const weekDays: JSX.Element[] = []
+        const startDate = DateTime.fromObject({ weekNumber: weekNumber, weekYear: weekYear })
+        for (let curDay = 0; curDay < 7; curDay++) {
+            const day = startDate.plus({ days: curDay })
+            const hoverButtonClick = (event: React.MouseEvent) => {
+                event.stopPropagation()
+                setDate(day)
+                editDueDate(task_id, day.toISO(), dispatch, fetchTasks)
+            }
+            weekDays.push(
+                <td key={curDay}>
+                    <HoverButton onClick={hoverButtonClick}>
+                        {day.day}
+                    </HoverButton>
+                </td>
+            )
+        }
+        return weekDays
     }
-    const firstDayOfMonth = (): number => {
-        const temp_date = new Date(date.getFullYear(), date.getMonth(), 1)
-        return temp_date.getDay()
+    
+    const getFullMonth = (): JSX.Element => {
+        const weeks: JSX.Element[] = []
+        const startDayOfMonth = date.startOf('month')
+        const endDayOfMonth = date.endOf('month')
+        for (let curWeek = 0; startDayOfMonth.plus({ weeks: curWeek }).startOf('week') <= endDayOfMonth.startOf('week'); curWeek++) {
+            const week = startDayOfMonth.plus({ weeks: curWeek })
+            weeks.push(
+                <tr key={week.weekNumber}>
+                    {getWeek(week.weekNumber, week.weekYear)}
+                </tr>
+            )
+        }
+        return <>{weeks}</>
     }
-    const lastDayOfMonth = (): number => {
-        const temp_date = new Date(date.getFullYear(), date.getMonth() + 1, 0)
-        return temp_date.getDay()
-    }
-
-    const getDays = (amount: number, startDay: number): JSX.Element => {
-        const month = date.getMonth()
-        const year = date.getFullYear()
-
-        return (
-            <>
-                {
-                    [...Array(amount)].map((i, index) => {
-                        const day = index + startDay
-                        const tmpDate = new Date(year, month, day)
-                        const hoverButtonClick = (event: React.MouseEvent) => {
-                            event.stopPropagation()
-                            setDate(tmpDate)
-                            // TODO: change date to tmpDate
-                            editDueDate(task_id, tmpDate.toISOString(), dispatch, fetchTasks)
-                        }
-                        return (
-                            <>
-                                <td key={i}>
-                                    <HoverButton onClick={hoverButtonClick}>
-                                        {tmpDate.getDate()}
-                                    </HoverButton>
-                                </td>
-                                {tmpDate.getDay() === 6 && <tr key={index}></tr>}
-                            </>
-                        )
-                    })
-                }
-            </>
-        )
-    }
-
-    const getAllDays = (): JSX.Element =>
-        <>
-            {getDays(firstDayOfMonth(), -firstDayOfMonth() + 1)}
-            {getDays(daysInMonth(), 1)}
-            {getDays(6 - lastDayOfMonth(), daysInMonth() + 1)}
-        </>
 
     const monthTable = (): JSX.Element => {
-        const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+        const days = Info.weekdays('narrow') // ['M', 'T', 'W', 'T', 'F', 'S', 'S']
         return (
             <table>
                 <thead>
-                    <tr>
-                        {days.map((day) => <th>{day}</th>)}
+                    <tr key={'header'}>
+                        {days.map((day, index) => <th key={index}>{day}</th>)}
                     </tr>
                 </thead>
                 <tbody>
-                    {getAllDays()}
+                    {getFullMonth()}
                 </tbody>
             </table>
         )
