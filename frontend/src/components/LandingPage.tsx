@@ -91,7 +91,7 @@ const LandingPage: React.FC = () => {
 
   return (
     <div>
-      <LegacyHeader isLoggedIn={true} />
+      <LegacyHeader />
       <Container>
         <Title>
           The task manager for
