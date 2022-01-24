@@ -62,13 +62,12 @@ export default function EventAlert({ children }: EventAlertProps): JSX.Element {
         for (const event of soonEvents) {
             const tempDate = new Date(event.datetime_start)
             const eventDuration = Math.ceil((tempDate.getTime() - new Date().getTime()) / 1000 / 60)
+            const eventTitle = event.title || '(No title)'
             eventAlertElements.push(
                 <EventAlertContentContainer className='event-alert' key={event.id}>
                     <EventAlertHeader>
-                        <EventAlertHeaderChild>
-                            Your event&nbsp;
-                        </EventAlertHeaderChild>
-                        <EventAlertEventTitle>{event.title}</EventAlertEventTitle>
+                        <EventAlertHeaderChild>Your event&nbsp;</EventAlertHeaderChild>
+                        <EventAlertEventTitle>{eventTitle}</EventAlertEventTitle>
                         <EventAlertHeaderChild>
                             &nbsp;{eventDuration > 0 ? `starts in ${eventDuration} minutes` : 'is now.'}
                         </EventAlertHeaderChild>
