@@ -103,8 +103,8 @@ function Messages(): JSX.Element {
                 <CollapseCalendarSidebar />
             </TopBanner>
             <Header>Messages</Header>
-            {messages_array.map((message) => (
-                <Message message={message} />
+            {messages_array && messages_array.map((message, index) => (
+                <Message message={message} key={index} />
             ))}
         </MessagesContentContainer>
     )

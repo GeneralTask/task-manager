@@ -5,7 +5,8 @@ export const MessageContainer = styled.div<{ isExpanded: boolean }>`
     width: 60%;
     min-width: 500px;
     margin: 5px 0;
-    padding: 0;
+    padding: 0 10px;
+    flex: 0 0 auto;
     font-family: 'Ellipsis', 'Gothic A1', sans-serif;
     border-radius: 12px;
     outline: none;

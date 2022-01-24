@@ -16,7 +16,8 @@ interface MessageHeaderProps {
     message: TMessage
     isExpanded: boolean
 }
-const MessageHeader = React.forwardRef<HTMLDivElement, MessageHeaderProps>((props: MessageHeaderProps) => {
+const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) => {
+    // const MessageHeader = React.forwardRef<HTMLDivElement, MessageHeaderProps>((props: MessageHeaderProps, ref) => {
     const dispatch = useAppDispatch()
     const fetchMessages = useFetchMessages()
 
@@ -77,7 +78,7 @@ const MessageHeader = React.forwardRef<HTMLDivElement, MessageHeaderProps>((prop
             </HeaderRight >
         </MessageHeaderContainer >
     )
-})
+}
 
 const done = async (id: string, dispatch: Dispatch<Action<string>>, fetchMessages: () => void) => {
     try {
