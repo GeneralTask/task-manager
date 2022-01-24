@@ -52,7 +52,6 @@ func (api *API) MessagesList(c *gin.Context) {
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
-
 	if err != nil {
 		log.Printf("failed to find user: %v", err)
 		Handle500(c)
