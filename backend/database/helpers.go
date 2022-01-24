@@ -175,6 +175,7 @@ func GetActiveEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Email, e
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"is_completed": false},
+				// Use this small hack to filter emails from tasks collection - better would be to have a separate messages collection
 				{"sender_domain": bson.M{"$exists": true}},
 			},
 		},
