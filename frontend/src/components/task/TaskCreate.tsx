@@ -64,6 +64,7 @@ export default function TaskCreate(): JSX.Element {
                             placeholder='Describe Task'
                             value={title}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
+                            onKeyDown={e => e.stopPropagation()}
                         />
                     </styles.Form>
                     <styles.Side>

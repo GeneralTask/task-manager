@@ -171,6 +171,7 @@ const Reply: React.FC<ReplyProps> = ({ task_id, sender, body, sent_at }: ReplyPr
                 html={text}
                 style={ReplyInputStyle}
                 onChange={(e) => setText(e.target.value)}
+                onKeyDown={e => e.stopPropagation()}
             />
             <GTButton
                 theme="black"
