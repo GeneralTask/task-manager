@@ -32,6 +32,7 @@ type message struct {
 	Body     string             `json:"body"`
 	Sender   string             `json:"sender"`
 	SentAt   string             `json:"sent_at"`
+	IsUnread bool               `json:"is_unread"`
 	Source   messageSource      `json:"source"`
 }
 
@@ -58,7 +59,7 @@ func (api *API) MessagesList(c *gin.Context) {
 		return
 	}
 
-	currentTasks, err := database.GetActiveTasks(db, userID.(primitive.ObjectID))
+	currentEmails, err := database.GetActiveEmails(db, userID.(primitive.ObjectID))
 	if err != nil {
 		Handle500(c)
 		return
@@ -84,17 +85,8 @@ func (api *API) MessagesList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	// add dummy token for gt_task fetch logic
-	tokens = append(tokens, database.ExternalAPIToken{
-		AccountID: external.GeneralTaskDefaultAccountID,
-		ServiceID: external.TASK_SERVICE_ID_GT,
-	})
 
 	emailChannels := []chan external.EmailResult{}
-	if err != nil {
-		c.JSON(400, gin.H{"detail": "invalid timezone offset"})
-		return
-	}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
@@ -109,23 +101,28 @@ func (api *API) MessagesList(c *gin.Context) {
 		}
 	}
 
-	emails := []*database.Email{}
+	fetchedEmails := []*database.Email{}
 	for _, emailChannel := range emailChannels {
 		emailResult := <-emailChannel
 		if emailResult.Error != nil {
 			continue
 		}
-		emails = append(emails, emailResult.Emails...)
+		fetchedEmails = append(fetchedEmails, emailResult.Emails...)
 	}
 
-	for index := range emails {
-		emails[index].TaskBase.Body = "<base target=\"_blank\">" + emails[index].TaskBase.Body
+	for index := range fetchedEmails {
+		fetchedEmails[index].TaskBase.Body = "<base target=\"_blank\">" + fetchedEmails[index].TaskBase.Body
+	}
+
+	err = markCompletedMessages(db, currentEmails, &fetchedEmails)
+	if err != nil {
+		Handle500(c)
+		return
 	}
 
 	orderedMessages, err := orderMessages(
 		db,
-		currentTasks,
-		emails,
+		fetchedEmails,
 		userID.(primitive.ObjectID),
 	)
 	if err != nil {
@@ -137,8 +134,7 @@ func (api *API) MessagesList(c *gin.Context) {
 
 func orderMessages(
 	db *mongo.Database,
-	currentTasks *[]database.TaskBase,
-	emails []*database.Email,
+	fetchedEmails []*database.Email,
 	userID primitive.ObjectID,
 ) ([]*message, error) {
 	orderingSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailOrderingPreference)
@@ -147,17 +143,50 @@ func orderMessages(
 		return []*message{}, err
 	}
 	newestEmailsFirst := *orderingSetting == settings.ChoiceKeyNewestFirst
-	sort.SliceStable(emails, func(i, j int) bool {
-		a := emails[i]
-		b := emails[j]
+	sort.SliceStable(fetchedEmails, func(i, j int) bool {
+		a := fetchedEmails[i]
+		b := fetchedEmails[j]
 		return compareEmails(a, b, newestEmailsFirst)
 	})
 
 	var messages []*message
-	for _, email := range emails {
+	for _, email := range fetchedEmails {
 		messages = append(messages, emailToMessage(email))
 	}
 	return messages, nil
+}
+
+func markCompletedMessages(
+	db *mongo.Database,
+	currentEmails *[]database.Email,
+	fetchedEmails *[]*database.Email,
+) error {
+	newEmailTaskIDs := make(map[primitive.ObjectID]bool)
+	for _, email := range *fetchedEmails {
+		newEmailTaskIDs[email.ID] = true
+	}
+	tasksCollection := database.GetTaskCollection(db)
+	parentCtx := context.Background()
+	// There's a more efficient way to do this but this way is easy to understand
+	for _, currentEmail := range *currentEmails {
+		if !newEmailTaskIDs[currentEmail.ID] {
+			dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+			defer cancel()
+			res, err := tasksCollection.UpdateOne(
+				dbCtx,
+				bson.M{"_id": currentEmail.ID},
+				bson.M{"$set": bson.M{"is_completed": true}},
+			)
+			if err != nil {
+				log.Printf("failed to mark task completed: (ID=%v) with error: %v", currentEmail.ID, err)
+				return err
+			}
+			if res.MatchedCount != 1 {
+				log.Printf("did not find task to mark completed (ID=%v)", currentEmail.ID)
+			}
+		}
+	}
+	return nil
 }
 
 func emailToMessage(e *database.Email) *message {
@@ -170,6 +199,7 @@ func emailToMessage(e *database.Email) *message {
 		Body:     e.Body,
 		Sender:   e.Sender,
 		SentAt:   e.CreatedAtExternal.Time().Format(time.RFC3339),
+		IsUnread: true,
 		Source: messageSource{
 			AccountId:     e.SourceAccountID,
 			Name:          messageSourceResult.Details.Name,
