@@ -161,15 +161,15 @@ func markCompletedMessages(
 	currentEmails *[]database.Email,
 	fetchedEmails *[]*database.Email,
 ) error {
-	newEmailTaskIDs := make(map[primitive.ObjectID]bool)
+	fetchedEmailTaskIDs := make(map[primitive.ObjectID]bool)
 	for _, email := range *fetchedEmails {
-		newEmailTaskIDs[email.ID] = true
+		fetchedEmailTaskIDs[email.ID] = true
 	}
 	tasksCollection := database.GetTaskCollection(db)
 	parentCtx := context.Background()
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentEmail := range *currentEmails {
-		if !newEmailTaskIDs[currentEmail.ID] {
+		if !fetchedEmailTaskIDs[currentEmail.ID] {
 			dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 			defer cancel()
 			res, err := tasksCollection.UpdateOne(
