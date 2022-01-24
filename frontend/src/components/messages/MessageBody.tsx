@@ -9,7 +9,7 @@ import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 import { TMessage } from '../../helpers/types'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import GTButton from '../common/GTButton'
-import { Deeplink, EmailMessage, EmailSubjectHeader, EmailViewDiv, ExpandedBody, MessageBodyDiv, ReplyDiv, ReplyInputStyle } from './MessageBody-style'
+import { Deeplink, EmailMessage, EmailSubjectHeader, EmailViewDiv, ExpandedBody, ReplyDiv, ReplyInputStyle, TaskBodyDiv } from '../task/TaskBody-style'
 import { useFetchMessages } from './MessagesPage'
 
 interface EmailViewProps {
@@ -155,12 +155,12 @@ const MessageBody: React.FC<MessageBodyProps> = React.memo(({ message, isExpande
             {Boolean(body || deeplink) && (
                 <ExpandedBody isExpanded={isExpanded}>
                     {body && (
-                        <MessageBodyDiv>
+                        <TaskBodyDiv>
                             <EmailBody body={body} message_id={id} />
                             {source.is_replyable && (
                                 <Reply message_id={id} sender={sender} body={body} sent_at={sent_at} />
                             )}
-                        </MessageBodyDiv>
+                        </TaskBodyDiv>
                     )}
                     {deeplink && (
                         <Deeplink>

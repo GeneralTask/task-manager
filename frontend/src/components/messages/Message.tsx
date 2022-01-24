@@ -1,12 +1,12 @@
 import React, { Dispatch, useCallback } from 'react'
-import { Icon, MessageContainer, MessageHeaderContainer, RelativeDate, UnreadIndicator } from './Message-style'
+import { Icon, MessageContainer, RelativeDate, UnreadIndicator } from './Message-style'
 import { TMessage } from '../../helpers/types'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { useFetchMessages } from './MessagesPage'
 import { collapseBody, expandBody, removeMessageByID } from '../../redux/messagesPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { LogEvents } from '../../helpers/enums'
-import { DoneButton, HeaderLeft, HeaderRight, Title } from '../task/TaskHeader-style'
+import { DoneButton, HeaderLeft, HeaderRight, TaskHeaderContainer, Title } from '../task/TaskHeader-style'
 import { DONE_BUTTON, MESSAGES_MODIFY_URL } from '../../constants'
 import { Action } from '@reduxjs/toolkit'
 import MessageBody from './MessageBody'
@@ -42,7 +42,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
     }, [])
 
     return (
-        <MessageHeaderContainer hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
+        <TaskHeaderContainer hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
             <HeaderLeft>
                 {
                     props.message.source.is_completable &&
@@ -52,7 +52,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
                     }} />
                 }
                 <Icon src={props.message.source.logo} alt="icon"></Icon>
-                <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.message.title} </Title>
+                <Title isExpanded={props.isExpanded}>{props.message.title} </Title>
             </HeaderLeft>
             <HeaderRight>
                 {props.message.sent_at &&
@@ -62,7 +62,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
                     <UnreadIndicator />
                 }
             </HeaderRight >
-        </MessageHeaderContainer >
+        </TaskHeaderContainer >
     )
 }
 

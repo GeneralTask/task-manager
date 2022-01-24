@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { NoSelect, SHADOW_EXPANDED, SHADOW_PRIMARY, TEXT_GRAY } from '../../helpers/styles'
+import { SHADOW_EXPANDED, SHADOW_PRIMARY, TEXT_GRAY } from '../../helpers/styles'
 
 export const MessageContainer = styled.div<{ isExpanded: boolean }>`
     width: 60%;
@@ -15,23 +15,10 @@ export const MessageContainer = styled.div<{ isExpanded: boolean }>`
     min-height: 50px;
     box-shadow: ${(props) => (props.isExpanded ? SHADOW_EXPANDED : SHADOW_PRIMARY)};
 `
-
-export const MessageHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
-    position: relative;
-    font-size: 15px;
-    border-radius: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: ${props => props.hoverEffect ? 'pointer' : 'inherit'};
-    min-height: 50px;
-`
-
 export const RelativeDate = styled.span`
     color: ${TEXT_GRAY};
     padding: 2px;
 `
-
 export const UnreadIndicator = styled.span`
     color: red;
     background-color: red;
@@ -40,7 +27,6 @@ export const UnreadIndicator = styled.span`
     width: 5px;
     height: 5px;
 `
-
 export const Icon = styled.img`
     max-width: 19px;
     margin-left: 16px;
