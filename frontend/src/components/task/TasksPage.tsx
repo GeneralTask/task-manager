@@ -1,4 +1,5 @@
 import { AbortID, FetchStatusEnum, LogEvents } from '../../helpers/enums'
+import { Navigate, useParams } from 'react-router-dom'
 import React, { useCallback, useEffect } from 'react'
 import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
 import { logEvent, makeAuthorizedRequest, useInterval } from '../../helpers/utils'
@@ -11,18 +12,18 @@ import {
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 import CalendarSidebar from '../calendar/CalendarSidebar'
+import EventAlert from '../alert/EventAlert'
 import ExpandCollapse from '../common/ExpandCollapse'
 import Navbar from '../Navbar'
 import { NavbarPages } from '../../helpers/enums'
+import RefreshButton from './RefreshButton'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
 import styled from 'styled-components'
 import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
-import { Navigate, useParams } from 'react-router-dom'
-import RefreshButton from './RefreshButton'
-import EventAlert from '../alert/EventAlert'
+import { useKeyboardShortcuts } from '../../helpers/keyboard-shortcuts'
 
 const TasksPageContainer = styled.div`
     display: flex;
@@ -179,6 +180,7 @@ function CreateNewTaskButton(): JSX.Element {
 }
 
 export default function TasksPage(): JSX.Element {
+    useKeyboardShortcuts()
     const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
     const section = `${useParams().section}_page`
     const currentPage = Object.values(NavbarPages).find((page) => page === section)
