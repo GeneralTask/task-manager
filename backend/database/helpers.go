@@ -165,6 +165,36 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]TaskBase,
 	return &tasks, nil
 }
 
+func GetActiveEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Email, error) {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := GetTaskCollection(db).Find(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_completed": false},
+				// Use this small hack to filter emails from tasks collection - better would be to have a separate messages collection
+				{"sender_domain": bson.M{"$exists": true}},
+			},
+		},
+	)
+	if err != nil {
+		log.Printf("Failed to fetch emails for user: %v", err)
+		return nil, err
+	}
+	var activeEmails []Email
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &activeEmails)
+	if err != nil {
+		log.Printf("Failed to fetch emails for user: %v", err)
+		return nil, err
+	}
+	return &activeEmails, nil
+}
+
 func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 	parentCtx := context.Background()
 	var userObject User
