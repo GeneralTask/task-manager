@@ -95,7 +95,8 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
     }
   }
 
-  const handleTitleBlur = () => {
+  const handleTitleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    e.target.scrollLeft = 0
     makeAuthorizedRequest({
       url: TASKS_MODIFY_URL + props.task.id + '/',
       method: 'PATCH',
@@ -128,7 +129,11 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           }} />
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
-        <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()} onChange={(e) => handleTitleChange(e)} onBlur={handleTitleBlur} onKeyPress={(e) => handleTitleKeyPress(e)} >
+        <Title isExpanded={props.isExpanded}
+          onClick={(e) => e.stopPropagation()}
+          onChange={(e) => handleTitleChange(e)}
+          onBlur={(e) => handleTitleBlur(e)}
+          onKeyPress={(e) => handleTitleKeyPress(e)} >
           {props.task.title}
         </Title>
       </HeaderLeft>
