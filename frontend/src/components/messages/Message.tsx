@@ -17,7 +17,6 @@ interface MessageHeaderProps {
     isExpanded: boolean
 }
 const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) => {
-    // const MessageHeader = React.forwardRef<HTMLDivElement, MessageHeaderProps>((props: MessageHeaderProps, ref) => {
     const dispatch = useAppDispatch()
     const fetchMessages = useFetchMessages()
 
@@ -56,23 +55,10 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
                 <Title isExpanded={props.isExpanded} onClick={(e) => e.stopPropagation()}>{props.message.title} </Title>
             </HeaderLeft>
             <HeaderRight>
-                {/* {
-                    hoverEffectEnabled &&
-                    <ButtonRight onClick={(e) => {
-                        e.stopPropagation()
-                        dispatch(props.isExpanded ? collapseBody() : expandBody(props.message.id))
-                    }}>
-                        <ButtonIcon src={EXPAND_ICON} alt="expand" />
-                    </ButtonRight>
-                } */}
-                {
-                    // TODO: humanized sent at time
-                    props.message.sent_at &&
+                {props.message.sent_at &&
                     <RelativeDate>{DateTime.fromISO(props.message.sent_at).toRelative()}</RelativeDate>
                 }
-                {
-                    // TODO: unread red dot
-                    props.message.is_unread &&
+                {props.message.is_unread &&
                     <UnreadIndicator />
                 }
             </HeaderRight >

@@ -16,7 +16,6 @@ import Message from './Message'
 
 const MessagesPageContainer = styled.div`
     display: flex;
-    
     height: 100%;
     background-image: linear-gradient(to bottom right, ${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
 `
@@ -44,7 +43,6 @@ const Header = styled.div`
 `
 const TopBanner = styled.div`
     display: flex;
-    /* width: 100%; */
     justify-content: end;
     margin-top: 24px;
     padding-right: 24px;
