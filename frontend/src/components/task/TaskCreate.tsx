@@ -66,6 +66,7 @@ export default function TaskCreate(): JSX.Element {
                             value={title}
                             error={titleError !== ''}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
+                            onKeyDown={e => e.stopPropagation()}
                         />
                     </styles.Form>
                     <styles.Side>
