@@ -130,6 +130,8 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
         <Title isExpanded={props.isExpanded}
+          isEditable={props.task.source.name === 'General Task'}
+          disabled={props.task.source.name != 'General Task'}
           onClick={(e) => e.stopPropagation()}
           onChange={(e) => handleTitleChange(e)}
           onBlur={(e) => handleTitleBlur(e)}

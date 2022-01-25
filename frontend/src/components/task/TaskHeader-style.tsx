@@ -137,14 +137,16 @@ export const Icon = styled.img`
     max-width: 19px;
     margin-left: 8px;
 `
-export const Title = styled.textarea<{ isExpanded: boolean }>`
+export const Title = styled.textarea<{ isExpanded: boolean, isEditable: boolean }>`
     &:focus,:hover {
-        outline: 1px dashed ${TEXT_GRAY};
+      ${({ isEditable }) => isEditable ? `
+      outline: 1px dashed ${TEXT_GRAY};
+      ` : `
+      outline: none;`}
     }
     border: none;
     background-color: transparent;
     resize: none;
-
     font-size: 15px;
     font: inherit;
     color: ${TEXT_BLACK};
@@ -152,14 +154,12 @@ export const Title = styled.textarea<{ isExpanded: boolean }>`
     user-select: text;
     width: 100%;
     cursor: text;
-    ${({ isExpanded }) =>
-    isExpanded
-      ? `
+    ${({ isExpanded }) => isExpanded ? `
     word-wrap: break-word;
     min-width: 0px;
     margin: 10px 15px;
     height: auto;`
-      : `
+    : `
     white-space: nowrap;
     overflow: hidden;
     margin: 0 15px;
