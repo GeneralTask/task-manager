@@ -13,6 +13,8 @@ import { AbortID } from './enums'
 import Cookies from 'js-cookie'
 import { LogEvents } from './enums'
 import _ from 'lodash'
+import { setAuthToken } from '../redux/userDataSlice'
+import store from '../redux/store'
 
 // This invalidates the cookie on the frontend
 export const logout = async (): Promise<void> => {
@@ -22,10 +24,12 @@ export const logout = async (): Promise<void> => {
         logoutReq: true,
     })
     Cookies.remove('authToken', { path: '/', domain: REACT_APP_COOKIE_DOMAIN })
+    store.dispatch(setAuthToken(undefined))
     document.location.href = LANDING_PATH
 }
 
-export const getAuthToken = (): string | undefined => Cookies.get('authToken')
+
+export const getAuthToken = (): string | undefined => store.getState().user_data.auth_token
 
 export const getHeaders = (): Record<string, string> => {
     const date = new Date()
@@ -102,7 +106,7 @@ export const useDeviceSize = (): DeviceSize => {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export function emptyFunction(): void {}
+export function emptyFunction(): void { }
 
 export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
     return task_sections.map((section) => {

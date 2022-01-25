@@ -94,7 +94,7 @@ func (api *API) TasksListV2(c *gin.Context) {
 	emailChannels := []chan external.EmailResult{}
 	taskChannels := []chan external.TaskResult{}
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "Invalid timezone offset"})
+		c.JSON(400, gin.H{"detail": "invalid timezone offset"})
 		return
 	}
 	// Loop through linked accounts and fetch relevant items
@@ -365,6 +365,12 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResultV2) error {
 func taskBaseToTaskResultV2(t *database.TaskBase) *TaskResultV2 {
 	// Normally we need to use api.ExternalConfig but we are just using the source details constants here
 	taskSourceResult, _ := external.GetConfig().GetTaskSourceResult(t.SourceID)
+	var dueDate string
+	if t.DueDate.Time().Unix() == int64(0) {
+		dueDate = ""
+	} else {
+		dueDate = t.DueDate.Time().Format("2006-01-02")
+	}
 	return &TaskResultV2{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
@@ -380,6 +386,6 @@ func taskBaseToTaskResultV2(t *database.TaskBase) *TaskResultV2 {
 		TimeAllocation: t.TimeAllocation,
 		Sender:         t.Sender,
 		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
-		DueDate:        t.DueDate.Time().Format("2006-01-02"),
+		DueDate:        dueDate,
 	}
 }

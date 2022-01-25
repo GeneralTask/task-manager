@@ -1,13 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
-import settingsReducer from './settingsSlice'
+import userDataReducer from './userDataSlice'
 import tasksPageReducer from './tasksPageSlice'
 import messagesPageReducer from './messagesPageSlice'
 
 export const store = configureStore({
     reducer: {
         tasks_page: tasksPageReducer,
-        settings_page: settingsReducer,
         messages_page: messagesPageReducer,
+        user_data: userDataReducer,
     },
     devTools: true,
 })

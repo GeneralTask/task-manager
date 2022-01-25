@@ -39,5 +39,4 @@ export const CalendarSidebarContainer = styled.div`
     box-shadow: -5px 0px 20px 5px whitesmoke;
     display: flex;
     flex-direction: column;
-    overflow: scroll;
 `

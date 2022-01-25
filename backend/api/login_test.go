@@ -112,7 +112,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, http.StatusForbidden, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Email has not been approved.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"email has not been approved.\"}", string(body))
 	})
 	t.Run("EmailNotApproved", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -123,7 +123,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, http.StatusForbidden, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"Email has not been approved.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"email has not been approved.\"}", string(body))
 		verifyLoginCallback(t, db, "unapproved@gmail.com", "noice420", false, false)
 	})
 	t.Run("Idempotent", func(t *testing.T) {
@@ -171,7 +171,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"State token does not match cookie\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"state token does not match cookie\"}", string(body))
 	})
 	t.Run("InvalidStateToken", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", "6088e1c97018a22f240aa573", "6088e1c97018a22f240aa573", false, false)

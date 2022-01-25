@@ -30,7 +30,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	err = c.BindJSON(&modifyParams)
 
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "Parameter missing or malformatted"})
+		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
 
@@ -53,7 +53,7 @@ func (api *API) TaskModify(c *gin.Context) {
 
 	// check if all fields are empty
 	if modifyParams == (TaskModifyParams{}) {
-		c.JSON(400, gin.H{"detail": "Parameter missing"})
+		c.JSON(400, gin.H{"detail": "parameter missing"})
 		return
 	}
 
@@ -109,12 +109,12 @@ func (api *API) TaskModify(c *gin.Context) {
 
 func ValidateFields(c *gin.Context, updateFields *database.TaskChangeableFields) bool {
 	if updateFields.Title != nil && *updateFields.Title == "" {
-		c.JSON(400, gin.H{"detail": "Title cannot be empty"})
+		c.JSON(400, gin.H{"detail": "title cannot be empty"})
 		return false
 	}
 	if updateFields.TimeAllocation != nil {
 		if *updateFields.TimeAllocation < 0 {
-			c.JSON(400, gin.H{"detail": "Time duration cannot be negative"})
+			c.JSON(400, gin.H{"detail": "time duration cannot be negative"})
 			return false
 		} else {
 			*updateFields.TimeAllocation *= constants.NANOSECONDS_IN_SECOND
@@ -203,7 +203,7 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 			{"user_id": userID},
 		}}).Decode(&task)
 	if err != nil {
-		c.JSON(404, gin.H{"detail": "Task not found.", "taskId": taskID})
+		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
 		return nil, err
 	}
 	return &task, nil
@@ -211,7 +211,7 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 
 func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, task *database.Task, isCompleted bool) error {
 	if !isCompleted {
-		c.JSON(400, gin.H{"detail": "Tasks can only be marked as complete."})
+		c.JSON(400, gin.H{"detail": "tasks can only be marked as complete."})
 		return errors.New("tasks can only be marked as complete")
 	}
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
@@ -229,7 +229,7 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	err = taskSourceResult.Source.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
 	if err != nil {
 		log.Printf("failed to mark task as complete: %v", err)
-		c.JSON(503, gin.H{"detail": "Failed to mark task as complete"})
+		c.JSON(503, gin.H{"detail": "failed to mark task as complete"})
 		return err
 	}
 

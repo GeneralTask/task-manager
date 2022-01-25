@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, DOMINO_COLOR } from '../../helpers/styles'
+import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, DOMINO_COLOR, TEXT_GRAY } from '../../helpers/styles'
 
 export const DoneButton = styled.img`
   width: 24px;
@@ -137,18 +137,31 @@ export const Icon = styled.img`
     max-width: 19px;
     margin-left: 8px;
 `
-export const Title = styled.div<{ isExpanded: boolean }>`
+export const Title = styled.textarea<{ isExpanded: boolean }>`
+    &:focus,:hover {
+        outline: 1px dashed ${TEXT_GRAY};
+    }
+    border: none;
+    background-color: transparent;
+    resize: none;
+
+    font-size: 15px;
+    font: inherit;
     color: ${TEXT_BLACK};
     text-overflow: ellipsis;
     user-select: text;
+    width: 100%;
+    cursor: text;
     ${({ isExpanded }) =>
     isExpanded
       ? `
     word-wrap: break-word;
     min-width: 0px;
-    margin: 10px 15px`
+    margin: 10px 15px;
+    height: auto;`
       : `
     white-space: nowrap;
     overflow: hidden;
-    margin-left: 15px;`}
+    margin: 0 15px;
+    height: 1.2em;`}
 `

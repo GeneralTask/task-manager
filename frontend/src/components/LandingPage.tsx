@@ -1,11 +1,12 @@
 import { WAITLIST_URL } from '../constants'
 import React, { useState } from 'react'
-import { getAuthToken, getHeaders } from '../helpers/utils'
+import { getHeaders } from '../helpers/utils'
 import GLButton from './login/GoogleLoginButton'
 import { device, TEXT_GRAY } from '../helpers/styles'
 import styled from 'styled-components'
 import LegacyHeader from './Header'
 import { Navigate } from 'react-router-dom'
+import { useAppSelector } from '../redux/hooks'
 
 const Container = styled.div`
     margin: auto;
@@ -61,9 +62,9 @@ const WaitlistInputs = styled.form`
     width: 100%;
 `
 const WaitlistMessage = styled.div<{
-    visibility: string
-    backgroundColor: string
-    color: string
+  visibility: string
+  backgroundColor: string
+  color: string
 }>`
     height: 34px;
     background-color: red;
@@ -78,110 +79,110 @@ const WaitlistMessage = styled.div<{
 `
 
 enum WaitlistState {
-    NONE,
-    SUCCESS,
-    EXISTS,
-    ERROR,
+  NONE,
+  SUCCESS,
+  EXISTS,
+  ERROR,
 }
 
 const LandingPage: React.FC = () => {
-    if (getAuthToken()) {
-        return <Navigate to="/tasks/today" />
-    }
-    return (
-        <div>
-            <LegacyHeader isLoggedIn={Boolean(getAuthToken())} />
-            <Container>
-                <Title>
-                    The task manager for
-                    <br /> highly productive people.
-                </Title>
-                <Subtitle>
-                    General Task pulls together your emails, messages, and tasks
-                    <br />
-                    and prioritizes what matters most.
-                </Subtitle>
-                <Waitlist />
-                <GLButton />
-            </Container>
-        </div>
-    )
+  const { authToken } = useAppSelector(store => ({ authToken: store.user_data.auth_token }))
+  if (authToken) return <Navigate to='/tasks/today' />
+
+  return (
+    <div>
+      <LegacyHeader />
+      <Container>
+        <Title>
+          The task manager for
+          <br /> highly productive people.
+        </Title>
+        <Subtitle>
+          General Task pulls together your emails, messages, and tasks
+          <br />
+          and prioritizes what matters most.
+        </Subtitle>
+        <Waitlist />
+        <GLButton />
+      </Container>
+    </div>
+  )
 }
 
 export const Waitlist: React.FC = () => {
-    const [waitlistState, setWaitlistState] = useState(WaitlistState.NONE)
-    const [email, setEmail] = useState('')
+  const [waitlistState, setWaitlistState] = useState(WaitlistState.NONE)
+  const [email, setEmail] = useState('')
 
-    let messageVisibility = 'visible'
-    let messageText
-    let messageTextColor = 'black'
-    let messageBackgroundColor = 'white'
-    switch (waitlistState) {
-        case WaitlistState.NONE:
-            messageVisibility = 'hidden'
-            messageText = ''
-            break
-        case WaitlistState.SUCCESS:
-            messageText = 'You\'ve been added to the waitlist!'
-            messageTextColor = '#4F8A10'
-            messageBackgroundColor = '#DFF2BF'
-            break
-        case WaitlistState.EXISTS:
-            messageText = 'This email already exists in the waitlist'
-            messageTextColor = '#00529B'
-            messageBackgroundColor = '#BDE5F8'
-            break
-        case WaitlistState.ERROR:
-            messageText = 'There was an error adding you to the waitlist'
-            messageTextColor = '#D8000C'
-            messageBackgroundColor = '#FFD2D2'
-            break
-    }
+  let messageVisibility = 'visible'
+  let messageText
+  let messageTextColor = 'black'
+  let messageBackgroundColor = 'white'
+  switch (waitlistState) {
+    case WaitlistState.NONE:
+      messageVisibility = 'hidden'
+      messageText = ''
+      break
+    case WaitlistState.SUCCESS:
+      messageText = 'You\'ve been added to the waitlist!'
+      messageTextColor = '#4F8A10'
+      messageBackgroundColor = '#DFF2BF'
+      break
+    case WaitlistState.EXISTS:
+      messageText = 'This email already exists in the waitlist'
+      messageTextColor = '#00529B'
+      messageBackgroundColor = '#BDE5F8'
+      break
+    case WaitlistState.ERROR:
+      messageText = 'There was an error adding you to the waitlist'
+      messageTextColor = '#D8000C'
+      messageBackgroundColor = '#FFD2D2'
+      break
+  }
 
-    return (
-        <WaitlistDiv>
-            <WaitlistInputs
-                onSubmit={(e) => {
-                    e.preventDefault()
-                    joinWaitlist(email, setWaitlistState)
-                }}
-            >
-                <WaitlistInput
-                    placeholder="Enter email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <JoinWaitlistButton data-testid="join-waitlist-button" role="submit">
-                    Join the Waitlist
-                </JoinWaitlistButton>
-            </WaitlistInputs>
+  return (
+    <WaitlistDiv>
+      <WaitlistInputs
+        onSubmit={(e) => {
+          e.preventDefault()
+          joinWaitlist(email, setWaitlistState)
+        }}
+      >
+        <WaitlistInput
+          placeholder="Enter email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <JoinWaitlistButton data-testid="join-waitlist-button" role="submit">
+          Join the Waitlist
+        </JoinWaitlistButton>
+      </WaitlistInputs>
 
-            <WaitlistMessage
-                data-testid="waitlist-message"
-                visibility={messageVisibility}
-                backgroundColor={messageBackgroundColor}
-                color={messageTextColor}
-            >
-                {messageText}
-            </WaitlistMessage>
-        </WaitlistDiv>
-    )
+      <WaitlistMessage
+        data-testid="waitlist-message"
+        visibility={messageVisibility}
+        backgroundColor={messageBackgroundColor}
+        color={messageTextColor}
+      >
+        {messageText}
+      </WaitlistMessage>
+    </WaitlistDiv>
+  )
 }
 
 const joinWaitlist = async (email: string, setWaitlistState: (state: WaitlistState) => void) => {
-    const response: Response = await fetch(WAITLIST_URL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: getHeaders(),
-        body: JSON.stringify({ email }),
-    })
-    if (response.ok) {
-        setWaitlistState(WaitlistState.SUCCESS)
-    } else if (response.status === 302) {
-        setWaitlistState(WaitlistState.EXISTS)
-    } else {
-        setWaitlistState(WaitlistState.ERROR)
-    }
+  const response: Response = await fetch(WAITLIST_URL, {
+    method: 'POST',
+    mode: 'cors',
+    headers: getHeaders(),
+    body: JSON.stringify({ email }),
+  })
+  if (response.ok) {
+    setWaitlistState(WaitlistState.SUCCESS)
+  } else if (response.status === 302) {
+    setWaitlistState(WaitlistState.EXISTS)
+  } else {
+    setWaitlistState(WaitlistState.ERROR)
+  }
 }
 
 export default LandingPage

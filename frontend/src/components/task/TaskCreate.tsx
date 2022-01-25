@@ -1,6 +1,6 @@
 import * as styles from './TaskCreate-style'
 
-import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL, PLUS_ICON } from '../../constants'
+import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
 import React, { useCallback, useState } from 'react'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'
@@ -60,12 +60,11 @@ export default function TaskCreate(): JSX.Element {
                             await fetchTasks()
                         }
                     }}>
-                        <styles.PlusIcon src={PLUS_ICON} alt="create new task" />
                         <styles.InputTitle
                             placeholder='Describe Task'
                             value={title}
-                            error={titleError !== ''}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
+                            onKeyDown={e => e.stopPropagation()}
                         />
                     </styles.Form>
                     <styles.Side>

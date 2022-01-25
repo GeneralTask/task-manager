@@ -1,4 +1,4 @@
-import { BORDER_ERROR, BORDER_PRIMARY, TEXT_LIGHTGRAY, BACKGROUND_WHITE, device } from '../../helpers/styles'
+import { BORDER_PRIMARY, TEXT_LIGHTGRAY, BACKGROUND_WHITE, device, SHADOW_PRIMARY } from '../../helpers/styles'
 
 import styled from 'styled-components'
 
@@ -15,23 +15,22 @@ export const InnerContainer = styled.div`
 `
 export const Form = styled.form`
     display: flex;
+    min-width: 500px;
     align-items: center;
-    border: 1px solid ${BORDER_PRIMARY};
+    box-shadow: ${SHADOW_PRIMARY};
     background-color: ${BACKGROUND_WHITE};
-    border-radius: 8px;
+    border-radius: 12px;
     flex-wrap: wrap;
-    justify-content: space-between;
     width: 70%;
     @media ${device.mobile} {
         flex-wrap: nowrap;
         width: 60%;
     }
 `
-export const Input = styled.input<{ error: boolean }>`
+export const Input = styled.input`
     font-size: 16px;
-    border: ${(props) => (props.error ? `1px solid ${BORDER_ERROR} !important` : 'none')};
-    border-radius: 8px;
     outline: none;
+    border: none;
     width: 100%;
     height: 32px;
     padding: 8px 16px;
@@ -41,11 +40,11 @@ export const Input = styled.input<{ error: boolean }>`
 `
 export const InputTitle = styled(Input)`
     width: 100%;
-    border-bottom: 1px solid ${BORDER_PRIMARY};
+    border-bottom: none;
+    border-radius: 12px;
     @media ${device.mobile} {
-        width: 50%;
+        width: 100%;
         border-bottom: none;
-        border-right: 1px solid ${BORDER_PRIMARY};
     }
 `
 export const InputTimeEstimate = styled(Input)`
@@ -97,7 +96,7 @@ export const ErrorIcon = styled.img`
 `
 export const CloseButton = styled.img`
     cursor: pointer;
-    height: 24px;
+    height: 20px;
     display: flex;
     align-items: center;
     padding-left: 8px;
