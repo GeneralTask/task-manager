@@ -7,7 +7,9 @@ export const {
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/v2/'
+export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/'
 export const TASKS_MODIFY_URL = REACT_APP_API_BASE_URL + '/tasks/modify/'
+export const MESSAGES_MODIFY_URL = REACT_APP_API_BASE_URL + '/messages/modify/'
 export const TASKS_CREATE_URL = REACT_APP_API_BASE_URL + '/tasks/create/'
 export const ASANA_URL = REACT_APP_API_BASE_URL + '/link/asana/'
 export const JIRA_URL = REACT_APP_API_BASE_URL + '/link/jira/'
@@ -24,6 +26,7 @@ export const EVENTS_URL = REACT_APP_API_BASE_URL + '/events/'
 // Frontend paths
 export const LANDING_PATH = '/'
 export const SETTINGS_PATH = '/settings/'
+export const MESSAGES_PATH = '/messages/'
 export const PRIVACY_PATH = '/privacy/'
 
 //Google Sign-In SVGs
@@ -45,6 +48,7 @@ export const TASK_STATUS_NO_TASKS = 'No Tasks'
 export const MAX_TASK_BODY_HEIGHT = 495
 export const TOAST_DURATION = 5000
 export const TASKS_FETCH_INTERVAL = 30
+export const MESSAGES_FETCH_INTERVAL = 30
 
 export const GT_TASK_SOURCE_ID = 'gt_task'
 export const NOW = 'Now'

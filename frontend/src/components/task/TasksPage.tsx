@@ -66,7 +66,6 @@ const PlusImage = styled.img`
 const TopBanner = styled.div`
     display: flex;
     justify-content: end;
-    /* width: 100%; */
     margin-top: 24px;
     padding-right: 24px;
 `

@@ -2,7 +2,7 @@ import React, { ReactElement, RefObject, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import { SETTINGS_PATH, TASKS_MODIFY_URL } from '../constants'
+import { MESSAGES_PATH, SETTINGS_PATH, TASKS_MODIFY_URL } from '../constants'
 import { Indices, ItemTypes, TTaskSection } from '../helpers/types'
 import { NavbarPages } from '../helpers/enums'
 import { logout, makeAuthorizedRequest, navbarDropReorder } from '../helpers/utils'
@@ -110,10 +110,10 @@ const NavbarItemDroppableContainer = (props: NavbarItemDroppableContainerProps):
         accept: ItemTypes.TASK,
         collect: (monitor) => ({
             isOverDroppable:
-                monitor.isOver() && props.page !== NavbarPages.SETTINGS_PAGE && props.page !== NavbarPages.LOGOUT,
+                monitor.isOver() && props.page !== NavbarPages.MESSAGES_PAGE && props.page !== NavbarPages.SETTINGS_PAGE && props.page !== NavbarPages.LOGOUT,
         }),
         drop: (item: { id: string; indicesRef: RefObject<Indices> }) => {
-            if (props.page === NavbarPages.SETTINGS_PAGE || props.page === NavbarPages.LOGOUT) return
+            if (props.page === NavbarPages.MESSAGES_PAGE || props.page === NavbarPages.SETTINGS_PAGE || props.page === NavbarPages.LOGOUT) return
             if (item.indicesRef.current == null) return
             if (taskSectionsRef.current == null) return
 
@@ -171,53 +171,63 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
         page: NavbarPages
         link: ReactElement<typeof Link>
     }[] = [
-        {
-            page: NavbarPages.TODAY_PAGE,
-            link: (
-                <NavbarLink to={'/tasks/today'}>
-                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.TODAY_PAGE}>Today</NavbarLinkButton>
-                </NavbarLink>
-            ),
-        },
-        {
-            page: NavbarPages.BLOCKED_PAGE,
-            link: (
-                <NavbarLink to={'/tasks/blocked'}>
-                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BLOCKED_PAGE}>
-                        Blocked
-                    </NavbarLinkButton>
-                </NavbarLink>
-            ),
-        },
-        {
-            page: NavbarPages.BACKLOG_PAGE,
-            link: (
-                <NavbarLink to={'/tasks/backlog'}>
-                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BACKLOG_PAGE}>
-                        Backlog
-                    </NavbarLinkButton>
-                </NavbarLink>
-            ),
-        },
-        {
-            page: NavbarPages.SETTINGS_PAGE,
-            link: (
-                <NavbarLink to={SETTINGS_PATH}>
-                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.SETTINGS_PAGE}>
-                        Settings
-                    </NavbarLinkButton>
-                </NavbarLink>
-            ),
-        },
-        {
-            page: NavbarPages.LOGOUT,
-            link: (
-                <NavbarLogout onClick={logout}>
-                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.LOGOUT}>Logout</NavbarLinkButton>
-                </NavbarLogout>
-            ),
-        },
-    ]
+            {
+                page: NavbarPages.TODAY_PAGE,
+                link: (
+                    <NavbarLink to={'/tasks/today'}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.TODAY_PAGE}>Today</NavbarLinkButton>
+                    </NavbarLink>
+                ),
+            },
+            {
+                page: NavbarPages.BLOCKED_PAGE,
+                link: (
+                    <NavbarLink to={'/tasks/blocked'}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BLOCKED_PAGE}>
+                            Blocked
+                        </NavbarLinkButton>
+                    </NavbarLink>
+                ),
+            },
+            {
+                page: NavbarPages.BACKLOG_PAGE,
+                link: (
+                    <NavbarLink to={'/tasks/backlog'}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BACKLOG_PAGE}>
+                            Backlog
+                        </NavbarLinkButton>
+                    </NavbarLink>
+                ),
+            },
+            {
+                page: NavbarPages.MESSAGES_PAGE,
+                link: (
+                    <NavbarLink to={MESSAGES_PATH}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.MESSAGES_PAGE}>
+                            Messages
+                        </NavbarLinkButton>
+                    </NavbarLink>
+                ),
+            },
+            {
+                page: NavbarPages.SETTINGS_PAGE,
+                link: (
+                    <NavbarLink to={SETTINGS_PATH}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.SETTINGS_PAGE}>
+                            Settings
+                        </NavbarLinkButton>
+                    </NavbarLink>
+                ),
+            },
+            {
+                page: NavbarPages.LOGOUT,
+                link: (
+                    <NavbarLogout onClick={logout}>
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.LOGOUT}>Logout</NavbarLinkButton>
+                    </NavbarLogout>
+                ),
+            },
+        ]
     const navbarJSXElements = linkElements.map((element) => (
         <NavbarItemDroppableContainer
             key={element.page}
