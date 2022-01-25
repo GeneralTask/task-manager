@@ -133,9 +133,8 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           onClick={(e) => e.stopPropagation()}
           onChange={(e) => handleTitleChange(e)}
           onBlur={(e) => handleTitleBlur(e)}
-          onKeyPress={(e) => handleTitleKeyPress(e)} >
-          {props.task.title}
-        </Title>
+          onKeyPress={(e) => handleTitleKeyPress(e)}
+          defaultValue={props.task.title} />
       </HeaderLeft>
       <HeaderRight>
         {hoverEffectEnabled &&

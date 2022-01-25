@@ -52,7 +52,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
                     }} />
                 }
                 <Icon src={props.message.source.logo} alt="icon"></Icon>
-                <Title isExpanded={props.isExpanded}>{props.message.title} </Title>
+                <Title isExpanded={props.isExpanded} defaultValue={props.message.title} />
             </HeaderLeft>
             <HeaderRight>
                 {props.message.sent_at &&
