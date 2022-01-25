@@ -1,36 +1,37 @@
 import './Task.css'
+
 import { Action, Dispatch } from '@reduxjs/toolkit'
-import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
-import React, { useCallback, useRef } from 'react'
-import { collapseBody, expandBody, removeTaskByID, hideDatePicker, hideTimeEstimate, showDatePicker, showTimeEstimate } from '../../redux/tasksPageSlice'
-import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
-import { useFetchTasks } from './TasksPage'
-import { TTask } from '../../helpers/types'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { BLANK_CALENDAR_ICON, DONE_BUTTON, EXPAND_ICON, TASKS_MODIFY_URL, TIME_ICON } from '../../constants'
 import {
-  TaskHeaderContainer,
-  HeaderLeft,
-  Icon,
-  Title,
-  HeaderRight,
-  DeadlineIndicator,
+  ButtonIcon,
+  ButtonRight,
   CalendarDate,
-  CalendarIconContainer,
   CalendarIcon,
-  DragHandler,
+  CalendarIconContainer,
+  DeadlineIndicator,
   DominoContainer,
   DominoDot,
   DoneButton,
-  ButtonRight,
-  ButtonIcon,
+  DragHandler,
   DueDateButtonText,
-  TimeEstimateButtonText
+  HeaderLeft,
+  HeaderRight,
+  Icon,
+  TaskHeaderContainer,
+  TimeEstimateButtonText,
+  Title
 } from './TaskHeader-style'
-import { LogEvents } from '../../helpers/enums'
-import { Duration } from 'luxon'
+import React, { useCallback, useRef } from 'react'
+import { collapseBody, expandBody, hideDatePicker, hideTimeEstimate, removeTaskByID, showDatePicker, showTimeEstimate } from '../../redux/tasksPageSlice'
+import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
-import TimeEstimate from './HeaderOptions/TimeEstimatePicker'
 import DatePicker from './HeaderOptions/DatePicker'
+import { Duration } from 'luxon'
+import { LogEvents } from '../../helpers/enums'
+import { TTask } from '../../helpers/types'
+import TimeEstimate from './HeaderOptions/TimeEstimatePicker'
+import { useFetchTasks } from './TasksPage'
 
 function Domino(): JSX.Element {
   return (
@@ -134,7 +135,8 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           onChange={(e) => handleTitleChange(e)}
           onBlur={(e) => handleTitleBlur(e)}
           onKeyPress={(e) => handleTitleKeyPress(e)}
-          defaultValue={props.task.title} />
+          defaultValue={props.task.title}
+          onKeyDown={e => e.stopPropagation()} />
       </HeaderLeft>
       <HeaderRight>
         {hoverEffectEnabled &&
