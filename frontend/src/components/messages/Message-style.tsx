@@ -17,12 +17,12 @@ export const MessageContainer = styled.div<{ isExpanded: boolean }>`
 `
 export const RelativeDate = styled.span`
     color: ${TEXT_GRAY};
-    padding: 2px;
+    margin-right: 9px;
 `
 export const UnreadIndicator = styled.span`
     color: red;
     background-color: red;
-    margin: 0 16px 0 5px;
+    margin-right: 16px;
     border-radius: 50%;
     width: 5px;
     height: 5px;
