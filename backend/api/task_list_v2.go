@@ -91,12 +91,7 @@ func (api *API) TasksListV2(c *gin.Context) {
 		ServiceID: external.TASK_SERVICE_ID_GT,
 	})
 
-	emailChannels := []chan external.EmailResult{}
 	taskChannels := []chan external.TaskResult{}
-	if err != nil {
-		c.JSON(400, gin.H{"detail": "invalid timezone offset"})
-		return
-	}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
@@ -105,27 +100,10 @@ func (api *API) TasksListV2(c *gin.Context) {
 			continue
 		}
 		for _, taskSource := range taskServiceResult.Sources {
-			var emails = make(chan external.EmailResult)
-			go taskSource.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails)
-			emailChannels = append(emailChannels, emails)
-
 			var tasks = make(chan external.TaskResult)
 			go taskSource.GetTasks(userID.(primitive.ObjectID), token.AccountID, tasks)
 			taskChannels = append(taskChannels, tasks)
 		}
-	}
-
-	emails := []*database.Email{}
-	for _, emailChannel := range emailChannels {
-		emailResult := <-emailChannel
-		if emailResult.Error != nil {
-			continue
-		}
-		emails = append(emails, emailResult.Emails...)
-	}
-
-	for index := range emails {
-		emails[index].TaskBase.Body = "<base target=\"_blank\">" + emails[index].TaskBase.Body
 	}
 
 	tasks := []*database.Task{}
@@ -140,7 +118,7 @@ func (api *API) TasksListV2(c *gin.Context) {
 	allTasks, err := MergeTasksV2(
 		db,
 		currentTasks,
-		emails,
+		[]*database.Email{},
 		tasks,
 		userID.(primitive.ObjectID),
 	)

@@ -22,7 +22,7 @@ func TestGetActiveTasks(t *testing.T) {
 			userID,
 			"123abc",
 			"foobar_source",
-			&Email{TaskBase: TaskBase{
+			&Task{TaskBase: TaskBase{
 				IDExternal: "123abc",
 				SourceID:   "foobar_source",
 				UserID:     userID,
@@ -31,29 +31,32 @@ func TestGetActiveTasks(t *testing.T) {
 		assert.NoError(t, err)
 		_, err = GetOrCreateTask(
 			db,
-			notUserID,
+			userID,
 			"123abd",
 			"foobar_source",
-			&Email{TaskBase: TaskBase{
-				IDExternal: "123abd",
+			&Email{
+				SenderDomain: "gmail",
+				TaskBase: TaskBase{
+					IDExternal: "123abd",
+					SourceID:   "foobar_source",
+					UserID:     userID,
+				},
+			},
+		)
+		assert.NoError(t, err)
+		_, err = GetOrCreateTask(
+			db,
+			notUserID,
+			"123abe",
+			"foobar_source",
+			&Task{TaskBase: TaskBase{
+				IDExternal: "123abe",
 				SourceID:   "foobar_source",
 				UserID:     notUserID,
 			}},
 		)
 		assert.NoError(t, err)
-		_, err = GetOrCreateTask(
-			db,
-			userID,
-			"123abe",
-			"foobar_source",
-			&Email{TaskBase: TaskBase{
-				IDExternal:  "123abe",
-				IsCompleted: true,
-				SourceID:    "foobar_source",
-				UserID:      userID,
-			}},
-		)
-		assert.NoError(t, err)
+
 		tasks, err := GetActiveTasks(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
