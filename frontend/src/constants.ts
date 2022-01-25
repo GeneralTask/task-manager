@@ -52,3 +52,6 @@ export const MESSAGES_FETCH_INTERVAL = 30
 
 export const GT_TASK_SOURCE_ID = 'gt_task'
 export const NOW = 'Now'
+
+//Integrations
+export const GOOGLE_URL = 'https://accounts.google.com/o/oauth2/auth'
