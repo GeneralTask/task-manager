@@ -1,37 +1,36 @@
 import './Task.css'
-
 import { Action, Dispatch } from '@reduxjs/toolkit'
-import { BLANK_CALENDAR_ICON, DONE_BUTTON, EXPAND_ICON, TASKS_MODIFY_URL, TIME_ICON } from '../../constants'
+import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
+import React, { useCallback, useRef } from 'react'
+import { collapseBody, expandBody, removeTaskByID, hideDatePicker, hideTimeEstimate, showDatePicker, showTimeEstimate } from '../../redux/tasksPageSlice'
+import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
+import { useFetchTasks } from './TasksPage'
+import { TTask } from '../../helpers/types'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import {
-  ButtonIcon,
-  ButtonRight,
-  CalendarDate,
-  CalendarIcon,
-  CalendarIconContainer,
+  TaskHeaderContainer,
+  HeaderLeft,
+  Icon,
+  Title,
+  HeaderRight,
   DeadlineIndicator,
+  CalendarDate,
+  CalendarIconContainer,
+  CalendarIcon,
+  DragHandler,
   DominoContainer,
   DominoDot,
   DoneButton,
-  DragHandler,
+  ButtonRight,
+  ButtonIcon,
   DueDateButtonText,
-  HeaderLeft,
-  HeaderRight,
-  Icon,
-  TaskHeaderContainer,
-  TimeEstimateButtonText,
-  Title
+  TimeEstimateButtonText
 } from './TaskHeader-style'
-import React, { useCallback, useRef } from 'react'
-import { collapseBody, expandBody, hideDatePicker, hideTimeEstimate, removeTaskByID, showDatePicker, showTimeEstimate } from '../../redux/tasksPageSlice'
-import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-
-import DatePicker from './HeaderOptions/DatePicker'
-import { Duration } from 'luxon'
 import { LogEvents } from '../../helpers/enums'
-import { TTask } from '../../helpers/types'
+import { Duration } from 'luxon'
+
 import TimeEstimate from './HeaderOptions/TimeEstimatePicker'
-import { useFetchTasks } from './TasksPage'
+import DatePicker from './HeaderOptions/DatePicker'
 
 function Domino(): JSX.Element {
   return (
