@@ -1,14 +1,15 @@
 import * as styles from './TaskCreate-style'
 
 import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
-import { useFetchTasks } from './TasksPage'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+
+import { LogEvents } from '../../helpers/enums'
 import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
 import { setShowCreateTaskForm } from '../../redux/tasksPageSlice'
-import { LogEvents } from '../../helpers/enums'
+import { useFetchTasks } from './TasksPage'
 
 export default function TaskCreate(): JSX.Element {
     const showCreateTaskForm = useAppSelector((state) => state.tasks_page.tasks.show_create_task_form)
@@ -24,6 +25,12 @@ export default function TaskCreate(): JSX.Element {
         dispatch(setShowCreateTaskForm(false))
         logEvent(LogEvents.HIDE_TASK_CREATE_FORM)
     }, [])
+
+    const titleRef = useRef<HTMLInputElement>(null)
+
+    useEffect(() => {
+        titleRef.current?.focus()
+    })
 
     return <>
         {showCreateTaskForm && <>
@@ -65,6 +72,7 @@ export default function TaskCreate(): JSX.Element {
                             value={title}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
                             onKeyDown={e => e.stopPropagation()}
+                            ref={titleRef}
                         />
                     </styles.Form>
                     <styles.Side>
