@@ -135,6 +135,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           onBlur={(e) => handleTitleBlur(e)}
           onKeyPress={(e) => handleTitleKeyPress(e)}
           defaultValue={props.task.title}
+          // to prevent inputs from triggering keyboard shortcuts
           onKeyDown={e => e.stopPropagation()} />
       </HeaderLeft>
       <HeaderRight>

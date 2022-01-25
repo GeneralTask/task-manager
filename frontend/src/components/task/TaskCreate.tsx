@@ -71,6 +71,7 @@ export default function TaskCreate(): JSX.Element {
                             placeholder='Describe Task'
                             value={title}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
+                            // to prevent inputs from triggering keyboard shortcuts
                             onKeyDown={e => e.stopPropagation()}
                             ref={titleRef}
                         />
