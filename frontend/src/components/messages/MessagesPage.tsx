@@ -7,11 +7,13 @@ import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setMessages, setMessagesFetchStatus } from '../../redux/messagesPageSlice'
 import { setShowCalendarSidebar } from '../../redux/tasksPageSlice'
+import EventAlert from '../alert/EventAlert'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import ExpandCollapse from '../common/ExpandCollapse'
 import Navbar from '../Navbar'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
+import RefreshButton from '../task/RefreshButton'
 import Message from './Message'
 
 const MessagesPageContainer = styled.div`
@@ -26,20 +28,31 @@ const MessagesContentContainer = styled.div`
     align-items: center;
     width: 100%;
     min-width: 600px;
-    padding-top: 10px;
     flex: 1;
     overflow-y: auto;
     position: relative;
 `
+// const Header = styled.div`
+//     display: flex;
+//     font-size: 32px;
+//     margin-bottom: 24px;
+//     width: 60%;
+//     align-self: center;
+//     justify-content: flex-start;
+//     position: relative;
+//     min-width: 500px;
+// `
 const Header = styled.div`
     display: flex;
-    font-size: 32px;
     margin-bottom: 24px;
     width: 60%;
     align-self: center;
     justify-content: flex-start;
     position: relative;
     min-width: 500px;
+`
+const HeaderText = styled.div`
+    font-size: 32px;
 `
 const TopBanner = styled.div`
     display: flex;
@@ -99,7 +112,10 @@ function Messages(): JSX.Element {
             <TopBanner>
                 <CollapseCalendarSidebar />
             </TopBanner>
-            <Header>Messages</Header>
+            <Header>
+                <HeaderText>Messages</HeaderText>
+                <RefreshButton />
+            </Header>
             {messages_array && messages_array.map((message, index) => (
                 <Message message={message} key={index} />
             ))}
@@ -112,7 +128,9 @@ const MessagesPage: React.FC = () => {
     return (
         <MessagesPageContainer>
             <Navbar currentPage={NavbarPages.MESSAGES_PAGE} />
-            <Messages />
+            <EventAlert>
+                <Messages />
+            </EventAlert>
             {calendarSidebarShown && <CalendarSidebar />}
         </MessagesPageContainer>
     )
