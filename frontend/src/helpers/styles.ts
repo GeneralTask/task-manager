@@ -39,6 +39,8 @@ export const BORDER_PRIMARY_HOVER = '#0062cc'
 export const TASKS_BACKROUND = '#F8F8F8'
 export const TASKS_BACKGROUND_GRADIENT = '#F6F4FE'
 export const ICON_HOVER = '#F4F4F5'
+
+export const TOOLSTIP_HEIGHT = '25px'
 export const TOOLSTIP_BACKGROUND = '#FFFFFF'
 export const TOOLSTIP_OPACITY = '.95'
 export const TOOLSTIP_SHADOW = '0px 4px 20px rgba(43, 43, 43, 0.08)'

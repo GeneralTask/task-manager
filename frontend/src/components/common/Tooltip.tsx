@@ -1,17 +1,17 @@
 import React from 'react'
 import styled from 'styled-components'
-import { TOOLSTIP_BACKGROUND, TOOLSTIP_OPACITY, TOOLSTIP_SHADOW } from '../../helpers/styles'
+import { TOOLSTIP_BACKGROUND, TOOLSTIP_OPACITY, TOOLSTIP_SHADOW, TOOLSTIP_HEIGHT } from '../../helpers/styles'
 
 const RelativeDiv = styled.div`
     position: relative;
     height: fit-content;
 `
 const TooltipContainer = styled.div<{ show: boolean, direction: string }>`
-    --tooltip-height: 20px;
-    --tooltip-spacing: 5px;
+    --tooltip-spacing: 25px;
     visibility: ${props => props.show ? 'visible' : 'hidden'};
-    height: var(--tooltip-height);
+    height: ${TOOLSTIP_HEIGHT};
     width: max-content;
+    line-height: ${TOOLSTIP_HEIGHT};
     padding: 6px 6px 6px 8px;
     position: absolute;
     pointer-events: none;
@@ -36,7 +36,10 @@ const TooltipContainer = styled.div<{ show: boolean, direction: string }>`
         `transparent transparent ${TOOLSTIP_BACKGROUND} transparent `};
         opacity: ${TOOLSTIP_OPACITY};
     }
-    ${props => props.direction === 'above' ? 'top: calc((var(--tooltip-height) + var(--tooltip-spacing)) * -1);' : 'top: calc(100% + var(--tooltip-height));'}
+    ${props => props.direction === 'above' ?
+        'top: calc(var(--tooltip-spacing) * -1)' :
+        'top: calc(100% + var(--tooltip-spacing))'
+    };
 `
 interface TooltipProps {
     children: JSX.Element | JSX.Element[],
@@ -53,9 +56,7 @@ function Tooltip(props: TooltipProps): JSX.Element {
         }, 1000)
     }
     const hideToolTip = () => {
-        if (timeout) {
-            clearTimeout(timeout)
-        }
+        if (timeout) { clearTimeout(timeout) }
         setShow(false)
     }
     return <RelativeDiv onMouseEnter={showToolTip} onMouseLeave={hideToolTip}>
