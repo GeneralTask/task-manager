@@ -32,6 +32,16 @@ const MessagesContentContainer = styled.div`
     overflow-y: auto;
     position: relative;
 `
+// const Header = styled.div`
+//     display: flex;
+//     font-size: 32px;
+//     margin-bottom: 24px;
+//     width: 60%;
+//     align-self: center;
+//     justify-content: flex-start;
+//     position: relative;
+//     min-width: 500px;
+// `
 const Header = styled.div`
     display: flex;
     margin-bottom: 24px;
