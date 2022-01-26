@@ -31,6 +31,7 @@ export const ButtonRight = styled.div`
 export const ButtonIcon = styled.img`
   width: 100%;
   height: 100%;
+  display: block;
 `
 export const DueDateButtonText = styled.div`
   font-size: 12px;

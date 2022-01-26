@@ -5,6 +5,7 @@ import { TOOLSTIP_BACKGROUND, TOOLSTIP_OPACITY, TOOLSTIP_SHADOW, TOOLSTIP_HEIGHT
 const RelativeDiv = styled.div`
     position: relative;
     height: fit-content;
+    width: 100%;
 `
 const TooltipContainer = styled.div<{ show: boolean, direction: string }>`
     --tooltip-spacing: 25px;
@@ -59,7 +60,7 @@ function Tooltip(props: TooltipProps): JSX.Element {
         if (timeout) { clearTimeout(timeout) }
         setShow(false)
     }
-    return <RelativeDiv onMouseEnter={showToolTip} onMouseLeave={hideToolTip}>
+    return <RelativeDiv onMouseOver={showToolTip} onMouseOut={hideToolTip}>
         {props.children}
         <TooltipContainer show={show} direction={props.placement || 'above'} >{props.text}</TooltipContainer>
     </RelativeDiv>
