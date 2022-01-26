@@ -7,7 +7,7 @@ import { useAppDispatch } from '../../../redux/hooks'
 import { hideDatePicker } from '../../../redux/tasksPageSlice'
 import { useFetchTasks } from '../TasksPage'
 
-import { BottomBar, PickerContainer, TopNav, MonthContainer, Icon, MonthYearHeader, HoverButton } from './DatePicker-style'
+import { BottomBar, PickerContainer, TopNav, MonthContainer, Icon, MonthYearHeader, HoverButton, DayLabel, WeekDayTable, WeekDay, BottomDateView, CurrentDateText, DayTable } from './DatePicker-style'
 
 interface DatePickerProps {
     task_id: string
@@ -38,14 +38,14 @@ export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
             weekDays.push(
                 <td key={curDay}>
                     <HoverButton onClick={hoverButtonClick}>
-                        {day.day}
+                        <DayLabel>{day.day}</DayLabel>
                     </HoverButton>
                 </td>
             )
         }
         return weekDays
     }
-    
+
     const getFullMonth = (): JSX.Element => {
         const weeks: JSX.Element[] = []
         const startDayOfMonth = date.startOf('month')
@@ -64,16 +64,20 @@ export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
     const monthTable = (): JSX.Element => {
         const days = Info.weekdays('narrow') // ['M', 'T', 'W', 'T', 'F', 'S', 'S']
         return (
-            <table>
-                <thead>
-                    <tr key={'header'}>
-                        {days.map((day, index) => <th key={index}>{day}</th>)}
-                    </tr>
-                </thead>
-                <tbody>
-                    {getFullMonth()}
-                </tbody>
-            </table>
+            <MonthContainer>
+                <WeekDayTable>
+                    <thead>
+                        <tr key={'header'}>
+                            {days.map((day, index) => <WeekDay key={index}>{day}</WeekDay>)}
+                        </tr>
+                    </thead>
+                </WeekDayTable>
+                <DayTable>
+                    <tbody>
+                        {getFullMonth()}
+                    </tbody>
+                </DayTable>
+            </MonthContainer>
         )
     }
 
@@ -94,8 +98,18 @@ export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
                     <Icon src={`${process.env.PUBLIC_URL}/images/CaretRight.svg`} alt="Next Month" />
                 </HoverButton>
             </TopNav>
-            <MonthContainer>{monthTable()}</MonthContainer>
-            <BottomBar />
+            {monthTable()}
+            <BottomBar>
+                <BottomDateView>
+                    <Icon src={`${process.env.PUBLIC_URL}/images/CalendarBlank.svg`} />
+                    <CurrentDateText>{date.toLocaleString()}</CurrentDateText>
+                    <HoverButton onClick={(e) => {
+                        e.stopPropagation()
+                    }}>
+                        <Icon src={`${process.env.PUBLIC_URL}/images/Close.svg`} />
+                    </HoverButton>
+                </BottomDateView>
+            </BottomBar>
         </PickerContainer>
     )
 }
