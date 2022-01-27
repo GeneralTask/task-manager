@@ -5,7 +5,6 @@ import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
 import { logEvent, makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import {
     setShowCalendarSidebar,
-    setShowCreateTaskForm,
     setTasks,
     setTasksFetchStatus,
 } from '../../redux/tasksPageSlice'
@@ -138,7 +137,7 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
             <Header>
                 <HeaderText>{headerText}</HeaderText>
                 <RefreshButton />
-                <CreateNewTaskButton />
+                {/* <CreateNewTaskButton /> */}
             </Header>
             <TaskStatus />
             {TaskSectionElement}
@@ -154,29 +153,29 @@ const CollapseCalendarSidebar = React.memo(() => {
     } else return <></>
 })
 
-function CreateNewTaskButton(): JSX.Element {
-    const { showButton } = useAppSelector((state) => ({
-        showButton:
-            state.tasks_page.tasks.task_sections.length !== 0 ||
-            state.tasks_page.tasks.fetch_status !== FetchStatusEnum.LOADING,
-    }))
-    const dispatch = useAppDispatch()
+// function CreateNewTaskButton(): JSX.Element {
+//     const { showButton } = useAppSelector((state) => ({
+//         showButton:
+//             state.tasks_page.tasks.task_sections.length !== 0 ||
+//             state.tasks_page.tasks.fetch_status !== FetchStatusEnum.LOADING,
+//     }))
+//     const dispatch = useAppDispatch()
 
-    const onClick = useCallback(() => {
-        dispatch(setShowCreateTaskForm(true))
-        logEvent(LogEvents.SHOW_TASK_CREATE_FORM)
-    }, [])
+//     const onClick = useCallback(() => {
+//         dispatch(setShowCreateTaskForm(true))
+//         logEvent(LogEvents.SHOW_TASK_CREATE_FORM)
+//     }, [])
 
-    return (
-        <BtnContainer>
-            {showButton && (
-                <NewTaskButton onClick={onClick}>
-                    <PlusImage src={`${process.env.PUBLIC_URL}/images/plus.svg`} alt="create new task" />
-                </NewTaskButton>
-            )}
-        </BtnContainer>
-    )
-}
+//     return (
+//         <BtnContainer>
+//             {showButton && (
+//                 <NewTaskButton onClick={onClick}>
+//                     <PlusImage src={`${process.env.PUBLIC_URL}/images/plus.svg`} alt="create new task" />
+//                 </NewTaskButton>
+//             )}
+//         </BtnContainer>
+//     )
+// }
 
 export default function TasksPage(): JSX.Element {
     useKeyboardShortcuts()

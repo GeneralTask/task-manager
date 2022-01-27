@@ -1,9 +1,9 @@
-import { BORDER_PRIMARY, TEXT_LIGHTGRAY, BACKGROUND_WHITE, device, SHADOW_PRIMARY } from '../../helpers/styles'
+import { BORDER_PRIMARY, TEXT_LIGHTGRAY, BACKGROUND_WHITE, device, SHADOW_PRIMARY, TEXT_GRAY, TEXT_DARKGRAY, BACKGROUND_PRIMARY } from '../../helpers/styles'
 
 import styled from 'styled-components'
 
 export const OuterContainer = styled.div`
-    margin: 20px 0;
+    margin-top: 20px;
 `
 export const Side = styled.div`
     width: 15%;
@@ -17,8 +17,12 @@ export const Form = styled.form`
     display: flex;
     min-width: 500px;
     align-items: center;
-    box-shadow: ${SHADOW_PRIMARY};
-    background-color: ${BACKGROUND_WHITE};
+    /* box-shadow: ${SHADOW_PRIMARY}; */
+    background-color: rgba(24, 24, 27, 0.03);
+    &:hover,:focus-within {
+        box-shadow: ${SHADOW_PRIMARY};
+        background-color: rgba(43, 43, 43, 0.08);
+    }
     border-radius: 12px;
     flex-wrap: wrap;
     width: 70%;
@@ -31,11 +35,12 @@ export const Input = styled.input`
     font-size: 16px;
     outline: none;
     border: none;
+    background: none;
     width: 100%;
     height: 32px;
     padding: 8px 16px;
     &::placeholder {
-        color: ${TEXT_LIGHTGRAY};
+        color: ${TEXT_DARKGRAY};
     }
 `
 export const InputTitle = styled(Input)`
@@ -47,36 +52,10 @@ export const InputTitle = styled(Input)`
         border-bottom: none;
     }
 `
-export const InputTimeEstimate = styled(Input)`
-    width: 100%;
-    border-bottom: 1px solid ${BORDER_PRIMARY};
-    @media ${device.mobile} {
-        width: 25%;
-        border-bottom: none;
-        border-right: 1px solid ${BORDER_PRIMARY};
-    }
-`
-export const InputDueDate = styled(Input)`
-    width: 60%;
-    @media ${device.mobile} {
-        width: 15%;
-    }
-`
-export const SaveBtnDiv = styled.div`
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    height: 100%;
-    width: 20%;
-    margin-right: 6px;
-    @media ${device.mobile} {
-        width: 10%;
-    }
-`
 export const PlusIcon = styled.img`
-    width: 24px;
-    height: 24px;
-    margin-left: 8px;
+    width: 20px;
+    height: 20px;
+    margin-left: 12px;
 `
 export const ErrorContainer = styled.div`
     color: red;
