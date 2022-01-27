@@ -18,8 +18,6 @@ import {
   CalendarIconContainer,
   CalendarIcon,
   DragHandler,
-  DominoContainer,
-  DominoDot,
   DoneButton,
   ButtonRight,
   ButtonIcon,
@@ -31,18 +29,8 @@ import { Duration } from 'luxon'
 
 import TimeEstimate from './HeaderOptions/TimeEstimatePicker'
 import DatePicker from './HeaderOptions/DatePicker'
+import Domino from '../common/Domino'
 
-function Domino(): JSX.Element {
-  return (
-    <DominoContainer data-testid="domino-handler">
-      {Array(6)
-        .fill(0)
-        .map((_, index) => (
-          <DominoDot key={index} />
-        ))}
-    </DominoContainer>
-  )
-}
 interface TaskHeaderProps {
   task: TTask
   dragDisabled: boolean
