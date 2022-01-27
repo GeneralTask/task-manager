@@ -5,6 +5,7 @@ import React, { useCallback } from 'react'
 import { useAppSelector } from '../../redux/hooks'
 import { useFetchTasks } from './TasksPage'
 import { logEvent } from '../../helpers/utils'
+import { useFetchMessages } from '../messages/MessagesPage'
 
 const spin = keyframes`
     from {
@@ -28,9 +29,11 @@ const Container = styled.div`
 const RefreshButton = (): JSX.Element => {
     const isLoading = useAppSelector((state) => state.tasks_page.tasks.fetch_status) === FetchStatusEnum.LOADING
     const fetchTasks = useFetchTasks()
+    const fetchMessages = useFetchMessages()
 
     const refresh = useCallback(() => {
         fetchTasks()
+        fetchMessages()
         logEvent(LogEvents.MANUAL_TASKS_REFRESH_CLICK)
     }, [])
 
