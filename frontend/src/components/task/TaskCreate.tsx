@@ -71,7 +71,7 @@ export default function TaskCreate(): JSX.Element {
                         onKeyDown={e => e.stopPropagation()}
                         ref={titleRef}
                     />
-                    <styles.KeyboardShortcutContainer>N</styles.KeyboardShortcutContainer>
+                    <styles.KeyboardShortcutContainer>n</styles.KeyboardShortcutContainer>
                 </styles.Form>
                 <styles.Side />
             </styles.InnerContainer >
