@@ -30,6 +30,7 @@
         "@reduxjs/toolkit": "^1.7.1",
         "chokidar": "^3.5.1",
         "chrono-node": "^2.3.4",
+        "gaxios": "^4.3.2",
         "googleapis": "^92.0.0",
         "humanize-duration": "^3.27.0",
         "js-cookie": "^2.2.1",
