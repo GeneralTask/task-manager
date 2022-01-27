@@ -1,7 +1,7 @@
 import * as styles from './TaskCreate-style'
 
 import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
@@ -64,13 +64,14 @@ export default function TaskCreate(): JSX.Element {
                 }}>
                     <styles.PlusIcon src={`${process.env.PUBLIC_URL}/images/plus.svg`} />
                     <styles.InputTitle
-                        placeholder='Describe Task'
+                        placeholder='Add new task'
                         value={title}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
                         // to prevent inputs from triggering keyboard shortcuts
                         onKeyDown={e => e.stopPropagation()}
                         ref={titleRef}
                     />
+                    <styles.KeyboardShortcutContainer>N</styles.KeyboardShortcutContainer>
                 </styles.Form>
                 <styles.Side />
             </styles.InnerContainer >

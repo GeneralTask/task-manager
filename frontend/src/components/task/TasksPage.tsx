@@ -1,8 +1,8 @@
-import { AbortID, FetchStatusEnum, LogEvents } from '../../helpers/enums'
+import { AbortID, FetchStatusEnum } from '../../helpers/enums'
 import { Navigate, useParams } from 'react-router-dom'
 import React, { useCallback, useEffect } from 'react'
 import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
-import { logEvent, makeAuthorizedRequest, useInterval } from '../../helpers/utils'
+import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import {
     setShowCalendarSidebar,
     setTasks,
@@ -44,23 +44,6 @@ const Header = styled.div`
 `
 const HeaderText = styled.div`
     font-size: 32px;
-`
-const BtnContainer = styled.div`
-    position: absolute;
-    right: 0;
-    display: flex;
-    justify-content: flex-end;
-    height: 100%;
-`
-const NewTaskButton = styled.button`
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    background-color: transparent;
-`
-const PlusImage = styled.img`
-    height: 100%;
-    width: 100%;
 `
 const TopBanner = styled.div`
     display: flex;
@@ -152,30 +135,6 @@ const CollapseCalendarSidebar = React.memo(() => {
         return <ExpandCollapse direction="left" onClick={() => dispatch(setShowCalendarSidebar(true))} />
     } else return <></>
 })
-
-// function CreateNewTaskButton(): JSX.Element {
-//     const { showButton } = useAppSelector((state) => ({
-//         showButton:
-//             state.tasks_page.tasks.task_sections.length !== 0 ||
-//             state.tasks_page.tasks.fetch_status !== FetchStatusEnum.LOADING,
-//     }))
-//     const dispatch = useAppDispatch()
-
-//     const onClick = useCallback(() => {
-//         dispatch(setShowCreateTaskForm(true))
-//         logEvent(LogEvents.SHOW_TASK_CREATE_FORM)
-//     }, [])
-
-//     return (
-//         <BtnContainer>
-//             {showButton && (
-//                 <NewTaskButton onClick={onClick}>
-//                     <PlusImage src={`${process.env.PUBLIC_URL}/images/plus.svg`} alt="create new task" />
-//                 </NewTaskButton>
-//             )}
-//         </BtnContainer>
-//     )
-// }
 
 export default function TasksPage(): JSX.Element {
     useKeyboardShortcuts()

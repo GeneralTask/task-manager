@@ -1,4 +1,4 @@
-import { BORDER_PRIMARY, TEXT_LIGHTGRAY, BACKGROUND_WHITE, device, SHADOW_PRIMARY, TEXT_GRAY, TEXT_DARKGRAY, BACKGROUND_PRIMARY } from '../../helpers/styles'
+import { BACKGROUND_WHITE, device, SHADOW_PRIMARY, TEXT_DARKGRAY } from '../../helpers/styles'
 
 import styled from 'styled-components'
 
@@ -36,7 +36,6 @@ export const Input = styled.input`
     outline: none;
     border: none;
     background: none;
-    width: 100%;
     height: 32px;
     padding: 8px 16px;
     &::placeholder {
@@ -44,13 +43,9 @@ export const Input = styled.input`
     }
 `
 export const InputTitle = styled(Input)`
-    width: 100%;
+    flex-grow: 1;
     border-bottom: none;
     border-radius: 12px;
-    @media ${device.mobile} {
-        width: 100%;
-        border-bottom: none;
-    }
 `
 export const PlusIcon = styled.img`
     width: 20px;
@@ -79,4 +74,25 @@ export const CloseButton = styled.img`
     display: flex;
     align-items: center;
     padding-left: 8px;
+`
+export const KeyboardShortcutContainer = styled.div`
+    height: 24px;
+    width: 24px;
+    display: flex;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06);
+    margin-right: 12px;
+    border-radius: 5px;
+
+    font-family: Space Grotesk;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 16px;
+    color: #A1A1AA;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 `
