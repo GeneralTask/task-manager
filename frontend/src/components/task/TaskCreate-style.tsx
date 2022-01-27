@@ -1,4 +1,4 @@
-import { BACKGROUND_WHITE, device, SHADOW_PRIMARY, TEXT_DARKGRAY } from '../../helpers/styles'
+import { device, SHADOW_PRIMARY, TEXT_DARKGRAY } from '../../helpers/styles'
 
 import styled from 'styled-components'
 
