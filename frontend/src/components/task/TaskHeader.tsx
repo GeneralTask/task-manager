@@ -181,7 +181,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           </ButtonRight>
 
           {time_estimate === props.task.id && <TimeEstimate task_id={props.task.id} />}
-          {date_picker === props.task.id && <DatePicker task_id={props.task.id} />}
+          {date_picker === props.task.id && <DatePicker task_id={props.task.id} due_date={props.task.due_date} />}
         </>}
 
         <DeadlineIndicator>
