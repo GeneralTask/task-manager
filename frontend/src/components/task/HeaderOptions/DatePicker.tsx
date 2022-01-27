@@ -115,7 +115,7 @@ export default function DatePicker({ task_id, due_date }: DatePickerProps): JSX.
                         setDate(DateTime.fromMillis(1))
                         editDueDate(task_id, DateTime.fromMillis(1).toISO(), dispatch, fetchTasks)
                     }}>
-                        <Icon src={`${process.env.PUBLIC_URL}/images/Close.svg`} />
+                        <Icon src={`${process.env.PUBLIC_URL}/images/close.svg`} />
                     </HoverButton>
                 </BottomDateView>
             </BottomBar>
