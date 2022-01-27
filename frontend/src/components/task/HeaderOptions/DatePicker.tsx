@@ -107,9 +107,13 @@ export default function DatePicker({ task_id, due_date }: DatePickerProps): JSX.
             <BottomBar>
                 <BottomDateView>
                     <Icon src={`${process.env.PUBLIC_URL}/images/CalendarBlank.svg`} />
-                    <CurrentDateText>{currentDueDate.toLocaleString()}</CurrentDateText>
+                    <CurrentDateText>
+                        {currentDueDate.isValid ? currentDueDate.toLocaleString() : 'MM/DD/YYYY'}
+                    </CurrentDateText>
                     <HoverButton isToday={false} isSelected={false} onClick={(e) => {
                         e.stopPropagation()
+                        setDate(DateTime.fromMillis(1))
+                        editDueDate(task_id, DateTime.fromMillis(1).toISO(), dispatch, fetchTasks)
                     }}>
                         <Icon src={`${process.env.PUBLIC_URL}/images/Close.svg`} />
                     </HoverButton>

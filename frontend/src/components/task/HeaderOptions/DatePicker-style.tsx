@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { TEXT_DARKGRAY, DIVIDER_LIGHTGRAY, ICON_HOVER, TEXT_GRAY, TEXT_LIGHTGRAY } from '../../../helpers/styles'
+import { TEXT_DARKGRAY, DIVIDER_LIGHTGRAY, ICON_HOVER, TEXT_GRAY } from '../../../helpers/styles'
 
 export const PickerContainer = styled.div`
     display: block;
@@ -66,7 +66,6 @@ export const MonthYearHeader = styled.div`
     color: ${TEXT_DARKGRAY};
 `
 export const HoverButton = styled.button<{ isToday: boolean, isSelected: boolean }>`
-    background: ${props => props.isSelected ? '#5C31D7' : props.isToday ? '#FF000022' : 'transparent'};
     height: 30px;
     width: 30px;
     cursor: pointer;
@@ -77,8 +76,9 @@ export const HoverButton = styled.button<{ isToday: boolean, isSelected: boolean
     border-radius: 50%;
     display: flex;
     &:hover {
-        background: ${ICON_HOVER};
+        background: ${props => props.isSelected ? '#5C31D7' : props.isToday ? '#FF000022' : ICON_HOVER};
     }
+    background: ${props => props.isSelected ? '#5C31D7' : props.isToday ? '#FF000022' : 'transparent'};
 `
 export const DayLabel = styled.span<{ grayed: boolean, isSelected: boolean }>`
     position: static;
