@@ -120,7 +120,6 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
             <Header>
                 <HeaderText>{headerText}</HeaderText>
                 <RefreshButton />
-                {/* <CreateNewTaskButton /> */}
             </Header>
             <TaskStatus />
             {TaskSectionElement}

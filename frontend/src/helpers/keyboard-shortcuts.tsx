@@ -6,7 +6,6 @@ import { setFocusCreateTaskForm } from '../redux/tasksPageSlice'
 
 const keyboardShortcuts = new Map<string, (dispatch: Dispatch) => void>([
     ['n', (dispatch) => dispatch(setFocusCreateTaskForm(true))],
-    // TODO: Focus new task creation form on 'n'
 ])
 
 function handleKeyboardShortcuts(e: KeyboardEvent, dispatch: Dispatch): void {
