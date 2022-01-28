@@ -22,7 +22,6 @@ import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import { useKeyboardShortcuts } from '../../helpers/keyboard-shortcuts'
-import Tooltip from '../common/Tooltip'
 
 
 const TasksPageContainer = styled.div`
