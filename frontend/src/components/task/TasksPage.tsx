@@ -9,7 +9,6 @@ import {
     setTasksFetchStatus,
 } from '../../redux/tasksPageSlice'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import EventAlert from '../alert/EventAlert'
 import ExpandCollapse from '../common/ExpandCollapse'
@@ -23,6 +22,8 @@ import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import { useKeyboardShortcuts } from '../../helpers/keyboard-shortcuts'
+import Tooltip from '../common/Tooltip'
+
 
 const TasksPageContainer = styled.div`
     display: flex;

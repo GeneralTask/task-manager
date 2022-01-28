@@ -40,6 +40,11 @@ export const TASKS_BACKROUND = '#F8F8F8'
 export const TASKS_BACKGROUND_GRADIENT = '#F6F4FE'
 export const ICON_HOVER = '#F4F4F5'
 
+export const TOOLTIPS_HEIGHT = '25px'
+export const TOOLTIPS_BACKGROUND = '#FFFFFF'
+export const TOOLTIPS_OPACITY = '.95'
+export const TOOLTIPS_SHADOW = '0px 4px 20px rgba(43, 43, 43, 0.08)'
+
 export const DIVIDER_LIGHTGRAY = '#DDDDDD'
 
 export const BORDER_PRIMARY = '#cccccc'

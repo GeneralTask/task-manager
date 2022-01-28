@@ -1,14 +1,20 @@
 import styled from 'styled-components'
-import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, DOMINO_COLOR, TEXT_GRAY } from '../../helpers/styles'
+import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 
+export const DoneButtonContainer = styled.div`
+  margin-left: 12px;
+`
 export const DoneButton = styled.img`
+  display: block;
   width: 24px;
   height: 24px;
   flex: none;
   order: 0;
   flex-grow: 0;
-  margin-left: 12px;
   cursor: pointer;
+`
+export const ButtonRightContainer = styled.div`
+  margin-right: 9px;
 `
 export const ButtonRight = styled.div`
   min-width: 20px;
@@ -16,7 +22,6 @@ export const ButtonRight = styled.div`
   flex: none;
   order: 0;
   flex-grow: 0;
-  margin-right: 9px;
   cursor: pointer;
   &:hover {
     background-color: ${BACKGROUND_HOVER};
@@ -26,6 +31,7 @@ export const ButtonRight = styled.div`
 export const ButtonIcon = styled.img`
   width: 100%;
   height: 100%;
+  display: block;
 `
 export const DueDateButtonText = styled.div`
   font-size: 12px;
@@ -117,21 +123,6 @@ export const DragHandler = styled.div`
     margin-right: 4px;
     height: 40%;
     display: inline;
-`
-export const DominoContainer = styled.div`
-    height: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    width: 10px;
-    align-items: center;
-    margin-left: 12px;
-`
-export const DominoDot = styled.div`
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background-color: ${DOMINO_COLOR};
-    margin: 1px;
 `
 export const Icon = styled.img`
     max-width: 19px;

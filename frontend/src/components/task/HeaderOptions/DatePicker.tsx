@@ -7,15 +7,17 @@ import { useAppDispatch } from '../../../redux/hooks'
 import { hideDatePicker } from '../../../redux/tasksPageSlice'
 import { useFetchTasks } from '../TasksPage'
 
-import { BottomBar, PickerContainer, TopNav, MonthContainer, Icon, MonthYearHeader, HoverButton } from './DatePicker-style'
+import { BottomBar, PickerContainer, TopNav, MonthContainer, Icon, MonthYearHeader, HoverButton, DayLabel, WeekDayTable, WeekDay, BottomDateView, CurrentDateText, DayTable } from './DatePicker-style'
 
 interface DatePickerProps {
     task_id: string
+    due_date: string
 }
-export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
+export default function DatePicker({ task_id, due_date }: DatePickerProps): JSX.Element {
     const dispatch = useAppDispatch()
     const fetchTasks = useFetchTasks()
     const [date, setDate] = useState<DateTime>(DateTime.local().startOf('month'))
+    const currentDueDate = DateTime.fromISO(due_date)
     const monthyear = date.toLocaleString({ month: 'long', year: 'numeric' }).toUpperCase()
 
     const nextMonth = useCallback(() => setDate(date => {
@@ -35,17 +37,20 @@ export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
                 setDate(day)
                 editDueDate(task_id, day.toISO(), dispatch, fetchTasks)
             }
+            const isToday = day.hasSame(DateTime.local(), 'day')
+            const isThisMonth = day.hasSame(date, 'month')
+            const isSelected = day.hasSame(currentDueDate, 'day')
             weekDays.push(
                 <td key={curDay}>
-                    <HoverButton onClick={hoverButtonClick}>
-                        {day.day}
+                    <HoverButton isToday={isToday} isSelected={isSelected} onClick={hoverButtonClick}>
+                        <DayLabel grayed={!isThisMonth} isSelected={isSelected} >{day.day}</DayLabel>
                     </HoverButton>
                 </td>
             )
         }
         return weekDays
     }
-    
+
     const getFullMonth = (): JSX.Element => {
         const weeks: JSX.Element[] = []
         const startDayOfMonth = date.startOf('month')
@@ -64,38 +69,56 @@ export default function DatePicker({ task_id }: DatePickerProps): JSX.Element {
     const monthTable = (): JSX.Element => {
         const days = Info.weekdays('narrow') // ['M', 'T', 'W', 'T', 'F', 'S', 'S']
         return (
-            <table>
-                <thead>
-                    <tr key={'header'}>
-                        {days.map((day, index) => <th key={index}>{day}</th>)}
-                    </tr>
-                </thead>
-                <tbody>
-                    {getFullMonth()}
-                </tbody>
-            </table>
+            <MonthContainer>
+                <WeekDayTable>
+                    <thead>
+                        <tr key={'header'}>
+                            {days.map((day, index) => <WeekDay key={index}>{day}</WeekDay>)}
+                        </tr>
+                    </thead>
+                </WeekDayTable>
+                <DayTable>
+                    <tbody>
+                        {getFullMonth()}
+                    </tbody>
+                </DayTable>
+            </MonthContainer>
         )
     }
 
     return (
         <PickerContainer onClick={(e) => { e.stopPropagation() }}>
             <TopNav>
-                <HoverButton onClick={(e) => {
+                <HoverButton isToday={false} isSelected={false} onClick={(e) => {
                     e.stopPropagation()
                     prevMonth()
                 }}>
                     <Icon src={`${process.env.PUBLIC_URL}/images/CaretLeft.svg`} alt="Previous Month" />
                 </HoverButton>
                 <MonthYearHeader>{monthyear}</MonthYearHeader>
-                <HoverButton onClick={(e) => {
+                <HoverButton isToday={false} isSelected={false} onClick={(e) => {
                     e.stopPropagation()
                     nextMonth()
                 }}>
                     <Icon src={`${process.env.PUBLIC_URL}/images/CaretRight.svg`} alt="Next Month" />
                 </HoverButton>
             </TopNav>
-            <MonthContainer>{monthTable()}</MonthContainer>
-            <BottomBar />
+            {monthTable()}
+            <BottomBar>
+                <BottomDateView>
+                    <Icon src={`${process.env.PUBLIC_URL}/images/CalendarBlank.svg`} />
+                    <CurrentDateText>
+                        {currentDueDate.isValid ? currentDueDate.toLocaleString() : 'MM/DD/YYYY'}
+                    </CurrentDateText>
+                    <HoverButton isToday={false} isSelected={false} onClick={(e) => {
+                        e.stopPropagation()
+                        setDate(DateTime.fromMillis(1))
+                        editDueDate(task_id, DateTime.fromMillis(1).toISO(), dispatch, fetchTasks)
+                    }}>
+                        <Icon src={`${process.env.PUBLIC_URL}/images/close.svg`} />
+                    </HoverButton>
+                </BottomDateView>
+            </BottomBar>
         </PickerContainer>
     )
 }
