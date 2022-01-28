@@ -56,6 +56,7 @@ export const BACKGROUND_HOVER = '#e3e3e3'
 export const SHADOW_PRIMARY = '0px 0px 10px rgba(0, 0, 0, 0.06)'
 export const SHADOW_EXPANDED = '0px 0px 10px rgba(0, 0, 0, 0.12)'
 export const SHADOW_EVENT_ALERT = '0px 4px 20px rgba(43, 43, 43, 0.08)'
+export const SHADOW_KEYBOARD_SHORTCUT = '0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06)'
 
 export const NoSelect = styled.div`
     -webkit-touch-callout: none; /* iOS Safari */

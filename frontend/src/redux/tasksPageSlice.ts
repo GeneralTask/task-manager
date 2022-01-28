@@ -10,7 +10,7 @@ export interface TasksPageState {
         expanded_body: string | null,
         date_picker: string | null,
         time_estimate: string | null,
-        show_create_task_form: boolean,
+        focus_create_task_form: boolean,
     },
     events: {
         event_list: TEvent[]
@@ -26,7 +26,7 @@ const initialState: TasksPageState = {
         expanded_body: null,
         date_picker: null,
         time_estimate: null,
-        show_create_task_form: false,
+        focus_create_task_form: false,
     },
     events: {
         event_list: [],
@@ -74,8 +74,8 @@ export const tasksPageSlice = createSlice({
         hideTimeEstimate(state) {
             state.tasks.time_estimate = null
         },
-        setShowCreateTaskForm(state, action: PayloadAction<boolean>) {
-            state.tasks.show_create_task_form = action.payload
+        setFocusCreateTaskForm(state, action: PayloadAction<boolean>) {
+            state.tasks.focus_create_task_form = action.payload
         },
 
         // Events
@@ -97,7 +97,7 @@ export const {
     removeTaskByID,
     expandBody,
     collapseBody,
-    setShowCreateTaskForm,
+    setFocusCreateTaskForm,
     showDatePicker,
     hideDatePicker,
     showTimeEstimate,

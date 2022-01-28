@@ -1,11 +1,10 @@
-import { AbortID, FetchStatusEnum, LogEvents } from '../../helpers/enums'
+import { AbortID, FetchStatusEnum } from '../../helpers/enums'
 import { Navigate, useParams } from 'react-router-dom'
 import React, { useCallback, useEffect } from 'react'
 import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
-import { logEvent, makeAuthorizedRequest, useInterval } from '../../helpers/utils'
+import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import {
     setShowCalendarSidebar,
-    setShowCreateTaskForm,
     setTasks,
     setTasksFetchStatus,
 } from '../../redux/tasksPageSlice'
@@ -23,7 +22,6 @@ import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import { useKeyboardShortcuts } from '../../helpers/keyboard-shortcuts'
-import Tooltip from '../common/Tooltip'
 
 
 const TasksPageContainer = styled.div`
@@ -46,25 +44,6 @@ const Header = styled.div`
 `
 const HeaderText = styled.div`
     font-size: 32px;
-`
-const BtnContainer = styled.div`
-    margin-left: auto;
-    display: flex;
-    justify-content: flex-end;
-    height: 100%;
-`
-const NewTaskButtonContainer = styled.div`
-    margin-left: 25px;
-`
-const NewTaskButton = styled.button`
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    background-color: transparent;
-`
-const PlusImage = styled.img`
-    height: 100%;
-    width: 100%;
 `
 const TopBanner = styled.div`
     display: flex;
@@ -141,7 +120,6 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
             <Header>
                 <HeaderText>{headerText}</HeaderText>
                 <RefreshButton />
-                <CreateNewTaskButton />
             </Header>
             <TaskStatus />
             {TaskSectionElement}
@@ -156,35 +134,6 @@ const CollapseCalendarSidebar = React.memo(() => {
         return <ExpandCollapse direction="left" onClick={() => dispatch(setShowCalendarSidebar(true))} />
     } else return <></>
 })
-
-function CreateNewTaskButton(): JSX.Element {
-    const { showButton } = useAppSelector((state) => ({
-        showButton:
-            state.tasks_page.tasks.task_sections.length !== 0 ||
-            state.tasks_page.tasks.fetch_status !== FetchStatusEnum.LOADING,
-    }))
-    const dispatch = useAppDispatch()
-
-    const onClick = useCallback(() => {
-        dispatch(setShowCreateTaskForm(true))
-        logEvent(LogEvents.SHOW_TASK_CREATE_FORM)
-    }, [])
-
-    return (
-        <BtnContainer>
-            {showButton && (
-                <NewTaskButtonContainer>
-                    <Tooltip text='Create New Task' placement='below'>
-                        <NewTaskButton onClick={onClick}>
-                            <PlusImage src={`${process.env.PUBLIC_URL}/images/plus.svg`} alt="create new task" />
-                        </NewTaskButton>
-                    </Tooltip>
-                </NewTaskButtonContainer>
-
-            )}
-        </BtnContainer>
-    )
-}
 
 export default function TasksPage(): JSX.Element {
     useKeyboardShortcuts()

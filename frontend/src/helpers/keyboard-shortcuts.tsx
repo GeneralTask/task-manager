@@ -1,14 +1,15 @@
 import { useCallback, useEffect } from 'react'
 
 import { Dispatch } from '@reduxjs/toolkit'
-import { setShowCreateTaskForm } from '../redux/tasksPageSlice'
 import { useAppDispatch } from '../redux/hooks'
+import { setFocusCreateTaskForm } from '../redux/tasksPageSlice'
 
 const keyboardShortcuts = new Map<string, (dispatch: Dispatch) => void>([
-    ['n', (dispatch) => dispatch(setShowCreateTaskForm(true))],
+    ['n', (dispatch) => dispatch(setFocusCreateTaskForm(true))],
 ])
 
 function handleKeyboardShortcuts(e: KeyboardEvent, dispatch: Dispatch): void {
+    e.preventDefault()
     let keyName = ''
     if (e.ctrlKey) {
         keyName += 'ctrl+'

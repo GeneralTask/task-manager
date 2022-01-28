@@ -60,6 +60,18 @@ const NavbarLink = styled(Link)`
     width: 100%;
     height: 100%;
     cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+`
+const NavbarItemCount = styled.span`
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 0.01em;
+    padding-right: 10px;
+    color: ${TEXT_GRAY};
 `
 const NavbarLogout = styled.div`
     width: 100%;
@@ -176,6 +188,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 link: (
                     <NavbarLink to={'/tasks/today'}>
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.TODAY_PAGE}>Today</NavbarLinkButton>
+                        <NavbarItemCount />
                     </NavbarLink>
                 ),
             },
@@ -186,6 +199,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BLOCKED_PAGE}>
                             Blocked
                         </NavbarLinkButton>
+                        <NavbarItemCount />
                     </NavbarLink>
                 ),
             },
@@ -196,6 +210,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BACKLOG_PAGE}>
                             Backlog
                         </NavbarLinkButton>
+                        <NavbarItemCount />
                     </NavbarLink>
                 ),
             },
@@ -206,6 +221,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.MESSAGES_PAGE}>
                             Messages
                         </NavbarLinkButton>
+                        <NavbarItemCount />
                     </NavbarLink>
                 ),
             },
