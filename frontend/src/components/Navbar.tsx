@@ -94,8 +94,8 @@ const Logo = styled.img`
     padding: 1em;
 `
 const NavbarIcon = styled.img`
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     margin-left: 10px;
 `
 
@@ -190,7 +190,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 page: NavbarPages.TODAY_PAGE,
                 link: (
                     <NavbarLink to={'/tasks/today'}>
-                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/inbox.svg`} />
+                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/tasks.svg`} />
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.TODAY_PAGE}>Today</NavbarLinkButton>
                     </NavbarLink>
                 ),
@@ -219,6 +219,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 page: NavbarPages.MESSAGES_PAGE,
                 link: (
                     <NavbarLink to={MESSAGES_PATH}>
+                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/messages.svg`} />
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.MESSAGES_PAGE}>
                             Messages
                         </NavbarLinkButton>
@@ -229,20 +230,21 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 page: NavbarPages.SETTINGS_PAGE,
                 link: (
                     <NavbarLink to={SETTINGS_PATH}>
+                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/settings.svg`} />
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.SETTINGS_PAGE}>
                             Settings
                         </NavbarLinkButton>
                     </NavbarLink>
                 ),
             },
-            {
-                page: NavbarPages.LOGOUT,
-                link: (
-                    <NavbarLogout onClick={logout}>
-                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.LOGOUT}>Logout</NavbarLinkButton>
-                    </NavbarLogout>
-                ),
-            },
+            // {
+            //     page: NavbarPages.LOGOUT,
+            //     link: (
+            //         <NavbarLogout onClick={logout}>
+            //             <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.LOGOUT}>Logout</NavbarLinkButton>
+            //         </NavbarLogout>
+            //     ),
+            // },
         ]
     const navbarJSXElements = linkElements.map((element) => (
         <NavbarItemDroppableContainer
@@ -251,7 +253,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
             isCurrentPage={currentPage === element.page}
         >
             <NavbarListItem>{element.link}</NavbarListItem>
-        </NavbarItemDroppableContainer>
+        </NavbarItemDroppableContainer >
     ))
     return <NavbarList>{navbarJSXElements}</NavbarList>
 }
