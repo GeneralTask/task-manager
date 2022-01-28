@@ -6,11 +6,12 @@ import { useFetchMessages } from './MessagesPage'
 import { collapseBody, expandBody, removeMessageByID } from '../../redux/messagesPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { LogEvents } from '../../helpers/enums'
-import { DoneButton, HeaderLeft, HeaderRight, TaskHeaderContainer, Title } from '../task/TaskHeader-style'
-import { DONE_BUTTON, MESSAGES_MODIFY_URL } from '../../constants'
+import { ButtonIcon, ButtonRight, ButtonRightContainer, DoneButton, HeaderLeft, HeaderRight, TaskHeaderContainer, Title } from '../task/TaskHeader-style'
+import { DONE_BUTTON, EXPAND_ICON, MESSAGES_MODIFY_URL } from '../../constants'
 import { Action } from '@reduxjs/toolkit'
 import MessageBody from './MessageBody'
 import { DateTime } from 'luxon'
+import Tooltip from '../common/Tooltip'
 
 interface MessageHeaderProps {
     message: TMessage
@@ -44,12 +45,8 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
     return (
         <TaskHeaderContainer hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
             <HeaderLeft>
-                {
-                    props.message.source.is_completable &&
-                    <DoneButton src={DONE_BUTTON} onClick={(e) => {
-                        e.stopPropagation()
-                        onDoneButtonClick()
-                    }} />
+                {props.message.is_unread &&
+                    <UnreadIndicator />
                 }
                 <Icon src={props.message.source.logo} alt="icon"></Icon>
                 <Title isExpanded={props.isExpanded} isEditable={false} defaultValue={props.message.title} disabled={true} />
@@ -58,8 +55,18 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
                 {props.message.sent_at &&
                     <RelativeDate>{DateTime.fromISO(props.message.sent_at).toRelative()}</RelativeDate>
                 }
-                {props.message.is_unread &&
-                    <UnreadIndicator />
+                {
+                    <ButtonRightContainer>
+                        <ButtonRight onClick={(e) => {
+                            e.stopPropagation()
+                            dispatch(props.isExpanded ? collapseBody() : expandBody(props.message.id))
+                        }}>
+                            <Tooltip text={'Expand/Collapse'}>
+                                <ButtonIcon src={EXPAND_ICON} alt="expand" />
+                            </Tooltip>
+
+                        </ButtonRight>
+                    </ButtonRightContainer>
                 }
             </HeaderRight >
         </TaskHeaderContainer >
