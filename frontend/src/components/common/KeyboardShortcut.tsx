@@ -11,7 +11,7 @@ box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06);
 margin-right: 12px;
 border-radius: 5px;
 
-font-family: Space Grotesk;
+font-family: Switzer-Variable;
 font-style: normal;
 font-weight: 500;
 font-size: 12px;
