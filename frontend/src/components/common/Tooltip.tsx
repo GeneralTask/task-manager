@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { TOOLSTIP_BACKGROUND, TOOLSTIP_OPACITY, TOOLSTIP_SHADOW, TOOLSTIP_HEIGHT } from '../../helpers/styles'
+import { TOOLTIPS_BACKGROUND, TOOLTIPS_OPACITY, TOOLTIPS_SHADOW, TOOLTIPS_HEIGHT } from '../../helpers/styles'
 
 const RelativeDiv = styled.div`
     position: relative;
@@ -10,15 +10,15 @@ const RelativeDiv = styled.div`
 const TooltipContainer = styled.div<{ show: boolean, direction: string }>`
     --tooltip-spacing: 25px;
     visibility: ${props => props.show ? 'visible' : 'hidden'};
-    height: ${TOOLSTIP_HEIGHT};
+    height: ${TOOLTIPS_HEIGHT};
     width: max-content;
-    line-height: ${TOOLSTIP_HEIGHT};
+    line-height: ${TOOLTIPS_HEIGHT};
     padding: 6px 6px 6px 8px;
     position: absolute;
     pointer-events: none;
-    box-shadow: ${TOOLSTIP_SHADOW};
-    opacity: ${TOOLSTIP_OPACITY};
-    background-color: ${TOOLSTIP_BACKGROUND};
+    box-shadow: ${TOOLTIPS_SHADOW};
+    opacity: ${TOOLTIPS_OPACITY};
+    background-color: ${TOOLTIPS_BACKGROUND};
     text-align: center;
     border-radius: 6px;
     z-index: 1;
@@ -33,9 +33,9 @@ const TooltipContainer = styled.div<{ show: boolean, direction: string }>`
         border-width: 5px;
         border-style: solid;
         border-color: ${props => props.direction === 'above' ?
-        `${TOOLSTIP_BACKGROUND} transparent transparent transparent ` :
-        `transparent transparent ${TOOLSTIP_BACKGROUND} transparent `};
-        opacity: ${TOOLSTIP_OPACITY};
+        `${TOOLTIPS_BACKGROUND} transparent transparent transparent ` :
+        `transparent transparent ${TOOLTIPS_BACKGROUND} transparent `};
+        opacity: ${TOOLTIPS_OPACITY};
     }
     ${props => props.direction === 'above' ?
         'top: calc(var(--tooltip-spacing) * -1)' :
