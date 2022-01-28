@@ -10,7 +10,6 @@ import {
     setTasksFetchStatus,
 } from '../../redux/tasksPageSlice'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import EventAlert from '../alert/EventAlert'
 import ExpandCollapse from '../common/ExpandCollapse'
@@ -24,6 +23,8 @@ import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import { useKeyboardShortcuts } from '../../helpers/keyboard-shortcuts'
+import Tooltip from '../common/Tooltip'
+
 
 const TasksPageContainer = styled.div`
     display: flex;
@@ -47,11 +48,13 @@ const HeaderText = styled.div`
     font-size: 32px;
 `
 const BtnContainer = styled.div`
-    position: absolute;
-    right: 0;
+    margin-left: auto;
     display: flex;
     justify-content: flex-end;
     height: 100%;
+`
+const NewTaskButtonContainer = styled.div`
+    margin-left: 25px;
 `
 const NewTaskButton = styled.button`
     border: none;
@@ -170,9 +173,14 @@ function CreateNewTaskButton(): JSX.Element {
     return (
         <BtnContainer>
             {showButton && (
-                <NewTaskButton onClick={onClick}>
-                    <PlusImage src={`${process.env.PUBLIC_URL}/images/plus.svg`} alt="create new task" />
-                </NewTaskButton>
+                <NewTaskButtonContainer>
+                    <Tooltip text='Create New Task' placement='below'>
+                        <NewTaskButton onClick={onClick}>
+                            <PlusImage src={`${process.env.PUBLIC_URL}/images/plus.svg`} alt="create new task" />
+                        </NewTaskButton>
+                    </Tooltip>
+                </NewTaskButtonContainer>
+
             )}
         </BtnContainer>
     )
