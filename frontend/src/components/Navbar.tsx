@@ -188,7 +188,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 link: (
                     <NavbarLink to={'/tasks/today'}>
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.TODAY_PAGE}>Today</NavbarLinkButton>
-                        <NavbarItemCount>5</NavbarItemCount>
+                        <NavbarItemCount> </NavbarItemCount>
                     </NavbarLink>
                 ),
             },
@@ -199,7 +199,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BLOCKED_PAGE}>
                             Blocked
                         </NavbarLinkButton>
-                        <NavbarItemCount>5</NavbarItemCount>
+                        <NavbarItemCount> </NavbarItemCount>
                     </NavbarLink>
                 ),
             },
@@ -210,7 +210,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BACKLOG_PAGE}>
                             Backlog
                         </NavbarLinkButton>
-                        <NavbarItemCount>51</NavbarItemCount>
+                        <NavbarItemCount> </NavbarItemCount>
                     </NavbarLink>
                 ),
             },
@@ -221,7 +221,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.MESSAGES_PAGE}>
                             Messages
                         </NavbarLinkButton>
-                        <NavbarItemCount>12</NavbarItemCount>
+                        <NavbarItemCount> </NavbarItemCount>
                     </NavbarLink>
                 ),
             },
