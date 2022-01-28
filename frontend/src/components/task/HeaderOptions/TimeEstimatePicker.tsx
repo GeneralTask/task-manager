@@ -6,7 +6,7 @@ import { useAppDispatch } from '../../../redux/hooks'
 import { hideTimeEstimate } from '../../../redux/tasksPageSlice'
 import { CloseButton } from '../TaskCreate-style'
 import { useFetchTasks } from '../TasksPage'
-import { TopNav } from './DatePicker-style'
+import { TimeInput, TimeInputContainer, TopBar } from './TimeEstimate-style'
 import { TimeEstimateContainer, Header, TimeButton } from './TimeEstimate-style'
 
 
@@ -23,15 +23,13 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
         <TimeEstimateContainer onClick={(e) => {
             e.stopPropagation()
         }}>
-            <TopNav>
-                <Header>Set Duration</Header>
-                <CloseButton src={CLOSE_ICON} alt="close" onClick={
-                    (e) => {
-                        e.stopPropagation()
-                        dispatch(hideTimeEstimate())
-                    }
-                } />
-            </TopNav>
+            <TopBar>
+                <Header>SET DURATION</Header>
+            </TopBar>
+            <TimeInputContainer>
+                <TimeInput type="number" placeholder='HH' />:
+                <TimeInput type="number" placeholder='MM' />
+            </TimeInputContainer>
             {
                 timeValues.map((val, i) => {
                     return (
