@@ -59,6 +59,10 @@ const NavbarListItem = styled.div`
 const NavbarLink = styled(Link)`
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: left;
     cursor: pointer;
     text-decoration: none;
     display: flex;
@@ -79,27 +83,37 @@ const NavbarLogout = styled.div`
     cursor: pointer;
 `
 const NavbarLinkButton = styled.button<{ isCurrentPage: boolean }>`
+    font-family: Switzer-Variable;
     font-style: normal;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 16px;
+
     font-weight: ${(props) => (props.isCurrentPage ? '600' : 'normal')};
-    font-size: 20px;
+    /* font-size: 20px; */
     letter-spacing: 0.01em;
     background-color: inherit;
-    height: 45px;
+    height: 28px;
     color: ${(props) => (props.isCurrentPage ? TEXT_BLACK : TEXT_GRAY)};
     border: none;
     padding-left: 10px;
     cursor: pointer;
 `
-const Icon = styled.img`
+const Logo = styled.img`
     width: 48px;
     height: 48px;
     padding: 1em;
+`
+const NavbarIcon = styled.img`
+    width: 16px;
+    height: 16px;
+    margin-left: 10px;
 `
 
 const NavbarHeader = (): JSX.Element => {
     return (
         <flex.flex>
-            <Icon src={`${process.env.PUBLIC_URL}/images/Logo.svg`} />
+            <Logo src={`${process.env.PUBLIC_URL}/images/Logo.svg`} />
         </flex.flex>
     )
 }
@@ -187,6 +201,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 page: NavbarPages.TODAY_PAGE,
                 link: (
                     <NavbarLink to={'/tasks/today'}>
+                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/inbox.svg`} />
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.TODAY_PAGE}>Today</NavbarLinkButton>
                         <NavbarItemCount />
                     </NavbarLink>
