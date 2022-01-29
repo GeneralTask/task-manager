@@ -112,7 +112,7 @@ const NavbarIcon = styled.img`
 const NavbarHeader = (): JSX.Element => {
     return (
         <flex.flex>
-            <Logo src={`${process.env.PUBLIC_URL}/images/Logo.svg`} />
+            <Logo src={`${process.env.PUBLIC_URL}/images/generaltask.svg`} />
         </flex.flex>
     )
 }
