@@ -59,17 +59,20 @@ const NavbarListItem = styled.div`
 const NavbarLink = styled(Link)`
     width: 100%;
     height: 100%;
-    cursor: pointer;
-    text-decoration: none;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     align-items: center;
+    cursor: pointer;
+    justify-content: left;
+    text-decoration: none;
 `
-const NavbarItemCount = styled.span`
-    font-weight: bold;
-    font-size: 16px;
-    letter-spacing: 0.01em;
+const NavbarItemCountContainer = styled.span`
+    font-family: Switzer-Variable;
+    font-style: normal;
+    font-size: 15px;
+    line-height: 16px;
+    flex-grow: 1;
+    text-align: right;
     padding-right: 10px;
     color: ${TEXT_GRAY};
 `
@@ -79,29 +82,52 @@ const NavbarLogout = styled.div`
     cursor: pointer;
 `
 const NavbarLinkButton = styled.button<{ isCurrentPage: boolean }>`
+    font-family: Switzer-Variable;
     font-style: normal;
+    font-size: 15px;
+    line-height: 16px;
+    flex-grow: 1;
+    text-align: left;
+
     font-weight: ${(props) => (props.isCurrentPage ? '600' : 'normal')};
-    font-size: 20px;
     letter-spacing: 0.01em;
     background-color: inherit;
-    height: 45px;
+    height: 28px;
     color: ${(props) => (props.isCurrentPage ? TEXT_BLACK : TEXT_GRAY)};
     border: none;
     padding-left: 10px;
     cursor: pointer;
 `
-const Icon = styled.img`
+const Logo = styled.img`
     width: 48px;
     height: 48px;
     padding: 1em;
+`
+const NavbarIcon = styled.img`
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
 `
 
 const NavbarHeader = (): JSX.Element => {
     return (
         <flex.flex>
-            <Icon src={`${process.env.PUBLIC_URL}/images/Logo.svg`} />
+            <Logo src={`${process.env.PUBLIC_URL}/images/Logo.svg`} />
         </flex.flex>
     )
+}
+interface NavbarItemCountProps {
+    page: NavbarPages
+}
+const NavbarItemCount = ({ page }: NavbarItemCountProps): JSX.Element => {
+    const { taskSections, messages } = useAppSelector((state) => ({
+        taskSections: state.tasks_page.tasks.task_sections,
+        messages: state.messages_page.messages,
+    }))
+    const currentSection = taskSections.find((section) => page.startsWith(section.name.toLowerCase()))
+    console.log(currentSection)
+    const count = currentSection ? currentSection.tasks.length : page === NavbarPages.MESSAGES_PAGE ? messages.messages_array.length : null
+    return <NavbarItemCountContainer>{count}</NavbarItemCountContainer>
 }
 interface NavbarItemDroppableContainerProps {
     children: ReactElement<typeof NavbarElements>
@@ -187,8 +213,9 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 page: NavbarPages.TODAY_PAGE,
                 link: (
                     <NavbarLink to={'/tasks/today'}>
+                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/tasks.svg`} />
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.TODAY_PAGE}>Today</NavbarLinkButton>
-                        <NavbarItemCount />
+                        <NavbarItemCount page={NavbarPages.TODAY_PAGE} />
                     </NavbarLink>
                 ),
             },
@@ -196,10 +223,11 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 page: NavbarPages.BLOCKED_PAGE,
                 link: (
                     <NavbarLink to={'/tasks/blocked'}>
+                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/tasks.svg`} />
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BLOCKED_PAGE}>
                             Blocked
                         </NavbarLinkButton>
-                        <NavbarItemCount />
+                        <NavbarItemCount page={NavbarPages.BLOCKED_PAGE} />
                     </NavbarLink>
                 ),
             },
@@ -207,10 +235,11 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 page: NavbarPages.BACKLOG_PAGE,
                 link: (
                     <NavbarLink to={'/tasks/backlog'}>
+                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/tasks.svg`} />
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.BACKLOG_PAGE}>
                             Backlog
                         </NavbarLinkButton>
-                        <NavbarItemCount />
+                        <NavbarItemCount page={NavbarPages.BACKLOG_PAGE} />
                     </NavbarLink>
                 ),
             },
@@ -218,10 +247,11 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 page: NavbarPages.MESSAGES_PAGE,
                 link: (
                     <NavbarLink to={MESSAGES_PATH}>
+                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/messages.svg`} />
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.MESSAGES_PAGE}>
                             Messages
                         </NavbarLinkButton>
-                        <NavbarItemCount />
+                        <NavbarItemCount page={NavbarPages.MESSAGES_PAGE} />
                     </NavbarLink>
                 ),
             },
@@ -229,6 +259,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 page: NavbarPages.SETTINGS_PAGE,
                 link: (
                     <NavbarLink to={SETTINGS_PATH}>
+                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/settings.svg`} />
                         <NavbarLinkButton isCurrentPage={currentPage === NavbarPages.SETTINGS_PAGE}>
                             Settings
                         </NavbarLinkButton>
@@ -251,7 +282,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
             isCurrentPage={currentPage === element.page}
         >
             <NavbarListItem>{element.link}</NavbarListItem>
-        </NavbarItemDroppableContainer>
+        </NavbarItemDroppableContainer >
     ))
     return <NavbarList>{navbarJSXElements}</NavbarList>
 }
