@@ -125,7 +125,7 @@ const NavbarItemCount = ({ page }: NavbarItemCountProps): JSX.Element => {
         messages: state.messages_page.messages,
     }))
     const currentSection = taskSections.find((section) => page.startsWith(section.name.toLowerCase()))
-    const count = currentSection ? currentSection.tasks.length : page === NavbarPages.MESSAGES_PAGE ? messages.messages_array.length : null
+    const count = currentSection ? currentSection.tasks.length : page === NavbarPages.MESSAGES_PAGE ? messages.messages_array?.length : null
     return <NavbarItemCountContainer>{count}</NavbarItemCountContainer>
 }
 interface NavbarItemDroppableContainerProps {
