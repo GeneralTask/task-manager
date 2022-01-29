@@ -18,16 +18,18 @@ export const MessageContainer = styled.div<{ isExpanded: boolean }>`
 export const RelativeDate = styled.span`
     color: ${TEXT_GRAY};
     padding: 2px;
+    margin-right: 10px;
 `
 export const UnreadIndicator = styled.span`
     color: red;
     background-color: red;
-    margin: 0 16px 0 5px;
+    margin-left: 14px;
     border-radius: 50%;
-    width: 5px;
-    height: 5px;
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
 `
 export const Icon = styled.img`
     max-width: 19px;
-    margin-left: 16px;
+    margin-left: 14px;
 `
