@@ -188,7 +188,7 @@ var TaskServiceAtlassian = TaskServiceDetails{
 var TaskServiceGeneralTask = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_ATLASSIAN,
 	Name:         "General Task",
-	Logo:         "/images/favicon.ico",
+	Logo:         "/images/generaltask.svg",
 	AuthType:     AuthTypeOauth2,
 	IsLinkable:   false,
 	IsSignupable: false,
@@ -246,7 +246,7 @@ type TaskSourceDetails struct {
 var TaskSourceGeneralTask = TaskSourceDetails{
 	ID:            TASK_SOURCE_ID_GT_TASK,
 	Name:          "General Task",
-	Logo:          "/images/favicon.ico",
+	Logo:          "/images/generaltask.svg",
 	IsCompletable: true,
 	IsCreatable:   true,
 	IsReplyable:   false,
