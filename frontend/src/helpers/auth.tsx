@@ -1,12 +1,14 @@
 import { GoogleLogin, GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 
 // import { OAuth2Client } from 'google-auth-library'
 import { REACT_APP_GOOGLE_OAUTH_CLIENT_ID } from '../constants'
+import { Redirect } from 'react-router-dom'
 import { setAccessToken } from '../redux/userDataSlice'
 import { useAppDispatch } from '../redux/hooks'
 
 export default function GoogleLoginButton() {
+    const [redirect, setRedirect] = useState(false)
     const dispatch = useAppDispatch()
     const onSuccess = useCallback((response: GoogleLoginResponse | GoogleLoginResponseOffline) => {
         try {
@@ -16,9 +18,12 @@ export default function GoogleLoginButton() {
         catch (e) {
             console.log({ e })
         }
+        finally {
+
+        }
     }, [dispatch])
-    if (REACT_APP_GOOGLE_OAUTH_CLIENT_ID == null) {
-        return <></>
+    if (REACT_APP_GOOGLE_OAUTH_CLIENT_ID == null || redirect) {
+        return <Redirect to="/" />
     }
     return <GoogleLogin
         clientId={REACT_APP_GOOGLE_OAUTH_CLIENT_ID}
