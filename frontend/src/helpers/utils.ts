@@ -111,7 +111,7 @@ export function emptyFunction(): void { }
 export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
     return task_sections.map((section) => {
         let idOrdering = 1
-        section.tasks.forEach((task) => (task.id_ordering = idOrdering++))
+        section.tasks?.forEach((task) => (task.id_ordering = idOrdering++))
         return section
     })
 }
