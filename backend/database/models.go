@@ -58,6 +58,10 @@ type Oauth1RequestSecret struct {
 	RequestSecret string             `bson:"request_secret"`
 }
 
+type TaskRecord struct {
+	TaskBase `bson:",inline"`
+}
+
 // Task json & mongo model
 type TaskBase struct {
 	ID               primitive.ObjectID `bson:"_id,omitempty"`
