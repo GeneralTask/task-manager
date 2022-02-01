@@ -11,6 +11,8 @@ import {
     EVENT_TIME_TEXT_COLOR,
 } from '../../helpers/styles'
 
+const WIDTH__CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_TIME_WIDTH}px - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px) * 1/var(--squish-factor)`
+
 export const EventsContainer = styled.div`
     width: 100%;
     margin-top: 24px;
@@ -49,13 +51,18 @@ export const CellTime = styled.div`
 interface EventBodyStyleProps {
     eventBodyHeight: number
     topOffset: number
+    squishFactor: number
+    leftOffset: number
 }
 export const EventBodyStyle = styled.div<EventBodyStyleProps>`
-    width: calc(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_TIME_WIDTH}px - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px);
+    --squish-factor: ${({ squishFactor }) => squishFactor};
+    --left-offset: ${({ leftOffset }) => leftOffset};
+    width: calc( ${WIDTH__CSS_CALCULATION});
     height: ${(props) => props.eventBodyHeight}px;
     top: ${(props) => props.topOffset}px;
     position: absolute;
-    right: calc(${(100 - TABLE_WIDTH_PERCENTAGE) / 2}%);
+    left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + (${WIDTH__CSS_CALCULATION}) * var(--left-offset));
+    );
 `
 export const EventInfoContainer = styled.div`
     display: flex;

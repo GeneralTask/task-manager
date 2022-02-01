@@ -5,27 +5,18 @@ import {
     CalendarTD,
     CalendarTableStyle,
     CellTime,
-    EventBodyStyle,
-    EventFill,
-    EventFillContinues,
-    EventTime,
-    EventTitle,
     EventsContainer,
-    EventInfo,
-    EventInfoContainer,
 } from './CalendarEvents-styles'
 import { EVENTS_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import React, { Ref, useCallback, useEffect, useRef } from 'react'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-
 import { AbortID } from '../../helpers/enums'
-import { TEvent } from '../../helpers/types'
 import { setEvents } from '../../redux/tasksPageSlice'
 import { TimeIndicator } from './TimeIndicator'
+import { findCollisionGroups } from './utils/eventLayout'
+import CollisionGroupColumns from './CollisionGroupColumns'
 
-const LONG_EVENT_THRESHOLD = 45 // minutes
-const MINIMUM_BODY_HEIGHT = 15 // minutes
 
 function CalendarTable(): JSX.Element {
     const hourElements = Array(24)
@@ -52,48 +43,6 @@ Styling guidelines for events based on duration (inspired by google calendar)
     - Truncate task title first, hide times if doesn't fit
     - Its okay to remove padding for very short tasks
 */
-
-interface EventBodyProps {
-    event: TEvent
-}
-function EventBody({ event }: EventBodyProps): JSX.Element {
-    const startTime = new Date(event.datetime_start)
-    const endTime = new Date(event.datetime_end)
-    const timeDurationMinutes = (endTime.getTime() - startTime.getTime()) / 1000 / 60
-    const timeDurationHours = timeDurationMinutes / 60
-
-    const rollsOverMidnight = endTime.getDay() !== startTime.getDay()
-    const eventBodyHeight = Math.max(MINIMUM_BODY_HEIGHT, rollsOverMidnight
-        ? ((new Date(startTime).setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600) * CELL_HEIGHT
-        : timeDurationHours * CELL_HEIGHT)
-
-    const startTimeHours = startTime.getHours() - 1
-    const startTimeMinutes = startTime.getMinutes()
-    const topOffset = (60 * startTimeHours + startTimeMinutes) * (CELL_HEIGHT / 60)
-
-    const MMHH = { hour: 'numeric', minute: 'numeric', hour12: true } as const
-    const startTimeString = startTime.toLocaleString('en-US', MMHH).replace(/AM|PM/, '')
-    const endTimeString = endTime.toLocaleString('en-US', MMHH)
-
-    const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
-
-    return (
-        <EventBodyStyle key={event.id} topOffset={topOffset} eventBodyHeight={eventBodyHeight}>
-            <EventInfoContainer >
-                <EventInfo isLongEvent={isLongEvent}>
-                    <EventTitle isLongEvent={isLongEvent}>
-                        {event.title}
-                    </EventTitle>
-                    <EventTime>
-                        {`${startTimeString} - ${endTimeString}`}
-                    </EventTime>
-                </EventInfo>
-            </EventInfoContainer>
-            {rollsOverMidnight ? <EventFillContinues /> : <EventFill />}
-        </EventBodyStyle >
-    )
-}
-
 function useFetchEvents(): (start: Date, end: Date) => Promise<void> {
     const dispatch = useAppDispatch()
     const fetchEvents = useCallback(async (start: Date, end: Date) => {
@@ -122,6 +71,7 @@ interface CalendarEventsProps {
     date: Date
     isToday: boolean
 }
+
 export default function CalendarEvents({ date, isToday }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
 
@@ -133,6 +83,7 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
     const event_list = useAppSelector((state) => state.tasks_page.events.event_list).filter(
         (event) => new Date(event.datetime_end) >= startDate && new Date(event.datetime_start) <= endDate
     )
+    const groups = findCollisionGroups(event_list)
 
     const fetchEvents = useFetchEvents()
     const fetchEventsAroundDate = useCallback(() => {
@@ -157,9 +108,7 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
 
     return (
         <EventsContainer ref={eventsContainerRef}>
-            {event_list.map((event) => (
-                <EventBody key={event.id} event={event} />
-            ))}
+            {groups.map((group, index) => (<CollisionGroupColumns key={index} events={group} />))}
             {isToday && <TimeIndicator />}
             <CalendarTable />
         </EventsContainer>
