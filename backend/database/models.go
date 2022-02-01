@@ -59,7 +59,17 @@ type Oauth1RequestSecret struct {
 }
 
 type TaskRecord struct {
-	TaskBase `bson:",inline"`
+	TaskBase      `bson:",inline"`
+	TaskType      `bson:",inline"`
+	Task          `bson:",inline"`
+	Email         `bson:",inline"`
+	CalendarEvent `bson:",inline"`
+}
+
+type TaskType struct {
+	IsTask    bool `bson:"is_task"`
+	IsMessage bool `bson:"is_message"`
+	IsEvent   bool `bson:"is_event"`
 }
 
 // Task json & mongo model
