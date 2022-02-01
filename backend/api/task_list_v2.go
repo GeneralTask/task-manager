@@ -338,6 +338,7 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResultV2) error {
 		}
 		if res.MatchedCount != 1 {
 			log.Printf("did not find task to update ordering ID (ID=%v)", task.ID)
+			log.Printf("the matched count %v", res.MatchedCount)
 		}
 	}
 	return nil
