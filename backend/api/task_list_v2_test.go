@@ -611,6 +611,8 @@ func TestMergeTasksV2V2(t *testing.T) {
 		fmt.Println("jerd")
 		fmt.Println("e1id", e1ID)
 		fmt.Println("e2id", e2ID)
+		fmt.Println(result[0].Tasks[0])
+		fmt.Println(result[0].Tasks[1])
 
 		assert.Equal(t, 3, len(result))
 		assert.Equal(t, 2, len(result[0].Tasks))
