@@ -19,7 +19,7 @@ var ConferencePatterns = map[string]database.ConferenceCall{
 }
 
 // only return the first conference url - in the future we may want to return all of them
-func GetConferenceUrlFromString(text string) (*database.ConferenceCall) {
+func GetConferenceUrlFromString(text string) *database.ConferenceCall {
 	for _, match := range xurls.Strict().FindAllString(text, -1) {
 		for pattern, conferenceTemplate := range ConferencePatterns {
 			if strings.Contains(match, pattern) {
