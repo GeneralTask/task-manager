@@ -167,7 +167,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]TaskBase,
 	return &tasks, nil
 }
 
-func GetActiveEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Email, error) {
+func GetActiveEmails(db *mongo.Database, userID primitive.ObjectID) (*[]TaskRecord, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -186,7 +186,7 @@ func GetActiveEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Email, e
 		log.Printf("Failed to fetch emails for user: %v", err)
 		return nil, err
 	}
-	var activeEmails []Email
+	var activeEmails []TaskRecord
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &activeEmails)

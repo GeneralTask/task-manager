@@ -82,7 +82,9 @@ func extractSectionTasks(allUnscheduledTasks *[]interface{}) ([]*TaskItem, []*Ta
 	var allOtherTasks []interface{}
 	for _, task := range *allUnscheduledTasks {
 		switch task := task.(type) {
-		case *database.Email:
+		// case *database.Email:
+		// todo - replace with task.IsMessage
+		case *database.TaskRecord:
 			if task.IDTaskSection == constants.IDTaskSectionBlocked {
 				blockedTasks = append(blockedTasks, &TaskItem{
 					TaskGroupType: UnscheduledGroup,
@@ -254,7 +256,8 @@ func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 
 func getTaskBase(t interface{}) *database.TaskBase {
 	switch t := t.(type) {
-	case *database.Email:
+	// case *database.Email:
+	case *database.TaskRecord:
 		return &(t.TaskBase)
 	case *database.Task:
 		return &(t.TaskBase)
@@ -265,7 +268,7 @@ func getTaskBase(t interface{}) *database.TaskBase {
 	}
 }
 
-func compareEmails(e1 *database.Email, e2 *database.Email, newestEmailsFirst bool) bool {
+func compareEmails(e1 *database.TaskRecord, e2 *database.TaskRecord, newestEmailsFirst bool) bool {
 	e1Domain := utils.ExtractEmailDomain(e1.SourceAccountID)
 	e2Domain := utils.ExtractEmailDomain(e2.SourceAccountID)
 	if res := compareTaskBases(e1, e2); res != nil {
@@ -312,7 +315,7 @@ func compareTasks(t1 *database.Task, t2 *database.Task) bool {
 	}
 }
 
-func compareTaskEmail(t *database.Task, e *database.Email) bool {
+func compareTaskEmail(t *database.Task, e *database.TaskRecord) bool {
 	if res := compareTaskBases(t, e); res != nil {
 		return *res
 	}

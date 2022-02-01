@@ -118,7 +118,7 @@ type CalendarEventChangeableFields struct {
 }
 
 type Email struct {
-	TaskBase     `bson:",inline"`
+	// TaskBase     `bson:",inline"`
 	ThreadID     string `bson:"thread_id"`
 	SenderDomain string `bson:"sender_domain"`
 }

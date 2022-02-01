@@ -36,14 +36,16 @@ func TestReplyToEmail(t *testing.T) {
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	insertedResult, err := taskCollection.InsertOne(dbCtx, database.Email{
+	insertedResult, err := taskCollection.InsertOne(dbCtx, database.TaskRecord{
 		TaskBase: database.TaskBase{
 			UserID:     userID,
 			IDExternal: "sample_message_id",
 			Title:      "Sample subject",
 			SourceID:   external.TASK_SOURCE_ID_GMAIL,
 		},
-		ThreadID: "sample_thread_id",
+		Email: database.Email{
+			ThreadID: "sample_thread_id",
+		},
 	})
 
 	emailID := insertedResult.InsertedID.(primitive.ObjectID).Hex()
@@ -114,14 +116,16 @@ func TestReplyToEmail(t *testing.T) {
 	t.Run("TaskDoesNotBelongToUser", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		insertedResult, err := taskCollection.InsertOne(dbCtx, database.Email{
+		insertedResult, err := taskCollection.InsertOne(dbCtx, database.TaskRecord{
 			TaskBase: database.TaskBase{
 				UserID:     primitive.NewObjectID(),
 				IDExternal: "sample_message_id",
 				Title:      "Sample subject",
 				SourceID:   external.TASK_SOURCE_ID_GMAIL,
 			},
-			ThreadID: "sample_thread_id",
+			Email: database.Email{
+				ThreadID: "sample_thread_id",
+			},
 		})
 
 		emailID := insertedResult.InsertedID.(primitive.ObjectID).Hex()

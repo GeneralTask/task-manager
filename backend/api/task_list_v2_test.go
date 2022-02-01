@@ -19,7 +19,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 	t.Run("SimpleMerge", func(t *testing.T) {
 		e1ID := primitive.NewObjectID()
-		e1 := database.Email{
+		e1 := database.TaskRecord{
 			TaskBase: database.TaskBase{
 				ID:                e1ID,
 				IDExternal:        "sample_email",
@@ -30,10 +30,14 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID:   "elon@gmail.com",
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
-			SenderDomain: "gmail.com",
+			Email: database.Email{
+
+				SenderDomain: "gmail.com",
+			},
 		}
+
 		e1aID := primitive.NewObjectID()
-		e1a := database.Email{
+		e1a := database.TaskRecord{
 			TaskBase: database.TaskBase{
 				ID:                e1aID,
 				IDExternal:        "sample_emailA",
@@ -44,11 +48,14 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID:   "elon@moon.com",
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Minute)),
 			},
-			SenderDomain: "moon.com",
+			Email: database.Email{
+
+				SenderDomain: "moon.com",
+			},
 		}
 
 		e2ID := primitive.NewObjectID()
-		e2 := database.Email{
+		e2 := database.TaskRecord{
 			TaskBase: database.TaskBase{
 				ID:                e2ID,
 				IDExternal:        "sample_email_2",
@@ -59,7 +66,9 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID:   "elon@gmail.com",
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
-			SenderDomain: "yahoo.com",
+			Email: database.Email{
+				SenderDomain: "yahoo.com",
+			},
 		}
 
 		t1ID := primitive.NewObjectID()
@@ -133,7 +142,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{},
-			[]*database.Email{&e1, &e1a, &e2},
+			[]*database.TaskRecord{&e1, &e1a, &e2},
 			[]*database.Task{&t1, &t2, &t3, &t4},
 			primitive.NewObjectID(),
 		)
@@ -197,7 +206,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
-			[]*database.Email{},
+			[]*database.TaskRecord{},
 			[]*database.Task{&t1, &t2},
 			userID,
 		)
@@ -257,7 +266,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{t2.TaskBase},
-			[]*database.Email{},
+			[]*database.TaskRecord{},
 			[]*database.Task{&t1, &t2},
 			userID,
 		)
@@ -313,7 +322,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		t2.ID = t2Res.ID
 
 		e1ID := primitive.NewObjectID()
-		e1 := database.Email{
+		e1 := database.TaskRecord{
 			TaskBase: database.TaskBase{
 				ID:                e1ID,
 				IDExternal:        "sample_email",
@@ -323,13 +332,16 @@ func TestMergeTasksV2V2(t *testing.T) {
 				TimeAllocation:    (time.Minute * 5).Nanoseconds(),
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
-			SenderDomain: "gmail.com",
+			Email: database.Email{
+
+				SenderDomain: "gmail.com",
+			},
 		}
 
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
-			[]*database.Email{&e1},
+			[]*database.TaskRecord{&e1},
 			[]*database.Task{&t2},
 			userID,
 		)
@@ -423,7 +435,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{},
-			[]*database.Email{},
+			[]*database.TaskRecord{},
 			[]*database.Task{&t1, &t2, &t3, &t4},
 			userID,
 		)
@@ -522,7 +534,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{t1.TaskBase, t2.TaskBase, t3.TaskBase, t4.TaskBase},
-			[]*database.Email{},
+			[]*database.TaskRecord{},
 			[]*database.Task{&t1, &t2, &t3, &t4},
 			userID,
 		)
@@ -540,7 +552,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 	t.Run("EmailOrderingOldestFirst", func(t *testing.T) {
 		userID := primitive.NewObjectID()
 		e1ID := primitive.NewObjectID()
-		e1 := database.Email{
+		e1 := database.TaskRecord{
 			TaskBase: database.TaskBase{
 				ID:                e1ID,
 				IDExternal:        "sample_email",
@@ -550,11 +562,14 @@ func TestMergeTasksV2V2(t *testing.T) {
 				TimeAllocation:    (time.Minute * 5).Nanoseconds(),
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
-			SenderDomain: "gmail.com",
+			Email: database.Email{
+
+				SenderDomain: "gmail.com",
+			},
 		}
 
 		e2ID := primitive.NewObjectID()
-		e2 := database.Email{
+		e2 := database.TaskRecord{
 			TaskBase: database.TaskBase{
 				ID:                e2ID,
 				IDExternal:        "sample_email",
@@ -564,7 +579,10 @@ func TestMergeTasksV2V2(t *testing.T) {
 				TimeAllocation:    (time.Minute * 5).Nanoseconds(),
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Minute)),
 			},
-			SenderDomain: "gmail.com",
+			Email: database.Email{
+
+				SenderDomain: "gmail.com",
+			},
 		}
 
 		err := settings.UpdateUserSetting(
@@ -578,7 +596,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{e1.TaskBase, e2.TaskBase},
-			[]*database.Email{&e1, &e2},
+			[]*database.TaskRecord{&e1, &e2},
 			[]*database.Task{},
 			userID,
 		)

@@ -118,7 +118,7 @@ func (api *API) TasksListV2(c *gin.Context) {
 	allTasks, err := MergeTasksV2(
 		db,
 		currentTasks,
-		[]*database.Email{},
+		[]*database.TaskRecord{},
 		tasks,
 		userID.(primitive.ObjectID),
 	)
@@ -132,7 +132,7 @@ func (api *API) TasksListV2(c *gin.Context) {
 func MergeTasksV2(
 	db *mongo.Database,
 	currentTasks *[]database.TaskBase,
-	emails []*database.Email,
+	emails []*database.TaskRecord,
 	tasks []*database.Task,
 	userID primitive.ObjectID,
 ) ([]*TaskSectionV2, error) {
@@ -185,15 +185,17 @@ func MergeTasksV2(
 			switch b.(type) {
 			case *database.Task:
 				return compareTasks(a.(*database.Task), b.(*database.Task))
-			case *database.Email:
-				return compareTaskEmail(a.(*database.Task), b.(*database.Email))
+			// case *database.Email:
+			case *database.TaskRecord:
+				return compareTaskEmail(a.(*database.Task), b.(*database.TaskRecord))
 			}
 		case *database.Email:
 			switch b.(type) {
 			case *database.Task:
-				return !compareTaskEmail(b.(*database.Task), a.(*database.Email))
-			case *database.Email:
-				return compareEmails(a.(*database.Email), b.(*database.Email), newestEmailsFirst)
+				return !compareTaskEmail(b.(*database.Task), a.(*database.TaskRecord))
+			// case *database.Email:
+			case *database.TaskRecord:
+				return compareEmails(a.(*database.TaskRecord), b.(*database.TaskRecord), newestEmailsFirst)
 			}
 		}
 		return true
@@ -249,7 +251,8 @@ func extractSectionTasksV2(allUnscheduledTasks *[]interface{}) ([]*TaskResultV2,
 	var allOtherTasks []interface{}
 	for _, task := range *allUnscheduledTasks {
 		switch task := task.(type) {
-		case *database.Email:
+		// case *database.Email:
+		case *database.TaskRecord:
 			if task.IDTaskSection == constants.IDTaskSectionBlocked {
 				blockedTasks = append(blockedTasks, taskBaseToTaskResultV2(&task.TaskBase))
 				continue
