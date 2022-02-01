@@ -14,7 +14,7 @@ export const TaskBodyDiv = styled.div`
 `
 export const EmailViewDiv = styled.div`
     width: auto;
-    overflow: scroll;
+    overflow: auto;
     height: fit-content;
     max-height: 500px;
     border-radius: 6px;

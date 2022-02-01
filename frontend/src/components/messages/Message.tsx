@@ -37,13 +37,13 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
     }, [hoverEffectEnabled, props.isExpanded])
 
     return (
-        <TaskHeaderContainer hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
+        <TaskHeaderContainer showButtons={props.isExpanded} onClick={onClick}>
             <HeaderLeft>
                 {props.message.is_unread &&
                     <UnreadIndicator />
                 }
                 <Icon src={props.message.source.logo} alt="icon"></Icon>
-                <Title isExpanded={props.isExpanded} isEditable={false} defaultValue={props.message.title} disabled={true} />
+                <Title isExpanded={props.isExpanded} isEditable={false} defaultValue={props.message.title} />
             </HeaderLeft>
             <HeaderRight>
                 {props.message.sent_at &&

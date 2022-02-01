@@ -33,7 +33,7 @@ const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
     const { body, id, sender, deeplink, source, sent_at } = task
     return (
         <div>
-            {Boolean(body || deeplink) && (
+            {
                 <ExpandedBody isExpanded={isExpanded}>
                     {body && (
                         <TaskBodyDiv>
@@ -60,7 +60,7 @@ const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
                         </Deeplink>
                     )}
                 </ExpandedBody>
-            )}
+            }
         </div>
     )
 })

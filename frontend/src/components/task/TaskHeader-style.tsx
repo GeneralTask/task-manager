@@ -53,14 +53,14 @@ export const TimeEstimateButtonText = styled.div`
   border-radius: 7px;
   line-height: 1.7em;
 `
-export const TaskHeaderContainer = styled(NoSelect) <{ hoverEffect: boolean, showButtons: boolean }>`
+export const TaskHeaderContainer = styled(NoSelect) <{ showButtons: boolean }>`
   position: relative;
   font-size: 15px;
   border-radius: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: ${props => props.hoverEffect ? 'pointer' : 'inherit'};
+  cursor: pointer;
   min-height: 50px;
 `
 export const HeaderLeft = styled.div`
@@ -128,7 +128,7 @@ export const Icon = styled.img`
     max-width: 19px;
     margin-left: 8px;
 `
-export const Title = styled.textarea<{ isExpanded: boolean, isEditable: boolean }>`
+export const Title = styled.div<{ isExpanded: boolean, isEditable: boolean }>`
     &:focus,:hover {
       ${({ isEditable }) => isEditable ? `
       outline: 1px dashed ${TEXT_GRAY};
