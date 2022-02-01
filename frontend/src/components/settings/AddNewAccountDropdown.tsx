@@ -1,5 +1,6 @@
-import { CHEVRON_DOWN, JIRA_URL, ASANA_URL, LOGIN_URL, SUPPORTED_TYPES_URL } from '../../constants'
+import { ASANA_URL, CHEVRON_DOWN, JIRA_URL, LOGIN_URL, SUPPORTED_TYPES_URL } from '../../constants'
 import React, { useEffect, useRef, useState } from 'react'
+
 import { BACKGROUND_HOVER } from '../../helpers/styles'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'

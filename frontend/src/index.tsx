@@ -1,20 +1,23 @@
+import './index.css'
+
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { ToastContainer, Zoom, toast } from 'react-toastify'
+
+import App from './App'
+import { DndProvider } from 'react-dnd'
+import GoogleLoginButton from './helpers/auth'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import LandingPage from './components/LandingPage'
+import MessagesPage from './components/messages/MessagesPage'
+import PrivateOutlet from './components/PrivateOutlet'
+import { Provider } from 'react-redux'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import './index.css'
-import App from './App'
-import reportWebVitals from './reportWebVitals'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import { Provider } from 'react-redux'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { ToastContainer, Zoom, toast } from 'react-toastify'
-import LandingPage from './components/LandingPage'
-import { TOAST_DURATION } from './constants'
-import store from './redux/store'
 import Settings from './components/settings/Settings'
-import PrivateOutlet from './components/PrivateOutlet'
+import { TOAST_DURATION } from './constants'
 import TasksPage from './components/task/TasksPage'
-import MessagesPage from './components/messages/MessagesPage'
+import reportWebVitals from './reportWebVitals'
+import store from './redux/store'
 
 ReactDOM.render(
     <React.StrictMode>
@@ -39,6 +42,9 @@ ReactDOM.render(
                             </Route>
                             <Route path="settings" element={<PrivateOutlet />}>
                                 <Route index element={<Settings />} />
+                            </Route>
+                            <Route path="cse-login" element={<PrivateOutlet />}>
+                                <Route index element={<GoogleLoginButton />} />
                             </Route>
                         </Route>
                     </Routes>

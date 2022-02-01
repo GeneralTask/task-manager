@@ -1,13 +1,14 @@
 import './App.css'
 import 'react-toastify/dist/ReactToastify.css'
-import React from 'react'
-import { Outlet } from 'react-router-dom'
-import { useAppDispatch } from './redux/hooks'
-import { setAuthToken } from './redux/userDataSlice'
+
 import Cookies from 'js-cookie'
+import { Outlet } from 'react-router-dom'
+import React from 'react'
+import { setAuthToken } from './redux/userDataSlice'
+import { useAppDispatch } from './redux/hooks'
 
 const App: React.FC = () => {
-    useAppDispatch()(setAuthToken(Cookies.get('authToken')))
+    useAppDispatch()(setAuthToken(Cookies.get('authToken') ?? null))
     return <Outlet />
 }
 

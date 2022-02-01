@@ -1,11 +1,12 @@
-import { WAITLIST_URL } from '../constants'
 import React, { useState } from 'react'
-import { getHeaders } from '../helpers/utils'
+import { TEXT_GRAY, device } from '../helpers/styles'
+
 import GLButton from './login/GoogleLoginButton'
-import { device, TEXT_GRAY } from '../helpers/styles'
-import styled from 'styled-components'
 import LegacyHeader from './Header'
 import { Navigate } from 'react-router-dom'
+import { WAITLIST_URL } from '../constants'
+import { getHeaders } from '../helpers/utils'
+import styled from 'styled-components'
 import { useAppSelector } from '../redux/hooks'
 
 const Container = styled.div`
