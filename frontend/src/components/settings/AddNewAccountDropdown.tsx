@@ -2,7 +2,6 @@ import { ASANA_URL, CHEVRON_DOWN, JIRA_URL, LOGIN_URL, SUPPORTED_TYPES_URL } fro
 import React, { useEffect, useRef, useState } from 'react'
 
 import { BACKGROUND_HOVER } from '../../helpers/styles'
-import GoogleLoginButton from '../../helpers/auth'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import styled from 'styled-components'
 
@@ -177,7 +176,6 @@ const Dropdown = ({ supportedTypes, refetchLinkedAccounts }: DropdownProps) => {
                     {supportedTypes.map((st, i) => (
                         <Option st={st} refetchLinkedAccounts={refetchLinkedAccounts} key={i} />
                     ))}
-                    <GoogleLoginButton />
                 </Selector>
             )}
         </DropdownContainer>

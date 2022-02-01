@@ -1,9 +1,8 @@
 import { GoogleLogin, GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login'
 import React, { useCallback, useState } from 'react'
 
-// import { OAuth2Client } from 'google-auth-library'
+import { Navigate } from 'react-router-dom'
 import { REACT_APP_GOOGLE_OAUTH_CLIENT_ID } from '../constants'
-import { Redirect } from 'react-router-dom'
 import { setAccessToken } from '../redux/userDataSlice'
 import { useAppDispatch } from '../redux/hooks'
 
@@ -19,11 +18,11 @@ export default function GoogleLoginButton() {
             console.log({ e })
         }
         finally {
-
+            setRedirect(true)
         }
     }, [dispatch])
     if (REACT_APP_GOOGLE_OAUTH_CLIENT_ID == null || redirect) {
-        return <Redirect to="/" />
+        return <Navigate to="/" />
     }
     return <GoogleLogin
         clientId={REACT_APP_GOOGLE_OAUTH_CLIENT_ID}

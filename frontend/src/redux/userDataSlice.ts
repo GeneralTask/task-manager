@@ -5,14 +5,14 @@ export interface UserDataState {
     linked_accounts: TLinkedAccount[],
     settings: TSetting[],
     auth_token: string | undefined,
-    access_token: string | undefined,
+    access_token: string | null,
 }
 
 const initialState: UserDataState = {
     linked_accounts: [],
     settings: [],
     auth_token: undefined,
-    access_token: undefined,
+    access_token: null,
 }
 
 export const userDataSlice = createSlice({
