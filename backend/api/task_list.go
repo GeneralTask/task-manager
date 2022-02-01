@@ -1,23 +1,13 @@
 package api
 
 import (
-	"context"
-	// "fmt"
-	"log"
-	// "sort"
-	// "strconv"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
-	// "github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/GeneralTask/task-manager/backend/utils"
 
 	"github.com/GeneralTask/task-manager/backend/database"
-	// "github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type TaskItem struct {
@@ -75,123 +65,6 @@ const (
 	TaskSectionNameBlocked string        = "Blocked"
 	TaskSectionNameBacklog string        = "Backlog"
 )
-
-func extractSectionTasks(allUnscheduledTasks *[]interface{}) ([]*TaskItem, []*TaskItem, []interface{}) {
-	var blockedTasks []*TaskItem
-	var backlogTasks []*TaskItem
-	var allOtherTasks []interface{}
-	for _, task := range *allUnscheduledTasks {
-		switch task := task.(type) {
-		// case *database.Email:
-		// todo - replace with task.IsMessage
-		case *database.TaskRecord:
-			if task.IDTaskSection == constants.IDTaskSectionBlocked {
-				blockedTasks = append(blockedTasks, &TaskItem{
-					TaskGroupType: UnscheduledGroup,
-					TaskBase:      &task.TaskBase,
-				})
-				continue
-			}
-			if task.IDTaskSection == constants.IDTaskSectionBacklog {
-				backlogTasks = append(backlogTasks, &TaskItem{
-					TaskGroupType: UnscheduledGroup,
-					TaskBase:      &task.TaskBase,
-				})
-				continue
-			}
-		case *database.Task:
-			if task.IDTaskSection == constants.IDTaskSectionBlocked {
-				blockedTasks = append(blockedTasks, &TaskItem{
-					TaskGroupType: UnscheduledGroup,
-					TaskBase:      &task.TaskBase,
-				})
-				continue
-			}
-			if task.IDTaskSection == constants.IDTaskSectionBacklog {
-				backlogTasks = append(backlogTasks, &TaskItem{
-					TaskGroupType: UnscheduledGroup,
-					TaskBase:      &task.TaskBase,
-				})
-				continue
-			}
-		}
-		allOtherTasks = append(allOtherTasks, task)
-	}
-	return blockedTasks, backlogTasks, allOtherTasks
-}
-
-func adjustForCompletedTasks(
-	db *mongo.Database,
-	currentTasks *[]database.TaskBase,
-	unscheduledTasks *[]interface{},
-	calendarEvents *[]*database.CalendarEvent,
-) error {
-	// decrements IDOrdering for tasks behind newly completed tasks
-	parentCtx := context.Background()
-	tasksCollection := database.GetTaskCollection(db)
-	var newTasks []*database.TaskBase
-	newTaskIDs := make(map[primitive.ObjectID]bool)
-	for _, unscheduledTask := range *unscheduledTasks {
-		taskBase := getTaskBase(unscheduledTask)
-		newTasks = append(newTasks, taskBase)
-		newTaskIDs[taskBase.ID] = true
-	}
-	for _, calendarEvent := range *calendarEvents {
-		newTasks = append(newTasks, &calendarEvent.TaskBase)
-		newTaskIDs[calendarEvent.ID] = true
-	}
-	// There's a more efficient way to do this but this way is easy to understand
-	for _, currentTask := range *currentTasks {
-		if !newTaskIDs[currentTask.ID] {
-			dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-			defer cancel()
-			res, err := tasksCollection.UpdateOne(
-				dbCtx,
-				bson.M{"_id": currentTask.ID},
-				bson.M{"$set": bson.M{"is_completed": true}},
-			)
-			if err != nil {
-				log.Printf("failed to update task ordering ID: %v", err)
-				return err
-			}
-			if res.MatchedCount != 1 {
-				log.Printf("did not find task to mark completed (ID=%v)", currentTask.ID)
-			}
-			for _, newTask := range newTasks {
-				if newTask.IDOrdering > currentTask.IDOrdering {
-					newTask.IDOrdering -= 1
-				}
-			}
-		}
-	}
-	return nil
-}
-
-func updateOrderingIDs(db *mongo.Database, tasks *[]*TaskItem) error {
-	parentCtx := context.Background()
-	tasksCollection := database.GetTaskCollection(db)
-	orderingID := 1
-	for _, taskItem := range *tasks {
-		task := taskItem.TaskBase
-		task.IDOrdering = orderingID
-		orderingID += 1
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		res, err := tasksCollection.UpdateOne(
-			dbCtx,
-			bson.M{"_id": task.ID},
-			bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
-		)
-		if err != nil {
-			log.Printf("failed to update task ordering ID: %v", err)
-			return err
-		}
-		if res.MatchedCount != 1 {
-			log.Printf("did not find task to update ordering ID (ID=%v)", task.ID)
-		}
-	}
-	return nil
-}
 
 func convertTasksToTaskGroups(tasks *[]*TaskItem) []*TaskGroup {
 	taskGroups := []*TaskGroup{}
