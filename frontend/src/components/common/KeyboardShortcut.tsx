@@ -2,6 +2,7 @@ import { BACKGROUND_KEYBOARD_SHORTCUT, SHADOW_KEYBOARD_SHORTCUT, TEXT_KEYBOARD_S
 import React, { useCallback, useEffect, useState } from 'react'
 
 import styled from 'styled-components'
+import store from '../../redux/store'
 
 const KeyboardShortcutContainer = styled.div<{ isPressed: boolean }>`
     cursor: inherit;
@@ -44,13 +45,13 @@ function useKeyboardShortcut(shortcut: string, onKeyPress: () => void): boolean 
     const [isKeyDown, setIsKeyDown] = useState(false)
 
     const onKeyDown = useCallback((event: KeyboardEvent) => {
-        if (wasKeyPressed(shortcut, event)) {
+        if (wasValidKeyPressed(shortcut, event)) {
             setIsKeyDown(true)
             onKeyPress()
         }
     }, [shortcut, onKeyPress])
     const onKeyUp = useCallback((event: KeyboardEvent) => {
-        if (wasKeyPressed(shortcut, event)) {
+        if (wasValidKeyPressed(shortcut, event)) {
             setIsKeyDown(false)
         }
     }, [shortcut])
@@ -68,11 +69,13 @@ function useKeyboardShortcut(shortcut: string, onKeyPress: () => void): boolean 
 }
 
 /**
- * check if the key is pressed
- * will prevent default behavior of a key
+ * Check if a valid key is pressed.
+ * Will prevent default behavior of a key
  * we should not assign a keyboard shortcut to existing actions - i.e. ctrl+a, ctrl+s, ctrl+d
  **/
-function wasKeyPressed(shortcut: string, e: KeyboardEvent): boolean {
+function wasValidKeyPressed(shortcut: string, e: KeyboardEvent): boolean {
+    const isModalOpen = store.getState().tasks_page.events.show_modal
+    if (isModalOpen) return false
     if (e.ctrlKey || e.altKey || e.metaKey) {
         return false
     }
