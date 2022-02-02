@@ -139,6 +139,7 @@ const Body: React.FC<BodyProps> = (props: BodyProps) => {
             onBlur={handleBlur}
             tagName='div'
             onKeyDown={(e) => e.stopPropagation()}
+            placeholder_text='Add task details...'
         />
     )
 }

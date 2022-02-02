@@ -1,6 +1,6 @@
 import ContentEditable from 'react-contenteditable'
 import styled from 'styled-components'
-import { BACKGROUND_HOVER, TEXT_BLACK } from '../../helpers/styles'
+import { BACKGROUND_HOVER, TEXT_BLACK, TEXT_GRAY, TEXT_LIGHTGRAY } from '../../helpers/styles'
 
 export const TaskBodyDiv = styled.div`
     margin: auto;
@@ -51,7 +51,7 @@ export const ReplyInputStyle = {
     marginRight: '10px',
 }
 
-export const BodyContentEditable = styled(ContentEditable)`
+export const BodyContentEditable = styled(ContentEditable) <{ placeholder_text: string }>`
     margin-bottom: 12px;
     padding: 10px;
     word-wrap: break-word;
@@ -69,5 +69,9 @@ export const BodyContentEditable = styled(ContentEditable)`
 
     &:hover,&:focus {
         background-color: ${BACKGROUND_HOVER};
+    }
+    &:empty::before {
+        content: attr(placeholder_text);
+        color: ${TEXT_GRAY};
     }
 `
