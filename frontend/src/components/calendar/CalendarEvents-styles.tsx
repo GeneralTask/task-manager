@@ -9,6 +9,10 @@ import {
     CELL_LEFT_MARGIN,
     EVENT_TITLE_TEXT_COLOR,
     EVENT_TIME_TEXT_COLOR,
+    BACKGROUND_WHITE,
+    EVENT_CONTAINER_COLOR,
+    EVENT_SHADOW,
+    EVENT_BOTTOM_PADDING,
 } from '../../helpers/styles'
 
 const WIDTH__CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_TIME_WIDTH}px - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px) * 1/var(--squish-factor)`
@@ -58,7 +62,7 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     --squish-factor: ${({ squishFactor }) => squishFactor};
     --left-offset: ${({ leftOffset }) => leftOffset};
     width: calc( ${WIDTH__CSS_CALCULATION});
-    height: ${(props) => props.eventBodyHeight}px;
+    height: calc(${(props) => props.eventBodyHeight}px - ${EVENT_BOTTOM_PADDING}px);
     top: ${(props) => props.topOffset}px;
     position: absolute;
     left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + (${WIDTH__CSS_CALCULATION}) * var(--left-offset));
@@ -87,7 +91,6 @@ export const EventTitle = styled.div<{ isLongEvent: boolean }>`
     font-weight: 600;
     color: ${EVENT_TITLE_TEXT_COLOR};
     margin-right: 8px;
-    /* float: left; */
     max-height: 100%;
     ${props => props.isLongEvent && 'font-weight: 600;'}
 `
@@ -102,9 +105,11 @@ export const EventTime = styled.div`
 export const EventFill = styled.div`
     width: 100%;
     height: 100%;
-    background-color: black;
-    opacity: 15%;
-    border-radius: 8px;
+    background: ${BACKGROUND_WHITE};    
+    border: 1px solid ${EVENT_CONTAINER_COLOR};
+    box-sizing: border-box;    
+    box-shadow: ${EVENT_SHADOW};
+    border-radius: 10px;
 `
 export const EventFillContinues = styled(EventFill)`
     border-radius: 8px 8px 0 0;

@@ -49,6 +49,8 @@ export const TOOLTIPS_BACKGROUND = '#FFFFFF'
 export const TOOLTIPS_OPACITY = '.95'
 export const TOOLTIPS_SHADOW = '0px 4px 20px rgba(43, 43, 43, 0.08)'
 
+export const EVENT_SHADOW = '0px 1px 2px rgba(0, 0, 0, 0.07)'
+
 export const DIVIDER_LIGHTGRAY = '#DDDDDD'
 
 export const BORDER_PRIMARY = '#cccccc'
@@ -91,3 +93,4 @@ export const CALENDAR_TD_COLOR = '#E4E3E7'
 export const CALENDAR_TIME_COLOR = '#A1A1AA'
 export const CALENDAR_INDICATOR_COLOR = '#D7470A'
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
+export const EVENT_BOTTOM_PADDING = 2.5
