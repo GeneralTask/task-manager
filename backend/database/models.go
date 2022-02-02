@@ -60,10 +60,10 @@ type Oauth1RequestSecret struct {
 
 type TaskRecord struct {
 	TaskBase      `bson:",inline"`
-	TaskType      `bson:",inline"`
-	Task          `bson:",inline"`
-	Email         `bson:",inline"`
-	CalendarEvent `bson:",inline"`
+	TaskType      `bson:"task_type"`
+	Task          `bson:"task"`
+	Email         `bson:"email"`
+	CalendarEvent `bson:"calendar_event"`
 }
 
 type TaskType struct {
@@ -118,7 +118,6 @@ type CalendarEventChangeableFields struct {
 }
 
 type Email struct {
-	// TaskBase     `bson:",inline"`
 	ThreadID     string `bson:"thread_id"`
 	SenderDomain string `bson:"sender_domain"`
 }
