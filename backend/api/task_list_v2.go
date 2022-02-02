@@ -9,6 +9,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/settings"
+	"github.com/GeneralTask/task-manager/backend/utils"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
+type TaskSource struct {
+	Name          string `json:"name"`
+	Logo          string `json:"logo"`
+	IsCompletable bool   `json:"is_completable"`
+	IsReplyable   bool   `json:"is_replyable"`
+}
 
 type TaskResultV2 struct {
 	ID             primitive.ObjectID `json:"id"`
@@ -35,6 +43,16 @@ type TaskSectionV2 struct {
 	Name  string             `json:"name"`
 	Tasks []*TaskResultV2    `json:"tasks"`
 }
+
+type TaskGroupType string
+
+const (
+	ScheduledTask          TaskGroupType = "scheduled_task"
+	UnscheduledGroup       TaskGroupType = "unscheduled_group"
+	TaskSectionNameToday   string        = "Today"
+	TaskSectionNameBlocked string        = "Blocked"
+	TaskSectionNameBacklog string        = "Backlog"
+)
 
 func (api *API) TasksListV2(c *gin.Context) {
 	parentCtx := c.Request.Context()
@@ -366,4 +384,82 @@ func taskBaseToTaskResultV2(t *database.TaskBase) *TaskResultV2 {
 		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
 		DueDate:        dueDate,
 	}
+}
+
+func getTaskBase(t interface{}) *database.TaskBase {
+	switch t := t.(type) {
+	case *database.Email:
+		return &(t.TaskBase)
+	case *database.Task:
+		return &(t.TaskBase)
+	case *database.CalendarEvent:
+		return &(t.TaskBase)
+	default:
+		return nil
+	}
+}
+
+func compareEmails(e1 *database.Email, e2 *database.Email, newestEmailsFirst bool) bool {
+	e1Domain := utils.ExtractEmailDomain(e1.SourceAccountID)
+	e2Domain := utils.ExtractEmailDomain(e2.SourceAccountID)
+	if res := compareTaskBases(e1, e2); res != nil {
+		return *res
+	} else if e1.SenderDomain == e1Domain && e2.SenderDomain != e2Domain {
+		return true
+	} else if e1.SenderDomain != e1Domain && e2.SenderDomain == e2Domain {
+		return false
+	} else if newestEmailsFirst {
+		return e1.TaskBase.CreatedAtExternal > e2.TaskBase.CreatedAtExternal
+	} else {
+		return e1.TaskBase.CreatedAtExternal < e2.TaskBase.CreatedAtExternal
+	}
+}
+
+func compareTasks(t1 *database.Task, t2 *database.Task) bool {
+	if res := compareTaskBases(t1, t2); res != nil {
+		return *res
+	}
+	sevenDaysFromNow := time.Now().AddDate(0, 0, 7)
+	//if both have due dates before seven days, prioritize the one with the closer due date.
+	if t1.DueDate > 0 &&
+		t2.DueDate > 0 &&
+		t1.DueDate.Time().Before(sevenDaysFromNow) &&
+		t2.DueDate.Time().Before(sevenDaysFromNow) {
+		return t1.DueDate.Time().Before(t2.DueDate.Time())
+	} else if t1.DueDate > 0 && t1.DueDate.Time().Before(sevenDaysFromNow) {
+		//t1 is due within seven days, t2 is not so prioritize t1
+		return true
+	} else if t2.DueDate > 0 && t2.DueDate.Time().Before(sevenDaysFromNow) {
+		//t2 is due within seven days, t1 is not so prioritize t2
+		return false
+	} else if t1.PriorityID != t2.PriorityID {
+		if len(t1.PriorityID) > 0 && len(t2.PriorityID) > 0 {
+			return t1.PriorityNormalized < t2.PriorityNormalized
+		} else if len(t1.PriorityID) > 0 {
+			return true
+		} else {
+			return false
+		}
+	} else {
+		//if all else fails prioritize by task number.
+		return t1.TaskNumber < t2.TaskNumber
+	}
+}
+
+func compareTaskEmail(t *database.Task, e *database.Email) bool {
+	if res := compareTaskBases(t, e); res != nil {
+		return *res
+	}
+	return e.SenderDomain != utils.ExtractEmailDomain(e.SourceAccountID)
+}
+
+func compareTaskBases(t1 interface{}, t2 interface{}) *bool {
+	// ensures we respect the existing ordering ids, and exempts reordered tasks from the normal auto-ordering
+	tb1 := getTaskBase(t1)
+	tb2 := getTaskBase(t2)
+	if tb1.IDOrdering > 0 && tb2.IDOrdering > 0 {
+		result := tb1.IDOrdering < tb2.IDOrdering
+		return &result
+	}
+	return nil
 }
