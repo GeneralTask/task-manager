@@ -1,6 +1,6 @@
 import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
-import { TASKS_URL } from '../../constants'
-import React, { useState } from 'react'
+import { TASKS_MODIFY_URL, TASKS_URL } from '../../constants'
+import React, { useEffect, useRef, useState } from 'react'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'
 import ContentEditable from 'react-contenteditable'
@@ -35,12 +35,16 @@ const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
         <div>
             {
                 <ExpandedBody isExpanded={isExpanded}>
-                    {body && (
+                    {(
                         <TaskBodyDiv>
-                            <EmailBody body={body} task_id={id} />
-                            {source.is_replyable && (
-                                <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />
-                            )}
+                            {source.is_replyable ?
+                                <>
+                                    <EmailBody body={body} task_id={id} />
+                                    <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />
+                                </> : <>
+                                    <Body body={body} task_id={id} />
+                                </>
+                            }
                         </TaskBodyDiv>
                     )}
                     {deeplink && (
@@ -89,6 +93,50 @@ const EmailBody: React.FC<EmailViewProps> = (props: EmailViewProps) => {
                 <div dangerouslySetInnerHTML={{ __html: cleanHTML }} />
             </EmailMessage>
         </EmailViewDiv>
+    )
+}
+
+interface BodyProps {
+    body: string
+    task_id: string
+}
+
+const Body: React.FC<BodyProps> = (props: BodyProps) => {
+    const body = useRef(props.body)
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault()
+            e.currentTarget.blur()
+        }
+    }
+
+    const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+        e.target.scrollLeft = 0
+        makeAuthorizedRequest({
+            url: TASKS_MODIFY_URL + props.task_id + '/',
+            method: 'PATCH',
+            body: JSON.stringify({ body: body.current }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('PATCH /tasks/modify failed: ' + response.text())
+                }
+            })
+            .catch(e => {
+                console.log({ e })
+            })
+    }
+
+    return (
+        <ContentEditable
+            html={props.body}
+            onKeyPress={handleKeyPress}
+            onChange={(e) => body.current = e.target.value}
+            onBlur={handleBlur}
+            tagName='div'
+            onKeyDown={(e) => e.stopPropagation()}
+        />
     )
 }
 

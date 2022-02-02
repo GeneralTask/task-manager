@@ -34,6 +34,7 @@ export const Deeplink = styled.div`
     text-align: center;
     width: 100%;
     color: black;
+    padding: 10px;
 `
 export const ReplyDiv = styled.div`
     display: flex;

@@ -1,7 +1,7 @@
 import './Task.css'
 import { Action, Dispatch } from '@reduxjs/toolkit'
 import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { collapseBody, expandBody, removeTaskByID, hideDatePicker, hideTimeEstimate, showDatePicker, showTimeEstimate } from '../../redux/tasksPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'
@@ -24,7 +24,9 @@ import {
   DueDateButtonText,
   TimeEstimateButtonText,
   DoneButtonContainer,
-  ButtonRightContainer
+  ButtonRightContainer,
+  TitleStyle,
+  TitleStyleExpanded
 } from './TaskHeader-style'
 import { LogEvents } from '../../helpers/enums'
 import { Duration } from 'luxon'
@@ -34,6 +36,7 @@ import DatePicker from './HeaderOptions/DatePicker'
 import Tooltip from '../common/Tooltip'
 import Domino from '../common/Domino'
 import ContentEditable from 'react-contenteditable'
+import { title } from 'process'
 
 interface TaskHeaderProps {
   task: TTask
@@ -58,61 +61,47 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
 
   const is_editable = props.task.source.name === 'General Task'
 
-  const onClick = useCallback(() => {
-    if (props.isExpanded) {
-      dispatch(collapseBody())
-      logEvent(LogEvents.TASK_COLLAPSED)
-    } else {
-      dispatch(expandBody(props.task.id))
-      logEvent(LogEvents.TASK_EXPANDED)
-    }
-  }, [props.isExpanded])
-
   const onDoneButtonClick = useCallback(() => {
     done(props.task.id, dispatch, fetchTasks)
     logEvent(LogEvents.TASK_MARK_AS_DONE)
   }, [])
 
-  // const handleTitleChange = (e: React.FormEvent<HTMLDivElement>) => {
-  //   title_text.current = e.currentTarget.innerText
-  //   console.log(title_text.current)
-  // }
-
-  const handleTitleKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      e.currentTarget.blur()
-    }
-  }
-
-  const handleTitleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
-    e.target.scrollLeft = 0
-    makeAuthorizedRequest({
-      url: TASKS_MODIFY_URL + props.task.id + '/',
-      method: 'PATCH',
-      body: JSON.stringify({ title: e.target.innerText }), //TODO: make this work
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('PATCH /tasks/modify failed: ' + response.text())
-        }
-      })
-      .catch(e => {
-        console.log({ e })
-      })
-  }
-
   const EditableTitle = (): JSX.Element => {
-    // const titleRef = useRef()
-    const [editableTitle, setEditableTitle] = useState(props.task.title)
+    const title = useRef(props.task.title)
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        e.currentTarget.blur()
+      }
+    }
+
+    const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+      e.target.scrollLeft = 0
+      makeAuthorizedRequest({
+        url: TASKS_MODIFY_URL + props.task.id + '/',
+        method: 'PATCH',
+        body: JSON.stringify({ title: title.current }),
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('PATCH /tasks/modify failed: ' + response.text())
+          }
+        })
+        .catch(e => {
+          console.log({ e })
+        })
+    }
+
     return (
       <ContentEditable
-        // innerRef={titleRef}
         tagName='div'
-        html={editableTitle}
-        onKeyPress={handleTitleKeyPress}
-        onChange={(e) => setEditableTitle(e.target.value)}
-        onBlur={handleTitleBlur}
+        disabled={!is_editable}
+        style={props.isExpanded ? TitleStyleExpanded : TitleStyle}
+        html={title.current}
+        onKeyPress={handleKeyPress}
+        onChange={(e) => title.current = e.target.value}
+        onBlur={handleBlur}
         // to prevent inputs from triggering keyboard shortcuts
         onKeyDown={(e) => e.stopPropagation()}
       />
@@ -120,7 +109,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
   }
 
   return (
-    <TaskHeaderContainer showButtons={props.isExpanded} onClick={onClick}>
+    <TaskHeaderContainer showButtons={props.isExpanded}>
       <HeaderLeft>
         {
           !props.dragDisabled &&
