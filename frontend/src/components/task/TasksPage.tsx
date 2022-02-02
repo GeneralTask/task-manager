@@ -21,8 +21,6 @@ import styled from 'styled-components'
 import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
-import { useKeyboardShortcuts } from '../../helpers/keyboard-shortcuts'
-
 
 const TasksPageContainer = styled.div`
     display: flex;
@@ -136,7 +134,6 @@ const CollapseCalendarSidebar = React.memo(() => {
 })
 
 export default function TasksPage(): JSX.Element {
-    useKeyboardShortcuts()
     const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
     const section = `${useParams().section}_page`
     const currentPage = Object.values(NavbarPage).find((page) => page === section)

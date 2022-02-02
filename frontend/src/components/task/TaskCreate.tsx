@@ -75,7 +75,7 @@ export default function TaskCreate(): JSX.Element {
                         onKeyDown={e => e.stopPropagation()}
                         ref={titleRef}
                     />
-                    <KeyboardShortcut shortcut={'n'} />
+                    <KeyboardShortcut shortcut="n" onKeyPress={() => console.log('hi')} />
                 </styles.Form>
                 <styles.Side />
             </styles.InnerContainer >
