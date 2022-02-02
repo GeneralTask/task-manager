@@ -10,7 +10,7 @@ import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
 import { useFetchTasks } from './TasksPage'
 import { setFocusCreateTaskForm } from '../../redux/tasksPageSlice'
-import KeyboardShortcut from '../common/KeyboardShortcut'
+import { KeyboardShortcut } from '../common/KeyboardShortcut'
 
 export default function TaskCreate(): JSX.Element {
     const focusCreateTaskForm = useAppSelector((state) => state.tasks_page.tasks.focus_create_task_form)

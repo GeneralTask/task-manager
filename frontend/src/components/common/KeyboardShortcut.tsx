@@ -31,6 +31,18 @@ interface Props {
 }
 function KeyboardShortcut({ shortcut, onKeyPress }: Props): JSX.Element {
 
+    const isKeyDown = useKeyboardShortcut(shortcut, onKeyPress)
+
+    return (
+        <KeyboardShortcutContainer isPressed={isKeyDown}>
+            {shortcut}
+        </KeyboardShortcutContainer>
+    )
+}
+
+
+function useKeyboardShortcut(shortcut: string, onKeyPress: () => void): boolean {
+
     const [isKeyDown, setIsKeyDown] = useState(false)
 
     const onKeyDown = useCallback((event: KeyboardEvent) => {
@@ -38,12 +50,12 @@ function KeyboardShortcut({ shortcut, onKeyPress }: Props): JSX.Element {
             setIsKeyDown(true)
             onKeyPress()
         }
-    }, [onKeyPress])
+    }, [shortcut, onKeyPress])
     const onKeyUp = useCallback((event: KeyboardEvent) => {
         if (wasKeyPressed(shortcut, event)) {
             setIsKeyDown(false)
         }
-    }, [])
+    }, [shortcut])
 
     useEffect(() => {
         document.addEventListener('keydown', onKeyDown)
@@ -54,14 +66,12 @@ function KeyboardShortcut({ shortcut, onKeyPress }: Props): JSX.Element {
         }
     })
 
-    return (
-        <KeyboardShortcutContainer isPressed={isKeyDown}>
-            {shortcut}
-        </KeyboardShortcutContainer>
-    )
+    return isKeyDown
 }
 
 // check if the key is pressed
+// will prevent default behavior of a key
+// we should not assign a keyboard shortcut to existing actions - i.e. ctrl+a, ctrl+s, ctrl+d
 function wasKeyPressed(shortcut: string, e: KeyboardEvent): boolean {
     let keyName = ''
     if (e.ctrlKey) {
@@ -76,12 +86,11 @@ function wasKeyPressed(shortcut: string, e: KeyboardEvent): boolean {
     keyName += e.key.toLowerCase()
 
     if (keyName === shortcut) {
-        // will prevent default behavior of a key
-        // we should not assign a keyboard shortcut to existing actions - i.e. ctrl+a, ctrl+s, ctrl+d
+        // see comments about blocking key above
         e.preventDefault()
         return true
     }
     return false
 }
 
-export default KeyboardShortcut
+export { KeyboardShortcut, useKeyboardShortcut }
