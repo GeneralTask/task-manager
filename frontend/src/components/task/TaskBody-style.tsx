@@ -1,6 +1,6 @@
 import ContentEditable from 'react-contenteditable'
 import styled from 'styled-components'
-import { BACKGROUND_HOVER, TEXT_BLACK, TEXT_GRAY, TEXT_LIGHTGRAY } from '../../helpers/styles'
+import { BACKGROUND_HOVER, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 
 export const TaskBodyDiv = styled.div`
     margin: auto;
