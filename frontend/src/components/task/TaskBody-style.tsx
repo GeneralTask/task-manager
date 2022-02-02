@@ -1,5 +1,6 @@
+import ContentEditable from 'react-contenteditable'
 import styled from 'styled-components'
-import { TEXT_BLACK } from '../../helpers/styles'
+import { BACKGROUND_HOVER, TEXT_BLACK } from '../../helpers/styles'
 
 export const TaskBodyDiv = styled.div`
     margin: auto;
@@ -50,15 +51,23 @@ export const ReplyInputStyle = {
     marginRight: '10px',
 }
 
-export const BodyStyle = {
-    marginBottom: '12px',
-    padding: '10px',
-    wordWrap: 'break-word',
-    overflow: 'none',
-    whiteSpace: 'pre-wrap',
-    fontFamily: 'Switzer-Variable',
-    fontStyle: 'normal',
-    fontWeight: 'normal',
-    fontSize: '14px',
-    lineHeight: '20px',
-}
+export const BodyContentEditable = styled(ContentEditable)`
+    margin-bottom: 12px;
+    padding: 10px;
+    word-wrap: break-word;
+    overflow: none;
+    white-space: pre-wrap;
+    outline: none;
+    border: none;
+    border-radius: 12px;
+
+    font-family: Switzer-Variable;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 20px;
+
+    &:hover,&:focus {
+        background-color: ${BACKGROUND_HOVER};
+    }
+`

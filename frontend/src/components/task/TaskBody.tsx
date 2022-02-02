@@ -17,7 +17,7 @@ import {
     ReplyInputStyle,
     EmailViewDiv,
     EmailSubjectHeader,
-    BodyStyle,
+    BodyContentEditable,
 } from './TaskBody-style'
 import sanitizeHtml from 'sanitize-html'
 import { LogEvents } from '../../helpers/enums'
@@ -131,10 +131,9 @@ const Body: React.FC<BodyProps> = (props: BodyProps) => {
     }
 
     return (
-        <ContentEditable
+        <BodyContentEditable
             html={props.body}
             disabled={!props.editable}
-            style={BodyStyle}
             onKeyPress={handleKeyPress}
             onChange={(e) => body.current = e.target.value}
             onBlur={handleBlur}
@@ -143,7 +142,6 @@ const Body: React.FC<BodyProps> = (props: BodyProps) => {
         />
     )
 }
-
 interface EmailQuoteProps {
     sender: string | null
     body: string
