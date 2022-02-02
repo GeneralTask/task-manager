@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { NO_EVENT_TITLE_DEFAULT } from '../../constants'
 import { SHADOW_EVENT_ALERT, TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND, TEXT_BLACK } from '../../helpers/styles'
 import { useAppSelector } from '../../redux/hooks'
 import JoinConferenceButton from '../task/JoinConferenceButton'
@@ -63,7 +64,7 @@ export default function EventAlert({ children }: EventAlertProps): JSX.Element {
         for (const event of soonEvents) {
             const tempDate = new Date(event.datetime_start)
             const eventDuration = Math.ceil((tempDate.getTime() - new Date().getTime()) / 1000 / 60)
-            const eventTitle = event.title || '(No title)'
+            const eventTitle = event.title || NO_EVENT_TITLE_DEFAULT
             eventAlertElements.push(
                 <EventAlertContentContainer className='event-alert' key={event.id}>
                     <EventAlertHeader>
