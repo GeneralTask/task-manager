@@ -24,17 +24,13 @@ export default function TaskCreate(): JSX.Element {
     useEffect(() => {
         if (isFocused) {
             titleRef.current?.focus()
-        }
-    }, [isFocused])
-
-    const blur = useCallback(() => {
-        if (isFocused) {
+        } else {
             titleRef.current?.blur()
-            setIsFocused(false)
         }
     }, [isFocused])
 
-    useKeyboardShortcut('Escape', blur)
+    const onBlur = useCallback(() => setIsFocused(false), [])
+    useKeyboardShortcut('Escape', onBlur)
 
     return <>
         <styles.OuterContainer>
@@ -77,6 +73,7 @@ export default function TaskCreate(): JSX.Element {
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
                         // to prevent inputs from triggering keyboard shortcuts
                         onKeyDown={stopKeyboardPropogation}
+                        onBlur={onBlur}
                         ref={titleRef}
                     />
                     <KeyboardShortcut shortcut="T" onKeyPress={() => setIsFocused(true)} />
