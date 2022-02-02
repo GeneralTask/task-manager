@@ -2,8 +2,8 @@ import Accounts from './Accounts'
 import Preferences from './Preferences'
 import React from 'react'
 import styled from 'styled-components'
-import Navbar from '../Navbar'
-import { NavbarPages } from '../../helpers/enums'
+import Navbar from '../navbar/Navbar'
+import { NavbarPage } from '../../helpers/enums'
 import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
 
 const SettingsPageContainer = styled.div`
@@ -33,7 +33,7 @@ const Setting = styled.div`
 const Settings: React.FC = () => {
     return (
         <SettingsPageContainer>
-            <Navbar currentPage={NavbarPages.SETTINGS_PAGE} />
+            <Navbar currentPage={NavbarPage.SETTINGS_PAGE} />
             <SettingsContentContainer>
                 <Header>Settings</Header>
                 <Setting>

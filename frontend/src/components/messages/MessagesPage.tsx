@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import { MESSAGES_FETCH_INTERVAL, MESSAGES_URL } from '../../constants'
-import { AbortID, FetchStatusEnum, NavbarPages } from '../../helpers/enums'
+import { AbortID, FetchStatusEnum, NavbarPage } from '../../helpers/enums'
 import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
@@ -10,7 +10,7 @@ import { setShowCalendarSidebar } from '../../redux/tasksPageSlice'
 import EventAlert from '../alert/EventAlert'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import ExpandCollapse from '../common/ExpandCollapse'
-import Navbar from '../Navbar'
+import Navbar from '../navbar/Navbar'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import RefreshButton from '../task/RefreshButton'
@@ -117,7 +117,7 @@ const MessagesPage: React.FC = () => {
     const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
     return (
         <MessagesPageContainer>
-            <Navbar currentPage={NavbarPages.MESSAGES_PAGE} />
+            <Navbar currentPage={NavbarPage.MESSAGES_PAGE} />
             <EventAlert>
                 <Messages />
             </EventAlert>
