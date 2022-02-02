@@ -57,6 +57,7 @@ interface EventBodyStyleProps {
     topOffset: number
     squishFactor: number
     leftOffset: number
+    eventHasEnded: boolean
 }
 export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     --squish-factor: ${({ squishFactor }) => squishFactor};
@@ -66,6 +67,7 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     top: ${(props) => props.topOffset}px;
     position: absolute;
     left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset));
+    opacity: ${({ eventHasEnded }) => eventHasEnded ? 0.5 : 1};
 `
 export const EventInfoContainer = styled.div`
     display: flex;
