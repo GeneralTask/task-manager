@@ -123,7 +123,7 @@ func ValidateFields(c *gin.Context, updateFields *database.TaskChangeableFields)
 	return true
 }
 
-func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string, task *database.Task) error {
+func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string, task *database.Item) error {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -183,7 +183,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 	return nil
 }
 
-func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) (*database.Task, error) {
+func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) (*database.Item, error) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -193,7 +193,7 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
-	var task database.Task
+	var task database.Item
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = taskCollection.FindOne(
@@ -209,7 +209,7 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 	return &task, nil
 }
 
-func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, task *database.Task, isCompleted bool) error {
+func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, task *database.Item, isCompleted bool) error {
 	if !isCompleted {
 		c.JSON(400, gin.H{"detail": "tasks can only be marked as complete."})
 		return errors.New("tasks can only be marked as complete")
@@ -236,7 +236,7 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 	return nil
 }
 
-func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields, task *database.Task) {
+func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields, task *database.Item) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {

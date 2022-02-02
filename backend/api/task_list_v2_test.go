@@ -31,8 +31,10 @@ func TestMergeTasksV2V2(t *testing.T) {
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
 			Email: &database.Email{
-
 				SenderDomain: "gmail.com",
+			},
+			TaskType: database.TaskType{
+				IsMessage: true,
 			},
 		}
 
@@ -49,8 +51,10 @@ func TestMergeTasksV2V2(t *testing.T) {
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Minute)),
 			},
 			Email: &database.Email{
-
 				SenderDomain: "moon.com",
+			},
+			TaskType: database.TaskType{
+				IsMessage: true,
 			},
 		}
 
@@ -69,10 +73,13 @@ func TestMergeTasksV2V2(t *testing.T) {
 			Email: &database.Email{
 				SenderDomain: "yahoo.com",
 			},
+			TaskType: database.TaskType{
+				IsMessage: true,
+			},
 		}
 
 		t1ID := primitive.NewObjectID()
-		t1 := database.Task{
+		t1 := database.Item{
 			TaskBase: database.TaskBase{
 				ID:              t1ID,
 				IDExternal:      "sample_task",
@@ -83,13 +90,18 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID: "AtlassianSite2",
 				DueDate:         primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24)),
 			},
-			PriorityID:         "5",
-			PriorityNormalized: 1.0,
-			TaskNumber:         2,
+			Task: &database.Task{
+				PriorityID:         "5",
+				PriorityNormalized: 1.0,
+				TaskNumber:         2,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 
 		t2ID := primitive.NewObjectID()
-		t2 := database.Task{
+		t2 := database.Item{
 			TaskBase: database.TaskBase{
 				ID:              t2ID,
 				IDExternal:      "sample_task1",
@@ -100,13 +112,18 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID: "AtlassianSite1",
 				DueDate:         primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			},
-			PriorityID:         "3",
-			PriorityNormalized: 1.0,
-			TaskNumber:         12,
+			Task: &database.Task{
+				PriorityID:         "3",
+				PriorityNormalized: 1.0,
+				TaskNumber:         12,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 
 		t3ID := primitive.NewObjectID()
-		t3 := database.Task{
+		t3 := database.Item{
 			TaskBase: database.TaskBase{
 				ID:              t3ID,
 				IDExternal:      "sample_task2",
@@ -117,13 +134,18 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID: "AtlassianSite1",
 				DueDate:         primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			PriorityID:         "1",
-			PriorityNormalized: 0.0,
-			TaskNumber:         7,
+			Task: &database.Task{
+				PriorityID:         "1",
+				PriorityNormalized: 0.0,
+				TaskNumber:         7,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 
 		t4ID := primitive.NewObjectID()
-		t4 := database.Task{
+		t4 := database.Item{
 			TaskBase: database.TaskBase{
 				ID:              t4ID,
 				IDExternal:      "sample_task3",
@@ -134,16 +156,21 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID: "AtlassianSite1",
 				DueDate:         primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			PriorityID:         "3",
-			PriorityNormalized: 1.0,
-			TaskNumber:         1,
+			Task: &database.Task{
+				PriorityID:         "3",
+				PriorityNormalized: 1.0,
+				TaskNumber:         1,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{},
 			[]*database.Item{&e1, &e1a, &e2},
-			[]*database.Task{&t1, &t2, &t3, &t4},
+			[]*database.Item{&t1, &t2, &t3, &t4},
 			primitive.NewObjectID(),
 		)
 		assert.NoError(t, err)
@@ -165,7 +192,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		// Tested here: existing DB ordering IDs are kept (except cal events)
 
 		userID := primitive.NewObjectID()
-		t1 := database.Task{
+		t1 := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:     1,
 				IDExternal:     "sample_task",
@@ -176,15 +203,20 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			PriorityID:         "5",
-			PriorityNormalized: 1.0,
-			TaskNumber:         7,
+			Task: &database.Task{
+				PriorityID:         "5",
+				PriorityNormalized: 1.0,
+				TaskNumber:         7,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t1)
 		assert.NoError(t, err)
 		t1.ID = t1Res.ID
 
-		t2 := database.Task{
+		t2 := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:     4,
 				IDExternal:     "sample_task2",
@@ -195,9 +227,14 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			},
-			PriorityID:         "3",
-			PriorityNormalized: 0.0,
-			TaskNumber:         12,
+			Task: &database.Task{
+				PriorityID:         "3",
+				PriorityNormalized: 0.0,
+				TaskNumber:         12,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", external.TASK_SOURCE_ID_JIRA, t2)
 		assert.NoError(t, err)
@@ -207,7 +244,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 			db,
 			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
 			[]*database.Item{},
-			[]*database.Task{&t1, &t2},
+			[]*database.Item{&t1, &t2},
 			userID,
 		)
 		assert.NoError(t, err)
@@ -227,7 +264,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 		userID := primitive.NewObjectID()
 		t1ID := primitive.NewObjectID()
-		t1 := database.Task{
+		t1 := database.Item{
 			TaskBase: database.TaskBase{
 				ID:             t1ID,
 				IDExternal:     "sample_task",
@@ -238,12 +275,17 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 1)),
 			},
-			PriorityID:         "1",
-			PriorityNormalized: 0.0,
-			TaskNumber:         7,
+			Task: &database.Task{
+				PriorityID:         "1",
+				PriorityNormalized: 0.0,
+				TaskNumber:         7,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 
-		t2 := database.Task{
+		t2 := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:       4,
 				HasBeenReordered: true,
@@ -255,9 +297,14 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:           userID,
 				DueDate:          primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			},
-			PriorityID:         "3",
-			PriorityNormalized: 1.0,
-			TaskNumber:         12,
+			Task: &database.Task{
+				PriorityID:         "3",
+				PriorityNormalized: 1.0,
+				TaskNumber:         12,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", external.TASK_SOURCE_ID_JIRA, t2)
 		assert.NoError(t, err)
@@ -267,7 +314,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 			db,
 			&[]database.TaskBase{t2.TaskBase},
 			[]*database.Item{},
-			[]*database.Task{&t1, &t2},
+			[]*database.Item{&t1, &t2},
 			userID,
 		)
 		assert.NoError(t, err)
@@ -282,7 +329,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		// Tested here: completed tasks cause reordered tasks to move up in list
 
 		userID := primitive.NewObjectID()
-		t1 := database.Task{
+		t1 := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:     1,
 				IDExternal:     "sample_task",
@@ -293,15 +340,20 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			PriorityID:         "5",
-			PriorityNormalized: 0.5,
-			TaskNumber:         7,
+			Task: &database.Task{
+				PriorityID:         "5",
+				PriorityNormalized: 0.5,
+				TaskNumber:         7,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t1)
 		assert.NoError(t, err)
 		t1.ID = t1Res.ID
 
-		t2 := database.Task{
+		t2 := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:       2,
 				HasBeenReordered: true,
@@ -313,9 +365,14 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:           userID,
 				DueDate:          primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			},
-			PriorityID:         "3",
-			PriorityNormalized: 0.0,
-			TaskNumber:         12,
+			Task: &database.Task{
+				PriorityID:         "3",
+				PriorityNormalized: 0.0,
+				TaskNumber:         12,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", external.TASK_SOURCE_ID_JIRA, t2)
 		assert.NoError(t, err)
@@ -336,13 +393,16 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 				SenderDomain: "gmail.com",
 			},
+			TaskType: database.TaskType{
+				IsMessage: true,
+			},
 		}
 
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
 			[]*database.Item{&e1},
-			[]*database.Task{&t2},
+			[]*database.Item{&t2},
 			userID,
 		)
 		assert.NoError(t, err)
@@ -356,7 +416,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 	t.Run("FirstTaskPersists", func(t *testing.T) {
 		userID := primitive.NewObjectID()
-		t1 := database.Task{
+		t1 := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:     1,
 				IDExternal:     "sample_task",
@@ -367,15 +427,20 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			PriorityID:         "5",
-			PriorityNormalized: 0.5,
-			TaskNumber:         1,
+			Task: &database.Task{
+				PriorityID:         "5",
+				PriorityNormalized: 0.5,
+				TaskNumber:         1,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t1)
 		assert.NoError(t, err)
 		t1.ID = t1Res.ID
 
-		t2 := database.Task{
+		t2 := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:     2,
 				IDExternal:     "sample_task",
@@ -386,15 +451,20 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			PriorityID:         "6",
-			PriorityNormalized: 0.75,
-			TaskNumber:         2,
+			Task: &database.Task{
+				PriorityID:         "6",
+				PriorityNormalized: 0.75,
+				TaskNumber:         2,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t2)
 		assert.NoError(t, err)
 		t2.ID = t2Res.ID
 
-		t3 := database.Task{
+		t3 := database.Item{
 			TaskBase: database.TaskBase{
 				//0 ID ordering indicates new task.
 				IDOrdering:     0,
@@ -406,14 +476,19 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			PriorityID: "2",
-			TaskNumber: 3,
+			Task: &database.Task{
+				PriorityID: "2",
+				TaskNumber: 3,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t3Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t3)
 		assert.NoError(t, err)
 		t3.ID = t3Res.ID
 
-		t4 := database.Task{
+		t4 := database.Item{
 			TaskBase: database.TaskBase{
 				//0 ID ordering indicates new task.
 				IDOrdering:     0,
@@ -425,8 +500,13 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			PriorityID: "3",
-			TaskNumber: 4,
+			Task: &database.Task{
+				PriorityID: "3",
+				TaskNumber: 4,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t4Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t4)
 		assert.NoError(t, err)
@@ -436,7 +516,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 			db,
 			&[]database.TaskBase{},
 			[]*database.Item{},
-			[]*database.Task{&t1, &t2, &t3, &t4},
+			[]*database.Item{&t1, &t2, &t3, &t4},
 			userID,
 		)
 		assert.NoError(t, err)
@@ -451,7 +531,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 	})
 	t.Run("SectionTasksStay", func(t *testing.T) {
 		userID := primitive.NewObjectID()
-		t1 := database.Task{
+		t1 := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:     2,
 				IDExternal:     "sample_task",
@@ -463,15 +543,20 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			PriorityID:         "5",
-			PriorityNormalized: 0.5,
-			TaskNumber:         7,
+			Task: &database.Task{
+				PriorityID:         "5",
+				PriorityNormalized: 0.5,
+				TaskNumber:         7,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t1Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t1)
 		assert.NoError(t, err)
 		t1.ID = t1Res.ID
 
-		t2 := database.Task{
+		t2 := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:     1,
 				IDExternal:     "sample_task2",
@@ -483,15 +568,20 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			},
-			PriorityID:         "3",
-			PriorityNormalized: 0.0,
-			TaskNumber:         12,
+			Task: &database.Task{
+				PriorityID:         "3",
+				PriorityNormalized: 0.0,
+				TaskNumber:         12,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t2Res, err := database.GetOrCreateTask(db, userID, "sample_task2", external.TASK_SOURCE_ID_JIRA, t2)
 		assert.NoError(t, err)
 		t2.ID = t2Res.ID
 
-		t3 := database.Task{
+		t3 := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:     2,
 				IDExternal:     "sample_task",
@@ -503,15 +593,20 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			PriorityID:         "5",
-			PriorityNormalized: 0.5,
-			TaskNumber:         7,
+			Task: &database.Task{
+				PriorityID:         "5",
+				PriorityNormalized: 0.5,
+				TaskNumber:         7,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t3Res, err := database.GetOrCreateTask(db, userID, "sample_task", external.TASK_SOURCE_ID_JIRA, t3)
 		assert.NoError(t, err)
 		t3.ID = t3Res.ID
 
-		t4 := database.Task{
+		t4 := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:     1,
 				IDExternal:     "sample_task2",
@@ -523,9 +618,14 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			},
-			PriorityID:         "3",
-			PriorityNormalized: 0.0,
-			TaskNumber:         12,
+			Task: &database.Task{
+				PriorityID:         "3",
+				PriorityNormalized: 0.0,
+				TaskNumber:         12,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		t4Res, err := database.GetOrCreateTask(db, userID, "sample_task2", external.TASK_SOURCE_ID_JIRA, t4)
 		assert.NoError(t, err)
@@ -535,7 +635,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 			db,
 			&[]database.TaskBase{t1.TaskBase, t2.TaskBase, t3.TaskBase, t4.TaskBase},
 			[]*database.Item{},
-			[]*database.Task{&t1, &t2, &t3, &t4},
+			[]*database.Item{&t1, &t2, &t3, &t4},
 			userID,
 		)
 		assert.NoError(t, err)
@@ -566,6 +666,9 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 				SenderDomain: "gmail.com",
 			},
+			TaskType: database.TaskType{
+				IsMessage: true,
+			},
 		}
 
 		e2ID := primitive.NewObjectID()
@@ -583,6 +686,9 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 				SenderDomain: "gmail.com",
 			},
+			TaskType: database.TaskType{
+				IsMessage: true,
+			},
 		}
 
 		err := settings.UpdateUserSetting(
@@ -597,7 +703,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 			db,
 			&[]database.TaskBase{e1.TaskBase, e2.TaskBase},
 			[]*database.Item{&e1, &e2},
-			[]*database.Task{},
+			[]*database.Item{},
 			userID,
 		)
 		assert.NoError(t, err)

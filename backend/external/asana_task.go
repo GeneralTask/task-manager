@@ -87,9 +87,9 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 		return
 	}
 
-	var tasks []*database.Task
+	var tasks []*database.Item
 	for _, asanaTaskData := range asanaTasks.Data {
-		task := &database.Task{
+		task := &database.Item{
 			TaskBase: database.TaskBase{
 				UserID:            userID,
 				IDExternal:        asanaTaskData.GID,
@@ -106,7 +106,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 		if err == nil {
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
-		var dbTask database.Task
+		var dbTask database.Item
 		res, err := database.UpdateOrCreateTask(
 			db,
 			userID,

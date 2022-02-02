@@ -22,7 +22,7 @@ func TestGetActiveTasks(t *testing.T) {
 			userID,
 			"123abc",
 			"foobar_source",
-			&Task{TaskBase: TaskBase{
+			&Item{TaskBase: TaskBase{
 				IDExternal: "123abc",
 				SourceID:   "foobar_source",
 				UserID:     userID,
@@ -51,7 +51,7 @@ func TestGetActiveTasks(t *testing.T) {
 			notUserID,
 			"123abe",
 			"foobar_source",
-			&Task{TaskBase: TaskBase{
+			&Item{TaskBase: TaskBase{
 				IDExternal: "123abe",
 				SourceID:   "foobar_source",
 				UserID:     notUserID,
@@ -112,7 +112,7 @@ func TestGetActiveEmails(t *testing.T) {
 			userID,
 			"123abe",
 			"foobar_source",
-			&Task{TaskBase: TaskBase{
+			&Item{TaskBase: TaskBase{
 				IDExternal: "123abe",
 				SourceID:   "foobar_source",
 				UserID:     userID,

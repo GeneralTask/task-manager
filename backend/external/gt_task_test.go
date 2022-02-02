@@ -20,7 +20,7 @@ func TestLoadGeneralTaskTasks(t *testing.T) {
 	insertTestTasks(
 		t,
 		userID,
-		[]*database.Task{
+		[]*database.Item{
 			task,
 			taskWrongSource,
 			taskCompleted,
@@ -91,8 +91,8 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 	})
 }
 
-func createTestTask(userID primitive.ObjectID) *database.Task {
-	return &database.Task{
+func createTestTask(userID primitive.ObjectID) *database.Item {
+	return &database.Item{
 		TaskBase: database.TaskBase{
 			IDOrdering:      2,
 			IDExternal:      primitive.NewObjectID().Hex(),
@@ -105,7 +105,7 @@ func createTestTask(userID primitive.ObjectID) *database.Task {
 	}
 }
 
-func insertTestTasks(t *testing.T, userID primitive.ObjectID, tasks []*database.Task) {
+func insertTestTasks(t *testing.T, userID primitive.ObjectID, tasks []*database.Item) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()

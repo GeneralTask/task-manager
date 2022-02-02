@@ -123,7 +123,6 @@ type Email struct {
 }
 
 type Task struct {
-	TaskBase           `bson:",inline"`
 	PriorityID         string  `bson:"priority_id"`
 	PriorityNormalized float64 `bson:"priority_normalized"`
 	TaskNumber         int     `bson:"task_number"`
