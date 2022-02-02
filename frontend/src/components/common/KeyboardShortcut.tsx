@@ -36,6 +36,7 @@ const KeyboardShortcutContainer = styled.div<{ isPressed: boolean }>`
     color: ${TEXT_KEYBOARD_SHORTCUT};
 `
 
+// gets triggered when the lowercase letter is pressed (including with CAPS LOCK, but not when you hit shift+key)
 interface Props {
     shortcut: string,
     onKeyPress: () => void,
