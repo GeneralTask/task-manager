@@ -58,6 +58,20 @@ type Oauth1RequestSecret struct {
 	RequestSecret string             `bson:"request_secret"`
 }
 
+type Item struct {
+	TaskBase       `bson:",inline"`
+	TaskType       `bson:"task_type"`
+	*Task          `bson:"task,omitempty"`
+	*Email         `bson:"email,omitempty"`
+	*CalendarEvent `bson:"calendar_event,omitempty"`
+}
+
+type TaskType struct {
+	IsTask    bool `bson:"is_task"`
+	IsMessage bool `bson:"is_message"`
+	IsEvent   bool `bson:"is_event"`
+}
+
 // Task json & mongo model
 type TaskBase struct {
 	ID               primitive.ObjectID `bson:"_id,omitempty"`
@@ -104,7 +118,6 @@ type CalendarEventChangeableFields struct {
 }
 
 type Email struct {
-	TaskBase     `bson:",inline"`
 	ThreadID     string `bson:"thread_id"`
 	SenderDomain string `bson:"sender_domain"`
 }

@@ -45,7 +45,7 @@ func TestGetConferenceUrlFromString(t *testing.T) {
 			URL:      "https://medtronic.zoom.us/j/4746676152?pwd=d28xd29Nblp1QXh6MlJvZ3ZheHBUZz09",
 		}
 		assert.Equal(t, expected, *conference)
-	})	
+	})
 
 	t.Run("Other URLs", func(t *testing.T) {
 		text := "This is very important https://youtu.be/dQw4w9WgXcQ"
@@ -53,6 +53,3 @@ func TestGetConferenceUrlFromString(t *testing.T) {
 		assert.Nil(t, conference)
 	})
 }
-
-
-

@@ -136,7 +136,7 @@ func (api *API) TasksListV2(c *gin.Context) {
 	allTasks, err := MergeTasksV2(
 		db,
 		currentTasks,
-		[]*database.Email{},
+		[]*database.Item{},
 		tasks,
 		userID.(primitive.ObjectID),
 	)
@@ -150,7 +150,7 @@ func (api *API) TasksListV2(c *gin.Context) {
 func MergeTasksV2(
 	db *mongo.Database,
 	currentTasks *[]database.TaskBase,
-	emails []*database.Email,
+	emails []*database.Item,
 	tasks []*database.Task,
 	userID primitive.ObjectID,
 ) ([]*TaskSectionV2, error) {
@@ -203,15 +203,15 @@ func MergeTasksV2(
 			switch b.(type) {
 			case *database.Task:
 				return compareTasks(a.(*database.Task), b.(*database.Task))
-			case *database.Email:
-				return compareTaskEmail(a.(*database.Task), b.(*database.Email))
+			case *database.Item: // using in place of email for now
+				return compareTaskEmail(a.(*database.Task), b.(*database.Item))
 			}
-		case *database.Email:
+		case *database.Item: // using in place of email for now
 			switch b.(type) {
 			case *database.Task:
-				return !compareTaskEmail(b.(*database.Task), a.(*database.Email))
-			case *database.Email:
-				return compareEmails(a.(*database.Email), b.(*database.Email), newestEmailsFirst)
+				return !compareTaskEmail(b.(*database.Task), a.(*database.Item))
+			case *database.Item: // using in place of email for now
+				return compareEmails(a.(*database.Item), b.(*database.Item), newestEmailsFirst)
 			}
 		}
 		return true
@@ -267,7 +267,8 @@ func extractSectionTasksV2(allUnscheduledTasks *[]interface{}) ([]*TaskResultV2,
 	var allOtherTasks []interface{}
 	for _, task := range *allUnscheduledTasks {
 		switch task := task.(type) {
-		case *database.Email:
+		// case *database.Email:
+		case *database.Item:
 			if task.IDTaskSection == constants.IDTaskSectionBlocked {
 				blockedTasks = append(blockedTasks, taskBaseToTaskResultV2(&task.TaskBase))
 				continue
@@ -388,7 +389,7 @@ func taskBaseToTaskResultV2(t *database.TaskBase) *TaskResultV2 {
 
 func getTaskBase(t interface{}) *database.TaskBase {
 	switch t := t.(type) {
-	case *database.Email:
+	case *database.Item: // todo - using in place of email type for now
 		return &(t.TaskBase)
 	case *database.Task:
 		return &(t.TaskBase)
@@ -399,7 +400,7 @@ func getTaskBase(t interface{}) *database.TaskBase {
 	}
 }
 
-func compareEmails(e1 *database.Email, e2 *database.Email, newestEmailsFirst bool) bool {
+func compareEmails(e1 *database.Item, e2 *database.Item, newestEmailsFirst bool) bool {
 	e1Domain := utils.ExtractEmailDomain(e1.SourceAccountID)
 	e2Domain := utils.ExtractEmailDomain(e2.SourceAccountID)
 	if res := compareTaskBases(e1, e2); res != nil {
@@ -446,7 +447,7 @@ func compareTasks(t1 *database.Task, t2 *database.Task) bool {
 	}
 }
 
-func compareTaskEmail(t *database.Task, e *database.Email) bool {
+func compareTaskEmail(t *database.Task, e *database.Item) bool {
 	if res := compareTaskBases(t, e); res != nil {
 		return *res
 	}

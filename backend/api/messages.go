@@ -100,7 +100,7 @@ func (api *API) MessagesList(c *gin.Context) {
 		}
 	}
 
-	fetchedEmails := []*database.Email{}
+	fetchedEmails := []*database.Item{}
 	for _, emailChannel := range emailChannels {
 		emailResult := <-emailChannel
 		if emailResult.Error != nil {
@@ -133,7 +133,7 @@ func (api *API) MessagesList(c *gin.Context) {
 
 func orderMessages(
 	db *mongo.Database,
-	fetchedEmails []*database.Email,
+	fetchedEmails []*database.Item,
 	userID primitive.ObjectID,
 ) ([]*message, error) {
 	orderingSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailOrderingPreference)
@@ -157,8 +157,8 @@ func orderMessages(
 
 func markCompletedMessages(
 	db *mongo.Database,
-	currentEmails *[]database.Email,
-	fetchedEmails *[]*database.Email,
+	currentEmails *[]database.Item,
+	fetchedEmails *[]*database.Item,
 ) error {
 	fetchedEmailTaskIDs := make(map[primitive.ObjectID]bool)
 	for _, email := range *fetchedEmails {
@@ -188,7 +188,7 @@ func markCompletedMessages(
 	return nil
 }
 
-func emailToMessage(e *database.Email) *message {
+func emailToMessage(e *database.Item) *message {
 	// Normally we need to use api.ExternalConfig but we are just using the source details constants here
 	messageSourceResult, _ := external.GetConfig().GetTaskSourceResult(e.SourceID)
 	return &message{

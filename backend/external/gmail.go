@@ -45,7 +45,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	}
 	userDomain := utils.ExtractEmailDomain(userObject.Email)
 
-	emails := []*database.Email{}
+	emails := []*database.Item{}
 
 	client := getGoogleHttpClient(db, userID, accountID)
 	if client == nil {
@@ -136,7 +136,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
 
-			email := &database.Email{
+			email := &database.Item{
 				TaskBase: database.TaskBase{
 					UserID:            userID,
 					IDExternal:        message.Id,
@@ -150,8 +150,10 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					SourceAccountID:   accountID,
 					CreatedAtExternal: timeSent,
 				},
-				SenderDomain: senderDomain,
-				ThreadID:     threadListItem.Id,
+				Email: &database.Email{
+					SenderDomain: senderDomain,
+					ThreadID:     threadListItem.Id,
+				},
 			}
 			dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.SourceID, email)
 			if err != nil {
@@ -383,7 +385,7 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 		return err
 	}
 
-	var email database.Email
+	var email database.Item
 	taskCollection := database.GetTaskCollection(db)
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
