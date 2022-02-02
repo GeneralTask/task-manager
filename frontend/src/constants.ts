@@ -2,7 +2,7 @@ export const {
     REACT_APP_API_BASE_URL,
     REACT_APP_FRONTEND_BASE_URL,
     REACT_APP_COOKIE_DOMAIN,
-    REACT_APP_GOOGLE_OAUTH_CLIENT_ID,
+    ACCESS_CONTROL_ALLOW_ORIGIN,
 } = process.env
 
 // Backend Endpoints

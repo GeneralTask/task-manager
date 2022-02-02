@@ -24,12 +24,12 @@ export const logout = async (): Promise<void> => {
         logoutReq: true,
     })
     Cookies.remove('authToken', { path: '/', domain: REACT_APP_COOKIE_DOMAIN })
-    store.dispatch(setAuthToken(null))
+    store.dispatch(setAuthToken(undefined))
     document.location.href = LANDING_PATH
 }
 
 
-export const getAuthToken = (): string | null => store.getState().user_data.auth_token
+export const getAuthToken = (): string | undefined => store.getState().user_data.auth_token
 
 export const getHeaders = (): Record<string, string> => {
     const date = new Date()
@@ -111,7 +111,7 @@ export function emptyFunction(): void { }
 export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
     return task_sections.map((section) => {
         let idOrdering = 1
-        section.tasks.forEach((task) => (task.id_ordering = idOrdering++))
+        section.tasks?.forEach((task) => (task.id_ordering = idOrdering++))
         return section
     })
 }
