@@ -56,4 +56,9 @@ export const BodyStyle = {
     wordWrap: 'break-word',
     overflow: 'none',
     whiteSpace: 'pre-wrap',
+    fontFamily: 'Switzer-Variable',
+    fontStyle: 'normal',
+    fontWeight: 'normal',
+    fontSize: '14px',
+    lineHeight: '20px',
 }
