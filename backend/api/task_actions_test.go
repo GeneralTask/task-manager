@@ -43,7 +43,7 @@ func TestReplyToEmail(t *testing.T) {
 			Title:      "Sample subject",
 			SourceID:   external.TASK_SOURCE_ID_GMAIL,
 		},
-		Email: database.Email{
+		Email: &database.Email{
 			ThreadID: "sample_thread_id",
 		},
 	})
@@ -123,7 +123,7 @@ func TestReplyToEmail(t *testing.T) {
 				Title:      "Sample subject",
 				SourceID:   external.TASK_SOURCE_ID_GMAIL,
 			},
-			Email: database.Email{
+			Email: &database.Email{
 				ThreadID: "sample_thread_id",
 			},
 		})

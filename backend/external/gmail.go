@@ -150,7 +150,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					SourceAccountID:   accountID,
 					CreatedAtExternal: timeSent,
 				},
-				Email: database.Email{
+				Email: &database.Email{
 					SenderDomain: senderDomain,
 					ThreadID:     threadListItem.Id,
 				},

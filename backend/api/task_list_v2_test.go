@@ -30,7 +30,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID:   "elon@gmail.com",
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
-			Email: database.Email{
+			Email: &database.Email{
 
 				SenderDomain: "gmail.com",
 			},
@@ -48,7 +48,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID:   "elon@moon.com",
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Minute)),
 			},
-			Email: database.Email{
+			Email: &database.Email{
 
 				SenderDomain: "moon.com",
 			},
@@ -66,7 +66,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID:   "elon@gmail.com",
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
-			Email: database.Email{
+			Email: &database.Email{
 				SenderDomain: "yahoo.com",
 			},
 		}
@@ -332,7 +332,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				TimeAllocation:    (time.Minute * 5).Nanoseconds(),
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
-			Email: database.Email{
+			Email: &database.Email{
 
 				SenderDomain: "gmail.com",
 			},
@@ -562,7 +562,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				TimeAllocation:    (time.Minute * 5).Nanoseconds(),
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Hour)),
 			},
-			Email: database.Email{
+			Email: &database.Email{
 
 				SenderDomain: "gmail.com",
 			},
@@ -579,7 +579,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				TimeAllocation:    (time.Minute * 5).Nanoseconds(),
 				CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now().Add(-time.Minute)),
 			},
-			Email: database.Email{
+			Email: &database.Email{
 
 				SenderDomain: "gmail.com",
 			},
