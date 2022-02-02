@@ -1,7 +1,7 @@
 import './Task.css'
 import { Action, Dispatch } from '@reduxjs/toolkit'
 import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 import { collapseBody, expandBody, removeTaskByID, hideDatePicker, hideTimeEstimate, showDatePicker, showTimeEstimate } from '../../redux/tasksPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'
@@ -11,7 +11,6 @@ import {
   TaskHeaderContainer,
   HeaderLeft,
   Icon,
-  Title,
   HeaderRight,
   DeadlineIndicator,
   CalendarDate,
@@ -33,6 +32,7 @@ import TimeEstimate from './HeaderOptions/TimeEstimatePicker'
 import DatePicker from './HeaderOptions/DatePicker'
 import Tooltip from '../common/Tooltip'
 import Domino from '../common/Domino'
+import { EditableTaskTitle } from '../common/Title'
 
 interface TaskHeaderProps {
   task: TTask
@@ -43,8 +43,6 @@ interface TaskHeaderProps {
 const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: TaskHeaderProps, ref) => {
   const dispatch = useAppDispatch()
   const fetchTasks = useFetchTasks()
-
-  const title_text = useRef(props.task.title)
 
   const date_picker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
   const time_estimate = useAppSelector((state) => state.tasks_page.tasks.time_estimate)
@@ -57,56 +55,15 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
   const dd = today.getDate()
   const month = today.toLocaleDateString('default', { month: 'short' })
 
-  const is_editable = props.task.source.name === 'General Task'
-
-  const hoverEffectEnabled = !!(props.task.body || props.task.deeplink)
-  const onClick = useCallback(() => {
-    if (hoverEffectEnabled) {
-      if (props.isExpanded) {
-        dispatch(collapseBody())
-        logEvent(LogEvents.TASK_COLLAPSED)
-      } else {
-        dispatch(expandBody(props.task.id))
-        logEvent(LogEvents.TASK_EXPANDED)
-      }
-    }
-  }, [hoverEffectEnabled, props.isExpanded])
+  const isEditable = props.task.source.name === 'General Task'
 
   const onDoneButtonClick = useCallback(() => {
     done(props.task.id, dispatch, fetchTasks)
     logEvent(LogEvents.TASK_MARK_AS_DONE)
   }, [])
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    title_text.current = e.target.value
-  }
-
-  const handleTitleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      e.currentTarget.blur()
-    }
-  }
-
-  const handleTitleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-    e.target.scrollLeft = 0
-    makeAuthorizedRequest({
-      url: TASKS_MODIFY_URL + props.task.id + '/',
-      method: 'PATCH',
-      body: JSON.stringify({ title: title_text.current }),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('PATCH /tasks/modify failed: ' + response.text())
-        }
-      })
-      .catch(e => {
-        console.log({ e })
-      })
-  }
-
   return (
-    <TaskHeaderContainer hoverEffect={hoverEffectEnabled} showButtons={props.isExpanded} onClick={onClick}>
+    <TaskHeaderContainer showButtons={props.isExpanded}>
       <HeaderLeft>
         {
           !props.dragDisabled &&
@@ -126,20 +83,10 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
           </DoneButtonContainer>
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
-        <Title isExpanded={props.isExpanded}
-          isEditable={is_editable}
-          disabled={!is_editable}
-          onClick={(e) => e.stopPropagation()}
-          onChange={(e) => handleTitleChange(e)}
-          onBlur={(e) => handleTitleBlur(e)}
-          onKeyPress={(e) => handleTitleKeyPress(e)}
-          defaultValue={props.task.title}
-          // to prevent inputs from triggering keyboard shortcuts
-          onKeyDown={e => e.stopPropagation()} />
+        <EditableTaskTitle task={props.task} isExpanded={props.isExpanded} isEditable={isEditable} />
       </HeaderLeft>
       <HeaderRight>
         {
-          hoverEffectEnabled &&
           <ButtonRightContainer>
             <ButtonRight onClick={(e) => {
               e.stopPropagation()
