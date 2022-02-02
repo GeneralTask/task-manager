@@ -60,7 +60,6 @@ export const TaskHeaderContainer = styled(NoSelect) <{ showButtons: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
   min-height: 50px;
 `
 export const HeaderLeft = styled.div`

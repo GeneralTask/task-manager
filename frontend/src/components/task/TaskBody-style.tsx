@@ -1,13 +1,6 @@
 import styled from 'styled-components'
 import { TEXT_BLACK } from '../../helpers/styles'
 
-export const BodyIframe = styled.iframe<{ iframeHeight: number }>`
-    border: none;
-    border-radius: 2px;
-    width: 100%;
-    visibility: hidden;
-    height: ${(props) => props.iframeHeight + 'px'};
-`
 export const TaskBodyDiv = styled.div`
     margin: auto;
     width: 95%;
@@ -55,4 +48,13 @@ export const ReplyInputStyle = {
     overflow: 'scroll',
     outline: 'none',
     marginRight: '10px',
+}
+
+export const BodyStyle = {
+    margin: '20px',
+    marginBottom: '40px',
+    padding: '20px',
+    border: `1px solid ${TEXT_BLACK}`,
+    borderRadius: '6px',
+    // outline: 'none',
 }
