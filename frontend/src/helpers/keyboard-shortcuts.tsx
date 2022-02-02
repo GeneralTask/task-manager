@@ -9,6 +9,7 @@ const keyboardShortcuts = new Map<string, (dispatch: Dispatch) => void>([
 ])
 
 function handleKeyboardShortcuts(e: KeyboardEvent, dispatch: Dispatch): void {
+    if (e.metaKey) return
     e.preventDefault()
     let keyName = ''
     if (e.ctrlKey) {
