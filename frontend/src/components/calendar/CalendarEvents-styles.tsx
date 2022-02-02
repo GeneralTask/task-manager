@@ -62,7 +62,7 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     --squish-factor: ${({ squishFactor }) => squishFactor};
     --left-offset: ${({ leftOffset }) => leftOffset};
     width: calc( ${WIDTH_CSS_CALCULATION});
-    height: ${(props) => props.eventBodyHeight}px;
+    height: calc(${(props) => props.eventBodyHeight}px - ${EVENT_BOTTOM_PADDING}px);
     top: ${(props) => props.topOffset}px;
     position: absolute;
     left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset));
