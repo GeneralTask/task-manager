@@ -2,6 +2,7 @@ import { EventBodyStyle, EventInfoContainer, EventInfo, EventTitle, EventTime, E
 import { CELL_HEIGHT } from '../../helpers/styles'
 import { TEvent } from '../../helpers/types'
 import React from 'react'
+import { NO_EVENT_TITLE_DEFAULT } from '../../constants'
 
 const LONG_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes
@@ -44,7 +45,7 @@ function EventBody({ event, collisionGroupSize, leftOffset }: EventBodyProps): J
             <EventInfoContainer >
                 <EventInfo isLongEvent={isLongEvent}>
                     <EventTitle isLongEvent={isLongEvent}>
-                        {event.title}
+                        {event.title || NO_EVENT_TITLE_DEFAULT}
                     </EventTitle>
                     <EventTime>
                         {`${startTimeString} - ${endTimeString}`}
