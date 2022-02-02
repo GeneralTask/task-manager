@@ -23,4 +23,5 @@ type TaskCreationObject struct {
 	Body           string
 	DueDate        *time.Time
 	TimeAllocation *int64
+	IDTaskSection  primitive.ObjectID
 }

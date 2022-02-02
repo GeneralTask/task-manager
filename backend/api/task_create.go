@@ -13,11 +13,12 @@ import (
 )
 
 type TaskCreateParams struct {
-	AccountID    string     `json:"account_id"`
-	Title        string     `json:"title" binding:"required"`
-	Body         string     `json:"body"`
-	DueDate      *time.Time `json:"due_date"`
-	TimeDuration *int       `json:"time_duration"`
+	AccountID     string     `json:"account_id"`
+	Title         string     `json:"title" binding:"required"`
+	Body          string     `json:"body"`
+	DueDate       *time.Time `json:"due_date"`
+	TimeDuration  *int       `json:"time_duration"`
+	IDTaskSection *string    `json:"id_task_section"`
 }
 
 func (api *API) TaskCreate(c *gin.Context) {
@@ -34,6 +35,15 @@ func (api *API) TaskCreate(c *gin.Context) {
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "invalid or missing parameter."})
 		return
+	}
+
+	IDTaskSection := primitive.NilObjectID
+	if taskCreateParams.IDTaskSection != nil {
+		IDTaskSection, err = primitive.ObjectIDFromHex(*taskCreateParams.IDTaskSection)
+		if err != nil || (IDTaskSection != constants.IDTaskSectionToday && IDTaskSection != constants.IDTaskSectionBlocked && IDTaskSection != constants.IDTaskSectionBacklog) {
+			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
+			return
+		}
 	}
 
 	userIDRaw, _ := c.Get("user")
@@ -77,6 +87,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 		Body:           taskCreateParams.Body,
 		DueDate:        taskCreateParams.DueDate,
 		TimeAllocation: timeAllocation,
+		IDTaskSection:  IDTaskSection,
 	}
 	err = taskSourceResult.Source.CreateNewTask(userID, taskCreateParams.AccountID, taskCreationObject)
 	if err != nil {
