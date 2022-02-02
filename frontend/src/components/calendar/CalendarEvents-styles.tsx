@@ -62,7 +62,6 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     top: ${(props) => props.topOffset}px;
     position: absolute;
     left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + (${WIDTH__CSS_CALCULATION}) * var(--left-offset));
-    );
 `
 export const EventInfoContainer = styled.div`
     display: flex;
