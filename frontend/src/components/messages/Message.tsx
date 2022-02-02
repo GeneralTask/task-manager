@@ -6,11 +6,12 @@ import { useFetchMessages } from './MessagesPage'
 import { collapseBody, expandBody } from '../../redux/messagesPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { LogEvents } from '../../helpers/enums'
-import { ButtonIcon, ButtonRight, ButtonRightContainer, HeaderLeft, HeaderRight, TaskHeaderContainer, Title } from '../task/TaskHeader-style'
+import { ButtonIcon, ButtonRight, ButtonRightContainer, HeaderLeft, HeaderRight, TaskHeaderContainer } from '../task/TaskHeader-style'
 import { EXPAND_ICON, MESSAGES_MODIFY_URL } from '../../constants'
 import MessageBody from './MessageBody'
 import { DateTime } from 'luxon'
 import Tooltip from '../common/Tooltip'
+import { MessageTitle } from '../common/Title'
 
 interface MessageHeaderProps {
     message: TMessage
@@ -43,7 +44,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
                     <UnreadIndicator />
                 }
                 <Icon src={props.message.source.logo} alt="icon"></Icon>
-                <Title isExpanded={props.isExpanded} isEditable={false} defaultValue={props.message.title} />
+                <MessageTitle message={props.message} isExpanded={props.isExpanded} />
             </HeaderLeft>
             <HeaderRight>
                 {props.message.sent_at &&

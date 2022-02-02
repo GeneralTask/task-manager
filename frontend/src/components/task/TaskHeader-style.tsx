@@ -155,37 +155,3 @@ export const Title = styled.div<{ isExpanded: boolean, isEditable: boolean }>`
     margin: 0 15px;
     height: 1.2em;`}
 `
-
-export const TitleStyle = {
-  border: 'none',
-  backgroundColor: 'transparent',
-  resize: 'none',
-  fontSize: '15px',
-  font: 'inherit',
-  color: '${TEXT_BLACK}',
-  textOverflow: 'ellipsis',
-  userSelect: 'text',
-  width: '100%',
-  cursor: 'text',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  margin: '0 15px',
-  height: '1.2em',
-}
-
-export const TitleStyleExpanded = {
-  border: 'none',
-  backgroundColor: 'transparent',
-  resize: 'none',
-  fontSize: '15px',
-  font: 'inherit',
-  color: '${TEXT_BLACK}',
-  textOverflow: 'ellipsis',
-  userSelect: 'text',
-  width: '100%',
-  cursor: 'text',
-  wordWrap: 'break-word',
-  minWidth: '0px',
-  margin: '10px 15px',
-  height: 'auto',
-}

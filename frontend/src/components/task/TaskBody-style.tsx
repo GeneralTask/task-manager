@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { BORDER_PRIMARY, TEXT_BLACK } from '../../helpers/styles'
+import { TEXT_BLACK } from '../../helpers/styles'
 
 export const TaskBodyDiv = styled.div`
     margin: auto;
@@ -51,12 +51,9 @@ export const ReplyInputStyle = {
 }
 
 export const BodyStyle = {
-    margin: '20px',
-    marginBottom: '40px',
-    padding: '20px',
-    border: `1px solid ${BORDER_PRIMARY}`,
-    borderRadius: '12px',
-    outline: 'none',
+    marginBottom: '12px',
+    padding: '10px',
     wordWrap: 'break-word',
     overflow: 'none',
+    whiteSpace: 'pre-wrap',
 }

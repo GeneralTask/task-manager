@@ -1,6 +1,6 @@
 import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 import { TASKS_MODIFY_URL, TASKS_URL } from '../../constants'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useFetchTasks } from './TasksPage'
 import ContentEditable from 'react-contenteditable'
@@ -32,6 +32,8 @@ interface Props {
 // has_body, expanded_body == task_id: show body
 const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
     const { body, id, sender, deeplink, source, sent_at } = task
+    const editable = task.source.name === 'General Task'
+    const hasBody = body !== '<body></body>'
     return (
         <ExpandedBody isExpanded={isExpanded}>
             {(
@@ -41,7 +43,9 @@ const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
                             <EmailBody body={body} task_id={id} />
                             <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />
                         </> : <>
-                            <Body body={body} task_id={id} editable={task.source.name === 'General Task'} />
+                            {(hasBody || editable) &&
+                                <Body body={body} task_id={id} editable={editable} />
+                            }
                         </>
                     }
                 </TaskBodyDiv>
