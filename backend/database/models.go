@@ -58,7 +58,7 @@ type Oauth1RequestSecret struct {
 	RequestSecret string             `bson:"request_secret"`
 }
 
-type TaskRecord struct {
+type Item struct {
 	TaskBase       `bson:",inline"`
 	TaskType       `bson:"task_type"`
 	*Task          `bson:"task,omitempty"`

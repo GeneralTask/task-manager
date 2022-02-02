@@ -19,7 +19,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 	t.Run("SimpleMerge", func(t *testing.T) {
 		e1ID := primitive.NewObjectID()
-		e1 := database.TaskRecord{
+		e1 := database.Item{
 			TaskBase: database.TaskBase{
 				ID:                e1ID,
 				IDExternal:        "sample_email",
@@ -37,7 +37,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		}
 
 		e1aID := primitive.NewObjectID()
-		e1a := database.TaskRecord{
+		e1a := database.Item{
 			TaskBase: database.TaskBase{
 				ID:                e1aID,
 				IDExternal:        "sample_emailA",
@@ -55,7 +55,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		}
 
 		e2ID := primitive.NewObjectID()
-		e2 := database.TaskRecord{
+		e2 := database.Item{
 			TaskBase: database.TaskBase{
 				ID:                e2ID,
 				IDExternal:        "sample_email_2",
@@ -142,7 +142,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{},
-			[]*database.TaskRecord{&e1, &e1a, &e2},
+			[]*database.Item{&e1, &e1a, &e2},
 			[]*database.Task{&t1, &t2, &t3, &t4},
 			primitive.NewObjectID(),
 		)
@@ -206,7 +206,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
-			[]*database.TaskRecord{},
+			[]*database.Item{},
 			[]*database.Task{&t1, &t2},
 			userID,
 		)
@@ -266,7 +266,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{t2.TaskBase},
-			[]*database.TaskRecord{},
+			[]*database.Item{},
 			[]*database.Task{&t1, &t2},
 			userID,
 		)
@@ -322,7 +322,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		t2.ID = t2Res.ID
 
 		e1ID := primitive.NewObjectID()
-		e1 := database.TaskRecord{
+		e1 := database.Item{
 			TaskBase: database.TaskBase{
 				ID:                e1ID,
 				IDExternal:        "sample_email",
@@ -341,7 +341,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
-			[]*database.TaskRecord{&e1},
+			[]*database.Item{&e1},
 			[]*database.Task{&t2},
 			userID,
 		)
@@ -435,7 +435,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{},
-			[]*database.TaskRecord{},
+			[]*database.Item{},
 			[]*database.Task{&t1, &t2, &t3, &t4},
 			userID,
 		)
@@ -534,7 +534,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{t1.TaskBase, t2.TaskBase, t3.TaskBase, t4.TaskBase},
-			[]*database.TaskRecord{},
+			[]*database.Item{},
 			[]*database.Task{&t1, &t2, &t3, &t4},
 			userID,
 		)
@@ -552,7 +552,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 	t.Run("EmailOrderingOldestFirst", func(t *testing.T) {
 		userID := primitive.NewObjectID()
 		e1ID := primitive.NewObjectID()
-		e1 := database.TaskRecord{
+		e1 := database.Item{
 			TaskBase: database.TaskBase{
 				ID:                e1ID,
 				IDExternal:        "sample_email",
@@ -569,7 +569,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		}
 
 		e2ID := primitive.NewObjectID()
-		e2 := database.TaskRecord{
+		e2 := database.Item{
 			TaskBase: database.TaskBase{
 				ID:                e2ID,
 				IDExternal:        "sample_email",
@@ -596,7 +596,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 		result, err := MergeTasksV2(
 			db,
 			&[]database.TaskBase{e1.TaskBase, e2.TaskBase},
-			[]*database.TaskRecord{&e1, &e2},
+			[]*database.Item{&e1, &e2},
 			[]*database.Task{},
 			userID,
 		)

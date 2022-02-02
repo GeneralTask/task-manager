@@ -36,7 +36,7 @@ func TestReplyToEmail(t *testing.T) {
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	insertedResult, err := taskCollection.InsertOne(dbCtx, database.TaskRecord{
+	insertedResult, err := taskCollection.InsertOne(dbCtx, database.Item{
 		TaskBase: database.TaskBase{
 			UserID:     userID,
 			IDExternal: "sample_message_id",
@@ -116,7 +116,7 @@ func TestReplyToEmail(t *testing.T) {
 	t.Run("TaskDoesNotBelongToUser", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		insertedResult, err := taskCollection.InsertOne(dbCtx, database.TaskRecord{
+		insertedResult, err := taskCollection.InsertOne(dbCtx, database.Item{
 			TaskBase: database.TaskBase{
 				UserID:     primitive.NewObjectID(),
 				IDExternal: "sample_message_id",

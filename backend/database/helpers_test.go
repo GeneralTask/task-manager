@@ -34,7 +34,7 @@ func TestGetActiveTasks(t *testing.T) {
 			userID,
 			"123abd",
 			"foobar_source",
-			&TaskRecord{
+			&Item{
 				Email: &Email{
 					SenderDomain: "gmail",
 				},
@@ -78,7 +78,7 @@ func TestGetActiveEmails(t *testing.T) {
 			userID,
 			"123abc",
 			"foobar_source",
-			&TaskRecord{
+			&Item{
 				Email: &Email{
 					SenderDomain: "gmail",
 				},
@@ -95,7 +95,7 @@ func TestGetActiveEmails(t *testing.T) {
 			notUserID,
 			"123abd",
 			"foobar_source",
-			&TaskRecord{
+			&Item{
 				Email: &Email{
 					SenderDomain: "gmail",
 				},

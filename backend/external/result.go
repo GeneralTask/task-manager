@@ -8,7 +8,7 @@ type CalendarResult struct {
 }
 
 type EmailResult struct {
-	Emails []*database.TaskRecord
+	Emails []*database.Item
 	Error  error
 }
 
@@ -32,7 +32,7 @@ func emptyCalendarResult(err error) CalendarResult {
 
 func emptyEmailResult(err error) EmailResult {
 	return EmailResult{
-		Emails: []*database.TaskRecord{},
+		Emails: []*database.Item{},
 		Error:  err,
 	}
 }
