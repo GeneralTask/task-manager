@@ -1,20 +1,17 @@
 import * as styles from './TaskCreate-style'
 
 import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
-import React, { useEffect, useRef, useState } from 'react'
-import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { KeyboardShortcut, useKeyboardShortcut } from '../common/KeyboardShortcut'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { logEvent, makeAuthorizedRequest, stopKeyboardPropogation } from '../../helpers/utils'
 
-import { KeyboardShortcut } from '../common/KeyboardShortcut'
 import { LogEvents } from '../../helpers/enums'
 import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
-import { setFocusCreateTaskForm } from '../../redux/tasksPageSlice'
 import { useFetchTasks } from './TasksPage'
 
 export default function TaskCreate(): JSX.Element {
-    const focusCreateTaskForm = useAppSelector((state) => state.tasks_page.tasks.focus_create_task_form)
-    const dispatch = useAppDispatch()
+    const [isFocused, setIsFocused] = useState(false)
 
     const [title, setTitle] = useState('')
 
@@ -25,12 +22,19 @@ export default function TaskCreate(): JSX.Element {
     const titleRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
-        if (focusCreateTaskForm) {
+        if (isFocused) {
             titleRef.current?.focus()
-            dispatch(setFocusCreateTaskForm(false))
         }
-    }, [focusCreateTaskForm])
+    }, [isFocused])
 
+    const blur = useCallback(() => {
+        if (isFocused) {
+            titleRef.current?.blur()
+            setIsFocused(false)
+        }
+    }, [isFocused])
+
+    useKeyboardShortcut('Escape', blur)
 
     return <>
         <styles.OuterContainer>
@@ -72,10 +76,10 @@ export default function TaskCreate(): JSX.Element {
                         value={title}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)}
                         // to prevent inputs from triggering keyboard shortcuts
-                        onKeyDown={e => e.stopPropagation()}
+                        onKeyDown={stopKeyboardPropogation}
                         ref={titleRef}
                     />
-                    <KeyboardShortcut shortcut="T" onKeyPress={() => console.log('hi')} />
+                    <KeyboardShortcut shortcut="T" onKeyPress={() => setIsFocused(true)} />
                 </styles.Form>
                 <styles.Side />
             </styles.InnerContainer >

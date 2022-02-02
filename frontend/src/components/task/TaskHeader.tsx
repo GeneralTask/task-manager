@@ -1,38 +1,39 @@
 import './Task.css'
-import { Action, Dispatch } from '@reduxjs/toolkit'
-import { TASKS_MODIFY_URL, DONE_BUTTON, BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../constants'
-import React, { useCallback } from 'react'
-import { collapseBody, expandBody, removeTaskByID, hideDatePicker, hideTimeEstimate, showDatePicker, showTimeEstimate } from '../../redux/tasksPageSlice'
-import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
-import { useFetchTasks } from './TasksPage'
-import { TTask } from '../../helpers/types'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import {
-  TaskHeaderContainer,
-  HeaderLeft,
-  Icon,
-  HeaderRight,
-  DeadlineIndicator,
-  CalendarDate,
-  CalendarIconContainer,
-  CalendarIcon,
-  DragHandler,
-  DoneButton,
-  ButtonRight,
-  ButtonIcon,
-  DueDateButtonText,
-  TimeEstimateButtonText,
-  DoneButtonContainer,
-  ButtonRightContainer
-} from './TaskHeader-style'
-import { LogEvents } from '../../helpers/enums'
-import { Duration } from 'luxon'
 
-import TimeEstimate from './HeaderOptions/TimeEstimatePicker'
+import { Action, Dispatch } from '@reduxjs/toolkit'
+import { BLANK_CALENDAR_ICON, DONE_BUTTON, EXPAND_ICON, TASKS_MODIFY_URL, TIME_ICON } from '../../constants'
+import {
+  ButtonIcon,
+  ButtonRight,
+  ButtonRightContainer,
+  CalendarDate,
+  CalendarIcon,
+  CalendarIconContainer,
+  DeadlineIndicator,
+  DoneButton,
+  DoneButtonContainer,
+  DragHandler,
+  DueDateButtonText,
+  HeaderLeft,
+  HeaderRight,
+  Icon,
+  TaskHeaderContainer,
+  TimeEstimateButtonText
+} from './TaskHeader-style'
+import React, { useCallback } from 'react'
+import { collapseBody, expandBody, hideDatePicker, hideTimeEstimate, removeTaskByID, showDatePicker, showTimeEstimate } from '../../redux/tasksPageSlice'
+import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+
 import DatePicker from './HeaderOptions/DatePicker'
-import Tooltip from '../common/Tooltip'
 import Domino from '../common/Domino'
+import { Duration } from 'luxon'
 import { EditableTaskTitle } from '../common/Title'
+import { LogEvents } from '../../helpers/enums'
+import { TTask } from '../../helpers/types'
+import TimeEstimate from './HeaderOptions/TimeEstimatePicker'
+import Tooltip from '../common/Tooltip'
+import { useFetchTasks } from './TasksPage'
 
 interface TaskHeaderProps {
   task: TTask
@@ -84,7 +85,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         }
         <Icon src={props.task.source.logo} alt="icon"></Icon>
         <EditableTaskTitle task={props.task} isExpanded={props.isExpanded} isEditable={isEditable} />
-      </HeaderLeft>
+      </HeaderLeft >
       <HeaderRight>
         {
           <ButtonRightContainer>
