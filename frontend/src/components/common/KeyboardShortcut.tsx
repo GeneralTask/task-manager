@@ -1,28 +1,39 @@
+import { BACKGROUND_KEYBOARD_SHORTCUT, SHADOW_KEYBOARD_SHORTCUT, TEXT_KEYBOARD_SHORTCUT } from '../../helpers/styles'
 import React, { useCallback, useEffect, useState } from 'react'
+
 import styled from 'styled-components'
-import { BACKGROUND_WHITE, SHADOW_KEYBOARD_SHORTCUT, TEXT_GRAY } from '../../helpers/styles'
 
 const KeyboardShortcutContainer = styled.div<{ isPressed: boolean }>`
-    height: 24px;
-    width: 24px;
-    display: flex;
-    flex-shrink: 0;
-    background: ${BACKGROUND_WHITE};
-    box-shadow: ${SHADOW_KEYBOARD_SHORTCUT};
-    margin-right: 12px;
+    cursor: inherit;
     border-radius: 5px;
+    border: 2px solid ${({ isPressed }) => isPressed ? 'black' : BACKGROUND_KEYBOARD_SHORTCUT};
+
+    /* CSS from figma */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+
+    position: static;
+    width: 20px;
+    height: 20px;
+    left: 0px;
+    top: 0px;
+
+    background-color: ${BACKGROUND_KEYBOARD_SHORTCUT};
+    box-shadow: ${SHADOW_KEYBOARD_SHORTCUT};
+    flex: none;
+    order: 2;
+    flex-grow: 0;
+    margin-right: 12px;
 
     font-family: Switzer-Variable;
     font-style: normal;
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 16px;
-    color: ${TEXT_GRAY};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    ${({ isPressed }) => isPressed ? 'background-color: red;' : ''}
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 20px;
+    color: ${TEXT_KEYBOARD_SHORTCUT};
 `
 
 interface Props {
@@ -85,7 +96,7 @@ function wasKeyPressed(shortcut: string, e: KeyboardEvent): boolean {
     }
     keyName += e.key.toLowerCase()
 
-    if (keyName === shortcut) {
+    if (keyName === shortcut.toLowerCase()) {
         // see comments about blocking key above
         e.preventDefault()
         return true

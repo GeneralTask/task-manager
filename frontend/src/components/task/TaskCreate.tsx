@@ -5,12 +5,12 @@ import React, { useEffect, useRef, useState } from 'react'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
+import { KeyboardShortcut } from '../common/KeyboardShortcut'
 import { LogEvents } from '../../helpers/enums'
 import { TTaskCreateParams } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
-import { useFetchTasks } from './TasksPage'
 import { setFocusCreateTaskForm } from '../../redux/tasksPageSlice'
-import { KeyboardShortcut } from '../common/KeyboardShortcut'
+import { useFetchTasks } from './TasksPage'
 
 export default function TaskCreate(): JSX.Element {
     const focusCreateTaskForm = useAppSelector((state) => state.tasks_page.tasks.focus_create_task_form)
@@ -75,7 +75,7 @@ export default function TaskCreate(): JSX.Element {
                         onKeyDown={e => e.stopPropagation()}
                         ref={titleRef}
                     />
-                    <KeyboardShortcut shortcut="n" onKeyPress={() => console.log('hi')} />
+                    <KeyboardShortcut shortcut="T" onKeyPress={() => console.log('hi')} />
                 </styles.Form>
                 <styles.Side />
             </styles.InnerContainer >
