@@ -1,7 +1,7 @@
 import * as styles from './TaskCreate-style'
 
 import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
@@ -24,10 +24,13 @@ export default function TaskCreate(): JSX.Element {
 
     const titleRef = useRef<HTMLInputElement>(null)
 
-    if (focusCreateTaskForm) {
-        titleRef.current?.focus()
-        dispatch(setFocusCreateTaskForm(false))
-    }
+    useEffect(() => {
+        if (focusCreateTaskForm) {
+            titleRef.current?.focus()
+            dispatch(setFocusCreateTaskForm(false))
+        }
+    }, [focusCreateTaskForm])
+
 
     return <>
         <styles.OuterContainer>
