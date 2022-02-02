@@ -33,40 +33,36 @@ interface Props {
 const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
     const { body, id, sender, deeplink, source, sent_at } = task
     return (
-        <div>
-            {
-                <ExpandedBody isExpanded={isExpanded}>
-                    {(
-                        <TaskBodyDiv>
-                            {source.is_replyable ?
-                                <>
-                                    <EmailBody body={body} task_id={id} />
-                                    <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />
-                                </> : <>
-                                    <Body body={body} task_id={id} />
-                                </>
-                            }
-                        </TaskBodyDiv>
-                    )}
-                    {deeplink && (
-                        <Deeplink>
-                            <p>
-                                See more in{' '}
-                                <a
-                                    href={deeplink}
-                                    target="_blank"
-                                    onClick={() => {
-                                        logEvent(LogEvents.TASK_DEEPLINK_CLICKED)
-                                    }}
-                                >
-                                    {source.name}
-                                </a>
-                            </p>
-                        </Deeplink>
-                    )}
-                </ExpandedBody>
-            }
-        </div>
+        <ExpandedBody isExpanded={isExpanded}>
+            {(
+                <TaskBodyDiv>
+                    {source.is_replyable ?
+                        <>
+                            <EmailBody body={body} task_id={id} />
+                            <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />
+                        </> : <>
+                            <Body body={body} task_id={id} />
+                        </>
+                    }
+                </TaskBodyDiv>
+            )}
+            {deeplink && (
+                <Deeplink>
+                    <p>
+                        See more in{' '}
+                        <a
+                            href={deeplink}
+                            target="_blank"
+                            onClick={() => {
+                                logEvent(LogEvents.TASK_DEEPLINK_CLICKED)
+                            }}
+                        >
+                            {source.name}
+                        </a>
+                    </p>
+                </Deeplink>
+            )}
+        </ExpandedBody>
     )
 })
 
