@@ -66,8 +66,8 @@ func (generalTask GeneralTaskTaskSource) Reply(userID primitive.ObjectID, accoun
 
 func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	taskSection := constants.IDTaskSectionToday
-	if task.IDTaskSection != nil {
-		taskSection = *task.IDTaskSection
+	if task.IDTaskSection != primitive.NilObjectID {
+		taskSection = task.IDTaskSection
 	}
 	newTask := database.Task{
 		TaskBase: database.TaskBase{
