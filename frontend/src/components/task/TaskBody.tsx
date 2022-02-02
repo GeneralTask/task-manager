@@ -41,7 +41,7 @@ const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
                             <EmailBody body={body} task_id={id} />
                             <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />
                         </> : <>
-                            <Body body={body} task_id={id} />
+                            <Body body={body} task_id={id} editable={task.source.name === 'General Task'} />
                         </>
                     }
                 </TaskBodyDiv>
@@ -96,6 +96,7 @@ const EmailBody: React.FC<EmailViewProps> = (props: EmailViewProps) => {
 interface BodyProps {
     body: string
     task_id: string
+    editable: boolean
 }
 
 const Body: React.FC<BodyProps> = (props: BodyProps) => {
@@ -128,6 +129,7 @@ const Body: React.FC<BodyProps> = (props: BodyProps) => {
     return (
         <ContentEditable
             html={props.body}
+            disabled={!props.editable}
             style={BodyStyle}
             onKeyPress={handleKeyPress}
             onChange={(e) => body.current = e.target.value}

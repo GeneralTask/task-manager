@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { TEXT_BLACK } from '../../helpers/styles'
+import { BORDER_PRIMARY, TEXT_BLACK } from '../../helpers/styles'
 
 export const TaskBodyDiv = styled.div`
     margin: auto;
@@ -54,7 +54,9 @@ export const BodyStyle = {
     margin: '20px',
     marginBottom: '40px',
     padding: '20px',
-    border: `1px solid ${TEXT_BLACK}`,
-    borderRadius: '6px',
-    // outline: 'none',
+    border: `1px solid ${BORDER_PRIMARY}`,
+    borderRadius: '12px',
+    outline: 'none',
+    wordWrap: 'break-word',
+    overflow: 'none',
 }
