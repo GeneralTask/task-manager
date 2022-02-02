@@ -71,7 +71,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	}
 	workspaceID := userInfo.Data.Workspaces[0].ID
 
-	taskFetchURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/?assignee=me&workspace=%s&completed_since=2022-01-01&opt_fields=this.html_notes,this.name,this.due_at,this.due_on,this.permalink_url", workspaceID)
+	taskFetchURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/?assignee=me&workspace=%s&completed_since=3022-01-01&opt_fields=this.html_notes,this.name,this.due_at,this.due_on,this.permalink_url", workspaceID)
 	if asanaTask.Asana.ConfigValues.TaskFetchURL != nil {
 		taskFetchURL = *asanaTask.Asana.ConfigValues.TaskFetchURL
 		client = http.DefaultClient
