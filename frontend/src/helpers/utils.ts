@@ -24,12 +24,12 @@ export const logout = async (): Promise<void> => {
         logoutReq: true,
     })
     Cookies.remove('authToken', { path: '/', domain: REACT_APP_COOKIE_DOMAIN })
-    store.dispatch(setAuthToken(null))
+    store.dispatch(setAuthToken(undefined))
     document.location.href = LANDING_PATH
 }
 
 
-export const getAuthToken = (): string | null => store.getState().user_data.auth_token
+export const getAuthToken = (): string | undefined => store.getState().user_data.auth_token
 
 export const getHeaders = (): Record<string, string> => {
     const date = new Date()

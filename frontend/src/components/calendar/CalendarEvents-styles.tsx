@@ -15,7 +15,7 @@ import {
     EVENT_BOTTOM_PADDING,
 } from '../../helpers/styles'
 
-const WIDTH__CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_TIME_WIDTH}px - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px) * 1/var(--squish-factor)`
+const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_TIME_WIDTH}px - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px) * 1/var(--squish-factor)`
 
 export const EventsContainer = styled.div`
     width: 100%;
@@ -61,11 +61,11 @@ interface EventBodyStyleProps {
 export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     --squish-factor: ${({ squishFactor }) => squishFactor};
     --left-offset: ${({ leftOffset }) => leftOffset};
-    width: calc( ${WIDTH__CSS_CALCULATION});
-    height: calc(${(props) => props.eventBodyHeight}px - ${EVENT_BOTTOM_PADDING}px);
+    width: calc( ${WIDTH_CSS_CALCULATION});
+    height: ${(props) => props.eventBodyHeight}px;
     top: ${(props) => props.topOffset}px;
     position: absolute;
-    left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + (${WIDTH__CSS_CALCULATION}) * var(--left-offset));
+    left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset));
 `
 export const EventInfoContainer = styled.div`
     display: flex;

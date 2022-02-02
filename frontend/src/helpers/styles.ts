@@ -15,10 +15,6 @@ export const flex = {
         display: flex;
         align-items: center;
     `,
-    justifyContentCenter: styled.div`
-        display: flex;
-        justify-content: center;
-    `,
     justifyContentSpaceBetween: styled.div`
         display: flex;
         justify-content: space-between;
