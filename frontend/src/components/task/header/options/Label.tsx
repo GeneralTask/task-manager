@@ -35,7 +35,6 @@ export default function Label({ task }: LabelProps): JSX.Element {
                                 e.stopPropagation()
 
                                 const newTaskSections = sectionDropReorder(taskSections, newSectionIndex, {
-                                    // task: 0,
                                     task: task.id_ordering - 1,
                                     section: currentTaskSectionIndex,
                                 })
