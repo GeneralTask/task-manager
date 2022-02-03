@@ -7,27 +7,16 @@ const KeyboardShortcutContainer = styled.div<{ isPressed: boolean }>`
     cursor: inherit;
     border-radius: 5px;
     border: 2px solid ${({ isPressed }) => isPressed ? 'black' : BACKGROUND_KEYBOARD_SHORTCUT};
-
-    /* CSS from figma */
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 0px;
-
-    position: static;
     width: 20px;
     height: 20px;
     left: 0px;
     top: 0px;
-
     background-color: ${BACKGROUND_KEYBOARD_SHORTCUT};
     box-shadow: ${SHADOW_KEYBOARD_SHORTCUT};
-    flex: none;
-    order: 2;
-    flex-grow: 0;
     margin-right: 12px;
-
     font-family: Switzer-Variable;
     font-style: normal;
     font-weight: normal;
@@ -42,9 +31,7 @@ interface Props {
     onKeyPress: () => void,
 }
 function KeyboardShortcut({ shortcut, onKeyPress }: Props): JSX.Element {
-
     const isKeyDown = useKeyboardShortcut(shortcut, onKeyPress)
-
     return (
         <KeyboardShortcutContainer isPressed={isKeyDown}>
             {shortcut}
@@ -54,7 +41,6 @@ function KeyboardShortcut({ shortcut, onKeyPress }: Props): JSX.Element {
 
 
 function useKeyboardShortcut(shortcut: string, onKeyPress: () => void): boolean {
-
     const [isKeyDown, setIsKeyDown] = useState(false)
 
     const onKeyDown = useCallback((event: KeyboardEvent) => {
@@ -81,17 +67,16 @@ function useKeyboardShortcut(shortcut: string, onKeyPress: () => void): boolean 
     return isKeyDown
 }
 
-// check if the key is pressed
-// will prevent default behavior of a key
-// we should not assign a keyboard shortcut to existing actions - i.e. ctrl+a, ctrl+s, ctrl+d
+/**
+ * check if the key is pressed
+ * will prevent default behavior of a key
+ * we should not assign a keyboard shortcut to existing actions - i.e. ctrl+a, ctrl+s, ctrl+d
+ **/
 function wasKeyPressed(shortcut: string, e: KeyboardEvent): boolean {
+    if (e.ctrlKey || e.altKey || e.metaKey) {
+        return false
+    }
     let keyName = ''
-    if (e.ctrlKey) {
-        keyName += 'ctrl+'
-    }
-    if (e.altKey) {
-        keyName += 'alt+'
-    }
     if (e.shiftKey) {
         keyName += 'shift+'
     }
