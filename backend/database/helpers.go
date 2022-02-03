@@ -73,10 +73,6 @@ func UpdateOrCreateTask(
 	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	log.Printf("fieldsToInsertIfMissing  %+v", fieldsToInsertIfMissing)
-	log.Printf("fieldsToInsertIfMissing  %+v", fieldsToInsertIfMissing)
-	log.Printf("IDExternal  %+v", IDExternal)
-	log.Printf("fieldsToUpdate  %+v", fieldsToUpdate)
 	_, err := taskCollection.UpdateOne(
 		dbCtx,
 		dbQuery,
