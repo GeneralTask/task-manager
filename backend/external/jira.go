@@ -119,24 +119,19 @@ func (jira JIRASource) GetEvents(userID primitive.ObjectID, accountID string, st
 }
 
 func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	// log.Println("jerd, %+v", )
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.Println("jerd")
 	authToken, _ := jira.Atlassian.getToken(userID, accountID)
 	siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
-	log.Println("jerd")
 
 	if authToken == nil || siteConfiguration == nil {
 		result <- emptyTaskResult(errors.New("missing authToken or siteConfiguration"))
 		return
 	}
-	log.Println("jerd")
 
 	apiBaseURL := jira.getAPIBaseURL(*siteConfiguration)
 	if jira.Atlassian.Config.ConfigValues.APIBaseURL != nil {
 		apiBaseURL = *jira.Atlassian.Config.ConfigValues.APIBaseURL
 	}
-	log.Println("jerd")
 	JQL := "assignee=currentuser() AND status != Done"
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
 	if err != nil {
@@ -144,7 +139,6 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 		result <- emptyTaskResult(err)
 		return
 	}
-	log.Println("jerd")
 	req.Header.Add("Authorization", "Bearer "+authToken.AccessToken)
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
@@ -153,21 +147,18 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 		result <- emptyTaskResult(err)
 		return
 	}
-	log.Println("jerd")
 	taskData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("failed to read search response: %v", err)
 		result <- emptyTaskResult(err)
 		return
 	}
-	log.Println("jerd")
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("search failed: %s %v", taskData, resp.StatusCode)
 		result <- emptyTaskResult(err)
 		return
 	}
 
-	log.Println("jerd")
 	var jiraTasks JIRATaskList
 	err = json.Unmarshal(taskData, &jiraTasks)
 	if err != nil {
@@ -176,7 +167,6 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 		return
 	}
 
-	log.Println("jerd")
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		result <- emptyTaskResult(err)
@@ -184,7 +174,6 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	}
 	defer dbCleanup()
 
-	log.Println("jerd")
 	var tasks []*database.Item
 	for _, jiraTask := range jiraTasks.Issues {
 		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
@@ -194,7 +183,6 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			return
 		}
 
-		log.Println("jerd")
 		task := &database.Item{
 			TaskBase: database.TaskBase{
 				UserID:          userID,
@@ -216,11 +204,9 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
 		tasks = append(tasks, task)
-		log.Println("jerd")
 	}
 
 	cachedMapping := jira.fetchLocalPriorityMapping(database.GetJiraPrioritiesCollection(db), userID)
-	log.Println("jerd")
 
 	//If a priority exists that isn't cached refresh the whole list.
 	var needsRefresh bool
@@ -233,7 +219,6 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			break
 		}
 	}
-	log.Println("jerd")
 
 	if needsRefresh {
 		err = jira.GetListOfPriorities(userID, authToken.AccessToken)
@@ -245,10 +230,8 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 		cachedMapping = jira.fetchLocalPriorityMapping(database.GetJiraPrioritiesCollection(db), userID)
 	}
 	priorityLength := len(*cachedMapping)
-	log.Println("jerd")
 
 	for _, task := range tasks {
-		log.Printf("jerd %+v", task)
 		var dbTask database.Item
 		res, err := database.UpdateOrCreateTask(
 			db,
@@ -257,45 +240,44 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			task.SourceID,
 			task,
 			database.TaskChangeableFields{
-				Title:              &task.Title,
-				DueDate:            task.DueDate,
-				PriorityID:         task.PriorityID,
-				PriorityNormalized: float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength),
+				Title:   &task.Title,
+				DueDate: task.DueDate,
+				Task: &database.Task{
+					PriorityID:         task.PriorityID,
+					PriorityNormalized: float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength),
+				},
 			},
 		)
-		log.Println("jerd")
 		if err != nil {
 			result <- emptyTaskResult(err)
 			return
 		}
-		log.Println("jerd")
 		err = res.Decode(&dbTask)
 		if err != nil {
 			log.Printf("failed to update or create task: %v", err)
 			result <- emptyTaskResult(err)
 			return
 		}
-		log.Println("jerd")
+		// log.Printf("jerd dbTask, %+v", dbTask)
+		log.Printf("jerd dbTask, %+v", dbTask)
+		log.Printf("jerd task, %+v", task)
 		task.HasBeenReordered = dbTask.HasBeenReordered
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
-		log.Println("jerd")
-		log.Printf("jerd, %+v", dbTask)
-		log.Printf("jerd, %+v", task)
-		log.Println(task.PriorityID)
-		log.Println("jerd")
-		log.Println(dbTask.HasBeenReordered)
-		log.Println("jerd")
-		log.Println(dbTask)
+		log.Printf("jerd task, %+v", task)
+		// log.Printf("jerd dbTask, %+v", task.Task)
+		// log.Println(task.PriorityID)
+		// log.Println(dbTask.HasBeenReordered)
+		// log.Println(dbTask)
+		// log.Println(dbTask.PriorityID)
 		log.Println(dbTask.PriorityID)
-		log.Println("jerd")
+		log.Println(task.PriorityID)
+		log.Println(dbTask.HasBeenReordered)
 		if dbTask.PriorityID != task.PriorityID && !dbTask.HasBeenReordered {
 			task.IDOrdering = 0
 		}
-		log.Println("jerd")
 	}
-	log.Println("jerd")
 
 	result <- TaskResult{
 		Tasks:           tasks,

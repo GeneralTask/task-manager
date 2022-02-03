@@ -107,56 +107,56 @@ func TestLoadJIRATasks(t *testing.T) {
 	// 	assertTasksEqual(t, &expectedTask, &taskFromDB)
 	// 	assert.Equal(t, accountID, taskFromDB.SourceAccountID)
 	// })
-	t.Run("ExistingTask", func(t *testing.T) {
-		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
-		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+	// t.Run("ExistingTask", func(t *testing.T) {
+	// 	userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
+	// 	tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+	// 	searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
-		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
-		expectedTask := database.Item{
-			TaskBase: database.TaskBase{
-				IDOrdering:      2,
-				IDExternal:      "42069",
-				IDTaskSection:   constants.IDTaskSectionToday,
-				Deeplink:        "https://dankmemes.com/browse/MOON-1969",
-				Title:           "Sample Taskeroni",
-				SourceID:        TASK_SOURCE_ID_JIRA,
-				UserID:          *userID,
-				SourceAccountID: "someAccountID",
-				DueDate:         primitive.NewDateTimeFromTime(dueDate),
-			},
-		}
-		database.GetOrCreateTask(
-			db,
-			*userID,
-			"42069",
-			TASK_SOURCE_ID_JIRA,
-			&expectedTask,
-		)
+	// 	dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+	// 	expectedTask := database.Item{
+	// 		TaskBase: database.TaskBase{
+	// 			IDOrdering:      2,
+	// 			IDExternal:      "42069",
+	// 			IDTaskSection:   constants.IDTaskSectionToday,
+	// 			Deeplink:        "https://dankmemes.com/browse/MOON-1969",
+	// 			Title:           "Sample Taskeroni",
+	// 			SourceID:        TASK_SOURCE_ID_JIRA,
+	// 			UserID:          *userID,
+	// 			SourceAccountID: "someAccountID",
+	// 			DueDate:         primitive.NewDateTimeFromTime(dueDate),
+	// 		},
+	// 	}
+	// 	database.GetOrCreateTask(
+	// 		db,
+	// 		*userID,
+	// 		"42069",
+	// 		TASK_SOURCE_ID_JIRA,
+	// 		&expectedTask,
+	// 	)
 
-		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
-		go JIRA.GetTasks(*userID, accountID, JIRATasks)
-		result := <-JIRATasks
-		assert.Equal(t, 1, len(result.Tasks))
+	// 	var JIRATasks = make(chan TaskResult)
+	// 	JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
+	// 	go JIRA.GetTasks(*userID, accountID, JIRATasks)
+	// 	result := <-JIRATasks
+	// 	assert.Equal(t, 1, len(result.Tasks))
 
-		assertTasksEqual(t, &expectedTask, result.Tasks[0])
+	// 	assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
-		var taskFromDB database.Item
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err := taskCollection.FindOne(
-			dbCtx,
-			bson.M{"$and": []bson.M{
-				{"source_id": TASK_SOURCE_ID_JIRA},
-				{"id_external": "42069"},
-				{"user_id": userID},
-			}},
-		).Decode(&taskFromDB)
-		assert.NoError(t, err)
-		assertTasksEqual(t, &expectedTask, &taskFromDB)
-		assert.Equal(t, "someAccountID", taskFromDB.SourceAccountID) // doesn't get updated
-	})
+	// 	var taskFromDB database.Item
+	// 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	// 	defer cancel()
+	// 	err := taskCollection.FindOne(
+	// 		dbCtx,
+	// 		bson.M{"$and": []bson.M{
+	// 			{"source_id": TASK_SOURCE_ID_JIRA},
+	// 			{"id_external": "42069"},
+	// 			{"user_id": userID},
+	// 		}},
+	// 	).Decode(&taskFromDB)
+	// 	assert.NoError(t, err)
+	// 	assertTasksEqual(t, &expectedTask, &taskFromDB)
+	// 	assert.Equal(t, "someAccountID", taskFromDB.SourceAccountID) // doesn't get updated
+	// })
 	t.Run("NewPriority", func(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
