@@ -138,7 +138,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 ),
             },
         ]
-    const navbarJSXElements = elements.map((element) => {
+    const navbarJSXElements = elements.map((element, index) => {
         if (element.page) {
             return (
                 <NavbarItemDroppableContainer
@@ -150,7 +150,7 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
             )
         }
         return (
-            <NavbarItemGenericDiv>
+            <NavbarItemGenericDiv key={index}>
                 <NavbarListItem>{element.action}</NavbarListItem>
             </NavbarItemGenericDiv>
         )
