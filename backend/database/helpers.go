@@ -145,11 +145,12 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]TaskBase,
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"is_completed": false},
-				// Small hack to filter emails out from tasks collection - better would be to have a separate messages collection
+				// Small hacks to filter emails and cal events out from tasks collection
 				{"$or": bson.A{
 					bson.M{"email.sender_domain": ""},
 					bson.M{"email.sender_domain": bson.M{"$exists": false}},
 				}},
+				{"datetime_end": bson.M{"$exists": false}},
 			},
 		},
 	)

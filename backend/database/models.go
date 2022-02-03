@@ -8,10 +8,11 @@ import (
 
 // User model
 type User struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	GoogleID string             `bson:"google_id"`
-	Email    string             `bson:"email"`
-	Name     string             `bson:"name"`
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	GoogleID      string             `bson:"google_id"`
+	Email         string             `bson:"email"`
+	Name          string             `bson:"name"`
+	LastRefreshed primitive.DateTime `bson:"last_refreshed"`
 }
 
 // InternalAPIToken model

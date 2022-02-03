@@ -63,7 +63,6 @@ func (api *API) TasksListV2(c *gin.Context) {
 	}
 
 	defer dbCleanup()
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := database.GetUserCollection(db)
@@ -76,6 +75,8 @@ func (api *API) TasksListV2(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	cutoff := primitive.NewDateTimeFromTime(time.Now().Add(-10 * time.Second))
+	fastRefresh := userObject.LastRefreshed > cutoff
 
 	currentTasks, err := database.GetActiveTasks(db, userID.(primitive.ObjectID))
 	if err != nil {
@@ -83,8 +84,51 @@ func (api *API) TasksListV2(c *gin.Context) {
 		return
 	}
 
+	var fetchedTasks *[]*database.Task
+	if fastRefresh {
+		// this is a temporary hack to trick MergeTasks into thinking we fetched these tasks
+		fakeFetchedTasks := []*database.Task{}
+		for _, taskBase := range *currentTasks {
+			task := database.Task{TaskBase: taskBase}
+			fakeFetchedTasks = append(fakeFetchedTasks, &task)
+		}
+		fetchedTasks = &fakeFetchedTasks
+	} else {
+		fetchedTasks, err = api.fetchTasks(parentCtx, db, userID)
+		if err != nil {
+			Handle500(c)
+			return
+		}
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		_, err = userCollection.UpdateOne(
+			dbCtx,
+			bson.M{"_id": userID},
+			bson.M{"$set": bson.M{"last_refreshed": primitive.NewDateTimeFromTime(time.Now())}},
+		)
+		if err != nil {
+			log.Printf("failed to update user last_refreshed: %v", err)
+		}
+	}
+
+	allTasks, err := MergeTasksV2(
+		db,
+		currentTasks,
+		[]*database.Item{},
+		*fetchedTasks,
+		userID.(primitive.ObjectID),
+	)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	c.JSON(200, allTasks)
+}
+
+func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Task, error) {
 	var tokens []database.ExternalAPIToken
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
 		dbCtx,
@@ -92,16 +136,14 @@ func (api *API) TasksListV2(c *gin.Context) {
 	)
 	if err != nil {
 		log.Printf("failed to fetch api tokens: %v", err)
-		Handle500(c)
-		return
+		return nil, err
 	}
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
 		log.Printf("failed to iterate through api tokens: %v", err)
-		Handle500(c)
-		return
+		return nil, err
 	}
 	// add dummy token for gt_task fetch logic
 	tokens = append(tokens, database.ExternalAPIToken{
@@ -132,19 +174,7 @@ func (api *API) TasksListV2(c *gin.Context) {
 		}
 		tasks = append(tasks, taskResult.Tasks...)
 	}
-
-	allTasks, err := MergeTasksV2(
-		db,
-		currentTasks,
-		[]*database.Item{},
-		tasks,
-		userID.(primitive.ObjectID),
-	)
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	c.JSON(200, allTasks)
+	return &tasks, nil
 }
 
 func MergeTasksV2(
