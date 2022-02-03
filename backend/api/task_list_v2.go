@@ -75,7 +75,7 @@ func (api *API) TasksListV2(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	cutoff := primitive.NewDateTimeFromTime(time.Now().Add(-10 * time.Second))
+	cutoff := primitive.NewDateTimeFromTime(time.Now().Add(-55 * time.Second))
 	fastRefresh := userObject.LastRefreshed > cutoff
 
 	currentTasks, err := database.GetActiveTasks(db, userID.(primitive.ObjectID))
