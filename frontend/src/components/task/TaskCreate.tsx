@@ -16,8 +16,6 @@ interface TaskCreateProps {
     task_section_index: number
 }
 export default function TaskCreate(props: TaskCreateProps): JSX.Element {
-    const focusCreateTaskForm = useAppSelector((state) => state.tasks_page.tasks.focus_create_task_form)
-    const dispatch = useAppDispatch()
     const [isFocused, setIsFocused] = useState(false)
 
     const [title, setTitle] = useState('')
