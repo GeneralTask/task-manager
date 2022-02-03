@@ -90,7 +90,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID: "AtlassianSite2",
 				DueDate:         primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "5",
 				PriorityNormalized: 1.0,
 				TaskNumber:         2,
@@ -112,7 +112,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID: "AtlassianSite1",
 				DueDate:         primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "3",
 				PriorityNormalized: 1.0,
 				TaskNumber:         12,
@@ -134,7 +134,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID: "AtlassianSite1",
 				DueDate:         primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "1",
 				PriorityNormalized: 0.0,
 				TaskNumber:         7,
@@ -156,7 +156,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				SourceAccountID: "AtlassianSite1",
 				DueDate:         primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "3",
 				PriorityNormalized: 1.0,
 				TaskNumber:         1,
@@ -203,7 +203,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "5",
 				PriorityNormalized: 1.0,
 				TaskNumber:         7,
@@ -227,7 +227,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "3",
 				PriorityNormalized: 0.0,
 				TaskNumber:         12,
@@ -275,7 +275,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 1)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "1",
 				PriorityNormalized: 0.0,
 				TaskNumber:         7,
@@ -297,7 +297,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:           userID,
 				DueDate:          primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "3",
 				PriorityNormalized: 1.0,
 				TaskNumber:         12,
@@ -340,7 +340,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "5",
 				PriorityNormalized: 0.5,
 				TaskNumber:         7,
@@ -365,7 +365,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:           userID,
 				DueDate:          primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "3",
 				PriorityNormalized: 0.0,
 				TaskNumber:         12,
@@ -427,7 +427,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "5",
 				PriorityNormalized: 0.5,
 				TaskNumber:         1,
@@ -451,7 +451,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "6",
 				PriorityNormalized: 0.75,
 				TaskNumber:         2,
@@ -476,7 +476,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID: "2",
 				TaskNumber: 3,
 			},
@@ -500,7 +500,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID: "3",
 				TaskNumber: 4,
 			},
@@ -543,7 +543,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "5",
 				PriorityNormalized: 0.5,
 				TaskNumber:         7,
@@ -568,7 +568,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "3",
 				PriorityNormalized: 0.0,
 				TaskNumber:         12,
@@ -593,7 +593,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 9)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "5",
 				PriorityNormalized: 0.5,
 				TaskNumber:         7,
@@ -618,7 +618,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 				UserID:         userID,
 				DueDate:        primitive.NewDateTimeFromTime(time.Now().Add(time.Hour * 24 * 8)),
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID:         "3",
 				PriorityNormalized: 0.0,
 				TaskNumber:         12,

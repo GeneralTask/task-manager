@@ -648,7 +648,7 @@ func TestEditFields(t *testing.T) {
 			},
 			CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now()),
 		},
-		Task: &database.Task{
+		Task: database.Task{
 			PriorityID:         "Priority ID",
 			PriorityNormalized: 5.0,
 			TaskNumber:         3,

@@ -194,7 +194,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 				Body:            bodyString,
 				SourceAccountID: accountID,
 			},
-			Task: &database.Task{
+			Task: database.Task{
 				PriorityID: jiraTask.Fields.Priority.ID,
 			},
 		}
@@ -242,7 +242,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			database.TaskChangeableFields{
 				Title:   &task.Title,
 				DueDate: task.DueDate,
-				Task: &database.Task{
+				Task: database.Task{
 					PriorityID:         task.PriorityID,
 					PriorityNormalized: float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength),
 				},
@@ -258,22 +258,10 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			result <- emptyTaskResult(err)
 			return
 		}
-		// log.Printf("jerd dbTask, %+v", dbTask)
-		log.Printf("jerd dbTask, %+v", dbTask)
-		log.Printf("jerd task, %+v", task)
 		task.HasBeenReordered = dbTask.HasBeenReordered
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
-		log.Printf("jerd task, %+v", task)
-		// log.Printf("jerd dbTask, %+v", task.Task)
-		// log.Println(task.PriorityID)
-		// log.Println(dbTask.HasBeenReordered)
-		// log.Println(dbTask)
-		// log.Println(dbTask.PriorityID)
-		log.Println(dbTask.PriorityID)
-		log.Println(task.PriorityID)
-		log.Println(dbTask.HasBeenReordered)
 		if dbTask.PriorityID != task.PriorityID && !dbTask.HasBeenReordered {
 			task.IDOrdering = 0
 		}

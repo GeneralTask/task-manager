@@ -62,7 +62,7 @@ type Item struct {
 	TaskBase `bson:",inline"`
 	TaskType `bson:"task_type"`
 	// *Task          //`bson:"task,omitempty"`
-	*Task          `bson:"task"`
+	Task           `bson:"task"`
 	*Email         `bson:"email,omitempty"`
 	*CalendarEvent `bson:"calendar_event,omitempty"`
 }
@@ -130,7 +130,7 @@ type Task struct {
 }
 
 type TaskChangeableFields struct {
-	Task *Task `bson:"task,omitempty"`
+	Task `bson:"task,omitempty"`
 	// PriorityID         string  `bson:"priority_id,omitempty"`
 	// PriorityNormalized float64 `bson:"priority_normalized,omitempty"`
 
