@@ -154,6 +154,13 @@ type WaitlistEntry struct {
 	CreatedAt primitive.DateTime `bson:"created_at"`
 }
 
+type FeedbackItem struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	UserID    primitive.ObjectID `bson:"user_id"`
+	Feedback  string             `bson:"feedback"`
+	CreatedAt primitive.DateTime `bson:"created_at"`
+}
+
 type ConferenceCall struct {
 	Platform string `bson:"platform"`
 	Logo     string `bson:"logo"`
