@@ -41,7 +41,7 @@ const RefreshButton = (): JSX.Element => {
         logEvent(LogEvents.MANUAL_TASKS_REFRESH_CLICK)
     }, [])
 
-    useKeyboardShortcut('R', refresh)
+    useKeyboardShortcut('r', refresh)
 
     return (
         <Container onClick={refresh}>
