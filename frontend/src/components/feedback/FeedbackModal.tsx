@@ -1,6 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
+import { FEEDBACK_URL } from '../../constants'
+import { makeAuthorizedRequest } from '../../helpers/utils'
 import { useAppDispatch } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
 const modalRoot = document.getElementById('modal-root') as HTMLElement
@@ -105,17 +107,26 @@ const FeedbackModal = (): JSX.Element => {
     document.getElementById('modal-root')?.style.setProperty('width', '100%')
     document.getElementById('modal-root')?.style.setProperty('height', '100%')
 
-    const [message, setMessage] = React.useState('')
+    const [feedback, setFeedback] = React.useState('')
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setMessage(e.target.value)
+        setFeedback(e.target.value)
     }
-    const handleCancel = () => {
+    const closeModal = () => {
         document.getElementById('root')?.style.removeProperty('filter')
         document.getElementById('root')?.style.removeProperty('overflow')
         document.getElementById('modal-root')?.style.setProperty('width', '0%')
         document.getElementById('modal-root')?.style.setProperty('height', '0%')
         dispatch(setShowModal(false))
     }
+    const handleSubmit = async () => {
+        await makeAuthorizedRequest({
+            url: FEEDBACK_URL,
+            method: 'POST',
+            body: JSON.stringify({ feedback: feedback }),
+        })
+        closeModal()
+    }
+
     const modal = (
         <ModalContainer>
             <FeedbackHeader>
@@ -124,11 +135,11 @@ const FeedbackModal = (): JSX.Element => {
             </FeedbackHeader>
             <FeedbackSection>
                 <SectionHeader>Feedback</SectionHeader>
-                <SectionResponse placeholder={placeholder} value={message} onChange={handleChange} />
+                <SectionResponse placeholder={placeholder} value={feedback} onChange={handleChange} />
             </FeedbackSection>
             <ButtonContainer>
-                <FeedbackModalButton >Send feedback</FeedbackModalButton>
-                <FeedbackModalButton white onClick={handleCancel}>Cancel</FeedbackModalButton>
+                <FeedbackModalButton onClick={handleSubmit}>Send feedback</FeedbackModalButton>
+                <FeedbackModalButton white onClick={closeModal}>Cancel</FeedbackModalButton>
             </ButtonContainer>
         </ModalContainer>
     )
