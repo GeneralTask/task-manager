@@ -42,7 +42,7 @@ func TestSettingsGet(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Contains(t, string(body), "{\"field_key\":\"email_done_preference\",\"field_name\":\"'Done' action for emails\",\"choices\":[{\"choice_key\":\"archive\",\"choice_name\":\"Archive\"},{\"choice_key\":\"mark_as_read\",\"choice_name\":\"Mark as read\"}],\"field_value\":\"archive\"}")
+		assert.Contains(t, string(body), "{\"field_key\":\"email_ordering_preference\",\"field_name\":\"Email ordering\",\"choices\":[{\"choice_key\":\"newest_first\",\"choice_name\":\"Newest first\"},{\"choice_key\":\"oldest_first\",\"choice_name\":\"Oldest first\"}],\"field_value\":\"newest_first\"}")
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -65,7 +65,7 @@ func TestSettingsGet(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Contains(t, string(body), "{\"field_key\":\"email_done_preference\",\"field_name\":\"'Done' action for emails\",\"choices\":[{\"choice_key\":\"archive\",\"choice_name\":\"Archive\"},{\"choice_key\":\"mark_as_read\",\"choice_name\":\"Mark as read\"}],\"field_value\":\"mark_as_read\"}")
+		assert.Contains(t, string(body), "{\"field_key\":\"email_ordering_preference\",\"field_name\":\"Email ordering\",\"choices\":[{\"choice_key\":\"newest_first\",\"choice_name\":\"Newest first\"},{\"choice_key\":\"oldest_first\",\"choice_name\":\"Oldest first\"}],\"field_value\":\"newest_first\"}")
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(GetAPI())

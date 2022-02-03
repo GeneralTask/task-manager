@@ -19,6 +19,9 @@ func (api *API) SettingsList(c *gin.Context) {
 	userID, _ := c.Get("user")
 	userSettings := []settings.UserSetting{}
 	for _, setting := range settings.Settings {
+		if setting.Hidden {
+			continue
+		}
 		settingValue, err := settings.GetUserSetting(db, userID.(primitive.ObjectID), setting.FieldKey)
 		if err != nil {
 			Handle500(c)
