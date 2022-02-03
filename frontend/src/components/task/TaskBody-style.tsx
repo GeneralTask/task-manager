@@ -38,6 +38,7 @@ export const ReplyDiv = styled.div`
 `
 export const ExpandedBody = styled.div<{ isExpanded: boolean }>`
     display: ${(props) => (props.isExpanded ? 'block' : 'none')};
+    padding-bottom: 12px;
 `
 export const ReplyInputStyle = {
     width: '100%',
@@ -52,7 +53,6 @@ export const ReplyInputStyle = {
 }
 
 export const BodyContentEditable = styled(ContentEditable) <{ placeholder_text: string }>`
-    margin-bottom: 12px;
     padding: 10px;
     word-wrap: break-word;
     overflow: none;

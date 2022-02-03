@@ -6,7 +6,6 @@ export const DraggableContainer = styled.div`
     min-width: 500px;
     margin: 5px 0;
     position: relative;
-    display: flex;
 `
 
 export const TaskContainer = styled.div<{
