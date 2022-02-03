@@ -19,6 +19,7 @@ type SettingDefinition struct {
 	FieldName     string          `json:"field_name"`
 	DefaultChoice string          `json:"-"`
 	Choices       []SettingChoice `json:"choices"`
+	Hidden        bool            `json:"-"`
 }
 
 type UserSetting struct {
@@ -51,6 +52,7 @@ var Settings = []SettingDefinition{
 			{Key: ChoiceKeyArchive, Name: "Archive"},
 			{Key: ChoiceKeyMarkAsRead, Name: "Mark as read"},
 		},
+		Hidden: true,
 	},
 	{
 		FieldKey:      SettingFieldEmailOrderingPreference,
@@ -60,6 +62,7 @@ var Settings = []SettingDefinition{
 			{Key: ChoiceKeyNewestFirst, Name: "Newest first"},
 			{Key: ChoiceKeyOldestFirst, Name: "Oldest first"},
 		},
+		Hidden: false,
 	},
 }
 
