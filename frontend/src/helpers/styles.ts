@@ -32,6 +32,7 @@ export const TEXT_WHITE = '#ffffff'
 export const TEXT_BLACK_HOVER = '#464646'
 export const TEXT_LIGHTGRAY = '#CCCCCC'
 export const TEXT_DARKGRAY = '#333333'
+export const TEXT_KEYBOARD_SHORTCUT = '#A1A1AA'
 
 export const BACKGROUND_PRIMARY = '#007bff'
 export const BACKGROUND_PRIMARY_HOVER = '#0069d9'
@@ -52,6 +53,7 @@ export const DIVIDER_LIGHTGRAY = '#DDDDDD'
 export const BORDER_PRIMARY = '#cccccc'
 export const BORDER_ERROR = '#FF0000'
 export const BACKGROUND_WHITE = '#ffffff'
+export const BACKGROUND_KEYBOARD_SHORTCUT = '#F6F5F6'
 
 export const BACKGROUND_HOVER = '#e3e3e3'
 

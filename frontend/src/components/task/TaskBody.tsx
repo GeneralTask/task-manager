@@ -1,26 +1,27 @@
 import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
-import { TASKS_MODIFY_URL, TASKS_URL } from '../../constants'
+import {
+    BodyContentEditable,
+    Deeplink,
+    EmailMessage,
+    EmailSubjectHeader,
+    EmailViewDiv,
+    ExpandedBody,
+    ReplyDiv,
+    ReplyInputStyle,
+    TaskBodyDiv,
+} from './TaskBody-style'
 import React, { useRef, useState } from 'react'
-import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
-import { useFetchTasks } from './TasksPage'
+import { TASKS_MODIFY_URL, TASKS_URL } from '../../constants'
+import { logEvent, makeAuthorizedRequest, stopKeyboardPropogation } from '../../helpers/utils'
+
 import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
+import { LogEvents } from '../../helpers/enums'
 import ReactDOMServer from 'react-dom/server'
 import { TTask } from '../../helpers/types'
-import { toast } from 'react-toastify'
-import {
-    TaskBodyDiv,
-    Deeplink,
-    ReplyDiv,
-    ExpandedBody,
-    EmailMessage,
-    ReplyInputStyle,
-    EmailViewDiv,
-    EmailSubjectHeader,
-    BodyContentEditable,
-} from './TaskBody-style'
 import sanitizeHtml from 'sanitize-html'
-import { LogEvents } from '../../helpers/enums'
+import { toast } from 'react-toastify'
+import { useFetchTasks } from './TasksPage'
 
 interface Props {
     task: TTask
@@ -111,6 +112,7 @@ const Body: React.FC<BodyProps> = (props: BodyProps) => {
             e.preventDefault()
             e.currentTarget.blur()
         }
+        stopKeyboardPropogation(e)
     }
 
     const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
@@ -223,7 +225,7 @@ const Reply: React.FC<ReplyProps> = ({ task_id, sender, body, sent_at }: ReplyPr
                 style={ReplyInputStyle}
                 onChange={(e) => setText(e.target.value)}
                 // to prevent inputs from triggering keyboard shortcuts
-                onKeyDown={e => e.stopPropagation()}
+                onKeyDown={stopKeyboardPropogation}
             />
             <GTButton
                 theme="black"
