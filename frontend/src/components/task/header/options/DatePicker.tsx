@@ -1,11 +1,11 @@
 import { DateTime, Info } from 'luxon'
 import React, { Dispatch, useCallback, useState } from 'react'
 import { Action } from 'redux'
-import { TASKS_MODIFY_URL } from '../../../constants'
-import { makeAuthorizedRequest } from '../../../helpers/utils'
-import { useAppDispatch } from '../../../redux/hooks'
-import { hideDatePicker } from '../../../redux/tasksPageSlice'
-import { useFetchTasks } from '../TasksPage'
+import { TASKS_MODIFY_URL } from '../../../../constants'
+import { makeAuthorizedRequest } from '../../../../helpers/utils'
+import { useAppDispatch } from '../../../../redux/hooks'
+import { hideDatePicker } from '../../../../redux/tasksPageSlice'
+import { useFetchTasks } from '../../TasksPage'
 
 import { BottomBar, PickerContainer, TopNav, MonthContainer, Icon, MonthYearHeader, HoverButton, DayLabel, WeekDayTable, WeekDay, BottomDateView, CurrentDateText, DayTable } from './DatePicker-style'
 
