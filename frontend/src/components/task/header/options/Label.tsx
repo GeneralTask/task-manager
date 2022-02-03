@@ -21,7 +21,7 @@ export default function Label({ task }: LabelProps): JSX.Element {
     }))
 
     // const currentTaskSection = taskSections.find((s) => s.tasks.includes(task))
-    const currentTaskSectionIndex = taskSections.findIndex((s) => s.tasks.includes(task))
+    const currentTaskSectionIndex = taskSections.findIndex((s) => s.tasks?.includes(task))
 
     return (
         <LabelContainer onClick={e => e.stopPropagation()} >
