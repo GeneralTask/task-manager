@@ -43,7 +43,7 @@ func TestReplyToEmail(t *testing.T) {
 			Title:      "Sample subject",
 			SourceID:   external.TASK_SOURCE_ID_GMAIL,
 		},
-		Email: &database.Email{
+		Email: database.Email{
 			ThreadID: "sample_thread_id",
 		},
 	})
@@ -71,7 +71,7 @@ func TestReplyToEmail(t *testing.T) {
 	t.Run("InvalidTaskType", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		insertedResult, err := taskCollection.InsertOne(dbCtx, database.Task{
+		insertedResult, err := taskCollection.InsertOne(dbCtx, database.Item{
 			TaskBase: database.TaskBase{
 				UserID:     userID,
 				IDExternal: "sample_task_id",
@@ -123,7 +123,7 @@ func TestReplyToEmail(t *testing.T) {
 				Title:      "Sample subject",
 				SourceID:   external.TASK_SOURCE_ID_GMAIL,
 			},
-			Email: &database.Email{
+			Email: database.Email{
 				ThreadID: "sample_thread_id",
 			},
 		})

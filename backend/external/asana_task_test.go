@@ -109,7 +109,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
-		expectedTask := database.Task{
+		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:        0,
 				IDExternal:        "6942069420",
@@ -132,7 +132,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 		assert.Equal(t, 1, len(result.Tasks))
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
-		var taskFromDB database.Task
+		var taskFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err := taskCollection.FindOne(
@@ -152,7 +152,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
-		expectedTask := database.Task{
+		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:        0,
 				IDExternal:        "6942069420",
@@ -182,7 +182,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 		assert.Equal(t, 1, len(result.Tasks))
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
-		var taskFromDB database.Task
+		var taskFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err := taskCollection.FindOne(

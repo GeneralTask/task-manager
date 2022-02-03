@@ -626,7 +626,7 @@ func TestEditFields(t *testing.T) {
 	authToken := login("approved@generaltask.com", "")
 	userID := getUserIDFromAuthToken(t, db, authToken)
 
-	sampleTask := database.Task{
+	sampleTask := database.Item{
 		TaskBase: database.TaskBase{
 			IDExternal:       "ID External",
 			IDOrdering:       1,
@@ -648,9 +648,11 @@ func TestEditFields(t *testing.T) {
 			},
 			CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now()),
 		},
-		PriorityID:         "Priority ID",
-		PriorityNormalized: 5.0,
-		TaskNumber:         3,
+		Task: database.Task{
+			PriorityID:         "Priority ID",
+			PriorityNormalized: 5.0,
+			TaskNumber:         3,
+		},
 	}
 
 	t.Run("Edit Title Success", func(t *testing.T) {
@@ -678,7 +680,7 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		var task database.Task
+		var task database.Item
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
@@ -740,7 +742,7 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		var task database.Task
+		var task database.Item
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
@@ -777,7 +779,7 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		var task database.Task
+		var task database.Item
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
@@ -837,7 +839,7 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		var task database.Task
+		var task database.Item
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
@@ -905,7 +907,7 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		var task database.Task
+		var task database.Item
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)

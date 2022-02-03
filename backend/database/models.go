@@ -61,8 +61,8 @@ type Oauth1RequestSecret struct {
 type Item struct {
 	TaskBase       `bson:",inline"`
 	TaskType       `bson:"task_type"`
-	*Task          `bson:"task,omitempty"`
-	*Email         `bson:"email,omitempty"`
+	Task           `bson:"task,omitempty"`
+	Email          `bson:"email,omitempty"`
 	*CalendarEvent `bson:"calendar_event,omitempty"`
 }
 
@@ -123,16 +123,13 @@ type Email struct {
 }
 
 type Task struct {
-	TaskBase           `bson:",inline"`
 	PriorityID         string  `bson:"priority_id"`
 	PriorityNormalized float64 `bson:"priority_normalized"`
 	TaskNumber         int     `bson:"task_number"`
 }
 
 type TaskChangeableFields struct {
-	PriorityID         string  `bson:"priority_id,omitempty"`
-	PriorityNormalized float64 `bson:"priority_normalized,omitempty"`
-
+	Task           `bson:"task,omitempty"`
 	Title          *string            `json:"title" bson:"title,omitempty"`
 	Body           *string            `json:"body" bson:"body,omitempty"`
 	DueDate        primitive.DateTime `json:"due_date" bson:"due_date,omitempty"`

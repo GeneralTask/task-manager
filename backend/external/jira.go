@@ -173,7 +173,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	}
 	defer dbCleanup()
 
-	var tasks []*database.Task
+	var tasks []*database.Item
 	for _, jiraTask := range jiraTasks.Issues {
 		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
 		if err != nil {
@@ -182,7 +182,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			return
 		}
 
-		task := &database.Task{
+		task := &database.Item{
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      jiraTask.ID,
@@ -193,8 +193,11 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 				Body:            bodyString,
 				SourceAccountID: accountID,
 			},
-			PriorityID: jiraTask.Fields.Priority.ID,
+			Task: database.Task{
+				PriorityID: jiraTask.Fields.Priority.ID,
+			},
 		}
+
 		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)
 		if err == nil {
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
@@ -228,7 +231,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	priorityLength := len(*cachedMapping)
 
 	for _, task := range tasks {
-		var dbTask database.Task
+		var dbTask database.Item
 		res, err := database.UpdateOrCreateTask(
 			db,
 			userID,
@@ -236,10 +239,12 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			task.SourceID,
 			task,
 			database.TaskChangeableFields{
-				Title:              &task.Title,
-				DueDate:            task.DueDate,
-				PriorityID:         task.PriorityID,
-				PriorityNormalized: float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength),
+				Title:   &task.Title,
+				DueDate: task.DueDate,
+				Task: database.Task{
+					PriorityID:         task.PriorityID,
+					PriorityNormalized: float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength),
+				},
 			},
 		)
 		if err != nil {

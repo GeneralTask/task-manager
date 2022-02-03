@@ -124,7 +124,7 @@ func (api *API) TasksListV2(c *gin.Context) {
 		}
 	}
 
-	tasks := []*database.Task{}
+	tasks := []*database.Item{}
 	for _, taskChannel := range taskChannels {
 		taskResult := <-taskChannel
 		if taskResult.Error != nil {
@@ -151,7 +151,7 @@ func MergeTasksV2(
 	db *mongo.Database,
 	currentTasks *[]database.TaskBase,
 	emails []*database.Item,
-	tasks []*database.Task,
+	tasks []*database.Item,
 	userID primitive.ObjectID,
 ) ([]*TaskSectionV2, error) {
 	var allUnscheduledTasks []interface{}
@@ -195,23 +195,20 @@ func MergeTasksV2(
 
 	//first we sort the emails and tasks into a single array
 	sort.SliceStable(allUnscheduledTasks, func(i, j int) bool {
-		a := allUnscheduledTasks[i]
-		b := allUnscheduledTasks[j]
+		a := allUnscheduledTasks[i].(*database.Item)
+		b := allUnscheduledTasks[j].(*database.Item)
 
-		switch a.(type) {
-		case *database.Task:
-			switch b.(type) {
-			case *database.Task:
-				return compareTasks(a.(*database.Task), b.(*database.Task))
-			case *database.Item: // using in place of email for now
-				return compareTaskEmail(a.(*database.Task), b.(*database.Item))
+		if a.IsMessage {
+			if b.IsMessage {
+				return compareEmails(a, b, newestEmailsFirst)
+			} else if b.IsTask {
+				return !compareTaskEmail(b, a)
 			}
-		case *database.Item: // using in place of email for now
-			switch b.(type) {
-			case *database.Task:
-				return !compareTaskEmail(b.(*database.Task), a.(*database.Item))
-			case *database.Item: // using in place of email for now
-				return compareEmails(a.(*database.Item), b.(*database.Item), newestEmailsFirst)
+		} else if a.IsTask {
+			if b.IsMessage {
+				return compareTaskEmail(a, b)
+			} else if b.IsTask {
+				return compareTasks(a, b)
 			}
 		}
 		return true
@@ -267,24 +264,16 @@ func extractSectionTasksV2(allUnscheduledTasks *[]interface{}) ([]*TaskResultV2,
 	var allOtherTasks []interface{}
 	for _, task := range *allUnscheduledTasks {
 		switch task := task.(type) {
-		// case *database.Email:
 		case *database.Item:
-			if task.IDTaskSection == constants.IDTaskSectionBlocked {
-				blockedTasks = append(blockedTasks, taskBaseToTaskResultV2(&task.TaskBase))
-				continue
-			}
-			if task.IDTaskSection == constants.IDTaskSectionBacklog {
-				backlogTasks = append(backlogTasks, taskBaseToTaskResultV2(&task.TaskBase))
-				continue
-			}
-		case *database.Task:
-			if task.IDTaskSection == constants.IDTaskSectionBlocked {
-				blockedTasks = append(blockedTasks, taskBaseToTaskResultV2(&task.TaskBase))
-				continue
-			}
-			if task.IDTaskSection == constants.IDTaskSectionBacklog {
-				backlogTasks = append(backlogTasks, taskBaseToTaskResultV2(&task.TaskBase))
-				continue
+			if task.IsMessage || task.IsTask {
+				if task.IDTaskSection == constants.IDTaskSectionBlocked {
+					blockedTasks = append(blockedTasks, taskBaseToTaskResultV2(&task.TaskBase))
+					continue
+				}
+				if task.IDTaskSection == constants.IDTaskSectionBacklog {
+					backlogTasks = append(backlogTasks, taskBaseToTaskResultV2(&task.TaskBase))
+					continue
+				}
 			}
 		}
 		allOtherTasks = append(allOtherTasks, task)
@@ -389,9 +378,7 @@ func taskBaseToTaskResultV2(t *database.TaskBase) *TaskResultV2 {
 
 func getTaskBase(t interface{}) *database.TaskBase {
 	switch t := t.(type) {
-	case *database.Item: // todo - using in place of email type for now
-		return &(t.TaskBase)
-	case *database.Task:
+	case *database.Item: // todo - using in place of email and task types for now
 		return &(t.TaskBase)
 	case *database.CalendarEvent:
 		return &(t.TaskBase)
@@ -408,7 +395,7 @@ func compareEmails(e1 *database.Item, e2 *database.Item, newestEmailsFirst bool)
 	}
 }
 
-func compareTasks(t1 *database.Task, t2 *database.Task) bool {
+func compareTasks(t1 *database.Item, t2 *database.Item) bool {
 	if res := compareTaskBases(t1, t2); res != nil {
 		return *res
 	}
@@ -439,7 +426,7 @@ func compareTasks(t1 *database.Task, t2 *database.Task) bool {
 	}
 }
 
-func compareTaskEmail(t *database.Task, e *database.Item) bool {
+func compareTaskEmail(t *database.Item, e *database.Item) bool {
 	if res := compareTaskBases(t, e); res != nil {
 		return *res
 	}

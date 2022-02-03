@@ -43,7 +43,7 @@ func (generalTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 			{"is_completed": false},
 		}},
 	)
-	var tasks []*database.Task
+	var tasks []*database.Item
 	if err != nil || cursor.All(dbCtx, &tasks) != nil {
 		log.Printf("failed to fetch general task tasks: %v", err)
 		result <- emptyTaskResult(err)
@@ -69,7 +69,7 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 	if task.IDTaskSection != primitive.NilObjectID {
 		taskSection = task.IDTaskSection
 	}
-	newTask := database.Task{
+	newTask := database.Item{
 		TaskBase: database.TaskBase{
 			UserID:          userID,
 			IDExternal:      primitive.NewObjectID().Hex(),

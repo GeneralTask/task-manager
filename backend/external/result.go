@@ -13,7 +13,7 @@ type EmailResult struct {
 }
 
 type TaskResult struct {
-	Tasks           []*database.Task
+	Tasks           []*database.Item
 	PriorityMapping *map[string]int
 	Error           error
 }
@@ -40,7 +40,7 @@ func emptyEmailResult(err error) EmailResult {
 func emptyTaskResult(err error) TaskResult {
 	var priorities map[string]int
 	return TaskResult{
-		Tasks:           []*database.Task{},
+		Tasks:           []*database.Item{},
 		PriorityMapping: &priorities,
 		Error:           err,
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func AssertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
+func AssertTasksEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.UserID, b.UserID)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)

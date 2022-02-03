@@ -71,7 +71,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
-		expectedTask := database.Task{
+		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:    0,
 				IDExternal:    "42069",
@@ -92,7 +92,7 @@ func TestLoadJIRATasks(t *testing.T) {
 
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
-		var taskFromDB database.Task
+		var taskFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err := taskCollection.FindOne(
@@ -113,7 +113,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
-		expectedTask := database.Task{
+		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:      2,
 				IDExternal:      "42069",
@@ -142,7 +142,7 @@ func TestLoadJIRATasks(t *testing.T) {
 
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
-		var taskFromDB database.Task
+		var taskFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err := taskCollection.FindOne(
@@ -163,7 +163,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
-		expectedTask := database.Task{
+		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:    2,
 				IDExternal:    "42069",
@@ -174,7 +174,9 @@ func TestLoadJIRATasks(t *testing.T) {
 				UserID:        *userID,
 				DueDate:       primitive.NewDateTimeFromTime(dueDate),
 			},
-			PriorityID: "something_that_will_change",
+			Task: database.Task{
+				PriorityID: "something_that_will_change",
+			},
 		}
 		database.GetOrCreateTask(
 			db,
@@ -194,7 +196,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		expectedTask.IDOrdering = 0
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
-		var taskFromDB database.Task
+		var taskFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err := taskCollection.FindOne(
@@ -217,7 +219,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
-		expectedTask := database.Task{
+		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:       2,
 				IDExternal:       "42069",
@@ -229,7 +231,9 @@ func TestLoadJIRATasks(t *testing.T) {
 				UserID:           *userID,
 				DueDate:          primitive.NewDateTimeFromTime(dueDate),
 			},
-			PriorityID: "something_that_will_change",
+			Task: database.Task{
+				PriorityID: "something_that_will_change",
+			},
 		}
 		database.GetOrCreateTask(
 			db,
@@ -247,7 +251,7 @@ func TestLoadJIRATasks(t *testing.T) {
 
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
-		var taskFromDB database.Task
+		var taskFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err := taskCollection.FindOne(
@@ -322,7 +326,7 @@ func TestGetPriorities(t *testing.T) {
 	})
 }
 
-func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
+func assertTasksEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)
