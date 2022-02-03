@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import styled from 'styled-components'
 import { TOOLTIPS_BACKGROUND, TOOLTIPS_OPACITY, TOOLTIPS_SHADOW, TOOLTIPS_HEIGHT } from '../../helpers/styles'
 
@@ -48,16 +48,16 @@ interface TooltipProps {
     placement?: 'above' | 'below',
 }
 function Tooltip(props: TooltipProps): JSX.Element {
-    let timeout: NodeJS.Timeout | undefined
+    const timeout = useRef<NodeJS.Timeout>()
     const [show, setShow] = React.useState(false)
 
     const showToolTip = () => {
-        timeout = setTimeout(() => {
+        timeout.current = setTimeout(() => {
             setShow(true)
         }, 1000)
     }
     const hideToolTip = () => {
-        if (timeout) { clearTimeout(timeout) }
+        if (timeout.current) { clearTimeout(timeout.current) }
         setShow(false)
     }
     return <RelativeDiv onMouseOver={showToolTip} onMouseOut={hideToolTip}>

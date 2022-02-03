@@ -12,8 +12,8 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import EventAlert from '../alert/EventAlert'
 import ExpandCollapse from '../common/ExpandCollapse'
-import Navbar from '../Navbar'
-import { NavbarPages } from '../../helpers/enums'
+import Navbar from '../navbar/Navbar'
+import { NavbarPage } from '../../helpers/enums'
 import RefreshButton from './RefreshButton'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
@@ -21,8 +21,6 @@ import styled from 'styled-components'
 import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
-import { useKeyboardShortcuts } from '../../helpers/keyboard-shortcuts'
-
 
 const TasksPageContainer = styled.div`
     display: flex;
@@ -84,17 +82,17 @@ export const useFetchTasks = (): (() => Promise<void>) => {
 }
 
 interface TasksProps {
-    currentPage: NavbarPages
+    currentPage: NavbarPage
 }
 function Tasks({ currentPage }: TasksProps): JSX.Element {
     const task_sections = useAppSelector((state) => state.tasks_page.tasks.task_sections)
     const [currentSection, headerText, sectionIndex] = (() => {
         switch (currentPage) {
-            case NavbarPages.TODAY_PAGE:
+            case NavbarPage.TODAY_PAGE:
                 return [task_sections[0], 'Today', 0]
-            case NavbarPages.BLOCKED_PAGE:
+            case NavbarPage.BLOCKED_PAGE:
                 return [task_sections[1], 'Blocked', 1]
-            case NavbarPages.BACKLOG_PAGE:
+            case NavbarPage.BACKLOG_PAGE:
                 return [task_sections[2], 'Backlog', 2]
             default:
                 return [task_sections[0], 'Today', 0]
@@ -136,10 +134,9 @@ const CollapseCalendarSidebar = React.memo(() => {
 })
 
 export default function TasksPage(): JSX.Element {
-    useKeyboardShortcuts()
     const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
     const section = `${useParams().section}_page`
-    const currentPage = Object.values(NavbarPages).find((page) => page === section)
+    const currentPage = Object.values(NavbarPage).find((page) => page === section)
     if (currentPage == null) return <Navigate to="/" />
     return (
         <TasksPageContainer>

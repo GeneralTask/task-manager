@@ -32,6 +32,7 @@ export const TEXT_WHITE = '#ffffff'
 export const TEXT_BLACK_HOVER = '#464646'
 export const TEXT_LIGHTGRAY = '#CCCCCC'
 export const TEXT_DARKGRAY = '#333333'
+export const TEXT_KEYBOARD_SHORTCUT = '#A1A1AA'
 
 export const BACKGROUND_PRIMARY = '#007bff'
 export const BACKGROUND_PRIMARY_HOVER = '#0069d9'
@@ -45,11 +46,14 @@ export const TOOLTIPS_BACKGROUND = '#FFFFFF'
 export const TOOLTIPS_OPACITY = '.95'
 export const TOOLTIPS_SHADOW = '0px 4px 20px rgba(43, 43, 43, 0.08)'
 
+export const EVENT_SHADOW = '0px 1px 2px rgba(0, 0, 0, 0.07)'
+
 export const DIVIDER_LIGHTGRAY = '#DDDDDD'
 
 export const BORDER_PRIMARY = '#cccccc'
 export const BORDER_ERROR = '#FF0000'
 export const BACKGROUND_WHITE = '#ffffff'
+export const BACKGROUND_KEYBOARD_SHORTCUT = '#F6F5F6'
 
 export const BACKGROUND_HOVER = '#e3e3e3'
 
@@ -87,3 +91,4 @@ export const CALENDAR_TD_COLOR = '#E4E3E7'
 export const CALENDAR_TIME_COLOR = '#A1A1AA'
 export const CALENDAR_INDICATOR_COLOR = '#D7470A'
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
+export const EVENT_BOTTOM_PADDING = 2.5

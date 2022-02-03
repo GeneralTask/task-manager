@@ -1,11 +1,12 @@
-import styled, { keyframes } from 'styled-components'
-
 import { FetchStatusEnum, LogEvents } from '../../helpers/enums'
 import React, { useCallback } from 'react'
-import { useAppSelector } from '../../redux/hooks'
-import { useFetchTasks } from './TasksPage'
+import styled, { keyframes } from 'styled-components'
+
 import { logEvent } from '../../helpers/utils'
+import { useAppSelector } from '../../redux/hooks'
 import { useFetchMessages } from '../messages/MessagesPage'
+import { useFetchTasks } from './TasksPage'
+import { useKeyboardShortcut } from '../common/KeyboardShortcut'
 
 const spin = keyframes`
     from {
@@ -24,6 +25,9 @@ const SpinningRefreshBtn = styled(RefreshBtn)`
 `
 const Container = styled.div`
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `
 
 const RefreshButton = (): JSX.Element => {
@@ -36,6 +40,8 @@ const RefreshButton = (): JSX.Element => {
         fetchMessages()
         logEvent(LogEvents.MANUAL_TASKS_REFRESH_CLICK)
     }, [])
+
+    useKeyboardShortcut('r', refresh)
 
     return (
         <Container onClick={refresh}>

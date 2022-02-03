@@ -30,7 +30,7 @@ export enum LogEvents {
     MANUAL_TASKS_REFRESH_CLICK = 'manual_tasks_refresh_click',
 }
 
-export enum NavbarPages {
+export enum NavbarPage {
     TODAY_PAGE = 'today_page',
     BLOCKED_PAGE = 'blocked_page',
     BACKLOG_PAGE = 'backlog_page',

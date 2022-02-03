@@ -1,20 +1,14 @@
+import ContentEditable from 'react-contenteditable'
 import styled from 'styled-components'
-import { TEXT_BLACK } from '../../helpers/styles'
+import { BACKGROUND_HOVER, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 
-export const BodyIframe = styled.iframe<{ iframeHeight: number }>`
-    border: none;
-    border-radius: 2px;
-    width: 100%;
-    visibility: hidden;
-    height: ${(props) => props.iframeHeight + 'px'};
-`
 export const TaskBodyDiv = styled.div`
     margin: auto;
     width: 95%;
 `
 export const EmailViewDiv = styled.div`
     width: auto;
-    overflow: scroll;
+    overflow: auto;
     height: fit-content;
     max-height: 500px;
     border-radius: 6px;
@@ -34,6 +28,7 @@ export const Deeplink = styled.div`
     text-align: center;
     width: 100%;
     color: black;
+    padding: 10px;
 `
 export const ReplyDiv = styled.div`
     display: flex;
@@ -43,6 +38,7 @@ export const ReplyDiv = styled.div`
 `
 export const ExpandedBody = styled.div<{ isExpanded: boolean }>`
     display: ${(props) => (props.isExpanded ? 'block' : 'none')};
+    padding-bottom: 12px;
 `
 export const ReplyInputStyle = {
     width: '100%',
@@ -55,3 +51,27 @@ export const ReplyInputStyle = {
     outline: 'none',
     marginRight: '10px',
 }
+
+export const BodyContentEditable = styled(ContentEditable) <{ placeholder_text: string }>`
+    padding: 10px;
+    word-wrap: break-word;
+    overflow: none;
+    white-space: pre-wrap;
+    outline: none;
+    border: none;
+    border-radius: 12px;
+
+    font-family: Switzer-Variable;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 20px;
+
+    &:hover,&:focus {
+        background-color: ${BACKGROUND_HOVER};
+    }
+    &:empty::before {
+        content: attr(placeholder_text);
+        color: ${TEXT_GRAY};
+    }
+`

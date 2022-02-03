@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
@@ -84,6 +85,7 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 		// 1 hour is the default
 		assert.Equal(t, int64(3600000000000), task.TimeAllocation)
+		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("create_task_success@generaltask.com", "")
@@ -92,7 +94,7 @@ func TestCreateTask(t *testing.T) {
 		request, _ := http.NewRequest(
 			"POST",
 			"/tasks/create/gt_task/",
-			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300}`)))
+			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300, "id_task_section": "`+constants.IDTaskSectionBacklog.Hex()+`"}}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -106,5 +108,6 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, "seriously!", task.Body)
 		assert.Equal(t, int64(300000000000), task.TimeAllocation)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
+		assert.Equal(t, constants.IDTaskSectionBacklog, task.IDTaskSection)
 	})
 }

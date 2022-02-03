@@ -1,25 +1,27 @@
 import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
-import { TASKS_URL } from '../../constants'
-import React, { useState } from 'react'
-import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
-import { useFetchTasks } from './TasksPage'
+import {
+    BodyContentEditable,
+    Deeplink,
+    EmailMessage,
+    EmailSubjectHeader,
+    EmailViewDiv,
+    ExpandedBody,
+    ReplyDiv,
+    ReplyInputStyle,
+    TaskBodyDiv,
+} from './TaskBody-style'
+import React, { useRef, useState } from 'react'
+import { TASKS_MODIFY_URL, TASKS_URL } from '../../constants'
+import { logEvent, makeAuthorizedRequest, stopKeyboardPropogation } from '../../helpers/utils'
+
 import ContentEditable from 'react-contenteditable'
 import GTButton from '../common/GTButton'
+import { LogEvents } from '../../helpers/enums'
 import ReactDOMServer from 'react-dom/server'
 import { TTask } from '../../helpers/types'
-import { toast } from 'react-toastify'
-import {
-    TaskBodyDiv,
-    Deeplink,
-    ReplyDiv,
-    ExpandedBody,
-    EmailMessage,
-    ReplyInputStyle,
-    EmailViewDiv,
-    EmailSubjectHeader,
-} from './TaskBody-style'
 import sanitizeHtml from 'sanitize-html'
-import { LogEvents } from '../../helpers/enums'
+import { toast } from 'react-toastify'
+import { useFetchTasks } from './TasksPage'
 
 interface Props {
     task: TTask
@@ -31,37 +33,41 @@ interface Props {
 // has_body, expanded_body == task_id: show body
 const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
     const { body, id, sender, deeplink, source, sent_at } = task
+    const editable = task.source.name === 'General Task'
+    const hasBody = body !== '<body></body>'
     return (
-        <div>
-            {Boolean(body || deeplink) && (
-                <ExpandedBody isExpanded={isExpanded}>
-                    {body && (
-                        <TaskBodyDiv>
+        <ExpandedBody isExpanded={isExpanded}>
+            {(
+                <TaskBodyDiv>
+                    {source.is_replyable ?
+                        <>
                             <EmailBody body={body} task_id={id} />
-                            {source.is_replyable && (
-                                <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />
-                            )}
-                        </TaskBodyDiv>
-                    )}
-                    {deeplink && (
-                        <Deeplink>
-                            <p>
-                                See more in{' '}
-                                <a
-                                    href={deeplink}
-                                    target="_blank"
-                                    onClick={() => {
-                                        logEvent(LogEvents.TASK_DEEPLINK_CLICKED)
-                                    }}
-                                >
-                                    {source.name}
-                                </a>
-                            </p>
-                        </Deeplink>
-                    )}
-                </ExpandedBody>
+                            <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />
+                        </> : <>
+                            {(hasBody || editable) &&
+                                <Body body={body} task_id={id} editable={editable} />
+                            }
+                        </>
+                    }
+                </TaskBodyDiv>
             )}
-        </div>
+            {deeplink && (
+                <Deeplink>
+                    <p>
+                        See more in{' '}
+                        <a
+                            href={deeplink}
+                            target="_blank"
+                            onClick={() => {
+                                logEvent(LogEvents.TASK_DEEPLINK_CLICKED)
+                            }}
+                        >
+                            {source.name}
+                        </a>
+                    </p>
+                </Deeplink>
+            )}
+        </ExpandedBody>
     )
 })
 
@@ -92,6 +98,53 @@ const EmailBody: React.FC<EmailViewProps> = (props: EmailViewProps) => {
     )
 }
 
+interface BodyProps {
+    body: string
+    task_id: string
+    editable: boolean
+}
+
+const Body: React.FC<BodyProps> = (props: BodyProps) => {
+    const body = useRef(props.body)
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault()
+            e.currentTarget.blur()
+        }
+        stopKeyboardPropogation(e)
+    }
+
+    const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+        e.target.scrollLeft = 0
+        makeAuthorizedRequest({
+            url: TASKS_MODIFY_URL + props.task_id + '/',
+            method: 'PATCH',
+            body: JSON.stringify({ body: body.current }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('PATCH /tasks/modify failed: ' + response.text())
+                }
+            })
+            .catch(e => {
+                console.log({ e })
+            })
+    }
+
+    return (
+        <BodyContentEditable
+            html={props.body}
+            disabled={!props.editable}
+            onKeyPress={handleKeyPress}
+            onChange={(e) => body.current = e.target.value}
+            onBlur={handleBlur}
+            tagName='div'
+            onKeyDown={(e) => e.stopPropagation()}
+            placeholder_text='Add task details...'
+        />
+    )
+}
 interface EmailQuoteProps {
     sender: string | null
     body: string
@@ -172,7 +225,7 @@ const Reply: React.FC<ReplyProps> = ({ task_id, sender, body, sent_at }: ReplyPr
                 style={ReplyInputStyle}
                 onChange={(e) => setText(e.target.value)}
                 // to prevent inputs from triggering keyboard shortcuts
-                onKeyDown={e => e.stopPropagation()}
+                onKeyDown={stopKeyboardPropogation}
             />
             <GTButton
                 theme="black"

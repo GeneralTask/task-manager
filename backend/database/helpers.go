@@ -307,3 +307,7 @@ func GetOauth1RequestsSecretsCollection(db *mongo.Database) *mongo.Collection {
 func GetLogEventsCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("log_events")
 }
+
+func GetFeedbackItemCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("feedback_items")
+}

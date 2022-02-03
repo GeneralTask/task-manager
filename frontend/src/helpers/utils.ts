@@ -192,3 +192,9 @@ export function dateIsToday(date: Date): boolean {
         date.getFullYear() === today.getFullYear()
     )
 }
+
+export function stopKeyboardPropogation(e: React.KeyboardEvent) {
+    if (e.key !== 'Escape') {
+        e.stopPropagation()
+    }
+}
