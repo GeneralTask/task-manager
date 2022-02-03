@@ -28,14 +28,12 @@ export default function Label({ task }: LabelProps): JSX.Element {
             <LabelHeader>Edit Label</LabelHeader>
             {
                 taskSections.map((newSection, newSectionIndex) => {
+                    if (newSectionIndex === currentTaskSectionIndex) return
                     return (
                         <LabelOption key={newSectionIndex} onClick={
                             (e) => {
                                 e.stopPropagation()
-                                if (newSectionIndex === currentTaskSectionIndex) {
-                                    dispatch(hideLabelSelector())
-                                    return
-                                }
+
                                 const newTaskSections = sectionDropReorder(taskSections, newSectionIndex, {
                                     // task: 0,
                                     task: task.id_ordering - 1,
