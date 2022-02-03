@@ -27,86 +27,86 @@ func TestLoadJIRATasks(t *testing.T) {
 	AtlassianSiteCollection := database.GetJiraSitesCollection(db)
 	taskCollection := database.GetTaskCollection(db)
 
-	// t.Run("MissingJIRAToken", func(t *testing.T) {
-	// 	var JIRATasks = make(chan TaskResult)
-	// 	userID := primitive.NewObjectID()
-	// 	JIRA := JIRASource{Atlassian: AtlassianService{}}
-	// 	go JIRA.GetTasks(userID, "exampleAccountID", JIRATasks)
-	// 	result := <-JIRATasks
-	// 	assert.Equal(t, 0, len(result.Tasks))
-	// })
-	// t.Run("RefreshTokenFailed", func(t *testing.T) {
-	// 	userID, accountID := createJIRAToken(t, externalAPITokenCollection)
-	// 	tokenServer := getTokenServerForJIRA(t, http.StatusUnauthorized)
-	// 	var JIRATasks = make(chan TaskResult)
-	// 	JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{TokenURL: &tokenServer.URL}}}}
-	// 	go JIRA.GetTasks(*userID, accountID, JIRATasks)
-	// 	result := <-JIRATasks
-	// 	assert.Equal(t, 0, len(result.Tasks))
-	// })
+	t.Run("MissingJIRAToken", func(t *testing.T) {
+		var JIRATasks = make(chan TaskResult)
+		userID := primitive.NewObjectID()
+		JIRA := JIRASource{Atlassian: AtlassianService{}}
+		go JIRA.GetTasks(userID, "exampleAccountID", JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 0, len(result.Tasks))
+	})
+	t.Run("RefreshTokenFailed", func(t *testing.T) {
+		userID, accountID := createJIRAToken(t, externalAPITokenCollection)
+		tokenServer := getTokenServerForJIRA(t, http.StatusUnauthorized)
+		var JIRATasks = make(chan TaskResult)
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{TokenURL: &tokenServer.URL}}}}
+		go JIRA.GetTasks(*userID, accountID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 0, len(result.Tasks))
+	})
 
-	// t.Run("SearchFailed", func(t *testing.T) {
-	// 	userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
-	// 	tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-	// 	searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
-	// 	var JIRATasks = make(chan TaskResult)
-	// 	JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
-	// 	go JIRA.GetTasks(*userID, accountID, JIRATasks)
-	// 	result := <-JIRATasks
-	// 	assert.Equal(t, 0, len(result.Tasks))
-	// })
-	// t.Run("EmptySearchResponse", func(t *testing.T) {
-	// 	userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
-	// 	tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-	// 	searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
-	// 	var JIRATasks = make(chan TaskResult)
-	// 	JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
-	// 	go JIRA.GetTasks(*userID, accountID, JIRATasks)
-	// 	result := <-JIRATasks
-	// 	assert.Equal(t, 0, len(result.Tasks))
-	// })
-	// t.Run("Success", func(t *testing.T) {
-	// 	userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
-	// 	tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-	// 	searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+	t.Run("SearchFailed", func(t *testing.T) {
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		searchServer := getSearchServerForJIRA(t, http.StatusUnauthorized, false)
+		var JIRATasks = make(chan TaskResult)
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
+		go JIRA.GetTasks(*userID, accountID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 0, len(result.Tasks))
+	})
+	t.Run("EmptySearchResponse", func(t *testing.T) {
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		searchServer := getSearchServerForJIRA(t, http.StatusOK, true)
+		var JIRATasks = make(chan TaskResult)
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
+		go JIRA.GetTasks(*userID, accountID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 0, len(result.Tasks))
+	})
+	t.Run("Success", func(t *testing.T) {
+		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 
-	// 	dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
-	// 	expectedTask := database.Item{
-	// 		TaskBase: database.TaskBase{
-	// 			IDOrdering:    0,
-	// 			IDExternal:    "42069",
-	// 			IDTaskSection: constants.IDTaskSectionToday,
-	// 			Deeplink:      "https://dankmemes.com/browse/MOON-1969",
-	// 			Title:         "Sample Taskeroni",
-	// 			SourceID:      TASK_SOURCE_ID_JIRA,
-	// 			UserID:        *userID,
-	// 			DueDate:       primitive.NewDateTimeFromTime(dueDate),
-	// 		},
-	// 	}
+		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+		expectedTask := database.Item{
+			TaskBase: database.TaskBase{
+				IDOrdering:    0,
+				IDExternal:    "42069",
+				IDTaskSection: constants.IDTaskSectionToday,
+				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
+				Title:         "Sample Taskeroni",
+				SourceID:      TASK_SOURCE_ID_JIRA,
+				UserID:        *userID,
+				DueDate:       primitive.NewDateTimeFromTime(dueDate),
+			},
+		}
 
-	// 	var JIRATasks = make(chan TaskResult)
-	// 	JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
-	// 	go JIRA.GetTasks(*userID, accountID, JIRATasks)
-	// 	result := <-JIRATasks
-	// 	assert.Equal(t, 1, len(result.Tasks))
+		var JIRATasks = make(chan TaskResult)
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
+		go JIRA.GetTasks(*userID, accountID, JIRATasks)
+		result := <-JIRATasks
+		assert.Equal(t, 1, len(result.Tasks))
 
-	// 	assertTasksEqual(t, &expectedTask, result.Tasks[0])
+		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
-	// 	var taskFromDB database.Item
-	// 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	// 	defer cancel()
-	// 	err := taskCollection.FindOne(
-	// 		dbCtx,
-	// 		bson.M{"$and": []bson.M{
-	// 			{"source_id": TASK_SOURCE_ID_JIRA},
-	// 			{"id_external": "42069"},
-	// 			{"user_id": userID},
-	// 		}},
-	// 	).Decode(&taskFromDB)
-	// 	assert.NoError(t, err)
-	// 	assertTasksEqual(t, &expectedTask, &taskFromDB)
-	// 	assert.Equal(t, accountID, taskFromDB.SourceAccountID)
-	// })
+		var taskFromDB database.Item
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err := taskCollection.FindOne(
+			dbCtx,
+			bson.M{"$and": []bson.M{
+				{"source_id": TASK_SOURCE_ID_JIRA},
+				{"id_external": "42069"},
+				{"user_id": userID},
+			}},
+		).Decode(&taskFromDB)
+		assert.NoError(t, err)
+		assertTasksEqual(t, &expectedTask, &taskFromDB)
+		assert.Equal(t, accountID, taskFromDB.SourceAccountID)
+	})
 	t.Run("ExistingTask", func(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)

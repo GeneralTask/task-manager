@@ -88,17 +88,6 @@ func UpdateOrCreateTask(
 		return nil, err
 	}
 
-	// dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	// defer cancel()
-	// _, err = taskCollection.UpdateOne(
-	// 	dbCtx,
-	// 	dbQuery,
-	// 	bson.M{"$set": fieldsToUpdate},
-	// )
-	// if err != nil {
-	// 	log.Printf("Failed to update task: %v", err)
-	// 	return nil, err
-	// }
 	return taskCollection.FindOneAndUpdate(
 		dbCtx,
 		dbQuery,
