@@ -119,7 +119,6 @@ func (jira JIRASource) GetEvents(userID primitive.ObjectID, accountID string, st
 }
 
 func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	authToken, _ := jira.Atlassian.getToken(userID, accountID)
 	siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
 

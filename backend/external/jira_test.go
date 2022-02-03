@@ -232,7 +232,6 @@ func TestLoadJIRATasks(t *testing.T) {
 				DueDate:          primitive.NewDateTimeFromTime(dueDate),
 			},
 			Task: database.Task{
-
 				PriorityID: "something_that_will_change",
 			},
 		}
