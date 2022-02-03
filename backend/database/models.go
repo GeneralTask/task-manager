@@ -61,8 +61,8 @@ type Oauth1RequestSecret struct {
 type Item struct {
 	TaskBase       `bson:",inline"`
 	TaskType       `bson:"task_type"`
-	Task           `bson:"task"`
-	*Email         `bson:"email,omitempty"`
+	Task           `bson:"task,omitempty"`
+	Email          `bson:"email,omitempty"`
 	*CalendarEvent `bson:"calendar_event,omitempty"`
 }
 
