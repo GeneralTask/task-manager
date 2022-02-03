@@ -10,6 +10,7 @@ export interface TasksPageState {
         expanded_body: string | null,
         date_picker: string | null,
         time_estimate: string | null,
+        label_selector: string | null,
         focus_create_task_form: boolean,
     },
     events: {
@@ -26,6 +27,7 @@ const initialState: TasksPageState = {
         expanded_body: null,
         date_picker: null,
         time_estimate: null,
+        label_selector: null,
         focus_create_task_form: false,
     },
     events: {
@@ -62,6 +64,7 @@ export const tasksPageSlice = createSlice({
         },
         showDatePicker(state, action: PayloadAction<string>) {
             state.tasks.time_estimate = null
+            state.tasks.label_selector = null
             state.tasks.date_picker = action.payload
         },
         hideDatePicker(state) {
@@ -69,10 +72,19 @@ export const tasksPageSlice = createSlice({
         },
         showTimeEstimate(state, action: PayloadAction<string>) {
             state.tasks.date_picker = null
+            state.tasks.label_selector = null
             state.tasks.time_estimate = action.payload
         },
         hideTimeEstimate(state) {
             state.tasks.time_estimate = null
+        },
+        showLabelSelector(state, action: PayloadAction<string>) {
+            state.tasks.date_picker = null
+            state.tasks.time_estimate = null
+            state.tasks.label_selector = action.payload
+        },
+        hideLabelSelector(state) {
+            state.tasks.label_selector = null
         },
         setFocusCreateTaskForm(state, action: PayloadAction<boolean>) {
             state.tasks.focus_create_task_form = action.payload
@@ -102,6 +114,8 @@ export const {
     hideDatePicker,
     showTimeEstimate,
     hideTimeEstimate,
+    showLabelSelector,
+    hideLabelSelector,
     setEvents,
     setEventsFetchStatus,
     setShowCalendarSidebar,
