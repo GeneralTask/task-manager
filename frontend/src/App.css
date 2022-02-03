@@ -9,12 +9,6 @@ body,
 #root {
     margin: 0;
     height: 100%;
-
-}
-#root{
-    --blur: 0px;
-    filter: blur(var(--blur));
-
 }
 
 #modal-root {
