@@ -139,19 +139,17 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]TaskBase,
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	query := bson.M{
-		"$and": []bson.M{
-			{"user_id": userID},
-			{"is_completed": false},
-			// Small hacks to filter emails and cal events out from tasks collection
-			{"source_id": bson.M{"$ne": "gmail"}},
-			{"source_id": bson.M{"$ne": "gcal"}},
-		},
-	}
-	log.Println("query:", query)
 	cursor, err := GetTaskCollection(db).Find(
 		dbCtx,
-		query,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_completed": false},
+				// Small hacks to filter emails and cal events out from tasks collection
+				{"source_id": bson.M{"$ne": "gmail"}},
+				{"source_id": bson.M{"$ne": "gcal"}},
+			},
+		},
 	)
 	if err != nil {
 		log.Printf("Failed to fetch tasks for user: %v", err)
@@ -165,7 +163,6 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]TaskBase,
 		log.Printf("Failed to fetch tasks for user: %v", err)
 		return nil, err
 	}
-	log.Println("fetched:", len(tasks), "tasks")
 	return &tasks, nil
 }
 

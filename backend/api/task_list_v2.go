@@ -184,7 +184,6 @@ func MergeTasksV2(
 	tasks []*database.Item,
 	userID primitive.ObjectID,
 ) ([]*TaskSectionV2, error) {
-	log.Println("current tasks:", len(*currentTasks), "tasks:", len(tasks))
 	var allUnscheduledTasks []interface{}
 	for _, e := range emails {
 		allUnscheduledTasks = append(allUnscheduledTasks, e)
@@ -329,11 +328,9 @@ func adjustForCompletedTasksV2(
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
-		log.Println("curent task:", currentTask.ID)
 		if !newTaskIDs[currentTask.ID] {
 			dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 			defer cancel()
-			log.Println("updating task:", currentTask.ID, "to be done")
 			res, err := tasksCollection.UpdateOne(
 				dbCtx,
 				bson.M{"_id": currentTask.ID},
