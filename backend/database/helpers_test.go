@@ -87,6 +87,9 @@ func TestGetActiveEmails(t *testing.T) {
 					SourceID:   "foobar_source",
 					UserID:     userID,
 				},
+				TaskType: TaskType{
+					IsMessage: true,
+				},
 			},
 		)
 		assert.NoError(t, err)
@@ -103,6 +106,9 @@ func TestGetActiveEmails(t *testing.T) {
 					IDExternal: "123abd",
 					SourceID:   "foobar_source",
 					UserID:     notUserID,
+				},
+				TaskType: TaskType{
+					IsMessage: true,
 				},
 			},
 		)
