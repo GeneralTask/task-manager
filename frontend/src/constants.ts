@@ -49,6 +49,7 @@ export const MAX_TASK_BODY_HEIGHT = 495
 export const TOAST_DURATION = 5000
 export const TASKS_FETCH_INTERVAL = 30
 export const MESSAGES_FETCH_INTERVAL = 30
+export const TOOLTIP_DELAY = 500
 
 export const GT_TASK_SOURCE_ID = 'gt_task'
 export const NOW = 'Now'
