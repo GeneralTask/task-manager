@@ -1,7 +1,8 @@
 import React, { useRef } from 'react'
-import styled from 'styled-components'
+import { SHADOW_MISC_1, TOOLTIPS_BACKGROUND, TOOLTIPS_HEIGHT, TOOLTIPS_OPACITY } from '../../helpers/styles'
+
 import { TOOLTIP_DELAY } from '../../constants'
-import { TOOLTIPS_BACKGROUND, TOOLTIPS_OPACITY, TOOLTIPS_HEIGHT, SHADOW_MISC_1 } from '../../helpers/styles'
+import styled from 'styled-components'
 
 const RelativeDiv = styled.div`
     position: relative;
@@ -43,8 +44,11 @@ const TooltipContainer = styled.div<{ show: boolean, direction: string }>`
         'top: calc(100% + var(--tooltip-spacing))'
     };
 `
+
+type Children = JSX.Element | JSX.Element[] | boolean | null | undefined | Element | Element[] | string | number
+
 interface TooltipProps {
-    children: JSX.Element | JSX.Element[],
+    children: Children | Children[],
     text: string,
     placement?: 'above' | 'below',
 }

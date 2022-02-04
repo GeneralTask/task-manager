@@ -1,4 +1,5 @@
 import { Action, Dispatch } from '@reduxjs/toolkit'
+import { DONE_BUTTON, TASKS_MODIFY_URL, UNDONE_BUTTON } from '../../../constants'
 import {
     DoneButton,
     DoneButtonContainer,
@@ -8,17 +9,18 @@ import {
     TaskHeaderContainer,
 } from './Header-style'
 import React, { useCallback } from 'react'
-import { DONE_BUTTON, TASKS_MODIFY_URL, UNDONE_BUTTON } from '../../../constants'
-import { LogEvents } from '../../../helpers/enums'
-import { TTask } from '../../../helpers/types'
-import { logEvent, makeAuthorizedRequest } from '../../../helpers/utils'
-import { useAppDispatch } from '../../../redux/hooks'
 import { collapseBody, expandBody, hideDatePicker, hideLabelSelector, hideTimeEstimate, removeTaskByID } from '../../../redux/tasksPageSlice'
+import { logEvent, makeAuthorizedRequest } from '../../../helpers/utils'
+
 import Domino from '../../common/Domino'
 import { EditableTaskTitle } from '../../common/Title'
-import Tooltip from '../../common/Tooltip'
-import { useFetchTasks } from '../TasksPage'
 import HeaderActions from './Actions'
+import { InvisibleKeyboardShortcut } from '../../common/KeyboardShortcut'
+import { LogEvents } from '../../../helpers/enums'
+import { TTask } from '../../../helpers/types'
+import Tooltip from '../../common/Tooltip'
+import { useAppDispatch } from '../../../redux/hooks'
+import { useFetchTasks } from '../TasksPage'
 
 const done = async (task_id: string, new_state: boolean, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {
     try {
@@ -63,8 +65,11 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
     }
 
+    const isSelected = props.isExpanded // || isSelectedThroughKeyboardShortcut (coming soon)
+
     return (
         <TaskHeaderContainer showButtons={props.isExpanded} onMouseOver={() => { setIsOver(true) }} onMouseLeave={onMouseLeave} onClick={onClick} >
+            {props.isExpanded && <InvisibleKeyboardShortcut shortcut="d" onKeyPress={onDoneButtonClick} />}
             <HeaderLeft>
                 {
                     !props.dragDisabled &&
@@ -86,7 +91,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
                 <Icon src={props.task.source.logo} alt='icon'></Icon>
                 <EditableTaskTitle task={props.task} isExpanded={props.isExpanded} />
             </HeaderLeft >
-            <HeaderActions isOver={isOver} task={props.task} isExpanded={props.isExpanded} />
+            <HeaderActions isOver={isOver} task={props.task} isExpanded={props.isExpanded} isSelected={isSelected} />
         </TaskHeaderContainer >
     )
 })
