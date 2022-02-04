@@ -185,7 +185,7 @@ func MergeTasks(
 		return []*TaskSection{}, err
 	}
 
-	sort.SliceStable(fetchedTasks, func(i, j int) bool {
+	sort.SliceStable(*fetchedTasks, func(i, j int) bool {
 		a := (*fetchedTasks)[i]
 		b := (*fetchedTasks)[j]
 		return a.IDOrdering < b.IDOrdering
