@@ -1,12 +1,10 @@
 import styled from 'styled-components'
 import { DIVIDER_LIGHTGRAY, ICON_HOVER, TEXT_DARKGRAY } from '../../../../helpers/styles'
 
-const TIME_ESTIMATOR_WIDTH = 150
-const TIME_ESTIMATOR_PADDING = 10
 export const TimeEstimateContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: ${TIME_ESTIMATOR_WIDTH}px;
+    width: 150px;
     height: 400px;
     position: absolute;
     background-color: white;
@@ -14,10 +12,8 @@ export const TimeEstimateContainer = styled.div`
     box-shadow: 0 0 5px lightgray;
     z-index: 1;
     top: 100%;
-    padding: ${TIME_ESTIMATOR_PADDING}px;
+    padding: 10px;
     cursor: default;
-    transform: translateX(
-        ${-1 * (TIME_ESTIMATOR_WIDTH / 2 - TIME_ESTIMATOR_PADDING * 2)}px);
 `
 
 export const TopNav = styled.div`
