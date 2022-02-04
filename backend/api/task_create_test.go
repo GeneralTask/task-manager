@@ -84,7 +84,7 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, "", task.Body)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 		// 1 hour is the default
-		assert.Equal(t, int64(3600000000000), task.TimeAllocation)
+		assert.Equal(t, int64(0), task.TimeAllocation)
 		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
 	})
 	t.Run("Success", func(t *testing.T) {
