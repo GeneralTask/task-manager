@@ -1,11 +1,9 @@
 import styled from 'styled-components'
-import { DIVIDER_LIGHTGRAY, ICON_HOVER, TEXT_DARKGRAY } from '../../../helpers/styles'
+import { BACKGROUND_HOVER, BACKGROUND_WHITE, DIVIDER_LIGHTGRAY, ICON_HOVER, TEXT_DARKGRAY } from '../../../helpers/styles'
 
 export const TimeEstimateContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: 150px;
-    height: 400px;
     position: absolute;
     background-color: white;
     border-radius: 10px;
@@ -48,17 +46,30 @@ export const TimeInput = styled.input`
     cursor: pointer;
 `
 
-export const TimeButton = styled.div`
+export const TimeButton = styled.button`
+    font-size: 14px;
     display: flex;
-    align-items: center;
-    height: 10%;
-    width: 80%;
-    padding: 10px;
-    margin: 5px;
-    border-radius: 10px;
-    color: ${TEXT_DARKGRAY};
-    &:hover {
-        background-color: ${ICON_HOVER};
-    }
+    min-width: 100px;
     cursor: pointer;
+    padding: 5px;
+    margin: 5px;
+    text-align: left;
+    background: ${BACKGROUND_WHITE};
+    border: none;
+    &:hover {
+        background: ${BACKGROUND_HOVER};
+        font-weight: 600;
+    }
+    border-radius: 6px;
+
+    font-family: Switzer-Variable;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 20px;
+
+
+    /* Grey-800 */
+
+    color: #27272A;
 `
