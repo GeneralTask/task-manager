@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
+import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY } from '../../../helpers/styles'
 
 export const DoneButtonContainer = styled.div`
   margin-left: 12px;
@@ -79,7 +79,6 @@ export const HeaderRight = styled.div`
   color:${TEXT_BLACK};
   height: 100%;
   flex: none;
-
 `
 export const JoinConferenceButtonContainer = styled.div`
     margin-right: 10px;

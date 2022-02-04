@@ -230,6 +230,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	}
 	priorityLength := len(*cachedMapping)
 
+	isCompleted := false
 	for _, task := range tasks {
 		var dbTask database.Item
 		res, err := database.UpdateOrCreateTask(
@@ -245,6 +246,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 					PriorityID:         task.PriorityID,
 					PriorityNormalized: float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength),
 				},
+				IsCompleted: &isCompleted,
 			},
 		)
 		if err != nil {

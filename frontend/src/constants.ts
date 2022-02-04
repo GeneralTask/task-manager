@@ -37,6 +37,7 @@ export const CHEVRON_DOWN = '/images/chevron-arrow-down.svg'
 export const PLUS_ICON = '/images/plus.svg'
 export const DONE_BUTTON = '/images/CheckCircle.svg'
 export const BLANK_CALENDAR_ICON = '/images/CalendarBlank.svg'
+export const LABEL_ICON = '/images/Label.svg'
 export const EXPAND_ICON = '/images/ArrowsOutSimple.svg'
 export const TIME_ICON = '/images/Timer.svg'
 export const TRASH_ICON = '/images/TrashSimple.svg'
@@ -49,6 +50,7 @@ export const MAX_TASK_BODY_HEIGHT = 495
 export const TOAST_DURATION = 5000
 export const TASKS_FETCH_INTERVAL = 30
 export const MESSAGES_FETCH_INTERVAL = 30
+export const TOOLTIP_DELAY = 500
 
 export const GT_TASK_SOURCE_ID = 'gt_task'
 export const NOW = 'Now'

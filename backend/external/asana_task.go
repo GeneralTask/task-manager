@@ -106,6 +106,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 		if err == nil {
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
+		isCompleted := false
 		var dbTask database.Item
 		res, err := database.UpdateOrCreateTask(
 			db,
@@ -114,8 +115,9 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task.SourceID,
 			task,
 			database.TaskChangeableFields{
-				Title:   &task.Title,
-				DueDate: task.DueDate,
+				Title:       &task.Title,
+				DueDate:     task.DueDate,
+				IsCompleted: &isCompleted,
 			},
 		)
 		if err != nil {
@@ -132,6 +134,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
+		log.Println("task:", task.IsCompleted, "db task:", dbTask.IsCompleted)
 		tasks = append(tasks, task)
 	}
 

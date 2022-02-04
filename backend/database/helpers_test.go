@@ -33,14 +33,14 @@ func TestGetActiveTasks(t *testing.T) {
 			db,
 			userID,
 			"123abd",
-			"foobar_source",
+			"gmail",
 			&Item{
 				Email: Email{
 					SenderDomain: "gmail",
 				},
 				TaskBase: TaskBase{
 					IDExternal: "123abd",
-					SourceID:   "foobar_source",
+					SourceID:   "gmail",
 					UserID:     userID,
 				},
 			},
@@ -77,14 +77,14 @@ func TestGetActiveEmails(t *testing.T) {
 			db,
 			userID,
 			"123abc",
-			"foobar_source",
+			"gmail",
 			&Item{
 				Email: Email{
 					SenderDomain: "gmail",
 				},
 				TaskBase: TaskBase{
 					IDExternal: "123abc",
-					SourceID:   "foobar_source",
+					SourceID:   "gmail",
 					UserID:     userID,
 				},
 			},
@@ -94,14 +94,14 @@ func TestGetActiveEmails(t *testing.T) {
 			db,
 			notUserID,
 			"123abd",
-			"foobar_source",
+			"gmail",
 			&Item{
 				Email: Email{
 					SenderDomain: "gmail",
 				},
 				TaskBase: TaskBase{
 					IDExternal: "123abd",
-					SourceID:   "foobar_source",
+					SourceID:   "gmail",
 					UserID:     notUserID,
 				},
 			},

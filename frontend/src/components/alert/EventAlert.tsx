@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { NO_EVENT_TITLE_DEFAULT } from '../../constants'
 import { SHADOW_EVENT_ALERT, TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND, TEXT_BLACK } from '../../helpers/styles'
 import { useAppSelector } from '../../redux/hooks'
-import JoinConferenceButton from '../task/JoinConferenceButton'
+import JoinConferenceButton from '../common/JoinConferenceButton'
 
 const EventAlertContainer = styled.div`
     flex: 1;

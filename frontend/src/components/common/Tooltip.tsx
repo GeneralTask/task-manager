@@ -1,5 +1,6 @@
 import React, { useRef } from 'react'
 import styled from 'styled-components'
+import { TOOLTIP_DELAY } from '../../constants'
 import { TOOLTIPS_BACKGROUND, TOOLTIPS_OPACITY, TOOLTIPS_SHADOW, TOOLTIPS_HEIGHT } from '../../helpers/styles'
 
 const RelativeDiv = styled.div`
@@ -54,7 +55,7 @@ function Tooltip(props: TooltipProps): JSX.Element {
     const showToolTip = () => {
         timeout.current = setTimeout(() => {
             setShow(true)
-        }, 1000)
+        }, TOOLTIP_DELAY)
     }
     const hideToolTip = () => {
         if (timeout.current) { clearTimeout(timeout.current) }

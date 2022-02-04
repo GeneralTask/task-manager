@@ -18,7 +18,7 @@ interface Props {
 export default function TaskSection(props: Props): JSX.Element {
     return (
         <div>
-            <TaskCreate />
+            <TaskCreate task_section={props.task_section} task_section_index={props.task_section_index} />
             {props.task_section &&
                 props.task_section.tasks &&
                 props.task_section.tasks.map((task: TTask, task_index: number) => {

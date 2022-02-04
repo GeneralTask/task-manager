@@ -1,17 +1,23 @@
 import styled from 'styled-components'
-import { BACKGROUND_HOVER, BACKGROUND_WHITE, GRAY_400, GRAY_800, TEXT_DARKGRAY } from '../../../helpers/styles'
+import { BACKGROUND_HOVER, BACKGROUND_WHITE, GRAY_400, GRAY_800, TEXT_DARKGRAY } from '../../../../helpers/styles'
 
+const TIME_ESTIMATOR_WIDTH = 150
+const TIME_ESTIMATOR_PADDING = 10
 export const TimeEstimateContainer = styled.div`
     display: flex;
     flex-direction: column;
+    width: ${TIME_ESTIMATOR_WIDTH}px;
+    height: 400px;
     position: absolute;
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 0 5px lightgray;
     z-index: 1;
     top: 100%;
-    padding: 5px;
+    padding: ${TIME_ESTIMATOR_PADDING}px;
     cursor: default;
+    transform: translateX(
+        ${-1 * (TIME_ESTIMATOR_WIDTH / 2 - TIME_ESTIMATOR_PADDING * 2)}px);
 `
 
 export const Header = styled.div`
@@ -20,12 +26,9 @@ export const Header = styled.div`
     font-weight: 600;
     font-size: 11px;
     line-height: 16px;
-
     letter-spacing: 0.12em;
     text-transform: uppercase;
-
     color: ${GRAY_400};
-
     padding: 5px;
 `
 
@@ -60,7 +63,5 @@ export const TimeButton = styled.button`
     font-weight: normal;
     font-size: 14px;
     line-height: 20px;
-
-
     color: ${GRAY_800};
 `
