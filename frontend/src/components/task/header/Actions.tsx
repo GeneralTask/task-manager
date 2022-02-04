@@ -30,7 +30,7 @@ const Action = styled.div`
 `
 const expandAction = (isExpanded: boolean, taskId: string) => {
     const dispatch = useAppDispatch()
-    const onClick = (e: any) => {
+    const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
         dispatch(isExpanded ? collapseBody() : expandBody(taskId))
     }
@@ -52,7 +52,7 @@ const timeEstimateAction = (sourceName: string, taskId: string, taskAllocated: n
     const time_allocated_millis = isNaN(taskAllocated) ? 0 : taskAllocated
     const time_allocated = Duration.fromMillis(time_allocated_millis / 1000).shiftTo('hours', 'minutes')
 
-    const onClick = (e: any) => {
+    const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
         dispatch(timeEstimate === taskId ? hideTimeEstimate() : showTimeEstimate(taskId))
     }
@@ -85,7 +85,7 @@ const dueDateAction = (taskId: string, dueDate: string) => {
 
     const dispatch = useAppDispatch()
 
-    const onClick = (e: any) => {
+    const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
         dispatch(datePicker === taskId ? hideDatePicker() : showDatePicker(taskId))
     }
