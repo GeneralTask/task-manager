@@ -112,16 +112,19 @@ interface HeaderActionsProps {
     dueDate: string
 }
 const HeaderActions = (props: HeaderActionsProps) => {
+    const actions = [
+        expandAction(props.isExpanded, props.taskId),
+        timeEstimateAction('General Task', props.taskId, props.timeAllocated),
+        dueDateAction(props.taskId, props.dueDate)
+    ]
     return (
         <ActionContainer>
             {
-                [
-                    expandAction(props.isExpanded, props.taskId),
-                    timeEstimateAction('General Task', props.taskId, props.timeAllocated),
-                    dueDateAction(props.taskId, props.dueDate),
-                ]
+                actions.map((action, index) => {
+                    return <React.Fragment key={index}>{action}</React.Fragment>
+                })
             }
-        </ActionContainer>
+        </ActionContainer >
     )
 }
 
