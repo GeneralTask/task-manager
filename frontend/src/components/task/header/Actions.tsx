@@ -155,9 +155,9 @@ interface HeaderActionsProps {
 const HeaderActions = (props: HeaderActionsProps) => {
     const actions = [
         { key: 'Enter', component: <ExpandAction isExpanded={props.isExpanded} taskId={props.taskId} /> },
-        { key: 'duck', component: <TimeEstimateAction sourceName="General Task" taskId={props.taskId} taskAllocated={props.timeAllocated} /> },
-        { key: 'duck2', component: <DueDateAction taskId={props.taskId} dueDate={props.dueDate} /> },
-        { key: 'duck3', component: <LabelAction task={props.task} /> },
+        { key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.taskId} taskAllocated={props.timeAllocated} /> },
+        { key: 'S', component: <DueDateAction taskId={props.taskId} dueDate={props.dueDate} /> },
+        { key: 'L', component: <LabelAction task={props.task} /> },
     ]
 
     return (
