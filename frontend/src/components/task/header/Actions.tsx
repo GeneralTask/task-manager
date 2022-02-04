@@ -36,11 +36,11 @@ interface ExpandActionProps {
     isExpanded: boolean,
     taskId: string,
 }
-const ExpandAction = (props: ExpandActionProps): JSX.Element => {
+const ExpandAction = ({ isExpanded, taskId }: ExpandActionProps): JSX.Element => {
     const dispatch = useAppDispatch()
     const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
-        dispatch(props.isExpanded ? collapseBody() : expandBody(props.taskId))
+        dispatch(isExpanded ? collapseBody() : expandBody(taskId))
     }
     return (
         <Tooltip text={'Expand/Collapse'}>
