@@ -157,6 +157,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 				IDOrdering:        0,
 				IDExternal:        "6942069420",
 				IDTaskSection:     constants.IDTaskSectionToday,
+				IsCompleted:       true,
 				Deeplink:          "https://example.com/",
 				Title:             "Task!",
 				Body:              "hmm",
@@ -181,6 +182,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.Tasks))
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
+		assert.False(t, result.Tasks[0].IsCompleted)
 
 		var taskFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -191,6 +193,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
+		assert.False(t, taskFromDB.IsCompleted)
 		assert.Equal(t, "sugapapa", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 }
