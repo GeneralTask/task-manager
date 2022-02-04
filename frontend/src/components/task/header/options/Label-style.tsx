@@ -28,21 +28,14 @@ export const LabelOption = styled.button`
         font-weight: 600;
     }
     border-radius: 6px;
-
     font-family: Switzer-Variable;
     font-style: normal;
     font-weight: normal;
     font-size: 14px;
     line-height: 20px;
-
-
-    /* Grey-800 */
-
     color: #27272A;
 `
 export const LabelIcon = styled.img`
-    /* width: 20px;
-    height: 20px; */
     margin-right: 5px;
     float: left;
 `
@@ -52,11 +45,8 @@ export const LabelHeader = styled.div`
     font-weight: 600;
     font-size: 11px;
     line-height: 16px;
-
     letter-spacing: 0.12em;
     text-transform: uppercase;
-
     color: #A1A1AA;
-
     padding: 5px;
 `
