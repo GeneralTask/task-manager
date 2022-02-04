@@ -46,7 +46,6 @@ const expandAction = (isExpanded: boolean, taskId: string) => {
 }
 
 const timeEstimateAction = (sourceName: string, taskId: string, taskAllocated: number) => {
-    if (sourceName !== 'General Task') return (null)
     const defaultAllocation = 3600000000000
     const dispatch = useAppDispatch()
 
@@ -58,7 +57,7 @@ const timeEstimateAction = (sourceName: string, taskId: string, taskAllocated: n
         e.stopPropagation()
         dispatch(timeEstimate === taskId ? hideTimeEstimate() : showTimeEstimate(taskId))
     }
-    const timeEstimateView = (taskAllocated >= defaultAllocation) ?
+    const timeEstimateView = (taskAllocated >= defaultAllocation || taskAllocated === 0) ?
         <ButtonIcon src={TIME_ICON} alt="time estimate" /> :
         <TimeEstimateButtonText>
             {
