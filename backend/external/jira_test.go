@@ -118,6 +118,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IDOrdering:      2,
 				IDExternal:      "42069",
 				IDTaskSection:   constants.IDTaskSectionToday,
+				IsCompleted:     true,
 				Deeplink:        "https://dankmemes.com/browse/MOON-1969",
 				Title:           "Sample Taskeroni",
 				SourceID:        TASK_SOURCE_ID_JIRA,
@@ -141,6 +142,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.Equal(t, 1, len(result.Tasks))
 
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
+		assert.False(t, result.Tasks[0].IsCompleted)
 
 		var taskFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -155,6 +157,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
+		assert.False(t, taskFromDB.IsCompleted)
 		assert.Equal(t, "someAccountID", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 	t.Run("NewPriority", func(t *testing.T) {
