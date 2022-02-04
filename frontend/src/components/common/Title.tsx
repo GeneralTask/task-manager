@@ -42,7 +42,6 @@ const TitleStyleExpanded = {
 interface EditableTaskTitleProps {
     task: TTask
     isExpanded: boolean
-    isEditable: boolean
 }
 export const EditableTaskTitle = (props: EditableTaskTitleProps): JSX.Element => {
     const title = useRef(props.task.title)
@@ -74,7 +73,6 @@ export const EditableTaskTitle = (props: EditableTaskTitleProps): JSX.Element =>
     return (
         <ContentEditable
             tagName='div'
-            disabled={!props.isEditable}
             style={props.isExpanded ? TitleStyleExpanded : TitleStyle}
             html={title.current}
             onKeyPress={handleKeyPress}
