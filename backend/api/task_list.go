@@ -8,8 +8,6 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/GeneralTask/task-manager/backend/settings"
-	"github.com/GeneralTask/task-manager/backend/utils"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -25,7 +23,7 @@ type TaskSource struct {
 	IsReplyable   bool   `json:"is_replyable"`
 }
 
-type TaskResultV2 struct {
+type TaskResult struct {
 	ID             primitive.ObjectID `json:"id"`
 	IDOrdering     int                `json:"id_ordering"`
 	Source         TaskSource         `json:"source"`
@@ -38,10 +36,10 @@ type TaskResultV2 struct {
 	SentAt         string             `json:"sent_at"`
 }
 
-type TaskSectionV2 struct {
+type TaskSection struct {
 	ID    primitive.ObjectID `json:"id"`
 	Name  string             `json:"name"`
-	Tasks []*TaskResultV2    `json:"tasks"`
+	Tasks []*TaskResult      `json:"tasks"`
 }
 
 type TaskGroupType string
@@ -54,7 +52,7 @@ const (
 	TaskSectionNameBacklog string        = "Backlog"
 )
 
-func (api *API) TasksListV2(c *gin.Context) {
+func (api *API) TasksList(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -111,11 +109,10 @@ func (api *API) TasksListV2(c *gin.Context) {
 		}
 	}
 
-	allTasks, err := MergeTasksV2(
+	allTasks, err := MergeTasks(
 		db,
 		currentTasks,
-		[]*database.Item{},
-		*fetchedTasks,
+		fetchedTasks,
 		userID.(primitive.ObjectID),
 	)
 	if err != nil {
@@ -177,103 +174,45 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	return &tasks, nil
 }
 
-func MergeTasksV2(
+func MergeTasks(
 	db *mongo.Database,
 	currentTasks *[]database.TaskBase,
-	emails []*database.Item,
-	tasks []*database.Item,
+	fetchedTasks *[]*database.Item,
 	userID primitive.ObjectID,
-) ([]*TaskSectionV2, error) {
-	var allUnscheduledTasks []interface{}
-	for _, e := range emails {
-		allUnscheduledTasks = append(allUnscheduledTasks, e)
-	}
-
-	for _, t := range tasks {
-		allUnscheduledTasks = append(allUnscheduledTasks, t)
-	}
-
-	err := adjustForCompletedTasksV2(db, currentTasks, &allUnscheduledTasks)
+) ([]*TaskSection, error) {
+	err := adjustForCompletedTasks(db, currentTasks, fetchedTasks)
 	if err != nil {
-		return []*TaskSectionV2{}, err
+		return []*TaskSection{}, err
 	}
 
-	blockedTasks, backlogTasks, allUnscheduledTasks := extractSectionTasksV2(&allUnscheduledTasks)
-
-	// sort blocked tasks by ordering ID
-	// we can assume every task has a proper ordering ID because tasks have to be dragged into the blocked section
-	sort.SliceStable(blockedTasks, func(i, j int) bool {
-		a := blockedTasks[i]
-		b := blockedTasks[j]
+	sort.SliceStable(*fetchedTasks, func(i, j int) bool {
+		a := (*fetchedTasks)[i]
+		b := (*fetchedTasks)[j]
 		return a.IDOrdering < b.IDOrdering
 	})
 
-	// sort backlog tasks by ordering ID
-	// we can assume every task has a proper ordering ID because tasks have to be dragged into the backlog section
-	sort.SliceStable(backlogTasks, func(i, j int) bool {
-		a := backlogTasks[i]
-		b := backlogTasks[j]
-		return a.IDOrdering < b.IDOrdering
-	})
+	blockedTasks, backlogTasks, todayTasks := extractSectionTasksV2(fetchedTasks)
 
-	orderingSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailOrderingPreference)
+	err = updateOrderingIDsV2(db, &todayTasks)
 	if err != nil {
-		log.Printf("failed to fetch email ordering setting: %v", err)
-		return []*TaskSectionV2{}, err
-	}
-	newestEmailsFirst := *orderingSetting == settings.ChoiceKeyNewestFirst
-
-	//first we sort the emails and tasks into a single array
-	sort.SliceStable(allUnscheduledTasks, func(i, j int) bool {
-		a := allUnscheduledTasks[i].(*database.Item)
-		b := allUnscheduledTasks[j].(*database.Item)
-
-		if a.IsMessage {
-			if b.IsMessage {
-				return compareEmails(a, b, newestEmailsFirst)
-			} else if b.IsTask {
-				return !compareTaskEmail(b, a)
-			}
-		} else if a.IsTask {
-			if b.IsMessage {
-				return compareTaskEmail(a, b)
-			} else if b.IsTask {
-				return compareTasks(a, b)
-			}
-		}
-		return true
-	})
-
-	//we then fill in the gaps with calendar events with these tasks
-
-	var taskResults []*TaskResultV2
-
-	//add remaining non scheduled events, if they exist.
-	for _, unscheduledTask := range allUnscheduledTasks {
-		task := getTaskBase(unscheduledTask)
-		taskResults = append(taskResults, taskBaseToTaskResultV2(task))
-	}
-
-	err = updateOrderingIDsV2(db, &taskResults)
-	if err != nil {
-		return []*TaskSectionV2{}, err
+		return []*TaskSection{}, err
 	}
 
 	err = updateOrderingIDsV2(db, &blockedTasks)
 	if err != nil {
-		return []*TaskSectionV2{}, err
+		return []*TaskSection{}, err
 	}
 
 	err = updateOrderingIDsV2(db, &backlogTasks)
 	if err != nil {
-		return []*TaskSectionV2{}, err
+		return []*TaskSection{}, err
 	}
 
-	return []*TaskSectionV2{
+	return []*TaskSection{
 		{
 			ID:    constants.IDTaskSectionToday,
 			Name:  TaskSectionNameToday,
-			Tasks: taskResults,
+			Tasks: todayTasks,
 		},
 		{
 			ID:    constants.IDTaskSectionBlocked,
@@ -288,42 +227,37 @@ func MergeTasksV2(
 	}, nil
 }
 
-func extractSectionTasksV2(allUnscheduledTasks *[]interface{}) ([]*TaskResultV2, []*TaskResultV2, []interface{}) {
-	blockedTasks := make([]*TaskResultV2, 0)
-	backlogTasks := make([]*TaskResultV2, 0)
-	var allOtherTasks []interface{}
-	for _, task := range *allUnscheduledTasks {
-		switch task := task.(type) {
-		case *database.Item:
-			if task.IsMessage || task.IsTask {
-				if task.IDTaskSection == constants.IDTaskSectionBlocked {
-					blockedTasks = append(blockedTasks, taskBaseToTaskResultV2(&task.TaskBase))
-					continue
-				}
-				if task.IDTaskSection == constants.IDTaskSectionBacklog {
-					backlogTasks = append(backlogTasks, taskBaseToTaskResultV2(&task.TaskBase))
-					continue
-				}
-			}
+func extractSectionTasksV2(fetchedTasks *[]*database.Item) ([]*TaskResult, []*TaskResult, []*TaskResult) {
+	blockedTasks := make([]*TaskResult, 0)
+	backlogTasks := make([]*TaskResult, 0)
+	allOtherTasks := make([]*TaskResult, 0)
+	for _, task := range *fetchedTasks {
+		if task.IDTaskSection == constants.IDTaskSectionBlocked {
+			blockedTasks = append(blockedTasks, taskBaseToTaskResult(&task.TaskBase))
+			continue
 		}
-		allOtherTasks = append(allOtherTasks, task)
+		if task.IDTaskSection == constants.IDTaskSectionBacklog {
+			backlogTasks = append(backlogTasks, taskBaseToTaskResult(&task.TaskBase))
+			continue
+		}
+		allOtherTasks = append(allOtherTasks, taskBaseToTaskResult(&task.TaskBase))
 	}
 	return blockedTasks, backlogTasks, allOtherTasks
 }
 
-func adjustForCompletedTasksV2(
+func adjustForCompletedTasks(
 	db *mongo.Database,
 	currentTasks *[]database.TaskBase,
-	unscheduledTasks *[]interface{},
+	fetchedTasks *[]*database.Item,
 ) error {
 	// decrements IDOrdering for tasks behind newly completed tasks
 	parentCtx := context.Background()
 	tasksCollection := database.GetTaskCollection(db)
 	var newTasks []*database.TaskBase
 	newTaskIDs := make(map[primitive.ObjectID]bool)
-	for _, unscheduledTask := range *unscheduledTasks {
-		taskBase := getTaskBase(unscheduledTask)
-		newTasks = append(newTasks, taskBase)
+	for _, fetchedTask := range *fetchedTasks {
+		taskBase := fetchedTask.TaskBase
+		newTasks = append(newTasks, &taskBase)
 		newTaskIDs[taskBase.ID] = true
 	}
 	// There's a more efficient way to do this but this way is easy to understand
@@ -353,7 +287,7 @@ func adjustForCompletedTasksV2(
 	return nil
 }
 
-func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResultV2) error {
+func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 	parentCtx := context.Background()
 	tasksCollection := database.GetTaskCollection(db)
 	orderingID := 1
@@ -378,7 +312,7 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResultV2) error {
 	return nil
 }
 
-func taskBaseToTaskResultV2(t *database.TaskBase) *TaskResultV2 {
+func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 	// Normally we need to use api.ExternalConfig but we are just using the source details constants here
 	taskSourceResult, _ := external.GetConfig().GetTaskSourceResult(t.SourceID)
 	var dueDate string
@@ -387,7 +321,7 @@ func taskBaseToTaskResultV2(t *database.TaskBase) *TaskResultV2 {
 	} else {
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
-	return &TaskResultV2{
+	return &TaskResult{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
 		Source: TaskSource{
@@ -404,72 +338,4 @@ func taskBaseToTaskResultV2(t *database.TaskBase) *TaskResultV2 {
 		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
 		DueDate:        dueDate,
 	}
-}
-
-func getTaskBase(t interface{}) *database.TaskBase {
-	switch t := t.(type) {
-	case *database.Item: // todo - using in place of email and task types for now
-		return &(t.TaskBase)
-	case *database.CalendarEvent:
-		return &(t.TaskBase)
-	default:
-		return nil
-	}
-}
-
-func compareEmails(e1 *database.Item, e2 *database.Item, newestEmailsFirst bool) bool {
-	if newestEmailsFirst {
-		return e1.TaskBase.CreatedAtExternal > e2.TaskBase.CreatedAtExternal
-	} else {
-		return e1.TaskBase.CreatedAtExternal < e2.TaskBase.CreatedAtExternal
-	}
-}
-
-func compareTasks(t1 *database.Item, t2 *database.Item) bool {
-	if res := compareTaskBases(t1, t2); res != nil {
-		return *res
-	}
-	sevenDaysFromNow := time.Now().AddDate(0, 0, 7)
-	//if both have due dates before seven days, prioritize the one with the closer due date.
-	if t1.DueDate > 0 &&
-		t2.DueDate > 0 &&
-		t1.DueDate.Time().Before(sevenDaysFromNow) &&
-		t2.DueDate.Time().Before(sevenDaysFromNow) {
-		return t1.DueDate.Time().Before(t2.DueDate.Time())
-	} else if t1.DueDate > 0 && t1.DueDate.Time().Before(sevenDaysFromNow) {
-		//t1 is due within seven days, t2 is not so prioritize t1
-		return true
-	} else if t2.DueDate > 0 && t2.DueDate.Time().Before(sevenDaysFromNow) {
-		//t2 is due within seven days, t1 is not so prioritize t2
-		return false
-	} else if t1.PriorityID != t2.PriorityID {
-		if len(t1.PriorityID) > 0 && len(t2.PriorityID) > 0 {
-			return t1.PriorityNormalized < t2.PriorityNormalized
-		} else if len(t1.PriorityID) > 0 {
-			return true
-		} else {
-			return false
-		}
-	} else {
-		//if all else fails prioritize by task number.
-		return t1.TaskNumber < t2.TaskNumber
-	}
-}
-
-func compareTaskEmail(t *database.Item, e *database.Item) bool {
-	if res := compareTaskBases(t, e); res != nil {
-		return *res
-	}
-	return e.SenderDomain != utils.ExtractEmailDomain(e.SourceAccountID)
-}
-
-func compareTaskBases(t1 interface{}, t2 interface{}) *bool {
-	// ensures we respect the existing ordering ids, and exempts reordered tasks from the normal auto-ordering
-	tb1 := getTaskBase(t1)
-	tb2 := getTaskBase(t2)
-	if tb1.IDOrdering > 0 && tb2.IDOrdering > 0 {
-		result := tb1.IDOrdering < tb2.IDOrdering
-		return &result
-	}
-	return nil
 }
