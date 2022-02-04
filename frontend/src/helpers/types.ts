@@ -102,4 +102,5 @@ export interface TTaskCreateParams {
     body?: string
     due_date?: string
     time_duration?: number
+    id_task_section?: string
 }

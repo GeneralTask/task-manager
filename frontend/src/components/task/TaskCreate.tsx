@@ -6,11 +6,16 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { logEvent, makeAuthorizedRequest, stopKeyboardPropogation } from '../../helpers/utils'
 
 import { LogEvents } from '../../helpers/enums'
-import { TTaskCreateParams } from '../../helpers/types'
+import { TTaskCreateParams, TTaskSection } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
 import { useFetchTasks } from './TasksPage'
 
-export default function TaskCreate(): JSX.Element {
+
+interface TaskCreateProps {
+    task_section: TTaskSection
+    task_section_index: number
+}
+export default function TaskCreate(props: TaskCreateProps): JSX.Element {
     const [isFocused, setIsFocused] = useState(false)
 
     const [title, setTitle] = useState('')
@@ -50,7 +55,8 @@ export default function TaskCreate(): JSX.Element {
                     if (tempTitleError === '') {
                         // no errors
                         const body: TTaskCreateParams = {
-                            title,
+                            title: title,
+                            id_task_section: props.task_section.id,
                         }
 
                         setTitle('')
