@@ -36,7 +36,7 @@ interface ExpandActionProps {
     isExpanded: boolean,
     taskId: string,
 }
-const ExpandAction = (props: ExpandActionProps) => {
+const ExpandAction = (props: ExpandActionProps): JSX.Element => {
     const dispatch = useAppDispatch()
     const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
@@ -56,8 +56,8 @@ interface TimeEstimateActionProps {
     taskId: string,
     taskAllocated: number,
 }
-const TimeEstimateAction = ({ sourceName, taskId, taskAllocated }: TimeEstimateActionProps) => {
-    if (sourceName !== 'General Task') return (null)
+const TimeEstimateAction = ({ sourceName, taskId, taskAllocated }: TimeEstimateActionProps): JSX.Element => {
+    if (sourceName !== 'General Task') return <></>
     const defaultAllocation = 3600000000000
     const dispatch = useAppDispatch()
 
@@ -95,7 +95,7 @@ interface DueDateActionProps {
     taskId: string,
     dueDate: string,
 }
-const DueDateAction = ({ taskId, dueDate }: DueDateActionProps) => {
+const DueDateAction = ({ taskId, dueDate }: DueDateActionProps): JSX.Element => {
     const datePicker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
     const simpleDueDate = new Date(new Date(dueDate).valueOf() + 86400000)
         .toLocaleDateString('default', { day: 'numeric', month: 'short' })
@@ -125,7 +125,7 @@ const DueDateAction = ({ taskId, dueDate }: DueDateActionProps) => {
 interface LabelActionProps {
     task: TTask,
 }
-const LabelAction = ({ task }: LabelActionProps) => {
+const LabelAction = ({ task }: LabelActionProps): JSX.Element => {
     const labelSelector = useAppSelector((state) => state.tasks_page.tasks.label_selector)
     const dispatch = useAppDispatch()
 
