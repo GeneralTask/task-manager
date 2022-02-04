@@ -6,9 +6,9 @@ import { Indices, ItemTypes } from '../../helpers/types'
 import React from 'react'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
-import TaskHeader from './TaskHeader'
 import { useAppSelector } from '../../redux/hooks'
 import { useDrag } from 'react-dnd'
+import TaskHeader from './header/Header'
 
 interface Props {
     task: TTask

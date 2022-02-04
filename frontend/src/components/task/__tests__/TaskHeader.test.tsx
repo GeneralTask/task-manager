@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
-import TaskHeader, { TaskHeaderProps } from '../TaskHeader'
 import { Provider } from 'react-redux'
 import store from '../../../redux/store'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+import TaskHeader, { TaskHeaderProps } from '../header/Header'
 
 const commonTaskProp = {
     id: '1',
@@ -12,8 +12,8 @@ const commonTaskProp = {
     id_ordering: 1,
     datetime_end: null,
     datetime_start: null,
-    deeplink: null,
-    sender: null,
+    deeplink: '',
+    sender: '',
     title: 'faux scheduled task',
     source: {
         name: 'source',
@@ -21,23 +21,23 @@ const commonTaskProp = {
         is_completable: false,
         is_replyable: true,
     },
-    body: null,
+    body: '',
     conference_call: null,
     emailSender: null,
     emailSentTime: null,
-    sent_at: null,
+    sent_at: '',
+    time_allocated: 0,
+    due_date: ''
 }
 
 const scheduledTaskHeaderProps: TaskHeaderProps = {
     task: commonTaskProp,
-    datetimeStart: null,
     dragDisabled: true,
     isExpanded: false,
 }
 
 const unscheduledTaskHeaderProps: TaskHeaderProps = {
     task: commonTaskProp,
-    datetimeStart: null,
     dragDisabled: false,
     isExpanded: false,
 }

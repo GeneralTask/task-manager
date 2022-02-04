@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { TEXT_DARKGRAY, DIVIDER_LIGHTGRAY, ICON_HOVER, TEXT_GRAY } from '../../../helpers/styles'
+import { TEXT_DARKGRAY, DIVIDER_LIGHTGRAY, ICON_HOVER, TEXT_GRAY } from '../../../../helpers/styles'
 
 export const PickerContainer = styled.div`
     display: block;
