@@ -20,7 +20,6 @@ export default function Label({ task }: LabelProps): JSX.Element {
         taskSections: state.tasks_page.tasks.task_sections,
     }))
 
-    // const currentTaskSection = taskSections.find((s) => s.tasks.includes(task))
     const currentTaskSectionIndex = taskSections.findIndex((s) => s.tasks?.includes(task))
 
     return (
