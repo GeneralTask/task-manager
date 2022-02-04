@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { BACKGROUND_HOVER, BACKGROUND_WHITE, TEXT_DARKGRAY } from '../../../helpers/styles'
+import { BACKGROUND_HOVER, BACKGROUND_WHITE, GRAY_400, GRAY_800, TEXT_DARKGRAY } from '../../../helpers/styles'
 
 export const TimeEstimateContainer = styled.div`
     display: flex;
@@ -24,7 +24,7 @@ export const Header = styled.div`
     letter-spacing: 0.12em;
     text-transform: uppercase;
 
-    color: #A1A1AA;
+    color: ${GRAY_400};
 
     padding: 5px;
 `
@@ -62,7 +62,5 @@ export const TimeButton = styled.button`
     line-height: 20px;
 
 
-    /* Grey-800 */
-
-    color: #27272A;
+    color: ${GRAY_800};
 `

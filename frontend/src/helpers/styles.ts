@@ -34,6 +34,10 @@ export const TEXT_LIGHTGRAY = '#CCCCCC'
 export const TEXT_DARKGRAY = '#333333'
 export const TEXT_KEYBOARD_SHORTCUT = '#A1A1AA'
 
+export const GRAY_900 = '#18181B'
+export const GRAY_800 = '#27272A'
+export const GRAY_400 = '#A1A1AA'
+
 export const BACKGROUND_PRIMARY = '#007bff'
 export const BACKGROUND_PRIMARY_HOVER = '#0069d9'
 export const BORDER_PRIMARY_HOVER = '#0062cc'
