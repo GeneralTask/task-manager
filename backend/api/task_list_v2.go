@@ -84,12 +84,12 @@ func (api *API) TasksListV2(c *gin.Context) {
 		return
 	}
 
-	var fetchedTasks *[]*database.Task
+	var fetchedTasks *[]*database.Item
 	if fastRefresh {
 		// this is a temporary hack to trick MergeTasks into thinking we fetched these tasks
-		fakeFetchedTasks := []*database.Task{}
+		fakeFetchedTasks := []*database.Item{}
 		for _, taskBase := range *currentTasks {
-			task := database.Task{TaskBase: taskBase}
+			task := database.Item{TaskBase: taskBase}
 			fakeFetchedTasks = append(fakeFetchedTasks, &task)
 		}
 		fetchedTasks = &fakeFetchedTasks
@@ -125,7 +125,7 @@ func (api *API) TasksListV2(c *gin.Context) {
 	c.JSON(200, allTasks)
 }
 
-func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Task, error) {
+func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Item, error) {
 	var tokens []database.ExternalAPIToken
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
