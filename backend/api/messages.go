@@ -145,7 +145,11 @@ func orderMessages(
 	sort.SliceStable(fetchedEmails, func(i, j int) bool {
 		a := fetchedEmails[i]
 		b := fetchedEmails[j]
-		return compareEmails(a, b, newestEmailsFirst)
+		if newestEmailsFirst {
+			return a.TaskBase.CreatedAtExternal > b.TaskBase.CreatedAtExternal
+		} else {
+			return a.TaskBase.CreatedAtExternal < b.TaskBase.CreatedAtExternal
+		}
 	})
 
 	var messages []*message
