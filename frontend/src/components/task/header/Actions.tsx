@@ -1,14 +1,16 @@
 import React from 'react'
 import styled from 'styled-components'
-import { BLANK_CALENDAR_ICON, EXPAND_ICON, TIME_ICON } from '../../../constants'
+import { BLANK_CALENDAR_ICON, EXPAND_ICON, LABEL_ICON, TIME_ICON } from '../../../constants'
 import { BACKGROUND_HOVER } from '../../../helpers/styles'
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks'
-import { collapseBody, expandBody, hideDatePicker, hideTimeEstimate, showDatePicker, showTimeEstimate } from '../../../redux/tasksPageSlice'
+import { collapseBody, expandBody, hideDatePicker, hideLabelSelector, hideTimeEstimate, showDatePicker, showLabelSelector, showTimeEstimate } from '../../../redux/tasksPageSlice'
 import Tooltip from '../../common/Tooltip'
 import { ButtonIcon, DueDateButtonText, TimeEstimateButtonText } from './Header-style'
 import { Duration } from 'luxon'
 import TimeEstimate from './options/TimeEstimatePicker'
 import DatePicker from './options/DatePicker'
+import { TTask } from '../../../helpers/types'
+import Label from './options/Label'
 
 const ActionContainer = styled.div`
     display: flex;
@@ -105,9 +107,30 @@ const dueDateAction = (taskId: string, dueDate: string) => {
     )
 }
 
+const labelAction = (task: TTask) => {
+    const labelSelector = useAppSelector((state) => state.tasks_page.tasks.label_selector)
+    const dispatch = useAppDispatch()
+
+    const onClick = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        dispatch(labelSelector === task.id ? hideLabelSelector() : showLabelSelector(task.id))
+    }
+    return (
+        <>
+            <Tooltip text={'Label'}>
+                <Action onClick={onClick}>
+                    <ButtonIcon src={LABEL_ICON} alt='label' />
+                </Action>
+            </Tooltip>
+            {labelSelector === task.id && <Label task={task} />}
+        </>
+    )
+}
+
 interface HeaderActionsProps {
     isExpanded: boolean
     taskId: string
+    task: TTask
     timeAllocated: number,
     dueDate: string
 }
@@ -115,7 +138,8 @@ const HeaderActions = (props: HeaderActionsProps) => {
     const actions = [
         expandAction(props.isExpanded, props.taskId),
         timeEstimateAction('General Task', props.taskId, props.timeAllocated),
-        dueDateAction(props.taskId, props.dueDate)
+        dueDateAction(props.taskId, props.dueDate),
+        labelAction(props.task),
     ]
     return (
         <ActionContainer>
