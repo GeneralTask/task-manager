@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { DIVIDER_LIGHTGRAY, ICON_HOVER, TEXT_DARKGRAY } from '../../../../helpers/styles'
+import { BACKGROUND_HOVER, BACKGROUND_WHITE, GRAY_400, GRAY_800, TEXT_DARKGRAY } from '../../../../helpers/styles'
 
 const TIME_ESTIMATOR_WIDTH = 150
 const TIME_ESTIMATOR_PADDING = 10
@@ -20,26 +20,16 @@ export const TimeEstimateContainer = styled.div`
         ${-1 * (TIME_ESTIMATOR_WIDTH / 2 - TIME_ESTIMATOR_PADDING * 2)}px);
 `
 
-export const TopNav = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 10%;
-    width: 100%;
-    border-bottom: 1px solid ${DIVIDER_LIGHTGRAY};
-`
-
 export const Header = styled.div`
-    font-size: 16px;
-    color: ${TEXT_DARKGRAY};
-    padding: 10px;
-`
-
-export const CloseButton = styled.img`
-    height: 16px;
-    width: 16px;
-    padding: 10px;
-    cursor: pointer;
+    font-family: Switzer-Variable;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 16px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: ${GRAY_400};
+    padding: 5px;
 `
 
 export const TimeInput = styled.input`
@@ -52,17 +42,26 @@ export const TimeInput = styled.input`
     cursor: pointer;
 `
 
-export const TimeButton = styled.div`
+export const TimeButton = styled.button`
+    font-size: 14px;
     display: flex;
-    align-items: center;
-    height: 10%;
-    width: 80%;
-    padding: 10px;
-    margin: 5px;
-    border-radius: 10px;
-    color: ${TEXT_DARKGRAY};
-    &:hover {
-        background-color: ${ICON_HOVER};
-    }
+    min-width: 120px;
     cursor: pointer;
+    padding: 5px;
+    margin: 5px;
+    text-align: left;
+    background: ${BACKGROUND_WHITE};
+    border: none;
+    &:hover {
+        background: ${BACKGROUND_HOVER};
+        font-weight: 600;
+    }
+    border-radius: 6px;
+
+    font-family: Switzer-Variable;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 20px;
+    color: ${GRAY_800};
 `

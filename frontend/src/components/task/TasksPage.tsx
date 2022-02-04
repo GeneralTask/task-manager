@@ -1,7 +1,7 @@
 import { AbortID, FetchStatusEnum } from '../../helpers/enums'
 import { Navigate, useParams } from 'react-router-dom'
 import React, { useCallback, useEffect } from 'react'
-import { TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
+import { MESSAGES_FETCH_INTERVAL, TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import {
     setShowCalendarSidebar,
@@ -21,6 +21,7 @@ import styled from 'styled-components'
 import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
+import { useFetchMessages } from '../messages/MessagesPage'
 
 const TasksPageContainer = styled.div`
     display: flex;
@@ -99,6 +100,7 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
         }
     })()
     const fetchTasks = useFetchTasks()
+    const fetchMessages = useFetchMessages()
     const fetchSettings = useFetchSettings()
     const fetchLinkedAccounts = useFetchLinkedAccounts()
     useEffect(() => {
@@ -108,6 +110,7 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
     }, [])
 
     useInterval(fetchTasks, TASKS_FETCH_INTERVAL)
+    useInterval(fetchMessages, MESSAGES_FETCH_INTERVAL)
     const TaskSectionElement = <TaskSection task_section={currentSection} task_section_index={sectionIndex} />
 
     return (
