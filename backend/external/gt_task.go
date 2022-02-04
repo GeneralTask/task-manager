@@ -77,7 +77,6 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 			SourceID:        TASK_SOURCE_ID_GT_TASK,
 			Title:           task.Title,
 			Body:            task.Body,
-			TimeAllocation:  time.Hour.Nanoseconds(),
 			SourceAccountID: accountID,
 		},
 	}
