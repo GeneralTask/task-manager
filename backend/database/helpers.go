@@ -135,7 +135,7 @@ func GetOrCreateTask(db *mongo.Database,
 	return &task, nil
 }
 
-func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]TaskBase, error) {
+func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -155,7 +155,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]TaskBase,
 		log.Printf("Failed to fetch tasks for user: %v", err)
 		return nil, err
 	}
-	var tasks []TaskBase
+	var tasks []Item
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)

@@ -82,6 +82,9 @@ func TestLoadJIRATasks(t *testing.T) {
 				UserID:        *userID,
 				DueDate:       primitive.NewDateTimeFromTime(dueDate),
 			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 
 		var JIRATasks = make(chan TaskResult)
@@ -124,6 +127,9 @@ func TestLoadJIRATasks(t *testing.T) {
 				UserID:          *userID,
 				SourceAccountID: "someAccountID",
 				DueDate:         primitive.NewDateTimeFromTime(dueDate),
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
 			},
 		}
 		database.GetOrCreateTask(
@@ -176,6 +182,9 @@ func TestLoadJIRATasks(t *testing.T) {
 			},
 			Task: database.Task{
 				PriorityID: "something_that_will_change",
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
 			},
 		}
 		database.GetOrCreateTask(
@@ -233,6 +242,9 @@ func TestLoadJIRATasks(t *testing.T) {
 			},
 			Task: database.Task{
 				PriorityID: "something_that_will_change",
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
 			},
 		}
 		database.GetOrCreateTask(

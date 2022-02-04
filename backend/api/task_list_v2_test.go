@@ -168,7 +168,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 		result, err := MergeTasksV2(
 			db,
-			&[]database.TaskBase{},
+			&[]database.Item{},
 			[]*database.Item{&e1, &e1a, &e2},
 			[]*database.Item{&t1, &t2, &t3, &t4},
 			primitive.NewObjectID(),
@@ -242,7 +242,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 		result, err := MergeTasksV2(
 			db,
-			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
+			&[]database.Item{t1, t2},
 			[]*database.Item{},
 			[]*database.Item{&t1, &t2},
 			userID,
@@ -312,7 +312,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 		result, err := MergeTasksV2(
 			db,
-			&[]database.TaskBase{t2.TaskBase},
+			&[]database.Item{t2},
 			[]*database.Item{},
 			[]*database.Item{&t1, &t2},
 			userID,
@@ -400,7 +400,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 		result, err := MergeTasksV2(
 			db,
-			&[]database.TaskBase{t1.TaskBase, t2.TaskBase},
+			&[]database.Item{t1, t2},
 			[]*database.Item{&e1},
 			[]*database.Item{&t2},
 			userID,
@@ -514,7 +514,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 		result, err := MergeTasksV2(
 			db,
-			&[]database.TaskBase{},
+			&[]database.Item{},
 			[]*database.Item{},
 			[]*database.Item{&t1, &t2, &t3, &t4},
 			userID,
@@ -633,7 +633,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 		result, err := MergeTasksV2(
 			db,
-			&[]database.TaskBase{t1.TaskBase, t2.TaskBase, t3.TaskBase, t4.TaskBase},
+			&[]database.Item{t1, t2, t3, t4},
 			[]*database.Item{},
 			[]*database.Item{&t1, &t2, &t3, &t4},
 			userID,
@@ -701,7 +701,7 @@ func TestMergeTasksV2V2(t *testing.T) {
 
 		result, err := MergeTasksV2(
 			db,
-			&[]database.TaskBase{e1.TaskBase, e2.TaskBase},
+			&[]database.Item{e1, e2},
 			[]*database.Item{&e1, &e2},
 			[]*database.Item{},
 			userID,
