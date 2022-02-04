@@ -80,6 +80,9 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 			TimeAllocation:  time.Hour.Nanoseconds(),
 			SourceAccountID: accountID,
 		},
+		TaskType: database.TaskType{
+			IsTask: true,
+		},
 	}
 	if task.DueDate != nil {
 		newTask.DueDate = primitive.NewDateTimeFromTime(*task.DueDate)
