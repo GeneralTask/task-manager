@@ -123,6 +123,9 @@ func TestLoadAsanaTasks(t *testing.T) {
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 				DueDate:           primitive.NewDateTimeFromTime(dueDate),
 			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 
 		var taskResult = make(chan TaskResult)
@@ -166,6 +169,9 @@ func TestLoadAsanaTasks(t *testing.T) {
 				UserID:            userID,
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 				DueDate:           primitive.NewDateTimeFromTime(dueDate),
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
 			},
 		}
 		database.GetOrCreateTask(

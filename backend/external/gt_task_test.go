@@ -67,6 +67,7 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
 		task := (*tasks)[0]
+		assert.True(t, task.IsTask)
 		assert.Equal(t, "send dogecoin to the moon", task.Title)
 		assert.Equal(t, time.Hour.Nanoseconds(), task.TimeAllocation)
 	})
@@ -85,6 +86,7 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
 		task := (*tasks)[0]
+		assert.True(t, task.IsTask)
 		assert.Equal(t, "send tesla stonk to the moon", task.Title)
 		assert.Equal(t, "body", task.Body)
 		assert.Equal(t, timeAllocation, task.TimeAllocation)

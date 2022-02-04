@@ -348,6 +348,7 @@ func assertTasksEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.SourceID, b.SourceID)
+	assert.Equal(t, a.TaskType, b.TaskType)
 }
 
 func setupJIRA(t *testing.T, externalAPITokenCollection *mongo.Collection, AtlassianSiteCollection *mongo.Collection) (*primitive.ObjectID, string) {
