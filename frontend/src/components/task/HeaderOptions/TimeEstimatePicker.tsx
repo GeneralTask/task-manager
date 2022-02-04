@@ -1,10 +1,9 @@
 import React, { Dispatch } from 'react'
 import { Action } from 'redux'
-import { CLOSE_ICON, TASKS_MODIFY_URL } from '../../../constants'
+import { TASKS_MODIFY_URL } from '../../../constants'
 import { makeAuthorizedRequest } from '../../../helpers/utils'
 import { useAppDispatch } from '../../../redux/hooks'
 import { hideTimeEstimate } from '../../../redux/tasksPageSlice'
-import { CloseButton } from '../TaskCreate-style'
 import { useFetchTasks } from '../TasksPage'
 import { TopNav } from './DatePicker-style'
 import { TimeEstimateContainer, Header, TimeButton } from './TimeEstimate-style'
@@ -25,12 +24,6 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
         }}>
             <TopNav>
                 <Header>Set Duration</Header>
-                <CloseButton src={CLOSE_ICON} alt="close" onClick={
-                    (e) => {
-                        e.stopPropagation()
-                        dispatch(hideTimeEstimate())
-                    }
-                } />
             </TopNav>
             {
                 timeValues.map((val, i) => {

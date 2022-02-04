@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { BACKGROUND_HOVER, BACKGROUND_WHITE, DIVIDER_LIGHTGRAY, ICON_HOVER, TEXT_DARKGRAY } from '../../../helpers/styles'
+import { BACKGROUND_HOVER, BACKGROUND_WHITE, TEXT_DARKGRAY } from '../../../helpers/styles'
 
 export const TimeEstimateContainer = styled.div`
     display: flex;
@@ -10,30 +10,23 @@ export const TimeEstimateContainer = styled.div`
     box-shadow: 0 0 5px lightgray;
     z-index: 1;
     top: 100%;
-    padding: 10px;
+    padding: 5px;
     cursor: default;
 `
 
-export const TopNav = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 10%;
-    width: 100%;
-    border-bottom: 1px solid ${DIVIDER_LIGHTGRAY};
-`
-
 export const Header = styled.div`
-    font-size: 16px;
-    color: ${TEXT_DARKGRAY};
-    padding: 10px;
-`
+    font-family: Switzer-Variable;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 16px;
 
-export const CloseButton = styled.img`
-    height: 16px;
-    width: 16px;
-    padding: 10px;
-    cursor: pointer;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+
+    color: #A1A1AA;
+
+    padding: 5px;
 `
 
 export const TimeInput = styled.input`
@@ -49,7 +42,7 @@ export const TimeInput = styled.input`
 export const TimeButton = styled.button`
     font-size: 14px;
     display: flex;
-    min-width: 100px;
+    min-width: 120px;
     cursor: pointer;
     padding: 5px;
     margin: 5px;
