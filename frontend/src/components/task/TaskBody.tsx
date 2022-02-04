@@ -132,7 +132,7 @@ const Body: React.FC<BodyProps> = (props: BodyProps) => {
 
     return (
         <BodyContentEditable
-            html={props.body}
+            html={body.current}
             disabled={!props.editable}
             onKeyPress={handleKeyPress}
             onChange={(e) => body.current = e.target.value}

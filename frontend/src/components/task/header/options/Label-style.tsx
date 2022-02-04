@@ -12,6 +12,7 @@ export const LabelContainer = styled.div`
     top: 100%;
     padding: 10px;
     cursor: default;
+    right: 0;
 `
 export const LabelOption = styled.button`
     font-size: 14px;
