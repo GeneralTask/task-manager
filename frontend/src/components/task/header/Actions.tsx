@@ -153,8 +153,6 @@ interface HeaderActionsProps {
     dueDate: string
 }
 const HeaderActions = (props: HeaderActionsProps) => {
-    const datePicker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
-    console.log(datePicker)
     let actions = [
         { key: 'Enter', component: <ExpandAction isExpanded={props.isExpanded} taskId={props.taskId} /> },
     ]
