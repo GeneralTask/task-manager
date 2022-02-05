@@ -13,7 +13,7 @@ import { LogEvents } from '../../../helpers/enums'
 import { TTask } from '../../../helpers/types'
 import { logEvent, makeAuthorizedRequest } from '../../../helpers/utils'
 import { useAppDispatch } from '../../../redux/hooks'
-import { hideDatePicker, hideLabelSelector, removeTaskByID } from '../../../redux/tasksPageSlice'
+import { hideDatePicker, hideLabelSelector, hideTimeEstimate, removeTaskByID } from '../../../redux/tasksPageSlice'
 import Domino from '../../common/Domino'
 import { EditableTaskTitle } from '../../common/Title'
 import Tooltip from '../../common/Tooltip'
@@ -57,6 +57,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         setIsHovering(false)
         dispatch(hideLabelSelector())
         dispatch(hideDatePicker())
+        dispatch(hideTimeEstimate())
     }
 
     return (
