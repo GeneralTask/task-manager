@@ -45,7 +45,7 @@ interface TaskHeaderProps {
 }
 
 const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: TaskHeaderProps, ref) => {
-    const [isHovering, setIsHovering] = React.useState(false)
+    const [isOver, setIsOver] = React.useState(false)
     const dispatch = useAppDispatch()
     const fetchTasks = useFetchTasks()
 
@@ -54,14 +54,14 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         logEvent(LogEvents.TASK_MARK_AS_DONE)
     }, [])
     const onMouseLeave = () => {
-        setIsHovering(false)
+        setIsOver(false)
         dispatch(hideLabelSelector())
         dispatch(hideDatePicker())
         dispatch(hideTimeEstimate())
     }
 
     return (
-        <TaskHeaderContainer showButtons={props.isExpanded} onMouseOver={() => { setIsHovering(true) }} onMouseLeave={onMouseLeave}>
+        <TaskHeaderContainer showButtons={props.isExpanded} onMouseOver={() => { setIsOver(true) }} onMouseLeave={onMouseLeave}>
             <HeaderLeft>
                 {
                     !props.dragDisabled &&
@@ -83,7 +83,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
                 <Icon src={props.task.source.logo} alt="icon"></Icon>
                 <EditableTaskTitle task={props.task} isExpanded={props.isExpanded} />
             </HeaderLeft >
-            <HeaderActions isHovering={isHovering} isExpanded={props.isExpanded} taskId={props.task.id} task={props.task} timeAllocated={props.task.time_allocated} dueDate={props.task.due_date} />
+            <HeaderActions isOver={isOver} isExpanded={props.isExpanded} taskId={props.task.id} task={props.task} timeAllocated={props.task.time_allocated} dueDate={props.task.due_date} />
         </TaskHeaderContainer >
     )
 })
