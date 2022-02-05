@@ -47,7 +47,6 @@ interface TaskHeaderProps {
 const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: TaskHeaderProps, ref) => {
     const dispatch = useAppDispatch()
     const fetchTasks = useFetchTasks()
-    const isEditable = props.task.source.name === 'General Task'
 
     const onDoneButtonClick = useCallback(() => {
         done(props.task.id, dispatch, fetchTasks)
@@ -75,7 +74,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
                     </DoneButtonContainer>
                 }
                 <Icon src={props.task.source.logo} alt="icon"></Icon>
-                <EditableTaskTitle task={props.task} isExpanded={props.isExpanded} isEditable={isEditable} />
+                <EditableTaskTitle task={props.task} isExpanded={props.isExpanded} />
             </HeaderLeft >
             <HeaderActions isExpanded={props.isExpanded} taskId={props.task.id} task={props.task} timeAllocated={props.task.time_allocated} dueDate={props.task.due_date} />
         </TaskHeaderContainer >

@@ -69,7 +69,7 @@ const TimeEstimateAction = ({ sourceName, taskId, taskAllocated }: TimeEstimateA
         e.stopPropagation()
         dispatch(timeEstimate === taskId ? hideTimeEstimate() : showTimeEstimate(taskId))
     }
-    const timeEstimateView = (taskAllocated >= defaultAllocation) ?
+    const timeEstimateView = (taskAllocated >= defaultAllocation || taskAllocated === 0) ?
         <ButtonIcon src={TIME_ICON} alt="time estimate" /> :
         <TimeEstimateButtonText>
             {
