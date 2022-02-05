@@ -38,7 +38,7 @@ func TestCalendar(t *testing.T) {
 		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := primitive.NewObjectID()
-		standardTask := database.CalendarEvent{
+		standardTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:    0,
 				IDExternal:    "standard_event",
@@ -49,8 +49,13 @@ func TestCalendar(t *testing.T) {
 				SourceID:      TASK_SOURCE_ID_GCAL,
 				UserID:        userID,
 			},
-			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
-			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+			CalendarEvent: database.CalendarEvent{
+				DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+				DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+			},
+			TaskType: database.TaskType{
+				IsEvent: true,
+			},
 		}
 
 		autoEvent := calendar.Event{
@@ -91,7 +96,7 @@ func TestCalendar(t *testing.T) {
 
 		taskCollection := database.GetTaskCollection(db)
 
-		var calendarEventFromDB database.CalendarEvent
+		var calendarEventFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(
@@ -126,7 +131,7 @@ func TestCalendar(t *testing.T) {
 		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := primitive.NewObjectID()
-		standardTask := database.CalendarEvent{
+		standardTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:      1,
 				IDExternal:      "standard_event",
@@ -138,8 +143,13 @@ func TestCalendar(t *testing.T) {
 				UserID:          userID,
 				SourceAccountID: "exampleAccountID",
 			},
-			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
-			DatetimeEnd:   primitive.NewDateTimeFromTime(oldEndtime),
+			CalendarEvent: database.CalendarEvent{
+				DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+				DatetimeEnd:   primitive.NewDateTimeFromTime(oldEndtime),
+			},
+			TaskType: database.TaskType{
+				IsEvent: true,
+			},
 		}
 		database.GetOrCreateTask(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
 		// Rescheduling end time along shouldn't trigger a reset like in the next test case
@@ -184,7 +194,7 @@ func TestCalendar(t *testing.T) {
 
 		taskCollection := database.GetTaskCollection(db)
 
-		var calendarEventFromDB database.CalendarEvent
+		var calendarEventFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(
@@ -219,7 +229,7 @@ func TestCalendar(t *testing.T) {
 		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := primitive.NewObjectID()
-		standardTask := database.CalendarEvent{
+		standardTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:      1,
 				IDExternal:      "standard_event",
@@ -230,8 +240,13 @@ func TestCalendar(t *testing.T) {
 				UserID:          userID,
 				SourceAccountID: "exampleAccountID",
 			},
-			DatetimeStart: primitive.NewDateTimeFromTime(oldStartTime),
-			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+			CalendarEvent: database.CalendarEvent{
+				DatetimeStart: primitive.NewDateTimeFromTime(oldStartTime),
+				DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+			},
+			TaskType: database.TaskType{
+				IsEvent: true,
+			},
 		}
 		database.GetOrCreateTask(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
 		standardTask.DatetimeStart = primitive.NewDateTimeFromTime(startTime)
@@ -256,7 +271,7 @@ func TestCalendar(t *testing.T) {
 
 		taskCollection := database.GetTaskCollection(db)
 
-		var calendarEventFromDB database.CalendarEvent
+		var calendarEventFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(
@@ -316,7 +331,7 @@ func TestCalendar(t *testing.T) {
 		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := primitive.NewObjectID()
-		standardTask := database.CalendarEvent{
+		standardTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:    0,
 				IDExternal:    "standard_event",
@@ -331,8 +346,13 @@ func TestCalendar(t *testing.T) {
 					Logo:     "sample-icon-uri",
 				},
 			},
-			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
-			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+			CalendarEvent: database.CalendarEvent{
+				DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+				DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+			},
+			TaskType: database.TaskType{
+				IsEvent: true,
+			},
 		}
 
 		autoEvent := calendar.Event{
@@ -373,7 +393,7 @@ func TestCalendar(t *testing.T) {
 
 		taskCollection := database.GetTaskCollection(db)
 
-		var calendarEventFromDB database.CalendarEvent
+		var calendarEventFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(
@@ -390,7 +410,7 @@ func TestCalendar(t *testing.T) {
 	})
 }
 
-func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *database.CalendarEvent) {
+func assertCalendarEventsEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.DatetimeStart, b.DatetimeStart)
 	assert.Equal(t, a.DatetimeEnd, b.DatetimeEnd)
 	assert.Equal(t, a.Deeplink, b.Deeplink)
