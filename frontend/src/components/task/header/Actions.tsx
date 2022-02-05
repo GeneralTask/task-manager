@@ -1,4 +1,4 @@
-import { BLANK_CALENDAR_ICON, EXPAND_ICON, LABEL_ICON, TIME_ICON } from '../../../constants'
+import { BLANK_CALENDAR_ICON, DEFAULT_ALLOCATION, EXPAND_ICON, LABEL_ICON, TIME_ICON } from '../../../constants'
 import { ButtonIcon, DueDateButtonText, TimeEstimateButtonText } from './Header-style'
 import { collapseBody, expandBody, hideDatePicker, hideLabelSelector, hideTimeEstimate, showDatePicker, showLabelSelector, showTimeEstimate } from '../../../redux/tasksPageSlice'
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks'
@@ -54,22 +54,21 @@ const ExpandAction = ({ isExpanded, taskId }: ExpandActionProps): JSX.Element =>
 interface TimeEstimateActionProps {
     sourceName: string,
     taskId: string,
-    taskAllocated: number,
+    timeAllocated: number,
 }
-const TimeEstimateAction = ({ sourceName, taskId, taskAllocated }: TimeEstimateActionProps): JSX.Element => {
+const TimeEstimateAction = ({ sourceName, taskId, timeAllocated }: TimeEstimateActionProps): JSX.Element => {
     if (sourceName !== 'General Task') return <></>
-    const defaultAllocation = 3600000000000
     const dispatch = useAppDispatch()
 
     const timeEstimate = useAppSelector((state) => state.tasks_page.tasks.time_estimate)
-    const time_allocated_millis = isNaN(taskAllocated) ? 0 : taskAllocated
+    const time_allocated_millis = isNaN(timeAllocated) ? 0 : timeAllocated
     const time_allocated = Duration.fromMillis(time_allocated_millis / 1000).shiftTo('hours', 'minutes')
 
     const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
         dispatch(timeEstimate === taskId ? hideTimeEstimate() : showTimeEstimate(taskId))
     }
-    const timeEstimateView = (taskAllocated >= defaultAllocation || taskAllocated === 0) ?
+    const timeEstimateView = (timeAllocated >= DEFAULT_ALLOCATION || timeAllocated === 0) ?
         <ButtonIcon src={TIME_ICON} alt="time estimate" /> :
         <TimeEstimateButtonText>
             {
@@ -146,6 +145,7 @@ const LabelAction = ({ task }: LabelActionProps): JSX.Element => {
 }
 
 interface HeaderActionsProps {
+    isHovering: boolean,
     isExpanded: boolean
     taskId: string
     task: TTask
@@ -153,12 +153,26 @@ interface HeaderActionsProps {
     dueDate: string
 }
 const HeaderActions = (props: HeaderActionsProps) => {
-    const actions = [
+    const datePicker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
+    console.log(datePicker)
+    let actions = [
         { key: 'Enter', component: <ExpandAction isExpanded={props.isExpanded} taskId={props.taskId} /> },
-        { key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.taskId} taskAllocated={props.timeAllocated} /> },
-        { key: 'S', component: <DueDateAction taskId={props.taskId} dueDate={props.dueDate} /> },
-        { key: 'L', component: <LabelAction task={props.task} /> },
     ]
+    if (props.isHovering) {
+        actions = [
+            { key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.taskId} timeAllocated={props.timeAllocated} /> },
+            { key: 'S', component: <DueDateAction taskId={props.taskId} dueDate={props.dueDate} /> },
+            { key: 'L', component: <LabelAction task={props.task} /> },
+            ...actions]
+    }
+    else {
+        if (props.dueDate !== '') {
+            actions = [{ key: 'S', component: <DueDateAction taskId={props.taskId} dueDate={props.dueDate} /> }, ...actions]
+        }
+        if (props.timeAllocated < DEFAULT_ALLOCATION && props.timeAllocated !== 0) {
+            actions = [{ key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.taskId} timeAllocated={props.timeAllocated} /> }, ...actions]
+        }
+    }
 
     return (
         <ActionContainer>
