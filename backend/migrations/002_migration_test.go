@@ -88,5 +88,15 @@ func TestMigrate002(t *testing.T) {
 		assert.Equal(t, "task_5", events[0].Title)
 	})
 	t.Run("MigrateDown", func(t *testing.T) {
+		tasksCollection := database.GetTaskCollection(db)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+
+		err = migrate.Down()
+		assert.NoError(t, err)
+
+		count, err := tasksCollection.CountDocuments(dbCtx, bson.M{"task_type": bson.M{"$exists": false}})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(5), count)
 	})
 }
