@@ -153,14 +153,17 @@ interface HeaderActionsProps {
     dueDate: string
 }
 const HeaderActions = (props: HeaderActionsProps) => {
-    let actions = [
-        { key: 'L', component: <LabelAction task={props.task} /> },
-        { key: 'Enter', component: <ExpandAction isExpanded={props.isExpanded} taskId={props.taskId} /> },
-    ]
-    if (props.isOver) {
+    let actions: {
+        key: string;
+        component: JSX.Element;
+    }[] = []
+
+    if (props.isOver || props.isExpanded) {
         actions = [
             { key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.taskId} timeAllocated={props.timeAllocated} /> },
             { key: 'S', component: <DueDateAction taskId={props.taskId} dueDate={props.dueDate} /> },
+            { key: 'L', component: <LabelAction task={props.task} /> },
+            { key: 'Enter', component: <ExpandAction isExpanded={props.isExpanded} taskId={props.taskId} /> },
             ...actions]
     }
     else {
