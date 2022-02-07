@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { NO_EVENT_TITLE_DEFAULT } from '../../constants'
-import { SHADOW_EVENT_ALERT, TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND, TEXT_BLACK } from '../../helpers/styles'
+import { GRADIENT_BACKGROUND, SHADOW_EVENT_ALERT, TEXT_BLACK } from '../../helpers/styles'
 import { useAppSelector } from '../../redux/hooks'
 import JoinConferenceButton from '../common/JoinConferenceButton'
 
@@ -9,7 +9,7 @@ const EventAlertContainer = styled.div`
     flex: 1;
     overflow-y: auto;
     flex-direction: column;
-    background-image: linear-gradient(to bottom right, ${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
+    background: ${GRADIENT_BACKGROUND};
     min-width: 600px;
     padding-top: 10px;
 `

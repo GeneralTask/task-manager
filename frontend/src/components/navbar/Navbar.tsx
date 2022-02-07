@@ -3,14 +3,13 @@ import styled from 'styled-components'
 import { NavbarPage } from '../../helpers/enums'
 import {
     SHADOW_PRIMARY,
-    TASKS_BACKGROUND_GRADIENT,
-    TASKS_BACKROUND,
+    GRADIENT_BACKGROUND
 } from '../../helpers/styles'
 import NavbarElements from './NavbarElements'
 
 const NavbarContainer = styled.div`
     flex: 0 0 275px;
-    background-image: linear-gradient(to bottom right, ${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
+    background: ${GRADIENT_BACKGROUND};
     color: white;
     height: 100%;
     z-index: 1;

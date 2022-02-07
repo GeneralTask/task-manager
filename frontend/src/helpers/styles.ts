@@ -36,7 +36,28 @@ export const TEXT_KEYBOARD_SHORTCUT = '#A1A1AA'
 
 export const GRAY_900 = '#18181B'
 export const GRAY_800 = '#27272A'
+export const GRAY_700 = '#3F3F46'
+export const GRAY_600 = '#52525B'
+export const GRAY_500 = '#71717A'
 export const GRAY_400 = '#A1A1AA'
+export const GRAY_300 = '#D4D3D8'
+export const GRAY_200 = '#E4E3E7'
+export const GRAY_100 = '#F4F4F5'
+export const GRAY_50 = '#FAFAFA'
+export const WHITE = '#FFFFFF'
+export const ACCENT_MAIN = '#5C31D7'
+export const ACCENT_ACTIVE = '#3A15A0'
+export const ACCENT_GLOW = '#E1D7FD'
+export const RED_1 = '#FF135A'
+export const RED_2 = '#FFEFF2'
+export const ORANGE_1 = '#FFBA0D'
+export const ORANGE_2 = '#FFF8E7'
+export const GREEN_1 = '#00A538'
+export const GREEN_2 = '#E6FFE9'
+export const GRADIENT_BACKGROUND = 'linear-gradient(0deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), linear-gradient(98.72deg, #D1E4FF 8.86%, rgba(255, 255, 255, 0) 63.16%), linear-gradient(188.47deg, rgba(213, 193, 255, 0.5) 33.75%, rgba(255, 211, 124, 0.15) 93.52%), #FFFFFF'
+
+
+
 
 export const BACKGROUND_PRIMARY = '#007bff'
 export const BACKGROUND_PRIMARY_HOVER = '#0069d9'
