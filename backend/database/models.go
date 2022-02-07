@@ -124,6 +124,12 @@ type CalendarEventChangeableFields struct {
 type Email struct {
 	ThreadID     string `bson:"thread_id"`
 	SenderDomain string `bson:"sender_domain"`
+	IsUnread     bool   `bson:"is_unread"`
+}
+
+type MessageChangeableFields struct {
+	Email    `bson:"email,omitempty"`
+	TaskType `bson:"task_type"`
 }
 
 type Task struct {

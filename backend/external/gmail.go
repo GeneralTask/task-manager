@@ -474,6 +474,43 @@ func (gmailSource GmailSource) CreateNewTask(userID primitive.ObjectID, accountI
 	return errors.New("has not been implemented yet")
 }
 
-func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
-	return nil
+func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, emailID string) error {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+	client := getGoogleHttpClient(db, userID, accountID)
+
+	var gmailService *gmail.Service
+	if gmailSource.Google.OverrideURLs.GmailModifyURL == nil {
+		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		defer cancel()
+		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
+	} else {
+		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		defer cancel()
+		gmailService, err = gmail.NewService(
+			extCtx,
+			option.WithoutAuthentication(),
+			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailModifyURL))
+	}
+
+	if err != nil {
+		log.Printf("unable to create Gmail service: %v", err)
+		return err
+	}
+
+	labelToRemove := "UNREAD"
+
+	message, err := gmailService.Users.Messages.Modify(
+		"me",
+		emailID,
+		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{labelToRemove}},
+	).Do()
+	log.Println("resulting message:", message)
+
+	return err
+
 }
