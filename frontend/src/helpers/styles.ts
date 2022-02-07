@@ -62,8 +62,8 @@ export const TEXT_KEYBOARD_SHORTCUT = GRAY_400
 export const BACKGROUND_PRIMARY = '#007bff'
 export const BACKGROUND_PRIMARY_HOVER = '#0069d9'
 export const BORDER_PRIMARY_HOVER = '#0062cc'
-export const TASKS_BACKROUND = '#F8F8F8'
-export const TASKS_BACKGROUND_GRADIENT = '#F6F4FE'
+export const TASKS_BACKROUND = GRAY_50
+export const TASKS_BACKGROUND_GRADIENT = GRAY_100
 export const ICON_HOVER = GRAY_100
 
 export const TOOLTIPS_HEIGHT = '25px'
@@ -78,9 +78,9 @@ export const DIVIDER_LIGHTGRAY = GRAY_300
 export const BORDER_PRIMARY = GRAY_300
 export const BORDER_ERROR = RED_1
 export const BACKGROUND_WHITE = WHITE
-export const BACKGROUND_KEYBOARD_SHORTCUT = '#F6F5F6'
+export const BACKGROUND_KEYBOARD_SHORTCUT = GRAY_50
 
-export const BACKGROUND_HOVER = '#e3e3e3'
+export const BACKGROUND_HOVER = GRAY_200
 
 export const SHADOW_PRIMARY = '0px 0px 10px rgba(0, 0, 0, 0.06)'
 export const SHADOW_EXPANDED = '0px 0px 10px rgba(0, 0, 0, 0.12)'
@@ -114,6 +114,6 @@ export const EVENT_TITLE_TEXT_COLOR = GRAY_700
 export const EVENT_TIME_TEXT_COLOR = GRAY_500
 export const CALENDAR_TD_COLOR = GRAY_200
 export const CALENDAR_TIME_COLOR = GRAY_400
-export const CALENDAR_INDICATOR_COLOR = '#D7470A'
+export const CALENDAR_INDICATOR_COLOR = RED_1
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = 2.5
