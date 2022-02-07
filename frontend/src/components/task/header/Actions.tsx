@@ -1,16 +1,17 @@
-import React from 'react'
-import styled from 'styled-components'
-import { BLANK_CALENDAR_ICON, EXPAND_ICON, LABEL_ICON, TIME_ICON } from '../../../constants'
-import { BACKGROUND_HOVER } from '../../../helpers/styles'
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks'
-import { collapseBody, expandBody, hideDatePicker, hideLabelSelector, hideTimeEstimate, showDatePicker, showLabelSelector, showTimeEstimate } from '../../../redux/tasksPageSlice'
-import Tooltip from '../../common/Tooltip'
+import { BLANK_CALENDAR_ICON, DEFAULT_ALLOCATION, EXPAND_ICON, LABEL_ICON, TIME_ICON } from '../../../constants'
 import { ButtonIcon, DueDateButtonText, TimeEstimateButtonText } from './Header-style'
-import { Duration } from 'luxon'
-import TimeEstimate from './options/TimeEstimatePicker'
+import { collapseBody, expandBody, hideDatePicker, hideLabelSelector, hideTimeEstimate, showDatePicker, showLabelSelector, showTimeEstimate } from '../../../redux/tasksPageSlice'
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks'
+
+import { BACKGROUND_HOVER } from '../../../helpers/styles'
 import DatePicker from './options/DatePicker'
-import { TTask } from '../../../helpers/types'
+import { Duration } from 'luxon'
 import Label from './options/Label'
+import React from 'react'
+import { TTask } from '../../../helpers/types'
+import TimeEstimate from './options/TimeEstimatePicker'
+import Tooltip from '../../common/Tooltip'
+import styled from 'styled-components'
 
 const ActionContainer = styled.div`
     display: flex;
@@ -30,7 +31,12 @@ const Action = styled.div`
     border-radius: 7px;
     width: max-content;
 `
-const expandAction = (isExpanded: boolean, taskId: string) => {
+
+interface ExpandActionProps {
+    isExpanded: boolean,
+    taskId: string,
+}
+const ExpandAction = ({ isExpanded, taskId }: ExpandActionProps): JSX.Element => {
     const dispatch = useAppDispatch()
     const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
@@ -45,20 +51,24 @@ const expandAction = (isExpanded: boolean, taskId: string) => {
     )
 }
 
-const timeEstimateAction = (sourceName: string, taskId: string, taskAllocated: number) => {
-    if (sourceName !== 'General Task') return (null)
-    const defaultAllocation = 3600000000000
+interface TimeEstimateActionProps {
+    sourceName: string,
+    taskId: string,
+    timeAllocated: number,
+}
+const TimeEstimateAction = ({ sourceName, taskId, timeAllocated }: TimeEstimateActionProps): JSX.Element => {
+    if (sourceName !== 'General Task') return <></>
     const dispatch = useAppDispatch()
 
     const timeEstimate = useAppSelector((state) => state.tasks_page.tasks.time_estimate)
-    const time_allocated_millis = isNaN(taskAllocated) ? 0 : taskAllocated
+    const time_allocated_millis = isNaN(timeAllocated) ? 0 : timeAllocated
     const time_allocated = Duration.fromMillis(time_allocated_millis / 1000).shiftTo('hours', 'minutes')
 
     const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
         dispatch(timeEstimate === taskId ? hideTimeEstimate() : showTimeEstimate(taskId))
     }
-    const timeEstimateView = (taskAllocated >= defaultAllocation) ?
+    const timeEstimateView = (timeAllocated >= DEFAULT_ALLOCATION || timeAllocated === 0) ?
         <ButtonIcon src={TIME_ICON} alt="time estimate" /> :
         <TimeEstimateButtonText>
             {
@@ -80,7 +90,11 @@ const timeEstimateAction = (sourceName: string, taskId: string, taskAllocated: n
     )
 }
 
-const dueDateAction = (taskId: string, dueDate: string) => {
+interface DueDateActionProps {
+    taskId: string,
+    dueDate: string,
+}
+const DueDateAction = ({ taskId, dueDate }: DueDateActionProps): JSX.Element => {
     const datePicker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
     const simpleDueDate = new Date(new Date(dueDate).valueOf() + 86400000)
         .toLocaleDateString('default', { day: 'numeric', month: 'short' })
@@ -107,7 +121,10 @@ const dueDateAction = (taskId: string, dueDate: string) => {
     )
 }
 
-const labelAction = (task: TTask) => {
+interface LabelActionProps {
+    task: TTask,
+}
+const LabelAction = ({ task }: LabelActionProps): JSX.Element => {
     const labelSelector = useAppSelector((state) => state.tasks_page.tasks.label_selector)
     const dispatch = useAppDispatch()
 
@@ -128,6 +145,7 @@ const labelAction = (task: TTask) => {
 }
 
 interface HeaderActionsProps {
+    isOver: boolean,
     isExpanded: boolean
     taskId: string
     task: TTask
@@ -135,17 +153,30 @@ interface HeaderActionsProps {
     dueDate: string
 }
 const HeaderActions = (props: HeaderActionsProps) => {
-    const actions = [
-        expandAction(props.isExpanded, props.taskId),
-        timeEstimateAction('General Task', props.taskId, props.timeAllocated),
-        dueDateAction(props.taskId, props.dueDate),
-        labelAction(props.task),
+    let actions = [
+        { key: 'L', component: <LabelAction task={props.task} /> },
+        { key: 'Enter', component: <ExpandAction isExpanded={props.isExpanded} taskId={props.taskId} /> },
     ]
+    if (props.isOver) {
+        actions = [
+            { key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.taskId} timeAllocated={props.timeAllocated} /> },
+            { key: 'S', component: <DueDateAction taskId={props.taskId} dueDate={props.dueDate} /> },
+            ...actions]
+    }
+    else {
+        if (props.dueDate !== '') {
+            actions = [{ key: 'S', component: <DueDateAction taskId={props.taskId} dueDate={props.dueDate} /> }, ...actions]
+        }
+        if (props.timeAllocated < DEFAULT_ALLOCATION && props.timeAllocated !== 0) {
+            actions = [{ key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.taskId} timeAllocated={props.timeAllocated} /> }, ...actions]
+        }
+    }
+
     return (
         <ActionContainer>
             {
-                actions.map((action, index) => {
-                    return <React.Fragment key={index}>{action}</React.Fragment>
+                actions.map(({ component }, index) => {
+                    return <React.Fragment key={index}>{component}</React.Fragment>
                 })
             }
         </ActionContainer >
