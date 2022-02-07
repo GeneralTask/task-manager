@@ -4,7 +4,6 @@ import React from 'react'
 import styled from 'styled-components'
 import Navbar from '../navbar/Navbar'
 import { NavbarPage } from '../../helpers/enums'
-import { GRADIENT_BACKGROUND } from '../../helpers/styles'
 
 const SettingsPageContainer = styled.div`
     display: flex;
@@ -12,7 +11,7 @@ const SettingsPageContainer = styled.div`
 `
 const SettingsContentContainer = styled.div`
     display: flex;
-    background: ${GRADIENT_BACKGROUND};
+    background: transparent;
     flex-direction: column;
     align-items: center;
     width: 100%;

@@ -2,14 +2,13 @@ import React, { } from 'react'
 import styled from 'styled-components'
 import { NavbarPage } from '../../helpers/enums'
 import {
-    SHADOW_PRIMARY,
-    GRADIENT_BACKGROUND
+    SHADOW_PRIMARY
 } from '../../helpers/styles'
 import NavbarElements from './NavbarElements'
 
 const NavbarContainer = styled.div`
     flex: 0 0 275px;
-    background: ${GRADIENT_BACKGROUND};
+    background: transparent;
     color: white;
     height: 100%;
     z-index: 1;
