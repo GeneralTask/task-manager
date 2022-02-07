@@ -26,6 +26,7 @@ export const flex = {
     `,
 }
 
+export const BLACK = '#000000'
 export const GRAY_900 = '#18181B'
 export const GRAY_800 = '#27272A'
 export const GRAY_700 = '#3F3F46'
@@ -49,12 +50,12 @@ export const GREEN_2 = '#E6FFE9'
 export const GRADIENT_BACKGROUND = 'linear-gradient(0deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), linear-gradient(98.72deg, #D1E4FF 8.86%, rgba(255, 255, 255, 0) 63.16%), linear-gradient(188.47deg, rgba(213, 193, 255, 0.5) 33.75%, rgba(255, 211, 124, 0.15) 93.52%), #FFFFFF'
 
 
-export const TEXT_GRAY = '#969696'
-export const TEXT_BLACK = '#000000'
+export const TEXT_GRAY = GRAY_500
+export const TEXT_BLACK = BLACK
 export const TEXT_WHITE = WHITE
-export const TEXT_BLACK_HOVER = '#464646'
-export const TEXT_LIGHTGRAY = '#CCCCCC'
-export const TEXT_DARKGRAY = '#333333'
+export const TEXT_BLACK_HOVER = GRAY_700
+export const TEXT_LIGHTGRAY = GRAY_300
+export const TEXT_DARKGRAY = GRAY_700
 export const TEXT_KEYBOARD_SHORTCUT = GRAY_400
 
 
@@ -72,10 +73,10 @@ export const TOOLTIPS_SHADOW = '0px 4px 20px rgba(43, 43, 43, 0.08)'
 
 export const EVENT_SHADOW = '0px 1px 2px rgba(0, 0, 0, 0.07)'
 
-export const DIVIDER_LIGHTGRAY = '#DDDDDD'
+export const DIVIDER_LIGHTGRAY = GRAY_300
 
-export const BORDER_PRIMARY = '#cccccc'
-export const BORDER_ERROR = '#FF0000'
+export const BORDER_PRIMARY = GRAY_300
+export const BORDER_ERROR = RED_1
 export const BACKGROUND_WHITE = WHITE
 export const BACKGROUND_KEYBOARD_SHORTCUT = '#F6F5F6'
 
