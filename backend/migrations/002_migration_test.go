@@ -64,12 +64,12 @@ func TestMigrate002(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, int(3), len(tasks))
 
-		expectedResult := []string{"task_1", "task_2", "task_3"}
-		var actualResult []string
-		for _, item := range tasks {
-			actualResult = append(actualResult, item.Title)
+		expectedTitles := []string{"task_1", "task_2", "task_3"}
+		for i, item := range tasks {
+			assert.Equal(t, expectedTitles[i], item.Title)
+			assert.Equal(t, false, item.TaskType.IsEvent)
+			assert.Equal(t, false, item.TaskType.IsMessage)
 		}
-		assert.Equal(t, expectedResult, actualResult)
 
 		var messages []database.Item
 		cursor, err = tasksCollection.Find(dbCtx, bson.M{"task_type.is_message": true})
@@ -78,6 +78,8 @@ func TestMigrate002(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, int(1), len(messages))
 		assert.Equal(t, "task_4", messages[0].Title)
+		assert.Equal(t, false, messages[0].TaskType.IsEvent)
+		assert.Equal(t, false, messages[0].TaskType.IsTask)
 
 		var events []database.Item
 		cursor, err = tasksCollection.Find(dbCtx, bson.M{"task_type.is_event": true})
@@ -86,6 +88,8 @@ func TestMigrate002(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, int(1), len(events))
 		assert.Equal(t, "task_5", events[0].Title)
+		assert.Equal(t, false, events[0].TaskType.IsTask)
+		assert.Equal(t, false, events[0].TaskType.IsMessage)
 	})
 	t.Run("MigrateDown", func(t *testing.T) {
 		tasksCollection := database.GetTaskCollection(db)

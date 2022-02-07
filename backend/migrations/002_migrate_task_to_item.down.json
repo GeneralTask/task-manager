@@ -3,30 +3,7 @@
         "update": "tasks",
         "updates": [
             {
-                "q": {
-                    "$and": [
-                        {"source_id": {"$ne": "gmail"}},
-                        {"source_id": {"$ne": "gcal"}}
-                    ]
-                },
-                "u": {
-                    "$unset": {
-                        "task_type": 1
-                    }
-                },
-                "multi": true
-            },
-            {
-                "q": {"source_id": "gmail"},
-                "u": {
-                    "$unset": {
-                        "task_type": 1
-                    }
-                },
-                "multi": true
-            },
-            {
-                "q": {"source_id": "gcal"},
+                "q": {},
                 "u": {
                     "$unset": {
                         "task_type": 1
