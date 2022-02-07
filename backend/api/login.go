@@ -109,8 +109,6 @@ func (api *API) LoginCallback(c *gin.Context) {
 		return
 	}
 
-	// add starter tasks around here
-
 	lowerEmail := strings.ToLower(*email)
 	waitlistCollection := database.GetWaitlistCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)

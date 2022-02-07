@@ -201,9 +201,20 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 
 	userCollection := database.GetUserCollection(db)
 
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	count, err := userCollection.CountDocuments(
+		dbCtx,
+		bson.M{"google_id": userInfo.SUB},
+	)
+	if err != nil {
+		log.Printf("")
+	}
+	userIsNew := count == int64(0)
+
 	var user database.User
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	userCollection.FindOneAndUpdate(
 		dbCtx,
@@ -252,6 +263,10 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 
 			return primitive.NilObjectID, nil, err
 		}
+	}
+
+	if userIsNew {
+		// add starter tasks around here or maybe return userIsNew -> probably better to do that
 	}
 
 	return user.ID, &userInfo.EMAIL, nil
