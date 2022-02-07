@@ -87,7 +87,8 @@ func (api *API) TasksList(c *gin.Context) {
 		// this is a temporary hack to trick MergeTasks into thinking we fetched these tasks
 		fakeFetchedTasks := []*database.Item{}
 		for _, item := range *currentTasks {
-			fakeFetchedTasks = append(fakeFetchedTasks, &item)
+			task := database.Item{TaskBase: item.TaskBase}
+			fakeFetchedTasks = append(fakeFetchedTasks, &task)
 		}
 		fetchedTasks = &fakeFetchedTasks
 	} else {
