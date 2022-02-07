@@ -26,14 +26,6 @@ export const flex = {
     `,
 }
 
-export const TEXT_GRAY = '#969696'
-export const TEXT_BLACK = '#000000'
-export const TEXT_WHITE = '#ffffff'
-export const TEXT_BLACK_HOVER = '#464646'
-export const TEXT_LIGHTGRAY = '#CCCCCC'
-export const TEXT_DARKGRAY = '#333333'
-export const TEXT_KEYBOARD_SHORTCUT = '#A1A1AA'
-
 export const GRAY_900 = '#18181B'
 export const GRAY_800 = '#27272A'
 export const GRAY_700 = '#3F3F46'
@@ -57,6 +49,13 @@ export const GREEN_2 = '#E6FFE9'
 export const GRADIENT_BACKGROUND = 'linear-gradient(0deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), linear-gradient(98.72deg, #D1E4FF 8.86%, rgba(255, 255, 255, 0) 63.16%), linear-gradient(188.47deg, rgba(213, 193, 255, 0.5) 33.75%, rgba(255, 211, 124, 0.15) 93.52%), #FFFFFF'
 
 
+export const TEXT_GRAY = '#969696'
+export const TEXT_BLACK = '#000000'
+export const TEXT_WHITE = WHITE
+export const TEXT_BLACK_HOVER = '#464646'
+export const TEXT_LIGHTGRAY = '#CCCCCC'
+export const TEXT_DARKGRAY = '#333333'
+export const TEXT_KEYBOARD_SHORTCUT = GRAY_400
 
 
 export const BACKGROUND_PRIMARY = '#007bff'
@@ -64,10 +63,10 @@ export const BACKGROUND_PRIMARY_HOVER = '#0069d9'
 export const BORDER_PRIMARY_HOVER = '#0062cc'
 export const TASKS_BACKROUND = '#F8F8F8'
 export const TASKS_BACKGROUND_GRADIENT = '#F6F4FE'
-export const ICON_HOVER = '#F4F4F5'
+export const ICON_HOVER = GRAY_100
 
 export const TOOLTIPS_HEIGHT = '25px'
-export const TOOLTIPS_BACKGROUND = '#FFFFFF'
+export const TOOLTIPS_BACKGROUND = WHITE
 export const TOOLTIPS_OPACITY = '.95'
 export const TOOLTIPS_SHADOW = '0px 4px 20px rgba(43, 43, 43, 0.08)'
 
@@ -77,7 +76,7 @@ export const DIVIDER_LIGHTGRAY = '#DDDDDD'
 
 export const BORDER_PRIMARY = '#cccccc'
 export const BORDER_ERROR = '#FF0000'
-export const BACKGROUND_WHITE = '#ffffff'
+export const BACKGROUND_WHITE = WHITE
 export const BACKGROUND_KEYBOARD_SHORTCUT = '#F6F5F6'
 
 export const BACKGROUND_HOVER = '#e3e3e3'
@@ -101,19 +100,19 @@ export const Margin = {
     ml10: '0 0 0 10px', // margin-left: 10px
 }
 
-export const UNSELECTED_NAVBAR_COLOR = '#A1A1AA'
-export const DOMINO_COLOR = '#A1A1AA'
+export const UNSELECTED_NAVBAR_COLOR = GRAY_400
+export const DOMINO_COLOR = GRAY_400
 
 export const CELL_HEIGHT = 64
 export const TABLE_WIDTH_PERCENTAGE = 95
 export const CELL_TIME_WIDTH = 43
 export const CELL_BORDER_WIDTH = 3
 export const CELL_LEFT_MARGIN = 10
-export const EVENT_CONTAINER_COLOR = '#FAFAFA'
-export const EVENT_TITLE_TEXT_COLOR = '#3F3F46'
-export const EVENT_TIME_TEXT_COLOR = '#71717A'
-export const CALENDAR_TD_COLOR = '#E4E3E7'
-export const CALENDAR_TIME_COLOR = '#A1A1AA'
+export const EVENT_CONTAINER_COLOR = GRAY_50
+export const EVENT_TITLE_TEXT_COLOR = GRAY_700
+export const EVENT_TIME_TEXT_COLOR = GRAY_500
+export const CALENDAR_TD_COLOR = GRAY_200
+export const CALENDAR_TIME_COLOR = GRAY_400
 export const CALENDAR_INDICATOR_COLOR = '#D7470A'
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = 2.5
