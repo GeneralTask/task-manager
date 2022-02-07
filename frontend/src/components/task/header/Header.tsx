@@ -13,7 +13,7 @@ import { LogEvents } from '../../../helpers/enums'
 import { TTask } from '../../../helpers/types'
 import { logEvent, makeAuthorizedRequest } from '../../../helpers/utils'
 import { useAppDispatch } from '../../../redux/hooks'
-import { hideDatePicker, hideLabelSelector, hideTimeEstimate, removeTaskByID } from '../../../redux/tasksPageSlice'
+import { collapseBody, expandBody, hideDatePicker, hideLabelSelector, hideTimeEstimate, removeTaskByID } from '../../../redux/tasksPageSlice'
 import Domino from '../../common/Domino'
 import { EditableTaskTitle } from '../../common/Title'
 import Tooltip from '../../common/Tooltip'
@@ -59,9 +59,12 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         dispatch(hideDatePicker())
         dispatch(hideTimeEstimate())
     }
+    const onClick = () => {
+        dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
+    }
 
     return (
-        <TaskHeaderContainer showButtons={props.isExpanded} onMouseOver={() => { setIsOver(true) }} onMouseLeave={onMouseLeave}>
+        <TaskHeaderContainer showButtons={props.isExpanded} onMouseOver={() => { setIsOver(true) }} onMouseLeave={onMouseLeave} onClick={onClick} >
             <HeaderLeft>
                 {
                     !props.dragDisabled &&
