@@ -2,7 +2,6 @@ import React, { useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import { MESSAGES_FETCH_INTERVAL, MESSAGES_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import { AbortID, FetchStatusEnum, NavbarPage } from '../../helpers/enums'
-import { TASKS_BACKGROUND_GRADIENT, TASKS_BACKROUND } from '../../helpers/styles'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setMessages, setMessagesFetchStatus } from '../../redux/messagesPageSlice'
@@ -20,7 +19,7 @@ import Message from './Message'
 const MessagesPageContainer = styled.div`
     display: flex;
     height: 100%;
-    background-image: linear-gradient(to bottom right, ${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
+    background: transparent;
 `
 
 const MessagesContentContainer = styled.div`
