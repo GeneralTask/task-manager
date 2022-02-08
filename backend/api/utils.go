@@ -87,6 +87,10 @@ func TokenMiddleware(c *gin.Context) {
 }
 
 func LoggingMiddleware(c *gin.Context) {
+	if c.Request.URL.Path == "/log_events/" {
+		// no need to record API calls to the log event endpoint
+		return
+	}
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"detail": "internal server error"})
