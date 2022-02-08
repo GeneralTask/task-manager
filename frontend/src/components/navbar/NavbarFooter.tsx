@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import FeedbackButton from '../feedback/FeedbackButton'
+import { PPButton } from '../privacypolicy/PrivacyPolicyModal'
 
 const FooterContainer = styled.div`
     margin-top: auto;
@@ -10,6 +11,7 @@ const FooterContainer = styled.div`
 const NavbarFooter = (): JSX.Element => {
     return (
         <FooterContainer>
+            <PPButton />
             <FeedbackButton />
         </FooterContainer>
     )
