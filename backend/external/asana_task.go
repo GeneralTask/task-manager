@@ -101,6 +101,9 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 				SourceAccountID:   accountID,
 				CreatedAtExternal: asanaTaskData.CreatedAt,
 			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 		dueDate, err := time.Parse("2006-01-02", asanaTaskData.DueOn)
 		if err == nil {

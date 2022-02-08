@@ -86,8 +86,8 @@ func (api *API) TasksList(c *gin.Context) {
 	if fastRefresh {
 		// this is a temporary hack to trick MergeTasks into thinking we fetched these tasks
 		fakeFetchedTasks := []*database.Item{}
-		for _, taskBase := range *currentTasks {
-			task := database.Item{TaskBase: taskBase}
+		for _, item := range *currentTasks {
+			task := database.Item{TaskBase: item.TaskBase}
 			fakeFetchedTasks = append(fakeFetchedTasks, &task)
 		}
 		fetchedTasks = &fakeFetchedTasks
@@ -176,7 +176,7 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 
 func MergeTasks(
 	db *mongo.Database,
-	currentTasks *[]database.TaskBase,
+	currentTasks *[]database.Item,
 	fetchedTasks *[]*database.Item,
 	userID primitive.ObjectID,
 ) ([]*TaskSection, error) {
@@ -247,7 +247,7 @@ func extractSectionTasksV2(fetchedTasks *[]*database.Item) ([]*TaskResult, []*Ta
 
 func adjustForCompletedTasks(
 	db *mongo.Database,
-	currentTasks *[]database.TaskBase,
+	currentTasks *[]database.Item,
 	fetchedTasks *[]*database.Item,
 ) error {
 	// decrements IDOrdering for tasks behind newly completed tasks
