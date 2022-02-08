@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,6 +20,7 @@ func TestCreateTask(t *testing.T) {
 	defer dbCleanup()
 
 	authToken := login("approved@generaltask.com", "")
+	log.Println("first auth token:", getUserIDFromAuthToken(t, db, authToken))
 	router := GetRouter(GetAPI())
 
 	t.Run("BadSourceID", func(t *testing.T) {
@@ -64,7 +66,7 @@ func TestCreateTask(t *testing.T) {
 		// this currently isn't possible because only GT tasks are supported, but we should add this when it's possible
 	})
 	t.Run("SuccessTitleOnly", func(t *testing.T) {
-		authToken := login("create_task_success_title_only@generaltask.com", "")
+		authToken = login("create_task_success_title_only@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		request, _ := http.NewRequest(
@@ -76,6 +78,7 @@ func TestCreateTask(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
+		log.Println("get active tasks for user:", userID)
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 4, len(*tasks))
@@ -88,7 +91,7 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
 	})
 	t.Run("Success", func(t *testing.T) {
-		authToken := login("create_task_success@generaltask.com", "")
+		authToken = login("create_task_success@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		request, _ := http.NewRequest(
@@ -100,6 +103,7 @@ func TestCreateTask(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
+		log.Println("get active tasks for user:", userID)
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 4, len(*tasks))
