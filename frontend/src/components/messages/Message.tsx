@@ -4,7 +4,7 @@ import { TMessage } from '../../helpers/types'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { useFetchMessages } from './MessagesPage'
 import { collapseBody, expandBody } from '../../redux/messagesPageSlice'
-import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
+import { logEvent, makeAuthorizedRequest, useClickOutside } from '../../helpers/utils'
 import { LogEvents } from '../../helpers/enums'
 import { ButtonIcon, ButtonRight, ButtonRightContainer, HeaderLeft, HeaderRight, TaskHeaderContainer } from '../task/header/Header-style'
 import { EXPAND_ICON, MESSAGES_MODIFY_URL } from '../../constants'
@@ -89,13 +89,19 @@ interface MessageProps {
     message: TMessage
 }
 export default function Message(props: MessageProps): JSX.Element {
+    const dispatch = useAppDispatch()
     const { message } = props
     const { isBodyExpanded } = useAppSelector((state) => ({
         isBodyExpanded: state.messages_page.messages.expanded_body === message.id,
     }))
 
+    const containerRef = React.useRef<HTMLDivElement>(null)
+    useClickOutside(containerRef, () => {
+        isBodyExpanded && dispatch(collapseBody())
+    })
+
     return (
-        <MessageContainer isExpanded={isBodyExpanded}>
+        <MessageContainer isExpanded={isBodyExpanded} ref={containerRef}>
             <MessageHeader message={message} isExpanded={isBodyExpanded} />
             <MessageBody message={message} isExpanded={isBodyExpanded} />
         </MessageContainer>
