@@ -43,6 +43,12 @@ export const EXPAND_ICON = '/images/ArrowsOutSimple.svg'
 export const TIME_ICON = '/images/Timer.svg'
 export const TRASH_ICON = '/images/TrashSimple.svg'
 export const CLOSE_ICON = '/images/close.svg'
+export const TOOLBAR_BOLD = '/images/toolbar/bold.svg'
+export const TOOLBAR_ITALIC = '/images/toolbar/italic.svg'
+export const TOOLBAR_UNDERLINE = '/images/toolbar/underline.svg'
+export const TOOLBAR_UNORDERED_BULLETS = '/images/toolbar/unordered-bullets.svg'
+export const TOOLBAR_ORDERED_BULLETS = '/images/toolbar/ordered-bullets.svg'
+
 
 //Misc. strings
 export const TASK_STATUS_FETCH_ERROR = 'There was an error fetching tasks'

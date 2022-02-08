@@ -9,6 +9,7 @@ import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 import { TMessage } from '../../helpers/types'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import GTButton from '../common/GTButton'
+import EmailEditor from '../email/EmailEditor'
 import { Deeplink, EmailMessage, EmailSubjectHeader, EmailViewDiv, ExpandedBody, ReplyDiv, ReplyInputStyle, TaskBodyDiv } from '../task/TaskBody-style'
 import { useFetchMessages } from './MessagesPage'
 
@@ -52,12 +53,8 @@ const Reply: React.FC<ReplyProps> = ({ message_id, sender, body, sent_at }: Repl
 
     return (
         <ReplyDiv>
-            <ContentEditable
-                className='reply-input'
-                html={text}
-                style={ReplyInputStyle}
-                onChange={(e) => setText(e.target.value)}
-            />
+            <EmailEditor />
+
             <GTButton
                 theme='black'
                 height='42px'
