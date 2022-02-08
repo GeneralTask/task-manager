@@ -102,7 +102,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		LinkConfig:   api.ExternalConfig.GoogleAuthorizeConfig,
 		OverrideURLs: api.ExternalConfig.GoogleOverrideURLs,
 	}
-	userID, email, err := googleService.HandleSignupCallback(external.CallbackParams{Oauth2Code: &redirectParams.Code})
+	userID, userIsNew, email, err := googleService.HandleSignupCallback(external.CallbackParams{Oauth2Code: &redirectParams.Code})
 	if err != nil {
 		log.Printf("Failed to handle signup: %v", err)
 		Handle500(c)
@@ -128,6 +128,10 @@ func (api *API) LoginCallback(c *gin.Context) {
 		return
 	}
 
+	if userIsNew != nil && *userIsNew {
+		createNewUserTasks(userID)
+	}
+
 	internalToken := guuid.New().String()
 	internalAPITokenCollection := database.GetInternalTokenCollection(db)
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -144,4 +148,9 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	c.SetCookie("authToken", internalToken, constants.MONTH, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
 	c.Redirect(302, config.GetConfigValue("HOME_URL"))
+}
+
+func createNewUserTasks(userID primitive.ObjectID) error {
+	// insert new tasks here
+	return nil
 }

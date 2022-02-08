@@ -159,12 +159,12 @@ func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID pri
 	return nil
 }
 
-func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
+func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	parentCtx := context.Background()
 
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
-		return primitive.NilObjectID, nil, err
+		return primitive.NilObjectID, nil, nil, err
 	}
 	defer dbCleanup()
 
@@ -174,7 +174,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	if err != nil {
 		log.Printf("failed to fetch token from google: %v", err)
 
-		return primitive.NilObjectID, nil, err
+		return primitive.NilObjectID, nil, nil, err
 	}
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
@@ -183,7 +183,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	if err != nil {
 		log.Printf("failed to load user info: %v", err)
 
-		return primitive.NilObjectID, nil, err
+		return primitive.NilObjectID, nil, nil, err
 	}
 	defer response.Body.Close()
 	var userInfo GoogleUserInfo
@@ -192,11 +192,11 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	if err != nil {
 		log.Printf("error decoding JSON: %v", err)
 
-		return primitive.NilObjectID, nil, err
+		return primitive.NilObjectID, nil, nil, err
 	}
 	if userInfo.SUB == "" {
 		log.Println("failed to retrieve google user ID")
-		return primitive.NilObjectID, nil, err
+		return primitive.NilObjectID, nil, nil, err
 	}
 
 	userCollection := database.GetUserCollection(db)
@@ -226,7 +226,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	if user.ID == primitive.NilObjectID {
 		log.Printf("unable to create user")
 
-		return primitive.NilObjectID, nil, err
+		return primitive.NilObjectID, &userIsNew, nil, err
 	}
 
 	if len(token.RefreshToken) > 0 {
@@ -235,7 +235,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 		if err != nil {
 			log.Printf("failed to serialize token json: %v", err)
 
-			return primitive.NilObjectID, nil, err
+			return primitive.NilObjectID, &userIsNew, nil, err
 		}
 		externalAPITokenCollection := database.GetExternalTokenCollection(db)
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -261,13 +261,9 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 		if err != nil {
 			log.Printf("failed to create external token record: %v", err)
 
-			return primitive.NilObjectID, nil, err
+			return primitive.NilObjectID, &userIsNew, nil, err
 		}
 	}
 
-	if userIsNew {
-		// add starter tasks around here or maybe return userIsNew -> probably better to do that
-	}
-
-	return user.ID, &userInfo.EMAIL, nil
+	return user.ID, &userIsNew, &userInfo.EMAIL, nil
 }

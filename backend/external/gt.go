@@ -22,6 +22,6 @@ func (generalTask GeneralTaskService) HandleLinkCallback(params CallbackParams, 
 	return errors.New("general task service does not support linking")
 }
 
-func (generalTask GeneralTaskService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
-	return primitive.NilObjectID, nil, errors.New("general task service does not support signup")
+func (generalTask GeneralTaskService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
+	return primitive.NilObjectID, nil, nil, errors.New("general task service does not support signup")
 }

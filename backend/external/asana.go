@@ -108,8 +108,8 @@ func (asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 	return nil
 }
 
-func (asana AsanaService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
-	return primitive.NilObjectID, nil, errors.New("asana does not support signup")
+func (asana AsanaService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
+	return primitive.NilObjectID, nil, nil, errors.New("asana does not support signup")
 }
 
 func getAsanaHttpClient(db *mongo.Database, userID primitive.ObjectID, accountID string) *http.Client {
