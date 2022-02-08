@@ -2,7 +2,7 @@ import React from 'react'
 import Modal from 'react-modal'
 import { MODAL_HEIGHT, MODAL_WIDTH, SHADOW_MISC_1, WHITE } from '../../helpers/styles'
 
-Modal.setAppElement('#root')
+if (process.env.NODE_ENV !== 'test') Modal.setAppElement('#root')
 
 const MODAL_STYLE: Modal.Styles = {
     overlay: {
