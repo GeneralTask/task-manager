@@ -37,9 +37,10 @@ type TaskResult struct {
 }
 
 type TaskSection struct {
-	ID    primitive.ObjectID `json:"id"`
-	Name  string             `json:"name"`
-	Tasks []*TaskResult      `json:"tasks"`
+	ID     primitive.ObjectID `json:"id"`
+	IsDone bool               `json:"is_done"`
+	Name   string             `json:"name"`
+	Tasks  []*TaskResult      `json:"tasks"`
 }
 
 type TaskGroupType string
@@ -50,6 +51,7 @@ const (
 	TaskSectionNameToday   string        = "Today"
 	TaskSectionNameBlocked string        = "Blocked"
 	TaskSectionNameBacklog string        = "Backlog"
+	TaskSectionNameDone    string        = "Done"
 )
 
 func (api *API) TasksList(c *gin.Context) {
@@ -185,6 +187,15 @@ func MergeTasks(
 		return []*TaskSection{}, err
 	}
 
+	completedTasks, err := database.GetCompletedTasks(db, userID)
+	if err != nil {
+		return []*TaskSection{}, err
+	}
+	completedTaskResults := []*TaskResult{}
+	for _, task := range *completedTasks {
+		completedTaskResults = append(completedTaskResults, taskBaseToTaskResult(&task.TaskBase))
+	}
+
 	sort.SliceStable(*fetchedTasks, func(i, j int) bool {
 		a := (*fetchedTasks)[i]
 		b := (*fetchedTasks)[j]
@@ -223,6 +234,11 @@ func MergeTasks(
 			ID:    constants.IDTaskSectionBacklog,
 			Name:  TaskSectionNameBacklog,
 			Tasks: backlogTasks,
+		},
+		{
+			ID:    constants.IDTaskSectionDone,
+			Name:  TaskSectionNameDone,
+			Tasks: completedTaskResults,
 		},
 	}, nil
 }
