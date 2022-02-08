@@ -145,9 +145,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"is_completed": false},
-				// Small hacks to filter emails and cal events out from tasks collection
-				{"source_id": bson.M{"$ne": "gmail"}},
-				{"source_id": bson.M{"$ne": "gcal"}},
+				{"task_type.is_task": true},
 			},
 		},
 	)

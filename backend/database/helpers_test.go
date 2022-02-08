@@ -22,11 +22,16 @@ func TestGetActiveTasks(t *testing.T) {
 			userID,
 			"123abc",
 			"foobar_source",
-			&Item{TaskBase: TaskBase{
-				IDExternal: "123abc",
-				SourceID:   "foobar_source",
-				UserID:     userID,
-			}},
+			&Item{
+				TaskBase: TaskBase{
+					IDExternal: "123abc",
+					SourceID:   "foobar_source",
+					UserID:     userID,
+				},
+				TaskType: TaskType{
+					IsTask: true,
+				},
+			},
 		)
 		assert.NoError(t, err)
 		_, err = GetOrCreateTask(
@@ -43,6 +48,9 @@ func TestGetActiveTasks(t *testing.T) {
 					SourceID:   "gmail",
 					UserID:     userID,
 				},
+				TaskType: TaskType{
+					IsMessage: true,
+				},
 			},
 		)
 		assert.NoError(t, err)
@@ -51,11 +59,16 @@ func TestGetActiveTasks(t *testing.T) {
 			notUserID,
 			"123abe",
 			"foobar_source",
-			&Item{TaskBase: TaskBase{
-				IDExternal: "123abe",
-				SourceID:   "foobar_source",
-				UserID:     notUserID,
-			}},
+			&Item{
+				TaskBase: TaskBase{
+					IDExternal: "123abe",
+					SourceID:   "foobar_source",
+					UserID:     notUserID,
+				},
+				TaskType: TaskType{
+					IsTask: true,
+				},
+			},
 		)
 		assert.NoError(t, err)
 
