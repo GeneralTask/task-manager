@@ -34,6 +34,7 @@ type TaskResult struct {
 	DueDate        string             `json:"due_date"`
 	TimeAllocation int64              `json:"time_allocated"`
 	SentAt         string             `json:"sent_at"`
+	IsDone         bool               `json:"is_done"`
 }
 
 type TaskSection struct {
@@ -345,5 +346,6 @@ func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 		Sender:         t.Sender,
 		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
 		DueDate:        dueDate,
+		IsDone:         t.IsCompleted,
 	}
 }
