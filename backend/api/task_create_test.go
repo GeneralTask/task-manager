@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -20,7 +19,6 @@ func TestCreateTask(t *testing.T) {
 	defer dbCleanup()
 
 	authToken := login("approved@generaltask.com", "")
-	log.Println("first auth token:", getUserIDFromAuthToken(t, db, authToken))
 	router := GetRouter(GetAPI())
 
 	t.Run("BadSourceID", func(t *testing.T) {
@@ -78,7 +76,6 @@ func TestCreateTask(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		log.Println("get active tasks for user:", userID)
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 4, len(*tasks))
@@ -103,7 +100,6 @@ func TestCreateTask(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		log.Println("get active tasks for user:", userID)
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 4, len(*tasks))
