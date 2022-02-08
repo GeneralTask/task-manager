@@ -26,7 +26,7 @@ func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, 
 
 func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	parentCtx := context.Background()
-	events := []*database.CalendarEvent{}
+	events := []*database.Item{}
 
 	var calendarService *calendar.Service
 	var err error
@@ -102,7 +102,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 
 		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
 		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
-		event := &database.CalendarEvent{
+		event := &database.Item{
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      event.Id,
@@ -115,10 +115,15 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				SourceAccountID: accountID,
 				ConferenceCall:  GetConferenceCall(event, accountID),
 			},
-			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
-			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+			CalendarEvent: database.CalendarEvent{
+				DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+				DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+			},
+			TaskType: database.TaskType{
+				IsEvent: true,
+			},
 		}
-		var dbEvent database.CalendarEvent
+		var dbEvent database.Item
 		res, err := database.UpdateOrCreateTask(
 			db,
 			userID,
@@ -126,10 +131,10 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			event.SourceID,
 			event,
 			database.CalendarEventChangeableFields{
+				CalendarEvent: event.CalendarEvent,
 				Title:         event.Title,
 				Body:          event.Body,
-				DatetimeEnd:   event.DatetimeEnd,
-				DatetimeStart: event.DatetimeStart,
+				TaskType:      event.TaskType,
 			},
 		)
 		if err != nil {

@@ -60,11 +60,11 @@ type Oauth1RequestSecret struct {
 }
 
 type Item struct {
-	TaskBase       `bson:",inline"`
-	TaskType       `bson:"task_type"`
-	Task           `bson:"task,omitempty"`
-	Email          `bson:"email,omitempty"`
-	*CalendarEvent `bson:"calendar_event,omitempty"`
+	TaskBase      `bson:",inline"`
+	TaskType      `bson:"task_type"`
+	Task          `bson:"task,omitempty"`
+	Email         `bson:"email,omitempty"`
+	CalendarEvent `bson:"calendar_event,omitempty"`
 }
 
 type TaskType struct {
@@ -106,16 +106,15 @@ type PullRequestChangeableFields struct {
 }
 
 type CalendarEvent struct {
-	TaskBase      `bson:",inline"`
 	DatetimeEnd   primitive.DateTime `bson:"datetime_end"`
 	DatetimeStart primitive.DateTime `bson:"datetime_start"`
 }
 
 type CalendarEventChangeableFields struct {
-	Title         string             `bson:"title,omitempty"`
-	Body          string             `bson:"body,omitempty"`
-	DatetimeEnd   primitive.DateTime `bson:"datetime_end,omitempty"`
-	DatetimeStart primitive.DateTime `bson:"datetime_start,omitempty"`
+	CalendarEvent `bson:"calendar_event,omitempty"`
+	TaskType      `bson:"task_type,omitempty"`
+	Title         string `bson:"title,omitempty"`
+	Body          string `bson:"body,omitempty"`
 }
 
 type Email struct {
