@@ -6,7 +6,7 @@ export const {
 } = process.env
 
 // Backend Endpoints
-export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/v2/'
+export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
 export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/'
 export const TASKS_MODIFY_URL = REACT_APP_API_BASE_URL + '/tasks/modify/'
 export const MESSAGES_MODIFY_URL = REACT_APP_API_BASE_URL + '/messages/modify/'
