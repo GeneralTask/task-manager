@@ -92,7 +92,7 @@ func (api *API) TaskModify(c *gin.Context) {
 		}
 	}
 	// handle mark complete
-	if modifyParams.IsCompleted != nil {
+	if modifyParams.IsCompleted != nil && *modifyParams.IsCompleted {
 		err = MarkTaskComplete(api, c, taskID, userID, task, *modifyParams.IsCompleted)
 		if err != nil {
 			return
