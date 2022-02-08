@@ -69,7 +69,6 @@ export const ICON_HOVER = GRAY_100
 export const TOOLTIPS_HEIGHT = '25px'
 export const TOOLTIPS_BACKGROUND = WHITE
 export const TOOLTIPS_OPACITY = '.95'
-export const TOOLTIPS_SHADOW = '0px 4px 20px rgba(43, 43, 43, 0.08)'
 
 export const EVENT_SHADOW = '0px 1px 2px rgba(0, 0, 0, 0.07)'
 
@@ -86,6 +85,8 @@ export const SHADOW_PRIMARY = '0px 0px 10px rgba(0, 0, 0, 0.06)'
 export const SHADOW_EXPANDED = '0px 0px 10px rgba(0, 0, 0, 0.12)'
 export const SHADOW_EVENT_ALERT = '0px 4px 20px rgba(43, 43, 43, 0.08)'
 export const SHADOW_KEYBOARD_SHORTCUT = '0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06)'
+export const SHADOW_MISC_1 = '0px 4px 20px rgba(43, 43, 43, 0.08)'
+export const SHADOW_MISC_2 = '0px 1px 2px rgba(0, 0, 0, 0.07)'
 
 export const NoSelect = styled.div`
     -webkit-touch-callout: none; /* iOS Safari */
@@ -117,3 +118,7 @@ export const CALENDAR_TIME_COLOR = GRAY_400
 export const CALENDAR_INDICATOR_COLOR = RED_1
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = 2.5
+
+
+export const MODAL_WIDTH = '365px'
+export const MODAL_HEIGHT = '418px'

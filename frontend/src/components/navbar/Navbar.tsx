@@ -5,8 +5,11 @@ import {
     SHADOW_PRIMARY
 } from '../../helpers/styles'
 import NavbarElements from './NavbarElements'
+import NavbarFooter from './NavbarFooter'
 
 const NavbarContainer = styled.div`
+    display: flex;
+    flex-direction: column;
     flex: 0 0 275px;
     background: transparent;
     color: white;
@@ -33,6 +36,7 @@ const Navbar = ({ currentPage }: NavbarProps): JSX.Element => (
     <NavbarContainer>
         <NavbarHeader />
         <NavbarElements currentPage={currentPage} />
+        <NavbarFooter />
     </NavbarContainer>
 )
 
