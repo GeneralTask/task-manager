@@ -99,7 +99,7 @@ func TestLoggingMiddleware(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 	})
-	t.Run("LogEndpoint", func(t *testing.T) {
+	t.Run("DoesntRecordForLogEndpoint", func(t *testing.T) {
 		router := GetRouter(GetAPI())
 
 		request, _ := http.NewRequest("POST", "/log_events/", nil)
