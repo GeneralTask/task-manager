@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { TEvent, TTaskSection } from '../helpers/types'
 
-import { FetchStatusEnum } from '../helpers/enums'
+import { FetchStatusEnum, ModalEnum } from '../helpers/enums'
 
 export interface TasksPageState {
     tasks: {
@@ -17,7 +17,9 @@ export interface TasksPageState {
         event_list: TEvent[]
         fetch_status: FetchStatusEnum
         show_calendar_sidebar: boolean
-        show_modal: boolean
+    },
+    modals: {
+        show_modal: ModalEnum
     }
 }
 
@@ -35,8 +37,10 @@ const initialState: TasksPageState = {
         event_list: [],
         fetch_status: FetchStatusEnum.LOADING,
         show_calendar_sidebar: true,
-        show_modal: false,
     },
+    modals: {
+        show_modal: ModalEnum.NONE,
+    }
 }
 
 export const tasksPageSlice = createSlice({
@@ -102,8 +106,8 @@ export const tasksPageSlice = createSlice({
         setShowCalendarSidebar(state, action: PayloadAction<boolean>) {
             state.events.show_calendar_sidebar = action.payload
         },
-        setShowModal(state, action: PayloadAction<boolean>) {
-            state.events.show_modal = action.payload
+        setShowModal(state, action: PayloadAction<ModalEnum>) {
+            state.modals.show_modal = action.payload
         },
     },
 })

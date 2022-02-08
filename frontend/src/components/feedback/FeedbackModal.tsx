@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { FEEDBACK_URL } from '../../constants'
+import { ModalEnum } from '../../helpers/enums'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import { useAppDispatch } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
@@ -27,7 +28,7 @@ const FeedbackModal = (): JSX.Element => {
         setFeedback(e.target.value)
     }
     const closeModal = () => {
-        dispatch(setShowModal(false))
+        dispatch(setShowModal(ModalEnum.NONE))
     }
     const handleSubmit = async () => {
         await makeAuthorizedRequest({

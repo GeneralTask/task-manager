@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
+import { ModalEnum } from '../../helpers/enums'
 import { BLACK, WHITE, ACCENT_MAIN, GRAY_100, SHADOW_MISC_2 } from '../../helpers/styles'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
@@ -15,7 +16,7 @@ const PrivacyPolicyModal = (): JSX.Element => {
     document.getElementById('root')?.style.setProperty('overflow', 'hidden')
 
     const closeModal = () => {
-        dispatch(setShowModal(false))
+        dispatch(setShowModal(ModalEnum.NONE))
     }
     const handleSubmit = async () => {
         await makeAuthorizedRequest({
@@ -29,12 +30,12 @@ const PrivacyPolicyModal = (): JSX.Element => {
     return (
         <ModalContainer>
             <PrivacyPolicyHeader>
-                <HeaderPrimary>Privacy Policy</HeaderPrimary>
-                <HeaderSecondary>Submit or face consequences.</HeaderSecondary>
+                <HeaderPrimary>Please look at our Privacy Policy.</HeaderPrimary>
+                <HeaderSecondary>please</HeaderSecondary>
             </PrivacyPolicyHeader>
             <ResponseContainer>
                 <SectionHeader>Privacy Policy</SectionHeader>
-                <ModalTextArea value={'insert pp here'} disabled />
+                <ModalTextArea value={'PRIVACY_POLICY'} disabled />
             </ResponseContainer>
             <ButtonContainer>
                 <ModalButton onClick={handleSubmit}>I Agree</ModalButton>
@@ -62,26 +63,29 @@ const PPButtonContainer = styled.button<{ white?: boolean }>`
 `
 
 export const PPButton = (): JSX.Element => {
-    const { showModal } = useAppSelector((state) => ({ showModal: state.tasks_page.events.show_modal }))
+    const { showModal } = useAppSelector((state) => ({ showModal: state.tasks_page.modals.show_modal }))
     const dispatch = useAppDispatch()
     const clickHandler = () => {
-        dispatch(setShowModal(true))
+        dispatch(setShowModal(ModalEnum.PRIVACY_POLICY))
     }
     function afterModalOpen() {
-        dispatch(setShowModal(true))
+        console.log('modal opened')
+        dispatch(setShowModal(ModalEnum.PRIVACY_POLICY))
     }
     function afterModalClose() {
-        dispatch(setShowModal(false))
+        dispatch(setShowModal(ModalEnum.NONE))
     }
     return (
         <>
             <PPButtonContainer onClick={clickHandler}>View PP temp</PPButtonContainer>
-            <GeneralTaskModal
-                render={<></>}
-                showModal={showModal}
-                afterModalOpen={afterModalOpen}
-                afterModalClose={afterModalClose}
-            />
+            {showModal === ModalEnum.PRIVACY_POLICY &&
+                <GeneralTaskModal
+                    render={<PrivacyPolicyModal />}
+                    showModal={true}
+                    afterModalOpen={afterModalOpen}
+                    afterModalClose={afterModalClose}
+                />
+            }
         </>
     )
 }

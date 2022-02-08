@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 
 import styled from 'styled-components'
 import { useAppSelector } from '../../redux/hooks'
+import { ModalEnum } from '../../helpers/enums'
 
 const KeyboardShortcutContainer = styled.div<{ isPressed: boolean }>`
     cursor: inherit;
@@ -45,7 +46,7 @@ function useKeyboardShortcut(shortcut: string, onKeyPress: () => void): boolean 
     const [isKeyDown, setIsKeyDown] = useState(false)
 
     //Keyboard shortcuts should not trigger when modal is open
-    const { isModalOpen } = useAppSelector(state => ({ isModalOpen: state.tasks_page.events.show_modal }))
+    const { isModalOpen } = useAppSelector(state => ({ isModalOpen: (state.tasks_page.modals.show_modal !== ModalEnum.NONE) }))
 
     const onKeyDown = useCallback((event: KeyboardEvent) => {
         if (!isModalOpen && wasValidKeyPressed(shortcut, event)) {
