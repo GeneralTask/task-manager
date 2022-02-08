@@ -7,7 +7,6 @@ export const TimeEstimateContainer = styled.div`
     display: flex;
     flex-direction: column;
     width: ${TIME_ESTIMATOR_WIDTH}px;
-    height: 400px;
     position: absolute;
     background-color: white;
     border-radius: 10px;
