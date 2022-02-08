@@ -97,7 +97,6 @@ func (api *API) TaskModify(c *gin.Context) {
 		if err != nil {
 			return
 		}
-		updateTaskInDB = true
 	}
 
 	if updateTaskInDB {
@@ -233,7 +232,14 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 		return err
 	}
 
-	return nil
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return err
+	}
+	defer dbCleanup()
+
+	return database.MarkItemComplete(db, taskID)
 }
 
 func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields, task *database.Item) {

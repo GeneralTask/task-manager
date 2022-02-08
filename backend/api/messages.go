@@ -168,24 +168,13 @@ func markCompletedMessages(
 	for _, email := range *fetchedEmails {
 		fetchedEmailTaskIDs[email.ID] = true
 	}
-	tasksCollection := database.GetTaskCollection(db)
-	parentCtx := context.Background()
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentEmail := range *currentEmails {
 		if !fetchedEmailTaskIDs[currentEmail.ID] {
-			dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-			defer cancel()
-			res, err := tasksCollection.UpdateOne(
-				dbCtx,
-				bson.M{"_id": currentEmail.ID},
-				bson.M{"$set": bson.M{"is_completed": true}},
-			)
+			err := database.MarkItemComplete(db, currentEmail.ID)
 			if err != nil {
 				log.Printf("failed to mark task completed: (ID=%v) with error: %v", currentEmail.ID, err)
 				return err
-			}
-			if res.MatchedCount != 1 {
-				log.Printf("did not find task to mark completed (ID=%v)", currentEmail.ID)
 			}
 		}
 	}

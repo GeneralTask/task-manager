@@ -251,8 +251,6 @@ func adjustForCompletedTasks(
 	fetchedTasks *[]*database.Item,
 ) error {
 	// decrements IDOrdering for tasks behind newly completed tasks
-	parentCtx := context.Background()
-	tasksCollection := database.GetTaskCollection(db)
 	var newTasks []*database.TaskBase
 	newTaskIDs := make(map[primitive.ObjectID]bool)
 	for _, fetchedTask := range *fetchedTasks {
@@ -263,19 +261,10 @@ func adjustForCompletedTasks(
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
 		if !newTaskIDs[currentTask.ID] {
-			dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-			defer cancel()
-			res, err := tasksCollection.UpdateOne(
-				dbCtx,
-				bson.M{"_id": currentTask.ID},
-				bson.M{"$set": bson.M{"is_completed": true}},
-			)
+			err := database.MarkItemComplete(db, currentTask.ID)
 			if err != nil {
 				log.Printf("failed to update task ordering ID: %v", err)
 				return err
-			}
-			if res.MatchedCount != 1 {
-				log.Printf("did not find task to mark completed (ID=%v)", currentTask.ID)
 			}
 			for _, newTask := range newTasks {
 				if newTask.IDOrdering > currentTask.IDOrdering {
