@@ -20,8 +20,7 @@ const MODAL_STYLE: Modal.Styles = {
         WebkitOverflowScrolling: 'touch',
         borderRadius: '12px',
         boxShadow: SHADOW_MISC_1,
-        top: '50%',
-        transform: 'translateY(-75%)',
+        top: '20%',
     }
 }
 
