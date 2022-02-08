@@ -52,12 +52,12 @@ function useKeyboardShortcut(shortcut: string, onKeyPress: () => void): boolean 
             setIsKeyDown(true)
             onKeyPress()
         }
-    }, [shortcut, onKeyPress])
+    }, [shortcut, onKeyPress, isModalOpen])
     const onKeyUp = useCallback((event: KeyboardEvent) => {
         if (!isModalOpen && wasValidKeyPressed(shortcut, event)) {
             setIsKeyDown(false)
         }
-    }, [shortcut])
+    }, [shortcut, isModalOpen])
 
     useEffect(() => {
         document.addEventListener('keydown', onKeyDown)

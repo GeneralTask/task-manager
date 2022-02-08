@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
 import FeedbackModal from './FeedbackModal'
+import GeneralTaskModal from '../modal/GeneralTaskModal'
 
 const FeedbackButtonContainer = styled.button<{ white?: boolean }>`
     position: relative;
@@ -28,10 +29,21 @@ const FeedbackButton = (): JSX.Element => {
     const clickHandler = () => {
         dispatch(setShowModal(true))
     }
+    function afterModalOpen() {
+        dispatch(setShowModal(true))
+    }
+    function afterModalClose() {
+        dispatch(setShowModal(false))
+    }
     return (
         <>
             <FeedbackButtonContainer onClick={clickHandler}>Share your feedback?</FeedbackButtonContainer>
-            {showModal && <FeedbackModal />}
+            <GeneralTaskModal
+                render={<FeedbackModal />}
+                showModal={showModal}
+                afterModalOpen={afterModalOpen}
+                afterModalClose={afterModalClose}
+            />
         </>
     )
 }
