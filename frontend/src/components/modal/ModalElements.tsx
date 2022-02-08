@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { ACCENT_MAIN, BLACK, GRAY_100, GRAY_200, GRAY_500, GRAY_700, SHADOW_MISC_2, WHITE } from '../../helpers/styles'
 
 const HeaderPrimary = styled.div`
     font-family: Switzer-Variable;
@@ -6,7 +7,7 @@ const HeaderPrimary = styled.div`
     font-weight: 600;
     font-size: 20px;
     line-height: 24px;
-    color: #3F3F46;
+    color: ${GRAY_700};
     margin-bottom: 2px;
 `
 const HeaderSecondary = styled.div`
@@ -16,7 +17,7 @@ const HeaderSecondary = styled.div`
     font-size: 13px;
     line-height: 18px;
     letter-spacing: 0.015em;
-    color: #71717A;
+    color: ${GRAY_500};
 `
 const ResponseContainer = styled.div`
     position: relative;
@@ -32,7 +33,7 @@ const SectionHeader = styled.div`
     font-weight: 600;
     font-size: 16px;
     line-height: 20px;
-    color: #71717A;
+    color: ${GRAY_500};
     margin-bottom: 6px;
 `
 const ModalTextArea = styled.textarea`
@@ -41,7 +42,7 @@ const ModalTextArea = styled.textarea`
     width: 100%;
     resize: none;
     overflow: auto;
-    border: 1px solid #E4E3E7;
+    border: 1px solid ${GRAY_200};
     border-radius: 8px;
     box-shadow: none;
     outline: none;
@@ -57,15 +58,14 @@ const ButtonContainer = styled.div`
     gap: 8px;
 `
 const ModalButton = styled.button<{ white?: boolean }>`
-    color: ${(props) => props.white ? 'black' : 'white'};
-    background-color: ${(props) => props.white ? 'white' : '#5C31D7'};
-    border: ${(props) => props.white ? ' 1px solid #F4F4F5;' : 'none'};
+    color: ${(props) => props.white ? BLACK : WHITE};
+    background-color: ${(props) => props.white ? WHITE : ACCENT_MAIN};
+    border: ${(props) => props.white ? ` 1px solid ${GRAY_100};` : 'none'};
     font: inherit;
     cursor: pointer;
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.07);
+    box-shadow: ${SHADOW_MISC_2};
     border-radius: 12px;
     padding: 8px 14px;
-
     font-family: Switzer-Variable;
     font-style: normal;
     font-weight: normal;
