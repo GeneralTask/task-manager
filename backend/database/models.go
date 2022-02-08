@@ -112,10 +112,9 @@ type CalendarEvent struct {
 
 type CalendarEventChangeableFields struct {
 	CalendarEvent `bson:"calendar_event,omitempty"`
-	Title         string             `bson:"title,omitempty"`
-	Body          string             `bson:"body,omitempty"`
-	DatetimeEnd   primitive.DateTime `bson:"datetime_end,omitempty"`
-	DatetimeStart primitive.DateTime `bson:"datetime_start,omitempty"`
+	TaskType      `bson:"task_type,omitempty"`
+	Title         string `bson:"title,omitempty"`
+	Body          string `bson:"body,omitempty"`
 }
 
 type Email struct {

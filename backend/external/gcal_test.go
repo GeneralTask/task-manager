@@ -411,6 +411,7 @@ func TestCalendar(t *testing.T) {
 }
 
 func assertCalendarEventsEqual(t *testing.T, a *database.Item, b *database.Item) {
+	assert.Equal(t, a.TaskType, b.TaskType)
 	assert.Equal(t, a.DatetimeStart, b.DatetimeStart)
 	assert.Equal(t, a.DatetimeEnd, b.DatetimeEnd)
 	assert.Equal(t, a.Deeplink, b.Deeplink)
