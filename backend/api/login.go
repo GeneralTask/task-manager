@@ -13,6 +13,7 @@ import (
 	guuid "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // GoogleRedirectParams ...
@@ -129,7 +130,10 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 
 	if userIsNew != nil && *userIsNew {
-		createNewUserTasks(userID)
+		err = createNewUserTasks(parentCtx, userID, db)
+		if err != nil {
+			log.Printf("failed to create new tasks: %v", err)
+		}
 	}
 
 	internalToken := guuid.New().String()
@@ -150,7 +154,27 @@ func (api *API) LoginCallback(c *gin.Context) {
 	c.Redirect(302, config.GetConfigValue("HOME_URL"))
 }
 
-func createNewUserTasks(userID primitive.ObjectID) error {
-	// insert new tasks here
+func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db *mongo.Database) error {
+	taskCollection := database.GetTaskCollection(db)
+	for index, title := range constants.StarterTasks {
+		newTask := database.Item{
+			TaskBase: database.TaskBase{
+				UserID:          userID,
+				IDExternal:      primitive.NewObjectID().Hex(),
+				IDOrdering:      index + 1,
+				IDTaskSection:   constants.IDTaskSectionToday,
+				SourceID:        external.TASK_SOURCE_ID_GT_TASK,
+				Title:           title,
+				Body:            "",
+				SourceAccountID: external.GeneralTaskDefaultAccountID,
+			},
+		}
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		_, err := taskCollection.InsertOne(dbCtx, newTask)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
