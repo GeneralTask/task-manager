@@ -1,31 +1,32 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import React, { useEffect } from 'react'
 import { FEEDBACK_URL } from '../../constants'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import { useAppDispatch } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
-import { ButtonContainer, FeedbackHeader, FeedbackModalButton, FeedbackSection, HeaderPrimary, HeaderSecondary, ModalContainer, SectionHeader, SectionResponse } from './FeedbackModal-style'
+import { HeaderPrimary, HeaderSecondary, SectionHeader, ButtonContainer, ModalButton, ResponseContainer, ModalTextArea } from '../modal/ModalElements'
+import { ModalContainer, FeedbackHeader } from './FeedbackModal-style'
 
-const modalRoot = document.getElementById('modal-root') as HTMLElement
 
 const FeedbackModal = (): JSX.Element => {
     const dispatch = useAppDispatch()
     const placeholder = 'Type in your feedback here.'
 
+    useEffect(() => {
+        setFeedback(localStorage.getItem('feedbackResponse') || '')
+    }, [])
+
+    useEffect(() => {
+        localStorage.setItem('feedbackResponse', feedback)
+    })
+
     document.getElementById('root')?.style.setProperty('filter', 'blur(5px)')
     document.getElementById('root')?.style.setProperty('overflow', 'hidden')
-    document.getElementById('modal-root')?.style.setProperty('width', '100%')
-    document.getElementById('modal-root')?.style.setProperty('height', '100%')
 
     const [feedback, setFeedback] = React.useState('')
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setFeedback(e.target.value)
     }
     const closeModal = () => {
-        document.getElementById('root')?.style.removeProperty('filter')
-        document.getElementById('root')?.style.removeProperty('overflow')
-        document.getElementById('modal-root')?.style.setProperty('width', '0%')
-        document.getElementById('modal-root')?.style.setProperty('height', '0%')
         dispatch(setShowModal(false))
     }
     const handleSubmit = async () => {
@@ -35,25 +36,25 @@ const FeedbackModal = (): JSX.Element => {
             body: JSON.stringify({ feedback: feedback }),
         })
         closeModal()
+        localStorage.setItem('feedbackResponse', '')
     }
 
-    const modal = (
+    return (
         <ModalContainer>
             <FeedbackHeader>
                 <HeaderPrimary>Got feedback?</HeaderPrimary>
                 <HeaderSecondary>Let us know how we can improve!</HeaderSecondary>
             </FeedbackHeader>
-            <FeedbackSection>
+            <ResponseContainer>
                 <SectionHeader>Feedback</SectionHeader>
-                <SectionResponse placeholder={placeholder} value={feedback} onChange={handleChange} />
-            </FeedbackSection>
+                <ModalTextArea placeholder={placeholder} value={feedback} onChange={handleChange} />
+            </ResponseContainer>
             <ButtonContainer>
-                <FeedbackModalButton onClick={handleSubmit}>Send feedback</FeedbackModalButton>
-                <FeedbackModalButton white onClick={closeModal}>Cancel</FeedbackModalButton>
+                <ModalButton onClick={handleSubmit}>Send feedback</ModalButton>
+                <ModalButton white onClick={closeModal}>Cancel</ModalButton>
             </ButtonContainer>
         </ModalContainer>
     )
-    return ReactDOM.createPortal(modal, modalRoot)
 }
 
 export default FeedbackModal
