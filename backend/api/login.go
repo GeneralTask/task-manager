@@ -110,6 +110,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		return
 	}
 
+	log.Println("userIsNew:", userIsNew)
 	if userIsNew != nil && *userIsNew {
 		err = createNewUserTasks(parentCtx, userID, db)
 		if err != nil {
@@ -157,6 +158,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db *mongo.Database) error {
 	taskCollection := database.GetTaskCollection(db)
 	for index, title := range constants.StarterTasks {
+		log.Println("creating task", index, "for user:", userID)
 		newTask := database.Item{
 			TaskBase: database.TaskBase{
 				UserID:          userID,
