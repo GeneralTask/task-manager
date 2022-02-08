@@ -77,6 +77,7 @@ export const EditableTaskTitle = (props: EditableTaskTitleProps): JSX.Element =>
             html={title.current}
             onKeyPress={handleKeyPress}
             onChange={(e) => title.current = e.target.value}
+            onClick={(e) => props.isExpanded && e.stopPropagation()}
             onBlur={handleBlur}
             // to prevent inputs from triggering keyboard shortcuts
             onKeyDown={(e) => e.stopPropagation()}

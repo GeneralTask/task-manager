@@ -196,6 +196,9 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			Task: database.Task{
 				PriorityID: jiraTask.Fields.Priority.ID,
 			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
 		}
 
 		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)

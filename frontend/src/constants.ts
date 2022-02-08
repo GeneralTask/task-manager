@@ -6,7 +6,7 @@ export const {
 } = process.env
 
 // Backend Endpoints
-export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/v2/'
+export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
 export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/'
 export const TASKS_MODIFY_URL = REACT_APP_API_BASE_URL + '/tasks/modify/'
 export const MESSAGES_MODIFY_URL = REACT_APP_API_BASE_URL + '/messages/modify/'
@@ -20,6 +20,7 @@ export const WAITLIST_URL = REACT_APP_API_BASE_URL + '/waitlist/'
 export const LINKED_ACCOUNTS_URL = REACT_APP_API_BASE_URL + '/linked_accounts/'
 export const SUPPORTED_TYPES_URL = REACT_APP_API_BASE_URL + '/linked_accounts/supported_types/'
 export const LOG_EVENTS_URL = REACT_APP_API_BASE_URL + '/log_events/'
+export const FEEDBACK_URL = REACT_APP_API_BASE_URL + '/feedback/'
 
 export const EVENTS_URL = REACT_APP_API_BASE_URL + '/events/'
 

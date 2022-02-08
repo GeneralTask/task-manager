@@ -1,7 +1,7 @@
 import React, { useRef } from 'react'
 import styled from 'styled-components'
 import { TOOLTIP_DELAY } from '../../constants'
-import { TOOLTIPS_BACKGROUND, TOOLTIPS_OPACITY, TOOLTIPS_SHADOW, TOOLTIPS_HEIGHT } from '../../helpers/styles'
+import { TOOLTIPS_BACKGROUND, TOOLTIPS_OPACITY, TOOLTIPS_HEIGHT, SHADOW_MISC_1 } from '../../helpers/styles'
 
 const RelativeDiv = styled.div`
     position: relative;
@@ -17,7 +17,7 @@ const TooltipContainer = styled.div<{ show: boolean, direction: string }>`
     padding: 6px 6px 6px 8px;
     position: absolute;
     pointer-events: none;
-    box-shadow: ${TOOLTIPS_SHADOW};
+    box-shadow: ${SHADOW_MISC_1};
     opacity: ${TOOLTIPS_OPACITY};
     background-color: ${TOOLTIPS_BACKGROUND};
     text-align: center;

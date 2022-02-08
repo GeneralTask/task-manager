@@ -17,6 +17,7 @@ export interface TasksPageState {
         event_list: TEvent[]
         fetch_status: FetchStatusEnum
         show_calendar_sidebar: boolean
+        show_modal: boolean
     }
 }
 
@@ -34,6 +35,7 @@ const initialState: TasksPageState = {
         event_list: [],
         fetch_status: FetchStatusEnum.LOADING,
         show_calendar_sidebar: true,
+        show_modal: false,
     },
 }
 
@@ -100,6 +102,9 @@ export const tasksPageSlice = createSlice({
         setShowCalendarSidebar(state, action: PayloadAction<boolean>) {
             state.events.show_calendar_sidebar = action.payload
         },
+        setShowModal(state, action: PayloadAction<boolean>) {
+            state.events.show_modal = action.payload
+        },
     },
 })
 
@@ -119,6 +124,7 @@ export const {
     setEvents,
     setEventsFetchStatus,
     setShowCalendarSidebar,
+    setShowModal
 } = tasksPageSlice.actions
 
 export default tasksPageSlice.reducer

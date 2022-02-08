@@ -2,15 +2,16 @@ import React, { } from 'react'
 import styled from 'styled-components'
 import { NavbarPage } from '../../helpers/enums'
 import {
-    SHADOW_PRIMARY,
-    TASKS_BACKGROUND_GRADIENT,
-    TASKS_BACKROUND,
+    SHADOW_PRIMARY
 } from '../../helpers/styles'
 import NavbarElements from './NavbarElements'
+import NavbarFooter from './NavbarFooter'
 
 const NavbarContainer = styled.div`
+    display: flex;
+    flex-direction: column;
     flex: 0 0 275px;
-    background-image: linear-gradient(to bottom right, ${TASKS_BACKGROUND_GRADIENT}, ${TASKS_BACKROUND} 90%);
+    background: transparent;
     color: white;
     height: 100%;
     z-index: 1;
@@ -35,6 +36,7 @@ const Navbar = ({ currentPage }: NavbarProps): JSX.Element => (
     <NavbarContainer>
         <NavbarHeader />
         <NavbarElements currentPage={currentPage} />
+        <NavbarFooter />
     </NavbarContainer>
 )
 
