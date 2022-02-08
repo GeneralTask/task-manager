@@ -38,9 +38,9 @@ type TaskResult struct {
 
 type TaskSection struct {
 	ID     primitive.ObjectID `json:"id"`
-	IsDone bool               `json:"is_done"`
 	Name   string             `json:"name"`
 	Tasks  []*TaskResult      `json:"tasks"`
+	IsDone bool               `json:"is_done"`
 }
 
 type TaskGroupType string
@@ -236,9 +236,10 @@ func MergeTasks(
 			Tasks: backlogTasks,
 		},
 		{
-			ID:    constants.IDTaskSectionDone,
-			Name:  TaskSectionNameDone,
-			Tasks: completedTaskResults,
+			ID:     constants.IDTaskSectionDone,
+			Name:   TaskSectionNameDone,
+			Tasks:  completedTaskResults,
+			IsDone: true,
 		},
 	}, nil
 }
