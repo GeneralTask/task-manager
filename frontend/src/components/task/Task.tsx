@@ -6,9 +6,11 @@ import { Indices, ItemTypes } from '../../helpers/types'
 import React from 'react'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
-import { useAppSelector } from '../../redux/hooks'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { useDrag } from 'react-dnd'
 import TaskHeader from './header/Header'
+import { useClickOutside } from '../../helpers/utils'
+import { collapseBody } from '../../redux/tasksPageSlice'
 
 interface Props {
     task: TTask
@@ -19,6 +21,7 @@ interface Props {
 }
 
 export default function Task(props: Props): JSX.Element {
+    const dispatch = useAppDispatch()
     const { task, dragDisabled, isOver, dropDirection } = props
     const { isBodyExpanded } = useAppSelector((state) => ({
         isBodyExpanded: state.tasks_page.tasks.expanded_body === task.id,
@@ -35,10 +38,15 @@ export default function Task(props: Props): JSX.Element {
         },
     }))
 
+    const containerRef = React.useRef<HTMLDivElement>(null)
+    useClickOutside(containerRef, () => {
+        isBodyExpanded && dispatch(collapseBody())
+    })
+
     return (
         <DraggableContainer ref={dragPreview}>
             <DropIndicatorAbove isVisible={isOver && dropDirection} />
-            <TaskContainer opacity={opacity} isExpanded={isBodyExpanded}>
+            <TaskContainer opacity={opacity} isExpanded={isBodyExpanded} ref={containerRef}>
                 <TaskHeader task={task} dragDisabled={dragDisabled} isExpanded={isBodyExpanded} ref={drag} />
                 <TaskBody task={task} isExpanded={isBodyExpanded} />
             </TaskContainer>
