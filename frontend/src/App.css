@@ -11,13 +11,6 @@ body,
     height: 100%;
 }
 
-#modal-root {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 9999;
-}
-
 body {
     font-family: 'Ellipsis', 'Gothic A1', sans-serif;
 }
