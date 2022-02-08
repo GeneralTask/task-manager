@@ -170,6 +170,7 @@ func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db
 				Body:            "",
 				SourceAccountID: external.GeneralTaskDefaultAccountID,
 			},
+			TaskType: database.TaskType{IsTask: true},
 		}
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
