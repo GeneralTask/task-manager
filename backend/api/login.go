@@ -110,6 +110,13 @@ func (api *API) LoginCallback(c *gin.Context) {
 		return
 	}
 
+	if userIsNew != nil && *userIsNew {
+		err = createNewUserTasks(parentCtx, userID, db)
+		if err != nil {
+			log.Printf("failed to create starter tasks: %v", err)
+		}
+	}
+
 	lowerEmail := strings.ToLower(*email)
 	waitlistCollection := database.GetWaitlistCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -127,13 +134,6 @@ func (api *API) LoginCallback(c *gin.Context) {
 	if _, contains := constants.ALLOWED_USERNAMES[lowerEmail]; !contains && !isGTUser && count == 0 {
 		c.JSON(403, gin.H{"detail": "email has not been approved."})
 		return
-	}
-
-	if userIsNew != nil && *userIsNew {
-		err = createNewUserTasks(parentCtx, userID, db)
-		if err != nil {
-			log.Printf("failed to create new tasks: %v", err)
-		}
 	}
 
 	internalToken := guuid.New().String()
