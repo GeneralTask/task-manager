@@ -192,8 +192,10 @@ func MergeTasks(
 		return []*TaskSection{}, err
 	}
 	completedTaskResults := []*TaskResult{}
-	for _, task := range *completedTasks {
-		completedTaskResults = append(completedTaskResults, taskBaseToTaskResult(&task.TaskBase))
+	for index, task := range *completedTasks {
+		taskResult := taskBaseToTaskResult(&task.TaskBase)
+		taskResult.IDOrdering = index + 1
+		completedTaskResults = append(completedTaskResults, taskResult)
 	}
 
 	sort.SliceStable(*fetchedTasks, func(i, j int) bool {
