@@ -4,14 +4,15 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
 import FeedbackModal from './FeedbackModal'
 import GeneralTaskModal from '../modal/GeneralTaskModal'
+import { ACCENT_MAIN, BLACK, GRAY_100, SHADOW_MISC_2, WHITE } from '../../helpers/styles'
 
 const FeedbackButtonContainer = styled.button<{ white?: boolean }>`
     position: relative;
-    color: ${(props) => props.white ? 'black' : 'white'};
-    background-color: ${(props) => props.white ? 'white' : '#5C31D7'};
-    border: ${(props) => props.white ? ' 1px solid #F4F4F5;' : 'none'};
+    color: ${(props) => props.white ? BLACK : WHITE};
+    background-color: ${(props) => props.white ? WHITE : ACCENT_MAIN};
+    border: ${(props) => props.white ? `1px solid ${GRAY_100};` : 'none'};
 	cursor: pointer;
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.07);
+    box-shadow: ${SHADOW_MISC_2};
     border-radius: 12px;
     padding: 8px 14px;
     font-family: Switzer-Variable;

@@ -1,5 +1,6 @@
 import React from 'react'
 import Modal from 'react-modal'
+import { MODAL_HEIGHT, MODAL_WIDTH, SHADOW_MISC_1, WHITE } from '../../helpers/styles'
 
 Modal.setAppElement('#root')
 
@@ -9,16 +10,16 @@ const MODAL_STYLE: Modal.Styles = {
     },
     content: {
         position: 'absolute',
-        width: '365px',
-        height: '418px',
+        width: MODAL_WIDTH,
+        height: MODAL_HEIGHT,
         marginLeft: 'auto',
         marginRight: 'auto',
         border: 'none',
-        backgroundColor: 'white',
+        backgroundColor: WHITE,
         overflow: 'auto',
         WebkitOverflowScrolling: 'touch',
         borderRadius: '12px',
-        boxShadow: '0px 4px 20px rgba(43, 43, 43, 0.08)',
+        boxShadow: SHADOW_MISC_1,
         top: '50%',
         transform: 'translateY(-75%)',
     }
