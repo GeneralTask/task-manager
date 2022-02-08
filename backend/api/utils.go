@@ -94,7 +94,6 @@ func LoggingMiddleware(c *gin.Context) {
 	}
 	defer dbCleanup()
 	eventType := "api_hit_" + c.Request.URL.Path
-	log.Println("event type:", eventType)
 	userID, exists := c.Get("user")
 	if !exists {
 		userID = primitive.NilObjectID
