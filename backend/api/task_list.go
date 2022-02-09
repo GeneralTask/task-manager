@@ -56,6 +56,7 @@ const (
 )
 
 func (api *API) TasksList(c *gin.Context) {
+	log.Println("TASK", 1)
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -64,12 +65,14 @@ func (api *API) TasksList(c *gin.Context) {
 	}
 
 	defer dbCleanup()
+	log.Println("TASK", 2)
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := database.GetUserCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
+	log.Println("TASK", 3)
 
 	if err != nil {
 		log.Printf("failed to find user: %v", err)
@@ -84,9 +87,11 @@ func (api *API) TasksList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	log.Println("TASK", 4)
 
 	var fetchedTasks *[]*database.Item
 	if fastRefresh {
+		log.Println("TASK", 5)
 		// this is a temporary hack to trick MergeTasks into thinking we fetched these tasks
 		fakeFetchedTasks := []*database.Item{}
 		for _, item := range *currentTasks {
@@ -94,7 +99,9 @@ func (api *API) TasksList(c *gin.Context) {
 			fakeFetchedTasks = append(fakeFetchedTasks, &task)
 		}
 		fetchedTasks = &fakeFetchedTasks
+		log.Println("TASK", 6)
 	} else {
+		log.Println("TASK", 7)
 		fetchedTasks, err = api.fetchTasks(parentCtx, db, userID)
 		if err != nil {
 			Handle500(c)
@@ -110,6 +117,7 @@ func (api *API) TasksList(c *gin.Context) {
 		if err != nil {
 			log.Printf("failed to update user last_refreshed: %v", err)
 		}
+		log.Println("TASK", 8)
 	}
 
 	allTasks, err := MergeTasks(
@@ -122,6 +130,7 @@ func (api *API) TasksList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	log.Println("TASK", 14)
 	c.JSON(200, allTasks)
 }
 
@@ -183,15 +192,18 @@ func MergeTasks(
 	fetchedTasks *[]*database.Item,
 	userID primitive.ObjectID,
 ) ([]*TaskSection, error) {
+	log.Println("TASK", 9)
 	err := adjustForCompletedTasks(db, currentTasks, fetchedTasks)
 	if err != nil {
 		return []*TaskSection{}, err
 	}
 
+	log.Println("TASK", 10)
 	completedTasks, err := database.GetCompletedTasks(db, userID)
 	if err != nil {
 		return []*TaskSection{}, err
 	}
+	log.Println("TASK", 11)
 	completedTaskResults := []*TaskResult{}
 	for index, task := range *completedTasks {
 		taskResult := taskBaseToTaskResult(&task.TaskBase)
@@ -204,6 +216,7 @@ func MergeTasks(
 		b := (*fetchedTasks)[j]
 		return a.IDOrdering < b.IDOrdering
 	})
+	log.Println("TASK", 12)
 
 	blockedTasks, backlogTasks, todayTasks := extractSectionTasksV2(fetchedTasks)
 
