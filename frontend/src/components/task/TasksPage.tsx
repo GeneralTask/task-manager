@@ -95,6 +95,8 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
                 return [task_sections[1], 'Blocked', 1]
             case NavbarPage.BACKLOG_PAGE:
                 return [task_sections[2], 'Backlog', 2]
+            case NavbarPage.DONE_PAGE:
+                return [task_sections[3], 'Done', 3]
             default:
                 return [task_sections[0], 'Today', 0]
         }

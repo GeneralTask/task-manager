@@ -105,6 +105,18 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
                 ),
             },
             {
+                page: NavbarPage.DONE_PAGE,
+                action: (
+                    <NavbarLink to={'/tasks/done'}>
+                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/tasks.svg`} />
+                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.DONE_PAGE}>
+                            Done
+                        </NavbarLinkButton>
+                        <NavbarItemCount page={NavbarPage.DONE_PAGE} />
+                    </NavbarLink>
+                ),
+            },
+            {
                 page: NavbarPage.MESSAGES_PAGE,
                 action: (
                     <NavbarLink to={MESSAGES_PATH}>
