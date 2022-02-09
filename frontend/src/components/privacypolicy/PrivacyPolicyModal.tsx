@@ -81,6 +81,7 @@ export const PPButton = (): JSX.Element => {
             {showModal === ModalEnum.PRIVACY_POLICY &&
                 <GeneralTaskModal
                     render={<PrivacyPolicyModal />}
+                    canClickOutside={false}
                     showModal={true}
                     afterModalOpen={afterModalOpen}
                     afterModalClose={afterModalClose}

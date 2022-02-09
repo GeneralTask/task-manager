@@ -43,6 +43,7 @@ const FeedbackButton = (): JSX.Element => {
             {showModal === ModalEnum.FEEDBACK &&
                 <GeneralTaskModal
                     render={<FeedbackModal />}
+                    canClickOutside={true}
                     showModal={true}
                     afterModalOpen={afterModalOpen}
                     afterModalClose={afterModalClose}
