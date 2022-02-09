@@ -193,6 +193,62 @@ func GetActiveEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Item, er
 	return &activeEmails, nil
 }
 
+func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
+	parentCtx := context.Background()
+
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{Key: "completed_at", Value: -1}, {Key: "_id", Value: -1}})
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := GetTaskCollection(db).Find(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_completed": true},
+				{"task_type.is_task": true},
+			},
+		},
+		findOptions,
+	)
+	if err != nil {
+		log.Printf("Failed to fetch tasks for user: %v", err)
+		return nil, err
+	}
+	var tasks []Item
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &tasks)
+	if err != nil {
+		log.Printf("Failed to fetch tasks for user: %v", err)
+		return nil, err
+	}
+	return &tasks, nil
+}
+
+func MarkItemComplete(db *mongo.Database, itemID primitive.ObjectID) error {
+	parentCtx := context.Background()
+	tasksCollection := GetTaskCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	res, err := tasksCollection.UpdateOne(
+		dbCtx,
+		bson.M{"_id": itemID},
+		bson.M{"$set": bson.M{
+			"is_completed": true,
+			"completed_at": primitive.NewDateTimeFromTime(time.Now()),
+		}},
+	)
+	if err != nil {
+		return err
+	}
+	if res.MatchedCount != 1 {
+		return errors.New("did not find item to mark complete")
+	}
+	return nil
+}
+
 func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 	parentCtx := context.Background()
 	var userObject User

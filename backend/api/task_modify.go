@@ -92,11 +92,13 @@ func (api *API) TaskModify(c *gin.Context) {
 		}
 	}
 	// handle mark complete
-	if modifyParams.IsCompleted != nil {
+	if modifyParams.IsCompleted != nil && *modifyParams.IsCompleted {
 		err = MarkTaskComplete(api, c, taskID, userID, task, *modifyParams.IsCompleted)
 		if err != nil {
 			return
 		}
+	}
+	if modifyParams.IsCompleted != nil && !*modifyParams.IsCompleted {
 		updateTaskInDB = true
 	}
 
@@ -210,10 +212,6 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 }
 
 func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, task *database.Item, isCompleted bool) error {
-	if !isCompleted {
-		c.JSON(400, gin.H{"detail": "tasks can only be marked as complete."})
-		return errors.New("tasks can only be marked as complete")
-	}
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
 	if err != nil {
 		log.Printf("failed to load external task source: %v", err)
@@ -233,7 +231,14 @@ func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userI
 		return err
 	}
 
-	return nil
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return err
+	}
+	defer dbCleanup()
+
+	return database.MarkItemComplete(db, taskID)
 }
 
 func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields, task *database.Item) {

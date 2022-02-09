@@ -34,12 +34,14 @@ type TaskResult struct {
 	DueDate        string             `json:"due_date"`
 	TimeAllocation int64              `json:"time_allocated"`
 	SentAt         string             `json:"sent_at"`
+	IsDone         bool               `json:"is_done"`
 }
 
 type TaskSection struct {
-	ID    primitive.ObjectID `json:"id"`
-	Name  string             `json:"name"`
-	Tasks []*TaskResult      `json:"tasks"`
+	ID     primitive.ObjectID `json:"id"`
+	Name   string             `json:"name"`
+	Tasks  []*TaskResult      `json:"tasks"`
+	IsDone bool               `json:"is_done"`
 }
 
 type TaskGroupType string
@@ -50,6 +52,7 @@ const (
 	TaskSectionNameToday   string        = "Today"
 	TaskSectionNameBlocked string        = "Blocked"
 	TaskSectionNameBacklog string        = "Backlog"
+	TaskSectionNameDone    string        = "Done"
 )
 
 func (api *API) TasksList(c *gin.Context) {
@@ -185,6 +188,17 @@ func MergeTasks(
 		return []*TaskSection{}, err
 	}
 
+	completedTasks, err := database.GetCompletedTasks(db, userID)
+	if err != nil {
+		return []*TaskSection{}, err
+	}
+	completedTaskResults := []*TaskResult{}
+	for index, task := range *completedTasks {
+		taskResult := taskBaseToTaskResult(&task.TaskBase)
+		taskResult.IDOrdering = index + 1
+		completedTaskResults = append(completedTaskResults, taskResult)
+	}
+
 	sort.SliceStable(*fetchedTasks, func(i, j int) bool {
 		a := (*fetchedTasks)[i]
 		b := (*fetchedTasks)[j]
@@ -224,6 +238,12 @@ func MergeTasks(
 			Name:  TaskSectionNameBacklog,
 			Tasks: backlogTasks,
 		},
+		{
+			ID:     constants.IDTaskSectionDone,
+			Name:   TaskSectionNameDone,
+			Tasks:  completedTaskResults,
+			IsDone: true,
+		},
 	}, nil
 }
 
@@ -251,8 +271,6 @@ func adjustForCompletedTasks(
 	fetchedTasks *[]*database.Item,
 ) error {
 	// decrements IDOrdering for tasks behind newly completed tasks
-	parentCtx := context.Background()
-	tasksCollection := database.GetTaskCollection(db)
 	var newTasks []*database.TaskBase
 	newTaskIDs := make(map[primitive.ObjectID]bool)
 	for _, fetchedTask := range *fetchedTasks {
@@ -263,19 +281,10 @@ func adjustForCompletedTasks(
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
 		if !newTaskIDs[currentTask.ID] {
-			dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-			defer cancel()
-			res, err := tasksCollection.UpdateOne(
-				dbCtx,
-				bson.M{"_id": currentTask.ID},
-				bson.M{"$set": bson.M{"is_completed": true}},
-			)
+			err := database.MarkItemComplete(db, currentTask.ID)
 			if err != nil {
 				log.Printf("failed to update task ordering ID: %v", err)
 				return err
-			}
-			if res.MatchedCount != 1 {
-				log.Printf("did not find task to mark completed (ID=%v)", currentTask.ID)
 			}
 			for _, newTask := range newTasks {
 				if newTask.IDOrdering > currentTask.IDOrdering {
@@ -337,5 +346,6 @@ func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 		Sender:         t.Sender,
 		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
 		DueDate:        dueDate,
+		IsDone:         t.IsCompleted,
 	}
 }
