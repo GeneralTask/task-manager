@@ -182,7 +182,7 @@ var TaskServiceAtlassian = TaskServiceDetails{
 	Name:         "Atlassian",
 	Logo:         "/images/jira.svg",
 	AuthType:     AuthTypeOauth2,
-	IsLinkable:   true,
+	IsLinkable:   false,
 	IsSignupable: false,
 }
 var TaskServiceGeneralTask = TaskServiceDetails{
@@ -198,7 +198,7 @@ var TaskServiceGithub = TaskServiceDetails{
 	Name:         "Github",
 	Logo:         "/images/github.svg",
 	AuthType:     AuthTypeOauth2,
-	IsLinkable:   true,
+	IsLinkable:   false,
 	IsSignupable: false,
 }
 var TaskServiceGoogle = TaskServiceDetails{
