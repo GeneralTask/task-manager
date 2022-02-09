@@ -146,11 +146,8 @@ const LabelAction = ({ task }: LabelActionProps): JSX.Element => {
 
 interface HeaderActionsProps {
     isOver: boolean,
-    isExpanded: boolean
-    taskId: string
     task: TTask
-    timeAllocated: number,
-    dueDate: string
+    isExpanded: boolean
 }
 const HeaderActions = (props: HeaderActionsProps) => {
     let actions: {
@@ -160,18 +157,26 @@ const HeaderActions = (props: HeaderActionsProps) => {
 
     if (props.isOver || props.isExpanded) {
         actions = [
-            { key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.taskId} timeAllocated={props.timeAllocated} /> },
-            { key: 'S', component: <DueDateAction taskId={props.taskId} dueDate={props.dueDate} /> },
-            { key: 'L', component: <LabelAction task={props.task} /> },
-            { key: 'Enter', component: <ExpandAction isExpanded={props.isExpanded} taskId={props.taskId} /> },
+            { key: 'Enter', component: <ExpandAction isExpanded={props.isExpanded} taskId={props.task.id} /> },
+            ...actions
+        ]
+        if (!props.task.is_done) {
+            actions = [
+                { key: 'L', component: <LabelAction task={props.task} /> },
+                ...actions]
+        }
+        actions = [
+            { key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.task.id} timeAllocated={props.task.time_allocated} /> },
+            { key: 'S', component: <DueDateAction taskId={props.task.id} dueDate={props.task.due_date} /> },
             ...actions]
+
     }
     else {
-        if (props.dueDate !== '') {
-            actions = [{ key: 'S', component: <DueDateAction taskId={props.taskId} dueDate={props.dueDate} /> }, ...actions]
+        if (props.task.due_date !== '') {
+            actions = [{ key: 'S', component: <DueDateAction taskId={props.task.id} dueDate={props.task.due_date} /> }, ...actions]
         }
-        if (props.timeAllocated < DEFAULT_ALLOCATION && props.timeAllocated !== 0) {
-            actions = [{ key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.taskId} timeAllocated={props.timeAllocated} /> }, ...actions]
+        if (props.task.time_allocated < DEFAULT_ALLOCATION && props.task.time_allocated !== 0) {
+            actions = [{ key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.task.id} timeAllocated={props.task.time_allocated} /> }, ...actions]
         }
     }
 
