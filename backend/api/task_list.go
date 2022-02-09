@@ -335,6 +335,7 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 }
 
 func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
+	start := time.Now().UnixMicro()
 	// Normally we need to use api.ExternalConfig but we are just using the source details constants here
 	taskSourceResult, _ := external.GetConfig().GetTaskSourceResult(t.SourceID)
 	var dueDate string
@@ -343,7 +344,8 @@ func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 	} else {
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
-	return &TaskResult{
+	start2 := time.Now().UnixMicro()
+	res := &TaskResult{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
 		Source: TaskSource{
@@ -361,4 +363,7 @@ func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 		DueDate:        dueDate,
 		IsDone:         t.IsCompleted,
 	}
+	log.Println("elapsed:", time.Now().UnixMicro()-start)
+	log.Println("elapsed 2:", time.Now().UnixMicro()-start2)
+	return res
 }
