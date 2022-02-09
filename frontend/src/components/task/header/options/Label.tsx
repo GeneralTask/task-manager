@@ -43,6 +43,7 @@ export default function Label({ task }: LabelProps): JSX.Element {
                                 const patchBody = JSON.stringify({
                                     id_task_section: newSection.id,
                                     id_ordering: newTaskSections[newSectionIndex].tasks[0].id_ordering,
+                                    is_completed: false,
                                 })
 
                                 makeAuthorizedRequest({

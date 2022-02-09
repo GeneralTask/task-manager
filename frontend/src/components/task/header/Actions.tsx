@@ -157,18 +157,12 @@ const HeaderActions = (props: HeaderActionsProps) => {
 
     if (props.isOver || props.isExpanded) {
         actions = [
+            { key: 'S', component: <DueDateAction taskId={props.task.id} dueDate={props.task.due_date} /> },
+            { key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.task.id} timeAllocated={props.task.time_allocated} /> },
+            { key: 'L', component: <LabelAction task={props.task} /> },
             { key: 'Enter', component: <ExpandAction isExpanded={props.isExpanded} taskId={props.task.id} /> },
             ...actions
         ]
-        if (!props.task.is_done) {
-            actions = [
-                { key: 'L', component: <LabelAction task={props.task} /> },
-                ...actions]
-        }
-        actions = [
-            { key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.task.id} timeAllocated={props.task.time_allocated} /> },
-            { key: 'S', component: <DueDateAction taskId={props.task.id} dueDate={props.task.due_date} /> },
-            ...actions]
 
     }
     else {
