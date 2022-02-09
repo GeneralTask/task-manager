@@ -111,6 +111,6 @@ func (github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 	return nil
 }
 
-func (github GithubService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
-	return primitive.NilObjectID, nil, errors.New("github does not support signup")
+func (github GithubService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
+	return primitive.NilObjectID, nil, nil, errors.New("github does not support signup")
 }

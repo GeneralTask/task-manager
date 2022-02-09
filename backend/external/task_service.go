@@ -8,7 +8,7 @@ type TaskService interface {
 	GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error)
 	GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error)
 	HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error
-	HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error)
+	HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error)
 }
 
 type CallbackParams struct {

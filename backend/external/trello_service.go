@@ -122,6 +122,6 @@ func (trello TrelloService) HandleLinkCallback(params CallbackParams, userID pri
 	return nil
 }
 
-func (trello TrelloService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
-	return primitive.NilObjectID, nil, errors.New("trello does not support signup")
+func (trello TrelloService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
+	return primitive.NilObjectID, nil, nil, errors.New("trello does not support signup")
 }

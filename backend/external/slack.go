@@ -87,8 +87,8 @@ func (slack SlackService) HandleLinkCallback(params CallbackParams, userID primi
 	return nil
 }
 
-func (slack SlackService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
-	return primitive.NilObjectID, nil, errors.New("slack does not support signup")
+func (slack SlackService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
+	return primitive.NilObjectID, nil, nil, errors.New("slack does not support signup")
 }
 
 func (slack SlackService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {

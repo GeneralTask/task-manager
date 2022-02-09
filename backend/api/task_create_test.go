@@ -64,7 +64,7 @@ func TestCreateTask(t *testing.T) {
 		// this currently isn't possible because only GT tasks are supported, but we should add this when it's possible
 	})
 	t.Run("SuccessTitleOnly", func(t *testing.T) {
-		authToken := login("create_task_success_title_only@generaltask.com", "")
+		authToken = login("create_task_success_title_only@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		request, _ := http.NewRequest(
@@ -78,8 +78,8 @@ func TestCreateTask(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(*tasks))
-		task := (*tasks)[0]
+		assert.Equal(t, 4, len(*tasks))
+		task := (*tasks)[3]
 		assert.Equal(t, "buy more dogecoin", task.Title)
 		assert.Equal(t, "", task.Body)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
@@ -88,7 +88,7 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
 	})
 	t.Run("Success", func(t *testing.T) {
-		authToken := login("create_task_success@generaltask.com", "")
+		authToken = login("create_task_success@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		request, _ := http.NewRequest(
@@ -102,8 +102,8 @@ func TestCreateTask(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(*tasks))
-		task := (*tasks)[0]
+		assert.Equal(t, 4, len(*tasks))
+		task := (*tasks)[3]
 		assert.Equal(t, "buy more dogecoin", task.Title)
 		assert.Equal(t, "seriously!", task.Body)
 		assert.Equal(t, int64(300000000000), task.TimeAllocation)
