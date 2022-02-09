@@ -27,7 +27,7 @@ export default function Label({ task }: LabelProps): JSX.Element {
             <LabelHeader>Edit Label</LabelHeader>
             {
                 taskSections.map((newSection, newSectionIndex) => {
-                    if (newSectionIndex === currentTaskSectionIndex) return
+                    if (newSectionIndex === currentTaskSectionIndex || taskSections[newSectionIndex].is_done) return
                     return (
                         <LabelOption key={newSectionIndex} onClick={
                             (e) => {

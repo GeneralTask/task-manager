@@ -6,8 +6,8 @@ export const DoneButtonContainer = styled.div`
 `
 export const DoneButton = styled.img`
   display: block;
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
   flex: none;
   order: 0;
   flex-grow: 0;
@@ -118,7 +118,6 @@ export const DragHandler = styled.div`
     display: flex;
     align-items: center;
     cursor: move;
-    margin-right: 4px;
     height: 40%;
     display: inline;
 `

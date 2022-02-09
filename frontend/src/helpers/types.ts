@@ -24,6 +24,7 @@ export interface TTask {
     due_date: string
     source: TTaskSource
     sender: string
+    is_done: boolean
 }
 
 export interface TMessageSource {
@@ -59,6 +60,7 @@ export interface TTaskSection {
     id: string
     name: string
     tasks: TTask[]
+    is_done: boolean
 }
 
 export interface TSettingChoice {
