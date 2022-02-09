@@ -99,6 +99,27 @@ func TestLoggingMiddleware(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 	})
+	t.Run("DoesntRecordForLogEndpoint", func(t *testing.T) {
+		router := GetRouter(GetAPI())
+
+		request, _ := http.NewRequest("POST", "/log_events/", nil)
+		request.Header.Add("Authorization", authToken)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
+		defer dbCleanup()
+		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+		defer cancel()
+		count, err := database.GetLogEventsCollection(db).CountDocuments(
+			dbCtx,
+			bson.M{"event_type": "api_hit_/log_events/"},
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(GetAPI())
 
