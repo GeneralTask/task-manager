@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/stretchr/testify/assert"
@@ -154,6 +155,9 @@ func TestMarkItemComplete(t *testing.T) {
 		updatedTask := (*tasks)[0]
 		assert.True(t, updatedTask.IsCompleted)
 		assert.NotEqual(t, task1.CompletedAt, updatedTask.CompletedAt)
+
+		// ensure timestamp advances enough to be different
+		time.Sleep(time.Millisecond)
 
 		MarkItemComplete(db, task1.ID)
 		tasks, err = GetCompletedTasks(db, userID)
