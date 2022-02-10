@@ -58,9 +58,9 @@ const ButtonContainer = styled.div`
     gap: 8px;
 `
 const ModalButton = styled.button<{ white?: boolean }>`
-    color: ${(props) => props.white ? BLACK : WHITE};
-    background-color: ${(props) => props.white ? WHITE : ACCENT_MAIN};
-    border: ${(props) => props.white ? ` 1px solid ${GRAY_100};` : 'none'};
+    color: ${(props) => (props.white ? BLACK : WHITE)};
+    background-color: ${(props) => (props.white ? WHITE : ACCENT_MAIN)};
+    border: ${(props) => (props.white ? ` 1px solid ${GRAY_100};` : 'none')};
     font: inherit;
     cursor: pointer;
     box-shadow: ${SHADOW_MISC_2};

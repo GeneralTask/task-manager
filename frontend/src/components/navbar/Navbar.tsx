@@ -1,9 +1,7 @@
-import React, { } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { NavbarPage } from '../../helpers/enums'
-import {
-    SHADOW_PRIMARY
-} from '../../helpers/styles'
+import { SHADOW_PRIMARY } from '../../helpers/styles'
 import NavbarElements from './NavbarElements'
 import NavbarFooter from './NavbarFooter'
 

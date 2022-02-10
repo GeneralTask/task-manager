@@ -9,9 +9,9 @@ const RelativeDiv = styled.div`
     height: fit-content;
     width: 100%;
 `
-const TooltipContainer = styled.div<{ show: boolean, direction: string }>`
+const TooltipContainer = styled.div<{ show: boolean; direction: string }>`
     --tooltip-spacing: 25px;
-    visibility: ${props => props.show ? 'visible' : 'hidden'};
+    visibility: ${(props) => (props.show ? 'visible' : 'hidden')};
     height: ${TOOLTIPS_HEIGHT};
     width: max-content;
     line-height: ${TOOLTIPS_HEIGHT};
@@ -27,30 +27,31 @@ const TooltipContainer = styled.div<{ show: boolean, direction: string }>`
     left: 50%;
     transform: translate(-50%, -50%);
     &::after {
-        content: "";
+        content: '';
         position: absolute;
-        ${props => props.direction === 'above' ? 'top: 100%' : 'bottom: 100%'};
+        ${(props) => (props.direction === 'above' ? 'top: 100%' : 'bottom: 100%')};
         left: 50%;
         margin-left: -5px;
         border-width: 5px;
         border-style: solid;
-        border-color: ${props => props.direction === 'above' ?
-        `${TOOLTIPS_BACKGROUND} transparent transparent transparent ` :
-        `transparent transparent ${TOOLTIPS_BACKGROUND} transparent `};
+        border-color: ${(props) =>
+            props.direction === 'above'
+                ? `${TOOLTIPS_BACKGROUND} transparent transparent transparent `
+                : `transparent transparent ${TOOLTIPS_BACKGROUND} transparent `};
         opacity: ${TOOLTIPS_OPACITY};
     }
-    ${props => props.direction === 'above' ?
-        'top: calc(var(--tooltip-spacing) * -1)' :
-        'top: calc(100% + var(--tooltip-spacing))'
-    };
+    ${(props) =>
+        props.direction === 'above'
+            ? 'top: calc(var(--tooltip-spacing) * -1)'
+            : 'top: calc(100% + var(--tooltip-spacing))'};
 `
 
 type Children = JSX.Element | JSX.Element[] | boolean | null | undefined | Element | Element[] | string | number
 
 interface TooltipProps {
-    children: Children | Children[],
-    text: string,
-    placement?: 'above' | 'below',
+    children: Children | Children[]
+    text: string
+    placement?: 'above' | 'below'
 }
 function Tooltip(props: TooltipProps): JSX.Element {
     const timeout = useRef<NodeJS.Timeout>()
@@ -62,13 +63,19 @@ function Tooltip(props: TooltipProps): JSX.Element {
         }, TOOLTIP_DELAY)
     }
     const hideToolTip = () => {
-        if (timeout.current) { clearTimeout(timeout.current) }
+        if (timeout.current) {
+            clearTimeout(timeout.current)
+        }
         setShow(false)
     }
-    return <RelativeDiv onMouseOver={showToolTip} onMouseOut={hideToolTip}>
-        {props.children}
-        <TooltipContainer show={show} direction={props.placement || 'above'} >{props.text}</TooltipContainer>
-    </RelativeDiv>
+    return (
+        <RelativeDiv onMouseOver={showToolTip} onMouseOut={hideToolTip}>
+            {props.children}
+            <TooltipContainer show={show} direction={props.placement || 'above'}>
+                {props.text}
+            </TooltipContainer>
+        </RelativeDiv>
+    )
 }
 
 export default Tooltip

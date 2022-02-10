@@ -43,7 +43,7 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                 <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay>
             </flex.flex>
             <flex.flex>
-                <Tooltip text="Today" placement='below' >
+                <Tooltip text="Today" placement="below">
                     <HoverButton onClick={() => setDate(new Date())}>
                         <Icon src={`${process.env.PUBLIC_URL}/images/CalendarBlank.svg`} alt="Today" />
                     </HoverButton>

@@ -65,7 +65,7 @@ export const MonthYearHeader = styled.div`
     font-size: 15px;
     color: ${TEXT_DARKGRAY};
 `
-export const HoverButton = styled.button<{ isToday: boolean, isSelected: boolean }>`
+export const HoverButton = styled.button<{ isToday: boolean; isSelected: boolean }>`
     height: 30px;
     width: 30px;
     cursor: pointer;
@@ -76,11 +76,11 @@ export const HoverButton = styled.button<{ isToday: boolean, isSelected: boolean
     border-radius: 50%;
     display: flex;
     &:hover {
-        background: ${props => props.isSelected ? '#5C31D7' : props.isToday ? '#FF000022' : ICON_HOVER};
+        background: ${(props) => (props.isSelected ? '#5C31D7' : props.isToday ? '#FF000022' : ICON_HOVER)};
     }
-    background: ${props => props.isSelected ? '#5C31D7' : props.isToday ? '#FF000022' : 'transparent'};
+    background: ${(props) => (props.isSelected ? '#5C31D7' : props.isToday ? '#FF000022' : 'transparent')};
 `
-export const DayLabel = styled.span<{ grayed: boolean, isSelected: boolean }>`
+export const DayLabel = styled.span<{ grayed: boolean; isSelected: boolean }>`
     position: static;
     width: 24px;
     height: 13px;
@@ -98,7 +98,7 @@ export const DayLabel = styled.span<{ grayed: boolean, isSelected: boolean }>`
     text-align: center;
     justify-content: center;
 
-    color: ${props => props.isSelected ? '#FFFFFF' : props.grayed ? TEXT_GRAY : TEXT_DARKGRAY};
+    color: ${(props) => (props.isSelected ? '#FFFFFF' : props.grayed ? TEXT_GRAY : TEXT_DARKGRAY)};
 `
 export const BottomDateView = styled.div`
     display: flex;

@@ -38,7 +38,6 @@ const TitleStyleExpanded = {
     height: 'auto',
 }
 
-
 interface EditableTaskTitleProps {
     task: TTask
     isExpanded: boolean
@@ -60,23 +59,23 @@ export const EditableTaskTitle = (props: EditableTaskTitleProps): JSX.Element =>
             method: 'PATCH',
             body: JSON.stringify({ title: title.current }),
         })
-            .then(response => {
+            .then((response) => {
                 if (!response.ok) {
                     throw new Error('PATCH /tasks/modify failed: ' + response.text())
                 }
             })
-            .catch(e => {
+            .catch((e) => {
                 console.log({ e })
             })
     }
 
     return (
         <ContentEditable
-            tagName='div'
+            tagName="div"
             style={props.isExpanded ? TitleStyleExpanded : TitleStyle}
             html={title.current}
             onKeyPress={handleKeyPress}
-            onChange={(e) => title.current = e.target.value}
+            onChange={(e) => (title.current = e.target.value)}
             onClick={(e) => props.isExpanded && e.stopPropagation()}
             onBlur={handleBlur}
             // to prevent inputs from triggering keyboard shortcuts
@@ -95,11 +94,11 @@ export const MessageTitle = (props: MessageTitleProps): JSX.Element => {
 
     return (
         <ContentEditable
-            tagName='div'
+            tagName="div"
             disabled={true}
             style={props.isExpanded ? TitleStyleExpanded : TitleStyle}
             html={title.current}
-            onChange={(e) => title.current = e.target.value}
+            onChange={(e) => (title.current = e.target.value)}
         />
     )
 }

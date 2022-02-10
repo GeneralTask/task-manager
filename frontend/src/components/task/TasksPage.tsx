@@ -3,11 +3,7 @@ import { Navigate, useParams } from 'react-router-dom'
 import React, { useCallback, useEffect } from 'react'
 import { MESSAGES_FETCH_INTERVAL, TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
-import {
-    setShowCalendarSidebar,
-    setTasks,
-    setTasksFetchStatus,
-} from '../../redux/tasksPageSlice'
+import { setShowCalendarSidebar, setTasks, setTasksFetchStatus } from '../../redux/tasksPageSlice'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import EventAlert from '../alert/EventAlert'
