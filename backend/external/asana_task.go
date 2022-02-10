@@ -119,6 +119,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task,
 			database.TaskChangeableFields{
 				Title:       &task.Title,
+				Body:        &task.Body,
 				DueDate:     task.DueDate,
 				IsCompleted: &isCompleted,
 			},
@@ -137,7 +138,9 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
-		log.Println("task:", task.IsCompleted, "db task:", dbTask.IsCompleted)
+		if dbTask.TimeAllocation != int64(0) {
+			task.TimeAllocation = dbTask.TimeAllocation
+		}
 		tasks = append(tasks, task)
 	}
 
