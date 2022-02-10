@@ -5,6 +5,7 @@ import { setShowModal } from '../../redux/tasksPageSlice'
 import FeedbackModal from './FeedbackModal'
 import GeneralTaskModal from '../modal/GeneralTaskModal'
 import { ACCENT_MAIN, BLACK, GRAY_100, SHADOW_MISC_2, WHITE } from '../../helpers/styles'
+import { ModalEnum } from '../../helpers/enums'
 
 const FeedbackButtonContainer = styled.button<{ white?: boolean }>`
     position: relative;
@@ -25,26 +26,29 @@ const FeedbackButtonContainer = styled.button<{ white?: boolean }>`
 `
 
 const FeedbackButton = (): JSX.Element => {
-    const { showModal } = useAppSelector((state) => ({ showModal: state.tasks_page.events.show_modal }))
+    const { showModal } = useAppSelector((state) => ({ showModal: state.tasks_page.modals.show_modal }))
     const dispatch = useAppDispatch()
     const clickHandler = () => {
-        dispatch(setShowModal(true))
+        dispatch(setShowModal(ModalEnum.FEEDBACK))
     }
     function afterModalOpen() {
-        dispatch(setShowModal(true))
+        dispatch(setShowModal(ModalEnum.FEEDBACK))
     }
     function afterModalClose() {
-        dispatch(setShowModal(false))
+        dispatch(setShowModal(ModalEnum.NONE))
     }
     return (
         <>
             <FeedbackButtonContainer onClick={clickHandler}>Share your feedback?</FeedbackButtonContainer>
-            <GeneralTaskModal
-                render={<FeedbackModal />}
-                showModal={showModal}
-                afterModalOpen={afterModalOpen}
-                afterModalClose={afterModalClose}
-            />
+            {showModal === ModalEnum.FEEDBACK &&
+                <GeneralTaskModal
+                    render={<FeedbackModal />}
+                    canClickOutside={true}
+                    showModal={true}
+                    afterModalOpen={afterModalOpen}
+                    afterModalClose={afterModalClose}
+                />
+            }
         </>
     )
 }

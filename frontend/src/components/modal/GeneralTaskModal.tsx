@@ -27,6 +27,7 @@ const MODAL_STYLE: Modal.Styles = {
 interface GeneralTaskModalProps {
     render: JSX.Element
     showModal: boolean
+    canClickOutside: boolean
     afterModalClose: () => void
     afterModalOpen: () => void
 }
@@ -46,6 +47,7 @@ const GeneralTaskModal = (props: GeneralTaskModalProps): JSX.Element => {
         <Modal
             style={MODAL_STYLE}
             isOpen={props.showModal}
+            shouldCloseOnOverlayClick={props.canClickOutside}
             onRequestClose={modalClose}
             onAfterOpen={modalOpen}
             onAfterClose={modalClose}

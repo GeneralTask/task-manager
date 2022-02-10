@@ -12,6 +12,12 @@ export enum AbortID {
     MESSAGES,
 }
 
+export enum ModalEnum {
+    NONE,
+    FEEDBACK,
+    PRIVACY_POLICY,
+}
+
 export enum LogEvents {
     TASK_CREATED = 'task_created',
     TASK_EXPANDED = 'task_expanded',
