@@ -7,6 +7,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/slack"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -49,6 +50,10 @@ func (api *API) FeedbackAdd(c *gin.Context) {
 		log.Printf("failed to insert feedback item: %v", err)
 		Handle500(c)
 		return
+	}
+	err = slack.SendFeedbackMessage(params.Feedback)
+	if err != nil {
+		log.Printf("failed to send slack feedback message: %v", err)
 	}
 	c.JSON(201, gin.H{})
 }
