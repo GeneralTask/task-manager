@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { flex } from '../../helpers/styles'
 import { useAppDispatch } from '../../redux/hooks'
-import { setShowCalendarSidebar } from '../../redux/tasksPageSlice'
+import { setShowCalendarSidebar, setShowFullCalendar } from '../../redux/tasksPageSlice'
 import ExpandCollapse from '../common/ExpandCollapse'
 import Tooltip from '../common/Tooltip'
 import { CalendarHeaderContainer, HoverButton, Icon, DateDisplay } from './CalendarHeader-styles'
@@ -55,7 +55,7 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                     </HoverButton>
                 </Tooltip>
                 <Tooltip text="Expand/Collapse" placement='below' >
-                    <HoverButton> {/* TODO: Onclick expand/collapse full-width calendar */}
+                    <HoverButton onClick={() => dispatch(setShowFullCalendar(true))}>
                         <Icon src={`${process.env.PUBLIC_URL}/images/ArrowsOutSimple.svg`} alt="Expand/Collapse" />
                     </HoverButton>
                 </Tooltip>
