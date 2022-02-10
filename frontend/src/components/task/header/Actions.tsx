@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks'
 import { BACKGROUND_HOVER } from '../../../helpers/styles'
 import DatePicker from './options/DatePicker'
 import { Duration } from 'luxon'
+import { InvisibleKeyboardShortcut } from '../../common/KeyboardShortcut'
 import Label from './options/Label'
 import React from 'react'
 import { TTask } from '../../../helpers/types'
@@ -35,18 +36,21 @@ const Action = styled.div`
 interface ExpandActionProps {
     isExpanded: boolean,
     taskId: string,
+    isSelected: boolean,
 }
-const ExpandAction = ({ isExpanded, taskId }: ExpandActionProps): JSX.Element => {
+const ExpandAction = ({ isExpanded, taskId, isSelected }: ExpandActionProps): JSX.Element => {
     const dispatch = useAppDispatch()
+    const toggleExpand = () => dispatch(isExpanded ? collapseBody() : expandBody(taskId))
     const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
-        dispatch(isExpanded ? collapseBody() : expandBody(taskId))
+        toggleExpand()
     }
     return (
         <Tooltip text={'Expand/Collapse'}>
             <Action onClick={onClick}>
                 <ButtonIcon src={EXPAND_ICON} alt="expand" />
             </Action>
+            {isSelected && <InvisibleKeyboardShortcut shortcut='Enter' onKeyPress={toggleExpand} />}
         </Tooltip>
     )
 }
@@ -55,8 +59,9 @@ interface TimeEstimateActionProps {
     sourceName: string,
     taskId: string,
     timeAllocated: number,
+    isSelected: boolean,
 }
-const TimeEstimateAction = ({ sourceName, taskId, timeAllocated }: TimeEstimateActionProps): JSX.Element => {
+const TimeEstimateAction = ({ sourceName, taskId, timeAllocated, isSelected }: TimeEstimateActionProps): JSX.Element => {
     if (sourceName !== 'General Task') return <></>
     const dispatch = useAppDispatch()
 
@@ -64,9 +69,10 @@ const TimeEstimateAction = ({ sourceName, taskId, timeAllocated }: TimeEstimateA
     const time_allocated_millis = isNaN(timeAllocated) ? 0 : timeAllocated
     const time_allocated = Duration.fromMillis(time_allocated_millis / 1000).shiftTo('hours', 'minutes')
 
+    const toggleTimeEstimate = () => dispatch(timeEstimate === taskId ? hideTimeEstimate() : showTimeEstimate(taskId))
     const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
-        dispatch(timeEstimate === taskId ? hideTimeEstimate() : showTimeEstimate(taskId))
+        toggleTimeEstimate()
     }
     const timeEstimateView = (timeAllocated >= DEFAULT_ALLOCATION || timeAllocated === 0) ?
         <ButtonIcon src={TIME_ICON} alt="time estimate" /> :
@@ -80,6 +86,7 @@ const TimeEstimateAction = ({ sourceName, taskId, timeAllocated }: TimeEstimateA
 
     return (
         <>
+            {isSelected && <InvisibleKeyboardShortcut shortcut='F' onKeyPress={toggleTimeEstimate} />}
             <Tooltip text={'Time Estimate'}>
                 <Action onClick={onClick}>
                     {timeEstimateView}
@@ -93,20 +100,23 @@ const TimeEstimateAction = ({ sourceName, taskId, timeAllocated }: TimeEstimateA
 interface DueDateActionProps {
     taskId: string,
     dueDate: string,
+    isSelected: boolean,
 }
-const DueDateAction = ({ taskId, dueDate }: DueDateActionProps): JSX.Element => {
+const DueDateAction = ({ taskId, dueDate, isSelected }: DueDateActionProps): JSX.Element => {
     const datePicker = useAppSelector((state) => state.tasks_page.tasks.date_picker)
     const simpleDueDate = new Date(new Date(dueDate).valueOf() + 86400000)
         .toLocaleDateString('default', { day: 'numeric', month: 'short' })
 
     const dispatch = useAppDispatch()
 
+    const toggleDatePicker = () => dispatch(datePicker === taskId ? hideDatePicker() : showDatePicker(taskId))
     const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
-        dispatch(datePicker === taskId ? hideDatePicker() : showDatePicker(taskId))
+        toggleDatePicker()
     }
     return (
         <>
+            {isSelected && <InvisibleKeyboardShortcut shortcut='S' onKeyPress={toggleDatePicker} />}
             <Tooltip text={'Due Date'}>
                 <Action onClick={onClick}>
                     {
@@ -123,17 +133,20 @@ const DueDateAction = ({ taskId, dueDate }: DueDateActionProps): JSX.Element => 
 
 interface LabelActionProps {
     task: TTask,
+    isSelected: boolean,
 }
-const LabelAction = ({ task }: LabelActionProps): JSX.Element => {
+const LabelAction = ({ task, isSelected }: LabelActionProps): JSX.Element => {
     const labelSelector = useAppSelector((state) => state.tasks_page.tasks.label_selector)
     const dispatch = useAppDispatch()
 
+    const toggleLabelSelector = () => dispatch(labelSelector === task.id ? hideLabelSelector() : showLabelSelector(task.id))
     const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
-        dispatch(labelSelector === task.id ? hideLabelSelector() : showLabelSelector(task.id))
+        toggleLabelSelector()
     }
     return (
         <>
+            {isSelected && <InvisibleKeyboardShortcut shortcut='L' onKeyPress={toggleLabelSelector} />}
             <Tooltip text={'Label'}>
                 <Action onClick={onClick}>
                     <ButtonIcon src={LABEL_ICON} alt='label' />
@@ -148,41 +161,38 @@ interface HeaderActionsProps {
     isOver: boolean,
     task: TTask
     isExpanded: boolean
+    isSelected: boolean
 }
 const HeaderActions = (props: HeaderActionsProps) => {
-    let actions: {
-        key: string;
-        component: JSX.Element;
-    }[] = []
+    let actions: JSX.Element[] = []
 
-    if (props.isOver || props.isExpanded) {
+    if (props.isOver || props.isSelected) {
         actions = [
-            { key: 'S', component: <DueDateAction taskId={props.task.id} dueDate={props.task.due_date} /> },
-            { key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.task.id} timeAllocated={props.task.time_allocated} /> },
-            { key: 'L', component: <LabelAction task={props.task} /> },
-            { key: 'Enter', component: <ExpandAction isExpanded={props.isExpanded} taskId={props.task.id} /> },
-            ...actions
+            <TimeEstimateAction sourceName="General Task" taskId={props.task.id} timeAllocated={props.task.time_allocated} isSelected={props.isSelected} />,
+            <DueDateAction taskId={props.task.id} dueDate={props.task.due_date} isSelected={props.isSelected} />,
+            <LabelAction task={props.task} isSelected={props.isSelected} />,
+            <ExpandAction isExpanded={props.isExpanded} taskId={props.task.id} isSelected={props.isSelected} />,
         ]
-
     }
     else {
-        if (props.task.due_date !== '') {
-            actions = [{ key: 'S', component: <DueDateAction taskId={props.task.id} dueDate={props.task.due_date} /> }, ...actions]
-        }
         if (props.task.time_allocated < DEFAULT_ALLOCATION && props.task.time_allocated !== 0) {
-            actions = [{ key: 'F', component: <TimeEstimateAction sourceName="General Task" taskId={props.task.id} timeAllocated={props.task.time_allocated} /> }, ...actions]
+            actions.push(<TimeEstimateAction sourceName="General Task" taskId={props.task.id} timeAllocated={props.task.time_allocated} isSelected={props.isSelected} />)
+        }
+        if (props.task.due_date !== '') {
+            actions.push(<DueDateAction taskId={props.task.id} dueDate={props.task.due_date} isSelected={props.isSelected} />)
         }
     }
 
     return (
         <ActionContainer>
             {
-                actions.map(({ component }, index) => {
+                actions.map((component, index) => {
                     return <React.Fragment key={index}>{component}</React.Fragment>
                 })
             }
         </ActionContainer >
     )
 }
+
 
 export default HeaderActions

@@ -1,6 +1,7 @@
-import styled from 'styled-components'
 import { ICON_HOVER } from '../../helpers/styles'
 import React from 'react'
+import styled from 'styled-components'
+import { useKeyboardShortcut } from './KeyboardShortcut'
 
 export const HoverButton = styled.button`
     background-color: transparent;
@@ -27,6 +28,7 @@ interface Props {
     onClick: () => void
 }
 export default function ExpandCollapse({ direction, onClick }: Props): JSX.Element {
+    useKeyboardShortcut('c', onClick)
     return (
         <HoverButton onClick={onClick}>
             <Icon
