@@ -76,6 +76,12 @@ type TaskType struct {
 	IsEvent   bool `bson:"is_event,omitempty"`
 }
 
+type TaskTypeChangeable struct {
+	IsTask    *bool `bson:"is_task,omitempty"`
+	IsMessage *bool `bson:"is_message,omitempty"`
+	IsEvent   *bool `bson:"is_event,omitempty"`
+}
+
 // Task json & mongo model
 type TaskBase struct {
 	ID               primitive.ObjectID `bson:"_id,omitempty"`
@@ -133,7 +139,7 @@ type EmailChangeableFields struct {
 
 type MessageChangeableFields struct {
 	EmailChangeableFields `bson:"email,omitempty"`
-	TaskType              `bson:"task_type,omitempty"`
+	TaskType              *TaskTypeChangeable `bson:"task_type,omitempty"`
 }
 
 type Task struct {

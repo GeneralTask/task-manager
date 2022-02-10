@@ -63,7 +63,7 @@ func (api *API) MessageModify(c *gin.Context) {
 		return
 	}
 
-	// updateMessageInDB(api, c, taskID, userID, messageChangeableFields)
+	updateMessageInDB(api, c, taskID, userID, messageChangeableFields)
 
 	c.JSON(200, gin.H{})
 }
@@ -106,6 +106,7 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
+	log.Printf("updateFields, %+v", updateFields)
 	res, err := taskCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
@@ -120,7 +121,7 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 		return
 	}
 	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
-		log.Println("failed to update task", res)
+		log.Printf("failed to update task %+v", res)
 		Handle500(c)
 		return
 	}
@@ -129,7 +130,9 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 func messageModifyParamsToChangeableFields(modifyParams *messageModifyParams) *database.MessageChangeableFields {
 	var changeableFields database.MessageChangeableFields
 	if modifyParams.IsTask != nil {
-		changeableFields.IsTask = *modifyParams.IsTask
+		changeableFields.TaskType = &database.TaskTypeChangeable{
+			IsTask: modifyParams.IsTask,
+		}
 	}
 	if modifyParams.IsUnread != nil {
 		changeableFields.EmailChangeableFields.IsUnread = modifyParams.IsUnread
