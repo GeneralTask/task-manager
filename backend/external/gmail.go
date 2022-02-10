@@ -508,18 +508,41 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 		return err
 	}
 
-	labelToRemove := "UNREAD"
-
-	message, err := gmailService.Users.Messages.Modify(
-		"me",
-		emailID,
-		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{labelToRemove}},
-	).Do()
-	log.Println("resulting message:", message)
+	if updateFields.IsUnread != nil {
+		err = changeLabelOnMessage(gmailService, emailID, "UNREAD", *updateFields.IsUnread)
+	}
 
 	return err
 
 }
+
+func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToChange string, addLabel bool) error {
+	var modifyRequest gmail.ModifyMessageRequest
+	if addLabel {
+		modifyRequest.AddLabelIds = []string{labelToChange}
+	} else {
+		modifyRequest.RemoveLabelIds = []string{labelToChange}
+	}
+	message, err := gmailService.Users.Messages.Modify(
+		"me",
+		emailID,
+		&modifyRequest,
+	).Do()
+	log.Println("resulting message:", message)
+
+	return err
+}
+
+// func removeLabelFromMessage(gmailService *gmail.Service, emailID string, labelToRemove string) error {
+// 	message, err := gmailService.Users.Messages.Modify(
+// 		"me",
+// 		emailID,
+// 		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{labelToRemove}},
+// 	).Do()
+// 	log.Println("resulting message:", message)
+
+// 	return err
+// }
 
 func getGmailService(gmailSource GmailSource, ctx context.Context, client *http.Client) (*gmail.Service, error) {
 	var gmailService *gmail.Service

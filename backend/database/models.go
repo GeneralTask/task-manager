@@ -128,7 +128,7 @@ type Email struct {
 }
 
 type EmailChangeableFields struct {
-	IsRead bool `bson:"is_unread,omitempty"`
+	IsUnread *bool `bson:"is_unread,omitempty"`
 }
 
 type MessageChangeableFields struct {

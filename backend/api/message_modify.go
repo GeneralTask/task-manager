@@ -132,7 +132,7 @@ func messageModifyParamsToChangeableFields(modifyParams *messageModifyParams) *d
 		changeableFields.IsTask = *modifyParams.IsTask
 	}
 	if modifyParams.IsUnread != nil {
-		changeableFields.EmailChangeableFields.IsRead = !*modifyParams.IsUnread
+		changeableFields.EmailChangeableFields.IsUnread = modifyParams.IsUnread
 	}
 	return &changeableFields
 }
