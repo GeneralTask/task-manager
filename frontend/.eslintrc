@@ -4,7 +4,8 @@
     "rules": {
         "semi": ["error", "never"],
         "quotes": [2, "single"],
-        "unused-imports/no-unused-imports": "warn"
+        "unused-imports/no-unused-imports": "warn",
+        "avoidEscape": true
     },
     "extends": ["plugin:@typescript-eslint/recommended", "prettier"]
 }
