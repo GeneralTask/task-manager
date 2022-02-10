@@ -9,7 +9,16 @@ import { BORDER_PRIMARY, TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 import { TMessage } from '../../helpers/types'
 import { logEvent, makeAuthorizedRequest } from '../../helpers/utils'
 import GTButton from '../common/GTButton'
-import { Deeplink, EmailMessage, EmailSubjectHeader, EmailViewDiv, ExpandedBody, ReplyDiv, ReplyInputStyle, TaskBodyDiv } from '../task/TaskBody-style'
+import {
+    Deeplink,
+    EmailMessage,
+    EmailSubjectHeader,
+    EmailViewDiv,
+    ExpandedBody,
+    ReplyDiv,
+    ReplyInputStyle,
+    TaskBodyDiv,
+} from '../task/TaskBody-style'
 import { useFetchMessages } from './MessagesPage'
 
 interface EmailViewProps {
@@ -53,15 +62,15 @@ const Reply: React.FC<ReplyProps> = ({ message_id, sender, body, sent_at }: Repl
     return (
         <ReplyDiv>
             <ContentEditable
-                className='reply-input'
+                className="reply-input"
                 html={text}
                 style={ReplyInputStyle}
                 onChange={(e) => setText(e.target.value)}
             />
             <GTButton
-                theme='black'
-                height='42px'
-                width='5.5em'
+                theme="black"
+                height="42px"
+                width="5.5em"
                 onClick={async () => {
                     const response = await makeAuthorizedRequest({
                         url: MESSAGES_URL + 'reply/' + message_id + '/',
@@ -168,7 +177,7 @@ const MessageBody: React.FC<MessageBodyProps> = React.memo(({ message, isExpande
                                 See more in{' '}
                                 <a
                                     href={deeplink}
-                                    target='_blank'
+                                    target="_blank"
                                     onClick={() => {
                                         logEvent(LogEvents.MESSAGE_DEEPLINK_CLICKED)
                                     }}

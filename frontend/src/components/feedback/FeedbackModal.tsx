@@ -4,9 +4,16 @@ import { ModalEnum } from '../../helpers/enums'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import { useAppDispatch } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
-import { HeaderPrimary, HeaderSecondary, SectionHeader, ButtonContainer, ModalButton, ResponseContainer, ModalTextArea } from '../modal/ModalElements'
+import {
+    HeaderPrimary,
+    HeaderSecondary,
+    SectionHeader,
+    ButtonContainer,
+    ModalButton,
+    ResponseContainer,
+    ModalTextArea,
+} from '../modal/ModalElements'
 import { ModalContainer, FeedbackHeader } from './FeedbackModal-style'
-
 
 const FeedbackModal = (): JSX.Element => {
     const dispatch = useAppDispatch()
@@ -52,7 +59,9 @@ const FeedbackModal = (): JSX.Element => {
             </ResponseContainer>
             <ButtonContainer>
                 <ModalButton onClick={handleSubmit}>Send feedback</ModalButton>
-                <ModalButton white onClick={closeModal}>Cancel</ModalButton>
+                <ModalButton white onClick={closeModal}>
+                    Cancel
+                </ModalButton>
             </ButtonContainer>
         </ModalContainer>
     )

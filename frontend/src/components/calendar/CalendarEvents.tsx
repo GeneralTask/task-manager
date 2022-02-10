@@ -17,7 +17,6 @@ import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import CollisionGroupColumns from './CollisionGroupColumns'
 
-
 function CalendarTable(): JSX.Element {
     const hourElements = Array(24)
         .fill(0)
@@ -108,7 +107,9 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
 
     return (
         <EventsContainer ref={eventsContainerRef}>
-            {groups.map((group, index) => (<CollisionGroupColumns key={index} events={group} />))}
+            {groups.map((group, index) => (
+                <CollisionGroupColumns key={index} events={group} />
+            ))}
             {isToday && <TimeIndicator />}
             <CalendarTable />
         </EventsContainer>

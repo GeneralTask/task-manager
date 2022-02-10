@@ -2,83 +2,83 @@ import styled from 'styled-components'
 import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY } from '../../../helpers/styles'
 
 export const DoneButtonContainer = styled.div`
-  margin-left: 12px;
+    margin-left: 12px;
 `
 export const DoneButton = styled.img`
-  display: block;
-  width: 24px;
-  height: 24px;
-  flex: none;
-  order: 0;
-  flex-grow: 0;
-  cursor: pointer;
+    display: block;
+    width: 16px;
+    height: 16px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+    cursor: pointer;
 `
 export const ButtonRightContainer = styled.div`
-  margin-right: 9px;
+    margin-right: 9px;
 `
 export const ButtonRight = styled.div`
-  min-width: 20px;
-  height: 20px;
-  flex: none;
-  order: 0;
-  flex-grow: 0;
-  cursor: pointer;
-  &:hover {
-    background-color: ${BACKGROUND_HOVER};
-  }
-  border-radius: 7px;
+    min-width: 20px;
+    height: 20px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+    cursor: pointer;
+    &:hover {
+        background-color: ${BACKGROUND_HOVER};
+    }
+    border-radius: 7px;
 `
 export const ButtonIcon = styled.img`
-  width: 100%;
-  height: 100%;
-  display: block;
+    width: 100%;
+    height: 100%;
+    display: block;
 `
 export const DueDateButtonText = styled.div`
-  font-size: 12px;
-  font-weight: bold;
-  padding: 0 0.4em;
-  background-color: ${BACKGROUND_HOVER};
-  outline: 2px solid ${BACKGROUND_HOVER};
-  height: 100%;
-  border-radius: 7px;
-  line-height: 1.7em;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 0 0.4em;
+    background-color: ${BACKGROUND_HOVER};
+    outline: 2px solid ${BACKGROUND_HOVER};
+    height: 100%;
+    border-radius: 7px;
+    line-height: 1.7em;
 `
 export const TimeEstimateButtonText = styled.div`
-  font-size: 12px;
-  font-weight: bold;
-  padding: 0 0.4em;
-  position: static;
-  outline: 2px solid ${BACKGROUND_HOVER};
-  height: 100%;
-  border-radius: 7px;
-  line-height: 1.7em;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 0 0.4em;
+    position: static;
+    outline: 2px solid ${BACKGROUND_HOVER};
+    height: 100%;
+    border-radius: 7px;
+    line-height: 1.7em;
 `
-export const TaskHeaderContainer = styled(NoSelect) <{ showButtons: boolean }>`
-  position: relative;
-  font-size: 15px;
-  border-radius: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 50px;
+export const TaskHeaderContainer = styled(NoSelect)<{ showButtons: boolean }>`
+    position: relative;
+    font-size: 15px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 50px;
 `
 export const HeaderLeft = styled.div`
-  box-sizing: border-box;
-  text-align: left; 
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  flex-grow: 1;
-  min-width: 0;
+    box-sizing: border-box;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-grow: 1;
+    min-width: 0;
 `
 export const HeaderRight = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  justify-content: flex-end;
-  color:${TEXT_BLACK};
-  height: 100%;
-  flex: none;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: flex-end;
+    color: ${TEXT_BLACK};
+    height: 100%;
+    flex: none;
 `
 export const JoinConferenceButtonContainer = styled.div`
     margin-right: 10px;
@@ -118,7 +118,6 @@ export const DragHandler = styled.div`
     display: flex;
     align-items: center;
     cursor: move;
-    margin-right: 4px;
     height: 40%;
     display: inline;
 `
@@ -126,11 +125,15 @@ export const Icon = styled.img`
     max-width: 19px;
     margin-left: 8px;
 `
-export const Title = styled.div<{ isExpanded: boolean, isEditable: boolean }>`
-    &:focus,:hover {
-      ${({ isEditable }) => isEditable ? `
+export const Title = styled.div<{ isExpanded: boolean; isEditable: boolean }>`
+    &:focus,
+    :hover {
+        ${({ isEditable }) =>
+            isEditable
+                ? `
       outline: 1px dashed ${TEXT_GRAY};
-      ` : `
+      `
+                : `
       outline: none;`}
     }
     border: none;
@@ -143,12 +146,14 @@ export const Title = styled.div<{ isExpanded: boolean, isEditable: boolean }>`
     user-select: text;
     width: 100%;
     cursor: text;
-    ${({ isExpanded }) => isExpanded ? `
+    ${({ isExpanded }) =>
+        isExpanded
+            ? `
     word-wrap: break-word;
     min-width: 0px;
     margin: 10px 15px;
     height: auto;`
-    : `
+            : `
     white-space: nowrap;
     overflow: hidden;
     margin: 0 15px;

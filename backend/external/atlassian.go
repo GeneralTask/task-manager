@@ -165,8 +165,8 @@ func (atlassian AtlassianService) HandleLinkCallback(params CallbackParams, user
 	return nil
 }
 
-func (atlassian AtlassianService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *string, error) {
-	return primitive.NilObjectID, nil, errors.New("atlassian does not support signup")
+func (atlassian AtlassianService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
+	return primitive.NilObjectID, nil, nil, errors.New("atlassian does not support signup")
 }
 
 func (atlassian AtlassianService) getSites(token *oauth2.Token) *[]AtlassianSite {

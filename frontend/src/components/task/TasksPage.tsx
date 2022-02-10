@@ -3,11 +3,7 @@ import { Navigate, useParams } from 'react-router-dom'
 import React, { useCallback, useEffect } from 'react'
 import { MESSAGES_FETCH_INTERVAL, TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
-import {
-    setShowCalendarSidebar,
-    setTasks,
-    setTasksFetchStatus,
-} from '../../redux/tasksPageSlice'
+import { setShowCalendarSidebar, setTasks, setTasksFetchStatus } from '../../redux/tasksPageSlice'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import EventAlert from '../alert/EventAlert'
@@ -95,6 +91,8 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
                 return [task_sections[1], 'Blocked', 1]
             case NavbarPage.BACKLOG_PAGE:
                 return [task_sections[2], 'Backlog', 2]
+            case NavbarPage.DONE_PAGE:
+                return [task_sections[3], 'Done', 3]
             default:
                 return [task_sections[0], 'Today', 0]
         }

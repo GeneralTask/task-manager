@@ -36,7 +36,8 @@ export const GOOGLE_LIGHT_NORMAL = '/assets/google_signin_buttons/btn_google_sig
 //images
 export const CHEVRON_DOWN = '/images/chevron-arrow-down.svg'
 export const PLUS_ICON = '/images/plus.svg'
-export const DONE_BUTTON = '/images/CheckCircle.svg'
+export const DONE_BUTTON = '/images/CheckBox.svg'
+export const UNDONE_BUTTON = '/images/CheckSelected.svg'
 export const BLANK_CALENDAR_ICON = '/images/CalendarBlank.svg'
 export const LABEL_ICON = '/images/Label.svg'
 export const EXPAND_ICON = '/images/ArrowsOutSimple.svg'

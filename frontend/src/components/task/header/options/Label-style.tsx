@@ -34,7 +34,7 @@ export const LabelOption = styled.button`
     font-weight: normal;
     font-size: 14px;
     line-height: 20px;
-    color: #27272A;
+    color: #27272a;
 `
 export const LabelIcon = styled.img`
     margin-right: 5px;
@@ -48,6 +48,6 @@ export const LabelHeader = styled.div`
     line-height: 16px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #A1A1AA;
+    color: #a1a1aa;
     padding: 5px;
 `

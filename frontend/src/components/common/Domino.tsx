@@ -23,7 +23,9 @@ function Domino(): JSX.Element {
         <DominoContainer data-testid="domino-handler">
             {Array(6)
                 .fill(0)
-                .map((_, index) => (<DominoDot key={index} />))}
+                .map((_, index) => (
+                    <DominoDot key={index} />
+                ))}
         </DominoContainer>
     )
 }

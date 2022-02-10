@@ -35,20 +35,18 @@ const TaskBody: React.FC<Props> = React.memo(({ task, isExpanded }: Props) => {
     const { body, id, sender, deeplink, source, sent_at } = task
     return (
         <ExpandedBody isExpanded={isExpanded}>
-            {(
+            {
                 <TaskBodyDiv>
-                    {source.is_replyable ?
+                    {source.is_replyable ? (
                         <>
                             <EmailBody body={body} task_id={id} />
                             <Reply task_id={id} sender={sender} body={body} sent_at={sent_at} />
-                        </> : <>
-                            {
-                                <Body body={body} task_id={id} editable={true} />
-                            }
                         </>
-                    }
+                    ) : (
+                        <>{<Body body={body} task_id={id} editable={true} />}</>
+                    )}
                 </TaskBodyDiv>
-            )}
+            }
             {deeplink && (
                 <Deeplink>
                     <p>
@@ -120,12 +118,12 @@ const Body: React.FC<BodyProps> = (props: BodyProps) => {
             method: 'PATCH',
             body: JSON.stringify({ body: body.current }),
         })
-            .then(response => {
+            .then((response) => {
                 if (!response.ok) {
                     throw new Error('PATCH /tasks/modify failed: ' + response.text())
                 }
             })
-            .catch(e => {
+            .catch((e) => {
                 console.log({ e })
             })
     }
@@ -135,11 +133,11 @@ const Body: React.FC<BodyProps> = (props: BodyProps) => {
             html={body.current}
             disabled={!props.editable}
             onKeyPress={handleKeyPress}
-            onChange={(e) => body.current = e.target.value}
+            onChange={(e) => (body.current = e.target.value)}
             onBlur={handleBlur}
-            tagName='div'
+            tagName="div"
             onKeyDown={(e) => e.stopPropagation()}
-            placeholder_text='Add task details...'
+            placeholder_text="Add task details..."
         />
     )
 }

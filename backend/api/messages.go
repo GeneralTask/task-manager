@@ -119,7 +119,7 @@ func (api *API) MessagesList(c *gin.Context) {
 		return
 	}
 
-	orderedMessages, err := orderMessages(
+	orderedMessages, err := api.orderMessages(
 		db,
 		fetchedEmails,
 		userID.(primitive.ObjectID),
@@ -131,7 +131,7 @@ func (api *API) MessagesList(c *gin.Context) {
 	c.JSON(200, orderedMessages)
 }
 
-func orderMessages(
+func (api *API) orderMessages(
 	db *mongo.Database,
 	fetchedEmails []*database.Item,
 	userID primitive.ObjectID,
@@ -154,7 +154,7 @@ func orderMessages(
 
 	var messages []*message
 	for _, email := range fetchedEmails {
-		messages = append(messages, emailToMessage(email))
+		messages = append(messages, api.emailToMessage(email))
 	}
 	return messages, nil
 }
@@ -168,33 +168,21 @@ func markCompletedMessages(
 	for _, email := range *fetchedEmails {
 		fetchedEmailTaskIDs[email.ID] = true
 	}
-	tasksCollection := database.GetTaskCollection(db)
-	parentCtx := context.Background()
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentEmail := range *currentEmails {
 		if !fetchedEmailTaskIDs[currentEmail.ID] {
-			dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-			defer cancel()
-			res, err := tasksCollection.UpdateOne(
-				dbCtx,
-				bson.M{"_id": currentEmail.ID},
-				bson.M{"$set": bson.M{"is_completed": true}},
-			)
+			err := database.MarkItemComplete(db, currentEmail.ID)
 			if err != nil {
 				log.Printf("failed to mark task completed: (ID=%v) with error: %v", currentEmail.ID, err)
 				return err
-			}
-			if res.MatchedCount != 1 {
-				log.Printf("did not find task to mark completed (ID=%v)", currentEmail.ID)
 			}
 		}
 	}
 	return nil
 }
 
-func emailToMessage(e *database.Item) *message {
-	// Normally we need to use api.ExternalConfig but we are just using the source details constants here
-	messageSourceResult, _ := external.GetConfig().GetTaskSourceResult(e.SourceID)
+func (api *API) emailToMessage(e *database.Item) *message {
+	messageSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(e.SourceID)
 	return &message{
 		ID:       e.ID,
 		Title:    e.Title,

@@ -34,10 +34,13 @@ func TestMarkAsComplete(t *testing.T) {
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	insertResult, err := taskCollection.InsertOne(dbCtx, database.TaskBase{
-		UserID:     userID,
-		IDExternal: "sample_jira_id",
-		SourceID:   external.TASK_SOURCE_ID_JIRA,
+	insertResult, err := taskCollection.InsertOne(dbCtx, database.Item{
+		TaskBase: database.TaskBase{
+			UserID:     userID,
+			IDExternal: "sample_jira_id",
+			SourceID:   external.TASK_SOURCE_ID_JIRA,
+		},
+		TaskType: database.TaskType{IsTask: true},
 	})
 	assert.NoError(t, err)
 	jiraTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -122,7 +125,9 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("CompletionFlagFalse", func(t *testing.T) {
-		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
+		err := database.MarkItemComplete(db, jiraTaskID)
+		assert.NoError(t, err)
+		err = settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -131,7 +136,10 @@ func TestMarkAsComplete(t *testing.T) {
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		tasks, err := database.GetCompletedTasks(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(*tasks))
 	})
 
 	t.Run("InvalidHex", func(t *testing.T) {

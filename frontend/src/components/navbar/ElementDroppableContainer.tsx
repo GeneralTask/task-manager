@@ -47,10 +47,20 @@ const ElementDroppableContainer = (props: ElementDroppableContainerProps): JSX.E
         accept: ItemTypes.TASK,
         collect: (monitor) => ({
             isOverDroppable:
-                monitor.isOver() && props.page !== NavbarPage.MESSAGES_PAGE && props.page !== NavbarPage.SETTINGS_PAGE && props.page !== NavbarPage.LOGOUT,
+                monitor.isOver() &&
+                props.page !== NavbarPage.DONE_PAGE &&
+                props.page !== NavbarPage.MESSAGES_PAGE &&
+                props.page !== NavbarPage.SETTINGS_PAGE &&
+                props.page !== NavbarPage.LOGOUT,
         }),
         drop: (item: { id: string; indicesRef: RefObject<Indices> }) => {
-            if (props.page === NavbarPage.MESSAGES_PAGE || props.page === NavbarPage.SETTINGS_PAGE || props.page === NavbarPage.LOGOUT) return
+            if (
+                props.page === NavbarPage.DONE_PAGE ||
+                props.page === NavbarPage.MESSAGES_PAGE ||
+                props.page === NavbarPage.SETTINGS_PAGE ||
+                props.page === NavbarPage.LOGOUT
+            )
+                return
             if (item.indicesRef.current == null) return
             if (taskSectionsRef.current == null) return
 

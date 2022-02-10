@@ -9,10 +9,10 @@ import { ModalEnum } from '../../helpers/enums'
 
 const FeedbackButtonContainer = styled.button<{ white?: boolean }>`
     position: relative;
-    color: ${(props) => props.white ? BLACK : WHITE};
-    background-color: ${(props) => props.white ? WHITE : ACCENT_MAIN};
-    border: ${(props) => props.white ? `1px solid ${GRAY_100};` : 'none'};
-	cursor: pointer;
+    color: ${(props) => (props.white ? BLACK : WHITE)};
+    background-color: ${(props) => (props.white ? WHITE : ACCENT_MAIN)};
+    border: ${(props) => (props.white ? `1px solid ${GRAY_100};` : 'none')};
+    cursor: pointer;
     box-shadow: ${SHADOW_MISC_2};
     border-radius: 12px;
     padding: 8px 14px;

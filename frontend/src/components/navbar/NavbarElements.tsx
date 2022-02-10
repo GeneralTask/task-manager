@@ -68,85 +68,88 @@ const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
         page: NavbarPage | null
         action: JSX.Element
     }[] = [
-            {
-                page: NavbarPage.TODAY_PAGE,
-                action: (
-                    <NavbarLink to={'/tasks/today'}>
-                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/tasks.svg`} />
-                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.TODAY_PAGE}>
-                            Today
-                        </NavbarLinkButton>
-                        <NavbarItemCount page={NavbarPage.TODAY_PAGE} />
-                    </NavbarLink>
-                ),
-            },
-            {
-                page: NavbarPage.BLOCKED_PAGE,
-                action: (
-                    <NavbarLink to={'/tasks/blocked'}>
-                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/tasks.svg`} />
-                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.BLOCKED_PAGE}>
-                            Blocked
-                        </NavbarLinkButton>
-                        <NavbarItemCount page={NavbarPage.BLOCKED_PAGE} />
-                    </NavbarLink>
-                ),
-            },
-            {
-                page: NavbarPage.BACKLOG_PAGE,
-                action: (
-                    <NavbarLink to={'/tasks/backlog'}>
-                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/tasks.svg`} />
-                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.BACKLOG_PAGE}>
-                            Backlog
-                        </NavbarLinkButton>
-                        <NavbarItemCount page={NavbarPage.BACKLOG_PAGE} />
-                    </NavbarLink>
-                ),
-            },
-            {
-                page: NavbarPage.MESSAGES_PAGE,
-                action: (
-                    <NavbarLink to={MESSAGES_PATH}>
-                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/messages.svg`} />
-                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.MESSAGES_PAGE}>
-                            Messages
-                        </NavbarLinkButton>
-                        <NavbarItemCount page={NavbarPage.MESSAGES_PAGE} />
-                    </NavbarLink>
-                ),
-            },
-            {
-                page: NavbarPage.SETTINGS_PAGE,
-                action: (
-                    <NavbarLink to={SETTINGS_PATH}>
-                        <NavbarIcon src={`${process.env.PUBLIC_URL}/images/settings.svg`} />
-                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.SETTINGS_PAGE}>
-                            Settings
-                        </NavbarLinkButton>
-                    </NavbarLink>
-                ),
-            },
-            {
-                page: null,
-                action: (
-                    <LogoutButtonContainer onClick={logout}>
-                        <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.LOGOUT}>
-                            Logout
-                        </NavbarLinkButton>
-                    </LogoutButtonContainer>
-                ),
-            },
-        ]
+        {
+            page: NavbarPage.TODAY_PAGE,
+            action: (
+                <NavbarLink to={'/tasks/today'}>
+                    <NavbarIcon src={`${process.env.PUBLIC_URL}/images/tasks.svg`} />
+                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.TODAY_PAGE}>Today</NavbarLinkButton>
+                    <NavbarItemCount page={NavbarPage.TODAY_PAGE} />
+                </NavbarLink>
+            ),
+        },
+        {
+            page: NavbarPage.BLOCKED_PAGE,
+            action: (
+                <NavbarLink to={'/tasks/blocked'}>
+                    <NavbarIcon src={`${process.env.PUBLIC_URL}/images/tasks.svg`} />
+                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.BLOCKED_PAGE}>Blocked</NavbarLinkButton>
+                    <NavbarItemCount page={NavbarPage.BLOCKED_PAGE} />
+                </NavbarLink>
+            ),
+        },
+        {
+            page: NavbarPage.BACKLOG_PAGE,
+            action: (
+                <NavbarLink to={'/tasks/backlog'}>
+                    <NavbarIcon src={`${process.env.PUBLIC_URL}/images/tasks.svg`} />
+                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.BACKLOG_PAGE}>Backlog</NavbarLinkButton>
+                    <NavbarItemCount page={NavbarPage.BACKLOG_PAGE} />
+                </NavbarLink>
+            ),
+        },
+        {
+            page: NavbarPage.DONE_PAGE,
+            action: (
+                <NavbarLink to={'/tasks/done'}>
+                    <NavbarIcon src={`${process.env.PUBLIC_URL}/images/tasks.svg`} />
+                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.DONE_PAGE}>Done</NavbarLinkButton>
+                    <NavbarItemCount page={NavbarPage.DONE_PAGE} />
+                </NavbarLink>
+            ),
+        },
+        {
+            page: NavbarPage.MESSAGES_PAGE,
+            action: (
+                <NavbarLink to={MESSAGES_PATH}>
+                    <NavbarIcon src={`${process.env.PUBLIC_URL}/images/messages.svg`} />
+                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.MESSAGES_PAGE}>
+                        Messages
+                    </NavbarLinkButton>
+                    <NavbarItemCount page={NavbarPage.MESSAGES_PAGE} />
+                </NavbarLink>
+            ),
+        },
+        {
+            page: NavbarPage.SETTINGS_PAGE,
+            action: (
+                <NavbarLink to={SETTINGS_PATH}>
+                    <NavbarIcon src={`${process.env.PUBLIC_URL}/images/settings.svg`} />
+                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.SETTINGS_PAGE}>
+                        Settings
+                    </NavbarLinkButton>
+                </NavbarLink>
+            ),
+        },
+        {
+            page: null,
+            action: (
+                <LogoutButtonContainer onClick={logout}>
+                    <NavbarLinkButton isCurrentPage={currentPage === NavbarPage.LOGOUT}>Logout</NavbarLinkButton>
+                </LogoutButtonContainer>
+            ),
+        },
+    ]
     const navbarJSXElements = elements.map((element, index) => {
         if (element.page) {
             return (
                 <NavbarItemDroppableContainer
                     key={element.page}
                     page={element.page}
-                    isCurrentPage={currentPage === element.page}>
+                    isCurrentPage={currentPage === element.page}
+                >
                     <NavbarListItem>{element.action}</NavbarListItem>
-                </NavbarItemDroppableContainer >
+                </NavbarItemDroppableContainer>
             )
         }
         return (

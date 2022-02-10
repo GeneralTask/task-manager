@@ -12,6 +12,7 @@ export interface TasksPageState {
         time_estimate: string | null,
         label_selector: string | null,
         focus_create_task_form: boolean,
+        selected_task_id: string | null,
     },
     events: {
         event_list: TEvent[]
@@ -32,6 +33,7 @@ const initialState: TasksPageState = {
         time_estimate: null,
         label_selector: null,
         focus_create_task_form: false,
+        selected_task_id: '61fd8798e1bdcee3b675a2da',
     },
     events: {
         event_list: [],
@@ -109,6 +111,9 @@ export const tasksPageSlice = createSlice({
         setShowModal(state, action: PayloadAction<ModalEnum>) {
             state.modals.show_modal = action.payload
         },
+        setSelectedTask(state, action: PayloadAction<string | null>) {
+            state.tasks.selected_task_id = action.payload
+        },
     },
 })
 
@@ -128,7 +133,8 @@ export const {
     setEvents,
     setEventsFetchStatus,
     setShowCalendarSidebar,
-    setShowModal
+    setShowModal,
+    setSelectedTask,
 } = tasksPageSlice.actions
 
 export default tasksPageSlice.reducer
