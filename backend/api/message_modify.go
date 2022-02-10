@@ -63,7 +63,7 @@ func (api *API) MessageModify(c *gin.Context) {
 		return
 	}
 
-	updateMessageInDB(api, c, taskID, userID, messageChangeableFields)
+	// updateMessageInDB(api, c, taskID, userID, messageChangeableFields)
 
 	c.JSON(200, gin.H{})
 }

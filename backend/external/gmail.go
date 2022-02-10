@@ -159,6 +159,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				Email: database.Email{
 					SenderDomain: senderDomain,
 					ThreadID:     threadListItem.Id,
+					IsUnread:     true,
 				},
 				TaskType: database.TaskType{
 					IsMessage: true,
@@ -513,7 +514,6 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 	}
 
 	return err
-
 }
 
 func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToChange string, addLabel bool) error {
@@ -532,17 +532,6 @@ func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToCh
 
 	return err
 }
-
-// func removeLabelFromMessage(gmailService *gmail.Service, emailID string, labelToRemove string) error {
-// 	message, err := gmailService.Users.Messages.Modify(
-// 		"me",
-// 		emailID,
-// 		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{labelToRemove}},
-// 	).Do()
-// 	log.Println("resulting message:", message)
-
-// 	return err
-// }
 
 func getGmailService(gmailSource GmailSource, ctx context.Context, client *http.Client) (*gmail.Service, error) {
 	var gmailService *gmail.Service
