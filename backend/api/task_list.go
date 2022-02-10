@@ -56,7 +56,7 @@ const (
 )
 
 func (api *API) TasksList(c *gin.Context) {
-	log.Println("TASK", 1)
+	start := time.Now().UnixMicro()
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -65,14 +65,12 @@ func (api *API) TasksList(c *gin.Context) {
 	}
 
 	defer dbCleanup()
-	log.Println("TASK", 2)
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := database.GetUserCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
-	log.Println("TASK", 3)
 
 	if err != nil {
 		log.Printf("failed to find user: %v", err)
@@ -87,11 +85,9 @@ func (api *API) TasksList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	log.Println("TASK", 4)
 
 	var fetchedTasks *[]*database.Item
 	if fastRefresh {
-		log.Println("TASK", 5)
 		// this is a temporary hack to trick MergeTasks into thinking we fetched these tasks
 		fakeFetchedTasks := []*database.Item{}
 		for _, item := range *currentTasks {
@@ -99,9 +95,7 @@ func (api *API) TasksList(c *gin.Context) {
 			fakeFetchedTasks = append(fakeFetchedTasks, &task)
 		}
 		fetchedTasks = &fakeFetchedTasks
-		log.Println("TASK", 6)
 	} else {
-		log.Println("TASK", 7)
 		fetchedTasks, err = api.fetchTasks(parentCtx, db, userID)
 		if err != nil {
 			Handle500(c)
@@ -117,8 +111,8 @@ func (api *API) TasksList(c *gin.Context) {
 		if err != nil {
 			log.Printf("failed to update user last_refreshed: %v", err)
 		}
-		log.Println("TASK", 8)
 	}
+	start2 := time.Now().UnixMicro()
 
 	allTasks, err := MergeTasks(
 		db,
@@ -130,7 +124,9 @@ func (api *API) TasksList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	log.Println("TASK", 14)
+	end := time.Now().UnixMicro()
+	log.Println("elapsed:", end-start)
+	log.Println("elapsed2:", end-start2)
 	c.JSON(200, allTasks)
 }
 
@@ -192,21 +188,20 @@ func MergeTasks(
 	fetchedTasks *[]*database.Item,
 	userID primitive.ObjectID,
 ) ([]*TaskSection, error) {
-	log.Println("TASK", 9)
+	// Normally we need to use api.ExternalConfig but we are just using the source details constants here
+	externalConfig := external.GetConfig()
 	err := adjustForCompletedTasks(db, currentTasks, fetchedTasks)
 	if err != nil {
 		return []*TaskSection{}, err
 	}
 
-	log.Println("TASK", 10)
 	completedTasks, err := database.GetCompletedTasks(db, userID)
 	if err != nil {
 		return []*TaskSection{}, err
 	}
-	log.Println("TASK", 11)
 	completedTaskResults := []*TaskResult{}
 	for index, task := range *completedTasks {
-		taskResult := taskBaseToTaskResult(&task.TaskBase)
+		taskResult := taskBaseToTaskResult(&externalConfig, &task.TaskBase)
 		taskResult.IDOrdering = index + 1
 		completedTaskResults = append(completedTaskResults, taskResult)
 	}
@@ -216,9 +211,8 @@ func MergeTasks(
 		b := (*fetchedTasks)[j]
 		return a.IDOrdering < b.IDOrdering
 	})
-	log.Println("TASK", 12)
 
-	blockedTasks, backlogTasks, todayTasks := extractSectionTasksV2(fetchedTasks)
+	blockedTasks, backlogTasks, todayTasks := extractSectionTasksV2(&externalConfig, fetchedTasks)
 
 	err = updateOrderingIDsV2(db, &todayTasks)
 	if err != nil {
@@ -260,20 +254,20 @@ func MergeTasks(
 	}, nil
 }
 
-func extractSectionTasksV2(fetchedTasks *[]*database.Item) ([]*TaskResult, []*TaskResult, []*TaskResult) {
+func extractSectionTasksV2(externalConfig *external.Config, fetchedTasks *[]*database.Item) ([]*TaskResult, []*TaskResult, []*TaskResult) {
 	blockedTasks := make([]*TaskResult, 0)
 	backlogTasks := make([]*TaskResult, 0)
 	allOtherTasks := make([]*TaskResult, 0)
 	for _, task := range *fetchedTasks {
 		if task.IDTaskSection == constants.IDTaskSectionBlocked {
-			blockedTasks = append(blockedTasks, taskBaseToTaskResult(&task.TaskBase))
+			blockedTasks = append(blockedTasks, taskBaseToTaskResult(externalConfig, &task.TaskBase))
 			continue
 		}
 		if task.IDTaskSection == constants.IDTaskSectionBacklog {
-			backlogTasks = append(backlogTasks, taskBaseToTaskResult(&task.TaskBase))
+			backlogTasks = append(backlogTasks, taskBaseToTaskResult(externalConfig, &task.TaskBase))
 			continue
 		}
-		allOtherTasks = append(allOtherTasks, taskBaseToTaskResult(&task.TaskBase))
+		allOtherTasks = append(allOtherTasks, taskBaseToTaskResult(externalConfig, &task.TaskBase))
 	}
 	return blockedTasks, backlogTasks, allOtherTasks
 }
@@ -334,17 +328,14 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 	return nil
 }
 
-func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
-	start := time.Now().UnixMicro()
-	// Normally we need to use api.ExternalConfig but we are just using the source details constants here
-	taskSourceResult, _ := external.GetConfig().GetTaskSourceResult(t.SourceID)
+func taskBaseToTaskResult(externalConfig *external.Config, t *database.TaskBase) *TaskResult {
+	taskSourceResult, _ := externalConfig.GetTaskSourceResult(t.SourceID)
 	var dueDate string
 	if t.DueDate.Time().Unix() == int64(0) {
 		dueDate = ""
 	} else {
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
-	start2 := time.Now().UnixMicro()
 	res := &TaskResult{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
@@ -363,7 +354,5 @@ func taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 		DueDate:        dueDate,
 		IsDone:         t.IsCompleted,
 	}
-	log.Println("elapsed:", time.Now().UnixMicro()-start)
-	log.Println("elapsed 2:", time.Now().UnixMicro()-start2)
 	return res
 }
