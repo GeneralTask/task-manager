@@ -52,7 +52,7 @@ export const ReplyInputStyle = {
     marginRight: '10px',
 }
 
-export const BodyContentEditable = styled(ContentEditable) <{ placeholder_text: string }>`
+export const BodyContentEditable = styled(ContentEditable)<{ placeholder_text: string }>`
     padding: 10px;
     word-wrap: break-word;
     overflow: none;
@@ -67,7 +67,8 @@ export const BodyContentEditable = styled(ContentEditable) <{ placeholder_text: 
     font-size: 14px;
     line-height: 20px;
 
-    &:hover,&:focus {
+    &:hover,
+    &:focus {
         background-color: ${BACKGROUND_HOVER};
     }
     &:empty::before {

@@ -15,14 +15,11 @@ const CollisionGroupColumns = ({ events }: CollisionGroupColumnsProps): JSX.Elem
     eventColumns.forEach((column, index) => {
         column.forEach((event) => {
             eventBodies.push(
-                <EventBody key={event.id}
-                    event={event}
-                    leftOffset={index}
-                    collisionGroupSize={numColumns} />
+                <EventBody key={event.id} event={event} leftOffset={index} collisionGroupSize={numColumns} />
             )
         })
     })
-    return (<>{eventBodies}</>)
+    return <>{eventBodies}</>
 }
 
 export default CollisionGroupColumns

@@ -21,14 +21,14 @@ const MODAL_STYLE: Modal.Styles = {
         borderRadius: '12px',
         boxShadow: SHADOW_MISC_1,
         top: '20%',
-    }
+    },
 }
 
 interface GeneralTaskModalProps {
-    render: JSX.Element,
-    showModal: boolean,
-    afterModalClose: () => void,
-    afterModalOpen: () => void,
+    render: JSX.Element
+    showModal: boolean
+    afterModalClose: () => void
+    afterModalOpen: () => void
 }
 
 const GeneralTaskModal = (props: GeneralTaskModalProps): JSX.Element => {
@@ -43,11 +43,13 @@ const GeneralTaskModal = (props: GeneralTaskModalProps): JSX.Element => {
         props.afterModalClose()
     }
     return (
-        <Modal style={MODAL_STYLE}
+        <Modal
+            style={MODAL_STYLE}
             isOpen={props.showModal}
             onRequestClose={modalClose}
             onAfterOpen={modalOpen}
-            onAfterClose={modalClose}>
+            onAfterClose={modalClose}
+        >
             {props.render}
         </Modal>
     )

@@ -1,15 +1,15 @@
 import { Action, Dispatch } from '@reduxjs/toolkit'
 import { DONE_BUTTON, TASKS_MODIFY_URL, UNDONE_BUTTON } from '../../../constants'
-import {
-    DoneButton,
-    DoneButtonContainer,
-    DragHandler,
-    HeaderLeft,
-    Icon,
-    TaskHeaderContainer,
-} from './Header-style'
+import { DoneButton, DoneButtonContainer, DragHandler, HeaderLeft, Icon, TaskHeaderContainer } from './Header-style'
 import React, { useCallback } from 'react'
-import { collapseBody, expandBody, hideDatePicker, hideLabelSelector, hideTimeEstimate, removeTaskByID } from '../../../redux/tasksPageSlice'
+import {
+    collapseBody,
+    expandBody,
+    hideDatePicker,
+    hideLabelSelector,
+    hideTimeEstimate,
+    removeTaskByID,
+} from '../../../redux/tasksPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../../helpers/utils'
 
 import Domino from '../../common/Domino'
@@ -22,7 +22,12 @@ import Tooltip from '../../common/Tooltip'
 import { useAppDispatch } from '../../../redux/hooks'
 import { useFetchTasks } from '../TasksPage'
 
-const done = async (task_id: string, new_state: boolean, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {
+const done = async (
+    task_id: string,
+    new_state: boolean,
+    dispatch: Dispatch<Action<string>>,
+    fetchTasks: () => void
+) => {
     try {
         dispatch(removeTaskByID(task_id))
         const response = await makeAuthorizedRequest({
@@ -68,31 +73,39 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
     const isSelected = props.isExpanded // || isSelectedThroughKeyboardShortcut (coming soon)
 
     return (
-        <TaskHeaderContainer showButtons={props.isExpanded} onMouseOver={() => { setIsOver(true) }} onMouseLeave={onMouseLeave} onClick={onClick} >
+        <TaskHeaderContainer
+            showButtons={props.isExpanded}
+            onMouseOver={() => {
+                setIsOver(true)
+            }}
+            onMouseLeave={onMouseLeave}
+            onClick={onClick}
+        >
             {props.isExpanded && <InvisibleKeyboardShortcut shortcut="d" onKeyPress={onDoneButtonClick} />}
             <HeaderLeft>
-                {
-                    !props.dragDisabled &&
+                {!props.dragDisabled && (
                     <DragHandler ref={ref} onClick={(e) => e.stopPropagation()}>
                         <Domino />
                     </DragHandler>
-                }
-                {
-                    props.task.source.is_completable &&
+                )}
+                {props.task.source.is_completable && (
                     <DoneButtonContainer>
                         <Tooltip text={props.task.is_done ? 'Mark as undone' : 'Mark as done'}>
-                            <DoneButton src={props.task.is_done ? UNDONE_BUTTON : DONE_BUTTON} onClick={(e) => {
-                                e.stopPropagation()
-                                onDoneButtonClick()
-                            }} />
+                            <DoneButton
+                                src={props.task.is_done ? UNDONE_BUTTON : DONE_BUTTON}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onDoneButtonClick()
+                                }}
+                            />
                         </Tooltip>
                     </DoneButtonContainer>
-                }
-                <Icon src={props.task.source.logo} alt='icon'></Icon>
+                )}
+                <Icon src={props.task.source.logo} alt="icon"></Icon>
                 <EditableTaskTitle task={props.task} isExpanded={props.isExpanded} />
-            </HeaderLeft >
+            </HeaderLeft>
             <HeaderActions isOver={isOver} task={props.task} isExpanded={props.isExpanded} isSelected={isSelected} />
-        </TaskHeaderContainer >
+        </TaskHeaderContainer>
     )
 })
 

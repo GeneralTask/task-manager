@@ -18,7 +18,8 @@ export const Form = styled.form`
     min-width: 500px;
     align-items: center;
     background-color: rgba(24, 24, 27, 0.03);
-    &:hover,:focus-within {
+    &:hover,
+    :focus-within {
         box-shadow: ${SHADOW_PRIMARY};
         background-color: rgba(43, 43, 43, 0.08);
     }

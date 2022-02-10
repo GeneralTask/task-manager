@@ -108,9 +108,7 @@ function Messages(): JSX.Element {
                 <HeaderText>Messages</HeaderText>
                 <RefreshButton />
             </Header>
-            {messages_array && messages_array.map((message, index) => (
-                <Message message={message} key={index} />
-            ))}
+            {messages_array && messages_array.map((message, index) => <Message message={message} key={index} />)}
         </MessagesContentContainer>
     )
 }

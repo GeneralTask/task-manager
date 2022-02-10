@@ -10,5 +10,4 @@ const FeedbackHeader = styled.div`
     margin-bottom: 24px;
 `
 
-
 export { ModalContainer, FeedbackHeader }
