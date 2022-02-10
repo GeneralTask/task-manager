@@ -45,7 +45,6 @@ func (api *API) MessagesList(c *gin.Context) {
 	}
 
 	defer dbCleanup()
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := database.GetUserCollection(db)
@@ -57,6 +56,8 @@ func (api *API) MessagesList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	cutoff := primitive.NewDateTimeFromTime(time.Now().Add(constants.TimeBeforeItemRefresh))
+	fastRefresh := userObject.LastRefreshedMessages > cutoff
 
 	currentEmails, err := database.GetActiveEmails(db, userID.(primitive.ObjectID))
 	if err != nil {
@@ -64,8 +65,55 @@ func (api *API) MessagesList(c *gin.Context) {
 		return
 	}
 
+	var fetchedEmails *[]*database.Item
+	if fastRefresh {
+		// this is a temporary hack to trick MergeTasks into thinking we fetched these tasks
+		fakeFetchedEmails := []*database.Item{}
+		for _, item := range *currentEmails {
+			task := database.Item{TaskBase: item.TaskBase}
+			fakeFetchedEmails = append(fakeFetchedEmails, &task)
+		}
+		fetchedEmails = &fakeFetchedEmails
+	} else {
+		fetchedEmails, err = api.fetchEmails(parentCtx, db, userID)
+		if err != nil {
+			Handle500(c)
+			return
+		}
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		_, err = userCollection.UpdateOne(
+			dbCtx,
+			bson.M{"_id": userID},
+			bson.M{"$set": bson.M{"last_refreshed_messages": primitive.NewDateTimeFromTime(time.Now())}},
+		)
+		if err != nil {
+			log.Printf("failed to update user last_refreshed_messages: %v", err)
+		}
+	}
+
+	err = api.markCompletedMessages(db, currentEmails, fetchedEmails)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	orderedMessages, err := api.orderMessages(
+		db,
+		fetchedEmails,
+		userID.(primitive.ObjectID),
+	)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	c.JSON(200, orderedMessages)
+}
+
+func (api *API) fetchEmails(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Item, error) {
 	var tokens []database.ExternalAPIToken
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
 		dbCtx,
@@ -73,16 +121,14 @@ func (api *API) MessagesList(c *gin.Context) {
 	)
 	if err != nil {
 		log.Printf("failed to fetch api tokens: %v", err)
-		Handle500(c)
-		return
+		return nil, err
 	}
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
 		log.Printf("failed to iterate through api tokens: %v", err)
-		Handle500(c)
-		return
+		return nil, err
 	}
 
 	emailChannels := []chan external.EmailResult{}
@@ -112,28 +158,12 @@ func (api *API) MessagesList(c *gin.Context) {
 	for index := range fetchedEmails {
 		fetchedEmails[index].TaskBase.Body = "<base target=\"_blank\">" + fetchedEmails[index].TaskBase.Body
 	}
-
-	err = markCompletedMessages(db, currentEmails, &fetchedEmails)
-	if err != nil {
-		Handle500(c)
-		return
-	}
-
-	orderedMessages, err := orderMessages(
-		db,
-		fetchedEmails,
-		userID.(primitive.ObjectID),
-	)
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	c.JSON(200, orderedMessages)
+	return &fetchedEmails, nil
 }
 
-func orderMessages(
+func (api *API) orderMessages(
 	db *mongo.Database,
-	fetchedEmails []*database.Item,
+	fetchedEmails *[]*database.Item,
 	userID primitive.ObjectID,
 ) ([]*message, error) {
 	orderingSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailOrderingPreference)
@@ -142,9 +172,9 @@ func orderMessages(
 		return []*message{}, err
 	}
 	newestEmailsFirst := *orderingSetting == settings.ChoiceKeyNewestFirst
-	sort.SliceStable(fetchedEmails, func(i, j int) bool {
-		a := fetchedEmails[i]
-		b := fetchedEmails[j]
+	sort.SliceStable(*fetchedEmails, func(i, j int) bool {
+		a := (*fetchedEmails)[i]
+		b := (*fetchedEmails)[j]
 		if newestEmailsFirst {
 			return a.TaskBase.CreatedAtExternal > b.TaskBase.CreatedAtExternal
 		} else {
@@ -153,13 +183,13 @@ func orderMessages(
 	})
 
 	var messages []*message
-	for _, email := range fetchedEmails {
-		messages = append(messages, emailToMessage(email))
+	for _, email := range *fetchedEmails {
+		messages = append(messages, api.emailToMessage(email))
 	}
 	return messages, nil
 }
 
-func markCompletedMessages(
+func (api *API) markCompletedMessages(
 	db *mongo.Database,
 	currentEmails *[]database.Item,
 	fetchedEmails *[]*database.Item,
@@ -181,9 +211,8 @@ func markCompletedMessages(
 	return nil
 }
 
-func emailToMessage(e *database.Item) *message {
-	// Normally we need to use api.ExternalConfig but we are just using the source details constants here
-	messageSourceResult, _ := external.GetConfig().GetTaskSourceResult(e.SourceID)
+func (api *API) emailToMessage(e *database.Item) *message {
+	messageSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(e.SourceID)
 	return &message{
 		ID:       e.ID,
 		Title:    e.Title,

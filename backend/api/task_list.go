@@ -77,7 +77,7 @@ func (api *API) TasksList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	cutoff := primitive.NewDateTimeFromTime(time.Now().Add(-55 * time.Second))
+	cutoff := primitive.NewDateTimeFromTime(time.Now().Add(constants.TimeBeforeItemRefresh))
 	fastRefresh := userObject.LastRefreshed > cutoff
 
 	currentTasks, err := database.GetActiveTasks(db, userID.(primitive.ObjectID))
@@ -114,7 +114,7 @@ func (api *API) TasksList(c *gin.Context) {
 	}
 	start2 := time.Now().UnixMicro()
 
-	allTasks, err := MergeTasks(
+	allTasks, err := api.mergeTasks(
 		db,
 		currentTasks,
 		fetchedTasks,
@@ -182,15 +182,13 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	return &tasks, nil
 }
 
-func MergeTasks(
+func (api *API) mergeTasks(
 	db *mongo.Database,
 	currentTasks *[]database.Item,
 	fetchedTasks *[]*database.Item,
 	userID primitive.ObjectID,
 ) ([]*TaskSection, error) {
-	// Normally we need to use api.ExternalConfig but we are just using the source details constants here
-	externalConfig := external.GetConfig()
-	err := adjustForCompletedTasks(db, currentTasks, fetchedTasks)
+	err := api.adjustForCompletedTasks(db, currentTasks, fetchedTasks)
 	if err != nil {
 		return []*TaskSection{}, err
 	}
@@ -201,7 +199,7 @@ func MergeTasks(
 	}
 	completedTaskResults := []*TaskResult{}
 	for index, task := range *completedTasks {
-		taskResult := taskBaseToTaskResult(&externalConfig, &task.TaskBase)
+		taskResult := api.taskBaseToTaskResult(&task.TaskBase)
 		taskResult.IDOrdering = index + 1
 		completedTaskResults = append(completedTaskResults, taskResult)
 	}
@@ -212,19 +210,19 @@ func MergeTasks(
 		return a.IDOrdering < b.IDOrdering
 	})
 
-	blockedTasks, backlogTasks, todayTasks := extractSectionTasksV2(&externalConfig, fetchedTasks)
+	blockedTasks, backlogTasks, todayTasks := api.extractSectionTasksV2(fetchedTasks)
 
-	err = updateOrderingIDsV2(db, &todayTasks)
+	err = api.updateOrderingIDsV2(db, &todayTasks)
 	if err != nil {
 		return []*TaskSection{}, err
 	}
 
-	err = updateOrderingIDsV2(db, &blockedTasks)
+	err = api.updateOrderingIDsV2(db, &blockedTasks)
 	if err != nil {
 		return []*TaskSection{}, err
 	}
 
-	err = updateOrderingIDsV2(db, &backlogTasks)
+	err = api.updateOrderingIDsV2(db, &backlogTasks)
 	if err != nil {
 		return []*TaskSection{}, err
 	}
@@ -254,25 +252,25 @@ func MergeTasks(
 	}, nil
 }
 
-func extractSectionTasksV2(externalConfig *external.Config, fetchedTasks *[]*database.Item) ([]*TaskResult, []*TaskResult, []*TaskResult) {
+func (api *API) extractSectionTasksV2(fetchedTasks *[]*database.Item) ([]*TaskResult, []*TaskResult, []*TaskResult) {
 	blockedTasks := make([]*TaskResult, 0)
 	backlogTasks := make([]*TaskResult, 0)
 	allOtherTasks := make([]*TaskResult, 0)
 	for _, task := range *fetchedTasks {
 		if task.IDTaskSection == constants.IDTaskSectionBlocked {
-			blockedTasks = append(blockedTasks, taskBaseToTaskResult(externalConfig, &task.TaskBase))
+			blockedTasks = append(blockedTasks, api.taskBaseToTaskResult(&task.TaskBase))
 			continue
 		}
 		if task.IDTaskSection == constants.IDTaskSectionBacklog {
-			backlogTasks = append(backlogTasks, taskBaseToTaskResult(externalConfig, &task.TaskBase))
+			backlogTasks = append(backlogTasks, api.taskBaseToTaskResult(&task.TaskBase))
 			continue
 		}
-		allOtherTasks = append(allOtherTasks, taskBaseToTaskResult(externalConfig, &task.TaskBase))
+		allOtherTasks = append(allOtherTasks, api.taskBaseToTaskResult(&task.TaskBase))
 	}
 	return blockedTasks, backlogTasks, allOtherTasks
 }
 
-func adjustForCompletedTasks(
+func (api *API) adjustForCompletedTasks(
 	db *mongo.Database,
 	currentTasks *[]database.Item,
 	fetchedTasks *[]*database.Item,
@@ -303,7 +301,7 @@ func adjustForCompletedTasks(
 	return nil
 }
 
-func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
+func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 	parentCtx := context.Background()
 	tasksCollection := database.GetTaskCollection(db)
 	orderingID := 1
@@ -328,8 +326,8 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 	return nil
 }
 
-func taskBaseToTaskResult(externalConfig *external.Config, t *database.TaskBase) *TaskResult {
-	taskSourceResult, _ := externalConfig.GetTaskSourceResult(t.SourceID)
+func (api *API) taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
+	taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
 	var dueDate string
 	if t.DueDate.Time().Unix() == int64(0) {
 		dueDate = ""
