@@ -88,4 +88,29 @@ func TestUserInfo(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":true,\"opted_out_of_arbitration\":true}", string(body))
 	})
+	t.Run("SuccessPartialUpdate", func(t *testing.T) {
+		// assuming the fields are still true as above
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/user_info/",
+			bytes.NewBuffer([]byte(`{"agreed_to_terms":true,"opted_into_marketing":false}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		// fetch API again to verify values changed
+		request, _ = http.NewRequest("GET", "/user_info/", nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder = httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err = ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":false,\"opted_out_of_arbitration\":true}", string(body))
+	})
 }
