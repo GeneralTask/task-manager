@@ -16,6 +16,7 @@ type TaskSource interface {
 	Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error
 	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error
 	ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error
+	ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeableFields) error
 }
 
 type TaskCreationObject struct {

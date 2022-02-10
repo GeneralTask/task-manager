@@ -184,3 +184,7 @@ func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accoun
 func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
 	return nil
 }
+
+func (asanaTask AsanaTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeableFields) error {
+	return nil
+}

@@ -395,3 +395,7 @@ func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string
 func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
 	return nil
 }
+
+func (jira JIRASource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeableFields) error {
+	return nil
+}

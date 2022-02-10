@@ -71,9 +71,9 @@ type Item struct {
 }
 
 type TaskType struct {
-	IsTask    bool `bson:"is_task"`
-	IsMessage bool `bson:"is_message"`
-	IsEvent   bool `bson:"is_event"`
+	IsTask    bool `bson:"is_task,omitempty"`
+	IsMessage bool `bson:"is_message,omitempty"`
+	IsEvent   bool `bson:"is_event,omitempty"`
 }
 
 // Task json & mongo model
@@ -124,12 +124,16 @@ type CalendarEventChangeableFields struct {
 type Email struct {
 	ThreadID     string `bson:"thread_id"`
 	SenderDomain string `bson:"sender_domain"`
-	IsUnread     bool   `bson:"is_unread"`
+	IsRead       bool   `bson:"is_unread"`
+}
+
+type EmailChangeableFields struct {
+	IsRead bool `bson:"is_unread,omitempty"`
 }
 
 type MessageChangeableFields struct {
-	Email    `bson:"email,omitempty"`
-	TaskType `bson:"task_type"`
+	EmailChangeableFields `bson:"email,omitempty"`
+	TaskType              `bson:"task_type,omitempty"`
 }
 
 type Task struct {

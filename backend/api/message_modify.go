@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"errors"
 	"log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -17,11 +16,6 @@ type messageModifyParams struct {
 	IsTask   *bool `json:"is_task"`
 }
 
-type MessageModifyParams struct {
-	IsUnread *bool `json:"is_unread"`
-	IsTask   *bool `json:"is_task"`
-}
-
 func (api *API) MessageModify(c *gin.Context) {
 	taskIDHex := c.Param("message_id")
 	taskID, err := primitive.ObjectIDFromHex(taskIDHex)
@@ -30,7 +24,7 @@ func (api *API) MessageModify(c *gin.Context) {
 		Handle404(c)
 		return
 	}
-	var modifyParams MessageModifyParams
+	var modifyParams messageModifyParams
 	err = c.BindJSON(&modifyParams)
 
 	if err != nil {
@@ -48,10 +42,11 @@ func (api *API) MessageModify(c *gin.Context) {
 	}
 
 	// check if all fields are empty
-	if modifyParams == (MessageModifyParams{}) {
+	if modifyParams == (messageModifyParams{}) {
 		c.JSON(400, gin.H{"detail": "parameter missing"})
 		return
 	}
+	messageChangeableFields := messageModifyParamsToChangeableFields(&modifyParams)
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
 	if err != nil {
@@ -61,14 +56,14 @@ func (api *API) MessageModify(c *gin.Context) {
 	}
 
 	// update external task
-	err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.ID, &modifyParams.TaskChangeableFields)
+	err = taskSourceResult.Source.ModifyMessage(userID, task.SourceAccountID, task.IDExternal, messageChangeableFields)
 	if err != nil {
 		log.Printf("failed to update external task source: %v", err)
 		Handle500(c)
 		return
 	}
 
-	updateMessage(api, c, taskID, userID, &modifyParams.TaskChangeableFields, task)
+	updateMessageInDB(api, c, taskID, userID, messageChangeableFields)
 
 	c.JSON(200, gin.H{})
 }
@@ -99,7 +94,7 @@ func getMessage(api *API, c *gin.Context, messageID primitive.ObjectID, userID p
 	return &task, nil
 }
 
-func updateMessage(api *API, c *gin.Context, messageID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields, task *database.Item) {
+func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.MessageChangeableFields) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -129,4 +124,15 @@ func updateMessage(api *API, c *gin.Context, messageID primitive.ObjectID, userI
 		Handle500(c)
 		return
 	}
+}
+
+func messageModifyParamsToChangeableFields(modifyParams *messageModifyParams) *database.MessageChangeableFields {
+	var changeableFields database.MessageChangeableFields
+	if modifyParams.IsTask != nil {
+		changeableFields.IsTask = *modifyParams.IsTask
+	}
+	if modifyParams.IsUnread != nil {
+		changeableFields.EmailChangeableFields.IsRead = !*modifyParams.IsUnread
+	}
+	return &changeableFields
 }

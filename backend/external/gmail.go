@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 	"time"
 
@@ -474,7 +475,11 @@ func (gmailSource GmailSource) CreateNewTask(userID primitive.ObjectID, accountI
 	return errors.New("has not been implemented yet")
 }
 
-func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, emailID string) error {
+func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
+	return nil
+}
+
+func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeableFields) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -496,6 +501,7 @@ func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID s
 			option.WithoutAuthentication(),
 			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailModifyURL))
 	}
+	// gmailService, err := getGmailService(gmailSource, parentCtx, client)
 
 	if err != nil {
 		log.Printf("unable to create Gmail service: %v", err)
@@ -513,4 +519,28 @@ func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID s
 
 	return err
 
+}
+
+func getGmailService(gmailSource GmailSource, ctx context.Context, client *http.Client) (*gmail.Service, error) {
+	var gmailService *gmail.Service
+	var err error
+	if gmailSource.Google.OverrideURLs.GmailModifyURL == nil {
+		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
+		defer cancel()
+		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
+	} else {
+		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
+		defer cancel()
+		gmailService, err = gmail.NewService(
+			extCtx,
+			option.WithoutAuthentication(),
+			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailModifyURL))
+	}
+
+	if err != nil {
+		log.Printf("unable to create Gmail service: %v", err)
+		return nil, err
+	}
+
+	return gmailService, nil
 }
