@@ -147,7 +147,7 @@ func (api *API) MessagesList(c *gin.Context) {
 			`in the settings page to continue seeing messages from this account. If this is your primary account, ` +
 			`you will need to visit the following link to reauthorize: ` +
 			`<a href="%slogin/?force_prompt=true">Click here</a></body></html>`)
-		body = fmt.Sprintf(body, config.GetConfigValue(""))
+		body = fmt.Sprintf(body, config.GetConfigValue("SERVER_URL"))
 		if err != nil {
 			log.Printf("failed to convert plain text to HTML: %v", err)
 			continue
