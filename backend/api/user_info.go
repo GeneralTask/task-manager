@@ -16,7 +16,13 @@ type UserInfo struct {
 	OptedOutOfArbitration bool `json:"opted_out_of_arbitration"`
 }
 
-func (api *API) UserInfo(c *gin.Context) {
+type UserInfoParams struct {
+	AgreedToTerms         *bool `json:"agreed_to_terms" bson:"agreed_to_terms,omitempty"`
+	OptedIntoMarketing    *bool `json:"opted_into_marketing" bson:"opted_into_marketing,omitempty"`
+	OptedOutOfArbitration *bool `json:"opted_out_of_arbitration" bson:"opted_out_of_arbitration,omitempty"`
+}
+
+func (api *API) UserInfoGet(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -42,4 +48,37 @@ func (api *API) UserInfo(c *gin.Context) {
 		OptedIntoMarketing:    userObject.OptedIntoMarketing,
 		OptedOutOfArbitration: userObject.OptedOutOfArbitration,
 	})
+}
+
+func (api *API) UserInfoUpdate(c *gin.Context) {
+	parentCtx := c.Request.Context()
+	var params UserInfoParams
+	err := c.BindJSON(&params)
+	if err != nil {
+		log.Printf("error: %v", err)
+		c.JSON(400, gin.H{"detail": "invalid or missing parameters."})
+		return
+	}
+
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
+	userID, _ := c.Get("user")
+	userCollection := database.GetUserCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err = userCollection.UpdateOne(
+		dbCtx,
+		bson.M{"_id": userID},
+		bson.M{"$set": params},
+	)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	c.JSON(200, gin.H{})
 }
