@@ -138,9 +138,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
-		if dbTask.TimeAllocation != int64(0) {
-			task.TimeAllocation = dbTask.TimeAllocation
-		}
+		task.TimeAllocation = dbTask.TimeAllocation
 		tasks = append(tasks, task)
 	}
 
