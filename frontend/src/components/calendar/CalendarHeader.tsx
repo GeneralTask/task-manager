@@ -41,19 +41,24 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
             <flex.flex>
                 <ExpandCollapse direction="right" onClick={() => dispatch(setShowCalendarSidebar(false))} />
                 <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay>
-            </flex.flex>
-            <flex.flex>
-                <Tooltip text="Today" placement='below' >
-                    <HoverButton onClick={() => setDate(new Date())}>
-                        <Icon src={`${process.env.PUBLIC_URL}/images/CalendarBlank.svg`} alt="Today" />
-                    </HoverButton>
-                </Tooltip>
                 <HoverButton onClick={selectPreviousDay}>
                     <Icon src={`${process.env.PUBLIC_URL}/images/CaretLeft.svg`} alt="Show previous day" />
                 </HoverButton>
                 <HoverButton onClick={selectNextDay}>
                     <Icon src={`${process.env.PUBLIC_URL}/images/CaretRight.svg`} alt="Show next day" />
                 </HoverButton>
+            </flex.flex>
+            <flex.flex>
+                <Tooltip text="Today" placement='below' >
+                    <HoverButton main onClick={() => setDate(new Date())}>
+                        Today
+                    </HoverButton>
+                </Tooltip>
+                <Tooltip text="Expand/Collapse" placement='below' >
+                    <HoverButton> {/* TODO: Onclick expand/collapse full-width calendar */}
+                        <Icon src={`${process.env.PUBLIC_URL}/images/ArrowsOutSimple.svg`} alt="Expand/Collapse" />
+                    </HoverButton>
+                </Tooltip>
             </flex.flex>
         </CalendarHeaderContainer>
     )
