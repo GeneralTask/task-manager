@@ -47,13 +47,13 @@ func (api *API) FeedbackAdd(c *gin.Context) {
 		},
 	)
 	if err != nil {
-		log.Printf("failed to insert feedback item: %v", err)
+		log.Printf("failed to insert feedback item: %+v", err)
 		Handle500(c)
 		return
 	}
 	err = slack.SendFeedbackMessage(params.Feedback)
 	if err != nil {
-		log.Printf("failed to send slack feedback message: %v", err)
+		log.Printf("failed to send slack feedback message: %+v", err)
 	}
 	c.JSON(201, gin.H{})
 }
