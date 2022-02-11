@@ -17,11 +17,12 @@ import {
 
 const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_TIME_WIDTH}px - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px) * 1/var(--squish-factor)`
 
-export const DayContainer = styled.div`
+export const DayContainer = styled.div<{ scroll: boolean }>`
     width: 100%;
     margin-top: 24px;
     flex: 1;
     display: flex;
+    overflow: ${props => props.scroll ? 'auto' : 'none'};
     justify-content: center;
     position: relative;
 `

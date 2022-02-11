@@ -9,6 +9,7 @@ export const CalendarHeaderContainer = styled.div`
     padding: 0px 24px;
 `
 export const DateDisplay = styled.div`
+    width: 130px;
     margin-left: 40px;
     font-size: 20px;
     font-weight: 600;

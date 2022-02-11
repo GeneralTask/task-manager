@@ -18,6 +18,7 @@ import { findCollisionGroups } from './utils/eventLayout'
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
 
+
 interface CalendarDayTableProps {
     showTimes: boolean
 }
@@ -74,9 +75,10 @@ interface CalendarEventsProps {
     date: DateTime
     isToday: boolean
     showTimes: boolean
+    scroll: boolean
 }
 
-export default function CalendarEvents({ date, isToday, showTimes }: CalendarEventsProps): JSX.Element {
+export default function CalendarEvents({ date, isToday, showTimes, scroll }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
 
     const startDate = date.startOf('day')
@@ -103,7 +105,7 @@ export default function CalendarEvents({ date, isToday, showTimes }: CalendarEve
     }, [])
 
     return (
-        <DayContainer ref={eventsContainerRef}>
+        <DayContainer ref={eventsContainerRef} scroll={scroll} >
             {groups.map((group, index) => (<CollisionGroupColumns key={index} events={group} />))}
             {isToday && <TimeIndicator />}
             <CalendarDayTable showTimes={showTimes} />

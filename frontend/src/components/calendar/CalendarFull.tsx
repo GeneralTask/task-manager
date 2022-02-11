@@ -60,7 +60,8 @@ export default function CalendarFull(): JSX.Element {
                         return <CalendarEvents
                             date={date.plus({ days: i })}
                             isToday={dateIsToday(date.plus({ days: i }))}
-                            showTimes={i === 0} />
+                            showTimes={i === 0}
+                            scroll={false} />
                     })
                 }
             </WeekContainer >
