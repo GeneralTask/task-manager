@@ -181,12 +181,26 @@ func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accoun
 }
 
 func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
-	// url := "https://app.asana.com/api/1.0/tasks/" + taskIDExternal
-	// if asanaTask.Asana.ConfigValues.TaskUpdateURL != nil {
-	// 	_, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(json))
-	// 	if err != nil {
-	// 		return err
-	// 	}
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+
+	client := getAsanaHttpClient(db, userID, accountID)
+
+	taskUpdateURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/%s/", issueID)
+	if asanaTask.Asana.ConfigValues.TaskUpdateURL != nil {
+		taskUpdateURL = *asanaTask.Asana.ConfigValues.TaskUpdateURL
+		client = http.DefaultClient
+	}
+	// jsong := {
+	// 	"data": "Hello",
 	// }
+	err = requestJSON(client, "PUT", taskUpdateURL, `{"data": {"completed": true}}`, EmptyResponsePlaceholder)
+	if err != nil {
+		log.Printf("failed to fetch asana tasks: %v", err)
+		return err
+	}
 	return nil
 }
