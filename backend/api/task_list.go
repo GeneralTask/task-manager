@@ -205,64 +205,59 @@ func (api *API) mergeTasks(
 		return a.IDOrdering < b.IDOrdering
 	})
 
-	blockedTasks, backlogTasks, todayTasks := api.extractSectionTasksV2(fetchedTasks)
+	return api.extractSectionTasksV2(db, userID, fetchedTasks)
+}
 
-	err = updateOrderingIDsV2(db, &todayTasks)
+func (api *API) extractSectionTasksV2(
+	db *mongo.Database,
+	userID primitive.ObjectID,
+	fetchedTasks *[]*database.Item,
+) ([]*TaskSection, error) {
+	userSections, err := database.GetTaskSections(db, userID)
 	if err != nil {
 		return []*TaskSection{}, err
 	}
-
-	err = updateOrderingIDsV2(db, &blockedTasks)
-	if err != nil {
-		return []*TaskSection{}, err
-	}
-
-	err = updateOrderingIDsV2(db, &backlogTasks)
-	if err != nil {
-		return []*TaskSection{}, err
-	}
-
-	return []*TaskSection{
+	resultSections := []*TaskSection{
 		{
 			ID:    constants.IDTaskSectionToday,
 			Name:  TaskSectionNameToday,
-			Tasks: todayTasks,
+			Tasks: []*TaskResult{},
 		},
 		{
 			ID:    constants.IDTaskSectionBlocked,
 			Name:  TaskSectionNameBlocked,
-			Tasks: blockedTasks,
+			Tasks: []*TaskResult{},
 		},
 		{
 			ID:    constants.IDTaskSectionBacklog,
 			Name:  TaskSectionNameBacklog,
-			Tasks: backlogTasks,
+			Tasks: []*TaskResult{},
 		},
-		{
-			ID:     constants.IDTaskSectionDone,
-			Name:   TaskSectionNameDone,
-			Tasks:  completedTaskResults,
-			IsDone: true,
-		},
-	}, nil
-}
-
-func (api *API) extractSectionTasksV2(fetchedTasks *[]*database.Item) ([]*TaskResult, []*TaskResult, []*TaskResult) {
-	blockedTasks := make([]*TaskResult, 0)
-	backlogTasks := make([]*TaskResult, 0)
-	allOtherTasks := make([]*TaskResult, 0)
-	for _, task := range *fetchedTasks {
-		if task.IDTaskSection == constants.IDTaskSectionBlocked {
-			blockedTasks = append(blockedTasks, api.taskBaseToTaskResult(&task.TaskBase))
-			continue
-		}
-		if task.IDTaskSection == constants.IDTaskSectionBacklog {
-			backlogTasks = append(backlogTasks, api.taskBaseToTaskResult(&task.TaskBase))
-			continue
-		}
-		allOtherTasks = append(allOtherTasks, api.taskBaseToTaskResult(&task.TaskBase))
 	}
-	return blockedTasks, backlogTasks, allOtherTasks
+	for _, userSection := range *userSections {
+		resultSections = append(resultSections, &TaskSection{
+			ID:    userSection.ID,
+			Name:  userSection.Name,
+			Tasks: []*TaskResult{},
+		})
+	}
+	// this is inefficient but easy to understand - can optimize later as needed
+	for _, task := range *fetchedTasks {
+		taskResult := api.taskBaseToTaskResult(&task.TaskBase)
+		addedToSection := false
+		for _, resultSection := range resultSections {
+			if task.IDTaskSection == resultSection.ID {
+				resultSection.Tasks = append(resultSection.Tasks, taskResult)
+				addedToSection = true
+				break
+			}
+		}
+		if !addedToSection {
+			// add to "Today" section if task section id is not found
+			resultSections[0].Tasks = append(resultSections[0].Tasks, taskResult)
+		}
+	}
+	return resultSections, nil
 }
 
 func adjustForCompletedTasks(
