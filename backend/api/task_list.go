@@ -205,7 +205,17 @@ func (api *API) mergeTasks(
 		return a.IDOrdering < b.IDOrdering
 	})
 
-	return api.extractSectionTasksV2(db, userID, fetchedTasks)
+	sections, err := api.extractSectionTasksV2(db, userID, fetchedTasks)
+	if err != nil {
+		return []*TaskSection{}, err
+	}
+	sections = append(sections, &TaskSection{
+		ID:     constants.IDTaskSectionDone,
+		Name:   TaskSectionNameDone,
+		Tasks:  completedTaskResults,
+		IsDone: true,
+	})
+	return sections, nil
 }
 
 func (api *API) extractSectionTasksV2(
@@ -215,6 +225,7 @@ func (api *API) extractSectionTasksV2(
 ) ([]*TaskSection, error) {
 	userSections, err := database.GetTaskSections(db, userID)
 	if err != nil {
+		log.Printf("failed to fetch task sections: %+v", err)
 		return []*TaskSection{}, err
 	}
 	resultSections := []*TaskSection{
@@ -256,6 +267,9 @@ func (api *API) extractSectionTasksV2(
 			// add to "Today" section if task section id is not found
 			resultSections[0].Tasks = append(resultSections[0].Tasks, taskResult)
 		}
+	}
+	for _, resultSection := range resultSections {
+		updateOrderingIDsV2(db, &resultSection.Tasks)
 	}
 	return resultSections, nil
 }
