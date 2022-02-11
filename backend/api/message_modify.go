@@ -6,6 +6,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/chidiwilliams/flatbson"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -104,6 +105,12 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
+	flattenedUpdateFields, err := flatbson.Flatten(updateFields)
+	if err != nil {
+		log.Printf("Could not flatten %+v, error: %+v", updateFields, err)
+		Handle500(c)
+		return
+	}
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	log.Printf("updateFields, %+v", updateFields)
@@ -113,8 +120,9 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 			{"_id": messageID},
 			{"user_id": userID},
 		}},
-		bson.M{"$set": updateFields},
+		bson.M{"$set": flattenedUpdateFields},
 	)
+
 	if err != nil {
 		log.Printf("failed to update internal DB: %v", err)
 		Handle500(c)
