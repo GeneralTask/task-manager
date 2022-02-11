@@ -2,10 +2,12 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sort"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/settings"
@@ -91,7 +93,8 @@ func (api *API) MessagesList(c *gin.Context) {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
 			log.Printf("error loading task service: %v", err)
-			continue
+			Handle500(c)
+			return
 		}
 		for _, taskSource := range taskServiceResult.Sources {
 			var emails = make(chan external.EmailResult)
@@ -101,9 +104,13 @@ func (api *API) MessagesList(c *gin.Context) {
 	}
 
 	fetchedEmails := []*database.Item{}
-	for _, emailChannel := range emailChannels {
+	badTokens := []*database.ExternalAPIToken{}
+	for index, emailChannel := range emailChannels {
 		emailResult := <-emailChannel
 		if emailResult.Error != nil {
+			if emailResult.IsBadToken {
+				badTokens = append(badTokens, &tokens[index])
+			}
 			continue
 		}
 		fetchedEmails = append(fetchedEmails, emailResult.Emails...)
@@ -127,6 +134,43 @@ func (api *API) MessagesList(c *gin.Context) {
 	if err != nil {
 		Handle500(c)
 		return
+	}
+	for _, token := range badTokens {
+		// For now, marking as GT_TASK source to show visual distinction from emails
+		taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(external.TASK_SOURCE_ID_GT_TASK)
+		if err != nil {
+			log.Printf("error loading task service: %v", err)
+			Handle500(c)
+			return
+		}
+		body := (`<!DOCTYPE html><html lang="en"><head></head><body>Please un-link and re-link your email account ` +
+			`in the settings page to continue seeing messages from this account. If this is your primary account, ` +
+			`you will need to visit the following link to reauthorize: ` +
+			`<a href="%slogin/?force_prompt=true">Click here</a><br><br><i>Note: once we are verified by Google, this ` +
+			`issue will happen less often!</i></body></html>`)
+		body = fmt.Sprintf(body, config.GetConfigValue("SERVER_URL"))
+		if err != nil {
+			log.Printf("failed to convert plain text to HTML: %v", err)
+			continue
+		}
+		orderedMessages = append([]*message{
+			{
+				ID:       primitive.NilObjectID,
+				Title:    fmt.Sprintf("%s needs to be re-authorized!", token.AccountID),
+				Deeplink: "",
+				Body:     body,
+				Sender:   "General Task",
+				SentAt:   time.Now().Format(time.RFC3339),
+				IsUnread: false,
+				Source: messageSource{
+					AccountId:     token.AccountID,
+					Name:          taskSourceResult.Details.Name,
+					Logo:          taskSourceResult.Details.Logo,
+					IsCompletable: taskSourceResult.Details.IsCreatable,
+					IsReplyable:   taskSourceResult.Details.IsReplyable,
+				},
+			},
+		}, orderedMessages...)
 	}
 	c.JSON(200, orderedMessages)
 }

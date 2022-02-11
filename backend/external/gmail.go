@@ -66,7 +66,12 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox is:unread").Do()
 	if err != nil {
 		log.Printf("failed to load Gmail threads for user: %v", err)
-		result <- emptyEmailResult(err)
+		isBadToken := strings.Contains(err.Error(), "invalid_grant")
+		result <- EmailResult{
+			Emails:     []*database.Item{},
+			Error:      err,
+			IsBadToken: isBadToken,
+		}
 		return
 	}
 	for _, threadListItem := range threadsResponse.Threads {
