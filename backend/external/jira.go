@@ -392,6 +392,6 @@ func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string
 	return errors.New("has not been implemented yet")
 }
 
-func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, taskIDExternal string, updateFields *database.TaskChangeableFields) error {
+func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
 	return nil
 }

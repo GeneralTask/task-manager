@@ -139,6 +139,6 @@ func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID s
 	return errors.New("has not been implemented yet")
 }
 
-func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, taskIDExternal string, updateFields *database.TaskChangeableFields) error {
+func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
 	return nil
 }
