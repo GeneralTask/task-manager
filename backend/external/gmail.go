@@ -469,6 +469,6 @@ func (gmailSource GmailSource) CreateNewTask(userID primitive.ObjectID, accountI
 	return errors.New("has not been implemented yet")
 }
 
-func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
+func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, taskIDExternal string, updateFields *database.TaskChangeableFields) error {
 	return nil
 }

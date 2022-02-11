@@ -1,6 +1,7 @@
 package external
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"log"
@@ -180,6 +181,13 @@ func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accoun
 	return errors.New("cannot create new asana task")
 }
 
-func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
+func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, taskIDExternal string, updateFields *database.TaskChangeableFields) error {
+	url := "https://app.asana.com/api/1.0/tasks/" + taskIDExternal
+	if asanaTask.Asana.ConfigValues.TaskUpdateURL != nil {
+	_, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(json))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
