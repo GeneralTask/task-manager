@@ -85,7 +85,6 @@ func (api *API) SectionAdd(c *gin.Context) {
 
 func (api *API) SectionModify(c *gin.Context) {
 	sectionIDHex := c.Param("section_id")
-	log.Println("section id hex:", sectionIDHex)
 	sectionID, err := primitive.ObjectIDFromHex(sectionIDHex)
 	if err != nil {
 		// This means the task ID is improperly formatted

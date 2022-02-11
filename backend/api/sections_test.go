@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -104,7 +103,6 @@ func TestSections(t *testing.T) {
 		createdTaskID = sectionResult[0].ID.Hex()
 	})
 	t.Run("EmptyPayloadModify", func(t *testing.T) {
-		log.Println("created task ID:", createdTaskID)
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/sections/modify/"+createdTaskID+"/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -169,86 +167,42 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, "things i dont want to do", sectionResult[0].Name)
 		createdTaskID = sectionResult[0].ID.Hex()
 	})
-	// t.Run("UnauthorizedUpdate", func(t *testing.T) {
-	// 	router := GetRouter(GetAPI())
-	// 	request, _ := http.NewRequest("PATCH", "/user_info/", nil)
+	t.Run("DeleteBadURL", func(t *testing.T) {
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"DELETE",
+			"/sections/delete/"+primitive.NewObjectID().Hex()+"/",
+			nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusNotFound, recorder.Code)
+	})
+	t.Run("DeleteSuccess", func(t *testing.T) {
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"DELETE",
+			"/sections/delete/"+createdTaskID+"/",
+			nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
 
-	// 	recorder := httptest.NewRecorder()
-	// 	router.ServeHTTP(recorder, request)
-	// 	assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	// })
-	// t.Run("EmptyPayload", func(t *testing.T) {
-	// 	router := GetRouter(GetAPI())
-	// 	request, _ := http.NewRequest("PATCH", "/user_info/", nil)
-	// 	request.Header.Add("Authorization", "Bearer "+authToken)
-	// 	recorder := httptest.NewRecorder()
-	// 	router.ServeHTTP(recorder, request)
-	// 	assert.Equal(t, http.StatusBadRequest, recorder.Code)
-	// 	body, err := ioutil.ReadAll(recorder.Body)
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter.\"}", string(body))
-	// })
-	// t.Run("BadPayload", func(t *testing.T) {
-	// 	router := GetRouter(GetAPI())
-	// 	request, _ := http.NewRequest(
-	// 		"PATCH",
-	// 		"/user_info/",
-	// 		bytes.NewBuffer([]byte(`{"agreed_to_terms": "absolutely not"}`)))
-	// 	request.Header.Add("Authorization", "Bearer "+authToken)
-	// 	recorder := httptest.NewRecorder()
-	// 	router.ServeHTTP(recorder, request)
-	// 	assert.Equal(t, http.StatusBadRequest, recorder.Code)
-	// 	body, err := ioutil.ReadAll(recorder.Body)
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter.\"}", string(body))
-	// })
-	// t.Run("SuccessUpdate", func(t *testing.T) {
-	// 	router := GetRouter(GetAPI())
-	// 	request, _ := http.NewRequest(
-	// 		"PATCH",
-	// 		"/user_info/",
-	// 		bytes.NewBuffer([]byte(`{"agreed_to_terms":true,"opted_into_marketing":true,"opted_out_of_arbitration":true}`)))
-	// 	request.Header.Add("Authorization", "Bearer "+authToken)
-	// 	recorder := httptest.NewRecorder()
-	// 	router.ServeHTTP(recorder, request)
-	// 	assert.Equal(t, http.StatusOK, recorder.Code)
-	// 	body, err := ioutil.ReadAll(recorder.Body)
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, "{}", string(body))
-
-	// 	// fetch API again to verify values changed
-	// 	request, _ = http.NewRequest("GET", "/user_info/", nil)
-	// 	request.Header.Add("Authorization", "Bearer "+authToken)
-	// 	recorder = httptest.NewRecorder()
-	// 	router.ServeHTTP(recorder, request)
-	// 	assert.Equal(t, http.StatusOK, recorder.Code)
-	// 	body, err = ioutil.ReadAll(recorder.Body)
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":true,\"opted_out_of_arbitration\":true}", string(body))
-	// })
-	// t.Run("SuccessPartialUpdate", func(t *testing.T) {
-	// 	// assuming the fields are still true as above
-	// 	router := GetRouter(GetAPI())
-	// 	request, _ := http.NewRequest(
-	// 		"PATCH",
-	// 		"/user_info/",
-	// 		bytes.NewBuffer([]byte(`{"agreed_to_terms":true,"opted_into_marketing":false}`)))
-	// 	request.Header.Add("Authorization", "Bearer "+authToken)
-	// 	recorder := httptest.NewRecorder()
-	// 	router.ServeHTTP(recorder, request)
-	// 	assert.Equal(t, http.StatusOK, recorder.Code)
-	// 	body, err := ioutil.ReadAll(recorder.Body)
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, "{}", string(body))
-
-	// 	// fetch API again to verify values changed
-	// 	request, _ = http.NewRequest("GET", "/user_info/", nil)
-	// 	request.Header.Add("Authorization", "Bearer "+authToken)
-	// 	recorder = httptest.NewRecorder()
-	// 	router.ServeHTTP(recorder, request)
-	// 	assert.Equal(t, http.StatusOK, recorder.Code)
-	// 	body, err = ioutil.ReadAll(recorder.Body)
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":false,\"opted_out_of_arbitration\":true}", string(body))
-	// })
+		// use API to check updated
+		request, _ = http.NewRequest("GET", "/sections/", nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder = httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err = ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		var sectionResult []SectionResult
+		err = json.Unmarshal(body, &sectionResult)
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(sectionResult))
+	})
 }
