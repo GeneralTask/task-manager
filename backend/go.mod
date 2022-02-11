@@ -19,6 +19,7 @@ require (
 require (
 	cloud.google.com/go v0.87.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.0.2 // indirect
+	github.com/chidiwilliams/flatbson v0.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
