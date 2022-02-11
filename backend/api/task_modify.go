@@ -266,7 +266,7 @@ func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID prim
 		Handle500(c)
 		return
 	}
-	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
+	if res.MatchedCount != 1 {
 		log.Println("failed to update task", res)
 		Handle500(c)
 		return
