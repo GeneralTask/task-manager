@@ -365,3 +365,7 @@ func GetLogEventsCollection(db *mongo.Database) *mongo.Collection {
 func GetFeedbackItemCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("feedback_items")
 }
+
+func GetTaskSectionCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("task_sections")
+}
