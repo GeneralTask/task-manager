@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { ACCENT_ACTIVE, ACCENT_MAIN, EVENT_CONTAINER_COLOR, ICON_HOVER } from '../../helpers/styles'
+import { ACCENT_ACTIVE, ACCENT_MAIN, ICON_HOVER } from '../../helpers/styles'
 
 export const CalendarHeaderContainer = styled.div`
     height: 50px;
@@ -35,13 +35,4 @@ export const HoverButton = styled.button<{ main?: boolean }>`
 export const Icon = styled.img`
     height: 16px;
     width: 16px;
-`
-
-export const CalendarSidebarContainer = styled.div`
-    min-width: 475px;
-    height: 100%;
-    background-color: ${EVENT_CONTAINER_COLOR};
-    box-shadow: -5px 0px 20px 5px whitesmoke;
-    display: flex;
-    flex-direction: column;
 `

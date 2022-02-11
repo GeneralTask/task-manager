@@ -106,7 +106,7 @@ export const UNSELECTED_NAVBAR_COLOR = GRAY_400
 export const DOMINO_COLOR = GRAY_400
 
 export const CELL_HEIGHT = 64
-export const TABLE_WIDTH_PERCENTAGE = 95
+export const TABLE_WIDTH_PERCENTAGE = 100
 export const CELL_TIME_WIDTH = 43
 export const CELL_BORDER_WIDTH = 3
 export const CELL_LEFT_MARGIN = 10

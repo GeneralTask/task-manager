@@ -5,7 +5,7 @@ import {
     CalendarTD,
     CalendarTableStyle,
     CellTime,
-    EventsContainer,
+    DayContainer,
 } from './CalendarEvents-styles'
 import { EVENTS_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import React, { Ref, useCallback, useEffect, useRef } from 'react'
@@ -16,16 +16,19 @@ import { setEvents } from '../../redux/tasksPageSlice'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import CollisionGroupColumns from './CollisionGroupColumns'
+import { DateTime } from 'luxon'
 
-
-function CalendarTable(): JSX.Element {
+interface CalendarDayTableProps {
+    showTimes: boolean
+}
+function CalendarDayTable({ showTimes }: CalendarDayTableProps): JSX.Element {
     const hourElements = Array(24)
         .fill(0)
         .map((_, index) => (
             <CalendarRow key={index}>
                 <CalendarTD>
                     <CalendarCell>
-                        <CellTime>{`${(index % 12) + 1}:00`}</CellTime>
+                        {showTimes && <CellTime>{`${(index % 12) + 1}:00`}</CellTime>}
                     </CalendarCell>
                 </CalendarTD>
             </CalendarRow>
@@ -43,16 +46,16 @@ Styling guidelines for events based on duration (inspired by google calendar)
     - Truncate task title first, hide times if doesn't fit
     - Its okay to remove padding for very short tasks
 */
-function useFetchEvents(): (start: Date, end: Date) => Promise<void> {
+function useFetchEvents(): (start: DateTime, end: DateTime) => Promise<void> {
     const dispatch = useAppDispatch()
-    const fetchEvents = useCallback(async (start: Date, end: Date) => {
+    const fetchEvents = useCallback(async (start: DateTime, end: DateTime) => {
         try {
             const response = await makeAuthorizedRequest({
                 url: EVENTS_URL,
                 method: 'GET',
                 params: {
-                    datetime_start: start.toISOString(),
-                    datetime_end: end.toISOString(),
+                    datetime_start: start.toISO(),
+                    datetime_end: end.toISO(),
                 },
                 abortID: AbortID.EVENTS,
             })
@@ -68,33 +71,26 @@ function useFetchEvents(): (start: Date, end: Date) => Promise<void> {
 }
 
 interface CalendarEventsProps {
-    date: Date
+    date: DateTime
     isToday: boolean
+    showTimes: boolean
 }
 
-export default function CalendarEvents({ date, isToday }: CalendarEventsProps): JSX.Element {
+export default function CalendarEvents({ date, isToday, showTimes }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
 
-    const startDate = new Date(date)
-    startDate.setHours(0, 0, 0, 0)
-    const endDate = new Date(startDate)
-    endDate.setDate(startDate.getDate() + 1)
+    const startDate = date.startOf('day')
+    const endDate = startDate.plus({ days: 1 })
 
     const event_list = useAppSelector((state) => state.tasks_page.events.event_list).filter(
-        (event) => new Date(event.datetime_end) >= startDate && new Date(event.datetime_start) <= endDate
+        (event) => DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate
     )
     const groups = findCollisionGroups(event_list)
 
     const fetchEvents = useFetchEvents()
     const fetchEventsAroundDate = useCallback(() => {
-        const start = new Date(date)
-        start.setDate(date.getDate() - 3)
-        start.setHours(0, 0, 0, 0)
-
-        const end = new Date(date)
-        end.setDate(date.getDate() + 3)
-        end.setHours(23, 59, 59, 999)
-
+        const start = date.startOf('day').minus({ days: 7 })
+        const end = date.endOf('day').plus({ days: 7 })
         fetchEvents(start, end)
     }, [date])
 
@@ -107,10 +103,10 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
     }, [])
 
     return (
-        <EventsContainer ref={eventsContainerRef}>
+        <DayContainer ref={eventsContainerRef}>
             {groups.map((group, index) => (<CollisionGroupColumns key={index} events={group} />))}
             {isToday && <TimeIndicator />}
-            <CalendarTable />
-        </EventsContainer>
+            <CalendarDayTable showTimes={showTimes} />
+        </DayContainer>
     )
 }

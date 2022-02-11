@@ -22,6 +22,7 @@ import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import { useFetchMessages } from '../messages/MessagesPage'
+import CalendarFull from '../calendar/CalendarFull'
 
 const TasksPageContainer = styled.div`
     display: flex;
@@ -148,7 +149,7 @@ export default function TasksPage(): JSX.Element {
         <TasksPageContainer>
             <Navbar currentPage={currentPage} />
             {fullCalendarShown ?
-                <CalendarSidebar /> //TODO: ADD FULL CALENDAR
+                <CalendarFull />
                 :
                 <>
                     <EventAlert>

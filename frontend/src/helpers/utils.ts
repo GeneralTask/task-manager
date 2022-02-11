@@ -15,6 +15,7 @@ import { LogEvents } from './enums'
 import _ from 'lodash'
 import { setAuthToken } from '../redux/userDataSlice'
 import store from '../redux/store'
+import { DateTime } from 'luxon'
 
 // This invalidates the cookie on the frontend
 export const logout = async (): Promise<void> => {
@@ -185,12 +186,12 @@ export function logEvent(event_type: LogEvents): void {
     })
 }
 
-export function dateIsToday(date: Date): boolean {
-    const today = new Date()
+export function dateIsToday(date: DateTime): boolean {
+    const today = DateTime.now()
     return (
-        date.getDate() === today.getDate() &&
-        date.getMonth() === today.getMonth() &&
-        date.getFullYear() === today.getFullYear()
+        date.day === today.day &&
+        date.month === today.month &&
+        date.year === today.year
     )
 }
 
