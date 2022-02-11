@@ -8,11 +8,14 @@ import (
 
 // User model
 type User struct {
-	ID            primitive.ObjectID `bson:"_id,omitempty"`
-	GoogleID      string             `bson:"google_id"`
-	Email         string             `bson:"email"`
-	Name          string             `bson:"name"`
-	LastRefreshed primitive.DateTime `bson:"last_refreshed"`
+	ID                    primitive.ObjectID `bson:"_id,omitempty"`
+	GoogleID              string             `bson:"google_id"`
+	Email                 string             `bson:"email"`
+	Name                  string             `bson:"name"`
+	LastRefreshed         primitive.DateTime `bson:"last_refreshed"`
+	AgreedToTerms         bool               `bson:"agreed_to_terms"`
+	OptedIntoMarketing    bool               `bson:"opted_into_marketing"`
+	OptedOutOfArbitration bool               `bson:"opted_out_of_arbitration"`
 }
 
 // InternalAPIToken model
