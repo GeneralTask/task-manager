@@ -146,7 +146,8 @@ func (api *API) MessagesList(c *gin.Context) {
 		body := (`<!DOCTYPE html><html lang="en"><head></head><body>Please un-link and re-link your email account ` +
 			`in the settings page to continue seeing messages from this account. If this is your primary account, ` +
 			`you will need to visit the following link to reauthorize: ` +
-			`<a href="%slogin/?force_prompt=true">Click here</a></body></html>`)
+			`<a href="%slogin/?force_prompt=true">Click here</a><br><br><i>Note: once we are verified by Google, this ` +
+			`issue will happen less often!</i></body></html>`)
 		body = fmt.Sprintf(body, config.GetConfigValue("SERVER_URL"))
 		if err != nil {
 			log.Printf("failed to convert plain text to HTML: %v", err)
