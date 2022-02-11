@@ -21,39 +21,23 @@ type SectionResult struct {
 }
 
 func (api *API) SectionList(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
 		return
 	}
 	defer dbCleanup()
-	sectionCollection := database.GetTaskSectionCollection(db)
 
 	userID, _ := c.Get("user")
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	cursor, err := sectionCollection.Find(
-		dbCtx,
-		bson.M{"user_id": userID.(primitive.ObjectID)},
-	)
+	sections, err := database.GetTaskSections(db, userID.(primitive.ObjectID))
 	if err != nil {
 		log.Printf("failed to fetch sections for user: %+v", err)
 		Handle500(c)
 		return
 	}
-	var sections []database.TaskSection
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &sections)
-	if err != nil {
-		log.Printf("failed to fetch sections for user: %v", err)
-		Handle500(c)
-		return
-	}
 	sectionResults := []SectionResult{}
-	for _, section := range sections {
+	for _, section := range *sections {
 		sectionResults = append(sectionResults, SectionResult{
 			ID:   section.ID,
 			Name: section.Name,
