@@ -104,6 +104,7 @@ func TestChangeReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
 		assert.Equal(t, true, message.IsUnread)
+		assert.Equal(t, true, message.IsMessage)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -121,6 +122,7 @@ func TestChangeReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
 		assert.Equal(t, false, message.IsUnread)
+		assert.Equal(t, true, message.IsMessage)
 	})
 
 	t.Run("GmailSuccessUnread", func(t *testing.T) {
@@ -136,6 +138,7 @@ func TestChangeReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
 		assert.Equal(t, false, message.IsUnread)
+		assert.Equal(t, true, message.IsMessage)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -153,6 +156,7 @@ func TestChangeReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
 		assert.Equal(t, true, message.IsUnread)
+		assert.Equal(t, true, message.IsMessage)
 	})
 
 }
@@ -201,6 +205,7 @@ func TestMarkMessageAsTask(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
 		assert.Equal(t, false, message.IsTask)
+		assert.Equal(t, true, message.IsMessage)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -218,6 +223,7 @@ func TestMarkMessageAsTask(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
 		assert.Equal(t, true, message.IsTask)
+		assert.Equal(t, true, message.IsMessage)
 	})
 
 	t.Run("MarkMessageAsTaskAgainDoesNotfail", func(t *testing.T) {
@@ -232,6 +238,7 @@ func TestMarkMessageAsTask(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
 		assert.Equal(t, true, message.IsTask)
+		assert.Equal(t, true, message.IsMessage)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -249,6 +256,7 @@ func TestMarkMessageAsTask(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
 		assert.Equal(t, true, message.IsTask)
+		assert.Equal(t, true, message.IsMessage)
 	})
 
 	t.Run("MarkMessageBackToNotTask", func(t *testing.T) {
@@ -263,6 +271,7 @@ func TestMarkMessageAsTask(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
 		assert.Equal(t, true, message.IsTask)
+		assert.Equal(t, true, message.IsMessage)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -280,5 +289,6 @@ func TestMarkMessageAsTask(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
 		assert.Equal(t, false, message.IsTask)
+		assert.Equal(t, true, message.IsMessage)
 	})
 }

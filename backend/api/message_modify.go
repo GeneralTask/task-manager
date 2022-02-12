@@ -113,7 +113,6 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 	}
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	log.Printf("updateFields, %+v", updateFields)
 	res, err := taskCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
