@@ -88,8 +88,9 @@ func (api *API) MessagesList(c *gin.Context) {
 	}
 
 	emailChannels := []chan external.EmailResult{}
+	tokensInUse := []*database.ExternalAPIToken{}
 	// Loop through linked accounts and fetch relevant items
-	for _, token := range tokens {
+	for index, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
 			log.Printf("error loading task service: %v", err)
@@ -100,6 +101,8 @@ func (api *API) MessagesList(c *gin.Context) {
 			var emails = make(chan external.EmailResult)
 			go taskSource.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails)
 			emailChannels = append(emailChannels, emails)
+			// need to use tokens array here to ensure pointer isn't same memory address each time
+			tokensInUse = append(tokensInUse, &tokens[index])
 		}
 	}
 
@@ -109,7 +112,7 @@ func (api *API) MessagesList(c *gin.Context) {
 		emailResult := <-emailChannel
 		if emailResult.Error != nil {
 			if emailResult.IsBadToken {
-				badTokens = append(badTokens, &tokens[index])
+				badTokens = append(badTokens, tokensInUse[index])
 			}
 			continue
 		}
