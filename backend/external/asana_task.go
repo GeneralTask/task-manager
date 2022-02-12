@@ -1,6 +1,7 @@
 package external
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -33,6 +34,17 @@ type AsanaTasksResponse struct {
 		PermalinkURL string             `json:"permalink_url"`
 		CreatedAt    primitive.DateTime `json:"created_at"`
 	} `json:"data"`
+}
+
+type AsanaTasksUpdateFields struct {
+	Name      *string `json:"name,omitempty"`
+	Notes     *string `json:"notes,omitempty"`
+	DueOn     *string `json:"due_on,omitempty"`
+	Completed *bool   `json:"completed,omitempty"`
+}
+
+type AsanaTasksUpdateBody struct {
+	Data AsanaTasksUpdateFields `json:"data"`
 }
 
 func (asanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
@@ -194,13 +206,29 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 		taskUpdateURL = *asanaTask.Asana.ConfigValues.TaskUpdateURL
 		client = http.DefaultClient
 	}
-	// jsong := {
-	// 	"data": "Hello",
-	// }
-	err = requestJSON(client, "PUT", taskUpdateURL, `{"data": {"completed": true}}`, EmptyResponsePlaceholder)
+	var dueDate *string
+	if !updateFields.DueDate.Time().IsZero() {
+		dueDateString := updateFields.DueDate.Time().Format(time.RFC3339)
+		dueDate = &dueDateString
+		log.Printf(dueDateString)
+	}
+	body := AsanaTasksUpdateBody{
+		Data: AsanaTasksUpdateFields{
+			Name:      updateFields.Title,
+			Notes:     updateFields.Body,
+			DueOn:     dueDate,
+			Completed: updateFields.IsCompleted,
+		},
+	}
+	bodyJson, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+	err = requestJSON(client, "PUT", taskUpdateURL, string(bodyJson), EmptyResponsePlaceholder)
 	if err != nil {
 		log.Printf("failed to fetch asana tasks: %v", err)
 		return err
 	}
+	log.Printf("updated asana task: %s", issueID)
 	return nil
 }
