@@ -128,8 +128,9 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 		Handle500(c)
 		return
 	}
-	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
-		log.Printf("failed to update task %+v", res)
+	if res.MatchedCount != 1 {
+		// Note, we don't consider res.ModifiedCount because no-op updates don't count as modified
+		log.Printf("failed to find task %+v", res)
 		Handle500(c)
 		return
 	}
