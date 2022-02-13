@@ -12,7 +12,6 @@ type TaskSource interface {
 	GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult)
 	GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult)
 	GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult)
-	MarkAsDone(userID primitive.ObjectID, accountID string, taskID string) error
 	Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error
 	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error
 	ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error
