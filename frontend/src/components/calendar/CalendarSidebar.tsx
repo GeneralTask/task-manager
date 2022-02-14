@@ -8,7 +8,7 @@ import CalendarEvents from './CalendarEvents'
 import CalendarHeader from './CalendarHeader'
 
 const CalendarSidebarContainer = styled.div`
-    min-width: 475px;
+    min-width: 400px;
     height: 100%;
     background-color: ${EVENT_CONTAINER_COLOR};
     box-shadow: -5px 0px 20px 5px whitesmoke;

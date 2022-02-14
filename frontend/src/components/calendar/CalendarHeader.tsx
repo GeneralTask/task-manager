@@ -1,12 +1,19 @@
 import { DateTime } from 'luxon'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { flex } from '../../helpers/styles'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setShowCalendarSidebar, setShowFullCalendar } from '../../redux/tasksPageSlice'
 import ExpandCollapse from '../common/ExpandCollapse'
 import Tooltip from '../common/Tooltip'
-import { CalendarHeaderContainer, HoverButton, Icon, DateDisplay } from './CalendarHeader-styles'
+import { CalendarHeaderContainer, HoverButton, Icon, DateDisplay, dropdownStyles, CalendarHeaderTitle, HeaderTopContainer, HeaderMiddleContainer, HeaderBottomContainer } from './CalendarHeader-styles'
+import Select, { SingleValue } from 'react-select'
+import { Console } from 'console'
 
+const view_options = [
+    { value: 1, label: 'Day' },
+    { value: 2, label: 'Week' },
+    { value: 3, label: 'Month' },
+]
 interface CalendarHeaderProps {
     date: DateTime
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
@@ -14,6 +21,7 @@ interface CalendarHeaderProps {
 export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
     const dispatch = useAppDispatch()
     const isFullCalendarShown = useAppSelector(state => state.tasks_page.events.show_full_calendar)
+    const [selectValue, setSelectValue] = useState(view_options[0])
 
     const dayOfWeek = date.toLocaleString({ weekday: 'short' })
     const dayNum = date.day
@@ -33,36 +41,58 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
             }),
         [date, setDate]
     )
-    function collapse(): void {
+    // function handleSelectChange(e: SingleValue<Record<string, number>>): void {
+    //     if (!e) return
+    //     const { value } = e
+    //     setSelectValue({ value: value, label: e.label })
+    // }
+    function expand(): void {
         if (isFullCalendarShown) {
             dispatch(setShowFullCalendar(false))
         } else {
-            dispatch(setShowCalendarSidebar(false))
+            dispatch(setShowFullCalendar(true))
         }
     }
 
     return (
         <CalendarHeaderContainer>
-            <flex.flex>
-                <ExpandCollapse direction="right" onClick={collapse} />
-                <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay>
-                <HoverButton onClick={selectPreviousDay}>
-                    <Icon src={`${process.env.PUBLIC_URL}/images/CaretLeft.svg`} alt="Show previous day" />
-                </HoverButton>
-                <HoverButton onClick={selectNextDay}>
-                    <Icon src={`${process.env.PUBLIC_URL}/images/CaretRight.svg`} alt="Show next day" />
-                </HoverButton>
-            </flex.flex>
-            <flex.flex>
-                <Tooltip text="Today" placement='below' >
+            <HeaderTopContainer>
+                <flex.flex>
+                    {/* <ExpandCollapse direction="right" onClick={collapse} /> */}
+                    <CalendarHeaderTitle>Calendar</CalendarHeaderTitle>
+                </flex.flex>
+                <flex.flex>
+                    <HoverButton onClick={(e) => e.stopPropagation()}> {/*TODO: Add new event} */}
+                        <Icon src={`${process.env.PUBLIC_URL}/images/Plus.svg`} alt="Add Event" />
+                    </HoverButton>
+                    <HoverButton onClick={expand}>
+                        <Icon src={`${process.env.PUBLIC_URL}/images/ArrowsOutSimple.svg`} alt="Expand/Collapse" />
+                    </HoverButton>
+                </flex.flex>
+            </HeaderTopContainer>
+            <HeaderMiddleContainer>
+                <flex.alignItemsCenter>
+                    <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay>
+                </flex.alignItemsCenter>
+                <flex.alignItemsCenter>
                     <HoverButton main onClick={() => setDate(new DateTime())}>
                         Today
                     </HoverButton>
-                </Tooltip>
-                <HoverButton onClick={() => dispatch(setShowFullCalendar(true))}>
-                    <Icon src={`${process.env.PUBLIC_URL}/images/ArrowsOutSimple.svg`} alt="Expand/Collapse" />
-                </HoverButton>
-            </flex.flex>
+                    <HoverButton onClick={selectPreviousDay}>
+                        <Icon src={`${process.env.PUBLIC_URL}/images/CaretLeft.svg`} alt="Show previous day" />
+                    </HoverButton>
+                    <HoverButton onClick={selectNextDay}>
+                        <Icon src={`${process.env.PUBLIC_URL}/images/CaretRight.svg`} alt="Show next day" />
+                    </HoverButton>
+                </flex.alignItemsCenter>
+            </HeaderMiddleContainer>
+            <HeaderBottomContainer>
+                <Select options={view_options}
+                    defaultValue={selectValue}
+                    onChange={e => console.log(e)}
+                    isSearchable={false}
+                    styles={dropdownStyles} />
+            </HeaderBottomContainer>
         </CalendarHeaderContainer>
     )
 }

@@ -11,6 +11,14 @@ export const flex = {
     flex: styled.div`
         display: flex;
     `,
+    flexColumn: styled.div`
+        display: flex;
+        flex-direction: column;
+    `,
+    flexRow: styled.div`
+        display: flex;
+        flex-direction: row;
+    `,
     alignItemsCenter: styled.div`
         display: flex;
         align-items: center;
