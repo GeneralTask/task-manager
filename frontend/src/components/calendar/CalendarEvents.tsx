@@ -18,11 +18,11 @@ import { findCollisionGroups } from './utils/eventLayout'
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
 
-
 interface CalendarDayTableProps {
     showTimes: boolean
 }
 function CalendarDayTable({ showTimes }: CalendarDayTableProps): JSX.Element {
+
     const hourElements = Array(24)
         .fill(0)
         .map((_, index) => (

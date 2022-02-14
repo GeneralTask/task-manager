@@ -1,16 +1,16 @@
 import './Task.css'
 
-import { TaskContainer, DraggableContainer, DropIndicatorAbove, DropIndicatorBelow } from './Task-style'
+import { DraggableContainer, DropIndicatorAbove, DropIndicatorBelow, TaskContainer } from './Task-style'
 import { Indices, ItemTypes } from '../../helpers/types'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 import React from 'react'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { useDrag } from 'react-dnd'
 import TaskHeader from './header/Header'
-import { useClickOutside } from '../../helpers/utils'
 import { collapseBody } from '../../redux/tasksPageSlice'
+import { useClickOutside } from '../../helpers/utils'
+import { useDrag } from 'react-dnd'
 
 interface Props {
     task: TTask

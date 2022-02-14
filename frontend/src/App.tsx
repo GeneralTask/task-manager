@@ -8,6 +8,7 @@ import Cookies from 'js-cookie'
 
 const App: React.FC = () => {
     useAppDispatch()(setAuthToken(Cookies.get('authToken')))
+
     return <Outlet />
 }
 

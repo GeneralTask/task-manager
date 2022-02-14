@@ -27,7 +27,7 @@ const commonTaskProp = {
     emailSentTime: null,
     sent_at: '',
     time_allocated: 0,
-    due_date: ''
+    due_date: '',
 }
 
 const scheduledTaskHeaderProps: TaskHeaderProps = {

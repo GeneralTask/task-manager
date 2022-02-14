@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { TEvent, TTaskSection } from '../helpers/types'
 
-import { FetchStatusEnum } from '../helpers/enums'
+import { FetchStatusEnum, ModalEnum } from '../helpers/enums'
 
 export interface TasksPageState {
     tasks: {
@@ -12,13 +12,16 @@ export interface TasksPageState {
         time_estimate: string | null,
         label_selector: string | null,
         focus_create_task_form: boolean,
+        selected_task_id: string | null,
     },
     events: {
         event_list: TEvent[]
         fetch_status: FetchStatusEnum
         show_calendar_sidebar: boolean
         show_full_calendar: boolean
-        show_modal: boolean
+    },
+    modals: {
+        show_modal: ModalEnum
     }
 }
 
@@ -31,14 +34,17 @@ const initialState: TasksPageState = {
         time_estimate: null,
         label_selector: null,
         focus_create_task_form: false,
+        selected_task_id: '61fd8798e1bdcee3b675a2da',
     },
     events: {
         event_list: [],
         fetch_status: FetchStatusEnum.LOADING,
         show_calendar_sidebar: true,
         show_full_calendar: false,
-        show_modal: false,
     },
+    modals: {
+        show_modal: ModalEnum.NONE,
+    }
 }
 
 export const tasksPageSlice = createSlice({
@@ -107,8 +113,11 @@ export const tasksPageSlice = createSlice({
         setShowFullCalendar(state, action: PayloadAction<boolean>) {
             state.events.show_full_calendar = action.payload
         },
-        setShowModal(state, action: PayloadAction<boolean>) {
-            state.events.show_modal = action.payload
+        setShowModal(state, action: PayloadAction<ModalEnum>) {
+            state.modals.show_modal = action.payload
+        },
+        setSelectedTask(state, action: PayloadAction<string | null>) {
+            state.tasks.selected_task_id = action.payload
         },
     },
 })
@@ -130,7 +139,8 @@ export const {
     setEventsFetchStatus,
     setShowCalendarSidebar,
     setShowFullCalendar,
-    setShowModal
+    setShowModal,
+    setSelectedTask,
 } = tasksPageSlice.actions
 
 export default tasksPageSlice.reducer

@@ -1,4 +1,12 @@
-import { EventBodyStyle, EventInfoContainer, EventInfo, EventTitle, EventTime, EventFillContinues, EventFill } from './CalendarEvents-styles'
+import {
+    EventBodyStyle,
+    EventInfoContainer,
+    EventInfo,
+    EventTitle,
+    EventTime,
+    EventFillContinues,
+    EventFill,
+} from './CalendarEvents-styles'
 import { CELL_HEIGHT } from '../../helpers/styles'
 import { TEvent } from '../../helpers/types'
 import React from 'react'
@@ -8,9 +16,9 @@ const LONG_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes
 
 interface EventBodyProps {
-    event: TEvent,
-    collisionGroupSize: number,
-    leftOffset: number,
+    event: TEvent
+    collisionGroupSize: number
+    leftOffset: number
 }
 function EventBody({ event, collisionGroupSize, leftOffset }: EventBodyProps): JSX.Element {
     const startTime = new Date(event.datetime_start)
@@ -19,9 +27,12 @@ function EventBody({ event, collisionGroupSize, leftOffset }: EventBodyProps): J
     const timeDurationHours = timeDurationMinutes / 60
 
     const rollsOverMidnight = endTime.getDay() !== startTime.getDay()
-    const eventBodyHeight = Math.max(MINIMUM_BODY_HEIGHT, rollsOverMidnight
-        ? ((new Date(startTime).setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600) * CELL_HEIGHT
-        : timeDurationHours * CELL_HEIGHT)
+    const eventBodyHeight = Math.max(
+        MINIMUM_BODY_HEIGHT,
+        rollsOverMidnight
+            ? ((new Date(startTime).setHours(24, 0, 0, 0) - startTime.getTime()) / 1000 / 3600) * CELL_HEIGHT
+            : timeDurationHours * CELL_HEIGHT
+    )
 
     const startTimeHours = startTime.getHours() - 1
     const startTimeMinutes = startTime.getMinutes()
@@ -41,19 +52,16 @@ function EventBody({ event, collisionGroupSize, leftOffset }: EventBodyProps): J
             leftOffset={leftOffset}
             topOffset={topOffset}
             eventBodyHeight={eventBodyHeight}
-            eventHasEnded={eventHasEnded}>
-            <EventInfoContainer >
+            eventHasEnded={eventHasEnded}
+        >
+            <EventInfoContainer>
                 <EventInfo isLongEvent={isLongEvent}>
-                    <EventTitle isLongEvent={isLongEvent}>
-                        {event.title || NO_EVENT_TITLE_DEFAULT}
-                    </EventTitle>
-                    <EventTime>
-                        {`${startTimeString} - ${endTimeString}`}
-                    </EventTime>
+                    <EventTitle isLongEvent={isLongEvent}>{event.title || NO_EVENT_TITLE_DEFAULT}</EventTitle>
+                    <EventTime>{`${startTimeString} - ${endTimeString}`}</EventTime>
                 </EventInfo>
             </EventInfoContainer>
             {rollsOverMidnight ? <EventFillContinues /> : <EventFill />}
-        </EventBodyStyle >
+        </EventBodyStyle>
     )
 }
 

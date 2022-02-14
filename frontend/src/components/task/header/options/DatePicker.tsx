@@ -7,7 +7,21 @@ import { useAppDispatch } from '../../../../redux/hooks'
 import { hideDatePicker } from '../../../../redux/tasksPageSlice'
 import { useFetchTasks } from '../../TasksPage'
 
-import { BottomBar, PickerContainer, TopNav, MonthContainer, Icon, MonthYearHeader, HoverButton, DayLabel, WeekDayTable, WeekDay, BottomDateView, CurrentDateText, DayTable } from './DatePicker-style'
+import {
+    BottomBar,
+    PickerContainer,
+    TopNav,
+    MonthContainer,
+    Icon,
+    MonthYearHeader,
+    HoverButton,
+    DayLabel,
+    WeekDayTable,
+    WeekDay,
+    BottomDateView,
+    CurrentDateText,
+    DayTable,
+} from './DatePicker-style'
 
 interface DatePickerProps {
     task_id: string
@@ -20,12 +34,20 @@ export default function DatePicker({ task_id, due_date }: DatePickerProps): JSX.
     const currentDueDate = DateTime.fromISO(due_date)
     const monthyear = date.toLocaleString({ month: 'long', year: 'numeric' }).toUpperCase()
 
-    const nextMonth = useCallback(() => setDate(date => {
-        return date.plus({ months: 1 })
-    }), [date, setDate])
-    const prevMonth = useCallback(() => setDate(date => {
-        return date.minus({ months: 1 })
-    }), [date, setDate])
+    const nextMonth = useCallback(
+        () =>
+            setDate((date) => {
+                return date.plus({ months: 1 })
+            }),
+        [date, setDate]
+    )
+    const prevMonth = useCallback(
+        () =>
+            setDate((date) => {
+                return date.minus({ months: 1 })
+            }),
+        [date, setDate]
+    )
 
     const getWeek = (weekNumber: number, weekYear: number): JSX.Element[] => {
         const weekDays: JSX.Element[] = []
@@ -43,7 +65,9 @@ export default function DatePicker({ task_id, due_date }: DatePickerProps): JSX.
             weekDays.push(
                 <td key={curDay}>
                     <HoverButton isToday={isToday} isSelected={isSelected} onClick={hoverButtonClick}>
-                        <DayLabel grayed={!isThisMonth} isSelected={isSelected} >{day.day}</DayLabel>
+                        <DayLabel grayed={!isThisMonth} isSelected={isSelected}>
+                            {day.day}
+                        </DayLabel>
                     </HoverButton>
                 </td>
             )
@@ -55,13 +79,13 @@ export default function DatePicker({ task_id, due_date }: DatePickerProps): JSX.
         const weeks: JSX.Element[] = []
         const startDayOfMonth = date.startOf('month')
         const endDayOfMonth = date.endOf('month')
-        for (let curWeek = 0; startDayOfMonth.plus({ weeks: curWeek }).startOf('week') <= endDayOfMonth.startOf('week'); curWeek++) {
+        for (
+            let curWeek = 0;
+            startDayOfMonth.plus({ weeks: curWeek }).startOf('week') <= endDayOfMonth.startOf('week');
+            curWeek++
+        ) {
             const week = startDayOfMonth.plus({ weeks: curWeek })
-            weeks.push(
-                <tr key={week.weekNumber}>
-                    {getWeek(week.weekNumber, week.weekYear)}
-                </tr>
-            )
+            weeks.push(<tr key={week.weekNumber}>{getWeek(week.weekNumber, week.weekYear)}</tr>)
         }
         return <>{weeks}</>
     }
@@ -73,33 +97,45 @@ export default function DatePicker({ task_id, due_date }: DatePickerProps): JSX.
                 <WeekDayTable>
                     <thead>
                         <tr key={'header'}>
-                            {days.map((day, index) => <WeekDay key={index}>{day}</WeekDay>)}
+                            {days.map((day, index) => (
+                                <WeekDay key={index}>{day}</WeekDay>
+                            ))}
                         </tr>
                     </thead>
                 </WeekDayTable>
                 <DayTable>
-                    <tbody>
-                        {getFullMonth()}
-                    </tbody>
+                    <tbody>{getFullMonth()}</tbody>
                 </DayTable>
             </MonthContainer>
         )
     }
 
     return (
-        <PickerContainer onClick={(e) => { e.stopPropagation() }}>
+        <PickerContainer
+            onClick={(e) => {
+                e.stopPropagation()
+            }}
+        >
             <TopNav>
-                <HoverButton isToday={false} isSelected={false} onClick={(e) => {
-                    e.stopPropagation()
-                    prevMonth()
-                }}>
+                <HoverButton
+                    isToday={false}
+                    isSelected={false}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        prevMonth()
+                    }}
+                >
                     <Icon src={`${process.env.PUBLIC_URL}/images/CaretLeft.svg`} alt="Previous Month" />
                 </HoverButton>
                 <MonthYearHeader>{monthyear}</MonthYearHeader>
-                <HoverButton isToday={false} isSelected={false} onClick={(e) => {
-                    e.stopPropagation()
-                    nextMonth()
-                }}>
+                <HoverButton
+                    isToday={false}
+                    isSelected={false}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        nextMonth()
+                    }}
+                >
                     <Icon src={`${process.env.PUBLIC_URL}/images/CaretRight.svg`} alt="Next Month" />
                 </HoverButton>
             </TopNav>
@@ -110,11 +146,15 @@ export default function DatePicker({ task_id, due_date }: DatePickerProps): JSX.
                     <CurrentDateText>
                         {currentDueDate.isValid ? currentDueDate.toLocaleString() : 'MM/DD/YYYY'}
                     </CurrentDateText>
-                    <HoverButton isToday={false} isSelected={false} onClick={(e) => {
-                        e.stopPropagation()
-                        setDate(DateTime.fromMillis(1))
-                        editDueDate(task_id, DateTime.fromMillis(1).toISO(), dispatch, fetchTasks)
-                    }}>
+                    <HoverButton
+                        isToday={false}
+                        isSelected={false}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            setDate(DateTime.fromMillis(1))
+                            editDueDate(task_id, DateTime.fromMillis(1).toISO(), dispatch, fetchTasks)
+                        }}
+                    >
                         <Icon src={`${process.env.PUBLIC_URL}/images/close.svg`} />
                     </HoverButton>
                 </BottomDateView>
@@ -123,13 +163,18 @@ export default function DatePicker({ task_id, due_date }: DatePickerProps): JSX.
     )
 }
 
-const editDueDate = async (task_id: string, due_date: string, dispatch: Dispatch<Action<string>>, fetchTasks: () => void) => {
+const editDueDate = async (
+    task_id: string,
+    due_date: string,
+    dispatch: Dispatch<Action<string>>,
+    fetchTasks: () => void
+) => {
     try {
         dispatch(hideDatePicker())
         const response = await makeAuthorizedRequest({
             url: TASKS_MODIFY_URL + task_id + '/',
             method: 'PATCH',
-            body: JSON.stringify({ 'due_date': due_date })
+            body: JSON.stringify({ due_date: due_date }),
         })
 
         if (!response.ok) {

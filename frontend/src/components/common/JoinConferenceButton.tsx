@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { TConferenceCall } from '../../helpers/types'
 
 const JointButtonContainer = styled.div`
-    background: #3F3F46;
+    background: #3f3f46;
     padding: 6px 15px;
     border-radius: 10px;
     margin-left: 10px;

@@ -153,7 +153,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 		}}}
 		userID := primitive.NewObjectID()
 
-		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
+		dueDate, _ := time.Parse("2006-01-02", "2021-04-21")
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
@@ -162,13 +162,14 @@ func TestLoadAsanaTasks(t *testing.T) {
 				IDTaskSection:     constants.IDTaskSectionToday,
 				IsCompleted:       true,
 				Deeplink:          "https://example.com/",
-				Title:             "Task!",
-				Body:              "hmm",
+				Title:             "Task wrong!",
+				Body:              "different body",
 				SourceID:          TASK_SOURCE_ID_ASANA,
 				SourceAccountID:   "sugapapa",
 				UserID:            userID,
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 				DueDate:           primitive.NewDateTimeFromTime(dueDate),
+				TimeAllocation:    time.Hour.Nanoseconds(),
 			},
 			TaskType: database.TaskType{
 				IsTask: true,
@@ -181,6 +182,11 @@ func TestLoadAsanaTasks(t *testing.T) {
 			TASK_SOURCE_ID_ASANA,
 			&expectedTask,
 		)
+		// switch a few fields from their existing db value to their expected output value
+		dueDateCorrect, _ := time.Parse("2006-01-02", "2021-04-20")
+		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDateCorrect)
+		expectedTask.Title = "Task!"
+		expectedTask.Body = "hmm"
 
 		var taskResult = make(chan TaskResult)
 		go asanaTask.GetTasks(userID, "sample_account@email.com", taskResult)

@@ -6,8 +6,8 @@ const ModalContainer = styled.div`
     position: relative;
     height: 100%;
 `
-const FeedbackHeader = styled.div`
+const PrivacyPolicyHeader = styled.div`
     margin-bottom: 24px;
 `
 
-export { ModalContainer, FeedbackHeader }
+export { ModalContainer, PrivacyPolicyHeader }

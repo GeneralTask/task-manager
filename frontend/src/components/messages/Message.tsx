@@ -6,7 +6,14 @@ import { useFetchMessages } from './MessagesPage'
 import { collapseBody, expandBody } from '../../redux/messagesPageSlice'
 import { logEvent, makeAuthorizedRequest, useClickOutside } from '../../helpers/utils'
 import { LogEvents } from '../../helpers/enums'
-import { ButtonIcon, ButtonRight, ButtonRightContainer, HeaderLeft, HeaderRight, TaskHeaderContainer } from '../task/header/Header-style'
+import {
+    ButtonIcon,
+    ButtonRight,
+    ButtonRightContainer,
+    HeaderLeft,
+    HeaderRight,
+    TaskHeaderContainer,
+} from '../task/header/Header-style'
 import { EXPAND_ICON, MESSAGES_MODIFY_URL } from '../../constants'
 import MessageBody from './MessageBody'
 import { DateTime } from 'luxon'
@@ -40,31 +47,30 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
     return (
         <TaskHeaderContainer showButtons={props.isExpanded} onClick={onClick}>
             <HeaderLeft>
-                {props.message.is_unread &&
-                    <UnreadIndicator />
-                }
+                {props.message.is_unread && <UnreadIndicator />}
                 <Icon src={props.message.source.logo} alt="icon"></Icon>
                 <MessageTitle message={props.message} isExpanded={props.isExpanded} />
             </HeaderLeft>
             <HeaderRight>
-                {props.message.sent_at &&
+                {props.message.sent_at && (
                     <RelativeDate>{DateTime.fromISO(props.message.sent_at).toRelative()}</RelativeDate>
-                }
+                )}
                 {
                     <ButtonRightContainer>
-                        <ButtonRight onClick={(e) => {
-                            e.stopPropagation()
-                            dispatch(props.isExpanded ? collapseBody() : expandBody(props.message.id))
-                        }}>
+                        <ButtonRight
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                dispatch(props.isExpanded ? collapseBody() : expandBody(props.message.id))
+                            }}
+                        >
                             <Tooltip text={'Expand/Collapse'}>
                                 <ButtonIcon src={EXPAND_ICON} alt="expand" />
                             </Tooltip>
-
                         </ButtonRight>
                     </ButtonRightContainer>
                 }
-            </HeaderRight >
-        </TaskHeaderContainer >
+            </HeaderRight>
+        </TaskHeaderContainer>
     )
 }
 

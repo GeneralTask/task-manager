@@ -8,8 +8,9 @@ type CalendarResult struct {
 }
 
 type EmailResult struct {
-	Emails []*database.Item
-	Error  error
+	Emails     []*database.Item
+	Error      error
+	IsBadToken bool
 }
 
 type TaskResult struct {

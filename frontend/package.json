@@ -63,7 +63,8 @@
         "electron": "electron .\\",
         "electron-dev": "APP_DEV=true electron .\\",
         "pack": "build --em.main=build/main.js",
-        "dist": "electron-builder"
+        "dist": "electron-builder",
+        "prepare": "cd ../ && husky install ./frontend/.husky"
     },
     "eslintConfig": {
         "extends": [
@@ -108,7 +109,9 @@
         "eslint": "^7.27.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-unused-imports": "^1.1.1",
+        "husky": "^7.0.4",
         "json-server": "^0.16.3",
+        "lint-staged": "^12.3.3",
         "prettier": "2.5.1",
         "serve": "^11.3.2"
     }

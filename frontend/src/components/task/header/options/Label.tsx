@@ -23,46 +23,45 @@ export default function Label({ task }: LabelProps): JSX.Element {
     const currentTaskSectionIndex = taskSections.findIndex((s) => s.tasks?.includes(task))
 
     return (
-        <LabelContainer onClick={e => e.stopPropagation()} >
+        <LabelContainer onClick={(e) => e.stopPropagation()}>
             <LabelHeader>Edit Label</LabelHeader>
-            {
-                taskSections.map((newSection, newSectionIndex) => {
-                    if (newSectionIndex === currentTaskSectionIndex || taskSections[newSectionIndex].is_done) return
-                    return (
-                        <LabelOption key={newSectionIndex} onClick={
-                            (e) => {
-                                e.stopPropagation()
+            {taskSections.map((newSection, newSectionIndex) => {
+                if (newSectionIndex === currentTaskSectionIndex || taskSections[newSectionIndex].is_done) return
+                return (
+                    <LabelOption
+                        key={newSectionIndex}
+                        onClick={(e) => {
+                            e.stopPropagation()
 
-                                const newTaskSections = sectionDropReorder(taskSections, newSectionIndex, {
-                                    task: task.id_ordering - 1,
-                                    section: currentTaskSectionIndex,
-                                })
-                                dispatch(setTasks(newTaskSections))
-                                dispatch(hideLabelSelector())
+                            const newTaskSections = sectionDropReorder(taskSections, newSectionIndex, {
+                                task: task.id_ordering - 1,
+                                section: currentTaskSectionIndex,
+                            })
+                            dispatch(setTasks(newTaskSections))
+                            dispatch(hideLabelSelector())
 
-                                const patchBody = JSON.stringify({
-                                    id_task_section: newSection.id,
-                                    id_ordering: newTaskSections[newSectionIndex].tasks[0].id_ordering,
-                                    is_completed: false,
-                                })
+                            const patchBody = JSON.stringify({
+                                id_task_section: newSection.id,
+                                id_ordering: newTaskSections[newSectionIndex].tasks[0].id_ordering,
+                                is_completed: false,
+                            })
 
-                                makeAuthorizedRequest({
-                                    url: TASKS_MODIFY_URL + task.id + '/',
-                                    method: 'PATCH',
-                                    body: patchBody,
+                            makeAuthorizedRequest({
+                                url: TASKS_MODIFY_URL + task.id + '/',
+                                method: 'PATCH',
+                                body: patchBody,
+                            })
+                                .then(fetchTasks)
+                                .catch((error) => {
+                                    throw new Error('PATCH /tasks/ failed' + error)
                                 })
-                                    .then(fetchTasks)
-                                    .catch((error) => {
-                                        throw new Error('PATCH /tasks/ failed' + error)
-                                    })
-                            }
-                        }>
-                            <LabelIcon src={LABEL_ICON} />
-                            {newSection.name}
-                        </LabelOption>
-                    )
-                })
-            }
+                        }}
+                    >
+                        <LabelIcon src={LABEL_ICON} />
+                        {newSection.name}
+                    </LabelOption>
+                )
+            })}
         </LabelContainer>
     )
 }

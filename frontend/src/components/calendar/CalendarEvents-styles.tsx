@@ -63,12 +63,14 @@ interface EventBodyStyleProps {
 export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     --squish-factor: ${({ squishFactor }) => squishFactor};
     --left-offset: ${({ leftOffset }) => leftOffset};
-    width: calc( ${WIDTH_CSS_CALCULATION});
+    width: calc(${WIDTH_CSS_CALCULATION});
     height: calc(${(props) => props.eventBodyHeight}px - ${EVENT_BOTTOM_PADDING}px);
     top: ${(props) => props.topOffset}px;
     position: absolute;
-    left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset));
-    opacity: ${({ eventHasEnded }) => eventHasEnded ? 0.5 : 1};
+    left: calc(
+        ${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset)
+    );
+    opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
 `
 export const EventInfoContainer = styled.div`
     display: flex;
@@ -80,13 +82,10 @@ export const EventInfoContainer = styled.div`
 `
 export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     overflow: hidden;
-    white-space: nowrap;    
+    white-space: nowrap;
     margin: 0 12px;
     align-items: center;
-    ${props => props.isLongEvent
-        ? 'height: 100%; margin-top: 18px;'
-        : 'display: flex;'
-    }
+    ${(props) => (props.isLongEvent ? 'height: 100%; margin-top: 18px;' : 'display: flex;')}
 `
 export const EventTitle = styled.div<{ isLongEvent: boolean }>`
     font-style: normal;
@@ -95,7 +94,7 @@ export const EventTitle = styled.div<{ isLongEvent: boolean }>`
     color: ${EVENT_TITLE_TEXT_COLOR};
     margin-right: 8px;
     max-height: 100%;
-    ${props => props.isLongEvent && 'font-weight: 600;'}
+    ${(props) => props.isLongEvent && 'font-weight: 600;'}
 `
 export const EventTime = styled.div`
     font-style: normal;
@@ -108,9 +107,9 @@ export const EventTime = styled.div`
 export const EventFill = styled.div`
     width: 100%;
     height: 100%;
-    background: ${BACKGROUND_WHITE};    
+    background: ${BACKGROUND_WHITE};
     border: 1px solid ${EVENT_CONTAINER_COLOR};
-    box-sizing: border-box;    
+    box-sizing: border-box;
     box-shadow: ${EVENT_SHADOW};
     border-radius: 10px;
 `

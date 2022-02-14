@@ -40,7 +40,7 @@ const EventAlertHeaderChild = styled.div`
 `
 const EventAlertEventTitle = styled.div`
     min-width: 0;
-    background-color: #F4F4F5;
+    background-color: #f4f4f5;
     padding: 2px 4px;
     border-radius: 6px;
     overflow: hidden;
@@ -55,9 +55,9 @@ export default function EventAlert({ children }: EventAlertProps): JSX.Element {
     const eventList = useAppSelector((state) => state.tasks_page.events.event_list)
     const soonEvents = eventList.filter((event) => {
         const eventDate = new Date(event.datetime_start)
-        const eventDuration = ((new Date(event.datetime_end)).getTime() - eventDate.getTime()) / 1000 / 60
+        const eventDuration = (new Date(event.datetime_end).getTime() - eventDate.getTime()) / 1000 / 60
         const minutesUntilEvent = Math.ceil((eventDate.getTime() - new Date().getTime()) / 1000 / 60)
-        return minutesUntilEvent > (-1 * eventDuration) && minutesUntilEvent < 20
+        return minutesUntilEvent > -1 * eventDuration && minutesUntilEvent < 20
     })
     const eventAlertElements: JSX.Element[] = []
     if (soonEvents.length > 0) {
@@ -66,7 +66,7 @@ export default function EventAlert({ children }: EventAlertProps): JSX.Element {
             const eventDuration = Math.ceil((tempDate.getTime() - new Date().getTime()) / 1000 / 60)
             const eventTitle = event.title || NO_EVENT_TITLE_DEFAULT
             eventAlertElements.push(
-                <EventAlertContentContainer className='event-alert' key={event.id}>
+                <EventAlertContentContainer className="event-alert" key={event.id}>
                     <EventAlertHeader>
                         <EventAlertHeaderChild>Your event&nbsp;</EventAlertHeaderChild>
                         <EventAlertEventTitle>{eventTitle}</EventAlertEventTitle>
