@@ -344,6 +344,7 @@ func TestTaskReorder(t *testing.T) {
 				UserID:        userID,
 				IDOrdering:    2,
 				IDTaskSection: constants.IDTaskSectionToday,
+				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
 		assert.NoError(t, err)
@@ -357,6 +358,7 @@ func TestTaskReorder(t *testing.T) {
 				UserID:        primitive.NewObjectID(),
 				IDOrdering:    3,
 				IDTaskSection: constants.IDTaskSectionToday,
+				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
 		assert.NoError(t, err)
@@ -370,6 +372,7 @@ func TestTaskReorder(t *testing.T) {
 				UserID:        userID,
 				IDOrdering:    1,
 				IDTaskSection: constants.IDTaskSectionToday,
+				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
 		assert.NoError(t, err)
@@ -383,6 +386,7 @@ func TestTaskReorder(t *testing.T) {
 				UserID:        userID,
 				IDOrdering:    2,
 				IDTaskSection: constants.IDTaskSectionBacklog,
+				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
 		assert.NoError(t, err)
@@ -395,6 +399,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDTaskSection: constants.IDTaskSectionBacklog,
+				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
 		assert.NoError(t, err)
@@ -551,6 +556,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDTaskSection: constants.IDTaskSectionBacklog,
+				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
 		assert.NoError(t, err)
@@ -587,6 +593,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDTaskSection: constants.IDTaskSectionBacklog,
+				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
 		assert.NoError(t, err)

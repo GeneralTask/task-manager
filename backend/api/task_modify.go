@@ -73,12 +73,15 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
-	// update external task
-	err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskChangeableFields)
-	if err != nil {
-		log.Printf("failed to update external task source: %v", err)
-		Handle500(c)
-		return
+	if modifyParams.TaskChangeableFields != (database.TaskChangeableFields{}) {
+		// update external task
+		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskChangeableFields)
+		if err != nil {
+			log.Printf("failed to update external task source: %v", err)
+			Handle500(c)
+			return
+		}
+		UpdateTaskInDB(api, c, taskID, userID, &modifyParams.TaskChangeableFields, task)
 	}
 
 	// handle reorder task
@@ -87,10 +90,6 @@ func (api *API) TaskModify(c *gin.Context) {
 		if err != nil {
 			return
 		}
-	}
-
-	if modifyParams != (TaskModifyParams{}) {
-		UpdateTask(api, c, taskID, userID, &modifyParams.TaskChangeableFields, task)
 	}
 
 	c.JSON(200, gin.H{})
@@ -202,7 +201,7 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 	return &task, nil
 }
 
-func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields, task *database.Item) {
+func UpdateTaskInDB(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields, task *database.Item) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
