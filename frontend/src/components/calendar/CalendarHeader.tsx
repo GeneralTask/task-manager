@@ -7,7 +7,8 @@ import ExpandCollapse from '../common/ExpandCollapse'
 import Tooltip from '../common/Tooltip'
 import { CalendarHeaderContainer, HoverButton, Icon, DateDisplay, dropdownStyles, CalendarHeaderTitle, HeaderTopContainer, HeaderMiddleContainer, HeaderBottomContainer } from './CalendarHeader-styles'
 import Select, { SingleValue } from 'react-select'
-import { Console } from 'console'
+import { OptionProps } from 'react-select/dist/declarations/src'
+
 
 const view_options = [
     { value: 1, label: 'Day' },
@@ -41,11 +42,9 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
             }),
         [date, setDate]
     )
-    // function handleSelectChange(e: SingleValue<Record<string, number>>): void {
-    //     if (!e) return
-    //     const { value } = e
-    //     setSelectValue({ value: value, label: e.label })
-    // }
+    function handleSelectChange(value: number, label: string): void {
+        setSelectValue({ value: value, label: label })
+    }
     function expand(): void {
         if (isFullCalendarShown) {
             dispatch(setShowFullCalendar(false))
@@ -89,7 +88,14 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
             <HeaderBottomContainer>
                 <Select options={view_options}
                     defaultValue={selectValue}
-                    onChange={e => console.log(e)}
+                    onChange={
+                        (option) => {
+                            if (!option) return
+                            if (typeof option.value != 'number') return
+                            if (typeof option.label != 'string') return
+                            handleSelectChange(option.value, option.label)
+                        }
+                    }
                     isSearchable={false}
                     styles={dropdownStyles} />
             </HeaderBottomContainer>
