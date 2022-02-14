@@ -1,35 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, Text, Button, StyleSheet, TextInput, SafeAreaView, Image, ScrollView, Platform, Pressable } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
+import { getHeaders } from '../api'
 
-export const getHeaders = (): Record<string, string> => {
-    const date = new Date()
-    return {
-        'Access-Control-Allow-Origin': 'http://localhost:19006',
-        'Access-Control-Allow-Headers':
-            'Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset',
-        'Access-Control-Allow-Methods': 'POST,OPTIONS,GET,PATCH,DELETE',
-        'Timezone-Offset': date.getTimezoneOffset().toString(),
-    }
-}
-
-const joinWaitlist = async (email: string) => {
-    const response: Response = await fetch('http://localhost:8080/waitlist/', {
-        method: 'POST',
-        mode: 'cors',
-        headers: getHeaders(),
-        body: JSON.stringify({ email }),
-    })
-    console.log(response)
-}
-
-
-const JoinWaitlistButton = () => {
+const JoinWaitlistButton = (props: { onSubmit: () => void }) => {
     const title = 'Join the Waitlist'
     if (Platform.OS === 'ios') {
-        return <Button onPress={() => { }} title={title} />
+        return <Button onPress={props.onSubmit} title={title} />
     }
-    return <button style={{
+    return <button onClick={props.onSubmit} style={{
         height: '100%',
         border: '1.5px solid black',
         borderRadius: '0 2px 2px 0',
@@ -40,19 +19,32 @@ const JoinWaitlistButton = () => {
     }}>{title}</button>
 }
 
-
-type FormData = {
-    email: string
-}
-const Landing = () => {
+const LandingScreen = () => {
+    const [message, setMessage] = useState('')
     const { control, handleSubmit } = useForm({
         defaultValues: {
             email: '',
         }
     })
+
+    const joinWaitlist = async (email: string) => {
+        const response: Response = await fetch('http://localhost:8080/waitlist/', {
+            method: 'POST',
+            mode: 'cors',
+            headers: getHeaders(),
+            body: JSON.stringify({ email }),
+        })
+        if (response.ok) {
+            setMessage('Success!')
+        } else if (response.status === 302) {
+            setMessage('This email already exists in the waitlist')
+        } else {
+            setMessage('There was an error adding you to the waitlist')
+        }
+    }
+
     const onSubmit = (data: any) => {
         joinWaitlist(data.email)
-        console.log(data)
     }
     return (
         <View style={styles.container}>
@@ -73,8 +65,20 @@ const Landing = () => {
                     )}
                     name="email"
                 />
-                <Button onPress={handleSubmit(onSubmit)} title="Join the Waitlist" />
+                {
+                    Platform.OS === 'ios' &&
+                    <View style={styles.responseContainer}>
+                        <Text style={styles.response}>{message}</Text>
+                    </View>
+                }
+                <JoinWaitlistButton onSubmit={handleSubmit(onSubmit)} />
             </View>
+            {
+                Platform.OS === 'web' &&
+                <View style={styles.responseContainer}>
+                    <Text style={styles.response}>{message}</Text>
+                </View>
+            }
         </View>
     )
 }
@@ -85,6 +89,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
+
     },
     logo: {
         ...Platform.select({
@@ -142,7 +147,9 @@ const styles = StyleSheet.create({
     waitlistContainer: {
         ...Platform.select({
             ios: {
-
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
             },
             default: {
                 display: 'flex',
@@ -163,6 +170,7 @@ const styles = StyleSheet.create({
                 borderWidth: 1,
                 fontSize: 18,
                 paddingLeft: 10,
+                width: '80%',
             },
             default: {
                 borderWidth: 1,
@@ -170,7 +178,21 @@ const styles = StyleSheet.create({
                 paddingLeft: '10px',
             }
         })
+    },
+    responseContainer: {
+        ...Platform.select({
+            ios: {
+
+            },
+            default: {
+                alignSelf: 'center',
+                marginTop: '10px',
+            }
+        })
+    },
+    response: {
+        color: 'red',
     }
 })
 
-export default Landing
+export default LandingScreen
