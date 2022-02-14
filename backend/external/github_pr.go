@@ -127,10 +127,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 }
 
-func (gitPR GithubPRSource) MarkAsDone(userID primitive.ObjectID, accountID string, taskID string) error {
-	return errors.New("cannot mark PR as done")
-}
-
 func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
 	return errors.New("cannot reply to a PR")
 }
@@ -140,5 +136,8 @@ func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID s
 }
 
 func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
+		return errors.New("cannot mark PR as done")
+	}
 	return nil
 }

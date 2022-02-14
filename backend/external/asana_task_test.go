@@ -211,7 +211,8 @@ func TestMarkAsanaTaskAsDone(t *testing.T) {
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
 
-		err := asanaTask.MarkAsDone(userID, "sample_account@email.com", "6942069420")
+		isCompleted := true
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted})
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
@@ -221,7 +222,8 @@ func TestMarkAsanaTaskAsDone(t *testing.T) {
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
 
-		err := asanaTask.MarkAsDone(userID, "sample_account@email.com", "6942069420")
+		isCompleted := true
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted})
 		assert.NoError(t, err)
 	})
 }

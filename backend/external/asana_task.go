@@ -162,28 +162,6 @@ func (asanaTask AsanaTaskSource) GetPullRequests(userID primitive.ObjectID, acco
 	result <- emptyPullRequestResult(nil)
 }
 
-func (asanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return err
-	}
-	defer dbCleanup()
-
-	client := getAsanaHttpClient(db, userID, accountID)
-
-	taskUpdateURL := fmt.Sprintf("https://app.asana.com/api/1.0/tasks/%s/", issueID)
-	if asanaTask.Asana.ConfigValues.TaskUpdateURL != nil {
-		taskUpdateURL = *asanaTask.Asana.ConfigValues.TaskUpdateURL
-		client = http.DefaultClient
-	}
-	err = requestJSON(client, "PUT", taskUpdateURL, `{"data": {"completed": true}}`, EmptyResponsePlaceholder)
-	if err != nil {
-		log.Printf("failed to fetch asana tasks: %v", err)
-		return err
-	}
-	return nil
-}
-
 func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
 	return errors.New("cannot reply to an asana task")
 }

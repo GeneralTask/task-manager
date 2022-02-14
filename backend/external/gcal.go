@@ -167,10 +167,6 @@ func (googleCalendar GoogleCalendarSource) GetPullRequests(userID primitive.Obje
 	result <- emptyPullRequestResult(nil)
 }
 
-func (googleCalendar GoogleCalendarSource) MarkAsDone(userID primitive.ObjectID, accountID string, taskID string) error {
-	return errors.New("cannot mark calendar event as done")
-}
-
 func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
 	return errors.New("cannot reply to a calendar event")
 }
@@ -207,5 +203,8 @@ func GetConferenceCall(event *calendar.Event, accountID string) *database.Confer
 }
 
 func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
+		return errors.New("cannot mark calendar event as done")
+	}
 	return nil
 }

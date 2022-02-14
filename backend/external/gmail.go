@@ -470,5 +470,8 @@ func (gmailSource GmailSource) CreateNewTask(userID primitive.ObjectID, accountI
 }
 
 func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
+		gmailSource.MarkAsDone(userID, accountID, issueID)
+	}
 	return nil
 }
