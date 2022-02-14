@@ -7,6 +7,7 @@ import { hideTimeEstimate } from '../../../../redux/tasksPageSlice'
 import { useFetchTasks } from '../../TasksPage'
 import { TopNav } from './DatePicker-style'
 import { TimeEstimateContainer, Header, TimeButton } from './TimeEstimate-style'
+import Select from 'react-select'
 
 interface TimeEstimateProps {
     task_id: string
@@ -15,7 +16,21 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
     const dispatch = useAppDispatch()
     const fetchTasks = useFetchTasks()
 
-    const timeValues = [5, 10, 15, 30, 45, 60]
+    const options = [
+        { value: 5, label: '5 mins' },
+        { value: 10, label: '10 mins' },
+        { value: 15, label: '15 mins' },
+        { value: 20, label: '20 mins' },
+        { value: 30, label: '30 mins' },
+        { value: 45, label: '45 mins' },
+        { value: 60, label: '1 hour' },
+        { value: 90, label: '1.5 hours' },
+        { value: 120, label: '2 hours' },
+        { value: 180, label: '3 hours' },
+        { value: 240, label: '4 hours' },
+        { value: 300, label: '5 hours' },
+        { value: 360, label: '6 hours' },
+    ]
 
     return (
         <TimeEstimateContainer
@@ -26,7 +41,15 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
             <TopNav>
                 <Header>Set Duration</Header>
             </TopNav>
-            {timeValues.map((val, i) => {
+            <Select
+                options={options}
+                onChange={(e) => {
+                    const duration = e?.value
+                    console.log(duration)
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+            />
+            {/* {timeValues.map((val, i) => {
                 return (
                     <TimeButton
                         key={i}
@@ -38,7 +61,7 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
                         {val} min
                     </TimeButton>
                 )
-            })}
+            })} */}
         </TimeEstimateContainer>
     )
 }
