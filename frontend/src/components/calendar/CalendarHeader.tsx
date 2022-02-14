@@ -3,9 +3,18 @@ import React, { useCallback, useState } from 'react'
 import { flex } from '../../helpers/styles'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setShowFullCalendar } from '../../redux/tasksPageSlice'
-import { CalendarHeaderContainer, HoverButton, Icon, DateDisplay, dropdownStyles, CalendarHeaderTitle, HeaderTopContainer, HeaderMiddleContainer, HeaderBottomContainer } from './CalendarHeader-styles'
+import {
+    CalendarHeaderContainer,
+    HoverButton,
+    Icon,
+    DateDisplay,
+    dropdownStyles,
+    CalendarHeaderTitle,
+    HeaderTopContainer,
+    HeaderMiddleContainer,
+    HeaderBottomContainer,
+} from './CalendarHeader-styles'
 import Select from 'react-select'
-
 
 const view_options = [
     { value: 1, label: 'Day' },
@@ -17,7 +26,7 @@ interface CalendarHeaderProps {
 }
 export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
     const dispatch = useAppDispatch()
-    const isFullCalendarShown = useAppSelector(state => state.tasks_page.events.show_full_calendar)
+    const isFullCalendarShown = useAppSelector((state) => state.tasks_page.events.show_full_calendar)
     const [selectValue, setSelectValue] = useState(isFullCalendarShown ? view_options[1] : view_options[0])
 
     const dayOfWeek = date.toLocaleString({ weekday: 'short' })
@@ -39,7 +48,6 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
         [date, setDate]
     )
     function handleSelectChange(value: number, label: string): void {
-
         if (value === 1) {
             dispatch(setShowFullCalendar(false))
         } else {
@@ -64,9 +72,9 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                     <CalendarHeaderTitle>Calendar</CalendarHeaderTitle>
                 </flex.flex>
                 <flex.flex>
-                    <HoverButton onClick={(e) => e.stopPropagation()}> {/*TODO: Add new event} */}
+                    {/* <HoverButton onClick={(e) => e.stopPropagation()}>
                         <Icon src={`${process.env.PUBLIC_URL}/images/Plus.svg`} alt="Add Event" />
-                    </HoverButton>
+                    </HoverButton> TODO: ADD EVENTS HERE WHEN WE HAVE THAT FUNCTIONALITY*/}
                     <HoverButton onClick={expand}>
                         <Icon src={`${process.env.PUBLIC_URL}/images/ArrowsOutSimple.svg`} alt="Expand/Collapse" />
                     </HoverButton>
@@ -89,19 +97,19 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                 </flex.alignItemsCenter>
             </HeaderMiddleContainer>
             <HeaderBottomContainer>
-                <Select options={view_options}
+                <Select
+                    options={view_options}
                     // defaultValue={selectValue}
                     value={selectValue}
-                    onChange={
-                        (option) => {
-                            if (!option) return
-                            if (typeof option.value != 'number') return
-                            if (typeof option.label != 'string') return
-                            handleSelectChange(option.value, option.label)
-                        }
-                    }
+                    onChange={(option) => {
+                        if (!option) return
+                        if (typeof option.value != 'number') return
+                        if (typeof option.label != 'string') return
+                        handleSelectChange(option.value, option.label)
+                    }}
                     isSearchable={false}
-                    styles={dropdownStyles} />
+                    styles={dropdownStyles}
+                />
             </HeaderBottomContainer>
         </CalendarHeaderContainer>
     )
