@@ -204,8 +204,8 @@ func TestLoadAsanaTasks(t *testing.T) {
 	})
 }
 
-func TestMarkAsanaTaskAsDone(t *testing.T) {
-	t.Run("BadResponse", func(t *testing.T) {
+func TestModifyAsanaTask(t *testing.T) {
+	t.Run("Mark As Done Bad Response", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
@@ -216,7 +216,7 @@ func TestMarkAsanaTaskAsDone(t *testing.T) {
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
-	t.Run("Success", func(t *testing.T) {
+	t.Run("Mark As Done Bad Response Success", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
@@ -225,6 +225,76 @@ func TestMarkAsanaTaskAsDone(t *testing.T) {
 		isCompleted := true
 		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted})
 		assert.NoError(t, err)
+	})
+	t.Run("Update Title Body DueDate Success", func(t *testing.T) {
+		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
+		defer taskUpdateServer.Close()
+		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
+		userID := primitive.NewObjectID()
+
+		newName := "New Title"
+		newBody := "New Body"
+		isCompleted := true
+
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+			Title:       &newName,
+			Body:        &newBody,
+			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
+			IsCompleted: &isCompleted,
+		})
+		assert.NoError(t, err)
+	})
+	t.Run("Update Title Body DueDate Bad Response", func(t *testing.T) {
+		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
+		defer taskUpdateServer.Close()
+		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
+		userID := primitive.NewObjectID()
+
+		newName := "New Title"
+		newBody := "New Body"
+		isCompleted := true
+
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+			Title:       &newName,
+			Body:        &newBody,
+			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
+			IsCompleted: &isCompleted,
+		})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, "bad status code: 400", err.Error())
+	})
+	t.Run("Update Fields and Mark as Done Success", func(t *testing.T) {
+		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
+		defer taskUpdateServer.Close()
+		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
+		userID := primitive.NewObjectID()
+
+		newName := "New Title"
+		newBody := "New Body"
+
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+			Title:   &newName,
+			Body:    &newBody,
+			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+		})
+		assert.NoError(t, err)
+	})
+	t.Run("Update Fields and Mark as Done Bad Response", func(t *testing.T) {
+		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
+		defer taskUpdateServer.Close()
+		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
+		userID := primitive.NewObjectID()
+
+		newName := "New Title"
+		newBody := "New Body"
+
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+			Title:   &newName,
+			Body:    &newBody,
+			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+		})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, "bad status code: 400", err.Error())
 	})
 }
 
