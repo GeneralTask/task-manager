@@ -207,6 +207,5 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 		log.Printf("failed to fetch asana tasks: %v", err)
 		return err
 	}
-	log.Printf("updated asana task: %s", issueID)
 	return nil
 }

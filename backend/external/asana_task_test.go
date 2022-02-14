@@ -205,7 +205,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 }
 
 func TestModifyAsanaTask(t *testing.T) {
-	t.Run("Mark As Done Bad Response", func(t *testing.T) {
+	t.Run("MarkAsDoneBadResponse", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
@@ -216,7 +216,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
-	t.Run("Mark As Done Bad Response Success", func(t *testing.T) {
+	t.Run("MarkAsDoneBadResponseSuccess", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
@@ -226,7 +226,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted})
 		assert.NoError(t, err)
 	})
-	t.Run("Update Title Body DueDate Success", func(t *testing.T) {
+	t.Run("UpdateTitleBodyDueDateSuccess", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
@@ -244,7 +244,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		})
 		assert.NoError(t, err)
 	})
-	t.Run("Update Title Body DueDate Bad Response", func(t *testing.T) {
+	t.Run("UpdateTitleBodyDueDateBadResponse", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
@@ -263,7 +263,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
-	t.Run("Update Fields and Mark as Done Success", func(t *testing.T) {
+	t.Run("UpdateFieldsAndMarkAsDoneSuccess", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
@@ -279,7 +279,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		})
 		assert.NoError(t, err)
 	})
-	t.Run("Update Fields and Mark as Done Bad Response", func(t *testing.T) {
+	t.Run("UpdateFieldsAndMarkAsDoneBadResponse", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
