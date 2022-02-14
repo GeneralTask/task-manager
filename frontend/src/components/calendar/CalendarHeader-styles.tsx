@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { ACCENT_ACTIVE, ACCENT_MAIN, GRAY_100, GRAY_200, GRAY_300, GRAY_400, GRAY_800, ICON_HOVER } from '../../helpers/styles'
+import { ACCENT_ACTIVE, ACCENT_MAIN, GRAY_100, GRAY_200, GRAY_400, GRAY_800, ICON_HOVER } from '../../helpers/styles'
 import { StylesConfig } from 'react-select'
 
 export const CalendarHeaderContainer = styled.div`

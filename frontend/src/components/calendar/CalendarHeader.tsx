@@ -2,18 +2,14 @@ import { DateTime } from 'luxon'
 import React, { useCallback, useState } from 'react'
 import { flex } from '../../helpers/styles'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { setShowCalendarSidebar, setShowFullCalendar } from '../../redux/tasksPageSlice'
-import ExpandCollapse from '../common/ExpandCollapse'
-import Tooltip from '../common/Tooltip'
+import { setShowFullCalendar } from '../../redux/tasksPageSlice'
 import { CalendarHeaderContainer, HoverButton, Icon, DateDisplay, dropdownStyles, CalendarHeaderTitle, HeaderTopContainer, HeaderMiddleContainer, HeaderBottomContainer } from './CalendarHeader-styles'
-import Select, { SingleValue } from 'react-select'
-import { OptionProps } from 'react-select/dist/declarations/src'
+import Select from 'react-select'
 
 
 const view_options = [
     { value: 1, label: 'Day' },
     { value: 2, label: 'Week' },
-    { value: 3, label: 'Month' },
 ]
 interface CalendarHeaderProps {
     date: DateTime
@@ -22,7 +18,7 @@ interface CalendarHeaderProps {
 export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
     const dispatch = useAppDispatch()
     const isFullCalendarShown = useAppSelector(state => state.tasks_page.events.show_full_calendar)
-    const [selectValue, setSelectValue] = useState(view_options[0])
+    const [selectValue, setSelectValue] = useState(isFullCalendarShown ? view_options[1] : view_options[0])
 
     const dayOfWeek = date.toLocaleString({ weekday: 'short' })
     const dayNum = date.day
@@ -43,6 +39,13 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
         [date, setDate]
     )
     function handleSelectChange(value: number, label: string): void {
+
+        if (value === 1) {
+            dispatch(setShowFullCalendar(false))
+        } else {
+            dispatch(setShowFullCalendar(true))
+        }
+
         setSelectValue({ value: value, label: label })
     }
     function expand(): void {
@@ -87,7 +90,8 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
             </HeaderMiddleContainer>
             <HeaderBottomContainer>
                 <Select options={view_options}
-                    defaultValue={selectValue}
+                    // defaultValue={selectValue}
+                    value={selectValue}
                     onChange={
                         (option) => {
                             if (!option) return
