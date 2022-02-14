@@ -22,7 +22,7 @@ export const DayContainer = styled.div<{ scroll: boolean }>`
     margin-top: 24px;
     flex: 1;
     display: flex;
-    overflow: ${props => props.scroll ? 'auto' : 'none'};
+    overflow: ${(props) => (props.scroll ? 'auto' : 'none')};
     justify-content: center;
     position: relative;
 `
