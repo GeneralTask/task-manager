@@ -227,6 +227,31 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 	return &tasks, nil
 }
 
+func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {
+	parentCtx := context.Background()
+	sectionCollection := GetTaskSectionCollection(db)
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := sectionCollection.Find(
+		dbCtx,
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		log.Printf("failed to fetch sections for user: %+v", err)
+		return nil, err
+	}
+	var sections []TaskSection
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &sections)
+	if err != nil {
+		log.Printf("failed to fetch sections for user: %v", err)
+		return nil, err
+	}
+	return &sections, nil
+}
+
 func MarkItemComplete(db *mongo.Database, itemID primitive.ObjectID) error {
 	parentCtx := context.Background()
 	tasksCollection := GetTaskCollection(db)
@@ -364,4 +389,8 @@ func GetLogEventsCollection(db *mongo.Database) *mongo.Collection {
 
 func GetFeedbackItemCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("feedback_items")
+}
+
+func GetTaskSectionCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("task_sections")
 }

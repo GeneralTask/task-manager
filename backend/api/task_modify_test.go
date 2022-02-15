@@ -528,20 +528,6 @@ func TestTaskReorder(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
 	})
-	t.Run("BadTaskSectionID", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+primitive.NewObjectID().Hex()+`"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		request.Header.Add("Content-Type", "application/json")
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
-	})
 	t.Run("OnlyReorderTaskSections", func(t *testing.T) {
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
