@@ -28,7 +28,6 @@
     "dependencies": {
         "@cloudflare/wrangler": "^1.16.1",
         "@reduxjs/toolkit": "^1.7.1",
-        "@types/react-select": "^5.0.1",
         "chokidar": "^3.5.1",
         "chrono-node": "^2.3.4",
         "humanize-duration": "^3.27.0",
