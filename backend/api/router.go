@@ -31,6 +31,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.DELETE("/linked_accounts/:account_id/", handlers.DeleteLinkedAccount)
 	router.GET("/events/", handlers.EventsList)
 	router.GET("/messages/", handlers.MessagesList)
+	router.GET("/messages/fetch/", handlers.MessagesFetch)
 	router.GET("/tasks/", handlers.TasksList)
 	router.GET("/tasks/v2/", handlers.TasksList)
 	router.GET("/tasks/fetch/", handlers.TasksFetch)
