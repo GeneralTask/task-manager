@@ -6,7 +6,7 @@ import { useAppDispatch } from '../../../../redux/hooks'
 import { hideTimeEstimate } from '../../../../redux/tasksPageSlice'
 import { useFetchTasks } from '../../TasksPage'
 import { TopNav } from './DatePicker-style'
-import { TimeEstimateContainer, Header, TimeButton } from './TimeEstimate-style'
+import { TimeEstimateContainer, Header, dropdownStyles } from './TimeEstimate-style'
 import Select from 'react-select'
 
 interface TimeEstimateProps {
@@ -43,25 +43,13 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
             </TopNav>
             <Select
                 options={options}
+                styles={dropdownStyles}
                 onChange={(e) => {
-                    const duration = e?.value
-                    console.log(duration)
+                    const duration = e?.value as number
+                    editTimeEstimate(task_id, duration * 60, dispatch, fetchTasks)
                 }}
                 onKeyDown={(e) => e.stopPropagation()}
             />
-            {/* {timeValues.map((val, i) => {
-                return (
-                    <TimeButton
-                        key={i}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            editTimeEstimate(task_id, val * 60, dispatch, fetchTasks)
-                        }}
-                    >
-                        {val} min
-                    </TimeButton>
-                )
-            })} */}
         </TimeEstimateContainer>
     )
 }
