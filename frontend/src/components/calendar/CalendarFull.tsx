@@ -8,9 +8,7 @@ import CalendarEvents from './CalendarEvents'
 import CalendarHeader from './CalendarHeader'
 
 const CalendarFullContainer = styled.div`
-    min-width: 475px;
     flex: 1;
-    height: 100%;
     background-color: ${EVENT_CONTAINER_COLOR};
     box-shadow: -5px 0px 20px 5px whitesmoke;
     display: flex;

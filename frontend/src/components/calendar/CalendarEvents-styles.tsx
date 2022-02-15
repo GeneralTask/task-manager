@@ -19,6 +19,7 @@ const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_TIME_WIDTH}p
 
 export const DayContainer = styled.div<{ scroll: boolean }>`
     width: 100%;
+    height: 100%;
     margin-top: 24px;
     flex: 1;
     display: flex;

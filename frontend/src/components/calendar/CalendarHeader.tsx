@@ -68,7 +68,6 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
         <CalendarHeaderContainer>
             <HeaderTopContainer>
                 <flex.flex>
-                    {/* <ExpandCollapse direction="right" onClick={collapse} /> */}
                     <CalendarHeaderTitle>Calendar</CalendarHeaderTitle>
                 </flex.flex>
                 <flex.flex>
