@@ -216,7 +216,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
-	t.Run("MarkAsDoneBadResponseSuccess", func(t *testing.T) {
+	t.Run("MarkAsDoneSuccess", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
@@ -226,7 +226,17 @@ func TestModifyAsanaTask(t *testing.T) {
 		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted})
 		assert.NoError(t, err)
 	})
-	t.Run("UpdateTitleBodyDueDateSuccess", func(t *testing.T) {
+	t.Run("MarkAsNotDoneSuccess", func(t *testing.T) {
+		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
+		defer taskUpdateServer.Close()
+		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
+		userID := primitive.NewObjectID()
+
+		isCompleted := false
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted})
+		assert.NoError(t, err)
+	})
+	t.Run("UpdateFieldsAndMarkAsDoneSuccess", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
@@ -244,7 +254,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		})
 		assert.NoError(t, err)
 	})
-	t.Run("UpdateTitleBodyDueDateBadResponse", func(t *testing.T) {
+	t.Run("UpdateFieldsAndMarkAsDoneBadResponse", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
@@ -263,7 +273,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
-	t.Run("UpdateFieldsAndMarkAsDoneSuccess", func(t *testing.T) {
+	t.Run("UpdateTitleBodyDueDateSuccess", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
@@ -279,7 +289,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		})
 		assert.NoError(t, err)
 	})
-	t.Run("UpdateFieldsAndMarkAsDoneBadResponse", func(t *testing.T) {
+	t.Run("UpdateTitleBodyDueDateBadResponse", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
@@ -292,6 +302,43 @@ func TestModifyAsanaTask(t *testing.T) {
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+		})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, "bad status code: 400", err.Error())
+	})
+	t.Run("UpdateFieldsMarkAsNotDoneSuccess", func(t *testing.T) {
+		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
+		defer taskUpdateServer.Close()
+		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
+		userID := primitive.NewObjectID()
+
+		newName := "New Title"
+		newBody := "New Body"
+		isCompleted := false
+
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+			Title:       &newName,
+			Body:        &newBody,
+			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
+			IsCompleted: &isCompleted,
+		})
+		assert.NoError(t, err)
+	})
+	t.Run("UpdateFieldsMarkAsNotDoneBadResponse", func(t *testing.T) {
+		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
+		defer taskUpdateServer.Close()
+		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
+		userID := primitive.NewObjectID()
+
+		newName := "New Title"
+		newBody := "New Body"
+		isCompleted := false
+
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+			Title:       &newName,
+			Body:        &newBody,
+			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
+			IsCompleted: &isCompleted,
 		})
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())

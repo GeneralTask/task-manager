@@ -93,7 +93,7 @@ func (api *API) TaskModify(c *gin.Context) {
 }
 
 func ValidateFields(c *gin.Context, updateFields *database.TaskChangeableFields, taskSourceResult *external.TaskSourceResult) bool {
-	if updateFields.IsCompleted != nil && *updateFields.IsCompleted && !taskSourceResult.Details.IsCompletable {
+	if updateFields.IsCompleted != nil && !taskSourceResult.Details.IsCompletable {
 		c.JSON(400, gin.H{"detail": "cannot be marked done"})
 		return false
 	}
