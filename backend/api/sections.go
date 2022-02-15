@@ -87,7 +87,7 @@ func (api *API) SectionModify(c *gin.Context) {
 	sectionIDHex := c.Param("section_id")
 	sectionID, err := primitive.ObjectIDFromHex(sectionIDHex)
 	if err != nil {
-		// This means the task ID is improperly formatted
+		// This means the section ID is improperly formatted
 		Handle404(c)
 		return
 	}
@@ -126,7 +126,7 @@ func (api *API) SectionModify(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
+	if res.MatchedCount != 1 {
 		log.Println("failed to update section", res)
 		Handle404(c)
 		return
@@ -138,7 +138,7 @@ func (api *API) SectionDelete(c *gin.Context) {
 	sectionIDHex := c.Param("section_id")
 	sectionID, err := primitive.ObjectIDFromHex(sectionIDHex)
 	if err != nil {
-		// This means the task ID is improperly formatted
+		// This means the section ID is improperly formatted
 		Handle404(c)
 		return
 	}

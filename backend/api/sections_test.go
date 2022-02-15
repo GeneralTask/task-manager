@@ -152,6 +152,19 @@ func TestSections(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
+		// make same request to verify updating with same name is ok
+		request, _ = http.NewRequest(
+			"PATCH",
+			"/sections/modify/"+createdTaskID+"/",
+			bytes.NewBuffer([]byte(`{"name": "things i dont want to do"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder = httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err = ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
 		// use API to check updated
 		request, _ = http.NewRequest("GET", "/sections/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
