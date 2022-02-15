@@ -174,3 +174,9 @@ type LogEvent struct {
 	EventType string             `bson:"event_type"`
 	CreatedAt primitive.DateTime `bson:"created_at"`
 }
+
+type TaskSection struct {
+	ID     primitive.ObjectID `bson:"_id,omitempty"`
+	UserID primitive.ObjectID `bson:"user_id"`
+	Name   string             `bson:"name"`
+}
