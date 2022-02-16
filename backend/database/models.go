@@ -140,6 +140,7 @@ type EmailChangeable struct {
 type MessageChangeable struct {
 	EmailChangeable `bson:"email,omitempty"`
 	TaskType        *TaskTypeChangeable `bson:"task_type,omitempty"`
+	IsCompleted    	*bool              `bson:"is_completed,omitempty"`
 }
 
 type Task struct {

@@ -45,9 +45,9 @@ func (api *API) TaskModify(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	task, err := GetTask(api, c, taskID, userID)
+	task, err := database.GetItem(c.Request.Context(), taskID, userID)
 	if err != nil {
-		// status is handled in GetTask
+		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
 		return
 	}
 
@@ -183,32 +183,6 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		return err
 	}
 	return nil
-}
-
-func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) (*database.Item, error) {
-	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return nil, err
-	}
-	defer dbCleanup()
-	taskCollection := database.GetTaskCollection(db)
-
-	var task database.Item
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": taskID},
-			{"user_id": userID},
-		}}).Decode(&task)
-	if err != nil {
-		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
-		return nil, err
-	}
-	return &task, nil
 }
 
 func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, task *database.Item, isCompleted bool) error {

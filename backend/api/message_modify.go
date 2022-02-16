@@ -36,11 +36,6 @@ func (api *API) MessageModify(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	// message, err := getMessage(api, c, messageID, userID)
-	// if err != nil {
-	// 	// status is handled in getMessage
-	// 	return
-	// }
 	message, err := database.GetItem(c.Request.Context(), messageID, userID)
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "message not found.", "messageID": messageID})
@@ -52,7 +47,7 @@ func (api *API) MessageModify(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "parameter missing"})
 		return
 	}
-	messageChangeableFields := messageModifyParamsToChangeableFields(&modifyParams)
+	messageChangeableFields := messageModifyParamsToChangeable(&modifyParams)
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(message.SourceID)
 	if err != nil {
@@ -72,32 +67,6 @@ func (api *API) MessageModify(c *gin.Context) {
 	updateMessageInDB(api, c, messageID, userID, messageChangeableFields)
 
 	c.JSON(200, gin.H{})
-}
-
-func getMessage(api *API, c *gin.Context, messageID primitive.ObjectID, userID primitive.ObjectID) (*database.Item, error) {
-	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return nil, err
-	}
-	defer dbCleanup()
-	taskCollection := database.GetTaskCollection(db)
-
-	var message database.Item
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": messageID},
-			{"user_id": userID},
-		}}).Decode(&message)
-	if err != nil {
-		c.JSON(404, gin.H{"detail": "message not found.", "messageID": messageID})
-		return nil, err
-	}
-	return &message, nil
 }
 
 func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.MessageChangeable) {
@@ -141,15 +110,10 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 	}
 }
 
-func messageModifyParamsToChangeableFields(modifyParams *messageModifyParams) *database.MessageChangeable {
-	var changeableFields database.MessageChangeable
-	if modifyParams.IsTask != nil {
-		changeableFields.TaskType = &database.TaskTypeChangeable{
-			IsTask: modifyParams.IsTask,
-		}
+func messageModifyParamsToChangeable(modifyParams *messageModifyParams) *database.MessageChangeable {
+
+	return &database.MessageChangeable{
+		TaskType: &database.TaskTypeChangeable{IsTask: modifyParams.IsTask},
+		EmailChangeable: database.EmailChangeable{IsUnread: modifyParams.IsUnread},
 	}
-	if modifyParams.IsUnread != nil {
-		changeableFields.EmailChangeable.IsUnread = modifyParams.IsUnread
-	}
-	return &changeableFields
 }
