@@ -98,7 +98,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		fetchedEmails[index].TaskBase.Body = "<base target=\"_blank\">" + fetchedEmails[index].TaskBase.Body
 	}
 
-	err = markCompletedMessages(db, currentEmails, &fetchedEmails)
+	err = markReadMessagesInDB(api, db, currentEmails, &fetchedEmails)
 	if err != nil {
 		Handle500(c)
 		return

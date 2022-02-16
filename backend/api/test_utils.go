@@ -100,6 +100,22 @@ func getGoogleTokenFromAuthToken(t *testing.T, db *mongo.Database, authToken str
 	return &externalAPITokenStruct
 }
 
+func getGmailChangeLabelServer(t *testing.T, expectedLabelToChange string, addLabel bool) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := ioutil.ReadAll(r.Body)
+		assert.NoError(t, err)
+		var labelsKey string
+		if addLabel {
+			labelsKey = "addLabelIds"
+		} else {
+			labelsKey = "removeLabelIds"
+		}
+		assert.Equal(t, "{\""+labelsKey+"\":[\""+expectedLabelToChange+"\"]}\n", string(body))
+		w.WriteHeader(200)
+		w.Write([]byte(`{}`))
+	}))
+}
+
 func getGmailArchiveServer(t *testing.T, expectedLabel string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
