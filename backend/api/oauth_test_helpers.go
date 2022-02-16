@@ -125,7 +125,7 @@ func TestAuthorizeCallbackStateTokenWrongUser(t *testing.T, api *API, url string
 	assert.NoError(t, err)
 	defer dbCleanup()
 	randomUserID := primitive.NewObjectID()
-	stateToken, err := database.CreateStateToken(db, &randomUserID)
+	stateToken, err := database.CreateStateToken(db, &randomUserID, false)
 	assert.NoError(t, err)
 
 	router := GetRouter(api)

@@ -146,7 +146,7 @@ func newStateToken(authToken string) (*string, error) {
 		userID = &token.UserID
 	}
 
-	return database.CreateStateToken(db, userID)
+	return database.CreateStateToken(db, userID, false)
 }
 
 func makeLoginCallbackRequest(

@@ -36,7 +36,7 @@ func (api *API) Link(c *gin.Context) {
 			return
 		}
 		defer dbCleanup()
-		insertedStateToken, err := database.CreateStateToken(db, &internalToken.UserID)
+		insertedStateToken, err := database.CreateStateToken(db, &internalToken.UserID, false)
 		if err != nil {
 			Handle500(c)
 			return

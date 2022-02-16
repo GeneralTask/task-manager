@@ -25,6 +25,7 @@ type GoogleRedirectParams struct {
 
 type LoginRedirectParams struct {
 	ForcePrompt bool `form:"force_prompt"`
+	UseDeeplink bool `form:"use_deeplink"`
 }
 
 func (api *API) Login(c *gin.Context) {
@@ -36,7 +37,7 @@ func (api *API) Login(c *gin.Context) {
 		return
 	}
 	defer dbCleanup()
-	insertedStateToken, err := database.CreateStateToken(db, nil)
+	insertedStateToken, err := database.CreateStateToken(db, nil, params.UseDeeplink)
 	if err != nil {
 		Handle500(c)
 		return
@@ -75,6 +76,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 	defer dbCleanup()
 
+	useDeeplinkRedirect := false
 	if !api.SkipStateTokenCheck {
 		stateTokenID, err := primitive.ObjectIDFromHex(redirectParams.State)
 		if err != nil {
@@ -91,6 +93,12 @@ func (api *API) LoginCallback(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "state token does not match cookie"})
 			return
 		}
+		token, err := database.GetStateToken(db, stateTokenID, nil)
+		if err != nil {
+			c.JSON(400, gin.H{"detail": "invalid state token"})
+			return
+		}
+		useDeeplinkRedirect = token.UseDeeplink
 		err = database.DeleteStateToken(db, stateTokenID, nil)
 		if err != nil {
 			c.JSON(400, gin.H{"detail": "invalid state token"})
@@ -150,8 +158,12 @@ func (api *API) LoginCallback(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("authToken", internalToken, constants.MONTH, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
-	c.Redirect(302, config.GetConfigValue("HOME_URL"))
+	if useDeeplinkRedirect {
+		c.Redirect(302, "generaltask://authentication?authToken="+internalToken)
+	} else {
+		c.SetCookie("authToken", internalToken, constants.MONTH, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
+		c.Redirect(302, config.GetConfigValue("HOME_URL"))
+	}
 }
 
 func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db *mongo.Database) error {
