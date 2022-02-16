@@ -502,7 +502,6 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 			option.WithoutAuthentication(),
 			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailModifyURL))
 	}
-	// gmailService, err := getGmailService(gmailSource, parentCtx, client)
 
 	if err != nil {
 		log.Printf("unable to create Gmail service: %v", err)
@@ -531,28 +530,4 @@ func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToCh
 	log.Println("resulting message:", message)
 
 	return err
-}
-
-func getGmailService(gmailSource GmailSource, ctx context.Context, client *http.Client) (*gmail.Service, error) {
-	var gmailService *gmail.Service
-	var err error
-	if gmailSource.Google.OverrideURLs.GmailModifyURL == nil {
-		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
-		defer cancel()
-		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
-	} else {
-		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
-		defer cancel()
-		gmailService, err = gmail.NewService(
-			extCtx,
-			option.WithoutAuthentication(),
-			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailModifyURL))
-	}
-
-	if err != nil {
-		log.Printf("unable to create Gmail service: %v", err)
-		return nil, err
-	}
-
-	return gmailService, nil
 }
