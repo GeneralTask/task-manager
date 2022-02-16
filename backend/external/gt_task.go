@@ -108,6 +108,6 @@ func (generalTask GeneralTaskTaskSource) ModifyTask(userID primitive.ObjectID, a
 	return nil
 }
 
-func (generalTask GeneralTaskTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeableFields) error {
+func (generalTask GeneralTaskTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
 	return nil
 }

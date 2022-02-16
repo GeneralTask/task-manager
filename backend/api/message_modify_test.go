@@ -103,8 +103,8 @@ func TestChangeReadStatus(t *testing.T) {
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
-		assert.Equal(t, true, message.IsUnread)
-		assert.Equal(t, true, message.IsMessage)
+		assert.True(t, message.IsUnread)
+		assert.True(t, message.IsMessage)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -226,7 +226,7 @@ func TestMarkMessageAsTask(t *testing.T) {
 		assert.Equal(t, true, message.IsMessage)
 	})
 
-	t.Run("MarkMessageAsTaskAgainDoesNotfail", func(t *testing.T) {
+	t.Run("MarkMessageAsTaskAgain", func(t *testing.T) {
 		unreadGmailModifyServer := getGmailChangeLabelServer(t, "UNREAD", false)
 
 		api := GetAPI()

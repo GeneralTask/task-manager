@@ -133,13 +133,13 @@ type Email struct {
 	IsUnread     bool   `bson:"is_unread"`
 }
 
-type EmailChangeableFields struct {
+type EmailChangeable struct {
 	IsUnread *bool `bson:"is_unread,omitempty"`
 }
 
-type MessageChangeableFields struct {
-	EmailChangeableFields `bson:"email,omitempty"`
-	TaskType              *TaskTypeChangeable `bson:"task_type,omitempty"`
+type MessageChangeable struct {
+	EmailChangeable `bson:"email,omitempty"`
+	TaskType        *TaskTypeChangeable `bson:"task_type,omitempty"`
 }
 
 type Task struct {

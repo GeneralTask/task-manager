@@ -396,6 +396,6 @@ func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, t
 	return nil
 }
 
-func (jira JIRASource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeableFields) error {
+func (jira JIRASource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
 	return nil
 }

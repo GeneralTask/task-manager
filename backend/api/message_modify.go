@@ -18,8 +18,8 @@ type messageModifyParams struct {
 }
 
 func (api *API) MessageModify(c *gin.Context) {
-	taskIDHex := c.Param("message_id")
-	taskID, err := primitive.ObjectIDFromHex(taskIDHex)
+	messageIDHex := c.Param("message_id")
+	messageID, err := primitive.ObjectIDFromHex(messageIDHex)
 	if err != nil {
 		// This means the message ID is improperly formatted
 		Handle404(c)
@@ -36,7 +36,7 @@ func (api *API) MessageModify(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	task, err := getMessage(api, c, taskID, userID)
+	task, err := getMessage(api, c, messageID, userID)
 	if err != nil {
 		// status is handled in getMessage
 		return
@@ -64,7 +64,7 @@ func (api *API) MessageModify(c *gin.Context) {
 		return
 	}
 
-	updateMessageInDB(api, c, taskID, userID, messageChangeableFields)
+	updateMessageInDB(api, c, messageID, userID, messageChangeableFields)
 
 	c.JSON(200, gin.H{})
 }
@@ -79,7 +79,7 @@ func getMessage(api *API, c *gin.Context, messageID primitive.ObjectID, userID p
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
-	var task database.Item
+	var message database.Item
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = taskCollection.FindOne(
@@ -87,15 +87,15 @@ func getMessage(api *API, c *gin.Context, messageID primitive.ObjectID, userID p
 		bson.M{"$and": []bson.M{
 			{"_id": messageID},
 			{"user_id": userID},
-		}}).Decode(&task)
+		}}).Decode(&message)
 	if err != nil {
-		c.JSON(404, gin.H{"detail": "message not found.", "taskId": messageID})
+		c.JSON(404, gin.H{"detail": "message not found.", "messageID": messageID})
 		return nil, err
 	}
-	return &task, nil
+	return &message, nil
 }
 
-func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.MessageChangeableFields) {
+func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.MessageChangeable) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -105,6 +105,7 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
+	// We flatten in order to do partial updates of nested documents correctly in mongodb
 	flattenedUpdateFields, err := flatbson.Flatten(updateFields)
 	if err != nil {
 		log.Printf("Could not flatten %+v, error: %+v", updateFields, err)
@@ -135,15 +136,15 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 	}
 }
 
-func messageModifyParamsToChangeableFields(modifyParams *messageModifyParams) *database.MessageChangeableFields {
-	var changeableFields database.MessageChangeableFields
+func messageModifyParamsToChangeableFields(modifyParams *messageModifyParams) *database.MessageChangeable {
+	var changeableFields database.MessageChangeable
 	if modifyParams.IsTask != nil {
 		changeableFields.TaskType = &database.TaskTypeChangeable{
 			IsTask: modifyParams.IsTask,
 		}
 	}
 	if modifyParams.IsUnread != nil {
-		changeableFields.EmailChangeableFields.IsUnread = modifyParams.IsUnread
+		changeableFields.EmailChangeable.IsUnread = modifyParams.IsUnread
 	}
 	return &changeableFields
 }
