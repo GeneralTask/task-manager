@@ -36,9 +36,14 @@ func (api *API) MessageModify(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	task, err := getMessage(api, c, messageID, userID)
+	// message, err := getMessage(api, c, messageID, userID)
+	// if err != nil {
+	// 	// status is handled in getMessage
+	// 	return
+	// }
+	message, err := database.GetItem(c.Request.Context(), messageID, userID)
 	if err != nil {
-		// status is handled in getMessage
+		c.JSON(404, gin.H{"detail": "message not found.", "messageID": messageID})
 		return
 	}
 
@@ -49,15 +54,15 @@ func (api *API) MessageModify(c *gin.Context) {
 	}
 	messageChangeableFields := messageModifyParamsToChangeableFields(&modifyParams)
 
-	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
+	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(message.SourceID)
 	if err != nil {
 		log.Printf("failed to load external task source: %v", err)
 		Handle500(c)
 		return
 	}
 
-	// update external task
-	err = taskSourceResult.Source.ModifyMessage(userID, task.SourceAccountID, task.IDExternal, messageChangeableFields)
+	// update external message
+	err = taskSourceResult.Source.ModifyMessage(userID, message.SourceAccountID, message.IDExternal, messageChangeableFields)
 	if err != nil {
 		log.Printf("failed to update external task source: %v", err)
 		Handle500(c)
@@ -130,7 +135,7 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 	}
 	if res.MatchedCount != 1 {
 		// Note, we don't consider res.ModifiedCount because no-op updates don't count as modified
-		log.Printf("failed to find task %+v", res)
+		log.Printf("failed to find message %+v", res)
 		Handle500(c)
 		return
 	}
