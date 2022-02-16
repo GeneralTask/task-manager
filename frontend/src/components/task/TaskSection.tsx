@@ -2,9 +2,9 @@ import { TTask, TTaskSection } from '../../helpers/types'
 
 import React from 'react'
 import TaskCreate from './TaskCreate'
+import TaskDropContainer from './TaskDropContainer'
 import { flex } from '../../helpers/styles'
 import styled from 'styled-components'
-import TaskDropContainer from './TaskDropContainer'
 
 const TaskWrapperSides = styled.div`
     width: 22%;

@@ -1,19 +1,18 @@
+import { FetchStatusEnum, ModalEnum } from '../helpers/enums'
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { TEvent, TTaskSection } from '../helpers/types'
 
-import { FetchStatusEnum, ModalEnum } from '../helpers/enums'
-
 export interface TasksPageState {
     tasks: {
-        task_sections: TTaskSection[],
-        fetch_status: FetchStatusEnum,
-        expanded_body: string | null,
-        date_picker: string | null,
-        time_estimate: string | null,
-        label_selector: string | null,
-        focus_create_task_form: boolean,
-        selected_task_id: string | null,
-    },
+        task_sections: TTaskSection[]
+        fetch_status: FetchStatusEnum
+        expanded_body: string | null
+        date_picker: string | null
+        time_estimate: string | null
+        label_selector: string | null
+        focus_create_task_form: boolean
+        selected_task_id: string | null
+    }
     events: {
         event_list: TEvent[]
         fetch_status: FetchStatusEnum
@@ -44,7 +43,7 @@ const initialState: TasksPageState = {
     },
     modals: {
         show_modal: ModalEnum.NONE,
-    }
+    },
 }
 
 export const tasksPageSlice = createSlice({
@@ -99,6 +98,9 @@ export const tasksPageSlice = createSlice({
         setFocusCreateTaskForm(state, action: PayloadAction<boolean>) {
             state.tasks.focus_create_task_form = action.payload
         },
+        setSelectedTaskId(state, action: PayloadAction<string | null>) {
+            state.tasks.selected_task_id = action.payload
+        },
 
         // Events
         setEvents(state, action: PayloadAction<TEvent[]>) {
@@ -135,6 +137,9 @@ export const {
     hideTimeEstimate,
     showLabelSelector,
     hideLabelSelector,
+    setSelectedTaskId,
+
+    // events
     setEvents,
     setEventsFetchStatus,
     setShowCalendarSidebar,

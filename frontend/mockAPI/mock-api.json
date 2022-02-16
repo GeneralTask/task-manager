@@ -19,7 +19,7 @@
             "conference_call": null
         }
     ],
-    "tasks_v2": [
+    "tasks": [
         {
             "id": "task-section-1-id",
             "name": "Today",
@@ -28,6 +28,22 @@
                     "id": "4",
                     "id_ordering": 4,
                     "title": "Write presentation for tomorrow",
+                    "deeplink": "https://asana.com",
+                    "body": "",
+                    "sent_at": "2020-04-01T00:00:00.000Z",
+                    "time_allocated": 3600,
+                    "source": {
+                        "name": "Asana",
+                        "logo": "/images/asana.svg",
+                        "is_completable": false,
+                        "is_replyable": false
+                    },
+                    "sender": "@hackerdog"
+                },
+                {
+                    "id": "5",
+                    "id_ordering": 5,
+                    "title": "Write presentation for yesterday",
                     "deeplink": "https://asana.com",
                     "body": "",
                     "sent_at": "2020-04-01T00:00:00.000Z",
