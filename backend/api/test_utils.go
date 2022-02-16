@@ -126,7 +126,7 @@ func getGmailArchiveServer(t *testing.T, expectedLabel string) *httptest.Server 
 	}))
 }
 
-func newStateToken(authToken string) (*string, error) {
+func newStateToken(authToken string, useDeeplink bool) (*string, error) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -146,7 +146,7 @@ func newStateToken(authToken string) (*string, error) {
 		userID = &token.UserID
 	}
 
-	return database.CreateStateToken(db, userID, false)
+	return database.CreateStateToken(db, userID, useDeeplink)
 }
 
 func makeLoginCallbackRequest(
