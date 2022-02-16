@@ -89,7 +89,7 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                     {/* <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay> */}
                 </flex.alignItemsCenter>
                 <flex.alignItemsCenter>
-                    <HoverButton main onClick={() => setDate(new DateTime())}>
+                    <HoverButton main onClick={() => setDate(DateTime.now())}>
                         Today
                     </HoverButton>
                     <HoverButton onClick={selectPrevious}>
