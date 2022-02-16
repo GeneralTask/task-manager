@@ -6,6 +6,7 @@ import {
     CalendarTableStyle,
     CellTime,
     DayContainer,
+    DateHeader,
 } from './CalendarEvents-styles'
 import { EVENTS_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import React, { Ref, useCallback, useEffect, useRef } from 'react'
@@ -20,22 +21,22 @@ import { DateTime } from 'luxon'
 
 interface CalendarDayTableProps {
     showTimes: boolean
+    showDateHeader: boolean
+    date: DateTime
 }
-function CalendarDayTable({ showTimes }: CalendarDayTableProps): JSX.Element {
-
+function CalendarDayTable({ showTimes, showDateHeader, date }: CalendarDayTableProps): JSX.Element {
     const hourElements = Array(24)
         .fill(0)
         .map((_, index) => (
             <CalendarRow key={index}>
                 <CalendarTD>
-                    <CalendarCell>
-                        {showTimes && <CellTime>{`${(index % 12) + 1}:00`}</CellTime>}
-                    </CalendarCell>
+                    <CalendarCell>{showTimes && <CellTime>{`${(index % 12) + 1}:00`}</CellTime>}</CalendarCell>
                 </CalendarTD>
             </CalendarRow>
         ))
     return (
         <CalendarTableStyle>
+            {showDateHeader && <DateHeader>{date.toFormat('ccc d')}</DateHeader>}
             <tbody>{hourElements}</tbody>
         </CalendarTableStyle>
     )
@@ -76,16 +77,24 @@ interface CalendarEventsProps {
     isToday: boolean
     showTimes: boolean
     scroll: boolean
+    showDateHeader: boolean
 }
 
-export default function CalendarEvents({ date, isToday, showTimes, scroll }: CalendarEventsProps): JSX.Element {
+export default function CalendarEvents({
+    date,
+    isToday,
+    showTimes,
+    scroll,
+    showDateHeader,
+}: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
 
     const startDate = date.startOf('day')
     const endDate = startDate.plus({ days: 1 })
 
     const event_list = useAppSelector((state) => state.tasks_page.events.event_list).filter(
-        (event) => DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate
+        (event) =>
+            DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate
     )
     const groups = findCollisionGroups(event_list)
 
@@ -105,10 +114,12 @@ export default function CalendarEvents({ date, isToday, showTimes, scroll }: Cal
     }, [])
 
     return (
-        <DayContainer ref={eventsContainerRef} scroll={scroll} >
-            {groups.map((group, index) => (<CollisionGroupColumns key={index} events={group} />))}
+        <DayContainer ref={eventsContainerRef} scroll={scroll}>
+            {groups.map((group, index) => (
+                <CollisionGroupColumns key={index} events={group} />
+            ))}
             {isToday && <TimeIndicator />}
-            <CalendarDayTable showTimes={showTimes} />
+            <CalendarDayTable showTimes={showTimes} showDateHeader={showDateHeader} date={date} />
         </DayContainer>
     )
 }

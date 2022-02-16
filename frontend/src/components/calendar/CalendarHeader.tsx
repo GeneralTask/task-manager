@@ -29,21 +29,19 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
     const isFullCalendarShown = useAppSelector((state) => state.tasks_page.events.show_full_calendar)
     const [selectValue, setSelectValue] = useState(isFullCalendarShown ? view_options[1] : view_options[0])
 
-    const dayOfWeek = date.toLocaleString({ weekday: 'short' })
-    const dayNum = date.day
-    const month = date.toLocaleString({ month: 'short' })
-
-    const selectNextDay = useCallback(
+    const selectNext = useCallback(
         () =>
             setDate((date) => {
-                return date.plus({ days: 1 })
+                const amt = selectValue.label === 'Day' ? 1 : 7
+                return date.plus({ days: amt })
             }),
         [date, setDate]
     )
-    const selectPreviousDay = useCallback(
+    const selectPrevious = useCallback(
         () =>
             setDate((date) => {
-                return date.minus({ days: 1 })
+                const amt = selectValue.label === 'Day' ? 1 : 7
+                return date.minus({ days: amt })
             }),
         [date, setDate]
     )
@@ -81,17 +79,24 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
             </HeaderTopContainer>
             <HeaderMiddleContainer>
                 <flex.alignItemsCenter>
-                    <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay>
+                    {selectValue.label === 'Day' ? (
+                        <DateDisplay>{`${date.toFormat('ccc, LLL d')}`}</DateDisplay>
+                    ) : (
+                        <DateDisplay>
+                            {`${date.toFormat('LLL d')} - ${date.plus({ days: 6 }).toFormat('LLL d')}`}
+                        </DateDisplay>
+                    )}
+                    {/* <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay> */}
                 </flex.alignItemsCenter>
                 <flex.alignItemsCenter>
                     <HoverButton main onClick={() => setDate(new DateTime())}>
                         Today
                     </HoverButton>
-                    <HoverButton onClick={selectPreviousDay}>
-                        <Icon src={`${process.env.PUBLIC_URL}/images/CaretLeft.svg`} alt="Show previous day" />
+                    <HoverButton onClick={selectPrevious}>
+                        <Icon src={`${process.env.PUBLIC_URL}/images/CaretLeft.svg`} alt="Show previous" />
                     </HoverButton>
-                    <HoverButton onClick={selectNextDay}>
-                        <Icon src={`${process.env.PUBLIC_URL}/images/CaretRight.svg`} alt="Show next day" />
+                    <HoverButton onClick={selectNext}>
+                        <Icon src={`${process.env.PUBLIC_URL}/images/CaretRight.svg`} alt="Show next" />
                     </HoverButton>
                 </flex.alignItemsCenter>
             </HeaderMiddleContainer>

@@ -39,7 +39,13 @@ export default function CalendarSidebar(): JSX.Element {
     return (
         <CalendarSidebarContainer>
             <CalendarHeader date={date} setDate={setDate} />
-            <CalendarEvents date={date} isToday={selectedDateIsToday} showTimes={true} scroll={true} />
+            <CalendarEvents
+                date={date}
+                isToday={selectedDateIsToday}
+                showTimes={true}
+                scroll={true}
+                showDateHeader={false}
+            />
         </CalendarSidebarContainer>
     )
 }

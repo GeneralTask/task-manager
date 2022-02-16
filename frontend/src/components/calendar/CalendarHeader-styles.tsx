@@ -35,7 +35,6 @@ export const CalendarHeaderTitle = styled.span`
     line-height: 1.6em;
 `
 export const DateDisplay = styled.div`
-    width: 130px;
     font-size: 20px;
     font-weight: 600;
     text-align: center;
@@ -51,12 +50,12 @@ export const HoverButton = styled.button<{ main?: boolean }>`
     align-items: center;
     justify-content: center;
 
-    color: ${props => props.main ? 'white' : 'black'};
+    color: ${(props) => (props.main ? 'white' : 'black')};
 
-    background-color: ${props => props.main ? ACCENT_MAIN : 'transparent'};
+    background-color: ${(props) => (props.main ? ACCENT_MAIN : 'transparent')};
 
     &:hover {
-        background: ${props => props.main ? ACCENT_ACTIVE : ICON_HOVER};
+        background: ${(props) => (props.main ? ACCENT_ACTIVE : ICON_HOVER)};
     }
 `
 export const Icon = styled.img`

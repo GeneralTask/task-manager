@@ -117,3 +117,11 @@ export const EventFill = styled.div`
 export const EventFillContinues = styled(EventFill)`
     border-radius: 8px 8px 0 0;
 `
+export const DateHeader = styled.div`
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    color: ${EVENT_TITLE_TEXT_COLOR};
+    margin-bottom: 8px;
+    text-align: center;
+`
