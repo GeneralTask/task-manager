@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 
@@ -120,7 +119,7 @@ func updateMessageInDB(api *API, ctx context.Context, messageID primitive.Object
 
 func messageModifyParamsToChangeable(modifyParams *messageModifyParams) *database.MessageChangeable {
 	return &database.MessageChangeable{
-		TaskType: &database.TaskTypeChangeable{IsTask: modifyParams.IsTask},
+		TaskType:        &database.TaskTypeChangeable{IsTask: modifyParams.IsTask},
 		EmailChangeable: database.EmailChangeable{IsUnread: modifyParams.IsUnread},
 	}
 }
