@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 
@@ -159,7 +160,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 
 	if useDeeplinkRedirect {
-		c.Redirect(302, "generaltask://authentication?authToken="+internalToken)
+		c.Redirect(302, fmt.Sprintf(constants.DeeplinkAuthentication, internalToken))
 	} else {
 		c.SetCookie("authToken", internalToken, constants.MONTH, "/", config.GetConfigValue("COOKIE_DOMAIN"), false, false)
 		c.Redirect(302, config.GetConfigValue("HOME_URL"))
