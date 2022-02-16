@@ -112,14 +112,13 @@ func updateMessageInDB(api *API, ctx context.Context, messageID primitive.Object
 	if res.MatchedCount != 1 {
 		// Note, we don't consider res.ModifiedCount because no-op updates don't count as modified
 		log.Printf("failed to find message %+v", res)
-		return errors.New(fmt.Sprintf("failed to find message %+v", res))
+		return fmt.Errorf("failed to find message %+v", res)
 	}
 
 	return nil
 }
 
 func messageModifyParamsToChangeable(modifyParams *messageModifyParams) *database.MessageChangeable {
-
 	return &database.MessageChangeable{
 		TaskType: &database.TaskTypeChangeable{IsTask: modifyParams.IsTask},
 		EmailChangeable: database.EmailChangeable{IsUnread: modifyParams.IsUnread},
