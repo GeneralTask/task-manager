@@ -1,4 +1,6 @@
-const REACT_APP_FRONTEND_BASE_URL = 'http://localhost:19006'
+import getEnvVars from "../environment"
+
+const { REACT_APP_FRONTEND_BASE_URL } = getEnvVars()
 
 export const getHeaders = (): Record<string, string> => {
     const date = new Date()

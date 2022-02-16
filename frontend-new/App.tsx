@@ -1,8 +1,10 @@
 import React from 'react'
-import { View, Text, Button, SafeAreaView, StyleSheet } from 'react-native'
+import { SafeAreaView, StyleSheet } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import LandingScreen from './src/screens/LandingScreen'
+import { isAuthenticated } from './src/utils/auth'
+import TasksScreen from './src/screens/TasksScreen'
 
 
 const linking = {
@@ -15,11 +17,22 @@ const linking = {
 }
 
 const App = () => {
+  const signedIn = isAuthenticated()
   return (
     <SafeAreaView style={styles.safeArea}>
       <NavigationContainer linking={linking}>
         <Stack.Navigator initialRouteName='Landing' screenOptions={{ headerShown: false }} >
-          <Stack.Screen name="Landing" component={LandingScreen} />
+          {
+            signedIn ? (
+              <>
+                <Stack.Screen name="Landing" component={TasksScreen} />
+              </>
+            ) : (
+              <>
+                <Stack.Screen name="Landing" component={LandingScreen} />
+              </>
+            )
+          }
         </Stack.Navigator>
       </NavigationContainer >
     </SafeAreaView >

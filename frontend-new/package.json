@@ -12,8 +12,12 @@
   "dependencies": {
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.0",
+    "dotenv": "^16.0.0",
     "expo": "~44.0.0",
+    "expo-linking": "^3.0.0",
     "expo-status-bar": "~1.2.0",
+    "expo-web-browser": "~10.1.0",
+    "js-cookie": "^3.0.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-hook-form": "^7.27.0",
@@ -26,6 +30,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
+    "@types/js-cookie": "^3.0.1",
     "@types/react": "~17.0.21",
     "@types/react-native": "~0.64.12",
     "@types/styled-components": "^5.1.22",
