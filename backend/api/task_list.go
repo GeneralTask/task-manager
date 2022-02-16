@@ -289,7 +289,7 @@ func adjustForCompletedTasks(
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
-		if !newTaskIDs[currentTask.ID] {
+		if !newTaskIDs[currentTask.ID] && !currentTask.IsMessage {
 			err := database.MarkItemComplete(db, currentTask.ID)
 			if err != nil {
 				log.Printf("failed to update task ordering ID: %v", err)

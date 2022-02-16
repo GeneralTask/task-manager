@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -64,17 +66,24 @@ func (api *API) MessageModify(c *gin.Context) {
 		return
 	}
 
-	updateMessageInDB(api, c, messageID, userID, messageChangeableFields)
+	err = updateMessageInDB(api, c.Request.Context(), messageID, userID, messageChangeableFields)
+	if err != nil {
+		log.Printf("could not update message %v in DB with fields %+v", messageID, messageChangeableFields)
+		Handle500(c)
+		return
+	}
 
 	c.JSON(200, gin.H{})
 }
 
-func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.MessageChangeable) {
-	parentCtx := c.Request.Context()
+func updateMessageInDB(api *API, ctx context.Context, messageID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.MessageChangeable) error {
+	parentCtx := ctx
+	if parentCtx == nil {
+		parentCtx = context.Background()
+	}
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
-		Handle500(c)
-		return
+		return err
 	}
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
@@ -83,8 +92,7 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 	flattenedUpdateFields, err := flatbson.Flatten(updateFields)
 	if err != nil {
 		log.Printf("Could not flatten %+v, error: %+v", updateFields, err)
-		Handle500(c)
-		return
+		return err
 	}
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -99,15 +107,15 @@ func updateMessageInDB(api *API, c *gin.Context, messageID primitive.ObjectID, u
 
 	if err != nil {
 		log.Printf("failed to update internal DB: %v", err)
-		Handle500(c)
-		return
+		return err
 	}
 	if res.MatchedCount != 1 {
 		// Note, we don't consider res.ModifiedCount because no-op updates don't count as modified
 		log.Printf("failed to find message %+v", res)
-		Handle500(c)
-		return
+		return errors.New(fmt.Sprintf("failed to find message %+v", res))
 	}
+
+	return nil
 }
 
 func messageModifyParamsToChangeable(modifyParams *messageModifyParams) *database.MessageChangeable {
