@@ -123,7 +123,7 @@ func (api *API) MessagesList(c *gin.Context) {
 		fetchedEmails[index].TaskBase.Body = "<base target=\"_blank\">" + fetchedEmails[index].TaskBase.Body
 	}
 
-	err = markCompletedMessages(db, currentEmails, &fetchedEmails)
+	err = markReadMessagesInDB(api, db, currentEmails, &fetchedEmails)
 	if err != nil {
 		Handle500(c)
 		return
@@ -206,7 +206,8 @@ func (api *API) orderMessages(
 	return messages, nil
 }
 
-func markCompletedMessages(
+func markReadMessagesInDB(
+	api *API,
 	db *mongo.Database,
 	currentEmails *[]database.Item,
 	fetchedEmails *[]*database.Item,
@@ -218,9 +219,15 @@ func markCompletedMessages(
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentEmail := range *currentEmails {
 		if !fetchedEmailTaskIDs[currentEmail.ID] {
-			err := database.MarkItemComplete(db, currentEmail.ID)
+			f := false
+			messageChangeable := database.MessageChangeable{
+				EmailChangeable: database.EmailChangeable{
+					IsUnread: &f,
+				},
+			}
+			err := updateMessageInDB(api, nil, currentEmail.ID, currentEmail.UserID, &messageChangeable)
 			if err != nil {
-				log.Printf("failed to mark task completed: (ID=%v) with error: %v", currentEmail.ID, err)
+				log.Printf("failed to mark message read: (ID=%v) with error: %v", currentEmail.ID, err)
 				return err
 			}
 		}

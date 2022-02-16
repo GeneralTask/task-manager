@@ -33,6 +33,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/messages/", handlers.MessagesList)
 	router.GET("/messages/fetch/", handlers.MessagesFetch)
 	router.GET("/messages/v2/", handlers.MessagesListV2)
+	router.PATCH("/messages/modify/:message_id/", handlers.MessageModify)
 	router.GET("/tasks/", handlers.TasksList)
 	router.GET("/tasks/v2/", handlers.TasksList)
 	router.GET("/tasks/fetch/", handlers.TasksFetch)

@@ -91,6 +91,32 @@ func UpdateOrCreateTask(
 	), nil
 }
 
+func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Item, error) {
+	parentCtx := ctx
+	db, dbCleanup, err := GetDBConnection()
+	if err != nil {
+		log.Print("Failed to establish DB connection", err)
+		return nil, err
+	}
+	defer dbCleanup()
+	taskCollection := GetTaskCollection(db)
+
+	var message Item
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = taskCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+			{"user_id": userID},
+		}}).Decode(&message)
+	if err != nil {
+		log.Printf("Failed to get item: %+v, error: %v", itemID, err)
+		return nil, err
+	}
+	return &message, nil
+}
+
 func GetOrCreateTask(db *mongo.Database,
 	userID primitive.ObjectID,
 	IDExternal string,
