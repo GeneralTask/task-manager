@@ -52,8 +52,9 @@ type JIRAPriority struct {
 }
 
 type StateToken struct {
-	Token  primitive.ObjectID `bson:"_id,omitempty"`
-	UserID primitive.ObjectID `bson:"user_id"`
+	Token       primitive.ObjectID `bson:"_id,omitempty"`
+	UserID      primitive.ObjectID `bson:"user_id"`
+	UseDeeplink bool               `bson:"use_deeplink"`
 }
 
 type Oauth1RequestSecret struct {
@@ -140,7 +141,7 @@ type EmailChangeable struct {
 type MessageChangeable struct {
 	EmailChangeable `bson:"email,omitempty"`
 	TaskType        *TaskTypeChangeable `bson:"task_type,omitempty"`
-	IsCompleted    	*bool              `bson:"is_completed,omitempty"`
+	IsCompleted     *bool               `bson:"is_completed,omitempty"`
 }
 
 type Task struct {

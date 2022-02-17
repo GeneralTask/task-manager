@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -17,6 +18,10 @@ import (
 )
 
 func TestLoginRedirect(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
 	api := GetAPI()
 	api.ExternalConfig.GoogleLoginConfig = &external.OauthConfig{Config: &oauth2.Config{
 		ClientID:    "123",
@@ -46,6 +51,12 @@ func TestLoginRedirect(t *testing.T) {
 			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
 			string(body),
 		)
+
+		stateTokenID, err := primitive.ObjectIDFromHex(stateToken)
+		assert.NoError(t, err)
+		token, err := database.GetStateToken(db, stateTokenID, nil)
+		assert.NoError(t, err)
+		assert.False(t, token.UseDeeplink)
 	})
 	t.Run("SuccessForce", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/login/?force_prompt=true", nil)
@@ -67,6 +78,39 @@ func TestLoginRedirect(t *testing.T) {
 			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;prompt=consent&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
 			string(body),
 		)
+
+		stateTokenID, err := primitive.ObjectIDFromHex(stateToken)
+		assert.NoError(t, err)
+		token, err := database.GetStateToken(db, stateTokenID, nil)
+		assert.NoError(t, err)
+		assert.False(t, token.UseDeeplink)
+	})
+	t.Run("SuccessDeeplink", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "/login/?use_deeplink=true", nil)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusFound, recorder.Code)
+
+		var stateToken string
+		for _, c := range recorder.Result().Cookies() {
+			if c.Name == "loginStateToken" {
+				stateToken = c.Value
+			}
+		}
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(
+			t,
+			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
+			string(body),
+		)
+
+		stateTokenID, err := primitive.ObjectIDFromHex(stateToken)
+		assert.NoError(t, err)
+		token, err := database.GetStateToken(db, stateTokenID, nil)
+		assert.NoError(t, err)
+		assert.True(t, token.UseDeeplink)
 	})
 }
 
@@ -186,17 +230,27 @@ func TestLoginCallback(t *testing.T) {
 		defer cancel()
 		_, err = database.GetExternalTokenCollection(db).DeleteOne(dbCtx, bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.com"}, {"service_id": external.TASK_SERVICE_ID_GOOGLE}}})
 		assert.NoError(t, err)
-		stateToken, err := newStateToken("")
+		stateToken, err := newStateToken("", false)
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", *stateToken, *stateToken, false, true)
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", true, true)
 	})
 	t.Run("Success", func(t *testing.T) {
-		stateToken, err := newStateToken("")
+		stateToken, err := newStateToken("", false)
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", *stateToken, *stateToken, false, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
+		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", false, true)
+	})
+	t.Run("SuccessDeeplink", func(t *testing.T) {
+		stateToken, err := newStateToken("", true)
+		assert.NoError(t, err)
+		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", *stateToken, *stateToken, false, false)
+		assert.Equal(t, http.StatusFound, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Contains(t, string(body), "generaltask://authentication?authToken=")
 		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", false, true)
 	})
 	t.Run("SuccessWaitlist", func(t *testing.T) {
@@ -210,7 +264,7 @@ func TestLoginCallback(t *testing.T) {
 			},
 		)
 		assert.NoError(t, err)
-		stateToken, err := newStateToken("")
+		stateToken, err := newStateToken("", false)
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "dogecoin@tothe.moon", "", *stateToken, *stateToken, false, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
