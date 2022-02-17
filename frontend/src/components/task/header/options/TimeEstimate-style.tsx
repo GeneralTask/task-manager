@@ -75,15 +75,12 @@ export const TimeButton = styled.button`
 export const dropdownStyles: StylesConfig<Record<string, unknown>, false> = {
     container: (provided) => ({
         ...provided,
-        zIndex: 2,
     }),
     control: (provided) => ({
         ...provided,
         fontWeight: 'bold',
         color: GRAY_800,
-        // border: 'none',
         background: 'transparent',
-        // width: 120,
     }),
     indicatorSeparator: () => ({
         display: 'none',
