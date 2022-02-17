@@ -43,7 +43,7 @@ func TestLoginRedirect(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(
 			t,
-			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
+			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;include_granted_scopes=false&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
 			string(body),
 		)
 	})
@@ -64,7 +64,7 @@ func TestLoginRedirect(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(
 			t,
-			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;prompt=consent&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
+			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;include_granted_scopes=false&amp;prompt=consent&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
 			string(body),
 		)
 	})
