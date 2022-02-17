@@ -3,14 +3,18 @@ import { Platform, Pressable, Text } from 'react-native'
 import { LOGIN_URL } from '../../constants'
 import * as WebBrowser from 'expo-web-browser'
 import * as Linking from 'expo-linking'
+import { useAppDispatch } from '../../redux/hooks'
+import { setAuthToken } from '../../redux/userDataSlice'
 
 
 const GoogleSignInButton = () => {
+    const dispatch = useAppDispatch()
+
     const onPressMobile = async () => {
-        const result = await WebBrowser.openAuthSessionAsync('https://nolanjimenez.com', '')
+        const result = await WebBrowser.openAuthSessionAsync('http://localhost:8080/login/?use_deeplink=true', '')
         if (result.type === 'success') {
             const { queryParams } = Linking.parse(result.url)
-            console.log(queryParams)
+            dispatch(setAuthToken(queryParams.authToken))
         }
     }
     const onPressWeb = async () => {
