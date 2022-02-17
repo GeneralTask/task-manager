@@ -8,6 +8,7 @@ import { useFetchTasks } from '../../TasksPage'
 import { TopNav } from './DatePicker-style'
 import { TimeEstimateContainer, Header, dropdownStyles } from './TimeEstimate-style'
 import Select from 'react-select'
+import GTSelect from '../../../common/GTSelect'
 
 interface TimeEstimateProps {
     task_id: string
@@ -41,7 +42,14 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
             <TopNav>
                 <Header>Set Duration</Header>
             </TopNav>
-            <Select
+            <GTSelect
+                value={''}
+                onChange={function (value: string): void {
+                    throw new Error('Function not implemented.')
+                }}
+                options={options}
+            />
+            {/* <Select
                 options={options}
                 styles={dropdownStyles}
                 onChange={(e) => {
@@ -49,7 +57,7 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
                     editTimeEstimate(task_id, duration * 60, dispatch, fetchTasks)
                 }}
                 onKeyDown={(e) => e.stopPropagation()}
-            />
+            /> */}
         </TimeEstimateContainer>
     )
 }
