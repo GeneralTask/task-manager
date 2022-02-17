@@ -98,7 +98,7 @@ export const tasksPageSlice = createSlice({
         setFocusCreateTaskForm(state, action: PayloadAction<boolean>) {
             state.tasks.focus_create_task_form = action.payload
         },
-        setSelectedTaskId(state, action: PayloadAction<string | null>) {
+        setSelectedTask(state, action: PayloadAction<string | null>) {
             state.tasks.selected_task_id = action.payload
         },
 
@@ -118,9 +118,6 @@ export const tasksPageSlice = createSlice({
         setShowModal(state, action: PayloadAction<ModalEnum>) {
             state.modals.show_modal = action.payload
         },
-        setSelectedTask(state, action: PayloadAction<string | null>) {
-            state.tasks.selected_task_id = action.payload
-        },
     },
 })
 
@@ -137,7 +134,7 @@ export const {
     hideTimeEstimate,
     showLabelSelector,
     hideLabelSelector,
-    setSelectedTaskId,
+    setSelectedTask,
 
     // events
     setEvents,
@@ -145,7 +142,6 @@ export const {
     setShowCalendarSidebar,
     setShowFullCalendar,
     setShowModal,
-    setSelectedTask,
 } = tasksPageSlice.actions
 
 export default tasksPageSlice.reducer

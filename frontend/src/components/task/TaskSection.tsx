@@ -1,10 +1,13 @@
+import React, { useCallback, useEffect } from 'react'
 import { TTask, TTaskSection } from '../../helpers/types'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
-import React from 'react'
 import TaskCreate from './TaskCreate'
 import TaskDropContainer from './TaskDropContainer'
 import { flex } from '../../helpers/styles'
+import { setSelectedTask } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
+import { useKeyboardShortcut } from '../common/KeyboardShortcut'
 
 const TaskWrapperSides = styled.div`
     width: 22%;
@@ -16,8 +19,13 @@ interface Props {
 }
 
 export default function TaskSection(props: Props): JSX.Element {
+    const dispatch = useAppDispatch()
+    useEffect(() => {
+        dispatch(setSelectedTask(null))
+    }, [])
     return (
         <div>
+            <KeyboardSelector taskSection={props.task_section} />
             {props.task_section && !props.task_section.is_done && (
                 <TaskCreate task_section={props.task_section} task_section_index={props.task_section_index} />
             )}
@@ -43,4 +51,37 @@ export default function TaskSection(props: Props): JSX.Element {
                 })}
         </div>
     )
+}
+
+interface KeyboardSelectorProps {
+    taskSection: TTaskSection
+}
+function KeyboardSelector({ taskSection }: KeyboardSelectorProps) {
+    const selectedTaskId = useAppSelector((state) => state.tasks_page.tasks.selected_task_id)
+    const dispatch = useAppDispatch()
+    // on press DOWN -> select first task ahh
+    const onUpDown = useCallback(
+        (direction: 'up' | 'down') => {
+            // if a task is not selected, select the first one
+            if (selectedTaskId == null && taskSection.tasks.length > 0) {
+                dispatch(setSelectedTask(taskSection.tasks[0].id))
+            } else {
+                const index = taskSection.tasks.findIndex((task) => task.id === selectedTaskId)
+                // if for some reason the task is not found, select the first one
+                if (index === -1) {
+                    dispatch(setSelectedTask(taskSection.tasks[0].id))
+                } else if (direction === 'up' && index > 0) {
+                    dispatch(setSelectedTask(taskSection.tasks[index - 1].id))
+                } else if (direction === 'down' && index < taskSection.tasks.length - 1) {
+                    dispatch(setSelectedTask(taskSection.tasks[index + 1].id))
+                }
+            }
+        },
+        [selectedTaskId, taskSection]
+    )
+
+    useKeyboardShortcut('ArrowDown', () => onUpDown('down'))
+    useKeyboardShortcut('ArrowUp', () => onUpDown('up'))
+
+    return <></>
 }
