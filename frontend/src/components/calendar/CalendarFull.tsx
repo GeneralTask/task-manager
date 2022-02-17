@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { EVENT_CONTAINER_COLOR } from '../../helpers/styles'
+import { EVENT_CONTAINER_COLOR, flex, GRAY_800 } from '../../helpers/styles'
 import { dateIsToday, useInterval } from '../../helpers/utils'
 
 import CalendarEvents from './CalendarEvents'
@@ -20,6 +20,17 @@ const WeekContainer = styled.div`
     flex-direction: row;
     align-items: center;
     overflow-y: scroll;
+`
+const CalendarDayHeader = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    font-size: 16px;
+    font-weight: 600;
+    color: ${GRAY_800};
+    border-bottom: 1px solid ${GRAY_800};
 `
 
 export default function CalendarFull(): JSX.Element {
@@ -45,6 +56,13 @@ export default function CalendarFull(): JSX.Element {
     return (
         <CalendarFullContainer>
             <CalendarHeader date={date} setDate={setDate} />
+            <flex.justifyContentSpaceAround>
+                {Array(7)
+                    .fill(0)
+                    .map((_, i) => {
+                        return <CalendarDayHeader>{date.plus({ days: i }).toFormat('ccc dd')}</CalendarDayHeader>
+                    })}
+            </flex.justifyContentSpaceAround>
             <WeekContainer>
                 {Array(7)
                     .fill(0)
