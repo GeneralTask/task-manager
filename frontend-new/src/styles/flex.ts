@@ -1,8 +1,8 @@
-import { ViewStyle } from 'react-native';
+import { ViewStyle } from 'react-native'
 
 export const column: ViewStyle = {
     display: 'flex',
-    flexDirection: "column",
+    flexDirection: 'column',
 }
 
 export const columnCenter: ViewStyle = {

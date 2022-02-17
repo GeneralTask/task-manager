@@ -1,5 +1,5 @@
-import { ViewStyle } from "react-native";
-import { Colors } from ".";
+import { ViewStyle } from 'react-native'
+import { Colors } from '.'
 
 export const container: ViewStyle = {
     backgroundColor: Colors.background.primary,

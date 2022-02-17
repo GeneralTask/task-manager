@@ -15,7 +15,7 @@ const LandingScreen = () => {
         }
     })
 
-    const onWaitlistSubmit = (data: any) => {
+    const onWaitlistSubmit = (data: { email: string }) => {
         joinWaitlist(data.email)
     }
     const onWaitlistError = () => {

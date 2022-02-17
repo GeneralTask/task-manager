@@ -1,7 +1,7 @@
-import React from "react"
-import { View, Text, StyleSheet, Pressable, Button } from "react-native"
-import { Screens, Flex } from "../styles"
-import { authSignOut } from "../utils/auth"
+import React from 'react'
+import { View, Text, StyleSheet, Pressable } from 'react-native'
+import { Screens, Flex } from '../styles'
+import { authSignOut } from '../utils/auth'
 
 
 const TasksScreen = () => {

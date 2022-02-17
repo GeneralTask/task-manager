@@ -1,4 +1,4 @@
-import getEnvVars from "./environment"
+import getEnvVars from './environment'
 
 const { REACT_APP_API_BASE_URL } = getEnvVars()
 
