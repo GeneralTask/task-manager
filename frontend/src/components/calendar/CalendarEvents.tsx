@@ -6,7 +6,6 @@ import {
     CalendarTableStyle,
     CellTime,
     DayContainer,
-    DateHeader,
 } from './CalendarEvents-styles'
 import { EVENTS_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import React, { Ref, useCallback, useEffect, useRef } from 'react'
@@ -21,10 +20,8 @@ import { DateTime } from 'luxon'
 
 interface CalendarDayTableProps {
     showTimes: boolean
-    showDateHeader: boolean
-    date: DateTime
 }
-function CalendarDayTable({ showTimes, showDateHeader, date }: CalendarDayTableProps): JSX.Element {
+function CalendarDayTable({ showTimes }: CalendarDayTableProps): JSX.Element {
     const hourElements = Array(24)
         .fill(0)
         .map((_, index) => (
@@ -36,7 +33,6 @@ function CalendarDayTable({ showTimes, showDateHeader, date }: CalendarDayTableP
         ))
     return (
         <CalendarTableStyle>
-            {showDateHeader && <DateHeader>{date.toFormat('ccc d')}</DateHeader>}
             <tbody>{hourElements}</tbody>
         </CalendarTableStyle>
     )
@@ -77,16 +73,9 @@ interface CalendarEventsProps {
     isToday: boolean
     showTimes: boolean
     scroll: boolean
-    showDateHeader: boolean
 }
 
-export default function CalendarEvents({
-    date,
-    isToday,
-    showTimes,
-    scroll,
-    showDateHeader,
-}: CalendarEventsProps): JSX.Element {
+export default function CalendarEvents({ date, isToday, showTimes, scroll }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
 
     const startDate = date.startOf('day')
@@ -119,7 +108,7 @@ export default function CalendarEvents({
                 <CollisionGroupColumns key={index} events={group} />
             ))}
             {isToday && <TimeIndicator />}
-            <CalendarDayTable showTimes={showTimes} showDateHeader={showDateHeader} date={date} />
+            <CalendarDayTable showTimes={showTimes} />
         </DayContainer>
     )
 }

@@ -121,7 +121,7 @@ export const DateHeader = styled.div`
     font-style: normal;
     font-weight: 600;
     font-size: 14px;
+    height: 20px;
     color: ${EVENT_TITLE_TEXT_COLOR};
-    margin-bottom: 8px;
     text-align: center;
 `

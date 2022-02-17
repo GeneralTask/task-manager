@@ -55,7 +55,6 @@ export default function CalendarFull(): JSX.Element {
                                 isToday={dateIsToday(date.plus({ days: i }))}
                                 showTimes={i === 0}
                                 scroll={false}
-                                showDateHeader={true}
                             />
                         )
                     })}
