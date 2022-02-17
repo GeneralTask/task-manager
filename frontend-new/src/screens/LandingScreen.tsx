@@ -82,8 +82,7 @@ const styles = StyleSheet.create({
     },
     logo: {
         ...Platform.select({
-            ios: {
-            },
+            ios: {},
             default: {
                 marginTop: '10px',
             }
@@ -158,6 +157,7 @@ const styles = StyleSheet.create({
     },
     responseContainer: {
         ...Platform.select({
+            ios: {},
             default: {
                 alignSelf: 'center',
                 marginTop: '10px',
