@@ -22,7 +22,7 @@ export default function TaskSection(props: Props): JSX.Element {
     const dispatch = useAppDispatch()
     useEffect(() => {
         dispatch(setSelectedTask(null))
-    }, [])
+    }, [props.task_section, props.task_section_index])
     return (
         <div>
             <KeyboardSelector taskSection={props.task_section} />
