@@ -1,7 +1,7 @@
 import { ViewStyle } from 'react-native'
-import { Colors } from '.'
+import { background } from './colors'
 
 export const container: ViewStyle = {
-    backgroundColor: Colors.background.primary,
+    backgroundColor: background.primary,
     height: '100%',
 }
