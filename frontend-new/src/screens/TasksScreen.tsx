@@ -8,7 +8,9 @@ const TasksScreen = () => {
     return (
         <View style={styles.container}>
             <Text>Authorized Tasks Screen</Text>
-            <Pressable style={styles.signOut} onPress={() => authSignOut()}>Sign Out</Pressable>
+            <Pressable style={styles.signOut} onPress={() => authSignOut()}>
+                <Text>Sign Out</Text>
+            </Pressable>
         </View>
     )
 }
