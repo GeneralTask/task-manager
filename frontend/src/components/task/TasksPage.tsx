@@ -144,16 +144,16 @@ export default function TasksPage(): JSX.Element {
     return (
         <TasksPageContainer>
             <Navbar currentPage={currentPage} />
-            {fullCalendarShown ?
+            {fullCalendarShown ? (
                 <CalendarFull />
-                :
+            ) : (
                 <>
                     <EventAlert>
                         <Tasks currentPage={currentPage} />
                     </EventAlert>
                     {calendarSidebarShown && <CalendarSidebar />}
                 </>
-            }
+            )}
         </TasksPageContainer>
     )
 }

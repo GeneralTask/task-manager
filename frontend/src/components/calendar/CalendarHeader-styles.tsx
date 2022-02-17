@@ -3,11 +3,9 @@ import { ACCENT_ACTIVE, ACCENT_MAIN, GRAY_100, GRAY_200, GRAY_400, GRAY_800, ICO
 import { StylesConfig } from 'react-select'
 
 export const CalendarHeaderContainer = styled.div`
-    /* height: 50px; */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    /* padding: 0px 24px; */
 `
 export const HeaderTopContainer = styled.div`
     display: flex;
@@ -65,7 +63,6 @@ export const Icon = styled.img`
 
 export const dropdownStyles: StylesConfig<Record<string, unknown>, false> = {
     container: (provided) => ({
-        zIndex: 2,
         ...provided,
     }),
     control: (provided) => ({

@@ -69,9 +69,9 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                     <CalendarHeaderTitle>Calendar</CalendarHeaderTitle>
                 </flex.flex>
                 <flex.flex>
-                    {/* <HoverButton onClick={(e) => e.stopPropagation()}>
+                    <HoverButton onClick={(e) => e.stopPropagation()} style={{ display: 'none' }}>
                         <Icon src={`${process.env.PUBLIC_URL}/images/Plus.svg`} alt="Add Event" />
-                    </HoverButton> TODO: ADD EVENTS HERE WHEN WE HAVE THAT FUNCTIONALITY*/}
+                    </HoverButton>
                     <HoverButton onClick={expand}>
                         <Icon src={`${process.env.PUBLIC_URL}/images/ArrowsOutSimple.svg`} alt="Expand/Collapse" />
                     </HoverButton>
@@ -86,7 +86,6 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                             {`${date.toFormat('LLL d')} - ${date.plus({ days: 6 }).toFormat('LLL d')}`}
                         </DateDisplay>
                     )}
-                    {/* <DateDisplay>{`${dayOfWeek}, ${month} ${dayNum}`}</DateDisplay> */}
                 </flex.alignItemsCenter>
                 <flex.alignItemsCenter>
                     <HoverButton main onClick={() => setDate(DateTime.now())}>
@@ -103,7 +102,6 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
             <HeaderBottomContainer>
                 <Select
                     options={view_options}
-                    // defaultValue={selectValue}
                     value={selectValue}
                     onChange={(option) => {
                         if (!option) return
