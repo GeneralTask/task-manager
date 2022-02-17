@@ -3,6 +3,7 @@ module github.com/GeneralTask/task-manager/backend
 go 1.17
 
 require (
+	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/dghubble/oauth1 v0.7.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/golang-migrate/migrate/v4 v4.14.1
@@ -19,7 +20,6 @@ require (
 require (
 	cloud.google.com/go v0.87.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.0.2 // indirect
-	github.com/chidiwilliams/flatbson v0.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect

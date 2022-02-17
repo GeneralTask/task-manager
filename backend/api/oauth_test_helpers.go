@@ -125,7 +125,7 @@ func TestAuthorizeCallbackStateTokenWrongUser(t *testing.T, api *API, url string
 	assert.NoError(t, err)
 	defer dbCleanup()
 	randomUserID := primitive.NewObjectID()
-	stateToken, err := database.CreateStateToken(db, &randomUserID)
+	stateToken, err := database.CreateStateToken(db, &randomUserID, false)
 	assert.NoError(t, err)
 
 	router := GetRouter(api)
@@ -146,7 +146,7 @@ func TestAuthorizeCallbackStateTokenWrongUser(t *testing.T, api *API, url string
 
 func TestAuthorizeCallbackUnsuccessfulResponse(t *testing.T, api *API, url string) {
 	authToken := login("authorize_unsuccessful@generaltask.com", "")
-	stateToken, err := newStateToken(authToken)
+	stateToken, err := newStateToken(authToken, false)
 	assert.NoError(t, err)
 
 	router := GetRouter(api)
@@ -160,7 +160,7 @@ func TestAuthorizeCallbackUnsuccessfulResponse(t *testing.T, api *API, url strin
 func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string, serviceID string) {
 	parentCtx := context.Background()
 	authToken := login("authorize_successful@generaltask.com", "")
-	stateToken, err := newStateToken(authToken)
+	stateToken, err := newStateToken(authToken, false)
 	assert.NoError(t, err)
 
 	router := GetRouter(api)
