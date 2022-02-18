@@ -3,12 +3,11 @@ import { DONE_BUTTON, TASKS_MODIFY_URL, UNDONE_BUTTON } from '../../../constants
 import { DoneButton, DoneButtonContainer, DragHandler, HeaderLeft, Icon, TaskHeaderContainer } from './Header-style'
 import React, { useCallback } from 'react'
 import {
-    collapseBody,
-    expandBody,
     hideDatePicker,
     hideLabelSelector,
     hideTimeEstimate,
     removeTaskByID,
+    setSelectionInfo,
 } from '../../../redux/tasksPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../../helpers/utils'
 
@@ -49,6 +48,7 @@ interface TaskHeaderProps {
     task: TTask
     dragDisabled: boolean
     isExpanded: boolean
+    isSelected: boolean
 }
 
 const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: TaskHeaderProps, ref) => {
@@ -67,10 +67,8 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         dispatch(hideTimeEstimate())
     }
     const onClick = () => {
-        dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
+        dispatch(setSelectionInfo({ id: props.task.id, is_body_expanded: !props.isExpanded }))
     }
-
-    const isSelected = props.isExpanded // || isSelectedThroughKeyboardShortcut (coming soon)
 
     return (
         <TaskHeaderContainer
@@ -81,7 +79,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
             onMouseLeave={onMouseLeave}
             onClick={onClick}
         >
-            {props.isExpanded && <InvisibleKeyboardShortcut shortcut="d" onKeyPress={onDoneButtonClick} />}
+            {props.isSelected && <InvisibleKeyboardShortcut shortcut="d" onKeyPress={onDoneButtonClick} />}
             <HeaderLeft>
                 {!props.dragDisabled && (
                     <DragHandler ref={ref} onClick={(e) => e.stopPropagation()}>
@@ -104,7 +102,12 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
                 <Icon src={props.task.source.logo} alt="icon"></Icon>
                 <EditableTaskTitle task={props.task} isExpanded={props.isExpanded} />
             </HeaderLeft>
-            <HeaderActions isOver={isOver} task={props.task} isExpanded={props.isExpanded} isSelected={isSelected} />
+            <HeaderActions
+                isOver={isOver}
+                task={props.task}
+                isExpanded={props.isExpanded}
+                isSelected={props.isSelected}
+            />
         </TaskHeaderContainer>
     )
 })

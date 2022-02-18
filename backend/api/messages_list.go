@@ -88,8 +88,9 @@ func (api *API) MessagesList(c *gin.Context) {
 	}
 
 	emailChannels := []chan external.EmailResult{}
+	tokensInUse := []*database.ExternalAPIToken{}
 	// Loop through linked accounts and fetch relevant items
-	for _, token := range tokens {
+	for index, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
 			log.Printf("error loading task service: %v", err)
@@ -100,6 +101,8 @@ func (api *API) MessagesList(c *gin.Context) {
 			var emails = make(chan external.EmailResult)
 			go taskSource.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails)
 			emailChannels = append(emailChannels, emails)
+			// need to use tokens array here to ensure pointer isn't same memory address each time
+			tokensInUse = append(tokensInUse, &tokens[index])
 		}
 	}
 
@@ -109,7 +112,7 @@ func (api *API) MessagesList(c *gin.Context) {
 		emailResult := <-emailChannel
 		if emailResult.Error != nil {
 			if emailResult.IsBadToken {
-				badTokens = append(badTokens, &tokens[index])
+				badTokens = append(badTokens, tokensInUse[index])
 			}
 			continue
 		}
@@ -120,7 +123,7 @@ func (api *API) MessagesList(c *gin.Context) {
 		fetchedEmails[index].TaskBase.Body = "<base target=\"_blank\">" + fetchedEmails[index].TaskBase.Body
 	}
 
-	err = markCompletedMessages(db, currentEmails, &fetchedEmails)
+	err = markReadMessagesInDB(api, db, currentEmails, &fetchedEmails)
 	if err != nil {
 		Handle500(c)
 		return
@@ -203,7 +206,8 @@ func (api *API) orderMessages(
 	return messages, nil
 }
 
-func markCompletedMessages(
+func markReadMessagesInDB(
+	api *API,
 	db *mongo.Database,
 	currentEmails *[]database.Item,
 	fetchedEmails *[]*database.Item,
@@ -215,9 +219,15 @@ func markCompletedMessages(
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentEmail := range *currentEmails {
 		if !fetchedEmailTaskIDs[currentEmail.ID] {
-			err := database.MarkItemComplete(db, currentEmail.ID)
+			f := false
+			messageChangeable := database.MessageChangeable{
+				EmailChangeable: database.EmailChangeable{
+					IsUnread: &f,
+				},
+			}
+			err := updateMessageInDB(api, nil, currentEmail.ID, currentEmail.UserID, &messageChangeable)
 			if err != nil {
-				log.Printf("failed to mark task completed: (ID=%v) with error: %v", currentEmail.ID, err)
+				log.Printf("failed to mark message read: (ID=%v) with error: %v", currentEmail.ID, err)
 				return err
 			}
 		}

@@ -11,6 +11,14 @@ export const flex = {
     flex: styled.div`
         display: flex;
     `,
+    flexColumn: styled.div`
+        display: flex;
+        flex-direction: column;
+    `,
+    flexRow: styled.div`
+        display: flex;
+        flex-direction: row;
+    `,
     alignItemsCenter: styled.div`
         display: flex;
         align-items: center;
@@ -18,6 +26,10 @@ export const flex = {
     justifyContentSpaceBetween: styled.div`
         display: flex;
         justify-content: space-between;
+    `,
+    justifyContentSpaceAround: styled.div`
+        display: flex;
+        justify-content: space-around;
     `,
     centerXY: styled.div`
         display: flex;
@@ -75,6 +87,7 @@ export const DIVIDER_LIGHTGRAY = GRAY_300
 
 export const BORDER_PRIMARY = GRAY_300
 export const BORDER_ERROR = RED_1
+export const BORDER_SELECTED_TASK = ACCENT_GLOW
 export const BACKGROUND_WHITE = WHITE
 export const BACKGROUND_KEYBOARD_SHORTCUT = GRAY_50
 
@@ -107,7 +120,7 @@ export const UNSELECTED_NAVBAR_COLOR = GRAY_400
 export const DOMINO_COLOR = GRAY_400
 
 export const CELL_HEIGHT = 64
-export const TABLE_WIDTH_PERCENTAGE = 95
+export const TABLE_WIDTH_PERCENTAGE = 100
 export const CELL_TIME_WIDTH = 43
 export const CELL_BORDER_WIDTH = 3
 export const CELL_LEFT_MARGIN = 10

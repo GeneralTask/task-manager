@@ -31,6 +31,9 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.DELETE("/linked_accounts/:account_id/", handlers.DeleteLinkedAccount)
 	router.GET("/events/", handlers.EventsList)
 	router.GET("/messages/", handlers.MessagesList)
+	router.GET("/messages/fetch/", handlers.MessagesFetch)
+	router.GET("/messages/v2/", handlers.MessagesListV2)
+	router.PATCH("/messages/modify/:message_id/", handlers.MessageModify)
 	router.GET("/tasks/", handlers.TasksList)
 	router.GET("/tasks/v2/", handlers.TasksList)
 	router.GET("/tasks/fetch/", handlers.TasksFetch)
@@ -45,5 +48,9 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.POST("/feedback/", handlers.FeedbackAdd)
 	router.GET("/user_info/", handlers.UserInfoGet)
 	router.PATCH("/user_info/", handlers.UserInfoUpdate)
+	router.GET("/sections/", handlers.SectionList)
+	router.POST("/sections/create/", handlers.SectionAdd)
+	router.PATCH("/sections/modify/:section_id/", handlers.SectionModify)
+	router.DELETE("/sections/delete/:section_id/", handlers.SectionDelete)
 	return router
 }

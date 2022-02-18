@@ -17,12 +17,13 @@ import {
 
 const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_TIME_WIDTH}px - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px) * 1/var(--squish-factor)`
 
-export const EventsContainer = styled.div`
+export const DayContainer = styled.div<{ scroll: boolean }>`
     width: 100%;
+    height: 100%;
     margin-top: 24px;
     flex: 1;
     display: flex;
-    overflow: auto;
+    overflow: ${(props) => (props.scroll ? 'auto' : 'none')};
     justify-content: center;
     position: relative;
 `
@@ -33,6 +34,7 @@ export const CalendarTableStyle = styled.table`
 export const CalendarRow = styled.tr`
     display: block;
     height: ${CELL_HEIGHT}px;
+    border-left: 1px solid ${CALENDAR_TD_COLOR};
 `
 export const CalendarTD = styled.td`
     display: block;
@@ -49,7 +51,7 @@ export const CalendarCell = styled.div`
 export const CellTime = styled.div`
     width: ${CELL_TIME_WIDTH}px;
     height: 40px;
-    margin-top: 12px;
+    margin-top: 6px;
     text-align: right;
 `
 interface EventBodyStyleProps {
@@ -114,4 +116,12 @@ export const EventFill = styled.div`
 `
 export const EventFillContinues = styled(EventFill)`
     border-radius: 8px 8px 0 0;
+`
+export const DateHeader = styled.div`
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    height: 20px;
+    color: ${EVENT_TITLE_TEXT_COLOR};
+    text-align: center;
 `

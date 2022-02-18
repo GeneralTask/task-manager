@@ -98,7 +98,7 @@ func (github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 			ServiceID:      TASK_SERVICE_ID_GITHUB,
 			Token:          string(tokenString),
 			AccountID:      "todo",
-			DisplayID:      "todo",
+			DisplayID:      "Github",
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
 		}},
