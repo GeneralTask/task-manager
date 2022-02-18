@@ -14,7 +14,7 @@ import {
     HeaderRight,
     TaskHeaderContainer,
 } from '../task/header/Header-style'
-import { EXPAND_ICON, MESSAGES_MODIFY_URL } from '../../constants'
+import { CHECK_SQUARE_OFFSET, EXPAND_ICON, MESSAGES_MODIFY_URL } from '../../constants'
 import MessageBody from './MessageBody'
 import { DateTime } from 'luxon'
 import Tooltip from '../common/Tooltip'
@@ -37,7 +37,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
             } else {
                 dispatch(expandBody(props.message.id))
                 if (props.message.is_unread) {
-                    read(props.message.id, fetchMessages)
+                    markAsRead(props.message.id, fetchMessages)
                 }
                 logEvent(LogEvents.MESSAGE_EXPANDED)
             }
@@ -60,6 +60,20 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
                         <ButtonRight
                             onClick={(e) => {
                                 e.stopPropagation()
+                                markAsTask(props.message.id, fetchMessages)
+                            }}
+                        >
+                            <Tooltip text={'Mark as Task'}>
+                                <ButtonIcon src={CHECK_SQUARE_OFFSET} alt="expand" />
+                            </Tooltip>
+                        </ButtonRight>
+                    </ButtonRightContainer>
+                }
+                {
+                    <ButtonRightContainer>
+                        <ButtonRight
+                            onClick={(e) => {
+                                e.stopPropagation()
                                 dispatch(props.isExpanded ? collapseBody() : expandBody(props.message.id))
                             }}
                         >
@@ -74,12 +88,30 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
     )
 }
 
-const read = async (id: string, fetchMessages: () => void) => {
+const markAsTask = async (id: string, fetchMessages: () => void) => {
     try {
         const response = await makeAuthorizedRequest({
             url: MESSAGES_MODIFY_URL + id + '/',
             method: 'PATCH',
-            body: JSON.stringify({ is_unread: false }),
+            body: JSON.stringify({ is_task: true }),
+        })
+
+        if (!response.ok) {
+            throw new Error('PATCH /messages/modify Mark as Task failed: ' + response.text())
+        }
+        fetchMessages()
+    } catch (e) {
+        console.log({ e })
+    }
+}
+
+const markAsRead = async (id: string, fetchMessages: () => void) => {
+    // TODO: Re-enable this when we start sending read messages to the client
+    try {
+        const response = await makeAuthorizedRequest({
+            url: MESSAGES_MODIFY_URL + id + '/',
+            method: 'PATCH',
+            // body: JSON.stringify({ is_unread: false }),
         })
 
         if (!response.ok) {

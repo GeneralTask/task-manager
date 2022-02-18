@@ -12,7 +12,7 @@ export const MessageContainer = styled.div<{ isExpanded: boolean }>`
     outline: none;
     background-color: white;
     opacity: 0.8;
-    min-height: 50px;
+    min-height: 45px;
     box-shadow: ${(props) => (props.isExpanded ? shadow.EXPANDED : shadow.PRIMARY)};
 `
 export const RelativeDate = styled.span`
