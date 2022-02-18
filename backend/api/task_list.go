@@ -185,8 +185,6 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 			continue
 		}
 		for _, pullRequest := range pullRequestResult.PullRequests {
-			log.Println("pull request!!!")
-			log.Println(pullRequest.Title)
 			tasks = append(tasks, &database.Item{
 				TaskBase: pullRequest.TaskBase,
 			})
