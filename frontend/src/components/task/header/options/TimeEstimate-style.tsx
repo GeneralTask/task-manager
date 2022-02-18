@@ -1,13 +1,5 @@
 import styled from 'styled-components'
-import {
-    BACKGROUND_HOVER,
-    BACKGROUND_WHITE,
-    GRAY_100,
-    GRAY_400,
-    GRAY_800,
-    TEXT_DARKGRAY,
-} from '../../../../helpers/styles'
-import { StylesConfig } from 'react-select'
+import { BACKGROUND_HOVER, BACKGROUND_WHITE, GRAY_400, GRAY_800, TEXT_DARKGRAY } from '../../../../helpers/styles'
 
 const TIME_ESTIMATOR_WIDTH = 150
 const TIME_ESTIMATOR_PADDING = 10
@@ -71,30 +63,3 @@ export const TimeButton = styled.button`
     line-height: 20px;
     color: ${GRAY_800};
 `
-
-export const dropdownStyles: StylesConfig<Record<string, unknown>, false> = {
-    container: (provided) => ({
-        ...provided,
-    }),
-    control: (provided) => ({
-        ...provided,
-        fontWeight: 'bold',
-        color: GRAY_800,
-        background: 'transparent',
-    }),
-    indicatorSeparator: () => ({
-        display: 'none',
-    }),
-    option: (provided, state) => ({
-        ...provided,
-        fontWeight: state.isFocused ? 'bold' : 'normal',
-        color: GRAY_800,
-        background: state.isSelected || state.isFocused ? GRAY_100 : '#fff',
-        borderRadius: '12px',
-        padding: 10,
-    }),
-    menuList: (provided) => ({
-        ...provided,
-        padding: 10,
-    }),
-}

@@ -9,7 +9,7 @@ const InputContainer = styled.div<{ valid: boolean }>`
     justify-content: center;
     border: 2px solid ${GRAY_200};
     border-radius: 8px;
-    outline: ${(props) => (props.valid ? 'none' : '1px solid ' + { RED_1 })};
+    outline: ${(props) => (props.valid ? 'none' : `1px solid ${RED_1}`)};
 `
 const Input = styled.input`
     width: 100%;
@@ -81,9 +81,9 @@ function GTSelect(props: Props): JSX.Element {
 
     function optionsList(): JSX.Element[] {
         const { options } = props
-        return options.map(({ value, label }, i) => (
+        return options.map(({ value, label }) => (
             <Button
-                key={i}
+                key={value}
                 value={value}
                 onClick={() => {
                     onSubmit && onSubmit(value)
@@ -93,7 +93,6 @@ function GTSelect(props: Props): JSX.Element {
             </Button>
         ))
     }
-
     function checkValid(val: string): boolean {
         const { pattern } = props
         if (pattern) {
@@ -103,7 +102,6 @@ function GTSelect(props: Props): JSX.Element {
         }
         return true
     }
-
     function exec(val: string): RegExpExecArray | null {
         const { pattern } = props
         if (pattern) {
@@ -111,6 +109,20 @@ function GTSelect(props: Props): JSX.Element {
             return regex.exec(val)
         }
         return null
+    }
+    function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+        e.stopPropagation()
+        if (e.key === 'Enter' && checkValid(e.currentTarget.value) && onSubmit) {
+            const result = exec(e.currentTarget.value)
+            if (result) {
+                const val = Number(result[1]) * 60 + Number(result[2])
+                onSubmit(val)
+            }
+        }
+        if (invalidInput) {
+            const regex = new RegExp(invalidInput)
+            if (regex.test(e.key)) e.preventDefault()
+        }
     }
 
     return (
@@ -122,24 +134,11 @@ function GTSelect(props: Props): JSX.Element {
                         checkValid(e.target.value)
                         onChange(e)
                     }}
-                    onKeyDown={(e) => {
-                        e.stopPropagation()
-                        if (e.key === 'Enter' && checkValid(e.currentTarget.value) && onSubmit) {
-                            const result = exec(e.currentTarget.value)
-                            if (result) {
-                                const val = Number(result[1]) * 60 + Number(result[2])
-                                onSubmit(val)
-                            }
-                        }
-                        if (invalidInput) {
-                            const regex = new RegExp(invalidInput)
-                            if (regex.test(e.key)) e.preventDefault()
-                        }
-                    }}
+                    onKeyDown={handleKeyDown}
                     placeholder={placeholder}
                     autoFocus
                 />
-                {options && (
+                {options.length && (
                     <Chevron
                         src={CHEVRON_DOWN}
                         onClick={() => {
