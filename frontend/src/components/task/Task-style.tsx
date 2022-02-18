@@ -20,9 +20,9 @@ export const TaskContainer = styled.div<{
     outline: none;
     background-color: white;
     opacity: ${(props) => props.opacity};
-    min-height: 46px;
+    min-height: 45px;
     box-shadow: ${(props) => (props.isExpanded ? SHADOW_EXPANDED : SHADOW_PRIMARY)};
-    border: 2px solid ${(props) => (props.showKeyboardIndicator ? BORDER_SELECTED_TASK : 'white')};
+    border: 2.5px solid ${(props) => (props.showKeyboardIndicator ? BORDER_SELECTED_TASK : 'white')};
 `
 
 const DropIndicatorStyles = css<{ isVisible: boolean }>`

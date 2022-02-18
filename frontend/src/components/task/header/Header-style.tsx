@@ -61,7 +61,7 @@ export const TaskHeaderContainer = styled(NoSelect)<{ showButtons: boolean }>`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-height: 46px;
+    min-height: 45px;
 `
 export const HeaderLeft = styled.div`
     box-sizing: border-box;
