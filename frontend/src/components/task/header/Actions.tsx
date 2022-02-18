@@ -162,7 +162,7 @@ const LabelAction = ({ task, isSelected }: LabelActionProps): JSX.Element => {
     return (
         <>
             {isSelected && <InvisibleKeyboardShortcut shortcut="L" onKeyPress={toggleLabelSelector} />}
-            <Tooltip text={'Label'}>
+            <Tooltip text="Label">
                 <Action onClick={onClick}>
                     <ButtonIcon src={LABEL_ICON} alt="label" />
                 </Action>
