@@ -69,11 +69,13 @@ interface Props {
     options: { value: number; label: string }[]
     placeholder?: string
     pattern?: string
+    invalidInput?: string
     inputIcon?: string
 }
 
 function GTSelect(props: Props): JSX.Element {
-    const { onChange, placeholder, inputIcon, options } = props
+    const { onChange, placeholder, inputIcon, options, invalidInput } = props
+    const [value, setValue] = React.useState('')
     const [valid, setValid] = React.useState(true)
     const [expanded, setExpanded] = React.useState(false)
 
@@ -91,7 +93,12 @@ function GTSelect(props: Props): JSX.Element {
         const { value } = e.target
         if (pattern) {
             const regex = new RegExp(pattern)
-            setValid(regex.test(value))
+            if (regex.test(value)) {
+                setValid(true)
+            } else {
+                setValid(false)
+            }
+            setValue(e.target.value)
         }
     }
 
@@ -106,6 +113,10 @@ function GTSelect(props: Props): JSX.Element {
                     }}
                     onKeyDown={(e) => {
                         e.stopPropagation()
+                        if (invalidInput) {
+                            const regex = new RegExp(invalidInput)
+                            if (regex.test(e.key)) e.preventDefault()
+                        }
                     }}
                     placeholder={placeholder}
                     autoFocus

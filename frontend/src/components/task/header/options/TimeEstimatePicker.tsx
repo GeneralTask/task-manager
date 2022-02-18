@@ -46,9 +46,10 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
                 onChange={(e) => {
                     e.stopPropagation()
                 }}
-                placeholder={'HH:MM'}
+                placeholder={'00:00'}
                 options={options}
                 pattern={'^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$'}
+                invalidInput={'^[^0-9:]$'}
                 inputIcon={TIME_ICON}
             />
             {/* <Select
