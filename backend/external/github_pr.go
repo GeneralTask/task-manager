@@ -100,7 +100,8 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				Opened: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
 			},
 			TaskType: database.TaskType{
-				IsTask: true,
+				IsTask:        true,
+				IsPullRequest: true,
 			},
 		}
 		pullRequestItems = append(pullRequestItems, pullRequest)

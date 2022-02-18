@@ -73,15 +73,17 @@ type Item struct {
 }
 
 type TaskType struct {
-	IsTask    bool `bson:"is_task"`
-	IsMessage bool `bson:"is_message"`
-	IsEvent   bool `bson:"is_event"`
+	IsTask        bool `bson:"is_task"`
+	IsMessage     bool `bson:"is_message"`
+	IsEvent       bool `bson:"is_event"`
+	IsPullRequest bool `bson:"is_pull_request"`
 }
 
 type TaskTypeChangeable struct {
-	IsTask    *bool `bson:"is_task,omitempty"`
-	IsMessage *bool `bson:"is_message,omitempty"`
-	IsEvent   *bool `bson:"is_event,omitempty"`
+	IsTask        *bool `bson:"is_task,omitempty"`
+	IsMessage     *bool `bson:"is_message,omitempty"`
+	IsEvent       *bool `bson:"is_event,omitempty"`
+	IsPullRequest bool  `bson:"is_pull_request,omitempty"`
 }
 
 // Task json & mongo model
