@@ -48,7 +48,7 @@ interface ExpandActionProps {
 }
 const ExpandAction = ({ isExpanded, taskId, isSelected }: ExpandActionProps): JSX.Element => {
     const dispatch = useAppDispatch()
-    const toggleExpand = () => dispatch(dispatch(setSelectionInfo({ is_body_expanded: !isExpanded })))
+    const toggleExpand = () => dispatch(dispatch(setSelectionInfo({ id: taskId, is_body_expanded: !isExpanded })))
     const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
         toggleExpand()
