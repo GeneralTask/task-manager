@@ -198,7 +198,7 @@ var TaskServiceGithub = TaskServiceDetails{
 	Name:         "Github",
 	Logo:         "/images/github.svg",
 	AuthType:     AuthTypeOauth2,
-	IsLinkable:   false,
+	IsLinkable:   true,
 	IsSignupable: false,
 }
 var TaskServiceGoogle = TaskServiceDetails{

@@ -52,8 +52,9 @@ type JIRAPriority struct {
 }
 
 type StateToken struct {
-	Token  primitive.ObjectID `bson:"_id,omitempty"`
-	UserID primitive.ObjectID `bson:"user_id"`
+	Token       primitive.ObjectID `bson:"_id,omitempty"`
+	UserID      primitive.ObjectID `bson:"user_id"`
+	UseDeeplink bool               `bson:"use_deeplink"`
 }
 
 type Oauth1RequestSecret struct {
@@ -74,6 +75,12 @@ type TaskType struct {
 	IsTask    bool `bson:"is_task"`
 	IsMessage bool `bson:"is_message"`
 	IsEvent   bool `bson:"is_event"`
+}
+
+type TaskTypeChangeable struct {
+	IsTask    *bool `bson:"is_task,omitempty"`
+	IsMessage *bool `bson:"is_message,omitempty"`
+	IsEvent   *bool `bson:"is_event,omitempty"`
 }
 
 // Task json & mongo model
@@ -124,6 +131,17 @@ type CalendarEventChangeableFields struct {
 type Email struct {
 	ThreadID     string `bson:"thread_id"`
 	SenderDomain string `bson:"sender_domain"`
+	IsUnread     bool   `bson:"is_unread"`
+}
+
+type EmailChangeable struct {
+	IsUnread *bool `bson:"is_unread,omitempty"`
+}
+
+type MessageChangeable struct {
+	EmailChangeable `bson:"email,omitempty"`
+	TaskType        *TaskTypeChangeable `bson:"task_type,omitempty"`
+	IsCompleted     *bool               `bson:"is_completed,omitempty"`
 }
 
 type Task struct {

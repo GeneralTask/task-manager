@@ -91,6 +91,32 @@ func UpdateOrCreateTask(
 	), nil
 }
 
+func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Item, error) {
+	parentCtx := ctx
+	db, dbCleanup, err := GetDBConnection()
+	if err != nil {
+		log.Print("Failed to establish DB connection", err)
+		return nil, err
+	}
+	defer dbCleanup()
+	taskCollection := GetTaskCollection(db)
+
+	var message Item
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = taskCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+			{"user_id": userID},
+		}}).Decode(&message)
+	if err != nil {
+		log.Printf("Failed to get item: %+v, error: %v", itemID, err)
+		return nil, err
+	}
+	return &message, nil
+}
+
 func GetOrCreateTask(db *mongo.Database,
 	userID primitive.ObjectID,
 	IDExternal string,
@@ -290,9 +316,9 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 	return &userObject, nil
 }
 
-func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID) (*string, error) {
+func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID, useDeeplink bool) (*string, error) {
 	parentCtx := context.Background()
-	stateToken := &StateToken{}
+	stateToken := &StateToken{UseDeeplink: useDeeplink}
 	if userID != nil {
 		stateToken.UserID = *userID
 	}
@@ -305,6 +331,25 @@ func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID) (*string, 
 	}
 	stateTokenStr := cursor.InsertedID.(primitive.ObjectID).Hex()
 	return &stateTokenStr, nil
+}
+
+func GetStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userID *primitive.ObjectID) (*StateToken, error) {
+	parentCtx := context.Background()
+	var query bson.M
+	if userID == nil {
+		query = bson.M{"_id": stateTokenID}
+	} else {
+		query = bson.M{"$and": []bson.M{{"user_id": *userID}, {"_id": stateTokenID}}}
+	}
+	var token StateToken
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err := GetStateTokenCollection(db).FindOne(dbCtx, query).Decode(&token)
+	if err != nil {
+		log.Printf("Failed to get state token: %v", err)
+		return nil, err
+	}
+	return &token, nil
 }
 
 func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userID *primitive.ObjectID) error {

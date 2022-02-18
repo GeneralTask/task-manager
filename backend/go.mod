@@ -3,6 +3,7 @@ module github.com/GeneralTask/task-manager/backend
 go 1.17
 
 require (
+	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/dghubble/oauth1 v0.7.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/golang-migrate/migrate/v4 v4.14.1

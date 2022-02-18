@@ -18,6 +18,7 @@ import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import { useFetchMessages } from '../messages/MessagesPage'
+import CalendarFull from '../calendar/CalendarFull'
 
 const TasksPageContainer = styled.div`
     display: flex;
@@ -136,16 +137,23 @@ const CollapseCalendarSidebar = React.memo(() => {
 
 export default function TasksPage(): JSX.Element {
     const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
+    const fullCalendarShown = useAppSelector((state) => state.tasks_page.events.show_full_calendar)
     const section = `${useParams().section}_page`
     const currentPage = Object.values(NavbarPage).find((page) => page === section)
     if (currentPage == null) return <Navigate to="/" />
     return (
         <TasksPageContainer>
             <Navbar currentPage={currentPage} />
-            <EventAlert>
-                <Tasks currentPage={currentPage} />
-            </EventAlert>
-            {calendarSidebarShown && <CalendarSidebar />}
+            {fullCalendarShown ? (
+                <CalendarFull />
+            ) : (
+                <>
+                    <EventAlert>
+                        <Tasks currentPage={currentPage} />
+                    </EventAlert>
+                    {calendarSidebarShown && <CalendarSidebar />}
+                </>
+            )}
         </TasksPageContainer>
     )
 }

@@ -11,6 +11,14 @@ export const flex = {
     flex: styled.div`
         display: flex;
     `,
+    flexColumn: styled.div`
+        display: flex;
+        flex-direction: column;
+    `,
+    flexRow: styled.div`
+        display: flex;
+        flex-direction: row;
+    `,
     alignItemsCenter: styled.div`
         display: flex;
         align-items: center;
@@ -18,6 +26,10 @@ export const flex = {
     justifyContentSpaceBetween: styled.div`
         display: flex;
         justify-content: space-between;
+    `,
+    justifyContentSpaceAround: styled.div`
+        display: flex;
+        justify-content: space-around;
     `,
     centerXY: styled.div`
         display: flex;
@@ -47,8 +59,8 @@ export const ORANGE_1 = '#FFBA0D'
 export const ORANGE_2 = '#FFF8E7'
 export const GREEN_1 = '#00A538'
 export const GREEN_2 = '#E6FFE9'
-export const GRADIENT_BACKGROUND = 'linear-gradient(0deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), linear-gradient(98.72deg, #D1E4FF 8.86%, rgba(255, 255, 255, 0) 63.16%), linear-gradient(188.47deg, rgba(213, 193, 255, 0.5) 33.75%, rgba(255, 211, 124, 0.15) 93.52%), #FFFFFF'
-
+export const GRADIENT_BACKGROUND =
+    'linear-gradient(0deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), linear-gradient(98.72deg, #D1E4FF 8.86%, rgba(255, 255, 255, 0) 63.16%), linear-gradient(188.47deg, rgba(213, 193, 255, 0.5) 33.75%, rgba(255, 211, 124, 0.15) 93.52%), #FFFFFF'
 
 export const TEXT_GRAY = GRAY_500
 export const TEXT_BLACK = BLACK
@@ -57,7 +69,6 @@ export const TEXT_BLACK_HOVER = GRAY_700
 export const TEXT_LIGHTGRAY = GRAY_300
 export const TEXT_DARKGRAY = GRAY_700
 export const TEXT_KEYBOARD_SHORTCUT = GRAY_400
-
 
 export const BACKGROUND_PRIMARY = '#007bff'
 export const BACKGROUND_PRIMARY_HOVER = '#0069d9'
@@ -106,7 +117,7 @@ export const UNSELECTED_NAVBAR_COLOR = GRAY_400
 export const DOMINO_COLOR = GRAY_400
 
 export const CELL_HEIGHT = 64
-export const TABLE_WIDTH_PERCENTAGE = 95
+export const TABLE_WIDTH_PERCENTAGE = 100
 export const CELL_TIME_WIDTH = 43
 export const CELL_BORDER_WIDTH = 3
 export const CELL_LEFT_MARGIN = 10
@@ -118,7 +129,6 @@ export const CALENDAR_TIME_COLOR = GRAY_400
 export const CALENDAR_INDICATOR_COLOR = ACCENT_MAIN
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = 2.5
-
 
 export const MODAL_WIDTH = '365px'
 export const MODAL_HEIGHT = '418px'

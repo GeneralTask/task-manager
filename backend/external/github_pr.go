@@ -142,3 +142,7 @@ func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID s
 func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
 	return nil
 }
+
+func (gitPR GithubPRSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
+	return nil
+}
