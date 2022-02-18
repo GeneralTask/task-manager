@@ -69,6 +69,7 @@ type Item struct {
 	Task          `bson:"task,omitempty"`
 	Email         `bson:"email,omitempty"`
 	CalendarEvent `bson:"calendar_event,omitempty"`
+	PullRequest   `bson:"pull_request,omitempty"`
 }
 
 type TaskType struct {
@@ -107,8 +108,7 @@ type TaskBase struct {
 }
 
 type PullRequest struct {
-	TaskBase `bson:",inline"`
-	Opened   primitive.DateTime `bson:"opened"`
+	Opened primitive.DateTime `bson:"opened"`
 }
 
 type PullRequestChangeableFields struct {
