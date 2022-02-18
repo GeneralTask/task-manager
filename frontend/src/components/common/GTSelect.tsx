@@ -67,6 +67,7 @@ const Button = styled.button`
 interface Props {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
     options: { value: number; label: string }[]
+    onSubmit?: (val: number) => void
     placeholder?: string
     pattern?: string
     invalidInput?: string
@@ -74,32 +75,42 @@ interface Props {
 }
 
 function GTSelect(props: Props): JSX.Element {
-    const { onChange, placeholder, inputIcon, options, invalidInput } = props
-    const [value, setValue] = React.useState('')
+    const { onChange, onSubmit, placeholder, inputIcon, options, invalidInput } = props
     const [valid, setValid] = React.useState(true)
     const [expanded, setExpanded] = React.useState(false)
 
     function optionsList(): JSX.Element[] {
         const { options } = props
         return options.map(({ value, label }, i) => (
-            <Button key={i} value={value}>
+            <Button
+                key={i}
+                value={value}
+                onClick={() => {
+                    onSubmit && onSubmit(value)
+                }}
+            >
                 {label}
             </Button>
         ))
     }
 
-    function checkValid(e: React.ChangeEvent<HTMLInputElement>): void {
+    function checkValid(val: string): boolean {
         const { pattern } = props
-        const { value } = e.target
         if (pattern) {
             const regex = new RegExp(pattern)
-            if (regex.test(value)) {
-                setValid(true)
-            } else {
-                setValid(false)
-            }
-            setValue(e.target.value)
+            setValid(regex.test(val))
+            return regex.test(val)
         }
+        return true
+    }
+
+    function exec(val: string): RegExpExecArray | null {
+        const { pattern } = props
+        if (pattern) {
+            const regex = new RegExp(pattern)
+            return regex.exec(val)
+        }
+        return null
     }
 
     return (
@@ -108,11 +119,18 @@ function GTSelect(props: Props): JSX.Element {
                 {inputIcon && <Icon src={inputIcon} />}
                 <Input
                     onChange={(e) => {
-                        checkValid(e)
+                        checkValid(e.target.value)
                         onChange(e)
                     }}
                     onKeyDown={(e) => {
                         e.stopPropagation()
+                        if (e.key === 'Enter' && checkValid(e.currentTarget.value) && onSubmit) {
+                            const result = exec(e.currentTarget.value)
+                            if (result) {
+                                const val = Number(result[1]) * 60 + Number(result[2])
+                                onSubmit(val)
+                            }
+                        }
                         if (invalidInput) {
                             const regex = new RegExp(invalidInput)
                             if (regex.test(e.key)) e.preventDefault()
