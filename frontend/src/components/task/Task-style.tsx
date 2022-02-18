@@ -1,6 +1,5 @@
-import { BORDER_PRIMARY, BORDER_SELECTED_TASK, SHADOW_EXPANDED, SHADOW_PRIMARY } from '../../helpers/styles'
+import { BORDER_PRIMARY, BORDER_SELECTED_TASK, shadow } from '../../helpers/styles'
 import styled, { css } from 'styled-components'
-import { BORDER_PRIMARY, shadow } from '../../helpers/styles'
 
 export const DraggableContainer = styled.div`
     width: 60%;
