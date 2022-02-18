@@ -61,10 +61,10 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         logEvent(LogEvents.TASK_MARK_AS_DONE)
     }, [])
     const onMouseLeave = () => {
-        // setIsOver(false)
-        // dispatch(hideLabelSelector())
-        // dispatch(hideDatePicker())
-        // dispatch(hideTimeEstimate())
+        setIsOver(false)
+        dispatch(hideLabelSelector())
+        dispatch(hideDatePicker())
+        dispatch(hideTimeEstimate())
     }
     const onClick = () => {
         dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))

@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { CHEVRON_DOWN } from '../../constants'
-import { flex, GRAY_100, GRAY_200, GRAY_400, GRAY_800, shadow, WHITE } from '../../helpers/styles'
+import { GRAY_100, GRAY_200, GRAY_800, shadow, WHITE } from '../../helpers/styles'
 
 const InputContainer = styled.div<{ valid: boolean }>`
     display: flex;
