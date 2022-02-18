@@ -52,9 +52,14 @@ export default function Task(props: Props): JSX.Element {
 
     return (
         <DraggableContainer ref={dragPreview}>
-            {showKeyboardIndicator && <div>selected</div>}
             <DropIndicatorAbove isVisible={isOver && dropDirection} />
-            <TaskContainer opacity={opacity} isExpanded={isBodyExpanded} ref={containerRef} onClick={selectTask}>
+            <TaskContainer
+                showKeyboardIndicator={showKeyboardIndicator}
+                opacity={opacity}
+                isExpanded={isBodyExpanded}
+                ref={containerRef}
+                onClick={selectTask}
+            >
                 <TaskHeader
                     task={task}
                     dragDisabled={dragDisabled}
