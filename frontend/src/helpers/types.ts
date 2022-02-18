@@ -106,3 +106,9 @@ export interface TTaskCreateParams {
     time_duration?: number
     id_task_section?: string
 }
+
+export interface SelectionInfo {
+    id: string | null
+    show_keyboard_indicator: boolean
+    is_body_expanded: boolean
+}

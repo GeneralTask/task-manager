@@ -3,8 +3,7 @@ import { DONE_BUTTON, TASKS_MODIFY_URL, UNDONE_BUTTON } from '../../../constants
 import { DoneButton, DoneButtonContainer, DragHandler, HeaderLeft, Icon, TaskHeaderContainer } from './Header-style'
 import React, { useCallback } from 'react'
 import {
-    collapseBody,
-    expandBody,
+    setSelectionInfo,
     hideDatePicker,
     hideLabelSelector,
     hideTimeEstimate,
@@ -67,7 +66,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         dispatch(hideTimeEstimate())
     }
     const onClick = () => {
-        dispatch(props.isExpanded ? collapseBody() : expandBody(props.task.id))
+        dispatch(setSelectionInfo({ id: props.isExpanded ? null : props.task.id }))
     }
 
     const isSelected = props.isExpanded // || isSelectedThroughKeyboardShortcut (coming soon)

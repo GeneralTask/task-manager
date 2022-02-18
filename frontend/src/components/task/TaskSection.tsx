@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import TaskCreate from './TaskCreate'
 import TaskDropContainer from './TaskDropContainer'
 import { flex } from '../../helpers/styles'
-import { setSelectedTask } from '../../redux/tasksPageSlice'
+import { setSelectionInfo } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useKeyboardShortcut } from '../common/KeyboardShortcut'
 
@@ -20,35 +20,34 @@ interface Props {
 
 export default function TaskSection(props: Props): JSX.Element {
     const dispatch = useAppDispatch()
+    console.log({ task_section: props.task_section })
     useEffect(() => {
-        dispatch(setSelectedTask(null))
-    }, [props.task_section, props.task_section_index])
+        dispatch(setSelectionInfo({ id: null }))
+    }, [props.task_section.id])
     return (
         <div>
             <KeyboardSelector taskSection={props.task_section} />
-            {props.task_section && !props.task_section.is_done && (
+            {!props.task_section.is_done && (
                 <TaskCreate task_section={props.task_section} task_section_index={props.task_section_index} />
             )}
-            {props.task_section &&
-                props.task_section.tasks &&
-                props.task_section.tasks.map((task: TTask, task_index: number) => {
-                    return (
-                        <div key={task_index}>
-                            <flex.flex>
-                                <TaskWrapperSides />
-                            </flex.flex>
-                            <TaskDropContainer
-                                key={task.id}
-                                task={task}
-                                dragDisabled={props.task_section.is_done}
-                                indices={{
-                                    section: props.task_section_index,
-                                    task: task_index,
-                                }}
-                            />
-                        </div>
-                    )
-                })}
+            {props.task_section.tasks.map((task: TTask, task_index: number) => {
+                return (
+                    <div key={task_index}>
+                        <flex.flex>
+                            <TaskWrapperSides />
+                        </flex.flex>
+                        <TaskDropContainer
+                            key={task.id}
+                            task={task}
+                            dragDisabled={props.task_section.is_done}
+                            indices={{
+                                section: props.task_section_index,
+                                task: task_index,
+                            }}
+                        />
+                    </div>
+                )
+            })}
         </div>
     )
 }
@@ -57,23 +56,23 @@ interface KeyboardSelectorProps {
     taskSection: TTaskSection
 }
 function KeyboardSelector({ taskSection }: KeyboardSelectorProps) {
-    const selectedTaskId = useAppSelector((state) => state.tasks_page.tasks.selected_task_id)
+    const selectedTaskId = useAppSelector((state) => state.tasks_page.tasks.selection_info.id)
     const dispatch = useAppDispatch()
     // on press DOWN -> select first task ahh
     const onUpDown = useCallback(
         (direction: 'up' | 'down') => {
             // if a task is not selected, select the first one
             if (selectedTaskId == null && taskSection.tasks.length > 0) {
-                dispatch(setSelectedTask(taskSection.tasks[0].id))
+                dispatch(setSelectionInfo({ id: taskSection.tasks[0].id }))
             } else {
                 const index = taskSection.tasks.findIndex((task) => task.id === selectedTaskId)
                 // if for some reason the task is not found, select the first one
                 if (index === -1) {
-                    dispatch(setSelectedTask(taskSection.tasks[0].id))
+                    dispatch(setSelectionInfo({ id: taskSection.tasks[0].id }))
                 } else if (direction === 'up' && index > 0) {
-                    dispatch(setSelectedTask(taskSection.tasks[index - 1].id))
+                    dispatch(setSelectionInfo({ id: taskSection.tasks[index - 1].id }))
                 } else if (direction === 'down' && index < taskSection.tasks.length - 1) {
-                    dispatch(setSelectedTask(taskSection.tasks[index + 1].id))
+                    dispatch(setSelectionInfo({ id: taskSection.tasks[index + 1].id }))
                 }
             }
         },

@@ -1,11 +1,10 @@
 import { BLANK_CALENDAR_ICON, DEFAULT_ALLOCATION, EXPAND_ICON, LABEL_ICON, TIME_ICON } from '../../../constants'
 import { ButtonIcon, DueDateButtonText, TimeEstimateButtonText } from './Header-style'
 import {
-    collapseBody,
-    expandBody,
     hideDatePicker,
     hideLabelSelector,
     hideTimeEstimate,
+    setSelectionInfo,
     showDatePicker,
     showLabelSelector,
     showTimeEstimate,
@@ -49,7 +48,7 @@ interface ExpandActionProps {
 }
 const ExpandAction = ({ isExpanded, taskId, isSelected }: ExpandActionProps): JSX.Element => {
     const dispatch = useAppDispatch()
-    const toggleExpand = () => dispatch(isExpanded ? collapseBody() : expandBody(taskId))
+    const toggleExpand = () => dispatch(dispatch(setSelectionInfo({ id: isExpanded ? null : taskId })))
     const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
         toggleExpand()

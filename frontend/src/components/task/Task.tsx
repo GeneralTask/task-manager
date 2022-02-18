@@ -4,13 +4,13 @@ import { DraggableContainer, DropIndicatorAbove, DropIndicatorBelow, TaskContain
 import { Indices, ItemTypes } from '../../helpers/types'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
-import React from 'react'
+import React, { useCallback } from 'react'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './header/Header'
-import { collapseBody } from '../../redux/tasksPageSlice'
 import { useClickOutside } from '../../helpers/utils'
 import { useDrag } from 'react-dnd'
+import { setSelectionInfo } from '../../redux/tasksPageSlice'
 
 interface Props {
     task: TTask
@@ -23,9 +23,11 @@ interface Props {
 export default function Task(props: Props): JSX.Element {
     const dispatch = useAppDispatch()
     const { task, dragDisabled, isOver, dropDirection } = props
-    const { isBodyExpanded } = useAppSelector((state) => ({
-        isBodyExpanded: state.tasks_page.tasks.expanded_body === task.id,
-    }))
+    const isSelected = useAppSelector((state) => state.tasks_page.tasks.selection_info.id === task.id)
+    const isBodyExpanded = useAppSelector(
+        (state) => isSelected && state.tasks_page.tasks.selection_info.is_body_expanded
+    )
+
     const indicesRef = React.useRef<Indices>()
     indicesRef.current = props.indices
 
@@ -40,13 +42,18 @@ export default function Task(props: Props): JSX.Element {
 
     const containerRef = React.useRef<HTMLDivElement>(null)
     useClickOutside(containerRef, () => {
-        isBodyExpanded && dispatch(collapseBody())
+        isBodyExpanded && dispatch(setSelectionInfo({ is_body_expanded: false }))
     })
+
+    const selectTask = useCallback(() => {
+        dispatch(setSelectionInfo({ id: task.id }))
+    }, [task.id])
 
     return (
         <DraggableContainer ref={dragPreview}>
+            {isSelected && <div>selected</div>}
             <DropIndicatorAbove isVisible={isOver && dropDirection} />
-            <TaskContainer opacity={opacity} isExpanded={isBodyExpanded} ref={containerRef}>
+            <TaskContainer opacity={opacity} isExpanded={isBodyExpanded} ref={containerRef} onClick={selectTask}>
                 <TaskHeader task={task} dragDisabled={dragDisabled} isExpanded={isBodyExpanded} ref={drag} />
                 <TaskBody task={task} isExpanded={isBodyExpanded} />
             </TaskContainer>
