@@ -45,6 +45,7 @@ func TestLinkedAccountsList(t *testing.T) {
 	defer dbCleanup()
 	t.Run("SuccessOnlyGoogle", func(t *testing.T) {
 		authToken := login("linkedaccounts@generaltask.com", "")
+		createGoogleLink(t, db, authToken, "linkedaccounts@generaltask.com").Hex()
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/linked_accounts/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -58,6 +59,7 @@ func TestLinkedAccountsList(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("linkedaccounts2@generaltask.com", "")
+		createGoogleLink(t, db, authToken, "linkedaccounts2@generaltask.com").Hex()
 		jiraTokenID := createJIRADungeon(t, db, authToken).Hex()
 		assert.NoError(t, err)
 		router := GetRouter(GetAPI())
@@ -87,6 +89,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	parentCtx := context.Background()
 	t.Run("MalformattedAccountID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
+		createGoogleLink(t, db, authToken, "approved@generaltask.com").Hex()
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/123/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -96,6 +99,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	})
 	t.Run("InvalidAccountID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
+		createGoogleLink(t, db, authToken, "approved@generaltask.com").Hex()
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+primitive.NewObjectID().Hex()+"/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -105,6 +109,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	})
 	t.Run("UnlinkableAccount", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
+		createGoogleLink(t, db, authToken, "approved@generaltask.com").Hex()
 		googleAccountID := getGoogleTokenFromAuthToken(t, db, authToken).ID
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+googleAccountID.Hex()+"/", nil)
@@ -118,7 +123,9 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	})
 	t.Run("AccountDifferentUser", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
+		createGoogleLink(t, db, authToken, "approved@generaltask.com").Hex()
 		authTokenOther := login("other@generaltask.com", "")
+		createGoogleLink(t, db, authTokenOther, "other@generaltask.com").Hex()
 		googleAccountID := getGoogleTokenFromAuthToken(t, db, authTokenOther).ID
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+googleAccountID.Hex()+"/", nil)
@@ -154,6 +161,24 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 }
+
+func createGoogleLink(t *testing.T, db *mongo.Database, authToken string, email string) primitive.ObjectID {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	res, err := database.GetExternalTokenCollection(db).InsertOne(
+		dbCtx,
+		&database.ExternalAPIToken{
+			ServiceID:    external.TASK_SERVICE_ID_GOOGLE,
+			UserID:       getUserIDFromAuthToken(t, db, authToken),
+			DisplayID:	  email,
+			IsUnlinkable: false,
+		},
+	)
+	assert.NoError(t, err)
+	return res.InsertedID.(primitive.ObjectID)
+}
+
 
 func createJIRADungeon(t *testing.T, db *mongo.Database, authToken string) primitive.ObjectID {
 	parentCtx := context.Background()

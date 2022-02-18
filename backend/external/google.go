@@ -3,7 +3,6 @@ package external
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 
@@ -118,22 +117,6 @@ func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID pri
 	}
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-
-	count, err := externalAPITokenCollection.CountDocuments(
-		context.TODO(),
-		bson.M{"$and": []bson.M{
-			{"user_id": userID},
-			{"service_id": TASK_SERVICE_ID_GOOGLE},
-			{"account_id": userInfo.EMAIL},
-			{"is_primary_login": true},
-		}})
-	if err != nil {
-		return err
-	}
-
-	if count > 0 {
-		return errors.New("already exists as primary")
-	}
 
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
