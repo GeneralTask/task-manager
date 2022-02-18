@@ -251,7 +251,7 @@ func TestLoginCallback(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Contains(t, string(body), "generaltask://authentication?authToken=")
-		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", false, true)
+		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", true, true)
 	})
 	t.Run("SuccessWaitlist", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
