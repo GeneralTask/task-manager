@@ -1,12 +1,13 @@
 import React, { Dispatch } from 'react'
 import { Action } from 'redux'
-import { TASKS_MODIFY_URL } from '../../../../constants'
+import { TASKS_MODIFY_URL, TIME_ICON } from '../../../../constants'
 import { makeAuthorizedRequest } from '../../../../helpers/utils'
 import { useAppDispatch } from '../../../../redux/hooks'
 import { hideTimeEstimate } from '../../../../redux/tasksPageSlice'
 import { useFetchTasks } from '../../TasksPage'
 import { TopNav } from './DatePicker-style'
-import { TimeEstimateContainer, Header, TimeButton } from './TimeEstimate-style'
+import { TimeEstimateContainer, Header } from './TimeEstimate-style'
+import GTSelect from '../../../common/GTSelect'
 
 interface TimeEstimateProps {
     task_id: string
@@ -15,7 +16,21 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
     const dispatch = useAppDispatch()
     const fetchTasks = useFetchTasks()
 
-    const timeValues = [5, 10, 15, 30, 45, 60]
+    const options = [
+        { value: 5, label: '5 mins' },
+        { value: 10, label: '10 mins' },
+        { value: 15, label: '15 mins' },
+        { value: 20, label: '20 mins' },
+        { value: 30, label: '30 mins' },
+        { value: 45, label: '45 mins' },
+        { value: 60, label: '1 hour' },
+        { value: 90, label: '1.5 hours' },
+        { value: 120, label: '2 hours' },
+        { value: 180, label: '3 hours' },
+        { value: 240, label: '4 hours' },
+        { value: 300, label: '5 hours' },
+        { value: 360, label: '6 hours' },
+    ]
 
     return (
         <TimeEstimateContainer
@@ -26,19 +41,19 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
             <TopNav>
                 <Header>Set Duration</Header>
             </TopNav>
-            {timeValues.map((val, i) => {
-                return (
-                    <TimeButton
-                        key={i}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            editTimeEstimate(task_id, val * 60, dispatch, fetchTasks)
-                        }}
-                    >
-                        {val} min
-                    </TimeButton>
-                )
-            })}
+            <GTSelect
+                onChange={(e) => {
+                    e.stopPropagation()
+                }}
+                onSubmit={(durationMinutes) => {
+                    editTimeEstimate(task_id, durationMinutes * 60, dispatch, fetchTasks)
+                }}
+                placeholder={'00:00'}
+                options={options}
+                pattern={'^([0-9]|0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$'}
+                invalidInput={'^[^0-9:]$'}
+                inputIcon={TIME_ICON}
+            />
         </TimeEstimateContainer>
     )
 }

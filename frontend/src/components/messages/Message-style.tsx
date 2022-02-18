@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { SHADOW_EXPANDED, SHADOW_PRIMARY, TEXT_GRAY } from '../../helpers/styles'
+import { shadow, TEXT_GRAY } from '../../helpers/styles'
 
 export const MessageContainer = styled.div<{ isExpanded: boolean }>`
     width: 60%;
@@ -13,7 +13,7 @@ export const MessageContainer = styled.div<{ isExpanded: boolean }>`
     background-color: white;
     opacity: 0.8;
     min-height: 50px;
-    box-shadow: ${(props) => (props.isExpanded ? SHADOW_EXPANDED : SHADOW_PRIMARY)};
+    box-shadow: ${(props) => (props.isExpanded ? shadow.EXPANDED : shadow.PRIMARY)};
 `
 export const RelativeDate = styled.span`
     color: ${TEXT_GRAY};

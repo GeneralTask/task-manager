@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-import { SHADOW_MISC_1, TOOLTIPS_BACKGROUND, TOOLTIPS_HEIGHT, TOOLTIPS_OPACITY } from '../../helpers/styles'
+import { shadow, TOOLTIPS_BACKGROUND, TOOLTIPS_HEIGHT, TOOLTIPS_OPACITY } from '../../helpers/styles'
 
 import { TOOLTIP_DELAY } from '../../constants'
 import styled from 'styled-components'
@@ -18,7 +18,7 @@ const TooltipContainer = styled.div<{ show: boolean; direction: string }>`
     padding: 6px 6px 6px 8px;
     position: absolute;
     pointer-events: none;
-    box-shadow: ${SHADOW_MISC_1};
+    box-shadow: ${shadow.MISC_1};
     opacity: ${TOOLTIPS_OPACITY};
     background-color: ${TOOLTIPS_BACKGROUND};
     text-align: center;

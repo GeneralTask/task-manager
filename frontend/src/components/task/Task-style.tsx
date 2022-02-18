@@ -1,4 +1,4 @@
-import { BORDER_PRIMARY, BORDER_SELECTED_TASK, SHADOW_EXPANDED, SHADOW_PRIMARY } from '../../helpers/styles'
+import { BORDER_PRIMARY, BORDER_SELECTED_TASK, shadow } from '../../helpers/styles'
 import styled, { css } from 'styled-components'
 
 export const DraggableContainer = styled.div`
@@ -21,7 +21,7 @@ export const TaskContainer = styled.div<{
     background-color: white;
     opacity: ${(props) => props.opacity};
     min-height: 45px;
-    box-shadow: ${(props) => (props.isExpanded ? SHADOW_EXPANDED : SHADOW_PRIMARY)};
+    box-shadow: ${(props) => (props.isExpanded ? shadow.EXPANDED : shadow.PRIMARY)};
     border: 2.5px solid ${(props) => (props.showKeyboardIndicator ? BORDER_SELECTED_TASK : 'white')};
 `
 
