@@ -1,4 +1,4 @@
-import { device, SHADOW_PRIMARY, TEXT_DARKGRAY } from '../../helpers/styles'
+import { device, shadow, TEXT_DARKGRAY } from '../../helpers/styles'
 
 import styled from 'styled-components'
 
@@ -20,7 +20,7 @@ export const Form = styled.form`
     background-color: rgba(24, 24, 27, 0.03);
     &:hover,
     :focus-within {
-        box-shadow: ${SHADOW_PRIMARY};
+        box-shadow: ${shadow.PRIMARY};
         background-color: rgba(43, 43, 43, 0.08);
     }
     border-radius: 12px;

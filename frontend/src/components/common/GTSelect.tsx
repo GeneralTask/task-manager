@@ -1,58 +1,125 @@
 import React from 'react'
 import styled from 'styled-components'
-import { GRAY_400, GRAY_800 } from '../../helpers/styles'
+import { CHEVRON_DOWN } from '../../constants'
+import { flex, GRAY_100, GRAY_200, GRAY_400, GRAY_800, shadow, WHITE } from '../../helpers/styles'
 
+const InputContainer = styled.div<{ valid: boolean }>`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid ${GRAY_200};
+    border-radius: 8px;
+    outline: ${(props) => (props.valid ? 'none' : '1px solid red')};
+`
 const Input = styled.input`
+    width: 100%;
     background: transparent;
     border: none;
-    border-bottom: 1px solid ${GRAY_400};
     color: ${GRAY_800};
     font-size: 16px;
     font-weight: 500;
-    padding: 4px 6px 4px 6px;
-    width: 100%;
+    padding: 6px 0;
     outline: none;
-    cursor: pointer;
-    &:focus {
-        border-bottom: 1px solid ${GRAY_800};
-    }
 `
-
+const Icon = styled.img`
+    width: 16px;
+    height: 16px;
+    margin: 6px;
+`
+const Chevron = styled.img`
+    width: 8px;
+    height: 8px;
+    margin: 6px;
+    padding: 5px;
+    cursor: pointer;
+`
+const Dropdown = styled.div`
+    position: absolute;
+    top: 95%;
+    left: 5%;
+    width: 90%;
+    display: flex;
+    border-radius: 8px;
+    flex-direction: column;
+    background: ${WHITE};
+    box-shadow: ${shadow.PRIMARY};
+    border-radius: 8px;
+    height: 200px;
+    padding: 6px;
+    overflow-y: auto;
+`
 const Button = styled.button`
     background: transparent;
+    text-align: left;
     border: none;
     border-radius: 6px;
     color: ${GRAY_800};
     font-size: 16px;
     font-weight: 500;
-    padding: 4px 6px 4px 6px;
-    margin: 4px;
+    padding: 6px 8px;
+    width: 100%;
     cursor: pointer;
     &:hover {
-        color: ${GRAY_800};
+        background-color: ${GRAY_100};
     }
 `
 
 interface Props {
-    value: string
-    onChange: (value: string) => void
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
     options: { value: number; label: string }[]
     placeholder?: string
+    pattern?: string
+    inputIcon?: string
 }
 
 function GTSelect(props: Props): JSX.Element {
+    const { onChange, placeholder, inputIcon, options } = props
+    const [valid, setValid] = React.useState(true)
+    const [expanded, setExpanded] = React.useState(false)
+
+    function optionsList(): JSX.Element[] {
+        const { options } = props
+        return options.map(({ value, label }, i) => (
+            <Button key={i} value={value}>
+                {label}
+            </Button>
+        ))
+    }
+
+    function checkValid(e: React.ChangeEvent<HTMLInputElement>): void {
+        const { pattern } = props
+        const { value } = e.target
+        if (pattern) {
+            const regex = new RegExp(pattern)
+            setValid(regex.test(value))
+        }
+    }
+
     return (
         <>
-            <Input
-                value={props.value}
-                onChange={(e) => props.onChange(e.target.value)}
-                placeholder={props.placeholder}
-            />
-            {props.options.map(({ value, label }, i) => (
-                <Button key={i} value={value}>
-                    {label}
-                </Button>
-            ))}
+            <InputContainer valid={valid}>
+                {inputIcon && <Icon src={inputIcon} />}
+                <Input
+                    onChange={(e) => {
+                        checkValid(e)
+                        onChange(e)
+                    }}
+                    onKeyDown={(e) => {
+                        e.stopPropagation()
+                    }}
+                    placeholder={placeholder}
+                    autoFocus
+                />
+                {options && (
+                    <Chevron
+                        src={CHEVRON_DOWN}
+                        onClick={() => {
+                            setExpanded(!expanded)
+                        }}
+                    />
+                )}
+            </InputContainer>
+            {expanded && options && <Dropdown>{optionsList()}</Dropdown>}
         </>
     )
 }

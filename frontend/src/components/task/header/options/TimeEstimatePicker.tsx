@@ -1,6 +1,6 @@
 import React, { Dispatch } from 'react'
 import { Action } from 'redux'
-import { TASKS_MODIFY_URL } from '../../../../constants'
+import { TASKS_MODIFY_URL, TIME_ICON } from '../../../../constants'
 import { makeAuthorizedRequest } from '../../../../helpers/utils'
 import { useAppDispatch } from '../../../../redux/hooks'
 import { hideTimeEstimate } from '../../../../redux/tasksPageSlice'
@@ -43,11 +43,13 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
                 <Header>Set Duration</Header>
             </TopNav>
             <GTSelect
-                value={''}
-                onChange={function (value: string): void {
-                    throw new Error('Function not implemented.')
+                onChange={(e) => {
+                    e.stopPropagation()
                 }}
+                placeholder={'HH:MM'}
                 options={options}
+                pattern={'^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$'}
+                inputIcon={TIME_ICON}
             />
             {/* <Select
                 options={options}

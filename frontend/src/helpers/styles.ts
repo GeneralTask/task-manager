@@ -47,8 +47,8 @@ export const ORANGE_1 = '#FFBA0D'
 export const ORANGE_2 = '#FFF8E7'
 export const GREEN_1 = '#00A538'
 export const GREEN_2 = '#E6FFE9'
-export const GRADIENT_BACKGROUND = 'linear-gradient(0deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), linear-gradient(98.72deg, #D1E4FF 8.86%, rgba(255, 255, 255, 0) 63.16%), linear-gradient(188.47deg, rgba(213, 193, 255, 0.5) 33.75%, rgba(255, 211, 124, 0.15) 93.52%), #FFFFFF'
-
+export const GRADIENT_BACKGROUND =
+    'linear-gradient(0deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), linear-gradient(98.72deg, #D1E4FF 8.86%, rgba(255, 255, 255, 0) 63.16%), linear-gradient(188.47deg, rgba(213, 193, 255, 0.5) 33.75%, rgba(255, 211, 124, 0.15) 93.52%), #FFFFFF'
 
 export const TEXT_GRAY = GRAY_500
 export const TEXT_BLACK = BLACK
@@ -57,7 +57,6 @@ export const TEXT_BLACK_HOVER = GRAY_700
 export const TEXT_LIGHTGRAY = GRAY_300
 export const TEXT_DARKGRAY = GRAY_700
 export const TEXT_KEYBOARD_SHORTCUT = GRAY_400
-
 
 export const BACKGROUND_PRIMARY = '#007bff'
 export const BACKGROUND_PRIMARY_HOVER = '#0069d9'
@@ -81,12 +80,14 @@ export const BACKGROUND_KEYBOARD_SHORTCUT = GRAY_50
 
 export const BACKGROUND_HOVER = GRAY_200
 
-export const SHADOW_PRIMARY = '0px 0px 10px rgba(0, 0, 0, 0.06)'
-export const SHADOW_EXPANDED = '0px 0px 10px rgba(0, 0, 0, 0.12)'
-export const SHADOW_EVENT_ALERT = '0px 4px 20px rgba(43, 43, 43, 0.08)'
-export const SHADOW_KEYBOARD_SHORTCUT = '0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06)'
-export const SHADOW_MISC_1 = '0px 4px 20px rgba(43, 43, 43, 0.08)'
-export const SHADOW_MISC_2 = '0px 1px 2px rgba(0, 0, 0, 0.07)'
+export const shadow = {
+    PRIMARY: '0px 0px 10px rgba(0, 0, 0, 0.06)',
+    EXPANDED: '0px 0px 10px rgba(0, 0, 0, 0.12)',
+    EVENT_ALERT: '0px 4px 20px rgba(43, 43, 43, 0.08)',
+    KEYBOARD_SHORTCUT: '0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06)',
+    MISC_1: '0px 4px 20px rgba(43, 43, 43, 0.08)',
+    MISC_2: '0px 1px 2px rgba(0, 0, 0, 0.07)',
+}
 
 export const NoSelect = styled.div`
     -webkit-touch-callout: none; /* iOS Safari */
@@ -118,7 +119,6 @@ export const CALENDAR_TIME_COLOR = GRAY_400
 export const CALENDAR_INDICATOR_COLOR = ACCENT_MAIN
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = 2.5
-
 
 export const MODAL_WIDTH = '365px'
 export const MODAL_HEIGHT = '418px'

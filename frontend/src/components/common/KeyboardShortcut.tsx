@@ -1,4 +1,4 @@
-import { BACKGROUND_KEYBOARD_SHORTCUT, SHADOW_KEYBOARD_SHORTCUT, TEXT_KEYBOARD_SHORTCUT } from '../../helpers/styles'
+import { BACKGROUND_KEYBOARD_SHORTCUT, shadow, TEXT_KEYBOARD_SHORTCUT } from '../../helpers/styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import styled from 'styled-components'
@@ -17,7 +17,7 @@ const KeyboardShortcutContainer = styled.div<{ isPressed: boolean }>`
     left: 0px;
     top: 0px;
     background-color: ${BACKGROUND_KEYBOARD_SHORTCUT};
-    box-shadow: ${SHADOW_KEYBOARD_SHORTCUT};
+    box-shadow: ${shadow.KEYBOARD_SHORTCUT};
     margin-right: 12px;
     font-family: Switzer-Variable;
     font-style: normal;
@@ -54,7 +54,9 @@ function useKeyboardShortcut(shortcut: string, onKeyPress: () => void, disabled 
     const [isKeyDown, setIsKeyDown] = useState(false)
 
     //Keyboard shortcuts should not trigger when modal is open
-    const { isModalOpen } = useAppSelector(state => ({ isModalOpen: (state.tasks_page.modals.show_modal !== ModalEnum.NONE) }))
+    const { isModalOpen } = useAppSelector((state) => ({
+        isModalOpen: state.tasks_page.modals.show_modal !== ModalEnum.NONE,
+    }))
 
     const onKeyDown = useCallback(
         (event: KeyboardEvent) => {

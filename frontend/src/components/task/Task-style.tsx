@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { BORDER_PRIMARY, SHADOW_EXPANDED, SHADOW_PRIMARY } from '../../helpers/styles'
+import { BORDER_PRIMARY, shadow } from '../../helpers/styles'
 
 export const DraggableContainer = styled.div`
     width: 60%;
@@ -20,7 +20,7 @@ export const TaskContainer = styled.div<{
     background-color: white;
     opacity: ${(props) => props.opacity};
     min-height: 50px;
-    box-shadow: ${(props) => (props.isExpanded ? SHADOW_EXPANDED : SHADOW_PRIMARY)};
+    box-shadow: ${(props) => (props.isExpanded ? shadow.EXPANDED : shadow.PRIMARY)};
 `
 
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
