@@ -24,10 +24,10 @@ export default function Task(props: Props): JSX.Element {
     const dispatch = useAppDispatch()
     const { task, dragDisabled, isOver, dropDirection } = props
     const isSelected = useAppSelector((state) => state.tasks_page.tasks.selection_info.id === task.id)
-    const isBodyExpanded = useAppSelector(
-        (state) => isSelected && state.tasks_page.tasks.selection_info.is_body_expanded
-    )
-    console.log({ isBodyExpanded })
+    const { isBodyExpanded, showKeyboardIndicator } = useAppSelector((state) => ({
+        isBodyExpanded: isSelected && state.tasks_page.tasks.selection_info.is_body_expanded,
+        showKeyboardIndicator: isSelected && state.tasks_page.tasks.selection_info.show_keyboard_indicator,
+    }))
 
     const indicesRef = React.useRef<Indices>()
     indicesRef.current = props.indices
@@ -52,10 +52,16 @@ export default function Task(props: Props): JSX.Element {
 
     return (
         <DraggableContainer ref={dragPreview}>
-            {isSelected && <div>selected</div>}
+            {showKeyboardIndicator && <div>selected</div>}
             <DropIndicatorAbove isVisible={isOver && dropDirection} />
             <TaskContainer opacity={opacity} isExpanded={isBodyExpanded} ref={containerRef} onClick={selectTask}>
-                <TaskHeader task={task} dragDisabled={dragDisabled} isExpanded={isBodyExpanded} ref={drag} />
+                <TaskHeader
+                    task={task}
+                    dragDisabled={dragDisabled}
+                    isExpanded={isBodyExpanded}
+                    isSelected={isSelected}
+                    ref={drag}
+                />
                 <TaskBody task={task} isExpanded={isBodyExpanded} />
             </TaskContainer>
             <DropIndicatorBelow isVisible={isOver && !dropDirection} />
