@@ -17,7 +17,7 @@ export interface TasksPageState {
         fetch_status: FetchStatusEnum
         show_calendar_sidebar: boolean
         show_full_calendar: boolean
-    },
+    }
     modals: {
         show_modal: ModalEnum
     }
@@ -113,21 +113,6 @@ export const tasksPageSlice = createSlice({
             }
         },
 
-        // selection methods
-        // expandBody(state, action: PayloadAction<string>) {
-        //     state.tasks.selection.id = action.payload
-        //     state.tasks.selection.is_body_expanded = true
-        // },
-        // collapseBody(state, action: PayloadAction<string>) {
-        //     state.tasks.selection.id = action.payload
-        //     state.tasks.selection.is_body_expanded = false
-        // },
-        // setSelectedTaskWithKeyboard(state, action: PayloadAction<string | null>) {
-        //     const showKeyboardIndicator = action.payload != null
-        //     state.tasks.selection.id = action.payload
-        //     state.tasks.selection.show_keyboard_indicator = showKeyboardIndicator
-        // },
-
         // Events
         setEvents(state, action: PayloadAction<TEvent[]>) {
             state.events.event_list = action.payload
@@ -151,8 +136,6 @@ export const {
     setTasks,
     setTasksFetchStatus,
     removeTaskByID,
-    // expandBody,
-    // collapseBody,
     setFocusCreateTaskForm,
     showDatePicker,
     hideDatePicker,
@@ -160,7 +143,6 @@ export const {
     hideTimeEstimate,
     showLabelSelector,
     hideLabelSelector,
-    // setSelectedTaskWithKeyboard,
     setSelectionInfo,
 
     // events
