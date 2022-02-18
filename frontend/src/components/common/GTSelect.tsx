@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { CHEVRON_DOWN } from '../../constants'
-import { GRAY_100, GRAY_200, GRAY_800, shadow, WHITE } from '../../helpers/styles'
+import { GRAY_100, GRAY_200, GRAY_800, RED_1, shadow, WHITE } from '../../helpers/styles'
 
 const InputContainer = styled.div<{ valid: boolean }>`
     display: flex;
@@ -9,7 +9,7 @@ const InputContainer = styled.div<{ valid: boolean }>`
     justify-content: center;
     border: 2px solid ${GRAY_200};
     border-radius: 8px;
-    outline: ${(props) => (props.valid ? 'none' : '1px solid red')};
+    outline: ${(props) => (props.valid ? 'none' : '1px solid ' + { RED_1 })};
 `
 const Input = styled.input`
     width: 100%;
