@@ -21,28 +21,28 @@ func TestMigrate003(t *testing.T) {
 	assert.NoError(t, err)
 	err = migrate.Steps(2)
 	assert.NoError(t, err)
+	externalTokenCollection := database.GetExternalTokenCollection(db)
 
 	t.Run("MigrateUp", func(t *testing.T) {
-		externalTokenCollection := database.GetExternalTokenCollection(db)
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		externalTokenCollection.InsertOne(dbCtx, database.ExternalAPIToken{
 			ID: primitive.ObjectID{1},
-			AccountID: "test003",
+			AccountID: "test_migrate_003",
 			ServiceID:      external.TASK_SERVICE_ID_GOOGLE,
 			IsPrimaryLogin: false,
 			IsUnlinkable:   false,
 		})
 		externalTokenCollection.InsertOne(dbCtx, database.ExternalAPIToken{
 			ID: primitive.ObjectID{2},
-			AccountID: "test003",
+			AccountID: "test_migrate_003",
 			ServiceID:      external.TASK_SERVICE_ID_GOOGLE,
 			IsPrimaryLogin: true,
 			IsUnlinkable:   false,
 		})
 		externalTokenCollection.InsertOne(dbCtx, database.ExternalAPIToken{
 			ID: primitive.ObjectID{3},
-			AccountID: "test003",
+			AccountID: "test_migrate_003",
 			ServiceID:      external.TASK_SERVICE_ID_SLACK,
 			IsPrimaryLogin: true,
 			IsUnlinkable:   false,
@@ -51,7 +51,7 @@ func TestMigrate003(t *testing.T) {
 		err = migrate.Steps(1)
 		assert.NoError(t, err)
 
-		filter := bson.M{"$and": []bson.M{{"is_unlinkable": true}, {"account_id": "test003"},},}
+		filter := bson.M{"$and": []bson.M{{"is_unlinkable": true}, {"account_id": "test_migrate_003"}}}
 		count, err := externalTokenCollection.CountDocuments(dbCtx, filter)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
@@ -63,16 +63,15 @@ func TestMigrate003(t *testing.T) {
 		assert.True(t, result.IsPrimaryLogin)
 	})
 	t.Run("MigrateDown", func(t *testing.T) {
-		externalTokenCollection := database.GetExternalTokenCollection(db)
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		_, err := externalTokenCollection.UpdateMany(dbCtx, bson.M{"account_id": "test003"}, bson.M{"$set": bson.M{"is_unlinkable": true}})
+		_, err := externalTokenCollection.UpdateMany(dbCtx, bson.M{"account_id": "test_migrate_003"}, bson.M{"$set": bson.M{"is_unlinkable": true}})
 		assert.NoError(t, err)
 
 		err = migrate.Steps(-1)
 		assert.NoError(t, err)
 
-		filter := bson.M{"$and": []bson.M{{"is_unlinkable": false}, {"account_id": "test003"},},}
+		filter := bson.M{"$and": []bson.M{{"is_unlinkable": false}, {"account_id": "test_migrate_003"}}}
 		count, err := externalTokenCollection.CountDocuments(dbCtx, filter)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
