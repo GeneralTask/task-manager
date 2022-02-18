@@ -2,15 +2,15 @@ import './Task.css'
 
 import { DraggableContainer, DropIndicatorAbove, DropIndicatorBelow, TaskContainer } from './Task-style'
 import { Indices, ItemTypes } from '../../helpers/types'
+import React, { useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
-import React, { useCallback } from 'react'
 import { TTask } from '../../helpers/types'
 import TaskBody from './TaskBody'
 import TaskHeader from './header/Header'
+import { setSelectionInfo } from '../../redux/tasksPageSlice'
 import { useClickOutside } from '../../helpers/utils'
 import { useDrag } from 'react-dnd'
-import { setSelectionInfo } from '../../redux/tasksPageSlice'
 
 interface Props {
     task: TTask
@@ -27,6 +27,7 @@ export default function Task(props: Props): JSX.Element {
     const isBodyExpanded = useAppSelector(
         (state) => isSelected && state.tasks_page.tasks.selection_info.is_body_expanded
     )
+    console.log({ isBodyExpanded })
 
     const indicesRef = React.useRef<Indices>()
     indicesRef.current = props.indices

@@ -3,11 +3,11 @@ import { DONE_BUTTON, TASKS_MODIFY_URL, UNDONE_BUTTON } from '../../../constants
 import { DoneButton, DoneButtonContainer, DragHandler, HeaderLeft, Icon, TaskHeaderContainer } from './Header-style'
 import React, { useCallback } from 'react'
 import {
-    setSelectionInfo,
     hideDatePicker,
     hideLabelSelector,
     hideTimeEstimate,
     removeTaskByID,
+    setSelectionInfo,
 } from '../../../redux/tasksPageSlice'
 import { logEvent, makeAuthorizedRequest } from '../../../helpers/utils'
 
@@ -66,7 +66,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
         dispatch(hideTimeEstimate())
     }
     const onClick = () => {
-        dispatch(setSelectionInfo({ id: props.isExpanded ? null : props.task.id }))
+        dispatch(setSelectionInfo({ id: props.task.id, is_body_expanded: !props.isExpanded }))
     }
 
     const isSelected = props.isExpanded // || isSelectedThroughKeyboardShortcut (coming soon)
