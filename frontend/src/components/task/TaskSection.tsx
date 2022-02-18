@@ -21,7 +21,7 @@ interface Props {
 export default function TaskSection(props: Props): JSX.Element {
     const dispatch = useAppDispatch()
     useEffect(() => {
-        dispatch(setSelectionInfo({ id: null }))
+        dispatch(setSelectionInfo({ id: null, show_keyboard_indicator: false, is_body_expanded: false }))
     }, [props.task_section.id])
     return (
         <div>
