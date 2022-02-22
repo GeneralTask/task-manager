@@ -14,7 +14,7 @@ export const store = configureStore({
             userDataReducer,
     },
     devTools: true,
-    middleware: (getDefaultMiddleware: () => string | any[]) =>
+    middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(tasksApi.middleware),
 })
 
