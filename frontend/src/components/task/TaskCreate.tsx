@@ -8,7 +8,7 @@ import { logEvent, makeAuthorizedRequest, stopKeyboardPropogation } from '../../
 import { LogEvents } from '../../helpers/enums'
 import { TTaskCreateParams, TTaskSection } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
-import { useFetchTasks } from './TasksPage'
+import { useGetTasks } from './TasksPage'
 
 interface TaskCreateProps {
     task_section: TTaskSection
@@ -21,7 +21,7 @@ export default function TaskCreate(props: TaskCreateProps): JSX.Element {
 
     const [titleError, setTitleError] = useState('')
 
-    const fetchTasks = useFetchTasks()
+    const getTasks = useGetTasks()
 
     const titleRef = useRef<HTMLInputElement>(null)
 
@@ -70,7 +70,7 @@ export default function TaskCreate(props: TaskCreateProps): JSX.Element {
                                 if (response.ok) {
                                     logEvent(LogEvents.TASK_CREATED)
                                 }
-                                await fetchTasks()
+                                await getTasks()
                             }
                         }}
                     >

@@ -13,7 +13,7 @@ import Navbar from '../navbar/Navbar'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import RefreshButton from '../task/RefreshButton'
-import { useFetchTasks } from '../task/TasksPage'
+import { useGetTasks } from '../task/TasksPage'
 import Message from './Message'
 
 const MessagesPageContainer = styled.div`
@@ -87,7 +87,7 @@ const CollapseCalendarSidebar = React.memo(() => {
 function Messages(): JSX.Element {
     const messages_array = useAppSelector((state) => state.messages_page.messages.messages_array)
     const fetchMessages = useFetchMessages()
-    const fetchTasks = useFetchTasks()
+    const getTasks = useGetTasks()
     const fetchSettings = useFetchSettings()
     const fetchLinkedAccounts = useFetchLinkedAccounts()
     useEffect(() => {
@@ -97,7 +97,7 @@ function Messages(): JSX.Element {
     }, [])
 
     useInterval(fetchMessages, MESSAGES_FETCH_INTERVAL)
-    useInterval(fetchTasks, TASKS_FETCH_INTERVAL)
+    useInterval(getTasks, TASKS_FETCH_INTERVAL)
 
     return (
         <MessagesContentContainer>
