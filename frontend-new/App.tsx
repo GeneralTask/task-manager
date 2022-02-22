@@ -1,13 +1,12 @@
-import React, { useLayoutEffect } from 'react'
-import { Platform, SafeAreaView, StyleSheet } from 'react-native'
+import React, from 'react'
+import { SafeAreaView, StyleSheet } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import LandingScreen from './src/screens/LandingScreen'
 import TasksScreen from './src/screens/TasksScreen'
 import { Provider } from 'react-redux'
 import store from './src/redux/store'
-import { useAppDispatch, useAppSelector } from './src/redux/hooks'
-import { setAuthToken } from './src/redux/userDataSlice'
+import { useAppSelector } from './src/redux/hooks'
 import Cookies from 'js-cookie'
 
 const linking = {
