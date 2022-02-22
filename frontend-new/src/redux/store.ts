@@ -1,4 +1,4 @@
-import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit'
 import userDataReducer from './userDataSlice'
 import tasksPageReducer from './tasksPageSlice'
 import messagesPageReducer from './messagesPageSlice'
@@ -14,7 +14,7 @@ export const store = configureStore({
             userDataReducer,
     },
     devTools: true,
-    middleware: (getDefaultMiddleware) =>
+    middleware: (getDefaultMiddleware: () => string | any[]) =>
         getDefaultMiddleware().concat(tasksApi.middleware),
 })
 
