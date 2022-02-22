@@ -8,7 +8,8 @@ export const {
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/v3/'
 export const FETCH_TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/fetch/'
-export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/'
+export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/v2/'
+export const FETCH_MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/fetch/'
 export const TASKS_MODIFY_URL = REACT_APP_API_BASE_URL + '/tasks/modify/'
 export const MESSAGES_MODIFY_URL = REACT_APP_API_BASE_URL + '/messages/modify/'
 export const TASKS_CREATE_URL = REACT_APP_API_BASE_URL + '/tasks/create/'

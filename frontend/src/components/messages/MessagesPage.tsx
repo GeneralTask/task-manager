@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import styled from 'styled-components'
-import { MESSAGES_FETCH_INTERVAL, MESSAGES_URL, TASKS_FETCH_INTERVAL } from '../../constants'
+import { FETCH_MESSAGES_URL, MESSAGES_FETCH_INTERVAL, MESSAGES_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import { AbortID, FetchStatusEnum, NavbarPage } from '../../helpers/enums'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
@@ -61,6 +61,7 @@ export const useGetMessages = (): (() => Promise<void>) => {
                 method: 'GET',
                 abortID: AbortID.MESSAGES,
             })
+            fetchMessagesExternal()
             if (!response.ok) {
                 dispatch(setMessagesFetchStatus(FetchStatusEnum.ERROR))
             } else {
@@ -74,6 +75,13 @@ export const useGetMessages = (): (() => Promise<void>) => {
     }, [])
 
     return getMessages
+}
+
+export function fetchMessagesExternal() {
+    makeAuthorizedRequest({
+        url: FETCH_MESSAGES_URL,
+        method: 'GET',
+    })
 }
 
 const CollapseCalendarSidebar = React.memo(() => {
