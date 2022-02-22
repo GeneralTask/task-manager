@@ -1,5 +1,7 @@
+import { Dispatch } from '@reduxjs/toolkit'
 import Cookie from 'js-cookie'
 import { Platform } from 'react-native'
+import { setAuthToken } from '../redux/userDataSlice'
 
 export const isAuthenticated = () => {
     if (Platform.OS === 'web') {
@@ -8,7 +10,9 @@ export const isAuthenticated = () => {
     return false
 }
 
-export const authSignOut = () => {
+export const authSignOut = (dispatch: Dispatch) => {
+    dispatch(setAuthToken(undefined))
+
     if (Platform.OS === 'web') {
         Cookie.remove('authToken')
         window.location.href = '/'

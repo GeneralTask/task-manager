@@ -1,17 +1,18 @@
 {
   "name": "frontend-new",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web",
+    "web": "WEB_PORT=3000 expo start --web",
     "eject": "expo eject"
   },
   "dependencies": {
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.0",
+    "@reduxjs/toolkit": "^1.7.2",
     "dotenv": "^16.0.0",
     "expo": "~44.0.0",
     "expo-linking": "^3.0.0",
@@ -25,6 +26,7 @@
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "~3.10.1",
     "react-native-web": "0.17.1",
+    "react-redux": "^7.2.6",
     "react-router-dom": "6",
     "styled-components": "^5.3.3"
   },
