@@ -9,7 +9,9 @@ export const store = configureStore({
         [tasksApi.reducerPath]: tasksApi.reducer,
         tasks_page: tasksPageReducer,
         messages_page: messagesPageReducer,
-        user_data: userDataReducer,
+        user_data:
+
+            userDataReducer,
     },
     devTools: true,
     middleware: (getDefaultMiddleware) =>
