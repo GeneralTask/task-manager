@@ -5,7 +5,7 @@ import styled, { keyframes } from 'styled-components'
 import { logEvent } from '../../helpers/utils'
 import { useAppSelector } from '../../redux/hooks'
 import { useFetchMessages } from '../messages/MessagesPage'
-import { useGetTasks } from './TasksPage'
+import { fetchTasksExternal, useGetTasks } from './TasksPage'
 import { useKeyboardShortcut } from '../common/KeyboardShortcut'
 
 const spin = keyframes`
@@ -36,6 +36,7 @@ const RefreshButton = (): JSX.Element => {
     const fetchMessages = useFetchMessages()
 
     const refresh = useCallback(() => {
+        fetchTasksExternal()
         getTasks()
         fetchMessages()
         logEvent(LogEvents.MANUAL_TASKS_REFRESH_CLICK)

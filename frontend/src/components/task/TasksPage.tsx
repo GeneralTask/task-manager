@@ -66,6 +66,7 @@ export const useGetTasks = (): (() => Promise<void>) => {
                 method: 'GET',
                 abortID: AbortID.TASKS,
             })
+            fetchTasksExternal()
             if (!response.ok) {
                 dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
             } else {
@@ -83,7 +84,7 @@ export const useGetTasks = (): (() => Promise<void>) => {
 }
 
 // fetch tasks from external sources
-export function fetchTasks() {
+export function fetchTasksExternal() {
     makeAuthorizedRequest({
         url: FETCH_TASKS_URL,
         method: 'GET',
