@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
 import FeedbackModal from './FeedbackModal'
 import GeneralTaskModal from '../modal/GeneralTaskModal'
-import { ACCENT_MAIN, BLACK, GRAY_100, SHADOW_MISC_2, WHITE } from '../../helpers/styles'
+import { ACCENT_MAIN, BLACK, GRAY_100, shadow, WHITE } from '../../helpers/styles'
 import { ModalEnum } from '../../helpers/enums'
 
 const FeedbackButtonContainer = styled.button<{ white?: boolean }>`
@@ -13,7 +13,7 @@ const FeedbackButtonContainer = styled.button<{ white?: boolean }>`
     background-color: ${(props) => (props.white ? WHITE : ACCENT_MAIN)};
     border: ${(props) => (props.white ? `1px solid ${GRAY_100};` : 'none')};
     cursor: pointer;
-    box-shadow: ${SHADOW_MISC_2};
+    box-shadow: ${shadow.MISC_2};
     border-radius: 12px;
     padding: 8px 14px;
     font-family: Switzer-Variable;
@@ -40,7 +40,7 @@ const FeedbackButton = (): JSX.Element => {
     return (
         <>
             <FeedbackButtonContainer onClick={clickHandler}>Share your feedback?</FeedbackButtonContainer>
-            {showModal === ModalEnum.FEEDBACK &&
+            {showModal === ModalEnum.FEEDBACK && (
                 <GeneralTaskModal
                     render={<FeedbackModal />}
                     canClickOutside={true}
@@ -48,7 +48,7 @@ const FeedbackButton = (): JSX.Element => {
                     afterModalOpen={afterModalOpen}
                     afterModalClose={afterModalClose}
                 />
-            }
+            )}
         </>
     )
 }

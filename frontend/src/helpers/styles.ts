@@ -87,17 +87,20 @@ export const DIVIDER_LIGHTGRAY = GRAY_300
 
 export const BORDER_PRIMARY = GRAY_300
 export const BORDER_ERROR = RED_1
+export const BORDER_SELECTED_TASK = ACCENT_GLOW
 export const BACKGROUND_WHITE = WHITE
 export const BACKGROUND_KEYBOARD_SHORTCUT = GRAY_50
 
 export const BACKGROUND_HOVER = GRAY_200
 
-export const SHADOW_PRIMARY = '0px 0px 10px rgba(0, 0, 0, 0.06)'
-export const SHADOW_EXPANDED = '0px 0px 10px rgba(0, 0, 0, 0.12)'
-export const SHADOW_EVENT_ALERT = '0px 4px 20px rgba(43, 43, 43, 0.08)'
-export const SHADOW_KEYBOARD_SHORTCUT = '0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06)'
-export const SHADOW_MISC_1 = '0px 4px 20px rgba(43, 43, 43, 0.08)'
-export const SHADOW_MISC_2 = '0px 1px 2px rgba(0, 0, 0, 0.07)'
+export const shadow = {
+    PRIMARY: '0px 0px 10px rgba(0, 0, 0, 0.06)',
+    EXPANDED: '0px 0px 10px rgba(0, 0, 0, 0.12)',
+    EVENT_ALERT: '0px 4px 20px rgba(43, 43, 43, 0.08)',
+    KEYBOARD_SHORTCUT: '0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06)',
+    MISC_1: '0px 4px 20px rgba(43, 43, 43, 0.08)',
+    MISC_2: '0px 1px 2px rgba(0, 0, 0, 0.07)',
+}
 
 export const NoSelect = styled.div`
     -webkit-touch-callout: none; /* iOS Safari */

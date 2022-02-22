@@ -1,5 +1,6 @@
-import styled from 'styled-components'
 import { BACKGROUND_HOVER, NoSelect, TEXT_BLACK, TEXT_GRAY } from '../../../helpers/styles'
+
+import styled from 'styled-components'
 
 export const DoneButtonContainer = styled.div`
     margin-left: 12px;
@@ -60,7 +61,7 @@ export const TaskHeaderContainer = styled(NoSelect)<{ showButtons: boolean }>`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-height: 50px;
+    min-height: 45px;
 `
 export const HeaderLeft = styled.div`
     box-sizing: border-box;

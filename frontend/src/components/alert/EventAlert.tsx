@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { NO_EVENT_TITLE_DEFAULT } from '../../constants'
-import { SHADOW_EVENT_ALERT, TEXT_BLACK } from '../../helpers/styles'
+import { shadow, TEXT_BLACK } from '../../helpers/styles'
 import { useAppSelector } from '../../redux/hooks'
 import JoinConferenceButton from '../common/JoinConferenceButton'
 
@@ -26,7 +26,7 @@ const EventAlertContentContainer = styled.div`
     font-style: normal;
     font-weight: bold;
     color: ${TEXT_BLACK};
-    box-shadow: ${SHADOW_EVENT_ALERT};
+    box-shadow: ${shadow.EVENT_ALERT};
 `
 const EventAlertHeader = styled.div`
     display: flex;
