@@ -44,6 +44,7 @@ export const EXPAND_ICON = '/images/ArrowsOutSimple.svg'
 export const TIME_ICON = '/images/Timer.svg'
 export const TRASH_ICON = '/images/TrashSimple.svg'
 export const CLOSE_ICON = '/images/close.svg'
+export const GT_TASK_ICON = '/images/generaltask.svg'
 
 //Misc. strings
 export const TASK_STATUS_FETCH_ERROR = 'There was an error fetching tasks'
