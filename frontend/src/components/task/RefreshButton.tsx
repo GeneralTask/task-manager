@@ -4,7 +4,7 @@ import styled, { keyframes } from 'styled-components'
 
 import { logEvent } from '../../helpers/utils'
 import { useAppSelector } from '../../redux/hooks'
-import { useFetchMessages } from '../messages/MessagesPage'
+import { useGetMessages } from '../messages/MessagesPage'
 import { fetchTasksExternal, useGetTasks } from './TasksPage'
 import { useKeyboardShortcut } from '../common/KeyboardShortcut'
 
@@ -33,12 +33,12 @@ const Container = styled.div`
 const RefreshButton = (): JSX.Element => {
     const isLoading = useAppSelector((state) => state.tasks_page.tasks.fetch_status) === FetchStatusEnum.LOADING
     const getTasks = useGetTasks()
-    const fetchMessages = useFetchMessages()
+    const getMessages = useGetMessages()
 
-    const refresh = useCallback(() => {
-        fetchTasksExternal()
+    const refresh = useCallback(async () => {
+        await fetchTasksExternal()
         getTasks()
-        fetchMessages()
+        getMessages()
         logEvent(LogEvents.MANUAL_TASKS_REFRESH_CLICK)
     }, [])
 

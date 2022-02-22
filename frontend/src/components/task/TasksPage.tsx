@@ -18,7 +18,7 @@ import TaskStatus from './TaskStatus'
 import styled from 'styled-components'
 import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
-import { useFetchMessages } from '../messages/MessagesPage'
+import { useGetMessages } from '../messages/MessagesPage'
 import { useFetchSettings } from '../settings/Preferences'
 
 const TasksPageContainer = styled.div`
@@ -111,7 +111,7 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
         }
     })()
     const getTasks = useGetTasks()
-    const fetchMessages = useFetchMessages()
+    const getMessages = useGetMessages()
     const fetchSettings = useFetchSettings()
     const fetchLinkedAccounts = useFetchLinkedAccounts()
     useEffect(() => {
@@ -121,7 +121,7 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
     }, [])
 
     useInterval(getTasks, TASKS_FETCH_INTERVAL)
-    useInterval(fetchMessages, MESSAGES_FETCH_INTERVAL)
+    useInterval(getMessages, MESSAGES_FETCH_INTERVAL)
 
     if (currentSection == null) {
         return <TaskStatus />

@@ -51,9 +51,9 @@ const TopBanner = styled.div`
     padding-right: 24px;
 `
 
-export const useFetchMessages = (): (() => Promise<void>) => {
+export const useGetMessages = (): (() => Promise<void>) => {
     const dispatch = useAppDispatch()
-    const fetchMessages = useCallback(async () => {
+    const getMessages = useCallback(async () => {
         try {
             dispatch(setMessagesFetchStatus(FetchStatusEnum.LOADING))
             const response = await makeAuthorizedRequest({
@@ -73,7 +73,7 @@ export const useFetchMessages = (): (() => Promise<void>) => {
         }
     }, [])
 
-    return fetchMessages
+    return getMessages
 }
 
 const CollapseCalendarSidebar = React.memo(() => {
@@ -86,7 +86,7 @@ const CollapseCalendarSidebar = React.memo(() => {
 
 function Messages(): JSX.Element {
     const messages_array = useAppSelector((state) => state.messages_page.messages.messages_array)
-    const fetchMessages = useFetchMessages()
+    const getMessages = useGetMessages()
     const getTasks = useGetTasks()
     const fetchSettings = useFetchSettings()
     const fetchLinkedAccounts = useFetchLinkedAccounts()
@@ -96,7 +96,7 @@ function Messages(): JSX.Element {
         fetchLinkedAccounts()
     }, [])
 
-    useInterval(fetchMessages, MESSAGES_FETCH_INTERVAL)
+    useInterval(getMessages, MESSAGES_FETCH_INTERVAL)
     useInterval(getTasks, TASKS_FETCH_INTERVAL)
 
     return (
