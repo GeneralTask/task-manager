@@ -31,6 +31,7 @@ func (gitPR GithubPRSource) GetTasks(userID primitive.ObjectID, accountID string
 }
 
 func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+	log.Println("get pull requests:", userID.Hex())
 	parentCtx := context.Background()
 
 	var githubClient *github.Client
@@ -62,6 +63,15 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	tokenClient := oauth2.NewClient(extCtx, tokenSource)
 	githubClient = github.NewClient(tokenClient)
 
+	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
+	defer cancel()
+	githubUser, _, err := githubClient.Users.Get(extCtx, "")
+	if err != nil {
+		log.Printf("failed to fetch Github user")
+		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
+		return
+	}
+
 	var pullRequestItems []*database.Item
 	listOptions := github.PullRequestListOptions{}
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
@@ -73,6 +83,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 		return
 	}
+	log.Println("loaded", len(pullRequests), "PRs")
 	for _, pullRequest := range pullRequests {
 		if pullRequest.Title != nil {
 			log.Println(*pullRequest.Title)
@@ -84,6 +95,19 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		if pullRequest.Body != nil {
 			body = *pullRequest.Body
 		}
+		userIsReviewer := false
+		for _, reviewer := range pullRequest.RequestedReviewers {
+			log.Println("reviewer:", reviewer.Name, *reviewer.ID)
+			log.Println("me:", *githubUser.Name, *githubUser.ID)
+			if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
+				userIsReviewer = true
+			}
+		}
+		if !userIsReviewer {
+			log.Println("skipping!!", pullRequest.Title)
+			continue
+		}
+		log.Println("keeping!!", pullRequest.Title)
 		pullRequest := &database.Item{
 			TaskBase: database.TaskBase{
 				UserID:          userID,
@@ -108,6 +132,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 
 	for _, pullRequest := range pullRequestItems {
+		log.Println("pull request!", pullRequest.Title)
 		var dbPR database.Item
 		res, err := database.UpdateOrCreateTask(
 			db,
