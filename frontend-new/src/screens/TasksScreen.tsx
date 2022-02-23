@@ -7,7 +7,7 @@ import TaskSections from '../components/tasks/Sections'
 import { useAppDispatch } from '../redux/hooks'
 import { setAuthToken } from '../redux/userDataSlice'
 import { useGetTasksQuery } from '../services/tasks'
-import { Screens, Flex } from '../styles'
+import { Screens, Flex, Colors } from '../styles'
 import { authSignOut } from '../utils/auth'
 
 
@@ -46,6 +46,7 @@ const styles = StyleSheet.create({
         ...Screens.container,
         ...Flex.column,
         paddingTop: Platform.OS === 'web' ? 0 : 0,
+        backgroundColor: Colors.gray._50
 
     },
     tasksContent: {
