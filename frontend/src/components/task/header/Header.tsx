@@ -94,7 +94,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
                         </Tooltip>
                     </DoneButtonContainer>
                 )}
-                <Icon src={props.task.source.logo} alt="icon"></Icon>
+                <Icon src={props.task.source.logo} alt="icon" />
                 <EditableTaskTitle task={props.task} isExpanded={props.isExpanded} />
             </HeaderLeft>
             <HeaderActions

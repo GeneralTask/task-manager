@@ -305,31 +305,6 @@ func (JIRA JIRASource) fetchLocalPriorityMapping(prioritiesCollection *mongo.Col
 	return &result
 }
 
-func (jira JIRASource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
-	token, _ := jira.Atlassian.getToken(userID, accountID)
-	siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
-	if token == nil || siteConfiguration == nil {
-		return errors.New("missing token or siteConfiguration")
-	}
-
-	//first get the list of transitions
-	var apiBaseURL string
-
-	if jira.Atlassian.Config.ConfigValues.TransitionURL != nil {
-		apiBaseURL = *jira.Atlassian.Config.ConfigValues.TransitionURL
-	} else {
-		apiBaseURL = jira.getAPIBaseURL(*siteConfiguration)
-	}
-
-	finalTransitionID := jira.getFinalTransitionID(apiBaseURL, token.AccessToken, issueID)
-
-	if finalTransitionID == nil {
-		return errors.New("final transition not found")
-	}
-
-	return jira.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
-}
-
 func (jira JIRASource) getFinalTransitionID(apiBaseURL string, AtlassianAuthToken string, jiraCloudID string) *string {
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + jiraCloudID + "/transitions"
 
@@ -392,7 +367,31 @@ func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string
 	return errors.New("has not been implemented yet")
 }
 
-func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
+func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
+		token, _ := jira.Atlassian.getToken(userID, accountID)
+		siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
+		if token == nil || siteConfiguration == nil {
+			return errors.New("missing token or siteConfiguration")
+		}
+
+		//first get the list of transitions
+		var apiBaseURL string
+
+		if jira.Atlassian.Config.ConfigValues.TransitionURL != nil {
+			apiBaseURL = *jira.Atlassian.Config.ConfigValues.TransitionURL
+		} else {
+			apiBaseURL = jira.getAPIBaseURL(*siteConfiguration)
+		}
+
+		finalTransitionID := jira.getFinalTransitionID(apiBaseURL, token.AccessToken, issueID)
+
+		if finalTransitionID == nil {
+			return errors.New("final transition not found")
+		}
+
+		return jira.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
+	}
 	return nil
 }
 

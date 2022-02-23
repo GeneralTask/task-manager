@@ -29,7 +29,6 @@ export const logout = async (): Promise<void> => {
     document.location.href = LANDING_PATH
 }
 
-
 export const getAuthToken = (): string | undefined => store.getState().user_data.auth_token
 
 export const getHeaders = (): Record<string, string> => {
@@ -107,7 +106,7 @@ export const useDeviceSize = (): DeviceSize => {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export function emptyFunction(): void { }
+export function emptyFunction(): void {}
 
 export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
     return task_sections.map((section) => {
@@ -188,11 +187,7 @@ export function logEvent(event_type: LogEvents): void {
 
 export function dateIsToday(date: DateTime): boolean {
     const today = DateTime.now()
-    return (
-        date.day === today.day &&
-        date.month === today.month &&
-        date.year === today.year
-    )
+    return date.day === today.day && date.month === today.month && date.year === today.year
 }
 
 export function stopKeyboardPropogation(e: React.KeyboardEvent) {

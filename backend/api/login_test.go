@@ -48,7 +48,7 @@ func TestLoginRedirect(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(
 			t,
-			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
+			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;include_granted_scopes=false&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
 			string(body),
 		)
 
@@ -75,7 +75,7 @@ func TestLoginRedirect(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(
 			t,
-			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;prompt=consent&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
+			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;include_granted_scopes=false&amp;prompt=consent&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
 			string(body),
 		)
 
@@ -102,7 +102,7 @@ func TestLoginRedirect(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(
 			t,
-			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
+			"<a href=\"/login/?access_type=offline&amp;client_id=123&amp;include_granted_scopes=false&amp;redirect_uri=g.com&amp;response_type=code&amp;scope=s1+s2&amp;state="+stateToken+"\">Found</a>.\n\n",
 			string(body),
 		)
 
@@ -168,16 +168,16 @@ func TestLoginCallback(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"email has not been approved.\"}", string(body))
-		verifyLoginCallback(t, db, "unapproved@gmail.com", "noice420", false, false)
+		verifyLoginCallback(t, db, "unapproved@gmail.com", "noice420", true, false)
 	})
 	t.Run("Idempotent", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", false, true)
+		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", true, true)
 		//change token and verify token updates and still only 1 row per user.
 		recorder = makeLoginCallbackRequest("TSLA", "approved@generaltask.com", "", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "approved@generaltask.com", "TSLA", false, true)
+		verifyLoginCallback(t, db, "approved@generaltask.com", "TSLA", true, true)
 	})
 	t.Run("UpdatesName", func(t *testing.T) {
 		userCollection := database.GetUserCollection(db)
@@ -241,7 +241,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", *stateToken, *stateToken, false, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", false, true)
+		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", true, true)
 	})
 	t.Run("SuccessDeeplink", func(t *testing.T) {
 		stateToken, err := newStateToken("", true)
@@ -251,7 +251,7 @@ func TestLoginCallback(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Contains(t, string(body), "generaltask://authentication?authToken=")
-		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", false, true)
+		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", true, true)
 	})
 	t.Run("SuccessWaitlist", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -268,6 +268,6 @@ func TestLoginCallback(t *testing.T) {
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "dogecoin@tothe.moon", "", *stateToken, *stateToken, false, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "dogecoin@tothe.moon", "noice420", false, true)
+		verifyLoginCallback(t, db, "dogecoin@tothe.moon", "noice420", true, true)
 	})
 }

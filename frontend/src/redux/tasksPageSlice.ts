@@ -1,6 +1,6 @@
 import { FetchStatusEnum, ModalEnum } from '../helpers/enums'
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { SelectionInfo, TEvent, TTaskSection } from '../helpers/types'
+import { SelectionInfo, TEvent, TTask, TTaskSection } from '../helpers/types'
 
 export interface TasksPageState {
     tasks: {
@@ -54,6 +54,13 @@ export const tasksPageSlice = createSlice({
     reducers: {
         setTasks: (state, action: PayloadAction<TTaskSection[]>) => {
             state.tasks.task_sections = action.payload
+        },
+        addTask: (state, action: PayloadAction<{ task: TTask; sectionIndex: number; taskIndex: number }>) => {
+            state.tasks.task_sections[action.payload.sectionIndex].tasks.splice(
+                action.payload.taskIndex,
+                0,
+                action.payload.task
+            )
         },
         setTasksFetchStatus: (state, action: PayloadAction<FetchStatusEnum>) => {
             state.tasks.fetch_status = action.payload
@@ -134,6 +141,7 @@ export const tasksPageSlice = createSlice({
 
 export const {
     setTasks,
+    addTask,
     setTasksFetchStatus,
     removeTaskByID,
     setFocusCreateTaskForm,

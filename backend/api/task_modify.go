@@ -7,6 +7,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -57,31 +58,27 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
-	updateTaskInDB := false
+	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
+	if err != nil {
+		log.Printf("failed to load external task source: %v", err)
+		Handle500(c)
+		return
+	}
 
-	// handle edit fields
 	// check if all edit fields are empty
-	if modifyParams.TaskChangeableFields != (database.TaskChangeableFields{IsCompleted: modifyParams.IsCompleted}) {
-		if !ValidateFields(c, &modifyParams.TaskChangeableFields) {
-			return
-		}
+	if !ValidateFields(c, &modifyParams.TaskChangeableFields, taskSourceResult) {
+		return
+	}
 
-		taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
-		if err != nil {
-			log.Printf("failed to load external task source: %v", err)
-			Handle500(c)
-			return
-		}
-
+	if modifyParams.TaskChangeableFields != (database.TaskChangeableFields{}) {
 		// update external task
-		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.ID, &modifyParams.TaskChangeableFields)
+		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskChangeableFields)
 		if err != nil {
 			log.Printf("failed to update external task source: %v", err)
 			Handle500(c)
 			return
 		}
-
-		updateTaskInDB = true
+		UpdateTaskInDB(api, c, taskID, userID, &modifyParams.TaskChangeableFields, task)
 	}
 
 	// handle reorder task
@@ -91,25 +88,15 @@ func (api *API) TaskModify(c *gin.Context) {
 			return
 		}
 	}
-	// handle mark complete
-	if modifyParams.IsCompleted != nil && *modifyParams.IsCompleted {
-		err = MarkTaskComplete(api, c, taskID, userID, task, *modifyParams.IsCompleted)
-		if err != nil {
-			return
-		}
-	}
-	if modifyParams.IsCompleted != nil && !*modifyParams.IsCompleted {
-		updateTaskInDB = true
-	}
-
-	if updateTaskInDB {
-		UpdateTask(api, c, taskID, userID, &modifyParams.TaskChangeableFields, task)
-	}
 
 	c.JSON(200, gin.H{})
 }
 
-func ValidateFields(c *gin.Context, updateFields *database.TaskChangeableFields) bool {
+func ValidateFields(c *gin.Context, updateFields *database.TaskChangeableFields, taskSourceResult *external.TaskSourceResult) bool {
+	if updateFields.IsCompleted != nil && !taskSourceResult.Details.IsCompletable {
+		c.JSON(400, gin.H{"detail": "cannot be marked done"})
+		return false
+	}
 	if updateFields.Title != nil && *updateFields.Title == "" {
 		c.JSON(400, gin.H{"detail": "title cannot be empty"})
 		return false
@@ -185,37 +172,33 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 	return nil
 }
 
-func MarkTaskComplete(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, task *database.Item, isCompleted bool) error {
-	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
-	if err != nil {
-		log.Printf("failed to load external task source: %v", err)
-		Handle500(c)
-		return err
-	}
-
-	if !taskSourceResult.Details.IsCompletable {
-		c.JSON(400, gin.H{"detail": "cannot be marked done"})
-		return errors.New("cannot be marked done")
-	}
-
-	err = taskSourceResult.Source.MarkAsDone(userID, task.SourceAccountID, task.IDExternal)
-	if err != nil {
-		log.Printf("failed to mark task as complete: %v", err)
-		c.JSON(503, gin.H{"detail": "failed to mark task as complete"})
-		return err
-	}
-
+func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) (*database.Item, error) {
+	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
-		return err
+		return nil, err
 	}
 	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
 
-	return database.MarkItemComplete(db, taskID)
+	var task database.Item
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = taskCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": taskID},
+			{"user_id": userID},
+		}}).Decode(&task)
+	if err != nil {
+		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
+		return nil, err
+	}
+	return &task, nil
 }
 
-func UpdateTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields, task *database.Item) {
+func UpdateTaskInDB(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields, task *database.Item) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
