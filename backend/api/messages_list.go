@@ -60,7 +60,7 @@ func (api *API) MessagesList(c *gin.Context) {
 		return
 	}
 
-	currentEmails, err := database.GetActiveEmails(db, userID.(primitive.ObjectID))
+	currentEmails, err := database.GetUnreadEmails(db, userID.(primitive.ObjectID))
 	if err != nil {
 		Handle500(c)
 		return
@@ -244,7 +244,7 @@ func (api *API) emailToMessage(e *database.Item) *message {
 		Body:     e.Body,
 		Sender:   e.Sender,
 		SentAt:   e.CreatedAtExternal.Time().Format(time.RFC3339),
-		IsUnread: true,
+		IsUnread: e.Email.IsUnread,
 		Source: messageSource{
 			AccountId:     e.SourceAccountID,
 			Name:          messageSourceResult.Details.Name,

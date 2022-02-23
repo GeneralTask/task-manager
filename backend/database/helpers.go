@@ -190,7 +190,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 	return &tasks, nil
 }
 
-func GetActiveEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
+func GetUnreadEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -199,8 +199,8 @@ func GetActiveEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Item, er
 		bson.M{
 			"$and": []bson.M{
 				{"user_id": userID},
-				{"is_completed": false},
 				{"task_type.is_message": true},
+				{"email.is_unread": true},
 			},
 		},
 	)
