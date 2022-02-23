@@ -12,7 +12,7 @@ import { authSignOut } from '../utils/auth'
 
 
 const TasksScreen = () => {
-    const { data: taskSections, error, isLoading, refetch } = useGetTasksQuery()
+    const { data: taskSections, error, isLoading, refetch, isFetching } = useGetTasksQuery()
     const dispatch = useAppDispatch()
     useEffect(() => {
         if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
@@ -25,7 +25,7 @@ const TasksScreen = () => {
             style={styles.container}
             refreshControl={
                 <RefreshControl
-                    refreshing={isLoading}
+                    refreshing={isFetching}
                     onRefresh={refetch}
                 />
             }>
@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
         ...Flex.column,
         marginRight: '7.5%',
         marginLeft: '7.5%',
+        marginTop: Platform.OS === 'web' ? 40 : 20,
         marginBottom: 100,
     },
     signOut: {

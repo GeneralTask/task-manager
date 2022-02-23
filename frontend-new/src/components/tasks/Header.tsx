@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
         ...Flex.row,
         alignItems: 'center',
         marginBottom: 15,
-        marginTop: 50,
     },
     headerText: {
         ...Typography.xLarge,
