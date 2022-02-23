@@ -1,11 +1,28 @@
-import React from 'react'
-import { View, Text, Image, StyleSheet, Platform } from 'react-native'
+import Cookies from 'js-cookie'
+import React, { useEffect } from 'react'
+import { View, Text, Image, StyleSheet, Platform, TouchableOpacity } from 'react-native'
+import { useAppDispatch } from '../../redux/hooks'
+import { setAuthToken } from '../../redux/userDataSlice'
+import { useGetTasksQuery } from '../../services/tasks'
 import { Typography, Flex } from '../../styles'
+
+
 const TasksScreenHeader = () => {
+    const dispatch = useAppDispatch()
+    useEffect(() => {
+        if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
+    }, [])
+    const { refetch } = useGetTasksQuery()
+
     return (
         <View style={styles.container}>
             <Text style={styles.headerText}>Tasks</Text>
-            <Image style={styles.spinner} source={require('../../assets/spinner.png')}></Image>
+            {
+                Platform.OS === 'web' &&
+                <TouchableOpacity onPress={refetch}>
+                    <Image style={styles.spinner} source={require('../../assets/spinner.png')} />
+                </TouchableOpacity>
+            }
         </View>
     )
 }
@@ -15,6 +32,7 @@ const styles = StyleSheet.create({
         ...Flex.row,
         alignItems: 'center',
         marginBottom: 15,
+        marginTop: 50,
     },
     headerText: {
         ...Typography.xLarge,

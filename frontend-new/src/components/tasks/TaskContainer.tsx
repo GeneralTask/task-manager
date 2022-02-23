@@ -1,12 +1,13 @@
 import React from 'react'
-import { View, StyleSheet, Platform } from 'react-native'
+import { View, StyleSheet, ViewStyle } from 'react-native'
 
 interface ShellProps {
+    style?: ViewStyle
     children: React.ReactNode | React.ReactNode[]
 }
 const TaskShell = (props: ShellProps) => {
     return (
-        <View style={styles.container}>
+        <View style={[props.style, styles.container]}>
             {props.children}
         </View>
     )
