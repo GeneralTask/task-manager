@@ -20,7 +20,7 @@ type TaskResult struct {
 }
 
 type PullRequestResult struct {
-	PullRequests []*database.Item
+	PullRequests []*database.PullRequest
 	Error        error
 }
 
@@ -49,7 +49,7 @@ func emptyTaskResult(err error) TaskResult {
 
 func emptyPullRequestResult(err error) PullRequestResult {
 	return PullRequestResult{
-		PullRequests: []*database.Item{},
+		PullRequests: []*database.PullRequest{},
 		Error:        err,
 	}
 }
