@@ -21,7 +21,7 @@ import ReactDOMServer from 'react-dom/server'
 import { TTask } from '../../helpers/types'
 import sanitizeHtml from 'sanitize-html'
 import { toast } from 'react-toastify'
-import { useFetchTasks } from './TasksPage'
+import { useGetTasks } from './TasksPage'
 
 interface Props {
     task: TTask
@@ -208,7 +208,7 @@ interface ReplyProps {
 }
 
 const Reply: React.FC<ReplyProps> = ({ task_id, sender, body, sent_at }: ReplyProps) => {
-    const fetchTasks = useFetchTasks()
+    const getTasks = useGetTasks()
     const [text, setText] = useState(
         ReactDOMServer.renderToStaticMarkup(<EmailQuote sender={sender} body={body} sent_at={sent_at} />)
     )
@@ -234,7 +234,7 @@ const Reply: React.FC<ReplyProps> = ({ task_id, sender, body, sent_at }: ReplyPr
                         body: JSON.stringify({ body: text }),
                     })
                     setText('')
-                    fetchTasks()
+                    getTasks()
                     if (response.ok) {
                         toast.success(`Replied to ${sender ?? 'email'}!`)
                     } else {

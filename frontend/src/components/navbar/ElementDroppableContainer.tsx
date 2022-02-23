@@ -8,7 +8,7 @@ import { TTaskSection, ItemTypes, Indices } from '../../helpers/types'
 import { navbarDropReorder, makeAuthorizedRequest } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setTasks } from '../../redux/tasksPageSlice'
-import { useFetchTasks } from '../task/TasksPage'
+import { useGetTasks } from '../task/TasksPage'
 import React from 'react'
 
 const ElementDroppableDiv = styled.div<{
@@ -35,7 +35,7 @@ interface ElementDroppableContainerProps {
 }
 
 const ElementDroppableContainer = (props: ElementDroppableContainerProps): JSX.Element => {
-    const fetchTasks = useFetchTasks()
+    const getTasks = useGetTasks()
     const { taskSections } = useAppSelector((state) => ({
         taskSections: state.tasks_page.tasks.task_sections,
     }))
@@ -96,7 +96,7 @@ const ElementDroppableContainer = (props: ElementDroppableContainerProps): JSX.E
                 method: 'PATCH',
                 body: patchBody,
             })
-                .then(fetchTasks)
+                .then(getTasks)
                 .catch((error) => {
                     throw new Error('PATCH /tasks/ failed' + error)
                 })

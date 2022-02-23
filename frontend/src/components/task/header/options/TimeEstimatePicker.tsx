@@ -4,7 +4,7 @@ import { TASKS_MODIFY_URL, TIME_ICON } from '../../../../constants'
 import { makeAuthorizedRequest } from '../../../../helpers/utils'
 import { useAppDispatch } from '../../../../redux/hooks'
 import { hideTimeEstimate } from '../../../../redux/tasksPageSlice'
-import { useFetchTasks } from '../../TasksPage'
+import { useGetTasks } from '../../TasksPage'
 import { TopNav } from './DatePicker-style'
 import { TimeEstimateContainer, Header } from './TimeEstimate-style'
 import GTSelect from '../../../common/GTSelect'
@@ -14,7 +14,7 @@ interface TimeEstimateProps {
 }
 export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Element {
     const dispatch = useAppDispatch()
-    const fetchTasks = useFetchTasks()
+    const getTasks = useGetTasks()
 
     const options = [
         { value: 5, label: '5 mins' },
@@ -46,7 +46,7 @@ export default function TimeEstimate({ task_id }: TimeEstimateProps): JSX.Elemen
                     e.stopPropagation()
                 }}
                 onSubmit={(durationMinutes) => {
-                    editTimeEstimate(task_id, durationMinutes * 60, dispatch, fetchTasks)
+                    editTimeEstimate(task_id, durationMinutes * 60, dispatch, getTasks)
                 }}
                 placeholder={'00:00'}
                 options={options}
@@ -62,7 +62,7 @@ const editTimeEstimate = async (
     task_id: string,
     time_estimate: number,
     dispatch: Dispatch<Action<string>>,
-    fetchTasks: () => void
+    getTasks: () => void
 ) => {
     try {
         dispatch(hideTimeEstimate())
@@ -75,7 +75,7 @@ const editTimeEstimate = async (
         if (!response.ok) {
             throw new Error('PATCH /tasks/modify Edit Time Estimate failed: ' + response.text())
         }
-        fetchTasks()
+        getTasks()
     } catch (e) {
         console.log({ e })
     }

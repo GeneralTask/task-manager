@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import styled from 'styled-components'
-import { MESSAGES_FETCH_INTERVAL, MESSAGES_URL, TASKS_FETCH_INTERVAL } from '../../constants'
+import { FETCH_MESSAGES_URL, MESSAGES_FETCH_INTERVAL, MESSAGES_URL, TASKS_FETCH_INTERVAL } from '../../constants'
 import { AbortID, FetchStatusEnum, NavbarPage } from '../../helpers/enums'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
@@ -13,7 +13,7 @@ import Navbar from '../navbar/Navbar'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import RefreshButton from '../task/RefreshButton'
-import { useFetchTasks } from '../task/TasksPage'
+import { useGetTasks } from '../task/TasksPage'
 import Message from './Message'
 
 const MessagesPageContainer = styled.div`
@@ -51,9 +51,9 @@ const TopBanner = styled.div`
     padding-right: 24px;
 `
 
-export const useFetchMessages = (): (() => Promise<void>) => {
+export const useGetMessages = (): (() => Promise<void>) => {
     const dispatch = useAppDispatch()
-    const fetchMessages = useCallback(async () => {
+    const getMessages = useCallback(async () => {
         try {
             dispatch(setMessagesFetchStatus(FetchStatusEnum.LOADING))
             const response = await makeAuthorizedRequest({
@@ -61,6 +61,7 @@ export const useFetchMessages = (): (() => Promise<void>) => {
                 method: 'GET',
                 abortID: AbortID.MESSAGES,
             })
+            fetchMessagesExternal()
             if (!response.ok) {
                 dispatch(setMessagesFetchStatus(FetchStatusEnum.ERROR))
             } else {
@@ -73,7 +74,14 @@ export const useFetchMessages = (): (() => Promise<void>) => {
         }
     }, [])
 
-    return fetchMessages
+    return getMessages
+}
+
+export async function fetchMessagesExternal() {
+    await makeAuthorizedRequest({
+        url: FETCH_MESSAGES_URL,
+        method: 'GET',
+    })
 }
 
 const CollapseCalendarSidebar = React.memo(() => {
@@ -86,8 +94,8 @@ const CollapseCalendarSidebar = React.memo(() => {
 
 function Messages(): JSX.Element {
     const messages_array = useAppSelector((state) => state.messages_page.messages.messages_array)
-    const fetchMessages = useFetchMessages()
-    const fetchTasks = useFetchTasks()
+    const getMessages = useGetMessages()
+    const getTasks = useGetTasks()
     const fetchSettings = useFetchSettings()
     const fetchLinkedAccounts = useFetchLinkedAccounts()
     useEffect(() => {
@@ -96,8 +104,8 @@ function Messages(): JSX.Element {
         fetchLinkedAccounts()
     }, [])
 
-    useInterval(fetchMessages, MESSAGES_FETCH_INTERVAL)
-    useInterval(fetchTasks, TASKS_FETCH_INTERVAL)
+    useInterval(getMessages, MESSAGES_FETCH_INTERVAL)
+    useInterval(getTasks, TASKS_FETCH_INTERVAL)
 
     return (
         <MessagesContentContainer>

@@ -19,7 +19,7 @@ import {
     ReplyInputStyle,
     TaskBodyDiv,
 } from '../task/TaskBody-style'
-import { useFetchMessages } from './MessagesPage'
+import { useGetMessages } from './MessagesPage'
 
 interface EmailViewProps {
     body: string
@@ -54,7 +54,7 @@ interface ReplyProps {
     sent_at: string | null
 }
 const Reply: React.FC<ReplyProps> = ({ message_id, sender, body, sent_at }: ReplyProps) => {
-    const fetchMessages = useFetchMessages()
+    const getMessages = useGetMessages()
     const [text, setText] = useState(
         ReactDOMServer.renderToStaticMarkup(<EmailQuote sender={sender} body={body} sent_at={sent_at} />)
     )
@@ -78,7 +78,7 @@ const Reply: React.FC<ReplyProps> = ({ message_id, sender, body, sent_at }: Repl
                         body: JSON.stringify({ body: text }),
                     })
                     setText('')
-                    fetchMessages()
+                    getMessages()
                     if (response.ok) {
                         toast.success(`Replied to ${sender ?? 'email'}!`)
                     } else {

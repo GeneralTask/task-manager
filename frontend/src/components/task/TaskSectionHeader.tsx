@@ -8,7 +8,7 @@ import {
     TimeAnnotationRight,
 } from './TaskSectionHeader-style'
 import { makeAuthorizedRequest, sectionDropReorder } from '../../helpers/utils'
-import { useFetchTasks } from './TasksPage'
+import { useGetTasks } from './TasksPage'
 import { Indices, ItemTypes, TTaskSection } from '../../helpers/types'
 import React, { RefObject, useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
@@ -28,7 +28,7 @@ interface Props {
 export default function TaskSectionHeader(props: Props): JSX.Element {
     const taskSections = useAppSelector((state) => state.tasks_page.tasks.task_sections)
     const dispatch = useAppDispatch()
-    const fetchTasks = useFetchTasks()
+    const getTasks = useGetTasks()
     const taskSectionsRef = useRef<TTaskSection[]>(taskSections)
     taskSectionsRef.current = taskSections
 
@@ -56,7 +56,7 @@ export default function TaskSectionHeader(props: Props): JSX.Element {
                 method: 'PATCH',
                 body: patchBody,
             })
-                .then(fetchTasks)
+                .then(getTasks)
                 .catch((error) => {
                     throw new Error('PATCH /tasks/ failed' + error)
                 })
