@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { View, Text, StyleSheet, Image, TextInput, Platform } from 'react-native'
-import TaskShell from './TaskShell'
+import { View, TextInput, StyleSheet, Image, Platform } from 'react-native'
+import TaskShell from './TaskContainer'
 import { Colors, Flex } from '../../styles'
+import KeyboardShotcutContainer from '../common/KeyboardShotcutContainer'
 
 const CreatNewTask = () => {
     const [text, onChangeText] = useState('')
@@ -11,13 +12,13 @@ const CreatNewTask = () => {
                 <View style={styles.plusIconContainer}>
                     <Image style={styles.plusIcon} source={require('../../assets/plus.png')} />
                 </View>
-                <input placeholder='Add new task'></input>
                 <TextInput
                     style={styles.input}
                     value={text}
                     onChangeText={text => onChangeText(text)}
                     placeholder="Add new task"
                 />
+                {Platform.OS === 'web' && <KeyboardShotcutContainer style={styles.tool} character={'T'} />}
             </View>
         </TaskShell>
     )
@@ -32,26 +33,35 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingLeft: 10,
         paddingRight: 10,
-        gap: 10,
     },
     plusIconContainer: {
-        height: '50%',
-        width: undefined,
-        aspectRatio: 1,
+        height: 20,
+        width: 20,
+        marginRight: 10,
     },
     plusIcon: {
         width: '100%',
         height: '100%',
     },
-    input: {
+    inputContainer: {
         flexGrow: 1,
+        minWidth: 0,
+
+    },
+    input: {
         ...Platform.select({
-            ios: {},
+            ios: {
+                width: '90%',
+                marginRight: 10,
+            },
             default: {
-                border: 0,
-                outline: 'none !important',
+                outlineStyle: 'none',
+                flexGrow: 1,
             }
         })
+    },
+    tool: {
+
     }
 })
 

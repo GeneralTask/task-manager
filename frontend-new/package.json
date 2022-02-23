@@ -28,8 +28,7 @@
     "react-native-svg": "12.1.1",
     "react-native-web": "0.17.1",
     "react-redux": "^7.2.6",
-    "react-router-dom": "6",
-    "styled-components": "^5.3.3"
+    "react-router-dom": "6"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

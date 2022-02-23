@@ -33,6 +33,9 @@ const styles = StyleSheet.create({
     container: {
         ...Screens.container,
         ...Flex.column,
+        paddingTop: Platform.OS === 'web' ? 50 : 20,
+        paddingLeft: '7.5%',
+        paddingRight: '7.5%'
     },
     signOut: {
         ...Platform.select({

@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, Image, StyleSheet } from 'react-native'
+import { View, Text, Image, StyleSheet, Platform } from 'react-native'
 import { Typography, Flex } from '../../styles'
 const TasksScreenHeader = () => {
     return (
@@ -14,14 +14,15 @@ const styles = StyleSheet.create({
     container: {
         ...Flex.row,
         alignItems: 'center',
-        gap: 5
+        marginBottom: 15,
     },
     headerText: {
-        ...Typography.xLarge
+        ...Typography.xLarge,
+        marginRight: 5,
     },
     spinner: {
-        width: '20px',
-        height: '20px',
+        width: 20,
+        height: 20,
     }
 })
 
