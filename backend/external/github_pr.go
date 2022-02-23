@@ -62,39 +62,54 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	tokenClient := oauth2.NewClient(extCtx, tokenSource)
 	githubClient = github.NewClient(tokenClient)
 
-	var pullRequests []*database.PullRequest
-	listOptions := github.IssueListOptions{}
+	var pullRequestItems []*database.Item
+	listOptions := github.PullRequestListOptions{}
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	issues, _, err := githubClient.Issues.List(extCtx, true, &listOptions)
+	// TODO(john): Make this work for other repos
+	pullRequests, _, err := githubClient.PullRequests.List(extCtx, "GeneralTask", "task-manager", &listOptions)
 	if err != nil {
 		log.Printf("failed to fetch Github PRs")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 		return
 	}
-	for _, issue := range issues {
-		if issue.IsPullRequest() {
-			pullRequest := &database.PullRequest{
-				TaskBase: database.TaskBase{
-					UserID:          userID,
-					IDExternal:      fmt.Sprint(*issue.ID),
-					IDTaskSection:   constants.IDTaskSectionToday,
-					Deeplink:        *issue.HTMLURL,
-					SourceID:        TASK_SOURCE_ID_GITHUB_PR,
-					Title:           *issue.Title,
-					Body:            *issue.Body,
-					TimeAllocation:  time.Hour.Nanoseconds(),
-					SourceAccountID: accountID,
-				},
-				Opened: primitive.NewDateTimeFromTime(*issue.CreatedAt),
-			}
-			pullRequests = append(pullRequests, pullRequest)
+	for _, pullRequest := range pullRequests {
+		if pullRequest.Title != nil {
+			log.Println(*pullRequest.Title)
 		}
+		if pullRequest.Assignee != nil {
+			log.Println(*pullRequest.Assignee)
+		}
+		body := ""
+		if pullRequest.Body != nil {
+			body = *pullRequest.Body
+		}
+		pullRequest := &database.Item{
+			TaskBase: database.TaskBase{
+				UserID:          userID,
+				IDExternal:      fmt.Sprint(*pullRequest.ID),
+				IDTaskSection:   constants.IDTaskSectionToday,
+				Deeplink:        *pullRequest.HTMLURL,
+				SourceID:        TASK_SOURCE_ID_GITHUB_PR,
+				Title:           *pullRequest.Title,
+				Body:            body,
+				TimeAllocation:  time.Hour.Nanoseconds(),
+				SourceAccountID: accountID,
+			},
+			PullRequest: database.PullRequest{
+				Opened: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
+			},
+			TaskType: database.TaskType{
+				IsTask:        true,
+				IsPullRequest: true,
+			},
+		}
+		pullRequestItems = append(pullRequestItems, pullRequest)
 	}
 
-	for _, pullRequest := range pullRequests {
-		var dbPR database.PullRequest
-		res, err := database.UpdateOrCreatePullRequest(
+	for _, pullRequest := range pullRequestItems {
+		var dbPR database.Item
+		res, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			string(pullRequest.IDExternal),
@@ -110,7 +125,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			result <- emptyPullRequestResult(err)
 			return
 		}
-		err = res.Decode(&err)
+		err = res.Decode(&dbPR)
 		if err != nil {
 			log.Printf("failed to update or create pull request: %v", err)
 			result <- emptyPullRequestResult(err)
@@ -122,7 +137,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 
 	result <- PullRequestResult{
-		PullRequests: pullRequests,
+		PullRequests: pullRequestItems,
 		Error:        nil,
 	}
 }
