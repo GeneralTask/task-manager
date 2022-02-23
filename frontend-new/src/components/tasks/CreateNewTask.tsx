@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { View, TextInput, StyleSheet, Image, Platform } from 'react-native'
-import TaskShell from './TaskContainer'
+import TaskBox from './TaskContainer'
 import { Colors, Flex } from '../../styles'
 import KeyboardShotcutContainer from '../common/KeyboardShotcutContainer'
 
 const CreatNewTask = () => {
     const [text, onChangeText] = useState('')
     return (
-        <TaskShell>
+        <TaskBox>
             <View style={styles.container}>
                 <View style={styles.plusIconContainer}>
                     <Image style={styles.plusIcon} source={require('../../assets/plus.png')} />
@@ -20,7 +20,7 @@ const CreatNewTask = () => {
                 />
                 {Platform.OS === 'web' && <KeyboardShotcutContainer style={styles.tool} character={'T'} />}
             </View>
-        </TaskShell>
+        </TaskBox>
     )
 }
 

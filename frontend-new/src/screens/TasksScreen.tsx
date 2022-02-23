@@ -12,7 +12,7 @@ import { authSignOut } from '../utils/auth'
 
 
 const TasksScreen = () => {
-    const { data: taskSections, error, isLoading, refetch, isFetching } = useGetTasksQuery()
+    const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
     const dispatch = useAppDispatch()
     useEffect(() => {
         if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))

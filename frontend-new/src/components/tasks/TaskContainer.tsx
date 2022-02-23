@@ -5,7 +5,7 @@ interface ShellProps {
     style?: ViewStyle
     children: React.ReactNode | React.ReactNode[]
 }
-const TaskShell = (props: ShellProps) => {
+const TaskBox = (props: ShellProps) => {
     return (
         <View style={[props.style, styles.container]}>
             {props.children}
@@ -23,4 +23,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default TaskShell
+export default TaskBox
