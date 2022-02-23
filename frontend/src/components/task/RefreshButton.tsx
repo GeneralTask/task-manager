@@ -3,10 +3,11 @@ import React, { useCallback } from 'react'
 import styled, { keyframes } from 'styled-components'
 
 import { logEvent } from '../../helpers/utils'
-import { useAppSelector } from '../../redux/hooks'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { fetchMessagesExternal, useGetMessages } from '../messages/MessagesPage'
 import { fetchTasksExternal, useGetTasks } from './TasksPage'
 import { useKeyboardShortcut } from '../common/KeyboardShortcut'
+import { setTasksFetchStatus } from '../../redux/tasksPageSlice'
 
 const spin = keyframes`
     from {
@@ -35,10 +36,12 @@ const RefreshButton = (): JSX.Element => {
     const getTasks = useGetTasks()
     const getMessages = useGetMessages()
 
+    const dispatch = useAppDispatch()
+
     const refresh = useCallback(async () => {
-        await Promise.all([fetchTasksExternal(), fetchMessagesExternal()])
-        getTasks()
-        getMessages()
+        dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING))
+        fetchTasksExternal().then(getTasks)
+        fetchMessagesExternal().then(getMessages)
         logEvent(LogEvents.MANUAL_TASKS_REFRESH_CLICK)
     }, [])
 

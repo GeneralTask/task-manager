@@ -77,8 +77,8 @@ export const useGetMessages = (): (() => Promise<void>) => {
     return getMessages
 }
 
-export function fetchMessagesExternal() {
-    makeAuthorizedRequest({
+export async function fetchMessagesExternal() {
+    await makeAuthorizedRequest({
         url: FETCH_MESSAGES_URL,
         method: 'GET',
     })

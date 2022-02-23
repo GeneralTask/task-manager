@@ -84,8 +84,8 @@ export const useGetTasks = (): (() => Promise<void>) => {
 }
 
 // fetch tasks from external sources
-export function fetchTasksExternal() {
-    makeAuthorizedRequest({
+export async function fetchTasksExternal() {
+    await makeAuthorizedRequest({
         url: FETCH_TASKS_URL,
         method: 'GET',
     })
