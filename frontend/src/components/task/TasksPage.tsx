@@ -1,10 +1,12 @@
 import { AbortID, FetchStatusEnum } from '../../helpers/enums'
+import { MESSAGES_FETCH_INTERVAL, TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
 import { Navigate, useParams } from 'react-router-dom'
 import React, { useCallback, useEffect } from 'react'
-import { MESSAGES_FETCH_INTERVAL, TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
 import { setShowCalendarSidebar, setTasks, setTasksFetchStatus } from '../../redux/tasksPageSlice'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+
+import CalendarFull from '../calendar/CalendarFull'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import EventAlert from '../alert/EventAlert'
 import ExpandCollapse from '../common/ExpandCollapse'
@@ -16,8 +18,8 @@ import TaskStatus from './TaskStatus'
 import styled from 'styled-components'
 import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
-import { useFetchSettings } from '../settings/Preferences'
 import { useFetchMessages } from '../messages/MessagesPage'
+import { useFetchSettings } from '../settings/Preferences'
 
 const TasksPageContainer = styled.div`
     display: flex;
@@ -72,6 +74,7 @@ export const useFetchTasks = (): (() => Promise<void>) => {
             }
         } catch (e) {
             console.log({ e })
+            dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
         }
     }, [])
 
@@ -109,6 +112,11 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
 
     useInterval(fetchTasks, TASKS_FETCH_INTERVAL)
     useInterval(fetchMessages, MESSAGES_FETCH_INTERVAL)
+
+    if (currentSection == null) {
+        return <TaskStatus />
+    }
+
     const TaskSectionElement = <TaskSection task_section={currentSection} task_section_index={sectionIndex} />
 
     return (
@@ -136,16 +144,23 @@ const CollapseCalendarSidebar = React.memo(() => {
 
 export default function TasksPage(): JSX.Element {
     const calendarSidebarShown = useAppSelector((state) => state.tasks_page.events.show_calendar_sidebar)
+    const fullCalendarShown = useAppSelector((state) => state.tasks_page.events.show_full_calendar)
     const section = `${useParams().section}_page`
     const currentPage = Object.values(NavbarPage).find((page) => page === section)
     if (currentPage == null) return <Navigate to="/" />
     return (
         <TasksPageContainer>
             <Navbar currentPage={currentPage} />
-            <EventAlert>
-                <Tasks currentPage={currentPage} />
-            </EventAlert>
-            {calendarSidebarShown && <CalendarSidebar />}
+            {fullCalendarShown ? (
+                <CalendarFull />
+            ) : (
+                <>
+                    <EventAlert>
+                        <Tasks currentPage={currentPage} />
+                    </EventAlert>
+                    {calendarSidebarShown && <CalendarSidebar />}
+                </>
+            )}
         </TasksPageContainer>
     )
 }

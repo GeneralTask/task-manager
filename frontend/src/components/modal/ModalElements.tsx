@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { ACCENT_MAIN, BLACK, GRAY_100, GRAY_200, GRAY_500, GRAY_700, SHADOW_MISC_2, WHITE } from '../../helpers/styles'
+import { ACCENT_MAIN, BLACK, GRAY_100, GRAY_200, GRAY_500, GRAY_700, shadow, WHITE } from '../../helpers/styles'
 
 const HeaderPrimary = styled.div`
     font-family: Switzer-Variable;
@@ -63,7 +63,7 @@ const ModalButton = styled.button<{ white?: boolean }>`
     border: ${(props) => (props.white ? ` 1px solid ${GRAY_100};` : 'none')};
     font: inherit;
     cursor: pointer;
-    box-shadow: ${SHADOW_MISC_2};
+    box-shadow: ${shadow.MISC_2};
     border-radius: 12px;
     padding: 8px 14px;
     font-family: Switzer-Variable;

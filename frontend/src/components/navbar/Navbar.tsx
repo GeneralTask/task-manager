@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { NavbarPage } from '../../helpers/enums'
-import { SHADOW_PRIMARY } from '../../helpers/styles'
+import { shadow } from '../../helpers/styles'
 import NavbarElements from './NavbarElements'
 import NavbarFooter from './NavbarFooter'
 
@@ -13,7 +13,7 @@ const NavbarContainer = styled.div`
     color: white;
     height: 100%;
     z-index: 1;
-    box-shadow: ${SHADOW_PRIMARY};
+    box-shadow: ${shadow.PRIMARY};
 `
 const Logo = styled.img`
     width: 48px;

@@ -66,7 +66,12 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox is:unread").Do()
 	if err != nil {
 		log.Printf("failed to load Gmail threads for user: %v", err)
-		result <- emptyEmailResult(err)
+		isBadToken := strings.Contains(err.Error(), "invalid_grant")
+		result <- EmailResult{
+			Emails:     []*database.Item{},
+			Error:      err,
+			IsBadToken: isBadToken,
+		}
 		return
 	}
 	for _, threadListItem := range threadsResponse.Threads {
@@ -153,6 +158,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				Email: database.Email{
 					SenderDomain: senderDomain,
 					ThreadID:     threadListItem.Id,
+					IsUnread:     true,
 				},
 				TaskType: database.TaskType{
 					IsMessage: true,
@@ -474,4 +480,56 @@ func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID s
 		gmailSource.MarkAsDone(userID, accountID, issueID)
 	}
 	return nil
+}
+
+func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+	client := getGoogleHttpClient(db, userID, accountID)
+
+	var gmailService *gmail.Service
+	if gmailSource.Google.OverrideURLs.GmailModifyURL == nil {
+		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		defer cancel()
+		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
+	} else {
+		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		defer cancel()
+		gmailService, err = gmail.NewService(
+			extCtx,
+			option.WithoutAuthentication(),
+			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailModifyURL))
+	}
+
+	if err != nil {
+		log.Printf("unable to create Gmail service: %v", err)
+		return err
+	}
+
+	if updateFields.IsUnread != nil {
+		err = changeLabelOnMessage(gmailService, emailID, "UNREAD", *updateFields.IsUnread)
+	}
+
+	return err
+}
+
+func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToChange string, addLabel bool) error {
+	var modifyRequest gmail.ModifyMessageRequest
+	if addLabel {
+		modifyRequest.AddLabelIds = []string{labelToChange}
+	} else {
+		modifyRequest.RemoveLabelIds = []string{labelToChange}
+	}
+	message, err := gmailService.Users.Messages.Modify(
+		"me",
+		emailID,
+		&modifyRequest,
+	).Do()
+	log.Println("resulting message:", message)
+
+	return err
 }

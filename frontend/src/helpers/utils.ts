@@ -15,6 +15,7 @@ import { LogEvents } from './enums'
 import _ from 'lodash'
 import { setAuthToken } from '../redux/userDataSlice'
 import store from '../redux/store'
+import { DateTime } from 'luxon'
 
 // This invalidates the cookie on the frontend
 export const logout = async (): Promise<void> => {
@@ -27,7 +28,6 @@ export const logout = async (): Promise<void> => {
     store.dispatch(setAuthToken(undefined))
     document.location.href = LANDING_PATH
 }
-
 
 export const getAuthToken = (): string | undefined => store.getState().user_data.auth_token
 
@@ -106,7 +106,7 @@ export const useDeviceSize = (): DeviceSize => {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export function emptyFunction(): void { }
+export function emptyFunction(): void {}
 
 export const updateOrderingIds = (task_sections: TTaskSection[]): TTaskSection[] => {
     return task_sections.map((section) => {
@@ -185,13 +185,9 @@ export function logEvent(event_type: LogEvents): void {
     })
 }
 
-export function dateIsToday(date: Date): boolean {
-    const today = new Date()
-    return (
-        date.getDate() === today.getDate() &&
-        date.getMonth() === today.getMonth() &&
-        date.getFullYear() === today.getFullYear()
-    )
+export function dateIsToday(date: DateTime): boolean {
+    const today = DateTime.now()
+    return date.day === today.day && date.month === today.month && date.year === today.year
 }
 
 export function stopKeyboardPropogation(e: React.KeyboardEvent) {

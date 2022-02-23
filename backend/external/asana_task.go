@@ -131,6 +131,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task,
 			database.TaskChangeableFields{
 				Title:       &task.Title,
+				Body:        &task.Body,
 				DueDate:     task.DueDate,
 				IsCompleted: &isCompleted,
 			},
@@ -149,7 +150,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
-		log.Println("task:", task.IsCompleted, "db task:", dbTask.IsCompleted)
+		task.TimeAllocation = dbTask.TimeAllocation
 		tasks = append(tasks, task)
 	}
 
@@ -160,14 +161,6 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 
 func (asanaTask AsanaTaskSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
 	result <- emptyPullRequestResult(nil)
-}
-
-func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
-	return errors.New("cannot reply to an asana task")
-}
-
-func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("cannot create new asana task")
 }
 
 func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
@@ -206,5 +199,17 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 		log.Printf("failed to fetch asana tasks: %v", err)
 		return err
 	}
+	return nil
+}
+
+func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+	return errors.New("cannot reply to an asana task")
+}
+
+func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
+	return errors.New("cannot create new asana task")
+}
+
+func (asanaTask AsanaTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
 	return nil
 }

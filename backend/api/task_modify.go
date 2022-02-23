@@ -36,8 +36,8 @@ func (api *API) TaskModify(c *gin.Context) {
 	}
 
 	if modifyParams.IDTaskSection != nil {
-		IDTaskSection, err := primitive.ObjectIDFromHex(*modifyParams.IDTaskSection)
-		if err != nil || (IDTaskSection != constants.IDTaskSectionToday && IDTaskSection != constants.IDTaskSectionBlocked && IDTaskSection != constants.IDTaskSectionBacklog) {
+		_, err := primitive.ObjectIDFromHex(*modifyParams.IDTaskSection)
+		if err != nil {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
 		}
@@ -46,9 +46,9 @@ func (api *API) TaskModify(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	task, err := GetTask(api, c, taskID, userID)
+	task, err := database.GetItem(c.Request.Context(), taskID, userID)
 	if err != nil {
-		// status is handled in GetTask
+		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
 		return
 	}
 
@@ -223,7 +223,7 @@ func UpdateTaskInDB(api *API, c *gin.Context, taskID primitive.ObjectID, userID 
 		Handle500(c)
 		return
 	}
-	if res.MatchedCount != 1 || res.ModifiedCount != 1 {
+	if res.MatchedCount != 1 {
 		log.Println("failed to update task", res)
 		Handle500(c)
 		return

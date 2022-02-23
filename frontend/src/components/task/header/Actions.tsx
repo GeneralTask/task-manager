@@ -1,11 +1,10 @@
 import { BLANK_CALENDAR_ICON, DEFAULT_ALLOCATION, EXPAND_ICON, LABEL_ICON, TIME_ICON } from '../../../constants'
 import { ButtonIcon, DueDateButtonText, TimeEstimateButtonText } from './Header-style'
 import {
-    collapseBody,
-    expandBody,
     hideDatePicker,
     hideLabelSelector,
     hideTimeEstimate,
+    setSelectionInfo,
     showDatePicker,
     showLabelSelector,
     showTimeEstimate,
@@ -49,7 +48,7 @@ interface ExpandActionProps {
 }
 const ExpandAction = ({ isExpanded, taskId, isSelected }: ExpandActionProps): JSX.Element => {
     const dispatch = useAppDispatch()
-    const toggleExpand = () => dispatch(isExpanded ? collapseBody() : expandBody(taskId))
+    const toggleExpand = () => dispatch(setSelectionInfo({ id: taskId, is_body_expanded: !isExpanded }))
     const onClick = (e: React.MouseEvent) => {
         e.stopPropagation()
         toggleExpand()
@@ -163,7 +162,7 @@ const LabelAction = ({ task, isSelected }: LabelActionProps): JSX.Element => {
     return (
         <>
             {isSelected && <InvisibleKeyboardShortcut shortcut="L" onKeyPress={toggleLabelSelector} />}
-            <Tooltip text={'Label'}>
+            <Tooltip text="Label">
                 <Action onClick={onClick}>
                     <ButtonIcon src={LABEL_ICON} alt="label" />
                 </Action>

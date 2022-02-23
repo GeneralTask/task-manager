@@ -2,10 +2,12 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sort"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/settings"
@@ -86,24 +88,32 @@ func (api *API) MessagesList(c *gin.Context) {
 	}
 
 	emailChannels := []chan external.EmailResult{}
+	tokensInUse := []*database.ExternalAPIToken{}
 	// Loop through linked accounts and fetch relevant items
-	for _, token := range tokens {
+	for index, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
 			log.Printf("error loading task service: %v", err)
-			continue
+			Handle500(c)
+			return
 		}
 		for _, taskSource := range taskServiceResult.Sources {
 			var emails = make(chan external.EmailResult)
 			go taskSource.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails)
 			emailChannels = append(emailChannels, emails)
+			// need to use tokens array here to ensure pointer isn't same memory address each time
+			tokensInUse = append(tokensInUse, &tokens[index])
 		}
 	}
 
 	fetchedEmails := []*database.Item{}
-	for _, emailChannel := range emailChannels {
+	badTokens := []*database.ExternalAPIToken{}
+	for index, emailChannel := range emailChannels {
 		emailResult := <-emailChannel
 		if emailResult.Error != nil {
+			if emailResult.IsBadToken {
+				badTokens = append(badTokens, tokensInUse[index])
+			}
 			continue
 		}
 		fetchedEmails = append(fetchedEmails, emailResult.Emails...)
@@ -113,7 +123,7 @@ func (api *API) MessagesList(c *gin.Context) {
 		fetchedEmails[index].TaskBase.Body = "<base target=\"_blank\">" + fetchedEmails[index].TaskBase.Body
 	}
 
-	err = markCompletedMessages(db, currentEmails, &fetchedEmails)
+	err = markReadMessagesInDB(api, db, currentEmails, &fetchedEmails)
 	if err != nil {
 		Handle500(c)
 		return
@@ -127,6 +137,43 @@ func (api *API) MessagesList(c *gin.Context) {
 	if err != nil {
 		Handle500(c)
 		return
+	}
+	for _, token := range badTokens {
+		// For now, marking as GT_TASK source to show visual distinction from emails
+		taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(external.TASK_SOURCE_ID_GT_TASK)
+		if err != nil {
+			log.Printf("error loading task service: %v", err)
+			Handle500(c)
+			return
+		}
+		body := (`<!DOCTYPE html><html lang="en"><head></head><body>Please un-link and re-link your email account ` +
+			`in the settings page to continue seeing messages from this account. If this is your primary account, ` +
+			`you will need to visit the following link to reauthorize: ` +
+			`<a href="%slogin/?force_prompt=true">Click here</a><br><br><i>Note: once we are verified by Google, this ` +
+			`issue will happen less often!</i></body></html>`)
+		body = fmt.Sprintf(body, config.GetConfigValue("SERVER_URL"))
+		if err != nil {
+			log.Printf("failed to convert plain text to HTML: %v", err)
+			continue
+		}
+		orderedMessages = append([]*message{
+			{
+				ID:       primitive.NilObjectID,
+				Title:    fmt.Sprintf("%s needs to be re-authorized!", token.AccountID),
+				Deeplink: "",
+				Body:     body,
+				Sender:   "General Task",
+				SentAt:   time.Now().Format(time.RFC3339),
+				IsUnread: false,
+				Source: messageSource{
+					AccountId:     token.AccountID,
+					Name:          taskSourceResult.Details.Name,
+					Logo:          taskSourceResult.Details.Logo,
+					IsCompletable: taskSourceResult.Details.IsCreatable,
+					IsReplyable:   taskSourceResult.Details.IsReplyable,
+				},
+			},
+		}, orderedMessages...)
 	}
 	c.JSON(200, orderedMessages)
 }
@@ -159,7 +206,8 @@ func (api *API) orderMessages(
 	return messages, nil
 }
 
-func markCompletedMessages(
+func markReadMessagesInDB(
+	api *API,
 	db *mongo.Database,
 	currentEmails *[]database.Item,
 	fetchedEmails *[]*database.Item,
@@ -171,9 +219,15 @@ func markCompletedMessages(
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentEmail := range *currentEmails {
 		if !fetchedEmailTaskIDs[currentEmail.ID] {
-			err := database.MarkItemComplete(db, currentEmail.ID)
+			f := false
+			messageChangeable := database.MessageChangeable{
+				EmailChangeable: database.EmailChangeable{
+					IsUnread: &f,
+				},
+			}
+			err := updateMessageInDB(api, nil, currentEmail.ID, currentEmail.UserID, &messageChangeable)
 			if err != nil {
-				log.Printf("failed to mark task completed: (ID=%v) with error: %v", currentEmail.ID, err)
+				log.Printf("failed to mark message read: (ID=%v) with error: %v", currentEmail.ID, err)
 				return err
 			}
 		}

@@ -3,7 +3,6 @@ package external
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 
@@ -42,7 +41,7 @@ func getGoogleLoginConfig() OauthConfigWrapper {
 		ClientID:     config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET"),
 		RedirectURL:  config.GetConfigValue("GOOGLE_OAUTH_LOGIN_REDIRECT_URL"),
-		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar.events"},
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
 			TokenURL: "https://oauth2.googleapis.com/token",
@@ -76,10 +75,11 @@ func (Google GoogleService) GetLinkURL(stateTokenID primitive.ObjectID, userID p
 
 func (Google GoogleService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
 	var authURL string
+	includeGrantedScopes := oauth2.SetAuthURLParam("include_granted_scopes", "false")
 	if forcePrompt {
-		authURL = Google.LoginConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+		authURL = Google.LoginConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, includeGrantedScopes, oauth2.ApprovalForce)
 	} else {
-		authURL = Google.LoginConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline)
+		authURL = Google.LoginConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, includeGrantedScopes)
 	}
 	return &authURL, nil
 }
@@ -117,22 +117,6 @@ func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID pri
 	}
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-
-	count, err := externalAPITokenCollection.CountDocuments(
-		context.TODO(),
-		bson.M{"$and": []bson.M{
-			{"user_id": userID},
-			{"service_id": TASK_SERVICE_ID_GOOGLE},
-			{"account_id": userInfo.EMAIL},
-			{"is_primary_login": true},
-		}})
-	if err != nil {
-		return err
-	}
-
-	if count > 0 {
-		return errors.New("already exists as primary")
-	}
 
 	_, err = externalAPITokenCollection.UpdateOne(
 		context.TODO(),
@@ -227,42 +211,6 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 		log.Printf("unable to create user")
 
 		return primitive.NilObjectID, &userIsNew, nil, err
-	}
-
-	if len(token.RefreshToken) > 0 {
-		// Only update / save the external API key if refresh token is set (isn't set after first authorization)
-		tokenString, err := json.Marshal(&token)
-		if err != nil {
-			log.Printf("failed to serialize token json: %v", err)
-
-			return primitive.NilObjectID, &userIsNew, nil, err
-		}
-		externalAPITokenCollection := database.GetExternalTokenCollection(db)
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		_, err = externalAPITokenCollection.UpdateOne(
-			dbCtx,
-			bson.M{"$and": []bson.M{
-				{"user_id": user.ID},
-				{"service_id": TASK_SERVICE_ID_GOOGLE},
-				{"account_id": userInfo.EMAIL},
-			}},
-			bson.M{"$set": &database.ExternalAPIToken{
-				UserID:         user.ID,
-				ServiceID:      TASK_SERVICE_ID_GOOGLE,
-				Token:          string(tokenString),
-				AccountID:      userInfo.EMAIL,
-				DisplayID:      userInfo.EMAIL,
-				IsUnlinkable:   false,
-				IsPrimaryLogin: true,
-			}},
-			options.Update().SetUpsert(true),
-		)
-		if err != nil {
-			log.Printf("failed to create external token record: %v", err)
-
-			return primitive.NilObjectID, &userIsNew, nil, err
-		}
 	}
 
 	return user.ID, &userIsNew, &userInfo.EMAIL, nil

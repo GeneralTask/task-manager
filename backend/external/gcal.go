@@ -208,3 +208,7 @@ func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID,
 	}
 	return nil
 }
+
+func (googleCalendar GoogleCalendarSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
+	return nil
+}

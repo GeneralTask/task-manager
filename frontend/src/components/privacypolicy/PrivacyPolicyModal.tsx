@@ -1,12 +1,20 @@
 import React from 'react'
 import styled from 'styled-components'
 import { ModalEnum } from '../../helpers/enums'
-import { BLACK, WHITE, ACCENT_MAIN, GRAY_100, SHADOW_MISC_2 } from '../../helpers/styles'
+import { BLACK, WHITE, ACCENT_MAIN, GRAY_100, shadow } from '../../helpers/styles'
 import { makeAuthorizedRequest } from '../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
 import GeneralTaskModal from '../modal/GeneralTaskModal'
-import { ButtonContainer, HeaderPrimary, HeaderSecondary, ModalButton, ModalTextArea, ResponseContainer, SectionHeader } from '../modal/ModalElements'
+import {
+    ButtonContainer,
+    HeaderPrimary,
+    HeaderSecondary,
+    ModalButton,
+    ModalTextArea,
+    ResponseContainer,
+    SectionHeader,
+} from '../modal/ModalElements'
 import { ModalContainer, PrivacyPolicyHeader } from './PrivacyPolicyModal-style'
 
 const PrivacyPolicyModal = (): JSX.Element => {
@@ -46,11 +54,11 @@ const PrivacyPolicyModal = (): JSX.Element => {
 
 const PPButtonContainer = styled.button<{ white?: boolean }>`
     position: relative;
-    color: ${(props) => props.white ? BLACK : WHITE};
-    background-color: ${(props) => props.white ? WHITE : ACCENT_MAIN};
-    border: ${(props) => props.white ? `1px solid ${GRAY_100};` : 'none'};
-	cursor: pointer;
-    box-shadow: ${SHADOW_MISC_2};
+    color: ${(props) => (props.white ? BLACK : WHITE)};
+    background-color: ${(props) => (props.white ? WHITE : ACCENT_MAIN)};
+    border: ${(props) => (props.white ? `1px solid ${GRAY_100};` : 'none')};
+    cursor: pointer;
+    box-shadow: ${shadow.MISC_2};
     border-radius: 12px;
     padding: 8px 14px;
     font-family: Switzer-Variable;
@@ -78,7 +86,7 @@ export const PPButton = (): JSX.Element => {
     return (
         <>
             <PPButtonContainer onClick={clickHandler}>View PP temp</PPButtonContainer>
-            {showModal === ModalEnum.PRIVACY_POLICY &&
+            {showModal === ModalEnum.PRIVACY_POLICY && (
                 <GeneralTaskModal
                     render={<PrivacyPolicyModal />}
                     canClickOutside={false}
@@ -86,7 +94,7 @@ export const PPButton = (): JSX.Element => {
                     afterModalOpen={afterModalOpen}
                     afterModalClose={afterModalClose}
                 />
-            }
+            )}
         </>
     )
 }

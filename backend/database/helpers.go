@@ -91,6 +91,32 @@ func UpdateOrCreateTask(
 	), nil
 }
 
+func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Item, error) {
+	parentCtx := ctx
+	db, dbCleanup, err := GetDBConnection()
+	if err != nil {
+		log.Print("Failed to establish DB connection", err)
+		return nil, err
+	}
+	defer dbCleanup()
+	taskCollection := GetTaskCollection(db)
+
+	var message Item
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = taskCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+			{"user_id": userID},
+		}}).Decode(&message)
+	if err != nil {
+		log.Printf("Failed to get item: %+v, error: %v", itemID, err)
+		return nil, err
+	}
+	return &message, nil
+}
+
 func GetOrCreateTask(db *mongo.Database,
 	userID primitive.ObjectID,
 	IDExternal string,
@@ -227,6 +253,31 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 	return &tasks, nil
 }
 
+func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {
+	parentCtx := context.Background()
+	sectionCollection := GetTaskSectionCollection(db)
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := sectionCollection.Find(
+		dbCtx,
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		log.Printf("failed to fetch sections for user: %+v", err)
+		return nil, err
+	}
+	var sections []TaskSection
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &sections)
+	if err != nil {
+		log.Printf("failed to fetch sections for user: %v", err)
+		return nil, err
+	}
+	return &sections, nil
+}
+
 func MarkItemComplete(db *mongo.Database, itemID primitive.ObjectID) error {
 	parentCtx := context.Background()
 	tasksCollection := GetTaskCollection(db)
@@ -265,9 +316,9 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 	return &userObject, nil
 }
 
-func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID) (*string, error) {
+func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID, useDeeplink bool) (*string, error) {
 	parentCtx := context.Background()
-	stateToken := &StateToken{}
+	stateToken := &StateToken{UseDeeplink: useDeeplink}
 	if userID != nil {
 		stateToken.UserID = *userID
 	}
@@ -280,6 +331,25 @@ func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID) (*string, 
 	}
 	stateTokenStr := cursor.InsertedID.(primitive.ObjectID).Hex()
 	return &stateTokenStr, nil
+}
+
+func GetStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userID *primitive.ObjectID) (*StateToken, error) {
+	parentCtx := context.Background()
+	var query bson.M
+	if userID == nil {
+		query = bson.M{"_id": stateTokenID}
+	} else {
+		query = bson.M{"$and": []bson.M{{"user_id": *userID}, {"_id": stateTokenID}}}
+	}
+	var token StateToken
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err := GetStateTokenCollection(db).FindOne(dbCtx, query).Decode(&token)
+	if err != nil {
+		log.Printf("Failed to get state token: %v", err)
+		return nil, err
+	}
+	return &token, nil
 }
 
 func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userID *primitive.ObjectID) error {
@@ -364,4 +434,8 @@ func GetLogEventsCollection(db *mongo.Database) *mongo.Collection {
 
 func GetFeedbackItemCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("feedback_items")
+}
+
+func GetTaskSectionCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("task_sections")
 }
