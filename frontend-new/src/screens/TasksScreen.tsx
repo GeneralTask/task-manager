@@ -6,7 +6,7 @@ import TasksScreenHeader from '../components/tasks/Header'
 import TaskSections from '../components/tasks/Sections'
 import { useAppDispatch } from '../redux/hooks'
 import { setAuthToken } from '../redux/userDataSlice'
-import { useGetTasksQuery } from '../services/tasks'
+import { useCreateTaskMutation, useGetTasksQuery } from '../services/generalTaskApi'
 import { Screens, Flex, Colors } from '../styles'
 import { authSignOut } from '../utils/auth'
 
@@ -31,7 +31,8 @@ const TasksScreen = () => {
             }>
             <View style={styles.tasksContent}>
                 <TasksScreenHeader />
-                <CreateNewTask />
+                {/* current hardcoded section */}
+                <CreateNewTask section={'000000000000000000000001'} />
                 {isLoading || taskSections == undefined ? LoadingView : <TaskSections section={taskSections[0]} />}
                 <Pressable style={styles.signOut} onPress={() => authSignOut(dispatch)}>
                     <Text>Sign Out</Text>

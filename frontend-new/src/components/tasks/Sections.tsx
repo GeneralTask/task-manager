@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet, Pressable, Platform } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import { Colors } from '../../styles'
 import { TTaskSection } from '../../utils/types'
 import TaskBox from './TaskContainer'

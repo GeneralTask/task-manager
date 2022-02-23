@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { View, Text, Image, StyleSheet, Platform, TouchableOpacity } from 'react-native'
 import { useAppDispatch } from '../../redux/hooks'
 import { setAuthToken } from '../../redux/userDataSlice'
-import { useGetTasksQuery } from '../../services/tasks'
+import { useGetTasksQuery } from '../../services/generalTaskApi'
 import { Typography, Flex } from '../../styles'
 
 
