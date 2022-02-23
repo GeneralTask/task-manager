@@ -9,7 +9,6 @@ import { LogEvents } from '../../helpers/enums'
 import { TTask, TTaskCreateParams, TTaskSection } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
 import { useGetTasks } from './TasksPage'
-import { useGetTasks } from './TasksPage'
 import { useAppDispatch } from '../../redux/hooks'
 import { addTask } from '../../redux/tasksPageSlice'
 
