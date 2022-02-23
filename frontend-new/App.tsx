@@ -47,7 +47,7 @@ const App = () => {
       <SafeAreaView style={styles.safeArea}>
         <Navigation />
       </SafeAreaView >
-    </Provider>
+    </Provider >
 
   )
 }

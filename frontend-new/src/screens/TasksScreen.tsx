@@ -1,8 +1,12 @@
 import Cookies from 'js-cookie'
-import { setAuthToken } from '../redux/userDataSlice'
 import React, { useEffect } from 'react'
 import { View, Text, StyleSheet, Pressable, Platform } from 'react-native'
+import CreateNewTask from '../components/tasks/CreateNewTask'
+import TasksScreenHeader from '../components/tasks/Header'
+import TaskSections from '../components/tasks/Sections'
 import { useAppDispatch } from '../redux/hooks'
+import { setAuthToken } from '../redux/userDataSlice'
+import { useGetTasksQuery } from '../services/tasks'
 import { Screens, Flex } from '../styles'
 import { authSignOut } from '../utils/auth'
 
@@ -11,10 +15,13 @@ const TasksScreen = () => {
     useEffect(() => {
         if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
     }, [])
+    const { data: taskSections, error, isLoading } = useGetTasksQuery()
 
     return (
         <View style={styles.container}>
-            <Text>Authorized Tasks Screen</Text>
+            <TasksScreenHeader />
+            <CreateNewTask />
+            <TaskSections taskSections={taskSections || []}></TaskSections>
             <Pressable style={styles.signOut} onPress={() => authSignOut(dispatch)}>
                 <Text>Sign Out</Text>
             </Pressable>

@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
 import userDataReducer from './userDataSlice'
 import tasksPageReducer from './tasksPageSlice'
 import messagesPageReducer from './messagesPageSlice'
