@@ -41,7 +41,6 @@ func (api *API) MessagesListV3(c *gin.Context) {
 	}
 
 
-
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := database.GetUserCollection(db)
@@ -54,17 +53,11 @@ func (api *API) MessagesListV3(c *gin.Context) {
 		return
 	}
 
-
-	// emails, err := database.GetActiveEmails(db, userID.(primitive.ObjectID))
 	emails, err := database.GetUnreadEmailsPaged(db, userID.(primitive.ObjectID), pagination)
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	log.Printf("emails %+v", emails)
-
-	// c.JSON(200, pagination)
-	// return
 
 	orderedMessages, err := api.orderMessagesV2(
 		db,
@@ -76,10 +69,4 @@ func (api *API) MessagesListV3(c *gin.Context) {
 		return
 	}
 	c.JSON(200, orderedMessages)
-}
-
-type Pagination struct {
-	Limit *int `form:"limit" json:"limit"`
-	Page  *int `form:"page" json:"page"`
-	// Sort  string `json:"sort"`
 }
