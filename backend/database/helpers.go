@@ -186,6 +186,7 @@ func GetUnreadEmailsPaged(db *mongo.Database, userID primitive.ObjectID, paginat
 	skip := int64(*pagination.Page - 1)
 	limit := int64(*pagination.Limit)
 	opts := options.FindOptions{
+		Sort: bson.D{{Key: "created_at_external", Value: -1}},
 		Skip: &skip,
 		Limit: &limit,
 	}

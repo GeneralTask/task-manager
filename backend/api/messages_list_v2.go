@@ -36,7 +36,19 @@ func (api *API) MessagesListV2(c *gin.Context) {
 		return
 	}
 
-	emails, err := database.GetUnreadEmails(db, userID.(primitive.ObjectID))
+	var pagination database.Pagination
+	err = c.Bind(&pagination)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
+		return
+	}
+
+	var emails *[]database.Item
+	if pagination.Limit == nil || pagination.Page == nil {
+		emails, err = database.GetUnreadEmails(db, userID.(primitive.ObjectID))
+	} else {
+		emails, err = database.GetUnreadEmailsPaged(db, userID.(primitive.ObjectID), pagination)
+	}
 	if err != nil {
 		Handle500(c)
 		return

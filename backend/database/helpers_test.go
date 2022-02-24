@@ -259,95 +259,98 @@ func TestGetUnreadEmails(t *testing.T) {
 }
 
 func TestGetUnreadEmailsPaged(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
-		db, dbCleanup, err := GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
-		userID := primitive.NewObjectID()
-		task1, err := GetOrCreateTask(
-			db,
-			userID,
-			"email_paginate_task_1",
-			"gmail",
-			&Item{
-				Email: Email{
-					SenderDomain: "gmail",
-					IsUnread: true,
-				},
-				TaskBase: TaskBase{
-					IDExternal: "email_paginate_task_1",
-					SourceID:   "gmail",
-					UserID:     userID,
-				},
-				TaskType: TaskType{
-					IsMessage: true,
-				},
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
+	task1, err := GetOrCreateTask(
+		db,
+		userID,
+		"email_paginate_task_1",
+		"gmail",
+		&Item{
+			Email: Email{
+				SenderDomain: "gmail",
+				IsUnread: true,
 			},
-		)
-		assert.NoError(t, err)
-
-		_, err = GetOrCreateTask(
-			db,
-			userID,
-			"email_paginate_task_2",
-			"gmail",
-			&Item{
-				Email: Email{
-					SenderDomain: "gmail",
-					IsUnread: true,
-				},
-				TaskBase: TaskBase{
-					IDExternal: "email_paginate_task_2",
-					SourceID:   "gmail",
-					UserID:     userID,
-				},
-				TaskType: TaskType{
-					IsMessage: true,
-				},
+			TaskBase: TaskBase{
+				IDExternal: "email_paginate_task_1",
+				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+				SourceID:   "gmail",
+				UserID:     userID,
 			},
-		)
-		assert.NoError(t, err)
-
-		task3, err := GetOrCreateTask(
-			db,
-			userID,
-			"email_paginate_task_3",
-			"gmail",
-			&Item{
-				Email: Email{
-					SenderDomain: "gmail",
-					IsUnread: true,
-				},
-				TaskBase: TaskBase{
-					IDExternal: "email_paginate_task_3",
-					SourceID:   "gmail",
-					UserID:     userID,
-				},
-				TaskType: TaskType{
-					IsMessage: true,
-				},
+			TaskType: TaskType{
+				IsMessage: true,
 			},
-		)
-		assert.NoError(t, err)
+		},
+	)
+	assert.NoError(t, err)
 
-		all_emails, err := GetUnreadEmails(db, userID)
-		assert.NoError(t, err)
-		assert.Equal(t, 3, len(*all_emails))
-		assert.Equal(t, task1.ID, (*all_emails)[0].ID)
+	createdAt, _ = time.Parse("2006-01-02", "2017-04-20")
+	task2, err := GetOrCreateTask(
+		db,
+		userID,
+		"email_paginate_task_2",
+		"gmail",
+		&Item{
+			Email: Email{
+				SenderDomain: "gmail",
+				IsUnread: true,
+			},
+			TaskBase: TaskBase{
+				IDExternal: "email_paginate_task_2",
+				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+				SourceID:   "gmail",
+				UserID:     userID,
+			},
+			TaskType: TaskType{
+				IsMessage: true,
+			},
+		},
+	)
+	assert.NoError(t, err)
 
-		limit := 2
+	createdAt, _ = time.Parse("2006-01-02", "2020-04-20")
+	task3, err := GetOrCreateTask(
+		db,
+		userID,
+		"email_paginate_task_3",
+		"gmail",
+		&Item{
+			Email: Email{
+				SenderDomain: "gmail",
+				IsUnread: true,
+			},
+			TaskBase: TaskBase{
+				IDExternal: "email_paginate_task_3",
+				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+				SourceID:   "gmail",
+				UserID:     userID,
+			},
+			TaskType: TaskType{
+				IsMessage: true,
+			},
+		},
+	)
+	assert.NoError(t, err)
+	t.Run("SuccessAllOrdering", func(t *testing.T) {
+		limit := 3
 		page := 1
 		paged_emails, err := GetUnreadEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
 		assert.NoError(t, err)
-		assert.Equal(t, 2, len(*paged_emails))
-		assert.Equal(t, task1.ID, (*paged_emails)[0].ID)
-
-		limit = 1
-		page = 3
-		paged_emails, err = GetUnreadEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
+		assert.Equal(t, 3, len(*paged_emails))
+		assert.Equal(t, task3.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, task1.ID, (*paged_emails)[1].ID)
+		assert.Equal(t, task2.ID, (*paged_emails)[2].ID)
+	})
+	t.Run("SuccessPaged", func(t *testing.T) {
+		limit := 1
+		page := 3
+		paged_emails, err := GetUnreadEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*paged_emails))
-		assert.Equal(t, task3.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, task2.ID, (*paged_emails)[0].ID)
 	})
 }
 
