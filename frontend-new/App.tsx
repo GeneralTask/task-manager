@@ -8,6 +8,7 @@ import { Provider } from 'react-redux'
 import store from './src/redux/store'
 import { useAppSelector } from './src/redux/hooks'
 import Cookies from 'js-cookie'
+import { Colors } from './src/styles'
 
 const linking = {
   prefixes: ['https://generaltask.com', 'generaltask://'],
@@ -47,7 +48,7 @@ const App = () => {
       <SafeAreaView style={styles.safeArea}>
         <Navigation />
       </SafeAreaView >
-    </Provider>
+    </Provider >
 
   )
 }
@@ -56,7 +57,7 @@ const Stack = createNativeStackNavigator()
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: Colors.gray._50
   }
 })
 
