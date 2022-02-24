@@ -19,14 +19,9 @@ import { LogEvents } from '../../../helpers/enums'
 import { TTask } from '../../../helpers/types'
 import Tooltip from '../../common/Tooltip'
 import { useAppDispatch } from '../../../redux/hooks'
-import { useFetchTasks } from '../TasksPage'
+import { useGetTasks } from '../TasksPage'
 
-const done = async (
-    task_id: string,
-    new_state: boolean,
-    dispatch: Dispatch<Action<string>>,
-    fetchTasks: () => void
-) => {
+const done = async (task_id: string, new_state: boolean, dispatch: Dispatch<Action<string>>, getTasks: () => void) => {
     try {
         dispatch(removeTaskByID(task_id))
         const response = await makeAuthorizedRequest({
@@ -38,7 +33,7 @@ const done = async (
         if (!response.ok) {
             throw new Error('PATCH /tasks/modify Mark as Done failed: ' + response.text())
         }
-        fetchTasks()
+        getTasks()
     } catch (e) {
         console.log({ e })
     }
@@ -54,10 +49,10 @@ interface TaskHeaderProps {
 const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: TaskHeaderProps, ref) => {
     const [isOver, setIsOver] = React.useState(false)
     const dispatch = useAppDispatch()
-    const fetchTasks = useFetchTasks()
+    const getTasks = useGetTasks()
 
     const onDoneButtonClick = useCallback(() => {
-        done(props.task.id, !props.task.is_done, dispatch, fetchTasks)
+        done(props.task.id, !props.task.is_done, dispatch, getTasks)
         logEvent(LogEvents.TASK_MARK_AS_DONE)
     }, [])
     const onMouseLeave = () => {
@@ -99,7 +94,7 @@ const TaskHeader = React.forwardRef<HTMLDivElement, TaskHeaderProps>((props: Tas
                         </Tooltip>
                     </DoneButtonContainer>
                 )}
-                <Icon src={props.task.source.logo} alt="icon"></Icon>
+                <Icon src={props.task.source.logo} alt="icon" />
                 <EditableTaskTitle task={props.task} isExpanded={props.isExpanded} />
             </HeaderLeft>
             <HeaderActions

@@ -69,18 +69,21 @@ type Item struct {
 	Task          `bson:"task,omitempty"`
 	Email         `bson:"email,omitempty"`
 	CalendarEvent `bson:"calendar_event,omitempty"`
+	PullRequest   `bson:"pull_request,omitempty"`
 }
 
 type TaskType struct {
-	IsTask    bool `bson:"is_task"`
-	IsMessage bool `bson:"is_message"`
-	IsEvent   bool `bson:"is_event"`
+	IsTask        bool `bson:"is_task"`
+	IsMessage     bool `bson:"is_message"`
+	IsEvent       bool `bson:"is_event"`
+	IsPullRequest bool `bson:"is_pull_request"`
 }
 
 type TaskTypeChangeable struct {
-	IsTask    *bool `bson:"is_task,omitempty"`
-	IsMessage *bool `bson:"is_message,omitempty"`
-	IsEvent   *bool `bson:"is_event,omitempty"`
+	IsTask        *bool `bson:"is_task,omitempty"`
+	IsMessage     *bool `bson:"is_message,omitempty"`
+	IsEvent       *bool `bson:"is_event,omitempty"`
+	IsPullRequest bool  `bson:"is_pull_request,omitempty"`
 }
 
 // Task json & mongo model
@@ -107,8 +110,7 @@ type TaskBase struct {
 }
 
 type PullRequest struct {
-	TaskBase `bson:",inline"`
-	Opened   primitive.DateTime `bson:"opened"`
+	Opened primitive.DateTime `bson:"opened"`
 }
 
 type PullRequestChangeableFields struct {

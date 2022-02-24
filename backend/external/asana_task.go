@@ -1,6 +1,7 @@
 package external
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -33,6 +34,17 @@ type AsanaTasksResponse struct {
 		PermalinkURL string             `json:"permalink_url"`
 		CreatedAt    primitive.DateTime `json:"created_at"`
 	} `json:"data"`
+}
+
+type AsanaTasksUpdateFields struct {
+	Name      *string `json:"name,omitempty"`
+	Notes     *string `json:"notes,omitempty"`
+	DueOn     *string `json:"due_on,omitempty"`
+	Completed *bool   `json:"completed,omitempty"`
+}
+
+type AsanaTasksUpdateBody struct {
+	Data AsanaTasksUpdateFields `json:"data"`
 }
 
 func (asanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
@@ -151,7 +163,7 @@ func (asanaTask AsanaTaskSource) GetPullRequests(userID primitive.ObjectID, acco
 	result <- emptyPullRequestResult(nil)
 }
 
-func (asanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID string, issueID string) error {
+func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
@@ -165,7 +177,24 @@ func (asanaTask AsanaTaskSource) MarkAsDone(userID primitive.ObjectID, accountID
 		taskUpdateURL = *asanaTask.Asana.ConfigValues.TaskUpdateURL
 		client = http.DefaultClient
 	}
-	err = requestJSON(client, "PUT", taskUpdateURL, `{"data": {"completed": true}}`, EmptyResponsePlaceholder)
+	var dueDate *string
+	if !updateFields.DueDate.Time().IsZero() {
+		dueDateString := updateFields.DueDate.Time().Format(time.RFC3339)
+		dueDate = &dueDateString
+	}
+	body := AsanaTasksUpdateBody{
+		Data: AsanaTasksUpdateFields{
+			Name:      updateFields.Title,
+			Notes:     updateFields.Body,
+			DueOn:     dueDate,
+			Completed: updateFields.IsCompleted,
+		},
+	}
+	bodyJson, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+	err = requestJSON(client, "PUT", taskUpdateURL, string(bodyJson), EmptyResponsePlaceholder)
 	if err != nil {
 		log.Printf("failed to fetch asana tasks: %v", err)
 		return err
@@ -179,10 +208,6 @@ func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID stri
 
 func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("cannot create new asana task")
-}
-
-func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, updateFields *database.TaskChangeableFields) error {
-	return nil
 }
 
 func (asanaTask AsanaTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {

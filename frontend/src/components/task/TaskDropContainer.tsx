@@ -9,7 +9,7 @@ import { setTasks } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
 import { LogEvents } from '../../helpers/enums'
-import { useFetchTasks } from './TasksPage'
+import { useGetTasks } from './TasksPage'
 
 const DropOverlay = styled.div`
     width: 100%;
@@ -35,7 +35,7 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
     dragDisabled,
     indices,
 }: TaskDropContainerProps) => {
-    const fetchTasks = useFetchTasks()
+    const getTasks = useGetTasks()
     const { taskSections } = useAppSelector((state) => ({
         taskSections: state.tasks_page.tasks.task_sections,
     }))
@@ -100,7 +100,7 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
                     id_ordering: updatedOrderingId + 1,
                 }),
             })
-                .then(fetchTasks)
+                .then(getTasks)
                 .catch((error) => {
                     throw new Error('PATCH /tasks/ failed' + error)
                 })

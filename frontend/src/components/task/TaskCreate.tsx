@@ -1,14 +1,16 @@
 import * as styles from './TaskCreate-style'
 
-import { GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
+import { DEFAULT_ALLOCATION, GT_TASK_ICON, GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
 import { KeyboardShortcut, useKeyboardShortcut } from '../common/KeyboardShortcut'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { logEvent, makeAuthorizedRequest, stopKeyboardPropogation } from '../../helpers/utils'
 
 import { LogEvents } from '../../helpers/enums'
-import { TTaskCreateParams, TTaskSection } from '../../helpers/types'
+import { TTask, TTaskCreateParams, TTaskSection } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
-import { useFetchTasks } from './TasksPage'
+import { useGetTasks } from './TasksPage'
+import { useAppDispatch } from '../../redux/hooks'
+import { addTask } from '../../redux/tasksPageSlice'
 
 interface TaskCreateProps {
     task_section: TTaskSection
@@ -21,7 +23,7 @@ export default function TaskCreate(props: TaskCreateProps): JSX.Element {
 
     const [titleError, setTitleError] = useState('')
 
-    const fetchTasks = useFetchTasks()
+    const getTasks = useGetTasks()
 
     const titleRef = useRef<HTMLInputElement>(null)
 
@@ -35,6 +37,39 @@ export default function TaskCreate(props: TaskCreateProps): JSX.Element {
 
     const onBlur = useCallback(() => setIsFocused(false), [])
     useKeyboardShortcut('Escape', onBlur)
+
+    const dispatch = useAppDispatch()
+
+    const optimisticCreateTask = useCallback(
+        (title: string) => {
+            const task: TTask = {
+                id: title,
+                id_ordering: 0,
+                title,
+                deeplink: '',
+                body: '',
+                sent_at: '',
+                time_allocated: DEFAULT_ALLOCATION,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: GT_TASK_ICON,
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+            }
+            dispatch(
+                addTask({
+                    task,
+                    sectionIndex: props.task_section_index,
+                    taskIndex: 0,
+                })
+            )
+        },
+        [props.task_section, props.task_section_index]
+    )
 
     return (
         <>
@@ -67,10 +102,13 @@ export default function TaskCreate(props: TaskCreateProps): JSX.Element {
                                     method: 'POST',
                                     body: JSON.stringify(body),
                                 })
+
+                                optimisticCreateTask(title)
+
                                 if (response.ok) {
                                     logEvent(LogEvents.TASK_CREATED)
                                 }
-                                await fetchTasks()
+                                await getTasks()
                             }
                         }}
                     >

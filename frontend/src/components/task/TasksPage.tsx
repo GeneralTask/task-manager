@@ -1,5 +1,5 @@
 import { AbortID, FetchStatusEnum } from '../../helpers/enums'
-import { MESSAGES_FETCH_INTERVAL, TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
+import { FETCH_TASKS_URL, MESSAGES_FETCH_INTERVAL, TASKS_FETCH_INTERVAL, TASKS_URL } from '../../constants'
 import { Navigate, useParams } from 'react-router-dom'
 import React, { useCallback, useEffect } from 'react'
 import { makeAuthorizedRequest, useInterval } from '../../helpers/utils'
@@ -18,7 +18,7 @@ import TaskStatus from './TaskStatus'
 import styled from 'styled-components'
 import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
-import { useFetchMessages } from '../messages/MessagesPage'
+import { useGetMessages } from '../messages/MessagesPage'
 import { useFetchSettings } from '../settings/Preferences'
 
 const TasksPageContainer = styled.div`
@@ -49,11 +49,12 @@ const TopBanner = styled.div`
     padding-right: 24px;
 `
 
-export const useFetchTasks = (): (() => Promise<void>) => {
+// get tasks from the database
+export const useGetTasks = (): (() => Promise<void>) => {
     const dispatch = useAppDispatch()
     const dragDropMonitor = useDragDropManager().getMonitor()
 
-    const fetchTasks = useCallback(async () => {
+    const getTasks = useCallback(async () => {
         const isDragging = dragDropMonitor.isDragging()
         if (isDragging) {
             return
@@ -65,6 +66,7 @@ export const useFetchTasks = (): (() => Promise<void>) => {
                 method: 'GET',
                 abortID: AbortID.TASKS,
             })
+            fetchTasksExternal()
             if (!response.ok) {
                 dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
             } else {
@@ -78,7 +80,15 @@ export const useFetchTasks = (): (() => Promise<void>) => {
         }
     }, [])
 
-    return fetchTasks
+    return getTasks
+}
+
+// fetch tasks from external sources
+export async function fetchTasksExternal() {
+    await makeAuthorizedRequest({
+        url: FETCH_TASKS_URL,
+        method: 'GET',
+    })
 }
 
 interface TasksProps {
@@ -100,8 +110,8 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
                 return [task_sections[0], 'Today', 0]
         }
     })()
-    const fetchTasks = useFetchTasks()
-    const fetchMessages = useFetchMessages()
+    const getTasks = useGetTasks()
+    const getMessages = useGetMessages()
     const fetchSettings = useFetchSettings()
     const fetchLinkedAccounts = useFetchLinkedAccounts()
     useEffect(() => {
@@ -110,8 +120,8 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
         fetchLinkedAccounts()
     }, [])
 
-    useInterval(fetchTasks, TASKS_FETCH_INTERVAL)
-    useInterval(fetchMessages, MESSAGES_FETCH_INTERVAL)
+    useInterval(getTasks, TASKS_FETCH_INTERVAL)
+    useInterval(getMessages, MESSAGES_FETCH_INTERVAL)
 
     if (currentSection == null) {
         return <TaskStatus />

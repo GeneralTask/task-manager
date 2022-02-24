@@ -169,7 +169,7 @@ func TestMarkItemComplete(t *testing.T) {
 	})
 }
 
-func TestGetActiveEmails(t *testing.T) {
+func TestGetUnreadEmails(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		db, dbCleanup, err := GetDBConnection()
 		assert.NoError(t, err)
@@ -184,9 +184,31 @@ func TestGetActiveEmails(t *testing.T) {
 			&Item{
 				Email: Email{
 					SenderDomain: "gmail",
+					IsUnread: true,
 				},
 				TaskBase: TaskBase{
 					IDExternal: "123abc",
+					SourceID:   "gmail",
+					UserID:     userID,
+				},
+				TaskType: TaskType{
+					IsMessage: true,
+				},
+			},
+		)
+		assert.NoError(t, err)
+		_, err = GetOrCreateTask(
+			db,
+			userID,
+			"123abcdef",
+			"gmail",
+			&Item{
+				Email: Email{
+					SenderDomain: "gmail",
+					IsUnread: false,
+				},
+				TaskBase: TaskBase{
+					IDExternal: "123abcdef",
 					SourceID:   "gmail",
 					UserID:     userID,
 				},
@@ -229,7 +251,7 @@ func TestGetActiveEmails(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		emails, err := GetActiveEmails(db, userID)
+		emails, err := GetUnreadEmails(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*emails))
 		assert.Equal(t, task1.ID, (*emails)[0].ID)
