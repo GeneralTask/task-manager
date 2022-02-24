@@ -258,7 +258,7 @@ func TestGetUnreadEmails(t *testing.T) {
 	})
 }
 
-func TestGetActiveEmailsPaged(t *testing.T) {
+func TestGetUnreadEmailsPaged(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		db, dbCleanup, err := GetDBConnection()
 		assert.NoError(t, err)
@@ -330,21 +330,21 @@ func TestGetActiveEmailsPaged(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		all_emails, err := GetActiveEmails(db, userID)
+		all_emails, err := GetUnreadEmails(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 3, len(*all_emails))
 		assert.Equal(t, task1.ID, (*all_emails)[0].ID)
 
 		limit := 2
 		page := 1
-		paged_emails, err := GetActiveEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
+		paged_emails, err := GetUnreadEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(*paged_emails))
 		assert.Equal(t, task1.ID, (*paged_emails)[0].ID)
 
 		limit = 1
 		page = 3
-		paged_emails, err = GetActiveEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
+		paged_emails, err = GetUnreadEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*paged_emails))
 		assert.Equal(t, task3.ID, (*paged_emails)[0].ID)

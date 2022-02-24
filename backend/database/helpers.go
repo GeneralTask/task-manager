@@ -179,7 +179,7 @@ func GetUnreadEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Item, er
 	return &activeEmails, nil
 }
 
-func GetActiveEmailsPaged(db *mongo.Database, userID primitive.ObjectID, pagination Pagination) (*[]Item, error) {
+func GetUnreadEmailsPaged(db *mongo.Database, userID primitive.ObjectID, pagination Pagination) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
