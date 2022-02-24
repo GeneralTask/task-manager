@@ -13,7 +13,7 @@ import Navbar from '../navbar/Navbar'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchSettings } from '../settings/Preferences'
 import RefreshButton from '../task/RefreshButton'
-import { useGetTasks } from '../task/TasksPage'
+import { fetchTasksExternal, useGetTasks } from '../task/TasksPage'
 import Message from './Message'
 
 const MessagesPageContainer = styled.div`
@@ -51,9 +51,9 @@ const TopBanner = styled.div`
     padding-right: 24px;
 `
 
-export const useGetMessages = (): ((fetchExternal?: boolean) => Promise<void>) => {
+export const useGetMessages = (): (() => Promise<void>) => {
     const dispatch = useAppDispatch()
-    const getMessages = useCallback(async (fetchExternal = true) => {
+    const getMessages = useCallback(async () => {
         try {
             dispatch(setMessagesFetchStatus(FetchStatusEnum.LOADING))
             const response = await makeAuthorizedRequest({
@@ -61,9 +61,6 @@ export const useGetMessages = (): ((fetchExternal?: boolean) => Promise<void>) =
                 method: 'GET',
                 abortID: AbortID.MESSAGES,
             })
-            if (fetchExternal) {
-                fetchMessagesExternal()
-            }
             if (!response.ok) {
                 dispatch(setMessagesFetchStatus(FetchStatusEnum.ERROR))
             } else {
@@ -72,7 +69,10 @@ export const useGetMessages = (): ((fetchExternal?: boolean) => Promise<void>) =
                 dispatch(setMessages(resj))
             }
         } catch (e) {
-            console.log({ e })
+            if (!(e instanceof DOMException)) {
+                console.log({ e })
+                dispatch(setMessagesFetchStatus(FetchStatusEnum.ERROR))
+            }
         }
     }, [])
 
@@ -104,10 +104,26 @@ function Messages(): JSX.Element {
         // fetch settings and linked accounts once on tasks page load
         fetchSettings()
         fetchLinkedAccounts()
+        fetchTasksExternal().then(getTasks)
+        fetchMessagesExternal().then(getMessages)
     }, [])
 
-    useInterval(getMessages, MESSAGES_FETCH_INTERVAL)
-    useInterval(getTasks, TASKS_FETCH_INTERVAL)
+    useInterval(
+        async () => {
+            await fetchTasksExternal()
+            await getTasks()
+        },
+        TASKS_FETCH_INTERVAL,
+        false
+    )
+    useInterval(
+        async () => {
+            await fetchMessagesExternal()
+            await getMessages()
+        },
+        MESSAGES_FETCH_INTERVAL,
+        false
+    )
 
     return (
         <MessagesContentContainer>

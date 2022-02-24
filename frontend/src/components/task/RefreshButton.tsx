@@ -40,8 +40,8 @@ const RefreshButton = (): JSX.Element => {
 
     const refresh = useCallback(() => {
         dispatch(setTasksFetchStatus(FetchStatusEnum.LOADING))
-        fetchTasksExternal().then(() => getTasks(false))
-        fetchMessagesExternal().then(() => getMessages(false))
+        fetchTasksExternal().then(getTasks)
+        fetchMessagesExternal().then(getMessages)
         logEvent(LogEvents.MANUAL_TASKS_REFRESH_CLICK)
     }, [])
 
