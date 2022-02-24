@@ -17,7 +17,7 @@ const TaskSections = (props: TaskSectionsProps) => {
                         <View style={styles.container}>
                             <CompleteButton isComplete={false} />
                             <View style={styles.iconContainer}>
-                                <Image style={styles.icon} source={require('../../assets/generaltask_gray.png')} />
+                                <Image style={styles.icon} source={require('../../assets/generaltask.png')} />
                             </View>
                             <Text numberOfLines={1} ellipsizeMode={'tail'} style={styles.title}>{task.title}</Text>
                         </View>
