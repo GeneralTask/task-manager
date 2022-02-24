@@ -51,9 +51,9 @@ const TopBanner = styled.div`
     padding-right: 24px;
 `
 
-export const useGetMessages = (): (() => Promise<void>) => {
+export const useGetMessages = (): ((fetchExternal?: boolean) => Promise<void>) => {
     const dispatch = useAppDispatch()
-    const getMessages = useCallback(async () => {
+    const getMessages = useCallback(async (fetchExternal = true) => {
         try {
             dispatch(setMessagesFetchStatus(FetchStatusEnum.LOADING))
             const response = await makeAuthorizedRequest({
@@ -61,7 +61,9 @@ export const useGetMessages = (): (() => Promise<void>) => {
                 method: 'GET',
                 abortID: AbortID.MESSAGES,
             })
-            fetchMessagesExternal()
+            if (fetchExternal) {
+                fetchMessagesExternal()
+            }
             if (!response.ok) {
                 dispatch(setMessagesFetchStatus(FetchStatusEnum.ERROR))
             } else {

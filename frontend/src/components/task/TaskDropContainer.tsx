@@ -100,7 +100,7 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
                     id_ordering: updatedOrderingId + 1,
                 }),
             })
-                .then(getTasks)
+                .then(() => getTasks())
                 .catch((error) => {
                     throw new Error('PATCH /tasks/ failed' + error)
                 })

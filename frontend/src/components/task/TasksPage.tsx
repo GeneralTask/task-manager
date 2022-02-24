@@ -50,11 +50,11 @@ const TopBanner = styled.div`
 `
 
 // get tasks from the database
-export const useGetTasks = (): (() => Promise<void>) => {
+export const useGetTasks = (): ((fetchExternal?: boolean) => Promise<void>) => {
     const dispatch = useAppDispatch()
     const dragDropMonitor = useDragDropManager().getMonitor()
 
-    const getTasks = useCallback(async () => {
+    const getTasks = useCallback(async (fetchExternal = true) => {
         const isDragging = dragDropMonitor.isDragging()
         if (isDragging) {
             return
@@ -66,7 +66,9 @@ export const useGetTasks = (): (() => Promise<void>) => {
                 method: 'GET',
                 abortID: AbortID.TASKS,
             })
-            fetchTasksExternal()
+            if (fetchExternal) {
+                fetchTasksExternal()
+            }
             if (!response.ok) {
                 dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
             } else {

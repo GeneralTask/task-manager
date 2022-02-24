@@ -96,7 +96,7 @@ const ElementDroppableContainer = (props: ElementDroppableContainerProps): JSX.E
                 method: 'PATCH',
                 body: patchBody,
             })
-                .then(getTasks)
+                .then(() => getTasks())
                 .catch((error) => {
                     throw new Error('PATCH /tasks/ failed' + error)
                 })
