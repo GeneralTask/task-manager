@@ -3,9 +3,8 @@ import * as styles from './TaskCreate-style'
 import { DEFAULT_ALLOCATION, GT_TASK_ICON, GT_TASK_SOURCE_ID, TASKS_CREATE_URL } from '../../constants'
 import { KeyboardShortcut, useKeyboardShortcut } from '../common/KeyboardShortcut'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { logEvent, makeAuthorizedRequest, stopKeyboardPropogation } from '../../helpers/utils'
+import { makeAuthorizedRequest, stopKeyboardPropogation } from '../../helpers/utils'
 
-import { LogEvents } from '../../helpers/enums'
 import { TTask, TTaskCreateParams, TTaskSection } from '../../helpers/types'
 import { flex } from '../../helpers/styles'
 import { useGetTasks } from './TasksPage'
@@ -105,11 +104,8 @@ export default function TaskCreate(props: TaskCreateProps): JSX.Element {
 
                                 optimisticCreateTask(title)
 
-                                const response = await res
+                                await res
 
-                                if (response.ok) {
-                                    logEvent(LogEvents.TASK_CREATED)
-                                }
                                 await getTasks()
                             }
                         }}
