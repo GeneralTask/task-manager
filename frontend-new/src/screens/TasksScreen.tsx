@@ -6,7 +6,7 @@ import TasksScreenHeader from '../components/tasks/Header'
 import TaskSections from '../components/tasks/Sections'
 import { useAppDispatch } from '../redux/hooks'
 import { setAuthToken } from '../redux/userDataSlice'
-import { useCreateTaskMutation, useGetTasksQuery } from '../services/generalTaskApi'
+import { useGetTasksQuery } from '../services/generalTaskApi'
 import { Screens, Flex, Colors } from '../styles'
 import { authSignOut } from '../utils/auth'
 
@@ -18,7 +18,7 @@ const TasksScreen = () => {
         if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
     }, [])
 
-    let LoadingView = <View><Text>Loading...</Text></View>
+    const LoadingView = <View><Text>Loading...</Text></View>
 
     return (
         <ScrollView

@@ -6,7 +6,7 @@ import KeyboardShotcutContainer from '../common/KeyboardShotcutContainer'
 import { useCreateTaskMutation } from '../../services/generalTaskApi'
 
 interface CreateNewTaskProps {
-    section: String
+    section: string
 }
 const CreatNewTask = (props: CreateNewTaskProps) => {
     const [text, setText] = useState('')

@@ -31,7 +31,7 @@ export const generalTaskApi = createApi({
                 const result = dispatch(
                     generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
                         for (let i = 0; i < sections.length; i++) {
-                            let section = sections[i]
+                            const section = sections[i]
                             if (section.id === data.id_task_section) {
                                 const task: TTask = {
                                     id: '0',

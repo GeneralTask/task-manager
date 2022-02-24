@@ -1,6 +1,5 @@
 import React from 'react'
 import { View, StyleSheet, ViewStyle } from 'react-native'
-import { Shadows } from '../../styles'
 
 interface ShellProps {
     style?: ViewStyle
