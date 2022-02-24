@@ -10,6 +10,7 @@ export enum AbortID {
     LINKED_ACCOUNTS,
     SETTINGS,
     MESSAGES,
+    SECTIONS,
 }
 
 export enum ModalEnum {

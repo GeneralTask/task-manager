@@ -66,7 +66,7 @@ export interface TTaskSection {
 export interface NavbarPage {
     id: string
     name: string
-    section: TTaskSection | null
+    sectionIndex: number | null
 }
 
 export interface TSettingChoice {

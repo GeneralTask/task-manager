@@ -11,7 +11,6 @@ import CalendarSidebar from '../calendar/CalendarSidebar'
 import EventAlert from '../alert/EventAlert'
 import ExpandCollapse from '../common/ExpandCollapse'
 import Navbar from '../navbar/Navbar'
-import { NavbarPage } from '../../helpers/enums'
 import RefreshButton from './RefreshButton'
 import TaskSection from './TaskSection'
 import TaskStatus from './TaskStatus'
@@ -20,6 +19,7 @@ import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
 import { useFetchMessages } from '../messages/MessagesPage'
 import { useFetchSettings } from '../settings/Preferences'
+import { NavbarPage } from '../../helpers/types'
 
 const TasksPageContainer = styled.div`
     display: flex;
@@ -87,18 +87,21 @@ interface TasksProps {
 function Tasks({ currentPage }: TasksProps): JSX.Element {
     const task_sections = useAppSelector((state) => state.tasks_page.tasks.task_sections)
     const [currentSection, headerText, sectionIndex] = (() => {
-        switch (currentPage) {
-            case NavbarPage.TODAY_PAGE:
-                return [task_sections[0], 'Today', 0]
-            case NavbarPage.BLOCKED_PAGE:
-                return [task_sections[1], 'Blocked', 1]
-            case NavbarPage.BACKLOG_PAGE:
-                return [task_sections[2], 'Backlog', 2]
-            case NavbarPage.DONE_PAGE:
-                return [task_sections[3], 'Done', 3]
-            default:
-                return [task_sections[0], 'Today', 0]
-        }
+        const index = currentPage.sectionIndex
+        const section = index ? task_sections[index] : null
+        return [section, currentPage.name, index]
+        // switch (currentPage) {
+        //     case NavbarPage.TODAY_PAGE:
+        //         return [task_sections[0], 'Today', 0]
+        //     case NavbarPage.BLOCKED_PAGE:
+        //         return [task_sections[1], 'Blocked', 1]
+        //     case NavbarPage.BACKLOG_PAGE:
+        //         return [task_sections[2], 'Backlog', 2]
+        //     case NavbarPage.DONE_PAGE:
+        //         return [task_sections[3], 'Done', 3]
+        //     default:
+        //         return [task_sections[0], 'Today', 0]
+        // }
     })()
     const fetchTasks = useFetchTasks()
     const fetchMessages = useFetchMessages()

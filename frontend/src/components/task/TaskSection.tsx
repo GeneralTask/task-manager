@@ -8,6 +8,9 @@ import TaskDropContainer from './TaskDropContainer'
 import { flex } from '../../helpers/styles'
 import styled from 'styled-components'
 import { useKeyboardShortcut } from '../common/KeyboardShortcut'
+import { makeAuthorizedRequest } from '../../helpers/utils'
+import { SECTIONS_URL } from '../../constants'
+import { AbortID } from '../../helpers/enums'
 
 const TaskWrapperSides = styled.div`
     width: 22%;
@@ -49,6 +52,25 @@ export default function TaskSection(props: Props): JSX.Element {
             })}
         </div>
     )
+}
+
+export const useFetchSections = (): (() => Promise<void>) => {
+    const dispatch = useAppDispatch()
+    return useCallback(async () => {
+        try {
+            const response = await makeAuthorizedRequest({
+                url: SECTIONS_URL,
+                method: 'GET',
+                abortID: AbortID.SECTIONS,
+            })
+            if (response.ok) {
+                const sections = await response.json()
+                //TODO: refresh section names
+            }
+        } catch (e) {
+            console.log({ e })
+        }
+    }, [dispatch])
 }
 
 interface KeyboardSelectorProps {
