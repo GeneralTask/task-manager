@@ -2,7 +2,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { MESSAGES_PATH, SETTINGS_PATH } from '../../constants'
-import { NavbarPage } from '../../helpers/enums'
+import { NavbarPages } from '../../helpers/enums'
+import { NavbarPage } from '../../helpers/types'
 import { TEXT_BLACK, TEXT_GRAY } from '../../helpers/styles'
 import { logout } from '../../helpers/utils'
 import NavbarItemCount from './ItemCount'
@@ -65,7 +66,7 @@ interface NavbarProps {
 
 const NavbarElements = ({ currentPage }: NavbarProps): JSX.Element => {
     const elements: {
-        page: NavbarPage | null
+        page: NavbarPage
         action: JSX.Element
     }[] = [
         {

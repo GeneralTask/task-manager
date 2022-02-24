@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { NavbarPage } from '../../helpers/enums'
+import { NavbarPages } from '../../helpers/enums'
 import { shadow } from '../../helpers/styles'
 import NavbarElements from './NavbarElements'
 import NavbarFooter from './NavbarFooter'
@@ -28,7 +28,7 @@ const NavbarHeader = (): JSX.Element => (
 )
 
 interface NavbarProps {
-    currentPage: NavbarPage
+    currentPage: NavbarPages
 }
 const Navbar = ({ currentPage }: NavbarProps): JSX.Element => (
     <NavbarContainer>
