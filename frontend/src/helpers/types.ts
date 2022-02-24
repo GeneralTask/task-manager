@@ -63,6 +63,12 @@ export interface TTaskSection {
     is_done: boolean
 }
 
+export interface NavbarPage {
+    id: string
+    name: string
+    section: TTaskSection | null
+}
+
 export interface TSettingChoice {
     choice_key: string
     choice_name: string
