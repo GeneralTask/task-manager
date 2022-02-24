@@ -54,7 +54,7 @@ export default function TaskCreate(props: TaskCreateProps): JSX.Element {
                 source: {
                     name: 'General Task',
                     logo: GT_TASK_ICON,
-                    is_completable: false,
+                    is_completable: true,
                     is_replyable: false,
                 },
                 sender: '',
@@ -97,13 +97,15 @@ export default function TaskCreate(props: TaskCreateProps): JSX.Element {
 
                                 setTitle('')
 
-                                const response = await makeAuthorizedRequest({
+                                const res = makeAuthorizedRequest({
                                     url: TASKS_CREATE_URL + GT_TASK_SOURCE_ID + '/',
                                     method: 'POST',
                                     body: JSON.stringify(body),
                                 })
 
                                 optimisticCreateTask(title)
+
+                                const response = await res
 
                                 if (response.ok) {
                                     logEvent(LogEvents.TASK_CREATED)
