@@ -178,7 +178,7 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 		client = http.DefaultClient
 	}
 	var dueDate *string
-	if !updateFields.DueDate.Time().IsZero() {
+	if updateFields.DueDate.Time() != time.Unix(0, 0) {
 		dueDateString := updateFields.DueDate.Time().Format(time.RFC3339)
 		dueDate = &dueDateString
 	}
