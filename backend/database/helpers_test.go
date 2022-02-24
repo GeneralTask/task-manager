@@ -236,6 +236,99 @@ func TestGetActiveEmails(t *testing.T) {
 	})
 }
 
+func TestGetActiveEmailsPaged(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		db, dbCleanup, err := GetDBConnection()
+		assert.NoError(t, err)
+		defer dbCleanup()
+		userID := primitive.NewObjectID()
+		task1, err := GetOrCreateTask(
+			db,
+			userID,
+			"email_paginate_task_1",
+			"gmail",
+			&Item{
+				Email: Email{
+					SenderDomain: "gmail",
+					IsUnread: true,
+				},
+				TaskBase: TaskBase{
+					IDExternal: "email_paginate_task_1",
+					SourceID:   "gmail",
+					UserID:     userID,
+				},
+				TaskType: TaskType{
+					IsMessage: true,
+				},
+			},
+		)
+		assert.NoError(t, err)
+
+		_, err = GetOrCreateTask(
+			db,
+			userID,
+			"email_paginate_task_2",
+			"gmail",
+			&Item{
+				Email: Email{
+					SenderDomain: "gmail",
+					IsUnread: true,
+				},
+				TaskBase: TaskBase{
+					IDExternal: "email_paginate_task_2",
+					SourceID:   "gmail",
+					UserID:     userID,
+				},
+				TaskType: TaskType{
+					IsMessage: true,
+				},
+			},
+		)
+		assert.NoError(t, err)
+
+		task3, err := GetOrCreateTask(
+			db,
+			userID,
+			"email_paginate_task_3",
+			"gmail",
+			&Item{
+				Email: Email{
+					SenderDomain: "gmail",
+					IsUnread: true,
+				},
+				TaskBase: TaskBase{
+					IDExternal: "email_paginate_task_3",
+					SourceID:   "gmail",
+					UserID:     userID,
+				},
+				TaskType: TaskType{
+					IsMessage: true,
+				},
+			},
+		)
+		assert.NoError(t, err)
+
+		all_emails, err := GetActiveEmails(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 3, len(*all_emails))
+		assert.Equal(t, task1.ID, (*all_emails)[0].ID)
+
+		limit := 2
+		page := 1
+		paged_emails, err := GetActiveEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
+		assert.NoError(t, err)
+		assert.Equal(t, 2, len(*paged_emails))
+		assert.Equal(t, task1.ID, (*paged_emails)[0].ID)
+
+		limit = 1
+		page = 3
+		paged_emails, err = GetActiveEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*paged_emails))
+		assert.Equal(t, task3.ID, (*paged_emails)[0].ID)
+	})
+}
+
 func TestInsertLogEvent(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
