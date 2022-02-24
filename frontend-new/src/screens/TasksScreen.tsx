@@ -25,7 +25,7 @@ const TasksScreen = () => {
             style={styles.container}
             refreshControl={
                 <RefreshControl
-                    refreshing={isFetching}
+                    refreshing={isFetching && !isLoading}
                     onRefresh={refetch}
                 />
             }>

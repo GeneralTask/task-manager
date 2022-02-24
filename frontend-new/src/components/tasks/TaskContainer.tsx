@@ -4,6 +4,7 @@ import { Shadows } from '../../styles'
 
 interface ShellProps {
     style?: ViewStyle
+    isShadow?: boolean
     children: React.ReactNode | React.ReactNode[]
 }
 const TaskBox = (props: ShellProps) => {
@@ -20,7 +21,6 @@ const styles = StyleSheet.create({
         position: 'relative',
         height: 48,
         borderRadius: 12,
-        ...Shadows.small
     }
 })
 
