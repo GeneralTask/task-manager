@@ -1,10 +1,13 @@
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer'
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem, DrawerContentComponentProps } from '@react-navigation/drawer'
 import { getHeaderTitle } from '@react-navigation/elements'
 import React from 'react'
 import { useWindowDimensions, View, StyleSheet, Text, Image, Pressable } from 'react-native'
 import TasksScreen from './TasksScreen'
 import { Colors, Flex, Typography } from '../../src/styles'
 import { useGetTasksQuery } from '../services/generalTaskApi'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { authSignOut } from '../utils/auth'
+import { useAppDispatch } from '../redux/hooks'
 const AppDrawer = () => {
     const { data: taskSections, isLoading } = useGetTasksQuery()
 
@@ -28,7 +31,7 @@ const AppDrawer = () => {
                         )
                     },
                 }}
-                drawerContent={DrawerContent}>
+                drawerContent={(props) => <DrawerContent {...props} />}>
                 {taskSections?.map((section, index) => (
                     <Drawer.Screen
                         key={section.id}
@@ -60,16 +63,20 @@ const Header = ({ title }: HeaderProps) => {
     )
 }
 
-
-const DrawerContent = (props: any) => {
+const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
+    const dispatch = useAppDispatch()
     return (
-        <DrawerContentScrollView {...props}>
-            <DrawerItemList {...props} />
-            <DrawerItem
-                label="Sign Out"
-                onPress={() => { }}
-            />
-        </DrawerContentScrollView>
+        <SafeAreaView style={{ flex: 1 }}>
+            <DrawerContentScrollView {...props}>
+                <DrawerItemList {...props} />
+            </DrawerContentScrollView>
+            <View>
+                <DrawerItem
+                    label="Sign Out"
+                    onPress={() => authSignOut(dispatch)}
+                />
+            </View>
+        </SafeAreaView>
     )
 }
 
@@ -108,7 +115,13 @@ const styles = StyleSheet.create({
         width: 16,
         height: 16,
         marginLeft: 5,
-    }
+    },
+    drawerButtonSignout: {
+        ...Flex.row,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 10,
+    },
 })
 
 export default AppDrawer
