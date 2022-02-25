@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, TouchableOpacity, Image, StyleSheet, ViewStyle } from 'react-native'
-import { useGetTasksQuery, useMarkTaskDoneMutation } from '../../services/generalTaskApi'
+import { useMarkTaskDoneMutation } from '../../services/generalTaskApi'
 
 interface CompleteButtonProps {
     isComplete: boolean
