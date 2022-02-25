@@ -60,7 +60,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
                         <ButtonRight
                             onClick={(e) => {
                                 e.stopPropagation()
-                                markAsTask(props.message.id, fetchMessages)
+                                markAsTask(props.message.id, getMessages)
                             }}
                         >
                             <Tooltip text={'Mark as Task'}>
