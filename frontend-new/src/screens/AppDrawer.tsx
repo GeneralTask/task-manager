@@ -8,14 +8,14 @@ import { useGetTasksQuery } from '../services/generalTaskApi'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { authSignOut } from '../utils/auth'
 import { useAppDispatch } from '../redux/hooks'
-import { LARGE_SCREEN } from '../constants'
+import { ScreenDimensions } from '../constants'
 const AppDrawer = () => {
     const { data: taskSections, isLoading } = useGetTasksQuery()
 
     const Drawer = createDrawerNavigator()
     const dimensions = useWindowDimensions()
 
-    const isLargeScreen = dimensions.width >= LARGE_SCREEN
+    const isLargeScreen = dimensions.width >= ScreenDimensions.large
 
     return (
         isLoading || !taskSections ? <></> :
