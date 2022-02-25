@@ -1,14 +1,10 @@
-import { createDrawerNavigator } from '@react-navigation/drawer'
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer'
 import { getHeaderTitle } from '@react-navigation/elements'
-import React, { useEffect } from 'react'
-import { useWindowDimensions, View, StyleSheet, Text, Image, Pressable, Platform } from 'react-native'
+import React from 'react'
+import { useWindowDimensions, View, StyleSheet, Text, Image, Pressable } from 'react-native'
 import TasksScreen from './TasksScreen'
 import { Colors, Flex, Typography } from '../../src/styles'
 import { useGetTasksQuery } from '../services/generalTaskApi'
-import { useAppDispatch } from '../redux/hooks'
-import { setAuthToken } from '../redux/userDataSlice'
-import Cookies from 'js-cookie'
-
 const AppDrawer = () => {
     const { data: taskSections, isLoading } = useGetTasksQuery()
 
@@ -31,7 +27,8 @@ const AppDrawer = () => {
                             </Pressable>
                         )
                     },
-                }}>
+                }}
+                drawerContent={DrawerContent}>
                 {taskSections?.map((section, index) => (
                     <Drawer.Screen
                         key={section.id}
@@ -60,6 +57,19 @@ const Header = ({ title }: HeaderProps) => {
                 {/* TODO: Search, Notifications, Calendar buttons */}
             </View>
         </View>
+    )
+}
+
+
+const DrawerContent = (props: any) => {
+    return (
+        <DrawerContentScrollView {...props}>
+            <DrawerItemList {...props} />
+            <DrawerItem
+                label="Sign Out"
+                onPress={() => { }}
+            />
+        </DrawerContentScrollView>
     )
 }
 
