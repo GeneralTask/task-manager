@@ -6,8 +6,10 @@ export const {
 } = process.env
 
 // Backend Endpoints
-export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
-export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/'
+export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/v3/'
+export const FETCH_TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/fetch/'
+export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/v2/'
+export const FETCH_MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/fetch/'
 export const TASKS_MODIFY_URL = REACT_APP_API_BASE_URL + '/tasks/modify/'
 export const MESSAGES_MODIFY_URL = REACT_APP_API_BASE_URL + '/messages/modify/'
 export const TASKS_CREATE_URL = REACT_APP_API_BASE_URL + '/tasks/create/'
@@ -46,6 +48,7 @@ export const TRASH_ICON = '/images/TrashSimple.svg'
 export const CLOSE_ICON = '/images/close.svg'
 export const CHECK_CIRCLE = '/images/CheckCircle.svg'
 export const CHECK_SQUARE_OFFSET = '/images/CheckSquareOffset.svg'
+export const GT_TASK_ICON = '/images/generaltask.svg'
 
 //Misc. strings
 export const TASK_STATUS_FETCH_ERROR = 'There was an error fetching tasks'

@@ -4,7 +4,7 @@ import { TTask } from '../../../../helpers/types'
 import { sectionDropReorder, makeAuthorizedRequest } from '../../../../helpers/utils'
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks'
 import { hideLabelSelector, setTasks } from '../../../../redux/tasksPageSlice'
-import { useFetchTasks } from '../../TasksPage'
+import { useGetTasks } from '../../TasksPage'
 
 import { LabelContainer, LabelHeader, LabelIcon, LabelOption } from './Label-style'
 
@@ -14,7 +14,7 @@ interface LabelProps {
 
 export default function Label({ task }: LabelProps): JSX.Element {
     const dispatch = useAppDispatch()
-    const fetchTasks = useFetchTasks()
+    const getTasks = useGetTasks()
 
     const { taskSections } = useAppSelector((state) => ({
         taskSections: state.tasks_page.tasks.task_sections,
@@ -51,7 +51,7 @@ export default function Label({ task }: LabelProps): JSX.Element {
                                 method: 'PATCH',
                                 body: patchBody,
                             })
-                                .then(fetchTasks)
+                                .then(getTasks)
                                 .catch((error) => {
                                     throw new Error('PATCH /tasks/ failed' + error)
                                 })

@@ -152,6 +152,7 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	})
 
 	taskChannels := []chan external.TaskResult{}
+	pullRequestChannels := []chan external.PullRequestResult{}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
@@ -163,6 +164,10 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 			var tasks = make(chan external.TaskResult)
 			go taskSource.GetTasks(userID.(primitive.ObjectID), token.AccountID, tasks)
 			taskChannels = append(taskChannels, tasks)
+
+			var pullRequests = make(chan external.PullRequestResult)
+			go taskSource.GetPullRequests(userID.(primitive.ObjectID), token.AccountID, pullRequests)
+			pullRequestChannels = append(pullRequestChannels, pullRequests)
 		}
 	}
 
@@ -173,6 +178,17 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 			continue
 		}
 		tasks = append(tasks, taskResult.Tasks...)
+	}
+	for _, pullRequestChannel := range pullRequestChannels {
+		pullRequestResult := <-pullRequestChannel
+		if pullRequestResult.Error != nil {
+			continue
+		}
+		for _, pullRequest := range pullRequestResult.PullRequests {
+			tasks = append(tasks, &database.Item{
+				TaskBase: pullRequest.TaskBase,
+			})
+		}
 	}
 	return &tasks, nil
 }

@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { Icon, MessageContainer, RelativeDate, UnreadIndicator } from './Message-style'
 import { TMessage } from '../../helpers/types'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { useFetchMessages } from './MessagesPage'
+import { useGetMessages } from './MessagesPage'
 import { collapseBody, expandBody } from '../../redux/messagesPageSlice'
 import { logEvent, makeAuthorizedRequest, useClickOutside } from '../../helpers/utils'
 import { LogEvents } from '../../helpers/enums'
@@ -26,7 +26,7 @@ interface MessageHeaderProps {
 }
 const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) => {
     const dispatch = useAppDispatch()
-    const fetchMessages = useFetchMessages()
+    const getMessages = useGetMessages()
 
     const hoverEffectEnabled = !!(props.message.body || props.message.deeplink)
     const onClick = useCallback(() => {
@@ -37,7 +37,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
             } else {
                 dispatch(expandBody(props.message.id))
                 if (props.message.is_unread) {
-                    markAsRead(props.message.id, fetchMessages)
+                    markAsRead(props.message.id, getMessages)
                 }
                 logEvent(LogEvents.MESSAGE_EXPANDED)
             }
@@ -88,7 +88,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = (props: MessageHeaderProps) 
     )
 }
 
-const markAsTask = async (id: string, fetchMessages: () => void) => {
+const markAsTask = async (id: string, getMessages: () => void) => {
     try {
         const response = await makeAuthorizedRequest({
             url: MESSAGES_MODIFY_URL + id + '/',
@@ -99,13 +99,13 @@ const markAsTask = async (id: string, fetchMessages: () => void) => {
         if (!response.ok) {
             throw new Error('PATCH /messages/modify Mark as Task failed: ' + response.text())
         }
-        fetchMessages()
+        getMessages()
     } catch (e) {
         console.log({ e })
     }
 }
 
-const markAsRead = async (id: string, fetchMessages: () => void) => {
+const markAsRead = async (id: string, getMessages: () => void) => {
     // TODO: Re-enable this when we start sending read messages to the client
     try {
         const response = await makeAuthorizedRequest({
@@ -117,7 +117,7 @@ const markAsRead = async (id: string, fetchMessages: () => void) => {
         if (!response.ok) {
             throw new Error('PATCH /messages/modify Mark as Read failed: ' + response.text())
         }
-        fetchMessages()
+        getMessages()
     } catch (e) {
         console.log({ e })
     }

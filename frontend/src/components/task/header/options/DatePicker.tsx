@@ -5,7 +5,7 @@ import { TASKS_MODIFY_URL } from '../../../../constants'
 import { makeAuthorizedRequest } from '../../../../helpers/utils'
 import { useAppDispatch } from '../../../../redux/hooks'
 import { hideDatePicker } from '../../../../redux/tasksPageSlice'
-import { useFetchTasks } from '../../TasksPage'
+import { useGetTasks } from '../../TasksPage'
 
 import {
     BottomBar,
@@ -29,7 +29,7 @@ interface DatePickerProps {
 }
 export default function DatePicker({ task_id, due_date }: DatePickerProps): JSX.Element {
     const dispatch = useAppDispatch()
-    const fetchTasks = useFetchTasks()
+    const getTasks = useGetTasks()
     const [date, setDate] = useState<DateTime>(DateTime.local().startOf('month'))
     const currentDueDate = DateTime.fromISO(due_date)
     const monthyear = date.toLocaleString({ month: 'long', year: 'numeric' }).toUpperCase()
@@ -57,7 +57,7 @@ export default function DatePicker({ task_id, due_date }: DatePickerProps): JSX.
             const hoverButtonClick = (event: React.MouseEvent) => {
                 event.stopPropagation()
                 setDate(day)
-                editDueDate(task_id, day.toISO(), dispatch, fetchTasks)
+                editDueDate(task_id, day.toISO(), dispatch, getTasks)
             }
             const isToday = day.hasSame(DateTime.local(), 'day')
             const isThisMonth = day.hasSame(date, 'month')
@@ -152,7 +152,7 @@ export default function DatePicker({ task_id, due_date }: DatePickerProps): JSX.
                         onClick={(e) => {
                             e.stopPropagation()
                             setDate(DateTime.fromMillis(1))
-                            editDueDate(task_id, DateTime.fromMillis(1).toISO(), dispatch, fetchTasks)
+                            editDueDate(task_id, DateTime.fromMillis(1).toISO(), dispatch, getTasks)
                         }}
                     >
                         <Icon src={`${process.env.PUBLIC_URL}/images/close.svg`} />
@@ -167,7 +167,7 @@ const editDueDate = async (
     task_id: string,
     due_date: string,
     dispatch: Dispatch<Action<string>>,
-    fetchTasks: () => void
+    getTasks: () => void
 ) => {
     try {
         dispatch(hideDatePicker())
@@ -180,7 +180,7 @@ const editDueDate = async (
         if (!response.ok) {
             throw new Error('PATCH /tasks/modify Edit Due Date failed: ' + response.text())
         }
-        fetchTasks()
+        getTasks()
     } catch (e) {
         console.log({ e })
     }

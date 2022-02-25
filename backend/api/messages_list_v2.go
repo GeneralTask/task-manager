@@ -36,7 +36,7 @@ func (api *API) MessagesListV2(c *gin.Context) {
 		return
 	}
 
-	emails, err := database.GetActiveEmails(db, userID.(primitive.ObjectID))
+	emails, err := database.GetUnreadEmails(db, userID.(primitive.ObjectID))
 	if err != nil {
 		Handle500(c)
 		return
