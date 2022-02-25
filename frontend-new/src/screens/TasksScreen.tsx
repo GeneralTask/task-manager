@@ -1,23 +1,20 @@
-import Cookies from 'js-cookie'
-import React, { useEffect, useRef } from 'react'
-import { View, Text, StyleSheet, Pressable, Platform, ScrollView, RefreshControl } from 'react-native'
+import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
+import { DrawerScreenProps } from '@react-navigation/drawer'
+import { ParamListBase } from '@react-navigation/native'
+import React, { useRef } from 'react'
 import CreateNewTask from '../components/tasks/CreateNewTask'
 import TasksScreenHeader from '../components/tasks/Header'
 import TaskSections from '../components/tasks/Sections'
-import { useAppDispatch } from '../redux/hooks'
-import { setAuthToken } from '../redux/userDataSlice'
 import { useGetTasksQuery } from '../services/generalTaskApi'
 import { Screens, Flex, Colors } from '../styles'
-import { authSignOut } from '../utils/auth'
 
-
-const TasksScreen = () => {
+interface DrawerParamList extends ParamListBase {
+    Tasks: { index: number }
+}
+const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => {
+    const { index } = route.params
     const refetchWasLocal = useRef(false)
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
-    const dispatch = useAppDispatch()
-    useEffect(() => {
-        if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
-    }, [])
 
     if (!isFetching) {
         refetchWasLocal.current = false
@@ -39,13 +36,13 @@ const TasksScreen = () => {
                 />
             }>
             <View style={styles.tasksContent}>
-                <TasksScreenHeader />
-                {/* current hardcoded section */}
-                <CreateNewTask section={'000000000000000000000001'} />
-                {isLoading || taskSections == undefined ? LoadingView : <TaskSections section={taskSections[0]} />}
-                <Pressable style={styles.signOut} onPress={() => authSignOut(dispatch)}>
-                    <Text>Sign Out</Text>
-                </Pressable>
+                {isLoading || taskSections == undefined ? LoadingView :
+                    <>
+                        <TasksScreenHeader title={taskSections[index].name} />
+                        {!taskSections[index].is_done && <CreateNewTask section={taskSections[index].id} />}
+                        <TaskSections section={taskSections[index]} />
+                    </>
+                }
             </View>
         </ScrollView>
     )
