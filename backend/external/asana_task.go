@@ -179,7 +179,7 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 	}
 	var dueDate *string
 	if updateFields.DueDate.Time() != time.Unix(0, 0) {
-		dueDateString := updateFields.DueDate.Time().Format(time.RFC3339)
+		dueDateString := updateFields.DueDate.Time().Format("2006-01-02")
 		dueDate = &dueDateString
 	}
 	body := AsanaTasksUpdateBody{
