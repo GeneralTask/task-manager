@@ -18,7 +18,7 @@ import TaskStatus from './TaskStatus'
 import styled from 'styled-components'
 import { useDragDropManager } from 'react-dnd'
 import { useFetchLinkedAccounts } from '../settings/Accounts'
-import { useGetMessages } from '../messages/MessagesPage'
+import { fetchMessagesExternal, useGetMessages } from '../messages/MessagesPage'
 import { useFetchSettings } from '../settings/Preferences'
 
 const TasksPageContainer = styled.div`
@@ -66,7 +66,6 @@ export const useGetTasks = (): (() => Promise<void>) => {
                 method: 'GET',
                 abortID: AbortID.TASKS,
             })
-            fetchTasksExternal()
             if (!response.ok) {
                 dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
             } else {
@@ -75,8 +74,10 @@ export const useGetTasks = (): (() => Promise<void>) => {
                 dispatch(setTasks(resj))
             }
         } catch (e) {
-            console.log({ e })
-            dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
+            if (!(e instanceof DOMException)) {
+                console.log({ e })
+                dispatch(setTasksFetchStatus(FetchStatusEnum.ERROR))
+            }
         }
     }, [])
 
@@ -118,10 +119,26 @@ function Tasks({ currentPage }: TasksProps): JSX.Element {
         // fetch settings and linked accounts once on tasks page load
         fetchSettings()
         fetchLinkedAccounts()
+        fetchTasksExternal().then(getTasks)
+        fetchMessagesExternal().then(getMessages)
     }, [])
 
-    useInterval(getTasks, TASKS_FETCH_INTERVAL)
-    useInterval(getMessages, MESSAGES_FETCH_INTERVAL)
+    useInterval(
+        async () => {
+            await fetchTasksExternal()
+            await getTasks()
+        },
+        TASKS_FETCH_INTERVAL,
+        false
+    )
+    useInterval(
+        async () => {
+            await fetchMessagesExternal()
+            await getMessages()
+        },
+        MESSAGES_FETCH_INTERVAL,
+        false
+    )
 
     if (currentSection == null) {
         return <TaskStatus />

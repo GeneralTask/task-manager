@@ -200,3 +200,8 @@ type TaskSection struct {
 	UserID primitive.ObjectID `bson:"user_id"`
 	Name   string             `bson:"name"`
 }
+
+type Pagination struct {
+	Limit *int `form:"limit" json:"limit"`
+	Page  *int `form:"page" json:"page"`
+}

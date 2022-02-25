@@ -1,7 +1,7 @@
+import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
 import { DrawerScreenProps } from '@react-navigation/drawer'
 import { ParamListBase } from '@react-navigation/native'
-import React from 'react'
-import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
+import React, { useEffect, useRef } from 'react'
 import CreateNewTask from '../components/tasks/CreateNewTask'
 import TasksScreenHeader from '../components/tasks/Header'
 import TaskSections from '../components/tasks/Sections'
@@ -13,9 +13,17 @@ interface DrawerParamList extends ParamListBase {
 }
 const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => {
     const { index } = route.params
-
+    const refetchWasLocal = useRef(false)
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
 
+    if (!isFetching) {
+        refetchWasLocal.current = false
+    }
+
+    const onRefresh = () => {
+        refetchWasLocal.current = true
+        refetch()
+    }
     const LoadingView = <View><Text>Loading...</Text></View>
 
     return (
@@ -23,8 +31,8 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
             style={styles.container}
             refreshControl={
                 <RefreshControl
-                    refreshing={isFetching && !isLoading}
-                    onRefresh={refetch}
+                    refreshing={isFetching && !isLoading && refetchWasLocal.current}
+                    onRefresh={onRefresh}
                 />
             }>
             <View style={styles.tasksContent}>

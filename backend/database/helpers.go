@@ -179,6 +179,43 @@ func GetUnreadEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Item, er
 	return &activeEmails, nil
 }
 
+func GetUnreadEmailsPaged(db *mongo.Database, userID primitive.ObjectID, pagination Pagination) (*[]Item, error) {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	skip := int64(*pagination.Page - 1)
+	limit := int64(*pagination.Limit)
+	opts := options.FindOptions{
+		Sort: bson.D{{Key: "created_at_external", Value: -1}},
+		Skip: &skip,
+		Limit: &limit,
+	}
+	cursor, err := GetTaskCollection(db).Find(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"task_type.is_message": true},
+				{"email.is_unread": true},
+			},
+		},
+		&opts,
+	)
+	if err != nil {
+		log.Printf("Failed to fetch emails for user: %v with pagination: %v", err, pagination)
+		return nil, err
+	}
+	var activeEmails []Item
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &activeEmails)
+	if err != nil {
+		log.Printf("Failed to fetch emails for user: %v with pagination: %v", err, pagination)
+		return nil, err
+	}
+	return &activeEmails, nil
+}
+
 func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
 	parentCtx := context.Background()
 

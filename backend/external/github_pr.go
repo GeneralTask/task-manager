@@ -62,6 +62,16 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	tokenClient := oauth2.NewClient(extCtx, tokenSource)
 	githubClient = github.NewClient(tokenClient)
 
+	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
+	defer cancel()
+	// passing empty string here means fetching the currently authed user
+	githubUser, _, err := githubClient.Users.Get(extCtx, "")
+	if err != nil {
+		log.Println("failed to fetch Github user")
+		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
+		return
+	}
+
 	var pullRequestItems []*database.Item
 	listOptions := github.PullRequestListOptions{}
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
@@ -69,7 +79,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	// TODO(john): Make this work for other repos
 	pullRequests, _, err := githubClient.PullRequests.List(extCtx, "GeneralTask", "task-manager", &listOptions)
 	if err != nil {
-		log.Printf("failed to fetch Github PRs")
+		log.Println("failed to fetch Github PRs")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 		return
 	}
@@ -83,6 +93,15 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		body := ""
 		if pullRequest.Body != nil {
 			body = *pullRequest.Body
+		}
+		userIsReviewer := false
+		for _, reviewer := range pullRequest.RequestedReviewers {
+			if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
+				userIsReviewer = true
+			}
+		}
+		if !userIsReviewer {
+			continue
 		}
 		pullRequest := &database.Item{
 			TaskBase: database.TaskBase{
