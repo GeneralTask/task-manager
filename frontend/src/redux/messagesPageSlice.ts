@@ -2,19 +2,17 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { FetchStatusEnum } from '../helpers/enums'
 import { TMessage } from '../helpers/types'
 
-
-
 export interface MessagesPageState {
     messages: {
-        messages_array: TMessage[],
-        fetch_status: FetchStatusEnum,
-        expanded_body: string | null,
-    },
+        messages_array: TMessage[]
+        fetch_status: FetchStatusEnum
+        expanded_body: string | null
+    }
 }
 
 const initialState: MessagesPageState = {
     messages: {
-        messages_array: [] as TMessage[],
+        messages_array: [],
         fetch_status: FetchStatusEnum.LOADING,
         expanded_body: null,
     },
@@ -46,12 +44,7 @@ export const messagesPageSlice = createSlice({
     },
 })
 
-export const {
-    setMessages,
-    setMessagesFetchStatus,
-    removeMessageByID,
-    expandBody,
-    collapseBody,
-} = messagesPageSlice.actions
+export const { setMessages, setMessagesFetchStatus, removeMessageByID, expandBody, collapseBody } =
+    messagesPageSlice.actions
 
 export default messagesPageSlice.reducer
