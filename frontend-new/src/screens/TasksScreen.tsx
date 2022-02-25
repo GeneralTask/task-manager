@@ -1,12 +1,18 @@
 import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
 import { DrawerScreenProps } from '@react-navigation/drawer'
 import { ParamListBase } from '@react-navigation/native'
-import React, { useRef } from 'react'
+import Cookies from 'js-cookie'
+import React, { useEffect, useRef, useState } from 'react'
+import BottomSheet from 'reanimated-bottom-sheet'
+import { findTaskById } from '../utils/task'
+import EditSheet from '../components/tasks/EditSheet'
 import CreateNewTask from '../components/tasks/CreateNewTask'
 import TasksScreenHeader from '../components/tasks/Header'
 import TaskSections from '../components/tasks/Sections'
 import { useGetTasksQuery } from '../services/generalTaskApi'
 import { Screens, Flex, Colors } from '../styles'
+import { useAppDispatch } from '../redux/hooks'
+import { setAuthToken } from '../redux/userDataSlice'
 
 interface DrawerParamList extends ParamListBase {
     Tasks: { index: number }
@@ -15,6 +21,23 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
     const { index } = route.params
     const refetchWasLocal = useRef(false)
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
+    const [sheetTaskId, setSheetTaskId] = useState('')
+
+    const dispatch = useAppDispatch()
+    useEffect(() => {
+        if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
+    }, [])
+    useEffect(() => {
+        if (sheetTaskId) {
+            sheetRef.current?.snapTo(0)
+        }
+        else {
+            sheetRef.current?.snapTo(1)
+        }
+
+    }, [sheetTaskId])
+
+    const sheetRef = React.useRef<BottomSheet>(null);
 
     if (!isFetching) {
         refetchWasLocal.current = false
@@ -26,25 +49,49 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
     }
     const LoadingView = <View><Text>Loading...</Text></View>
 
+    const renderContent = () => {
+        if (!taskSections) return
+        const task = findTaskById(taskSections, sheetTaskId)
+        if (!task) return
+
+        return (
+            <EditSheet task={task} />
+        )
+    }
     return (
-        <ScrollView
-            style={styles.container}
-            refreshControl={
-                <RefreshControl
-                    refreshing={isFetching && !isLoading && refetchWasLocal.current}
-                    onRefresh={onRefresh}
-                />
-            }>
-            <View style={styles.tasksContent}>
-                {isLoading || taskSections == undefined ? LoadingView :
-                    <>
-                        <TasksScreenHeader title={taskSections[index].name} />
-                        {!taskSections[index].is_done && <CreateNewTask section={taskSections[index].id} />}
-                        <TaskSections section={taskSections[index]} />
-                    </>
-                }
-            </View>
-        </ScrollView>
+        <>
+
+            <ScrollView
+                style={styles.container}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isFetching && !isLoading && refetchWasLocal.current}
+                        onRefresh={onRefresh}
+                    />
+                }>
+                <View style={styles.tasksContent}>
+                    {isLoading || taskSections == undefined ? LoadingView :
+                        <>
+                            <TasksScreenHeader title={taskSections[index].name} />
+                            {!taskSections[index].is_done && <CreateNewTask section={taskSections[index].id} />}
+                            <TaskSections section={taskSections[index]} setSheetTaskId={function (id: string): void {
+                                throw new Error('Function not implemented.')
+                            }} />
+                        </>
+                    }
+                </View>
+            </ScrollView>
+            <BottomSheet
+                initialSnap={1}
+                ref={sheetRef}
+                snapPoints={[500, 0]}
+                borderRadius={10}
+                renderContent={renderContent}
+                onCloseEnd={() => {
+                    setSheetTaskId('')
+                }}
+            />
+        </>
     )
 }
 

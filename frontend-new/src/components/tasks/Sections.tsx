@@ -1,26 +1,47 @@
-import React from 'react'
-import { View, Text, StyleSheet, Image } from 'react-native'
+import React, { ForwardedRef, Ref, RefObject } from 'react'
+import { View, Text, StyleSheet, Image, Pressable, PlatformColor, Platform } from 'react-native'
 import { Colors, Flex, Shadows } from '../../styles'
-import { TTaskSection } from '../../utils/types'
+import { TTask, TTaskSection } from '../../utils/types'
 import CompleteButton from '../common/CompleteButton'
 import TaskBox from './TaskContainer'
 
+
+interface TaskProps {
+    task: TTask
+    setSheetTaskId: (label: string) => void
+}
+
+const Task = ({ task, setSheetTaskId }: TaskProps) => {
+    const onPress = () => {
+        if (Platform.OS === 'ios') {
+            setSheetTaskId(task.id)
+        }
+    }
+    return (
+        <Pressable style={styles.container} onPress={onPress}>
+            <View style={styles.container}>
+                <CompleteButton taskId={task.id} isComplete={false} />
+                <View style={styles.iconContainer}>
+                    <Image style={styles.icon} source={require('../../assets/generaltask.png')} />
+                </View>
+                <Text numberOfLines={1} ellipsizeMode={'tail'} style={styles.title}>{task.title}</Text>
+            </View>
+        </Pressable>
+    )
+}
+
 interface TaskSectionsProps {
     section: TTaskSection
+    setSheetTaskId: (id: string) => void
 }
+
 const TaskSections = (props: TaskSectionsProps) => {
     return (
         <View>
             {props.section.tasks.map((task, index) => {
                 return (
                     <TaskBox style={styles.shell} key={index}>
-                        <View style={styles.container}>
-                            <CompleteButton taskId={task.id} isComplete={false} />
-                            <View style={styles.iconContainer}>
-                                <Image style={styles.icon} source={require('../../assets/generaltask.png')} />
-                            </View>
-                            <Text numberOfLines={1} ellipsizeMode={'tail'} style={styles.title}>{task.title}</Text>
-                        </View>
+                        <Task task={task} setSheetTaskId={props.setSheetTaskId} />
                     </TaskBox>
                 )
             })}
