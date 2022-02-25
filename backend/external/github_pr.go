@@ -84,23 +84,22 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		return
 	}
 	for _, pullRequest := range pullRequests {
-		if pullRequest.Title != nil {
-			log.Println(*pullRequest.Title)
-		}
-		if pullRequest.Assignee != nil {
-			log.Println(*pullRequest.Assignee)
-		}
 		body := ""
 		if pullRequest.Body != nil {
 			body = *pullRequest.Body
 		}
-		userIsReviewer := false
-		for _, reviewer := range pullRequest.RequestedReviewers {
-			if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
-				userIsReviewer = true
+		// should include pull request if it's either owned by the user or user is assigned as reviewer
+		shouldIncludePullRequest := (githubUser.ID != nil &&
+			pullRequest.User.ID != nil &&
+			*githubUser.ID == *pullRequest.User.ID)
+		if !shouldIncludePullRequest {
+			for _, reviewer := range pullRequest.RequestedReviewers {
+				if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
+					shouldIncludePullRequest = true
+				}
 			}
 		}
-		if !userIsReviewer {
+		if !shouldIncludePullRequest {
 			continue
 		}
 		pullRequest := &database.Item{
