@@ -31,7 +31,7 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
                 {isLoading || taskSections == undefined ? LoadingView :
                     <>
                         <TasksScreenHeader title={taskSections[index].name} />
-                        <CreateNewTask section={taskSections[index].id} />
+                        {!taskSections[index].is_done && <CreateNewTask section={taskSections[index].id} />}
                         <TaskSections section={taskSections[index]} />
                     </>
                 }
