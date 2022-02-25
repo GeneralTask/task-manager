@@ -4,7 +4,7 @@ A manager of tasks.
 
 ## Frontend testing
 
-First, install node.
+First, install node. 2
 Then, install yarn: `npm install -g yarn` (can use brew too)
 
 ```
