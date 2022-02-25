@@ -12,9 +12,9 @@ const AppDrawer = () => {
     const { data: taskSections, isLoading } = useGetTasksQuery()
 
     const Drawer = createDrawerNavigator()
-    const dimensions = useWindowDimensions();
+    const dimensions = useWindowDimensions()
 
-    const isLargeScreen = dimensions.width >= 768;
+    const isLargeScreen = dimensions.width >= 768
 
     return (
         isLoading || taskSections == undefined ? <></> :

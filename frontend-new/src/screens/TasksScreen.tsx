@@ -1,22 +1,17 @@
-import Cookies from 'js-cookie'
-import React, { useEffect } from 'react'
-import { RouteProp } from '@react-navigation/native'
-import { View, Text, StyleSheet, Pressable, Platform, ScrollView, RefreshControl } from 'react-native'
+import React from 'react'
+import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
 import CreateNewTask from '../components/tasks/CreateNewTask'
 import TasksScreenHeader from '../components/tasks/Header'
 import TaskSections from '../components/tasks/Sections'
 import { useAppDispatch } from '../redux/hooks'
-import { setAuthToken } from '../redux/userDataSlice'
 import { useGetTasksQuery } from '../services/generalTaskApi'
 import { Screens, Flex, Colors } from '../styles'
-import { authSignOut } from '../utils/auth'
 
 
 const TasksScreen = ({ route }: any) => {
     const { index } = route.params
 
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
-    const dispatch = useAppDispatch()
 
     const LoadingView = <View><Text>Loading...</Text></View>
 
