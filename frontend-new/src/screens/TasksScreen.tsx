@@ -27,7 +27,6 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
                 />
             }>
             <View style={styles.tasksContent}>
-                {/* current hardcoded section */}
                 {isLoading || taskSections == undefined ? LoadingView :
                     <>
                         <TasksScreenHeader title={taskSections[index].name} />

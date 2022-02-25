@@ -21,7 +21,6 @@ const AppDrawer = () => {
             <Drawer.Navigator
                 screenOptions={{
                     drawerType: isLargeScreen ? 'permanent' : 'slide',
-                    // header: () => null,
                     header: ({ navigation, route, options }) => {
                         const title = getHeaderTitle(options, route.name)
                         return (
