@@ -3,7 +3,7 @@ import { SafeAreaView, StyleSheet } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import LandingScreen from './src/screens/LandingScreen'
-import TasksScreen from './src/screens/TasksScreen'
+import AppDrawer from './src/screens/AppDrawer'
 import { Provider } from 'react-redux'
 import store from './src/redux/store'
 import { useAppSelector } from './src/redux/hooks'
@@ -30,7 +30,7 @@ const Navigation = () => {
       {
         isSignedIn ? (
           <>
-            <Stack.Screen name="Landing" component={TasksScreen} />
+            <Stack.Screen name="Landing" component={AppDrawer} />
           </>
         ) : (
           <>
@@ -49,7 +49,6 @@ const App = () => {
         <Navigation />
       </SafeAreaView >
     </Provider >
-
   )
 }
 

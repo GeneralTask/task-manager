@@ -2,6 +2,8 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import getEnvVars from '../environment'
 import { TTask, TTaskSection } from '../utils/types'
 import type { RootState } from '../redux/store'
+import Cookies from 'js-cookie'
+import { Platform } from 'react-native'
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
 export const generalTaskApi = createApi({
@@ -9,7 +11,8 @@ export const generalTaskApi = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: REACT_APP_API_BASE_URL,
         prepareHeaders: (headers, { getState }) => {
-            headers.set('Authorization', 'Bearer ' + (getState() as RootState).user_data.auth_token)
+            const authToken = (Platform.OS === 'web' ? Cookies.get('authToken') : (getState() as RootState).user_data.auth_token) as string
+            headers.set('Authorization', 'Bearer ' + authToken)
             headers.set('Access-Control-Allow-Origin', REACT_APP_FRONTEND_BASE_URL)
             headers.set('Access-Control-Allow-Headers', 'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset')
             headers.set('Access-Control-Allow-Methods', 'POST,OPTIONS,GET,PATCH,DELETE')

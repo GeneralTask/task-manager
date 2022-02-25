@@ -5,11 +5,13 @@
   "scripts": {
     "start": "WEB_PORT=3000 expo start",
     "android": "expo start --android",
-    "ios": "expo start --ios",
+    "ios": "WEB_PORT=3000 expo start --ios",
     "web": "WEB_PORT=3000 expo start --web",
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-native-community/masked-view": "^0.1.11",
+    "@react-navigation/drawer": "^6.3.1",
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.0",
     "@reduxjs/toolkit": "^1.7.2",
@@ -23,6 +25,8 @@
     "react-dom": "17.0.1",
     "react-hook-form": "^7.27.0",
     "react-native": "0.64.3",
+    "react-native-gesture-handler": "~2.1.0",
+    "react-native-reanimated": "^2.4.1",
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "~3.10.1",
     "react-native-svg": "12.1.1",

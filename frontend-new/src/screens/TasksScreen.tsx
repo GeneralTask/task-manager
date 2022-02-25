@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie'
 import React, { useEffect } from 'react'
+import { RouteProp } from '@react-navigation/native'
 import { View, Text, StyleSheet, Pressable, Platform, ScrollView, RefreshControl } from 'react-native'
 import CreateNewTask from '../components/tasks/CreateNewTask'
 import TasksScreenHeader from '../components/tasks/Header'
@@ -11,12 +12,11 @@ import { Screens, Flex, Colors } from '../styles'
 import { authSignOut } from '../utils/auth'
 
 
-const TasksScreen = () => {
+const TasksScreen = ({ route }: any) => {
+    const { index } = route.params
+
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
     const dispatch = useAppDispatch()
-    useEffect(() => {
-        if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
-    }, [])
 
     const LoadingView = <View><Text>Loading...</Text></View>
 
@@ -30,13 +30,17 @@ const TasksScreen = () => {
                 />
             }>
             <View style={styles.tasksContent}>
-                <TasksScreenHeader />
                 {/* current hardcoded section */}
-                <CreateNewTask section={'000000000000000000000001'} />
-                {isLoading || taskSections == undefined ? LoadingView : <TaskSections section={taskSections[0]} />}
-                <Pressable style={styles.signOut} onPress={() => authSignOut(dispatch)}>
+                {isLoading || taskSections == undefined ? LoadingView :
+                    <>
+                        <TasksScreenHeader title={taskSections[index].name} />
+                        <CreateNewTask section={taskSections[index].id} />
+                        <TaskSections section={taskSections[index]} />
+                    </>
+                }
+                {/* <Pressable style={styles.signOut} onPress={() => authSignOut(dispatch)}>
                     <Text>Sign Out</Text>
-                </Pressable>
+                </Pressable> */}
             </View>
         </ScrollView>
     )

@@ -6,8 +6,10 @@ import { setAuthToken } from '../../redux/userDataSlice'
 import { useGetTasksQuery } from '../../services/generalTaskApi'
 import { Typography, Flex } from '../../styles'
 
-
-const TasksScreenHeader = () => {
+interface Props {
+    title: string
+}
+const TasksScreenHeader = ({ title }: Props) => {
     const dispatch = useAppDispatch()
     useEffect(() => {
         if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
@@ -16,7 +18,7 @@ const TasksScreenHeader = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.headerText}>Tasks</Text>
+            <Text style={styles.headerText}>{title}</Text>
             {
                 Platform.OS === 'web' &&
                 <TouchableOpacity onPress={refetch}>
