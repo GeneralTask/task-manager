@@ -28,7 +28,7 @@ const CreatNewTask = (props: CreateNewTaskProps) => {
             })
         }
     }
-    const handleKeyDown = (e: any) => {
+    const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.nativeEvent.key === 'Enter') {
             submitNewTask()
         }
