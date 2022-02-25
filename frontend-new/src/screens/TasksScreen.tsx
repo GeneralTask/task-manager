@@ -1,14 +1,16 @@
+import { DrawerScreenProps } from '@react-navigation/drawer'
 import React from 'react'
 import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
 import CreateNewTask from '../components/tasks/CreateNewTask'
 import TasksScreenHeader from '../components/tasks/Header'
 import TaskSections from '../components/tasks/Sections'
-import { useAppDispatch } from '../redux/hooks'
 import { useGetTasksQuery } from '../services/generalTaskApi'
 import { Screens, Flex, Colors } from '../styles'
 
-
-const TasksScreen = ({ route }: any) => {
+type DrawerParamList = {
+    Tasks: { index: number }
+}
+const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => {
     const { index } = route.params
 
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
