@@ -38,9 +38,6 @@ const TasksScreen = ({ route }: any) => {
                         <TaskSections section={taskSections[index]} />
                     </>
                 }
-                {/* <Pressable style={styles.signOut} onPress={() => authSignOut(dispatch)}>
-                    <Text>Sign Out</Text>
-                </Pressable> */}
             </View>
         </ScrollView>
     )
