@@ -1,4 +1,5 @@
 import { DrawerScreenProps } from '@react-navigation/drawer'
+import { ParamListBase } from '@react-navigation/native'
 import React from 'react'
 import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
 import CreateNewTask from '../components/tasks/CreateNewTask'
@@ -7,7 +8,7 @@ import TaskSections from '../components/tasks/Sections'
 import { useGetTasksQuery } from '../services/generalTaskApi'
 import { Screens, Flex, Colors } from '../styles'
 
-type DrawerParamList = {
+interface DrawerParamList extends ParamListBase {
     Tasks: { index: number }
 }
 const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => {

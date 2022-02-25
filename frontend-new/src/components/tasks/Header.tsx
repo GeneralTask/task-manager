@@ -6,10 +6,10 @@ import { setAuthToken } from '../../redux/userDataSlice'
 import { useGetTasksQuery } from '../../services/generalTaskApi'
 import { Typography, Flex } from '../../styles'
 
-interface Props {
+interface TasksScreenHeaderProps {
     title: string
 }
-const TasksScreenHeader = ({ title }: Props) => {
+const TasksScreenHeader = ({ title }: TasksScreenHeaderProps) => {
     const dispatch = useAppDispatch()
     useEffect(() => {
         if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))

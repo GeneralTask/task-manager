@@ -8,16 +8,17 @@ import { useGetTasksQuery } from '../services/generalTaskApi'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { authSignOut } from '../utils/auth'
 import { useAppDispatch } from '../redux/hooks'
+import { LARGE_SCREEN } from '../constants'
 const AppDrawer = () => {
     const { data: taskSections, isLoading } = useGetTasksQuery()
 
     const Drawer = createDrawerNavigator()
     const dimensions = useWindowDimensions()
 
-    const isLargeScreen = dimensions.width >= 768
+    const isLargeScreen = dimensions.width >= LARGE_SCREEN
 
     return (
-        isLoading || taskSections == undefined ? <></> :
+        isLoading || !taskSections ? <></> :
             <Drawer.Navigator
                 screenOptions={{
                     drawerType: isLargeScreen ? 'permanent' : 'slide',
@@ -32,7 +33,7 @@ const AppDrawer = () => {
                     drawerItemStyle: styles.drawerButton,
                 }}
                 drawerContent={(props) => <DrawerContent {...props} />}>
-                {taskSections?.map((section, index) => (
+                {taskSections.map((section, index) => (
                     <Drawer.Screen
                         key={section.id}
                         name={section.name}
@@ -66,7 +67,7 @@ const Header = ({ title }: HeaderProps) => {
 const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
     const dispatch = useAppDispatch()
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={styles.safeAreaStyle}>
             <DrawerContentScrollView {...props}>
                 <DrawerItemList {...props} />
             </DrawerContentScrollView>
@@ -82,6 +83,9 @@ const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
 }
 
 const styles = StyleSheet.create({
+    safeAreaStyle: {
+        flex: 1,
+    },
     container: {
         ...Flex.row,
         alignItems: 'center',

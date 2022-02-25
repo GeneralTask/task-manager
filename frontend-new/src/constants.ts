@@ -2,6 +2,9 @@ import getEnvVars from './environment'
 
 const { REACT_APP_API_BASE_URL } = getEnvVars()
 
+// Styling Constants
+export const LARGE_SCREEN = 768
+
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
 export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/'
