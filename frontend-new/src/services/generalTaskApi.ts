@@ -17,9 +17,11 @@ export const generalTaskApi = createApi({
             return headers
         }
     }),
+    tagTypes: ['Tasks'],
     endpoints: (builder) => ({
         getTasks: builder.query<TTaskSection[], void>({
-            query: () => 'tasks/'
+            query: () => 'tasks/',
+            providesTags: ['Tasks']
         }),
         createTask: builder.mutation<void, { title: string, body: string, id_task_section: string }>({
             query: (data) => ({
@@ -58,13 +60,42 @@ export const generalTaskApi = createApi({
                 )
                 try {
                     await queryFulfilled
+                    dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
                 } catch {
                     result.undo()
                 }
             }
-
+        }),
+        markTaskDone: builder.mutation<void, { id: string, is_completed: boolean }>({
+            query: (data) => ({
+                url: `/tasks/modify/${data.id}/`,
+                method: 'PATCH',
+                body: { is_completed: data.is_completed },
+            }),
+            async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                        for (let i = 0; i < sections.length; i++) {
+                            const section = sections[i]
+                            for (let j = 0; j < section.tasks.length; j++) {
+                                const task = section.tasks[j]
+                                if (task.id === data.id) {
+                                    task.is_done = data.is_completed
+                                    if (data.is_completed) section.tasks.splice(j, 1)
+                                    return
+                                }
+                            }
+                        }
+                    })
+                )
+                try {
+                    await queryFulfilled
+                } catch {
+                    result.undo()
+                }
+            }
         })
     }),
 })
 
-export const { useGetTasksQuery, useCreateTaskMutation } = generalTaskApi
+export const { useGetTasksQuery, useCreateTaskMutation, useMarkTaskDoneMutation } = generalTaskApi

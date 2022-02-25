@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { View, Text, StyleSheet, Pressable, Platform, ScrollView, RefreshControl } from 'react-native'
 import CreateNewTask from '../components/tasks/CreateNewTask'
 import TasksScreenHeader from '../components/tasks/Header'
@@ -12,12 +12,21 @@ import { authSignOut } from '../utils/auth'
 
 
 const TasksScreen = () => {
+    const refetchWasLocal = useRef(false)
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
     const dispatch = useAppDispatch()
     useEffect(() => {
         if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
     }, [])
 
+    if (!isFetching) {
+        refetchWasLocal.current = false
+    }
+
+    const onRefresh = () => {
+        refetchWasLocal.current = true
+        refetch()
+    }
     const LoadingView = <View><Text>Loading...</Text></View>
 
     return (
@@ -25,8 +34,8 @@ const TasksScreen = () => {
             style={styles.container}
             refreshControl={
                 <RefreshControl
-                    refreshing={isFetching && !isLoading}
-                    onRefresh={refetch}
+                    refreshing={isFetching && !isLoading && refetchWasLocal.current}
+                    onRefresh={onRefresh}
                 />
             }>
             <View style={styles.tasksContent}>
