@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { View, TextInput, StyleSheet, Image, Platform } from 'react-native'
 import TaskBox from './TaskContainer'
 import { Colors, Flex } from '../../styles'
@@ -9,16 +9,29 @@ interface CreateNewTaskProps {
     section: string
 }
 const CreatNewTask = (props: CreateNewTaskProps) => {
+    const inputRef = useCallback(node => {
+        if (node !== null) {
+            node.focus()
+        }
+    }, [])
     const [text, setText] = useState('')
     const [createTask] = useCreateTaskMutation()
 
     const submitNewTask = async () => {
-        await createTask({
-            title: text,
-            body: '',
-            id_task_section: props.section
-        })
-        setText('')
+        if (!text) return
+        else {
+            setText('')
+            await createTask({
+                title: text,
+                body: '',
+                id_task_section: props.section
+            })
+        }
+    }
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.nativeEvent.key === 'Enter') {
+            submitNewTask()
+        }
     }
     return (
         <TaskBox>
@@ -26,13 +39,26 @@ const CreatNewTask = (props: CreateNewTaskProps) => {
                 <View style={styles.plusIconContainer}>
                     <Image style={styles.plusIcon} source={require('../../assets/plus.png')} />
                 </View>
-                <TextInput
-                    style={styles.input}
-                    value={text}
-                    onChangeText={text => setText(text)}
-                    placeholder="Add new task"
-                    onSubmitEditing={submitNewTask}
-                />
+                {
+                    Platform.OS === 'web' ?
+                        <input
+                            style={webInputStyles}
+                            value={text}
+                            onChange={(e) => setText(e.target.value)}
+                            placeholder='Add new task'
+                            onKeyDown={handleKeyDown}
+                            ref={inputRef}
+                        /> :
+                        <TextInput
+                            style={styles.input}
+                            value={text}
+                            onChangeText={text => setText(text)}
+                            placeholder="Add new task"
+                            onSubmitEditing={submitNewTask}
+                            ref={inputRef}
+                        />
+                }
+
                 {Platform.OS === 'web' && <KeyboardShotcutContainer style={styles.tool} character={'T'} />}
             </View>
         </TaskBox>
@@ -80,5 +106,11 @@ const styles = StyleSheet.create({
 
     }
 })
+const webInputStyles = {
+    flexGrow: 1,
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+}
 
 export default CreatNewTask
