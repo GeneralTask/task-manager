@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
 import { DrawerScreenProps } from '@react-navigation/drawer'
 import { ParamListBase } from '@react-navigation/native'
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import CreateNewTask from '../components/tasks/CreateNewTask'
 import TasksScreenHeader from '../components/tasks/Header'
 import TaskSections from '../components/tasks/Sections'
