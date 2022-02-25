@@ -30,6 +30,7 @@ const AppDrawer = () => {
                             </Pressable>
                         )
                     },
+                    drawerItemStyle: styles.drawerButton,
                 }}
                 drawerContent={(props) => <DrawerContent {...props} />}>
                 {taskSections?.map((section, index) => (
@@ -74,6 +75,7 @@ const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
                 <DrawerItem
                     label="Sign Out"
                     onPress={() => authSignOut(dispatch)}
+                    style={styles.drawerButtonRed}
                 />
             </View>
         </SafeAreaView>
@@ -116,11 +118,12 @@ const styles = StyleSheet.create({
         height: 16,
         marginLeft: 5,
     },
-    drawerButtonSignout: {
-        ...Flex.row,
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 10,
+    drawerButton: {
+        borderRadius: 10,
+    },
+    drawerButtonRed: {
+        backgroundColor: Colors.red._2,
+        borderRadius: 10,
     },
 })
 
