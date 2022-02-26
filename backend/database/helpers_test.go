@@ -334,7 +334,32 @@ func TestGetUnreadEmailsPaged(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err)
-	t.Run("SuccessAllOrdering", func(t *testing.T) {
+
+	createdAt, _ = time.Parse("2006-01-02", "2016-04-20")
+	task4, err := GetOrCreateTask(
+		db,
+		userID,
+		"email_paginate_task_4",
+		"gmail",
+		&Item{
+			Email: Email{
+				SenderDomain: "gmail",
+				IsUnread:     false,
+			},
+			TaskBase: TaskBase{
+				IDExternal:        "email_paginate_task_4",
+				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+				SourceID:          "gmail",
+				UserID:            userID,
+			},
+			TaskType: TaskType{
+				IsMessage: true,
+			},
+		},
+	)
+
+	assert.NoError(t, err)
+	t.Run("SuccessUnreadAllOrdering", func(t *testing.T) {
 		limit := 3
 		page := 1
 		paged_emails, err := GetEmails(db, userID, true, Pagination{Limit: &limit, Page: &page})
@@ -344,13 +369,38 @@ func TestGetUnreadEmailsPaged(t *testing.T) {
 		assert.Equal(t, task1.ID, (*paged_emails)[1].ID)
 		assert.Equal(t, task2.ID, (*paged_emails)[2].ID)
 	})
-	t.Run("SuccessPaged", func(t *testing.T) {
+	t.Run("SuccessUnreadAllInvalidPagination", func(t *testing.T) {
+		page := 1
+		paged_emails, err := GetEmails(db, userID, true, Pagination{Limit: nil, Page: &page})
+		assert.NoError(t, err)
+		assert.Equal(t, 3, len(*paged_emails))
+		assert.Equal(t, task3.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, task1.ID, (*paged_emails)[1].ID)
+		assert.Equal(t, task2.ID, (*paged_emails)[2].ID)
+	})
+	t.Run("SuccessUnreadAllEmptyPagination", func(t *testing.T) {
+		paged_emails, err := GetEmails(db, userID, true, Pagination{})
+		assert.NoError(t, err)
+		assert.Equal(t, 3, len(*paged_emails))
+		assert.Equal(t, task3.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, task1.ID, (*paged_emails)[1].ID)
+		assert.Equal(t, task2.ID, (*paged_emails)[2].ID)
+	})
+	t.Run("SuccessUnreadPaged", func(t *testing.T) {
 		limit := 1
 		page := 3
 		paged_emails, err := GetEmails(db, userID, true, Pagination{Limit: &limit, Page: &page})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*paged_emails))
 		assert.Equal(t, task2.ID, (*paged_emails)[0].ID)
+	})
+	t.Run("SuccessAllPaged", func(t *testing.T) {
+		limit := 1
+		page := 4
+		paged_emails, err := GetEmails(db, userID, false, Pagination{Limit: &limit, Page: &page})
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*paged_emails))
+		assert.Equal(t, task4.ID, (*paged_emails)[0].ID)
 	})
 }
 
