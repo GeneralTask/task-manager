@@ -330,6 +330,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		})
 		assert.NoError(t, err)
 	})
+
 	t.Run("UpdateFieldsMarkAsNotDoneBadResponse", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
 		defer taskUpdateServer.Close()
