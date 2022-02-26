@@ -184,7 +184,7 @@ func TestGetUnreadEmails(t *testing.T) {
 			&Item{
 				Email: Email{
 					SenderDomain: "gmail",
-					IsUnread: true,
+					IsUnread:     true,
 				},
 				TaskBase: TaskBase{
 					IDExternal: "123abc",
@@ -205,7 +205,7 @@ func TestGetUnreadEmails(t *testing.T) {
 			&Item{
 				Email: Email{
 					SenderDomain: "gmail",
-					IsUnread: false,
+					IsUnread:     false,
 				},
 				TaskBase: TaskBase{
 					IDExternal: "123abcdef",
@@ -251,7 +251,7 @@ func TestGetUnreadEmails(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		emails, err := GetUnreadEmails(db, userID)
+		emails, err := GetEmails(db, userID, true, Pagination{})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*emails))
 		assert.Equal(t, task1.ID, (*emails)[0].ID)
@@ -272,13 +272,13 @@ func TestGetUnreadEmailsPaged(t *testing.T) {
 		&Item{
 			Email: Email{
 				SenderDomain: "gmail",
-				IsUnread: true,
+				IsUnread:     true,
 			},
 			TaskBase: TaskBase{
-				IDExternal: "email_paginate_task_1",
+				IDExternal:        "email_paginate_task_1",
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
-				SourceID:   "gmail",
-				UserID:     userID,
+				SourceID:          "gmail",
+				UserID:            userID,
 			},
 			TaskType: TaskType{
 				IsMessage: true,
@@ -296,13 +296,13 @@ func TestGetUnreadEmailsPaged(t *testing.T) {
 		&Item{
 			Email: Email{
 				SenderDomain: "gmail",
-				IsUnread: true,
+				IsUnread:     true,
 			},
 			TaskBase: TaskBase{
-				IDExternal: "email_paginate_task_2",
+				IDExternal:        "email_paginate_task_2",
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
-				SourceID:   "gmail",
-				UserID:     userID,
+				SourceID:          "gmail",
+				UserID:            userID,
 			},
 			TaskType: TaskType{
 				IsMessage: true,
@@ -320,13 +320,13 @@ func TestGetUnreadEmailsPaged(t *testing.T) {
 		&Item{
 			Email: Email{
 				SenderDomain: "gmail",
-				IsUnread: true,
+				IsUnread:     true,
 			},
 			TaskBase: TaskBase{
-				IDExternal: "email_paginate_task_3",
+				IDExternal:        "email_paginate_task_3",
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
-				SourceID:   "gmail",
-				UserID:     userID,
+				SourceID:          "gmail",
+				UserID:            userID,
 			},
 			TaskType: TaskType{
 				IsMessage: true,
@@ -337,7 +337,7 @@ func TestGetUnreadEmailsPaged(t *testing.T) {
 	t.Run("SuccessAllOrdering", func(t *testing.T) {
 		limit := 3
 		page := 1
-		paged_emails, err := GetUnreadEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
+		paged_emails, err := GetEmails(db, userID, true, Pagination{Limit: &limit, Page: &page})
 		assert.NoError(t, err)
 		assert.Equal(t, 3, len(*paged_emails))
 		assert.Equal(t, task3.ID, (*paged_emails)[0].ID)
@@ -347,7 +347,7 @@ func TestGetUnreadEmailsPaged(t *testing.T) {
 	t.Run("SuccessPaged", func(t *testing.T) {
 		limit := 1
 		page := 3
-		paged_emails, err := GetUnreadEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
+		paged_emails, err := GetEmails(db, userID, true, Pagination{Limit: &limit, Page: &page})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*paged_emails))
 		assert.Equal(t, task2.ID, (*paged_emails)[0].ID)
