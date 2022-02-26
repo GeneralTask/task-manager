@@ -15,6 +15,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+type messagesListParams struct {
+	Limit 		*int `form:"limit" json:"limit"`
+	Page  		*int `form:"page" json:"page"`
+	OnlyUnread  *bool `form:"only_unread" json:"only_unread"`
+}
+
 func (api *API) MessagesListV2(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -36,19 +42,22 @@ func (api *API) MessagesListV2(c *gin.Context) {
 		return
 	}
 
-	var pagination database.Pagination
-	err = c.Bind(&pagination)
+	var params messagesListParams
+	err = c.Bind(&params)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
-
-	var emails *[]database.Item
-	if pagination.Limit == nil || pagination.Page == nil {
-		emails, err = database.GetUnreadEmails(db, userID.(primitive.ObjectID))
-	} else {
-		emails, err = database.GetUnreadEmailsPaged(db, userID.(primitive.ObjectID), pagination)
+	onlyUnread := false
+	if params.OnlyUnread != nil {
+		onlyUnread = *params.OnlyUnread
 	}
+	pagination := database.Pagination{
+		Limit: params.Limit,
+		Page: params.Page,
+	}
+
+	emails, err := database.GetEmails(db, userID.(primitive.ObjectID), onlyUnread, pagination)
 	if err != nil {
 		Handle500(c)
 		return
