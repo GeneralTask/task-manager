@@ -376,7 +376,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		title := "Title"
 		description := "Body"
 		date := "2022-02-27T00:00:00-08:00"
-		dueDate, _ := time.Parse("2006-01-02T15:04:05Z07:00", date)
+		dueDate, _ := time.Parse(time.RFC3339, date)
 		timeAllocation := int64(1000)
 		isCompleted := true
 

@@ -193,7 +193,7 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.TaskChangeableFields) *AsanaTasksUpdateBody {
 	var dueDate *string
 	if updateFields.DueDate.Time() != time.Unix(0, 0) {
-		dueDateString := updateFields.DueDate.Time().Format(time.RFC3339)
+		dueDateString := updateFields.DueDate.Time().Format("2006-01-02T15:04:05Z07:00")
 		dueDate = &dueDateString
 	}
 	body := AsanaTasksUpdateBody{
