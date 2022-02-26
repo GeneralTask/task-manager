@@ -177,9 +177,23 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 		taskUpdateURL = *asanaTask.Asana.ConfigValues.TaskUpdateURL
 		client = http.DefaultClient
 	}
+	body := asanaTask.GetTaskUpdateBody(updateFields)
+	bodyJson, err := json.Marshal(*body)
+	if err != nil {
+		return err
+	}
+	err = requestJSON(client, "PUT", taskUpdateURL, string(bodyJson), EmptyResponsePlaceholder)
+	if err != nil {
+		log.Printf("failed to fetch asana tasks: %v", err)
+		return err
+	}
+	return nil
+}
+
+func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.TaskChangeableFields) *AsanaTasksUpdateBody {
 	var dueDate *string
 	if updateFields.DueDate.Time() != time.Unix(0, 0) {
-		dueDateString := updateFields.DueDate.Time().Format("2006-01-02")
+		dueDateString := updateFields.DueDate.Time().Format(time.RFC3339)
 		dueDate = &dueDateString
 	}
 	body := AsanaTasksUpdateBody{
@@ -190,16 +204,7 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 			Completed: updateFields.IsCompleted,
 		},
 	}
-	bodyJson, err := json.Marshal(body)
-	if err != nil {
-		return err
-	}
-	err = requestJSON(client, "PUT", taskUpdateURL, string(bodyJson), EmptyResponsePlaceholder)
-	if err != nil {
-		log.Printf("failed to fetch asana tasks: %v", err)
-		return err
-	}
-	return nil
+	return &body
 }
 
 func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {

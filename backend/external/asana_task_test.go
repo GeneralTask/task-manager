@@ -349,6 +349,66 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
+	t.Run("GetTaskUpdateBodyNoDueDate", func(t *testing.T) {
+		title := "Title"
+		description := "Body"
+		timeAllocation := int64(1000)
+		isCompleted := true
+
+		updateFields := &database.TaskChangeableFields{
+			Title:          &title,
+			Body:           &description,
+			TimeAllocation: &timeAllocation,
+			IsCompleted:    &isCompleted,
+		}
+		expected := AsanaTasksUpdateBody{
+			Data: AsanaTasksUpdateFields{
+				Name:      &title,
+				Notes:     &description,
+				Completed: &isCompleted,
+			},
+		}
+		asanaTask := AsanaTaskSource{}
+		body := asanaTask.GetTaskUpdateBody(updateFields)
+		assert.Equal(t, expected, *body)
+	})
+	t.Run("GetTaskUpdateBodyWithDueDate", func(t *testing.T) {
+		title := "Title"
+		description := "Body"
+		date := "2022-02-27T00:00:00-08:00"
+		dueDate, _ := time.Parse(time.RFC3339, date)
+		timeAllocation := int64(1000)
+		isCompleted := true
+
+		updateFields := &database.TaskChangeableFields{
+			Title:          &title,
+			Body:           &description,
+			DueDate:        primitive.NewDateTimeFromTime(dueDate),
+			TimeAllocation: &timeAllocation,
+			IsCompleted:    &isCompleted,
+		}
+		expected := AsanaTasksUpdateBody{
+			Data: AsanaTasksUpdateFields{
+				Name:      &title,
+				Notes:     &description,
+				DueOn:     &date,
+				Completed: &isCompleted,
+			},
+		}
+		asanaTask := AsanaTaskSource{}
+		body := asanaTask.GetTaskUpdateBody(updateFields)
+		assert.Equal(t, *expected.Data.DueOn, *body.Data.DueOn)
+		assert.Equal(t, expected, *body)
+	})
+	t.Run("GetTaskUpdateBodyEmpty", func(t *testing.T) {
+		updateFields := &database.TaskChangeableFields{}
+		expected := AsanaTasksUpdateBody{
+			Data: AsanaTasksUpdateFields{},
+		}
+		asanaTask := AsanaTaskSource{}
+		body := asanaTask.GetTaskUpdateBody(updateFields)
+		assert.Equal(t, expected, *body)
+	})
 }
 
 type requestChecker func(t *testing.T, r *http.Request)
