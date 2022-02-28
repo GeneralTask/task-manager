@@ -88,18 +88,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		if pullRequest.Body != nil {
 			body = *pullRequest.Body
 		}
-		// should include pull request if it's either owned by the user or user is assigned as reviewer
-		shouldIncludePullRequest := (githubUser.ID != nil &&
-			pullRequest.User.ID != nil &&
-			*githubUser.ID == *pullRequest.User.ID)
-		if !shouldIncludePullRequest {
-			for _, reviewer := range pullRequest.RequestedReviewers {
-				if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
-					shouldIncludePullRequest = true
-				}
-			}
-		}
-		if !shouldIncludePullRequest {
+		if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest) {
 			continue
 		}
 		pullRequest := &database.Item{
@@ -158,6 +147,21 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		PullRequests: pullRequestItems,
 		Error:        nil,
 	}
+}
+
+func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool {
+	return (githubUser.ID != nil &&
+		pullRequest.User.ID != nil &&
+		*githubUser.ID == *pullRequest.User.ID)
+}
+
+func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bool {
+	for _, reviewer := range pullRequest.RequestedReviewers {
+		if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
+			return true
+		}
+	}
+	return false
 }
 
 func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
