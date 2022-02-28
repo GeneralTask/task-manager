@@ -39,3 +39,12 @@ export const xxLarge: TextStyle = {
     fontSize: 32,
     lineHeight: 40,
 }
+
+export const weight = {
+    _400: {
+        fontWeight: '400',
+    } as TextStyle,
+    _600: {
+        fontWeight: '600',
+    } as TextStyle,
+}
