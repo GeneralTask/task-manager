@@ -18,12 +18,13 @@ interface DrawerParamList extends ParamListBase {
     Tasks: { index: number }
 }
 const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => {
-    const { index } = route.params
+    const [sheetTaskId, setSheetTaskId] = useState('')
     const refetchWasLocal = useRef(false)
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
-    const [sheetTaskId, setSheetTaskId] = useState('')
-
     const dispatch = useAppDispatch()
+    const sheetRef = React.useRef<BottomSheet>(null)
+    const { index } = route.params
+
     useEffect(() => {
         if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
     }, [])
@@ -36,30 +37,23 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
         }
     }, [sheetTaskId])
 
-    const sheetRef = React.useRef<BottomSheet>(null);
-
-    if (!isFetching) {
-        refetchWasLocal.current = false
-    }
+    if (!isFetching) refetchWasLocal.current = false
 
     const onRefresh = () => {
         refetchWasLocal.current = true
         refetch()
     }
-    const LoadingView = <View><Text>Loading...</Text></View>
-
     const renderContent = () => {
         if (!taskSections) return
         const task = findTaskById(taskSections, sheetTaskId)
         if (!task) return
-
-        return (
-            <EditSheet task={task} />
-        )
+        return <EditSheet task={task} />
     }
+
+    if (isLoading || taskSections === undefined) return <View><Text>Loading...</Text></View>
+
     return (
         <>
-
             <ScrollView
                 style={styles.container}
                 refreshControl={
@@ -69,13 +63,9 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
                     />
                 }>
                 <View style={styles.tasksContent}>
-                    {isLoading || taskSections == undefined ? LoadingView :
-                        <>
-                            <TasksScreenHeader title={taskSections[index].name} />
-                            {!taskSections[index].is_done && <CreateNewTask section={taskSections[index].id} />}
-                            <TaskSections section={taskSections[index]} setSheetTaskId={setSheetTaskId} />
-                        </>
-                    }
+                    <TasksScreenHeader title={taskSections[index].name} />
+                    {!taskSections[index].is_done && <CreateNewTask section={taskSections[index].id} />}
+                    <TaskSections section={taskSections[index]} setSheetTaskId={setSheetTaskId} />
                 </View>
             </ScrollView>
             <BottomSheet
@@ -84,9 +74,7 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
                 snapPoints={[Dimensions.editSheetHeight, 0]}
                 borderRadius={10}
                 renderContent={renderContent}
-                onCloseEnd={() => {
-                    setSheetTaskId('')
-                }}
+                onCloseEnd={() => { setSheetTaskId('') }}
             />
         </>
     )
@@ -96,9 +84,8 @@ const styles = StyleSheet.create({
     container: {
         ...Screens.container,
         ...Flex.column,
-        paddingTop: Platform.OS === 'web' ? 0 : 0,
+        paddingTop: 0,
         backgroundColor: Colors.gray._50
-
     },
     tasksContent: {
         ...Flex.column,

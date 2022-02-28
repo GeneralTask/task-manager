@@ -45,6 +45,6 @@ export const weight = {
         fontWeight: '400',
     } as TextStyle,
     _600: {
-        fontWeight: "600",
+        fontWeight: '600',
     } as TextStyle,
 }
