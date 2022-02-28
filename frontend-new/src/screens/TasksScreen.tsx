@@ -10,7 +10,7 @@ import CreateNewTask from '../components/tasks/CreateNewTask'
 import TasksScreenHeader from '../components/tasks/Header'
 import TaskSections from '../components/tasks/Sections'
 import { useGetTasksQuery } from '../services/generalTaskApi'
-import { Screens, Flex, Colors } from '../styles'
+import { Screens, Flex, Colors, Dimensions } from '../styles'
 import { useAppDispatch } from '../redux/hooks'
 import { setAuthToken } from '../redux/userDataSlice'
 
@@ -34,7 +34,6 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
         else {
             sheetRef.current?.snapTo(1)
         }
-
     }, [sheetTaskId])
 
     const sheetRef = React.useRef<BottomSheet>(null);
@@ -74,9 +73,7 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
                         <>
                             <TasksScreenHeader title={taskSections[index].name} />
                             {!taskSections[index].is_done && <CreateNewTask section={taskSections[index].id} />}
-                            <TaskSections section={taskSections[index]} setSheetTaskId={function (id: string): void {
-                                throw new Error('Function not implemented.')
-                            }} />
+                            <TaskSections section={taskSections[index]} setSheetTaskId={setSheetTaskId} />
                         </>
                     }
                 </View>
@@ -84,7 +81,7 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
             <BottomSheet
                 initialSnap={1}
                 ref={sheetRef}
-                snapPoints={[500, 0]}
+                snapPoints={[Dimensions.editSheetHeight, 0]}
                 borderRadius={10}
                 renderContent={renderContent}
                 onCloseEnd={() => {

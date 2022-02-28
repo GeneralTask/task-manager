@@ -1,7 +1,8 @@
-import React, { ForwardedRef, Ref, RefObject } from 'react'
-import { View, Text, StyleSheet, Image, Pressable, PlatformColor, Platform } from 'react-native'
-import { Colors, Flex, Shadows } from '../../styles'
+import React from 'react'
+import { View, Text, StyleSheet, Pressable, Platform } from 'react-native'
+import { Colors, Dimensions, Flex, Shadows } from '../../styles'
 import { TTask, TTaskSection } from '../../utils/types'
+import { Icon } from '../atoms/Icon'
 import CompleteButton from '../common/CompleteButton'
 import TaskBox from './TaskContainer'
 
@@ -21,9 +22,7 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
         <Pressable style={styles.container} onPress={onPress}>
             <View style={styles.container}>
                 <CompleteButton taskId={task.id} isComplete={false} />
-                <View style={styles.iconContainer}>
-                    <Image style={styles.icon} source={require('../../assets/generaltask.png')} />
-                </View>
+                <Icon style={styles.iconContainer} />
                 <Text numberOfLines={1} ellipsizeMode={'tail'} style={styles.title}>{task.title}</Text>
             </View>
         </Pressable>
@@ -77,7 +76,7 @@ const styles = StyleSheet.create({
     icon: {
         width: '100%',
         height: undefined,
-        aspectRatio: 512 / 366,
+        aspectRatio: Dimensions.iconRatio,
     },
     title: {
         marginLeft: 12,
