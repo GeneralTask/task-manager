@@ -6,7 +6,7 @@ import Handle from '../atoms/GrayHandle'
 import { Icon } from '../atoms/Icon'
 import { Subtitle } from '../atoms/subtitle/Subtitle'
 import { Title } from '../atoms/title/Title'
-import { Divider } from '../atoms/Divider'
+import { Divider } from '../atoms/SectionDivider'
 import { GraySubtitle } from '../atoms/subtitle/GraySubtitle'
 
 

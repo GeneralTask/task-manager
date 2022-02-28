@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, TouchableOpacity, Image, StyleSheet, ViewStyle } from 'react-native'
-import { useMarkTaskDoneMutation } from '../../services/generalTaskApi'
+import { useMarkTaskDoneMutation } from '../../../services/generalTaskApi'
 
 interface CompleteButtonProps {
     isComplete: boolean
@@ -18,8 +18,8 @@ const CompleteButton = (props: CompleteButtonProps) => {
         <View style={[styles.container, props.style]}>
             <TouchableOpacity style={styles.image} onPress={donePressHandler}>
                 {props.isComplete ?
-                    <Image style={styles.image} source={require('../../assets/task_complete.png')} /> :
-                    <Image style={styles.image} source={require('../../assets/task_incomplete.png')} />
+                    <Image style={styles.image} source={require('../../../assets/task_complete.png')} /> :
+                    <Image style={styles.image} source={require('../../../assets/task_incomplete.png')} />
                 }
             </TouchableOpacity>
         </View>
