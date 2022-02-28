@@ -186,7 +186,7 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 	opts := options.FindOptions{
 		Sort: bson.D{{Key: "created_at_external", Value: -1}},
 	}
-	if isValidPagination(pagination) {
+	if IsValidPagination(pagination) {
 		skip := int64(*pagination.Page - 1)
 		limit := int64(*pagination.Limit)
 		opts.Skip = &skip
@@ -442,6 +442,9 @@ func GetTaskSectionCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("task_sections")
 }
 
-func isValidPagination(pagination Pagination) bool {
-	return pagination.Limit != nil && pagination.Page != nil
+func IsValidPagination(pagination Pagination) bool {
+	if pagination.Limit == nil || pagination.Page == nil {
+		return false
+	}
+	return *pagination.Limit > 0 && *pagination.Page > 0
 }

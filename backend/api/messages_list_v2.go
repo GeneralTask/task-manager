@@ -15,9 +15,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const DEFAULT_MESSAGE_LIMIT int = 100
+
 type messagesListParams struct {
-	Limit 		*int `form:"limit" json:"limit"`
-	Page  		*int `form:"page" json:"page"`
+	database.Pagination `form:",inline" json:",inline"`
 	OnlyUnread  *bool `form:"only_unread" json:"only_unread"`
 }
 
@@ -49,15 +50,16 @@ func (api *API) MessagesListV2(c *gin.Context) {
 		return
 	}
 	onlyUnread := false
-	if params.OnlyUnread != nil {
-		onlyUnread = *params.OnlyUnread
-	}
-	pagination := database.Pagination{
-		Limit: params.Limit,
-		Page: params.Page,
+	if params.OnlyUnread != nil && *params.OnlyUnread {
+		onlyUnread = true
+	} else if !database.IsValidPagination(params.Pagination) {
+		limit := DEFAULT_MESSAGE_LIMIT
+		page := 1
+		params.Pagination = database.Pagination{Limit: &limit, Page: &page}
 	}
 
-	emails, err := database.GetEmails(db, userID.(primitive.ObjectID), onlyUnread, pagination)
+
+	emails, err := database.GetEmails(db, userID.(primitive.ObjectID), onlyUnread, params.Pagination)
 	if err != nil {
 		Handle500(c)
 		return
