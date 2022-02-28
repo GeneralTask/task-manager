@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, Pressable, Platform } from 'react-native'
 import { Colors, Dimensions, Flex, Shadows } from '../../styles'
 import { TTask, TTaskSection } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
-import CompleteButton from '../common/CompleteButton'
-import TaskBox from './TaskContainer'
+import CompleteButton from '../atoms/buttons/CompleteButton'
+import TaskTemplate from '../atoms/TaskTemplate'
 
 
 interface TaskProps {
@@ -39,9 +39,9 @@ const TaskSections = (props: TaskSectionsProps) => {
         <View>
             {props.section.tasks.map((task, index) => {
                 return (
-                    <TaskBox style={styles.shell} key={index}>
+                    <TaskTemplate style={styles.shell} key={index}>
                         <Task task={task} setSheetTaskId={props.setSheetTaskId} />
-                    </TaskBox>
+                    </TaskTemplate>
                 )
             })}
         </View>

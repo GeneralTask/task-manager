@@ -1,10 +1,10 @@
 import React from 'react'
 import { Platform, Pressable, Text } from 'react-native'
-import { DEEPLINK_LOGIN_URL, LOGIN_URL } from '../../constants'
+import { DEEPLINK_LOGIN_URL, LOGIN_URL } from '../../../constants'
 import * as WebBrowser from 'expo-web-browser'
 import * as Linking from 'expo-linking'
-import { useAppDispatch } from '../../redux/hooks'
-import { setAuthToken } from '../../redux/userDataSlice'
+import { useAppDispatch } from '../../../redux/hooks'
+import { setAuthToken } from '../../../redux/userDataSlice'
 
 
 const GoogleSignInButton = () => {

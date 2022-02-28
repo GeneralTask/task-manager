@@ -1,9 +1,9 @@
 import React, { useCallback, useState } from 'react'
 import { View, TextInput, StyleSheet, Image, Platform } from 'react-native'
-import TaskBox from './TaskContainer'
 import { Colors, Flex } from '../../styles'
-import KeyboardShotcutContainer from '../common/KeyboardShotcutContainer'
+import KeyboardShotcutContainer from '../atoms/ShortcutHint'
 import { useCreateTaskMutation } from '../../services/generalTaskApi'
+import TaskTemplate from '../atoms/TaskTemplate'
 
 interface CreateNewTaskProps {
     section: string
@@ -34,7 +34,7 @@ const CreatNewTask = (props: CreateNewTaskProps) => {
         }
     }
     return (
-        <TaskBox>
+        <TaskTemplate>
             <View style={styles.container}>
                 <View style={styles.plusIconContainer}>
                     <Image style={styles.plusIcon} source={require('../../assets/plus.png')} />
@@ -61,7 +61,7 @@ const CreatNewTask = (props: CreateNewTaskProps) => {
 
                 {Platform.OS === 'web' && <KeyboardShotcutContainer style={styles.tool} character={'T'} />}
             </View>
-        </TaskBox>
+        </TaskTemplate>
     )
 }
 
