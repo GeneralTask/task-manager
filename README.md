@@ -62,6 +62,13 @@ To clear the test cache:
 go clean -testcache
 ```
 
+To run tests through VS Code, put the following snippet in your `settings.json`:
+```
+    "go.testEnvVars": {
+        "DB_NAME": "test"
+    },
+```
+
 ## Deploying backend
 
 We currently perform backend deploys using the Heroku CLI. Assuming you have the heroku credentials, you can deploy with the following steps:
