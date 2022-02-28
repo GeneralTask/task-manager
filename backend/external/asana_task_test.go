@@ -376,7 +376,8 @@ func TestModifyAsanaTask(t *testing.T) {
 	t.Run("GetTaskUpdateBodyWithDueDate", func(t *testing.T) {
 		title := "Title"
 		description := "Body"
-		date := "2022-02-27T00:00:00-08:00"
+		date := "2022-02-27T08:00:00Z"
+		shortenedDate := "2022-02-27"
 		dueDate, _ := time.Parse(time.RFC3339, date)
 		timeAllocation := int64(1000)
 		isCompleted := true
@@ -392,7 +393,7 @@ func TestModifyAsanaTask(t *testing.T) {
 			Data: AsanaTasksUpdateFields{
 				Name:      &title,
 				Notes:     &description,
-				DueOn:     &date,
+				DueOn:     &shortenedDate,
 				Completed: &isCompleted,
 			},
 		}
