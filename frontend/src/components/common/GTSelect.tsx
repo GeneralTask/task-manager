@@ -77,7 +77,7 @@ interface Props {
 function GTSelect(props: Props): JSX.Element {
     const { onChange, onSubmit, placeholder, inputIcon, options, invalidInput } = props
     const [valid, setValid] = React.useState(true)
-    const [expanded, setExpanded] = React.useState(false)
+    const [expanded, setExpanded] = React.useState(true)
 
     function optionsList(): JSX.Element[] {
         const { options } = props
