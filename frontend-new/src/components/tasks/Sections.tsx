@@ -15,7 +15,7 @@ const TaskSections = (props: TaskSectionsProps) => {
                 return (
                     <TaskBox style={styles.shell} key={index}>
                         <View style={styles.container}>
-                            <CompleteButton taskId={task.id} isComplete={false} />
+                            <CompleteButton taskId={task.id} isComplete={task.is_done} />
                             <View style={styles.iconContainer}>
                                 <Image style={styles.icon} source={require('../../assets/generaltask.png')} />
                             </View>

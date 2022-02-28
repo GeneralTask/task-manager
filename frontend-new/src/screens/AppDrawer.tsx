@@ -31,20 +31,50 @@ const AppDrawer = () => {
                         )
                     },
                     drawerItemStyle: styles.drawerButton,
+                    drawerIcon: ({ size }) => {
+                        return (
+                            <Image
+                                source={require('../assets/inbox.png')}
+                                style={{ width: size, height: size }}
+                            />
+                        )
+                    },
                 }}
                 drawerContent={(props) => <DrawerContent {...props} />}>
-                {taskSections.map((section, index) => (
-                    <Drawer.Screen
-                        key={section.id}
-                        name={section.name}
-                        component={TasksScreen}
-                        initialParams={{ index: index }}
-                    />
-                ))}
+                {
+                    taskSections.map((section, index) => (
+                        <Drawer.Screen
+                            key={section.id}
+                            name={section.name}
+                            component={TasksScreen}
+                            initialParams={{ index: index }}
+                        />
+                    ))
+                }
             </Drawer.Navigator>
     )
 }
 
+const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
+    const dispatch = useAppDispatch()
+    return (
+        <SafeAreaView style={styles.safeAreaStyle}>
+            <View style={styles.container}>
+                <Image style={styles.logo} source={require('../assets/logo.png')} />
+            </View>
+            <DrawerContentScrollView {...props}>
+                <DrawerItemList {...props} />
+            </DrawerContentScrollView>
+            <View>
+                <DrawerItem
+                    label="Sign Out"
+                    onPress={() => authSignOut(dispatch)}
+                    style={styles.drawerButton}
+                />
+            </View>
+        </SafeAreaView>
+    )
+}
 interface HeaderProps {
     title: string
 }
@@ -64,27 +94,10 @@ const Header = ({ title }: HeaderProps) => {
     )
 }
 
-const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
-    const dispatch = useAppDispatch()
-    return (
-        <SafeAreaView style={styles.safeAreaStyle}>
-            <DrawerContentScrollView {...props}>
-                <DrawerItemList {...props} />
-            </DrawerContentScrollView>
-            <View>
-                <DrawerItem
-                    label="Sign Out"
-                    onPress={() => authSignOut(dispatch)}
-                    style={styles.drawerButtonRed}
-                />
-            </View>
-        </SafeAreaView>
-    )
-}
-
 const styles = StyleSheet.create({
     safeAreaStyle: {
         flex: 1,
+        backgroundColor: Colors.gray._100,
     },
     container: {
         ...Flex.row,
@@ -122,10 +135,6 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     drawerButton: {
-        borderRadius: 10,
-    },
-    drawerButtonRed: {
-        backgroundColor: Colors.red._2,
         borderRadius: 10,
     },
 })
