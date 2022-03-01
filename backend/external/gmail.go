@@ -141,12 +141,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
 
-			if message.Id == "17f421ecbbb73acf" {
-				for _, header := range message.Payload.Headers {
-					log.Println("header: ", header.Name, "Value: ", header.Value)
-				}
-			}
-
 			recipients := GetRecipients(message.Payload.Headers)
 
 			email := &database.Item{
