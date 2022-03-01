@@ -6,6 +6,10 @@ import * as Linking from 'expo-linking'
 import { useAppDispatch } from '../../../redux/hooks'
 import { setAuthToken } from '../../../redux/userDataSlice'
 
+const googleButtonDimensions = {
+    width: 191,
+    height: 92,
+}
 
 const GoogleSignInButton = () => {
     const dispatch = useAppDispatch()
@@ -31,17 +35,17 @@ const GoogleSignInButton = () => {
 }
 
 const styles = StyleSheet.create({
-    googleSignIn: {
-        flex: 1,
-        width: 191,
-        height: 92,
-        resizeMode: 'contain',
-    },
     buttonContainer: {
         flex: 1,
         alignItems: 'center',
-        maxHeight: 92,
-    }
+        maxHeight: googleButtonDimensions.height,
+    },
+    googleSignIn: {
+        flex: 1,
+        width: googleButtonDimensions.width,
+        height: googleButtonDimensions.height,
+        resizeMode: 'contain',
+    },
 })
 
 export default GoogleSignInButton
