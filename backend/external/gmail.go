@@ -544,7 +544,13 @@ func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToCh
 }
 
 func GetRecipients(headers []*gmail.MessagePartHeader) *database.Recipients {
-	recipients := database.Recipients{}
+	emptyRecipients := make([]database.Recipient, 0)
+	// to make lists are empty instead of nil
+	recipients := database.Recipients{
+		To:  emptyRecipients,
+		Cc:  emptyRecipients,
+		Bcc: emptyRecipients,
+	}
 	for _, header := range headers {
 		if header.Name == "To" {
 			recipients.To = parseRecipients(header.Value)
@@ -561,8 +567,8 @@ func GetRecipients(headers []*gmail.MessagePartHeader) *database.Recipients {
 // adds to recipients parameter
 func parseRecipients(recipientsString string) []database.Recipient {
 	split := strings.Split(recipientsString, ",")
-	recipients := make([]database.Recipient, len(split))
-	for i, s := range split {
+	recipients := make([]database.Recipient, 0)
+	for _, s := range split {
 		s = strings.TrimSpace(s)
 		recipient := database.Recipient{}
 		if strings.Contains(s, "<") {
@@ -575,7 +581,7 @@ func parseRecipients(recipientsString string) []database.Recipient {
 		}
 		log.Println("\""+recipient.Name+"\"", recipient.Email)
 		log.Println("s:", s)
-		recipients[i] = recipient
+		recipients = append(recipients, recipient)
 	}
 	return recipients
 }
