@@ -5,7 +5,6 @@ import * as WebBrowser from 'expo-web-browser'
 import * as Linking from 'expo-linking'
 import { useAppDispatch } from '../../../redux/hooks'
 import { setAuthToken } from '../../../redux/userDataSlice'
-import { SafeAreaView } from 'react-native-safe-area-context'
 
 
 const GoogleSignInButton = () => {
