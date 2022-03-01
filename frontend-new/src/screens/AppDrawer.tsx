@@ -1,14 +1,15 @@
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem, DrawerContentComponentProps } from '@react-navigation/drawer'
 import { getHeaderTitle } from '@react-navigation/elements'
 import React from 'react'
-import { useWindowDimensions, View, StyleSheet, Text, Image, Pressable } from 'react-native'
+import { useWindowDimensions, View, StyleSheet, Text, Image, Pressable, Alert } from 'react-native'
 import TasksScreen from './TasksScreen'
 import { Colors, Flex, Typography } from '../../src/styles'
-import { useGetTasksQuery } from '../services/generalTaskApi'
+import { useAddTaskSectionMutation, useGetTasksQuery } from '../services/generalTaskApi'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { authSignOut } from '../utils/auth'
 import { useAppDispatch } from '../redux/hooks'
 import { ScreenDimensions } from '../constants'
+import { TextInput } from 'react-native-gesture-handler'
 const AppDrawer = () => {
     const { data: taskSections, isLoading } = useGetTasksQuery()
 
@@ -57,6 +58,13 @@ const AppDrawer = () => {
 
 const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
     const dispatch = useAppDispatch()
+    const [addTaskSection] = useAddTaskSectionMutation()
+    const [val, setVal] = React.useState('');
+
+    const addSectionHandler = (name: string) => {
+        addTaskSection({ name: name })
+    }
+
     return (
         <SafeAreaView style={styles.safeAreaStyle}>
             <View style={styles.container}>
@@ -64,6 +72,18 @@ const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
             </View>
             <DrawerContentScrollView {...props}>
                 <DrawerItemList {...props} />
+                <View style={styles.drawerButton}>
+                    <View style={styles.drawerInnerContainer}>
+                        <Image
+                            source={require('../assets/plus.png')}
+                            style={styles.drawerIcon}
+                        />
+                        <TextInput placeholder='Add new Label' value={val} onChangeText={setVal} onSubmitEditing={() => {
+                            addSectionHandler(val)
+                            setVal('')
+                        }} />
+                    </View>
+                </View>
             </DrawerContentScrollView>
             <View>
                 <DrawerItem
@@ -130,12 +150,17 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     drawerIcon: {
-        width: 16,
-        height: 16,
-        marginLeft: 5,
+        width: 24,
+        height: 24,
+        marginLeft: 8,
+        marginRight: 32,
+    },
+    drawerInnerContainer: {
+        ...Flex.row,
+        padding: 10,
     },
     drawerButton: {
-        borderRadius: 10,
+        borderRadius: 16,
     },
 })
 

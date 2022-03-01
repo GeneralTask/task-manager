@@ -5,7 +5,7 @@ import React, { useRef } from 'react'
 import CreateNewTask from '../components/tasks/CreateNewTask'
 import TasksScreenHeader from '../components/tasks/Header'
 import TaskSections from '../components/tasks/Sections'
-import { useGetTasksQuery } from '../services/generalTaskApi'
+import { useDeleteTaskSectionMutation, useGetTasksQuery } from '../services/generalTaskApi'
 import { Screens, Flex, Colors } from '../styles'
 
 interface DrawerParamList extends ParamListBase {
@@ -38,7 +38,7 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
             <View style={styles.tasksContent}>
                 {isLoading || taskSections == undefined ? LoadingView :
                     <>
-                        <TasksScreenHeader title={taskSections[index].name} />
+                        <TasksScreenHeader title={taskSections[index].name} id={taskSections[index].id} />
                         {!taskSections[index].is_done && <CreateNewTask section={taskSections[index].id} />}
                         <TaskSections section={taskSections[index]} />
                     </>
