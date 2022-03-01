@@ -95,7 +95,6 @@ type TaskBase struct {
 	IDTaskSection    primitive.ObjectID `bson:"id_task_section"`
 	IsCompleted      bool               `bson:"is_completed"`
 	Sender           string             `bson:"sender"`
-	SenderV2         SenderV2           `bson:"sender_v2"`
 	Recipients       Recipients         `bson:"recipients"`
 	SourceID         string             `bson:"source_id"`
 	SourceAccountID  string             `bson:"source_account_id"`
@@ -208,14 +207,13 @@ type Pagination struct {
 	Page  *int `form:"page" json:"page"`
 }
 
-type SenderV2 struct {
-	Name    string `bson:"name"`
-	Email   string `bson:"email"`
-	ReplyTo string `bson:"reply_to"`
+type Recipients struct {
+	To  []Recipient `bson:"main"`
+	CC  []Recipient `bson:"cc"`
+	BCC []Recipient `bson:"bcc"`
 }
 
-type Recipients struct {
-	Main []string `bson:"main"`
-	CC   []string `bson:"cc"`
-	BCC  []string `bson:"bcc"`
+type Recipient struct {
+	Name  string `bson:"name"`
+	Email string `bson:"email"`
 }

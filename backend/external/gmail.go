@@ -147,13 +147,15 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				}
 			}
 
+			recipients := GetRecipients(message.Payload.Headers)
+
 			email := &database.Item{
 				TaskBase: database.TaskBase{
 					UserID:            userID,
 					IDExternal:        message.Id,
 					IDTaskSection:     constants.IDTaskSectionToday,
 					Sender:            senderName,
-					SenderV2:          database.SenderV2{},
+					Recipients:        *recipients,
 					SourceID:          TASK_SOURCE_ID_GMAIL,
 					Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, threadListItem.Id),
 					Title:             title,
@@ -539,4 +541,37 @@ func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToCh
 	log.Println("resulting message:", message)
 
 	return err
+}
+
+func GetRecipients(headers []*gmail.MessagePartHeader) *database.Recipients {
+	recipients := database.Recipients{}
+	for _, header := range headers {
+		if header.Name == "To" {
+			parseRecipients(header.Value, recipients.To)
+		} else if header.Name == "Cc" {
+			parseRecipients(header.Value, recipients.CC)
+		} else if header.Name == "Bcc" {
+			parseRecipients(header.Value, recipients.BCC)
+		}
+	}
+	return &recipients
+}
+
+// accepts recipients in form: `"Recipient Name" <recipient@email.com>, "Recipient 2 Name" <recipient2@email.com>`
+// adds to recipients parameter
+func parseRecipients(recipientsString string, recipients []database.Recipient) {
+	split := strings.Split(recipientsString, ",")
+	for _, s := range split {
+		s = strings.TrimSpace(s)
+		recipient := database.Recipient{}
+		if strings.Contains(s, "<") {
+			recipient.Email = strings.Split(s, "<")[1]
+			recipient.Email = strings.Trim(recipient.Email, ">")
+			recipient.Name = strings.Split(s, "<")[0]
+			recipient.Name = strings.Trim(recipient.Name, "\"")
+		} else {
+			recipient.Email = s
+		}
+		recipients = append(recipients, recipient)
+	}
 }
