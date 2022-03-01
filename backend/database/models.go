@@ -208,9 +208,9 @@ type Pagination struct {
 }
 
 type Recipients struct {
-	To  []Recipient `bson:"main"`
-	CC  []Recipient `bson:"cc"`
-	BCC []Recipient `bson:"bcc"`
+	To  []Recipient `bson:"to"`
+	Cc  []Recipient `bson:"cc"`
+	Bcc []Recipient `bson:"bcc"`
 }
 
 type Recipient struct {

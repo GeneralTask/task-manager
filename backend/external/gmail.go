@@ -547,11 +547,11 @@ func GetRecipients(headers []*gmail.MessagePartHeader) *database.Recipients {
 	recipients := database.Recipients{}
 	for _, header := range headers {
 		if header.Name == "To" {
-			parseRecipients(header.Value, recipients.To)
+			recipients.To = parseRecipients(header.Value)
 		} else if header.Name == "Cc" {
-			parseRecipients(header.Value, recipients.CC)
+			recipients.Cc = parseRecipients(header.Value)
 		} else if header.Name == "Bcc" {
-			parseRecipients(header.Value, recipients.BCC)
+			recipients.Bcc = parseRecipients(header.Value)
 		}
 	}
 	return &recipients
@@ -559,19 +559,23 @@ func GetRecipients(headers []*gmail.MessagePartHeader) *database.Recipients {
 
 // accepts recipients in form: `"Recipient Name" <recipient@email.com>, "Recipient 2 Name" <recipient2@email.com>`
 // adds to recipients parameter
-func parseRecipients(recipientsString string, recipients []database.Recipient) {
+func parseRecipients(recipientsString string) []database.Recipient {
 	split := strings.Split(recipientsString, ",")
-	for _, s := range split {
+	recipients := make([]database.Recipient, len(split))
+	for i, s := range split {
 		s = strings.TrimSpace(s)
 		recipient := database.Recipient{}
 		if strings.Contains(s, "<") {
 			recipient.Email = strings.Split(s, "<")[1]
-			recipient.Email = strings.Trim(recipient.Email, ">")
+			recipient.Email = strings.Trim(recipient.Email, "> ")
 			recipient.Name = strings.Split(s, "<")[0]
-			recipient.Name = strings.Trim(recipient.Name, "\"")
+			recipient.Name = strings.Trim(recipient.Name, "\" ")
 		} else {
 			recipient.Email = s
 		}
-		recipients = append(recipients, recipient)
+		log.Println("\""+recipient.Name+"\"", recipient.Email)
+		log.Println("s:", s)
+		recipients[i] = recipient
 	}
+	return recipients
 }

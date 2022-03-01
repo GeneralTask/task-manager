@@ -28,14 +28,15 @@ type messageSource struct {
 }
 
 type message struct {
-	ID       primitive.ObjectID `json:"id"`
-	Title    string             `json:"title"`
-	Deeplink string             `json:"deeplink"`
-	Body     string             `json:"body"`
-	Sender   string             `json:"sender"`
-	SentAt   string             `json:"sent_at"`
-	IsUnread bool               `json:"is_unread"`
-	Source   messageSource      `json:"source"`
+	ID         primitive.ObjectID `json:"id"`
+	Title      string             `json:"title"`
+	Deeplink   string             `json:"deeplink"`
+	Body       string             `json:"body"`
+	Sender     string             `json:"sender"`
+	Recipients Recipients         `json:"recipients"`
+	SentAt     string             `json:"sent_at"`
+	IsUnread   bool               `json:"is_unread"`
+	Source     messageSource      `json:"source"`
 }
 
 func (api *API) MessagesList(c *gin.Context) {
@@ -237,14 +238,22 @@ func markReadMessagesInDB(
 
 func (api *API) emailToMessage(e *database.Item) *message {
 	messageSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(e.SourceID)
+
+	recipients := Recipients{
+		To:  GetRecipients(e.Recipients.To),
+		Cc:  GetRecipients(e.Recipients.Cc),
+		Bcc: GetRecipients(e.Recipients.Bcc),
+	}
+
 	return &message{
-		ID:       e.ID,
-		Title:    e.Title,
-		Deeplink: e.Deeplink,
-		Body:     e.Body,
-		Sender:   e.Sender,
-		SentAt:   e.CreatedAtExternal.Time().Format(time.RFC3339),
-		IsUnread: e.Email.IsUnread,
+		ID:         e.ID,
+		Title:      e.Title,
+		Deeplink:   e.Deeplink,
+		Body:       e.Body,
+		Sender:     e.Sender,
+		Recipients: recipients,
+		SentAt:     e.CreatedAtExternal.Time().Format(time.RFC3339),
+		IsUnread:   e.Email.IsUnread,
 		Source: messageSource{
 			AccountId:     e.SourceAccountID,
 			Name:          messageSourceResult.Details.Name,

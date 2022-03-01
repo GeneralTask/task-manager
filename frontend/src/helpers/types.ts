@@ -13,6 +13,17 @@ export interface TConferenceCall {
     url: string
 }
 
+export interface TRecipient {
+    name: string
+    email: string
+}
+
+export interface TRecipients {
+    to: TRecipient[]
+    cc: TRecipient[]
+    bcc: TRecipient[]
+}
+
 export interface TTask {
     id: string
     id_ordering: number
@@ -24,6 +35,7 @@ export interface TTask {
     due_date: string
     source: TTaskSource
     sender: string
+    recipients: TRecipients
     is_done: boolean
 }
 
@@ -41,6 +53,7 @@ export interface TMessage {
     deeplink: string
     body: string
     sender: string
+    recipients: TRecipients
     sent_at: string
     is_unread: boolean
     source: TMessageSource

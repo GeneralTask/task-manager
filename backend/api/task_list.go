@@ -16,11 +16,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type TaskSource struct {
-	Name          string `json:"name"`
-	Logo          string `json:"logo"`
-	IsCompletable bool   `json:"is_completable"`
-	IsReplyable   bool   `json:"is_replyable"`
+type TaskSection struct {
+	ID     primitive.ObjectID `json:"id"`
+	Name   string             `json:"name"`
+	Tasks  []*TaskResult      `json:"tasks"`
+	IsDone bool               `json:"is_done"`
 }
 
 type TaskResult struct {
@@ -31,17 +31,29 @@ type TaskResult struct {
 	Title          string             `json:"title"`
 	Body           string             `json:"body"`
 	Sender         string             `json:"sender"`
+	Recipients     Recipients         `json:"recipients"`
 	DueDate        string             `json:"due_date"`
 	TimeAllocation int64              `json:"time_allocated"`
 	SentAt         string             `json:"sent_at"`
 	IsDone         bool               `json:"is_done"`
 }
 
-type TaskSection struct {
-	ID     primitive.ObjectID `json:"id"`
-	Name   string             `json:"name"`
-	Tasks  []*TaskResult      `json:"tasks"`
-	IsDone bool               `json:"is_done"`
+type TaskSource struct {
+	Name          string `json:"name"`
+	Logo          string `json:"logo"`
+	IsCompletable bool   `json:"is_completable"`
+	IsReplyable   bool   `json:"is_replyable"`
+}
+
+type Recipients struct {
+	To  []Recipient `json:"to"`
+	Cc  []Recipient `json:"cc"`
+	Bcc []Recipient `json:"bcc"`
+}
+
+type Recipient struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 type TaskGroupType string
@@ -354,6 +366,13 @@ func (api *API) taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 	} else {
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
+
+	recipients := Recipients{
+		To:  GetRecipients(t.Recipients.To),
+		Cc:  GetRecipients(t.Recipients.Cc),
+		Bcc: GetRecipients(t.Recipients.Bcc),
+	}
+
 	return &TaskResult{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
@@ -368,8 +387,23 @@ func (api *API) taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 		Body:           t.Body,
 		TimeAllocation: t.TimeAllocation,
 		Sender:         t.Sender,
+		Recipients:     recipients,
 		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
 		DueDate:        dueDate,
 		IsDone:         t.IsCompleted,
 	}
+}
+
+func GetRecipients(from []database.Recipient) []Recipient {
+	if len(from) == 0 {
+		return make([]Recipient, 0)
+	}
+	recipients := make([]Recipient, len(from))
+	for i, recipient := range from {
+		recipients[i] = Recipient{
+			Name:  recipient.Name,
+			Email: recipient.Email,
+		}
+	}
+	return recipients
 }
