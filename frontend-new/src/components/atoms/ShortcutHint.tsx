@@ -2,11 +2,11 @@ import React from 'react'
 import { View, Text, StyleSheet, Platform, ViewStyle } from 'react-native'
 import { Colors, Typography } from '../../styles'
 
-interface KeyboardShotcutContainerProps {
+interface ShotcutHintProps {
     character: string,
     style: ViewStyle,
 }
-const KeyboardShotcutContainer = (props: KeyboardShotcutContainerProps) => {
+const ShotcutHint = (props: ShotcutHintProps) => {
     return (
         <View style={[styles.container, props.style]}>
             <Text style={styles.character}>{props.character}</Text>
@@ -38,4 +38,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default KeyboardShotcutContainer
+export default ShotcutHint

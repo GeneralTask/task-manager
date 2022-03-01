@@ -1,12 +1,12 @@
 import React from 'react'
 import { View, StyleSheet, ViewStyle } from 'react-native'
 
-interface ShellProps {
+interface TaskTemplateProps {
     style?: ViewStyle
     isShadow?: boolean
     children: React.ReactNode | React.ReactNode[]
 }
-const TaskBox = (props: ShellProps) => {
+const TaskTemplate = (props: TaskTemplateProps) => {
     return (
         <View style={[props.style, styles.container]}>
             {props.children}
@@ -23,4 +23,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default TaskBox
+export default TaskTemplate

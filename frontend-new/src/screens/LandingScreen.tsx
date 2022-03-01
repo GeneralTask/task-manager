@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TextInput, Image, Platform, Keyboard } from 're
 import { useForm, Controller } from 'react-hook-form'
 import { getHeaders } from '../utils/api'
 import { WAITLIST_URL } from '../constants'
-import GoogleSignInButton from '../components/landing/GoogleSignInButton'
-import JoinWaitlistButton from '../components/landing/JoinWaitlistButton'
+import GoogleSignInButton from '../components/atoms/buttons/GoogleSignInButton'
+import JoinWaitlistButton from '../components/atoms/buttons/JoinWaitlistButton'
 import { Colors, Flex, Images, Screens, Typography } from '../styles'
 
 const LandingScreen = () => {
