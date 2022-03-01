@@ -62,8 +62,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         paddingTop: 5,
         paddingBottom: 5,
-        paddingLeft: 12,
-        paddingRight: 12,
+        paddingLeft: 9,
     },
     iconContainer: {
         width: 20,
@@ -71,7 +70,7 @@ const styles = StyleSheet.create({
         ...Flex.column,
         alignItems: 'center',
         justifyContent: 'center',
-        marginLeft: 12,
+        marginLeft: 6,
     },
     icon: {
         width: '100%',
@@ -79,7 +78,7 @@ const styles = StyleSheet.create({
         aspectRatio: Dimensions.iconRatio,
     },
     title: {
-        marginLeft: 12,
+        marginLeft: 9,
         flexShrink: 1,
         flexWrap: 'wrap',
     }
