@@ -1,10 +1,11 @@
 import React from 'react'
-import { Platform, Pressable, Text } from 'react-native'
+import { Image, Platform, Pressable, StyleSheet, View } from 'react-native'
 import { DEEPLINK_LOGIN_URL, LOGIN_URL } from '../../../constants'
 import * as WebBrowser from 'expo-web-browser'
 import * as Linking from 'expo-linking'
 import { useAppDispatch } from '../../../redux/hooks'
 import { setAuthToken } from '../../../redux/userDataSlice'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 
 const GoogleSignInButton = () => {
@@ -22,10 +23,26 @@ const GoogleSignInButton = () => {
     }
     const onPress = Platform.OS === 'web' ? onPressWeb : onPressMobile
     return (
-        <Pressable onPress={onPress}>
-            <Text>Sign in with Google!</Text>
-        </Pressable>
+        <View style={styles.buttonContainer}>
+            <Pressable onPress={onPress}>
+                <Image style={styles.googleSignIn} source={require('../../../assets/google_sign_in.png')} />
+            </Pressable>
+        </View>
     )
 }
+
+const styles = StyleSheet.create({
+    googleSignIn: {
+        flex: 1,
+        width: 191,
+        height: 92,
+        resizeMode: 'contain',
+    },
+    buttonContainer: {
+        flex: 1,
+        alignItems: 'center',
+        maxHeight: 92,
+    }
+})
 
 export default GoogleSignInButton
