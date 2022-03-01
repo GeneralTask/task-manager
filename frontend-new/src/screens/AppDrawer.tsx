@@ -1,7 +1,7 @@
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem, DrawerContentComponentProps } from '@react-navigation/drawer'
 import { getHeaderTitle } from '@react-navigation/elements'
 import React from 'react'
-import { useWindowDimensions, View, StyleSheet, Text, Image, Pressable, Alert } from 'react-native'
+import { useWindowDimensions, View, StyleSheet, Text, Image, Pressable } from 'react-native'
 import TasksScreen from './TasksScreen'
 import { Colors, Flex, Typography } from '../../src/styles'
 import { useAddTaskSectionMutation, useGetTasksQuery } from '../services/generalTaskApi'
@@ -43,12 +43,11 @@ const AppDrawer = () => {
                 }}
                 drawerContent={(props) => <DrawerContent {...props} />}>
                 {
-                    taskSections.map((section, index) => (
+                    taskSections.map((section) => (
                         <Drawer.Screen
                             key={section.id}
                             name={section.name}
                             component={TasksScreen}
-                        // initialParams={{ index: index }}
                         />
                     ))
                 }
@@ -60,7 +59,7 @@ const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
     const dispatch = useAppDispatch()
     const [addTaskSection] = useAddTaskSectionMutation()
     const { refetch } = useGetTasksQuery()
-    const [val, setVal] = React.useState('');
+    const [val, setVal] = React.useState('')
 
     const addSectionHandler = (name: string) => {
         addTaskSection({ name: name })
