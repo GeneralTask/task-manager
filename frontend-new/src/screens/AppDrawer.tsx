@@ -59,6 +59,7 @@ const AppDrawer = () => {
 const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
     const dispatch = useAppDispatch()
     const [addTaskSection] = useAddTaskSectionMutation()
+    const { refetch } = useGetTasksQuery()
     const [val, setVal] = React.useState('');
 
     const addSectionHandler = (name: string) => {
@@ -80,6 +81,7 @@ const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
                         />
                         <TextInput placeholder='Add new Label' value={val} onChangeText={setVal} onSubmitEditing={() => {
                             addSectionHandler(val)
+                            refetch()
                             setVal('')
                         }} />
                     </View>

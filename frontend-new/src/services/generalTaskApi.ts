@@ -132,24 +132,24 @@ export const generalTaskApi = createApi({
                 url: `sections/delete/${data.id}/`,
                 method: 'DELETE',
             }),
-            // async onQueryStarted(data, { dispatch, queryFulfilled }) {
-            //     const result = dispatch(
-            //         generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
-            //             for (let i = 0; i < sections.length; i++) {
-            //                 const section = sections[i]
-            //                 if (section.id === data.id) {
-            //                     sections.splice(i, 1)
-            //                     return
-            //                 }
-            //             }
-            //         })
-            //     )
-            //     try {
-            //         await queryFulfilled
-            //     } catch {
-            //         result.undo()
-            //     }
-            // }
+            async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                        for (let i = 0; i < sections.length; i++) {
+                            const section = sections[i]
+                            if (section.id === data.id) {
+                                sections.splice(i, 1)
+                                return
+                            }
+                        }
+                    })
+                )
+                try {
+                    await queryFulfilled
+                } catch {
+                    result.undo()
+                }
+            }
         }),
     }),
 })
