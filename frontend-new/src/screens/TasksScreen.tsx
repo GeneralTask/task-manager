@@ -12,9 +12,10 @@ interface DrawerParamList extends ParamListBase {
     Tasks: { index: number }
 }
 const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => {
-    const { index } = route.params
+    const name = route.name
     const refetchWasLocal = useRef(false)
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
+    const sectionToDisplay = taskSections?.find(section => section.name === name)
 
     if (!isFetching) {
         refetchWasLocal.current = false
@@ -36,11 +37,11 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
                 />
             }>
             <View style={styles.tasksContent}>
-                {isLoading || taskSections == undefined ? LoadingView :
+                {isLoading || sectionToDisplay == undefined ? LoadingView :
                     <>
-                        <TasksScreenHeader title={taskSections[index].name} id={taskSections[index].id} />
-                        {!taskSections[index].is_done && <CreateNewTask section={taskSections[index].id} />}
-                        <TaskSections section={taskSections[index]} />
+                        <TasksScreenHeader title={sectionToDisplay.name} id={sectionToDisplay.id} />
+                        {!sectionToDisplay.is_done && <CreateNewTask section={sectionToDisplay.id} />}
+                        <TaskSections section={sectionToDisplay} />
                     </>
                 }
             </View>

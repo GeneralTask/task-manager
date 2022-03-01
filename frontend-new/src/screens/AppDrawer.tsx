@@ -48,7 +48,7 @@ const AppDrawer = () => {
                             key={section.id}
                             name={section.name}
                             component={TasksScreen}
-                            initialParams={{ index: index }}
+                        // initialParams={{ index: index }}
                         />
                     ))
                 }

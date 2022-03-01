@@ -26,10 +26,6 @@ export const generalTaskApi = createApi({
             query: () => 'tasks/',
             providesTags: ['Tasks']
         }),
-        // getSections: builder.query<TTaskSection[], void>({
-        //     query: () => 'sections/',
-        //     providesTags: ['Tasks']
-        // }),
         createTask: builder.mutation<void, { title: string, body: string, id_task_section: string }>({
             query: (data) => ({
                 url: 'tasks/create/gt_task/',
@@ -108,24 +104,24 @@ export const generalTaskApi = createApi({
                 method: 'POST',
                 body: { name: data.name },
             }),
-            // async onQueryStarted(data, { dispatch, queryFulfilled }) {
-            //     const result = dispatch(
-            //         generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
-            //             const newSection: TTaskSection = {
-            //                 id: '-1',
-            //                 name: data.name,
-            //                 is_done: false,
-            //                 tasks: [],
-            //             }
-            //             sections.push(newSection)
-            //         })
-            //     )
-            //     try {
-            //         await queryFulfilled
-            //     } catch {
-            //         result.undo()
-            //     }
-            // }
+            async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                        const newSection: TTaskSection = {
+                            id: '-1',
+                            name: data.name,
+                            is_done: false,
+                            tasks: [],
+                        }
+                        sections.splice(sections.length - 2, 0, newSection)
+                    })
+                )
+                try {
+                    await queryFulfilled
+                } catch {
+                    result.undo()
+                }
+            }
         }),
         deleteTaskSection: builder.mutation<void, { id: string }>({
             query: (data) => ({
