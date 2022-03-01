@@ -40,7 +40,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 	IDTaskSection := primitive.NilObjectID
 	if taskCreateParams.IDTaskSection != nil {
 		IDTaskSection, err = primitive.ObjectIDFromHex(*taskCreateParams.IDTaskSection)
-		if err != nil {
+		if err != nil || (IDTaskSection != constants.IDTaskSectionToday && IDTaskSection != constants.IDTaskSectionBlocked && IDTaskSection != constants.IDTaskSectionBacklog) {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
 		}
