@@ -68,14 +68,16 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
                     <TaskSections section={taskSections[index]} setSheetTaskId={setSheetTaskId} />
                 </View>
             </ScrollView>
-            <BottomSheet
-                initialSnap={1}
-                ref={sheetRef}
-                snapPoints={[Dimensions.editSheetHeight, 0]}
-                borderRadius={10}
-                renderContent={renderContent}
-                onCloseEnd={() => { setSheetTaskId('') }}
-            />
+            {Platform.OS === 'ios' &&
+                <BottomSheet
+                    initialSnap={1}
+                    ref={sheetRef}
+                    snapPoints={[Dimensions.editSheetHeight, 0]}
+                    borderRadius={10}
+                    renderContent={renderContent}
+                    onCloseEnd={() => { setSheetTaskId('') }}
+                />
+            }
         </>
     )
 }
