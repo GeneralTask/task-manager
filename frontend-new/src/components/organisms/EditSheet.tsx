@@ -30,7 +30,7 @@ const EditSheet = ({ task, setText: propsSetText }: EditSheetProps) => {
                     <Title style={styles.title}>Edit Task</Title>
                     <View style={styles.subtitleContainer}>
                         <Icon />
-                        <Subtitle >{task.title}</Subtitle>
+                        <Subtitle style={styles.subtitle}>{task.title}</Subtitle>
                     </View>
                 </View>
                 <Divider />
@@ -75,6 +75,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 8,
         marginBottom: 8,
+    },
+    subtitle: {
+        marginLeft: 8,
     },
     detailsContainer: {
         ...Flex.column,
