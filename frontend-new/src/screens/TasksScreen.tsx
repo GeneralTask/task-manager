@@ -10,7 +10,7 @@ import CreateNewTask from '../components/organisms/CreateNewTask'
 import TasksScreenHeader from '../components/molecules/Header'
 import TaskSections from '../components/organisms/Sections'
 import { useGetTasksQuery } from '../services/generalTaskApi'
-import { Screens, Flex, Colors } from '../styles'
+import { Screens, Flex, Colors, Dimensions } from '../styles'
 import { useAppDispatch } from '../redux/hooks'
 import { setAuthToken } from '../redux/userDataSlice'
 
