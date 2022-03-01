@@ -25,7 +25,9 @@ const EditSheet = ({ task, setText: propsSetText }: EditSheetProps) => {
         <View style={styles.container}>
             <View style={{ backgroundColor: 'transparent', height: 200 }} />
             <View style={{ backgroundColor: Colors.white }}>
-                <Handle />
+                <View style={styles.handleContainer}>
+                    <Handle />
+                </View>
                 <View style={styles.paddedContainer}>
                     <Title style={styles.title}>Edit Task</Title>
                     <View style={styles.subtitleContainer}>
@@ -66,6 +68,9 @@ const styles = StyleSheet.create({
     },
     paddedContainer: {
         paddingHorizontal: 16,
+    },
+    handleContainer: {
+        marginTop: 12
     },
     title: {
         marginTop: 24,
