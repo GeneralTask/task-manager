@@ -69,6 +69,33 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
+        modifyTask: builder.mutation<void, { body: string, id: string }>({
+            query: (data) => ({
+                url: `tasks/modify/${data.id}/`,
+                method: 'PATCH',
+                body: { body: data.body },
+            }),
+            async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                        for (let i = 0; i < sections.length; i++) {
+                            const section = sections[i]
+                            for (let j = 0; j < section.tasks.length; j++) {
+                                const task = section.tasks[j]
+                                if (task.id === data.id) {
+                                    task.body = data.body
+                                }
+                            }
+                        }
+                    })
+                )
+                try {
+                    await queryFulfilled
+                } catch {
+                    result.undo()
+                }
+            }
+        }),
         markTaskDone: builder.mutation<void, { id: string, is_completed: boolean }>({
             query: (data) => ({
                 url: `/tasks/modify/${data.id}/`,
@@ -101,4 +128,4 @@ export const generalTaskApi = createApi({
     }),
 })
 
-export const { useGetTasksQuery, useCreateTaskMutation, useMarkTaskDoneMutation } = generalTaskApi
+export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation } = generalTaskApi
