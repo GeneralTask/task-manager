@@ -113,11 +113,12 @@ export const generalTaskApi = createApi({
                             is_done: false,
                             tasks: [],
                         }
-                        sections.splice(sections.length - 2, 0, newSection)
+                        sections.splice(sections.length - 1, 0, newSection)
                     })
                 )
                 try {
                     await queryFulfilled
+                    dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
                 } catch {
                     result.undo()
                 }
@@ -142,6 +143,7 @@ export const generalTaskApi = createApi({
                 )
                 try {
                     await queryFulfilled
+                    dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
                 } catch {
                     result.undo()
                 }

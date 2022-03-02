@@ -14,15 +14,12 @@ import { Screens, Flex, Colors, Dimensions } from '../styles'
 import { useAppDispatch } from '../redux/hooks'
 import { setAuthToken } from '../redux/userDataSlice'
 
-interface DrawerParamList extends ParamListBase {
-    Tasks: { index: number }
-}
-const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => {
-    const name = route.name
+const TasksScreen = ({ route }: DrawerScreenProps<ParamListBase, 'Tasks'>) => {
+    const routeName = route.name
     const [sheetTaskId, setSheetTaskId] = useState('')
     const refetchWasLocal = useRef(false)
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
-    const sectionToDisplay = taskSections?.find(section => section.name === name)
+    const sectionToDisplay = taskSections?.find(section => section.name === routeName)
     const dispatch = useAppDispatch()
     const sheetRef = React.useRef<BottomSheet>(null)
 
@@ -73,14 +70,16 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
                     }
                 </View>
             </ScrollView>
-            <BottomSheet
-                initialSnap={1}
-                ref={sheetRef}
-                snapPoints={[Dimensions.editSheetHeight, 0]}
-                borderRadius={10}
-                renderContent={renderContent}
-                onCloseEnd={() => { setSheetTaskId('') }}
-            />
+            {Platform.OS !== 'web' &&
+                <BottomSheet
+                    initialSnap={1}
+                    ref={sheetRef}
+                    snapPoints={[Dimensions.editSheetHeight, 0]}
+                    borderRadius={10}
+                    renderContent={renderContent}
+                    onCloseEnd={() => { setSheetTaskId('') }}
+                />
+            }
         </>
     )
 }

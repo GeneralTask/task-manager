@@ -41,7 +41,8 @@ const AppDrawer = () => {
                         )
                     },
                 }}
-                drawerContent={(props) => <DrawerContent {...props} />}>
+                drawerContent={(props) => <DrawerContent {...props} />}
+            >
                 {
                     taskSections.map((section) => (
                         <Drawer.Screen
@@ -57,11 +58,13 @@ const AppDrawer = () => {
 
 const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
     const dispatch = useAppDispatch()
+    const { data: taskSections } = useGetTasksQuery()
     const [addTaskSection] = useAddTaskSectionMutation()
-    const { refetch } = useGetTasksQuery()
     const [val, setVal] = React.useState('')
 
     const addSectionHandler = (name: string) => {
+        if (!name) return
+        if (taskSections?.find(section => section.name === name)) return
         addTaskSection({ name: name })
     }
 
@@ -80,7 +83,6 @@ const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
                         />
                         <TextInput placeholder='Add new Label' value={val} onChangeText={setVal} onSubmitEditing={() => {
                             addSectionHandler(val)
-                            refetch()
                             setVal('')
                         }} />
                     </View>
