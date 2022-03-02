@@ -52,7 +52,8 @@ func (api *API) MessagesListV2(c *gin.Context) {
 	onlyUnread := false
 	if params.OnlyUnread != nil && *params.OnlyUnread {
 		onlyUnread = true
-	} else if !database.IsValidPagination(params.Pagination) {
+	}
+	if !database.IsValidPagination(params.Pagination) {
 		limit := DEFAULT_MESSAGE_LIMIT
 		page := 1
 		params.Pagination = database.Pagination{Limit: &limit, Page: &page}
