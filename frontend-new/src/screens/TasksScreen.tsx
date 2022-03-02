@@ -49,15 +49,13 @@ const TaskBottomSheet = forwardRef(({ sheetTaskId, setSheetTaskId }: TaskBottomS
         }}
     />)
 })
-interface DrawerParamList extends ParamListBase {
-    Tasks: { index: number }
-}
-const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => {
+const TasksScreen = ({ route }: DrawerScreenProps<ParamListBase, 'Tasks'>) => {
+    const routeName = route.name
     const [sheetTaskId, setSheetTaskId] = useState('')
     const refetchWasLocal = useRef(false)
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
+    const sectionToDisplay = taskSections?.find(section => section.name === routeName)
     const dispatch = useAppDispatch()
-    const { index } = route.params
     const sheetRef = React.useRef<BottomSheet>(null)
 
     useEffect(() => {
@@ -79,7 +77,7 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
         refetch()
     }
 
-    if (isLoading || taskSections === undefined) return <View><Text>Loading...</Text></View>
+    const LoadingView = <View><Text>Loading...</Text></View>
 
     return (
         <>
@@ -92,12 +90,17 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
                     />
                 }>
                 <View style={styles.tasksContent}>
-                    <TasksScreenHeader title={taskSections[index].name} />
-                    {!taskSections[index].is_done && <CreateNewTask section={taskSections[index].id} />}
-                    <TaskSections section={taskSections[index]} setSheetTaskId={setSheetTaskId} />
+                    {isLoading || sectionToDisplay == undefined ? LoadingView :
+                        <>
+                            <TasksScreenHeader title={sectionToDisplay.name} id={sectionToDisplay.id} />
+                            {!sectionToDisplay.is_done && <CreateNewTask section={sectionToDisplay.id} />}
+                            <TaskSections section={sectionToDisplay} setSheetTaskId={setSheetTaskId} />
+                        </>
+                    }
                 </View>
             </ScrollView>
-            {Platform.OS === 'ios' &&
+            {
+                Platform.OS !== 'web' &&
                 <TaskBottomSheet sheetTaskId={sheetTaskId} setSheetTaskId={setSheetTaskId} ref={sheetRef} />
             }
         </>
