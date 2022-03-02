@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { View, StyleSheet } from 'react-native'
-import { Colors, Flex } from '../../styles'
+import { Colors, Dimensions, Flex } from '../../styles'
 import { TTask } from '../../utils/types'
 import Handle from '../atoms/GrayHandle'
 import { Icon } from '../atoms/Icon'
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     container: {
         ...Flex.column,
         paddingTop: 16,
-        height: 600,
+        height: Dimensions.editSheetHeight,
     },
     paddedContainer: {
         paddingHorizontal: 16,
