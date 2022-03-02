@@ -1,6 +1,6 @@
 import React from 'react'
 import { SafeAreaView, StyleSheet } from 'react-native'
-import { getPathFromState, getStateFromPath, NavigationContainer, NavigationState, PartialState, PathConfigMap } from '@react-navigation/native'
+import { getPathFromState, getStateFromPath, NavigationContainer, NavigationState, ParamListBase, PartialState, PathConfigMap } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import LandingScreen from './src/screens/LandingScreen'
 import AppDrawer from './src/screens/AppDrawer'
@@ -10,7 +10,7 @@ import { useAppSelector } from './src/redux/hooks'
 import Cookies from 'js-cookie'
 import { Colors } from './src/styles'
 
-declare type Options<ParamList extends {}> = {
+declare type Options<ParamList extends ParamListBase> = {
   initialRouteName?: string;
   screens: PathConfigMap<ParamList>;
 };
@@ -25,10 +25,10 @@ const linking = {
       Landing: '/',
     }
   },
-  getStateFromPath: <ParamList extends {}>(path: string, options?: Options<ParamList>): ResultState | undefined => {
+  getStateFromPath: <ParamList extends ParamListBase>(path: string, options?: Options<ParamList>): ResultState | undefined => {
     return getStateFromPath(path.replaceAll('_', '%20'), options)
   },
-  getPathFromState: <ParamList extends {}>(state: State, options?: Options<ParamList>): string => {
+  getPathFromState: <ParamList extends ParamListBase>(state: State, options?: Options<ParamList>): string => {
     return getPathFromState(state, options).replaceAll('%20', '_')
   },
 }
