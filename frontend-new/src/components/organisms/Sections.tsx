@@ -21,7 +21,7 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
     return (
         <Pressable style={styles.container} onPress={onPress}>
             <View style={styles.container}>
-                <CompleteButton taskId={task.id} isComplete={false} />
+                <CompleteButton taskId={task.id} isComplete={task.is_done} />
                 <Icon style={styles.iconContainer} />
                 <Text numberOfLines={1} ellipsizeMode={'tail'} style={styles.title}>{task.title}</Text>
             </View>

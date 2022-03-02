@@ -14,16 +14,14 @@ import { Screens, Flex, Colors, Dimensions } from '../styles'
 import { useAppDispatch } from '../redux/hooks'
 import { setAuthToken } from '../redux/userDataSlice'
 
-interface DrawerParamList extends ParamListBase {
-    Tasks: { index: number }
-}
-const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => {
+const TasksScreen = ({ route }: DrawerScreenProps<ParamListBase, 'Tasks'>) => {
+    const routeName = route.name
     const [sheetTaskId, setSheetTaskId] = useState('')
     const refetchWasLocal = useRef(false)
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
+    const sectionToDisplay = taskSections?.find(section => section.name === routeName)
     const dispatch = useAppDispatch()
     const sheetRef = React.useRef<BottomSheet>(null)
-    const { index } = route.params
 
     useEffect(() => {
         if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
@@ -50,7 +48,7 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
         return <EditSheet task={task} />
     }
 
-    if (isLoading || taskSections === undefined) return <View><Text>Loading...</Text></View>
+    const LoadingView = <View><Text>Loading...</Text></View>
 
     return (
         <>
@@ -63,12 +61,16 @@ const TasksScreen = ({ route }: DrawerScreenProps<DrawerParamList, 'Tasks'>) => 
                     />
                 }>
                 <View style={styles.tasksContent}>
-                    <TasksScreenHeader title={taskSections[index].name} />
-                    {!taskSections[index].is_done && <CreateNewTask section={taskSections[index].id} />}
-                    <TaskSections section={taskSections[index]} setSheetTaskId={setSheetTaskId} />
+                    {isLoading || sectionToDisplay == undefined ? LoadingView :
+                        <>
+                            <TasksScreenHeader title={sectionToDisplay.name} id={sectionToDisplay.id} />
+                            {!sectionToDisplay.is_done && <CreateNewTask section={sectionToDisplay.id} />}
+                            <TaskSections section={sectionToDisplay} setSheetTaskId={setSheetTaskId} />
+                        </>
+                    }
                 </View>
             </ScrollView>
-            {Platform.OS === 'ios' &&
+            {Platform.OS !== 'web' &&
                 <BottomSheet
                     initialSnap={1}
                     ref={sheetRef}

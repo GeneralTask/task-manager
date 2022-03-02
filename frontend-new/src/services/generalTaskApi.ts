@@ -97,8 +97,59 @@ export const generalTaskApi = createApi({
                     result.undo()
                 }
             }
-        })
+        }),
+        addTaskSection: builder.mutation<void, { name: string }>({
+            query: (data) => ({
+                url: 'sections/create/',
+                method: 'POST',
+                body: { name: data.name },
+            }),
+            async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                        const newSection: TTaskSection = {
+                            id: '-1',
+                            name: data.name,
+                            is_done: false,
+                            tasks: [],
+                        }
+                        sections.splice(sections.length - 1, 0, newSection)
+                    })
+                )
+                try {
+                    await queryFulfilled
+                    dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
+                } catch {
+                    result.undo()
+                }
+            }
+        }),
+        deleteTaskSection: builder.mutation<void, { id: string }>({
+            query: (data) => ({
+                url: `sections/delete/${data.id}/`,
+                method: 'DELETE',
+            }),
+            async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                        for (let i = 0; i < sections.length; i++) {
+                            const section = sections[i]
+                            if (section.id === data.id) {
+                                sections.splice(i, 1)
+                                return
+                            }
+                        }
+                    })
+                )
+                try {
+                    await queryFulfilled
+                    dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
+                } catch {
+                    result.undo()
+                }
+            }
+        }),
     }),
 })
 
-export const { useGetTasksQuery, useCreateTaskMutation, useMarkTaskDoneMutation } = generalTaskApi
+export const { useGetTasksQuery, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation } = generalTaskApi

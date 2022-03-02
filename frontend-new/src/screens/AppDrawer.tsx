@@ -4,11 +4,12 @@ import React from 'react'
 import { useWindowDimensions, View, StyleSheet, Text, Image, Pressable } from 'react-native'
 import TasksScreen from './TasksScreen'
 import { Colors, Flex, Typography } from '../../src/styles'
-import { useGetTasksQuery } from '../services/generalTaskApi'
+import { useAddTaskSectionMutation, useGetTasksQuery } from '../services/generalTaskApi'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { authSignOut } from '../utils/auth'
 import { useAppDispatch } from '../redux/hooks'
 import { ScreenDimensions } from '../constants'
+import { TextInput } from 'react-native-gesture-handler'
 const AppDrawer = () => {
     const { data: taskSections, isLoading } = useGetTasksQuery()
 
@@ -31,20 +32,72 @@ const AppDrawer = () => {
                         )
                     },
                     drawerItemStyle: styles.drawerButton,
+                    drawerIcon: ({ size }) => {
+                        return (
+                            <Image
+                                source={require('../assets/inbox.png')}
+                                style={{ width: size, height: size }}
+                            />
+                        )
+                    },
                 }}
-                drawerContent={(props) => <DrawerContent {...props} />}>
-                {taskSections.map((section, index) => (
-                    <Drawer.Screen
-                        key={section.id}
-                        name={section.name}
-                        component={TasksScreen}
-                        initialParams={{ index: index }}
-                    />
-                ))}
+                drawerContent={(props) => <DrawerContent {...props} />}
+            >
+                {
+                    taskSections.map((section) => (
+                        <Drawer.Screen
+                            key={section.id}
+                            name={section.name}
+                            component={TasksScreen}
+                        />
+                    ))
+                }
             </Drawer.Navigator>
     )
 }
 
+const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
+    const dispatch = useAppDispatch()
+    const { data: taskSections } = useGetTasksQuery()
+    const [addTaskSection] = useAddTaskSectionMutation()
+    const [val, setVal] = React.useState('')
+
+    const addSectionHandler = (name: string) => {
+        if (!name) return
+        if (taskSections?.find(section => section.name === name)) return
+        addTaskSection({ name: name })
+    }
+
+    return (
+        <SafeAreaView style={styles.safeAreaStyle}>
+            <View style={styles.container}>
+                <Image style={styles.logo} source={require('../assets/logo.png')} />
+            </View>
+            <DrawerContentScrollView {...props}>
+                <DrawerItemList {...props} />
+                <View style={styles.drawerButton}>
+                    <View style={styles.drawerInnerContainer}>
+                        <Image
+                            source={require('../assets/plus.png')}
+                            style={styles.drawerIcon}
+                        />
+                        <TextInput placeholder='Add new Label' value={val} onChangeText={setVal} onSubmitEditing={() => {
+                            addSectionHandler(val)
+                            setVal('')
+                        }} />
+                    </View>
+                </View>
+            </DrawerContentScrollView>
+            <View>
+                <DrawerItem
+                    label="Sign Out"
+                    onPress={() => authSignOut(dispatch)}
+                    style={styles.drawerButton}
+                />
+            </View>
+        </SafeAreaView>
+    )
+}
 interface HeaderProps {
     title: string
 }
@@ -64,27 +117,10 @@ const Header = ({ title }: HeaderProps) => {
     )
 }
 
-const DrawerContent = (props: DrawerContentComponentProps): JSX.Element => {
-    const dispatch = useAppDispatch()
-    return (
-        <SafeAreaView style={styles.safeAreaStyle}>
-            <DrawerContentScrollView {...props}>
-                <DrawerItemList {...props} />
-            </DrawerContentScrollView>
-            <View>
-                <DrawerItem
-                    label="Sign Out"
-                    onPress={() => authSignOut(dispatch)}
-                    style={styles.drawerButtonRed}
-                />
-            </View>
-        </SafeAreaView>
-    )
-}
-
 const styles = StyleSheet.create({
     safeAreaStyle: {
         flex: 1,
+        backgroundColor: Colors.gray._100,
     },
     container: {
         ...Flex.row,
@@ -117,16 +153,17 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     drawerIcon: {
-        width: 16,
-        height: 16,
-        marginLeft: 5,
+        width: 24,
+        height: 24,
+        marginLeft: 8,
+        marginRight: 32,
+    },
+    drawerInnerContainer: {
+        ...Flex.row,
+        padding: 10,
     },
     drawerButton: {
-        borderRadius: 10,
-    },
-    drawerButtonRed: {
-        backgroundColor: Colors.red._2,
-        borderRadius: 10,
+        borderRadius: 16,
     },
 })
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import { SafeAreaView, StyleSheet } from 'react-native'
-import { NavigationContainer } from '@react-navigation/native'
+import { getPathFromState, getStateFromPath, NavigationContainer, NavigationState, ParamListBase, PartialState, PathConfigMap } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import LandingScreen from './src/screens/LandingScreen'
 import AppDrawer from './src/screens/AppDrawer'
@@ -10,13 +10,27 @@ import { useAppSelector } from './src/redux/hooks'
 import Cookies from 'js-cookie'
 import { Colors } from './src/styles'
 
+declare type Options<ParamList extends ParamListBase> = {
+  initialRouteName?: string;
+  screens: PathConfigMap<ParamList>;
+};
+declare type ResultState = PartialState<NavigationState> & {
+  state?: ResultState;
+};
+declare type State = NavigationState | Omit<PartialState<NavigationState>, 'stale'>;
 const linking = {
   prefixes: ['https://generaltask.com', 'generaltask://'],
   config: {
     screens: {
       Landing: '/',
     }
-  }
+  },
+  getStateFromPath: <ParamList extends ParamListBase>(path: string, options?: Options<ParamList>): ResultState | undefined => {
+    return getStateFromPath(path.replaceAll('_', '%20'), options)
+  },
+  getPathFromState: <ParamList extends ParamListBase>(state: State, options?: Options<ParamList>): string => {
+    return getPathFromState(state, options).replaceAll('%20', '_')
+  },
 }
 
 const Navigation = () => {
