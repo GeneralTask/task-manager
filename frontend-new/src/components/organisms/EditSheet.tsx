@@ -25,12 +25,14 @@ const EditSheet = ({ task, setText: propsSetText }: EditSheetProps) => {
         <View style={styles.container}>
             <View style={{ backgroundColor: 'transparent', height: 200 }} />
             <View style={{ backgroundColor: Colors.white }}>
-                <Handle />
+                <View style={styles.handleContainer}>
+                    <Handle />
+                </View>
                 <View style={styles.paddedContainer}>
                     <Title style={styles.title}>Edit Task</Title>
                     <View style={styles.subtitleContainer}>
                         <Icon />
-                        <Subtitle >{task.title}</Subtitle>
+                        <Subtitle style={styles.subtitle}>{task.title}</Subtitle>
                     </View>
                 </View>
                 <Divider />
@@ -67,6 +69,9 @@ const styles = StyleSheet.create({
     paddedContainer: {
         paddingHorizontal: 16,
     },
+    handleContainer: {
+        marginTop: 12
+    },
     title: {
         marginTop: 24,
     },
@@ -75,6 +80,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 8,
         marginBottom: 8,
+    },
+    subtitle: {
+        marginLeft: 8,
     },
     detailsContainer: {
         ...Flex.column,
