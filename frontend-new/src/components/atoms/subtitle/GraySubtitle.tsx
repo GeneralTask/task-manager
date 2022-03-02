@@ -4,12 +4,11 @@ import { Colors, Typography } from '../../../styles'
 
 interface GraySubtitleProps {
     children: string,
-    style?: TextStyle | TextStyle[]
+    style?: TextStyle
 }
-export const GraySubtitle = ({ children, style }: GraySubtitleProps) => {
-    return (
-        <Text style={[styles.subtitle, style]}>{children}</Text>
-    )
+
+export const GraySubtitle = (props: GraySubtitleProps) => {
+    return <Text style={[styles.subtitle, props.style]}>{props.children}</Text>
 }
 
 const styles = StyleSheet.create({

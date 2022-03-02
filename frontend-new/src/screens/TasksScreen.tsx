@@ -1,19 +1,54 @@
-import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
+import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl, Dimensions } from 'react-native'
 import { DrawerScreenProps } from '@react-navigation/drawer'
 import { ParamListBase } from '@react-navigation/native'
 import Cookies from 'js-cookie'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { forwardRef, useEffect, useRef, useState } from 'react'
 import BottomSheet from 'reanimated-bottom-sheet'
 import { findTaskById } from '../utils/task'
 import EditSheet from '../components/organisms/EditSheet'
 import CreateNewTask from '../components/organisms/CreateNewTask'
 import TasksScreenHeader from '../components/molecules/Header'
 import TaskSections from '../components/organisms/Sections'
-import { useGetTasksQuery } from '../services/generalTaskApi'
-import { Screens, Flex, Colors, Dimensions } from '../styles'
+import { useGetTasksQuery, useModifyTaskMutation } from '../services/generalTaskApi'
+import { Screens, Flex, Colors } from '../styles'
 import { useAppDispatch } from '../redux/hooks'
 import { setAuthToken } from '../redux/userDataSlice'
 
+
+interface TaskBottomSheetProps {
+    sheetTaskId: string,
+    setSheetTaskId: (id: string) => void
+}
+const TaskBottomSheet = forwardRef(({ sheetTaskId, setSheetTaskId }: TaskBottomSheetProps, sheetRef: React.Ref<BottomSheet>) => {
+    const { data: taskSections } = useGetTasksQuery()
+    const [text, setText] = useState('')
+    const currTaskIdRef = useRef('')
+    const [modifyTask] = useModifyTaskMutation()
+
+    const renderContent = () => {
+        if (!taskSections) return
+        const task = findTaskById(taskSections, sheetTaskId)
+        if (!task) return
+        currTaskIdRef.current = task.id
+        return <EditSheet setText={setText} task={task} />
+    }
+
+    return (<BottomSheet
+        initialSnap={1}
+        ref={sheetRef}
+        snapPoints={[Dimensions.get('window').height - 100, 0]}
+        borderRadius={10}
+        renderContent={renderContent}
+        onCloseEnd={() => {
+            modifyTask({
+                id: currTaskIdRef.current,
+                body: text
+            })
+            currTaskIdRef.current = ''
+            setSheetTaskId('')
+        }}
+    />)
+})
 const TasksScreen = ({ route }: DrawerScreenProps<ParamListBase, 'Tasks'>) => {
     const routeName = route.name
     const [sheetTaskId, setSheetTaskId] = useState('')
@@ -41,12 +76,6 @@ const TasksScreen = ({ route }: DrawerScreenProps<ParamListBase, 'Tasks'>) => {
         refetchWasLocal.current = true
         refetch()
     }
-    const renderContent = () => {
-        if (!taskSections) return
-        const task = findTaskById(taskSections, sheetTaskId)
-        if (!task) return
-        return <EditSheet task={task} />
-    }
 
     const LoadingView = <View><Text>Loading...</Text></View>
 
@@ -70,15 +99,9 @@ const TasksScreen = ({ route }: DrawerScreenProps<ParamListBase, 'Tasks'>) => {
                     }
                 </View>
             </ScrollView>
-            {Platform.OS !== 'web' &&
-                <BottomSheet
-                    initialSnap={1}
-                    ref={sheetRef}
-                    snapPoints={[Dimensions.editSheetHeight, 0]}
-                    borderRadius={10}
-                    renderContent={renderContent}
-                    onCloseEnd={() => { setSheetTaskId('') }}
-                />
+            {
+                Platform.OS !== 'web' &&
+                <TaskBottomSheet sheetTaskId={sheetTaskId} setSheetTaskId={setSheetTaskId} ref={sheetRef} />
             }
         </>
     )

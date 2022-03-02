@@ -55,7 +55,6 @@ const CreatNewTask = (props: CreateNewTaskProps) => {
                             onChangeText={text => setText(text)}
                             placeholder="Add new task"
                             onSubmitEditing={submitNewTask}
-                            ref={inputRef}
                         />
                 }
 
