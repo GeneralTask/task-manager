@@ -10,6 +10,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-native-community/datetimepicker": "4.0.0",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-navigation/drawer": "^6.3.1",
     "@react-navigation/native": "^6.0.8",
