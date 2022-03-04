@@ -57,11 +57,6 @@ export default function TaskCreate(props: TaskCreateProps): JSX.Element {
                     is_replyable: false,
                 },
                 sender: '',
-                recipients: {
-                    to: [],
-                    cc: [],
-                    bcc: [],
-                },
                 is_done: false,
             }
             dispatch(
