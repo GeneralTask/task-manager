@@ -1,3 +1,4 @@
+/* eslint @typescript-eslint/no-var-requires: "off" */
 import React from 'react'
 import { Image, StyleSheet } from 'react-native'
 import styled from 'styled-components/native'
