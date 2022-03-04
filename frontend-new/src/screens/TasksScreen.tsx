@@ -11,7 +11,6 @@ import Loading from '../components/atoms/Loading'
 import { Navigate, useParams } from '../services/routing'
 import TaskBottomSheet from '../components/organisms/TaskBottomSheet'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
-import CalendarSidebar from '../components/calendar/CalendarSidebar'
 
 
 const TasksScreen = () => {
