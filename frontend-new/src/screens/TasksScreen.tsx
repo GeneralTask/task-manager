@@ -26,7 +26,7 @@ const TasksScreen = () => {
         const firstSectionId = taskSections[0].id
         return <Navigate to={`/tasks/${firstSectionId}`} />
     }
-    let currentSection = taskSections ? getSectionById(taskSections, routerSection) : null
+    const currentSection = taskSections ? getSectionById(taskSections, routerSection) : null
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false

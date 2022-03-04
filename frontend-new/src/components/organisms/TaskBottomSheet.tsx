@@ -1,9 +1,9 @@
-import React, { forwardRef, useState, useRef } from "react"
-import { Dimensions } from "react-native"
-import { useGetTasksQuery, useModifyTaskMutation } from "../../services/generalTaskApi"
-import { getTaskById } from "../../utils/task"
+import React, { forwardRef, useState, useRef } from 'react'
+import { Dimensions } from 'react-native'
+import { useGetTasksQuery, useModifyTaskMutation } from '../../services/generalTaskApi'
+import { getTaskById } from '../../utils/task'
 import BottomSheet from 'reanimated-bottom-sheet'
-import EditSheet from "./EditSheet"
+import EditSheet from './EditSheet'
 
 interface TaskBottomSheetProps {
     sheetTaskId: string,
