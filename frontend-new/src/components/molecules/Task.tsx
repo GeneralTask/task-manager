@@ -34,14 +34,14 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
 
 
     return (
-        <View style={styles.container} onPress={onPress} ref={drag}>
+        <Pressable style={styles.container} onPress={onPress} ref={dragPreview}>
             <View style={styles.container}>
-                {isDraggable && <Domino />}
+                {isDraggable && <Domino ref={drag} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />
                 <Icon style={styles.iconContainer} />
                 <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
             </View>
-        </View>
+        </Pressable>
     )
 }
 

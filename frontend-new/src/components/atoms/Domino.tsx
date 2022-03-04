@@ -3,9 +3,9 @@ import { gray } from '../../styles/colors'
 import { View, StyleSheet } from 'react-native'
 
 
-export default function Domino(): JSX.Element {
+const Domino = React.forwardRef<View, {}>(({ }, ref) => {
     return (
-        <View style={styles.DominoOuterContainer}>
+        <View style={styles.DominoOuterContainer} ref={ref}>
             <View style={styles.DominoInnerContainer}>
                 {Array(6)
                     .fill(0)
@@ -15,12 +15,14 @@ export default function Domino(): JSX.Element {
             </View>
         </View>
     )
-}
+})
+
+export default React.memo(Domino)
 
 const styles = StyleSheet.create({
     DominoOuterContainer: {
         height: '60%',
-        // cursor: 'grab',
+        cursor: 'grab',
         display: 'flex',
         flexWrap: 'wrap',
         paddingLeft: 12,

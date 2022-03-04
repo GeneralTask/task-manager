@@ -10,7 +10,7 @@ const NavigationView = () => {
     const dispatch = useAppDispatch()
     const { data: taskSections, isLoading } = useGetTasksQuery()
     const links = taskSections?.map(section =>
-        <Link key={section.id} to={`/tasks/${section.id}`}>{section.name}</Link>
+        <Link key={section.id} to={`/tasks/${section.id}`}><Text>{section.name}</Text></Link>
     )
 
     return isLoading || !taskSections ?
