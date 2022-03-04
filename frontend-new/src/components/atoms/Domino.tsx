@@ -1,6 +1,7 @@
 import React from 'react'
 import { gray } from '../../styles/colors'
 import { View, StyleSheet } from 'react-native'
+import { Flex } from '../../styles'
 
 
 const Domino = React.forwardRef<View, {}>(({ }, ref) => {
@@ -21,17 +22,13 @@ const styles = StyleSheet.create({
     DominoOuterContainer: {
         height: '60%',
         cursor: 'grab',
-        display: 'flex',
-        flexWrap: 'wrap',
         paddingLeft: 12,
         paddingRight: 12,
     },
     DominoInnerContainer: {
         height: '100%',
-        width: '10px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        flexDirection: 'row',
+        width: 10,
+        ...Flex.wrap,
         alignItems: 'center',
     },
     DominoDot: {
