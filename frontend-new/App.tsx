@@ -5,22 +5,26 @@ import store from './src/redux/store'
 import TasksScreen from './src/screens/TasksScreen'
 import { Route, Router, Routes, Outlet, Navigate } from './src/services/routing'
 import PrivateOutlet from './src/services/PrivateOutlet'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 
 const App = () => {
   return (
     <Provider store={store}>
-      <Router>
-        <Routes>
-          <Route path="*" element={<Navigate to="/" />} />
-          <Route path="/" element={<Outlet />} >
-            <Route index element={<LandingScreen />} />
-            <Route path="tasks" element={<PrivateOutlet />}>
-              <Route index element={<TasksScreen />} />
-              <Route path=":section" element={<TasksScreen />} />
+      <DndProvider backend={HTML5Backend}>
+        <Router>
+          <Routes>
+            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="/" element={<Outlet />} >
+              <Route index element={<LandingScreen />} />
+              <Route path="tasks" element={<PrivateOutlet />}>
+                <Route index element={<TasksScreen />} />
+                <Route path=":section" element={<TasksScreen />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
-      </Router>
+          </Routes>
+        </Router>
+      </DndProvider>
     </Provider >
   )
 }
