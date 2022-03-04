@@ -14,3 +14,8 @@ export const row: ViewStyle = {
     display: 'flex',
     flexDirection: 'row',
 }
+
+export const wrap: ViewStyle = {
+    display: 'flex',
+    flexWrap: 'wrap',
+}

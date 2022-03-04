@@ -15,6 +15,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const DEFAULT_MESSAGE_LIMIT int = 100
+
+type messagesListParams struct {
+	database.Pagination `form:",inline" json:",inline"`
+	OnlyUnread  *bool `form:"only_unread" json:"only_unread"`
+}
+
 func (api *API) MessagesListV2(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -36,19 +43,24 @@ func (api *API) MessagesListV2(c *gin.Context) {
 		return
 	}
 
-	var pagination database.Pagination
-	err = c.Bind(&pagination)
+	var params messagesListParams
+	err = c.Bind(&params)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
-
-	var emails *[]database.Item
-	if pagination.Limit == nil || pagination.Page == nil {
-		emails, err = database.GetUnreadEmails(db, userID.(primitive.ObjectID))
-	} else {
-		emails, err = database.GetUnreadEmailsPaged(db, userID.(primitive.ObjectID), pagination)
+	onlyUnread := false
+	if params.OnlyUnread != nil && *params.OnlyUnread {
+		onlyUnread = true
 	}
+	if !database.IsValidPagination(params.Pagination) {
+		limit := DEFAULT_MESSAGE_LIMIT
+		page := 1
+		params.Pagination = database.Pagination{Limit: &limit, Page: &page}
+	}
+
+
+	emails, err := database.GetEmails(db, userID.(primitive.ObjectID), onlyUnread, params.Pagination)
 	if err != nil {
 		Handle500(c)
 		return

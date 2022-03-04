@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useRef } from 'react'
+import { useDrag } from 'react-dnd'
 import { Platform, Pressable, View, Text, StyleSheet } from 'react-native'
 import { Colors, Flex } from '../../styles'
-import { TTask } from '../../utils/types'
+import { Indices, ItemTypes, TTask } from '../../utils/types'
 import CompleteButton from '../atoms/buttons/CompleteButton'
+import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 
 interface TaskProps {
@@ -16,9 +18,25 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
             setSheetTaskId(task.id)
         }
     }
+
+    const isDraggable = true
+
+    const indicesRef = useRef<Indices>()
+
+    const [, drag, dragPreview] = useDrag(() => ({
+        type: ItemTypes.TASK,
+        item: { id: task.id, indicesRef: indicesRef },
+        collect: (monitor) => {
+            const isDragging = !!monitor.isDragging()
+            return { opacity: isDragging ? 0.5 : 1 }
+        },
+    }))
+
+
     return (
-        <Pressable style={styles.container} onPress={onPress}>
+        <Pressable style={styles.container} onPress={onPress} ref={dragPreview}>
             <View style={styles.container}>
+                {isDraggable && <Domino ref={drag} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />
                 <Icon style={styles.iconContainer} />
                 <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
@@ -37,7 +55,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         paddingTop: 5,
         paddingBottom: 5,
-        paddingLeft: 9,
     },
     iconContainer: {
         width: 20,
