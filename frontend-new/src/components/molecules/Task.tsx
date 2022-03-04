@@ -20,7 +20,9 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
         <Pressable style={styles.container} onPress={onPress}>
             <View style={styles.container}>
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />
-                <Icon style={styles.iconContainer} />
+                <View style={styles.iconContainer}>
+                    <Icon size="small" />
+                </View>
                 <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
             </View>
         </Pressable>
@@ -40,11 +42,6 @@ const styles = StyleSheet.create({
         paddingLeft: 9,
     },
     iconContainer: {
-        width: 20,
-        height: 20,
-        ...Flex.column,
-        alignItems: 'center',
-        justifyContent: 'center',
         marginLeft: 6,
     },
     title: {

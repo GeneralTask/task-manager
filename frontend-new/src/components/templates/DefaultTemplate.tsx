@@ -18,7 +18,7 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
 const styles = StyleSheet.create({
     container: {
         ...Flex.row,
-        height: '100%'
+        height: '100vh'
     }
 })
 

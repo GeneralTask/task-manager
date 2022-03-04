@@ -35,7 +35,8 @@
     "react-redux": "^7.2.6",
     "react-router-dom": "6",
     "react-router-native": "^6.2.2",
-    "reanimated-bottom-sheet": "^1.0.0-alpha.22"
+    "reanimated-bottom-sheet": "^1.0.0-alpha.22",
+    "styled-components": "^5.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
