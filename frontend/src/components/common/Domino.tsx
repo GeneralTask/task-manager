@@ -18,7 +18,7 @@ export const DominoDot = styled.div`
     margin: 1px;
 `
 
-function Domino(): JSX.Element {
+const Domino = () => {
     return (
         <DominoContainer data-testid="domino-handler">
             {Array(6)
