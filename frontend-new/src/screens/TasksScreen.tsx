@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
+import { View, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
 import React, { useRef, useState } from 'react'
 import BottomSheet from 'reanimated-bottom-sheet'
 import { getSectionById } from '../utils/task'
@@ -17,7 +17,7 @@ const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
     const refetchWasLocal = useRef(false)
     const sheetRef = React.useRef<BottomSheet>(null)
-    const routerSection = useParams().section
+    const routerSection = useParams().section || ''
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
@@ -28,11 +28,11 @@ const TasksScreen = () => {
     }
 
     //redirect to first valid section id if one was not provided in the URL path
-    if (!routerSection || (!isLoading && (taskSections && getSectionById(taskSections, routerSection)) === undefined)) {
-        if (taskSections == null || taskSections.length === 0) return (<View><Text>404 Bad!</Text></View>)
+    if (taskSections && !getSectionById(taskSections, routerSection) && taskSections.length > 0) {
         const firstSectionId = taskSections[0].id
         return <Navigate to={`/tasks/${firstSectionId}`} />
     }
+
     const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
     const currentSection = taskSections ? getSectionById(taskSections, routerSection) : null
 

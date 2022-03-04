@@ -1,6 +1,6 @@
 import { TTask, TTaskSection } from './types'
 
-export const getSectionById = (sections: TTaskSection[] | null, id: string): TTaskSection | undefined => {
+export const getSectionById = (sections: TTaskSection[], id: string): TTaskSection | undefined => {
     if (!sections) return undefined
     return sections.find(section => section.id === id)
 }
