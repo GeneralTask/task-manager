@@ -21,15 +21,13 @@ const NavigationView = () => {
     const { data: taskSections, isLoading } = useGetTasksQuery()
     const { section: sectionIdParam } = useParams()
 
-    return isLoading || !taskSections ?
-        <Loading /> :
+    return (
         <View style={styles.container}>
             <NavigationViewHeader >
                 <Icon size="medium" />
             </NavigationViewHeader>
-
             {
-                taskSections?.map(section =>
+                isLoading || !taskSections ? <Loading /> : taskSections?.map(section =>
                     <View key={section.id} style={[styles.linkContainer, (sectionIdParam === section.id) ?
                         styles.linkContainerSelected : null]}>
                         <Icon size="small" source={require('../../assets/inbox.png')} />
@@ -41,6 +39,7 @@ const NavigationView = () => {
             }
             <Pressable onPress={() => authSignOut(dispatch)}><Text>Sign Out</Text></Pressable>
         </View>
+    )
 }
 
 const styles = StyleSheet.create({
