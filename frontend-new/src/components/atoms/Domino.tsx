@@ -3,7 +3,7 @@ import { gray } from '../../styles/colors'
 import { View, StyleSheet } from 'react-native'
 import { Flex } from '../../styles'
 
-const Domino = React.forwardRef<View, never>((_, ref) => {
+const Domino = React.forwardRef<View>((_, ref) => {
     return (
         <View style={styles.DominoOuterContainer} ref={ref}>
             <View style={styles.DominoInnerContainer}>

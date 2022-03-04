@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { Ref, useRef } from 'react'
 import { useDrag } from 'react-dnd'
 import { Platform, Pressable, View, Text, StyleSheet } from 'react-native'
 import { Colors, Flex } from '../../styles'
@@ -34,9 +34,9 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
 
 
     return (
-        <Pressable style={styles.container} onPress={onPress} ref={dragPreview}>
+        <Pressable style={styles.container} onPress={onPress} ref={dragPreview as Ref<View>}>
             <View style={styles.container}>
-                {isDraggable && <Domino ref={drag} />}
+                {isDraggable && <Domino ref={drag as Ref<View>} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />
                 <Icon style={styles.iconContainer} />
                 <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
