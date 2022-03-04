@@ -5567,6 +5567,14 @@ react-dnd-html5-backend@^15.1.2:
   dependencies:
     dnd-core "15.1.1"
 
+react-dnd-touch-backend@^15.1.1:
+  version "15.1.1"
+  resolved "https://registry.yarnpkg.com/react-dnd-touch-backend/-/react-dnd-touch-backend-15.1.1.tgz#c51b2d765eb88219a228cb93131744c834c3e633"
+  integrity sha512-3OuPGvt5iCy+UnwL8tLaTH6KZWu71JOoxyUhMTgjJFF08SnAqROydgLIGz6JXiIGjkBGLq8j/rkSvO7jr7050A==
+  dependencies:
+    "@react-dnd/invariant" "3.0.0"
+    dnd-core "15.1.1"
+
 react-dnd@^15.1.1:
   version "15.1.1"
   resolved "https://registry.yarnpkg.com/react-dnd/-/react-dnd-15.1.1.tgz#feb233200cb372ea6382b511baac6cc52a0068dc"

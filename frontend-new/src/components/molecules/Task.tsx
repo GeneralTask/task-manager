@@ -34,7 +34,7 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
 
 
     return (
-        <View style={styles.container} onPress={onPress} ref={dragPreview}>
+        <View style={styles.container} onPress={onPress} ref={drag}>
             <View style={styles.container}>
                 {isDraggable && <Domino />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />

@@ -20,7 +20,7 @@ export default function Domino(): JSX.Element {
 const styles = StyleSheet.create({
     DominoOuterContainer: {
         height: '60%',
-        cursor: 'grab',
+        // cursor: 'grab',
         display: 'flex',
         flexWrap: 'wrap',
         paddingLeft: 12,
