@@ -20,14 +20,6 @@ const TasksScreen = () => {
     const routerSection = useParams().section
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
 
-    //redirect to first valid section if one was not provided in url
-    if (!routerSection || (!isLoading && (taskSections && getSectionById(taskSections, routerSection)) === undefined)) {
-        if (taskSections == null || taskSections.length === 0) return (<View><Text>404 Bad!</Text></View>)
-        const firstSectionId = taskSections[0].id
-        return <Navigate to={`/tasks/${firstSectionId}`} />
-    }
-    const currentSection = taskSections ? getSectionById(taskSections, routerSection) : null
-
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
     const onRefresh = () => {
@@ -35,20 +27,23 @@ const TasksScreen = () => {
         refetch()
     }
 
+    //redirect to first valid section id if one was not provided in the URL path
+    if (!routerSection || (!isLoading && (taskSections && getSectionById(taskSections, routerSection)) === undefined)) {
+        if (taskSections == null || taskSections.length === 0) return (<View><Text>404 Bad!</Text></View>)
+        const firstSectionId = taskSections[0].id
+        return <Navigate to={`/tasks/${firstSectionId}`} />
+    }
+    const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
+    const currentSection = taskSections ? getSectionById(taskSections, routerSection) : null
+
     return (
         <>
             <DefaultTemplate>
-                <ScrollView
-                    style={styles.container}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={isFetching && !isLoading && refetchWasLocal.current}
-                            onRefresh={onRefresh}
-                        />
-                    }>
+                <ScrollView style={styles.container} refreshControl={refreshControl}>
                     <View style={styles.tasksContent}>
                         {
-                            isLoading || !currentSection ? <Loading /> :
+                            (isLoading || !currentSection) ?
+                                <Loading /> :
                                 <View>
                                     <TasksScreenHeader title={currentSection.name} id={currentSection.id} />
                                     {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
