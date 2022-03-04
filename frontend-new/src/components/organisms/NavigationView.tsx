@@ -17,7 +17,11 @@ const NavigationView = () => {
         <Loading /> :
         <View>
             {links}
-            <Pressable onPress={() => authSignOut(dispatch)}><Text>Sign Out</Text></Pressable>
+            <Pressable onPress={() => authSignOut(dispatch)}>
+                <Text>
+                    Sign Out
+                </Text>
+            </Pressable>
         </View>
 
 }
