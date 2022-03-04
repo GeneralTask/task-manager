@@ -53,9 +53,6 @@ const TasksScreen = () => {
                         }
                     </View>
                 </ScrollView>
-                {/* <ScrollView style={styles.calendarContainer}> */}
-                <CalendarSidebar />
-                {/* </ScrollView> */}
             </DefaultTemplate>
             {
                 Platform.OS === 'ios' &&
@@ -87,10 +84,6 @@ const styles = StyleSheet.create({
             }
         }),
         backgroundColor: 'red'
-    },
-    calendarContainer: {
-        maxWidth: 400,
-        height: '100vh',
     }
 })
 
