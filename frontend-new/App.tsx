@@ -8,9 +8,9 @@ import PrivateOutlet from './src/services/PrivateOutlet'
 import { useFonts } from '@use-expo/font'
 
 const App = () => {
-  // useFonts({
-  //   'Switzer': require('./src/assets/fonts/switzer'),
-  // })
+  useFonts({
+    'Switzer-Variable': require('./src/assets/fonts/fonts/Switzer-Variable.ttf'),
+  })
 
   return (
     <Provider store={store}>
@@ -26,7 +26,6 @@ const App = () => {
           </Route>
         </Routes>
       </Router>
-      <link rel="stylesheet" href="./src/assets/fonts/switzer/switzer.css" />
     </Provider >
   )
 }

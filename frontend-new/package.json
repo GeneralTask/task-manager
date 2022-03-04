@@ -17,6 +17,7 @@
     "@react-navigation/native-stack": "^6.5.0",
     "@reduxjs/toolkit": "^1.7.2",
     "@types/luxon": "^2.3.0",
+    "@use-expo/font": "^2.0.0",
     "dotenv": "^16.0.0",
     "expo": "~44.0.0",
     "expo-linking": "^3.0.0",

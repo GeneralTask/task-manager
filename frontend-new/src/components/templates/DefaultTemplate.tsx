@@ -20,7 +20,8 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
 const styles = StyleSheet.create({
     container: {
         ...Flex.row,
-        height: '100vh'
+        height: '100vh',
+        fontFamily: 'Switzer-Variable',
     }
 })
 
