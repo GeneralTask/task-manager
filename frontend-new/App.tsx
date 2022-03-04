@@ -5,8 +5,13 @@ import store from './src/redux/store'
 import TasksScreen from './src/screens/TasksScreen'
 import { Route, Router, Routes, Outlet, Navigate } from './src/services/routing'
 import PrivateOutlet from './src/services/PrivateOutlet'
+import { useFonts } from '@use-expo/font'
 
 const App = () => {
+  // useFonts({
+  //   'Switzer': require('./src/assets/fonts/switzer'),
+  // })
+
   return (
     <Provider store={store}>
       <Router>
@@ -21,6 +26,7 @@ const App = () => {
           </Route>
         </Routes>
       </Router>
+      <link rel="stylesheet" href="./src/assets/fonts/switzer/switzer.css" />
     </Provider >
   )
 }
