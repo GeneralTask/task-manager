@@ -23,7 +23,7 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
 
     const indicesRef = useRef<Indices>()
 
-    const [{ opacity }, drag, dragPreview] = useDrag(() => ({
+    const [, drag, dragPreview] = useDrag(() => ({
         type: ItemTypes.TASK,
         item: { id: task.id, indicesRef: indicesRef },
         collect: (monitor) => {
