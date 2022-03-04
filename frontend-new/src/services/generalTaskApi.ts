@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import getEnvVars from '../environment'
-import { TTask, TTaskSection } from '../utils/types'
+import { TEvent, TTask, TTaskSection } from '../utils/types'
 import type { RootState } from '../redux/store'
 import Cookies from 'js-cookie'
 import { Platform } from 'react-native'
@@ -20,7 +20,7 @@ export const generalTaskApi = createApi({
             return headers
         }
     }),
-    tagTypes: ['Tasks'],
+    tagTypes: ['Tasks', 'Events'],
     endpoints: (builder) => ({
         getTasks: builder.query<TTaskSection[], void>({
             query: () => 'tasks/',
@@ -176,7 +176,19 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
+        getEvents: builder.query<TEvent[], { startISO: string, endISO: string }>({
+            query: (data) => ({
+                url: 'events/',
+                method: 'GET',
+                params: {
+                    datetime_start: data.startISO,
+                    datetime_end: data.endISO,
+                },
+            }),
+            providesTags: ['Events'],
+
+        }),
     }),
 })
 
-export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation } = generalTaskApi
+export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery } = generalTaskApi

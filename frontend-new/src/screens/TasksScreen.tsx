@@ -11,6 +11,7 @@ import Loading from '../components/atoms/Loading'
 import { Navigate, useParams } from '../services/routing'
 import TaskBottomSheet from '../components/organisms/TaskBottomSheet'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
+import CalendarSidebar from '../components/calendar/CalendarSidebar'
 
 
 const TasksScreen = () => {
@@ -52,6 +53,9 @@ const TasksScreen = () => {
                         }
                     </View>
                 </ScrollView>
+                {/* <ScrollView style={styles.calendarContainer}> */}
+                <CalendarSidebar />
+                {/* </ScrollView> */}
             </DefaultTemplate>
             {
                 Platform.OS === 'ios' &&
@@ -83,6 +87,10 @@ const styles = StyleSheet.create({
             }
         }),
         backgroundColor: 'red'
+    },
+    calendarContainer: {
+        maxWidth: 400,
+        height: '100vh',
     }
 })
 
