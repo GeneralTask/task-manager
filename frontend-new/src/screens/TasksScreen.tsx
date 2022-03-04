@@ -28,11 +28,7 @@ const TasksScreen = () => {
     }
 
     //redirect to first valid section id if one was not provided in the URL path
-    if (!routerSection && taskSections && taskSections.length > 0) {
-        const firstSectionId = taskSections[0].id
-        return <Navigate to={`/tasks/${firstSectionId}`} />
-    }
-    if (routerSection && taskSections && !getSectionById(taskSections, routerSection)) {
+    if (taskSections && !getSectionById(taskSections, routerSection) && taskSections.length > 0) {
         const firstSectionId = taskSections[0].id
         return <Navigate to={`/tasks/${firstSectionId}`} />
     }
