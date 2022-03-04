@@ -14,8 +14,9 @@ const App = () => {
           <Route path="*" element={<Navigate to="/" />} />
           <Route path="/" element={<Outlet />} >
             <Route index element={<LandingScreen />} />
-            <Route path="tasks/:section" element={<PrivateOutlet />}>
+            <Route path="tasks" element={<PrivateOutlet />}>
               <Route index element={<TasksScreen />} />
+              <Route path=":section" element={<TasksScreen />} />
             </Route>
           </Route>
         </Routes>

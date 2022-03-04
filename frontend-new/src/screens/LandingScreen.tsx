@@ -42,8 +42,7 @@ const LandingScreen = () => {
     const authCookie = Cookies.get('authToken')
 
     if (authToken || authCookie) {
-        console.log('hit me')
-        return <Navigate to="/tasks/today" />
+        return <Navigate to="/tasks" />
     }
 
 
