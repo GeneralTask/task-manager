@@ -141,7 +141,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
 
-			recipients := GetRecipients(message.Payload.Headers)
+			recipients := *GetRecipients(message.Payload.Headers)
 
 			email := &database.Item{
 				TaskBase: database.TaskBase{
@@ -149,7 +149,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					IDExternal:        message.Id,
 					IDTaskSection:     constants.IDTaskSectionToday,
 					Sender:            senderName,
-					Recipients:        *recipients,
 					SourceID:          TASK_SOURCE_ID_GMAIL,
 					Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, threadListItem.Id),
 					Title:             title,
@@ -162,6 +161,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					SenderDomain: senderDomain,
 					ThreadID:     threadListItem.Id,
 					IsUnread:     true,
+					Recipients:   recipients,
 				},
 				TaskType: database.TaskType{
 					IsMessage: true,
@@ -538,7 +538,7 @@ func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToCh
 }
 
 func GetRecipients(headers []*gmail.MessagePartHeader) *database.Recipients {
-	emptyRecipients := make([]database.Recipient, 0)
+	emptyRecipients := []database.Recipient{}
 	// to make lists are empty instead of nil
 	recipients := database.Recipients{
 		To:  emptyRecipients,
@@ -561,20 +561,20 @@ func GetRecipients(headers []*gmail.MessagePartHeader) *database.Recipients {
 // adds to recipients parameter
 func parseRecipients(recipientsString string) []database.Recipient {
 	split := strings.Split(recipientsString, ",")
-	recipients := make([]database.Recipient, 0)
+	recipients := []database.Recipient{}
 	for _, s := range split {
 		s = strings.TrimSpace(s)
 		recipient := database.Recipient{}
 		if strings.Contains(s, "<") {
-			recipient.Email = strings.Split(s, "<")[1]
+			if strings.Contains(s, "<") {
+				recipient.Email = strings.Split(s, "<")[1]
+			}
 			recipient.Email = strings.Trim(recipient.Email, "> ")
 			recipient.Name = strings.Split(s, "<")[0]
 			recipient.Name = strings.Trim(recipient.Name, "\" ")
 		} else {
 			recipient.Email = s
 		}
-		log.Println("\""+recipient.Name+"\"", recipient.Email)
-		log.Println("s:", s)
 		recipients = append(recipients, recipient)
 	}
 	return recipients

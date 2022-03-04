@@ -95,7 +95,6 @@ type TaskBase struct {
 	IDTaskSection    primitive.ObjectID `bson:"id_task_section"`
 	IsCompleted      bool               `bson:"is_completed"`
 	Sender           string             `bson:"sender"`
-	Recipients       Recipients         `bson:"recipients"`
 	SourceID         string             `bson:"source_id"`
 	SourceAccountID  string             `bson:"source_account_id"`
 	Deeplink         string             `bson:"deeplink"`
@@ -132,9 +131,10 @@ type CalendarEventChangeableFields struct {
 }
 
 type Email struct {
-	ThreadID     string `bson:"thread_id"`
-	SenderDomain string `bson:"sender_domain"`
-	IsUnread     bool   `bson:"is_unread"`
+	ThreadID     string     `bson:"thread_id"`
+	SenderDomain string     `bson:"sender_domain"`
+	IsUnread     bool       `bson:"is_unread"`
+	Recipients   Recipients `bson:"recipients"`
 }
 
 type EmailChangeable struct {

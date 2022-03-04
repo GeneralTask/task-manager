@@ -240,9 +240,9 @@ func (api *API) emailToMessage(e *database.Item) *message {
 	messageSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(e.SourceID)
 
 	recipients := Recipients{
-		To:  GetRecipients(e.Recipients.To),
-		Cc:  GetRecipients(e.Recipients.Cc),
-		Bcc: GetRecipients(e.Recipients.Bcc),
+		To:  getRecipients(e.Recipients.To),
+		Cc:  getRecipients(e.Recipients.Cc),
+		Bcc: getRecipients(e.Recipients.Bcc),
 	}
 
 	return &message{
@@ -262,4 +262,18 @@ func (api *API) emailToMessage(e *database.Item) *message {
 			IsReplyable:   messageSourceResult.Details.IsReplyable,
 		},
 	}
+}
+
+func getRecipients(dbRecipient []database.Recipient) []Recipient {
+	if len(dbRecipient) == 0 {
+		return make([]Recipient, 0)
+	}
+	recipients := make([]Recipient, len(dbRecipient))
+	for i, recipient := range dbRecipient {
+		recipients[i] = Recipient{
+			Name:  recipient.Name,
+			Email: recipient.Email,
+		}
+	}
+	return recipients
 }

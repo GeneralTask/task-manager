@@ -16,11 +16,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type TaskSection struct {
-	ID     primitive.ObjectID `json:"id"`
-	Name   string             `json:"name"`
-	Tasks  []*TaskResult      `json:"tasks"`
-	IsDone bool               `json:"is_done"`
+type TaskSource struct {
+	Name          string `json:"name"`
+	Logo          string `json:"logo"`
+	IsCompletable bool   `json:"is_completable"`
+	IsReplyable   bool   `json:"is_replyable"`
 }
 
 type TaskResult struct {
@@ -38,11 +38,11 @@ type TaskResult struct {
 	IsDone         bool               `json:"is_done"`
 }
 
-type TaskSource struct {
-	Name          string `json:"name"`
-	Logo          string `json:"logo"`
-	IsCompletable bool   `json:"is_completable"`
-	IsReplyable   bool   `json:"is_replyable"`
+type TaskSection struct {
+	ID     primitive.ObjectID `json:"id"`
+	Name   string             `json:"name"`
+	Tasks  []*TaskResult      `json:"tasks"`
+	IsDone bool               `json:"is_done"`
 }
 
 type Recipients struct {
@@ -222,7 +222,7 @@ func (api *API) mergeTasks(
 	}
 	completedTaskResults := []*TaskResult{}
 	for index, task := range *completedTasks {
-		taskResult := api.taskBaseToTaskResult(&task.TaskBase)
+		taskResult := api.taskBaseToTaskResult(&task)
 		taskResult.IDOrdering = index + 1
 		completedTaskResults = append(completedTaskResults, taskResult)
 	}
@@ -282,7 +282,7 @@ func (api *API) extractSectionTasksV2(
 	}
 	// this is inefficient but easy to understand - can optimize later as needed
 	for _, task := range *fetchedTasks {
-		taskResult := api.taskBaseToTaskResult(&task.TaskBase)
+		taskResult := api.taskBaseToTaskResult(task)
 		addedToSection := false
 		for _, resultSection := range resultSections {
 			if task.IDTaskSection == resultSection.ID {
@@ -358,7 +358,7 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 	return nil
 }
 
-func (api *API) taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
+func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 	taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
 	var dueDate string
 	if t.DueDate.Time().Unix() == int64(0) {
@@ -368,9 +368,9 @@ func (api *API) taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 	}
 
 	recipients := Recipients{
-		To:  GetRecipients(t.Recipients.To),
-		Cc:  GetRecipients(t.Recipients.Cc),
-		Bcc: GetRecipients(t.Recipients.Bcc),
+		To:  getRecipients(t.Recipients.To),
+		Cc:  getRecipients(t.Recipients.Cc),
+		Bcc: getRecipients(t.Recipients.Bcc),
 	}
 
 	return &TaskResult{
@@ -392,18 +392,4 @@ func (api *API) taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 		DueDate:        dueDate,
 		IsDone:         t.IsCompleted,
 	}
-}
-
-func GetRecipients(from []database.Recipient) []Recipient {
-	if len(from) == 0 {
-		return make([]Recipient, 0)
-	}
-	recipients := make([]Recipient, len(from))
-	for i, recipient := range from {
-		recipients[i] = Recipient{
-			Name:  recipient.Name,
-			Email: recipient.Email,
-		}
-	}
-	return recipients
 }
