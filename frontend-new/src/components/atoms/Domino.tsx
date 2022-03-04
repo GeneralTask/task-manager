@@ -17,8 +17,6 @@ const Domino = React.forwardRef<View, {}>(({ }, ref) => {
     )
 })
 
-export default React.memo(Domino)
-
 const styles = StyleSheet.create({
     DominoOuterContainer: {
         height: '60%',
@@ -44,3 +42,5 @@ const styles = StyleSheet.create({
         margin: 1,
     },
 })
+
+export default React.memo(Domino)
