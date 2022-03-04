@@ -1,106 +1,65 @@
-import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl, Dimensions } from 'react-native'
-import { DrawerScreenProps } from '@react-navigation/drawer'
-import { ParamListBase } from '@react-navigation/native'
-import Cookies from 'js-cookie'
-import React, { forwardRef, useEffect, useRef, useState } from 'react'
+import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
+import React, { useRef, useState } from 'react'
 import BottomSheet from 'reanimated-bottom-sheet'
-import { findTaskById } from '../utils/task'
-import EditSheet from '../components/organisms/EditSheet'
+import { getSectionById } from '../utils/task'
 import CreateNewTask from '../components/organisms/CreateNewTask'
 import TasksScreenHeader from '../components/molecules/Header'
 import TaskSections from '../components/organisms/Sections'
-import { useGetTasksQuery, useModifyTaskMutation } from '../services/generalTaskApi'
+import { useGetTasksQuery } from '../services/generalTaskApi'
 import { Screens, Flex, Colors } from '../styles'
-import { useAppDispatch } from '../redux/hooks'
-import { setAuthToken } from '../redux/userDataSlice'
+import Loading from '../components/atoms/Loading'
+import { Navigate, useParams } from '../services/routing'
+import TaskBottomSheet from '../components/organisms/TaskBottomSheet'
+import DefaultTemplate from '../components/templates/DefaultTemplate'
 
 
-interface TaskBottomSheetProps {
-    sheetTaskId: string,
-    setSheetTaskId: (id: string) => void
-}
-const TaskBottomSheet = forwardRef(({ sheetTaskId, setSheetTaskId }: TaskBottomSheetProps, sheetRef: React.Ref<BottomSheet>) => {
-    const { data: taskSections } = useGetTasksQuery()
-    const [text, setText] = useState('')
-    const currTaskIdRef = useRef('')
-    const [modifyTask] = useModifyTaskMutation()
-
-    const renderContent = () => {
-        if (!taskSections) return
-        const task = findTaskById(taskSections, sheetTaskId)
-        if (!task) return
-        currTaskIdRef.current = task.id
-        return <EditSheet setText={setText} task={task} />
-    }
-
-    return (<BottomSheet
-        initialSnap={1}
-        ref={sheetRef}
-        snapPoints={[Dimensions.get('window').height - 100, 0]}
-        borderRadius={10}
-        renderContent={renderContent}
-        onCloseEnd={() => {
-            modifyTask({
-                id: currTaskIdRef.current,
-                body: text
-            })
-            currTaskIdRef.current = ''
-            setSheetTaskId('')
-        }}
-    />)
-})
-const TasksScreen = ({ route }: DrawerScreenProps<ParamListBase, 'Tasks'>) => {
-    const routeName = route.name
+const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
     const refetchWasLocal = useRef(false)
-    const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
-    const sectionToDisplay = taskSections?.find(section => section.name === routeName)
-    const dispatch = useAppDispatch()
     const sheetRef = React.useRef<BottomSheet>(null)
+    const routerSection = useParams().section
+    const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
 
-    useEffect(() => {
-        if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
-    }, [])
-    useEffect(() => {
-        if (sheetTaskId) {
-            sheetRef.current?.snapTo(0)
-        }
-        else {
-            sheetRef.current?.snapTo(1)
-        }
-    }, [sheetTaskId])
+    //redirect to first valid section if one was not provided in url
+    if (!routerSection || (!isLoading && (taskSections && getSectionById(taskSections, routerSection)) === undefined)) {
+        if (taskSections == null || taskSections.length === 0) return (<View><Text>404 Bad!</Text></View>)
+        const firstSectionId = taskSections[0].id
+        return <Navigate to={`/tasks/${firstSectionId}`} />
+    }
+    let currentSection = taskSections ? getSectionById(taskSections, routerSection) : null
 
+    //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
-
     const onRefresh = () => {
         refetchWasLocal.current = true
         refetch()
     }
 
-    const LoadingView = <View><Text>Loading...</Text></View>
-
     return (
         <>
-            <ScrollView
-                style={styles.container}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={isFetching && !isLoading && refetchWasLocal.current}
-                        onRefresh={onRefresh}
-                    />
-                }>
-                <View style={styles.tasksContent}>
-                    {isLoading || sectionToDisplay == undefined ? LoadingView :
-                        <>
-                            <TasksScreenHeader title={sectionToDisplay.name} id={sectionToDisplay.id} />
-                            {!sectionToDisplay.is_done && <CreateNewTask section={sectionToDisplay.id} />}
-                            <TaskSections section={sectionToDisplay} setSheetTaskId={setSheetTaskId} />
-                        </>
-                    }
-                </View>
-            </ScrollView>
+            <DefaultTemplate>
+                <ScrollView
+                    style={styles.container}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={isFetching && !isLoading && refetchWasLocal.current}
+                            onRefresh={onRefresh}
+                        />
+                    }>
+                    <View style={styles.tasksContent}>
+                        {
+                            isLoading || !currentSection ? <Loading /> :
+                                <View>
+                                    <TasksScreenHeader title={currentSection.name} id={currentSection.id} />
+                                    {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
+                                    <TaskSections section={currentSection} setSheetTaskId={setSheetTaskId} />
+                                </View>
+                        }
+                    </View>
+                </ScrollView>
+            </DefaultTemplate>
             {
-                Platform.OS !== 'web' &&
+                Platform.OS === 'ios' &&
                 <TaskBottomSheet sheetTaskId={sheetTaskId} setSheetTaskId={setSheetTaskId} ref={sheetRef} />
             }
         </>

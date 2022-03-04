@@ -6,7 +6,9 @@ import { WAITLIST_URL } from '../constants'
 import GoogleSignInButton from '../components/atoms/buttons/GoogleSignInButton'
 import JoinWaitlistButton from '../components/atoms/buttons/JoinWaitlistButton'
 import { Colors, Flex, Images, Screens, Typography } from '../styles'
-
+import { Navigate } from '../services/routing'
+import { useAppSelector } from '../redux/hooks'
+import Cookies from 'js-cookie'
 const LandingScreen = () => {
     const [message, setMessage] = useState('')
     const { control, handleSubmit } = useForm({
@@ -14,7 +16,6 @@ const LandingScreen = () => {
             email: '',
         }
     })
-
     const onWaitlistSubmit = (data: { email: string }) => {
         joinWaitlist(data.email)
     }
@@ -37,6 +38,14 @@ const LandingScreen = () => {
             setMessage('There was an error adding you to the waitlist')
         }
     }
+    const { authToken } = useAppSelector(state => ({ authToken: state.user_data.auth_token }))
+    const authCookie = Cookies.get('authToken')
+
+    if (authToken || authCookie) {
+        console.log('hit me')
+        return <Navigate to="/tasks/today" />
+    }
+
 
     const errorMessageView = (
         <View style={styles.responseContainer}>
