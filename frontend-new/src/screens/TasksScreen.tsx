@@ -32,7 +32,7 @@ const TasksScreen = () => {
         const firstSectionId = taskSections[0].id
         return <Navigate to={`/tasks/${firstSectionId}`} />
     }
-    if (routerSection && taskSections && getSectionById(taskSections, routerSection) === undefined) {
+    if (routerSection && taskSections && !getSectionById(taskSections, routerSection)) {
         const firstSectionId = taskSections[0].id
         return <Navigate to={`/tasks/${firstSectionId}`} />
     }
