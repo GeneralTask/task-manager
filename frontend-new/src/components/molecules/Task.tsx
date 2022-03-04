@@ -19,9 +19,9 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
         }
     }
 
-    const isDraggable = true;
+    const isDraggable = true
 
-    const indicesRef = React.useRef<Indices>()
+    const indicesRef = useRef<Indices>()
 
     const [{ opacity }, drag, dragPreview] = useDrag(() => ({
         type: ItemTypes.TASK,
