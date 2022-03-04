@@ -169,188 +169,97 @@ func TestMarkItemComplete(t *testing.T) {
 	})
 }
 
-func TestGetUnreadEmails(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
-		db, dbCleanup, err := GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
-		userID := primitive.NewObjectID()
-		notUserID := primitive.NewObjectID()
-		task1, err := GetOrCreateTask(
-			db,
-			userID,
-			"123abc",
-			"gmail",
-			&Item{
-				Email: Email{
-					SenderDomain: "gmail",
-					IsUnread: true,
-				},
-				TaskBase: TaskBase{
-					IDExternal: "123abc",
-					SourceID:   "gmail",
-					UserID:     userID,
-				},
-				TaskType: TaskType{
-					IsMessage: true,
-				},
-			},
-		)
-		assert.NoError(t, err)
-		_, err = GetOrCreateTask(
-			db,
-			userID,
-			"123abcdef",
-			"gmail",
-			&Item{
-				Email: Email{
-					SenderDomain: "gmail",
-					IsUnread: false,
-				},
-				TaskBase: TaskBase{
-					IDExternal: "123abcdef",
-					SourceID:   "gmail",
-					UserID:     userID,
-				},
-				TaskType: TaskType{
-					IsMessage: true,
-				},
-			},
-		)
-		assert.NoError(t, err)
-		_, err = GetOrCreateTask(
-			db,
-			notUserID,
-			"123abd",
-			"gmail",
-			&Item{
-				Email: Email{
-					SenderDomain: "gmail",
-				},
-				TaskBase: TaskBase{
-					IDExternal: "123abd",
-					SourceID:   "gmail",
-					UserID:     notUserID,
-				},
-				TaskType: TaskType{
-					IsMessage: true,
-				},
-			},
-		)
-		assert.NoError(t, err)
-		_, err = GetOrCreateTask(
-			db,
-			userID,
-			"123abe",
-			"foobar_source",
-			&Item{TaskBase: TaskBase{
-				IDExternal: "123abe",
-				SourceID:   "foobar_source",
-				UserID:     userID,
-			}},
-		)
-		assert.NoError(t, err)
-
-		emails, err := GetUnreadEmails(db, userID)
-		assert.NoError(t, err)
-		assert.Equal(t, 1, len(*emails))
-		assert.Equal(t, task1.ID, (*emails)[0].ID)
-	})
-}
-
-func TestGetUnreadEmailsPaged(t *testing.T) {
+func TestGetEmails(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
-	createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 	task1, err := GetOrCreateTask(
 		db,
 		userID,
 		"email_paginate_task_1",
 		"gmail",
-		&Item{
-			Email: Email{
-				SenderDomain: "gmail",
-				IsUnread: true,
-			},
-			TaskBase: TaskBase{
-				IDExternal: "email_paginate_task_1",
-				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
-				SourceID:   "gmail",
-				UserID:     userID,
-			},
-			TaskType: TaskType{
-				IsMessage: true,
-			},
-		},
+		createTestMessage(userID, "email_paginate_task_1", true, createTimestamp("2019-04-20")),
 	)
 	assert.NoError(t, err)
 
-	createdAt, _ = time.Parse("2006-01-02", "2017-04-20")
 	task2, err := GetOrCreateTask(
 		db,
 		userID,
 		"email_paginate_task_2",
 		"gmail",
-		&Item{
-			Email: Email{
-				SenderDomain: "gmail",
-				IsUnread: true,
-			},
-			TaskBase: TaskBase{
-				IDExternal: "email_paginate_task_2",
-				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
-				SourceID:   "gmail",
-				UserID:     userID,
-			},
-			TaskType: TaskType{
-				IsMessage: true,
-			},
-		},
+		createTestMessage(userID, "email_paginate_task_2", true, createTimestamp("2017-04-20")),
 	)
 	assert.NoError(t, err)
 
-	createdAt, _ = time.Parse("2006-01-02", "2020-04-20")
 	task3, err := GetOrCreateTask(
 		db,
 		userID,
 		"email_paginate_task_3",
 		"gmail",
-		&Item{
-			Email: Email{
-				SenderDomain: "gmail",
-				IsUnread: true,
-			},
-			TaskBase: TaskBase{
-				IDExternal: "email_paginate_task_3",
-				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
-				SourceID:   "gmail",
-				UserID:     userID,
-			},
-			TaskType: TaskType{
-				IsMessage: true,
-			},
-		},
+		createTestMessage(userID, "email_paginate_task_3", true, createTimestamp("2020-04-20")),
 	)
 	assert.NoError(t, err)
-	t.Run("SuccessAllOrdering", func(t *testing.T) {
-		limit := 3
+
+	task4, err := GetOrCreateTask(
+		db,
+		userID,
+		"email_paginate_task_4",
+		"gmail",
+		createTestMessage(userID, "email_paginate_task_4", false, createTimestamp("2016-04-20")),
+	)
+
+	assert.NoError(t, err)
+	t.Run("SuccessUnreadAllInvalidPagination", func(t *testing.T) {
 		page := 1
-		paged_emails, err := GetUnreadEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
+		paged_emails, err := GetEmails(db, userID, true, Pagination{Limit: nil, Page: &page})
 		assert.NoError(t, err)
 		assert.Equal(t, 3, len(*paged_emails))
 		assert.Equal(t, task3.ID, (*paged_emails)[0].ID)
 		assert.Equal(t, task1.ID, (*paged_emails)[1].ID)
 		assert.Equal(t, task2.ID, (*paged_emails)[2].ID)
 	})
-	t.Run("SuccessPaged", func(t *testing.T) {
+	t.Run("SuccessUnreadAllEmptyPagination", func(t *testing.T) {
+		paged_emails, err := GetEmails(db, userID, true, Pagination{})
+		assert.NoError(t, err)
+		assert.Equal(t, 3, len(*paged_emails))
+		assert.Equal(t, task3.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, task1.ID, (*paged_emails)[1].ID)
+		assert.Equal(t, task2.ID, (*paged_emails)[2].ID)
+	})
+	t.Run("SuccessUnreadLimited", func(t *testing.T) {
+		limit := 2
+		page := 1
+		paged_emails, err := GetEmails(db, userID, true, Pagination{Limit: &limit, Page: &page})
+		assert.NoError(t, err)
+		assert.Equal(t, 2, len(*paged_emails))
+		assert.Equal(t, task3.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, task1.ID, (*paged_emails)[1].ID)
+	})
+	t.Run("SuccessUnreadPaged", func(t *testing.T) {
 		limit := 1
 		page := 3
-		paged_emails, err := GetUnreadEmailsPaged(db, userID, Pagination{Limit: &limit, Page: &page})
+		paged_emails, err := GetEmails(db, userID, true, Pagination{Limit: &limit, Page: &page})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*paged_emails))
 		assert.Equal(t, task2.ID, (*paged_emails)[0].ID)
+	})
+	t.Run("SuccessAll", func(t *testing.T) {
+		paged_emails, err := GetEmails(db, userID, false, Pagination{})
+		assert.NoError(t, err)
+		assert.Equal(t, 4, len(*paged_emails))
+		assert.Equal(t, task3.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, task1.ID, (*paged_emails)[1].ID)
+		assert.Equal(t, task2.ID, (*paged_emails)[2].ID)
+		assert.Equal(t, task4.ID, (*paged_emails)[3].ID)
+	})
+	t.Run("SuccessAllPaged", func(t *testing.T) {
+		limit := 1
+		page := 4
+		paged_emails, err := GetEmails(db, userID, false, Pagination{Limit: &limit, Page: &page})
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*paged_emails))
+		assert.Equal(t, task4.ID, (*paged_emails)[0].ID)
 	})
 }
 
@@ -368,4 +277,27 @@ func TestInsertLogEvent(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 	})
+}
+
+func createTestMessage(userID primitive.ObjectID, externalID string, isUnread bool, createdAt time.Time) *Item {
+	return &Item{
+		Email: Email{
+			SenderDomain: "gmail",
+			IsUnread:     isUnread,
+		},
+		TaskBase: TaskBase{
+			IDExternal:        externalID,
+			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+			SourceID:          "gmail",
+			UserID:            userID,
+		},
+		TaskType: TaskType{
+			IsMessage: true,
+		},
+	}
+}
+
+func createTimestamp(dt string) time.Time {
+	createdAt, _ := time.Parse("2006-01-02", dt)
+	return createdAt
 }

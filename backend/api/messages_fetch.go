@@ -38,7 +38,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		return
 	}
 
-	currentEmails, err := database.GetUnreadEmails(db, userID.(primitive.ObjectID))
+	currentEmails, err := database.GetEmails(db, userID.(primitive.ObjectID), true, database.Pagination{})
 	if err != nil {
 		Handle500(c)
 		return
