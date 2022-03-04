@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
+import { View, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
 import React, { useRef, useState } from 'react'
 import BottomSheet from 'reanimated-bottom-sheet'
 import { getSectionById } from '../utils/task'
