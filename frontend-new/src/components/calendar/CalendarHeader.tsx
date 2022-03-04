@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { useCallback, useState } from 'react'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import React, { useCallback } from 'react'
 import {
     CalendarHeaderContainer,
     HoverButton,

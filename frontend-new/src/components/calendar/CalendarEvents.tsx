@@ -9,7 +9,6 @@ import {
     CALENDAR_DEFAULT_SCROLL_HOUR,
 } from './CalendarEvents-styles'
 import React, { Ref, useEffect, useRef } from 'react'
-import { useAppSelector } from '../../redux/hooks'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import CollisionGroupColumns from './CollisionGroupColumns'

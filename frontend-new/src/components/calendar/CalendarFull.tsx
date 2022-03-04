@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Colors } from '../../styles'
 
@@ -33,23 +33,6 @@ const CalendarDayHeader = styled.div`
 
 export default function CalendarFull(): JSX.Element {
     const [date, setDate] = useState<DateTime>(DateTime.now())
-    const [selectedDateIsToday, setSelectedDateIsToday] = useState<boolean>(true)
-
-    // keep track of when the selected date is supposed to be today
-    useEffect(() => {
-        setSelectedDateIsToday(date.day === DateTime.now().day)
-    }, [date])
-
-    // check if the selected date is supposed to be today, but it isn't  (e.g. we passed midnight)
-    // useInterval(
-    //     useCallback(() => {
-    //         if (selectedDateIsToday && !dateIsToday(date)) {
-    //             setDate(DateTime.now())
-    //         }
-    //     }, [date, selectedDateIsToday]),
-    //     1,
-    //     false
-    // )
 
     return (
         <CalendarFullContainer>
