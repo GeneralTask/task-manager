@@ -67,7 +67,7 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     height: calc(${(props) => props.eventBodyHeight}px - ${EVENT_BOTTOM_PADDING}px);
     top: ${(props) => props.topOffset}px;
     position: absolute;
-    left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset));
+    left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + ${CELL_LEFT_MARGIN}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset));
     opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
 `
 export const EventInfoContainer = styled.div`
