@@ -5,6 +5,7 @@ import store from './src/redux/store'
 import TasksScreen from './src/screens/TasksScreen'
 import { Route, Router, Routes, Outlet, Navigate } from './src/services/routing'
 import PrivateOutlet from './src/services/PrivateOutlet'
+import { useFonts } from '@use-expo/font'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { TouchBackend } from 'react-dnd-touch-backend'
@@ -12,6 +13,9 @@ import { Platform } from 'react-native'
 
 const App = () => {
   const backend = Platform.OS === 'web' ? HTML5Backend : TouchBackend
+  useFonts({
+    'Switzer-Variable': require('./src/assets/fonts/fonts/Switzer-Variable.ttf'),
+  })
   return (
     <Provider store={store}>
       <DndProvider backend={backend}>
