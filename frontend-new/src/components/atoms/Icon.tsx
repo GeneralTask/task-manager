@@ -16,8 +16,7 @@ interface IconProps {
     source?: NodeRequire
 }
 export const Icon = (props: IconProps) => {
-    let image = require('../../assets/generaltask.png')
-    if (props.source) image = props.source
+    const image = props.source ?? require('../../assets/generaltask.png')
     const dimension =
         props.size === 'small' ? Dimensions.iconSize.small :
             props.size === 'medium' ? Dimensions.iconSize.medium : Dimensions.iconSize.large
