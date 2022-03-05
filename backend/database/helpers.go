@@ -109,9 +109,10 @@ func GetOrCreateTask(db *mongo.Database,
 	var task TaskBase
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = taskCollection.FindOne(
+	err = taskCollection.FindOneAndUpdate(
 		dbCtx,
 		dbQuery,
+		bson.M{"$set": fieldsToInsertIfMissing},
 	).Decode(&task)
 	if err != nil {
 		log.Printf("Failed to get task: %v", err)

@@ -14,6 +14,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"github.com/GeneralTask/task-manager/backend/utils"
+	"github.com/chidiwilliams/flatbson"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/api/gmail/v1"
@@ -87,13 +88,15 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				continue
 			}
 
-			var sender = ""
-			var title = ""
+			sender := ""
+			replyTo := ""
+			title := ""
 			for _, header := range message.Payload.Headers {
 				if header.Name == "From" {
 					sender = header.Value
-				}
-				if header.Name == "Subject" {
+				} else if header.Name == "Reply-To" {
+					replyTo = header.Value
+				} else if header.Name == "Subject" {
 					title = header.Value
 				}
 			}
@@ -157,6 +160,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				},
 				Email: database.Email{
 					SenderDomain: senderDomain,
+					SenderEmail:  senderEmail,
+					ReplyTo: 	  replyTo,
 					ThreadID:     threadListItem.Id,
 					IsUnread:     true,
 				},
@@ -164,7 +169,14 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					IsMessage: true,
 				},
 			}
-			dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.SourceID, email)
+
+			// We flatten in order to do partial updates of nested documents correctly in mongodb
+			flattenedUpdateFields, err := flatbson.Flatten(email)
+			if err != nil {
+				log.Printf("Could not flatten %+v, error: %+v", email, err)
+				return
+			}
+			dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedUpdateFields)
 			if err != nil {
 				result <- emptyEmailResult(err)
 				return
