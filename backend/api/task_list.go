@@ -367,12 +367,6 @@ func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
 
-	recipients := Recipients{
-		To:  getRecipients(t.Recipients.To),
-		Cc:  getRecipients(t.Recipients.Cc),
-		Bcc: getRecipients(t.Recipients.Bcc),
-	}
-
 	return &TaskResult{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
@@ -387,9 +381,13 @@ func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 		Body:           t.Body,
 		TimeAllocation: t.TimeAllocation,
 		Sender:         t.Sender,
-		Recipients:     recipients,
-		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
-		DueDate:        dueDate,
-		IsDone:         t.IsCompleted,
+		Recipients: Recipients{
+			To:  getRecipients(t.Recipients.To),
+			Cc:  getRecipients(t.Recipients.Cc),
+			Bcc: getRecipients(t.Recipients.Bcc),
+		},
+		SentAt:  t.CreatedAtExternal.Time().Format(time.RFC3339),
+		DueDate: dueDate,
+		IsDone:  t.IsCompleted,
 	}
 }

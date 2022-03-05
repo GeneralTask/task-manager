@@ -239,21 +239,19 @@ func markReadMessagesInDB(
 func (api *API) emailToMessage(e *database.Item) *message {
 	messageSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(e.SourceID)
 
-	recipients := Recipients{
-		To:  getRecipients(e.Recipients.To),
-		Cc:  getRecipients(e.Recipients.Cc),
-		Bcc: getRecipients(e.Recipients.Bcc),
-	}
-
 	return &message{
-		ID:         e.ID,
-		Title:      e.Title,
-		Deeplink:   e.Deeplink,
-		Body:       e.Body,
-		Sender:     e.Sender,
-		Recipients: recipients,
-		SentAt:     e.CreatedAtExternal.Time().Format(time.RFC3339),
-		IsUnread:   e.Email.IsUnread,
+		ID:       e.ID,
+		Title:    e.Title,
+		Deeplink: e.Deeplink,
+		Body:     e.Body,
+		Sender:   e.Sender,
+		Recipients: Recipients{
+			To:  getRecipients(e.Recipients.To),
+			Cc:  getRecipients(e.Recipients.Cc),
+			Bcc: getRecipients(e.Recipients.Bcc),
+		},
+		SentAt:   e.CreatedAtExternal.Time().Format(time.RFC3339),
+		IsUnread: e.Email.IsUnread,
 		Source: messageSource{
 			AccountId:     e.SourceAccountID,
 			Name:          messageSourceResult.Details.Name,
@@ -266,7 +264,7 @@ func (api *API) emailToMessage(e *database.Item) *message {
 
 func getRecipients(dbRecipient []database.Recipient) []Recipient {
 	if len(dbRecipient) == 0 {
-		return make([]Recipient, 0)
+		return []Recipient{}
 	}
 	recipients := make([]Recipient, len(dbRecipient))
 	for i, recipient := range dbRecipient {
