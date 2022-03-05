@@ -1,9 +1,9 @@
 import React from 'react'
 import { gray } from '../../styles/colors'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Platform } from 'react-native'
 import { Flex } from '../../styles'
 
-const Domino = React.forwardRef<View, never>((_, ref) => {
+const Domino = React.forwardRef<View>((_, ref) => {
     return (
         <View style={styles.DominoOuterContainer} ref={ref}>
             <View style={styles.DominoInnerContainer}>
@@ -19,8 +19,12 @@ const Domino = React.forwardRef<View, never>((_, ref) => {
 
 const styles = StyleSheet.create({
     DominoOuterContainer: {
+        ...Platform.select({
+            web: {
+                cursor: 'grab'
+            },
+        }),
         height: '60%',
-        cursor: 'grab',
         paddingLeft: 12,
         paddingRight: 12,
     },
