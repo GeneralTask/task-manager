@@ -179,26 +179,31 @@ func GetUnreadEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Item, er
 	return &activeEmails, nil
 }
 
-func GetUnreadEmailsPaged(db *mongo.Database, userID primitive.ObjectID, pagination Pagination) (*[]Item, error) {
+func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, pagination Pagination) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	skip := int64(*pagination.Page - 1)
-	limit := int64(*pagination.Limit)
 	opts := options.FindOptions{
 		Sort: bson.D{{Key: "created_at_external", Value: -1}},
-		Skip: &skip,
-		Limit: &limit,
+	}
+	if IsValidPagination(pagination) {
+		skip := int64(*pagination.Page - 1)
+		limit := int64(*pagination.Limit)
+		opts.Skip = &skip
+		opts.Limit = &limit
+	}
+	filter := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+			{"task_type.is_message": true},
+		},
+	}
+	if onlyUnread {
+		filter["$and"] = append(filter["$and"].([]bson.M), bson.M{"email.is_unread": true})
 	}
 	cursor, err := GetTaskCollection(db).Find(
 		dbCtx,
-		bson.M{
-			"$and": []bson.M{
-				{"user_id": userID},
-				{"task_type.is_message": true},
-				{"email.is_unread": true},
-			},
-		},
+		filter,
 		&opts,
 	)
 	if err != nil {
@@ -435,4 +440,11 @@ func GetFeedbackItemCollection(db *mongo.Database) *mongo.Collection {
 
 func GetTaskSectionCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("task_sections")
+}
+
+func IsValidPagination(pagination Pagination) bool {
+	if pagination.Limit == nil || pagination.Page == nil {
+		return false
+	}
+	return *pagination.Limit > 0 && *pagination.Page > 0
 }

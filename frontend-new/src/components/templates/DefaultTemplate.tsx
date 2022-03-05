@@ -1,6 +1,7 @@
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Platform } from 'react-native'
 import { Flex } from '../../styles'
+import CalendarSidebar from '../calendar/CalendarSidebar'
 import Navbar from '../organisms/NavigationView'
 
 interface DefaultTemplateProps {
@@ -11,6 +12,7 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
         <View style={styles.container}>
             <Navbar />
             {children}
+            {Platform.OS === 'web' && <CalendarSidebar />}
         </View>
     )
 }
@@ -18,7 +20,8 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
 const styles = StyleSheet.create({
     container: {
         ...Flex.row,
-        height: '100vh'
+        height: '100vh',
+        fontFamily: 'Switzer-Variable',
     }
 })
 
