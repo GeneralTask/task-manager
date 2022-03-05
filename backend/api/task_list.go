@@ -31,6 +31,7 @@ type TaskResult struct {
 	Title          string             `json:"title"`
 	Body           string             `json:"body"`
 	Sender         string             `json:"sender"`
+	Recipients     Recipients         `json:"recipients"`
 	DueDate        string             `json:"due_date"`
 	TimeAllocation int64              `json:"time_allocated"`
 	SentAt         string             `json:"sent_at"`
@@ -42,6 +43,17 @@ type TaskSection struct {
 	Name   string             `json:"name"`
 	Tasks  []*TaskResult      `json:"tasks"`
 	IsDone bool               `json:"is_done"`
+}
+
+type Recipients struct {
+	To  []Recipient `json:"to"`
+	Cc  []Recipient `json:"cc"`
+	Bcc []Recipient `json:"bcc"`
+}
+
+type Recipient struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 type TaskGroupType string
@@ -210,7 +222,7 @@ func (api *API) mergeTasks(
 	}
 	completedTaskResults := []*TaskResult{}
 	for index, task := range *completedTasks {
-		taskResult := api.taskBaseToTaskResult(&task.TaskBase)
+		taskResult := api.taskBaseToTaskResult(&task)
 		taskResult.IDOrdering = index + 1
 		completedTaskResults = append(completedTaskResults, taskResult)
 	}
@@ -270,7 +282,7 @@ func (api *API) extractSectionTasksV2(
 	}
 	// this is inefficient but easy to understand - can optimize later as needed
 	for _, task := range *fetchedTasks {
-		taskResult := api.taskBaseToTaskResult(&task.TaskBase)
+		taskResult := api.taskBaseToTaskResult(task)
 		addedToSection := false
 		for _, resultSection := range resultSections {
 			if task.IDTaskSection == resultSection.ID {
@@ -346,7 +358,7 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 	return nil
 }
 
-func (api *API) taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
+func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 	taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
 	var dueDate string
 	if t.DueDate.Time().Unix() == int64(0) {
@@ -354,6 +366,7 @@ func (api *API) taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 	} else {
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
+
 	return &TaskResult{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
@@ -368,8 +381,13 @@ func (api *API) taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 		Body:           t.Body,
 		TimeAllocation: t.TimeAllocation,
 		Sender:         t.Sender,
-		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
-		DueDate:        dueDate,
-		IsDone:         t.IsCompleted,
+		Recipients: Recipients{
+			To:  getRecipients(t.Recipients.To),
+			Cc:  getRecipients(t.Recipients.Cc),
+			Bcc: getRecipients(t.Recipients.Bcc),
+		},
+		SentAt:  t.CreatedAtExternal.Time().Format(time.RFC3339),
+		DueDate: dueDate,
+		IsDone:  t.IsCompleted,
 	}
 }

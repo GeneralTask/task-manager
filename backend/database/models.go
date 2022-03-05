@@ -131,9 +131,10 @@ type CalendarEventChangeableFields struct {
 }
 
 type Email struct {
-	ThreadID     string `bson:"thread_id"`
-	SenderDomain string `bson:"sender_domain"`
-	IsUnread     bool   `bson:"is_unread"`
+	ThreadID     string     `bson:"thread_id"`
+	SenderDomain string     `bson:"sender_domain"`
+	IsUnread     bool       `bson:"is_unread"`
+	Recipients   Recipients `bson:"recipients"`
 }
 
 type EmailChangeable struct {
@@ -204,4 +205,15 @@ type TaskSection struct {
 type Pagination struct {
 	Limit *int `form:"limit" json:"limit"`
 	Page  *int `form:"page" json:"page"`
+}
+
+type Recipients struct {
+	To  []Recipient `bson:"to"`
+	Cc  []Recipient `bson:"cc"`
+	Bcc []Recipient `bson:"bcc"`
+}
+
+type Recipient struct {
+	Name  string `bson:"name"`
+	Email string `bson:"email"`
 }
