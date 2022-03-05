@@ -8,7 +8,7 @@ import TaskSections from '../components/organisms/Sections'
 import { useGetTasksQuery } from '../services/generalTaskApi'
 import { Screens, Flex, Colors } from '../styles'
 import Loading from '../components/atoms/Loading'
-import { Navigate, useParams } from '../services/routing'
+import { useParams } from '../services/routing'
 import TaskBottomSheet from '../components/organisms/TaskBottomSheet'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
 import { useNavigate } from 'react-router-dom'
@@ -19,7 +19,7 @@ const TasksScreen = () => {
     const sheetRef = React.useRef<BottomSheet>(null)
     const routerSection = useParams().section || ''
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
-    let navigate = useNavigate();
+    const navigate = useNavigate()
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
