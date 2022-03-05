@@ -108,7 +108,6 @@ export const EventFill = styled.div`
     background: ${Colors.white};
     border: 1px solid ${EVENT_CONTAINER_COLOR};
     box-sizing: border-box;
-    box-shadow: ${Shadows.xLarge};
     border-radius: 10px;
 `
 export const EventFillContinues = styled(EventFill)`

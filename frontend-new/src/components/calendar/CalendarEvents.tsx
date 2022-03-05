@@ -49,8 +49,8 @@ export default function CalendarEvents({ date, isToday, showTimes, scroll }: Cal
     const endDate = startDate.plus({ days: 1 })
 
     const { data: events } = useGetEventsQuery({ startISO: date.minus({ days: 7 }).toISO(), endISO: date.plus({ days: 7 }).toISO() })
-    const event_list = events?.filter((event) => DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate)
-    const groups = findCollisionGroups(event_list || [])
+    const eventList = events?.filter((event) => DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate)
+    const groups = findCollisionGroups(eventList || [])
 
 
     useEffect(() => {
