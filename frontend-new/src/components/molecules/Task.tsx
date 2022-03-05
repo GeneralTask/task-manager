@@ -32,11 +32,13 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
         },
     }))
 
+    const dragPreviewRef = Platform.OS === 'web' ? dragPreview as Ref<View> : undefined
+    const dragRef = Platform.OS === 'web' ? drag as Ref<View> : undefined
 
     return (
-        <Pressable style={styles.container} onPress={onPress} ref={dragPreview as Ref<View>}>
+        <Pressable style={styles.container} onPress={onPress} ref={dragPreviewRef}>
             <View style={styles.container}>
-                {isDraggable && <Domino ref={drag as Ref<View>} />}
+                {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />
                 <Icon style={styles.iconContainer} />
                 <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
