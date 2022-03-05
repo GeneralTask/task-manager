@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Platform } from 'react-native'
 import { Flex } from '../../styles'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import Navbar from '../organisms/NavigationView'
@@ -12,7 +12,7 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
         <View style={styles.container}>
             <Navbar />
             {children}
-            <CalendarSidebar />
+            {Platform.OS === 'web' && <CalendarSidebar />}
         </View>
     )
 }
