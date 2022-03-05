@@ -1,3 +1,3 @@
 package constants
 
-var DeeplinkAuthentication = "exp://authentication?authToken=%s"
+var DeeplinkAuthentication = "generaltask://authentication?authToken=%s"
