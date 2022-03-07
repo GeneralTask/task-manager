@@ -38,12 +38,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		return
 	}
 	defer dbCleanup()
-	userObject, err := database.GetUser(db, userID)
-	if err != nil {
-		result <- emptyEmailResult(err)
-		return
-	}
-	userDomain := utils.ExtractEmailDomain(userObject.Email)
 
 	emails := []*database.Item{}
 
@@ -132,13 +126,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			senderName, senderEmail := utils.ExtractSenderName(sender)
 			senderDomain := utils.ExtractEmailDomain(senderEmail)
 
-			var timeAllocation time.Duration
-			if senderDomain == userDomain {
-				timeAllocation = time.Minute * 5
-			} else {
-				timeAllocation = time.Minute * 2
-			}
-
 			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
 
 			recipients := *GetRecipients(message.Payload.Headers)
@@ -153,7 +140,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, threadListItem.Id),
 					Title:             title,
 					Body:              *body,
-					TimeAllocation:    timeAllocation.Nanoseconds(),
 					SourceAccountID:   accountID,
 					CreatedAtExternal: timeSent,
 				},
