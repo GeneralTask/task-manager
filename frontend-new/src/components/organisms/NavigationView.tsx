@@ -1,6 +1,6 @@
 import React from 'react'
 import { CSSProperties } from 'react'
-import { Pressable, View, Text, StyleSheet, ViewStyle } from 'react-native'
+import { Pressable, View, Text, StyleSheet, ViewStyle, ScrollView } from 'react-native'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
 import { useGetTasksQuery } from '../../services/generalTaskApi'
@@ -26,17 +26,19 @@ const NavigationView = () => {
             <NavigationViewHeader >
                 <Icon size="medium" />
             </NavigationViewHeader>
-            {
-                isLoading || !taskSections ? <Loading /> : taskSections?.map(section =>
-                    <Link style={linkStyle} to={`/tasks/${section.id}`}>
-                        <View key={section.id} style={[styles.linkContainer, (sectionIdParam === section.id) ?
-                            styles.linkContainerSelected : null]}>
-                            <Icon size="small" source={require('../../assets/inbox.png')} />
-                            <Text >{section.name}</Text>
-                        </View>
-                    </Link>
-                )
-            }
+            <ScrollView style={styles.linksFlexContainer}>
+                {
+                    isLoading || !taskSections ? <Loading /> : taskSections?.map(section =>
+                        <Link style={linkStyle} to={`/tasks/${section.id}`}>
+                            <View key={section.id} style={[styles.linkContainer, (sectionIdParam === section.id) ?
+                                styles.linkContainerSelected : null]}>
+                                <Icon size="small" source={require('../../assets/inbox.png')} />
+                                <Text >{section.name}</Text>
+                            </View>
+                        </Link>
+                    )
+                }
+            </ScrollView>
             <Pressable onPress={() => authSignOut(dispatch)}><Text>Sign Out</Text></Pressable>
         </View>
     )
@@ -64,7 +66,10 @@ const styles = StyleSheet.create({
     },
     linkContainerSelected: {
         backgroundColor: Colors.gray._50,
-    }
+    },
+    linksFlexContainer: {
+        flex: 1,
+    },
 })
 
 const linkStyle: CSSProperties & ViewStyle = {
