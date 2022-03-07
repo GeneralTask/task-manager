@@ -161,7 +161,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				Email: database.Email{
 					SenderDomain: senderDomain,
 					SenderEmail:  senderEmail,
-					ReplyTo: 	  replyTo,
+					ReplyTo:      replyTo,
 					ThreadID:     threadListItem.Id,
 					IsUnread:     true,
 				},
