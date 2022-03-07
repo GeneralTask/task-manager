@@ -29,13 +29,13 @@ const NavigationView = () => {
             <ScrollView style={styles.linksFlexContainer}>
                 {
                     isLoading || !taskSections ? <Loading /> : taskSections?.map(section =>
-                        <View key={section.id} style={[styles.linkContainer, (sectionIdParam === section.id) ?
-                            styles.linkContainerSelected : null]}>
-                            <Icon size="small" source={require('../../assets/inbox.png')} />
-                            <Link style={linkStyle} to={`/tasks/${section.id}`}>
+                        <Link style={linkStyle} to={`/tasks/${section.id}`}>
+                            <View key={section.id} style={[styles.linkContainer, (sectionIdParam === section.id) ?
+                                styles.linkContainerSelected : null]}>
+                                <Icon size="small" source={require('../../assets/inbox.png')} />
                                 <Text >{section.name}</Text>
-                            </Link>
-                        </View>
+                            </View>
+                        </Link>
                     )
                 }
             </ScrollView>
@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
 const linkStyle: CSSProperties & ViewStyle = {
     textDecorationLine: 'none',
     width: '100%',
-    height: '100%',
 }
 
 export default NavigationView
