@@ -123,7 +123,7 @@ func (api *API) MessagesList(c *gin.Context) {
 		fetchedEmails[index].TaskBase.Body = "<base target=\"_blank\">" + fetchedEmails[index].TaskBase.Body
 	}
 
-	err = markReadMessagesInDB(api, db, currentEmails, &fetchedEmails)
+	err = markReadMessagesInDB(api, db, currentEmails, &fetchedEmails, make(map[string]bool))
 	if err != nil {
 		Handle500(c)
 		return
@@ -211,6 +211,7 @@ func markReadMessagesInDB(
 	db *mongo.Database,
 	currentEmails *[]database.Item,
 	fetchedEmails *[]*database.Item,
+	failedFetchSources map[string]bool,
 ) error {
 	fetchedEmailTaskIDs := make(map[primitive.ObjectID]bool)
 	for _, email := range *fetchedEmails {
@@ -218,7 +219,7 @@ func markReadMessagesInDB(
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentEmail := range *currentEmails {
-		if !fetchedEmailTaskIDs[currentEmail.ID] {
+		if !fetchedEmailTaskIDs[currentEmail.ID] && !failedFetchSources[currentEmail.SourceID]{
 			f := false
 			messageChangeable := database.MessageChangeable{
 				EmailChangeable: database.EmailChangeable{
