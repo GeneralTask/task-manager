@@ -1,15 +1,30 @@
+/* eslint @typescript-eslint/no-var-requires: "off" */
 import React from 'react'
-import { View, Image, StyleSheet, ViewStyle } from 'react-native'
+import { Image, StyleSheet } from 'react-native'
+import styled from 'styled-components/native'
 import { Dimensions, Flex } from '../../styles'
 
+const IconContainer = styled.View<{ width: number, height: number }>`
+    width: ${props => props.width};
+    height: ${props => props.height};
+    align-items: center;
+    justify-content: center;
+`
+
 interface IconProps {
-    style?: ViewStyle
+    size: 'small' | 'medium' | 'large'
+    source?: NodeRequire
 }
 export const Icon = (props: IconProps) => {
+    const image = props.source ?? require('../../assets/generaltask.png')
+    const dimension =
+        props.size === 'small' ? Dimensions.iconSize.small :
+            props.size === 'medium' ? Dimensions.iconSize.medium : Dimensions.iconSize.large
+
     return (
-        <View style={[props.style, styles.iconContainer]}>
-            <Image style={styles.icon} source={require('../../assets/generaltask.png')} />
-        </View>
+        <IconContainer width={dimension} height={dimension}>
+            <Image style={styles.icon} source={image} />
+        </IconContainer>
     )
 }
 

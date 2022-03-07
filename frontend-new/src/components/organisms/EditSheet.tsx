@@ -31,7 +31,7 @@ const EditSheet = ({ task, setText: propsSetText }: EditSheetProps) => {
                 <View style={styles.paddedContainer}>
                     <Title style={styles.title}>Edit Task</Title>
                     <View style={styles.subtitleContainer}>
-                        <Icon />
+                        <Icon size="small" />
                         <Subtitle style={styles.subtitle}>{task.title}</Subtitle>
                     </View>
                 </View>

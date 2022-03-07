@@ -1,5 +1,5 @@
 import { View, StyleSheet, Platform, ScrollView, RefreshControl } from 'react-native'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import BottomSheet from 'reanimated-bottom-sheet'
 import { getSectionById } from '../utils/task'
 import CreateNewTask from '../components/organisms/CreateNewTask'
@@ -8,10 +8,10 @@ import TaskSections from '../components/organisms/Sections'
 import { useGetTasksQuery } from '../services/generalTaskApi'
 import { Screens, Flex, Colors } from '../styles'
 import Loading from '../components/atoms/Loading'
-import { Navigate, useParams } from '../services/routing'
+import { useParams } from '../services/routing'
 import TaskBottomSheet from '../components/organisms/TaskBottomSheet'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
-
+import { useNavigate } from 'react-router-dom'
 
 const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
@@ -19,6 +19,7 @@ const TasksScreen = () => {
     const sheetRef = React.useRef<BottomSheet>(null)
     const routerSection = useParams().section || ''
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
+    const navigate = useNavigate()
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
@@ -27,11 +28,12 @@ const TasksScreen = () => {
         refetch()
     }
 
-    //redirect to first valid section id if one was not provided in the URL path
-    if (taskSections && !getSectionById(taskSections, routerSection) && taskSections.length > 0) {
-        const firstSectionId = taskSections[0].id
-        return <Navigate to={`/tasks/${firstSectionId}`} />
-    }
+    useEffect(() => {
+        if (taskSections && !getSectionById(taskSections, routerSection) && taskSections.length > 0) {
+            const firstSectionId = taskSections[0].id
+            navigate(`/tasks/${firstSectionId}`)
+        }
+    })
 
     const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
     const currentSection = taskSections ? getSectionById(taskSections, routerSection) : null

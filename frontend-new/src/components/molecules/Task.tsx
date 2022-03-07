@@ -40,7 +40,9 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
             <View style={styles.container}>
                 {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />
-                <Icon style={styles.iconContainer} />
+                <View style={styles.iconContainer}>
+                    <Icon size="small" />
+                </View>
                 <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
             </View>
         </Pressable>
@@ -59,11 +61,6 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
     },
     iconContainer: {
-        width: 20,
-        height: 20,
-        ...Flex.column,
-        alignItems: 'center',
-        justifyContent: 'center',
         marginLeft: 6,
     },
     title: {
