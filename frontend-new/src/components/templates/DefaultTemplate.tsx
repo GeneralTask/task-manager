@@ -2,7 +2,7 @@ import React from 'react'
 import { View, StyleSheet, Platform } from 'react-native'
 import { Flex } from '../../styles'
 import CalendarSidebar from '../calendar/CalendarSidebar'
-import Navbar from '../organisms/NavigationView'
+import Navbar from '../views/NavigationView'
 
 interface DefaultTemplateProps {
     children: JSX.Element | JSX.Element[]
