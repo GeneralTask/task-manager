@@ -116,6 +116,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 	for _, pullRequest := range pullRequestItems {
 		var dbPR database.Item
+		isCompleted := false
 		res, err := database.UpdateOrCreateTask(
 			db,
 			userID,
@@ -123,8 +124,9 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			pullRequest.SourceID,
 			pullRequest,
 			database.PullRequestChangeableFields{
-				Title: pullRequest.Title,
-				Body:  pullRequest.Body,
+				Title:       pullRequest.Title,
+				Body:        pullRequest.Body,
+				IsCompleted: &isCompleted,
 			},
 		)
 		if err != nil {
