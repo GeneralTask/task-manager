@@ -1,6 +1,6 @@
-import { BrowserRouter, Routes as BrowserRoutes, Route as BrowserRoute, Link as BrowserLink, Outlet as BrowserOutlet, Navigate as BrowserNavigate, useParams as useParamsBrowser } from 'react-router-dom'
-import { NativeRouter, Routes as NativeRoutes, Route as NativeRoute, Link as NativeLink, Outlet as NativeOutlet, Navigate as NativeNavigate, useParams as useParamsNative } from 'react-router-native'
 import { Platform } from 'react-native'
+import { BrowserRouter, Link as BrowserLink, Navigate as BrowserNavigate, Outlet as BrowserOutlet, Route as BrowserRoute, Routes as BrowserRoutes, useLocation as useLocationBrowser, useNavigate as useNavigateBrowser, useParams as useParamsBrowser } from 'react-router-dom'
+import { Link as NativeLink, NativeRouter, Navigate as NativeNavigate, Outlet as NativeOutlet, Route as NativeRoute, Routes as NativeRoutes, useLocation as useLocationNative, useNavigate as useNavigateNative, useParams as useParamsNative } from 'react-router-native'
 
 const Router = Platform.OS === 'web' ? BrowserRouter : NativeRouter
 const Routes = Platform.OS === 'web' ? BrowserRoutes : NativeRoutes
@@ -8,7 +8,9 @@ const Route = Platform.OS === 'web' ? BrowserRoute : NativeRoute
 const Link = Platform.OS === 'web' ? BrowserLink : NativeLink
 const Outlet = Platform.OS === 'web' ? BrowserOutlet : NativeOutlet
 const Navigate = Platform.OS === 'web' ? BrowserNavigate : NativeNavigate
+const useNavigate = Platform.OS === 'web' ? useNavigateBrowser : useNavigateNative
 const useParams = Platform.OS === 'web' ? useParamsBrowser : useParamsNative
+const useLocation = Platform.OS === 'web' ? useLocationBrowser : useLocationNative
 
 export {
     Router,
@@ -17,5 +19,7 @@ export {
     Link,
     Outlet,
     Navigate,
-    useParams
+    useNavigate,
+    useParams,
+    useLocation,
 }
