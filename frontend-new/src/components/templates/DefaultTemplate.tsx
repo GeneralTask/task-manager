@@ -12,7 +12,7 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
         <View style={styles.container}>
             <Navbar />
             {children}
-            {Platform.OS === 'web' && <CalendarSidebar />}
+            <CalendarSidebar />
         </View>
     )
 }
