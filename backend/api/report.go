@@ -23,6 +23,25 @@ func (api *API) ReportGenerate(c *gin.Context) {
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 
+	// fetch all users
+	var users []database.User
+	userCollection := database.GetUserCollection(db)
+	userCursor, err := userCollection.Find(dbCtx, bson.M{})
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	err = userCursor.All(dbCtx, &users)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	// make a map from user id to user
+	userMap := make(map[string]database.User)
+	for _, user := range users {
+		userMap[user.ID.Hex()] = user
+	}
+
 	sevenDaysAgo := time.Now().AddDate(0, 0, -7)
 	logEventsCursor, err := logEvents.Find(dbCtx, bson.M{"created_at": bson.M{"$gte": sevenDaysAgo}})
 	if err != nil {
@@ -40,9 +59,9 @@ func (api *API) ReportGenerate(c *gin.Context) {
 		logEventsByUser[logEvent.UserID.Hex()] = append(logEventsByUser[logEvent.UserID.Hex()], logEvent)
 	}
 	// output number of users per day
-	userCounts := make(map[string]int)
-	for _, logEvents := range logEventsByUser {
-		userCounts[logEvents[0].CreatedAt.Time().Format("2006-01-02")]++
+	userCounts := make(map[string]map[string]int)
+	for userID, logEvents := range logEventsByUser {
+		userCounts[userMap[userID].Email][logEvents[0].CreatedAt.Time().Format("2006-01-02")]++
 	}
 	c.JSON(200, gin.H{"user_counts": userCounts})
 }
