@@ -1,15 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { CSSProperties } from 'react'
 import { Pressable, View, Text, StyleSheet, ViewStyle, ScrollView } from 'react-native'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
-import { useGetTasksQuery } from '../../services/generalTaskApi'
+import { useAddTaskSectionMutation, useGetTasksQuery } from '../../services/generalTaskApi'
 import { Link, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { weight } from '../../styles/typography'
 import { authSignOut } from '../../utils/auth'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
+import WebInput from '../atoms/WebInput'
 
 const NavigationViewHeader = styled.View`
     height: 24px;
@@ -21,11 +22,23 @@ const SectionTitle = styled.Text<{ isSelected: boolean }>`
     color: ${props => props.isSelected ? Colors.gray._600 : Colors.gray._500};
     margin-left: 9px;
 `
+const AddSectionView = styled.View`
+    display: flex;
+    flex-direction: row;
+    padding-left: 8px;
+    margin-top: 8px;
+`
+const AddSectionInputView = styled.View`
+    margin-left: 8px;
+    font-weight: ${weight._600.fontWeight};
+`
 
 const NavigationView = () => {
     const dispatch = useAppDispatch()
     const { data: taskSections, isLoading } = useGetTasksQuery()
     const { section: sectionIdParam } = useParams()
+    const [sectionName, setSectionName] = useState('')
+    const [addTaskSection] = useAddTaskSectionMutation()
 
     return (
         <View style={styles.container}>
@@ -34,9 +47,9 @@ const NavigationView = () => {
             </NavigationViewHeader>
             <ScrollView style={styles.linksFlexContainer}>
                 {
-                    isLoading || !taskSections ? <Loading /> : taskSections?.map(section =>
-                        <Link style={linkStyle} to={`/tasks/${section.id}`}>
-                            <View key={section.id} style={[styles.linkContainer, (sectionIdParam === section.id) ?
+                    isLoading || !taskSections ? <Loading /> : taskSections?.map((section, index) =>
+                        <Link key={index} style={linkStyle} to={`/tasks/${section.id}`}>
+                            <View style={[styles.linkContainer, (sectionIdParam === section.id) ?
                                 styles.linkContainerSelected : null]}>
                                 <Icon size="small" source={require('../../assets/inbox.png')} />
                                 <SectionTitle isSelected={sectionIdParam === section.id}>{section.name}</SectionTitle>
@@ -44,6 +57,16 @@ const NavigationView = () => {
                         </Link>
                     )
                 }
+                <AddSectionView>
+                    <Icon size={'small'} source={require('../../assets/plus.png')} />
+                    <AddSectionInputView>
+                        <WebInput
+                            value={sectionName}
+                            onChange={(e) => setSectionName(e.target.value)}
+                            placeholder={'Add Section'}
+                            onSubmit={() => addTaskSection({ name: sectionName })} />
+                    </AddSectionInputView>
+                </AddSectionView>
             </ScrollView>
             <Pressable onPress={() => authSignOut(dispatch)}><Text>Sign Out</Text></Pressable>
         </View>
