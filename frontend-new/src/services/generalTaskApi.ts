@@ -1,7 +1,4 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import getEnvVars from '../environment'
-import { TEvent, TMessage, TTask, TTaskSection } from '../utils/types'
-import type { RootState } from '../redux/store'
 import Cookies from 'js-cookie'
 import { Platform } from 'react-native'
 import getEnvVars from '../environment'

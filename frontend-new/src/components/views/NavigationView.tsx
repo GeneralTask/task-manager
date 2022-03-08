@@ -52,7 +52,7 @@ const NavigationView = () => {
                                 <View style={[styles.linkContainer, (pathname === '/messages') ?
                                     styles.linkContainerSelected : null]}>
                                     <Icon size="small" source={require('../../assets/inbox.png')} />
-                                    <SectionTitle isSelected={pathname === '/messages'}>{Messages}</SectionTitle>
+                                    <SectionTitle isSelected={pathname === '/messages'}>Messages</SectionTitle>
                                 </View>
                             </Link>
                         </>
