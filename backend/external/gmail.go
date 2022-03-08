@@ -176,7 +176,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				log.Printf("Could not flatten %+v, error: %+v", email, err)
 				return
 			}
-			// dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedUpdateFields)
 			res, err := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedUpdateFields, flattenedUpdateFields)
 			if err != nil {
 				result <- emptyEmailResult(err)
