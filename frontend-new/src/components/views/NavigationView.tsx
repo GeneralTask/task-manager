@@ -6,6 +6,7 @@ import { useAppDispatch } from '../../redux/hooks'
 import { useGetTasksQuery } from '../../services/generalTaskApi'
 import { Link, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
+import { weight } from '../../styles/typography'
 import { authSignOut } from '../../utils/auth'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
@@ -14,6 +15,11 @@ const NavigationViewHeader = styled.View`
     height: 24px;
     width: 100%;
     margin-bottom: 16px;
+`
+const SectionTitle = styled.Text<{ isSelected: boolean }>`
+    font-weight: ${props => props.isSelected ? weight._600.fontWeight : weight._500.fontWeight};
+    color: ${props => props.isSelected ? Colors.gray._600 : Colors.gray._500};
+    margin-left: 9px;
 `
 
 const NavigationView = () => {
@@ -33,7 +39,7 @@ const NavigationView = () => {
                             <View key={section.id} style={[styles.linkContainer, (sectionIdParam === section.id) ?
                                 styles.linkContainerSelected : null]}>
                                 <Icon size="small" source={require('../../assets/inbox.png')} />
-                                <Text >{section.name}</Text>
+                                <SectionTitle isSelected={sectionIdParam === section.id}>{section.name}</SectionTitle>
                             </View>
                         </Link>
                     )
