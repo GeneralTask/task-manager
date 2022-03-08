@@ -1,8 +1,9 @@
-import { useAddTaskSectionMutation, useGetTasksQuery, useGetMessagesQuery } from '../../services/generalTaskApi'
 import React, { CSSProperties, useState } from 'react'
-import { Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native'
+import { } from 'react'
+import { Pressable, View, Text, StyleSheet, ViewStyle, ScrollView } from 'react-native'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
+import { useAddTaskSectionMutation, useGetTasksQuery, useGetMessagesQuery } from '../../services/generalTaskApi'
 import { Link, useLocation, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { weight } from '../../styles/typography'
@@ -35,14 +36,13 @@ const AddSectionInputView = styled.View`
 const NavigationView = () => {
     const dispatch = useAppDispatch()
     const { data: taskSections, isLoading: isLoadingTasks } = useGetTasksQuery()
-    const { data: messages, isLoading: isLoadingMessages } = useGetMessagesQuery()
+    const { isLoading: isLoadingMessages } = useGetMessagesQuery()
     const { section: sectionIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
     const [addTaskSection] = useAddTaskSectionMutation()
     const { pathname } = useLocation()
 
-
-    const loading = isLoadingTasks || !taskSections || isLoadingMessages || !messages
+    const loading = isLoadingTasks || isLoadingMessages
     return (
         <View style={styles.container}>
             <NavigationViewHeader >
