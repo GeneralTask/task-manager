@@ -26,7 +26,7 @@ const Messages = () => {
                 {(isLoading || !messages) ? <Loading /> :
                     <View>
                         <MessagesScreenHeader />
-                        {messages.map((msg, index) => {
+                        {messages.map(msg => {
                             return (
                                 <TaskTemplate style={styles.shell} key={msg.id}>
                                     <Message message={msg} setSheetTaskId={() => null} />
