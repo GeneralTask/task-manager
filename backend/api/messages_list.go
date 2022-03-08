@@ -123,7 +123,7 @@ func (api *API) MessagesList(c *gin.Context) {
 		fetchedEmails[index].TaskBase.Body = "<base target=\"_blank\">" + fetchedEmails[index].TaskBase.Body
 	}
 
-	err = markReadMessagesInDB(api, db, currentEmails, &fetchedEmails, make(map[string]bool))
+	err = markReadMessagesInDB(api, db, currentEmails, &fetchedEmails, nil)
 	if err != nil {
 		Handle500(c)
 		return
