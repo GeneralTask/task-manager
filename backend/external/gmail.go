@@ -176,17 +176,24 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				log.Printf("Could not flatten %+v, error: %+v", email, err)
 				return
 			}
-			dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedUpdateFields)
+			// dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedUpdateFields)
+			res, err := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedUpdateFields, flattenedUpdateFields)
 			if err != nil {
 				result <- emptyEmailResult(err)
 				return
 			}
-			if dbEmail != nil {
-				email.HasBeenReordered = dbEmail.HasBeenReordered
-				email.ID = dbEmail.ID
-				email.IDOrdering = dbEmail.IDOrdering
-				email.IDTaskSection = dbEmail.IDTaskSection
+
+			var dbEmail database.Item
+			err = res.Decode(&dbEmail)
+			if err != nil {
+				log.Printf("failed to update or create gmail email: %v", err)
+				result <- emptyEmailResult(err)
+				return
 			}
+			email.HasBeenReordered = dbEmail.HasBeenReordered
+			email.ID = dbEmail.ID
+			email.IDOrdering = dbEmail.IDOrdering
+			email.IDTaskSection = dbEmail.IDTaskSection
 			emails = append(emails, email)
 		}
 	}
