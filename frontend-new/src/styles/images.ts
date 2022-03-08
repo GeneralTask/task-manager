@@ -6,10 +6,10 @@ export const size = {
     }
 }
 
-export const logos = {
+export const logos: { [key: string]: ImageSourcePropType } = {
     generaltask: require('../assets/generaltask.png'),
     asana: require('../assets/asana.png'),
     github: require('../assets/github.png'),
     gmail: require('../assets/gmail.png'),
     gcal: require('../assets/gcal.png'),
-} as { [key: string]: ImageSourcePropType }
+}

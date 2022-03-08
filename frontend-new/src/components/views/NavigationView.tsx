@@ -1,5 +1,4 @@
 import React, { CSSProperties, useState } from 'react'
-import { } from 'react'
 import { Pressable, View, Text, StyleSheet, ViewStyle, ScrollView } from 'react-native'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
