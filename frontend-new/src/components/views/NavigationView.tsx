@@ -1,10 +1,9 @@
-import React, { useState } from 'react'
-import { CSSProperties } from 'react'
-import { Pressable, View, Text, StyleSheet, ViewStyle, ScrollView } from 'react-native'
+import { useAddTaskSectionMutation, useGetTasksQuery, useGetMessagesQuery } from '../../services/generalTaskApi'
+import React, { CSSProperties, useState } from 'react'
+import { Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
-import { useAddTaskSectionMutation, useGetTasksQuery } from '../../services/generalTaskApi'
-import { Link, useParams } from '../../services/routing'
+import { Link, useLocation, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { weight } from '../../styles/typography'
 import { authSignOut } from '../../utils/auth'
@@ -35,11 +34,15 @@ const AddSectionInputView = styled.View`
 
 const NavigationView = () => {
     const dispatch = useAppDispatch()
-    const { data: taskSections, isLoading } = useGetTasksQuery()
+    const { data: taskSections, isLoading: isLoadingTasks } = useGetTasksQuery()
+    const { data: messages, isLoading: isLoadingMessages } = useGetMessagesQuery()
     const { section: sectionIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
     const [addTaskSection] = useAddTaskSectionMutation()
+    const { pathname } = useLocation()
 
+
+    const loading = isLoadingTasks || !taskSections || isLoadingMessages || !messages
     return (
         <View style={styles.container}>
             <NavigationViewHeader >
@@ -47,15 +50,25 @@ const NavigationView = () => {
             </NavigationViewHeader>
             <ScrollView style={styles.linksFlexContainer}>
                 {
-                    isLoading || !taskSections ? <Loading /> : taskSections?.map((section, index) =>
-                        <Link key={index} style={linkStyle} to={`/tasks/${section.id}`}>
-                            <View style={[styles.linkContainer, (sectionIdParam === section.id) ?
-                                styles.linkContainerSelected : null]}>
-                                <Icon size="small" source={require('../../assets/inbox.png')} />
-                                <SectionTitle isSelected={sectionIdParam === section.id}>{section.name}</SectionTitle>
-                            </View>
-                        </Link>
-                    )
+                    loading ? <Loading /> :
+                        <>
+                            {taskSections?.map((section, index) =>
+                                <Link key={index} style={linkStyle} to={`/tasks/${section.id}`}>
+                                    <View style={[styles.linkContainer, (sectionIdParam === section.id) ?
+                                        styles.linkContainerSelected : null]}>
+                                        <Icon size="small" source={require('../../assets/inbox.png')} />
+                                        <SectionTitle isSelected={sectionIdParam === section.id}>{section.name}</SectionTitle>
+                                    </View>
+                                </Link>
+                            )}
+                            <Link style={linkStyle} to="/messages">
+                                <View style={[styles.linkContainer, (pathname === '/messages') ?
+                                    styles.linkContainerSelected : null]}>
+                                    <Icon size="small" source={require('../../assets/inbox.png')} />
+                                    <SectionTitle isSelected={pathname === '/messages'}>Messages</SectionTitle>
+                                </View>
+                            </Link>
+                        </>
                 }
                 <AddSectionView>
                     <Icon size={'small'} source={require('../../assets/plus.png')} />

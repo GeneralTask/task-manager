@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet, Platform } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
 import { Flex } from '../../styles'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import Navbar from '../views/NavigationView'
