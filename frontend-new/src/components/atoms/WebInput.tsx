@@ -12,7 +12,7 @@ interface WebInputProps {
     value: string
     onChange?: ((event: React.ChangeEvent<HTMLInputElement>) => void)
     placeholder: string
-    onSubmit?: () => any
+    onSubmit?: () => void
 }
 const WebInput = React.forwardRef((props: WebInputProps, ref: React.Ref<HTMLInputElement>) => {
     const handleKeyDown = (e: React.KeyboardEvent) => {
