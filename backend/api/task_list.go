@@ -19,6 +19,7 @@ import (
 type TaskSource struct {
 	Name          string `json:"name"`
 	Logo          string `json:"logo"`
+	LogoV2        string `json:"logo_v2"`
 	IsCompletable bool   `json:"is_completable"`
 	IsReplyable   bool   `json:"is_replyable"`
 }
@@ -373,6 +374,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 		Source: TaskSource{
 			Name:          taskSourceResult.Details.Name,
 			Logo:          taskSourceResult.Details.Logo,
+			LogoV2:        taskSourceResult.Details.LogoV2,
 			IsCompletable: taskSourceResult.Details.IsCompletable,
 			IsReplyable:   taskSourceResult.Details.IsReplyable,
 		},
