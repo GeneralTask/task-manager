@@ -12,14 +12,20 @@ const IconContainer = styled.View<{ width: number, height: number }>`
 `
 
 interface IconProps {
-    size: 'small' | 'medium' | 'large'
+    size: 'xSmall' | 'small' | 'medium' | 'large'
+    uri?: string
     source?: NodeRequire
 }
 export const Icon = (props: IconProps) => {
-    const image = props.source ?? require('../../assets/generaltask.png')
+    let image = require('../../assets/generaltask.png')
+    if (props.source) image = props.source
+    if (props.uri) image = { uri: props.uri }
+
     const dimension =
-        props.size === 'small' ? Dimensions.iconSize.small :
-            props.size === 'medium' ? Dimensions.iconSize.medium : Dimensions.iconSize.large
+        props.size === 'xSmall' ? Dimensions.iconSize.xSmall :
+            'small' ? Dimensions.iconSize.small :
+                props.size === 'medium' ? Dimensions.iconSize.medium :
+                    Dimensions.iconSize.large
 
     return (
         <IconContainer width={dimension} height={dimension}>
