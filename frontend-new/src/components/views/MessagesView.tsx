@@ -1,21 +1,15 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
-import { useGetTasksQuery } from '../../services/generalTaskApi'
-import { useNavigate, useParams } from '../../services/routing'
+import { useGetMessagesQuery } from '../../services/generalTaskApi'
 import { Colors, Flex, Screens, Shadows } from '../../styles'
-import { getSectionById } from '../../utils/task'
 import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
-import CreateNewTask from '../molecules/CreateNewTask'
-import { TasksScreenHeader } from '../molecules/Header'
-import Task from '../molecules/Task'
+import { MessagesScreenHeader } from '../molecules/Header'
+import Message from '../molecules/Message'
 
-
-const TaskSection = () => {
-    const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
+const Messages = () => {
+    const { data: messages, isLoading, refetch, isFetching } = useGetMessagesQuery()
     const refetchWasLocal = useRef(false)
-    const routerSection = useParams().section || ''
-    const navigate = useNavigate()
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
@@ -24,28 +18,18 @@ const TaskSection = () => {
         refetch()
     }
 
-    useEffect(() => {
-        if (taskSections && !getSectionById(taskSections, routerSection) && taskSections.length > 0) {
-            const firstSectionId = taskSections[0].id
-            navigate(`/tasks/${firstSectionId}`)
-        }
-    })
-
     const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
-    const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
 
     return (
-
         <ScrollView style={styles.container} refreshControl={refreshControl}>
-            <View style={styles.tasksContent}>
-                {(isLoading || !currentSection) ? <Loading /> :
+            <View style={styles.messagesContent}>
+                {(isLoading || !messages) ? <Loading /> :
                     <View>
-                        <TasksScreenHeader title={currentSection.name} id={currentSection.id} />
-                        {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
-                        {currentSection.tasks.map((task, index) => {
+                        <MessagesScreenHeader />
+                        {messages.map((msg, index) => {
                             return (
                                 <TaskTemplate style={styles.shell} key={index}>
-                                    <Task task={task} setSheetTaskId={() => null} />
+                                    <Message message={msg} setSheetTaskId={() => null} />
                                 </TaskTemplate>
                             )
                         })}
@@ -67,7 +51,7 @@ const styles = StyleSheet.create({
         paddingTop: 0,
         backgroundColor: Colors.gray._50
     },
-    tasksContent: {
+    messagesContent: {
         ...Flex.column,
         marginRight: '7.5%',
         marginLeft: '7.5%',
@@ -76,4 +60,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default TaskSection
+export default Messages
