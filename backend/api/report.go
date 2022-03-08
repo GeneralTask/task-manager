@@ -56,12 +56,21 @@ func (api *API) ReportGenerate(c *gin.Context) {
 	// bin log events by day by unique user ids
 	logEventsByUser := make(map[string][]database.LogEvent)
 	for _, logEvent := range logEventsList {
-		logEventsByUser[logEvent.UserID.Hex()] = append(logEventsByUser[logEvent.UserID.Hex()], logEvent)
+		userID := logEvent.UserID.Hex()
+		logEventsByUser[userID] = append(logEventsByUser[userID], logEvent)
 	}
 	// output number of users per day
-	userCounts := make(map[string]map[string]int)
+	userCounts := make(map[string]map[string]map[string]int)
 	for userID, logEvents := range logEventsByUser {
-		userCounts[userMap[userID].Email][logEvents[0].CreatedAt.Time().Format("2006-01-02")]++
+		email := userMap[userID].Email
+		userCounts[email] = make(map[string]map[string]int)
+		for _, logEvent := range logEvents {
+			createdDate := logEvent.CreatedAt.Time().Format("2006-01-02")
+			if userCounts[email][createdDate] == nil {
+				userCounts[email][createdDate] = make(map[string]int)
+			}
+			userCounts[userMap[userID].Email][createdDate][logEvent.EventType]++
+		}
 	}
 	c.JSON(200, gin.H{"user_counts": userCounts})
 }
