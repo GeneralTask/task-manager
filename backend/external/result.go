@@ -40,11 +40,9 @@ func emptyEmailResult(err error) EmailResult {
 }
 
 func emptyEmailResultWithSource(err error, sourceID string) EmailResult {
-	return EmailResult{
-		Emails: []*database.Item{},
-		Error:  err,
-		SourceID:  sourceID,
-	}
+	result := emptyEmailResult(err)
+	result.SourceID = sourceID
+	return result
 }
 
 func emptyTaskResult(err error) TaskResult {

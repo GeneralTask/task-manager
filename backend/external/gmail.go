@@ -34,14 +34,12 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
-		// result <- emptyEmailResult(err)
 		result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		return
 	}
 	defer dbCleanup()
 	userObject, err := database.GetUser(db, userID)
 	if err != nil {
-		// result <- emptyEmailResult(err)
 		result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		return
 	}
@@ -52,7 +50,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	client := getGoogleHttpClient(db, userID, accountID)
 	if client == nil {
 		log.Printf("failed to fetch google API token")
-		// result <- emptyEmailResult(errors.New("failed to fetch google API token"))
 		result <- emptyEmailResultWithSource(errors.New("failed to fetch google API token"), TASK_SOURCE_ID_GMAIL)
 		return
 	}
@@ -62,7 +59,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	gmailService, err := gmail.NewService(extCtx, option.WithHTTPClient(client))
 	if err != nil {
 		log.Printf("unable to create Gmail service: %v", err)
-		// result <- emptyEmailResult(err)
 		result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		return
 	}
@@ -83,7 +79,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		thread, err := gmailService.Users.Threads.Get("me", threadListItem.Id).Do()
 		if err != nil {
 			log.Printf("failed to load thread: %v", err)
-			// result <- emptyEmailResult(err)
 			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			return
 		}
@@ -130,7 +125,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			if body == nil || len(*body) == 0 {
 				body, err = parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
 				if err != nil {
-					// result <- emptyEmailResult(err)
 					result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 					return
 				}
@@ -173,7 +167,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			}
 			dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.SourceID, email)
 			if err != nil {
-				// result <- emptyEmailResult(err)
 				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 				return
 			}
