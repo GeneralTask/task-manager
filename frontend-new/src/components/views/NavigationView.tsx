@@ -64,7 +64,10 @@ const NavigationView = () => {
                             value={sectionName}
                             onChange={(e) => setSectionName(e.target.value)}
                             placeholder={'Add Section'}
-                            onSubmit={() => addTaskSection({ name: sectionName })} />
+                            onSubmit={() => {
+                                setSectionName('')
+                                addTaskSection({ name: sectionName })
+                            }} />
                     </AddSectionInputView>
                 </AddSectionView>
             </ScrollView>
