@@ -28,7 +28,7 @@ const Messages = () => {
                         <MessagesScreenHeader />
                         {messages.map((msg, index) => {
                             return (
-                                <TaskTemplate style={styles.shell} key={index}>
+                                <TaskTemplate style={styles.shell} key={msg.id}>
                                     <Message message={msg} setSheetTaskId={() => null} />
                                 </TaskTemplate>
                             )

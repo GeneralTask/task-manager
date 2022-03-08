@@ -38,8 +38,6 @@ const Message = ({ message, setSheetTaskId }: TaskProps) => {
         <Pressable style={styles.container} onPress={onPress} ref={dragPreviewRef}>
             <View style={styles.container}>
                 {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
-                {/* <CompleteButton taskId={task.id} isComplete={task.is_done} /> */}
-                {/* TODO: ADD MARK AS TASK BUTTON */}
                 <View style={styles.iconContainer}>
                     <Icon size="small" />
                 </View>
