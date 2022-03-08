@@ -224,7 +224,6 @@ export const generalTaskApi = createApi({
                     datetime_end: data.endISO,
                 },
             }),
-            providesTags: ['Events'],
         }),
     }),
 })

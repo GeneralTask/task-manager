@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import React, { useEffect, useRef } from 'react'
 import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
 import { useGetTasksQuery } from '../../services/generalTaskApi'
@@ -7,6 +8,7 @@ import { getSectionById } from '../../utils/task'
 import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
 import CreateNewTask from '../molecules/CreateNewTask'
+import EventBanner from '../molecules/EventBanner'
 import { TasksScreenHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
 
@@ -35,8 +37,8 @@ const TaskSection = () => {
     const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
 
     return (
-
         <ScrollView style={styles.container} refreshControl={refreshControl}>
+            <EventBanner date={DateTime.now()} />
             <View style={styles.tasksContent}>
                 {(isLoading || !currentSection) ? <Loading /> :
                     <View>
