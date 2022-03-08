@@ -3,6 +3,7 @@ export type Datestring = string
 export interface TTaskSource {
     name: string
     logo: string
+    logo_v2: string
     is_completable: boolean
     is_replyable: boolean
 }
