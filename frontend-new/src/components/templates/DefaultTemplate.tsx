@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Flex } from '../../styles'
+import { Colors, Flex } from '../../styles'
 import CalendarSidebar from '../calendar/CalendarSidebar'
 import Navbar from '../views/NavigationView'
 
@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
         ...Flex.row,
         height: '100vh',
         fontFamily: 'Switzer-Variable',
+        backgroundColor: Colors.gray._50
     }
 })
 
