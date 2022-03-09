@@ -58,7 +58,10 @@ func (api *API) TaskCreate(c *gin.Context) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		count, err := taskSectionCollection.CountDocuments(dbCtx, bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": IDTaskSection}}})
-		if err != nil || count == int64(0) {
+		if (err != nil || count == int64(0)) &&
+			IDTaskSection != constants.IDTaskSectionToday &&
+			IDTaskSection != constants.IDTaskSectionBlocked &&
+			IDTaskSection != constants.IDTaskSectionBacklog {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
 		}
