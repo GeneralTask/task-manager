@@ -23,7 +23,7 @@ export const generalTaskApi = createApi({
     tagTypes: ['Tasks', 'Messages', 'Events'],
     endpoints: (builder) => ({
         getTasks: builder.query<TTaskSection[], void>({
-            query: () => 'tasks/',
+            query: () => 'tasks/v3/',
             providesTags: ['Tasks']
         }),
         createTask: builder.mutation<void, { title: string, body: string, id_task_section: string }>({
@@ -178,7 +178,7 @@ export const generalTaskApi = createApi({
             }
         }),
         getMessages: builder.query<TMessage[], void>({
-            query: () => 'messages/',
+            query: () => 'messages/v2/',
             providesTags: ['Messages']
         }),
         markMessageRead: builder.mutation<void, { id: string, is_read: boolean }>({
