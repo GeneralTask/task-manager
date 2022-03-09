@@ -37,6 +37,16 @@ func (api *API) TaskCreate(c *gin.Context) {
 		return
 	}
 
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
+	userIDRaw, _ := c.Get("user")
+	userID := userIDRaw.(primitive.ObjectID)
+
 	IDTaskSection := primitive.NilObjectID
 	if taskCreateParams.IDTaskSection != nil {
 		IDTaskSection, err = primitive.ObjectIDFromHex(*taskCreateParams.IDTaskSection)
@@ -44,19 +54,17 @@ func (api *API) TaskCreate(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
 		}
-	}
-
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
-
-	if sourceID != external.TASK_SOURCE_ID_GT_TASK {
-		db, dbCleanup, err := database.GetDBConnection()
-		if err != nil {
-			Handle500(c)
+		taskSectionCollection := database.GetTaskSectionCollection(db)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		count, err := taskSectionCollection.CountDocuments(dbCtx, bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": IDTaskSection}}})
+		if err != nil || count == int64(0) {
+			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
 		}
-		defer dbCleanup()
+	}
 
+	if sourceID != external.TASK_SOURCE_ID_GT_TASK {
 		externalAPICollection := database.GetExternalTokenCollection(db)
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
