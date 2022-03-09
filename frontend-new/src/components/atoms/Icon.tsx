@@ -21,11 +21,18 @@ export const Icon = (props: IconProps) => {
     if (props.source) image = props.source
     if (props.uri) image = { uri: props.uri }
 
-    const dimension =
-        props.size === 'xSmall' ? Dimensions.iconSize.xSmall :
-            'small' ? Dimensions.iconSize.small :
-                props.size === 'medium' ? Dimensions.iconSize.medium :
-                    Dimensions.iconSize.large
+    let dimension = (() => {
+        switch (props.size) {
+            case 'xSmall':
+                return Dimensions.iconSize.xSmall
+            case 'small':
+                return Dimensions.iconSize.small
+            case 'medium':
+                return Dimensions.iconSize.medium
+            case 'large':
+                return Dimensions.iconSize.large
+        }
+    })()
 
     return (
         <IconContainer width={dimension} height={dimension}>
