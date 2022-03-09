@@ -14,11 +14,11 @@ const EventBannerContainer = styled.View`
     align-items: center;
     margin-top: 22px;
 `
-const BannerView = styled.View`
+const BannerView = styled.View<{ center: boolean }>`
     position: relative;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: ${props => props.center ? 'center' : 'space-between'};
     align-items: center;
     padding-left: 12px;
     padding-right: 6px;
@@ -76,7 +76,7 @@ const EventBanner = ({ date }: EventBannerProps) => {
                     const timeUntilEventMessage = timeUntilEvent > 0 ? `in ${timeUntilEvent} minutes.` : 'is now.'
                     const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
                     return (
-                        <BannerView key={event.id}>
+                        <BannerView key={event.id} center={event.conference_call == null}>
                             <MessageView>
                                 <View>
                                     <MessageText>Your Meeting</MessageText>
