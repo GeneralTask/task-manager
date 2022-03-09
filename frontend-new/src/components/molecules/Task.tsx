@@ -23,7 +23,12 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(task.id)
         }
-        navigate(`/tasks/${params.section}/${task.id}`)
+        if (params.task === task.id) {
+            navigate(`/tasks/${params.section}`)
+        }
+        else {
+            navigate(`/tasks/${params.section}/${task.id}`)
+        }
     }
 
     const [, drag, dragPreview] = useDrag(() => ({
