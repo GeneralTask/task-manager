@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { View } from 'react-native'
 import styled from 'styled-components/native'
 import { NO_EVENT_TITLE } from '../../constants'
@@ -66,7 +66,11 @@ const EventBanner = ({ date }: EventBannerProps) => {
         startISO: date.toISO(),
         endISO: date.plus({ minutes: 15 }).toISO(),
     })
-    setInterval(() => { () => refetch() }, 60000)
+
+    useEffect(() => {
+        const interval = setInterval(() => { refetch() }, 60000)
+        return () => clearInterval(interval)
+    }, [])
 
     return (
         <EventBannerContainer>
