@@ -66,7 +66,7 @@ const EventBanner = ({ date }: EventBannerProps) => {
         startISO: date.toISO(),
         endISO: date.plus({ minutes: 15 }).toISO(),
     })
-    setInterval(() => { refetch() }, 60000)
+    setInterval(() => { () => refetch() }, 60000)
 
     return (
         <EventBannerContainer>
