@@ -21,7 +21,7 @@ export const Icon = (props: IconProps) => {
     if (props.source) image = props.source
     if (props.uri) image = { uri: props.uri }
 
-    let dimension = (() => {
+    const dimension = (() => {
         switch (props.size) {
             case 'xSmall':
                 return Dimensions.iconSize.xSmall
