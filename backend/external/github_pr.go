@@ -100,12 +100,9 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		defer cancel()
 		fetchedPullRequests, _, err := githubClient.PullRequests.List(extCtx, ownerName, repoName, nil)
 		if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
-			log.Println("STRING!\"", err.Error(), "\"")
-			log.Printf("failed to fetch Github PRs: %v", err)
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 			return
 		}
-		log.Println("fetched for:", ownerName, repoName, "PRS:", len(fetchedPullRequests))
 		pullRequests = append(pullRequests, fetchedPullRequests...)
 	}
 	for _, pullRequest := range pullRequests {
