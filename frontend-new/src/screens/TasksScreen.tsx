@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Platform } from 'react-native'
 import BottomSheet from 'reanimated-bottom-sheet'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
+import DetailsView from '../components/views/DetailsView'
 import Messages from '../components/views/MessagesView'
 import TaskBottomSheet from '../components/views/TaskBottomSheetView'
 import TaskSection from '../components/views/TaskSectionView'
@@ -17,6 +18,7 @@ const TasksScreen = () => {
         <>
             <DefaultTemplate>
                 {currentPage}
+                <DetailsView />
             </DefaultTemplate>
             {
                 Platform.OS === 'ios' &&

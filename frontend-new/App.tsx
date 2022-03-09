@@ -26,7 +26,9 @@ const App = () => {
               <Route index element={<LandingScreen />} />
               <Route path="tasks" element={<PrivateOutlet />}>
                 <Route index element={<TasksScreen />} />
-                <Route path=":section" element={<TasksScreen />} />
+                <Route path=":section" element={<TasksScreen />} >
+                  <Route path=":task" element={<TasksScreen />} />
+                </Route>
               </Route>
               <Route path="messages" element={<PrivateOutlet />}>
                 <Route index element={<TasksScreen />} />

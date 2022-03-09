@@ -1,6 +1,7 @@
 import React, { Ref, useRef } from 'react'
 import { useDrag } from 'react-dnd'
 import { Platform, Pressable, View, Text, StyleSheet } from 'react-native'
+import { useNavigate, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { logos } from '../../styles/images'
 import { Indices, ItemTypes, TTask } from '../../utils/types'
@@ -14,15 +15,16 @@ interface TaskProps {
 }
 
 const Task = ({ task, setSheetTaskId }: TaskProps) => {
+    const navigate = useNavigate()
+    const params = useParams()
+    const indicesRef = useRef<Indices>()
+    const isDraggable = true
     const onPress = () => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(task.id)
         }
+        navigate(`/tasks/${params.section}/${task.id}`)
     }
-
-    const isDraggable = true
-
-    const indicesRef = useRef<Indices>()
 
     const [, drag, dragPreview] = useDrag(() => ({
         type: ItemTypes.TASK,

@@ -12,7 +12,6 @@ import EventBanner from '../molecules/EventBanner'
 import { TasksScreenHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
 
-
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
     const refetchWasLocal = useRef(false)
