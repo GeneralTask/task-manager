@@ -46,7 +46,6 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     <EventTime>{`${startTimeString} - ${endTimeString}`}</EventTime>
                 </EventInfo>
             </EventInfoContainer>
-            {/* {rollsOverMidnight ? <EventFillContinues /> : <EventFill />} */}
             <EventFill squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
         </EventBodyStyle>
     )
