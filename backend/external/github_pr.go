@@ -73,7 +73,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		return
 	}
 
-	// passing empty string here means fetching the currently authed user
+	// passing empty string here means fetching for the currently authed user
 	repos, _, err := githubClient.Repositories.List(extCtx, "", nil)
 	if err != nil {
 		log.Println("failed to fetch Github repos for user")
@@ -87,7 +87,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			repo.Owner != nil &&
 			repo.Owner.Login != nil &&
 			repo.Owner.Type != nil &&
-			// don't check user's own repos
 			*repo.Owner.Type == "Organization" {
 			repoNameToOwner[*repo.Name] = *repo.Owner.Login
 		}
@@ -161,7 +160,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			result <- emptyPullRequestResult(err)
 			return
 		}
-		log.Println("task section in memory:", pullRequest.IDTaskSection, "task section in db:", dbPR.IDTaskSection)
 		pullRequest.ID = dbPR.ID
 		pullRequest.IDOrdering = dbPR.IDOrdering
 		pullRequest.IDTaskSection = dbPR.IDTaskSection
