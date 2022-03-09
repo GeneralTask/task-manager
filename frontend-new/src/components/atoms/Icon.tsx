@@ -1,9 +1,8 @@
 /* eslint @typescript-eslint/no-var-requires: "off" */
 import React from 'react'
-import { Image, ImageSourcePropType, StyleSheet } from 'react-native'
+import { Image, StyleSheet } from 'react-native'
 import styled from 'styled-components/native'
 import { Dimensions, Flex } from '../../styles'
-import { logos } from '../../styles/images'
 
 const IconContainer = styled.View<{ width: number, height: number }>`
     width: ${props => props.width};
@@ -13,14 +12,20 @@ const IconContainer = styled.View<{ width: number, height: number }>`
 `
 
 interface IconProps {
-    size: 'small' | 'medium' | 'large'
-    source?: ImageSourcePropType
+    size: 'xSmall' | 'small' | 'medium' | 'large'
+    uri?: string
+    source?: NodeRequire
 }
 export const Icon = (props: IconProps) => {
-    const image = props.source ?? logos.generaltask
+    let image = require('../../assets/generaltask.png')
+    if (props.source) image = props.source
+    if (props.uri) image = { uri: props.uri }
+
     const dimension =
-        props.size === 'small' ? Dimensions.iconSize.small :
-            props.size === 'medium' ? Dimensions.iconSize.medium : Dimensions.iconSize.large
+        props.size === 'xSmall' ? Dimensions.iconSize.xSmall :
+            'small' ? Dimensions.iconSize.small :
+                props.size === 'medium' ? Dimensions.iconSize.medium :
+                    Dimensions.iconSize.large
 
     return (
         <IconContainer width={dimension} height={dimension}>
