@@ -1,9 +1,8 @@
 /* eslint @typescript-eslint/no-var-requires: "off" */
 import React from 'react'
-import { Image, ImageSourcePropType, StyleSheet } from 'react-native'
+import { Image, StyleSheet } from 'react-native'
 import styled from 'styled-components/native'
 import { Dimensions, Flex } from '../../styles'
-import { logos } from '../../styles/images'
 
 const IconContainer = styled.View<{ width: number, height: number }>`
     width: ${props => props.width};
