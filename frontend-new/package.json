@@ -26,7 +26,6 @@
     "js-cookie": "^3.0.1",
     "luxon": "^2.3.1",
     "react": "17.0.1",
-    "react-contenteditable": "^3.3.6",
     "react-dnd": "^15.1.1",
     "react-dnd-html5-backend": "^15.1.2",
     "react-dnd-touch-backend": "^15.1.1",

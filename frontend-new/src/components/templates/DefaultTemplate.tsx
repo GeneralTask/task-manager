@@ -22,7 +22,8 @@ const styles = StyleSheet.create({
         ...Flex.row,
         height: '100vh',
         fontFamily: 'Switzer-Variable',
-        backgroundColor: Colors.gray._50
+        backgroundColor: Colors.gray._50,
+        position: 'relative'
     }
 })
 
