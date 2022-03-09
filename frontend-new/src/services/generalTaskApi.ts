@@ -50,6 +50,7 @@ export const generalTaskApi = createApi({
                                     source: {
                                         name: 'General Task',
                                         logo: '',
+                                        logo_v2: 'generaltask',
                                         is_completable: false,
                                         is_replyable: false,
                                     },
