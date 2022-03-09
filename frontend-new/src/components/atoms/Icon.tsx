@@ -1,8 +1,9 @@
 /* eslint @typescript-eslint/no-var-requires: "off" */
 import React from 'react'
-import { Image, StyleSheet } from 'react-native'
+import { Image, ImageSourcePropType, StyleSheet } from 'react-native'
 import styled from 'styled-components/native'
 import { Dimensions, Flex } from '../../styles'
+import { logos } from '../../styles/images'
 
 const IconContainer = styled.View<{ width: number, height: number }>`
     width: ${props => props.width};
@@ -13,10 +14,10 @@ const IconContainer = styled.View<{ width: number, height: number }>`
 
 interface IconProps {
     size: 'small' | 'medium' | 'large'
-    source?: NodeRequire
+    source?: ImageSourcePropType
 }
 export const Icon = (props: IconProps) => {
-    const image = props.source ?? require('../../assets/generaltask.png')
+    const image = props.source ?? logos.generaltask
     const dimension =
         props.size === 'small' ? Dimensions.iconSize.small :
             props.size === 'medium' ? Dimensions.iconSize.medium : Dimensions.iconSize.large
@@ -39,6 +40,6 @@ const styles = StyleSheet.create({
     icon: {
         width: '100%',
         height: undefined,
-        aspectRatio: Dimensions.iconRatio,
+        aspectRatio: 1,
     },
 })

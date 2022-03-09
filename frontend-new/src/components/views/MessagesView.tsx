@@ -23,10 +23,10 @@ const Messages = () => {
     return (
         <ScrollView style={styles.container} refreshControl={refreshControl}>
             <View style={styles.messagesContent}>
-                {(isLoading || !messages) ? <Loading /> :
+                {isLoading ? <Loading /> :
                     <View>
                         <MessagesScreenHeader />
-                        {messages.map(msg => {
+                        {messages?.map(msg => {
                             return (
                                 <TaskTemplate style={styles.shell} key={msg.id}>
                                     <Message message={msg} setSheetTaskId={() => null} />

@@ -2,6 +2,7 @@ import React, { Ref, useRef } from 'react'
 import { useDrag } from 'react-dnd'
 import { Platform, Pressable, View, Text, StyleSheet } from 'react-native'
 import { Colors, Flex } from '../../styles'
+import { logos } from '../../styles/images'
 import { Indices, ItemTypes, TTask } from '../../utils/types'
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
@@ -41,7 +42,7 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
                 {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />
                 <View style={styles.iconContainer}>
-                    <Icon size="small" />
+                    <Icon source={logos[task.source.logo_v2]} size="small" />
                 </View>
                 <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
             </View>
