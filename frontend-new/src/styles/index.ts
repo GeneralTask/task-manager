@@ -6,5 +6,6 @@ import * as Screens from './screens'
 import * as Shadows from './shadows'
 import * as Dimensions from './dimensions'
 import * as Border from './border'
+import * as Spacing from './spacing'
 
-export { Colors, Flex, Typography, Images, Screens, Shadows, Dimensions, Border }
+export { Colors, Flex, Typography, Images, Screens, Shadows, Dimensions, Border, Spacing }
