@@ -16,13 +16,13 @@ export const EVENT_BOTTOM_PADDING = 2.5
 
 const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_TIME_WIDTH}px - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px) * 1/var(--squish-factor)`
 
-export const DayContainer = styled.div<{ scroll: boolean }>`
+export const DayContainer = styled.div`
     width: 100%;
     height: 100%;
     margin-top: 24px;
     flex: 1;
     display: flex;
-    overflow: ${(props) => (props.scroll ? 'auto' : 'none')};
+    overflow: auto;
     justify-content: center;
     position: relative;
 `
@@ -102,14 +102,17 @@ export const EventTime = styled.div`
     float: left;
     max-height: 100%;
 `
-export const EventFill = styled.div`
+export const EventFill = styled.div<{ squareStart: boolean, squareEnd: boolean }>`
     width: 100%;
     height: 100%;
     background: ${Colors.white};
     border: 1px solid ${EVENT_CONTAINER_COLOR};
     box-sizing: border-box;
     box-shadow: ${Shadows.xLarge};
-    border-radius: 10px;
+    border-top-left-radius: ${(props) => (props.squareStart ? '0' : '10px')};
+    border-top-right-radius: ${(props) => (props.squareStart ? '0' : '10px')};
+    border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : '10px')};
+    border-bottom-right-radius: ${(props) => (props.squareEnd ? '0' : '10px')};
 `
 export const EventFillContinues = styled(EventFill)`
     border-radius: 8px 8px 0 0;

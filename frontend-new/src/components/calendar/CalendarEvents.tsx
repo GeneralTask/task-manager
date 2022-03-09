@@ -1,33 +1,27 @@
+import { DateTime } from 'luxon'
+import React, { Ref, useEffect, useRef } from 'react'
+import { useGetEventsQuery } from '../../services/generalTaskApi'
 import {
     CalendarCell,
-    CalendarRow,
-    CalendarTD,
-    CalendarTableStyle,
-    CellTime,
-    DayContainer,
-    CELL_HEIGHT,
-    CALENDAR_DEFAULT_SCROLL_HOUR,
+    CalendarRow, CalendarTableStyle, CalendarTD, CALENDAR_DEFAULT_SCROLL_HOUR, CellTime, CELL_HEIGHT, DayContainer
 } from './CalendarEvents-styles'
-import React, { Ref, useEffect, useRef } from 'react'
+import CollisionGroupColumns from './CollisionGroupColumns'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
-import CollisionGroupColumns from './CollisionGroupColumns'
-import { DateTime } from 'luxon'
-import { useGetEventsQuery } from '../../services/generalTaskApi'
 
-interface CalendarDayTableProps {
-    showTimes: boolean
-}
-function CalendarDayTable({ showTimes }: CalendarDayTableProps): JSX.Element {
+function CalendarDayTable(): JSX.Element {
     const hourElements = Array(24)
         .fill(0)
-        .map((_, index) => (
-            <CalendarRow key={index}>
-                <CalendarTD>
-                    <CalendarCell>{showTimes && <CellTime>{`${(index % 12) + 1}:00`}</CellTime>}</CalendarCell>
-                </CalendarTD>
-            </CalendarRow>
-        ))
+        .map((_, index) => {
+            const timeString = `${((index + 11) % 12) + 1}:00`
+            return (
+                <CalendarRow key={index}>
+                    <CalendarTD>
+                        <CalendarCell><CellTime>{timeString}</CellTime></CalendarCell>
+                    </CalendarTD>
+                </CalendarRow>
+            )
+        })
     return (
         <CalendarTableStyle>
             <tbody>{hourElements}</tbody>
@@ -38,17 +32,15 @@ function CalendarDayTable({ showTimes }: CalendarDayTableProps): JSX.Element {
 interface CalendarEventsProps {
     date: DateTime
     isToday: boolean
-    showTimes: boolean
-    scroll: boolean
 }
 
-export default function CalendarEvents({ date, isToday, showTimes, scroll }: CalendarEventsProps): JSX.Element {
+export default function CalendarEvents({ date, isToday }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
 
     const startDate = date.startOf('day')
-    const endDate = startDate.plus({ days: 1 })
+    const endDate = startDate.endOf('day')
 
-    const { data: events } = useGetEventsQuery({ startISO: date.minus({ days: 7 }).toISO(), endISO: date.plus({ days: 7 }).toISO() })
+    const { data: events } = useGetEventsQuery({ startISO: date.minus({ days: 2 }).toISO(), endISO: date.plus({ days: 2 }).toISO() })
     const event_list = events?.filter((event) => DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate)
     const groups = findCollisionGroups(event_list || [])
 
@@ -60,12 +52,12 @@ export default function CalendarEvents({ date, isToday, showTimes, scroll }: Cal
     }, [])
 
     return (
-        <DayContainer ref={eventsContainerRef} scroll={scroll}>
+        <DayContainer ref={eventsContainerRef} >
             {groups.map((group, index) => (
-                <CollisionGroupColumns key={index} events={group} />
+                <CollisionGroupColumns key={index} events={group} date={date} />
             ))}
             {isToday && <TimeIndicator />}
-            <CalendarDayTable showTimes={showTimes} />
+            <CalendarDayTable />
         </DayContainer>
     )
 }

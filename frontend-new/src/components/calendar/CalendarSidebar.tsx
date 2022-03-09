@@ -2,9 +2,9 @@ import { DateTime } from 'luxon'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Colors } from '../../styles'
-
 import CalendarEvents from './CalendarEvents'
 import CalendarHeader from './CalendarHeader'
+
 
 const CalendarSidebarContainer = styled.div`
     min-width: 400px;
@@ -26,7 +26,7 @@ export default function CalendarSidebar(): JSX.Element {
     return (
         <CalendarSidebarContainer>
             <CalendarHeader date={date} setDate={setDate} />
-            <CalendarEvents date={date} isToday={selectedDateIsToday} showTimes={true} scroll={true} />
+            <CalendarEvents date={date} isToday={selectedDateIsToday} />
         </CalendarSidebarContainer>
     )
 }
