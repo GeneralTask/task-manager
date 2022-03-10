@@ -72,6 +72,7 @@ const EventBanner = ({ date }: EventBannerProps) => {
         return () => clearInterval(interval)
     }, [])
 
+    if (!events || events.length === 0) return null
     return (
         <EventBannerContainer>
             {

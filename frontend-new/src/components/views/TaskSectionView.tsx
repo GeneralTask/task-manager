@@ -9,7 +9,7 @@ import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
 import CreateNewTask from '../molecules/CreateNewTask'
 import EventBanner from '../molecules/EventBanner'
-import { TasksScreenHeader } from '../molecules/Header'
+import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
 
 const TaskSection = () => {
@@ -41,7 +41,7 @@ const TaskSection = () => {
             <View style={styles.tasksContent}>
                 {(isLoading || !currentSection) ? <Loading /> :
                     <View>
-                        <TasksScreenHeader title={currentSection.name} id={currentSection.id} />
+                        <SectionHeader section={currentSection.name} allowRefresh={true} taskSectionId={currentSection.id} />
                         {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                         {currentSection.tasks.map((task, index) => {
                             return (
