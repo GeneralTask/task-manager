@@ -70,7 +70,7 @@ const DetailsView = () => {
     }, [task])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-        if (inputRef.current && (e.key === "Enter" || e.key === "Escape")) inputRef.current.blur()
+        if (inputRef.current && (e.key === 'Enter' || e.key === 'Escape')) inputRef.current.blur()
     }
 
     const handleBlur = () => {
