@@ -34,7 +34,7 @@ RUN go build -o ./out/backend .
 
 # Start fresh from a smaller image
 FROM alpine:3.15
-# MultiArch ARGs used by Docker
+# MultiArch ARGs used by Docker to run on ARM64 CPU Arch
 ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG TARGETOS
