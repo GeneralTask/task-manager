@@ -9,7 +9,8 @@ export const size = {
 export const icons: { [key: string]: ImageSourcePropType } = {
     gear: require('../assets/gear.png'),
     spinner: require('../assets/spinner.png'),
-    trash: require('../assets/trash.png')
+    trash: require('../assets/trash.png'),
+    plus: require('../assets/plus.png')
 }
 
 export const logos: { [key: string]: ImageSourcePropType } = {
