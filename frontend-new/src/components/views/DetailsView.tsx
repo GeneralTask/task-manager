@@ -1,11 +1,12 @@
 import React, { createRef, useEffect, useState } from 'react'
-import styled from 'styled-components/native'
 import webStyled from 'styled-components'
+import styled from 'styled-components/native'
 import { useGetTasksQuery, useModifyTaskMutation } from '../../services/generalTaskApi'
 import { useParams } from '../../services/routing'
 import { Colors, Spacing, Typography } from '../../styles'
-import { Icon } from '../atoms/Icon'
 import { logos } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
+import DatePicker from '../molecules/DatePicker'
 
 const DetailsViewContainer = styled.View`
     display: flex;
@@ -54,8 +55,8 @@ const DetailsView = () => {
     const [body, setBody] = useState('')
     const inputRef = createRef<HTMLInputElement>()
 
-    const section = taskSections ? taskSections.find(section => section.id === params.section) : undefined
-    const task = section ? section.tasks.find(task => task.id === params.task) : undefined
+    const section = taskSections?.find(section => section.id === params.section)
+    const task = section?.tasks.find(task => task.id === params.task)
 
     useEffect(() => {
         if (!task) return
@@ -79,6 +80,7 @@ const DetailsView = () => {
                     <Icon source={logos[task.source.logo_v2]} size="small" />
                     <TitleInput ref={inputRef} type="text" onKeyDown={handleKeyDown} value={title} onChange={(e) => setTitle(e.target.value)} onBlur={handleBlur} />
                 </TaskTitleContainer>
+                <DatePicker task_id={task.id} due_date={task.due_date} />
                 <BodyTextArea placeholder='Add task details' value={body} onChange={(e) => setBody(e.target.value)} onBlur={handleBlur} />
             </DetailsViewContainer>
         )
