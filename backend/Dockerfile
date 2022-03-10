@@ -1,5 +1,11 @@
 # Adapted from https://codefresh.io/docs/docs/learn-by-example/golang/golang-hello-world/
-FROM golang:1.17-alpine AS build_base
+FROM golang:1.16-alpine AS build_base
+
+ARG TARGETPLATFORM
+ARG TARGETARCH
+ARG TARGETOS
+ARG TARGETVARIANT
+ARG ARCH
 
 RUN apk add --no-cache git
 
@@ -27,7 +33,14 @@ COPY . .
 RUN go build -o ./out/backend .
 
 # Start fresh from a smaller image
-FROM alpine:3.9 
+FROM alpine:3.15
+
+ARG TARGETPLATFORM
+ARG TARGETARCH
+ARG TARGETOS
+ARG TARGETVARIANT
+ARG ARCH
+
 RUN apk add ca-certificates
 
 COPY --from=build_base /tmp/backend/out/backend /app/backend

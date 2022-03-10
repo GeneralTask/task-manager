@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: qa-gtsk-uswest2

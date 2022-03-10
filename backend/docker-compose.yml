@@ -5,6 +5,14 @@ version: '3.4'
 
 services:
 
+  app:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+
+
   mongo:
     image: mongo:4.4.2
     restart: always
