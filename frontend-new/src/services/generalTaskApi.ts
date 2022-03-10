@@ -3,7 +3,7 @@ import Cookies from 'js-cookie'
 import { Platform } from 'react-native'
 import getEnvVars from '../environment'
 import type { RootState } from '../redux/store'
-import { TEvent, TMessage, TTask, TTaskSection } from '../utils/types'
+import { TEvent, TMessage, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
 export const generalTaskApi = createApi({
@@ -70,12 +70,19 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        modifyTask: builder.mutation<void, { title: string, body: string, id: string }>({
-            query: (data) => ({
-                url: `tasks/modify/${data.id}/`,
-                method: 'PATCH',
-                body: { title: data.title, body: data.body },
-            }),
+        modifyTask: builder.mutation<void, { id: string, title?: string, due_date?: string, time_duration?: number, body?: string }>({
+            query: (data) => {
+                const requestBody: TTaskModifyRequestBody = {}
+                if (data.title) requestBody.title = data.title
+                if (data.due_date) requestBody.due_date = data.due_date
+                if (data.time_duration) requestBody.time_duration = data.time_duration
+                if (data.body) requestBody.body = data.body
+                return {
+                    url: `tasks/modify/${data.id}/`,
+                    method: 'PATCH',
+                    body: requestBody,
+                }
+            },
             async onQueryStarted(data, { dispatch, queryFulfilled }) {
                 const result = dispatch(
                     generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
@@ -84,8 +91,11 @@ export const generalTaskApi = createApi({
                             for (let j = 0; j < section.tasks.length; j++) {
                                 const task = section.tasks[j]
                                 if (task.id === data.id) {
-                                    task.title = data.title
-                                    task.body = data.body
+                                    task.title = data.title || task.title
+                                    task.due_date = data.due_date || task.due_date
+                                    task.time_allocated = data.time_duration || task.time_allocated
+                                    task.body = data.body || task.body
+                                    return
                                 }
                             }
                         }
