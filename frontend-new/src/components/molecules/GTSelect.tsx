@@ -24,23 +24,7 @@ const Input = styled.input`
     padding: 6px 0;
     outline: none;
 `
-// const Icon = styled.img`
-//     width: 16px;
-//     height: 16px;
-//     margin: 6px;
-// `
-// const Chevron = styled.img`
-//     width: 8px;
-//     height: 8px;
-//     margin: 6px;
-//     padding: 5px;
-//     cursor: pointer;
-// `
 const Dropdown = styled.div`
-    /* position: absolute; */
-    /* top: 95%;
-    left: 5%;
-    width: 90%; */
     display: flex;
     border-radius: 8px;
     flex-direction: column;
