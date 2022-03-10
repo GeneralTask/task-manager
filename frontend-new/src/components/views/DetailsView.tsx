@@ -12,7 +12,7 @@ const DetailsViewContainer = styled.View`
     flex-direction: column;
     background-color: ${Colors.gray._50};
     width: 400px;
-    margin-top: ${Spacing.margin.large};
+    margin-top: ${Spacing.margin.large}px;
 `
 const TaskTitleContainer = styled.View`
     display: flex;
@@ -42,7 +42,7 @@ const BodyTextArea = webStyled.textarea`
     overflow: auto;
     padding-right: ${Spacing.margin.small}px;
     font: inherit;
-    font-color: ${Colors.gray._600};
+    color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize}px;
 `
 
