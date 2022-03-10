@@ -1,29 +1,62 @@
 import { DateTime } from 'luxon'
-import React, { createRef, useEffect, useRef, useState } from 'react'
-import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
+import React, { createRef, useEffect, useState } from 'react'
 import webStyled from 'styled-components'
 import styled from 'styled-components/native'
 import { useGetTasksQuery, useModifyTaskMutation } from '../../services/generalTaskApi'
 import { useParams } from '../../services/routing'
 import { Colors, Spacing, Typography } from '../../styles'
+import { logos } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
 
-const DetailsViewContainer = styled.ScrollView`
+const DetailsViewContainer = styled.View`
     display: flex;
     flex-direction: column;
     background-color: ${Colors.gray._50};
     width: 400px;
     margin-top: ${Spacing.margin.large};
 `
-const Input = webStyled.input`
+const TaskTitleContainer = styled.View`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`
+const TitleInput = webStyled.input`
     background-color: inherit;
     color: ${Colors.gray._600};
-    font-size: ${Typography.xSmall.fontSize};
+    font-size: ${Typography.xSmall.fontSize}px;
     font-weight: ${Typography.weight._600.fontWeight};
     border: none;
+    display: inline-block;
+    margin-left: ${Spacing.margin.small}px;
     :focus {
         outline: 1px solid ${Colors.gray._500};
     }
-    margin-top: 10px;
+`
+const Input = webStyled.input`
+    background-color: inherit;
+    color: ${Colors.gray._600};
+    font-size: ${Typography.xSmall.fontSize}px;
+    font-weight: ${Typography.weight._600.fontWeight};
+    border: none;
+    display: inline-block;
+    margin-left: ${Spacing.margin.small}px;
+    :focus {
+        outline: 1px solid ${Colors.gray._500};
+    }
+`
+const BodyTextArea = webStyled.textarea`
+    display: block;
+    background-color: inherit;
+    margin-top: ${Spacing.margin.medium}px;
+    flex: 1;
+    border: none;
+    resize: none;
+    outline: none;
+    overflow: auto;
+    padding-right: ${Spacing.margin.small}px;
+    font: inherit;
+    color: ${Colors.gray._600};
+    font-size: ${Typography.xSmall.fontSize}px;
 `
 
 const DetailsView = () => {
@@ -33,8 +66,8 @@ const DetailsView = () => {
     const [title, setTitle] = useState('')
     const [dueDate, setDueDate] = useState('')
     const [timeAllocated, setTimeAllocated] = useState('')
-    const contentEditableBodyRef = createRef<HTMLElement>()
-    const bodyHTMLRef = useRef<string>('')
+    const [body, setBody] = useState('')
+    const inputRef = createRef<HTMLInputElement>()
 
     const section = taskSections ? taskSections.find(section => section.id === params.section) : undefined
     const task = section ? section.tasks.find(task => task.id === params.task) : undefined
@@ -44,35 +77,28 @@ const DetailsView = () => {
         setTitle(task.title)
         setDueDate(DateTime.fromISO(task.due_date).toISODate() || '')
         setTimeAllocated(task.time_allocated.toString())
-        if (contentEditableBodyRef.current) {
-            contentEditableBodyRef.current.innerText = `${task.body}`
-            bodyHTMLRef.current = `${task.body}`
-        }
+        setBody(task.body)
     }, [task])
 
-    const handleBodyChange = (e: ContentEditableEvent) => {
-        bodyHTMLRef.current = e.target.value
+    const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+        if (inputRef.current && (e.key === 'Enter' || e.key === 'Escape')) inputRef.current.blur()
     }
+
     const handleBlur = () => {
-        if (task && contentEditableBodyRef.current != null) {
-            modifyTask({ id: task.id, title: title, body: contentEditableBodyRef.current.innerText, due_date: DateTime.fromISO(dueDate).toISO(), time_duration: parseInt(timeAllocated) })
-        }
+        if (!task) return
+        modifyTask({ id: task.id, title: title, body: body })
     }
 
     return (
         task == null || isLoading ? (null) : (
             <DetailsViewContainer>
-                <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} onBlur={handleBlur} />
-                <ContentEditable
-                    innerRef={contentEditableBodyRef}
-                    html={bodyHTMLRef.current}
-                    disabled={false}
-                    onChange={handleBodyChange}
-                    onBlur={handleBlur}
-                    tagName='div'
-                />
+                <TaskTitleContainer>
+                    <Icon source={logos[task.source.logo_v2]} size="small" />
+                    <TitleInput ref={inputRef} type="text" onKeyDown={handleKeyDown} value={title} onChange={(e) => setTitle(e.target.value)} onBlur={handleBlur} />
+                </TaskTitleContainer>
                 <Input type="text" value={dueDate} onChange={(e) => setDueDate(e.target.value)} onBlur={handleBlur} />
                 <Input type="text" value={timeAllocated} onChange={(e) => setTimeAllocated(e.target.value)} onBlur={handleBlur} />
+                <BodyTextArea placeholder='Add task details' value={body} onChange={(e) => setBody(e.target.value)} onBlur={handleBlur} />
             </DetailsViewContainer>
         )
     )

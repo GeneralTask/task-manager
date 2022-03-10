@@ -1,6 +1,6 @@
 /* eslint @typescript-eslint/no-var-requires: "off" */
 import React from 'react'
-import { Image, StyleSheet } from 'react-native'
+import { Image, ImageSourcePropType, StyleSheet } from 'react-native'
 import styled from 'styled-components/native'
 import { Dimensions, Flex } from '../../styles'
 
@@ -14,7 +14,7 @@ const IconContainer = styled.View<{ width: number, height: number }>`
 interface IconProps {
     size: 'xSmall' | 'small' | 'medium' | 'large'
     uri?: string
-    source?: NodeRequire
+    source?: NodeRequire | ImageSourcePropType
 }
 export const Icon = (props: IconProps) => {
     let image = require('../../assets/generaltask.png')
