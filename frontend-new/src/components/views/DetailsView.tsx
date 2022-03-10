@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useRef, useState } from 'react'
+import React, { createRef, useEffect, useState } from 'react'
 import styled from 'styled-components/native'
 import webStyled from 'styled-components'
 import { useGetTasksQuery, useModifyTaskMutation } from '../../services/generalTaskApi'
