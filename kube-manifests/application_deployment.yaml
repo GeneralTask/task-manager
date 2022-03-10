@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "core-deployment"
+  namespace: "qa-gtsk-uswest2"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "core"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "core"
+    spec:
+      containers:
+      - image: "257821106339.dkr.ecr.us-west-2.amazonaws.com/qa-gtsk-uswest2"
+        imagePullPolicy: Always
+        name: "core"
+        env:
+          - name: ACCESS_CONTROL_ALLOW_ORIGIN
+            value: "https://generaltask.com"
+          - name: ASANA_OAUTH_CLIENT_ID
+            value: "1201326210809689"
+          - name: ASANA_OAUTH_CLIENT_SECRET
+            value: "1f394d654d35c9d13d06aaf8940e5e0a"
+          - name: COOKIE_DOMAIN
+            value: "generaltask.com"
+          - name: GOOGLE_OAUTH_AUTHORIZE_REDIRECT_URL
+            value: "https://api.generaltask.com/link/google/callback/"
+          - name: GOOGLE_OAUTH_CLIENT_ID
+            value: "786163085684-uvopl20u17kp4p2vd951odnm6f89f2f6.apps.googleusercontent.com"
+          - name: GOOGLE_OAUTH_CLIENT_SECRET
+            value: "TBfZ0eIno-_eHUvS_EjqLery"
+          - name: GOOGLE_OAUTH_LOGIN_REDIRECT_URL
+            value: "https://api.generaltask.com/login/callback/"
+          - name: HOME_URL
+            value: "https://generaltask.com/"
+          - name: JIRA_OAUTH_CLIENT_ID
+            value: "7sW3nPubP5vLDktjR2pfAU8cR67906X0"
+          - name: JIRA_OAUTH_CLIENT_SECRET
+            value: "u3kul-2ZWQP6j_Ial54AGxSWSxyW1uKe2CzlQ64FFe_cTc8GCbCBtFOSFZZhh-Wc"
+          - name: MONGO_URI
+            value: "mongodb://heroku:RHAxT6UrYGPJXOtn@cluster0-shard-00-00.dbkij.mongodb.net:27017,cluster0-shard-00-01.dbkij.mongodb.net:27017,cluster0-shard-00-02.dbkij.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-xn7hxv-shard-0&authSource=admin&retryWrites=true&w=majority"
+          - name: MONGO_URI_MIGRATIONS
+            value: "mongodb://heroku:RHAxT6UrYGPJXOtn@cluster0-shard-00-00.dbkij.mongodb.net:27017,cluster0-shard-00-01.dbkij.mongodb.net:27017,cluster0-shard-00-02.dbkij.mongodb.net:27017/%s?ssl=true&replicaSet=atlas-xn7hxv-shard-0&authSource=admin&retryWrites=true&w=majority"
+          - name: SERVER_URL
+            value: "https://api.generaltask.com/"
+          - name: TRELLO_OAUTH_CLIENT_ID
+            value: "e0d3af3a6c6ac955c95467f984582166"
+          - name: TRELLO_OAUTH_CLIENT_SECRET
+            value: "3bdfb33e65667261ee90c8d0830a65a5987275c78970cc90a1f7808d93777079"
+        ports:
+        - containerPort: 8080
