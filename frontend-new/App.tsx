@@ -33,6 +33,9 @@ const App = () => {
               <Route path="messages" element={<PrivateOutlet />}>
                 <Route index element={<TasksScreen />} />
               </Route>
+              <Route path="settings" element={<PrivateOutlet />}>
+                <Route index element={<TasksScreen />} />
+              </Route>
             </Route>
           </Routes>
         </Router>
