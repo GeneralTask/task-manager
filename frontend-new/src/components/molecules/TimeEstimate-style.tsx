@@ -13,9 +13,9 @@ export const TimeEstimateContainer = styled.div`
     box-shadow: 0 0 5px lightgray;
     z-index: 1;
     top: 100%;
+    right: 0;
     padding: ${TIME_ESTIMATOR_PADDING}px;
     cursor: default;
-    transform: translateX(${-1 * (TIME_ESTIMATOR_WIDTH / 2 - TIME_ESTIMATOR_PADDING * 2)}px);
 `
 
 export const Header = styled.div`
