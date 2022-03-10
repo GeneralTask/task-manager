@@ -1,17 +1,21 @@
-import React, { Ref, useRef } from 'react'
-import { useDrag } from 'react-dnd'
-import { Platform, Pressable, View, Text, StyleSheet } from 'react-native'
-import { useNavigate, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { logos } from '../../styles/images'
 import { Indices, ItemTypes, TTask } from '../../utils/types'
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
+import React, { Ref, useRef } from 'react'
+
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
+import TaskDropContainer from './TaskDropContainer'
+import { useDrag } from 'react-dnd'
+import { useNavigate, useParams } from 'react-router-dom'
 
 interface TaskProps {
     task: TTask
     setSheetTaskId: (label: string) => void
+    dragDisabled: boolean
+    index: number
 }
 
 const Task = ({ task, setSheetTaskId }: TaskProps) => {
@@ -44,16 +48,18 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
     const dragRef = Platform.OS === 'web' ? drag as Ref<View> : undefined
 
     return (
-        <Pressable style={styles.container} onPress={onPress} ref={dragPreviewRef}>
-            <View style={styles.container}>
-                {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
-                <CompleteButton taskId={task.id} isComplete={task.is_done} />
-                <View style={styles.iconContainer}>
-                    <Icon source={logos[task.source.logo_v2]} size="small" />
+        <TaskDropContainer task={task}>
+            <Pressable style={styles.container} onPress={onPress} ref={dragPreviewRef}>
+                <View style={styles.container}>
+                    {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
+                    <CompleteButton taskId={task.id} isComplete={task.is_done} />
+                    <View style={styles.iconContainer}>
+                        <Icon source={logos[task.source.logo_v2]} size="small" />
+                    </View>
+                    <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
                 </View>
-                <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
-            </View>
-        </Pressable>
+            </Pressable>
+        </TaskDropContainer>
     )
 }
 
@@ -62,11 +68,11 @@ const styles = StyleSheet.create({
         ...Flex.row,
         alignItems: 'center',
         width: '100%',
-        height: '100%',
+        height: 42,
         backgroundColor: Colors.white,
         borderRadius: 12,
-        paddingTop: 5,
-        paddingBottom: 5,
+        // paddingTop: 5,
+        // paddingBottom: 5,
     },
     iconContainer: {
         marginLeft: 6,

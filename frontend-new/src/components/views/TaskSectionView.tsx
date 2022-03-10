@@ -1,16 +1,16 @@
-import { DateTime } from 'luxon'
-import React, { useEffect, useRef } from 'react'
-import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
-import { useGetTasksQuery } from '../../services/generalTaskApi'
-import { useNavigate, useParams } from '../../services/routing'
-import { Colors, Flex, Screens, Shadows, Spacing } from '../../styles'
-import { getSectionById } from '../../utils/task'
-import Loading from '../atoms/Loading'
-import TaskTemplate from '../atoms/TaskTemplate'
-import CreateNewTask from '../molecules/CreateNewTask'
-import EventBanner from '../molecules/EventBanner'
-import { SectionHeader } from '../molecules/Header'
-import Task from '../molecules/Task'
+import { DateTime } from "luxon"
+import React, { useRef, useEffect } from "react"
+import { Platform, RefreshControl, ScrollView, View, StyleSheet } from "react-native"
+import { useParams, useNavigate } from "react-router-dom"
+import { useGetTasksQuery } from "../../services/generalTaskApi"
+import { Screens, Flex, Spacing, Colors } from "../../styles"
+import { getSectionById } from "../../utils/task"
+import Loading from "../atoms/Loading"
+import TaskTemplate from "../atoms/TaskTemplate"
+import CreateNewTask from "../molecules/CreateNewTask"
+import EventBanner from "../molecules/EventBanner"
+import { SectionHeader } from "../molecules/Header"
+import Task from "../molecules/Task"
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
@@ -45,8 +45,13 @@ const TaskSection = () => {
                         {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                         {currentSection.tasks.map((task, index) => {
                             return (
-                                <TaskTemplate style={styles.shell} key={index}>
-                                    <Task task={task} setSheetTaskId={() => null} />
+                                <TaskTemplate key={index}>
+                                    <Task
+                                        task={task}
+                                        setSheetTaskId={() => null}
+                                        dragDisabled={currentSection.is_done}
+                                        index={index}
+                                    />
                                 </TaskTemplate>
                             )
                         })}
@@ -58,10 +63,6 @@ const TaskSection = () => {
 }
 
 const styles = StyleSheet.create({
-    shell: {
-        marginTop: 20,
-        ...Shadows.small
-    },
     container: {
         ...Screens.container,
         ...Flex.column,
