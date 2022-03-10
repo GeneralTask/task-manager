@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react'
 import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
 import { useGetTasksQuery } from '../../services/generalTaskApi'
 import { useNavigate, useParams } from '../../services/routing'
-import { Colors, Flex, Screens, Shadows } from '../../styles'
+import { Colors, Flex, Screens, Shadows, Spacing } from '../../styles'
 import { getSectionById } from '../../utils/task'
 import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
@@ -11,7 +11,6 @@ import CreateNewTask from '../molecules/CreateNewTask'
 import EventBanner from '../molecules/EventBanner'
 import { TasksScreenHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
-
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
@@ -73,7 +72,7 @@ const styles = StyleSheet.create({
         ...Flex.column,
         marginRight: '7.5%',
         marginLeft: '7.5%',
-        marginTop: Platform.OS === 'web' ? 40 : 20,
+        marginTop: Platform.OS === 'web' ? Spacing.margin.large : 20,
         marginBottom: 100,
     },
 })

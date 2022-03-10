@@ -70,11 +70,11 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        modifyTask: builder.mutation<void, { body: string, id: string }>({
+        modifyTask: builder.mutation<void, { title: string, body: string, id: string }>({
             query: (data) => ({
                 url: `tasks/modify/${data.id}/`,
                 method: 'PATCH',
-                body: { body: data.body },
+                body: { title: data.title, body: data.body },
             }),
             async onQueryStarted(data, { dispatch, queryFulfilled }) {
                 const result = dispatch(
@@ -84,6 +84,7 @@ export const generalTaskApi = createApi({
                             for (let j = 0; j < section.tasks.length; j++) {
                                 const task = section.tasks[j]
                                 if (task.id === data.id) {
+                                    task.title = data.title
                                     task.body = data.body
                                 }
                             }
