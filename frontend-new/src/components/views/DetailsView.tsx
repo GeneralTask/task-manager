@@ -1,10 +1,11 @@
+import { DateTime } from 'luxon'
 import React, { createRef, useEffect, useRef, useState } from 'react'
-import styled from 'styled-components/native'
+import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
 import webStyled from 'styled-components'
+import styled from 'styled-components/native'
 import { useGetTasksQuery, useModifyTaskMutation } from '../../services/generalTaskApi'
 import { useParams } from '../../services/routing'
 import { Colors, Spacing, Typography } from '../../styles'
-import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
 
 const DetailsViewContainer = styled.ScrollView`
     display: flex;
@@ -13,7 +14,7 @@ const DetailsViewContainer = styled.ScrollView`
     width: 400px;
     margin-top: ${Spacing.margin.large};
 `
-const TitleInput = webStyled.input`
+const Input = webStyled.input`
     background-color: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
@@ -30,6 +31,8 @@ const DetailsView = () => {
     const { data: taskSections, isLoading } = useGetTasksQuery()
     const [modifyTask] = useModifyTaskMutation()
     const [title, setTitle] = useState('')
+    const [dueDate, setDueDate] = useState('')
+    const [timeAllocated, setTimeAllocated] = useState('')
     const contentEditableBodyRef = createRef<HTMLElement>()
     const bodyHTMLRef = useRef<string>('')
 
@@ -39,6 +42,8 @@ const DetailsView = () => {
     useEffect(() => {
         if (!task) return
         setTitle(task.title)
+        setDueDate(DateTime.fromISO(task.due_date).toISODate() || '')
+        setTimeAllocated(task.time_allocated.toString())
         if (contentEditableBodyRef.current) {
             contentEditableBodyRef.current.innerText = `${task.body}`
             bodyHTMLRef.current = `${task.body}`
@@ -50,14 +55,14 @@ const DetailsView = () => {
     }
     const handleBlur = () => {
         if (task && contentEditableBodyRef.current != null) {
-            modifyTask({ id: task.id, title: title, body: contentEditableBodyRef.current.innerText })
+            modifyTask({ id: task.id, title: title, body: contentEditableBodyRef.current.innerText, due_date: DateTime.fromISO(dueDate).toISO(), time_duration: parseInt(timeAllocated) })
         }
     }
 
     return (
         task == null || isLoading ? (null) : (
             <DetailsViewContainer>
-                <TitleInput type="text" value={title} onChange={(e) => setTitle(e.target.value)} onBlur={handleBlur} />
+                <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} onBlur={handleBlur} />
                 <ContentEditable
                     innerRef={contentEditableBodyRef}
                     html={bodyHTMLRef.current}
@@ -66,6 +71,8 @@ const DetailsView = () => {
                     onBlur={handleBlur}
                     tagName='div'
                 />
+                <Input type="text" value={dueDate} onChange={(e) => setDueDate(e.target.value)} onBlur={handleBlur} />
+                <Input type="text" value={timeAllocated} onChange={(e) => setTimeAllocated(e.target.value)} onBlur={handleBlur} />
             </DetailsViewContainer>
         )
     )
