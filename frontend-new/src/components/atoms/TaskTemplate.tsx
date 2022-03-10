@@ -1,5 +1,7 @@
+import { StyleSheet, View, ViewStyle } from 'react-native'
+
+import { Flex } from '../../styles'
 import React from 'react'
-import { View, StyleSheet, ViewStyle } from 'react-native'
 
 interface TaskTemplateProps {
     style?: ViewStyle
@@ -17,9 +19,8 @@ const TaskTemplate = (props: TaskTemplateProps) => {
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        position: 'relative',
-        height: 48,
-        borderRadius: 12,
+        height: 58,
+        ...Flex.verticalAlign,
     }
 })
 
