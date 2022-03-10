@@ -1,6 +1,9 @@
 import { DateTime, Info } from 'luxon'
 import React, { useCallback, useState } from 'react'
+import { View } from 'react-native'
 import { useModifyTaskMutation } from '../../services/generalTaskApi'
+import { icons } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
 import {
     BottomBar,
     BottomDateView,
@@ -8,7 +11,6 @@ import {
     DayLabel,
     DayTable,
     HoverButton,
-    Icon,
     MonthContainer,
     MonthYearHeader,
     PickerContainer,
@@ -21,8 +23,9 @@ import {
 interface DatePickerProps {
     task_id: string
     due_date: string
+    closeDatePicker: () => void
 }
-function DatePicker({ task_id, due_date }: DatePickerProps): JSX.Element {
+function DatePicker({ task_id, due_date, closeDatePicker }: DatePickerProps): JSX.Element {
     const [modifyTask] = useModifyTaskMutation()
     const [date, setDate] = useState<DateTime>(DateTime.local().startOf('month'))
     const currentDueDate = DateTime.fromISO(due_date)
@@ -52,6 +55,7 @@ function DatePicker({ task_id, due_date }: DatePickerProps): JSX.Element {
                 event.stopPropagation()
                 setDate(day)
                 modifyTask({ id: task_id, due_date: day.toISO() })
+                closeDatePicker()
             }
             const isToday = day.hasSame(DateTime.local(), 'day')
             const isThisMonth = day.hasSame(date, 'month')
@@ -119,7 +123,7 @@ function DatePicker({ task_id, due_date }: DatePickerProps): JSX.Element {
                         prevMonth()
                     }}
                 >
-                    <Icon src={require('../../assets/caret_left.png')} alt="Previous Month" />
+                    <Icon source={icons['caret_left']} size="xSmall" />
                 </HoverButton>
                 <MonthYearHeader>{monthyear}</MonthYearHeader>
                 <HoverButton
@@ -130,13 +134,13 @@ function DatePicker({ task_id, due_date }: DatePickerProps): JSX.Element {
                         nextMonth()
                     }}
                 >
-                    <Icon src={require('../../assets/caret_right.png')} alt="Next Month" />
+                    <Icon source={icons['caret_right']} size="xSmall" />
                 </HoverButton>
             </TopNav>
             {monthTable()}
             <BottomBar>
                 <BottomDateView>
-                    <Icon src={require('../../assets/gcal_gray.png')} />
+                    <View style={{ padding: 10 }}><Icon source={icons['calendar_blank']} size="xSmall" /></View>
                     <CurrentDateText>
                         {currentDueDate.isValid ? currentDueDate.toLocaleString() : 'MM/DD/YYYY'}
                     </CurrentDateText>
@@ -147,9 +151,10 @@ function DatePicker({ task_id, due_date }: DatePickerProps): JSX.Element {
                             e.stopPropagation()
                             setDate(DateTime.fromMillis(1))
                             modifyTask({ id: task_id, due_date: DateTime.fromMillis(1).toISO() })
+                            closeDatePicker()
                         }}
                     >
-                        <Icon src={require('../../assets/trash.png')} />
+                        <View style={{ padding: 10 }}><Icon source={icons['trash']} size="xSmall" /></View>
                     </HoverButton>
                 </BottomDateView>
             </BottomBar>

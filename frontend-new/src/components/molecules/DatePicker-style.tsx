@@ -53,11 +53,6 @@ export const BottomBar = styled.div`
     justify-content: center;
     padding-bottom: 12px;
 `
-export const Icon = styled.img`
-    height: 16px;
-    width: 16px;
-    padding: 10px;
-`
 export const MonthYearHeader = styled.div`
     font-family: Switzer-Variable;
     font-style: normal;
