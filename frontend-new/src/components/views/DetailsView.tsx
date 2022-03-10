@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useRef, useState } from 'react'
+import React, { createRef, useEffect, useState } from 'react'
 import styled from 'styled-components/native'
 import webStyled from 'styled-components'
 import { useGetTasksQuery, useModifyTaskMutation } from '../../services/generalTaskApi'
@@ -52,9 +52,7 @@ const DetailsView = () => {
     const [modifyTask] = useModifyTaskMutation()
     const [title, setTitle] = useState('')
     const [body, setBody] = useState('')
-    const contentEditableBodyRef = createRef<HTMLElement>()
     const inputRef = createRef<HTMLInputElement>()
-    const bodyHTMLRef = useRef<string>('')
 
     const section = taskSections ? taskSections.find(section => section.id === params.section) : undefined
     const task = section ? section.tasks.find(task => task.id === params.task) : undefined
@@ -63,10 +61,6 @@ const DetailsView = () => {
         if (!task) return
         setTitle(task.title)
         setBody(task.body)
-        if (contentEditableBodyRef.current) {
-            contentEditableBodyRef.current.innerText = `${task.body}`
-            bodyHTMLRef.current = `${task.body}`
-        }
     }, [task])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
