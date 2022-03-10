@@ -53,6 +53,7 @@ const DetailsView = () => {
     const [title, setTitle] = useState('')
     const [body, setBody] = useState('')
     const contentEditableBodyRef = createRef<HTMLElement>()
+    const inputRef = createRef<HTMLInputElement>()
     const bodyHTMLRef = useRef<string>('')
 
     const section = taskSections ? taskSections.find(section => section.id === params.section) : undefined
@@ -68,6 +69,10 @@ const DetailsView = () => {
         }
     }, [task])
 
+    const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+        if (inputRef.current && e.key === "Enter") inputRef.current.blur()
+    }
+
     const handleBlur = () => {
         if (!task) return
         modifyTask({ id: task.id, title: title, body: body })
@@ -78,7 +83,7 @@ const DetailsView = () => {
             <DetailsViewContainer>
                 <TaskTitleContainer>
                     <Icon source={logos[task.source.logo_v2]} size="small" />
-                    <TitleInput type="text" value={title} onChange={(e) => setTitle(e.target.value)} onBlur={handleBlur} />
+                    <TitleInput ref={inputRef} type="text" onKeyDown={handleKeyDown} value={title} onChange={(e) => setTitle(e.target.value)} onBlur={handleBlur} />
                 </TaskTitleContainer>
                 <BodyTextArea placeholder='Add task details' value={body} onChange={(e) => setBody(e.target.value)} onBlur={handleBlur} />
             </DetailsViewContainer>
