@@ -5,8 +5,8 @@ import styled from 'styled-components/native'
 import { Dimensions, Flex } from '../../styles'
 
 const IconContainer = styled.View<{ width: number, height: number }>`
-    width: ${props => props.width};
-    height: ${props => props.height};
+    width: ${props => props.width}px;
+    height: ${props => props.height}px;
     align-items: center;
     justify-content: center;
 `
