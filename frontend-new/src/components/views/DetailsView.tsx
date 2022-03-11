@@ -28,8 +28,6 @@ const ActionButton = styled.Pressable`
     align-items: center;
     justify-content: center;
     padding: 2px;
-    border-radius: 8px;
-    background-color: ${Colors.gray._100};
     margin-right: ${Spacing.margin.small}px;
 `
 const TitleInput = webStyled.input`
