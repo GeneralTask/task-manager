@@ -41,7 +41,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
             const isDragging = !!monitor.isDragging()
             return { opacity: isDragging ? 0.5 : 1 }
         },
-    }))
+    }), [task.id, index, sectionId])
 
     const dragPreviewRef = Platform.OS === 'web' ? dragPreview as Ref<View> : undefined
     const dragRef = Platform.OS === 'web' ? drag as Ref<View> : undefined

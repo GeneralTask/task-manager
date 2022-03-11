@@ -25,12 +25,8 @@ enum DropDirection {
 // function getDropDirection()
 
 const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, children, taskIndex, sectionId }: TaskDropContainerProps) => {
-    // const indicesRef = useRef<Indices>()
     const dropRef = useRef<View>(null)
-    const overlayLayout = useRef<LayoutRectangle>()
-    const taskSectionsRef = useRef<TTaskSection[]>()
     const [dropDirection, setDropDirection] = useState(DropDirection.Up)
-    const [overlayHeight, setOverlayHeight] = useState<number>(0)
 
     const [reorderTask] = useReorderTaskMutation()
 
@@ -47,68 +43,18 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, children, t
     }, [])
 
     const onDrop = useCallback(async (item: DropProps, monitor: DropTargetMonitor) => {
-        if (item.id === task.id) return
-        // if (item.indicesRef.current == null) return
-        // if (taskSectionsRef.current == null) return
-        if (dropRef.current == null) return
-        // if (indicesRef.current == null) return
-        console.log(item)
+        if (item.id === task.id || dropRef.current == null) return
         const dropDirection = await getDropDirection(monitor.getClientOffset()?.y ?? 0)
 
-        const dropIndex = taskIndex + 1 + (dropDirection === DropDirection.Up ? 0 : 1)
-        console.log("dropped on ", dropIndex)
+        const dropIndex = taskIndex + (dropDirection === DropDirection.Up ? 1 : 2)
+        console.log("dropped ", item.id, " on ", dropIndex)
 
         reorderTask({
             id: item.id,
             id_ordering: dropIndex,
             id_task_section: sectionId,
         })
-
-        // const taskSections = taskSectionsRef.current
-        // const { section: dropSection } = indicesRef.current
-        // const { section: dragSection, task: dragTask } = item.indicesRef.current
-
-        // let isLowerHalf = false
-        // if (boundingRect != null) {
-        //     const dropMiddleY = (boundingRect.bottom - boundingRect.top) / 2 + boundingRect.top
-        //     const clientOffsetY = monitor.getClientOffset()?.y
-        //     isLowerHalf = !!(clientOffsetY && clientOffsetY > dropMiddleY)
-        // }
-
-        // const previousOrderingId = taskSections[dragSection].tasks[dragTask].id_ordering
-
-        // const updatedTaskSections = taskDropReorder(
-        //     taskSections,
-        //     item.indicesRef.current,
-        //     indicesRef.current,
-        //     isLowerHalf
-        // )
-        // dispatch(setTasks(updatedTaskSections))
-
-        // let updatedOrderingId = null
-        // updatedOrderingId = updatedTaskSections[dropSection].tasks.find((task) => task.id === item.id)?.id_ordering
-        // if (updatedOrderingId == null) return
-        // if (dragSection === dropSection && updatedOrderingId < previousOrderingId) {
-        //     updatedOrderingId -= 1
-        // }
-        // if (dragSection !== dropSection) {
-        //     updatedOrderingId -= 1
-        // }
-
-        // logEvent(LogEvents.TASK_REORDERED)
-        // makeAuthorizedRequest({
-        //     url: TASKS_MODIFY_URL + item.id + '/',
-        //     method: 'PATCH',
-        //     body: JSON.stringify({
-        //         id_task_section: taskSections[indices.section].id,
-        //         id_ordering: updatedOrderingId + 1,
-        //     }),
-        // })
-        //     .then(() => getTasks())
-        //     .catch((error) => {
-        //         throw new Error('PATCH /tasks/ failed' + error)
-        //     })
-    }, [])
+    }, [task.id, taskIndex, sectionId])
 
     const [isOver, drop] = useDrop(() => ({
         accept: ItemTypes.TASK,
@@ -121,12 +67,14 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, children, t
         }
     }))
     drop(dropRef)
-    // setOverlayHeight(e.nativeEvent.layout.height)
-    return <DropOverlay ref={dropRef} >
-        <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.Up} />
-        {children}
-        <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.Down} />
-    </DropOverlay>
+
+    return (
+        <DropOverlay ref={dropRef} >
+            <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.Up} />
+            {children}
+            <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.Down} />
+        </DropOverlay>
+    )
 }
 
 const DropOverlay = styled.View`
