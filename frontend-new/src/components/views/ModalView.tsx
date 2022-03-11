@@ -33,6 +33,14 @@ const ModalView = ({ children }: ModalViewProps) => {
     const { showModal: currentModal } = useAppSelector((state) => ({ showModal: state.tasks_page.modals.show_modal }))
     const dispatch = useAppDispatch()
 
+    const blurBackground = () => {
+        document.getElementById('root')?.style.setProperty('filter', 'blur(5px)')
+        document.getElementById('root')?.style.setProperty('overflow', 'hidden')
+    }
+    const unblurBackground = () => {
+        document.getElementById('root')?.style.setProperty('filter', 'blur(0px)')
+        document.getElementById('root')?.style.setProperty('overflow', 'auto')
+    }
     const modalClose = () => {
         dispatch(setShowModal(ModalEnum.NONE))
     }
@@ -40,6 +48,8 @@ const ModalView = ({ children }: ModalViewProps) => {
         <Modal
             style={MODAL_STYLE}
             isOpen={currentModal !== ModalEnum.NONE}
+            onAfterOpen={blurBackground}
+            onAfterClose={unblurBackground}
             onRequestClose={modalClose}
             appElement={document.body}
         >
