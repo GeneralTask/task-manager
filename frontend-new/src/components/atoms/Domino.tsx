@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
                 cursor: 'grab'
             },
         }),
-        height: '60%',
+        height: 16,
         paddingLeft: 12,
         paddingRight: 12,
     },
