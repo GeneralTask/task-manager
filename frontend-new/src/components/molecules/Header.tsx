@@ -1,21 +1,31 @@
-import Cookies from 'js-cookie'
-import React, { useEffect } from 'react'
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { useAppDispatch } from '../../redux/hooks'
-import { setAuthToken } from '../../redux/userDataSlice'
-import { useDeleteTaskSectionMutation, useGetMessagesQuery, useGetTasksQuery } from '../../services/generalTaskApi'
-import { Flex, Typography } from '../../styles'
+import React from 'react'
+import { Platform } from 'react-native'
+import styled from 'styled-components/native'
+import { useDeleteTaskSectionMutation, useGetTasksQuery } from '../../services/generalTaskApi'
+import { Typography, Spacing } from '../../styles'
+import { icons } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
 
-interface TasksScreenHeaderProps {
-    title: string
-    id: string
+const SectionHeaderContainer = styled.View`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: ${Spacing.margin.medium}px;
+`
+const HeaderText = styled.Text`
+    margin-right: ${Spacing.margin.small}px;
+    font-size: ${Typography.xLarge.fontSize}px;
+`
+const TouchableIcon = styled.TouchableOpacity`
+    margin-right: ${Spacing.margin.small}px;
+`
+interface SectionHeaderProps {
+    section: string
+    allowRefresh: boolean
+    taskSectionId?: string
 }
-export const TasksScreenHeader = ({ title, id }: TasksScreenHeaderProps) => {
-    const dispatch = useAppDispatch()
+export const SectionHeader = (props: SectionHeaderProps) => {
     const [deleteTaskSection] = useDeleteTaskSectionMutation()
-    useEffect(() => {
-        if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
-    }, [])
     const { refetch } = useGetTasksQuery()
 
     const tempSectionIds = [
@@ -26,55 +36,22 @@ export const TasksScreenHeader = ({ title, id }: TasksScreenHeaderProps) => {
     ]
     const matchTempSectionId = (id: string) => tempSectionIds.includes(id)
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.headerText}>{title}</Text>
-            {Platform.OS === 'web' &&
-                <TouchableOpacity onPress={refetch}>
-                    <Image style={styles.icon} source={require('../../assets/spinner.png')} />
-                </TouchableOpacity>
-            }
-            {!matchTempSectionId(id) &&
-                <TouchableOpacity onPress={() => deleteTaskSection({ id: id })}>
-                    <Image style={styles.icon} source={require('../../assets/trash.png')} />
-                </TouchableOpacity>
-            }
-        </View>
-    )
-}
-
-export const MessagesScreenHeader = () => {
-    const dispatch = useAppDispatch()
-    useEffect(() => {
-        if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
-    }, [])
-    const { refetch } = useGetMessagesQuery()
-
-    return (
-        <View style={styles.container}>
-            <Text style={styles.headerText}>Messages</Text>
-            {Platform.OS === 'web' &&
-                <TouchableOpacity onPress={refetch}>
-                    <Image style={styles.icon} source={require('../../assets/spinner.png')} />
-                </TouchableOpacity>
-            }
-        </View>
-    )
-}
-
-const styles = StyleSheet.create({
-    container: {
-        ...Flex.row,
-        alignItems: 'center',
-        marginBottom: 15,
-    },
-    headerText: {
-        ...Typography.xLarge,
-        marginRight: 5,
-    },
-    icon: {
-        width: 20,
-        height: 20,
-        marginRight: 5,
+    const handleDelete = async (id: string | undefined) => {
+        if (id) deleteTaskSection({ id: id })
     }
-})
+    return (
+        <SectionHeaderContainer>
+            <HeaderText>{props.section}</HeaderText>
+            {props.allowRefresh && Platform.OS === 'web' &&
+                <TouchableIcon onPress={refetch}>
+                    <Icon size={'small'} source={icons.spinner}></Icon>
+                </TouchableIcon>
+            }
+            {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) &&
+                <TouchableIcon onPress={() => handleDelete(props.taskSectionId)}>
+                    <Icon size={'small'} source={icons.trash}></Icon>
+                </TouchableIcon>
+            }
+        </SectionHeaderContainer>
+    )
+}

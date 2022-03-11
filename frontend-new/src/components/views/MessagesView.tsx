@@ -4,7 +4,7 @@ import { useGetMessagesQuery } from '../../services/generalTaskApi'
 import { Colors, Flex, Screens, Shadows } from '../../styles'
 import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
-import { MessagesScreenHeader } from '../molecules/Header'
+import { SectionHeader } from '../molecules/Header'
 import Message from '../molecules/Message'
 
 const Messages = () => {
@@ -23,10 +23,10 @@ const Messages = () => {
     return (
         <ScrollView style={styles.container} refreshControl={refreshControl}>
             <View style={styles.messagesContent}>
-                {(isLoading || !messages) ? <Loading /> :
+                {isLoading ? <Loading /> :
                     <View>
-                        <MessagesScreenHeader />
-                        {messages.map(msg => {
+                        <SectionHeader section="Messages" allowRefresh={true} />
+                        {messages?.map(msg => {
                             return (
                                 <TaskTemplate style={styles.shell} key={msg.id}>
                                     <Message message={msg} setSheetTaskId={() => null} />

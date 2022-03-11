@@ -1,7 +1,9 @@
 import React, { Ref, useRef } from 'react'
 import { useDrag } from 'react-dnd'
 import { Platform, Pressable, View, Text, StyleSheet } from 'react-native'
+import { useNavigate, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
+import { logos } from '../../styles/images'
 import { Indices, ItemTypes, TTask } from '../../utils/types'
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
@@ -13,15 +15,21 @@ interface TaskProps {
 }
 
 const Task = ({ task, setSheetTaskId }: TaskProps) => {
+    const navigate = useNavigate()
+    const params = useParams()
+    const indicesRef = useRef<Indices>()
+    const isDraggable = true
     const onPress = () => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(task.id)
         }
+        if (params.task === task.id) {
+            navigate(`/tasks/${params.section}`)
+        }
+        else {
+            navigate(`/tasks/${params.section}/${task.id}`)
+        }
     }
-
-    const isDraggable = true
-
-    const indicesRef = useRef<Indices>()
 
     const [, drag, dragPreview] = useDrag(() => ({
         type: ItemTypes.TASK,
@@ -41,7 +49,7 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
                 {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />
                 <View style={styles.iconContainer}>
-                    <Icon size="small" />
+                    <Icon source={logos[task.source.logo_v2]} size="small" />
                 </View>
                 <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
             </View>

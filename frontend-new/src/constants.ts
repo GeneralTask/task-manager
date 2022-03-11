@@ -26,3 +26,5 @@ export const LOG_EVENTS_URL = REACT_APP_API_BASE_URL + '/log_events/'
 export const FEEDBACK_URL = REACT_APP_API_BASE_URL + '/feedback/'
 
 export const EVENTS_URL = REACT_APP_API_BASE_URL + '/events/'
+
+export const NO_EVENT_TITLE = '(no title)'

@@ -1,7 +1,7 @@
 const ENV = {
     dev: {
         REACT_APP_API_BASE_URL: 'http://localhost:8080',
-        REACT_APP_FRONTEND_BASE_URL: 'http://localhost:19006',
+        REACT_APP_FRONTEND_BASE_URL: 'http://localhost:3000',
     },
     prod: {
         REACT_APP_API_BASE_URL: 'https://api.generaltask.com',

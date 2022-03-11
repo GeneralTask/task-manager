@@ -23,6 +23,7 @@ type LinkedAccount struct {
 	DisplayID    string `json:"display_id"`
 	Name         string `json:"name"`
 	Logo         string `json:"logo"`
+	LogoV2       string `json:"logo_v2"`
 	IsUnlinkable bool   `json:"is_unlinkable"`
 }
 
@@ -88,6 +89,7 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 			DisplayID:    token.DisplayID,
 			Name:         taskServiceResult.Details.Name,
 			Logo:         taskServiceResult.Details.Logo,
+			LogoV2:       taskServiceResult.Details.LogoV2,
 			IsUnlinkable: token.IsUnlinkable,
 		})
 	}
