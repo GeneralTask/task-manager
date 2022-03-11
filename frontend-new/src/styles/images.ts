@@ -6,12 +6,6 @@ export const size = {
     }
 }
 
-export const icons: { [key: string]: ImageSourcePropType } = {
-    gear: require('../assets/gear.png'),
-    spinner: require('../assets/spinner.png'),
-    trash: require('../assets/trash.png')
-}
-
 export const logos: { [key: string]: ImageSourcePropType } = {
     generaltask: require('../assets/generaltask.png'),
     generaltask_gray: require('../assets/generaltask_gray.png'),
@@ -32,6 +26,7 @@ export const icons: { [key: string]: ImageSourcePropType } = {
     caret_left: require('../assets/caret_left.png'),
     caret_right: require('../assets/caret_right.png'),
     chevron_down: require('../assets/chevron_down.png'),
+    gear: require('../assets/gear.png'),
     inbox: require('../assets/inbox.png'),
     mark_as_task: require('../assets/mark_as_task.png'),
     messages: require('../assets/messages.png'),
