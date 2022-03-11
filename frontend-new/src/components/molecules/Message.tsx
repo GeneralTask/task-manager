@@ -1,21 +1,20 @@
 import React, { Ref, useRef } from 'react'
 import { useDrag } from 'react-dnd'
-import { Platform, Pressable, View, Text, StyleSheet } from 'react-native'
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Colors, Flex } from '../../styles'
-import { Indices, ItemTypes, TTask } from '../../utils/types'
-import CompleteButton from '../atoms/buttons/CompleteButton'
+import { Indices, ItemTypes, TMessage } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 
 interface TaskProps {
-    task: TTask
+    message: TMessage
     setSheetTaskId: (label: string) => void
 }
 
-const Task = ({ task, setSheetTaskId }: TaskProps) => {
+const Message = ({ message, setSheetTaskId }: TaskProps) => {
     const onPress = () => {
         if (Platform.OS === 'ios') {
-            setSheetTaskId(task.id)
+            setSheetTaskId(message.id)
         }
     }
 
@@ -25,7 +24,7 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
 
     const [, drag, dragPreview] = useDrag(() => ({
         type: ItemTypes.TASK,
-        item: { id: task.id, indicesRef: indicesRef },
+        item: { id: message.id, indicesRef: indicesRef },
         collect: (monitor) => {
             const isDragging = !!monitor.isDragging()
             return { opacity: isDragging ? 0.5 : 1 }
@@ -39,11 +38,10 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
         <Pressable style={styles.container} onPress={onPress} ref={dragPreviewRef}>
             <View style={styles.container}>
                 {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
-                <CompleteButton taskId={task.id} isComplete={task.is_done} />
                 <View style={styles.iconContainer}>
                     <Icon size="small" />
                 </View>
-                <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
+                <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{message.title}</Text>
             </View>
         </Pressable>
     )
@@ -70,4 +68,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Task
+export default Message

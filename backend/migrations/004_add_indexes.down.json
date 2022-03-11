@@ -1,0 +1,10 @@
+[
+    {
+        "dropIndexes": "tasks",
+        "index": [
+            "sourceIndex",
+            "taskCompletedIndex",
+            "emailUnreadIndex"
+        ]
+    }
+]

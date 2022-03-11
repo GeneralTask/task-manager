@@ -1,9 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import getEnvVars from '../environment'
-import { TEvent, TTask, TTaskSection } from '../utils/types'
-import type { RootState } from '../redux/store'
 import Cookies from 'js-cookie'
 import { Platform } from 'react-native'
+import getEnvVars from '../environment'
+import type { RootState } from '../redux/store'
+import { TEvent, TMessage, TTask, TTaskSection } from '../utils/types'
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
 export const generalTaskApi = createApi({
@@ -20,7 +20,7 @@ export const generalTaskApi = createApi({
             return headers
         }
     }),
-    tagTypes: ['Tasks', 'Events'],
+    tagTypes: ['Tasks', 'Messages', 'Events'],
     endpoints: (builder) => ({
         getTasks: builder.query<TTaskSection[], void>({
             query: () => 'tasks/',
@@ -176,6 +176,45 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
+        getMessages: builder.query<TMessage[], void>({
+            query: () => 'messages/',
+            providesTags: ['Messages']
+        }),
+        markMessageRead: builder.mutation<void, { id: string, is_read: boolean }>({
+            query: (data) => ({
+                url: `messages/modify/${data.id}/`,
+                method: 'PATCH',
+                body: { is_read: data.is_read },
+            }),
+            async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getMessages', undefined, (messages) => {
+                        for (let i = 0; i < messages.length; i++) {
+                            const message = messages[i]
+                            if (message.id === data.id) {
+                                message.is_unread = !data.is_read
+                                return
+                            }
+                        }
+                    })
+                )
+                try {
+                    await queryFulfilled
+                } catch {
+                    result.undo()
+                }
+            }
+        }),
+        markMessageAsTask: builder.mutation<void, { id: string, is_task: boolean }>({
+            query: (data) => ({
+                url: `messages/modify/${data.id}/`,
+                method: 'PATCH',
+                body: { is_task: data.is_task },
+            }),
+            async onQueryStarted(_, { dispatch }) {
+                dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
+            }
+        }),
         getEvents: builder.query<TEvent[], { startISO: string, endISO: string }>({
             query: (data) => ({
                 url: 'events/',
@@ -186,9 +225,8 @@ export const generalTaskApi = createApi({
                 },
             }),
             providesTags: ['Events'],
-
         }),
     }),
 })
 
-export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery } = generalTaskApi
+export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery, useGetMessagesQuery } = generalTaskApi

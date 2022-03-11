@@ -1,16 +1,16 @@
 import Cookies from 'js-cookie'
 import React, { useEffect } from 'react'
-import { View, Text, Image, StyleSheet, Platform, TouchableOpacity } from 'react-native'
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useAppDispatch } from '../../redux/hooks'
 import { setAuthToken } from '../../redux/userDataSlice'
-import { useDeleteTaskSectionMutation, useGetTasksQuery } from '../../services/generalTaskApi'
-import { Typography, Flex } from '../../styles'
+import { useDeleteTaskSectionMutation, useGetMessagesQuery, useGetTasksQuery } from '../../services/generalTaskApi'
+import { Flex, Typography } from '../../styles'
 
 interface TasksScreenHeaderProps {
     title: string
     id: string
 }
-const TasksScreenHeader = ({ title, id }: TasksScreenHeaderProps) => {
+export const TasksScreenHeader = ({ title, id }: TasksScreenHeaderProps) => {
     const dispatch = useAppDispatch()
     const [deleteTaskSection] = useDeleteTaskSectionMutation()
     useEffect(() => {
@@ -29,16 +29,33 @@ const TasksScreenHeader = ({ title, id }: TasksScreenHeaderProps) => {
     return (
         <View style={styles.container}>
             <Text style={styles.headerText}>{title}</Text>
-            {
-                Platform.OS === 'web' &&
+            {Platform.OS === 'web' &&
                 <TouchableOpacity onPress={refetch}>
                     <Image style={styles.icon} source={require('../../assets/spinner.png')} />
                 </TouchableOpacity>
             }
-            {
-                !matchTempSectionId(id) &&
+            {!matchTempSectionId(id) &&
                 <TouchableOpacity onPress={() => deleteTaskSection({ id: id })}>
                     <Image style={styles.icon} source={require('../../assets/trash.png')} />
+                </TouchableOpacity>
+            }
+        </View>
+    )
+}
+
+export const MessagesScreenHeader = () => {
+    const dispatch = useAppDispatch()
+    useEffect(() => {
+        if (Platform.OS === 'web') dispatch(setAuthToken(Cookies.get('authToken')))
+    }, [])
+    const { refetch } = useGetMessagesQuery()
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.headerText}>Messages</Text>
+            {Platform.OS === 'web' &&
+                <TouchableOpacity onPress={refetch}>
+                    <Image style={styles.icon} source={require('../../assets/spinner.png')} />
                 </TouchableOpacity>
             }
         </View>
@@ -61,5 +78,3 @@ const styles = StyleSheet.create({
         marginRight: 5,
     }
 })
-
-export default TasksScreenHeader

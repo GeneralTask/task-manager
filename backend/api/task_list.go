@@ -10,7 +10,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,6 +18,7 @@ import (
 type TaskSource struct {
 	Name          string `json:"name"`
 	Logo          string `json:"logo"`
+	LogoV2        string `json:"logo_v2"`
 	IsCompletable bool   `json:"is_completable"`
 	IsReplyable   bool   `json:"is_replyable"`
 }
@@ -31,6 +31,7 @@ type TaskResult struct {
 	Title          string             `json:"title"`
 	Body           string             `json:"body"`
 	Sender         string             `json:"sender"`
+	Recipients     Recipients         `json:"recipients"`
 	DueDate        string             `json:"due_date"`
 	TimeAllocation int64              `json:"time_allocated"`
 	SentAt         string             `json:"sent_at"`
@@ -44,6 +45,17 @@ type TaskSection struct {
 	IsDone bool               `json:"is_done"`
 }
 
+type Recipients struct {
+	To  []Recipient `json:"to"`
+	Cc  []Recipient `json:"cc"`
+	Bcc []Recipient `json:"bcc"`
+}
+
+type Recipient struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
 type TaskGroupType string
 
 const (
@@ -54,76 +66,6 @@ const (
 	TaskSectionNameBacklog string        = "Backlog"
 	TaskSectionNameDone    string        = "Done"
 )
-
-func (api *API) TasksList(c *gin.Context) {
-	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-
-	defer dbCleanup()
-	userID, _ := c.Get("user")
-	var userObject database.User
-	userCollection := database.GetUserCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
-
-	if err != nil {
-		log.Printf("failed to find user: %v", err)
-		Handle500(c)
-		return
-	}
-	cutoff := primitive.NewDateTimeFromTime(time.Now().Add(-55 * time.Second))
-	fastRefresh := userObject.LastRefreshed > cutoff
-
-	currentTasks, err := database.GetActiveTasks(db, userID.(primitive.ObjectID))
-	if err != nil {
-		Handle500(c)
-		return
-	}
-
-	var fetchedTasks *[]*database.Item
-	if fastRefresh {
-		// this is a temporary hack to trick MergeTasks into thinking we fetched these tasks
-		fakeFetchedTasks := []*database.Item{}
-		for _, item := range *currentTasks {
-			task := database.Item{TaskBase: item.TaskBase}
-			fakeFetchedTasks = append(fakeFetchedTasks, &task)
-		}
-		fetchedTasks = &fakeFetchedTasks
-	} else {
-		fetchedTasks, err = api.fetchTasks(parentCtx, db, userID)
-		if err != nil {
-			Handle500(c)
-			return
-		}
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		_, err = userCollection.UpdateOne(
-			dbCtx,
-			bson.M{"_id": userID},
-			bson.M{"$set": bson.M{"last_refreshed": primitive.NewDateTimeFromTime(time.Now())}},
-		)
-		if err != nil {
-			log.Printf("failed to update user last_refreshed: %v", err)
-		}
-	}
-
-	allTasks, err := api.mergeTasks(
-		db,
-		currentTasks,
-		fetchedTasks,
-		userID.(primitive.ObjectID),
-	)
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	c.JSON(200, allTasks)
-}
 
 func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Item, error) {
 	var tokens []database.ExternalAPIToken
@@ -210,7 +152,7 @@ func (api *API) mergeTasks(
 	}
 	completedTaskResults := []*TaskResult{}
 	for index, task := range *completedTasks {
-		taskResult := api.taskBaseToTaskResult(&task.TaskBase)
+		taskResult := api.taskBaseToTaskResult(&task)
 		taskResult.IDOrdering = index + 1
 		completedTaskResults = append(completedTaskResults, taskResult)
 	}
@@ -270,7 +212,7 @@ func (api *API) extractSectionTasksV2(
 	}
 	// this is inefficient but easy to understand - can optimize later as needed
 	for _, task := range *fetchedTasks {
-		taskResult := api.taskBaseToTaskResult(&task.TaskBase)
+		taskResult := api.taskBaseToTaskResult(task)
 		addedToSection := false
 		for _, resultSection := range resultSections {
 			if task.IDTaskSection == resultSection.ID {
@@ -346,7 +288,7 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 	return nil
 }
 
-func (api *API) taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
+func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 	taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
 	var dueDate string
 	if t.DueDate.Time().Unix() == int64(0) {
@@ -354,12 +296,14 @@ func (api *API) taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 	} else {
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
+
 	return &TaskResult{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
 		Source: TaskSource{
 			Name:          taskSourceResult.Details.Name,
 			Logo:          taskSourceResult.Details.Logo,
+			LogoV2:        taskSourceResult.Details.LogoV2,
 			IsCompletable: taskSourceResult.Details.IsCompletable,
 			IsReplyable:   taskSourceResult.Details.IsReplyable,
 		},
@@ -368,8 +312,13 @@ func (api *API) taskBaseToTaskResult(t *database.TaskBase) *TaskResult {
 		Body:           t.Body,
 		TimeAllocation: t.TimeAllocation,
 		Sender:         t.Sender,
-		SentAt:         t.CreatedAtExternal.Time().Format(time.RFC3339),
-		DueDate:        dueDate,
-		IsDone:         t.IsCompleted,
+		Recipients: Recipients{
+			To:  getRecipients(t.Recipients.To),
+			Cc:  getRecipients(t.Recipients.Cc),
+			Bcc: getRecipients(t.Recipients.Bcc),
+		},
+		SentAt:  t.CreatedAtExternal.Time().Format(time.RFC3339),
+		DueDate: dueDate,
+		IsDone:  t.IsCompleted,
 	}
 }
