@@ -1,9 +1,9 @@
-import { Indices, ItemTypes, TTask, TTaskSection } from "../../utils/types";
-import { RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { ItemTypes, TTask } from "../../utils/types";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Colors } from '../../styles'
 import styled, { css } from "styled-components/native";
 import { DropTargetMonitor, useDrop } from "react-dnd";
-import { LayoutRectangle, View } from "react-native";
+import { View } from "react-native";
 import { useReorderTaskMutation } from "../../services/generalTaskApi";
 
 interface TaskDropContainerProps {

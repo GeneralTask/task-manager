@@ -1,8 +1,8 @@
 import { Colors, Flex, Shadows } from '../../styles'
 import { logos } from '../../styles/images'
-import { Indices, ItemTypes, TTask } from '../../utils/types'
+import { ItemTypes, TTask } from '../../utils/types'
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
-import React, { Ref, useRef } from 'react'
+import React, { Ref } from 'react'
 
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
