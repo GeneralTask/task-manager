@@ -47,6 +47,8 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
     const dragPreviewRef = Platform.OS === 'web' ? dragPreview as Ref<View> : undefined
     const dragRef = Platform.OS === 'web' ? drag as Ref<View> : undefined
 
+    console.log('render')
+
     return (
         <TaskDropContainer task={task}>
             <Pressable style={styles.container} onPress={onPress} ref={dragPreviewRef}>
