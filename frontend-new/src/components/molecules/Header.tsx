@@ -1,10 +1,11 @@
-import React from 'react'
+import { Spacing, Typography } from '../../styles'
+
+import { Icon } from '../atoms/Icon'
 import { Platform } from 'react-native'
+import React from 'react'
+import { icons } from '../../styles/images'
 import styled from 'styled-components/native'
 import { useDeleteTaskSectionMutation } from '../../services/generalTaskApi'
-import { Spacing, Typography } from '../../styles'
-import { icons } from '../../styles/images'
-import { Icon } from '../atoms/Icon'
 
 const SectionHeaderContainer = styled.View`
     display: flex;

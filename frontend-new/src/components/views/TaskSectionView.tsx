@@ -1,27 +1,31 @@
-import { DateTime } from "luxon"
-import React, { useRef, useEffect } from "react"
-import { Platform, RefreshControl, ScrollView, View, StyleSheet } from "react-native"
-import { useParams, useNavigate } from "react-router-dom"
-import { useGetTasksQuery } from "../../services/generalTaskApi"
-import { Screens, Flex, Spacing, Colors } from "../../styles"
-import { getSectionById } from "../../utils/task"
-import Loading from "../atoms/Loading"
-import TaskTemplate from "../atoms/TaskTemplate"
+import { Colors, Flex, Screens, Spacing } from "../../styles"
+import { Platform, RefreshControl, ScrollView, StyleSheet, View } from "react-native"
+import React, { useEffect, useRef } from "react"
+import { useFetchTasksExternalQuery, useGetTasksQuery } from "../../services/generalTaskApi"
+import { useNavigate, useParams } from "react-router-dom"
+
 import CreateNewTask from "../molecules/CreateNewTask"
+import { DateTime } from "luxon"
 import EventBanner from "../molecules/EventBanner"
+import Loading from "../atoms/Loading"
 import { SectionHeader } from "../molecules/Header"
 import Task from "../molecules/Task"
+import TaskTemplate from "../atoms/TaskTemplate"
+import { getSectionById } from "../../utils/task"
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
+    const fetchTasksExternalQuery = useFetchTasksExternalQuery()
+
     const refetchWasLocal = useRef(false)
     const routerSection = useParams().section || ''
     const navigate = useNavigate()
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
-    const onRefresh = () => {
+    const onRefresh = async () => {
         refetchWasLocal.current = true
+        await fetchTasksExternalQuery.refetch()
         refetch()
     }
 

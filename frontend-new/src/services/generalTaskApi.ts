@@ -149,7 +149,7 @@ export const generalTaskApi = createApi({
             invalidatesTags: ['Tasks'],
             // onQueryStarted pending
         }),
-        fetchTasks: builder.mutation<void, void>({
+        fetchTasksExternal: builder.query<void, void>({
             query: () => ({
                 url: '/tasks/fetch/',
                 method: 'GET',
@@ -284,6 +284,7 @@ export const {
     useCreateTaskMutation,
     useMarkTaskDoneMutation,
     useReorderTaskMutation,
+    useFetchTasksExternalQuery,
     useAddTaskSectionMutation,
     useDeleteTaskSectionMutation,
     useGetEventsQuery,
