@@ -254,12 +254,13 @@ func TestGetEmails(t *testing.T) {
 		assert.Equal(t, task4.ID, (*paged_emails)[3].ID)
 	})
 	t.Run("SuccessAllPaged", func(t *testing.T) {
-		limit := 1
-		page := 4
+		limit := 2
+		page := 2
 		paged_emails, err := GetEmails(db, userID, false, Pagination{Limit: &limit, Page: &page})
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(*paged_emails))
-		assert.Equal(t, task4.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, 2, len(*paged_emails))
+		assert.Equal(t, task2.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, task4.ID, (*paged_emails)[1].ID)
 	})
 }
 
