@@ -147,6 +147,12 @@ export const generalTaskApi = createApi({
             invalidatesTags: ['Tasks'],
             // onQueryStarted pending
         }),
+        fetchTasks: builder.mutation<void, void>({
+            query: () => ({
+                url: '/tasks/fetch/',
+                method: 'GET',
+            }),
+        }),
         addTaskSection: builder.mutation<void, { name: string }>({
             query: (data) => ({
                 url: 'sections/create/',
