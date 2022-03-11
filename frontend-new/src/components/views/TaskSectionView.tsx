@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
         ...Flex.column,
         marginRight: '7.5%',
         marginLeft: '7.5%',
-        marginTop: Platform.OS === 'web' ? Spacing.margin.large : 20,
+        marginTop: Platform.OS === 'web' ? Spacing.margin.xLarge : 20,
         marginBottom: 100,
     },
 })

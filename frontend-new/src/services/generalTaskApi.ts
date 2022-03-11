@@ -237,7 +237,14 @@ export const generalTaskApi = createApi({
                 },
             }),
         }),
+        postFeedback: builder.mutation<void, { feedback: string }>({
+            query: (data) => ({
+                url: 'feedback/',
+                method: 'POST',
+                body: { feedback: data.feedback },
+            }),
+        }),
     }),
 })
 
-export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery, useGetMessagesQuery } = generalTaskApi
+export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery, useGetMessagesQuery, usePostFeedbackMutation } = generalTaskApi
