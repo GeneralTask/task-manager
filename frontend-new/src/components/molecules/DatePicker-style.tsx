@@ -1,14 +1,15 @@
 import styled from 'styled-components'
 import { Colors } from '../../styles'
+import { weight, xSmall, xxSmall } from '../../styles/typography'
 
 export const PickerContainer = styled.div`
     display: block;
     width: fit-content;
     height: fit-content;
     position: absolute;
-    background-color: white;
+    background-color: ${Colors.white};
     border-radius: 12px;
-    box-shadow: 0 0 5px lightgray;
+    box-shadow: 0 0 5px ${Colors.gray._200};
     z-index: 1;
     top: 100%;
     right: 0;
@@ -42,10 +43,9 @@ export const WeekDay = styled.th`
     width: 24px;
 
     font-family: Switzer-Variable;
-    font-style: normal;
-    font-weight: 500;
-    font-size: 13px;
-    line-height: 16px;
+    font-weight: ${weight._500.fontWeight};
+    font-size: ${xxSmall.fontSize}px;
+    line-height: ${xxSmall.lineHeight}px;
     color: ${Colors.gray._400};
 `
 export const BottomBar = styled.div`
@@ -56,8 +56,9 @@ export const BottomBar = styled.div`
 export const MonthYearHeader = styled.div`
     font-family: Switzer-Variable;
     font-style: normal;
-    font-weight: 500;
-    font-size: 15px;
+    font-weight: ${weight._500.fontWeight};
+    font-size: ${xSmall.fontSize}px;
+    line-height: ${xSmall.lineHeight}px;
     color: ${Colors.gray._800};
 `
 export const HoverButton = styled.button<{ isToday: boolean; isSelected: boolean }>`
@@ -71,9 +72,9 @@ export const HoverButton = styled.button<{ isToday: boolean; isSelected: boolean
     border-radius: 50%;
     display: flex;
     &:hover {
-        background: ${(props) => (props.isSelected ? '#5C31D7' : props.isToday ? '#FF000022' : Colors.gray._100)};
+        background: ${(props) => (props.isSelected ? Colors.purple : props.isToday ? Colors.red._2 : Colors.gray._100)};
     }
-    background: ${(props) => (props.isSelected ? '#5C31D7' : props.isToday ? '#FF000022' : 'transparent')};
+    background: ${(props) => (props.isSelected ? Colors.purple : props.isToday ? Colors.red._2 : 'transparent')};
 `
 export const DayLabel = styled.span<{ grayed: boolean; isSelected: boolean }>`
     position: static;
@@ -83,17 +84,16 @@ export const DayLabel = styled.span<{ grayed: boolean; isSelected: boolean }>`
     top: 5.5px;
 
     font-family: Switzer-Variable;
-    font-style: normal;
-    font-weight: 500;
-    font-size: 13px;
-    line-height: 16px;
+    font-weight: ${weight._500.fontWeight};
+    font-size: ${xxSmall.fontSize}px;
+    line-height: ${xxSmall.lineHeight}px;
 
     display: flex;
     align-items: center;
     text-align: center;
     justify-content: center;
 
-    color: ${(props) => (props.isSelected ? '#FFFFFF' : props.grayed ? Colors.gray._400 : Colors.gray._800)};
+    color: ${(props) => (props.isSelected ? Colors.white : props.grayed ? Colors.gray._400 : Colors.gray._800)};
 `
 export const BottomDateView = styled.div`
     display: flex;
@@ -105,10 +105,9 @@ export const BottomDateView = styled.div`
 `
 export const CurrentDateText = styled.span`
     font-family: Switzer-Variable;
-    font-style: normal;
-    font-weight: 500;
-    font-size: 15px;
-    line-height: 19px;
+    font-weight: ${weight._500.fontWeight};
+    font-size: ${xSmall.fontSize}px;
+    line-height: ${xSmall.lineHeight}px;
     width: 100%;
     color: ${Colors.gray._800};
 `
