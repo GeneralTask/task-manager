@@ -5,6 +5,7 @@ import Cookies from 'js-cookie'
 import { Platform } from 'react-native'
 import type { RootState } from '../redux/store'
 import getEnvVars from '../environment'
+
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
 export const generalTaskApi = createApi({
@@ -147,7 +148,7 @@ export const generalTaskApi = createApi({
             invalidatesTags: ['Tasks'],
             // onQueryStarted pending
         }),
-        fetchTasks: builder.mutation<void, void>({
+        fetchTasksExternal: builder.query<void, void>({
             query: () => ({
                 url: '/tasks/fetch/',
                 method: 'GET',
@@ -276,4 +277,4 @@ export const generalTaskApi = createApi({
     }),
 })
 
-export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useReorderTaskMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery, useGetMessagesQuery, useGetSupportedTypesQuery, useGetLinkedAccountsQuery, useDeleteLinkedAccountMutation } = generalTaskApi
+export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useReorderTaskMutation, useFetchTasksExternalQuery, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery, useGetMessagesQuery, useGetSupportedTypesQuery, useGetLinkedAccountsQuery, useDeleteLinkedAccountMutation } = generalTaskApi

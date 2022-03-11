@@ -2,7 +2,7 @@ import { DateTime } from "luxon"
 import React, { useRef, useEffect } from "react"
 import { Platform, RefreshControl, ScrollView, View, StyleSheet } from "react-native"
 import { useParams, useNavigate } from "react-router-dom"
-import { useGetTasksQuery } from "../../services/generalTaskApi"
+import { useFetchTasksExternalQuery, useGetTasksQuery } from "../../services/generalTaskApi"
 import { Screens, Flex, Spacing, Colors } from "../../styles"
 import { getSectionById } from "../../utils/task"
 import Loading from "../atoms/Loading"
@@ -14,15 +14,18 @@ import Task from "../molecules/Task"
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
+    const fetchTasksExternalQuery = useFetchTasksExternalQuery()
+
     const refetchWasLocal = useRef(false)
     const routerSection = useParams().section || ''
     const navigate = useNavigate()
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
-    const onRefresh = () => {
+    const onRefresh = async () => {
         refetchWasLocal.current = true
-        refetch()
+        await fetchTasksExternalQuery.refetch()
+        await refetch()
     }
 
     useEffect(() => {

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Platform } from 'react-native'
 import styled from 'styled-components/native'
-import { useDeleteTaskSectionMutation, useGetTasksQuery } from '../../services/generalTaskApi'
+import { useDeleteTaskSectionMutation, useGetTasksQuery, useFetchTasksExternalQuery } from '../../services/generalTaskApi'
 import { Typography, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
@@ -27,6 +27,7 @@ interface SectionHeaderProps {
 export const SectionHeader = (props: SectionHeaderProps) => {
     const [deleteTaskSection] = useDeleteTaskSectionMutation()
     const { refetch } = useGetTasksQuery()
+    const fetchTasksExternalQuery = useFetchTasksExternalQuery()
 
     const tempSectionIds = [
         '000000000000000000000001',
@@ -43,15 +44,19 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         <SectionHeaderContainer>
             <HeaderText>{props.section}</HeaderText>
             {props.allowRefresh && Platform.OS === 'web' &&
-                <TouchableIcon onPress={refetch}>
+                <TouchableIcon onPress={async () => {
+                    await fetchTasksExternalQuery.refetch()
+                    await refetch()
+                }}>
                     <Icon size={'small'} source={icons.spinner}></Icon>
                 </TouchableIcon>
             }
-            {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) &&
+            {
+                props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) &&
                 <TouchableIcon onPress={() => handleDelete(props.taskSectionId)}>
                     <Icon size={'small'} source={icons.trash}></Icon>
                 </TouchableIcon>
             }
-        </SectionHeaderContainer>
+        </SectionHeaderContainer >
     )
 }
