@@ -20,7 +20,7 @@ export const generalTaskApi = createApi({
             return headers
         }
     }),
-    tagTypes: ['Tasks', 'Messages', 'Events'],
+    tagTypes: ['Tasks', 'Messages', 'Events', 'Accounts'],
     endpoints: (builder) => ({
         getTasks: builder.query<TTaskSection[], void>({
             query: () => 'tasks/v3/',
@@ -241,7 +241,8 @@ export const generalTaskApi = createApi({
             query: () => ({
                 url: 'linked_accounts/',
                 method: 'GET',
-            })
+            }),
+            providesTags: ['Accounts']
         }),
         getSupportedTypes: builder.query<TSupportedTypes[], void>({
             query: () => ({
@@ -249,7 +250,14 @@ export const generalTaskApi = createApi({
                 method: 'GET',
             }),
         }),
+        deleteLinkedAccount: builder.mutation<void, { id: string }>({
+            query: (data) => ({
+                url: `linked_accounts/${data.id}/`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Accounts']
+        }),
     }),
 })
 
-export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery, useGetMessagesQuery, useGetSupportedTypesQuery, useGetLinkedAccountsQuery } = generalTaskApi
+export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery, useGetMessagesQuery, useGetSupportedTypesQuery, useGetLinkedAccountsQuery, useDeleteLinkedAccountMutation } = generalTaskApi
