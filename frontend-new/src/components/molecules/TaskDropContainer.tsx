@@ -1,5 +1,5 @@
 import { Indices, ItemTypes, TTask, TTaskSection } from "../../utils/types";
-import { RefObject, useCallback, useRef, useState } from "react";
+import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { Colors } from '../../styles'
 import styled, { css } from "styled-components/native";
 import { DropTargetMonitor, useDrop } from "react-dnd";
@@ -21,8 +21,6 @@ enum DropDirection {
     Up,
     Down,
 }
-
-// function getDropDirection()
 
 const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, children, taskIndex, sectionId }: TaskDropContainerProps) => {
     const dropRef = useRef<View>(null)
@@ -47,7 +45,6 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, children, t
         const dropDirection = await getDropDirection(monitor.getClientOffset()?.y ?? 0)
 
         const dropIndex = taskIndex + (dropDirection === DropDirection.Up ? 1 : 2)
-        console.log("dropped ", item.id, " on ", dropIndex)
 
         reorderTask({
             id: item.id,
@@ -65,8 +62,11 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, children, t
         hover: (_, monitor) => {
             getDropDirection(monitor.getClientOffset()?.y ?? 0)
         }
-    }))
-    drop(dropRef)
+    }), [task.id, taskIndex, sectionId])
+
+    useEffect(() => {
+        drop(dropRef)
+    }, [])
 
     return (
         <DropOverlay ref={dropRef} >
@@ -86,15 +86,8 @@ const DropOverlay = styled.View`
     padding: 10px 0;
 `
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
-    flex-grow: 1;
     height: 2px;
     width: 100%;
-    /* position: absolute; */
-    /* left: 0px; */
-    /* right: 0px; */
-    /* color: ${Colors.gray._300}; */
-    /* border-width: 2px; */
-    /* border-color: ${Colors.gray._300}; */
     background-color: ${Colors.gray._300};
     visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
 `
