@@ -1,9 +1,10 @@
+import { TEvent, TLinkedAccount, TMessage, TSupportedTypes, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+
 import Cookies from 'js-cookie'
 import { Platform } from 'react-native'
-import getEnvVars from '../environment'
 import type { RootState } from '../redux/store'
-import { TEvent, TLinkedAccount, TMessage, TSupportedTypes, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
+import getEnvVars from '../environment'
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
 export const generalTaskApi = createApi({
@@ -137,6 +138,15 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
+        reorderTask: builder.mutation<void, { id: string, id_task_section: string, id_ordering: number }>({
+            query: ({ id, id_task_section, id_ordering }) => ({
+                url: `/tasks/modify/${id}/`,
+                method: 'PATCH',
+                body: { id_task_section, id_ordering },
+            }),
+            invalidatesTags: ['Tasks'],
+            // onQueryStarted pending
+        }),
         addTaskSection: builder.mutation<void, { name: string }>({
             query: (data) => ({
                 url: 'sections/create/',
@@ -260,4 +270,4 @@ export const generalTaskApi = createApi({
     }),
 })
 
-export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery, useGetMessagesQuery, useGetSupportedTypesQuery, useGetLinkedAccountsQuery, useDeleteLinkedAccountMutation } = generalTaskApi
+export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useReorderTaskMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery, useGetMessagesQuery, useGetSupportedTypesQuery, useGetLinkedAccountsQuery, useDeleteLinkedAccountMutation } = generalTaskApi

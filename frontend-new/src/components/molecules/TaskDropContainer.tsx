@@ -4,6 +4,7 @@ import { Colors } from '../../styles'
 import styled, { css } from "styled-components/native";
 import { DropTargetMonitor, useDrop } from "react-dnd";
 import { LayoutRectangle, View } from "react-native";
+import { useReorderTaskMutation } from "../../services/generalTaskApi";
 
 interface TaskDropContainerProps {
     children: React.ReactNode
@@ -31,6 +32,8 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, children, t
     const [dropDirection, setDropDirection] = useState(DropDirection.Up)
     const [overlayHeight, setOverlayHeight] = useState<number>(0)
 
+    const [reorderTask] = useReorderTaskMutation()
+
     const getDropDirection = useCallback((dropY: number): Promise<DropDirection> => {
         return new Promise((resolve) => {
             dropRef.current?.measureInWindow(
@@ -54,6 +57,12 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, children, t
 
         const dropIndex = taskIndex + 1 + (dropDirection === DropDirection.Up ? 0 : 1)
         console.log("dropped on ", dropIndex)
+
+        reorderTask({
+            id: item.id,
+            id_ordering: dropIndex,
+            id_task_section: sectionId,
+        })
 
         // const taskSections = taskSectionsRef.current
         // const { section: dropSection } = indicesRef.current
