@@ -46,13 +46,13 @@ const UnlinkButton = styled.Pressable`
 `
 const SettingsView = () => {
     const [selectedType, setSelectedType] = useState<string>()
-    const { data: types } = useGetSupportedTypesQuery()
+    const { data: supportedTypes } = useGetSupportedTypesQuery()
     const { data: linkedAccounts, refetch } = useGetLinkedAccountsQuery()
     const [deleteAccount] = useDeleteLinkedAccountMutation()
 
     const openAuthWindow = () => {
-        if (!types) return
-        for (const type of types) {
+        if (!supportedTypes) return
+        for (const type of supportedTypes) {
             if (type.name === selectedType) {
                 const win = window.open(
                     type.authorization_url,
@@ -86,7 +86,7 @@ const SettingsView = () => {
                         }>
                         <Picker.Item label="Add new account" value="add" />
                         {
-                            types?.map(type => (
+                            supportedTypes?.map(type => (
                                 <Picker.Item key={type.name} label={type.name} value={type.name} />
                             ))
                         }

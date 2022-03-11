@@ -86,9 +86,6 @@ export interface TSetting {
 }
 
 export interface TSupportedTypes {
-    id: string
-    display_id?: string
-    is_unlinkable?: boolean
     name: string
     logo: string
     logo_v2: string
@@ -99,6 +96,7 @@ export interface TLinkedAccount {
     display_id: string
     name: string
     logo: string
+    logo_v2: string
     is_unlinkable: boolean
 }
 

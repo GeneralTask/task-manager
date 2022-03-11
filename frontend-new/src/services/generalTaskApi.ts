@@ -3,7 +3,7 @@ import Cookies from 'js-cookie'
 import { Platform } from 'react-native'
 import getEnvVars from '../environment'
 import type { RootState } from '../redux/store'
-import { TEvent, TMessage, TSupportedTypes, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
+import { TEvent, TLinkedAccount, TMessage, TSupportedTypes, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
 export const generalTaskApi = createApi({
@@ -237,7 +237,7 @@ export const generalTaskApi = createApi({
                 },
             }),
         }),
-        getLinkedAccounts: builder.query<TSupportedTypes[], void>({
+        getLinkedAccounts: builder.query<TLinkedAccount[], void>({
             query: () => ({
                 url: 'linked_accounts/',
                 method: 'GET',
