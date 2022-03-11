@@ -51,6 +51,7 @@ const TaskSection = () => {
                                         setSheetTaskId={() => null}
                                         dragDisabled={currentSection.is_done}
                                         index={index}
+                                        sectionId={currentSection.id}
                                     />
                                 </TaskTemplate>
                             )

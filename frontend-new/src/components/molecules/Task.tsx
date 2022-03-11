@@ -16,13 +16,12 @@ interface TaskProps {
     setSheetTaskId: (label: string) => void
     dragDisabled: boolean
     index: number
+    sectionId: string
 }
 
-const Task = ({ task, setSheetTaskId }: TaskProps) => {
+const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProps) => {
     const navigate = useNavigate()
     const params = useParams()
-    const indicesRef = useRef<Indices>()
-    const isDraggable = true
     const onPress = () => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(task.id)
@@ -37,7 +36,7 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
 
     const [, drag, dragPreview] = useDrag(() => ({
         type: ItemTypes.TASK,
-        item: { id: task.id, indicesRef: indicesRef },
+        item: { id: task.id, taskIndex: index, sectionId },
         collect: (monitor) => {
             const isDragging = !!monitor.isDragging()
             return { opacity: isDragging ? 0.5 : 1 }
@@ -47,13 +46,11 @@ const Task = ({ task, setSheetTaskId }: TaskProps) => {
     const dragPreviewRef = Platform.OS === 'web' ? dragPreview as Ref<View> : undefined
     const dragRef = Platform.OS === 'web' ? drag as Ref<View> : undefined
 
-    console.log('render')
-
     return (
-        <TaskDropContainer task={task}>
+        <TaskDropContainer task={task} taskIndex={index} sectionId={sectionId}>
             <Pressable style={styles.container} onPress={onPress} ref={dragPreviewRef}>
                 <View style={styles.container}>
-                    {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
+                    {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
                     <CompleteButton taskId={task.id} isComplete={task.is_done} />
                     <View style={styles.iconContainer}>
                         <Icon source={logos[task.source.logo_v2]} size="small" />
