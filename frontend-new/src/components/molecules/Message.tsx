@@ -37,7 +37,6 @@ const Message = ({ message, setSheetTaskId }: TaskProps) => {
     return (
         <Pressable style={styles.container} onPress={onPress} ref={dragPreviewRef}>
             <View style={styles.container}>
-                {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
                 <View style={styles.iconContainer}>
                     <Icon size="small" />
                 </View>
