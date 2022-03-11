@@ -1,4 +1,4 @@
-import { Colors, Flex } from '../../styles'
+import { Colors, Flex, Shadows } from '../../styles'
 import { logos } from '../../styles/images'
 import { Indices, ItemTypes, TTask } from '../../utils/types'
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
@@ -48,7 +48,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
 
     return (
         <TaskDropContainer task={task} taskIndex={index} sectionId={sectionId}>
-            <Pressable style={styles.container} onPress={onPress} ref={dragPreviewRef}>
+            <Pressable style={[styles.container, styles.shadow]} onPress={onPress} ref={dragPreviewRef}>
                 <View style={styles.container}>
                     {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
                     <CompleteButton taskId={task.id} isComplete={task.is_done} />
@@ -67,11 +67,12 @@ const styles = StyleSheet.create({
         ...Flex.row,
         alignItems: 'center',
         width: '100%',
-        height: 42,
+        height: 50,
         backgroundColor: Colors.white,
         borderRadius: 12,
-        // paddingTop: 5,
-        // paddingBottom: 5,
+    },
+    shadow: {
+        ...Shadows.small,
     },
     iconContainer: {
         marginLeft: 6,
