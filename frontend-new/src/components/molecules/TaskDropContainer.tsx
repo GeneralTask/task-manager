@@ -79,11 +79,9 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({ task, children, t
 
 const DropOverlay = styled.View`
     width: 100%;
+    height: 100%;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    padding: 10px 0;
 `
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
     height: 2px;
@@ -93,11 +91,11 @@ const DropIndicatorStyles = css<{ isVisible: boolean }>`
 `
 export const DropIndicatorAbove = styled.View`
     ${DropIndicatorStyles}
-    margin-top: -5px;
+    top: 1px;
 `
 export const DropIndicatorBelow = styled.View`
     ${DropIndicatorStyles}
-    margin-top: 5.0px;
+    top: -1px;
 `
 
 export default TaskDropContainer

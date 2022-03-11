@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
     container: {
         ...Flex.row,
         alignItems: 'center',
+        marginVertical: 5,
         width: '100%',
         height: 50,
         backgroundColor: Colors.white,
