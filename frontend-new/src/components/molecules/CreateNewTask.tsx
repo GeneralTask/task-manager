@@ -3,7 +3,6 @@ import { Image, Platform, StyleSheet, TextInput, View } from 'react-native'
 import React, { useCallback, useState } from 'react'
 
 import KeyboardShotcutContainer from '../atoms/ShortcutHint'
-import TaskTemplate from '../atoms/TaskTemplate'
 import { useCreateTaskMutation } from '../../services/generalTaskApi'
 
 interface CreateNewTaskProps {

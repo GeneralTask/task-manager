@@ -1,16 +1,16 @@
-import { DateTime } from "luxon"
-import React, { useRef, useEffect } from "react"
-import { Platform, RefreshControl, ScrollView, View, StyleSheet } from "react-native"
-import { useParams, useNavigate } from "react-router-dom"
-import { useFetchTasksExternalQuery, useGetTasksQuery } from "../../services/generalTaskApi"
-import { Screens, Flex, Spacing, Colors } from "../../styles"
-import { getSectionById } from "../../utils/task"
-import Loading from "../atoms/Loading"
-import TaskTemplate from "../atoms/TaskTemplate"
-import CreateNewTask from "../molecules/CreateNewTask"
-import EventBanner from "../molecules/EventBanner"
-import { SectionHeader } from "../molecules/Header"
-import Task from "../molecules/Task"
+import { DateTime } from 'luxon'
+import React, { useRef, useEffect } from 'react'
+import { Platform, RefreshControl, ScrollView, View, StyleSheet } from 'react-native'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useFetchTasksExternalQuery, useGetTasksQuery } from '../../services/generalTaskApi'
+import { Screens, Flex, Spacing, Colors } from '../../styles'
+import { getSectionById } from '../../utils/task'
+import Loading from '../atoms/Loading'
+import TaskTemplate from '../atoms/TaskTemplate'
+import CreateNewTask from '../molecules/CreateNewTask'
+import EventBanner from '../molecules/EventBanner'
+import { SectionHeader } from '../molecules/Header'
+import Task from '../molecules/Task'
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
