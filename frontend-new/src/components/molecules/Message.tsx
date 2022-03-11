@@ -3,7 +3,6 @@ import { useDrag } from 'react-dnd'
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Colors, Flex } from '../../styles'
 import { Indices, ItemTypes, TMessage } from '../../utils/types'
-import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 
 interface TaskProps {
@@ -17,8 +16,6 @@ const Message = ({ message, setSheetTaskId }: TaskProps) => {
             setSheetTaskId(message.id)
         }
     }
-
-    const isDraggable = true
 
     const indicesRef = useRef<Indices>()
 
