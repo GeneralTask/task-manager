@@ -1,5 +1,10 @@
+import { Duration } from 'luxon'
+import React from 'react'
+import styled from 'styled-components'
 import { BLANK_CALENDAR_ICON, DEFAULT_ALLOCATION, EXPAND_ICON, LABEL_ICON, TIME_ICON } from '../../../constants'
-import { ButtonIcon, DueDateButtonText, TimeEstimateButtonText } from './Header-style'
+import { BACKGROUND_HOVER } from '../../../helpers/styles'
+import { TTask } from '../../../helpers/types'
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks'
 import {
     hideDatePicker,
     hideLabelSelector,
@@ -9,18 +14,12 @@ import {
     showLabelSelector,
     showTimeEstimate,
 } from '../../../redux/tasksPageSlice'
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks'
-
-import { BACKGROUND_HOVER } from '../../../helpers/styles'
-import DatePicker from './options/DatePicker'
-import { Duration } from 'luxon'
 import { InvisibleKeyboardShortcut } from '../../common/KeyboardShortcut'
-import Label from './options/Label'
-import React from 'react'
-import { TTask } from '../../../helpers/types'
-import TimeEstimate from './options/TimeEstimatePicker'
 import Tooltip from '../../common/Tooltip'
-import styled from 'styled-components'
+import { ButtonIcon, DueDateButtonText, TimeEstimateButtonText } from './Header-style'
+import DatePicker from './options/DatePicker'
+import Label from './options/Label'
+import TimeEstimate from './options/TimeEstimatePicker'
 
 const ActionContainer = styled.div`
     display: flex;
