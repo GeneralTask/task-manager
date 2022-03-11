@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
-import { Pressable } from 'react-native'
 import styled from 'styled-components/native'
 import { Border, Colors, Spacing } from '../../styles'
 import { logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import { SectionHeader } from '../molecules/Header'
-import { Picker } from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker'
 import { useGetSupportedTypesQuery, useGetLinkedAccountsQuery, useDeleteLinkedAccountMutation } from '../../services/generalTaskApi'
 import TaskTemplate from '../atoms/TaskTemplate'
 

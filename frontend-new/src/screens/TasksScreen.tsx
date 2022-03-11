@@ -7,7 +7,7 @@ import Messages from '../components/views/MessagesView'
 import TaskBottomSheet from '../components/views/TaskBottomSheetView'
 import TaskSection from '../components/views/TaskSectionView'
 import Settings from '../components/views/SettingsView'
-import { useLocation, useParams } from '../services/routing'
+import { useLocation } from '../services/routing'
 
 const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
