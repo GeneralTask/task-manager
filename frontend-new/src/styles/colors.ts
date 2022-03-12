@@ -1,5 +1,6 @@
 
 export const white = '#FFFFFF'
+export const purple = '#5C31D7'
 export const red = {
     '_1': '#FF135A',
     '_2': '#FFEFF2',

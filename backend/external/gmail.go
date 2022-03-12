@@ -39,12 +39,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		return
 	}
 	defer dbCleanup()
-	userObject, err := database.GetUser(db, userID)
-	if err != nil {
-		result <- emptyEmailResult(err)
-		return
-	}
-	userDomain := utils.ExtractEmailDomain(userObject.Email)
 
 	emails := []*database.Item{}
 
@@ -135,14 +129,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			senderName, senderEmail := utils.ExtractSenderName(sender)
 			senderDomain := utils.ExtractEmailDomain(senderEmail)
 
-			var timeAllocation time.Duration
-			if senderDomain == userDomain {
-				timeAllocation = time.Minute * 5
-			} else {
-				timeAllocation = time.Minute * 2
-			}
-
 			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
+
+			recipients := *GetRecipients(message.Payload.Headers)
 
 			email := &database.Item{
 				TaskBase: database.TaskBase{
@@ -154,7 +143,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, threadListItem.Id),
 					Title:             title,
 					Body:              *body,
-					TimeAllocation:    timeAllocation.Nanoseconds(),
 					SourceAccountID:   accountID,
 					CreatedAtExternal: timeSent,
 				},
@@ -164,6 +152,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					ReplyTo:      replyTo,
 					ThreadID:     threadListItem.Id,
 					IsUnread:     true,
+					Recipients:   recipients,
 				},
 				TaskType: database.TaskType{
 					IsMessage: true,
@@ -550,4 +539,47 @@ func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToCh
 	log.Println("resulting message:", message)
 
 	return err
+}
+
+func GetRecipients(headers []*gmail.MessagePartHeader) *database.Recipients {
+	emptyRecipients := []database.Recipient{}
+	// to make lists are empty instead of nil
+	recipients := database.Recipients{
+		To:  emptyRecipients,
+		Cc:  emptyRecipients,
+		Bcc: emptyRecipients,
+	}
+	for _, header := range headers {
+		if header.Name == "To" {
+			recipients.To = parseRecipients(header.Value)
+		} else if header.Name == "Cc" {
+			recipients.Cc = parseRecipients(header.Value)
+		} else if header.Name == "Bcc" {
+			recipients.Bcc = parseRecipients(header.Value)
+		}
+	}
+	return &recipients
+}
+
+// accepts recipients in form: `"Recipient Name" <recipient@email.com>, "Recipient 2 Name" <recipient2@email.com>`
+// adds to recipients parameter
+func parseRecipients(recipientsString string) []database.Recipient {
+	split := strings.Split(recipientsString, ",")
+	recipients := []database.Recipient{}
+	for _, s := range split {
+		s = strings.TrimSpace(s)
+		recipient := database.Recipient{}
+		if strings.Contains(s, "<") {
+			if strings.Contains(s, "<") {
+				recipient.Email = strings.Split(s, "<")[1]
+			}
+			recipient.Email = strings.Trim(recipient.Email, "> ")
+			recipient.Name = strings.Split(s, "<")[0]
+			recipient.Name = strings.Trim(recipient.Name, "\" ")
+		} else {
+			recipient.Email = s
+		}
+		recipients = append(recipients, recipient)
+	}
+	return recipients
 }

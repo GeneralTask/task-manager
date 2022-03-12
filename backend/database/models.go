@@ -114,8 +114,9 @@ type PullRequest struct {
 }
 
 type PullRequestChangeableFields struct {
-	Title string `bson:"title,omitempty"`
-	Body  string `bson:"body,omitempty"`
+	Title       string `bson:"title,omitempty"`
+	Body        string `bson:"body,omitempty"`
+	IsCompleted *bool  `bson:"is_completed,omitempty"`
 }
 
 type CalendarEvent struct {
@@ -136,6 +137,7 @@ type Email struct {
 	SenderEmail  string `bson:"sender_email"`
 	ReplyTo      string `bson:"reply_to"`
 	IsUnread     bool   `bson:"is_unread"`
+	Recipients   Recipients `bson:"recipients"`
 }
 
 type EmailChangeable struct {
@@ -206,4 +208,15 @@ type TaskSection struct {
 type Pagination struct {
 	Limit *int `form:"limit" json:"limit"`
 	Page  *int `form:"page" json:"page"`
+}
+
+type Recipients struct {
+	To  []Recipient `bson:"to"`
+	Cc  []Recipient `bson:"cc"`
+	Bcc []Recipient `bson:"bcc"`
+}
+
+type Recipient struct {
+	Name  string `bson:"name"`
+	Email string `bson:"email"`
 }

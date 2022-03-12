@@ -187,8 +187,8 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 		Sort: bson.D{{Key: "created_at_external", Value: -1}},
 	}
 	if IsValidPagination(pagination) {
-		skip := int64(*pagination.Page - 1)
 		limit := int64(*pagination.Limit)
+		skip := int64(*pagination.Page - 1) * limit
 		opts.Skip = &skip
 		opts.Limit = &limit
 	}

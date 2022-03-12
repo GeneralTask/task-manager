@@ -1,8 +1,8 @@
 import React from 'react'
-import { View, StyleSheet, Platform } from 'react-native'
-import { Flex } from '../../styles'
+import { StyleSheet, View } from 'react-native'
+import { Colors, Flex } from '../../styles'
 import CalendarSidebar from '../calendar/CalendarSidebar'
-import Navbar from '../organisms/NavigationView'
+import Navbar from '../views/NavigationView'
 
 interface DefaultTemplateProps {
     children: JSX.Element | JSX.Element[]
@@ -12,7 +12,7 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
         <View style={styles.container}>
             <Navbar />
             {children}
-            {Platform.OS === 'web' && <CalendarSidebar />}
+            <CalendarSidebar />
         </View>
     )
 }
@@ -22,6 +22,8 @@ const styles = StyleSheet.create({
         ...Flex.row,
         height: '100vh',
         fontFamily: 'Switzer-Variable',
+        backgroundColor: Colors.gray._50,
+        position: 'relative'
     }
 })
 

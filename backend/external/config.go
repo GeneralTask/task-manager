@@ -172,6 +172,7 @@ type TaskServiceDetails struct {
 	ID           string
 	Name         string
 	Logo         string
+	LogoV2       string
 	AuthType     AuthType
 	IsLinkable   bool
 	IsSignupable bool
@@ -181,6 +182,7 @@ var TaskServiceAtlassian = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_ATLASSIAN,
 	Name:         "Atlassian",
 	Logo:         "/images/jira.svg",
+	LogoV2:       "jira-v2",
 	AuthType:     AuthTypeOauth2,
 	IsLinkable:   false,
 	IsSignupable: false,
@@ -189,6 +191,7 @@ var TaskServiceGeneralTask = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_ATLASSIAN,
 	Name:         "General Task",
 	Logo:         "/images/generaltask.svg",
+	LogoV2:       "generaltask",
 	AuthType:     AuthTypeOauth2,
 	IsLinkable:   false,
 	IsSignupable: false,
@@ -197,6 +200,7 @@ var TaskServiceGithub = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_GITHUB,
 	Name:         "Github",
 	Logo:         "/images/github.svg",
+	LogoV2:       "github",
 	AuthType:     AuthTypeOauth2,
 	IsLinkable:   true,
 	IsSignupable: false,
@@ -205,6 +209,7 @@ var TaskServiceGoogle = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_GOOGLE,
 	Name:         "Google",
 	Logo:         "/images/gmail.svg",
+	LogoV2:       "gmail",
 	AuthType:     AuthTypeOauth2,
 	IsLinkable:   true,
 	IsSignupable: true,
@@ -213,6 +218,7 @@ var TaskServiceSlack = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_SLACK,
 	Name:         "Slack",
 	Logo:         "/images/slack.svg",
+	LogoV2:       "slack",
 	AuthType:     AuthTypeOauth2,
 	IsLinkable:   false,
 	IsSignupable: false,
@@ -221,6 +227,7 @@ var TaskServiceTrello = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_TRELLO,
 	Name:         "Trello",
 	Logo:         "/images/trello.svg",
+	LogoV2:       "trello",
 	AuthType:     AuthTypeOauth1,
 	IsLinkable:   false,
 	IsSignupable: false,
@@ -229,6 +236,7 @@ var TaskServiceAsana = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_ASANA,
 	Name:         "Asana",
 	Logo:         "/images/asana.svg",
+	LogoV2:       "asana",
 	AuthType:     AuthTypeOauth2,
 	IsLinkable:   true,
 	IsSignupable: false,
@@ -238,6 +246,7 @@ type TaskSourceDetails struct {
 	ID            string
 	Name          string
 	Logo          string
+	LogoV2        string
 	IsCompletable bool
 	IsCreatable   bool
 	IsReplyable   bool
@@ -247,6 +256,7 @@ var TaskSourceGeneralTask = TaskSourceDetails{
 	ID:            TASK_SOURCE_ID_GT_TASK,
 	Name:          "General Task",
 	Logo:          "/images/generaltask.svg",
+	LogoV2:        "generaltask",
 	IsCompletable: true,
 	IsCreatable:   true,
 	IsReplyable:   false,
@@ -255,6 +265,7 @@ var TaskSourceGoogleCalendar = TaskSourceDetails{
 	ID:            TASK_SOURCE_ID_GCAL,
 	Name:          "Google Calendar",
 	Logo:          "/images/gcal.svg",
+	LogoV2:        "gcal",
 	IsCompletable: false,
 	IsCreatable:   false,
 	IsReplyable:   false,
@@ -263,6 +274,7 @@ var TaskSourceGithubPR = TaskSourceDetails{
 	ID:            TASK_SOURCE_ID_GITHUB_PR,
 	Name:          "Git PR",
 	Logo:          "/images/github.svg",
+	LogoV2:        "github",
 	IsCompletable: false,
 	IsCreatable:   false,
 	IsReplyable:   false,
@@ -271,6 +283,7 @@ var TaskSourceGmail = TaskSourceDetails{
 	ID:            TASK_SOURCE_ID_GMAIL,
 	Name:          "Gmail",
 	Logo:          "/images/gmail.svg",
+	LogoV2:        "gmail",
 	IsCompletable: true,
 	IsCreatable:   false,
 	IsReplyable:   true,
@@ -279,6 +292,7 @@ var TaskSourceJIRA = TaskSourceDetails{
 	ID:            TASK_SOURCE_ID_JIRA,
 	Name:          "Jira",
 	Logo:          "/images/jira.svg",
+	LogoV2:        "jira",
 	IsCompletable: true,
 	IsCreatable:   false,
 	IsReplyable:   false,
@@ -287,6 +301,7 @@ var TaskSourceAsana = TaskSourceDetails{
 	ID:            TASK_SOURCE_ID_ASANA,
 	Name:          "Asana",
 	Logo:          "/images/asana.svg",
+	LogoV2:        "asana",
 	IsCompletable: true,
 	IsCreatable:   false,
 	IsReplyable:   false,

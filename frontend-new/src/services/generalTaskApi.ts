@@ -1,9 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import getEnvVars from '../environment'
-import { TEvent, TTask, TTaskSection } from '../utils/types'
-import type { RootState } from '../redux/store'
 import Cookies from 'js-cookie'
 import { Platform } from 'react-native'
+import getEnvVars from '../environment'
+import type { RootState } from '../redux/store'
+import { TEvent, TLinkedAccount, TMessage, TSupportedTypes, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
 export const generalTaskApi = createApi({
@@ -20,10 +20,10 @@ export const generalTaskApi = createApi({
             return headers
         }
     }),
-    tagTypes: ['Tasks', 'Events'],
+    tagTypes: ['Tasks', 'Messages', 'Events', 'Accounts'],
     endpoints: (builder) => ({
         getTasks: builder.query<TTaskSection[], void>({
-            query: () => 'tasks/',
+            query: () => 'tasks/v3/',
             providesTags: ['Tasks']
         }),
         createTask: builder.mutation<void, { title: string, body: string, id_task_section: string }>({
@@ -50,6 +50,7 @@ export const generalTaskApi = createApi({
                                     source: {
                                         name: 'General Task',
                                         logo: '',
+                                        logo_v2: 'generaltask',
                                         is_completable: false,
                                         is_replyable: false,
                                     },
@@ -69,12 +70,19 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        modifyTask: builder.mutation<void, { body: string, id: string }>({
-            query: (data) => ({
-                url: `tasks/modify/${data.id}/`,
-                method: 'PATCH',
-                body: { body: data.body },
-            }),
+        modifyTask: builder.mutation<void, { id: string, title?: string, due_date?: string, time_duration?: number, body?: string }>({
+            query: (data) => {
+                const requestBody: TTaskModifyRequestBody = {}
+                if (data.title) requestBody.title = data.title
+                if (data.due_date) requestBody.due_date = data.due_date
+                if (data.time_duration) requestBody.time_duration = data.time_duration
+                if (data.body) requestBody.body = data.body
+                return {
+                    url: `tasks/modify/${data.id}/`,
+                    method: 'PATCH',
+                    body: requestBody,
+                }
+            },
             async onQueryStarted(data, { dispatch, queryFulfilled }) {
                 const result = dispatch(
                     generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
@@ -83,7 +91,11 @@ export const generalTaskApi = createApi({
                             for (let j = 0; j < section.tasks.length; j++) {
                                 const task = section.tasks[j]
                                 if (task.id === data.id) {
-                                    task.body = data.body
+                                    task.title = data.title || task.title
+                                    task.due_date = data.due_date || task.due_date
+                                    task.time_allocated = data.time_duration || task.time_allocated
+                                    task.body = data.body || task.body
+                                    return
                                 }
                             }
                         }
@@ -176,6 +188,45 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
+        getMessages: builder.query<TMessage[], void>({
+            query: () => 'messages/v2/',
+            providesTags: ['Messages']
+        }),
+        markMessageRead: builder.mutation<void, { id: string, is_read: boolean }>({
+            query: (data) => ({
+                url: `messages/modify/${data.id}/`,
+                method: 'PATCH',
+                body: { is_read: data.is_read },
+            }),
+            async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getMessages', undefined, (messages) => {
+                        for (let i = 0; i < messages.length; i++) {
+                            const message = messages[i]
+                            if (message.id === data.id) {
+                                message.is_unread = !data.is_read
+                                return
+                            }
+                        }
+                    })
+                )
+                try {
+                    await queryFulfilled
+                } catch {
+                    result.undo()
+                }
+            }
+        }),
+        markMessageAsTask: builder.mutation<void, { id: string, is_task: boolean }>({
+            query: (data) => ({
+                url: `messages/modify/${data.id}/`,
+                method: 'PATCH',
+                body: { is_task: data.is_task },
+            }),
+            async onQueryStarted(_, { dispatch }) {
+                dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
+            }
+        }),
         getEvents: builder.query<TEvent[], { startISO: string, endISO: string }>({
             query: (data) => ({
                 url: 'events/',
@@ -185,10 +236,28 @@ export const generalTaskApi = createApi({
                     datetime_end: data.endISO,
                 },
             }),
-            providesTags: ['Events'],
-
+        }),
+        getLinkedAccounts: builder.query<TLinkedAccount[], void>({
+            query: () => ({
+                url: 'linked_accounts/',
+                method: 'GET',
+            }),
+            providesTags: ['Accounts']
+        }),
+        getSupportedTypes: builder.query<TSupportedTypes[], void>({
+            query: () => ({
+                url: 'linked_accounts/supported_types/',
+                method: 'GET',
+            }),
+        }),
+        deleteLinkedAccount: builder.mutation<void, { id: string }>({
+            query: (data) => ({
+                url: `linked_accounts/${data.id}/`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Accounts']
         }),
     }),
 })
 
-export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery } = generalTaskApi
+export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery, useGetMessagesQuery, useGetSupportedTypesQuery, useGetLinkedAccountsQuery, useDeleteLinkedAccountMutation } = generalTaskApi
