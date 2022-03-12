@@ -3,7 +3,7 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import styled from 'styled-components'
 
 
-const ModalTextArea = styled.textarea`
+const TextAreaStyled = styled.textarea`
     box-sizing: border-box;
     flex: 1;
     width: 100%;
@@ -22,6 +22,7 @@ const ModalTextArea = styled.textarea`
 
 interface TextAreaProps {
     value: string
+    placeholder?: string
     setValue: (value: string) => void
 }
 const TextArea = (props: TextAreaProps) => {
@@ -29,7 +30,7 @@ const TextArea = (props: TextAreaProps) => {
         props.setValue(e.target.value)
     }
     return (
-        <ModalTextArea value={props.value} onChange={onChange} />
+        <TextAreaStyled value={props.value} placeholder={props.placeholder || ''} onChange={onChange} />
     )
 }
 export default TextArea

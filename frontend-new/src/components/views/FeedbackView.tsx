@@ -49,7 +49,7 @@ const FeedbackView = () => {
             </FeedbackHeader>
             <TitleSmall>Feedback</TitleSmall>
             <MarginTop>
-                <TextArea value={feedback} setValue={setFeedback} />
+                <TextArea value={feedback} placeholder="Type in your feedback here." setValue={setFeedback} />
             </MarginTop>
             <ButtonContainer>
                 <ModalButton onPress={submitFeedback} value="Send feedback" isColored />
