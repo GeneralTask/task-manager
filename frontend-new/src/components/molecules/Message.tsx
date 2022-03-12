@@ -17,12 +17,10 @@ const Message = ({ message, setSheetTaskId }: TaskProps) => {
     }
     return (
         <Pressable style={[styles.container, styles.shadow]} onPress={onPress} >
-            <View style={styles.container}>
-                <View style={styles.iconContainer}>
-                    <Icon size="small" />
-                </View>
-                <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{message.title}</Text>
+            <View style={styles.iconContainer}>
+                <Icon size="small" />
             </View>
+            <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{message.title}</Text>
         </Pressable>
     )
 }
@@ -34,8 +32,8 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: Colors.white,
         borderRadius: 12,
-        paddingTop: 5,
-        paddingBottom: 5,
+        paddingHorizontal: 8,
+        paddingVertical: 5,
         height: 50,
     },
     shadow: {

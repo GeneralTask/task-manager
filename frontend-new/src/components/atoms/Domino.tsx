@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
             },
         }),
         height: 16,
-        paddingLeft: 12,
+        paddingLeft: 4,
         paddingRight: 12,
     },
     DominoInnerContainer: {

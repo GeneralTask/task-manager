@@ -49,14 +49,12 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
     return (
         <TaskDropContainer task={task} taskIndex={index} sectionId={sectionId}>
             <Pressable style={[styles.container, styles.shadow]} onPress={onPress} ref={dragPreviewRef}>
-                <View style={styles.container}>
-                    {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
-                    <CompleteButton taskId={task.id} isComplete={task.is_done} />
-                    <View style={styles.iconContainer}>
-                        <Icon source={logos[task.source.logo_v2]} size="small" />
-                    </View>
-                    <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
+                {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
+                <CompleteButton taskId={task.id} isComplete={task.is_done} />
+                <View style={styles.iconContainer}>
+                    <Icon source={logos[task.source.logo_v2]} size="small" />
                 </View>
+                <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{task.title}</Text>
             </Pressable>
         </TaskDropContainer>
     )
@@ -71,6 +69,7 @@ const styles = StyleSheet.create({
         height: 50,
         backgroundColor: Colors.white,
         borderRadius: 12,
+        paddingHorizontal: 8,
     },
     shadow: {
         ...Shadows.small,
