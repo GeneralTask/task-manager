@@ -3253,6 +3253,11 @@ execa@^1.0.0:
     signal-exit "^3.0.0"
     strip-eof "^1.0.0"
 
+exenv@^1.2.0:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/exenv/-/exenv-1.2.2.tgz#2ae78e85d9894158670b03d47bec1f03bd91bb9d"
+  integrity sha1-KueOhdmJQVhnCwPUe+wfA72Ru50=
+
 expand-brackets@^2.1.4:
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/expand-brackets/-/expand-brackets-2.1.4.tgz#b77735e315ce30f6b6eff0f83b04151a22449622"
@@ -5706,6 +5711,21 @@ react-is@^17.0.1, react-is@^17.0.2:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
+react-lifecycles-compat@^3.0.0:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
+  integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
+
+react-modal@^3.14.4:
+  version "3.14.4"
+  resolved "https://registry.yarnpkg.com/react-modal/-/react-modal-3.14.4.tgz#2ca7e8e9a180955e5c9508c228b73167c1e6f6a3"
+  integrity sha512-8surmulejafYCH9wfUmFyj4UfbSJwjcgbS9gf3oOItu4Hwd6ivJyVBETI0yHRhpJKCLZMUtnhzk76wXTsNL6Qg==
+  dependencies:
+    exenv "^1.2.0"
+    prop-types "^15.7.2"
+    react-lifecycles-compat "^3.0.0"
+    warning "^4.0.3"
+
 react-native-codegen@*:
   version "0.0.13"
   resolved "https://registry.yarnpkg.com/react-native-codegen/-/react-native-codegen-0.0.13.tgz#4cc94546fc75a5dbe9350d59c10108f2efe6bc17"
@@ -6957,6 +6977,13 @@ warn-once@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/warn-once/-/warn-once-0.1.0.tgz#4f58d89b84f968d0389176aa99e0cf0f14ffd4c8"
   integrity sha512-recZTSvuaH/On5ZU5ywq66y99lImWqzP93+AiUo9LUwG8gXHW+LJjhOd6REJHm7qb0niYqrEQJvbHSQfuJtTqA==
+
+warning@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/warning/-/warning-4.0.3.tgz#16e9e077eb8a86d6af7d64aa1e05fd85b4678ca3"
+  integrity sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==
+  dependencies:
+    loose-envify "^1.0.0"
 
 wcwidth@^1.0.1:
   version "1.0.1"
