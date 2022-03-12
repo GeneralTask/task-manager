@@ -14,6 +14,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"github.com/GeneralTask/task-manager/backend/utils"
+	"github.com/chidiwilliams/flatbson"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/api/gmail/v1"
@@ -82,13 +83,15 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				continue
 			}
 
-			var sender = ""
-			var title = ""
+			sender := ""
+			replyTo := ""
+			title := ""
 			for _, header := range message.Payload.Headers {
 				if header.Name == "From" {
 					sender = header.Value
-				}
-				if header.Name == "Subject" {
+				} else if header.Name == "Reply-To" {
+					replyTo = header.Value
+				} else if header.Name == "Subject" {
 					title = header.Value
 				}
 			}
@@ -146,6 +149,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				},
 				Email: database.Email{
 					SenderDomain: senderDomain,
+					SenderEmail:  senderEmail,
+					ReplyTo:      replyTo,
 					ThreadID:     threadListItem.Id,
 					IsUnread:     true,
 					Recipients:   recipients,
@@ -154,17 +159,30 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					IsMessage: true,
 				},
 			}
-			dbEmail, err := database.GetOrCreateTask(db, userID, email.IDExternal, email.SourceID, email)
+
+			// We flatten in order to do partial updates of nested documents correctly in mongodb
+			flattenedUpdateFields, err := flatbson.Flatten(email)
+			if err != nil {
+				log.Printf("Could not flatten %+v, error: %+v", email, err)
+				return
+			}
+			res, err := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedUpdateFields, flattenedUpdateFields)
 			if err != nil {
 				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 				return
 			}
-			if dbEmail != nil {
-				email.HasBeenReordered = dbEmail.HasBeenReordered
-				email.ID = dbEmail.ID
-				email.IDOrdering = dbEmail.IDOrdering
-				email.IDTaskSection = dbEmail.IDTaskSection
+
+			var dbEmail database.Item
+			err = res.Decode(&dbEmail)
+			if err != nil {
+				log.Printf("failed to update or create gmail email: %v", err)
+				result <- emptyEmailResult(err)
+				return
 			}
+			email.HasBeenReordered = dbEmail.HasBeenReordered
+			email.ID = dbEmail.ID
+			email.IDOrdering = dbEmail.IDOrdering
+			email.IDTaskSection = dbEmail.IDTaskSection
 			emails = append(emails, email)
 		}
 	}
