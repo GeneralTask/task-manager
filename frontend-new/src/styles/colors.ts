@@ -1,4 +1,3 @@
-
 export const white = '#FFFFFF'
 export const purple = '#5C31D7'
 export const black = '#000000'
