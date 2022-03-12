@@ -2,10 +2,7 @@ package api
 
 import (
 	"log"
-	"sort"
 	"time"
-
-	"github.com/GeneralTask/task-manager/backend/settings"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -32,39 +29,12 @@ type message struct {
 	Source     messageSource      `json:"source"`
 }
 
-func (api *API) orderMessages(
-	db *mongo.Database,
-	fetchedEmails []*database.Item,
-	userID primitive.ObjectID,
-) ([]*message, error) {
-	orderingSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailOrderingPreference)
-	if err != nil {
-		log.Printf("failed to fetch email ordering setting: %v", err)
-		return []*message{}, err
-	}
-	newestEmailsFirst := *orderingSetting == settings.ChoiceKeyNewestFirst
-	sort.SliceStable(fetchedEmails, func(i, j int) bool {
-		a := fetchedEmails[i]
-		b := fetchedEmails[j]
-		if newestEmailsFirst {
-			return a.TaskBase.CreatedAtExternal > b.TaskBase.CreatedAtExternal
-		} else {
-			return a.TaskBase.CreatedAtExternal < b.TaskBase.CreatedAtExternal
-		}
-	})
-
-	var messages []*message
-	for _, email := range fetchedEmails {
-		messages = append(messages, api.emailToMessage(email))
-	}
-	return messages, nil
-}
-
 func markReadMessagesInDB(
 	api *API,
 	db *mongo.Database,
 	currentEmails *[]database.Item,
 	fetchedEmails *[]*database.Item,
+	failedFetchSources map[string]bool,
 ) error {
 	fetchedEmailTaskIDs := make(map[primitive.ObjectID]bool)
 	for _, email := range *fetchedEmails {
@@ -72,7 +42,7 @@ func markReadMessagesInDB(
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentEmail := range *currentEmails {
-		if !fetchedEmailTaskIDs[currentEmail.ID] {
+		if !fetchedEmailTaskIDs[currentEmail.ID] && !failedFetchSources[currentEmail.SourceID] {
 			f := false
 			messageChangeable := database.MessageChangeable{
 				EmailChangeable: database.EmailChangeable{

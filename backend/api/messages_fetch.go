@@ -83,12 +83,14 @@ func (api *API) MessagesFetch(c *gin.Context) {
 
 	fetchedEmails := []*database.Item{}
 	badTokens := []*database.ExternalAPIToken{}
+	failedFetchSources := make(map[string]bool)
 	for index, emailChannel := range emailChannels {
 		emailResult := <-emailChannel
 		if emailResult.Error != nil {
 			if emailResult.IsBadToken {
 				badTokens = append(badTokens, &tokens[index])
 			}
+			failedFetchSources[emailResult.SourceID] = true
 			continue
 		}
 		fetchedEmails = append(fetchedEmails, emailResult.Emails...)
@@ -98,7 +100,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		fetchedEmails[index].TaskBase.Body = "<base target=\"_blank\">" + fetchedEmails[index].TaskBase.Body
 	}
 
-	err = markReadMessagesInDB(api, db, currentEmails, &fetchedEmails)
+	err = markReadMessagesInDB(api, db, currentEmails, &fetchedEmails, failedFetchSources)
 	if err != nil {
 		Handle500(c)
 		return

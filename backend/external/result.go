@@ -11,6 +11,7 @@ type EmailResult struct {
 	Emails     []*database.Item
 	Error      error
 	IsBadToken bool
+	SourceID   string
 }
 
 type TaskResult struct {
@@ -36,6 +37,12 @@ func emptyEmailResult(err error) EmailResult {
 		Emails: []*database.Item{},
 		Error:  err,
 	}
+}
+
+func emptyEmailResultWithSource(err error, sourceID string) EmailResult {
+	result := emptyEmailResult(err)
+	result.SourceID = sourceID
+	return result
 }
 
 func emptyTaskResult(err error) TaskResult {

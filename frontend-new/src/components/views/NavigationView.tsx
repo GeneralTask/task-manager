@@ -5,6 +5,7 @@ import { useAppDispatch } from '../../redux/hooks'
 import { useAddTaskSectionMutation, useGetTasksQuery, useGetMessagesQuery } from '../../services/generalTaskApi'
 import { Link, useLocation, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
+import { icons } from '../../styles/images'
 import { weight } from '../../styles/typography'
 import { authSignOut } from '../../utils/auth'
 import { Icon } from '../atoms/Icon'
@@ -66,6 +67,13 @@ const NavigationView = () => {
                                     styles.linkContainerSelected : null]}>
                                     <Icon size="small" source={require('../../assets/inbox.png')} />
                                     <SectionTitle isSelected={pathname === '/messages'}>Messages</SectionTitle>
+                                </View>
+                            </Link>
+                            <Link style={linkStyle} to="/settings">
+                                <View style={[styles.linkContainer, (pathname === '/settings') ?
+                                    styles.linkContainerSelected : null]}>
+                                    <Icon size="small" source={icons.gear} />
+                                    <SectionTitle isSelected={pathname === '/settings'}>Settings</SectionTitle>
                                 </View>
                             </Link>
                         </>

@@ -85,11 +85,18 @@ export interface TSetting {
     choices: TSettingChoice[]
 }
 
+export interface TSupportedTypes {
+    name: string
+    logo: string
+    logo_v2: string
+    authorization_url: string
+}
 export interface TLinkedAccount {
     id: string
     display_id: string
     name: string
     logo: string
+    logo_v2: string
     is_unlinkable: boolean
 }
 
