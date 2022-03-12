@@ -193,7 +193,7 @@ export const generalTaskApi = createApi({
             query: (page = 1) => ({
                 url: `messages/v2/`,
                 method: 'GET',
-                params: { only_unread: true, page: page, limit: MESSAGES_PER_PAGE },
+                params: { only_unread: false, page: page, limit: MESSAGES_PER_PAGE },
             }),
             providesTags: (result) => result ?
                 [
