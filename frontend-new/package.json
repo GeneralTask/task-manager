@@ -8,11 +8,15 @@
     "ios": "WEB_PORT=3000 expo start --ios",
     "web": "WEB_PORT=3000 expo start --web",
     "eject": "expo eject",
-    "prettier:fix": "prettier --write"
+    "prettier:fix": "prettier --write",
+    "lint": "eslint --fix"
   },
   "lint-staged": {
-    "*.tsx": "yarn prettier:fix"
-    },
+    "*.tsx": [
+      "yarn prettier:fix",
+      "yarn lint"
+    ]
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged && pretty-quick --staged"
@@ -67,6 +71,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.29.3",
+    "eslint-plugin-unused-imports": "^2.0.0",
     "husky": "^7.0.4",
     "lint-staged": "^12.3.5",
     "prettier": "^2.5.1",
