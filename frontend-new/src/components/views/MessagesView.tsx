@@ -34,7 +34,7 @@ const Messages = () => {
     const { refetch: fetchMessages } = useFetchMessagesQuery()
     const refetchWasLocal = useRef(false)
 
-    //stops fetching animation on iOS from triggering when refetch is called in another component
+    //stops fetching animation on iOS from triggering when refetch is called in another component 
     if (!isFetching) refetchWasLocal.current = false
     const onRefresh = () => {
         refetchWasLocal.current = true
