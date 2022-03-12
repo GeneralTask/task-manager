@@ -28,7 +28,7 @@ const Messages = () => {
                         <SectionHeader section="Messages" allowRefresh={true} />
                         {messages?.map(msg => {
                             return (
-                                <TaskTemplate style={styles.shell} key={msg.id}>
+                                <TaskTemplate key={msg.id}>
                                     <Message message={msg} setSheetTaskId={() => null} />
                                 </TaskTemplate>
                             )
@@ -41,10 +41,6 @@ const Messages = () => {
 }
 
 const styles = StyleSheet.create({
-    shell: {
-        marginTop: 20,
-        ...Shadows.small
-    },
     container: {
         ...Screens.container,
         ...Flex.column,
