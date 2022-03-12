@@ -1,7 +1,7 @@
 import React, { useRef } from 'react'
 import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
 import { useGetMessagesQuery } from '../../services/generalTaskApi'
-import { Colors, Flex, Screens, Shadows } from '../../styles'
+import { Colors, Flex, Screens } from '../../styles'
 import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { SectionHeader } from '../molecules/Header'
