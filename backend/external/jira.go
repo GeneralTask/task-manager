@@ -123,7 +123,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
 
 	if authToken == nil || siteConfiguration == nil {
-		result <- emptyTaskResult(errors.New("missing authToken or siteConfiguration"))
+		result <- emptyTaskResultWithSource(errors.New("missing authToken or siteConfiguration"), TASK_SOURCE_ID_JIRA)
 		return
 	}
 
@@ -135,7 +135,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
 	if err != nil {
 		log.Printf("error forming search request: %v", err)
-		result <- emptyTaskResult(err)
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
 	req.Header.Add("Authorization", "Bearer "+authToken.AccessToken)
@@ -143,18 +143,18 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Printf("failed to load search results: %v", err)
-		result <- emptyTaskResult(err)
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
 	taskData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("failed to read search response: %v", err)
-		result <- emptyTaskResult(err)
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("search failed: %s %v", taskData, resp.StatusCode)
-		result <- emptyTaskResult(err)
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
 
@@ -162,13 +162,13 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	err = json.Unmarshal(taskData, &jiraTasks)
 	if err != nil {
 		log.Printf("failed to parse JIRA tasks: %v", err)
-		result <- emptyTaskResult(err)
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
 
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
-		result <- emptyTaskResult(err)
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
 	defer dbCleanup()
@@ -178,7 +178,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
 		if err != nil {
 			log.Printf("unable to parse JIRA template: %v", err)
-			result <- emptyTaskResult(err)
+			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
 
@@ -226,7 +226,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 		err = jira.GetListOfPriorities(userID, authToken.AccessToken)
 		if err != nil {
 			log.Printf("failed to fetch priorities: %v", err)
-			result <- emptyTaskResult(err)
+			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
 		cachedMapping = jira.fetchLocalPriorityMapping(database.GetJiraPrioritiesCollection(db), userID)
@@ -253,13 +253,13 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			},
 		)
 		if err != nil {
-			result <- emptyTaskResult(err)
+			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
 		err = res.Decode(&dbTask)
 		if err != nil {
 			log.Printf("failed to update or create task: %v", err)
-			result <- emptyTaskResult(err)
+			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
 		task.HasBeenReordered = dbTask.HasBeenReordered

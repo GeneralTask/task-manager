@@ -55,6 +55,12 @@ func emptyTaskResult(err error) TaskResult {
 	}
 }
 
+func emptyTaskResultWithSource(err error, sourceID string) TaskResult {
+	result := emptyTaskResult(err)
+	result.SourceID = sourceID
+	return result
+}
+
 func emptyPullRequestResult(err error) PullRequestResult {
 	return PullRequestResult{
 		PullRequests: []*database.Item{},
