@@ -8,7 +8,7 @@ import { View } from 'react-native'
 import { useReorderTaskMutation } from '../../services/generalTaskApi'
 
 interface TaskDropContainerProps {
-    children: React.ReactNode
+    children: JSX.Element
     task: TTask
     taskIndex: number
     sectionId: string
