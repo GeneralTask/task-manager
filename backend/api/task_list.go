@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"log"
-	"sort"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -67,7 +66,7 @@ const (
 	TaskSectionNameDone    string        = "Done"
 )
 
-func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Item, error) {
+func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Item, map[string]bool, error) {
 	var tokens []database.ExternalAPIToken
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -78,14 +77,14 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	)
 	if err != nil {
 		log.Printf("failed to fetch api tokens: %v", err)
-		return nil, err
+		return nil, nil, err
 	}
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
 		log.Printf("failed to iterate through api tokens: %v", err)
-		return nil, err
+		return nil, nil, err
 	}
 	// add dummy token for gt_task fetch logic
 	tokens = append(tokens, database.ExternalAPIToken{
@@ -114,9 +113,11 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	}
 
 	tasks := []*database.Item{}
+	failedFetchSources := make(map[string]bool)
 	for _, taskChannel := range taskChannels {
 		taskResult := <-taskChannel
 		if taskResult.Error != nil {
+			failedFetchSources[taskResult.SourceID] = true
 			continue
 		}
 		tasks = append(tasks, taskResult.Tasks...)
@@ -132,110 +133,14 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 			})
 		}
 	}
-	return &tasks, nil
-}
-
-func (api *API) mergeTasks(
-	db *mongo.Database,
-	currentTasks *[]database.Item,
-	fetchedTasks *[]*database.Item,
-	userID primitive.ObjectID,
-) ([]*TaskSection, error) {
-	err := adjustForCompletedTasks(db, currentTasks, fetchedTasks)
-	if err != nil {
-		return []*TaskSection{}, err
-	}
-
-	completedTasks, err := database.GetCompletedTasks(db, userID)
-	if err != nil {
-		return []*TaskSection{}, err
-	}
-	completedTaskResults := []*TaskResult{}
-	for index, task := range *completedTasks {
-		taskResult := api.taskBaseToTaskResult(&task)
-		taskResult.IDOrdering = index + 1
-		completedTaskResults = append(completedTaskResults, taskResult)
-	}
-
-	sort.SliceStable(*fetchedTasks, func(i, j int) bool {
-		a := (*fetchedTasks)[i]
-		b := (*fetchedTasks)[j]
-		return a.IDOrdering < b.IDOrdering
-	})
-
-	sections, err := api.extractSectionTasksV2(db, userID, fetchedTasks)
-	if err != nil {
-		return []*TaskSection{}, err
-	}
-	sections = append(sections, &TaskSection{
-		ID:     constants.IDTaskSectionDone,
-		Name:   TaskSectionNameDone,
-		Tasks:  completedTaskResults,
-		IsDone: true,
-	})
-	return sections, nil
-}
-
-func (api *API) extractSectionTasksV2(
-	db *mongo.Database,
-	userID primitive.ObjectID,
-	fetchedTasks *[]*database.Item,
-) ([]*TaskSection, error) {
-	userSections, err := database.GetTaskSections(db, userID)
-	if err != nil {
-		log.Printf("failed to fetch task sections: %+v", err)
-		return []*TaskSection{}, err
-	}
-	resultSections := []*TaskSection{
-		{
-			ID:    constants.IDTaskSectionToday,
-			Name:  TaskSectionNameToday,
-			Tasks: []*TaskResult{},
-		},
-		{
-			ID:    constants.IDTaskSectionBlocked,
-			Name:  TaskSectionNameBlocked,
-			Tasks: []*TaskResult{},
-		},
-		{
-			ID:    constants.IDTaskSectionBacklog,
-			Name:  TaskSectionNameBacklog,
-			Tasks: []*TaskResult{},
-		},
-	}
-	for _, userSection := range *userSections {
-		resultSections = append(resultSections, &TaskSection{
-			ID:    userSection.ID,
-			Name:  userSection.Name,
-			Tasks: []*TaskResult{},
-		})
-	}
-	// this is inefficient but easy to understand - can optimize later as needed
-	for _, task := range *fetchedTasks {
-		taskResult := api.taskBaseToTaskResult(task)
-		addedToSection := false
-		for _, resultSection := range resultSections {
-			if task.IDTaskSection == resultSection.ID {
-				resultSection.Tasks = append(resultSection.Tasks, taskResult)
-				addedToSection = true
-				break
-			}
-		}
-		if !addedToSection {
-			// add to "Today" section if task section id is not found
-			resultSections[0].Tasks = append(resultSections[0].Tasks, taskResult)
-		}
-	}
-	for _, resultSection := range resultSections {
-		updateOrderingIDsV2(db, &resultSection.Tasks)
-	}
-	return resultSections, nil
+	return &tasks, failedFetchSources, nil
 }
 
 func adjustForCompletedTasks(
 	db *mongo.Database,
 	currentTasks *[]database.Item,
 	fetchedTasks *[]*database.Item,
+	failedFetchSources map[string]bool,
 ) error {
 	// decrements IDOrdering for tasks behind newly completed tasks
 	var newTasks []*database.TaskBase
@@ -247,7 +152,7 @@ func adjustForCompletedTasks(
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
-		if !newTaskIDs[currentTask.ID] && !currentTask.IsMessage {
+		if !newTaskIDs[currentTask.ID] && !currentTask.IsMessage && !failedFetchSources[currentTask.SourceID] {
 			err := database.MarkItemComplete(db, currentTask.ID)
 			if err != nil {
 				log.Printf("failed to update task ordering ID: %v", err)

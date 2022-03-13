@@ -18,6 +18,7 @@ type TaskResult struct {
 	Tasks           []*database.Item
 	PriorityMapping *map[string]int
 	Error           error
+	SourceID   		string
 }
 
 type PullRequestResult struct {
