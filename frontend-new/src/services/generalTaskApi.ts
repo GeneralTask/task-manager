@@ -1,4 +1,5 @@
 import { TEvent, TLinkedAccount, TMessage, TSupportedTypes, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
+import { arrayMoveInPlace, resetOrderingIds } from '../utils/api'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import Cookies from 'js-cookie'
@@ -140,14 +141,62 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        reorderTask: builder.mutation<void, { id: string, id_task_section: string, id_ordering: number }>({
-            query: ({ id, id_task_section, id_ordering }) => ({
-                url: `/tasks/modify/${id}/`,
+        reorderTask: builder.mutation<void, { taskId: string, dropSectionId: string, orderingId: number, dragSectionId?: string }>({
+            query: ({ taskId, dropSectionId, orderingId }) => ({
+                url: `/tasks/modify/${taskId}/`,
                 method: 'PATCH',
-                body: { id_task_section, id_ordering },
+                body: {
+                    id_task_section: dropSectionId,
+                    id_ordering: orderingId,
+                },
             }),
             invalidatesTags: ['Tasks'],
-            // onQueryStarted pending
+            onQueryStarted: async ({ taskId, dropSectionId, orderingId, dragSectionId }, { dispatch, queryFulfilled }) => {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections: TTaskSection[]) => {
+                        // move task within the same section
+                        if (dragSectionId === undefined || dragSectionId === dropSectionId) {
+                            const section = sections.find(s => s.id === dropSectionId)
+                            if (section == null) return
+                            const startIndex = section.tasks.findIndex(t => t.id === taskId)
+                            if (startIndex === -1) return
+                            let endIndex = orderingId - 1
+                            if (startIndex < endIndex) {
+                                endIndex -= 1
+                            }
+                            arrayMoveInPlace(section.tasks, startIndex, endIndex)
+
+                            // update ordering ids
+                            resetOrderingIds(section.tasks)
+                        }
+                        // move task from one section to the other
+                        else {
+                            // remove task from old location
+                            const dragSection = sections.find((section) => section.id === dragSectionId)
+                            if (dragSection == null) return
+                            const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === taskId)
+                            if (dragTaskIndex === -1) return
+                            const dragTask = dragSection.tasks[dragTaskIndex]
+                            dragSection.tasks.splice(dragTaskIndex, 1)
+
+                            // add task to new location
+                            const dropSection = sections.find((section) => section.id === dropSectionId)
+                            if (dropSection == null) return
+                            dropSection.tasks.splice(orderingId - 1, 0, dragTask)
+
+                            // update ordering ids
+                            resetOrderingIds(dragSection.tasks)
+                            resetOrderingIds(dropSection.tasks)
+                        }
+
+                    })
+                )
+                try {
+                    await queryFulfilled
+                } catch {
+                    result.undo()
+                }
+            }
         }),
         fetchTasksExternal: builder.query<void, void>({
             query: () => ({
