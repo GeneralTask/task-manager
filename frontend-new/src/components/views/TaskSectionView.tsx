@@ -1,17 +1,17 @@
-import { Colors, Flex, Screens, Spacing } from "../../styles"
-import { Platform, RefreshControl, ScrollView, StyleSheet, View } from "react-native"
-import React, { useEffect, useRef } from "react"
-import { useFetchTasksExternalQuery, useGetTasksQuery } from "../../services/generalTaskApi"
-import { useNavigate, useParams } from "react-router-dom"
+import { Colors, Flex, Screens, Spacing } from '../../styles'
+import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
+import React, { useEffect, useRef } from 'react'
+import { useFetchTasksExternalQuery, useGetTasksQuery } from '../../services/generalTaskApi'
+import { useNavigate, useParams } from 'react-router-dom'
 
-import CreateNewTask from "../molecules/CreateNewTask"
-import { DateTime } from "luxon"
-import EventBanner from "../molecules/EventBanner"
-import Loading from "../atoms/Loading"
-import { SectionHeader } from "../molecules/Header"
-import Task from "../molecules/Task"
-import TaskTemplate from "../atoms/TaskTemplate"
-import { getSectionById } from "../../utils/task"
+import CreateNewTask from '../molecules/CreateNewTask'
+import { DateTime } from 'luxon'
+import EventBanner from '../molecules/EventBanner'
+import Loading from '../atoms/Loading'
+import { SectionHeader } from '../molecules/Header'
+import Task from '../molecules/Task'
+import TaskTemplate from '../atoms/TaskTemplate'
+import { getSectionById } from '../../utils/task'
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
@@ -50,29 +50,27 @@ const TaskSection = () => {
                         <SectionHeader
                             section={currentSection.name}
                             allowRefresh={true}
-                            refetch={refetch}
+                            refetch={onRefresh}
                             taskSectionId={currentSection.id}
                         />
                         {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
-                        {
-                            currentSection.tasks.map((task, index) => {
-                                return (
-                                    <TaskTemplate key={index}>
-                                        <Task
-                                            task={task}
-                                            setSheetTaskId={() => null}
-                                            dragDisabled={currentSection.is_done}
-                                            index={index}
-                                            sectionId={currentSection.id}
-                                        />
-                                    </TaskTemplate>
-                                )
-                            })
-                        }
-                    </View >
+                        {currentSection.tasks.map((task, index) => {
+                            return (
+                                <TaskTemplate key={index}>
+                                    <Task
+                                        task={task}
+                                        setSheetTaskId={() => null}
+                                        dragDisabled={currentSection.is_done}
+                                        index={index}
+                                        sectionId={currentSection.id}
+                                    />
+                                </TaskTemplate>
+                            )
+                        })}
+                    </View>
                 )}
-            </View >
-        </ScrollView >
+            </View>
+        </ScrollView>
     )
 }
 
