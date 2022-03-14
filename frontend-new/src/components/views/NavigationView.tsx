@@ -1,34 +1,23 @@
-import { Colors, Flex } from '../../styles'
-import { ImageSourcePropType, Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native'
-import { ItemTypes, TTaskSection } from '../../utils/types'
-import { Link, useLocation, useParams } from '../../services/routing'
-import React, { CSSProperties, Ref, useCallback, useState } from 'react'
-import {
-    useAddTaskSectionMutation,
-    useGetMessagesQuery,
-    useGetTasksQuery,
-    useReorderTaskMutation,
-} from '../../services/generalTaskApi'
+import { Colors, Flex, Images } from '../../styles'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import React, { useState } from 'react'
+import { useAddTaskSectionMutation, useGetMessagesQuery, useGetTasksQuery } from '../../services/generalTaskApi'
+import { useLocation, useParams } from '../../services/routing'
 
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
+import NavigationLink from '../molecules/NavigationLink'
 import WebInput from '../atoms/WebInput'
 import { authSignOut } from '../../utils/auth'
 import { icons } from '../../styles/images'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
-import { useDrop } from 'react-dnd'
 import { weight } from '../../styles/typography'
 
 const NavigationViewHeader = styled.View`
     height: 24px;
     width: 100%;
     margin-bottom: 16px;
-`
-const SectionTitle = styled.Text<{ isSelected: boolean }>`
-    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
-    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
-    margin-left: 9px;
 `
 const AddSectionView = styled.View`
     display: flex;
@@ -66,15 +55,15 @@ const NavigationView = () => {
                                 key={index}
                                 link={`/tasks/${section.id}`}
                                 title={section.name}
-                                icon={require('../../assets/inbox.png')}
+                                icon={Images.icons.inbox}
                                 isCurrentPage={sectionIdParam === section.id}
-                                taskSection={section}
+                                taskSection={!section.is_done ? section : undefined}
                             />
                         ))}
                         <NavigationLink
                             link="/messages"
                             title="Messages"
-                            icon={require('../../assets/inbox.png')}
+                            icon={Images.icons.inbox}
                             isCurrentPage={pathname === '/messages'}
                         />
                         <NavigationLink
@@ -107,61 +96,6 @@ const NavigationView = () => {
     )
 }
 
-interface SectionProps {
-    isCurrentPage: boolean
-    link: string
-    title: string
-    icon: NodeRequire | ImageSourcePropType | undefined
-    taskSection?: TTaskSection
-}
-const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection }: SectionProps) => {
-    const [reorderTask] = useReorderTaskMutation()
-
-    const onDrop = useCallback(
-        (item: { id: string; taskIndex: number; sectionId: string }) => {
-            if (taskSection) {
-                reorderTask({
-                    taskId: item.id,
-                    orderingId: 1,
-                    dropSectionId: taskSection.id,
-                    dragSectionId: item.sectionId,
-                })
-            }
-        },
-        [taskSection?.id]
-    )
-
-    const [isOver, drop] = useDrop(
-        () => ({
-            accept: ItemTypes.TASK,
-            collect: (monitor) => {
-                return !!(taskSection && monitor.isOver())
-            },
-            drop: onDrop,
-            canDrop: () => !!taskSection,
-        }),
-        [taskSection, onDrop]
-    )
-
-    const dropRef = Platform.OS === 'web' ? (drop as Ref<View>) : undefined
-
-    return (
-        <Link style={linkStyle} to={link}>
-            <View
-                ref={dropRef}
-                style={[
-                    styles.linkContainer,
-                    isCurrentPage ? styles.linkContainerSelected : null,
-                    isOver ? styles.linkOnHover : null,
-                ]}
-            >
-                <Icon size="small" source={icon} />
-                <SectionTitle isSelected={isCurrentPage}>{title}</SectionTitle>
-            </View>
-        </Link>
-    )
-}
-
 const styles = StyleSheet.create({
     container: {
         ...Flex.column,
@@ -169,34 +103,9 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.gray._100,
         paddingTop: 8,
     },
-    linkContainer: {
-        ...Flex.row,
-        alignItems: 'center',
-        height: 28,
-        marginVertical: 4,
-        marginHorizontal: 6,
-        paddingVertical: 4,
-        paddingHorizontal: 8,
-
-        borderRadius: 8,
-        borderWidth: 2,
-        borderStyle: 'solid',
-        borderColor: 'transparent',
-    },
-    linkContainerSelected: {
-        backgroundColor: Colors.gray._50,
-    },
     linksFlexContainer: {
         flex: 1,
     },
-    linkOnHover: {
-        borderColor: Colors.gray._300,
-    },
 })
-
-const linkStyle: CSSProperties & ViewStyle = {
-    textDecorationLine: 'none',
-    width: '100%',
-}
 
 export default NavigationView
