@@ -238,6 +238,13 @@ export const generalTaskApi = createApi({
                 },
             }),
         }),
+        postFeedback: builder.mutation<void, { feedback: string }>({
+            query: (data) => ({
+                url: 'feedback/',
+                method: 'POST',
+                body: { feedback: data.feedback },
+            })
+        }),
         getLinkedAccounts: builder.query<TLinkedAccount[], void>({
             query: () => ({
                 url: 'linked_accounts/',
@@ -274,4 +281,5 @@ export const {
     useGetLinkedAccountsQuery,
     useGetSupportedTypesQuery,
     useDeleteLinkedAccountMutation,
+    usePostFeedbackMutation,
 } = generalTaskApi

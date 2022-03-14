@@ -11,6 +11,7 @@ import { authSignOut } from '../../utils/auth'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import WebInput from '../atoms/WebInput'
+import FeedbackButton from '../molecules/FeedbackButton'
 
 const NavigationViewHeader = styled.View`
     height: 24px;
@@ -107,6 +108,7 @@ const NavigationView = () => {
                     </AddSectionInputView>
                 </AddSectionView>
             </ScrollView>
+            <FeedbackButton />
             <Pressable onPress={() => authSignOut(dispatch)}>
                 <Text>Sign Out</Text>
             </Pressable>

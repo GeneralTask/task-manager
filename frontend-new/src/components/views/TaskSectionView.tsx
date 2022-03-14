@@ -39,9 +39,16 @@ const TaskSection = () => {
         <ScrollView style={styles.container} refreshControl={refreshControl}>
             <EventBanner date={DateTime.now()} />
             <View style={styles.tasksContent}>
-                {(isLoading || !currentSection) ? <Loading /> :
+                {isLoading || !currentSection ? (
+                    <Loading />
+                ) : (
                     <View>
-                        <SectionHeader section={currentSection.name} allowRefresh={true} refetch={refetch} taskSectionId={currentSection.id} />
+                        <SectionHeader
+                            section={currentSection.name}
+                            allowRefresh={true}
+                            refetch={refetch}
+                            taskSectionId={currentSection.id}
+                        />
                         {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                         {currentSection.tasks.map((task, index) => {
                             return (
@@ -51,7 +58,7 @@ const TaskSection = () => {
                             )
                         })}
                     </View>
-                }
+                )}
             </View>
         </ScrollView>
     )
@@ -60,19 +67,19 @@ const TaskSection = () => {
 const styles = StyleSheet.create({
     shell: {
         marginTop: 20,
-        ...Shadows.small
+        ...Shadows.small,
     },
     container: {
         ...Screens.container,
         ...Flex.column,
         paddingTop: 0,
-        backgroundColor: Colors.gray._50
+        backgroundColor: Colors.gray._50,
     },
     tasksContent: {
         ...Flex.column,
         marginRight: '7.5%',
         marginLeft: '7.5%',
-        marginTop: Platform.OS === 'web' ? Spacing.margin.large : 20,
+        marginTop: Platform.OS === 'web' ? Spacing.margin.xLarge : 20,
         marginBottom: 100,
     },
 })

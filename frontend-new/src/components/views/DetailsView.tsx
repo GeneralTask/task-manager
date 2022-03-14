@@ -14,7 +14,7 @@ const DetailsViewContainer = styled.View`
     flex-direction: column;
     background-color: ${Colors.gray._50};
     width: 400px;
-    margin-top: ${Spacing.margin.large}px;
+    margin-top: ${Spacing.margin.xLarge}px;
     padding: ${Spacing.padding.medium}px;
 `
 const TaskTitleContainer = styled.View`
