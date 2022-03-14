@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import styled from 'styled-components/native'
-import { Spacing } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
-import { Title, TitleSmall } from '../atoms/title/Title'
+import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 import TextArea from '../atoms/TextArea'
-import ModalButton from '../atoms/buttons/RoundedGeneralButton'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { usePostFeedbackMutation } from '../../services/generalTaskApi'
 import { useAppDispatch } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
@@ -44,7 +44,7 @@ const FeedbackView = () => {
     return (
         <FeedbackViewContainer>
             <FeedbackHeader>
-                <Title>Got feedback?</Title>
+                <TitleMedium>Got feedback?</TitleMedium>
                 <SubtitleSmall>Let us know how we can improve!</SubtitleSmall>
             </FeedbackHeader>
             <TitleSmall>Feedback</TitleSmall>
@@ -52,10 +52,10 @@ const FeedbackView = () => {
                 <TextArea value={feedback} placeholder="Type in your feedback here." setValue={setFeedback} />
             </MarginTop>
             <ButtonContainer>
-                <ModalButton onPress={submitFeedback} value="Send feedback" isColored />
-                <ModalButton onPress={closeModal} value="Cancel" isColored={false} />
+                <RoundedGeneralButton onPress={submitFeedback} value="Send feedback" color={Colors.purple} />
+                <RoundedGeneralButton onPress={closeModal} value="Cancel" hasBorder textStyle="dark" />
             </ButtonContainer>
-        </FeedbackViewContainer >
+        </FeedbackViewContainer>
     )
 }
 
