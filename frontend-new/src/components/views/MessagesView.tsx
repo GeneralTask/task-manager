@@ -91,7 +91,7 @@ const Messages = () => {
                 ) : (
                     <View>
                         <SectionHeader section="Messages" allowRefresh={true} refetch={refetch} />
-                        {Object.entries(pages).map(([_, messages]) => {
+                        {Object.entries(pages).map(([, messages]) => {
                             return messages.map((msg) => {
                                 return (
                                     <TaskTemplate style={styles.shell} key={msg.id}>
