@@ -1,5 +1,4 @@
 import React from 'react'
-import { TextStyle } from 'react-native'
 import styled from 'styled-components/native'
 import { Colors, Typography } from '../../../styles'
 
@@ -16,9 +15,8 @@ const TitleMediumStyle = styled.Text`
 
 interface TitleProps {
     children: string
-    style?: TextStyle
 }
-export const TitleMedium = ({ children, style }: TitleProps) => {
+export const TitleMedium = ({ children }: TitleProps) => {
     return <TitleMediumStyle>{children}</TitleMediumStyle>
 }
 export const TitleSmall = ({ children }: TitleProps) => {
