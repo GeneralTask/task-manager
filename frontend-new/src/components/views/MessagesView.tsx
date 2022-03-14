@@ -18,11 +18,6 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import { SectionHeader } from '../molecules/Header'
 import Message from '../molecules/Message'
 
-// interface page {
-//     page_number: number
-//     messages: TMessage[]
-// }
-
 type TPageMap = { [key: number]: TMessage[] }
 
 const Messages = () => {
