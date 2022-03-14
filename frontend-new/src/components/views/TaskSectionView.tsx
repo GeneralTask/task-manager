@@ -41,7 +41,7 @@ const TaskSection = () => {
             <View style={styles.tasksContent}>
                 {(isLoading || !currentSection) ? <Loading /> :
                     <View>
-                        <SectionHeader section={currentSection.name} allowRefresh={true} taskSectionId={currentSection.id} />
+                        <SectionHeader section={currentSection.name} allowRefresh={true} refetch={refetch} taskSectionId={currentSection.id} />
                         {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                         {currentSection.tasks.map((task, index) => {
                             return (
