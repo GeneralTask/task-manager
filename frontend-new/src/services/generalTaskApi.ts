@@ -1,5 +1,5 @@
 import { TEvent, TLinkedAccount, TMessage, TSupportedTypes, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
-import { arrayMoveInPlace, resetOrderingIds } from '../utils/api'
+import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import Cookies from 'js-cookie'

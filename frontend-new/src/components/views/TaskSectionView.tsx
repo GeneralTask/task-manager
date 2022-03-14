@@ -43,27 +43,36 @@ const TaskSection = () => {
         <ScrollView style={styles.container} refreshControl={refreshControl}>
             <EventBanner date={DateTime.now()} />
             <View style={styles.tasksContent}>
-                {(isLoading || !currentSection) ? <Loading /> :
+                {isLoading || !currentSection ? (
+                    <Loading />
+                ) : (
                     <View>
-                        <SectionHeader section={currentSection.name} allowRefresh={true} refetch={refetch} taskSectionId={currentSection.id} />
+                        <SectionHeader
+                            section={currentSection.name}
+                            allowRefresh={true}
+                            refetch={refetch}
+                            taskSectionId={currentSection.id}
+                        />
                         {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
-                        {currentSection.tasks.map((task, index) => {
-                            return (
-                                <TaskTemplate key={index}>
-                                    <Task
-                                        task={task}
-                                        setSheetTaskId={() => null}
-                                        dragDisabled={currentSection.is_done}
-                                        index={index}
-                                        sectionId={currentSection.id}
-                                    />
-                                </TaskTemplate>
-                            )
-                        })}
-                    </View>
-                }
-            </View>
-        </ScrollView>
+                        {
+                            currentSection.tasks.map((task, index) => {
+                                return (
+                                    <TaskTemplate key={index}>
+                                        <Task
+                                            task={task}
+                                            setSheetTaskId={() => null}
+                                            dragDisabled={currentSection.is_done}
+                                            index={index}
+                                            sectionId={currentSection.id}
+                                        />
+                                    </TaskTemplate>
+                                )
+                            })
+                        }
+                    </View >
+                )}
+            </View >
+        </ScrollView >
     )
 }
 
@@ -72,7 +81,7 @@ const styles = StyleSheet.create({
         ...Screens.container,
         ...Flex.column,
         paddingTop: 0,
-        backgroundColor: Colors.gray._50
+        backgroundColor: Colors.gray._50,
     },
     tasksContent: {
         ...Flex.column,

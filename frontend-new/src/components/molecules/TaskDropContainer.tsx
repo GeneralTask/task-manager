@@ -1,5 +1,5 @@
+import { DropProps, ItemTypes, TTask } from '../../utils/types'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
-import { ItemTypes, TTask } from '../../utils/types'
 import styled, { css } from 'styled-components/native'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -7,14 +7,30 @@ import { Colors } from '../../styles'
 import { View } from 'react-native'
 import { useReorderTaskMutation } from '../../services/generalTaskApi'
 
+const DropOverlay = styled.View`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+`
+const DropIndicatorStyles = css<{ isVisible: boolean }>`
+    height: 2px;
+    width: 100%;
+    background-color: ${Colors.gray._300};
+    visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
+`
+export const DropIndicatorAbove = styled.View`
+    ${DropIndicatorStyles}
+    top: 1px;
+`
+export const DropIndicatorBelow = styled.View`
+    ${DropIndicatorStyles}
+    top: -1px;
+`
+
 interface TaskDropContainerProps {
     children: JSX.Element
     task: TTask
-    taskIndex: number
-    sectionId: string
-}
-interface DropProps {
-    id: string
     taskIndex: number
     sectionId: string
 }
@@ -52,12 +68,6 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
 
             const dropIndex = taskIndex + (dropDirection === DropDirection.Up ? 1 : 2)
 
-            console.log({
-                taskId: item.id,
-                orderingId: dropIndex,
-                dropSectionId: sectionId,
-            })
-
             reorderTask({
                 taskId: item.id,
                 orderingId: dropIndex,
@@ -93,26 +103,5 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
         </DropOverlay>
     )
 }
-
-const DropOverlay = styled.View`
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-`
-const DropIndicatorStyles = css<{ isVisible: boolean }>`
-    height: 2px;
-    width: 100%;
-    background-color: ${Colors.gray._300};
-    visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
-`
-export const DropIndicatorAbove = styled.View`
-    ${DropIndicatorStyles}
-    top: 1px;
-`
-export const DropIndicatorBelow = styled.View`
-    ${DropIndicatorStyles}
-    top: -1px;
-`
 
 export default TaskDropContainer

@@ -1,4 +1,4 @@
-import { Colors, Flex } from '../../styles'
+import { Colors, Flex, Images } from '../../styles'
 import { Image, Platform, StyleSheet, TextInput, View } from 'react-native'
 import React, { useCallback, useState } from 'react'
 
@@ -9,7 +9,7 @@ interface CreateNewTaskProps {
     section: string
 }
 const CreatNewTask = (props: CreateNewTaskProps) => {
-    const inputRef = useCallback(node => {
+    const inputRef = useCallback((node) => {
         if (node !== null) {
             node.focus()
         }
@@ -24,7 +24,7 @@ const CreatNewTask = (props: CreateNewTaskProps) => {
             await createTask({
                 title: text,
                 body: '',
-                id_task_section: props.section
+                id_task_section: props.section,
             })
         }
     }
@@ -36,26 +36,26 @@ const CreatNewTask = (props: CreateNewTaskProps) => {
     return (
         <View style={styles.container}>
             <View style={styles.plusIconContainer}>
-                <Image style={styles.plusIcon} source={require('../../assets/plus.png')} />
+                <Image style={styles.plusIcon} source={Images.icons.plus} />
             </View>
-            {
-                Platform.OS === 'web' ?
-                    <input
-                        style={webInputStyles}
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        placeholder='Add new task'
-                        onKeyDown={handleKeyDown}
-                        ref={inputRef}
-                    /> :
-                    <TextInput
-                        style={styles.input}
-                        value={text}
-                        onChangeText={text => setText(text)}
-                        placeholder="Add new task"
-                        onSubmitEditing={submitNewTask}
-                    />
-            }
+            {Platform.OS === 'web' ? (
+                <input
+                    style={webInputStyles}
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="Add new task"
+                    onKeyDown={handleKeyDown}
+                    ref={inputRef}
+                />
+            ) : (
+                <TextInput
+                    style={styles.input}
+                    value={text}
+                    onChangeText={(text) => setText(text)}
+                    placeholder="Add new task"
+                    onSubmitEditing={submitNewTask}
+                />
+            )}
 
             {Platform.OS === 'web' && <KeyboardShotcutContainer style={styles.tool} character={'T'} />}
         </View>
@@ -85,7 +85,6 @@ const styles = StyleSheet.create({
     inputContainer: {
         flexGrow: 1,
         minWidth: 0,
-
     },
     input: {
         ...Platform.select({
@@ -96,12 +95,10 @@ const styles = StyleSheet.create({
             default: {
                 outlineStyle: 'none',
                 flexGrow: 1,
-            }
-        })
+            },
+        }),
     },
-    tool: {
-
-    }
+    tool: {},
 })
 const webInputStyles = {
     flexGrow: 1,
