@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import Cookies from 'js-cookie'
 import { Platform } from 'react-native'
+import { MESSAGES_PER_PAGE } from '../constants'
 import getEnvVars from '../environment'
 import type { RootState } from '../redux/store'
 import { TEvent, TLinkedAccount, TMessage, TSupportedTypes, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
@@ -188,9 +189,24 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        getMessages: builder.query<TMessage[], void>({
-            query: () => 'messages/v2/',
-            providesTags: ['Messages']
+        getMessages: builder.query<TMessage[], { only_unread: boolean, page: number }>({
+            query: (data) => ({
+                url: 'messages/v2/',
+                method: 'GET',
+                params: { only_unread: data.only_unread, page: data.page, limit: MESSAGES_PER_PAGE },
+            }),
+            providesTags: (result) => result ?
+                [
+                    ...result.map(({ id }) => ({ type: 'Messages' as const, id })),
+                    { type: 'Messages', id: 'PARTIAL_LIST' },
+                ]
+                : [{ type: 'Messages', id: 'PARTIAL_LIST' }],
+        }),
+        fetchMessages: builder.query<TMessage[], void>({
+            query: () => 'messages/fetch/',
+            async onQueryStarted(_, { dispatch }) {
+                dispatch(generalTaskApi.util.invalidateTags([{ type: 'Messages', id: 'PARTIAL_LIST' }]))
+            }
         }),
         markMessageRead: builder.mutation<void, { id: string, is_read: boolean }>({
             query: (data) => ({
@@ -198,23 +214,8 @@ export const generalTaskApi = createApi({
                 method: 'PATCH',
                 body: { is_read: data.is_read },
             }),
-            async onQueryStarted(data, { dispatch, queryFulfilled }) {
-                const result = dispatch(
-                    generalTaskApi.util.updateQueryData('getMessages', undefined, (messages) => {
-                        for (let i = 0; i < messages.length; i++) {
-                            const message = messages[i]
-                            if (message.id === data.id) {
-                                message.is_unread = !data.is_read
-                                return
-                            }
-                        }
-                    })
-                )
-                try {
-                    await queryFulfilled
-                } catch {
-                    result.undo()
-                }
+            async onQueryStarted(data, { dispatch }) {
+                dispatch(generalTaskApi.util.invalidateTags([{ type: 'Messages', id: data.id }]))
             }
         }),
         markMessageAsTask: builder.mutation<void, { id: string, is_task: boolean }>({
@@ -267,4 +268,18 @@ export const generalTaskApi = createApi({
     }),
 })
 
-export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery, useGetMessagesQuery, useGetSupportedTypesQuery, useGetLinkedAccountsQuery, useDeleteLinkedAccountMutation, usePostFeedbackMutation } = generalTaskApi
+export const {
+    useGetTasksQuery,
+    useModifyTaskMutation,
+    useCreateTaskMutation,
+    useMarkTaskDoneMutation,
+    useAddTaskSectionMutation,
+    useDeleteTaskSectionMutation,
+    useGetEventsQuery,
+    useGetMessagesQuery,
+    useFetchMessagesQuery,
+    useGetLinkedAccountsQuery,
+    useGetSupportedTypesQuery,
+    useDeleteLinkedAccountMutation,
+    usePostFeedbackMutation,
+} = generalTaskApi
