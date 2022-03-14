@@ -1,16 +1,19 @@
-import React, { CSSProperties, useState } from 'react'
-import { Pressable, View, Text, StyleSheet, ViewStyle, ScrollView } from 'react-native'
-import styled from 'styled-components/native'
-import { useAppDispatch } from '../../redux/hooks'
-import { useAddTaskSectionMutation, useGetTasksQuery, useGetMessagesQuery } from '../../services/generalTaskApi'
-import { Link, useLocation, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
-import { icons } from '../../styles/images'
-import { weight } from '../../styles/typography'
-import { authSignOut } from '../../utils/auth'
+import { ImageSourcePropType, Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native'
+import { ItemTypes, TTaskSection } from '../../utils/types'
+import { Link, useLocation, useParams } from '../../services/routing'
+import React, { CSSProperties, Ref, useState } from 'react'
+import { useAddTaskSectionMutation, useGetMessagesQuery, useGetTasksQuery } from '../../services/generalTaskApi'
+
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import WebInput from '../atoms/WebInput'
+import { authSignOut } from '../../utils/auth'
+import { icons } from '../../styles/images'
+import styled from 'styled-components/native'
+import { useAppDispatch } from '../../redux/hooks'
+import { useDrop } from 'react-dnd'
+import { weight } from '../../styles/typography'
 
 const NavigationViewHeader = styled.View`
     height: 24px;
@@ -18,8 +21,8 @@ const NavigationViewHeader = styled.View`
     margin-bottom: 16px;
 `
 const SectionTitle = styled.Text<{ isSelected: boolean }>`
-    font-weight: ${props => props.isSelected ? weight._600.fontWeight : weight._500.fontWeight};
-    color: ${props => props.isSelected ? Colors.gray._600 : Colors.gray._500};
+    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
+    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
     margin-left: 9px;
 `
 const AddSectionView = styled.View`
@@ -45,38 +48,38 @@ const NavigationView = () => {
     const loading = isLoadingTasks || isLoadingMessages
     return (
         <View style={styles.container}>
-            <NavigationViewHeader >
+            <NavigationViewHeader>
                 <Icon size="medium" />
             </NavigationViewHeader>
             <ScrollView style={styles.linksFlexContainer}>
-                {
-                    loading ? <Loading /> :
-                        <>
-                            {taskSections?.map((section, index) =>
-                                <Link key={index} style={linkStyle} to={`/tasks/${section.id}`}>
-                                    <View style={[styles.linkContainer, (sectionIdParam === section.id) ?
-                                        styles.linkContainerSelected : null]}>
-                                        <Icon size="small" source={require('../../assets/inbox.png')} />
-                                        <SectionTitle isSelected={sectionIdParam === section.id}>{section.name}</SectionTitle>
-                                    </View>
-                                </Link>
-                            )}
-                            <Link style={linkStyle} to="/messages">
-                                <View style={[styles.linkContainer, (pathname === '/messages') ?
-                                    styles.linkContainerSelected : null]}>
-                                    <Icon size="small" source={require('../../assets/inbox.png')} />
-                                    <SectionTitle isSelected={pathname === '/messages'}>Messages</SectionTitle>
-                                </View>
-                            </Link>
-                            <Link style={linkStyle} to="/settings">
-                                <View style={[styles.linkContainer, (pathname === '/settings') ?
-                                    styles.linkContainerSelected : null]}>
-                                    <Icon size="small" source={icons.gear} />
-                                    <SectionTitle isSelected={pathname === '/settings'}>Settings</SectionTitle>
-                                </View>
-                            </Link>
-                        </>
-                }
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <>
+                        {taskSections?.map((section, index) => (
+                            <NavigationLink
+                                key={index}
+                                link={`/tasks/${section.id}`}
+                                title={section.name}
+                                icon={require('../../assets/inbox.png')}
+                                isCurrentPage={sectionIdParam === section.id}
+                                taskSection={section}
+                            />
+                        ))}
+                        <NavigationLink
+                            link="/messages"
+                            title="Messages"
+                            icon={require('../../assets/inbox.png')}
+                            isCurrentPage={pathname === '/messages'}
+                        />
+                        <NavigationLink
+                            link="/settings"
+                            title="Settings"
+                            icon={icons.gear}
+                            isCurrentPage={pathname === '/settings'}
+                        />
+                    </>
+                )}
                 <AddSectionView>
                     <Icon size={'small'} source={require('../../assets/plus.png')} />
                     <AddSectionInputView>
@@ -87,12 +90,58 @@ const NavigationView = () => {
                             onSubmit={() => {
                                 setSectionName('')
                                 addTaskSection({ name: sectionName })
-                            }} />
+                            }}
+                        />
                     </AddSectionInputView>
                 </AddSectionView>
             </ScrollView>
-            <Pressable onPress={() => authSignOut(dispatch)}><Text>Sign Out</Text></Pressable>
+            <Pressable onPress={() => authSignOut(dispatch)}>
+                <Text>Sign Out</Text>
+            </Pressable>
         </View>
+    )
+}
+
+interface SectionProps {
+    isCurrentPage: boolean
+    link: string
+    title: string
+    icon: NodeRequire | ImageSourcePropType | undefined
+    taskSection?: TTaskSection
+}
+const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection }: SectionProps) => {
+    const [isOver, drop] = useDrop(
+        () => ({
+            accept: ItemTypes.TASK,
+            collect: (monitor) => {
+                return !!(taskSection && monitor.isOver())
+            },
+            drop: () => {
+                if (taskSection) {
+                    window.location.href = link
+                }
+            },
+            canDrop: () => !!taskSection,
+        }),
+        []
+    )
+
+    const dropRef = Platform.OS === 'web' ? (drop as Ref<View>) : undefined
+
+    return (
+        <Link style={linkStyle} to={link}>
+            <View
+                ref={dropRef}
+                style={[
+                    styles.linkContainer,
+                    isCurrentPage ? styles.linkContainerSelected : null,
+                    isOver ? styles.linkOnHover : null,
+                ]}
+            >
+                <Icon size="small" source={icon} />
+                <SectionTitle isSelected={isCurrentPage}>{title}</SectionTitle>
+            </View>
+        </Link>
     )
 }
 
@@ -101,26 +150,30 @@ const styles = StyleSheet.create({
         ...Flex.column,
         minWidth: 232,
         backgroundColor: Colors.gray._100,
-        paddingLeft: 8,
         paddingTop: 8,
-        paddingRight: 8,
     },
     linkContainer: {
         ...Flex.row,
         alignItems: 'center',
         height: 28,
-        marginTop: 8,
-        paddingTop: 4,
-        paddingRight: 8,
-        paddingBottom: 4,
-        paddingLeft: 8,
+        marginVertical: 4,
+        marginHorizontal: 6,
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+
         borderRadius: 8,
+        borderWidth: 2,
+        borderStyle: 'solid',
+        borderColor: 'transparent',
     },
     linkContainerSelected: {
         backgroundColor: Colors.gray._50,
     },
     linksFlexContainer: {
         flex: 1,
+    },
+    linkOnHover: {
+        borderColor: Colors.gray._300,
     },
 })
 
