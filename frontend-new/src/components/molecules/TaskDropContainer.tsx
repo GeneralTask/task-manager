@@ -16,7 +16,7 @@ interface TaskDropContainerProps {
 interface DropProps {
     id: string
     taskIndex: number
-    sectionId: number
+    sectionId: string
 }
 enum DropDirection {
     Up,
