@@ -17,12 +17,19 @@ type messageSource struct {
 	IsReplyable   bool   `json:"is_replyable"`
 }
 
+type senderV2 struct {
+	Name  		string `bson:"name"`
+	Email  		string `bson:"email"`
+	ReplyTo     string `bson:"reply_to"`
+}
+
 type message struct {
 	ID         primitive.ObjectID `json:"id"`
 	Title      string             `json:"title"`
 	Deeplink   string             `json:"deeplink"`
 	Body       string             `json:"body"`
 	Sender     string             `json:"sender"`
+	SenderV2 senderV2      		  `json:"sender_v2"`
 	Recipients Recipients         `json:"recipients"`
 	SentAt     string             `json:"sent_at"`
 	IsUnread   bool               `json:"is_unread"`
@@ -68,6 +75,11 @@ func (api *API) emailToMessage(e *database.Item) *message {
 		Deeplink: e.Deeplink,
 		Body:     e.Body,
 		Sender:   e.Sender,
+		SenderV2: senderV2{
+			Name: e.Sender,
+			Email: e.Email.SenderEmail,
+			ReplyTo: e.Email.ReplyTo,
+		},
 		Recipients: Recipients{
 			To:  getRecipients(e.Recipients.To),
 			Cc:  getRecipients(e.Recipients.Cc),
