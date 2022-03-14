@@ -189,11 +189,11 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        getMessages: builder.query<TMessage[], number | undefined>({
-            query: (page = 1) => ({
-                url: `messages/v2/`,
+        getMessages: builder.query<TMessage[], { only_unread: boolean, page: number }>({
+            query: (data) => ({
+                url: 'messages/v2/',
                 method: 'GET',
-                params: { only_unread: false, page: page, limit: MESSAGES_PER_PAGE },
+                params: { only_unread: data.only_unread, page: data.page, limit: MESSAGES_PER_PAGE },
             }),
             providesTags: (result) => result ?
                 [
@@ -203,7 +203,7 @@ export const generalTaskApi = createApi({
                 : [{ type: 'Messages', id: 'PARTIAL_LIST' }],
         }),
         fetchMessages: builder.query<TMessage[], void>({
-            query: () => `messages/fetch/`,
+            query: () => 'messages/fetch/',
             async onQueryStarted(_, { dispatch }) {
                 dispatch(generalTaskApi.util.invalidateTags([{ type: 'Messages', id: 'PARTIAL_LIST' }]))
             }
@@ -214,23 +214,8 @@ export const generalTaskApi = createApi({
                 method: 'PATCH',
                 body: { is_read: data.is_read },
             }),
-            async onQueryStarted(data, { dispatch, queryFulfilled }) {
-                const result = dispatch(
-                    generalTaskApi.util.updateQueryData('getMessages', undefined, (messages) => {
-                        for (let i = 0; i < messages.length; i++) {
-                            const message = messages[i]
-                            if (message.id === data.id) {
-                                message.is_unread = !data.is_read
-                                return
-                            }
-                        }
-                    })
-                )
-                try {
-                    await queryFulfilled
-                } catch {
-                    result.undo()
-                }
+            async onQueryStarted(data, { dispatch }) {
+                dispatch(generalTaskApi.util.invalidateTags([{ type: 'Messages', id: data.id }]))
             }
         }),
         markMessageAsTask: builder.mutation<void, { id: string, is_task: boolean }>({

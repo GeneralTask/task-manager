@@ -1,5 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { NativeScrollEvent, NativeSyntheticEvent, Platform, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
+import {
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    Platform,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native'
 import { MESSAGES_PER_PAGE } from '../../constants'
 import { useFetchMessagesQuery, useGetMessagesQuery } from '../../services/generalTaskApi'
 import { Colors, Flex, Screens, Shadows } from '../../styles'
@@ -9,11 +18,23 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import { SectionHeader } from '../molecules/Header'
 import Message from '../molecules/Message'
 
+// interface page {
+//     page_number: number
+//     messages: TMessage[]
+// }
+
+type TPageMap = { [key: number]: TMessage[] }
+
 const Messages = () => {
     const [currentPage, setCurrentPage] = useState(1)
     const [atEnd, setAtEnd] = useState(false)
-    const [allMessages, setAllMessages] = useState([] as TMessage[])
-    const { data: messages, isLoading, refetch, isFetching } = useGetMessagesQuery(currentPage)
+    const [pages, setPages] = useState<TPageMap>({})
+    const {
+        data: messages,
+        isLoading,
+        refetch,
+        isFetching,
+    } = useGetMessagesQuery({ only_unread: false, page: currentPage })
     const { refetch: fetchMessages } = useFetchMessagesQuery()
     const refetchWasLocal = useRef(false)
 
@@ -41,10 +62,10 @@ const Messages = () => {
             if (messages.length < MESSAGES_PER_PAGE) {
                 setAtEnd(true)
             }
-            setAllMessages(allMessages.concat(messages))
+            setPages({ ...pages, [currentPage]: messages })
         } else if (messages && atEnd) {
             setAtEnd(false)
-            setAllMessages([])
+            setPages({})
             setCurrentPage(1)
         }
     }, [messages])
@@ -58,21 +79,30 @@ const Messages = () => {
     const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
 
     return (
-        <ScrollView style={styles.container} refreshControl={refreshControl} onScroll={handleScroll} scrollEventThrottle={500}>
+        <ScrollView
+            style={styles.container}
+            refreshControl={refreshControl}
+            onScroll={handleScroll}
+            scrollEventThrottle={500}
+        >
             <View style={styles.messagesContent}>
-                {isLoading ? <Loading /> :
+                {isLoading ? (
+                    <Loading />
+                ) : (
                     <View>
                         <SectionHeader section="Messages" allowRefresh={true} refetch={refetch} />
-                        {allMessages?.map(msg => {
-                            return (
-                                <TaskTemplate style={styles.shell} key={msg.id}>
-                                    <Message message={msg} setSheetTaskId={() => null} />
-                                </TaskTemplate>
-                            )
+                        {Object.entries(pages).map(([_, messages]) => {
+                            return messages.map((msg) => {
+                                return (
+                                    <TaskTemplate style={styles.shell} key={msg.id}>
+                                        <Message message={msg} setSheetTaskId={() => null} />
+                                    </TaskTemplate>
+                                )
+                            })
                         })}
                         <Text style={styles.endContent}>{atEnd ? `You've reached the bottom` : `Loading...`}</Text>
                     </View>
-                }
+                )}
             </View>
         </ScrollView>
     )
@@ -81,13 +111,13 @@ const Messages = () => {
 const styles = StyleSheet.create({
     shell: {
         marginTop: 20,
-        ...Shadows.small
+        ...Shadows.small,
     },
     container: {
         ...Screens.container,
         ...Flex.column,
         paddingTop: 0,
-        backgroundColor: Colors.gray._50
+        backgroundColor: Colors.gray._50,
     },
     messagesContent: {
         ...Flex.column,

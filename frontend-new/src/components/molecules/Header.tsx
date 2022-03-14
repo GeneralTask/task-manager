@@ -42,16 +42,16 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     return (
         <SectionHeaderContainer>
             <HeaderText>{props.section}</HeaderText>
-            {props.allowRefresh && Platform.OS === 'web' &&
-                <TouchableIcon onPress={() => props.refetch()}>
+            {props.allowRefresh && Platform.OS === 'web' && (
+                <TouchableIcon onPress={props.refetch}>
                     <Icon size={'small'} source={icons.spinner}></Icon>
                 </TouchableIcon>
-            }
-            {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) &&
+            )}
+            {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) && (
                 <TouchableIcon onPress={() => handleDelete(props.taskSectionId)}>
                     <Icon size={'small'} source={icons.trash}></Icon>
                 </TouchableIcon>
-            }
+            )}
         </SectionHeaderContainer>
     )
 }

@@ -18,8 +18,8 @@ const NavigationViewHeader = styled.View`
     margin-bottom: 16px;
 `
 const SectionTitle = styled.Text<{ isSelected: boolean }>`
-    font-weight: ${props => props.isSelected ? weight._600.fontWeight : weight._500.fontWeight};
-    color: ${props => props.isSelected ? Colors.gray._600 : Colors.gray._500};
+    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
+    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
     margin-left: 9px;
 `
 const AddSectionView = styled.View`
@@ -36,7 +36,7 @@ const AddSectionInputView = styled.View`
 const NavigationView = () => {
     const dispatch = useAppDispatch()
     const { data: taskSections, isLoading: isLoadingTasks } = useGetTasksQuery()
-    const { isLoading: isLoadingMessages } = useGetMessagesQuery(0)
+    const { isLoading: isLoadingMessages } = useGetMessagesQuery({ only_unread: false, page: 0 })
     const { section: sectionIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
     const [addTaskSection] = useAddTaskSectionMutation()
@@ -45,38 +45,53 @@ const NavigationView = () => {
     const loading = isLoadingTasks || isLoadingMessages
     return (
         <View style={styles.container}>
-            <NavigationViewHeader >
+            <NavigationViewHeader>
                 <Icon size="medium" />
             </NavigationViewHeader>
             <ScrollView style={styles.linksFlexContainer}>
-                {
-                    loading ? <Loading /> :
-                        <>
-                            {taskSections?.map((section, index) =>
-                                <Link key={index} style={linkStyle} to={`/tasks/${section.id}`}>
-                                    <View style={[styles.linkContainer, (sectionIdParam === section.id) ?
-                                        styles.linkContainerSelected : null]}>
-                                        <Icon size="small" source={require('../../assets/inbox.png')} />
-                                        <SectionTitle isSelected={sectionIdParam === section.id}>{section.name}</SectionTitle>
-                                    </View>
-                                </Link>
-                            )}
-                            <Link style={linkStyle} to="/messages">
-                                <View style={[styles.linkContainer, (pathname === '/messages') ?
-                                    styles.linkContainerSelected : null]}>
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <>
+                        {taskSections?.map((section, index) => (
+                            <Link key={index} style={linkStyle} to={`/tasks/${section.id}`}>
+                                <View
+                                    style={[
+                                        styles.linkContainer,
+                                        sectionIdParam === section.id ? styles.linkContainerSelected : null,
+                                    ]}
+                                >
                                     <Icon size="small" source={require('../../assets/inbox.png')} />
-                                    <SectionTitle isSelected={pathname === '/messages'}>Messages</SectionTitle>
+                                    <SectionTitle isSelected={sectionIdParam === section.id}>
+                                        {section.name}
+                                    </SectionTitle>
                                 </View>
                             </Link>
-                            <Link style={linkStyle} to="/settings">
-                                <View style={[styles.linkContainer, (pathname === '/settings') ?
-                                    styles.linkContainerSelected : null]}>
-                                    <Icon size="small" source={icons.gear} />
-                                    <SectionTitle isSelected={pathname === '/settings'}>Settings</SectionTitle>
-                                </View>
-                            </Link>
-                        </>
-                }
+                        ))}
+                        <Link style={linkStyle} to="/messages">
+                            <View
+                                style={[
+                                    styles.linkContainer,
+                                    pathname === '/messages' ? styles.linkContainerSelected : null,
+                                ]}
+                            >
+                                <Icon size="small" source={require('../../assets/inbox.png')} />
+                                <SectionTitle isSelected={pathname === '/messages'}>Messages</SectionTitle>
+                            </View>
+                        </Link>
+                        <Link style={linkStyle} to="/settings">
+                            <View
+                                style={[
+                                    styles.linkContainer,
+                                    pathname === '/settings' ? styles.linkContainerSelected : null,
+                                ]}
+                            >
+                                <Icon size="small" source={icons.gear} />
+                                <SectionTitle isSelected={pathname === '/settings'}>Settings</SectionTitle>
+                            </View>
+                        </Link>
+                    </>
+                )}
                 <AddSectionView>
                     <Icon size={'small'} source={require('../../assets/plus.png')} />
                     <AddSectionInputView>
@@ -87,11 +102,14 @@ const NavigationView = () => {
                             onSubmit={() => {
                                 setSectionName('')
                                 addTaskSection({ name: sectionName })
-                            }} />
+                            }}
+                        />
                     </AddSectionInputView>
                 </AddSectionView>
             </ScrollView>
-            <Pressable onPress={() => authSignOut(dispatch)}><Text>Sign Out</Text></Pressable>
+            <Pressable onPress={() => authSignOut(dispatch)}>
+                <Text>Sign Out</Text>
+            </Pressable>
         </View>
     )
 }
