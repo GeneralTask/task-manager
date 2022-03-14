@@ -30,6 +30,6 @@ jobs:
       - name: Run eslint on changed files
         uses: tj-actions/eslint-changed-files@v6.3
         with:
-          config_path: "frontend-new/.eslintrc.json"
+          config_path: "frontend-new/.eslintrc"
           extensions: "ts,tsx,js,jsx"
           extra_args: "--max-warnings=0" 

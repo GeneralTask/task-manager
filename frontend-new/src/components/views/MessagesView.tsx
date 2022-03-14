@@ -1,4 +1,4 @@
-import { Colors, Flex, Screens, Shadows } from '../../styles'
+import { Colors, Flex, Screens } from '../../styles'
 import {
     NativeScrollEvent,
     NativeSyntheticEvent,
@@ -34,7 +34,7 @@ const Messages = () => {
     const { refetch: fetchMessages } = useFetchMessagesQuery()
     const refetchWasLocal = useRef(false)
 
-    //stops fetching animation on iOS from triggering when refetch is called in another component 
+    //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
     const onRefresh = () => {
         refetchWasLocal.current = true
@@ -87,7 +87,7 @@ const Messages = () => {
                 ) : (
                     <View>
                         <SectionHeader section="Messages" allowRefresh={true} refetch={onRefresh} />
-                        {messages?.map(msg => {
+                        {messages?.map((msg) => {
                             return (
                                 <TaskTemplate key={msg.id}>
                                     <Message message={msg} setSheetTaskId={() => null} />
