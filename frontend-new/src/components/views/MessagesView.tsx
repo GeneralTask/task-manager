@@ -37,39 +37,17 @@ const Messages = () => {
     }
 
     useEffect(() => {
-        if (messages) {
+        if (messages && !atEnd) {
             if (messages.length < MESSAGES_PER_PAGE) {
                 setAtEnd(true)
             }
             setAllMessages(allMessages.concat(messages))
+        } else if (messages && atEnd) {
+            setAtEnd(false)
+            setAllMessages([])
+            setCurrentPage(1)
         }
     }, [messages])
-
-    // const lastResult = {
-    //     query: useGetMessagesQuery(currentPage - 1, { skip: currentPage === 1 }),
-    //     offset: currentPage === 1 ? 0 : MESSAGES_PER_PAGE * (currentPage - 2),
-    // }
-    // const currentResult = {
-    //     query: useGetMessagesQuery(currentPage),
-    //     offset: MESSAGES_PER_PAGE * (currentPage - 1),
-    // }
-    // const nextResult = {
-    //     query: useGetMessagesQuery(currentPage + 1),
-    //     offset: MESSAGES_PER_PAGE * currentPage,
-    // }
-
-    // const combined = useMemo(() => {
-    //     // if (lastResult.query.isFetching || currentResult.query.isFetching || nextResult.query.isFetching) return
-    //     const arr: TMessage[] = new Array(MESSAGES_PER_PAGE * (currentPage + 1))
-    //     for (const data of [lastResult, currentResult, nextResult]) {
-    //         if (data && data.query.data && !data.query.isFetching) {
-    //             arr.splice(data.offset, data.query.data.length, ...data.query.data)
-    //         }
-    //     }
-    //     console.log(nextResult.query.data)
-    //     return arr
-    // }, [lastResult.query.data, currentResult.query.data, nextResult.query.data])
-
 
     // Refetches messages every 30 seconds
     useEffect(() => {
@@ -85,24 +63,14 @@ const Messages = () => {
                 {isLoading ? <Loading /> :
                     <View>
                         <SectionHeader section="Messages" allowRefresh={true} refetch={refetch} />
-                        {/* <View style={{ flex: 1, flexDirection: 'row' }}>
-                            <Pressable onPress={() => setCurrentPage(currentPage === 1 ? currentPage : currentPage - MESSAGES_PER_PAGE)} >
-                                <Icon source={icons['caret_left']} size="small" />
-                            </Pressable>
-                            <Text>Page {(currentPage - 1) / 10 + 1}</Text>
-                            <Pressable onPress={() => setCurrentPage(currentPage + MESSAGES_PER_PAGE)} >
-                                <Icon source={icons['caret_right']} size="small" />
-                            </Pressable>
-                        </View> */}
                         {allMessages?.map(msg => {
-                            // console.log(messages)
                             return (
                                 <TaskTemplate style={styles.shell} key={msg.id}>
                                     <Message message={msg} setSheetTaskId={() => null} />
                                 </TaskTemplate>
                             )
                         })}
-                        <Text style={styles.endContent}> </Text>
+                        <Text style={styles.endContent}>{atEnd ? `You've reached the bottom` : `Loading...`}</Text>
                     </View>
                 }
             </View>

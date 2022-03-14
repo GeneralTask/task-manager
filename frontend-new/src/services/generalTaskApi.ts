@@ -206,7 +206,6 @@ export const generalTaskApi = createApi({
             query: () => `messages/fetch/`,
             async onQueryStarted(_, { dispatch }) {
                 dispatch(generalTaskApi.util.invalidateTags([{ type: 'Messages', id: 'PARTIAL_LIST' }]))
-                // dispatch(generalTaskApi.util.invalidateTags(['Messages']))
             }
         }),
         markMessageRead: builder.mutation<void, { id: string, is_read: boolean }>({
