@@ -1,4 +1,3 @@
-import { TTask } from './types'
 import getEnvVars from '../environment'
 
 const { REACT_APP_FRONTEND_BASE_URL } = getEnvVars()
