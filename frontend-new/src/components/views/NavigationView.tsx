@@ -1,5 +1,4 @@
 import { Colors, Flex } from '../../styles'
-import { useDrop } from 'react-dnd'
 import { ImageSourcePropType, Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native'
 import { ItemTypes, TTaskSection } from '../../utils/types'
 import { Link, useLocation, useParams } from '../../services/routing'
@@ -18,6 +17,7 @@ import { authSignOut } from '../../utils/auth'
 import { icons } from '../../styles/images'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
+import { useDrop } from 'react-dnd'
 import { weight } from '../../styles/typography'
 
 const NavigationViewHeader = styled.View`
@@ -117,16 +117,19 @@ interface SectionProps {
 const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection }: SectionProps) => {
     const [reorderTask] = useReorderTaskMutation()
 
-    const onDrop = useCallback((item: { id: string; taskIndex: number; sectionId: string }) => {
-        if (taskSection) {
-            reorderTask({
-                taskId: item.id,
-                orderingId: 1,
-                dropSectionId: taskSection.id,
-                dragSectionId: item.sectionId,
-            })
-        }
-    }, [])
+    const onDrop = useCallback(
+        (item: { id: string; taskIndex: number; sectionId: string }) => {
+            if (taskSection) {
+                reorderTask({
+                    taskId: item.id,
+                    orderingId: 1,
+                    dropSectionId: taskSection.id,
+                    dragSectionId: item.sectionId,
+                })
+            }
+        },
+        [taskSection?.id]
+    )
 
     const [isOver, drop] = useDrop(
         () => ({
@@ -137,7 +140,7 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection }: Secti
             drop: onDrop,
             canDrop: () => !!taskSection,
         }),
-        []
+        [taskSection, onDrop]
     )
 
     const dropRef = Platform.OS === 'web' ? (drop as Ref<View>) : undefined
