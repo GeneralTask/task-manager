@@ -60,6 +60,10 @@ func (generalTask GeneralTaskTaskSource) Reply(userID primitive.ObjectID, accoun
 	return errors.New("general task task does not support replies")
 }
 
+func (generalTask GeneralTaskTaskSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
+	return nil
+}
+
 func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	taskSection := constants.IDTaskSectionToday
 	if task.IDTaskSection != primitive.NilObjectID {

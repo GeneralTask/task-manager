@@ -170,6 +170,10 @@ func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, t
 	return errors.New("cannot reply to a PR")
 }
 
+func (gitPR GithubPRSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
+	return nil
+}
+
 func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, pullRequest TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
 }

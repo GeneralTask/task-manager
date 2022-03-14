@@ -363,6 +363,10 @@ func (jira JIRASource) Reply(userID primitive.ObjectID, accountID string, taskID
 	return errors.New("cannot reply to a JIRA task")
 }
 
+func (jira JIRASource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
+	return nil
+}
+
 func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
 }

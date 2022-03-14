@@ -13,6 +13,7 @@ type TaskSource interface {
 	GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult)
 	GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult)
 	Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error
+	SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error
 	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error
 	ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error
 	ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error

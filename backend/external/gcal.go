@@ -171,6 +171,10 @@ func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, acco
 	return errors.New("cannot reply to a calendar event")
 }
 
+func (googleCalendar GoogleCalendarSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
+	return nil
+}
+
 func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
 }

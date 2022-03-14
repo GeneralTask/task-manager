@@ -211,6 +211,10 @@ func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID stri
 	return errors.New("cannot reply to an asana task")
 }
 
+func (asanaTask AsanaTaskSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
+	return nil
+}
+
 func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("cannot create new asana task")
 }
