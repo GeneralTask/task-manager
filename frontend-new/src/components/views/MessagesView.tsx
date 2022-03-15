@@ -1,103 +1,74 @@
-import React, { useEffect, useRef, useState } from 'react'
-import {
-    NativeScrollEvent,
-    NativeSyntheticEvent,
-    Platform,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
-} from 'react-native'
+import React, { useCallback, useRef } from 'react'
+import { Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { MESSAGES_PER_PAGE } from '../../constants'
-import { useFetchMessagesQuery, useGetMessagesQuery } from '../../services/generalTaskApi'
 import { Colors, Flex, Screens, Shadows } from '../../styles'
-import { TMessage } from '../../utils/types'
 import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { SectionHeader } from '../molecules/Header'
 import Message from '../molecules/Message'
+import { useInfiniteQuery } from 'react-query'
+import getEnvVars from '../../environment'
+import Cookies from 'js-cookie'
+import { TMessage } from '../../utils/types'
+const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
-type TPageMap = { [key: number]: TMessage[] }
+//move to separate utils file
+const fetchInfiniteMessages = async ({ pageParam = 1 }) => {
+    const res = await fetch(`${REACT_APP_API_BASE_URL}/messages/v2/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${Cookies.get('authToken')}`,
+            'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
+            'Access-Control-Allow-Headers':
+                'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset',
+            'Access-Control-Allow-Methods': 'POST,OPTIONS,GET,PATCH,DELETE',
+            'Timezone-Offset': new Date().getTimezoneOffset().toString(),
+        },
+    })
+    return res.json()
+}
 
 const Messages = () => {
-    const [currentPage, setCurrentPage] = useState(1)
-    const [atEnd, setAtEnd] = useState(false)
-    const [pages, setPages] = useState<TPageMap>({})
-    const {
-        data: messages,
-        isLoading,
-        refetch,
-        isFetching,
-    } = useGetMessagesQuery({ only_unread: false, page: currentPage })
-    const { refetch: fetchMessages } = useFetchMessagesQuery()
-    const refetchWasLocal = useRef(false)
+    const { data, isLoading, fetchNextPage, refetch } = useInfiniteQuery('messages', fetchInfiniteMessages, {
+        getNextPageParam: (_, pages) => pages.length + 1,
+    })
 
-    //stops fetching animation on iOS from triggering when refetch is called in another component
-    if (!isFetching) refetchWasLocal.current = false
-    const onRefresh = () => {
-        refetchWasLocal.current = true
-        refetch()
-    }
-
-    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const viewHeight = event.nativeEvent.layoutMeasurement.height
-        const offsetY = event.nativeEvent.contentOffset.y
-        const contentHeight = event.nativeEvent.contentSize.height
-
-        if (offsetY + viewHeight >= contentHeight - 400) {
-            if (!isFetching && !refetchWasLocal.current && !atEnd) {
-                setCurrentPage(currentPage + 1)
-            }
-        }
-    }
-
-    useEffect(() => {
-        if (messages && !atEnd) {
-            if (messages.length < MESSAGES_PER_PAGE) {
-                setAtEnd(true)
-            }
-            setPages({ ...pages, [currentPage]: messages })
-        } else if (messages && atEnd) {
-            setAtEnd(false)
-            setPages({})
-            setCurrentPage(1)
-        }
-    }, [messages])
-
-    // Refetches messages every 30 seconds
-    useEffect(() => {
-        const interval = setInterval(() => fetchMessages(), 30000)
-        return () => clearInterval(interval)
-    }, [])
-
-    const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
+    const observer = useRef<IntersectionObserver>()
+    const lastElement = useCallback(
+        (node) => {
+            if (isLoading) return
+            if (observer.current) observer.current.disconnect()
+            observer.current = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    fetchNextPage()
+                }
+            })
+            if (node) observer.current.observe(node)
+        },
+        [isLoading]
+    )
 
     return (
-        <ScrollView
-            style={styles.container}
-            refreshControl={refreshControl}
-            onScroll={handleScroll}
-            scrollEventThrottle={500}
-        >
+        <ScrollView>
             <View style={styles.messagesContent}>
-                {isLoading ? (
-                    <Loading />
-                ) : (
-                    <View>
-                        <SectionHeader section="Messages" allowRefresh={true} refetch={refetch} />
-                        {Object.entries(pages).map(([, messages]) => {
-                            return messages.map((msg) => {
-                                return (
-                                    <TaskTemplate style={styles.shell} key={msg.id}>
-                                        <Message message={msg} setSheetTaskId={() => null} />
-                                    </TaskTemplate>
-                                )
-                            })
-                        })}
-                        <Text style={styles.endContent}>{atEnd ? `You've reached the bottom` : `Loading...`}</Text>
-                    </View>
-                )}
+                <SectionHeader section="Messages" allowRefresh={true} refetch={refetch} />
+                {data?.pages.map((page, index) => {
+                    return page?.map((message: TMessage, msgIndex: number) => {
+                        if (data.pages.length === index + 1 && page.length === msgIndex + 1) {
+                            return (
+                                <TaskTemplate ref={lastElement} style={styles.shell} key={message.id}>
+                                    <Message message={message} setSheetTaskId={() => null} />
+                                </TaskTemplate>
+                            )
+                        }
+                        return (
+                            <TaskTemplate style={styles.shell} key={message.id}>
+                                <Message message={message} setSheetTaskId={() => null} />
+                            </TaskTemplate>
+                        )
+                    })
+                })}
+                {isLoading && <Loading />}
             </View>
         </ScrollView>
     )

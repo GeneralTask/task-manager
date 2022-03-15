@@ -53,6 +53,7 @@
     "react-native-screens": "~3.10.1",
     "react-native-svg": "12.1.1",
     "react-native-web": "0.17.1",
+    "react-query": "^3.34.16",
     "react-redux": "^7.2.6",
     "react-router-dom": "6",
     "react-router-native": "^6.2.2",
