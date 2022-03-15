@@ -124,7 +124,8 @@ export const generalTaskApi = createApi({
                                 const task = section.tasks[j]
                                 if (task.id === data.id) {
                                     task.is_done = data.is_completed
-                                    if (data.is_completed) section.tasks.splice(j, 1)
+                                    // Don't actually remove tasks from the list, just mark them as done (Until refreshing)
+                                    // section.tasks.splice(j, 1)
                                     return
                                 }
                             }
@@ -282,4 +283,5 @@ export const {
     useGetSupportedTypesQuery,
     useDeleteLinkedAccountMutation,
     usePostFeedbackMutation,
+    useMarkMessageAsTaskMutation,
 } = generalTaskApi

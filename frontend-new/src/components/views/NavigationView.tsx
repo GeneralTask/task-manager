@@ -22,6 +22,11 @@ const SectionTitle = styled.Text<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
     margin-left: 9px;
+    flex: 1;
+`
+const SectionTitleItemCount = styled.Text<{ isSelected: boolean }>`
+    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
+    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
 `
 const AddSectionView = styled.View`
     display: flex;
@@ -62,10 +67,13 @@ const NavigationView = () => {
                                         sectionIdParam === section.id ? styles.linkContainerSelected : null,
                                     ]}
                                 >
-                                    <Icon size="small" source={require('../../assets/inbox.png')} />
+                                    <Icon size="small" source={icons['inbox']} />
                                     <SectionTitle isSelected={sectionIdParam === section.id}>
                                         {section.name}
                                     </SectionTitle>
+                                    <SectionTitleItemCount isSelected={sectionIdParam === section.id}>
+                                        {section.tasks.length}
+                                    </SectionTitleItemCount>
                                 </View>
                             </Link>
                         ))}
@@ -76,7 +84,7 @@ const NavigationView = () => {
                                     pathname === '/messages' ? styles.linkContainerSelected : null,
                                 ]}
                             >
-                                <Icon size="small" source={require('../../assets/inbox.png')} />
+                                <Icon size="small" source={icons['inbox']} />
                                 <SectionTitle isSelected={pathname === '/messages'}>Messages</SectionTitle>
                             </View>
                         </Link>
@@ -87,14 +95,14 @@ const NavigationView = () => {
                                     pathname === '/settings' ? styles.linkContainerSelected : null,
                                 ]}
                             >
-                                <Icon size="small" source={icons.gear} />
+                                <Icon size="small" source={icons['gear']} />
                                 <SectionTitle isSelected={pathname === '/settings'}>Settings</SectionTitle>
                             </View>
                         </Link>
                     </>
                 )}
                 <AddSectionView>
-                    <Icon size={'small'} source={require('../../assets/plus.png')} />
+                    <Icon size={'small'} source={icons['plus']} />
                     <AddSectionInputView>
                         <WebInput
                             value={sectionName}
