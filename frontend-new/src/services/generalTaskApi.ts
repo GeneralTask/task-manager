@@ -308,4 +308,5 @@ export const {
     useGetSupportedTypesQuery,
     useDeleteLinkedAccountMutation,
     usePostFeedbackMutation,
+    useModifyTaskSectionMutation,
 } = generalTaskApi

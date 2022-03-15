@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Platform } from 'react-native'
 import styled from 'styled-components/native'
-import { useDeleteTaskSectionMutation } from '../../services/generalTaskApi'
+import { useDeleteTaskSectionMutation, useModifyTaskSectionMutation } from '../../services/generalTaskApi'
 import { Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
@@ -16,6 +16,10 @@ const HeaderText = styled.Text`
     margin-right: ${Spacing.margin.small}px;
     font-size: ${Typography.xLarge.fontSize}px;
 `
+const HeaderTextEditable = styled.TextInput`
+    margin-right: ${Spacing.margin.small}px;
+    font-size: ${Typography.xLarge.fontSize}px;
+`
 const TouchableIcon = styled.TouchableOpacity`
     margin-right: ${Spacing.margin.small}px;
 `
@@ -27,6 +31,9 @@ interface SectionHeaderProps {
 }
 export const SectionHeader = (props: SectionHeaderProps) => {
     const [deleteTaskSection] = useDeleteTaskSectionMutation()
+    const [modifyTaskSection] = useModifyTaskSectionMutation()
+    const [isEditingTitle, setIsEditingTitle] = useState(false)
+    const [sectionName, setSectionName] = useState(props.sectionName)
 
     const tempSectionIds = [
         '000000000000000000000001',
@@ -39,18 +46,35 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const handleDelete = async (id: string | undefined) => {
         if (id) deleteTaskSection({ id: id })
     }
+    const handleChangeSectionName = async (id: string | undefined, name: string) => {
+        if (id) modifyTaskSection({ id: id, name: name })
+        setIsEditingTitle(false)
+    }
     return (
         <SectionHeaderContainer>
-            <HeaderText>{props.sectionName}</HeaderText>
+            {isEditingTitle ? (
+                <HeaderTextEditable
+                    value={sectionName}
+                    onChangeText={(val) => setSectionName(val)}
+                    onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
+                />
+            ) : (
+                <HeaderText>{props.sectionName}</HeaderText>
+            )}
             {props.allowRefresh && Platform.OS === 'web' && (
                 <TouchableIcon onPress={props.refetch}>
                     <Icon size={'small'} source={icons.spinner}></Icon>
                 </TouchableIcon>
             )}
             {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) && (
-                <TouchableIcon onPress={() => handleDelete(props.taskSectionId)}>
-                    <Icon size={'small'} source={icons.trash}></Icon>
-                </TouchableIcon>
+                <>
+                    <TouchableIcon onPress={() => handleDelete(props.taskSectionId)}>
+                        <Icon size={'small'} source={icons['trash']}></Icon>
+                    </TouchableIcon>
+                    <TouchableIcon onPress={() => setIsEditingTitle(true)}>
+                        <Icon size={'small'} source={icons['pencil']}></Icon>
+                    </TouchableIcon>
+                </>
             )}
         </SectionHeaderContainer>
     )
