@@ -1,9 +1,10 @@
 import { DropProps, ItemTypes, TTask } from '../../utils/types'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components/native'
-import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Colors } from '../../styles'
+import TaskTemplate from '../atoms/TaskTemplate'
 import { View } from 'react-native'
 import { useReorderTaskMutation } from '../../services/generalTaskApi'
 
@@ -96,11 +97,13 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
     }, [])
 
     return (
-        <DropOverlay ref={dropRef}>
-            <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.Up} />
-            {children}
-            <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.Down} />
-        </DropOverlay>
+        <TaskTemplate>
+            <DropOverlay ref={dropRef}>
+                <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.Up} />
+                {children}
+                <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.Down} />
+            </DropOverlay>
+        </TaskTemplate>
     )
 }
 

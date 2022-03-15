@@ -10,7 +10,7 @@ import EventBanner from '../molecules/EventBanner'
 import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
-import TaskTemplate from '../atoms/TaskTemplate'
+import TaskDropContainer from '../molecules/TaskDropContainer'
 import { getSectionById } from '../../utils/task'
 
 const TaskSection = () => {
@@ -56,7 +56,12 @@ const TaskSection = () => {
                         {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                         {currentSection.tasks.map((task, index) => {
                             return (
-                                <TaskTemplate key={index}>
+                                <TaskDropContainer
+                                    key={index}
+                                    task={task}
+                                    taskIndex={index}
+                                    sectionId={currentSection.id}
+                                >
                                     <Task
                                         task={task}
                                         setSheetTaskId={() => null}
@@ -64,7 +69,7 @@ const TaskSection = () => {
                                         index={index}
                                         sectionId={currentSection.id}
                                     />
-                                </TaskTemplate>
+                                </TaskDropContainer>
                             )
                         })}
                     </View>
