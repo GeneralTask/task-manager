@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
         position: 'relative',
         height: 48,
         borderRadius: 12,
+        paddingHorizontal: 12,
     },
 })
 

@@ -5,7 +5,7 @@ import { TTask } from '../../utils/types'
 import Handle from '../atoms/GrayHandle'
 import { Icon } from '../atoms/Icon'
 import { Subtitle } from '../atoms/subtitle/Subtitle'
-import { Title } from '../atoms/title/Title'
+import { TitleMedium } from '../atoms/title/Title'
 import { Divider } from '../atoms/SectionDivider'
 import { GraySubtitle } from '../atoms/subtitle/GraySubtitle'
 import { TextInput } from 'react-native-gesture-handler'
@@ -29,7 +29,7 @@ const EditSheet = ({ task, setText: propsSetText }: EditSheetProps) => {
                     <Handle />
                 </View>
                 <View style={styles.paddedContainer}>
-                    <Title style={styles.title}>Edit Task</Title>
+                    <TitleMedium>Edit Task</TitleMedium>
                     <View style={styles.subtitleContainer}>
                         <Icon size="small" />
                         <Subtitle style={styles.subtitle}>{task.title}</Subtitle>
@@ -40,23 +40,28 @@ const EditSheet = ({ task, setText: propsSetText }: EditSheetProps) => {
                     <View style={styles.detailsContainer}>
                         <GraySubtitle>Details</GraySubtitle>
                         <TextInput
-                            onSubmitEditing={() => modifyTask({
-                                id: task.id,
-                                body: text
-                            })}
-                            onChangeText={text => {
+                            onSubmitEditing={() =>
+                                modifyTask({
+                                    id: task.id,
+                                    body: text,
+                                })
+                            }
+                            onChangeText={(text) => {
                                 setText(text)
                                 propsSetText(text)
                             }}
                             ref={inputRef}
                             numberOfLines={20}
                             multiline={true}
-                            style={{ height: '100%', textAlignVertical: 'top', }}
-                            placeholder='Add Details'>{text}</TextInput>
+                            style={{ height: '100%', textAlignVertical: 'top' }}
+                            placeholder="Add Details"
+                        >
+                            {text}
+                        </TextInput>
                     </View>
                 </View>
             </View>
-        </View >
+        </View>
     )
 }
 
@@ -70,7 +75,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
     },
     handleContainer: {
-        marginTop: 12
+        marginTop: 12,
     },
     title: {
         marginTop: 24,
@@ -92,7 +97,7 @@ const styles = StyleSheet.create({
     textFocusArea: {
         flexGrow: 1,
         height: '100%',
-    }
+    },
 })
 
 export default EditSheet

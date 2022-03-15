@@ -14,7 +14,7 @@ const DetailsViewContainer = styled.View`
     flex-direction: column;
     background-color: ${Colors.gray._50};
     width: 400px;
-    margin-top: ${Spacing.margin.large}px;
+    margin-top: ${Spacing.margin.xLarge}px;
     padding: ${Spacing.padding.medium}px;
 `
 const TaskTitleContainer = styled.View`
@@ -74,8 +74,8 @@ const DetailsView = () => {
         if (timeEstimateShown) setDatePickerShown(false)
     }, [timeEstimateShown])
 
-    const section = taskSections?.find(section => section.id === params.section)
-    const task = section?.tasks.find(task => task.id === params.task)
+    const section = taskSections?.find((section) => section.id === params.section)
+    const task = section?.tasks.find((task) => task.id === params.task)
 
     useEffect(() => {
         if (!task) return
@@ -92,24 +92,42 @@ const DetailsView = () => {
         modifyTask({ id: task.id, title: title, body: body })
     }
 
-    return (
-        task == null || isLoading ? (null) : (
-            <DetailsViewContainer>
-                <TaskTitleContainer>
-                    <Icon source={logos[task.source.logo_v2]} size="small" />
-                    <TitleInput ref={inputRef} type="text" onKeyDown={handleKeyDown} value={title} onChange={(e) => setTitle(e.target.value)} onBlur={handleBlur} />
-                    <ActionButton onPress={() => setDatePickerShown(!datePickerShown)}>
-                        <Icon source={icons['calendar_blank']} size="small" />
-                        {datePickerShown && <DatePicker task_id={task.id} due_date={task.due_date} closeDatePicker={() => setDatePickerShown(false)} />}
-                    </ActionButton>
-                    <ActionButton onPress={() => setTimeEstimateShown(!timeEstimateShown)}>
-                        <Icon source={icons['timer']} size="small" />
-                        {timeEstimateShown && <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setTimeEstimateShown(false)} />}
-                    </ActionButton>
-                </TaskTitleContainer>
-                <BodyTextArea placeholder='Add task details' value={body} onChange={(e) => setBody(e.target.value)} onBlur={handleBlur} />
-            </DetailsViewContainer>
-        )
+    return task == null || isLoading ? null : (
+        <DetailsViewContainer>
+            <TaskTitleContainer>
+                <Icon source={logos[task.source.logo_v2]} size="small" />
+                <TitleInput
+                    ref={inputRef}
+                    type="text"
+                    onKeyDown={handleKeyDown}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    onBlur={handleBlur}
+                />
+                <ActionButton onPress={() => setDatePickerShown(!datePickerShown)}>
+                    <Icon source={icons['calendar_blank']} size="small" />
+                    {datePickerShown && (
+                        <DatePicker
+                            task_id={task.id}
+                            due_date={task.due_date}
+                            closeDatePicker={() => setDatePickerShown(false)}
+                        />
+                    )}
+                </ActionButton>
+                <ActionButton onPress={() => setTimeEstimateShown(!timeEstimateShown)}>
+                    <Icon source={icons['timer']} size="small" />
+                    {timeEstimateShown && (
+                        <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setTimeEstimateShown(false)} />
+                    )}
+                </ActionButton>
+            </TaskTitleContainer>
+            <BodyTextArea
+                placeholder="Add task details"
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                onBlur={handleBlur}
+            />
+        </DetailsViewContainer>
     )
 }
 

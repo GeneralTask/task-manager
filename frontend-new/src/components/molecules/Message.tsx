@@ -1,8 +1,9 @@
-import React from 'react'
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Colors, Flex, Shadows } from '../../styles'
-import { TMessage } from '../../utils/types'
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
+
 import { Icon } from '../atoms/Icon'
+import React from 'react'
+import { TMessage } from '../../utils/types'
 
 interface TaskProps {
     message: TMessage
@@ -16,11 +17,13 @@ const Message = ({ message, setSheetTaskId }: TaskProps) => {
         }
     }
     return (
-        <Pressable style={[styles.container, styles.shadow]} onPress={onPress} >
+        <Pressable style={[styles.container, styles.shadow]} onPress={onPress}>
             <View style={styles.iconContainer}>
                 <Icon size="small" />
             </View>
-            <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{message.title}</Text>
+            <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
+                {message.title}
+            </Text>
         </Pressable>
     )
 }
@@ -46,7 +49,7 @@ const styles = StyleSheet.create({
         marginLeft: 9,
         flexShrink: 1,
         flexWrap: 'wrap',
-    }
+    },
 })
 
 export default Message
