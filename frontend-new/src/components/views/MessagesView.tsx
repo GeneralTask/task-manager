@@ -29,9 +29,13 @@ const fetchInfiniteMessages = async ({ pageParam = 1 }) => {
 }
 
 const Messages = () => {
-    const { data, isLoading, fetchNextPage, refetch } = useInfiniteQuery('messages', fetchInfiniteMessages, {
-        getNextPageParam: (_, pages) => pages.length + 1,
-    })
+    const { data, isLoading, isFetching, fetchNextPage, refetch } = useInfiniteQuery(
+        'messages',
+        fetchInfiniteMessages,
+        {
+            getNextPageParam: (_, pages) => pages.length + 1,
+        }
+    )
 
     const observer = useRef<IntersectionObserver>()
     const lastElement = useCallback(
@@ -68,7 +72,7 @@ const Messages = () => {
                         )
                     })
                 })}
-                {isLoading && <Loading />}
+                {(isLoading || isFetching) && <Loading />}
             </View>
         </ScrollView>
     )
