@@ -4,14 +4,14 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components/native'
 
 import { Colors } from '../../styles'
-import TaskTemplate from '../atoms/TaskTemplate'
 import { View } from 'react-native'
 import { useReorderTaskMutation } from '../../services/generalTaskApi'
 
 const DropOverlay = styled.View`
     width: 100%;
-    height: 100%;
+    height: 60px;
     display: flex;
+    flex-direction: column;
     align-items: center;
 `
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
@@ -97,13 +97,11 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
     }, [])
 
     return (
-        <TaskTemplate>
-            <DropOverlay ref={dropRef}>
-                <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.Up} />
-                {children}
-                <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.Down} />
-            </DropOverlay>
-        </TaskTemplate>
+        <DropOverlay ref={dropRef}>
+            <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.Up} />
+            {children}
+            <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.Down} />
+        </DropOverlay>
     )
 }
 

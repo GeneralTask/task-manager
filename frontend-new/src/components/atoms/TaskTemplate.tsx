@@ -1,6 +1,5 @@
 import { StyleSheet, View, ViewStyle } from 'react-native'
 
-import { Flex } from '../../styles'
 import React from 'react'
 
 interface TaskTemplateProps {
@@ -9,19 +8,16 @@ interface TaskTemplateProps {
     children: React.ReactNode | React.ReactNode[]
 }
 const TaskTemplate = (props: TaskTemplateProps) => {
-    return (
-        <View style={[props.style, styles.container]}>
-            {props.children}
-        </View>
-    )
+    return <View style={[props.style, styles.container]}>{props.children}</View>
 }
 
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        height: 60,
-        ...Flex.verticalAlign,
-    }
+        position: 'relative',
+        height: 48,
+        borderRadius: 12,
+    },
 })
 
 export default TaskTemplate

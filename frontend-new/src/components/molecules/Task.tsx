@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
+import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import { useDrag } from 'react-dnd'
 
@@ -48,26 +49,30 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
     const dragRef = Platform.OS === 'web' ? (drag as Ref<View>) : undefined
 
     return (
-        <Pressable style={[styles.container, styles.shadow]} onPress={onPress} ref={dragPreviewRef}>
-            {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
-            <CompleteButton taskId={task.id} isComplete={task.is_done} />
-            <View style={styles.iconContainer}>
-                <Icon source={logos[task.source.logo_v2]} size="small" />
-            </View>
-            <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
-                {task.title}
-            </Text>
-        </Pressable>
+        <TaskTemplate style={styles.templateMargin}>
+            <Pressable style={[styles.container, styles.shadow]} onPress={onPress} ref={dragPreviewRef}>
+                {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
+                <CompleteButton taskId={task.id} isComplete={task.is_done} />
+                <View style={styles.iconContainer}>
+                    <Icon source={logos[task.source.logo_v2]} size="small" />
+                </View>
+                <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
+                    {task.title}
+                </Text>
+            </Pressable>
+        </TaskTemplate>
     )
 }
 
 const styles = StyleSheet.create({
+    templateMargin: {
+        marginVertical: 6,
+    },
     container: {
         ...Flex.row,
         alignItems: 'center',
-        marginVertical: 5,
         width: '100%',
-        height: 50,
+        height: '100%',
         backgroundColor: Colors.white,
         borderRadius: 12,
         paddingHorizontal: 8,
