@@ -85,7 +85,7 @@ const Messages = () => {
                     <Loading />
                 ) : (
                     <View>
-                        <SectionHeader section="Messages" allowRefresh={true} refetch={refetch} />
+                        <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetch} />
                         {Object.entries(pages).map(([, messages]) => {
                             return messages.map((msg) => {
                                 return (

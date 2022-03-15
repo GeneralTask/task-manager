@@ -44,7 +44,7 @@ const TaskSection = () => {
                 ) : (
                     <View>
                         <SectionHeader
-                            section={currentSection.name}
+                            sectionName={currentSection.name}
                             allowRefresh={true}
                             refetch={refetch}
                             taskSectionId={currentSection.id}

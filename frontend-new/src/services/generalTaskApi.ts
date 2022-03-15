@@ -189,6 +189,32 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
+        modifyTaskSection: builder.mutation<void, { id: string, name: string }>({
+            query: (data) => ({
+                url: `sections/modify/${data.id}/`,
+                method: 'PATCH',
+                body: { name: data.name },
+            }),
+            async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                        for (let i = 0; i < sections.length; i++) {
+                            const section = sections[i]
+                            if (section.id === data.id) {
+                                section.name = data.name
+                                return
+                            }
+                        }
+                    })
+                )
+                try {
+                    await queryFulfilled
+                    dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
+                } catch {
+                    result.undo()
+                }
+            }
+        }),
         getMessages: builder.query<TMessage[], { only_unread: boolean, page: number }>({
             query: (data) => ({
                 url: 'messages/v2/',

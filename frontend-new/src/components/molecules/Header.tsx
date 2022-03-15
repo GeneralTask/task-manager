@@ -20,7 +20,7 @@ const TouchableIcon = styled.TouchableOpacity`
     margin-right: ${Spacing.margin.small}px;
 `
 interface SectionHeaderProps {
-    section: string
+    sectionName: string
     allowRefresh: boolean
     refetch: () => void
     taskSectionId?: string
@@ -41,7 +41,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     }
     return (
         <SectionHeaderContainer>
-            <HeaderText>{props.section}</HeaderText>
+            <HeaderText>{props.sectionName}</HeaderText>
             {props.allowRefresh && Platform.OS === 'web' && (
                 <TouchableIcon onPress={props.refetch}>
                     <Icon size={'small'} source={icons.spinner}></Icon>
