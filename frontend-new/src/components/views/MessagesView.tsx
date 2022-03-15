@@ -1,14 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
-import {
-    NativeScrollEvent,
-    NativeSyntheticEvent,
-    Platform,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
-} from 'react-native'
+import React, { useCallback, useEffect, useRef } from 'react'
+import { Platform, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { MESSAGES_PER_PAGE } from '../../constants'
 import { useFetchMessagesQuery, useGetMessagesQuery } from '../../services/generalTaskApi'
 import { Colors, Flex, Screens, Shadows } from '../../styles'
@@ -18,20 +9,52 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import { SectionHeader } from '../molecules/Header'
 import Message from '../molecules/Message'
 
-type TPageMap = { [key: number]: TMessage[] }
+// type TPageMap = { [key: number]: TMessage[] }
+type TPageArray = TMessage[][]
 
 const Messages = () => {
-    const [currentPage, setCurrentPage] = useState(1)
-    const [atEnd, setAtEnd] = useState(false)
-    const [pages, setPages] = useState<TPageMap>({})
+    // const [currentPage, setCurrentPage] = useState(1)
+    const currentPageRef = useRef(1)
     const {
         data: messages,
         isLoading,
         refetch,
         isFetching,
-    } = useGetMessagesQuery({ only_unread: false, page: currentPage })
+    } = useGetMessagesQuery({ only_unread: false, page: currentPageRef.current })
+    // const [atEnd, setAtEnd] = useState(false)
+    const atEndRef = useRef(false)
+    // const [pages, setPages] = useState<TPageArray>([])
+    const pagesRef = useRef<TPageArray>([])
     const { refetch: fetchMessages } = useFetchMessagesQuery()
     const refetchWasLocal = useRef(false)
+
+    const isLoadingRef = useRef(isLoading)
+
+    useEffect(() => {
+        isLoadingRef.current = isLoading
+    }, [isLoading])
+
+    useEffect(() => {
+        console.log(messages)
+        console.log(pagesRef.current)
+    })
+
+    const observer = useRef<IntersectionObserver>()
+
+    const bottomOfPageRef = useCallback(
+        (node) => {
+            if (isLoading) return
+            if (observer.current) observer.current.disconnect()
+            observer.current = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && !atEndRef.current) {
+                    currentPageRef.current++
+                    refetch()
+                }
+            })
+            if (node) observer.current.observe(node)
+        },
+        [atEndRef.current]
+    )
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
@@ -39,63 +62,82 @@ const Messages = () => {
         refetchWasLocal.current = true
         refetch()
     }
-
-    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const viewHeight = event.nativeEvent.layoutMeasurement.height
-        const offsetY = event.nativeEvent.contentOffset.y
-        const contentHeight = event.nativeEvent.contentSize.height
-
-        if (offsetY + viewHeight >= contentHeight - 400) {
-            if (!isFetching && !refetchWasLocal.current && !atEnd) {
-                setCurrentPage(currentPage + 1)
-            }
-        }
-    }
+    // Refetches messages every 30 seconds
+    // useEffect(() => {
+    //     const interval = setInterval(() => fetchMessages(), 30000)
+    //     return () => clearInterval(interval)
+    // }, [])
 
     useEffect(() => {
-        if (messages && !atEnd) {
+        if (messages && !atEndRef.current) {
+            console.log('passed first if')
+            console.log('messages init', messages)
             if (messages.length < MESSAGES_PER_PAGE) {
-                setAtEnd(true)
+                atEndRef.current = true
             }
-            setPages({ ...pages, [currentPage]: messages })
-        } else if (messages && atEnd) {
-            setAtEnd(false)
-            setPages({})
-            setCurrentPage(1)
+            // setPages({ ...pages, [currentPageRef.current]: messages })
+            pagesRef.current[currentPageRef.current] = messages
+        } else if (messages && atEndRef.current) {
+            atEndRef.current = false
+            // setPages([])
+            pagesRef.current = []
+            console.log('RESET CURRENT PAGE') //TODO: remove
+            currentPageRef.current = 1
         }
     }, [messages])
 
-    // Refetches messages every 30 seconds
-    useEffect(() => {
-        const interval = setInterval(() => fetchMessages(), 30000)
-        return () => clearInterval(interval)
-    }, [])
+    // useEffect(() => {
+    //     console.log(currentPageRef.current)
+    //     let observer = new IntersectionObserver(
+    //         ([entry]) => {
+    //             console.log('checking for intersection') //TODO: remove
+    //             if (entry.isIntersecting && !isFetching && !refetchWasLocal.current && !atEndRef.current) {
+    //                 console.log('intersection detected') //TODO: remove
+    //                 console.log('current page is currently', currentPageRef.current) //TODO: remove
+    //                 currentPageRef.current = currentPageRef.current + 1
+    //                 refetch()
+    //             }
+    //         }
+    //     )
+    //     if (bottomOfPageRef.current) {
+    //         observer.observe(bottomOfPageRef.current)
+    //     }
+    //     return () => observer.disconnect()
+    // }, [bottomOfPageRef.current])
 
     const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
 
+    const messagesArray: JSX.Element[] = []
+    pagesRef.current.map((messages, i) => {
+        return messages.map((msg, j) => {
+            if (i === pagesRef.current.length - 1 && j === messages.length - 1) {
+                messagesArray.push(
+                    <TaskTemplate style={styles.shell} key={msg.id} ref={bottomOfPageRef}>
+                        <Message message={msg} setSheetTaskId={() => null} />
+                    </TaskTemplate>
+                )
+            } else {
+                messagesArray.push(
+                    <TaskTemplate style={styles.shell} key={msg.id}>
+                        <Message message={msg} setSheetTaskId={() => null} />
+                    </TaskTemplate>
+                )
+            }
+        })
+    })
+
     return (
-        <ScrollView
-            style={styles.container}
-            refreshControl={refreshControl}
-            onScroll={handleScroll}
-            scrollEventThrottle={500}
-        >
+        <ScrollView style={styles.container} refreshControl={refreshControl}>
             <View style={styles.messagesContent}>
                 {isLoading ? (
                     <Loading />
                 ) : (
                     <View>
                         <SectionHeader section="Messages" allowRefresh={true} refetch={refetch} />
-                        {Object.entries(pages).map(([, messages]) => {
-                            return messages.map((msg) => {
-                                return (
-                                    <TaskTemplate style={styles.shell} key={msg.id}>
-                                        <Message message={msg} setSheetTaskId={() => null} />
-                                    </TaskTemplate>
-                                )
-                            })
-                        })}
-                        <Text style={styles.endContent}>{atEnd ? `You've reached the bottom` : `Loading...`}</Text>
+                        {messagesArray}
+                        <Text style={styles.endContent}>
+                            {atEndRef.current ? `You've reached the bottom` : `Loading...`}
+                        </Text>
                     </View>
                 )}
             </View>
