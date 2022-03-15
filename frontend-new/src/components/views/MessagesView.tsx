@@ -1,34 +1,17 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { Platform, ScrollView, StyleSheet, View } from 'react-native'
-import { MESSAGES_PER_PAGE } from '../../constants'
+import { useInfiniteQuery } from 'react-query'
+import { useFetchMessagesQuery } from '../../services/generalTaskApi'
+import { fetchInfiniteMessages } from '../../services/queryUtils'
 import { Colors, Flex, Screens, Shadows } from '../../styles'
+import { TMessage } from '../../utils/types'
 import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { SectionHeader } from '../molecules/Header'
 import Message from '../molecules/Message'
-import { useInfiniteQuery } from 'react-query'
-import getEnvVars from '../../environment'
-import Cookies from 'js-cookie'
-import { TMessage } from '../../utils/types'
-const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
-
-//move to separate utils file
-const fetchInfiniteMessages = async ({ pageParam = 1 }) => {
-    const res = await fetch(`${REACT_APP_API_BASE_URL}/messages/v2/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}`, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${Cookies.get('authToken')}`,
-            'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
-            'Access-Control-Allow-Headers':
-                'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset',
-            'Access-Control-Allow-Methods': 'POST,OPTIONS,GET,PATCH,DELETE',
-            'Timezone-Offset': new Date().getTimezoneOffset().toString(),
-        },
-    })
-    return res.json()
-}
 
 const Messages = () => {
+    const { refetch: refetchMessages } = useFetchMessagesQuery()
     const { data, isLoading, isFetching, fetchNextPage, refetch } = useInfiniteQuery(
         'messages',
         fetchInfiniteMessages,
@@ -38,9 +21,9 @@ const Messages = () => {
     )
 
     const observer = useRef<IntersectionObserver>()
-    const lastElement = useCallback(
+    const lastElementRef = useCallback(
         (node) => {
-            if (isLoading) return
+            if (isLoading || isFetching) return
             if (observer.current) observer.current.disconnect()
             observer.current = new IntersectionObserver((entries) => {
                 if (entries[0].isIntersecting) {
@@ -52,6 +35,14 @@ const Messages = () => {
         [isLoading]
     )
 
+    // Tell the backend to refetch messages from the server every 60 seconds
+    useEffect(() => {
+        const interval = setInterval(() => {
+            refetchMessages()
+        }, 60000)
+        return () => clearInterval(interval)
+    }, [])
+
     return (
         <ScrollView>
             <View style={styles.messagesContent}>
@@ -60,7 +51,7 @@ const Messages = () => {
                     return page?.map((message: TMessage, msgIndex: number) => {
                         if (data.pages.length === index + 1 && page.length === msgIndex + 1) {
                             return (
-                                <TaskTemplate ref={lastElement} style={styles.shell} key={message.id}>
+                                <TaskTemplate ref={lastElementRef} style={styles.shell} key={message.id}>
                                     <Message message={message} setSheetTaskId={() => null} />
                                 </TaskTemplate>
                             )

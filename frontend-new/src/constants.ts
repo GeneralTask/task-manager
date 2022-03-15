@@ -8,7 +8,7 @@ export const ScreenDimensions = {
 }
 
 // API Constants
-export const MESSAGES_PER_PAGE = 10
+export const MESSAGES_PER_PAGE = 50
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
