@@ -15,13 +15,14 @@ interface NavigationLinkProps {
     title: string
     icon?: NodeRequire | ImageSourcePropType
     taskSection?: TTaskSection
+    droppable?: boolean
 }
-const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection }: NavigationLinkProps) => {
+const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppable }: NavigationLinkProps) => {
     const [reorderTask] = useReorderTaskMutation()
 
     const onDrop = useCallback(
         (item: { id: string; taskIndex: number; sectionId: string }) => {
-            if (taskSection) {
+            if (taskSection && droppable) {
                 reorderTask({
                     taskId: item.id,
                     orderingId: 1,
@@ -37,15 +38,17 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection }: Navig
         () => ({
             accept: ItemTypes.TASK,
             collect: (monitor) => {
-                return !!(taskSection && monitor.isOver())
+                return !!(taskSection && droppable && monitor.isOver())
             },
             drop: onDrop,
-            canDrop: () => !!taskSection,
+            canDrop: () => !!(taskSection && droppable),
         }),
         [taskSection, onDrop]
     )
 
     const dropRef = Platform.OS === 'web' ? (drop as Ref<View>) : undefined
+
+    console.log(taskSection?.is_done, 'taskSection', taskSection)
 
     return (
         <Link style={linkStyle} to={link}>

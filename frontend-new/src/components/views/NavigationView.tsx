@@ -53,7 +53,8 @@ const NavigationView = () => {
                                 title={section.name}
                                 icon={icons.inbox}
                                 isCurrentPage={sectionIdParam === section.id}
-                                taskSection={!section.is_done ? section : undefined}
+                                taskSection={section}
+                                droppable={!section.is_done}
                             />
                         ))}
                         <NavigationLink
