@@ -1,9 +1,11 @@
-import { Colors, Flex, Shadows } from '../../styles'
+import React, { Ref, useRef } from 'react'
+import { useDrag } from 'react-dnd'
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
-
+import { Colors, Flex, Shadows } from '../../styles'
+import { Indices, ItemTypes, TMessage } from '../../utils/types'
+import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
+import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
-import React from 'react'
-import { TMessage } from '../../utils/types'
 
 interface TaskProps {
     message: TMessage
@@ -16,8 +18,27 @@ const Message = ({ message, setSheetTaskId }: TaskProps) => {
             setSheetTaskId(message.id)
         }
     }
+
+    const isDraggable = true
+
+    const indicesRef = useRef<Indices>()
+
+    const [, drag, dragPreview] = useDrag(() => ({
+        type: ItemTypes.TASK,
+        item: { id: message.id, indicesRef: indicesRef },
+        collect: (monitor) => {
+            const isDragging = !!monitor.isDragging()
+            return { opacity: isDragging ? 0.5 : 1 }
+        },
+    }))
+
+    const dragPreviewRef = Platform.OS === 'web' ? (dragPreview as Ref<View>) : undefined
+    const dragRef = Platform.OS === 'web' ? (drag as Ref<View>) : undefined
+
     return (
-        <Pressable style={[styles.container, styles.shadow]} onPress={onPress}>
+        <Pressable style={[styles.container, styles.shadow]} onPress={onPress} ref={dragPreviewRef}>
+            {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
+            <MarkAsTaskButton isTask={false} messageId={message.id} />
             <View style={styles.iconContainer}>
                 <Icon size="small" />
             </View>

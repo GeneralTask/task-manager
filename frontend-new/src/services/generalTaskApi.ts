@@ -1,12 +1,12 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import Cookies from 'js-cookie'
+import { Platform } from 'react-native'
+import { MESSAGES_PER_PAGE } from '../constants'
+import getEnvVars from '../environment'
+import type { RootState } from '../redux/store'
 import { TEvent, TLinkedAccount, TMessage, TSupportedTypes, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import Cookies from 'js-cookie'
-import { MESSAGES_PER_PAGE } from '../constants'
-import { Platform } from 'react-native'
-import type { RootState } from '../redux/store'
-import getEnvVars from '../environment'
 
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
@@ -127,7 +127,8 @@ export const generalTaskApi = createApi({
                                 const task = section.tasks[j]
                                 if (task.id === data.id) {
                                     task.is_done = data.is_completed
-                                    if (data.is_completed) section.tasks.splice(j, 1)
+                                    // Don't actually remove tasks from the list, just mark them as done (Until refreshing)
+                                    // section.tasks.splice(j, 1)
                                     return
                                 }
                             }
@@ -377,4 +378,5 @@ export const {
     useDeleteLinkedAccountMutation,
     usePostFeedbackMutation,
     useModifyTaskSectionMutation,
+    useMarkMessageAsTaskMutation,
 } = generalTaskApi

@@ -10,38 +10,40 @@ import LandingScreen from './src/screens/LandingScreen'
 import TasksScreen from './src/screens/TasksScreen'
 import PrivateOutlet from './src/services/PrivateOutlet'
 import { Navigate, Outlet, Route, Router, Routes } from './src/services/routing'
-
+import { QueryClientProvider, QueryClient } from 'react-query'
 const App = () => {
-  const backend = Platform.OS === 'web' ? HTML5Backend : TouchBackend
-  useFonts({
-    'Switzer-Variable': require('./src/assets/fonts/fonts/Switzer-Variable.ttf'),
-  })
-  return (
-    <Provider store={store}>
-      <DndProvider backend={backend}>
-        <Router>
-          <Routes>
-            <Route path="*" element={<Navigate to="/" />} />
-            <Route path="/" element={<Outlet />} >
-              <Route index element={<LandingScreen />} />
-              <Route path="tasks" element={<PrivateOutlet />}>
-                <Route index element={<TasksScreen />} />
-                <Route path=":section" element={<TasksScreen />} >
-                  <Route path=":task" element={<TasksScreen />} />
-                </Route>
-              </Route>
-              <Route path="messages" element={<PrivateOutlet />}>
-                <Route index element={<TasksScreen />} />
-              </Route>
-              <Route path="settings" element={<PrivateOutlet />}>
-                <Route index element={<TasksScreen />} />
-              </Route>
-            </Route>
-          </Routes>
-        </Router>
-      </DndProvider>
-    </Provider >
-  )
+    const backend = Platform.OS === 'web' ? HTML5Backend : TouchBackend
+    useFonts({
+        'Switzer-Variable': require('./src/assets/fonts/fonts/Switzer-Variable.ttf'),
+    })
+    return (
+        <QueryClientProvider client={new QueryClient()}>
+            <Provider store={store}>
+                <DndProvider backend={backend}>
+                    <Router>
+                        <Routes>
+                            <Route path="*" element={<Navigate to="/" />} />
+                            <Route path="/" element={<Outlet />}>
+                                <Route index element={<LandingScreen />} />
+                                <Route path="tasks" element={<PrivateOutlet />}>
+                                    <Route index element={<TasksScreen />} />
+                                    <Route path=":section" element={<TasksScreen />}>
+                                        <Route path=":task" element={<TasksScreen />} />
+                                    </Route>
+                                </Route>
+                                <Route path="messages" element={<PrivateOutlet />}>
+                                    <Route index element={<TasksScreen />} />
+                                </Route>
+                                <Route path="settings" element={<PrivateOutlet />}>
+                                    <Route index element={<TasksScreen />} />
+                                </Route>
+                            </Route>
+                        </Routes>
+                    </Router>
+                </DndProvider>
+            </Provider>
+        </QueryClientProvider>
+    )
 }
 
 export default App
