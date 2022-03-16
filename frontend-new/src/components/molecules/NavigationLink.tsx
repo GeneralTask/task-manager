@@ -1,14 +1,13 @@
-import { Colors, Flex } from '../../styles'
-import { ImageSourcePropType, Platform, StyleSheet, View, ViewStyle } from 'react-native'
-import { ItemTypes, TTaskSection } from '../../utils/types'
 import React, { CSSProperties, Ref, useCallback } from 'react'
-
-import { Icon } from '../atoms/Icon'
+import { useDrop } from 'react-dnd'
+import { ImageSourcePropType, Platform, StyleSheet, View, ViewStyle } from 'react-native'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components/native'
-import { useDrop } from 'react-dnd'
 import { useReorderTaskMutation } from '../../services/generalTaskApi'
+import { Colors, Flex } from '../../styles'
 import { weight } from '../../styles/typography'
+import { ItemTypes, TTaskSection } from '../../utils/types'
+import { Icon } from '../atoms/Icon'
 
 interface NavigationLinkProps {
     isCurrentPage: boolean
@@ -60,6 +59,7 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection }: Navig
             >
                 <Icon size="small" source={icon} />
                 <SectionTitle isSelected={isCurrentPage}>{title}</SectionTitle>
+                <SectionTitleItemCount isSelected={isCurrentPage}>{taskSection?.tasks.length}</SectionTitleItemCount>
             </View>
         </Link>
     )
@@ -95,6 +95,11 @@ const SectionTitle = styled.Text<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
     margin-left: 9px;
+    flex: 1;
+`
+const SectionTitleItemCount = styled.Text<{ isSelected: boolean }>`
+    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
+    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
 `
 
 export default NavigationLink

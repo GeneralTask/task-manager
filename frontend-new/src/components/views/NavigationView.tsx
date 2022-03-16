@@ -36,15 +36,13 @@ const NavigationView = () => {
     const [sectionName, setSectionName] = useState('')
     const [addTaskSection] = useAddTaskSectionMutation()
     const { pathname } = useLocation()
-
-    const loading = isLoadingTasks
     return (
         <View style={styles.container}>
             <NavigationViewHeader>
                 <Icon size="medium" />
             </NavigationViewHeader>
             <ScrollView style={styles.linksFlexContainer}>
-                {loading ? (
+                {isLoadingTasks ? (
                     <Loading />
                 ) : (
                     <>
@@ -73,7 +71,7 @@ const NavigationView = () => {
                     </>
                 )}
                 <AddSectionView>
-                    <Icon size={'small'} source={require('../../assets/plus.png')} />
+                    <Icon size={'small'} source={icons['plus']} />
                     <AddSectionInputView>
                         <WebInput
                             value={sectionName}
