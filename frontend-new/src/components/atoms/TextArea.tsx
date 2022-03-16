@@ -2,7 +2,6 @@ import React from 'react'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import styled from 'styled-components'
 
-
 const TextAreaStyled = styled.textarea`
     box-sizing: border-box;
     flex: 1;
@@ -29,8 +28,6 @@ const TextArea = (props: TextAreaProps) => {
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         props.setValue(e.target.value)
     }
-    return (
-        <TextAreaStyled value={props.value} placeholder={props.placeholder || ''} onChange={onChange} />
-    )
+    return <TextAreaStyled value={props.value} placeholder={props.placeholder || ''} onChange={onChange} />
 }
 export default TextArea

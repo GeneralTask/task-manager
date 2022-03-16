@@ -1,10 +1,13 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import Cookies from 'js-cookie'
-import { Platform } from 'react-native'
-import { MESSAGES_PER_PAGE } from '../constants'
-import getEnvVars from '../environment'
-import type { RootState } from '../redux/store'
 import { TEvent, TLinkedAccount, TMessage, TSupportedTypes, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
+import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+
+import Cookies from 'js-cookie'
+import { MESSAGES_PER_PAGE } from '../constants'
+import { Platform } from 'react-native'
+import type { RootState } from '../redux/store'
+import getEnvVars from '../environment'
+
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
 export const generalTaskApi = createApi({
@@ -138,6 +141,69 @@ export const generalTaskApi = createApi({
                     result.undo()
                 }
             }
+        }),
+        reorderTask: builder.mutation<void, { taskId: string, dropSectionId: string, orderingId: number, dragSectionId?: string }>({
+            query: ({ taskId, dropSectionId, orderingId }) => ({
+                url: `/tasks/modify/${taskId}/`,
+                method: 'PATCH',
+                body: {
+                    id_task_section: dropSectionId,
+                    id_ordering: orderingId,
+                },
+            }),
+            invalidatesTags: ['Tasks'],
+            onQueryStarted: async ({ taskId, dropSectionId, orderingId, dragSectionId }, { dispatch, queryFulfilled }) => {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections: TTaskSection[]) => {
+                        // move task within the same section
+                        if (dragSectionId === undefined || dragSectionId === dropSectionId) {
+                            const section = sections.find(s => s.id === dropSectionId)
+                            if (section == null) return
+                            const startIndex = section.tasks.findIndex(t => t.id === taskId)
+                            if (startIndex === -1) return
+                            let endIndex = orderingId - 1
+                            if (startIndex < endIndex) {
+                                endIndex -= 1
+                            }
+                            arrayMoveInPlace(section.tasks, startIndex, endIndex)
+
+                            // update ordering ids
+                            resetOrderingIds(section.tasks)
+                        }
+                        // move task from one section to the other
+                        else {
+                            // remove task from old location
+                            const dragSection = sections.find((section) => section.id === dragSectionId)
+                            if (dragSection == null) return
+                            const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === taskId)
+                            if (dragTaskIndex === -1) return
+                            const dragTask = dragSection.tasks[dragTaskIndex]
+                            dragSection.tasks.splice(dragTaskIndex, 1)
+
+                            // add task to new location
+                            const dropSection = sections.find((section) => section.id === dropSectionId)
+                            if (dropSection == null) return
+                            dropSection.tasks.splice(orderingId - 1, 0, dragTask)
+
+                            // update ordering ids
+                            resetOrderingIds(dragSection.tasks)
+                            resetOrderingIds(dropSection.tasks)
+                        }
+
+                    })
+                )
+                try {
+                    await queryFulfilled
+                } catch {
+                    result.undo()
+                }
+            }
+        }),
+        fetchTasksExternal: builder.query<void, void>({
+            query: () => ({
+                url: '/tasks/fetch/',
+                method: 'GET',
+            }),
         }),
         addTaskSection: builder.mutation<void, { name: string }>({
             query: (data) => ({
@@ -274,6 +340,8 @@ export const {
     useModifyTaskMutation,
     useCreateTaskMutation,
     useMarkTaskDoneMutation,
+    useReorderTaskMutation,
+    useFetchTasksExternalQuery,
     useAddTaskSectionMutation,
     useDeleteTaskSectionMutation,
     useGetEventsQuery,

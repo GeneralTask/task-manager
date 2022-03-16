@@ -1,11 +1,10 @@
-import React, { Ref, useRef } from 'react'
-import { useDrag } from 'react-dnd'
+import { Colors, Flex, Shadows } from '../../styles'
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
-import { Colors, Flex } from '../../styles'
 import { Indices, ItemTypes, TMessage } from '../../utils/types'
 import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
+import React from 'react'
 
 interface TaskProps {
     message: TMessage
@@ -36,17 +35,15 @@ const Message = ({ message, setSheetTaskId }: TaskProps) => {
     const dragRef = Platform.OS === 'web' ? (drag as Ref<View>) : undefined
 
     return (
-        <Pressable style={styles.container} onPress={onPress} ref={dragPreviewRef}>
-            <View style={styles.container}>
+        <Pressable style={[styles.container, styles.shadow]} onPress={onPress} ref={dragPreviewRef}>
                 {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
                 <MarkAsTaskButton isTask={false} messageId={message.id}></MarkAsTaskButton>
                 <View style={styles.iconContainer}>
                     <Icon size="small" />
                 </View>
-                <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
-                    {message.title}
-                </Text>
-            </View>
+            <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
+                {message.title}
+            </Text>
         </Pressable>
     )
 }
@@ -56,11 +53,14 @@ const styles = StyleSheet.create({
         ...Flex.row,
         alignItems: 'center',
         width: '100%',
-        height: '100%',
         backgroundColor: Colors.white,
         borderRadius: 12,
-        paddingTop: 5,
-        paddingBottom: 5,
+        paddingHorizontal: 8,
+        paddingVertical: 5,
+        height: 50,
+    },
+    shadow: {
+        ...Shadows.small,
     },
     iconContainer: {
         marginLeft: 6,
