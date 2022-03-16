@@ -245,14 +245,14 @@ const PrivacyPolicyHTML = `
 					Information We Collect</span></b></p>
 
 		<p class=MsoNormal align=left style='margin-top:0in;text-align:left;text-indent:
-0in'><span lang=EN style='font-family:"Calibri",sans-serif'> </span></p>
+0in'><span lang=EN style='font-family:"Calibri",sans-serif'></span></p>
 
 		<p class=MsoNormal align=left style='margin-top:0in;text-align:left;text-indent:
 0in'><span lang=EN style='font-family:"Calibri",sans-serif'>We use the
 				information we collect:</span></p>
 
 		<p class=MsoNormal align=left style='margin-top:0in;text-align:left;text-indent:
-0in'><span lang=EN style='font-family:"Calibri",sans-serif'> </span></p>
+0in'><span lang=EN style='font-family:"Calibri",sans-serif'></span></p>
 
 		<p class=MsoNormal align=left style='margin-top:0in;margin-right:0in;
 margin-bottom:0in;margin-left:.5in;margin-bottom:.0001pt;text-align:left;
@@ -392,7 +392,7 @@ background:white'> We may use analytics services to collect and process certain
 				dates and times of your visits.</span></p>
 
 		<p class=MsoNormal align=left style='margin-top:0in;text-align:left;text-indent:
-0in'><span lang=EN style='font-family:"Calibri",sans-serif'> </span></p>
+0in'><span lang=EN style='font-family:"Calibri",sans-serif'></span></p>
 
 		<p class=MsoNormal align=left style='margin-top:0in;text-align:left;text-indent:
 0in'><b><span lang=EN style='font-family:"Calibri",sans-serif;background:white'>As

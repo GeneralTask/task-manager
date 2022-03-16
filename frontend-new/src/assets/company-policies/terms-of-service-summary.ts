@@ -48,12 +48,12 @@ const TermsOfServiceSummaryHTML = `
 		}
 
 		@font-face {
-			font-family: "\@DengXian";
+			font-family: "@DengXian";
 			panose-1: 2 1 6 0 3 1 1 1 1 1;
 		}
 
 		@font-face {
-			font-family: "\@PMingLiU";
+			font-family: "@PMingLiU";
 			panose-1: 2 1 6 1 0 1 1 1 1 1;
 		}
 

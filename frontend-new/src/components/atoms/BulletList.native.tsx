@@ -1,9 +1,6 @@
 import React from 'react'
 
-interface BulletListProps {
-    bullets: string[]
-}
-const BulletList = ({ bullets }: BulletListProps) => {
+const BulletList = () => {
     return <></>
 }
 

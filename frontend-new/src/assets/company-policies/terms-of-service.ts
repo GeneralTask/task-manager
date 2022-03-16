@@ -328,7 +328,7 @@ font-family:"Calibri",sans-serif'> NOTICE</span></b><span style='font-size:
 			prioritizes them in one consolidated to-do list. Users can respond to emails
 			and messages directly through the task manager as well as perform other actions
 			a user may otherwise perform in their email client, messaging client, or
-			calendar.   </h1>
+			calendar.</h1>
 
 		<h1><a name="_Ref315450713"></a><a name="_Ref341270068"></a><a name="_Ref398037682"><b>2.<span
 						style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -477,7 +477,7 @@ font-family:"Calibri",sans-serif'> NOTICE</span></b><span style='font-size:
 
 		<h2><a name="_Ref457307932">7.3<span
 					style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				</span> <b>You Must Have Rights to the Content You Post; User Content
+				</span><b>You Must Have Rights to the Content You Post; User Content
 					Representations and Warranties</b>. You must not Post User Content if you are
 				not the owner of or are not fully authorized to grant rights in all of the
 				elements of that User Content. General Task disclaims any and all liability in
@@ -621,7 +621,7 @@ font-family:"Calibri",sans-serif'> NOTICE</span></b><span style='font-size:
 				be effective immediately except that, for existing users, material revisions
 				will be effective 30 days after posting or notice to you of the revisions
 				unless otherwise stated. We may require that you accept modified Terms in order
-				to continue to use the Service.  If you do not agree to the modified Terms,
+				to continue to use the Service. If you do not agree to the modified Terms,
 				then you should remove your User Content and discontinue your use of the
 				Service. Except as expressly permitted in this Section&nbsp;</a>10, these Terms may be amended only by a
 			written agreement signed by authorized
@@ -813,7 +813,7 @@ font-family:"Calibri",sans-serif'> NOTICE</span></b><span style='font-size:
 				arbitration, you may opt out of the provisions of this Section&nbsp;</a>15 within 30 days after the date
 			that you agree to these Terms by (a) sending a
 			letter to General Task, Inc., Attention: Legal Department – Arbitration
-			Opt-Out, 616 Ramona St Suite 26, Palo Alto, CA 94301,  that specifies: your
+			Opt-Out, 616 Ramona St Suite 26, Palo Alto, CA 94301, that specifies: your
 			full legal name, the email address associated with your account on the Service,
 			and a statement that you wish to opt out of arbitration, or (b) sending an
 			email to <a href="mailto:support@generaltask.com">support@generaltask.com</a>
@@ -893,7 +893,7 @@ background:#F2F4F7'> </span></h2>
 				PLAINTIFF OR CLASS MEMBER IN ANY PURPORTED CLASS OR REPRESENTATIVE PROCEEDING.
 				Further, unless both you and General Task agree otherwise, the arbitrator may
 				not consolidate more than one person’s claims, and may not otherwise preside
-				over any form of a representative or class proceeding.</a>  </h2>
+				over any form of a representative or class proceeding.</a> </h2>
 
 		<h2>15.9<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			</span><b>Modifications to this Arbitration Provision</b>. If General Task
