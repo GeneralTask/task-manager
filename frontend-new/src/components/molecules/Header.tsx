@@ -57,6 +57,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                     value={sectionName}
                     onChangeText={(val) => setSectionName(val)}
                     onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
+                    autoFocus
                 />
             ) : (
                 <HeaderText>{props.sectionName}</HeaderText>
@@ -71,7 +72,11 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                     <TouchableIcon onPress={() => handleDelete(props.taskSectionId)}>
                         <Icon size={'small'} source={icons['trash']}></Icon>
                     </TouchableIcon>
-                    <TouchableIcon onPress={() => setIsEditingTitle(true)}>
+                    <TouchableIcon
+                        onPress={() => {
+                            setIsEditingTitle(true)
+                        }}
+                    >
                         <Icon size={'small'} source={icons['pencil']}></Icon>
                     </TouchableIcon>
                 </>
