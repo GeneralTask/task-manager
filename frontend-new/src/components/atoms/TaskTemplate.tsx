@@ -1,5 +1,6 @@
+import { StyleSheet, View, ViewStyle } from 'react-native'
+
 import React from 'react'
-import { View, StyleSheet, ViewStyle } from 'react-native'
 
 interface TaskTemplateProps {
     style?: ViewStyle
@@ -7,11 +8,7 @@ interface TaskTemplateProps {
     children: React.ReactNode | React.ReactNode[]
 }
 const TaskTemplate = (props: TaskTemplateProps) => {
-    return (
-        <View style={[props.style, styles.container]}>
-            {props.children}
-        </View>
-    )
+    return <View style={[props.style, styles.container]}>{props.children}</View>
 }
 
 const styles = StyleSheet.create({
@@ -20,7 +17,8 @@ const styles = StyleSheet.create({
         position: 'relative',
         height: 48,
         borderRadius: 12,
-    }
+        paddingHorizontal: 12,
+    },
 })
 
 export default TaskTemplate

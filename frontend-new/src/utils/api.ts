@@ -12,4 +12,3 @@ export const getHeaders = (): Record<string, string> => {
         'Timezone-Offset': date.getTimezoneOffset().toString(),
     }
 }
-

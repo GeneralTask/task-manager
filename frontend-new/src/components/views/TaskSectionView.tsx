@@ -1,27 +1,31 @@
-import { DateTime } from 'luxon'
-import React, { useEffect, useRef } from 'react'
+import { Colors, Flex, Screens, Spacing } from '../../styles'
 import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
-import { useGetTasksQuery } from '../../services/generalTaskApi'
-import { useNavigate, useParams } from '../../services/routing'
-import { Colors, Flex, Screens, Shadows, Spacing } from '../../styles'
-import { getSectionById } from '../../utils/task'
-import Loading from '../atoms/Loading'
-import TaskTemplate from '../atoms/TaskTemplate'
+import React, { useEffect, useRef } from 'react'
+import { useFetchTasksExternalQuery, useGetTasksQuery } from '../../services/generalTaskApi'
+import { useNavigate, useParams } from 'react-router-dom'
+
 import CreateNewTask from '../molecules/CreateNewTask'
+import { DateTime } from 'luxon'
 import EventBanner from '../molecules/EventBanner'
+import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
+import TaskDropContainer from '../molecules/TaskDropContainer'
+import { getSectionById } from '../../utils/task'
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
+    const fetchTasksExternalQuery = useFetchTasksExternalQuery()
+
     const refetchWasLocal = useRef(false)
     const routerSection = useParams().section || ''
     const navigate = useNavigate()
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
-    const onRefresh = () => {
+    const onRefresh = async () => {
         refetchWasLocal.current = true
+        await fetchTasksExternalQuery.refetch()
         refetch()
     }
 
@@ -46,15 +50,26 @@ const TaskSection = () => {
                         <SectionHeader
                             section={currentSection.name}
                             allowRefresh={true}
-                            refetch={refetch}
+                            refetch={onRefresh}
                             taskSectionId={currentSection.id}
                         />
                         {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                         {currentSection.tasks.map((task, index) => {
                             return (
-                                <TaskTemplate style={styles.shell} key={index}>
-                                    <Task task={task} setSheetTaskId={() => null} />
-                                </TaskTemplate>
+                                <TaskDropContainer
+                                    key={index}
+                                    task={task}
+                                    taskIndex={index}
+                                    sectionId={currentSection.id}
+                                >
+                                    <Task
+                                        task={task}
+                                        setSheetTaskId={() => null}
+                                        dragDisabled={currentSection.is_done}
+                                        index={index}
+                                        sectionId={currentSection.id}
+                                    />
+                                </TaskDropContainer>
                             )
                         })}
                     </View>
@@ -65,10 +80,6 @@ const TaskSection = () => {
 }
 
 const styles = StyleSheet.create({
-    shell: {
-        marginTop: 20,
-        ...Shadows.small,
-    },
     container: {
         ...Screens.container,
         ...Flex.column,

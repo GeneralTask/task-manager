@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { Colors, Flex, Screens } from '../../styles'
 import {
     NativeScrollEvent,
     NativeSyntheticEvent,
@@ -9,14 +9,15 @@ import {
     Text,
     View,
 } from 'react-native'
-import { MESSAGES_PER_PAGE } from '../../constants'
+import React, { useEffect, useRef, useState } from 'react'
 import { useFetchMessagesQuery, useGetMessagesQuery } from '../../services/generalTaskApi'
-import { Colors, Flex, Screens, Shadows } from '../../styles'
-import { TMessage } from '../../utils/types'
+
 import Loading from '../atoms/Loading'
-import TaskTemplate from '../atoms/TaskTemplate'
-import { SectionHeader } from '../molecules/Header'
+import { MESSAGES_PER_PAGE } from '../../constants'
 import Message from '../molecules/Message'
+import { SectionHeader } from '../molecules/Header'
+import { TMessage } from '../../utils/types'
+import TaskTemplate from '../atoms/TaskTemplate'
 
 type TPageMap = { [key: number]: TMessage[] }
 
@@ -85,15 +86,13 @@ const Messages = () => {
                     <Loading />
                 ) : (
                     <View>
-                        <SectionHeader section="Messages" allowRefresh={true} refetch={refetch} />
-                        {Object.entries(pages).map(([, messages]) => {
-                            return messages.map((msg) => {
-                                return (
-                                    <TaskTemplate style={styles.shell} key={msg.id}>
-                                        <Message message={msg} setSheetTaskId={() => null} />
-                                    </TaskTemplate>
-                                )
-                            })
+                        <SectionHeader section="Messages" allowRefresh={true} refetch={onRefresh} />
+                        {messages?.map((msg) => {
+                            return (
+                                <TaskTemplate key={msg.id} style={styles.shell}>
+                                    <Message message={msg} setSheetTaskId={() => null} />
+                                </TaskTemplate>
+                            )
                         })}
                         <Text style={styles.endContent}>{atEnd ? `You've reached the bottom` : `Loading...`}</Text>
                     </View>
@@ -105,8 +104,7 @@ const Messages = () => {
 
 const styles = StyleSheet.create({
     shell: {
-        marginTop: 20,
-        ...Shadows.small,
+        marginVertical: 6,
     },
     container: {
         ...Screens.container,
