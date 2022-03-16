@@ -2,6 +2,7 @@ import { Colors, Flex } from '../../styles'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import { useAddTaskSectionMutation, useGetMessagesQuery, useGetTasksQuery } from '../../services/generalTaskApi'
+import FeedbackButton from '../molecules/FeedbackButton'
 import { useLocation, useParams } from '../../services/routing'
 
 import { Icon } from '../atoms/Icon'
@@ -33,7 +34,7 @@ const AddSectionInputView = styled.View`
 const NavigationView = () => {
     const dispatch = useAppDispatch()
     const { data: taskSections, isLoading: isLoadingTasks } = useGetTasksQuery()
-    const { isLoading: isLoadingMessages } = useGetMessagesQuery()
+    const { isLoading: isLoadingMessages } = useGetMessagesQuery({ only_unread: false, page: 0 })
     const { section: sectionIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
     const [addTaskSection] = useAddTaskSectionMutation()
@@ -89,6 +90,7 @@ const NavigationView = () => {
                     </AddSectionInputView>
                 </AddSectionView>
             </ScrollView>
+            <FeedbackButton />
             <Pressable onPress={() => authSignOut(dispatch)}>
                 <Text>Sign Out</Text>
             </Pressable>
@@ -101,7 +103,12 @@ const styles = StyleSheet.create({
         ...Flex.column,
         minWidth: 232,
         backgroundColor: Colors.gray._100,
+        paddingLeft: 8,
         paddingTop: 8,
+        paddingRight: 8,
+    },
+    linkContainerSelected: {
+        backgroundColor: Colors.gray._50,
     },
     linksFlexContainer: {
         flex: 1,
