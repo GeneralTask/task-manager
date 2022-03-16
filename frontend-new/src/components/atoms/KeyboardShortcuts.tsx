@@ -1,14 +1,14 @@
-import { BACKGROUND_KEYBOARD_SHORTCUT, shadow, TEXT_KEYBOARD_SHORTCUT } from '../../helpers/styles'
+import { Colors, Shadows } from '../../styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import styled from 'styled-components'
 import { useAppSelector } from '../../redux/hooks'
-import { ModalEnum } from '../../helpers/enums'
+import { ModalEnum } from '../../utils/enums'
 
 const KeyboardShortcutContainer = styled.div<{ isPressed: boolean }>`
     cursor: inherit;
     border-radius: 5px;
-    border: 2px solid ${({ isPressed }) => (isPressed ? 'black' : BACKGROUND_KEYBOARD_SHORTCUT)};
+    border: 2px solid ${({ isPressed }) => (isPressed ? 'black' : Colors.gray._50)};
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,15 +16,15 @@ const KeyboardShortcutContainer = styled.div<{ isPressed: boolean }>`
     height: 20px;
     left: 0px;
     top: 0px;
-    background-color: ${BACKGROUND_KEYBOARD_SHORTCUT};
-    box-shadow: ${shadow.KEYBOARD_SHORTCUT};
+    background-color: ${Colors.gray._50};
+    box-shadow: ${Shadows.small};
     margin-right: 12px;
     font-family: Switzer-Variable;
     font-style: normal;
     font-weight: normal;
     font-size: 14px;
     line-height: 20px;
-    color: ${TEXT_KEYBOARD_SHORTCUT};
+    color: ${Colors.gray._400};
 `
 
 // gets triggered when the lowercase letter is pressed (including with CAPS LOCK, but not when you hit shift+key)
