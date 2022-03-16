@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Platform } from 'react-native'
 import styled from 'styled-components/native'
 import { useDeleteTaskSectionMutation, useModifyTaskSectionMutation } from '../../services/generalTaskApi'
@@ -35,6 +35,10 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [sectionName, setSectionName] = useState(props.sectionName)
 
+    useEffect(() => {
+        setSectionName(props.sectionName)
+    }, [props.sectionName])
+
     const tempSectionIds = [
         '000000000000000000000001',
         '000000000000000000000002',
@@ -60,7 +64,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                     autoFocus
                 />
             ) : (
-                <HeaderText>{props.sectionName}</HeaderText>
+                <HeaderText>{sectionName}</HeaderText>
             )}
             {props.allowRefresh && Platform.OS === 'web' && (
                 <TouchableIcon onPress={props.refetch}>
