@@ -14,7 +14,7 @@ interface NavigationLinkProps {
     isCurrentPage: boolean
     link: string
     title: string
-    icon: NodeRequire | ImageSourcePropType | undefined
+    icon?: NodeRequire | ImageSourcePropType
     taskSection?: TTaskSection
 }
 const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection }: NavigationLinkProps) => {

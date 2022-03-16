@@ -1,4 +1,4 @@
-import { Colors, Flex, Images } from '../../styles'
+import { Colors, Flex } from '../../styles'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import { useAddTaskSectionMutation, useGetMessagesQuery, useGetTasksQuery } from '../../services/generalTaskApi'
@@ -55,7 +55,7 @@ const NavigationView = () => {
                                 key={index}
                                 link={`/tasks/${section.id}`}
                                 title={section.name}
-                                icon={Images.icons.inbox}
+                                icon={icons.inbox}
                                 isCurrentPage={sectionIdParam === section.id}
                                 taskSection={!section.is_done ? section : undefined}
                             />
@@ -63,7 +63,7 @@ const NavigationView = () => {
                         <NavigationLink
                             link="/messages"
                             title="Messages"
-                            icon={Images.icons.inbox}
+                            icon={icons.inbox}
                             isCurrentPage={pathname === '/messages'}
                         />
                         <NavigationLink
