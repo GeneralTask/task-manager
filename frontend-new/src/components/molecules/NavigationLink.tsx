@@ -48,8 +48,6 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppab
 
     const dropRef = Platform.OS === 'web' ? (drop as Ref<View>) : undefined
 
-    console.log(taskSection?.is_done, 'taskSection', taskSection)
-
     return (
         <Link style={linkStyle} to={link}>
             <View
