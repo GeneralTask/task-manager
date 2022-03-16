@@ -1,27 +1,23 @@
-import React, { CSSProperties, useState } from 'react'
-import { Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native'
-import styled from 'styled-components/native'
-import { useAppDispatch } from '../../redux/hooks'
+import { Colors, Flex, Images } from '../../styles'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import React, { useState } from 'react'
 import { useAddTaskSectionMutation, useGetMessagesQuery, useGetTasksQuery } from '../../services/generalTaskApi'
-import { Link, useLocation, useParams } from '../../services/routing'
-import { Colors, Flex } from '../../styles'
-import { icons } from '../../styles/images'
-import { weight } from '../../styles/typography'
-import { authSignOut } from '../../utils/auth'
+import { useLocation, useParams } from '../../services/routing'
+
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
+import NavigationLink from '../molecules/NavigationLink'
 import WebInput from '../atoms/WebInput'
-import FeedbackButton from '../molecules/FeedbackButton'
+import { authSignOut } from '../../utils/auth'
+import { icons } from '../../styles/images'
+import styled from 'styled-components/native'
+import { useAppDispatch } from '../../redux/hooks'
+import { weight } from '../../styles/typography'
 
 const NavigationViewHeader = styled.View`
     height: 24px;
     width: 100%;
     margin-bottom: 16px;
-`
-const SectionTitle = styled.Text<{ isSelected: boolean }>`
-    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
-    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
-    margin-left: 9px;
 `
 const AddSectionView = styled.View`
     display: flex;
@@ -37,7 +33,7 @@ const AddSectionInputView = styled.View`
 const NavigationView = () => {
     const dispatch = useAppDispatch()
     const { data: taskSections, isLoading: isLoadingTasks } = useGetTasksQuery()
-    const { isLoading: isLoadingMessages } = useGetMessagesQuery({ only_unread: false, page: 0 })
+    const { isLoading: isLoadingMessages } = useGetMessagesQuery()
     const { section: sectionIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
     const [addTaskSection] = useAddTaskSectionMutation()
@@ -55,42 +51,27 @@ const NavigationView = () => {
                 ) : (
                     <>
                         {taskSections?.map((section, index) => (
-                            <Link key={index} style={linkStyle} to={`/tasks/${section.id}`}>
-                                <View
-                                    style={[
-                                        styles.linkContainer,
-                                        sectionIdParam === section.id ? styles.linkContainerSelected : null,
-                                    ]}
-                                >
-                                    <Icon size="small" source={require('../../assets/inbox.png')} />
-                                    <SectionTitle isSelected={sectionIdParam === section.id}>
-                                        {section.name}
-                                    </SectionTitle>
-                                </View>
-                            </Link>
+                            <NavigationLink
+                                key={index}
+                                link={`/tasks/${section.id}`}
+                                title={section.name}
+                                icon={Images.icons.inbox}
+                                isCurrentPage={sectionIdParam === section.id}
+                                taskSection={!section.is_done ? section : undefined}
+                            />
                         ))}
-                        <Link style={linkStyle} to="/messages">
-                            <View
-                                style={[
-                                    styles.linkContainer,
-                                    pathname === '/messages' ? styles.linkContainerSelected : null,
-                                ]}
-                            >
-                                <Icon size="small" source={require('../../assets/inbox.png')} />
-                                <SectionTitle isSelected={pathname === '/messages'}>Messages</SectionTitle>
-                            </View>
-                        </Link>
-                        <Link style={linkStyle} to="/settings">
-                            <View
-                                style={[
-                                    styles.linkContainer,
-                                    pathname === '/settings' ? styles.linkContainerSelected : null,
-                                ]}
-                            >
-                                <Icon size="small" source={icons.gear} />
-                                <SectionTitle isSelected={pathname === '/settings'}>Settings</SectionTitle>
-                            </View>
-                        </Link>
+                        <NavigationLink
+                            link="/messages"
+                            title="Messages"
+                            icon={Images.icons.inbox}
+                            isCurrentPage={pathname === '/messages'}
+                        />
+                        <NavigationLink
+                            link="/settings"
+                            title="Settings"
+                            icon={icons.gear}
+                            isCurrentPage={pathname === '/settings'}
+                        />
                     </>
                 )}
                 <AddSectionView>
@@ -108,7 +89,6 @@ const NavigationView = () => {
                     </AddSectionInputView>
                 </AddSectionView>
             </ScrollView>
-            <FeedbackButton />
             <Pressable onPress={() => authSignOut(dispatch)}>
                 <Text>Sign Out</Text>
             </Pressable>
@@ -121,32 +101,11 @@ const styles = StyleSheet.create({
         ...Flex.column,
         minWidth: 232,
         backgroundColor: Colors.gray._100,
-        paddingLeft: 8,
         paddingTop: 8,
-        paddingRight: 8,
-    },
-    linkContainer: {
-        ...Flex.row,
-        alignItems: 'center',
-        height: 28,
-        marginTop: 8,
-        paddingTop: 4,
-        paddingRight: 8,
-        paddingBottom: 4,
-        paddingLeft: 8,
-        borderRadius: 8,
-    },
-    linkContainerSelected: {
-        backgroundColor: Colors.gray._50,
     },
     linksFlexContainer: {
         flex: 1,
     },
 })
-
-const linkStyle: CSSProperties & ViewStyle = {
-    textDecorationLine: 'none',
-    width: '100%',
-}
 
 export default NavigationView
