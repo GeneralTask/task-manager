@@ -1,10 +1,11 @@
-import { Colors, Flex, Shadows } from '../../styles'
+import React, { Ref, useRef } from 'react'
+import { useDrag } from 'react-dnd'
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Colors, Flex, Shadows } from '../../styles'
 import { Indices, ItemTypes, TMessage } from '../../utils/types'
 import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
-import React from 'react'
 
 interface TaskProps {
     message: TMessage
@@ -36,11 +37,11 @@ const Message = ({ message, setSheetTaskId }: TaskProps) => {
 
     return (
         <Pressable style={[styles.container, styles.shadow]} onPress={onPress} ref={dragPreviewRef}>
-                {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
-                <MarkAsTaskButton isTask={false} messageId={message.id}></MarkAsTaskButton>
-                <View style={styles.iconContainer}>
-                    <Icon size="small" />
-                </View>
+            {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
+            <MarkAsTaskButton isTask={false} messageId={message.id} />
+            <View style={styles.iconContainer}>
+                <Icon size="small" />
+            </View>
             <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
                 {message.title}
             </Text>
