@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -11,12 +12,14 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestCreateTask(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
+	parentCtx := context.Background()
 
 	authToken := login("approved@generaltask.com", "")
 	router := GetRouter(GetAPI())
@@ -63,6 +66,21 @@ func TestCreateTask(t *testing.T) {
 	t.Run("WrongAccountID", func(t *testing.T) {
 		// this currently isn't possible because only GT tasks are supported, but we should add this when it's possible
 	})
+	t.Run("BadTaskSection", func(t *testing.T) {
+		authToken = login("create_task_bad_task_section@generaltask.com", "")
+
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/create/gt_task/",
+			bytes.NewBuffer([]byte(`{"title": "foobar", "id_task_section": "`+primitive.NewObjectID().Hex()+`"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
+	})
 	t.Run("SuccessTitleOnly", func(t *testing.T) {
 		authToken = login("create_task_success_title_only@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
@@ -87,14 +105,20 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, int64(3600000000000), task.TimeAllocation)
 		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
 	})
-	t.Run("Success", func(t *testing.T) {
-		authToken = login("create_task_success@generaltask.com", "")
+	t.Run("SuccessCustomSection", func(t *testing.T) {
+		authToken = login("create_task_success_custom_section@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
+		sectionCollection := database.GetTaskSectionCollection(db)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		res, err := sectionCollection.InsertOne(dbCtx, &database.TaskSection{UserID: userID, Name: "moooooon"})
+		assert.NoError(t, err)
+		customSectionID := res.InsertedID.(primitive.ObjectID)
 
 		request, _ := http.NewRequest(
 			"POST",
 			"/tasks/create/gt_task/",
-			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300, "id_task_section": "`+constants.IDTaskSectionBacklog.Hex()+`"}}`)))
+			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300, "id_task_section": "`+customSectionID.Hex()+`"}}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -108,6 +132,6 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, "seriously!", task.Body)
 		assert.Equal(t, int64(300000000000), task.TimeAllocation)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
-		assert.Equal(t, constants.IDTaskSectionBacklog, task.IDTaskSection)
+		assert.Equal(t, customSectionID, task.IDTaskSection)
 	})
 }
