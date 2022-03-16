@@ -14,8 +14,8 @@ const FeedbackViewContainer = styled.View`
     display: flex;
     flex-direction: column;
     height: 100%;
+    padding: ${Spacing.padding.medium}px;
 `
-
 const FeedbackHeader = styled.View`
     margin-bottom: ${Spacing.margin.large}px;
 `
@@ -52,7 +52,7 @@ const FeedbackView = () => {
                 <TextArea value={feedback} placeholder="Type in your feedback here." setValue={setFeedback} />
             </MarginTop>
             <ButtonContainer>
-                <RoundedGeneralButton onPress={submitFeedback} value="Send feedback" color={Colors.purple} />
+                <RoundedGeneralButton onPress={submitFeedback} value="Send feedback" color={Colors.purple._1} />
                 <RoundedGeneralButton onPress={closeModal} value="Cancel" hasBorder textStyle="dark" />
             </ButtonContainer>
         </FeedbackViewContainer>

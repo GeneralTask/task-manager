@@ -25,6 +25,9 @@ export const icons: { [key: string]: ImageSourcePropType } = {
     calendar_blank: require('../assets/calendar_blank.png'),
     caret_left: require('../assets/caret_left.png'),
     caret_right: require('../assets/caret_right.png'),
+    caret_right_purple: require('../assets/caret_right_purple.png'),
+    circle_wavy_check: require('../assets/circle_wavy_check.png'),
+    check_gray: require('../assets/check_gray.png'),
     chevron_down: require('../assets/chevron_down.png'),
     gear: require('../assets/gear.png'),
     inbox: require('../assets/inbox.png'),
@@ -36,6 +39,7 @@ export const icons: { [key: string]: ImageSourcePropType } = {
     task_incomplete: require('../assets/task_incomplete.png'),
     timer: require('../assets/timer.png'),
     trash: require('../assets/trash.png'),
+    unchecked_check: require('../assets/unchecked_check.png')
 }
 
 export const buttons: { [key: string]: ImageSourcePropType } = {

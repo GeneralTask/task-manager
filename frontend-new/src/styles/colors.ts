@@ -1,9 +1,12 @@
 export const white = '#FFFFFF'
-export const purple = '#5C31D7'
 export const black = '#000000'
+export const purple = {
+    '_1': '#5C31D7',
+    '_2': '#3A15A0',
+}
 export const red = {
     '_1': '#FF135A',
-    '_2': '#FFEFF2',
+    '_2': '#3A15A0',
 }
 export const gray = {
     '_900': '#18181B',
