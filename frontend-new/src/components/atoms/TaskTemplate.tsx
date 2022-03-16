@@ -1,15 +1,18 @@
-import { StyleSheet, View, ViewStyle } from 'react-native'
-
-import React from 'react'
+import React, { forwardRef, Ref } from 'react'
+import { View, StyleSheet, ViewStyle } from 'react-native'
 
 interface TaskTemplateProps {
     style?: ViewStyle
     isShadow?: boolean
     children: React.ReactNode | React.ReactNode[]
 }
-const TaskTemplate = (props: TaskTemplateProps) => {
-    return <View style={[props.style, styles.container]}>{props.children}</View>
-}
+const TaskTemplate = forwardRef((props: TaskTemplateProps, ref) => {
+    return (
+        <View style={[props.style, styles.container]} ref={ref as Ref<View>}>
+            {props.children}
+        </View>
+    )
+})
 
 const styles = StyleSheet.create({
     container: {
@@ -17,7 +20,6 @@ const styles = StyleSheet.create({
         position: 'relative',
         height: 48,
         borderRadius: 12,
-        paddingHorizontal: 12,
     },
 })
 
