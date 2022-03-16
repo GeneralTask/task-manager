@@ -1,5 +1,5 @@
 import React, { forwardRef, Ref } from 'react'
-import { View, StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, View, ViewStyle } from 'react-native'
 
 interface TaskTemplateProps {
     style?: ViewStyle

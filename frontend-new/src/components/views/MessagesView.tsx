@@ -4,11 +4,11 @@ import { useInfiniteQuery } from 'react-query'
 import { useFetchMessagesQuery } from '../../services/generalTaskApi'
 import { fetchInfiniteMessages } from '../../services/queryUtils'
 import { Colors, Flex, Screens } from '../../styles'
-import Loading from '../atoms/Loading'
-import Message from '../molecules/Message'
-import { SectionHeader } from '../molecules/Header'
 import { TMessage } from '../../utils/types'
+import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
+import { SectionHeader } from '../molecules/Header'
+import Message from '../molecules/Message'
 
 const Messages = () => {
     const { refetch: refetchMessages } = useFetchMessagesQuery()
