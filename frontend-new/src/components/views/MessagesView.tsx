@@ -1,102 +1,69 @@
+import React, { useCallback, useEffect, useRef } from 'react'
+import { Platform, ScrollView, StyleSheet, View } from 'react-native'
+import { useInfiniteQuery } from 'react-query'
+import { useFetchMessagesQuery } from '../../services/generalTaskApi'
+import { fetchInfiniteMessages } from '../../services/queryUtils'
 import { Colors, Flex, Screens } from '../../styles'
-import {
-    NativeScrollEvent,
-    NativeSyntheticEvent,
-    Platform,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
-} from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
-import { useFetchMessagesQuery, useGetMessagesQuery } from '../../services/generalTaskApi'
-
 import Loading from '../atoms/Loading'
-import { MESSAGES_PER_PAGE } from '../../constants'
 import Message from '../molecules/Message'
 import { SectionHeader } from '../molecules/Header'
 import { TMessage } from '../../utils/types'
 import TaskTemplate from '../atoms/TaskTemplate'
 
-type TPageMap = { [key: number]: TMessage[] }
-
 const Messages = () => {
-    const [currentPage, setCurrentPage] = useState(1)
-    const [atEnd, setAtEnd] = useState(false)
-    const [pages, setPages] = useState<TPageMap>({})
-    const {
-        data: messages,
-        isLoading,
-        refetch,
-        isFetching,
-    } = useGetMessagesQuery({ only_unread: false, page: currentPage })
-    const { refetch: fetchMessages } = useFetchMessagesQuery()
-    const refetchWasLocal = useRef(false)
-
-    //stops fetching animation on iOS from triggering when refetch is called in another component
-    if (!isFetching) refetchWasLocal.current = false
-    const onRefresh = () => {
-        refetchWasLocal.current = true
-        refetch()
-    }
-
-    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const viewHeight = event.nativeEvent.layoutMeasurement.height
-        const offsetY = event.nativeEvent.contentOffset.y
-        const contentHeight = event.nativeEvent.contentSize.height
-
-        if (offsetY + viewHeight >= contentHeight - 400) {
-            if (!isFetching && !refetchWasLocal.current && !atEnd) {
-                setCurrentPage(currentPage + 1)
-            }
+    const { refetch: refetchMessages } = useFetchMessagesQuery()
+    const { data, isLoading, isFetching, fetchNextPage, refetch } = useInfiniteQuery(
+        'messages',
+        fetchInfiniteMessages,
+        {
+            getNextPageParam: (_, pages) => pages.length + 1,
         }
-    }
+    )
 
-    useEffect(() => {
-        if (messages && !atEnd) {
-            if (messages.length < MESSAGES_PER_PAGE) {
-                setAtEnd(true)
-            }
-            setPages({ ...pages, [currentPage]: messages })
-        } else if (messages && atEnd) {
-            setAtEnd(false)
-            setPages({})
-            setCurrentPage(1)
-        }
-    }, [messages])
+    const observer = useRef<IntersectionObserver>()
+    const lastElementRef = useCallback(
+        (node) => {
+            if (isLoading || isFetching) return
+            if (observer.current) observer.current.disconnect()
+            observer.current = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    fetchNextPage()
+                }
+            })
+            if (node) observer.current.observe(node)
+        },
+        [isLoading]
+    )
 
-    // Refetches messages every 30 seconds
+    // Tell the backend to refetch messages from the server every 60 seconds
     useEffect(() => {
-        const interval = setInterval(() => fetchMessages(), 30000)
+        const interval = setInterval(() => {
+            refetchMessages()
+        }, 60000)
         return () => clearInterval(interval)
     }, [])
 
-    const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
-
     return (
-        <ScrollView
-            style={styles.container}
-            refreshControl={refreshControl}
-            onScroll={handleScroll}
-            scrollEventThrottle={500}
-        >
+        <ScrollView>
             <View style={styles.messagesContent}>
-                {isLoading ? (
-                    <Loading />
-                ) : (
-                    <View>
-                        <SectionHeader section="Messages" allowRefresh={true} refetch={onRefresh} />
-                        {messages?.map((msg) => {
+                <SectionHeader section="Messages" allowRefresh={true} refetch={refetch} />
+                {data?.pages.map((page, index) => {
+                    return page?.map((message: TMessage, msgIndex: number) => {
+                        if (data.pages.length === index + 1 && page.length === msgIndex + 1) {
                             return (
-                                <TaskTemplate key={msg.id} style={styles.shell}>
-                                    <Message message={msg} setSheetTaskId={() => null} />
+                                <TaskTemplate ref={lastElementRef} style={styles.shell} key={message.id}>
+                                    <Message message={message} setSheetTaskId={() => null} />
                                 </TaskTemplate>
                             )
-                        })}
-                        <Text style={styles.endContent}>{atEnd ? `You've reached the bottom` : `Loading...`}</Text>
-                    </View>
-                )}
+                        }
+                        return (
+                            <TaskTemplate style={styles.shell} key={message.id}>
+                                <Message message={message} setSheetTaskId={() => null} />
+                            </TaskTemplate>
+                        )
+                    })
+                })}
+                {(isLoading || isFetching) && <Loading />}
             </View>
         </ScrollView>
     )
