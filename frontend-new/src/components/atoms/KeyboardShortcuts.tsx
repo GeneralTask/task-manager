@@ -1,11 +1,11 @@
 import { Colors, Shadows } from '../../styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
-import styled from 'styled-components'
+import styled from 'styled-components/native'
 import { useAppSelector } from '../../redux/hooks'
 import { ModalEnum } from '../../utils/enums'
 
-const KeyboardShortcutContainer = styled.div<{ isPressed: boolean }>`
+const KeyboardShortcutContainer = styled.View<{ isPressed: boolean }>`
     cursor: inherit;
     border-radius: 5px;
     border: 2px solid ${({ isPressed }) => (isPressed ? 'black' : Colors.gray._50)};
