@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -12,6 +13,11 @@ import (
 	"github.com/google/go-github/v39/github"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/oauth2"
+)
+
+const (
+	CurrentlyAuthedUserFilter string = ""
+	RepoOwnerTypeOrganization string = "Organization"
 )
 
 type GithubPRSource struct {
@@ -64,24 +70,32 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	// passing empty string here means fetching the currently authed user
-	githubUser, _, err := githubClient.Users.Get(extCtx, "")
-	if err != nil {
+	githubUser, _, err := githubClient.Users.Get(extCtx, CurrentlyAuthedUserFilter)
+	if err != nil || githubUser == nil {
 		log.Println("failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
 		return
 	}
 
-	var pullRequestItems []*database.Item
-	listOptions := github.PullRequestListOptions{}
-	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
-	defer cancel()
-	// TODO(john): Make this work for other repos
-	pullRequests, _, err := githubClient.PullRequests.List(extCtx, "GeneralTask", "task-manager", &listOptions)
+	repos, _, err := githubClient.Repositories.List(extCtx, CurrentlyAuthedUserFilter, nil)
 	if err != nil {
-		log.Println("failed to fetch Github PRs")
-		result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
+		log.Println("failed to fetch Github repos for user")
+		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
 		return
+	}
+	repoNameToOwner := getReposInOrganizations(repos)
+
+	pullRequests := []*github.PullRequest{}
+	var pullRequestItems []*database.Item
+	for repoName, ownerName := range repoNameToOwner {
+		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		defer cancel()
+		fetchedPullRequests, _, err := githubClient.PullRequests.List(extCtx, ownerName, repoName, nil)
+		if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
+			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
+			return
+		}
+		pullRequests = append(pullRequests, fetchedPullRequests...)
 	}
 	for _, pullRequest := range pullRequests {
 		body := ""
@@ -100,7 +114,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				SourceID:        TASK_SOURCE_ID_GITHUB_PR,
 				Title:           *pullRequest.Title,
 				Body:            body,
-				TimeAllocation:  time.Hour.Nanoseconds(),
 				SourceAccountID: accountID,
 			},
 			PullRequest: database.PullRequest{
@@ -149,6 +162,21 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		PullRequests: pullRequestItems,
 		Error:        nil,
 	}
+}
+
+func getReposInOrganizations(repos []*github.Repository) map[string]string {
+	repoNameToOwner := make(map[string]string)
+	for _, repo := range repos {
+		if repo != nil &&
+			repo.Name != nil &&
+			repo.Owner != nil &&
+			repo.Owner.Login != nil &&
+			repo.Owner.Type != nil &&
+			*repo.Owner.Type == RepoOwnerTypeOrganization {
+			repoNameToOwner[*repo.Name] = *repo.Owner.Login
+		}
+	}
+	return repoNameToOwner
 }
 
 func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool {

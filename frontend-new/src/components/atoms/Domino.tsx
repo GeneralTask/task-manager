@@ -24,8 +24,8 @@ const styles = StyleSheet.create({
                 cursor: 'grab'
             },
         }),
-        height: '60%',
-        paddingLeft: 12,
+        height: 16,
+        paddingLeft: 4,
         paddingRight: 12,
     },
     DominoInnerContainer: {

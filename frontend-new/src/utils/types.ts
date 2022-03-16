@@ -100,11 +100,6 @@ export interface TLinkedAccount {
     is_unlinkable: boolean
 }
 
-export interface Indices {
-    task: number
-    section: number
-}
-
 // React-DND Item Types
 export const ItemTypes = {
     TASK: 'task',
@@ -113,6 +108,11 @@ export const ItemTypes = {
 export interface DropResult {
     id: string
     dropDisabled: boolean
+}
+export interface DropProps {
+    id: string
+    taskIndex: number
+    sectionId: string
 }
 
 export interface TTaskCreateParams {
