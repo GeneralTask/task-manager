@@ -19,3 +19,8 @@ export const wrap: ViewStyle = {
     display: 'flex',
     flexWrap: 'wrap',
 }
+
+export const verticalAlign: ViewStyle = {
+    display: 'flex',
+    alignItems: 'center',
+}
