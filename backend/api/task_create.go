@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -10,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type TaskCreateParams struct {
@@ -49,19 +51,8 @@ func (api *API) TaskCreate(c *gin.Context) {
 
 	IDTaskSection := primitive.NilObjectID
 	if taskCreateParams.IDTaskSection != nil {
-		IDTaskSection, err = primitive.ObjectIDFromHex(*taskCreateParams.IDTaskSection)
+		IDTaskSection, err = getValidTaskSection(*taskCreateParams.IDTaskSection, userID, db)
 		if err != nil {
-			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
-			return
-		}
-		taskSectionCollection := database.GetTaskSectionCollection(db)
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		count, err := taskSectionCollection.CountDocuments(dbCtx, bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": IDTaskSection}}})
-		if (err != nil || count == int64(0)) &&
-			IDTaskSection != constants.IDTaskSectionToday &&
-			IDTaskSection != constants.IDTaskSectionBlocked &&
-			IDTaskSection != constants.IDTaskSectionBacklog {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
 		}
@@ -106,4 +97,22 @@ func (api *API) TaskCreate(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{})
+}
+
+func getValidTaskSection(taskSectionIDHex string, userID primitive.ObjectID, db *mongo.Database) (primitive.ObjectID, error) {
+	IDTaskSection, err := primitive.ObjectIDFromHex(taskSectionIDHex)
+	if err != nil {
+		return primitive.NilObjectID, errors.New("malformatted task section")
+	}
+	taskSectionCollection := database.GetTaskSectionCollection(db)
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+	count, err := taskSectionCollection.CountDocuments(dbCtx, bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": IDTaskSection}}})
+	if (err != nil || count == int64(0)) &&
+		IDTaskSection != constants.IDTaskSectionToday &&
+		IDTaskSection != constants.IDTaskSectionBlocked &&
+		IDTaskSection != constants.IDTaskSectionBacklog {
+		return primitive.NilObjectID, errors.New("task section ID not found")
+	}
+	return IDTaskSection, nil
 }
