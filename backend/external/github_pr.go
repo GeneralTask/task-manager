@@ -15,6 +15,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const (
+	CurrentlyAuthedUserFilter string = ""
+	RepoOwnerTypeOrganization string = "Organization"
+)
+
 type GithubPRSource struct {
 	Github GithubService
 }
@@ -65,32 +70,20 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	// passing empty string here means fetching the currently authed user
-	githubUser, _, err := githubClient.Users.Get(extCtx, "")
+	githubUser, _, err := githubClient.Users.Get(extCtx, CurrentlyAuthedUserFilter)
 	if err != nil || githubUser == nil {
 		log.Println("failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
 		return
 	}
 
-	// passing empty string here means fetching for the currently authed user
-	repos, _, err := githubClient.Repositories.List(extCtx, "", nil)
+	repos, _, err := githubClient.Repositories.List(extCtx, CurrentlyAuthedUserFilter, nil)
 	if err != nil {
 		log.Println("failed to fetch Github repos for user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
 		return
 	}
-	repoNameToOwner := make(map[string]string)
-	for _, repo := range repos {
-		if repo != nil &&
-			repo.Name != nil &&
-			repo.Owner != nil &&
-			repo.Owner.Login != nil &&
-			repo.Owner.Type != nil &&
-			*repo.Owner.Type == "Organization" {
-			repoNameToOwner[*repo.Name] = *repo.Owner.Login
-		}
-	}
+	repoNameToOwner := getReposInOrganizations(repos)
 
 	pullRequests := []*github.PullRequest{}
 	var pullRequestItems []*database.Item
@@ -169,6 +162,21 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		PullRequests: pullRequestItems,
 		Error:        nil,
 	}
+}
+
+func getReposInOrganizations(repos []*github.Repository) map[string]string {
+	repoNameToOwner := make(map[string]string)
+	for _, repo := range repos {
+		if repo != nil &&
+			repo.Name != nil &&
+			repo.Owner != nil &&
+			repo.Owner.Login != nil &&
+			repo.Owner.Type != nil &&
+			*repo.Owner.Type == RepoOwnerTypeOrganization {
+			repoNameToOwner[*repo.Name] = *repo.Owner.Login
+		}
+	}
+	return repoNameToOwner
 }
 
 func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool {
