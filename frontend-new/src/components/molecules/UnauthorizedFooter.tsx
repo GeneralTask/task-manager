@@ -16,6 +16,7 @@ const Footer = styled.View`
     padding: ${Spacing.padding.small}px ${Spacing.padding.medium}px;
     background-color: ${Colors.purple._2};
     width: 100%;
+    z-index: 1;
 `
 const FooterView = styled.View`
     display: flex;

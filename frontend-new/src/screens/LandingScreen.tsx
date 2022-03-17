@@ -11,6 +11,12 @@ import { useAppSelector } from '../redux/hooks'
 import Cookies from 'js-cookie'
 import UnauthorizedHeader from '../components/molecules/UnauthorizedHeader'
 import UnauthorizedFooter from '../components/molecules/UnauthorizedFooter'
+import styled from 'styled-components/native'
+
+const FlexGrowContainer = styled.View`
+    flex: 1;
+`
+
 const LandingScreen = () => {
     const [message, setMessage] = useState('')
     const { control, handleSubmit } = useForm({
@@ -55,38 +61,38 @@ const LandingScreen = () => {
     return (
         <View style={styles.container}>
             <UnauthorizedHeader />
-            <View style={styles.headerContainer}>
-                <Text style={styles.header}>The task manager for highly productive people.</Text>
-                <Text style={styles.subheader}>
-                    General Task pulls together your emails, messages, and tasks and prioritizes what matters most.{' '}
-                </Text>
-                <Text style={styles.subheader}></Text>
-            </View>
-            <View style={styles.waitlistContainer}>
-                <Controller
-                    control={control}
-                    rules={{
-                        required: true,
-                    }}
-                    render={({ field: { onChange, value } }) => (
-                        <TextInput
-                            onSubmitEditing={Keyboard.dismiss}
-                            style={styles.input}
-                            onChangeText={onChange}
-                            value={value}
-                            placeholder="Enter email address"
-                        ></TextInput>
-                    )}
-                    name="email"
-                />
-                {Platform.OS === 'ios' && errorMessageView}
-                <JoinWaitlistButton onSubmit={handleSubmit(onWaitlistSubmit, onWaitlistError)} />
-            </View>
-            {Platform.OS === 'web' && errorMessageView}
-            <GoogleSignInButton />
-            <View style={styles.footerContainer}>
-                <UnauthorizedFooter />
-            </View>
+            <FlexGrowContainer>
+                <View style={styles.headerContainer}>
+                    <Text style={styles.header}>The task manager for highly productive people.</Text>
+                    <Text style={styles.subheader}>
+                        General Task pulls together your emails, messages, and tasks and prioritizes what matters most.{' '}
+                    </Text>
+                    <Text style={styles.subheader}></Text>
+                </View>
+                <View style={styles.waitlistContainer}>
+                    <Controller
+                        control={control}
+                        rules={{
+                            required: true,
+                        }}
+                        render={({ field: { onChange, value } }) => (
+                            <TextInput
+                                onSubmitEditing={Keyboard.dismiss}
+                                style={styles.input}
+                                onChangeText={onChange}
+                                value={value}
+                                placeholder="Enter email address"
+                            ></TextInput>
+                        )}
+                        name="email"
+                    />
+                    {Platform.OS === 'ios' && errorMessageView}
+                    <JoinWaitlistButton onSubmit={handleSubmit(onWaitlistSubmit, onWaitlistError)} />
+                </View>
+                {Platform.OS === 'web' && errorMessageView}
+                <GoogleSignInButton />
+            </FlexGrowContainer>
+            <UnauthorizedFooter />
         </View>
     )
 }
