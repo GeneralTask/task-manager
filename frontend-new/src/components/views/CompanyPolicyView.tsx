@@ -37,7 +37,7 @@ const CompanyPolicyView = ({ page }: CompanyPolicyViewProps) => {
             <UnauthorizedHeader />
             <Body>
                 <PolicyHeader>
-                    <Icon size="large" source={icons.circle_wavy_check} />
+                    <Icon size="large" source={icons.check_circle_wavy} />
                     <TitleLarge>{pageTitle}</TitleLarge>
                 </PolicyHeader>
                 {pageContent}

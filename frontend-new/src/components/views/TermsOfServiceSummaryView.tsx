@@ -76,7 +76,7 @@ const TermsOfServiceSummaryView = () => {
     return (
         <TermsOfServiceContainer>
             <GapContainer>
-                <Icon size="large" source={icons.circle_wavy_check} />
+                <Icon size="large" source={icons.check_circle_wavy} />
                 <TermsOfServiceHeader>
                     <TitleLargeContainer>
                         <TitleLarge>Terms of Service</TitleLarge>
@@ -108,7 +108,7 @@ const TermsOfServiceSummaryView = () => {
                 </VerticalFlex>
                 <VerticalFlex>
                     <Pressable onPress={() => setTermsCheck(!termsCheck)}>
-                        <Icon size="small" source={termsCheck ? icons.check_gray : icons.unchecked_check} />
+                        <Icon size="small" source={termsCheck ? icons.check_gray : icons.check_unchecked} />
                     </Pressable>
                     <AgreementText required>
                         I acknowledge General Task&#39;s privacy policy and agree to General Task&#39;s terms of
@@ -118,7 +118,7 @@ const TermsOfServiceSummaryView = () => {
                 </VerticalFlex>
                 <VerticalFlex>
                     <Pressable onPress={() => setPromotionsCheck(!promotionsCheck)}>
-                        <Icon size="small" source={promotionsCheck ? icons.check_gray : icons.unchecked_check} />
+                        <Icon size="small" source={promotionsCheck ? icons.check_gray : icons.check_unchecked} />
                     </Pressable>
                     <AgreementText>I would like to opt in on General Task&#39;s promotional emails.</AgreementText>
                 </VerticalFlex>
