@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import { Pressable } from 'react-native'
 import styled from 'styled-components/native'
-import { useNavigate } from '../../services/routing'
+import { Link, useNavigate } from '../../services/routing'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
@@ -36,12 +36,9 @@ const TermsScrollView = styled.ScrollView`
     margin-bottom: ${Spacing.margin.small}px;
     padding: ${Spacing.padding.small}px;
 `
-const PurplePressable = styled.Pressable`
-    margin-top: ${Spacing.margin.medium}px;
+const LinkContainer = styled.View`
+    margin-top: ${Spacing.margin.small}px;
     margin-right: ${Spacing.margin.medium}px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
 `
 const PurpleText = styled.Text`
     color: ${Colors.purple._1};
@@ -98,14 +95,18 @@ const TermsOfServiceSummaryView = () => {
             <Divider />
             <PaddingCointainer>
                 <VerticalFlex>
-                    <PurplePressable>
-                        <PurpleText>Read full terms of service</PurpleText>
-                        <Icon size="xxSmall" source={icons.caret_right_purple}></Icon>
-                    </PurplePressable>
-                    <PurplePressable>
-                        <PurpleText>Read privacy policy</PurpleText>
-                        <Icon size="xxSmall" source={icons.caret_right_purple}></Icon>
-                    </PurplePressable>
+                    <LinkContainer>
+                        <Link to="/terms-of-service" target="_blank">
+                            <PurpleText>Read full terms of service</PurpleText>
+                            <Icon size="xxSmall" source={icons.caret_right_purple}></Icon>
+                        </Link>
+                    </LinkContainer>
+                    <LinkContainer>
+                        <Link to="/privacy-policy" target="_blank">
+                            <PurpleText>Read privacy policy</PurpleText>
+                            <Icon size="xxSmall" source={icons.caret_right_purple}></Icon>
+                        </Link>
+                    </LinkContainer>
                 </VerticalFlex>
                 <VerticalFlex>
                     <Pressable onPress={() => setTermsCheck(!termsCheck)}>
