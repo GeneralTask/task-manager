@@ -53,6 +53,7 @@ export interface TMessage {
     sender: string
     sent_at: string
     is_unread: boolean
+    is_task: boolean
     source: TMessageSource
 }
 

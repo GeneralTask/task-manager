@@ -17,7 +17,11 @@ const MarkAsTaskButton = (props: MarkAsTaskButtonProps) => {
     return (
         <View style={[styles.container, props.style]}>
             <TouchableOpacity style={styles.image} onPress={buttonPressHandler}>
-                <Image style={styles.image} source={icons['mark_as_task']} />
+                {props.isTask ? (
+                    <Image style={styles.image} source={icons['mark_as_task_active']} />
+                ) : (
+                    <Image style={styles.image} source={icons['mark_as_task']} />
+                )}
             </TouchableOpacity>
         </View>
     )
