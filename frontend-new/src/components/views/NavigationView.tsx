@@ -13,7 +13,6 @@ import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import WebInput from '../atoms/WebInput'
 import NavigationLink from '../molecules/NavigationLink'
-import FeedbackButton from '../molecules/FeedbackButton'
 
 const NavigationViewHeader = styled.View`
     height: 24px;
