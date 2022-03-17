@@ -32,7 +32,6 @@ type EmailContents struct {
 }
 
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
-	log.Println("get emails!", accountID)
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -59,6 +58,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		return
 	}
 
+	// loads the most recent 100 threads in the inbox
 	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox").Do()
 	if err != nil {
 		log.Printf("failed to load Gmail threads for user: %v", err)
@@ -77,9 +77,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		go getThreadFromGmail(gmailService, threadListItem.Id, threadResult)
 		threadChannels = append(threadChannels, threadResult)
 	}
-	log.Println("loaded", len(threadsResponse.Threads), "threads!")
-	for index, threadChannel := range threadChannels {
-		log.Println("loaded thread #", index)
+	for _, threadChannel := range threadChannels {
 		thread := <-threadChannel
 		if thread == nil {
 			log.Printf("failed to load thread: %v", err)
