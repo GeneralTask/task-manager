@@ -1,12 +1,12 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import Cookies from 'js-cookie'
+import { Platform } from 'react-native'
+import { MESSAGES_PER_PAGE } from '../constants'
+import getEnvVars from '../environment'
+import type { RootState } from '../redux/store'
 import { TEvent, TLinkedAccount, TMessage, TSupportedTypes, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import Cookies from 'js-cookie'
-import { MESSAGES_PER_PAGE } from '../constants'
-import { Platform } from 'react-native'
-import type { RootState } from '../redux/store'
-import getEnvVars from '../environment'
 
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
@@ -256,6 +256,32 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
+        modifyTaskSection: builder.mutation<void, { id: string, name: string }>({
+            query: (data) => ({
+                url: `sections/modify/${data.id}/`,
+                method: 'PATCH',
+                body: { name: data.name },
+            }),
+            async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                        for (let i = 0; i < sections.length; i++) {
+                            const section = sections[i]
+                            if (section.id === data.id) {
+                                section.name = data.name
+                                return
+                            }
+                        }
+                    })
+                )
+                try {
+                    await queryFulfilled
+                    dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
+                } catch {
+                    result.undo()
+                }
+            }
+        }),
         getMessages: builder.query<TMessage[], { only_unread: boolean, page: number }>({
             query: (data) => ({
                 url: 'messages/v2/',
@@ -351,5 +377,6 @@ export const {
     useGetSupportedTypesQuery,
     useDeleteLinkedAccountMutation,
     usePostFeedbackMutation,
+    useModifyTaskSectionMutation,
     useMarkMessageAsTaskMutation,
 } = generalTaskApi

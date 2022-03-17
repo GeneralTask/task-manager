@@ -46,7 +46,7 @@ const Messages = () => {
     return (
         <ScrollView>
             <View style={styles.messagesContent}>
-                <SectionHeader section="Messages" allowRefresh={true} refetch={refetch} />
+                <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetch} />
                 {data?.pages.map((page, index) => {
                     return page?.map((message: TMessage, msgIndex: number) => {
                         if (data.pages.length === index + 1 && page.length === msgIndex + 1) {
