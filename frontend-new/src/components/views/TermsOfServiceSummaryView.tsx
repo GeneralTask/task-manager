@@ -17,7 +17,7 @@ const TermsOfServiceContainer = styled.View`
     padding: ${Spacing.padding.medium}px;
     height: 100%;
 `
-const PaddingCointainer = styled.View`
+const GapContainer = styled.View`
     gap: ${Spacing.margin.medium}px;
 `
 const FlexGrow = styled.View`
@@ -75,7 +75,7 @@ const TermsOfServiceSummaryView = () => {
 
     return (
         <TermsOfServiceContainer>
-            <PaddingCointainer>
+            <GapContainer>
                 <Icon size="large" source={icons.circle_wavy_check} />
                 <TermsOfServiceHeader>
                     <TitleLargeContainer>
@@ -83,17 +83,15 @@ const TermsOfServiceSummaryView = () => {
                     </TitleLargeContainer>
                     <SubtitleSmall>Please read and agree with the terms below.</SubtitleSmall>
                 </TermsOfServiceHeader>
-            </PaddingCointainer>
+            </GapContainer>
             <Divider />
             <FlexGrow>
-                <PaddingCointainer>
-                    <TermsScrollView>
-                        <TermsOfServiceSummary />
-                    </TermsScrollView>
-                </PaddingCointainer>
+                <TermsScrollView>
+                    <TermsOfServiceSummary />
+                </TermsScrollView>
             </FlexGrow>
             <Divider />
-            <PaddingCointainer>
+            <GapContainer>
                 <VerticalFlex>
                     <LinkContainer>
                         <Link to="/terms-of-service" target="_blank">
@@ -124,8 +122,8 @@ const TermsOfServiceSummaryView = () => {
                     </Pressable>
                     <AgreementText>I would like to opt in on General Task&#39;s promotional emails.</AgreementText>
                 </VerticalFlex>
-            </PaddingCointainer>
-            <PaddingCointainer>
+            </GapContainer>
+            <GapContainer>
                 <SubmitButtonContainer>
                     <RoundedGeneralButton
                         onPress={onSubmit}
@@ -135,7 +133,7 @@ const TermsOfServiceSummaryView = () => {
                     />
                     <RoundedGeneralButton onPress={() => navigate('/')} textStyle="dark" value="Cancel" hasBorder />
                 </SubmitButtonContainer>
-            </PaddingCointainer>
+            </GapContainer>
         </TermsOfServiceContainer>
     )
 }
