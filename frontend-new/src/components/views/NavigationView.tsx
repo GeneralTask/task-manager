@@ -3,7 +3,6 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
 import { useAddTaskSectionMutation, useGetTasksQuery } from '../../services/generalTaskApi'
-import FeedbackButton from '../molecules/FeedbackButton'
 import { useLocation, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { icons } from '../../styles/images'
@@ -12,6 +11,7 @@ import { authSignOut } from '../../utils/auth'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import WebInput from '../atoms/WebInput'
+import FeedbackButton from '../molecules/FeedbackButton'
 import NavigationLink from '../molecules/NavigationLink'
 
 const NavigationViewHeader = styled.View`
@@ -98,7 +98,7 @@ const NavigationView = () => {
 const styles = StyleSheet.create({
     container: {
         ...Flex.column,
-        minWidth: 232,
+        width: 232,
         backgroundColor: Colors.gray._100,
         paddingLeft: 8,
         paddingTop: 8,
