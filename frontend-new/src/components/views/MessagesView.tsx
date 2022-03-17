@@ -71,7 +71,7 @@ const Messages = () => {
 
 const styles = StyleSheet.create({
     shell: {
-        marginVertical: 6,
+        marginVertical: 1,
     },
     container: {
         ...Screens.container,
@@ -81,15 +81,15 @@ const styles = StyleSheet.create({
     },
     messagesContent: {
         ...Flex.column,
-        marginRight: '7.5%',
-        marginLeft: '7.5%',
+        marginRight: 10,
+        marginLeft: 10,
         marginTop: Platform.OS === 'web' ? 40 : 20,
         marginBottom: 100,
     },
     endContent: {
         ...Flex.column,
-        marginRight: '7.5%',
-        marginLeft: '7.5%',
+        marginRight: 10,
+        marginLeft: 10,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20,

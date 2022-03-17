@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
         width: '100%',
         position: 'relative',
         height: 34,
-        borderRadius: 12,
+        borderRadius: 4,
     },
 })
 
