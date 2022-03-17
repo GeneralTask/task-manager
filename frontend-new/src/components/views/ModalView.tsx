@@ -7,6 +7,7 @@ import { Colors, Dimensions } from '../../styles'
 
 const SHARED_MODAL_OVERLAY_STYLE: React.CSSProperties = {
     backgroundColor: 'transparent',
+    overflow: 'scroll',
 }
 const SHARED_MODAL_CONTENT_STYLE: React.CSSProperties = {
     position: 'absolute',

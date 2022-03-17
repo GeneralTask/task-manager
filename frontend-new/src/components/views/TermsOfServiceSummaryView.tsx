@@ -28,7 +28,7 @@ const TermsOfServiceHeader = styled.View`
 const TitleLargeContainer = styled.View`
     margin-bottom: ${Spacing.margin.small}px;
 `
-const TermsScrollView = styled.ScrollView`
+const TermsScrollView = styled.View`
     flex: 1;
     overflow-y: scroll;
     margin-top: ${Spacing.margin.small}px;
