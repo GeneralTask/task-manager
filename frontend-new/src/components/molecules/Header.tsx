@@ -51,7 +51,13 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         if (id) deleteTaskSection({ id: id })
     }
     const handleChangeSectionName = async (id: string | undefined, name: string) => {
-        if (id) modifyTaskSection({ id: id, name: name })
+        const trimmedName = name.trim()
+        if (id && trimmedName.length > 0) {
+            modifyTaskSection({ id: id, name: trimmedName })
+            setSectionName(trimmedName)
+        } else {
+            setSectionName(props.sectionName)
+        }
         setIsEditingTitle(false)
     }
     return (
