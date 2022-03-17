@@ -17,6 +17,7 @@ import (
 )
 
 func (api *API) MessagesFetch(c *gin.Context) {
+	log.Println("messages fetch!")
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
