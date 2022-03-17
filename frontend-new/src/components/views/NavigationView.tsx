@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
 import { useAddTaskSectionMutation, useGetTasksQuery } from '../../services/generalTaskApi'
+import FeedbackButton from '../molecules/FeedbackButton'
 import { useLocation, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { icons } from '../../styles/images'
@@ -100,7 +101,12 @@ const styles = StyleSheet.create({
         ...Flex.column,
         minWidth: 232,
         backgroundColor: Colors.gray._100,
+        paddingLeft: 8,
         paddingTop: 8,
+        paddingRight: 8,
+    },
+    linkContainerSelected: {
+        backgroundColor: Colors.gray._50,
     },
     linksFlexContainer: {
         flex: 1,
