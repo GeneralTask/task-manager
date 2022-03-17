@@ -17,3 +17,18 @@ export const fetchInfiniteMessages = async ({ pageParam = 1 }) => {
     })
     return res.json()
 }
+
+export const fetchUserInfo = async () => {
+    const res = await fetch(`${REACT_APP_API_BASE_URL}/user_info/`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${Cookies.get('authToken')}`,
+            'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
+            'Access-Control-Allow-Headers':
+                'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset',
+            'Access-Control-Allow-Methods': 'POST,OPTIONS,GET,PATCH,DELETE',
+            'Timezone-Offset': new Date().getTimezoneOffset().toString(),
+        },
+    })
+    return res.json()
+}

@@ -4,15 +4,15 @@ import { Image, ImageSourcePropType, StyleSheet } from 'react-native'
 import styled from 'styled-components/native'
 import { Dimensions, Flex } from '../../styles'
 
-const IconContainer = styled.View<{ width: number, height: number }>`
-    width: ${props => props.width}px;
-    height: ${props => props.height}px;
+const IconContainer = styled.View<{ width: number; height: number }>`
+    width: ${(props) => props.width}px;
+    height: ${(props) => props.height}px;
     align-items: center;
     justify-content: center;
 `
 
 interface IconProps {
-    size: 'xSmall' | 'small' | 'medium' | 'large'
+    size: 'xxSmall' | 'xSmall' | 'small' | 'medium' | 'large'
     uri?: string
     source?: NodeRequire | ImageSourcePropType
 }
@@ -23,6 +23,8 @@ export const Icon = (props: IconProps) => {
 
     const dimension = (() => {
         switch (props.size) {
+            case 'xxSmall':
+                return Dimensions.iconSize.xxSmall
             case 'xSmall':
                 return Dimensions.iconSize.xSmall
             case 'small':

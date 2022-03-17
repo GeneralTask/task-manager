@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, StyleSheet, TextInput, Image, Platform, Keyboard } from 'react-native'
+import { View, Text, StyleSheet, TextInput, Platform, Keyboard } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import { getHeaders } from '../utils/api'
 import { WAITLIST_URL } from '../constants'
@@ -9,12 +9,20 @@ import { Colors, Flex, Images, Screens, Typography } from '../styles'
 import { Navigate } from '../services/routing'
 import { useAppSelector } from '../redux/hooks'
 import Cookies from 'js-cookie'
+import UnauthorizedHeader from '../components/molecules/UnauthorizedHeader'
+import UnauthorizedFooter from '../components/molecules/UnauthorizedFooter'
+import styled from 'styled-components/native'
+
+const FlexGrowContainer = styled.View`
+    flex: 1;
+`
+
 const LandingScreen = () => {
     const [message, setMessage] = useState('')
     const { control, handleSubmit } = useForm({
         defaultValues: {
             email: '',
-        }
+        },
     })
     const onWaitlistSubmit = (data: { email: string }) => {
         joinWaitlist(data.email)
@@ -38,13 +46,12 @@ const LandingScreen = () => {
             setMessage('There was an error adding you to the waitlist')
         }
     }
-    const { authToken } = useAppSelector(state => ({ authToken: state.user_data.auth_token }))
+    const { authToken } = useAppSelector((state) => ({ authToken: state.user_data.auth_token }))
     const authCookie = Cookies.get('authToken')
 
     if (authToken || authCookie) {
         return <Navigate to="/tasks" />
     }
-
 
     const errorMessageView = (
         <View style={styles.responseContainer}>
@@ -53,32 +60,39 @@ const LandingScreen = () => {
     )
     return (
         <View style={styles.container}>
-            <Image style={styles.logo} source={require('../assets/logo.png')} />
-            <View style={styles.headerContainer}>
-                <Text style={styles.header}>The task manager for highly productive people.</Text>
-                <Text style={styles.subheader}>General Task pulls together your emails, messages, and tasks and prioritizes what matters most. </Text>
-                <Text style={styles.subheader}></Text>
-            </View>
-            <View style={styles.waitlistContainer}>
-                <Controller
-                    control={control}
-                    rules={{
-                        required: true,
-                    }}
-                    render={({ field: { onChange, value } }) => (
-                        <TextInput onSubmitEditing={Keyboard.dismiss} style={styles.input} onChangeText={onChange} value={value} placeholder='Enter email address'></TextInput>
-                    )}
-                    name="email"
-                />
-                {
-                    Platform.OS === 'ios' && errorMessageView
-                }
-                <JoinWaitlistButton onSubmit={handleSubmit(onWaitlistSubmit, onWaitlistError)} />
-            </View>
-            {
-                Platform.OS === 'web' && errorMessageView
-            }
-            <GoogleSignInButton />
+            <UnauthorizedHeader />
+            <FlexGrowContainer>
+                <View style={styles.headerContainer}>
+                    <Text style={styles.header}>The task manager for highly productive people.</Text>
+                    <Text style={styles.subheader}>
+                        General Task pulls together your emails, messages, and tasks and prioritizes what matters most.{' '}
+                    </Text>
+                    <Text style={styles.subheader}></Text>
+                </View>
+                <View style={styles.waitlistContainer}>
+                    <Controller
+                        control={control}
+                        rules={{
+                            required: true,
+                        }}
+                        render={({ field: { onChange, value } }) => (
+                            <TextInput
+                                onSubmitEditing={Keyboard.dismiss}
+                                style={styles.input}
+                                onChangeText={onChange}
+                                value={value}
+                                placeholder="Enter email address"
+                            ></TextInput>
+                        )}
+                        name="email"
+                    />
+                    {Platform.OS === 'ios' && errorMessageView}
+                    <JoinWaitlistButton onSubmit={handleSubmit(onWaitlistSubmit, onWaitlistError)} />
+                </View>
+                {Platform.OS === 'web' && errorMessageView}
+                <GoogleSignInButton />
+            </FlexGrowContainer>
+            <UnauthorizedFooter />
         </View>
     )
 }
@@ -93,7 +107,7 @@ const styles = StyleSheet.create({
             ios: {},
             default: {
                 marginTop: '10px',
-            }
+            },
         }),
         resizeMode: 'contain',
         width: Images.size.logo.header,
@@ -116,7 +130,7 @@ const styles = StyleSheet.create({
                 marginBottom: '40px',
                 maxWidth: '650px',
                 margin: 'auto',
-            }
+            },
         }),
         fontSize: Typography.fontSize.header,
         textAlign: 'center',
@@ -127,7 +141,7 @@ const styles = StyleSheet.create({
             default: {
                 maxWidth: '725px',
                 margin: 'auto',
-            }
+            },
         }),
         fontSize: Typography.fontSize.subheader,
         textAlign: 'center',
@@ -144,8 +158,8 @@ const styles = StyleSheet.create({
                 marginRight: 'auto',
                 marginTop: '30px',
                 width: '500px',
-            }
-        })
+            },
+        }),
     },
     input: {
         ...Platform.select({
@@ -160,7 +174,7 @@ const styles = StyleSheet.create({
                 borderWidth: 1,
                 flexGrow: 1,
                 paddingLeft: '10px',
-            }
+            },
         }),
     },
     responseContainer: {
@@ -169,12 +183,15 @@ const styles = StyleSheet.create({
             default: {
                 alignSelf: 'center',
                 marginTop: '10px',
-            }
-        })
+            },
+        }),
     },
     response: {
         color: Colors.response.error,
-    }
+    },
+    footerContainer: {
+        marginTop: 'auto',
+    },
 })
 
 export default LandingScreen

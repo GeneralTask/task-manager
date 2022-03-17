@@ -33,10 +33,9 @@ const TasksScreen = () => {
                 {currentPage}
                 <DetailsView />
             </DefaultTemplate>
-            {
-                Platform.OS === 'ios' &&
+            {Platform.OS === 'ios' && (
                 <TaskBottomSheet sheetTaskId={sheetTaskId} setSheetTaskId={setSheetTaskId} ref={sheetRef} />
-            }
+            )}
         </>
     )
 }
