@@ -6,7 +6,7 @@ export const purple = {
 }
 export const red = {
     '_1': '#FF135A',
-    '_2': '#3A15A0',
+    '_2': '#FFEFF2',
 }
 export const gray = {
     '_900': '#18181B',
