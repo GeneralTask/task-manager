@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     DominoOuterContainer: {
         ...Platform.select({
             web: {
-                cursor: 'grab'
+                cursor: 'grab',
             },
         }),
         height: 16,

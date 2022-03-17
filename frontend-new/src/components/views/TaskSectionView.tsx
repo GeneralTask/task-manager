@@ -1,17 +1,16 @@
-import { Colors, Flex, Screens, Spacing } from '../../styles'
-import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
-import React, { useEffect, useRef } from 'react'
-import { useFetchTasksExternalQuery, useGetTasksQuery } from '../../services/generalTaskApi'
-import { useNavigate, useParams } from 'react-router-dom'
-
-import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
-import EventBanner from '../molecules/EventBanner'
+import React, { useEffect, useRef } from 'react'
+import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useFetchTasksExternalQuery, useGetTasksQuery } from '../../services/generalTaskApi'
+import { Colors, Flex, Screens, Spacing } from '../../styles'
+import { getSectionById } from '../../utils/task'
 import Loading from '../atoms/Loading'
+import CreateNewTask from '../molecules/CreateNewTask'
+import EventBanner from '../molecules/EventBanner'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
 import TaskDropContainer from '../molecules/TaskDropContainer'
-import { getSectionById } from '../../utils/task'
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
@@ -48,7 +47,7 @@ const TaskSection = () => {
                 ) : (
                     <View>
                         <SectionHeader
-                            section={currentSection.name}
+                            sectionName={currentSection.name}
                             allowRefresh={true}
                             refetch={onRefresh}
                             taskSectionId={currentSection.id}

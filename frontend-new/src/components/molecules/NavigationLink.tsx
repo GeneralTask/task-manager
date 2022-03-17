@@ -1,14 +1,13 @@
-import { Colors, Flex } from '../../styles'
-import { ImageSourcePropType, Platform, StyleSheet, View, ViewStyle } from 'react-native'
-import { ItemTypes, TTaskSection } from '../../utils/types'
 import React, { CSSProperties, Ref, useCallback } from 'react'
-
-import { Icon } from '../atoms/Icon'
+import { useDrop } from 'react-dnd'
+import { ImageSourcePropType, Platform, StyleSheet, View, ViewStyle } from 'react-native'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components/native'
-import { useDrop } from 'react-dnd'
 import { useReorderTaskMutation } from '../../services/generalTaskApi'
+import { Colors, Flex } from '../../styles'
 import { weight } from '../../styles/typography'
+import { ItemTypes, TTaskSection } from '../../utils/types'
+import { Icon } from '../atoms/Icon'
 
 interface NavigationLinkProps {
     isCurrentPage: boolean
@@ -16,13 +15,14 @@ interface NavigationLinkProps {
     title: string
     icon?: NodeRequire | ImageSourcePropType
     taskSection?: TTaskSection
+    droppable?: boolean
 }
-const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection }: NavigationLinkProps) => {
+const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppable }: NavigationLinkProps) => {
     const [reorderTask] = useReorderTaskMutation()
 
     const onDrop = useCallback(
         (item: { id: string; taskIndex: number; sectionId: string }) => {
-            if (taskSection) {
+            if (taskSection && droppable) {
                 reorderTask({
                     taskId: item.id,
                     orderingId: 1,
@@ -38,10 +38,10 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection }: Navig
         () => ({
             accept: ItemTypes.TASK,
             collect: (monitor) => {
-                return !!(taskSection && monitor.isOver())
+                return !!(taskSection && droppable && monitor.isOver())
             },
             drop: onDrop,
-            canDrop: () => !!taskSection,
+            canDrop: () => !!(taskSection && droppable),
         }),
         [taskSection, onDrop]
     )
@@ -60,6 +60,7 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection }: Navig
             >
                 <Icon size="small" source={icon} />
                 <SectionTitle isSelected={isCurrentPage}>{title}</SectionTitle>
+                <SectionTitleItemCount isSelected={isCurrentPage}>{taskSection?.tasks.length}</SectionTitleItemCount>
             </View>
         </Link>
     )
@@ -95,6 +96,11 @@ const SectionTitle = styled.Text<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
     margin-left: 9px;
+    flex: 1;
+`
+const SectionTitleItemCount = styled.Text<{ isSelected: boolean }>`
+    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
+    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
 `
 
 export default NavigationLink

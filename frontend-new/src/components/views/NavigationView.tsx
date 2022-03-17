@@ -1,19 +1,18 @@
-import { Colors, Flex } from '../../styles'
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
-import { useAddTaskSectionMutation, useGetMessagesQuery, useGetTasksQuery } from '../../services/generalTaskApi'
-import FeedbackButton from '../molecules/FeedbackButton'
-import { useLocation, useParams } from '../../services/routing'
-
-import { Icon } from '../atoms/Icon'
-import Loading from '../atoms/Loading'
-import NavigationLink from '../molecules/NavigationLink'
-import WebInput from '../atoms/WebInput'
-import { authSignOut } from '../../utils/auth'
-import { icons } from '../../styles/images'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
+import { useAddTaskSectionMutation, useGetTasksQuery } from '../../services/generalTaskApi'
+import FeedbackButton from '../molecules/FeedbackButton'
+import { useLocation, useParams } from '../../services/routing'
+import { Colors, Flex } from '../../styles'
+import { icons } from '../../styles/images'
 import { weight } from '../../styles/typography'
+import { authSignOut } from '../../utils/auth'
+import { Icon } from '../atoms/Icon'
+import Loading from '../atoms/Loading'
+import WebInput from '../atoms/WebInput'
+import NavigationLink from '../molecules/NavigationLink'
 
 const NavigationViewHeader = styled.View`
     height: 24px;
@@ -34,20 +33,17 @@ const AddSectionInputView = styled.View`
 const NavigationView = () => {
     const dispatch = useAppDispatch()
     const { data: taskSections, isLoading: isLoadingTasks } = useGetTasksQuery()
-    const { isLoading: isLoadingMessages } = useGetMessagesQuery({ only_unread: false, page: 0 })
     const { section: sectionIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
     const [addTaskSection] = useAddTaskSectionMutation()
     const { pathname } = useLocation()
-
-    const loading = isLoadingTasks || isLoadingMessages
     return (
         <View style={styles.container}>
             <NavigationViewHeader>
                 <Icon size="medium" />
             </NavigationViewHeader>
             <ScrollView style={styles.linksFlexContainer}>
-                {loading ? (
+                {isLoadingTasks ? (
                     <Loading />
                 ) : (
                     <>
@@ -58,7 +54,8 @@ const NavigationView = () => {
                                 title={section.name}
                                 icon={icons.inbox}
                                 isCurrentPage={sectionIdParam === section.id}
-                                taskSection={!section.is_done ? section : undefined}
+                                taskSection={section}
+                                droppable={!section.is_done}
                             />
                         ))}
                         <NavigationLink
@@ -76,7 +73,7 @@ const NavigationView = () => {
                     </>
                 )}
                 <AddSectionView>
-                    <Icon size={'small'} source={require('../../assets/plus.png')} />
+                    <Icon size={'small'} source={icons['plus']} />
                     <AddSectionInputView>
                         <WebInput
                             value={sectionName}
