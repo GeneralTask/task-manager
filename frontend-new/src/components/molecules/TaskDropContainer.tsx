@@ -20,10 +20,10 @@ const DropIndicatorStyles = css<{ isVisible: boolean }>`
     visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
 `
 export const DropIndicatorAbove = styled.View`
-    ${DropIndicatorStyles}/* top: 1px; */
+    ${DropIndicatorStyles}
 `
 export const DropIndicatorBelow = styled.View`
-    ${DropIndicatorStyles}/* top: -6px; */
+    ${DropIndicatorStyles}
 `
 
 interface TaskDropContainerProps {

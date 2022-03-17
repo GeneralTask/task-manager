@@ -48,7 +48,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
     const dragRef = Platform.OS === 'web' ? (drag as Ref<View>) : undefined
 
     return (
-        <TaskTemplate style={styles.templateMargin}>
+        <TaskTemplate>
             <Pressable style={[styles.container, styles.shadow]} onPress={onPress} ref={dragPreviewRef}>
                 {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />
@@ -64,9 +64,6 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
 }
 
 const styles = StyleSheet.create({
-    templateMargin: {
-        // marginVertical: 6,
-    },
     container: {
         ...Flex.row,
         alignItems: 'center',
