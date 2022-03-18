@@ -46,8 +46,6 @@ const TitleInput = webStyled.input`
 const BodyTextArea = webStyled.textarea`
     display: block;
     background-color: inherit;
-    margin-top: ${Spacing.margin.medium}px;
-    flex: 1;
     border: none;
     resize: none;
     outline: none;
@@ -56,9 +54,14 @@ const BodyTextArea = webStyled.textarea`
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize}px;
+    height: 250px;
+    :focus {
+        outline: 1px solid ${Colors.gray._500};
+    }
 `
 const MarginTopContainer = styled.View`
     margin-top: ${Spacing.margin.medium}px;
+    flex: 1;
 `
 
 interface DetailsViewProps {
@@ -124,18 +127,18 @@ const DetailsView = ({ task }: DetailsViewProps) => {
                     )}
                 </ActionButton>
             </TaskTitleContainer>
-            {sourceName === 'Asana' ? (
-                <MarginTopContainer>
-                    <TaskHTMLBody html={task.body} />
-                </MarginTopContainer>
-            ) : (
-                <BodyTextArea
-                    placeholder="Add task details"
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    onBlur={handleBlur}
-                />
-            )}
+            <MarginTopContainer>
+                {sourceName === 'Asana' ? (
+                    <TaskHTMLBody html={body} />
+                ) : (
+                    <BodyTextArea
+                        placeholder="Add task details"
+                        value={body}
+                        onChange={(e) => setBody(e.target.value)}
+                        onBlur={handleBlur}
+                    />
+                )}
+            </MarginTopContainer>
         </DetailsViewContainer>
     )
 }
