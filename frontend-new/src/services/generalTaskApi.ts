@@ -298,7 +298,7 @@ export const generalTaskApi = createApi({
                 ]
                 : [{ type: 'Messages', id: 'PARTIAL_LIST' }],
         }),
-        fetchMessages: builder.query<TMessage[], void>({
+        fetchMessagesDeprecated: builder.query<TMessage[], void>({
             query: () => 'messages/fetch/',
             async onQueryStarted(_, { dispatch }) {
                 dispatch(generalTaskApi.util.invalidateTags([{ type: 'Messages', id: 'PARTIAL_LIST' }]))
@@ -375,7 +375,6 @@ export const {
     useDeleteTaskSectionMutation,
     useGetEventsQuery,
     useGetMessagesQuery,
-    useFetchMessagesQuery,
     useGetLinkedAccountsQuery,
     useGetSupportedTypesQuery,
     useDeleteLinkedAccountMutation,
