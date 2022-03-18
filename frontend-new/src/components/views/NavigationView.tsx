@@ -6,6 +6,7 @@ import { useAddTaskSectionMutation, useGetTasksQuery } from '../../services/gene
 import { useLocation, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { icons } from '../../styles/images'
+import { margin } from '../../styles/spacing'
 import { weight } from '../../styles/typography'
 import { authSignOut } from '../../utils/auth'
 import { Icon } from '../atoms/Icon'
@@ -27,7 +28,7 @@ const AddSectionView = styled.View`
 `
 const AddSectionInputView = styled.View`
     font-weight: ${weight._600.fontWeight};
-    margin-left: 8px;
+    margin-left: ${margin.small};
     flex: 1;
 `
 
