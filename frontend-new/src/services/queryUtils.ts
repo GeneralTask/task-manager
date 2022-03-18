@@ -32,3 +32,19 @@ export const fetchUserInfo = async () => {
     })
     return res.json()
 }
+
+export const mutateUserInfo = async (userInfo: { agreed_to_terms: boolean, opted_into_marketing: boolean }) => {
+    const res = await fetch(`${REACT_APP_API_BASE_URL}/user_info/`, {
+        method: 'PATCH',
+        headers: {
+            Authorization: `Bearer ${Cookies.get('authToken')}`,
+            'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
+            'Access-Control-Allow-Headers':
+                'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset',
+            'Access-Control-Allow-Methods': 'POST,OPTIONS,GET,PATCH,DELETE',
+            'Timezone-Offset': new Date().getTimezoneOffset().toString(),
+        },
+        body: JSON.stringify(userInfo),
+    })
+    return res.json()
+}
