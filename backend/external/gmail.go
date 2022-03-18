@@ -26,10 +26,10 @@ type GmailSource struct {
 }
 
 type EmailContents struct {
-	To      		string
-	Recipients      *database.Recipients
-	Subject 		string
-	Body    		string
+	To         string
+	Recipients *database.Recipients
+	Subject    string
+	Body       string
 }
 
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
@@ -67,7 +67,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			Emails:     []*database.Item{},
 			Error:      err,
 			IsBadToken: isBadToken,
-			SourceID: TASK_SOURCE_ID_GMAIL,
+			SourceID:   TASK_SOURCE_ID_GMAIL,
 		}
 		return
 	}
@@ -187,7 +187,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			emails = append(emails, email)
 		}
 	}
-	result <- EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL,}
+	result <- EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL}
 }
 
 func isMessageUnread(message *gmail.Message) bool {
@@ -350,8 +350,6 @@ func (gmailSource GmailSource) SendEmail(userID primitive.ObjectID, accountID st
 		return errors.New("missing send address")
 	}
 
-    // to := []string{"Foo Bar <foo@mailinator.com>", "bar@mailinator.com"}
-    // toHeader := strings.Join(to, ",")
 	emailTo := "To: " + createEmailRecipientHeader(email.Recipients.To) + "\r\n"
 	emailCc := "Cc: " + createEmailRecipientHeader(email.Recipients.Cc) + "\r\n"
 	EmailBcc := "Bcc: " + createEmailRecipientHeader(email.Recipients.Bcc) + "\r\n"

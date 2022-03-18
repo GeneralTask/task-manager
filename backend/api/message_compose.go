@@ -26,11 +26,10 @@ func (api *API) MessageCompose(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	// check if all fields are empty
-	// TODO - add proper params validation
-	if requestParams == (messageComposeParams{}) {
-		c.JSON(400, gin.H{"detail": "parameter missing"})
-		return
+
+	if requestParams.MessageID == nil {
+		// todo - route specifically to reply
+		// api.MessageReply(c)
 	}
 
 	userIDRaw, _ := c.Get("user")
