@@ -99,7 +99,7 @@ const NavigationView = () => {
 const styles = StyleSheet.create({
     container: {
         ...Flex.column,
-        maxWidth: 232,
+        width: 232,
         backgroundColor: Colors.gray._100,
         paddingLeft: 8,
         paddingTop: 8,
