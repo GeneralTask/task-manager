@@ -1,9 +1,8 @@
-import { Colors, Flex, Images } from '../../styles'
-import { Image, Platform, StyleSheet, TextInput, View } from 'react-native'
 import React, { useCallback, useState } from 'react'
-
-import KeyboardShotcutContainer from '../atoms/ShortcutHint'
+import { Image, Platform, StyleSheet, TextInput, View } from 'react-native'
 import { useCreateTaskMutation } from '../../services/generalTaskApi'
+import { Colors, Flex, Images } from '../../styles'
+import KeyboardShotcutContainer from '../atoms/ShortcutHint'
 
 interface CreateNewTaskProps {
     section: string
@@ -72,6 +71,7 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         paddingRight: 10,
         borderRadius: 12,
+        marginBottom: 10,
     },
     plusIconContainer: {
         height: 20,

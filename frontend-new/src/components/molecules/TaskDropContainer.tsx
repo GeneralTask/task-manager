@@ -1,15 +1,14 @@
-import { DropProps, ItemTypes, TTask } from '../../utils/types'
-import { DropTargetMonitor, useDrop } from 'react-dnd'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import styled, { css } from 'styled-components/native'
-
-import { Colors } from '../../styles'
+import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { View } from 'react-native'
+import styled, { css } from 'styled-components/native'
 import { useReorderTaskMutation } from '../../services/generalTaskApi'
+import { Colors } from '../../styles'
+import { DropProps, ItemTypes, TTask } from '../../utils/types'
 
 const DropOverlay = styled.View`
     width: 100%;
-    height: 60px;
+    height: 36px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -17,16 +16,14 @@ const DropOverlay = styled.View`
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
     height: 2px;
     width: 100%;
-    background-color: ${Colors.gray._300};
+    background-color: ${Colors.gray._800};
     visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
 `
 export const DropIndicatorAbove = styled.View`
     ${DropIndicatorStyles}
-    top: 1px;
 `
 export const DropIndicatorBelow = styled.View`
     ${DropIndicatorStyles}
-    top: -1px;
 `
 
 interface TaskDropContainerProps {
