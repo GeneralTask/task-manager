@@ -10,12 +10,12 @@ import (
 )
 
 type messageComposeParams struct {
-	MessageID       *string     			`json:"message_id"`
-	Subject         *string     			`json:"subject" binding:"required"`
-	Body            *string     			`json:"body" binding:"required"`
-	Recipients      *database.Recipients 	`json:"recipients" binding:"required"`
-	SourceID        *string     			`json:"source_id" binding:"required"`
-	SourceAccountID *string     			`json:"source_account_id" binding:"required"`
+	MessageID       *string              `json:"message_id"`
+	Subject         *string              `json:"subject" binding:"required"`
+	Body            *string              `json:"body" binding:"required"`
+	Recipients      *database.Recipients `json:"recipients" binding:"required"`
+	SourceID        *string              `json:"source_id" binding:"required"`
+	SourceAccountID *string              `json:"source_account_id" binding:"required"`
 }
 
 func (api *API) MessageCompose(c *gin.Context) {
@@ -46,10 +46,10 @@ func (api *API) MessageCompose(c *gin.Context) {
 
 	// update external message
 	contents := external.EmailContents{
-		To:      requestParams.Recipients.To[0].Email,
+		To:         requestParams.Recipients.To[0].Email,
 		Recipients: requestParams.Recipients,
-		Subject: *requestParams.Subject,
-		Body: 	 *requestParams.Body,
+		Subject:    *requestParams.Subject,
+		Body:       *requestParams.Body,
 	}
 	err = taskSourceResult.Source.SendEmail(userID, *requestParams.SourceAccountID, contents)
 	if err != nil {
