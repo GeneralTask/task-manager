@@ -3,17 +3,19 @@ package api
 import (
 	"log"
 
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type messageComposeParams struct {
-	Subject         *string     `json:"subject"`
-	Body            *string     `json:"body"`
-	Recipients      *Recipients `json:"recipients"`
-	SourceID        *string     `json:"source_id"`
-	SourceAccountID *string     `json:"source_account_id"`
+	MessageID       *string     			`json:"message_id"`
+	Subject         *string     			`json:"subject"`
+	Body            *string     			`json:"body"`
+	Recipients      *database.Recipients 	`json:"recipients"`
+	SourceID        *string     			`json:"source_id"`
+	SourceAccountID *string     			`json:"source_account_id"`
 }
 
 func (api *API) MessageCompose(c *gin.Context) {
@@ -44,6 +46,7 @@ func (api *API) MessageCompose(c *gin.Context) {
 	// update external message
 	contents := external.EmailContents{
 		To:      requestParams.Recipients.To[0].Email,
+		Recipients: requestParams.Recipients,
 		Subject: *requestParams.Subject,
 		Body: 	 *requestParams.Body,
 	}

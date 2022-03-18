@@ -26,9 +26,10 @@ type GmailSource struct {
 }
 
 type EmailContents struct {
-	To      string
-	Subject string
-	Body    string
+	To      		string
+	Recipients      *database.Recipients
+	Subject 		string
+	Body    		string
 }
 
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
@@ -349,11 +350,15 @@ func (gmailSource GmailSource) SendEmail(userID primitive.ObjectID, accountID st
 		return errors.New("missing send address")
 	}
 
-	emailTo := "To: " + sendAddress + "\r\n"
+    // to := []string{"Foo Bar <foo@mailinator.com>", "bar@mailinator.com"}
+    // toHeader := strings.Join(to, ",")
+	emailTo := "To: " + createEmailRecipientHeader(email.Recipients.To) + "\r\n"
+	emailCc := "Cc: " + createEmailRecipientHeader(email.Recipients.Cc) + "\r\n"
+	EmailBcc := "Bcc: " + createEmailRecipientHeader(email.Recipients.Bcc) + "\r\n"
 	subject = "Subject: " + subject + "\n"
 	emailFrom := fmt.Sprintf("From: %s <%s>\n", userObject.Name, userObject.Email)
 
-	msg := []byte(emailTo + emailFrom + subject + "\n" + body)
+	msg := []byte(emailTo + emailCc + EmailBcc + emailFrom + subject + "\n" + body)
 
 	messageToSend := gmail.Message{
 		Raw: base64.URLEncoding.EncodeToString(msg),
@@ -583,4 +588,20 @@ func parseRecipients(recipientsString string) []database.Recipient {
 		recipients = append(recipients, recipient)
 	}
 	return recipients
+}
+
+func createEmailRecipientHeader(recipients []database.Recipient) string {
+	recipientStrings := []string{}
+	for _, recipient := range recipients {
+		recipientStrings = append(recipientStrings, recipientToString(recipient))
+	}
+	return strings.Join(recipientStrings, ",")
+}
+
+func recipientToString(recipient database.Recipient) string {
+	if len(recipient.Name) > 0 {
+		return fmt.Sprintf("%s <%s>", recipient.Name, recipient.Email)
+	} else {
+		return recipient.Email
+	}
 }
