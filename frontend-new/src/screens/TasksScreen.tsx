@@ -18,13 +18,6 @@ const TasksScreen = () => {
     const location = useLocation()
     const { data, isLoading, isFetching } = useQuery('user_info', fetchUserInfo)
 
-    if (isLoading || isFetching) {
-        return <Loading></Loading>
-    }
-    if (!isLoading && !data.agreed_to_terms) {
-        return <Navigate to="/tos-summary" />
-    }
-
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {
             case 'tasks':
@@ -38,6 +31,8 @@ const TasksScreen = () => {
         }
     })()
 
+    if (isLoading || isFetching) return <Loading />
+    if (!isLoading && !data.agreed_to_terms) return <Navigate to="/tos-summary" />
     return (
         <>
             <DefaultTemplate>

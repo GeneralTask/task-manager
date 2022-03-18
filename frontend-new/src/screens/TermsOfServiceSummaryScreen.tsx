@@ -17,13 +17,8 @@ const TermsOfServiceSummaryScreen = () => {
         dispatch(setShowModal(ModalEnum.PRIVACY_POLICY))
     }, [])
 
-    if (isLoading) {
-        return <Loading />
-    }
-    if (!isLoading && data.agreed_to_terms) {
-        return <Navigate to="/" />
-    }
-
+    if (isLoading) return <Loading />
+    if (!isLoading && data.agreed_to_terms) return <Navigate to="/" />
     return (
         <SingleViewTemplate>
             <ModalView size="medium" canClose={false}>
