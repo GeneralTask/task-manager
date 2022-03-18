@@ -1,9 +1,10 @@
-import { Colors, Shadows } from '../../styles'
+import { Colors } from '../../styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import styled from 'styled-components/native'
 import { useAppSelector } from '../../redux/hooks'
 import { ModalEnum } from '../../utils/enums'
+import { Platform } from 'react-native'
 
 const KeyboardShortcutContainer = styled.View<{ isPressed: boolean }>`
     cursor: inherit;
@@ -17,7 +18,7 @@ const KeyboardShortcutContainer = styled.View<{ isPressed: boolean }>`
     left: 0px;
     top: 0px;
     background-color: ${Colors.gray._50};
-    /* box-shadow: ${Shadows.small}; */
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
     margin-right: 12px;
 `
 const KeyboardShortcutText = styled.Text`
@@ -36,6 +37,9 @@ interface KeyboardShortcutProps {
     disabled?: boolean
 }
 function KeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutProps): JSX.Element {
+    if (Platform.OS !== 'web') {
+        return <></>
+    }
     if (!disabled) {
         disabled = false
     }
@@ -49,6 +53,9 @@ function KeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutPr
 
 // Keeps state inside of separate component so parent does not have to be re-rendered
 function InvisibleKeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutProps): JSX.Element {
+    if (Platform.OS !== 'web') {
+        return <></>
+    }
     if (!disabled) {
         disabled = false
     }
@@ -57,6 +64,9 @@ function InvisibleKeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardS
 }
 
 function useKeyboardShortcut(shortcut: string, onKeyPress: () => void, disabled = false): boolean {
+    if (Platform.OS !== 'web') {
+        return false
+    }
     const [isKeyDown, setIsKeyDown] = useState(false)
 
     //Keyboard shortcuts should not trigger when modal is open

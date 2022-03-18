@@ -67,11 +67,7 @@ const CreatNewTask = (props: CreateNewTaskProps) => {
                 blurOnSubmit={false}
                 ref={inputRef}
             />
-            {Platform.OS === 'web' && (
-                <>
-                    <KeyboardShortcut shortcut="T" onKeyPress={() => setIsFocused(true)} />
-                </>
-            )}
+            {Platform.OS === 'web' && <KeyboardShortcut shortcut="T" onKeyPress={() => setIsFocused(true)} />}
         </View>
     )
 }
