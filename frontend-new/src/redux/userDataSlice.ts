@@ -1,5 +1,4 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { TLinkedAccount, TSetting } from '../utils/types'
 
 export interface UserDataState {
     auth_token: string | undefined,
