@@ -12,10 +12,10 @@ type User struct {
 	GoogleID              string             `bson:"google_id"`
 	Email                 string             `bson:"email"`
 	Name                  string             `bson:"name"`
-	LastRefreshed         primitive.DateTime `bson:"last_refreshed"`
-	AgreedToTerms         bool               `bson:"agreed_to_terms"`
-	OptedIntoMarketing    bool               `bson:"opted_into_marketing"`
-	OptedOutOfArbitration bool               `bson:"opted_out_of_arbitration"`
+	LastRefreshed         primitive.DateTime `bson:"last_refreshed,omitempty"`
+	AgreedToTerms         *bool              `bson:"agreed_to_terms,omitempty"`
+	OptedIntoMarketing    *bool              `bson:"opted_into_marketing,omitempty"`
+	OptedOutOfArbitration *bool              `bson:"opted_out_of_arbitration,omitempty"`
 }
 
 // InternalAPIToken model
@@ -132,11 +132,11 @@ type CalendarEventChangeableFields struct {
 }
 
 type Email struct {
-	ThreadID     string `bson:"thread_id"`
-	SenderDomain string `bson:"sender_domain"`
-	SenderEmail  string `bson:"sender_email"`
-	ReplyTo      string `bson:"reply_to"`
-	IsUnread     bool   `bson:"is_unread"`
+	ThreadID     string     `bson:"thread_id"`
+	SenderDomain string     `bson:"sender_domain"`
+	SenderEmail  string     `bson:"sender_email"`
+	ReplyTo      string     `bson:"reply_to"`
+	IsUnread     bool       `bson:"is_unread"`
 	Recipients   Recipients `bson:"recipients"`
 }
 

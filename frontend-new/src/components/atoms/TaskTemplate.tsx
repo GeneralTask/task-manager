@@ -18,8 +18,8 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         position: 'relative',
-        height: 48,
-        borderRadius: 12,
+        height: 34,
+        borderRadius: 4,
     },
 })
 

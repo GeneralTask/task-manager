@@ -87,8 +87,8 @@ const styles = StyleSheet.create({
     },
     tasksContent: {
         ...Flex.column,
-        marginRight: '7.5%',
-        marginLeft: '7.5%',
+        marginRight: 10,
+        marginLeft: 10,
         marginTop: Platform.OS === 'web' ? Spacing.margin.xLarge : 20,
         marginBottom: 100,
     },

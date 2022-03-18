@@ -41,7 +41,7 @@ func (api *API) TasksFetch(c *gin.Context) {
 		return
 	}
 
-	fetchedTasks, err := api.fetchTasks(parentCtx, db, userID)
+	fetchedTasks, failedFetchSources, err := api.fetchTasks(parentCtx, db, userID)
 	if err != nil {
 		Handle500(c)
 		return
@@ -57,7 +57,7 @@ func (api *API) TasksFetch(c *gin.Context) {
 		log.Printf("failed to update user last_refreshed: %v", err)
 	}
 
-	err = adjustForCompletedTasks(db, currentTasks, fetchedTasks)
+	err = adjustForCompletedTasks(db, currentTasks, fetchedTasks, failedFetchSources)
 	if err != nil {
 		Handle500(c)
 		return

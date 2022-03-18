@@ -11,6 +11,12 @@ import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { TitleLarge } from '../atoms/title/Title'
 import { TermsOfServiceSummary } from '../atoms/CompanyPoliciesHTML'
 import RedirectButton from '../atoms/buttons/RedirectButton'
+import { useMutation, useQueryClient } from 'react-query'
+import { mutateUserInfo } from '../../services/queryUtils'
+import { setShowModal } from '../../redux/tasksPageSlice'
+import { ModalEnum } from '../../utils/enums'
+import { useAppDispatch } from '../../redux/hooks'
+import Cookies from 'js-cookie'
 
 const TermsOfServiceContainer = styled.View`
     display: flex;
@@ -64,11 +70,33 @@ const TermsOfServiceSummaryView = () => {
     const [termsCheck, setTermsCheck] = useState(false)
     const [promotionsCheck, setPromotionsCheck] = useState(false)
     const navigate = useNavigate()
+    const dispatch = useAppDispatch()
+    const queryClient = useQueryClient()
 
+    const { mutate } = useMutation(
+        () => {
+            return mutateUserInfo({
+                agreed_to_terms: termsCheck,
+                opted_into_marketing: promotionsCheck,
+            })
+        },
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries('user_info')
+                dispatch(setShowModal(ModalEnum.NONE))
+                navigate('/')
+            },
+        }
+    )
     const onSubmit = useCallback(() => {
         if (!termsCheck) return false
-        navigate('/')
+        mutate()
     }, [termsCheck, promotionsCheck])
+
+    const onCancel = useCallback(() => {
+        dispatch(setShowModal(ModalEnum.NONE))
+        Cookies.remove('authToken')
+    }, [])
 
     return (
         <TermsOfServiceContainer>
@@ -113,7 +141,7 @@ const TermsOfServiceSummaryView = () => {
                     color={Colors.purple._1}
                     disabled={!termsCheck}
                 />
-                <RoundedGeneralButton onPress={() => navigate('/')} textStyle="dark" value="Cancel" hasBorder />
+                <RoundedGeneralButton onPress={onCancel} textStyle="dark" value="Cancel" hasBorder />
             </SubmitButtonContainer>
         </TermsOfServiceContainer>
     )

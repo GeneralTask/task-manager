@@ -7,9 +7,12 @@ import Messages from '../components/views/MessagesView'
 import TaskBottomSheet from '../components/views/TaskBottomSheetView'
 import TaskSection from '../components/views/TaskSectionView'
 import Settings from '../components/views/SettingsView'
-import { useLocation, useParams } from '../services/routing'
+import { useLocation, Navigate, useParams } from '../services/routing'
 import { TTask } from '../utils/types'
 import { useGetTasksQuery } from '../services/generalTaskApi'
+import { useQuery } from 'react-query'
+import { fetchUserInfo } from '../services/queryUtils'
+import Loading from '../components/atoms/Loading'
 
 const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
@@ -17,13 +20,15 @@ const TasksScreen = () => {
     const location = useLocation()
     const params = useParams()
     const [task, setTask] = useState<TTask | undefined>(undefined)
-    const { data: taskSections, isLoading } = useGetTasksQuery()
+
+    const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useQuery('user_info', fetchUserInfo)
+    const { data: taskSections, isLoading: isTaskSectionsLoading } = useGetTasksQuery()
 
     useEffect(() => {
         const section = taskSections?.find((section) => section.id === params.section)
         const task = section?.tasks.find((task) => task.id === params.task)
         setTask(task)
-    }, [params, isLoading])
+    }, [params, isUserInfoLoading])
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {
@@ -38,6 +43,8 @@ const TasksScreen = () => {
         }
     })()
 
+    if (isTaskSectionsLoading || isFetching || isUserInfoLoading) return <Loading />
+    if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
     return (
         <>
             <DefaultTemplate>
