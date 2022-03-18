@@ -11,11 +11,11 @@ import (
 
 type messageComposeParams struct {
 	MessageID       *string     			`json:"message_id"`
-	Subject         *string     			`json:"subject"`
-	Body            *string     			`json:"body"`
-	Recipients      *database.Recipients 	`json:"recipients"`
-	SourceID        *string     			`json:"source_id"`
-	SourceAccountID *string     			`json:"source_account_id"`
+	Subject         *string     			`json:"subject" binding:"required"`
+	Body            *string     			`json:"body" binding:"required"`
+	Recipients      *database.Recipients 	`json:"recipients" binding:"required"`
+	SourceID        *string     			`json:"source_id" binding:"required"`
+	SourceAccountID *string     			`json:"source_account_id" binding:"required"`
 }
 
 func (api *API) MessageCompose(c *gin.Context) {
@@ -23,6 +23,7 @@ func (api *API) MessageCompose(c *gin.Context) {
 	err := c.BindJSON(&requestParams)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
+		log.Println(err)
 		return
 	}
 	// check if all fields are empty
