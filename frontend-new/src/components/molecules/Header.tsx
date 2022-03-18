@@ -6,6 +6,7 @@ import React from 'react'
 import { icons } from '../../styles/images'
 import styled from 'styled-components/native'
 import { useDeleteTaskSectionMutation } from '../../services/generalTaskApi'
+import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
 
 const SectionHeaderContainer = styled.View`
     display: flex;
@@ -46,6 +47,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             {props.allowRefresh && Platform.OS === 'web' && (
                 <TouchableIcon onPress={props.refetch}>
                     <Icon size={'small'} source={icons.spinner}></Icon>
+                    <InvisibleKeyboardShortcut shortcut="r" onKeyPress={props.refetch} />
                 </TouchableIcon>
             )}
             {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) && (
