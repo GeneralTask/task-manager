@@ -16,6 +16,7 @@ import { mutateUserInfo } from '../../services/queryUtils'
 import { setShowModal } from '../../redux/tasksPageSlice'
 import { ModalEnum } from '../../utils/enums'
 import { useAppDispatch } from '../../redux/hooks'
+import Cookies from 'js-cookie'
 
 const TermsOfServiceContainer = styled.View`
     display: flex;
@@ -92,6 +93,11 @@ const TermsOfServiceSummaryView = () => {
         mutate()
     }, [termsCheck, promotionsCheck])
 
+    const onCancel = useCallback(() => {
+        dispatch(setShowModal(ModalEnum.NONE))
+        Cookies.remove('authToken')
+    }, [])
+
     return (
         <TermsOfServiceContainer>
             <Icon size="large" source={icons.check_circle_wavy} />
@@ -135,7 +141,7 @@ const TermsOfServiceSummaryView = () => {
                     color={Colors.purple._1}
                     disabled={!termsCheck}
                 />
-                <RoundedGeneralButton onPress={() => navigate('/')} textStyle="dark" value="Cancel" hasBorder />
+                <RoundedGeneralButton onPress={onCancel} textStyle="dark" value="Cancel" hasBorder />
             </SubmitButtonContainer>
         </TermsOfServiceContainer>
     )
