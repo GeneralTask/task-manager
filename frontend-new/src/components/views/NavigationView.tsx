@@ -22,12 +22,13 @@ const NavigationViewHeader = styled.View`
 const AddSectionView = styled.View`
     display: flex;
     flex-direction: row;
-    padding-left: 8px;
-    margin-top: 8px;
+    margin: 4px 8px;
+    padding: 4px 8px;
 `
 const AddSectionInputView = styled.View`
-    margin-left: 8px;
     font-weight: ${weight._600.fontWeight};
+    margin-left: 8px;
+    flex: 1;
 `
 
 const NavigationView = () => {
@@ -98,7 +99,7 @@ const NavigationView = () => {
 const styles = StyleSheet.create({
     container: {
         ...Flex.column,
-        width: 232,
+        maxWidth: 232,
         backgroundColor: Colors.gray._100,
         paddingLeft: 8,
         paddingTop: 8,
