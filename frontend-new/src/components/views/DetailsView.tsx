@@ -1,11 +1,12 @@
 import React, { createRef, useEffect, useState } from 'react'
 import webStyled from 'styled-components'
 import styled from 'styled-components/native'
-import { useGetTasksQuery, useModifyTaskMutation } from '../../services/generalTaskApi'
-import { useParams } from '../../services/routing'
+import { useModifyTaskMutation } from '../../services/generalTaskApi'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
+import { TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
+import TaskHTMLBody from '../atoms/TaskHTMLBody'
 import DatePicker from '../molecules/DatePicker'
 import TimeEstimatePicker from '../molecules/TimeEstimatePicker'
 
@@ -56,13 +57,18 @@ const BodyTextArea = webStyled.textarea`
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize}px;
 `
+const MarginTopContainer = styled.View`
+    margin-top: ${Spacing.margin.medium}px;
+`
 
-const DetailsView = () => {
-    const params = useParams()
-    const { data: taskSections, isLoading } = useGetTasksQuery()
+interface DetailsViewProps {
+    task: TTask
+}
+const DetailsView = ({ task }: DetailsViewProps) => {
     const [modifyTask] = useModifyTaskMutation()
     const [title, setTitle] = useState('')
     const [body, setBody] = useState('')
+    const [sourceName, setSourceName] = useState('')
     const [datePickerShown, setDatePickerShown] = useState(false)
     const [timeEstimateShown, setTimeEstimateShown] = useState(false)
     const inputRef = createRef<HTMLInputElement>()
@@ -74,13 +80,10 @@ const DetailsView = () => {
         if (timeEstimateShown) setDatePickerShown(false)
     }, [timeEstimateShown])
 
-    const section = taskSections?.find((section) => section.id === params.section)
-    const task = section?.tasks.find((task) => task.id === params.task)
-
     useEffect(() => {
-        if (!task) return
         setTitle(task.title)
         setBody(task.body)
+        setSourceName(task.source.name)
     }, [task])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
@@ -92,7 +95,7 @@ const DetailsView = () => {
         modifyTask({ id: task.id, title: title, body: body })
     }
 
-    return task == null || isLoading ? null : (
+    return (
         <DetailsViewContainer>
             <TaskTitleContainer>
                 <Icon source={logos[task.source.logo_v2]} size="small" />
@@ -121,12 +124,18 @@ const DetailsView = () => {
                     )}
                 </ActionButton>
             </TaskTitleContainer>
-            <BodyTextArea
-                placeholder="Add task details"
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                onBlur={handleBlur}
-            />
+            {sourceName === 'Asana' ? (
+                <MarginTopContainer>
+                    <TaskHTMLBody html={task.body} />
+                </MarginTopContainer>
+            ) : (
+                <BodyTextArea
+                    placeholder="Add task details"
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    onBlur={handleBlur}
+                />
+            )}
         </DetailsViewContainer>
     )
 }
