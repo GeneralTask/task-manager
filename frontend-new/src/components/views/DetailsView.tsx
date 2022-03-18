@@ -62,6 +62,7 @@ const BodyTextArea = webStyled.textarea`
 const MarginTopContainer = styled.View`
     margin-top: ${Spacing.margin.medium}px;
     flex: 1;
+    overflow: auto;
 `
 
 interface DetailsViewProps {
