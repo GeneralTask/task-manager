@@ -17,14 +17,16 @@ const KeyboardShortcutContainer = styled.View<{ isPressed: boolean }>`
     left: 0px;
     top: 0px;
     background-color: ${Colors.gray._50};
-    box-shadow: ${Shadows.small};
+    /* box-shadow: ${Shadows.small}; */
     margin-right: 12px;
+`
+const KeyboardShortcutText = styled.Text`
+    color: ${Colors.gray._400};
     font-family: Switzer-Variable;
     font-style: normal;
     font-weight: normal;
     font-size: 14px;
     line-height: 20px;
-    color: ${Colors.gray._400};
 `
 
 // gets triggered when the lowercase letter is pressed (including with CAPS LOCK, but not when you hit shift+key)
@@ -38,7 +40,11 @@ function KeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutPr
         disabled = false
     }
     const isKeyDown = useKeyboardShortcut(shortcut, onKeyPress, disabled)
-    return <KeyboardShortcutContainer isPressed={isKeyDown}>{shortcut}</KeyboardShortcutContainer>
+    return (
+        <KeyboardShortcutContainer isPressed={isKeyDown}>
+            <KeyboardShortcutText>{shortcut}</KeyboardShortcutText>
+        </KeyboardShortcutContainer>
+    )
 }
 
 // Keeps state inside of separate component so parent does not have to be re-rendered
