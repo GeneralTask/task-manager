@@ -95,12 +95,16 @@ const linkStyle: CSSProperties & ViewStyle = {
 const SectionTitle = styled.Text<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
     margin-left: 9px;
     flex: 1;
 `
 const SectionTitleItemCount = styled.Text<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
+    margin-right: 9px;
 `
 
 export default NavigationLink
