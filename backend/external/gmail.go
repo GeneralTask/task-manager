@@ -338,10 +338,6 @@ func (gmailSource GmailSource) SendEmail(userID primitive.ObjectID, accountID st
 		return err
 	}
 
-	if err != nil {
-		return err
-	}
-
 	sendAddress := email.To
 	subject := email.Subject
 	body := email.Body
