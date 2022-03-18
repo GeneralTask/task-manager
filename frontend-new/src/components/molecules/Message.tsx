@@ -1,6 +1,7 @@
 import React from 'react'
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Colors, Flex, Shadows } from '../../styles'
+import { logos } from '../../styles/images'
 import { TMessage } from '../../utils/types'
 import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
 import { Icon } from '../atoms/Icon'
@@ -21,7 +22,7 @@ const Message = ({ message, setSheetTaskId }: MessageProps) => {
         <Pressable style={[styles.container, styles.shadow]} onPress={onPress}>
             <MarkAsTaskButton isTask={false} messageId={message.id} />
             <View style={styles.iconContainer}>
-                <Icon size="small" />
+                <Icon source={logos[message.source.logo_v2]} size="small" />
             </View>
             <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
                 {message.title}

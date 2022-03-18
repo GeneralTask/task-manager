@@ -12,7 +12,7 @@ import Message from '../molecules/Message'
 
 const Messages = () => {
     const { refetch: refetchMessages } = useFetchMessagesQuery()
-    const { data, isLoading, isFetching, fetchNextPage, refetch } = useInfiniteQuery(
+    const { data, isLoading, isFetching, fetchNextPage, refetch } = useInfiniteQuery<TMessage[], void>(
         'messages',
         fetchInfiniteMessages,
         {
