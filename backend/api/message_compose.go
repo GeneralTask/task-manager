@@ -12,7 +12,7 @@ import (
 
 type messageComposeParams struct {
 	MessageID       *string              `json:"message_id"`
-	Subject         *string              `json:"subject" binding:"required"`
+	Subject         *string              `json:"subject"`
 	Body            *string              `json:"body" binding:"required"`
 	Recipients      *database.Recipients `json:"recipients" binding:"required"`
 	SourceID        *string              `json:"source_id" binding:"required"`
@@ -40,37 +40,23 @@ func (api *API) MessageCompose(c *gin.Context) {
 	}
 
 	if requestParams.MessageID != nil {
-		if !taskSourceResult.Details.IsReplyable {
-			c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
-			return
-		}
-		messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
-		if err != nil {
-			// This means the message ID is improperly formatted
-			Handle404(c)
-			return
-		}
-		contents := external.EmailContents{
-			Recipients: requestParams.Recipients,
-			Body:       *requestParams.Body,
-		}
-		err = taskSourceResult.Source.Reply(userID, *requestParams.SourceAccountID, messageID, contents)
-		if err != nil {
-			log.Printf("unable to send email with error: %v", err)
-			c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
-			return
-		}
-		c.JSON(http.StatusCreated, gin.H{})
-		return
+		handleReply(c, userID, taskSourceResult, &requestParams)
+	} else {
+		handleCompose(c, userID, taskSourceResult, &requestParams)
 	}
+}
 
-	// update external message
+func handleCompose(c *gin.Context, userID primitive.ObjectID,taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
+	if requestParams.Subject == nil {
+		log.Println("subject must be set for composed message")
+		Handle500(c)
+	}
 	contents := external.EmailContents{
 		Recipients: requestParams.Recipients,
 		Subject:    *requestParams.Subject,
 		Body:       *requestParams.Body,
 	}
-	err = taskSourceResult.Source.SendEmail(userID, *requestParams.SourceAccountID, contents)
+	err := taskSourceResult.Source.SendEmail(userID, *requestParams.SourceAccountID, contents)
 	if err != nil {
 		log.Printf("failed to update external task source: %v", err)
 		Handle500(c)
@@ -78,4 +64,28 @@ func (api *API) MessageCompose(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{})
+}
+
+func handleReply(c *gin.Context, userID primitive.ObjectID,taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
+	if !taskSourceResult.Details.IsReplyable {
+		c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
+		return
+	}
+	messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
+	if err != nil {
+		// This means the message ID is improperly formatted
+		Handle404(c)
+		return
+	}
+	contents := external.EmailContents{
+		Recipients: requestParams.Recipients,
+		Body:       *requestParams.Body,
+	}
+	err = taskSourceResult.Source.Reply(userID, *requestParams.SourceAccountID, messageID, contents)
+	if err != nil {
+		log.Printf("unable to send email with error: %v", err)
+		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{})
 }
