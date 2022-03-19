@@ -1,15 +1,14 @@
-import { Colors, Flex, Shadows } from '../../styles'
-import { ItemTypes, TTask } from '../../utils/types'
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import React, { Ref } from 'react'
+import { useDrag } from 'react-dnd'
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useNavigate, useParams } from 'react-router-dom'
-
+import { Colors, Flex, Shadows } from '../../styles'
+import { logos } from '../../styles/images'
+import { ItemTypes, TTask } from '../../utils/types'
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
-import { logos } from '../../styles/images'
-import { useDrag } from 'react-dnd'
 
 interface TaskProps {
     task: TTask
@@ -49,7 +48,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
     const dragRef = Platform.OS === 'web' ? (drag as Ref<View>) : undefined
 
     return (
-        <TaskTemplate style={styles.templateMargin}>
+        <TaskTemplate>
             <Pressable style={[styles.container, styles.shadow]} onPress={onPress} ref={dragPreviewRef}>
                 {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />
@@ -65,16 +64,13 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
 }
 
 const styles = StyleSheet.create({
-    templateMargin: {
-        marginVertical: 6,
-    },
     container: {
         ...Flex.row,
         alignItems: 'center',
         width: '100%',
         height: '100%',
         backgroundColor: Colors.white,
-        borderRadius: 12,
+        borderRadius: 4,
         paddingHorizontal: 8,
     },
     shadow: {

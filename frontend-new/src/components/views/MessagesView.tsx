@@ -12,7 +12,7 @@ import Message from '../molecules/Message'
 
 const Messages = () => {
     const { refetch: refetchMessages } = useFetchMessagesQuery()
-    const { data, isLoading, isFetching, fetchNextPage, refetch } = useInfiniteQuery(
+    const { data, isLoading, isFetching, fetchNextPage, refetch } = useInfiniteQuery<TMessage[], void>(
         'messages',
         fetchInfiniteMessages,
         {
@@ -46,7 +46,7 @@ const Messages = () => {
     return (
         <ScrollView>
             <View style={styles.messagesContent}>
-                <SectionHeader section="Messages" allowRefresh={true} refetch={refetch} />
+                <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetch} />
                 {data?.pages.map((page, index) => {
                     return page?.map((message: TMessage, msgIndex: number) => {
                         if (data.pages.length === index + 1 && page.length === msgIndex + 1) {
@@ -71,7 +71,7 @@ const Messages = () => {
 
 const styles = StyleSheet.create({
     shell: {
-        marginVertical: 6,
+        marginVertical: 1,
     },
     container: {
         ...Screens.container,
@@ -81,15 +81,15 @@ const styles = StyleSheet.create({
     },
     messagesContent: {
         ...Flex.column,
-        marginRight: '7.5%',
-        marginLeft: '7.5%',
+        marginRight: 10,
+        marginLeft: 10,
         marginTop: Platform.OS === 'web' ? 40 : 20,
         marginBottom: 100,
     },
     endContent: {
         ...Flex.column,
-        marginRight: '7.5%',
-        marginLeft: '7.5%',
+        marginRight: 10,
+        marginLeft: 10,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20,

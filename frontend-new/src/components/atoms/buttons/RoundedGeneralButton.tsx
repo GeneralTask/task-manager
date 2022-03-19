@@ -31,11 +31,13 @@ interface ModalButtonProps {
     color?: string
     textStyle?: 'light' | 'dark'
     hasBorder?: boolean
+    disabled?: boolean
 }
 const RoundedGeneralButton = (props: ModalButtonProps) => {
+    const color = props.disabled ? Colors.gray._400 : props.color || Colors.white
     return (
-        <PressableStyled onPress={props.onPress} hasBorder={!!props.hasBorder}>
-            <RoundedView color={props.color || Colors.white}>
+        <PressableStyled disabled={!!props.disabled} onPress={props.onPress} hasBorder={!!props.hasBorder}>
+            <RoundedView color={color}>
                 <ModalText textStyle={props.textStyle || 'light'}>{props.value}</ModalText>
             </RoundedView>
         </PressableStyled>

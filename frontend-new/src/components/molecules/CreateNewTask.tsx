@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         paddingRight: 10,
         borderRadius: 12,
+        marginBottom: 10,
     },
     plusIconContainer: {
         height: 20,

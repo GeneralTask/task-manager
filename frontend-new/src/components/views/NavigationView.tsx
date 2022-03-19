@@ -6,11 +6,13 @@ import { useAddTaskSectionMutation, useGetTasksQuery } from '../../services/gene
 import { useLocation, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { icons } from '../../styles/images'
+import { margin } from '../../styles/spacing'
 import { weight } from '../../styles/typography'
 import { authSignOut } from '../../utils/auth'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import WebInput from '../atoms/WebInput'
+import FeedbackButton from '../molecules/FeedbackButton'
 import NavigationLink from '../molecules/NavigationLink'
 
 const NavigationViewHeader = styled.View`
@@ -21,12 +23,13 @@ const NavigationViewHeader = styled.View`
 const AddSectionView = styled.View`
     display: flex;
     flex-direction: row;
-    padding-left: 8px;
-    margin-top: 8px;
+    margin: 4px 8px;
+    padding: 4px 8px;
 `
 const AddSectionInputView = styled.View`
-    margin-left: 8px;
     font-weight: ${weight._600.fontWeight};
+    margin-left: ${margin.small};
+    flex: 1;
 `
 
 const NavigationView = () => {
@@ -86,6 +89,7 @@ const NavigationView = () => {
                     </AddSectionInputView>
                 </AddSectionView>
             </ScrollView>
+            <FeedbackButton />
             <Pressable onPress={() => authSignOut(dispatch)}>
                 <Text>Sign Out</Text>
             </Pressable>
@@ -96,9 +100,14 @@ const NavigationView = () => {
 const styles = StyleSheet.create({
     container: {
         ...Flex.column,
-        minWidth: 232,
+        width: 232,
         backgroundColor: Colors.gray._100,
+        paddingLeft: 8,
         paddingTop: 8,
+        paddingRight: 8,
+    },
+    linkContainerSelected: {
+        backgroundColor: Colors.gray._50,
     },
     linksFlexContainer: {
         flex: 1,

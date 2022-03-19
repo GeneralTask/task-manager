@@ -58,7 +58,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		return
 	}
 
-	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox is:unread").Do()
+	// loads the most recent 100 threads in the inbox
+	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox").Do()
 	if err != nil {
 		log.Printf("failed to load Gmail threads for user: %v", err)
 		isBadToken := strings.Contains(err.Error(), "invalid_grant")
@@ -66,23 +67,25 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			Emails:     []*database.Item{},
 			Error:      err,
 			IsBadToken: isBadToken,
-			SourceID: TASK_SOURCE_ID_GMAIL,
+			SourceID:   TASK_SOURCE_ID_GMAIL,
 		}
 		return
 	}
+	threadChannels := []chan *gmail.Thread{}
 	for _, threadListItem := range threadsResponse.Threads {
-		thread, err := gmailService.Users.Threads.Get("me", threadListItem.Id).Do()
-		if err != nil {
+		var threadResult = make(chan *gmail.Thread)
+		go getThreadFromGmail(gmailService, threadListItem.Id, threadResult)
+		threadChannels = append(threadChannels, threadResult)
+	}
+	for _, threadChannel := range threadChannels {
+		thread := <-threadChannel
+		if thread == nil {
 			log.Printf("failed to load thread: %v", err)
 			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			return
 		}
 
 		for _, message := range thread.Messages {
-			if !isMessageUnread(message) {
-				continue
-			}
-
 			sender := ""
 			replyTo := ""
 			title := ""
@@ -141,7 +144,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					IDTaskSection:     constants.IDTaskSectionToday,
 					Sender:            senderName,
 					SourceID:          TASK_SOURCE_ID_GMAIL,
-					Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, threadListItem.Id),
+					Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, thread.Id),
 					Title:             title,
 					Body:              *body,
 					SourceAccountID:   accountID,
@@ -151,8 +154,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					SenderDomain: senderDomain,
 					SenderEmail:  senderEmail,
 					ReplyTo:      replyTo,
-					ThreadID:     threadListItem.Id,
-					IsUnread:     true,
+					ThreadID:     thread.Id,
+					IsUnread:     isMessageUnread(message),
 					Recipients:   recipients,
 				},
 				TaskType: database.TaskType{
@@ -186,7 +189,17 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			emails = append(emails, email)
 		}
 	}
-	result <- EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL,}
+	result <- EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL}
+}
+
+func getThreadFromGmail(gmailService *gmail.Service, threadID string, result chan<- *gmail.Thread) {
+	thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
+	if err != nil {
+		log.Printf("failed to load thread: %v", err)
+		result <- nil
+		return
+	}
+	result <- thread
 }
 
 func isMessageUnread(message *gmail.Message) bool {

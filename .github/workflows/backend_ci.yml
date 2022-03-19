@@ -2,13 +2,13 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches:
+      - "**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -31,16 +31,16 @@ jobs:
       # Runs a single command using the runners shell
       - name: Spin up db
         run: docker-compose up -d
-      
+
       - name: Wait 5 seconds
         run: sleep 5
-      
+
       - name: docker ps
         run: docker ps
-        
+
       - name: Run go tests (5 times to check for flakiness)
         run: ./runtests.sh
-      
+
       - name: Run go tests
         run: ./runtests.sh
 

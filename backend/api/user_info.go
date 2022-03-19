@@ -44,9 +44,9 @@ func (api *API) UserInfoGet(c *gin.Context) {
 		return
 	}
 	c.JSON(200, UserInfo{
-		AgreedToTerms:         userObject.AgreedToTerms,
-		OptedIntoMarketing:    userObject.OptedIntoMarketing,
-		OptedOutOfArbitration: userObject.OptedOutOfArbitration,
+		AgreedToTerms:         userObject.AgreedToTerms != nil && *userObject.AgreedToTerms,
+		OptedIntoMarketing:    userObject.OptedIntoMarketing != nil && *userObject.OptedIntoMarketing,
+		OptedOutOfArbitration: userObject.OptedOutOfArbitration != nil && *userObject.OptedOutOfArbitration,
 	})
 }
 
