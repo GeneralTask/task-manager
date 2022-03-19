@@ -365,7 +365,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		expected := AsanaTasksUpdateBody{
 			Data: AsanaTasksUpdateFields{
 				Name:      &title,
-				Notes:     &description,
+				HTMLNotes: &description,
 				Completed: &isCompleted,
 			},
 		}
@@ -392,7 +392,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		expected := AsanaTasksUpdateBody{
 			Data: AsanaTasksUpdateFields{
 				Name:      &title,
-				Notes:     &description,
+				HTMLNotes: &description,
 				DueOn:     &shortenedDate,
 				Completed: &isCompleted,
 			},

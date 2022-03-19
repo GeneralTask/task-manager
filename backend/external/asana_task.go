@@ -38,7 +38,7 @@ type AsanaTasksResponse struct {
 
 type AsanaTasksUpdateFields struct {
 	Name      *string `json:"name,omitempty"`
-	Notes     *string `json:"notes,omitempty"`
+	HTMLNotes *string `json:"html_notes,omitempty"`
 	DueOn     *string `json:"due_on,omitempty"`
 	Completed *bool   `json:"completed,omitempty"`
 }
@@ -199,7 +199,7 @@ func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.TaskCh
 	body := AsanaTasksUpdateBody{
 		Data: AsanaTasksUpdateFields{
 			Name:      updateFields.Title,
-			Notes:     updateFields.Body,
+			HTMLNotes: updateFields.Body,
 			DueOn:     dueDate,
 			Completed: updateFields.IsCompleted,
 		},
