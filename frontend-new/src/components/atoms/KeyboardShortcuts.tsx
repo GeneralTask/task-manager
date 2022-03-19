@@ -46,10 +46,7 @@ function KeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutPr
 
 // Keeps state inside of separate component so parent does not have to be re-rendered
 function InvisibleKeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutProps): JSX.Element {
-    if (!disabled) {
-        disabled = false
-    }
-    useKeyboardShortcut(shortcut, onKeyPress, disabled)
+    useKeyboardShortcut(shortcut, onKeyPress, !!disabled)
     return <></>
 }
 
