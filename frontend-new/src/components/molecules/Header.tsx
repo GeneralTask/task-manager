@@ -47,7 +47,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             {props.allowRefresh && Platform.OS === 'web' && (
                 <TouchableIcon onPress={props.refetch}>
                     <Icon size={'small'} source={icons.spinner}></Icon>
-                    <InvisibleKeyboardShortcut shortcut="r" onKeyPress={props.refetch} />
+                    {Platform.OS === 'web' && <InvisibleKeyboardShortcut shortcut="r" onKeyPress={props.refetch} />}
                 </TouchableIcon>
             )}
             {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) && (
