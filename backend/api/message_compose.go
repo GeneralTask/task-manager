@@ -73,7 +73,7 @@ func handleReply(c *gin.Context, userID primitive.ObjectID,taskSourceResult *ext
 	}
 	messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
 	if err != nil {
-		// This means the message ID is improperly formatted
+		log.Printf("could not parse message id with error: %v", err)
 		Handle404(c)
 		return
 	}
