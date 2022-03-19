@@ -7,6 +7,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -66,7 +67,10 @@ func (api *API) TaskReply(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
 		return
 	}
-	err = taskSourceResult.Source.Reply(userID.(primitive.ObjectID), taskBase.SourceAccountID, taskID, replyParams.Body)
+	contents := external.EmailContents{
+		Body:       replyParams.Body,
+	}
+	err = taskSourceResult.Source.Reply(userID.(primitive.ObjectID), taskBase.SourceAccountID, taskID, contents)
 	if err != nil {
 		log.Printf("unable to send email with error: %v", err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})

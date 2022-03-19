@@ -207,7 +207,7 @@ func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.TaskCh
 	return &body
 }
 
-func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error {
 	return errors.New("cannot reply to an asana task")
 }
 

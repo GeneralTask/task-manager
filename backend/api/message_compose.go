@@ -50,13 +50,18 @@ func (api *API) MessageCompose(c *gin.Context) {
 			Handle404(c)
 			return
 		}
-		err = taskSourceResult.Source.Reply(userID, *requestParams.SourceAccountID, messageID, *requestParams.Body)
+		contents := external.EmailContents{
+			Recipients: requestParams.Recipients,
+			Body:       *requestParams.Body,
+		}
+		err = taskSourceResult.Source.Reply(userID, *requestParams.SourceAccountID, messageID, contents)
 		if err != nil {
 			log.Printf("unable to send email with error: %v", err)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
 			return
 		}
 		c.JSON(http.StatusCreated, gin.H{})
+		return
 	}
 
 	// update external message

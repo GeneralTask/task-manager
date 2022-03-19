@@ -26,7 +26,6 @@ type GmailSource struct {
 }
 
 type EmailContents struct {
-	To         string
 	Recipients *database.Recipients
 	Subject    string
 	Body       string
@@ -335,7 +334,7 @@ func (gmailSource GmailSource) SendEmail(userID primitive.ObjectID, accountID st
 	return err
 }
 
-func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -426,7 +425,18 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 		subject = "Re: " + subject
 	}
 
-	emailTo := "To: " + sendAddress + "\r\n"
+	var recipientHeader string
+	if emailContents.Recipients != nil {
+		emailTo := "To: " + createEmailRecipientHeader(emailContents.Recipients.To) + "\r\n"
+		emailCc := "Cc: " + createEmailRecipientHeader(emailContents.Recipients.Cc) + "\r\n"
+		emailBcc := "Bcc: " + createEmailRecipientHeader(emailContents.Recipients.Bcc) + "\r\n"
+		recipientHeader = emailTo + emailCc + emailBcc
+	} else {
+		// For backwards compatibility - TODO remove this after frontend migrates to messages/compose endpoint
+		emailTo := "To: " + sendAddress + "\r\n"
+		recipientHeader = emailTo
+	}
+
 	subject = "Subject: " + subject + "\n"
 	emailFrom := fmt.Sprintf("From: %s <%s>\n", userObject.Name, userObject.Email)
 
@@ -437,7 +447,7 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	}
 	inReply := "In-Reply-To: " + smtpID + "\n"
 	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n"
-	msg := []byte(emailTo + emailFrom + subject + inReply + references + mime + "\n" + body)
+	msg := []byte(recipientHeader + emailFrom + subject + inReply + references + mime + "\n" + emailContents.Body)
 
 	messageToSend := gmail.Message{
 		Raw:      base64.URLEncoding.EncodeToString(msg),
