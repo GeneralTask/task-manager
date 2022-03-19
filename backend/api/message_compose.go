@@ -2,6 +2,7 @@ package api
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -27,11 +28,6 @@ func (api *API) MessageCompose(c *gin.Context) {
 		return
 	}
 
-	if requestParams.MessageID == nil {
-		// todo - route specifically to reply
-		// api.MessageReply(c)
-	}
-
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
@@ -41,6 +37,26 @@ func (api *API) MessageCompose(c *gin.Context) {
 		log.Printf("failed to load external task source: %v", err)
 		Handle500(c)
 		return
+	}
+
+	if requestParams.MessageID != nil {
+		if !taskSourceResult.Details.IsReplyable {
+			c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
+			return
+		}
+		messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
+		if err != nil {
+			// This means the message ID is improperly formatted
+			Handle404(c)
+			return
+		}
+		err = taskSourceResult.Source.Reply(userID, *requestParams.SourceAccountID, messageID, *requestParams.Body)
+		if err != nil {
+			log.Printf("unable to send email with error: %v", err)
+			c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
+			return
+		}
+		c.JSON(http.StatusCreated, gin.H{})
 	}
 
 	// update external message
