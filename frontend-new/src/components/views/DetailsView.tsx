@@ -137,6 +137,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
                         placeholder="Add task details"
                         value={body}
                         onChange={(e) => setBody(e.target.value)}
+                        onKeyDown={(e) => e.stopPropagation()}
                         onBlur={handleBlur}
                     />
                 )}
