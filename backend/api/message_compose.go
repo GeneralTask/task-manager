@@ -45,7 +45,6 @@ func (api *API) MessageCompose(c *gin.Context) {
 
 	// update external message
 	contents := external.EmailContents{
-		To:         requestParams.Recipients.To[0].Email,
 		Recipients: requestParams.Recipients,
 		Subject:    *requestParams.Subject,
 		Body:       *requestParams.Body,
