@@ -1,22 +1,22 @@
+import Cookies from 'js-cookie'
 import React, { useCallback, useState } from 'react'
 import { Pressable } from 'react-native'
+import { useMutation, useQueryClient } from 'react-query'
 import styled from 'styled-components/native'
+import { useAppDispatch } from '../../redux/hooks'
+import { setShowModal } from '../../redux/tasksPageSlice'
+import { mutateUserInfo } from '../../services/api-query-hooks'
 import { useNavigate } from '../../services/routing'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import { ModalEnum } from '../../utils/enums'
+import RedirectButton from '../atoms/buttons/RedirectButton'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import { TermsOfServiceSummary } from '../atoms/CompanyPoliciesHTML'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { TitleLarge } from '../atoms/title/Title'
-import { TermsOfServiceSummary } from '../atoms/CompanyPoliciesHTML'
-import RedirectButton from '../atoms/buttons/RedirectButton'
-import { useMutation, useQueryClient } from 'react-query'
-import { mutateUserInfo } from '../../services/queryUtils'
-import { setShowModal } from '../../redux/tasksPageSlice'
-import { ModalEnum } from '../../utils/enums'
-import { useAppDispatch } from '../../redux/hooks'
-import Cookies from 'js-cookie'
 
 const TermsOfServiceContainer = styled.View`
     display: flex;
@@ -78,12 +78,11 @@ const TermsOfServiceSummaryView = () => {
     const queryClient = useQueryClient()
 
     const { mutate } = useMutation(
-        () => {
-            return mutateUserInfo({
+        () =>
+            mutateUserInfo({
                 agreed_to_terms: termsCheck,
                 opted_into_marketing: promotionsCheck,
-            })
-        },
+            }),
         {
             onSuccess: () => {
                 queryClient.invalidateQueries('user_info')

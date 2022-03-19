@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
-import { useAddTaskSectionMutation, useGetTasksQuery } from '../../services/generalTaskApi'
+import { useGetTasks } from '../../services/api-query-hooks'
+import { useAddTaskSectionMutation } from '../../services/generalTaskApi'
 import { useLocation, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { icons } from '../../styles/images'
@@ -35,7 +36,8 @@ const AddSectionInputView = styled.View`
 
 const NavigationView = () => {
     const dispatch = useAppDispatch()
-    const { data: taskSections, isLoading: isLoadingTasks } = useGetTasksQuery()
+    const { data: taskSections, isLoading } = useGetTasks()
+    // const { data: taskSections, isLoading: isLoadingTasks } = useGetTasksQuery()
     const { section: sectionIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
     const [addTaskSection] = useAddTaskSectionMutation()
@@ -46,7 +48,7 @@ const NavigationView = () => {
                 <Icon size="medium" />
             </NavigationViewHeader>
             <ScrollView style={styles.linksFlexContainer}>
-                {isLoadingTasks ? (
+                {isLoading ? (
                     <Loading />
                 ) : (
                     <>

@@ -124,3 +124,8 @@ export interface TTaskCreateParams {
     time_duration?: number
     id_task_section?: string
 }
+
+export interface TUserInfo {
+    agreed_to_terms: boolean
+    opted_into_marketing: boolean
+}

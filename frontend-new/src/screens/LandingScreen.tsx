@@ -1,17 +1,16 @@
+import Cookies from 'js-cookie'
 import React, { useState } from 'react'
-import { View, Text, StyleSheet, TextInput, Platform, Keyboard } from 'react-native'
-import { useForm, Controller } from 'react-hook-form'
-import { getHeaders } from '../utils/api'
-import { WAITLIST_URL } from '../constants'
+import { Controller, useForm } from 'react-hook-form'
+import { Keyboard, Platform, StyleSheet, Text, TextInput, View } from 'react-native'
+import styled from 'styled-components/native'
 import GoogleSignInButton from '../components/atoms/buttons/GoogleSignInButton'
 import JoinWaitlistButton from '../components/atoms/buttons/JoinWaitlistButton'
-import { Colors, Flex, Images, Screens, Typography } from '../styles'
-import { Navigate } from '../services/routing'
-import { useAppSelector } from '../redux/hooks'
-import Cookies from 'js-cookie'
-import UnauthorizedHeader from '../components/molecules/UnauthorizedHeader'
 import UnauthorizedFooter from '../components/molecules/UnauthorizedFooter'
-import styled from 'styled-components/native'
+import UnauthorizedHeader from '../components/molecules/UnauthorizedHeader'
+import { useAppSelector } from '../redux/hooks'
+import { Navigate } from '../services/routing'
+import { Colors, Flex, Images, Screens, Typography } from '../styles'
+import { apiClient } from '../utils/api'
 
 const FlexGrowContainer = styled.View`
     flex: 1;
@@ -32,10 +31,8 @@ const LandingScreen = () => {
     }
 
     const joinWaitlist = async (email: string) => {
-        const response: Response = await fetch(WAITLIST_URL, {
-            method: 'POST',
+        const response: Response = await apiClient.post('/waitlist/', {
             mode: 'cors',
-            headers: getHeaders(),
             body: JSON.stringify({ email }),
         })
         if (response.ok) {

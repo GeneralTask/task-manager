@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { Platform, ScrollView, StyleSheet, View } from 'react-native'
-import { useInfiniteQuery, useQuery, useQueryClient } from 'react-query'
-import { fetchInfiniteMessages, fetchMessages } from '../../services/queryUtils'
+import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
 import { Colors, Flex, Screens } from '../../styles'
 import { TMessage } from '../../utils/types'
 import Loading from '../atoms/Loading'
@@ -10,20 +9,8 @@ import { SectionHeader } from '../molecules/Header'
 import Message from '../molecules/Message'
 
 const Messages = () => {
-    const queryClient = useQueryClient()
-
-    const { refetch: refetchMessages } = useQuery('fetchMessages', fetchMessages, {
-        onSuccess: () => {
-            queryClient.invalidateQueries('messages')
-        },
-    })
-    const { data, isLoading, isFetching, fetchNextPage, refetch } = useInfiniteQuery<TMessage[], void>(
-        'messages',
-        fetchInfiniteMessages,
-        {
-            getNextPageParam: (_, pages) => pages.length + 1,
-        }
-    )
+    const { refetch: refetchMessages } = useFetchMessages()
+    const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteMessages()
 
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
