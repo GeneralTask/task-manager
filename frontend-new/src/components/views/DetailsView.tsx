@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useState } from 'react'
+import React, { createRef, useEffect, useRef, useState } from 'react'
 import ReactTooltip from 'react-tooltip'
 import webStyled from 'styled-components'
 import styled from 'styled-components/native'
@@ -7,7 +7,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
-import TaskHTMLBody from '../atoms/TaskHTMLBody'
+import ContentEditable from '../atoms/TaskHTMLBody'
 import ActionOption from '../molecules/ActionOption'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 
@@ -75,6 +75,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
     const [datePickerShown, setDatePickerShown] = useState(false)
     const [timeEstimateShown, setTimeEstimateShown] = useState(false)
     const inputRef = createRef<HTMLInputElement>()
+    const innerHTML = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         ReactTooltip.rebuild()
@@ -98,7 +99,12 @@ const DetailsView = ({ task }: DetailsViewProps) => {
 
     const handleBlur = () => {
         if (!task) return
-        modifyTask({ id: task.id, title: title, body: body })
+        if (task.source.name === 'Asana') {
+            console.log(innerHTML.current?.innerHTML)
+            modifyTask({ id: task.id, title: title, body: innerHTML.current?.innerHTML })
+        } else {
+            modifyTask({ id: task.id, title: title, body: body })
+        }
     }
 
     return (
@@ -134,7 +140,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
             </TaskTitleContainer>
             <MarginTopContainer>
                 {sourceName === 'Asana' ? (
-                    <TaskHTMLBody html={body} />
+                    <ContentEditable ref={innerHTML} onChange={setBody} onBlur={handleBlur} html={body} />
                 ) : (
                     <BodyTextArea
                         placeholder="Add task details"
