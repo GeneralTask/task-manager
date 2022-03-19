@@ -111,11 +111,5 @@ const styles = StyleSheet.create({
     },
     tool: {},
 })
-const webInputStyles = {
-    flexGrow: 1,
-    background: 'transparent',
-    border: 'none',
-    outline: 'none',
-}
 
 export default CreatNewTask
