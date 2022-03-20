@@ -3,12 +3,11 @@ import webStyled from 'styled-components'
 import styled from 'styled-components/native'
 import { useModifyTaskMutation } from '../../services/generalTaskApi'
 import { Colors, Spacing, Typography } from '../../styles'
-import { icons, logos } from '../../styles/images'
+import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
-import DatePicker from '../molecules/DatePicker'
-import TimeEstimatePicker from '../molecules/TimeEstimatePicker'
+import ActionOption from '../molecules/ActionOption'
 
 const DetailsViewContainer = styled.View`
     display: flex;
@@ -73,6 +72,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
     const [modifyTask] = useModifyTaskMutation()
     const [title, setTitle] = useState('')
     const [body, setBody] = useState('')
+    const [timeAllocated, setTimeAllocated] = useState('')
     const [sourceName, setSourceName] = useState('')
     const [datePickerShown, setDatePickerShown] = useState(false)
     const [timeEstimateShown, setTimeEstimateShown] = useState(false)
@@ -89,6 +89,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
         setTitle(task.title)
         setBody(task.body)
         setSourceName(task.source.name)
+        setTimeAllocated(`${task.time_allocated / 60000000}min`)
     }, [task])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
@@ -112,22 +113,8 @@ const DetailsView = ({ task }: DetailsViewProps) => {
                     onChange={(e) => setTitle(e.target.value)}
                     onBlur={handleBlur}
                 />
-                <ActionButton onPress={() => setDatePickerShown(!datePickerShown)}>
-                    <Icon source={icons['calendar_blank']} size="small" />
-                    {datePickerShown && (
-                        <DatePicker
-                            task_id={task.id}
-                            due_date={task.due_date}
-                            closeDatePicker={() => setDatePickerShown(false)}
-                        />
-                    )}
-                </ActionButton>
-                <ActionButton onPress={() => setTimeEstimateShown(!timeEstimateShown)}>
-                    <Icon source={icons['timer']} size="small" />
-                    {timeEstimateShown && (
-                        <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setTimeEstimateShown(false)} />
-                    )}
-                </ActionButton>
+                <ActionOption action="date_picker" task={task}></ActionOption>
+                <ActionOption action="time_allocated" task={task}></ActionOption>
             </TaskTitleContainer>
             <MarginTopContainer>
                 {sourceName === 'Asana' ? (

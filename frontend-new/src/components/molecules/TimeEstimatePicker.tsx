@@ -42,7 +42,7 @@ export default function TimeEstimate({ task_id, closeTimeEstimate }: TimeEstimat
                     e.stopPropagation()
                 }}
                 onSubmit={(durationMinutes) => {
-                    modifyTask({ id: task_id, time_duration: durationMinutes * 60 })
+                    modifyTask({ id: task_id, time_duration: durationMinutes * 60000000 })
                     closeTimeEstimate()
                 }}
                 placeholder={'00:00'}

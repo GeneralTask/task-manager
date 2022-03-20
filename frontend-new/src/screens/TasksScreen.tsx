@@ -28,7 +28,7 @@ const TasksScreen = () => {
         const section = taskSections?.find((section) => section.id === params.section)
         const task = section?.tasks.find((task) => task.id === params.task)
         setTask(task)
-    }, [params, isUserInfoLoading])
+    }, [params, isUserInfoLoading, taskSections])
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {

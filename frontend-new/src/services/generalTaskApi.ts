@@ -79,7 +79,7 @@ export const generalTaskApi = createApi({
                 const requestBody: TTaskModifyRequestBody = {}
                 if (data.title) requestBody.title = data.title
                 if (data.due_date) requestBody.due_date = data.due_date
-                if (data.time_duration) requestBody.time_duration = data.time_duration
+                if (data.time_duration) requestBody.time_duration = data.time_duration / 1000000
                 if (data.body) requestBody.body = data.body
                 return {
                     url: `tasks/modify/${data.id}/`,
@@ -107,6 +107,8 @@ export const generalTaskApi = createApi({
                 )
                 try {
                     await queryFulfilled
+                    dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
+
                 } catch {
                     result.undo()
                 }
