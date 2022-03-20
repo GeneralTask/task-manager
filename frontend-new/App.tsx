@@ -13,6 +13,7 @@ import PrivateOutlet from './src/services/PrivateOutlet'
 import { Navigate, Outlet, Route, Router, Routes } from './src/services/routing'
 import { QueryClientProvider, QueryClient } from 'react-query'
 import TermsOfServiceSummaryScreen from './src/screens/TermsOfServiceSummaryScreen'
+
 const App = () => {
     const backend = Platform.OS === 'web' ? HTML5Backend : TouchBackend
     useFonts({
