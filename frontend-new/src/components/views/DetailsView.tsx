@@ -1,4 +1,5 @@
 import React, { createRef, useEffect, useState } from 'react'
+import { View } from 'react-native'
 import webStyled from 'styled-components'
 import styled from 'styled-components/native'
 import { useModifyTaskMutation } from '../../services/generalTaskApi'
@@ -22,14 +23,6 @@ const TaskTitleContainer = styled.View`
     flex-direction: row;
     align-items: center;
     z-index: 1;
-`
-const ActionButton = styled.Pressable`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    padding: 2px;
-    margin-right: ${Spacing.margin.small}px;
 `
 const TitleInput = webStyled.input`
     background-color: inherit;
@@ -105,16 +98,22 @@ const DetailsView = ({ task }: DetailsViewProps) => {
         <DetailsViewContainer>
             <TaskTitleContainer>
                 <Icon source={logos[task.source.logo_v2]} size="small" />
-                <TitleInput
-                    ref={inputRef}
-                    type="text"
-                    onKeyDown={handleKeyDown}
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    onBlur={handleBlur}
-                />
-                <ActionOption action="date_picker" task={task}></ActionOption>
-                <ActionOption action="time_allocated" task={task}></ActionOption>
+                <View style={{ flex: 1 }}>
+                    <TitleInput
+                        ref={inputRef}
+                        type="text"
+                        onKeyDown={handleKeyDown}
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        onBlur={handleBlur}
+                    />
+                </View>
+                <View style={{ flexShrink: 1 }}>
+                    <ActionOption action="date_picker" task={task}></ActionOption>
+                </View>
+                <View style={{ flexShrink: 1 }}>
+                    <ActionOption action="time_allocated" task={task}></ActionOption>
+                </View>
             </TaskTitleContainer>
             <MarginTopContainer>
                 {sourceName === 'Asana' ? (
