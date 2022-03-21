@@ -28,31 +28,27 @@ const ActionOption = ({ task, action, isShown, setIsShown }: ActionOptionProps) 
         setIsShown(false)
     }, [task])
 
-    const actionSpecificValues = ((action: 'date_picker' | 'time_allocated') => {
+    const { icon, component, actionString } = ((action: 'date_picker' | 'time_allocated') => {
         if (action === 'date_picker') {
             return {
                 icon: icons.calendar_blank,
                 component: (
                     <DatePicker task_id={task.id} due_date={task.due_date} closeDatePicker={() => setIsShown(false)} />
                 ),
-                string: task.due_date,
+                actionString: task.due_date,
             }
         }
         return {
             icon: icons.timer,
             component: <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setIsShown(false)} />,
-            string: task.time_allocated / 60000000 === 60000 ? '' : `${task.time_allocated / 60000000}min`,
+            actionString: task.time_allocated / 60000000 === 60000 ? '' : `${task.time_allocated / 60000000}min`,
         }
     })(action)
 
     return (
         <ActionButton onPress={() => setIsShown(!isShown)}>
-            {actionSpecificValues.string ? (
-                <ActionValue value={actionSpecificValues.string} />
-            ) : (
-                <Icon source={actionSpecificValues.icon} size="small" />
-            )}
-            {isShown && actionSpecificValues.component}
+            {actionString ? <ActionValue value={actionString} /> : <Icon source={icon} size="small" />}
+            {isShown && component}
         </ActionButton>
     )
 }
