@@ -39,4 +39,4 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
 
 
 #ASCP
-kubectl apply -f https://raw.githubusercontent.com/aws/secrets-store-csi-driver-provider-aws/main/deployment/aws-provider-installer.yaml
+#kubectl apply -f https://raw.githubusercontent.com/aws/secrets-store-csi-driver-provider-aws/main/deployment/aws-provider-installer.yaml
