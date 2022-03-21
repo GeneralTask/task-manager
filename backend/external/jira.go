@@ -364,7 +364,7 @@ func (jira JIRASource) Reply(userID primitive.ObjectID, accountID string, taskID
 }
 
 func (jira JIRASource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
-	return nil
+	return errors.New("cannot send email for JIRA source")
 }
 
 func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {

@@ -17,6 +17,7 @@ import (
 	"github.com/chidiwilliams/flatbson"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 )
@@ -301,11 +302,17 @@ func (gmailSource GmailSource) MarkAsDone(userID primitive.ObjectID, accountID s
 
 func (gmailSource GmailSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
 	parentCtx := context.Background()
-	gmailService, err := createGmailService(userID, accountID, &gmailSource, parentCtx)
+	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
 	}
-	userObject, err := getUserObject(userID, parentCtx)
+	defer dbCleanup()
+
+	gmailService, err := createGmailService(db, userID, accountID, &gmailSource, parentCtx)
+	if err != nil {
+		return err
+	}
+	userObject, err := database.GetUser(db, userID)
 	if err != nil {
 		return err
 	}
@@ -581,18 +588,11 @@ func recipientToString(recipient database.Recipient) string {
 	}
 }
 
-func createGmailService(userID primitive.ObjectID, accountID string, gmailSource *GmailSource, ctx context.Context) (*gmail.Service, error) {
-	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
-
+func createGmailService(db *mongo.Database, userID primitive.ObjectID, accountID string, gmailSource *GmailSource, ctx context.Context) (*gmail.Service, error) {
 	var gmailService *gmail.Service
-
+	var err error
 	if gmailSource.Google.OverrideURLs.GmailSendURL != nil {
-		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
 		defer cancel()
 		gmailService, err = gmail.NewService(
 			extCtx,
@@ -600,7 +600,7 @@ func createGmailService(userID primitive.ObjectID, accountID string, gmailSource
 			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailSendURL),
 		)
 	} else {
-		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
 		defer cancel()
 		client := getGoogleHttpClient(db, userID, accountID)
 		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
@@ -610,24 +610,4 @@ func createGmailService(userID primitive.ObjectID, accountID string, gmailSource
 	}
 
 	return gmailService, nil
-}
-
-func getUserObject(userID primitive.ObjectID, cxt context.Context) (*database.User, error) {
-	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
-
-	var userObject database.User
-	userCollection := database.GetUserCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
-	if err != nil {
-		return nil, err
-	}
-
-	return &userObject, nil
 }

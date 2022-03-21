@@ -212,7 +212,7 @@ func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID stri
 }
 
 func (asanaTask AsanaTaskSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
-	return nil
+	return errors.New("cannot send email for asana source")
 }
 
 func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {

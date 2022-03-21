@@ -48,7 +48,7 @@ func (api *API) MessageCompose(c *gin.Context) {
 
 func handleCompose(c *gin.Context, userID primitive.ObjectID,taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
 	if requestParams.Subject == nil {
-		log.Println("subject must be set for composed message")
+		c.JSON(http.StatusBadRequest, gin.H{"detail": "subject must be set for composed message"})
 		Handle500(c)
 	}
 	contents := external.EmailContents{
@@ -58,12 +58,12 @@ func handleCompose(c *gin.Context, userID primitive.ObjectID,taskSourceResult *e
 	}
 	err := taskSourceResult.Source.SendEmail(userID, *requestParams.SourceAccountID, contents)
 	if err != nil {
-		log.Printf("failed to update external task source: %v", err)
+		log.Printf("failed to send email: %v", err)
 		Handle500(c)
 		return
 	}
 
-	c.JSON(200, gin.H{})
+	c.JSON(http.StatusCreated, gin.H{})
 }
 
 func handleReply(c *gin.Context, userID primitive.ObjectID,taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
@@ -74,7 +74,7 @@ func handleReply(c *gin.Context, userID primitive.ObjectID,taskSourceResult *ext
 	messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
 	if err != nil {
 		log.Printf("could not parse message id with error: %v", err)
-		Handle404(c)
+		c.JSON(http.StatusBadRequest, gin.H{"detail": "could not parse message id"})
 		return
 	}
 	contents := external.EmailContents{

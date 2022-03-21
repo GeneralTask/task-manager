@@ -171,7 +171,7 @@ func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, t
 }
 
 func (gitPR GithubPRSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
-	return nil
+	return errors.New("cannot send email for github pr")
 }
 
 func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, pullRequest TaskCreationObject) error {

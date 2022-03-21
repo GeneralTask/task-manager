@@ -172,7 +172,7 @@ func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, acco
 }
 
 func (googleCalendar GoogleCalendarSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
-	return nil
+	return errors.New("cannot send email for calendar event")
 }
 
 func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
