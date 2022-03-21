@@ -108,12 +108,8 @@ const DetailsView = ({ task }: DetailsViewProps) => {
                         onBlur={handleBlur}
                     />
                 </View>
-                <View style={{ flexShrink: 1 }}>
-                    <ActionOption action="date_picker" task={task}></ActionOption>
-                </View>
-                <View style={{ flexShrink: 1 }}>
-                    <ActionOption action="time_allocated" task={task}></ActionOption>
-                </View>
+                <ActionOption action="date_picker" task={task} />
+                <ActionOption action="time_allocated" task={task} />
             </TaskTitleContainer>
             <MarginTopContainer>
                 {sourceName === 'Asana' ? (

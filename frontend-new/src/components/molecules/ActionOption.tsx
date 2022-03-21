@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components/native'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -22,6 +22,10 @@ interface ActionOptionProps {
 }
 const ActionOption = ({ task, action }: ActionOptionProps) => {
     const [isPickerVisible, setIsPickerVisible] = React.useState(false)
+    useEffect(() => {
+        setIsPickerVisible(false)
+    }, [task])
+
     const icon = action === 'date_picker' ? icons.calendar_blank : icons.timer
     const picker =
         action === 'date_picker' ? (
@@ -30,7 +34,6 @@ const ActionOption = ({ task, action }: ActionOptionProps) => {
             <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setIsPickerVisible(false)} />
         )
     const setValue = action === 'date_picker' ? task.due_date : `${task.time_allocated / 60000000}min`
-
     return (
         <ActionButton onPress={() => setIsPickerVisible(!isPickerVisible)}>
             {setValue ? <ActionValue value={setValue} /> : <Icon source={icon} size="small" />}
