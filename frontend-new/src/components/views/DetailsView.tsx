@@ -1,4 +1,5 @@
 import React, { createRef, useEffect, useState } from 'react'
+import ReactTooltip from 'react-tooltip'
 import webStyled from 'styled-components'
 import styled from 'styled-components/native'
 import { useModifyTaskMutation } from '../../services/generalTaskApi'
@@ -7,6 +8,7 @@ import { icons, logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 import DatePicker from '../molecules/DatePicker'
 import TimeEstimatePicker from '../molecules/TimeEstimatePicker'
 
@@ -76,6 +78,9 @@ const DetailsView = ({ task }: DetailsViewProps) => {
     const inputRef = createRef<HTMLInputElement>()
 
     useEffect(() => {
+        ReactTooltip.rebuild()
+    }, [])
+    useEffect(() => {
         if (datePickerShown) setTimeEstimateShown(false)
     }, [datePickerShown])
     useEffect(() => {
@@ -110,7 +115,9 @@ const DetailsView = ({ task }: DetailsViewProps) => {
                     onBlur={handleBlur}
                 />
                 <ActionButton onPress={() => setDatePickerShown(!datePickerShown)}>
-                    <Icon source={icons['calendar_blank']} size="small" />
+                    <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
+                        <Icon source={icons['calendar_blank']} size="small" />
+                    </TooltipWrapper>
                     {datePickerShown && (
                         <DatePicker
                             task_id={task.id}
@@ -120,7 +127,9 @@ const DetailsView = ({ task }: DetailsViewProps) => {
                     )}
                 </ActionButton>
                 <ActionButton onPress={() => setTimeEstimateShown(!timeEstimateShown)}>
-                    <Icon source={icons['timer']} size="small" />
+                    <TooltipWrapper inline dataTip="Time Estimate" tooltipId="tooltip">
+                        <Icon source={icons['timer']} size="small" />
+                    </TooltipWrapper>
                     {timeEstimateShown && (
                         <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setTimeEstimateShown(false)} />
                     )}

@@ -59,6 +59,7 @@
     "react-router-dom": "6",
     "react-router-native": "^6.2.2",
     "react-test-renderer": "^17.0.2",
+    "react-tooltip": "^4.2.21",
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
     "styled-components": "^5.3.3"
   },
