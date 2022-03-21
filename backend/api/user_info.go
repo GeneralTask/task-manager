@@ -11,15 +11,13 @@ import (
 )
 
 type UserInfo struct {
-	AgreedToTerms         bool `json:"agreed_to_terms"`
-	OptedIntoMarketing    bool `json:"opted_into_marketing"`
-	OptedOutOfArbitration bool `json:"opted_out_of_arbitration"`
+	AgreedToTerms      bool `json:"agreed_to_terms"`
+	OptedIntoMarketing bool `json:"opted_into_marketing"`
 }
 
 type UserInfoParams struct {
-	AgreedToTerms         *bool `json:"agreed_to_terms" bson:"agreed_to_terms,omitempty"`
-	OptedIntoMarketing    *bool `json:"opted_into_marketing" bson:"opted_into_marketing,omitempty"`
-	OptedOutOfArbitration *bool `json:"opted_out_of_arbitration" bson:"opted_out_of_arbitration,omitempty"`
+	AgreedToTerms      *bool `json:"agreed_to_terms" bson:"agreed_to_terms,omitempty"`
+	OptedIntoMarketing *bool `json:"opted_into_marketing" bson:"opted_into_marketing,omitempty"`
 }
 
 func (api *API) UserInfoGet(c *gin.Context) {
@@ -44,9 +42,8 @@ func (api *API) UserInfoGet(c *gin.Context) {
 		return
 	}
 	c.JSON(200, UserInfo{
-		AgreedToTerms:         userObject.AgreedToTerms != nil && *userObject.AgreedToTerms,
-		OptedIntoMarketing:    userObject.OptedIntoMarketing != nil && *userObject.OptedIntoMarketing,
-		OptedOutOfArbitration: userObject.OptedOutOfArbitration != nil && *userObject.OptedOutOfArbitration,
+		AgreedToTerms:      userObject.AgreedToTerms != nil && *userObject.AgreedToTerms,
+		OptedIntoMarketing: userObject.OptedIntoMarketing != nil && *userObject.OptedIntoMarketing,
 	})
 }
 

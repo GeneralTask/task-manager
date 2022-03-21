@@ -38,7 +38,7 @@ type AsanaTasksResponse struct {
 
 type AsanaTasksUpdateFields struct {
 	Name      *string `json:"name,omitempty"`
-	Notes     *string `json:"notes,omitempty"`
+	HTMLNotes *string `json:"html_notes,omitempty"`
 	DueOn     *string `json:"due_on,omitempty"`
 	Completed *bool   `json:"completed,omitempty"`
 }
@@ -184,7 +184,7 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 	}
 	err = requestJSON(client, "PUT", taskUpdateURL, string(bodyJson), EmptyResponsePlaceholder)
 	if err != nil {
-		log.Printf("failed to fetch asana tasks: %v", err)
+		log.Printf("failed to update asana task: %v", err)
 		return err
 	}
 	return nil
@@ -199,7 +199,7 @@ func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.TaskCh
 	body := AsanaTasksUpdateBody{
 		Data: AsanaTasksUpdateFields{
 			Name:      updateFields.Title,
-			Notes:     updateFields.Body,
+			HTMLNotes: updateFields.Body,
 			DueOn:     dueDate,
 			Completed: updateFields.IsCompleted,
 		},
