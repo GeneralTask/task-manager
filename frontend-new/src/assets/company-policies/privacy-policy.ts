@@ -455,7 +455,7 @@ white'>We may also disclose your information with your permission.</span></p>
 				signals. </span></p>
 
 		<p class=MsoNormal align=left style='margin-top:0in;text-align:left;text-indent:
-0in'><b><span lang=EN style='font-family:"Calibri",sans-serif;background:yellow'>&nbsp;</span></b></p>
+0in'><b><span lang=EN style='font-family:"Calibri",sans-serif;'>&nbsp;</span></b></p>
 
 		<p class=MsoNormal align=left style='margin-top:0in;text-align:left;text-indent:
 0in'><b><span lang=EN style='font-family:"Calibri",sans-serif'>If you choose
@@ -563,7 +563,7 @@ color:#1155CC'>privacy@generaltask.com</span></a></span><span lang=EN style='fon
 
 		<p class=MsoNormal align=left style='text-align:left;text-indent:0in'><b><span lang=EN
 					style='font-family:"Calibri",sans-serif'>Last Updated: </span></b><span lang=EN
-				style='font-family:"Calibri",sans-serif'>[February 11, 2022]</span></p>
+				style='font-family:"Calibri",sans-serif'>February 11, 2022</span></p>
 
 	</div>
 
