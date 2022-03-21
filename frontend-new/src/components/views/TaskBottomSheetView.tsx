@@ -1,8 +1,7 @@
 import React, { forwardRef, useRef, useState } from 'react'
 import { Dimensions } from 'react-native'
 import BottomSheet from 'reanimated-bottom-sheet'
-import { useGetTasks } from '../../services/api-query-hooks'
-import { useModifyTaskMutation } from '../../services/generalTaskApi'
+import { useGetTasks, useModifyTask } from '../../services/api-query-hooks'
 import { getTaskById } from '../../utils/task'
 import EditSheet from '../molecules/EditSheet'
 
@@ -15,7 +14,7 @@ const TaskBottomSheet = forwardRef(
         const { data: taskSections } = useGetTasks()
         const [text, setText] = useState('')
         const currTaskIdRef = useRef('')
-        const [modifyTask] = useModifyTaskMutation()
+        const { mutate: modifyTask } = useModifyTask()
 
         const renderContent = () => {
             if (!taskSections) return

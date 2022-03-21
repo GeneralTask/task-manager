@@ -1,5 +1,5 @@
 import React from 'react'
-import { useModifyTaskMutation } from '../../services/generalTaskApi'
+import { useModifyTask } from '../../services/api-query-hooks'
 import { icons } from '../../styles/images'
 import { TopNav } from './DatePicker-style'
 import GTSelect from './GTSelect'
@@ -10,7 +10,7 @@ interface TimeEstimateProps {
     closeTimeEstimate: () => void
 }
 export default function TimeEstimate({ task_id, closeTimeEstimate }: TimeEstimateProps): JSX.Element {
-    const [modifyTask] = useModifyTaskMutation()
+    const { mutate: modifyTask } = useModifyTask()
 
     const options = [
         { value: 5, label: '5 mins' },

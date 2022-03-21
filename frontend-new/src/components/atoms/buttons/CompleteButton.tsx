@@ -9,11 +9,10 @@ interface CompleteButtonProps {
     style?: ViewStyle
 }
 const CompleteButton = (props: CompleteButtonProps) => {
-    // const [markTaskDone] = useMarkTaskDoneMutation()
-    const { mutate, isLoading } = useMarkTaskDone()
+    const { mutate: markTaskDone } = useMarkTaskDone()
 
     const donePressHandler = () => {
-        mutate({ taskId: props.taskId, isCompleted: !props.isComplete })
+        markTaskDone({ taskId: props.taskId, isCompleted: !props.isComplete })
     }
     return (
         <View style={[styles.container, props.style]}>

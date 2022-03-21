@@ -1,7 +1,7 @@
 import { DateTime, Info } from 'luxon'
 import React, { useCallback, useState } from 'react'
 import { View } from 'react-native'
-import { useModifyTaskMutation } from '../../services/generalTaskApi'
+import { useModifyTask } from '../../services/api-query-hooks'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import {
@@ -16,9 +16,8 @@ import {
     PickerContainer,
     TopNav,
     WeekDay,
-    WeekDayTable
+    WeekDayTable,
 } from './DatePicker-style'
-
 
 interface DatePickerProps {
     task_id: string
@@ -26,7 +25,7 @@ interface DatePickerProps {
     closeDatePicker: () => void
 }
 function DatePicker({ task_id, due_date, closeDatePicker }: DatePickerProps): JSX.Element {
-    const [modifyTask] = useModifyTaskMutation()
+    const { mutate: modifyTask } = useModifyTask()
     const [date, setDate] = useState<DateTime>(DateTime.local().startOf('month'))
     const currentDueDate = DateTime.fromISO(due_date)
     const monthyear = date.toLocaleString({ month: 'long', year: 'numeric' }).toUpperCase()
@@ -140,7 +139,9 @@ function DatePicker({ task_id, due_date, closeDatePicker }: DatePickerProps): JS
             {monthTable()}
             <BottomBar>
                 <BottomDateView>
-                    <View style={{ padding: 10 }}><Icon source={icons['calendar_blank']} size="xSmall" /></View>
+                    <View style={{ padding: 10 }}>
+                        <Icon source={icons['calendar_blank']} size="xSmall" />
+                    </View>
                     <CurrentDateText>
                         {currentDueDate.isValid ? currentDueDate.toLocaleString() : 'MM/DD/YYYY'}
                     </CurrentDateText>
@@ -154,7 +155,9 @@ function DatePicker({ task_id, due_date, closeDatePicker }: DatePickerProps): JS
                             closeDatePicker()
                         }}
                     >
-                        <View style={{ padding: 10 }}><Icon source={icons['trash']} size="xSmall" /></View>
+                        <View style={{ padding: 10 }}>
+                            <Icon source={icons['trash']} size="xSmall" />
+                        </View>
                     </HoverButton>
                 </BottomDateView>
             </BottomBar>

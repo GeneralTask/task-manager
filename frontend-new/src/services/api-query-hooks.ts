@@ -139,18 +139,18 @@ export const useMarkTaskDone = () => {
                         }
                     }
                 }
-                queryClient.setQueryData('tasks', () => sections)
+                queryClient.setQueryData('tasks', sections)
             },
-            onSettled: () => {
-                queryClient.invalidateQueries('tasks')
-            }
+            // onSettled: () => {
+            //     queryClient.invalidateQueries('tasks')
+            // }
         }
     )
 }
 
 const markTaskDone = async (taskData: { taskId: string, isCompleted: boolean }) => {
     try {
-        const res = await apiClient.post(`/tasks/modify/${taskData.taskId}`, { is_completed: taskData.isCompleted })
+        const res = await apiClient.patch(`/tasks/modify/${taskData.taskId}/`, { is_completed: taskData.isCompleted })
         return res.data
     } catch {
         throw new Error('markTaskDone failed')

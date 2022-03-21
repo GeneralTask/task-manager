@@ -2,7 +2,7 @@ import React, { createRef, useEffect, useState } from 'react'
 import ReactTooltip from 'react-tooltip'
 import webStyled from 'styled-components'
 import styled from 'styled-components/native'
-import { useModifyTaskMutation } from '../../services/generalTaskApi'
+import { useModifyTask } from '../../services/api-query-hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -68,7 +68,7 @@ interface DetailsViewProps {
     task: TTask
 }
 const DetailsView = ({ task }: DetailsViewProps) => {
-    const [modifyTask] = useModifyTaskMutation()
+    const { mutate: modifyTask } = useModifyTask()
     const [title, setTitle] = useState('')
     const [body, setBody] = useState('')
     const [sourceName, setSourceName] = useState('')

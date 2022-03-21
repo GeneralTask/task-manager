@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { TextInput } from 'react-native-gesture-handler'
-import { useModifyTaskMutation } from '../../services/generalTaskApi'
+import { useModifyTask } from '../../services/api-query-hooks'
 import { Colors, Dimensions, Flex } from '../../styles'
 import { TTask } from '../../utils/types'
 import Handle from '../atoms/GrayHandle'
@@ -19,7 +19,7 @@ interface EditSheetProps {
 const EditSheet = ({ task, setText: propsSetText }: EditSheetProps) => {
     const inputRef = useRef<TextInput>(null)
     const [text, setText] = useState(task.body)
-    const [modifyTask] = useModifyTaskMutation()
+    const { mutate: modifyTask } = useModifyTask()
 
     return (
         <View style={styles.container}>
