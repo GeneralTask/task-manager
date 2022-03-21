@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -25,11 +26,14 @@ func requestJSON(client *http.Client, method string, url string, body string, da
 	if err != nil {
 		return err
 	}
+	responseBody, bodyErr := ioutil.ReadAll(response.Body)
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
+		if err == nil {
+			log.Println("bad response body:", string(responseBody))
+		}
 		return fmt.Errorf("bad status code: %d", response.StatusCode)
 	}
-	responseBody, err := ioutil.ReadAll(response.Body)
-	if err != nil {
+	if bodyErr != nil {
 		return err
 	}
 	err = json.Unmarshal(responseBody, data)
