@@ -2,6 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-q
 import { MESSAGES_PER_PAGE } from '../constants'
 import { apiClient } from '../utils/api'
 import { TMessage, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
+import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 
 /**
  * TASKS QUERIES
@@ -21,21 +22,21 @@ const getTasks = async () => {
 
 export const useCreateTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((newTaskData: { title: string, body: string, id_task_section: string }) => createTask(newTaskData),
+    return useMutation((newdata: { title: string, body: string, id_task_section: string }) => createTask(newdata),
         {
-            onMutate: async (newTaskData: { title: string, body: string, id_task_section: string }) => {
+            onMutate: async (newdata: { title: string, body: string, id_task_section: string }) => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
                 const sections: TTaskSection[] = queryClient.getQueryData('tasks') || []
                 for (let i = 0; i < sections.length; i++) {
                     const section = sections[i]
-                    if (section.id === newTaskData.id_task_section) {
+                    if (section.id === newdata.id_task_section) {
                         const newTask: TTask = {
                             id: '0',
                             id_ordering: 0,
-                            title: newTaskData.title,
-                            body: newTaskData.body,
+                            title: newdata.title,
+                            body: newdata.body,
                             deeplink: '',
                             sent_at: '',
                             time_allocated: 0,
@@ -66,9 +67,9 @@ export const useCreateTask = () => {
         }
     )
 }
-const createTask = async (newTaskData: { title: string, body: string, id_task_section: string }) => {
+const createTask = async (newdata: { title: string, body: string, id_task_section: string }) => {
     try {
-        const res = await apiClient.post('/tasks/create/gt_task/', newTaskData)
+        const res = await apiClient.post('/tasks/create/gt_task/', newdata)
         return res.data
     } catch {
         throw new Error('createTask failed')
@@ -77,9 +78,9 @@ const createTask = async (newTaskData: { title: string, body: string, id_task_se
 
 export const useModifyTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((taskData: { id: string, title?: string, due_date?: string, time_duration?: number, body?: string }) => modifyTask(taskData),
+    return useMutation((data: { id: string, title?: string, due_date?: string, time_duration?: number, body?: string }) => modifyTask(data),
         {
-            onMutate: async (taskData: { id: string, title?: string, due_date?: string, time_duration?: number, body?: string }) => {
+            onMutate: async (data: { id: string, title?: string, due_date?: string, time_duration?: number, body?: string }) => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
@@ -88,11 +89,11 @@ export const useModifyTask = () => {
                     const section = sections[i]
                     for (let j = 0; j < section.tasks.length; j++) {
                         const task = section.tasks[j]
-                        if (task.id === taskData.id) {
-                            task.title = taskData.title || task.title
-                            task.due_date = taskData.due_date || task.due_date
-                            task.time_allocated = taskData.time_duration || task.time_allocated
-                            task.body = taskData.body || task.body
+                        if (task.id === data.id) {
+                            task.title = data.title || task.title
+                            task.due_date = data.due_date || task.due_date
+                            task.time_allocated = data.time_duration || task.time_allocated
+                            task.body = data.body || task.body
                         }
                     }
                 }
@@ -104,14 +105,14 @@ export const useModifyTask = () => {
         }
     )
 }
-const modifyTask = async (taskData: { id: string, title?: string, due_date?: string, time_duration?: number, body?: string }) => {
+const modifyTask = async (data: { id: string, title?: string, due_date?: string, time_duration?: number, body?: string }) => {
     const requestBody: TTaskModifyRequestBody = {}
-    if (taskData.title) requestBody.title = taskData.title
-    if (taskData.due_date) requestBody.due_date = taskData.due_date
-    if (taskData.time_duration) requestBody.time_duration = taskData.time_duration
-    if (taskData.body) requestBody.body = taskData.body
+    if (data.title) requestBody.title = data.title
+    if (data.due_date) requestBody.due_date = data.due_date
+    if (data.time_duration) requestBody.time_duration = data.time_duration
+    if (data.body) requestBody.body = data.body
     try {
-        const res = await apiClient.patch(`/tasks/modify/${taskData.id}/`, requestBody)
+        const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return res.data
     } catch {
         throw new Error('modifyTask failed')
@@ -121,9 +122,9 @@ const modifyTask = async (taskData: { id: string, title?: string, due_date?: str
 
 export const useMarkTaskDone = () => {
     const queryClient = useQueryClient()
-    return useMutation((taskData: { taskId: string, isCompleted: boolean }) => markTaskDone(taskData),
+    return useMutation((data: { taskId: string, isCompleted: boolean }) => markTaskDone(data),
         {
-            onMutate: async (taskData: { taskId: string, isCompleted: boolean }) => {
+            onMutate: async (data: { taskId: string, isCompleted: boolean }) => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
@@ -132,30 +133,83 @@ export const useMarkTaskDone = () => {
                     const section = sections[i]
                     for (let j = 0; j < section.tasks.length; j++) {
                         const task = section.tasks[j]
-                        if (task.id === taskData.taskId) {
-                            task.is_done = taskData.isCompleted
+                        if (task.id === data.taskId) {
+                            task.is_done = data.isCompleted
                             // Don't actually remove tasks from the list, just mark them as done (Until refreshing)
                             // section.tasks.splice(j, 1)
                         }
                     }
                 }
                 queryClient.setQueryData('tasks', sections)
-            },
-            // onSettled: () => {
-            //     queryClient.invalidateQueries('tasks')
-            // }
+            }
         }
     )
 }
-
-const markTaskDone = async (taskData: { taskId: string, isCompleted: boolean }) => {
+const markTaskDone = async (data: { taskId: string, isCompleted: boolean }) => {
     try {
-        const res = await apiClient.patch(`/tasks/modify/${taskData.taskId}/`, { is_completed: taskData.isCompleted })
+        const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { is_completed: data.isCompleted })
         return res.data
     } catch {
         throw new Error('markTaskDone failed')
     }
 }
+
+export const useReorderTask = () => {
+    const queryClient = useQueryClient()
+    return useMutation((data: { taskId: string, dropSectionId: string, orderingId: number, dragSectionId?: string }) => reorderTask(data),
+        {
+            onMutate: async (data: { taskId: string, dropSectionId: string, orderingId: number, dragSectionId?: string }) => {
+                // cancel all current getTasks queries
+                await queryClient.cancelQueries('tasks')
+
+                const sections: TTaskSection[] = queryClient.getQueryData('tasks') || []
+                if (data.dragSectionId === undefined || data.dragSectionId === data.dropSectionId) {
+                    const section = sections.find(s => s.id === data.dropSectionId)
+                    if (section == null) return
+                    const startIndex = section.tasks.findIndex(t => t.id === data.taskId)
+                    if (startIndex === -1) return
+                    let endIndex = data.orderingId - 1
+                    if (startIndex < endIndex) {
+                        endIndex -= 1
+                    }
+                    arrayMoveInPlace(section.tasks, startIndex, endIndex)
+
+                    // update ordering ids
+                    resetOrderingIds(section.tasks)
+                }
+                // move task from one section to the other
+                else {
+                    // remove task from old location
+                    const dragSection = sections.find((section) => section.id === data.dragSectionId)
+                    if (dragSection == null) return
+                    const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === data.taskId)
+                    if (dragTaskIndex === -1) return
+                    const dragTask = dragSection.tasks[dragTaskIndex]
+                    dragSection.tasks.splice(dragTaskIndex, 1)
+
+                    // add task to new location
+                    const dropSection = sections.find((section) => section.id === data.dropSectionId)
+                    if (dropSection == null) return
+                    dropSection.tasks.splice(data.orderingId - 1, 0, dragTask)
+
+                    // update ordering ids
+                    // resetOrderingIds(dropSection.tasks)
+                    resetOrderingIds(dragSection.tasks)
+                }
+                queryClient.setQueryData('tasks', sections)
+            }
+        }
+    )
+}
+const reorderTask = async (data: { taskId: string, dropSectionId: string, orderingId: number, dragSectionId?: string }) => {
+    try {
+        const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { id_task_section: data.dropSectionId, id_ordering: data.orderingId })
+        return res.data
+    } catch {
+        throw new Error('reorderTask failed')
+    }
+}
+
 /**
  * MESSAGES QUERIES
  */

@@ -115,7 +115,7 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        markTaskDone: builder.mutation<void, { id: string, is_completed: boolean }>({
+        markTaskDoneDeprecated: builder.mutation<void, { id: string, is_completed: boolean }>({
             query: (data) => ({
                 url: `/tasks/modify/${data.id}/`,
                 method: 'PATCH',
@@ -145,7 +145,7 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        reorderTask: builder.mutation<void, { taskId: string, dropSectionId: string, orderingId: number, dragSectionId?: string }>({
+        reorderTaskDeprecated: builder.mutation<void, { taskId: string, dropSectionId: string, orderingId: number, dragSectionId?: string }>({
             query: ({ taskId, dropSectionId, orderingId }) => ({
                 url: `/tasks/modify/${taskId}/`,
                 method: 'PATCH',
@@ -285,7 +285,7 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        getMessages: builder.query<TMessage[], { only_unread: boolean, page: number }>({
+        getMessagesDeprecated: builder.query<TMessage[], { only_unread: boolean, page: number }>({
             query: (data) => ({
                 url: 'messages/v2/',
                 method: 'GET',
@@ -365,13 +365,10 @@ export const generalTaskApi = createApi({
 })
 
 export const {
-    useMarkTaskDoneMutation,
-    useReorderTaskMutation,
     useFetchTasksExternalQuery,
     useAddTaskSectionMutation,
     useDeleteTaskSectionMutation,
     useGetEventsQuery,
-    useGetMessagesQuery,
     useGetLinkedAccountsQuery,
     useGetSupportedTypesQuery,
     useDeleteLinkedAccountMutation,
