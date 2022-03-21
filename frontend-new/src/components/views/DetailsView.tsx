@@ -42,6 +42,10 @@ const TitleInput = webStyled.input`
     border: none;
     display: inline-block;
     margin-left: ${Spacing.margin.small}px;
+    flex: 1;
+    :focus {
+        outline: 1px solid ${Colors.gray._500};
+    }
 `
 const BodyTextArea = webStyled.textarea`
     display: block;
