@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
         ...Flex.column,
         paddingTop: 0,
         backgroundColor: Colors.gray._50,
+        minWidth: '550px',
     },
     tasksContent: {
         ...Flex.column,
