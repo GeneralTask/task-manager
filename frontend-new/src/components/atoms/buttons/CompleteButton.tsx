@@ -1,6 +1,6 @@
 import React from 'react'
 import { Image, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native'
-import { useMarkTaskDoneMutation } from '../../../services/generalTaskApi'
+import { useMarkTaskDone } from '../../../services/api-query-hooks'
 import { icons } from '../../../styles/images'
 
 interface CompleteButtonProps {
@@ -9,10 +9,11 @@ interface CompleteButtonProps {
     style?: ViewStyle
 }
 const CompleteButton = (props: CompleteButtonProps) => {
-    const [markTaskDone] = useMarkTaskDoneMutation()
+    // const [markTaskDone] = useMarkTaskDoneMutation()
+    const { mutate, isLoading } = useMarkTaskDone()
 
     const donePressHandler = () => {
-        markTaskDone({ id: props.taskId, is_completed: !props.isComplete })
+        mutate({ taskId: props.taskId, isCompleted: !props.isComplete })
     }
     return (
         <View style={[styles.container, props.style]}>

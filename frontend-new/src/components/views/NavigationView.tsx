@@ -30,14 +30,13 @@ const AddSectionView = styled.View`
 `
 const AddSectionInputView = styled.View`
     font-weight: ${weight._600.fontWeight};
-    margin-left: ${margin.small};
+    margin-left: ${margin.small}px;
     flex: 1;
 `
 
 const NavigationView = () => {
     const dispatch = useAppDispatch()
     const { data: taskSections, isLoading } = useGetTasks()
-    // const { data: taskSections, isLoading: isLoadingTasks } = useGetTasksQuery()
     const { section: sectionIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
     const [addTaskSection] = useAddTaskSectionMutation()

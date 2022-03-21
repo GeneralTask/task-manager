@@ -96,7 +96,7 @@ export const useModifyTask = () => {
                         }
                     }
                 }
-                queryClient.setQueryData('tasks', sections)
+                queryClient.setQueryData('tasks', () => sections)
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
@@ -119,6 +119,43 @@ const modifyTask = async (taskData: { id: string, title?: string, due_date?: str
 }
 
 
+export const useMarkTaskDone = () => {
+    const queryClient = useQueryClient()
+    return useMutation((taskData: { taskId: string, isCompleted: boolean }) => markTaskDone(taskData),
+        {
+            onMutate: async (taskData: { taskId: string, isCompleted: boolean }) => {
+                // cancel all current getTasks queries
+                await queryClient.cancelQueries('tasks')
+
+                const sections: TTaskSection[] = queryClient.getQueryData('tasks') || []
+                for (let i = 0; i < sections.length; i++) {
+                    const section = sections[i]
+                    for (let j = 0; j < section.tasks.length; j++) {
+                        const task = section.tasks[j]
+                        if (task.id === taskData.taskId) {
+                            task.is_done = taskData.isCompleted
+                            // Don't actually remove tasks from the list, just mark them as done (Until refreshing)
+                            // section.tasks.splice(j, 1)
+                        }
+                    }
+                }
+                queryClient.setQueryData('tasks', () => sections)
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries('tasks')
+            }
+        }
+    )
+}
+
+const markTaskDone = async (taskData: { taskId: string, isCompleted: boolean }) => {
+    try {
+        const res = await apiClient.post(`/tasks/modify/${taskData.taskId}`, { is_completed: taskData.isCompleted })
+        return res.data
+    } catch {
+        throw new Error('markTaskDone failed')
+    }
+}
 /**
  * MESSAGES QUERIES
  */

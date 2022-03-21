@@ -26,11 +26,11 @@ export const generalTaskApi = createApi({
     }),
     tagTypes: ['Tasks', 'Messages', 'Events', 'Accounts'],
     endpoints: (builder) => ({
-        getTasks: builder.query<TTaskSection[], void>({
+        getTasksDeprecated: builder.query<TTaskSection[], void>({
             query: () => 'tasks/v3/',
             providesTags: ['Tasks']
         }),
-        createTask: builder.mutation<void, { title: string, body: string, id_task_section: string }>({
+        createTaskDeprecated: builder.mutation<void, { title: string, body: string, id_task_section: string }>({
             query: (data) => ({
                 url: 'tasks/create/gt_task/',
                 method: 'POST',
@@ -38,7 +38,7 @@ export const generalTaskApi = createApi({
             }),
             async onQueryStarted(data, { dispatch, queryFulfilled }) {
                 const result = dispatch(
-                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                    generalTaskApi.util.updateQueryData('getTasksDeprecated', undefined, (sections) => {
                         for (let i = 0; i < sections.length; i++) {
                             const section = sections[i]
                             if (section.id === data.id_task_section) {
@@ -74,7 +74,7 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        modifyTask: builder.mutation<void, { id: string, title?: string, due_date?: string, time_duration?: number, body?: string }>({
+        modifyTaskDeprecated: builder.mutation<void, { id: string, title?: string, due_date?: string, time_duration?: number, body?: string }>({
             query: (data) => {
                 const requestBody: TTaskModifyRequestBody = {}
                 if (data.title) requestBody.title = data.title
@@ -90,7 +90,7 @@ export const generalTaskApi = createApi({
             async onQueryStarted(data, { dispatch, queryFulfilled }) {
                 const formattedDate = data.due_date ? new Date(data.due_date).toISOString().slice(0, 10) : ''
                 const result = dispatch(
-                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                    generalTaskApi.util.updateQueryData('getTasksDeprecated', undefined, (sections) => {
                         for (let i = 0; i < sections.length; i++) {
                             const section = sections[i]
                             for (let j = 0; j < section.tasks.length; j++) {
@@ -123,7 +123,7 @@ export const generalTaskApi = createApi({
             }),
             async onQueryStarted(data, { dispatch, queryFulfilled }) {
                 const result = dispatch(
-                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                    generalTaskApi.util.updateQueryData('getTasksDeprecated', undefined, (sections) => {
                         for (let i = 0; i < sections.length; i++) {
                             const section = sections[i]
                             for (let j = 0; j < section.tasks.length; j++) {
@@ -157,7 +157,7 @@ export const generalTaskApi = createApi({
             invalidatesTags: ['Tasks'],
             onQueryStarted: async ({ taskId, dropSectionId, orderingId, dragSectionId }, { dispatch, queryFulfilled }) => {
                 const result = dispatch(
-                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections: TTaskSection[]) => {
+                    generalTaskApi.util.updateQueryData('getTasksDeprecated', undefined, (sections: TTaskSection[]) => {
                         // move task within the same section
                         if (dragSectionId === undefined || dragSectionId === dropSectionId) {
                             const section = sections.find(s => s.id === dropSectionId)
@@ -216,7 +216,7 @@ export const generalTaskApi = createApi({
             }),
             async onQueryStarted(data, { dispatch, queryFulfilled }) {
                 const result = dispatch(
-                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                    generalTaskApi.util.updateQueryData('getTasksDeprecated', undefined, (sections) => {
                         const newSection: TTaskSection = {
                             id: '-1',
                             name: data.name,
@@ -241,7 +241,7 @@ export const generalTaskApi = createApi({
             }),
             async onQueryStarted(data, { dispatch, queryFulfilled }) {
                 const result = dispatch(
-                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                    generalTaskApi.util.updateQueryData('getTasksDeprecated', undefined, (sections) => {
                         for (let i = 0; i < sections.length; i++) {
                             const section = sections[i]
                             if (section.id === data.id) {
@@ -267,7 +267,7 @@ export const generalTaskApi = createApi({
             }),
             async onQueryStarted(data, { dispatch, queryFulfilled }) {
                 const result = dispatch(
-                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                    generalTaskApi.util.updateQueryData('getTasksDeprecated', undefined, (sections) => {
                         for (let i = 0; i < sections.length; i++) {
                             const section = sections[i]
                             if (section.id === data.id) {
@@ -365,9 +365,6 @@ export const generalTaskApi = createApi({
 })
 
 export const {
-    useGetTasksQuery,
-    useModifyTaskMutation,
-    useCreateTaskMutation,
     useMarkTaskDoneMutation,
     useReorderTaskMutation,
     useFetchTasksExternalQuery,
