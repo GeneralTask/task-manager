@@ -23,6 +23,7 @@ const TaskTitleContainer = styled.View`
     flex-direction: row;
     align-items: center;
     z-index: 1;
+    height: 50px;
 `
 const TitleInput = webStyled.input`
     background-color: inherit;
@@ -67,6 +68,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
     const [body, setBody] = useState('')
     const [timeAllocated, setTimeAllocated] = useState('')
     const [sourceName, setSourceName] = useState('')
+
     const [datePickerShown, setDatePickerShown] = useState(false)
     const [timeEstimateShown, setTimeEstimateShown] = useState(false)
     const inputRef = createRef<HTMLInputElement>()
@@ -108,8 +110,18 @@ const DetailsView = ({ task }: DetailsViewProps) => {
                         onBlur={handleBlur}
                     />
                 </View>
-                <ActionOption action="date_picker" task={task} />
-                <ActionOption action="time_allocated" task={task} />
+                <ActionOption
+                    isShown={datePickerShown}
+                    setIsShown={setDatePickerShown}
+                    action="date_picker"
+                    task={task}
+                />
+                <ActionOption
+                    isShown={timeEstimateShown}
+                    setIsShown={setTimeEstimateShown}
+                    action="time_allocated"
+                    task={task}
+                />
             </TaskTitleContainer>
             <MarginTopContainer>
                 {sourceName === 'Asana' ? (

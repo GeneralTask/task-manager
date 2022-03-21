@@ -88,6 +88,7 @@ export const generalTaskApi = createApi({
                 }
             },
             async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                const formattedDate = data.due_date ? new Date(data.due_date).toISOString().slice(0, 10) : ''
                 const result = dispatch(
                     generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
                         for (let i = 0; i < sections.length; i++) {
@@ -96,7 +97,7 @@ export const generalTaskApi = createApi({
                                 const task = section.tasks[j]
                                 if (task.id === data.id) {
                                     task.title = data.title || task.title
-                                    task.due_date = data.due_date || task.due_date
+                                    task.due_date = data.due_date ? formattedDate : task.due_date
                                     task.time_allocated = data.time_duration || task.time_allocated
                                     task.body = data.body || task.body
                                     return

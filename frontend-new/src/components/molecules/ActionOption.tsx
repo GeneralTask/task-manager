@@ -16,28 +16,43 @@ const ActionButton = styled.Pressable`
     padding: 2px;
     margin-right: ${Spacing.margin.small}px;
 `
+
 interface ActionOptionProps {
     task: TTask
     action: 'date_picker' | 'time_allocated'
+    isShown: boolean
+    setIsShown: (isShown: boolean) => void
 }
-const ActionOption = ({ task, action }: ActionOptionProps) => {
-    const [isPickerVisible, setIsPickerVisible] = React.useState(false)
+const ActionOption = ({ task, action, isShown, setIsShown }: ActionOptionProps) => {
     useEffect(() => {
-        setIsPickerVisible(false)
+        setIsShown(false)
     }, [task])
 
-    const icon = action === 'date_picker' ? icons.calendar_blank : icons.timer
-    const picker =
-        action === 'date_picker' ? (
-            <DatePicker task_id={task.id} due_date={task.due_date} closeDatePicker={() => setIsPickerVisible(false)} />
-        ) : (
-            <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setIsPickerVisible(false)} />
-        )
-    const setValue = action === 'date_picker' ? task.due_date : `${task.time_allocated / 60000000}min`
+    const actionSpecificValues = ((action: 'date_picker' | 'time_allocated') => {
+        if (action === 'date_picker') {
+            return {
+                icon: icons.calendar_blank,
+                component: (
+                    <DatePicker task_id={task.id} due_date={task.due_date} closeDatePicker={() => setIsShown(false)} />
+                ),
+                string: task.due_date,
+            }
+        }
+        return {
+            icon: icons.timer,
+            component: <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setIsShown(false)} />,
+            string: task.time_allocated / 60000000 === 60000 ? '' : `${task.time_allocated / 60000000}min`,
+        }
+    })(action)
+
     return (
-        <ActionButton onPress={() => setIsPickerVisible(!isPickerVisible)}>
-            {setValue ? <ActionValue value={setValue} /> : <Icon source={icon} size="small" />}
-            {isPickerVisible && picker}
+        <ActionButton onPress={() => setIsShown(!isShown)}>
+            {actionSpecificValues.string ? (
+                <ActionValue value={actionSpecificValues.string} />
+            ) : (
+                <Icon source={actionSpecificValues.icon} size="small" />
+            )}
+            {isShown && actionSpecificValues.component}
         </ActionButton>
     )
 }
