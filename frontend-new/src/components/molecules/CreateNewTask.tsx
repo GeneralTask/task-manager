@@ -1,18 +1,36 @@
-import React, { useCallback, useState } from 'react'
-import { Image, Platform, StyleSheet, TextInput, View } from 'react-native'
-import { useCreateTaskMutation } from '../../services/generalTaskApi'
 import { Colors, Flex, Images } from '../../styles'
-import KeyboardShotcutContainer from '../atoms/ShortcutHint'
+import {
+    Image,
+    Platform,
+    StyleSheet,
+    TextInput,
+    View,
+    NativeSyntheticEvent,
+    TextInputKeyPressEventData,
+} from 'react-native'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+
+import { useCreateTaskMutation } from '../../services/generalTaskApi'
+import { KeyboardShortcut } from '../atoms/KeyboardShortcuts'
 
 interface CreateNewTaskProps {
     section: string
 }
 const CreatNewTask = (props: CreateNewTaskProps) => {
-    const inputRef = useCallback((node) => {
-        if (node !== null) {
-            node.focus()
+    const inputRef = useRef<TextInput>(null)
+
+    // web only
+    const [isFocused, setIsFocused] = useState(false)
+    useEffect(() => {
+        if (isFocused) {
+            inputRef.current?.focus()
+        } else {
+            inputRef.current?.blur()
         }
-    }, [])
+    }, [isFocused])
+
+    const onBlur = useCallback(() => setIsFocused(false), [])
+
     const [text, setText] = useState('')
     const [createTask] = useCreateTaskMutation()
 
@@ -27,9 +45,11 @@ const CreatNewTask = (props: CreateNewTaskProps) => {
             })
         }
     }
-    const handleKeyDown = (e: React.KeyboardEvent) => {
+    const handleKeyDown = (e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
         if (e.nativeEvent.key === 'Enter') {
             submitNewTask()
+        } else if (e.nativeEvent.key === 'Escape') {
+            onBlur()
         }
     }
     return (
@@ -37,26 +57,17 @@ const CreatNewTask = (props: CreateNewTaskProps) => {
             <View style={styles.plusIconContainer}>
                 <Image style={styles.plusIcon} source={Images.icons.plus} />
             </View>
-            {Platform.OS === 'web' ? (
-                <input
-                    style={webInputStyles}
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    placeholder="Add new task"
-                    onKeyDown={handleKeyDown}
-                    ref={inputRef}
-                />
-            ) : (
-                <TextInput
-                    style={styles.input}
-                    value={text}
-                    onChangeText={(text) => setText(text)}
-                    placeholder="Add new task"
-                    onSubmitEditing={submitNewTask}
-                />
-            )}
-
-            {Platform.OS === 'web' && <KeyboardShotcutContainer style={styles.tool} character={'T'} />}
+            <TextInput
+                style={styles.input}
+                value={text}
+                onChangeText={(text) => setText(text)}
+                onBlur={onBlur}
+                placeholder="Add new task"
+                onKeyPress={handleKeyDown}
+                blurOnSubmit={false}
+                ref={inputRef}
+            />
+            {Platform.OS === 'web' && <KeyboardShortcut shortcut="T" onKeyPress={() => setIsFocused(true)} />}
         </View>
     )
 }
@@ -100,11 +111,5 @@ const styles = StyleSheet.create({
     },
     tool: {},
 })
-const webInputStyles = {
-    flexGrow: 1,
-    background: 'transparent',
-    border: 'none',
-    outline: 'none',
-}
 
 export default CreatNewTask

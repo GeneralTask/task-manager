@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Platform } from 'react-native'
 import styled from 'styled-components/native'
+import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
 import { useDeleteTaskSectionMutation, useModifyTaskSectionMutation } from '../../services/generalTaskApi'
 import { Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
@@ -75,6 +76,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             {props.allowRefresh && Platform.OS === 'web' && (
                 <TouchableIcon onPress={props.refetch}>
                     <Icon size={'small'} source={icons.spinner}></Icon>
+                    {Platform.OS === 'web' && <InvisibleKeyboardShortcut shortcut="r" onKeyPress={props.refetch} />}
                 </TouchableIcon>
             )}
             {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) && (

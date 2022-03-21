@@ -94,6 +94,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
         if (inputRef.current && (e.key === 'Enter' || e.key === 'Escape')) inputRef.current.blur()
+        else e.stopPropagation()
     }
 
     const handleBlur = () => {
@@ -140,6 +141,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
                         placeholder="Add task details"
                         value={body}
                         onChange={(e) => setBody(e.target.value)}
+                        onKeyDown={(e) => e.stopPropagation()}
                         onBlur={handleBlur}
                     />
                 )}

@@ -28,6 +28,13 @@ const TextArea = (props: TextAreaProps) => {
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         props.setValue(e.target.value)
     }
-    return <TextAreaStyled value={props.value} placeholder={props.placeholder || ''} onChange={onChange} />
+    return (
+        <TextAreaStyled
+            value={props.value}
+            placeholder={props.placeholder || ''}
+            onChange={onChange}
+            onKeyDown={(e) => e.stopPropagation()}
+        />
+    )
 }
 export default TextArea
