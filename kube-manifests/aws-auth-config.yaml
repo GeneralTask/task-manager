@@ -10,10 +10,9 @@ data:
       username: system:node:{{SessionName}}
       rolearn: arn:aws:iam::257821106339:role/qa-gtsk-uswest2-core-build
       username: qa-gtsk-uswest2-core-build
+      rolearn: arn:aws:iam::257821106339:role/qa-gtsk-uswest2-core-deploy
+      username: qa-gtsk-uswest2-core-deploy
 kind: ConfigMap
 metadata:
-  creationTimestamp: "2022-01-20T23:54:32Z"
   name: aws-auth
   namespace: kube-system
-  resourceVersion: "1359"
-  uid: dd1062b9-fecf-46b3-840e-ab62ed507d92
