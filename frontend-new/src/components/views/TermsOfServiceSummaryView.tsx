@@ -52,6 +52,10 @@ const VerticalFlex = styled.View`
     display: flex;
     flex-direction: row;
 `
+const HorizontalFlex = styled.View`
+    display: flex;
+    flex-direction: row;
+`
 const AgreementText = styled.Text<{ required?: boolean }>`
     margin-left: ${Spacing.margin.small}px;
 `
@@ -119,19 +123,25 @@ const TermsOfServiceSummaryView = () => {
                 </LinkContainer>
                 <VerticalFlex>
                     <Pressable onPress={() => setTermsCheck(!termsCheck)}>
-                        <Icon size="small" source={termsCheck ? icons.check_gray : icons.check_unchecked} />
+                        <HorizontalFlex>
+                            <Icon size="small" source={termsCheck ? icons.check_gray : icons.check_unchecked} />
+                            <AgreementText required>
+                                I acknowledge General Task&#39;s privacy policy and agree to General Task&#39;s terms of
+                                service.
+                                <RedAsterisk>*</RedAsterisk>
+                            </AgreementText>
+                        </HorizontalFlex>
                     </Pressable>
-                    <AgreementText required>
-                        I acknowledge General Task&#39;s privacy policy and agree to General Task&#39;s terms of
-                        service.
-                        <RedAsterisk>*</RedAsterisk>
-                    </AgreementText>
                 </VerticalFlex>
                 <VerticalFlex>
                     <Pressable onPress={() => setPromotionsCheck(!promotionsCheck)}>
-                        <Icon size="small" source={promotionsCheck ? icons.check_gray : icons.check_unchecked} />
+                        <HorizontalFlex>
+                            <Icon size="small" source={promotionsCheck ? icons.check_gray : icons.check_unchecked} />
+                            <AgreementText>
+                                I would like to opt in on General Task&#39;s promotional emails.
+                            </AgreementText>
+                        </HorizontalFlex>
                     </Pressable>
-                    <AgreementText>I would like to opt in on General Task&#39;s promotional emails.</AgreementText>
                 </VerticalFlex>
             </GapContainer>
             <SubmitButtonContainer>
