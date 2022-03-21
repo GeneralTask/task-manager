@@ -41,7 +41,10 @@ const ActionOption = ({ task, action, isShown, setIsShown }: ActionOptionProps) 
         return {
             icon: icons.timer,
             component: <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setIsShown(false)} />,
-            actionString: task.time_allocated / 60000000 === 60000 ? '' : `${task.time_allocated / 60000000}min`,
+            actionString:
+                task.time_allocated / 60000000 === 60000 || task.time_allocated / 60000000 === 0
+                    ? ''
+                    : `${task.time_allocated / 60000000}min`,
         }
     })(action)
 
