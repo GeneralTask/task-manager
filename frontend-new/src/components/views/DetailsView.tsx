@@ -26,14 +26,6 @@ const TaskTitleContainer = styled.View`
     z-index: 1;
     height: 50px;
 `
-const ActionButton = styled.Pressable`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    padding: 2px;
-    margin-right: ${Spacing.margin.small}px;
-`
 const TitleInput = webStyled.input`
     background-color: inherit;
     color: ${Colors.gray._600};
