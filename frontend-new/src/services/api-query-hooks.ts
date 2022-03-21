@@ -7,7 +7,6 @@ import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 /**
  * TASKS QUERIES
  */
-
 export const useGetTasks = () => {
     return useQuery<TTaskSection[], void>('tasks', getTasks)
 }
@@ -20,6 +19,20 @@ const getTasks = async () => {
     }
 }
 
+
+export const useFetchExternalTasks = () => {
+    return useQuery('tasksExternal', fetchExternalTasks)
+}
+const fetchExternalTasks = async () => {
+    try {
+        const res = await apiClient.get('/tasks/fetch/')
+        return res.data
+    } catch {
+        throw new Error('fetchTasks failed')
+    }
+}
+
+
 export const useCreateTask = () => {
     const queryClient = useQueryClient()
     return useMutation((newdata: { title: string, body: string, id_task_section: string }) => createTask(newdata),
@@ -28,7 +41,9 @@ export const useCreateTask = () => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] = queryClient.getQueryData('tasks') || []
+                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+                if (!sections) return
+
                 for (let i = 0; i < sections.length; i++) {
                     const section = sections[i]
                     if (section.id === newdata.id_task_section) {
@@ -76,6 +91,7 @@ const createTask = async (newdata: { title: string, body: string, id_task_sectio
     }
 }
 
+
 export const useModifyTask = () => {
     const queryClient = useQueryClient()
     return useMutation((data: { id: string, title?: string, due_date?: string, time_duration?: number, body?: string }) => modifyTask(data),
@@ -84,7 +100,9 @@ export const useModifyTask = () => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] = queryClient.getQueryData('tasks') || []
+                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+                if (!sections) return
+
                 for (let i = 0; i < sections.length; i++) {
                     const section = sections[i]
                     for (let j = 0; j < section.tasks.length; j++) {
@@ -128,7 +146,9 @@ export const useMarkTaskDone = () => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] = queryClient.getQueryData('tasks') || []
+                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+                if (!sections) return
+
                 for (let i = 0; i < sections.length; i++) {
                     const section = sections[i]
                     for (let j = 0; j < section.tasks.length; j++) {
@@ -154,6 +174,7 @@ const markTaskDone = async (data: { taskId: string, isCompleted: boolean }) => {
     }
 }
 
+
 export const useReorderTask = () => {
     const queryClient = useQueryClient()
     return useMutation((data: { taskId: string, dropSectionId: string, orderingId: number, dragSectionId?: string }) => reorderTask(data),
@@ -162,7 +183,8 @@ export const useReorderTask = () => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] = queryClient.getQueryData('tasks') || []
+                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+                if (!sections) return
                 if (data.dragSectionId === undefined || data.dragSectionId === data.dropSectionId) {
                     const section = sections.find(s => s.id === data.dropSectionId)
                     if (section == null) return
@@ -210,6 +232,111 @@ const reorderTask = async (data: { taskId: string, dropSectionId: string, orderi
     }
 }
 
+
+/**
+ * TASK SECTION QUERIES
+ */
+
+export const useAddTaskSection = () => {
+    const queryClient = useQueryClient()
+    return useMutation((data: { name: string }) => addTaskSection(data),
+        {
+            onMutate: async (data: { name: string }) => {
+                // cancel all current getTasks queries
+                await queryClient.cancelQueries('tasks')
+
+                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+                if (!sections) return
+                const newSection: TTaskSection = {
+                    id: '-1',
+                    name: data.name,
+                    is_done: false,
+                    tasks: [],
+                }
+                sections.splice(sections.length - 1, 0, newSection)
+                queryClient.setQueryData('tasks', sections)
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries('tasks')
+            }
+        }
+    )
+}
+const addTaskSection = async (data: { name: string }) => {
+    try {
+        const res = await apiClient.post('/sections/create/', { name: data.name })
+        return res.data
+    } catch {
+        throw new Error('addTaskSection failed')
+    }
+}
+
+
+export const useDeleteTaskSection = () => {
+    const queryClient = useQueryClient()
+    return useMutation((data: { sectionId: string }) => deleteTaskSection(data),
+        {
+            onMutate: async (data: { sectionId: string }) => {
+                // cancel all current getTasks queries
+                await queryClient.cancelQueries('tasks')
+
+                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+                if (!sections) return
+                for (let i = 0; i < sections.length; i++) {
+                    const section = sections[i]
+                    if (section.id === data.sectionId) {
+                        sections.splice(i, 1)
+                        return
+                    }
+                }
+                queryClient.setQueryData('tasks', sections)
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries('tasks')
+            }
+        }
+    )
+}
+const deleteTaskSection = async (data: { sectionId: string }) => {
+    try {
+        const res = await apiClient.delete(`/sections/delete/${data.sectionId}/`)
+        return res.data
+    } catch {
+        throw new Error('deleteTaskSection failed')
+    }
+}
+
+
+export const useModifyTaskSection = () => {
+    const queryClient = useQueryClient()
+    return useMutation((data: { sectionId: string, name: string }) => modifyTaskSection(data),
+        {
+            onMutate: async (data: { sectionId: string, name: string }) => {
+                // cancel all current getTasks queries
+                await queryClient.cancelQueries('tasks')
+
+                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+                if (!sections) return
+
+                for (let i = 0; i < sections.length; i++) {
+                    const section = sections[i]
+                    if (section.id === data.sectionId) {
+                        section.name = data.name
+                    }
+                }
+                queryClient.setQueryData('tasks', sections)
+            }
+        }
+    )
+}
+const modifyTaskSection = async (data: { sectionId: string, name: string }) => {
+    try {
+        const res = await apiClient.patch(`/sections/modify/${data.sectionId}/`, { name: data.name })
+        return res.data
+    } catch {
+        throw new Error('modifyTaskSection failed')
+    }
+}
 /**
  * MESSAGES QUERIES
  */

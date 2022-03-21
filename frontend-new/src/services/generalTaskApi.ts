@@ -202,13 +202,13 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        fetchTasksExternal: builder.query<void, void>({
+        fetchTasksExternalDeprecated: builder.query<void, void>({
             query: () => ({
                 url: '/tasks/fetch/',
                 method: 'GET',
             }),
         }),
-        addTaskSection: builder.mutation<void, { name: string }>({
+        addTaskSectionDeprecated: builder.mutation<void, { name: string }>({
             query: (data) => ({
                 url: 'sections/create/',
                 method: 'POST',
@@ -234,7 +234,7 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        deleteTaskSection: builder.mutation<void, { id: string }>({
+        deleteTaskSectionDeprecated: builder.mutation<void, { id: string }>({
             query: (data) => ({
                 url: `sections/delete/${data.id}/`,
                 method: 'DELETE',
@@ -259,7 +259,7 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        modifyTaskSection: builder.mutation<void, { id: string, name: string }>({
+        modifyTaskSectionDeprecated: builder.mutation<void, { id: string, name: string }>({
             query: (data) => ({
                 url: `sections/modify/${data.id}/`,
                 method: 'PATCH',
@@ -365,14 +365,10 @@ export const generalTaskApi = createApi({
 })
 
 export const {
-    useFetchTasksExternalQuery,
-    useAddTaskSectionMutation,
-    useDeleteTaskSectionMutation,
     useGetEventsQuery,
     useGetLinkedAccountsQuery,
     useGetSupportedTypesQuery,
     useDeleteLinkedAccountMutation,
     usePostFeedbackMutation,
-    useModifyTaskSectionMutation,
     useMarkMessageAsTaskMutation,
 } = generalTaskApi

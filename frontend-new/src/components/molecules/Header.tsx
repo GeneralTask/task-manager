@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Platform } from 'react-native'
 import styled from 'styled-components/native'
-import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
-import { useDeleteTaskSectionMutation, useModifyTaskSectionMutation } from '../../services/generalTaskApi'
+import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-query-hooks'
 import { Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
+import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
 
 const SectionHeaderContainer = styled.View`
     display: flex;
@@ -31,8 +31,8 @@ interface SectionHeaderProps {
     taskSectionId?: string
 }
 export const SectionHeader = (props: SectionHeaderProps) => {
-    const [deleteTaskSection] = useDeleteTaskSectionMutation()
-    const [modifyTaskSection] = useModifyTaskSectionMutation()
+    const { mutate: deleteTaskSection } = useDeleteTaskSection()
+    const { mutate: modifyTaskSection } = useModifyTaskSection()
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [sectionName, setSectionName] = useState(props.sectionName)
 
@@ -49,12 +49,12 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const matchTempSectionId = (id: string) => tempSectionIds.includes(id)
 
     const handleDelete = async (id: string | undefined) => {
-        if (id) deleteTaskSection({ id: id })
+        if (id) deleteTaskSection({ sectionId: id })
     }
     const handleChangeSectionName = async (id: string | undefined, name: string) => {
         const trimmedName = name.trim()
         if (id && trimmedName.length > 0) {
-            modifyTaskSection({ id: id, name: trimmedName })
+            modifyTaskSection({ sectionId: id, name: trimmedName })
             setSectionName(trimmedName)
         } else {
             setSectionName(props.sectionName)

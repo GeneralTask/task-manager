@@ -2,8 +2,7 @@ import { DateTime } from 'luxon'
 import React, { useEffect, useRef } from 'react'
 import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useGetTasks } from '../../services/api-query-hooks'
-import { useFetchTasksExternalQuery } from '../../services/generalTaskApi'
+import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
 import { Colors, Flex, Screens, Spacing } from '../../styles'
 import { getSectionById } from '../../utils/task'
 import Loading from '../atoms/Loading'
@@ -15,7 +14,7 @@ import TaskDropContainer from '../molecules/TaskDropContainer'
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasks()
-    const fetchTasksExternalQuery = useFetchTasksExternalQuery()
+    const { refetch: fetchExternalTasks } = useFetchExternalTasks()
 
     const refetchWasLocal = useRef(false)
     const routerSection = useParams().section || ''
@@ -25,7 +24,7 @@ const TaskSection = () => {
     if (!isFetching) refetchWasLocal.current = false
     const onRefresh = async () => {
         refetchWasLocal.current = true
-        fetchTasksExternalQuery.refetch()
+        fetchExternalTasks()
         refetch()
     }
 
