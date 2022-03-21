@@ -13,7 +13,7 @@ const ActionButton = styled.Pressable`
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    padding: 2px;
+    padding: ${Spacing.padding.xSmall}px;
     margin-right: ${Spacing.margin.small}px;
 `
 
