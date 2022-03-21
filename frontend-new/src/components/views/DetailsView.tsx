@@ -1,5 +1,4 @@
 import React, { createRef, useEffect, useState } from 'react'
-import { View } from 'react-native'
 import webStyled from 'styled-components'
 import styled from 'styled-components/native'
 import { useModifyTaskMutation } from '../../services/generalTaskApi'
@@ -58,6 +57,9 @@ const MarginTopContainer = styled.View`
     flex: 1;
     overflow: auto;
 `
+const FlexGrowView = styled.View`
+    flex: 1;
+`
 
 interface DetailsViewProps {
     task: TTask
@@ -97,7 +99,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
         <DetailsViewContainer>
             <TaskTitleContainer>
                 <Icon source={logos[task.source.logo_v2]} size="small" />
-                <View style={{ flex: 1 }}>
+                <FlexGrowView>
                     <TitleInput
                         ref={inputRef}
                         type="text"
@@ -106,7 +108,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
                         onChange={(e) => setTitle(e.target.value)}
                         onBlur={handleBlur}
                     />
-                </View>
+                </FlexGrowView>
                 <ActionOption
                     isShown={datePickerShown}
                     setIsShown={setDatePickerShown}
