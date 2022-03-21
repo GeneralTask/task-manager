@@ -10,13 +10,16 @@ interface TooltipWrapperProps {
 const TooltipWrapper = ({ children, dataTip, tooltipId, inline }: TooltipWrapperProps) => {
     if (Platform.OS !== 'web') return children
 
-    return React.createElement(
-        inline ? 'span' : 'div',
-        {
-            'data-tip': dataTip,
-            'data-for': tooltipId,
-        },
-        children
+    if (inline)
+        return (
+            <span data-tip={dataTip} data-for={tooltipId}>
+                {children}
+            </span>
+        )
+    return (
+        <div data-tip={dataTip} data-for={tooltipId}>
+            {children}
+        </div>
     )
 }
 
