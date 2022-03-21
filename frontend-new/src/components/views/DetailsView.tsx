@@ -4,13 +4,12 @@ import webStyled from 'styled-components'
 import styled from 'styled-components/native'
 import { useModifyTaskMutation } from '../../services/generalTaskApi'
 import { Colors, Spacing, Typography } from '../../styles'
-import { icons, logos } from '../../styles/images'
+import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
+import ActionOption from '../molecules/ActionOption'
 import TooltipWrapper from '../atoms/TooltipWrapper'
-import DatePicker from '../molecules/DatePicker'
-import TimeEstimatePicker from '../molecules/TimeEstimatePicker'
 
 const DetailsViewContainer = styled.View`
     display: flex;
@@ -25,14 +24,7 @@ const TaskTitleContainer = styled.View`
     flex-direction: row;
     align-items: center;
     z-index: 1;
-`
-const ActionButton = styled.Pressable`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    padding: 2px;
-    margin-right: ${Spacing.margin.small}px;
+    height: 50px;
 `
 const TitleInput = webStyled.input`
     background-color: inherit;
@@ -67,6 +59,9 @@ const MarginTopContainer = styled.View`
     margin-top: ${Spacing.margin.medium}px;
     flex: 1;
     overflow: auto;
+`
+const FlexGrowView = styled.View`
+    flex: 1;
 `
 
 interface DetailsViewProps {
@@ -110,34 +105,32 @@ const DetailsView = ({ task }: DetailsViewProps) => {
         <DetailsViewContainer>
             <TaskTitleContainer>
                 <Icon source={logos[task.source.logo_v2]} size="small" />
-                <TitleInput
-                    ref={inputRef}
-                    type="text"
-                    onKeyDown={handleKeyDown}
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    onBlur={handleBlur}
-                />
-                <ActionButton onPress={() => setDatePickerShown(!datePickerShown)}>
-                    <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
-                        <Icon source={icons['calendar_blank']} size="small" />
-                    </TooltipWrapper>
-                    {datePickerShown && (
-                        <DatePicker
-                            task_id={task.id}
-                            due_date={task.due_date}
-                            closeDatePicker={() => setDatePickerShown(false)}
-                        />
-                    )}
-                </ActionButton>
-                <ActionButton onPress={() => setTimeEstimateShown(!timeEstimateShown)}>
-                    <TooltipWrapper inline dataTip="Time Estimate" tooltipId="tooltip">
-                        <Icon source={icons['timer']} size="small" />
-                    </TooltipWrapper>
-                    {timeEstimateShown && (
-                        <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setTimeEstimateShown(false)} />
-                    )}
-                </ActionButton>
+                <FlexGrowView>
+                    <TitleInput
+                        ref={inputRef}
+                        type="text"
+                        onKeyDown={handleKeyDown}
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        onBlur={handleBlur}
+                    />
+                </FlexGrowView>
+                <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
+                    <ActionOption
+                        isShown={datePickerShown}
+                        setIsShown={setDatePickerShown}
+                        action="date_picker"
+                        task={task}
+                    />
+                </TooltipWrapper>
+                <TooltipWrapper inline dataTip="Time Estimate" tooltipId="tooltip">
+                    <ActionOption
+                        isShown={timeEstimateShown}
+                        setIsShown={setTimeEstimateShown}
+                        action="time_allocated"
+                        task={task}
+                    />
+                </TooltipWrapper>
             </TaskTitleContainer>
             <MarginTopContainer>
                 {sourceName === 'Asana' ? (
