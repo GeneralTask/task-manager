@@ -1,14 +1,27 @@
-import React, { Ref } from 'react'
+import React, { Ref, useEffect } from 'react'
 import { useDrag } from 'react-dnd'
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Platform, StyleSheet, Text, View } from 'react-native'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Colors, Flex, Shadows } from '../../styles'
+import styled from 'styled-components/native'
+import { Border, Colors, Spacing } from '../../styles'
 import { logos } from '../../styles/images'
 import { ItemTypes, TTask } from '../../utils/types'
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
+
+const PressableContainer = styled.Pressable<{ isSelected: boolean }>`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: ${Colors.white};
+    border-radius: ${Border.radius.xxSmall};
+    padding: 0 ${Spacing.padding.small}px;
+    border: 1px solid ${(props) => (props.isSelected ? Colors.gray._500 : Colors.gray._100)};
+`
 
 interface TaskProps {
     task: TTask
@@ -21,6 +34,7 @@ interface TaskProps {
 const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProps) => {
     const navigate = useNavigate()
     const params = useParams()
+    const [isSelected, setIsSelected] = React.useState(false)
     const onPress = () => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(task.id)
@@ -31,6 +45,13 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
             navigate(`/tasks/${params.section}/${task.id}`)
         }
     }
+    useEffect(() => {
+        if (params.task === task.id) {
+            setIsSelected(true)
+        } else {
+            setIsSelected(false)
+        }
+    }, [[params]])
 
     const [, drag, dragPreview] = useDrag(
         () => ({
@@ -49,7 +70,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
 
     return (
         <TaskTemplate>
-            <Pressable style={[styles.container, styles.shadow]} onPress={onPress} ref={dragPreviewRef}>
+            <PressableContainer isSelected={isSelected} onPress={onPress} ref={dragPreviewRef}>
                 {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />
                 <View style={styles.iconContainer}>
@@ -58,24 +79,12 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
                 <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
                     {task.title}
                 </Text>
-            </Pressable>
+            </PressableContainer>
         </TaskTemplate>
     )
 }
 
 const styles = StyleSheet.create({
-    container: {
-        ...Flex.row,
-        alignItems: 'center',
-        width: '100%',
-        height: '100%',
-        backgroundColor: Colors.white,
-        borderRadius: 4,
-        paddingHorizontal: 8,
-    },
-    shadow: {
-        ...Shadows.small,
-    },
     iconContainer: {
         marginLeft: 6,
     },
