@@ -66,9 +66,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
     const [modifyTask] = useModifyTaskMutation()
     const [title, setTitle] = useState('')
     const [body, setBody] = useState('')
-    const [timeAllocated, setTimeAllocated] = useState('')
     const [sourceName, setSourceName] = useState('')
-
     const [datePickerShown, setDatePickerShown] = useState(false)
     const [timeEstimateShown, setTimeEstimateShown] = useState(false)
     const inputRef = createRef<HTMLInputElement>()
@@ -84,7 +82,6 @@ const DetailsView = ({ task }: DetailsViewProps) => {
         setTitle(task.title)
         setBody(task.body)
         setSourceName(task.source.name)
-        setTimeAllocated(`${task.time_allocated / 60000000}min`)
     }, [task])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
