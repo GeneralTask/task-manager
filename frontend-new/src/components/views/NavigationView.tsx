@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ScrollView, StyleSheet, View } from 'react-native'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
 import { useAddTaskSectionMutation, useGetTasksQuery } from '../../services/generalTaskApi'
@@ -9,6 +9,7 @@ import { icons } from '../../styles/images'
 import { margin } from '../../styles/spacing'
 import { weight } from '../../styles/typography'
 import { authSignOut } from '../../utils/auth'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import WebInput from '../atoms/WebInput'
@@ -90,9 +91,7 @@ const NavigationView = () => {
                 </AddSectionView>
             </ScrollView>
             <FeedbackButton />
-            <Pressable onPress={() => authSignOut(dispatch)}>
-                <Text>Sign Out</Text>
-            </Pressable>
+            <RoundedGeneralButton value="Sign Out" textStyle="dark" onPress={() => authSignOut(dispatch)} />
         </View>
     )
 }
