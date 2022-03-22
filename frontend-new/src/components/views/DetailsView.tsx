@@ -51,9 +51,6 @@ const BodyTextArea = webStyled.textarea`
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize}px;
     height: 250px;
-    :focus {
-        outline: 1px solid ${Colors.gray._500};
-    }
 `
 const MarginTopContainer = styled.View`
     margin-top: ${Spacing.margin.medium}px;
