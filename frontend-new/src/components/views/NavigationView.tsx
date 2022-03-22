@@ -29,7 +29,7 @@ const AddSectionView = styled.View`
 `
 const AddSectionInputView = styled.View`
     font-weight: ${weight._600.fontWeight};
-    margin-left: ${margin.small};
+    margin-left: ${margin.small}px;
     flex: 1;
 `
 

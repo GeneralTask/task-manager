@@ -1,8 +1,7 @@
-import { Border, Colors, Typography } from '../../styles'
 import React, { useCallback, useEffect, useState } from 'react'
-
 import styled from 'styled-components/native'
 import { useAppSelector } from '../../redux/hooks'
+import { Border, Colors, Typography } from '../../styles'
 import { ModalEnum } from '../../utils/enums'
 
 const KeyboardShortcutContainer = styled.View<{ isPressed: boolean }>`
@@ -21,8 +20,8 @@ const KeyboardShortcutContainer = styled.View<{ isPressed: boolean }>`
 `
 const KeyboardShortcutText = styled.Text`
     color: ${Colors.gray._400};
-    font-size: ${Typography.xSmall.fontSize};
-    line-height: ${Typography.xSmall.lineHeight};
+    font-size: ${Typography.xSmall.fontSize}px;
+    line-height: ${Typography.xSmall.lineHeight}px;
 `
 
 // gets triggered when the lowercase letter is pressed (including with CAPS LOCK, but not when you hit shift+key)
