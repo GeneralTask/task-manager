@@ -324,7 +324,7 @@ export const generalTaskApi = createApi({
                 dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
             }
         }),
-        getEvents: builder.query<TEvent[], { startISO: string, endISO: string }>({
+        getEventsDeprecated: builder.query<TEvent[], { startISO: string, endISO: string }>({
             query: (data) => ({
                 url: 'events/',
                 method: 'GET',
@@ -365,7 +365,6 @@ export const generalTaskApi = createApi({
 })
 
 export const {
-    useGetEventsQuery,
     useGetLinkedAccountsQuery,
     useGetSupportedTypesQuery,
     useDeleteLinkedAccountMutation,

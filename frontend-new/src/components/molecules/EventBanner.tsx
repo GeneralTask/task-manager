@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { View } from 'react-native'
 import styled from 'styled-components/native'
 import { NO_EVENT_TITLE } from '../../constants'
-import { useGetEventsQuery } from '../../services/generalTaskApi'
+import { useGetEvents } from '../../services/api-query-hooks'
 import { Border, Colors, Typography } from '../../styles'
 import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
 
@@ -18,7 +18,7 @@ const BannerView = styled.View<{ center: boolean }>`
     position: relative;
     display: flex;
     flex-direction: row;
-    justify-content: ${props => props.center ? 'center' : 'space-between'};
+    justify-content: ${(props) => (props.center ? 'center' : 'space-between')};
     align-items: center;
     padding-left: 12px;
     padding-right: 6px;
@@ -62,44 +62,44 @@ interface EventBannerProps {
     date: DateTime
 }
 const EventBanner = ({ date }: EventBannerProps) => {
-    const { data: events, refetch } = useGetEventsQuery({
+    const { data: events, refetch } = useGetEvents({
         startISO: date.toISO(),
         endISO: date.plus({ minutes: 15 }).toISO(),
     })
 
     useEffect(() => {
-        const interval = setInterval(() => { refetch() }, 60000)
+        const interval = setInterval(() => {
+            refetch()
+        }, 60000)
         return () => clearInterval(interval)
     }, [])
 
     if (!events || events.length === 0) return null
     return (
         <EventBannerContainer>
-            {
-                events?.map((event) => {
-                    const timeUntilEvent = Math.ceil(((new Date(event.datetime_start).getTime()) - (new Date()).getTime()) / 1000 / 60)
-                    const timeUntilEventMessage = timeUntilEvent > 0 ? `in ${timeUntilEvent} minutes.` : 'is now.'
-                    const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
-                    return (
-                        <BannerView key={event.id} center={event.conference_call == null}>
-                            <MessageView>
-                                <View>
-                                    <MessageText>Your Meeting</MessageText>
-                                </View>
-                                <BannerTitleView>
-                                    <OverflowText>{eventTitle}</OverflowText>
-                                </BannerTitleView>
-                                <View>
-                                    <MessageText>{timeUntilEventMessage}</MessageText>
-                                </View>
-                            </MessageView>
-                            {event.conference_call &&
-                                <JoinMeetingButton conferenceCall={event.conference_call} />
-                            }
-                        </BannerView>
-                    )
-                })
-            }
+            {events?.map((event) => {
+                const timeUntilEvent = Math.ceil(
+                    (new Date(event.datetime_start).getTime() - new Date().getTime()) / 1000 / 60
+                )
+                const timeUntilEventMessage = timeUntilEvent > 0 ? `in ${timeUntilEvent} minutes.` : 'is now.'
+                const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
+                return (
+                    <BannerView key={event.id} center={event.conference_call == null}>
+                        <MessageView>
+                            <View>
+                                <MessageText>Your Meeting</MessageText>
+                            </View>
+                            <BannerTitleView>
+                                <OverflowText>{eventTitle}</OverflowText>
+                            </BannerTitleView>
+                            <View>
+                                <MessageText>{timeUntilEventMessage}</MessageText>
+                            </View>
+                        </MessageView>
+                        {event.conference_call && <JoinMeetingButton conferenceCall={event.conference_call} />}
+                    </BannerView>
+                )
+            })}
         </EventBannerContainer>
     )
 }
