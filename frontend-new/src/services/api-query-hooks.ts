@@ -405,9 +405,9 @@ export const useMarkMessageAsTask = () => {
     const queryClient = useQueryClient()
     return useMutation((data: { id: string, is_task: boolean }) => markMessageAsTask(data),
         {
-            onMutate: async (data: { id: string, is_task: boolean }) => {
-                //TODO: add placeholder message to tasks list
-            },
+            //TODO: add placeholder message to tasks list
+            // onMutate: async (data: { id: string, is_task: boolean }) => {
+            // },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
             }
