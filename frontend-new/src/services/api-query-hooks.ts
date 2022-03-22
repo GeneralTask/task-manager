@@ -426,12 +426,12 @@ const markMessageAsTask = async (data: { id: string, is_task: boolean }) => {
 /**
  * EVENTS QUERIES
  */
-export const useGetEvents = () => {
-    return useQuery<TEvent[]>('events', (params: { startISO: string, endISO: string }) => getEvents(params))
+export const useGetEvents = (params: { startISO: string, endISO: string }) => {
+    return useQuery<TEvent[]>([], () => getEvents(params))
 }
 const getEvents = async (params: { startISO: string, endISO: string }) => {
     try {
-        const res = await apiClient.get('/events/', { params })
+        const res = await apiClient.get('/events/', { params: { datetime_start: params.startISO, datetime_end: params.endISO } })
         return res.data
     } catch {
         throw new Error('getEvents failed')
