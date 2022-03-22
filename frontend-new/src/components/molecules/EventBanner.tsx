@@ -62,10 +62,13 @@ interface EventBannerProps {
     date: DateTime
 }
 const EventBanner = ({ date }: EventBannerProps) => {
-    const { data: events, refetch } = useGetEvents({
-        startISO: date.toISO(),
-        endISO: date.plus({ minutes: 15 }).toISO(),
-    })
+    const { data: events, refetch } = useGetEvents(
+        {
+            startISO: date.toISO(),
+            endISO: date.plus({ minutes: 15 }).toISO(),
+        },
+        'banner'
+    )
 
     useEffect(() => {
         const interval = setInterval(() => {

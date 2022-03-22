@@ -48,10 +48,13 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
     const startDate = date.startOf('day')
     const endDate = startDate.endOf('day')
 
-    const { data: events } = useGetEvents({
-        startISO: date.minus({ days: 2 }).toISO(),
-        endISO: date.plus({ days: 2 }).toISO(),
-    })
+    const { data: events } = useGetEvents(
+        {
+            startISO: date.minus({ days: 2 }).toISO(),
+            endISO: date.plus({ days: 2 }).toISO(),
+        },
+        'sidebar'
+    )
     const event_list = events?.filter(
         (event) =>
             DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate
