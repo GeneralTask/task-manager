@@ -86,7 +86,7 @@ export interface TSetting {
     choices: TSettingChoice[]
 }
 
-export interface TSupportedTypes {
+export interface TSupportedType {
     name: string
     logo: string
     logo_v2: string

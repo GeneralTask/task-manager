@@ -27,7 +27,7 @@ const TouchableIcon = styled.TouchableOpacity`
 interface SectionHeaderProps {
     sectionName: string
     allowRefresh: boolean
-    refetch: () => void
+    refetch?: () => void
     taskSectionId?: string
 }
 export const SectionHeader = (props: SectionHeaderProps) => {
@@ -76,7 +76,9 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             {props.allowRefresh && Platform.OS === 'web' && (
                 <TouchableIcon onPress={props.refetch}>
                     <Icon size={'small'} source={icons.spinner}></Icon>
-                    {Platform.OS === 'web' && <InvisibleKeyboardShortcut shortcut="r" onKeyPress={props.refetch} />}
+                    {Platform.OS === 'web' && props.refetch && (
+                        <InvisibleKeyboardShortcut shortcut="r" onKeyPress={props.refetch} />
+                    )}
                 </TouchableIcon>
             )}
             {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) && (

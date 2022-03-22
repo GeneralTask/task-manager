@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
 import { MESSAGES_PER_PAGE } from '../constants'
 import { apiClient } from '../utils/api'
-import { TEvent, TMessage, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
+import { TEvent, TLinkedAccount, TMessage, TSupportedType, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 
 /**
@@ -427,7 +427,7 @@ const markMessageAsTask = async (data: { id: string, is_task: boolean }) => {
  * EVENTS QUERIES
  */
 export const useGetEvents = (params: { startISO: string, endISO: string }) => {
-    return useQuery<TEvent[]>([], () => getEvents(params))
+    return useQuery<TEvent[]>(['events', params.startISO, params.endISO], () => getEvents(params))
 }
 const getEvents = async (params: { startISO: string, endISO: string }) => {
     try {
@@ -459,5 +459,68 @@ export const mutateUserInfo = async (userInfo: TUserInfo) => {
         return res.data
     } catch {
         throw new Error('mutateUserInfo failed')
+    }
+}
+
+/**
+ * SETTINGS QUERIES
+ */
+export const useGetLinkedAccounts = () => {
+    return useQuery<TLinkedAccount[]>('linked_accounts', getLinkedAccounts)
+}
+const getLinkedAccounts = async () => {
+    try {
+        const res = await apiClient.get('/linked_accounts/')
+        return res.data
+    } catch {
+        throw new Error('getLinkedAccounts failed')
+    }
+}
+
+
+export const useGetSupportedTypes = () => {
+    return useQuery<TSupportedType[]>([], getSupportedTypes)
+}
+const getSupportedTypes = async () => {
+    try {
+        const res = await apiClient.get('/linked_accounts/supported_types/')
+        return res.data
+    } catch {
+        throw new Error('getSupportedTypes failed')
+    }
+}
+
+
+export const useDeleteLinkedAccount = () => {
+    const queryClient = useQueryClient()
+    return useMutation(deleteLinkedAccount,
+        {
+            onSettled: () => {
+                queryClient.invalidateQueries('linked_accounts')
+            }
+        }
+    )
+}
+const deleteLinkedAccount = async (data: { id: string }) => {
+    try {
+        const res = await apiClient.delete(`/linked_accounts/${data.id}/`)
+        return res.data
+    } catch {
+        throw new Error('deleteLinkedAccount failed')
+    }
+}
+
+/**
+ * FEEDBACK QUERIES
+ */
+export const usePostFeedback = () => {
+    return useMutation(postFeedback)
+}
+const postFeedback = async (data: { feedback: string }) => {
+    try {
+        const res = await apiClient.post('/feedback/', data)
+        return res.data
+    } catch {
+        throw new Error('postFeedback failed')
     }
 }
