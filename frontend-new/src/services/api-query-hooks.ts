@@ -176,6 +176,7 @@ export const useReorderTask = () => {
 
                 const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
                 if (!sections) return
+                // move within the existing section
                 if (data.dragSectionId === undefined || data.dragSectionId === data.dropSectionId) {
                     const section = sections.find(s => s.id === data.dropSectionId)
                     if (section == null) return
