@@ -64,6 +64,10 @@ const FlexGrowView = styled.View`
     flex: 1;
 `
 
+const prepareAsanaHTML = (html: string) => {
+    return `<body>${html}</body>`.replace(/<br\s*\/?>/gm, '\n').replace(/<\/?div>/gm, '')
+}
+
 interface DetailsViewProps {
     task: TTask
 }
@@ -75,7 +79,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
     const [datePickerShown, setDatePickerShown] = useState(false)
     const [timeEstimateShown, setTimeEstimateShown] = useState(false)
     const inputRef = createRef<HTMLInputElement>()
-    const innerHTML = useRef<HTMLDivElement>(null)
+    const editableDivRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         ReactTooltip.rebuild()
@@ -100,8 +104,8 @@ const DetailsView = ({ task }: DetailsViewProps) => {
     const handleBlur = () => {
         if (!task) return
         if (task.source.name === 'Asana') {
-            console.log(innerHTML.current?.innerHTML)
-            modifyTask({ id: task.id, title: title, body: innerHTML.current?.innerHTML })
+            const preparedBody = prepareAsanaHTML(editableDivRef.current?.innerHTML || '')
+            modifyTask({ id: task.id, title: title, body: preparedBody })
         } else {
             modifyTask({ id: task.id, title: title, body: body })
         }
@@ -140,7 +144,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
             </TaskTitleContainer>
             <MarginTopContainer>
                 {sourceName === 'Asana' ? (
-                    <ContentEditable ref={innerHTML} onChange={setBody} onBlur={handleBlur} html={body} />
+                    <ContentEditable ref={editableDivRef} onBlur={handleBlur} html={body} />
                 ) : (
                     <BodyTextArea
                         placeholder="Add task details"
