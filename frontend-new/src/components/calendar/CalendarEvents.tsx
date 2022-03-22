@@ -48,7 +48,7 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
     const startDate = date.startOf('day')
     const endDate = startDate.endOf('day')
 
-    const { data: events, refetch } = useGetEvents({
+    const { data: events } = useGetEvents({
         startISO: date.minus({ days: 2 }).toISO(),
         endISO: date.plus({ days: 2 }).toISO(),
     })
@@ -62,8 +62,6 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
         if (eventsContainerRef.current) {
             eventsContainerRef.current.scrollTop = CELL_HEIGHT * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
         }
-        refetch()
-        console.log('refetching events')
     }, [])
 
     return (

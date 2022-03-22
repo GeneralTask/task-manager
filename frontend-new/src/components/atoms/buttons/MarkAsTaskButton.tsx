@@ -12,7 +12,7 @@ const MarkAsTaskButton = (props: MarkAsTaskButtonProps) => {
     const { mutate: markAsTask } = useMarkMessageAsTask()
 
     const buttonPressHandler = () => {
-        markAsTask({ id: props.messageId, is_task: !props.isTask })
+        markAsTask({ id: props.messageId, isTask: !props.isTask })
     }
     return (
         <View style={[styles.container, props.style]}>

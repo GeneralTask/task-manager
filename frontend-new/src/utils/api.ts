@@ -4,7 +4,7 @@ import getEnvVars from '../environment'
 
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
-export const apiClient = axios.create({
+const apiClient = axios.create({
     baseURL: REACT_APP_API_BASE_URL,
     headers: {
         Authorization: `Bearer ${Cookies.get('authToken')}`,
@@ -15,3 +15,5 @@ export const apiClient = axios.create({
         'Timezone-Offset': new Date().getTimezoneOffset().toString(),
     },
 })
+
+export default apiClient

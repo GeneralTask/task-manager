@@ -53,7 +53,7 @@ function DatePicker({ task_id, due_date, closeDatePicker }: DatePickerProps): JS
             const hoverButtonClick = (event: React.MouseEvent) => {
                 event.stopPropagation()
                 setDate(day)
-                modifyTask({ id: task_id, due_date: day.toISO() })
+                modifyTask({ id: task_id, dueDate: day.toISO() })
                 closeDatePicker()
             }
             const isToday = day.hasSame(DateTime.local(), 'day')
@@ -151,7 +151,7 @@ function DatePicker({ task_id, due_date, closeDatePicker }: DatePickerProps): JS
                         onClick={(e) => {
                             e.stopPropagation()
                             setDate(DateTime.fromMillis(1))
-                            modifyTask({ id: task_id, due_date: DateTime.fromMillis(1).toISO() })
+                            modifyTask({ id: task_id, dueDate: DateTime.fromMillis(1).toISO() })
                             closeDatePicker()
                         }}
                     >

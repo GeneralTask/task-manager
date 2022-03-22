@@ -10,7 +10,7 @@ import UnauthorizedHeader from '../components/molecules/UnauthorizedHeader'
 import { useAppSelector } from '../redux/hooks'
 import { Navigate } from '../services/routing'
 import { Colors, Flex, Images, Screens, Typography } from '../styles'
-import { apiClient } from '../utils/api'
+import apiClient from '../utils/api'
 
 const FlexGrowContainer = styled.View`
     flex: 1;
