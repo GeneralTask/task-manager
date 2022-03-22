@@ -304,7 +304,7 @@ export const generalTaskApi = createApi({
                 dispatch(generalTaskApi.util.invalidateTags([{ type: 'Messages', id: 'PARTIAL_LIST' }]))
             }
         }),
-        markMessageRead: builder.mutation<void, { id: string, is_read: boolean }>({
+        markMessageReadDeprecated: builder.mutation<void, { id: string, is_read: boolean }>({
             query: (data) => ({
                 url: `messages/modify/${data.id}/`,
                 method: 'PATCH',
@@ -314,7 +314,7 @@ export const generalTaskApi = createApi({
                 dispatch(generalTaskApi.util.invalidateTags([{ type: 'Messages', id: data.id }]))
             }
         }),
-        markMessageAsTask: builder.mutation<void, { id: string, is_task: boolean }>({
+        markMessageAsTaskDeprecated: builder.mutation<void, { id: string, is_task: boolean }>({
             query: (data) => ({
                 url: `messages/modify/${data.id}/`,
                 method: 'PATCH',
@@ -370,5 +370,4 @@ export const {
     useGetSupportedTypesQuery,
     useDeleteLinkedAccountMutation,
     usePostFeedbackMutation,
-    useMarkMessageAsTaskMutation,
 } = generalTaskApi

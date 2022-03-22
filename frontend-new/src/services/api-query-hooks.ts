@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
 import { MESSAGES_PER_PAGE } from '../constants'
 import { apiClient } from '../utils/api'
-import { TMessage, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
+import { TEvent, TMessage, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 
 /**
@@ -356,13 +356,16 @@ const getInfiniteMessages = async ({ pageParam = 1 }) => {
     }
 }
 
+
 export const useFetchMessages = () => {
     const queryClient = useQueryClient()
-    return useQuery([], fetchMessages, {
-        onSuccess: () => {
-            queryClient.invalidateQueries('messages')
-        },
-    })
+    return useQuery([], () => fetchMessages(),
+        {
+            onSettled: () => {
+                queryClient.invalidateQueries('messages')
+            },
+        }
+    )
 }
 const fetchMessages = async () => {
     try {
@@ -370,6 +373,68 @@ const fetchMessages = async () => {
         return res.data
     } catch {
         throw new Error('fetchMessages failed')
+    }
+}
+
+
+export const useMarkMessageRead = () => {
+    const queryClient = useQueryClient()
+    return useMutation((data: { id: string, is_read: boolean }) => markMessageRead(data),
+        {
+            // don't currently do anything because we don't display whether a message is read or not
+            // onMutate: async (data: { id: string, is_read: boolean }) => {
+            // },
+            onSettled: (_, error, variables) => {
+                if (error) return
+                queryClient.invalidateQueries(['messages', variables.id])
+            }
+        }
+    )
+}
+const markMessageRead = async (data: { id: string, is_read: boolean }) => {
+    try {
+        const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_read: data.is_read })
+        return res.data
+    } catch {
+        throw new Error('markMessageRead failed')
+    }
+}
+
+
+export const useMarkMessageAsTask = () => {
+    const queryClient = useQueryClient()
+    return useMutation((data: { id: string, is_task: boolean }) => markMessageAsTask(data),
+        {
+            onMutate: async (data: { id: string, is_task: boolean }) => {
+                //TODO: add placeholder message to tasks list
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries('tasks')
+            }
+        }
+    )
+}
+const markMessageAsTask = async (data: { id: string, is_task: boolean }) => {
+    try {
+        const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_task: data.is_task })
+        return res.data
+    } catch {
+        throw new Error('markMessageAsTask failed')
+    }
+}
+
+/**
+ * EVENTS QUERIES
+ */
+export const useGetEvents = () => {
+    return useQuery<TEvent[]>('events', (params: { startISO: string, endISO: string }) => getEvents(params))
+}
+const getEvents = async (params: { startISO: string, endISO: string }) => {
+    try {
+        const res = await apiClient.get('/events/', { params })
+        return res.data
+    } catch {
+        throw new Error('getEvents failed')
     }
 }
 

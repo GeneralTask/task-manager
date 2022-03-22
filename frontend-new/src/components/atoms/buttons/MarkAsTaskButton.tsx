@@ -1,6 +1,6 @@
 import React from 'react'
 import { Image, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native'
-import { useMarkMessageAsTaskMutation } from '../../../services/generalTaskApi'
+import { useMarkMessageAsTask } from '../../../services/api-query-hooks'
 import { icons } from '../../../styles/images'
 
 interface MarkAsTaskButtonProps {
@@ -9,7 +9,7 @@ interface MarkAsTaskButtonProps {
     style?: ViewStyle
 }
 const MarkAsTaskButton = (props: MarkAsTaskButtonProps) => {
-    const [markAsTask] = useMarkMessageAsTaskMutation()
+    const { mutate: markAsTask } = useMarkMessageAsTask()
 
     const buttonPressHandler = () => {
         markAsTask({ id: props.messageId, is_task: !props.isTask })
