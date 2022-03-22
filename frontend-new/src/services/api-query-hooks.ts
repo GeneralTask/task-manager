@@ -108,7 +108,7 @@ export const useModifyTask = () => {
                         }
                     }
                 }
-                queryClient.setQueryData('tasks', () => sections)
+                queryClient.setQueryData('tasks', sections)
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
@@ -120,7 +120,7 @@ const modifyTask = async (data: { id: string, title?: string, dueDate?: string, 
     const requestBody: TTaskModifyRequestBody = {}
     if (data.title) requestBody.title = data.title
     if (data.dueDate) requestBody.due_date = data.dueDate
-    if (data.timeAllocated) requestBody.time_duration = data.timeAllocated
+    if (data.timeAllocated) requestBody.time_duration = data.timeAllocated / 1000000
     if (data.body) requestBody.body = data.body
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
