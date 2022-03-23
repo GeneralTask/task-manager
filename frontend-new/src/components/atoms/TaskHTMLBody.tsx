@@ -51,28 +51,21 @@ interface TaskHTMLBodyProps {
     html: string
     handleAsana: (html: string) => void
 }
-
 const ContentEditable = ({ html, handleAsana }: TaskHTMLBodyProps) => {
     const [editorState, setEditorState] = React.useState(() => {
-        const htmlWithBreak = html.replace(/(?:\r\n|\r|\n)/g, '<br>')
-        const blocksFromHTML = convertFromHTML(htmlWithBreak)
-        const state = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap)
-        return EditorState.createWithContent(state)
+        return EditorState.createWithContent(htmlToContentState(html))
     })
-
     useEffect(() => {
-        const html2 = html.replace(/(?:\r\n|\r|\n)/g, '<br>')
-        const blocksFromHTML = convertFromHTML(html2)
-        const state = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap)
-        setEditorState(EditorState.createWithContent(state))
+        setEditorState(EditorState.createWithContent(htmlToContentState(html)))
     }, [html])
 
-    const onChange = (state: EditorState) => {
-        setEditorState(state)
+    const htmlToContentState = (html: string) => {
+        const htmlWithBreak = html.replace(/(?:\r\n|\r|\n)/g, '<br>')
+        const blocksFromHTML = convertFromHTML(htmlWithBreak)
+        return ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap)
     }
-    const onBlur = () => {
-        handleAsana(convertToAsanaMarkdown(editorState.getCurrentContent()))
-    }
+    const onChange = (state: EditorState) => setEditorState(state)
+    const onBlur = () => handleAsana(convertToAsanaMarkdown(editorState.getCurrentContent()))
 
     return <Editor editorState={editorState} onBlur={onBlur} onChange={onChange} />
 }
