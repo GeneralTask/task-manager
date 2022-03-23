@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Platform } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { Platform, Pressable, View } from 'react-native'
 import BottomSheet from 'reanimated-bottom-sheet'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
 import DetailsView from '../components/views/DetailsView'
@@ -13,6 +13,7 @@ import { useGetTasksQuery } from '../services/generalTaskApi'
 import { useQuery } from 'react-query'
 import { fetchUserInfo } from '../services/queryUtils'
 import Loading from '../components/atoms/Loading'
+import { KeyboardShortcut } from '../components/atoms/KeyboardShortcuts'
 
 const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
@@ -43,10 +44,24 @@ const TasksScreen = () => {
         }
     })()
 
+    const r = useRef<View>(null)
+
     if (isTaskSectionsLoading || isFetching || isUserInfoLoading) return <Loading />
     if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
+
     return (
         <>
+            <View ref={r}>
+                Hi
+                <Pressable
+                    onPress={() => {
+                        r.current?.focus()
+                    }}
+                >
+                    hit k to try/fail to focus on this View
+                </Pressable>
+                <KeyboardShortcut shortcut="k" onKeyPress={() => r.current?.focus()} />
+            </View>
             <DefaultTemplate>
                 <>
                     {currentPage}

@@ -1,4 +1,4 @@
-import React, { Ref, useEffect } from 'react'
+import React, { Ref } from 'react'
 import { useDrag } from 'react-dnd'
 import { Platform, StyleSheet, Text, View } from 'react-native'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -21,6 +21,9 @@ const PressableContainer = styled.Pressable<{ isSelected: boolean }>`
     border-radius: ${Border.radius.xxSmall};
     padding: 0 ${Spacing.padding.small}px;
     border: 1px solid ${(props) => (props.isSelected ? Colors.gray._500 : Colors.gray._100)};
+    &:focus {
+        outline: 0;
+    }
 `
 
 interface TaskProps {
@@ -34,7 +37,6 @@ interface TaskProps {
 const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProps) => {
     const navigate = useNavigate()
     const params = useParams()
-    const [isSelected, setIsSelected] = React.useState(false)
     const onPress = () => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(task.id)
@@ -45,13 +47,6 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
             navigate(`/tasks/${params.section}/${task.id}`)
         }
     }
-    useEffect(() => {
-        if (params.task === task.id) {
-            setIsSelected(true)
-        } else {
-            setIsSelected(false)
-        }
-    }, [[params]])
 
     const [, drag, dragPreview] = useDrag(
         () => ({
@@ -68,6 +63,18 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
     const dragPreviewRef = Platform.OS === 'web' ? (dragPreview as Ref<View>) : undefined
     const dragRef = Platform.OS === 'web' ? (drag as Ref<View>) : undefined
 
+    const isSelected = params.task === task.id
+    // useEffect(() => {
+    //     console.log({ r })
+    //     if (isSelected && r != null) {
+    //         if (r.current) {
+    //             console.log('boop ', task.title)
+    //             console.log(r.current)
+    //             r.current.focus()
+    //         }
+    //     }
+    // })
+
     return (
         <TaskTemplate>
             <PressableContainer isSelected={isSelected} onPress={onPress} ref={dragPreviewRef}>
@@ -77,6 +84,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
                     <Icon source={logos[task.source.logo_v2]} size="small" />
                 </View>
                 <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
+                    {isSelected && 'selected'}
                     {task.title}
                 </Text>
             </PressableContainer>
