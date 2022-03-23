@@ -48,11 +48,10 @@ export const HoverButton = styled.button<{ main?: boolean }>`
     justify-content: center;
 
     color: ${(props) => (props.main ? 'white' : 'black')};
-
-    background-color: ${(props) => (props.main ? Colors.red._1 : 'transparent')};
+    background-color: ${(props) => (props.main ? Colors.purple._1 : 'transparent')};
 
     &:hover {
-        background: ${(props) => (props.main ? Colors.red._1 : Colors.red._2)};
+        background: ${(props) => (props.main ? Colors.purple._2 : Colors.purple._2)};
     }
 `
 export const Icon = styled.img`
