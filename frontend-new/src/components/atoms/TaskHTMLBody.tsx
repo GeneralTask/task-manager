@@ -27,7 +27,7 @@ const convertToAsanaMarkdown = (state: ContentState) => {
         })
 
         const stack: string[] = []
-        return ['', ...text, '\n'].reduce((prev, curr, index) => {
+        let result = ['', ...text, '\n'].reduce((prev, curr, index) => {
             const overlappingEnding = styleRanges.filter((range) => range.end === index)
             while (overlappingEnding.length > 0) {
                 for (let i = 0; i < overlappingEnding.length; i++) {
@@ -40,14 +40,16 @@ const convertToAsanaMarkdown = (state: ContentState) => {
                 }
             }
 
-            styleRanges
-                .filter((range) => range.begin === index)
-                .forEach((range) => {
-                    stack.push(range.style)
-                    return (prev += `<${range.style}>`)
-                })
+            const overlappingStarting = styleRanges.filter((range) => range.begin === index)
+            overlappingStarting.sort((a, b) => a.end - b.end)
+            overlappingStarting.forEach((range) => {
+                stack.push(range.style)
+                return (prev += `<${range.style}>`)
+            })
             return prev + curr
         })
+        while (stack.length > 0) result += `</${stack.pop()}>`
+        return result
     })
     return `<body>${blockAsMarkdown.join('')}</body>`
 }
