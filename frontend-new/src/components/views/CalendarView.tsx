@@ -6,7 +6,7 @@ import CalendarEvents from '../calendar/CalendarEvents'
 import CalendarHeader from '../calendar/CalendarHeader'
 
 const CalendarViewContainer = styled.div`
-    min-width: 400px;
+    min-width: 375px;
     height: 100vh;
     background-color: ${Colors.gray._50};
     display: flex;
