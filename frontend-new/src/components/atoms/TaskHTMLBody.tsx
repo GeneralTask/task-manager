@@ -8,6 +8,11 @@ const rangeStyleToTag = {
     STRIKETHROUGH: 'del',
     CODE: 'code',
 }
+const htmlToContentState = (html: string) => {
+    const htmlWithBreak = html.replace(/(?:\r\n|\r|\n)/g, '<br>')
+    const blocksFromHTML = convertFromHTML(htmlWithBreak)
+    return ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap)
+}
 const convertToAsanaMarkdown = (state: ContentState) => {
     const blocks = convertToRaw(state).blocks
 
@@ -59,11 +64,6 @@ const ContentEditable = ({ html, handleAsana }: TaskHTMLBodyProps) => {
         setEditorState(EditorState.createWithContent(htmlToContentState(html)))
     }, [html])
 
-    const htmlToContentState = (html: string) => {
-        const htmlWithBreak = html.replace(/(?:\r\n|\r|\n)/g, '<br>')
-        const blocksFromHTML = convertFromHTML(htmlWithBreak)
-        return ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap)
-    }
     const onChange = (state: EditorState) => setEditorState(state)
     const onBlur = () => handleAsana(convertToAsanaMarkdown(editorState.getCurrentContent()))
 
