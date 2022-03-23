@@ -8,32 +8,41 @@ import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
-import ActionOption from '../molecules/ActionOption'
 import TooltipWrapper from '../atoms/TooltipWrapper'
+import ActionOption from '../molecules/ActionOption'
 
 const DetailsViewContainer = styled.View`
     display: flex;
     flex-direction: column;
     background-color: ${Colors.gray._50};
     width: 400px;
-    margin-top: ${Spacing.margin.xLarge}px;
+    margin-top: ${Spacing.margin.large}px;
     padding: ${Spacing.padding.medium}px;
 `
-const TaskTitleContainer = styled.View`
+const TaskTitleButtonsContainer = styled.View`
     display: flex;
     flex-direction: row;
     align-items: center;
     z-index: 1;
     height: 50px;
 `
-const TitleInput = webStyled.input`
+const TaskTitleContainer = styled.View`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    z-index: 1;
+`
+const TitleInput = webStyled.textarea`
     background-color: inherit;
     color: ${Colors.gray._600};
+    font: inherit;
     font-size: ${Typography.xSmall.fontSize}px;
     font-weight: ${Typography.weight._600.fontWeight};
     border: none;
-    display: inline-block;
-    margin-left: ${Spacing.margin.small}px;
+    resize: none;
+    outline: none;
+    overflow: hidden;
+    display: flex;
     flex: 1;
     :focus {
         outline: 1px solid ${Colors.gray._500};
@@ -71,7 +80,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
     const [sourceName, setSourceName] = useState('')
     const [datePickerShown, setDatePickerShown] = useState(false)
     const [timeEstimateShown, setTimeEstimateShown] = useState(false)
-    const inputRef = createRef<HTMLInputElement>()
+    const titleRef = createRef<HTMLTextAreaElement>()
 
     useEffect(() => {
         ReactTooltip.rebuild()
@@ -87,10 +96,23 @@ const DetailsView = ({ task }: DetailsViewProps) => {
         setTitle(task.title)
         setBody(task.body)
         setSourceName(task.source.name)
+
+        if (titleRef.current) {
+            titleRef.current.value = task.title
+            titleRef.current.style.height = '0px'
+            titleRef.current.style.height = `${titleRef.current.scrollHeight}px`
+        }
     }, [task])
 
-    const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-        if (inputRef.current && (e.key === 'Enter' || e.key === 'Escape')) inputRef.current.blur()
+    useEffect(() => {
+        if (titleRef.current) {
+            titleRef.current.style.height = '0px'
+            titleRef.current.style.height = `${titleRef.current.scrollHeight}px`
+        }
+    }, [title])
+
+    const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
+        if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
         else e.stopPropagation()
     }
 
@@ -101,18 +123,9 @@ const DetailsView = ({ task }: DetailsViewProps) => {
 
     return (
         <DetailsViewContainer>
-            <TaskTitleContainer>
+            <TaskTitleButtonsContainer>
                 <Icon source={logos[task.source.logo_v2]} size="small" />
-                <FlexGrowView>
-                    <TitleInput
-                        ref={inputRef}
-                        type="text"
-                        onKeyDown={handleKeyDown}
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        onBlur={handleBlur}
-                    />
-                </FlexGrowView>
+                <FlexGrowView />
                 <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
                     <ActionOption
                         isShown={datePickerShown}
@@ -129,6 +142,15 @@ const DetailsView = ({ task }: DetailsViewProps) => {
                         task={task}
                     />
                 </TooltipWrapper>
+            </TaskTitleButtonsContainer>
+            <TaskTitleContainer>
+                <TitleInput
+                    ref={titleRef}
+                    onKeyDown={handleKeyDown}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    onBlur={handleBlur}
+                />
             </TaskTitleContainer>
             <MarginTopContainer>
                 {sourceName === 'Asana' ? (
