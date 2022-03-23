@@ -79,7 +79,6 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
                     <Icon source={logos[task.source.logo_v2]} size="small" />
                 </View>
                 <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
-                    {isSelected && 'selected'}
                     {task.title}
                 </Text>
             </TaskContainer>
