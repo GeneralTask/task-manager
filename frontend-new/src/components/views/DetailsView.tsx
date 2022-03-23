@@ -64,10 +64,6 @@ const FlexGrowView = styled.View`
     flex: 1;
 `
 
-const prepareAsanaHTML = (html: string) => {
-    return `<body>${html}</body>`.replace(/<br\s*\/?>/gm, '\n').replace(/<\/?div>/gm, '')
-}
-
 interface DetailsViewProps {
     task: TTask
 }
