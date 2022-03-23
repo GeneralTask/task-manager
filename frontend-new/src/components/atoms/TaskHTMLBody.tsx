@@ -54,8 +54,8 @@ interface TaskHTMLBodyProps {
 
 const ContentEditable = ({ html, handleAsana }: TaskHTMLBodyProps) => {
     const [editorState, setEditorState] = React.useState(() => {
-        const html2 = html.replace(/(?:\r\n|\r|\n)/g, '<br>')
-        const blocksFromHTML = convertFromHTML(html2)
+        const htmlWithBreak = html.replace(/(?:\r\n|\r|\n)/g, '<br>')
+        const blocksFromHTML = convertFromHTML(htmlWithBreak)
         const state = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap)
         return EditorState.createWithContent(state)
     })
