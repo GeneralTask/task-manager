@@ -110,6 +110,10 @@ const DetailsView = ({ task }: DetailsViewProps) => {
             modifyTask({ id: task.id, title: title, body: body })
         }
     }
+    const handleAsanaRequest = (html: string) => {
+        if (!task) return
+        modifyTask({ id: task.id, title: title, body: html })
+    }
 
     return (
         <DetailsViewContainer>
@@ -144,7 +148,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
             </TaskTitleContainer>
             <MarginTopContainer>
                 {sourceName === 'Asana' ? (
-                    <ContentEditable ref={editableDivRef} onBlur={handleBlur} html={body} />
+                    <ContentEditable ref={editableDivRef} handleAsana={handleAsanaRequest} html={body} />
                 ) : (
                     <BodyTextArea
                         placeholder="Add task details"
