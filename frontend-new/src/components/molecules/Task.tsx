@@ -22,9 +22,6 @@ const TaskContainerStyle = css<{ isSelected: boolean }>`
     border-radius: ${Border.radius.xxSmall};
     padding: 0 ${Spacing.padding.small}px;
     border: 1px solid ${(props) => (props.isSelected ? Colors.gray._500 : Colors.gray._100)};
-    &:focus {
-        outline: 0;
-    }
 `
 const TaskContainerWeb = WebStyled.div<{ isSelected: boolean }>`${TaskContainerStyle}`
 const TaskContainerNative = styled.Pressable<{ isSelected: boolean }>`
