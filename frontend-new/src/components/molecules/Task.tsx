@@ -2,7 +2,8 @@ import React, { Ref } from 'react'
 import { useDrag } from 'react-dnd'
 import { Platform, StyleSheet, Text, View } from 'react-native'
 import { useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components/native'
+import styled, { css } from 'styled-components/native'
+import WebStyled from 'styled-components'
 import { Border, Colors, Spacing } from '../../styles'
 import { logos } from '../../styles/images'
 import { ItemTypes, TTask } from '../../utils/types'
@@ -11,7 +12,7 @@ import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
 
-const PressableContainer = styled.Pressable<{ isSelected: boolean }>`
+const TaskContainerStyle = css<{ isSelected: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -24,6 +25,10 @@ const PressableContainer = styled.Pressable<{ isSelected: boolean }>`
     &:focus {
         outline: 0;
     }
+`
+const TaskContainerWeb = WebStyled.div<{ isSelected: boolean }>`${TaskContainerStyle}`
+const TaskContainerNative = styled.Pressable<{ isSelected: boolean }>`
+    ${TaskContainerStyle}
 `
 
 interface TaskProps {
@@ -60,24 +65,14 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
         [task.id, index, sectionId]
     )
 
-    const dragPreviewRef = Platform.OS === 'web' ? (dragPreview as Ref<View>) : undefined
+    const dragPreviewRef = Platform.OS === 'web' ? (dragPreview as Ref<HTMLDivElement>) : undefined
     const dragRef = Platform.OS === 'web' ? (drag as Ref<View>) : undefined
 
     const isSelected = params.task === task.id
-    // useEffect(() => {
-    //     console.log({ r })
-    //     if (isSelected && r != null) {
-    //         if (r.current) {
-    //             console.log('boop ', task.title)
-    //             console.log(r.current)
-    //             r.current.focus()
-    //         }
-    //     }
-    // })
 
     return (
         <TaskTemplate>
-            <PressableContainer isSelected={isSelected} onPress={onPress} ref={dragPreviewRef}>
+            <TaskContainer isSelected={isSelected} onPress={onPress} ref={dragPreviewRef}>
                 {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} />
                 <View style={styles.iconContainer}>
@@ -87,10 +82,31 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
                     {isSelected && 'selected'}
                     {task.title}
                 </Text>
-            </PressableContainer>
+            </TaskContainer>
         </TaskTemplate>
     )
 }
+
+interface TaskContainerProps {
+    isSelected: boolean
+    onPress: () => void
+    children: React.ReactNode | React.ReactNode[]
+}
+const TaskContainer = React.forwardRef<HTMLDivElement, TaskContainerProps>(({ isSelected, onPress, children }, ref) => {
+    if (Platform.OS === 'web') {
+        return (
+            <TaskContainerWeb isSelected={isSelected} onClick={onPress} ref={ref}>
+                {children}
+            </TaskContainerWeb>
+        )
+    } else {
+        return (
+            <TaskContainerNative isSelected={isSelected} onPress={onPress}>
+                {children}
+            </TaskContainerNative>
+        )
+    }
+})
 
 const styles = StyleSheet.create({
     iconContainer: {
