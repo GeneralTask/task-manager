@@ -31,11 +31,10 @@ func (api *API) MessageCompose(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	// TODO - validate sourceid
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(*requestParams.SourceID)
 	if err != nil {
 		log.Printf("failed to load external task source: %v", err)
-		Handle500(c)
+		c.JSON(400, gin.H{"detail": "invalid source id"})
 		return
 	}
 
@@ -59,6 +58,7 @@ func handleCompose(c *gin.Context, userID primitive.ObjectID,taskSourceResult *e
 	err := taskSourceResult.Source.SendEmail(userID, *requestParams.SourceAccountID, contents)
 	if err != nil {
 		log.Printf("failed to send email: %v", err)
+		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "failed to send email"})
 		Handle500(c)
 		return
 	}
