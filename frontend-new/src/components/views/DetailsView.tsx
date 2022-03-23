@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useRef, useState } from 'react'
+import React, { createRef, useEffect, useState } from 'react'
 import ReactTooltip from 'react-tooltip'
 import webStyled from 'styled-components'
 import styled from 'styled-components/native'
@@ -79,7 +79,6 @@ const DetailsView = ({ task }: DetailsViewProps) => {
     const [datePickerShown, setDatePickerShown] = useState(false)
     const [timeEstimateShown, setTimeEstimateShown] = useState(false)
     const inputRef = createRef<HTMLInputElement>()
-    const editableDivRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         ReactTooltip.rebuild()
@@ -102,16 +101,11 @@ const DetailsView = ({ task }: DetailsViewProps) => {
     }
 
     const handleBlur = () => {
-        if (!task) return
-        if (task.source.name === 'Asana') {
-            const preparedBody = prepareAsanaHTML(editableDivRef.current?.innerHTML || '')
-            modifyTask({ id: task.id, title: title, body: preparedBody })
-        } else {
-            modifyTask({ id: task.id, title: title, body: body })
-        }
+        if (!task || task.source.name === 'Asana') return
+        modifyTask({ id: task.id, title: title, body: body })
     }
     const handleAsanaRequest = (html: string) => {
-        if (!task) return
+        if (!task || task.source.name !== 'Asana') return
         modifyTask({ id: task.id, title: title, body: html })
     }
 
@@ -148,7 +142,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
             </TaskTitleContainer>
             <MarginTopContainer>
                 {sourceName === 'Asana' ? (
-                    <ContentEditable ref={editableDivRef} handleAsana={handleAsanaRequest} html={body} />
+                    <ContentEditable handleAsana={handleAsanaRequest} html={body} />
                 ) : (
                     <BodyTextArea
                         placeholder="Add task details"
