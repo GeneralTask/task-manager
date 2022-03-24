@@ -99,14 +99,16 @@ const DetailsView = ({ task }: DetailsViewProps) => {
         if (titleRef.current) {
             titleRef.current.value = task.title
             titleRef.current.style.height = '0px'
-            titleRef.current.style.height = `${titleRef.current.scrollHeight}px`
+            titleRef.current.style.height =
+                titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
         }
     }, [task])
 
     useEffect(() => {
         if (titleRef.current) {
             titleRef.current.style.height = '0px'
-            titleRef.current.style.height = `${titleRef.current.scrollHeight}px`
+            titleRef.current.style.height =
+                titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
         }
     }, [title])
 
