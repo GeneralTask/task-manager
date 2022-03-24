@@ -69,7 +69,7 @@ func TestComposeEmail(t *testing.T) {
 			"/messages/compose/",
 			bytes.NewBuffer([]byte(`{
 				"message_id": "`+emailID+`",
-				"body": "`+""+`",
+				"body": "`+"test body"+`",
 				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "invalid_source",
 				"source_account_id": "approved@generaltask.com"
@@ -107,7 +107,7 @@ func TestComposeEmail(t *testing.T) {
 			"/messages/compose/",
 			bytes.NewBuffer([]byte(`{
 				"message_id": "`+taskID+`",
-				"body": "`+""+`",
+				"body": "`+"test body"+`",
 				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "jira",
 				"source_account_id": "approved@generaltask.com"
@@ -130,7 +130,7 @@ func TestComposeEmail(t *testing.T) {
 			"/messages/compose/",
 			bytes.NewBuffer([]byte(`{
 				"message_id": "`+emailID+`",
-				"body": "`+""+`",
+				"body": "`+"test body"+`",
 				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "gmail",
 				"source_account_id": "approved@generaltask.com"
@@ -166,7 +166,7 @@ func TestComposeEmail(t *testing.T) {
 			"/messages/compose/",
 			bytes.NewBuffer([]byte(`{
 				"message_id": "`+emailID+`",
-				"body": "`+""+`",
+				"body": "`+"test body"+`",
 				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "gmail",
 				"source_account_id": "approved@generaltask.com"
@@ -204,28 +204,26 @@ func TestComposeEmail(t *testing.T) {
 	})
 
 	t.Run("SuccessCompose", func(t *testing.T) {
-		var headers = []*gmail.MessagePartHeader{
-			{
-				Name:  "Subject",
-				Value: "Sample subject",
-			},
-			{
-				Name:  "From",
-				Value: "Sample sender <sample@generaltask.com>",
-			},
-			{
-				Name:  "Message-ID",
-				Value: "<id1@gt.io>",
-			},
-		}
+		var headers = []*gmail.MessagePartHeader{}
 
 		server := getReplyServer(t,
 			"sample_message_id",
 			"",
 			headers,
-			"To: Sample sender <sample@generaltask.com>\r\nCc: \r\nBcc: \r\nFrom: General Tasker <approved@generaltask.com>\nSubject: test subject\n\ntest reply")
+			"To: Sample sender <sample@generaltask.com>\r\nCc: \r\nBcc: \r\nFrom: General Tasker <approved@generaltask.com>\nSubject: test subject\n\ntest body")
 		toStr := `[{"name": "Sample sender", "email": "sample@generaltask.com"}]`
-		testSuccessfulComposeWithServer(t, "", authToken, "test reply", "test subject", toStr, "[]", "[]", server)
+		testSuccessfulComposeWithServer(t, "", authToken, "test body", "test subject", toStr, "[]", "[]", server)
+	})
+
+	t.Run("SuccessComposeEmptyBody", func(t *testing.T) {
+		var headers = []*gmail.MessagePartHeader{}
+		server := getReplyServer(t,
+			"sample_message_id",
+			"",
+			headers,
+			"To: Sample sender <sample@generaltask.com>\r\nCc: \r\nBcc: \r\nFrom: General Tasker <approved@generaltask.com>\nSubject: test subject\n\n")
+		toStr := `[{"name": "Sample sender", "email": "sample@generaltask.com"}]`
+		testSuccessfulComposeWithServer(t, "", authToken, "", "test subject", toStr, "[]", "[]", server)
 	})
 
 	t.Run("SuccessComposeMultipleRecipients", func(t *testing.T) {

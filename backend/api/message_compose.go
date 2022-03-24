@@ -16,10 +16,10 @@ import (
 type messageComposeParams struct {
 	MessageID       *string              `json:"message_id"`
 	Subject         *string              `json:"subject"`
-	Body            string              `json:"body" binding:"required"`
+	Body            *string              `json:"body" binding:"required"`
 	Recipients      *database.Recipients `json:"recipients" binding:"required"`
-	SourceID        string              `json:"source_id" binding:"required"`
-	SourceAccountID string              `json:"source_account_id" binding:"required"`
+	SourceID        string               `json:"source_id" binding:"required"`
+	SourceAccountID string               `json:"source_account_id" binding:"required"`
 }
 
 func (api *API) MessageCompose(c *gin.Context) {
@@ -56,7 +56,7 @@ func handleCompose(c *gin.Context, userID primitive.ObjectID, taskSourceResult *
 	contents := external.EmailContents{
 		Recipients: requestParams.Recipients,
 		Subject:    *requestParams.Subject,
-		Body:       requestParams.Body,
+		Body:       *requestParams.Body,
 	}
 	err := taskSourceResult.Source.SendEmail(userID, requestParams.SourceAccountID, contents)
 	if err != nil {
@@ -86,7 +86,7 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 	}
 	contents := external.EmailContents{
 		Recipients: requestParams.Recipients,
-		Body:       requestParams.Body,
+		Body:       *requestParams.Body,
 	}
 	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, messageID, contents)
 	if err != nil {
