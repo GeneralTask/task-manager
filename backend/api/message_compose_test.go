@@ -188,30 +188,30 @@ func TestComposeReplyToEmail(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 	})
 
-	// t.Run("SuccessNoReplyTo", func(t *testing.T) {
-	// 	var headers = []*gmail.MessagePartHeader{
-	// 		{
-	// 			Name:  "Subject",
-	// 			Value: "Sample subject",
-	// 		},
-	// 		{
-	// 			Name:  "From",
-	// 			Value: "Sample sender <sample@generaltask.com>",
-	// 		},
-	// 		{
-	// 			Name:  "Message-ID",
-	// 			Value: "<id1@gt.io>",
-	// 		},
-	// 	}
+	t.Run("SuccessNoReplyTo", func(t *testing.T) {
+		var headers = []*gmail.MessagePartHeader{
+			{
+				Name:  "Subject",
+				Value: "Sample subject",
+			},
+			{
+				Name:  "From",
+				Value: "Sample sender <sample@generaltask.com>",
+			},
+			{
+				Name:  "Message-ID",
+				Value: "<id1@gt.io>",
+			},
+		}
 
-	// 	server := getReplyServer(t,
-	// 		"sample_message_id",
-	// 		"sample_thread_id",
-	// 		headers,
-	// 		"To: Sample sender <sample@generaltask.com>\r\nFrom: General Tasker <approved@generaltask.com>\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
+		server := getReplyServer(t,
+			"sample_message_id",
+			"sample_thread_id",
+			headers,
+			"To: Sample sender <sample@generaltask.com>\r\nFrom: General Tasker <approved@generaltask.com>\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
 
-	// 	testSuccessfulReplyWithServer(t, emailID, authToken, "test reply", server)
-	// })
+		testSuccessfulReplyWithServer(t, emailID, authToken, "test reply", server)
+	})
 
 	// t.Run("SuccessReplyToAndExistingSubjectRe", func(t *testing.T) {
 	// 	var headers = []*gmail.MessagePartHeader{
