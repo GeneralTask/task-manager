@@ -16,7 +16,6 @@ const TaskContainerStyle = css<{ isSelected: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: center;
-    width: 100%;
     height: 100%;
     background-color: ${Colors.white};
     border-radius: ${Border.radius.xxSmall};
