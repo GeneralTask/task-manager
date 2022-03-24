@@ -162,7 +162,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					IsMessage: true,
 				},
 			}
-			// test
+
 			// We flatten in order to do partial updates of nested documents correctly in mongodb
 			flattenedUpdateFields, err := flatbson.Flatten(email)
 			if err != nil {
