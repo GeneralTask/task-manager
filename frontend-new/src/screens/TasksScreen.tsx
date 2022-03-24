@@ -17,7 +17,7 @@ const TasksScreen = () => {
     const location = useLocation()
 
     const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useGetUserInfo()
-    const { data: taskSections, isLoading: isTaskSectionsLoading } = useGetTasks()
+    const { isLoading: isTaskSectionsLoading } = useGetTasks()
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {
