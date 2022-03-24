@@ -58,6 +58,7 @@ func handleCompose(c *gin.Context, userID primitive.ObjectID,taskSourceResult *e
 		Subject:    *requestParams.Subject,
 		Body:       *requestParams.Body,
 	}
+	log.Println("jerd handleCompose")
 	err := taskSourceResult.Source.SendEmail(userID, *requestParams.SourceAccountID, contents)
 	if err != nil {
 		log.Printf("failed to send email: %v", err)
@@ -74,8 +75,6 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
 		return
 	}
-	log.Println("JERDDD")
-	log.Println(taskSourceResult)
 	messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
 	if err != nil {
 		log.Printf("could not parse message id with error: %v", err)
