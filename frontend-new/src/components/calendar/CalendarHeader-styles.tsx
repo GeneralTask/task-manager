@@ -51,9 +51,25 @@ export const HoverButton = styled.button<{ main?: boolean }>`
     background-color: ${(props) => (props.main ? Colors.purple._1 : 'transparent')};
 
     &:hover {
-        background: ${(props) => (props.main ? Colors.purple._2 : Colors.purple._2)};
+        background: ${Colors.purple._2};
     }
 `
+export const ArrowButton = styled.button`
+    cursor: pointer;
+    height: fit-content;
+    width: fit-content;
+    border: none;
+    border-radius: 50vh;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    &:hover {
+        background: ${Colors.gray._200}} 
+    }
+`
+
 export const Icon = styled.img`
     height: 24px;
     width: 24px;
