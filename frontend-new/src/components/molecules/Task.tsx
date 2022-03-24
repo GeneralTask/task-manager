@@ -11,6 +11,7 @@ import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
+import { useAppSelector } from '../../redux/hooks'
 
 const TaskContainerStyle = css<{ isSelected: boolean }>`
     display: flex;
@@ -38,6 +39,9 @@ interface TaskProps {
 const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProps) => {
     const navigate = useNavigate()
     const params = useParams()
+    const isExpanded = params.task === task.id
+    const isSelected = useAppSelector((state) => isExpanded ?? state.tasks_page.selected_task_id === task.id)
+
     const onPress = () => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(task.id)
@@ -63,8 +67,6 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
 
     const dragPreviewRef = Platform.OS === 'web' ? (dragPreview as Ref<HTMLDivElement>) : undefined
     const dragRef = Platform.OS === 'web' ? (drag as Ref<View>) : undefined
-
-    const isSelected = params.task === task.id
 
     return (
         <TaskTemplate>

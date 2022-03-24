@@ -2,13 +2,18 @@ import { useCallback } from 'react'
 import { TTaskSection } from '../../utils/types'
 import { useKeyboardShortcut } from '../atoms/KeyboardShortcuts'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { setSelectedTaskId } from '../../redux/tasksPageSlice'
 
 interface KeyboardSelectorProps {
     taskSection: TTaskSection
 }
 export default function TaskSelectionController({ taskSection }: KeyboardSelectorProps) {
     const navigate = useNavigate()
-    const selectedTaskId = useParams().task
+    const dispatch = useAppDispatch()
+    const expandedTask = useParams().task
+    // if there is no expanded task, then get the selected task from redux
+    const selectedTaskId = useAppSelector((state) => expandedTask ?? state.tasks_page.selected_task_id)
 
     // on press DOWN -> select first task ahh
     const onUpDown = useCallback(
@@ -29,7 +34,12 @@ export default function TaskSelectionController({ taskSection }: KeyboardSelecto
                 }
             }
             if (newSelectedTask) {
-                navigate(`/tasks/${taskSection.id}/${newSelectedTask}`)
+                if (expandedTask) {
+                    navigate(`/tasks/${taskSection.id}/${newSelectedTask}`)
+                } else {
+                    // select task in redux
+                    dispatch(setSelectedTaskId(newSelectedTask))
+                }
             }
         },
         [selectedTaskId, taskSection]
