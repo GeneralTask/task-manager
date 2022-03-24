@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -197,6 +198,7 @@ func TestComposeReplyToEmail(t *testing.T) {
 			{
 				Name:  "From",
 				Value: "Sample sender <sample@generaltask.com>",
+				// Value: "Mike <mike@faketest.com>",
 			},
 			{
 				Name:  "Message-ID",
@@ -204,13 +206,15 @@ func TestComposeReplyToEmail(t *testing.T) {
 			},
 		}
 
-		server := getReplyServer(t,
+		// server := getReplyServer(t,
+		server := getComposeServer(t,
 			"sample_message_id",
 			"sample_thread_id",
 			headers,
-			"To: Sample sender <sample@generaltask.com>\r\nFrom: General Tasker <approved@generaltask.com>\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
+			"To: Sample sender <sample@generaltask.com>\r\nCc: \r\nBcc: \r\nFrom: General Tasker <approved@generaltask.com>\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
 
-		testSuccessfulReplyWithServer(t, emailID, authToken, "test reply", server)
+		// testSuccessfulReplyWithServer(t, emailID, authToken, "test reply", server)
+		testSuccessfulReplyWithServer2(t, emailID, authToken, "test reply", server)
 	})
 
 	// t.Run("SuccessReplyToAndExistingSubjectRe", func(t *testing.T) {
@@ -258,18 +262,27 @@ func testSuccessfulReplyWithServer2(t *testing.T,
 
 	request, _ := http.NewRequest(
 		"POST",
-		"/messages/compose/"+emailID+"/",
+		"/messages/compose/",
 		bytes.NewBuffer([]byte(`{
-			"body": "`+body+`",
-			"message_id": "6233ff87d69d730404d738b5",
-			"recipients": {
-				"to": [{"name": "Mike Yo22", "email": "gng.vike13@gmail.com"}, {"name": "Mark Smith", "email": "gng.vike13+to_2@gmail.com"}, {"name": "", "email": "gng.vike13+to_3@gmail.com"}],
-				"cc": [{"name": "Jon Bravo", "email": "gng.vike13+cc_1@gmail.com"}],
-				"bcc": [{"name": "Stan Lee", "email": "gng.vike13+bcc_1@gmail.com"}]
-			},
+			"message_id": "`+emailID+`",
+			"body": "`+ body +`",
+			"recipients": {"to": [{"name": "Sample sender", "email": "sample@generaltask.com"}]},
 			"source_id": "gmail",
-			"source_account_id": "maz@generaltask.com"
+			"source_account_id": "approved@generaltask.com"
 		}`)))
+
+		// "/messages/compose/",
+		// bytes.NewBuffer([]byte(`{
+		// 	"body": "`+body+`",
+		// 	"message_id": "` + emailID + `",
+		// 	"recipients": {
+		// 		"to": [{"name": "Mike Yo22", "email": "gng.vike13@gmail.com"}, {"name": "Mark Smith", "email": "gng.vike13+to_2@gmail.com"}, {"name": "", "email": "gng.vike13+to_3@gmail.com"}],
+		// 		"cc": [{"name": "Jon Bravo", "email": "gng.vike13+cc_1@gmail.com"}],
+		// 		"bcc": [{"name": "Stan Lee", "email": "gng.vike13+bcc_1@gmail.com"}]
+		// 	},
+		// 	"source_id": "gmail",
+		// 	"source_account_id": "maz@generaltask.com"
+		// }`)))
 
 	request.Header.Add("Authorization", "Bearer "+authToken)
 	recorder := httptest.NewRecorder()
@@ -301,6 +314,8 @@ func getComposeServer(t *testing.T,
 
 			var params GmailReplyParams
 			json.NewDecoder(r.Body).Decode(&params)
+			log.Println("jerd")
+			log.Println(params)
 
 			assert.Equal(t, threadID, params.ThreadID)
 			decodedData, err := base64.URLEncoding.DecodeString(params.Raw)
