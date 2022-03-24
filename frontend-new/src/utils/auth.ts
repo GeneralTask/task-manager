@@ -14,7 +14,7 @@ export const authSignOut = (dispatch: Dispatch) => {
     dispatch(setAuthToken(undefined))
 
     if (Platform.OS === 'web') {
-        Cookie.remove('authToken')
+        Cookie.remove('authToken', { path: '/', domain: '.generaltask.com' })
         window.location.href = '/'
     }
 }
