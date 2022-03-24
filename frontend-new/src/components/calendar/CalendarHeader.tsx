@@ -60,7 +60,7 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                     </ArrowButton>
                 </div>
             </HeaderMiddleContainer>
-            <HeaderBottomContainer></HeaderBottomContainer>
+            <HeaderBottomContainer />
         </CalendarHeaderContainer>
     )
 }
