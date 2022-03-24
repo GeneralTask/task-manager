@@ -21,11 +21,11 @@ const styles = StyleSheet.create({
     DominoOuterContainer: {
         ...Platform.select({
             web: {
-                cursor: 'grab'
+                cursor: 'grab',
             },
         }),
-        height: '60%',
-        paddingLeft: 12,
+        height: 16,
+        paddingLeft: 4,
         paddingRight: 12,
     },
     DominoInnerContainer: {

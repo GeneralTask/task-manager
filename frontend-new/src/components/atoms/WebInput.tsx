@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 
-
 const StyledInput = styled.input`
     outline-style: none;
     flex-grow: 1;
@@ -10,7 +9,7 @@ const StyledInput = styled.input`
 `
 interface WebInputProps {
     value: string
-    onChange?: ((event: React.ChangeEvent<HTMLInputElement>) => void)
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
     placeholder: string
     onSubmit?: () => void
 }
@@ -18,7 +17,7 @@ const WebInput = React.forwardRef((props: WebInputProps, ref: React.Ref<HTMLInpu
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.nativeEvent.key === 'Enter' && props.onSubmit) {
             props.onSubmit()
-        }
+        } else e.stopPropagation()
     }
     return (
         <StyledInput

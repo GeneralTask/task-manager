@@ -18,6 +18,7 @@ type TaskResult struct {
 	Tasks           []*database.Item
 	PriorityMapping *map[string]int
 	Error           error
+	SourceID   		string
 }
 
 type PullRequestResult struct {
@@ -52,6 +53,12 @@ func emptyTaskResult(err error) TaskResult {
 		PriorityMapping: &priorities,
 		Error:           err,
 	}
+}
+
+func emptyTaskResultWithSource(err error, sourceID string) TaskResult {
+	result := emptyTaskResult(err)
+	result.SourceID = sourceID
+	return result
 }
 
 func emptyPullRequestResult(err error) PullRequestResult {

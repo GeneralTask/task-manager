@@ -2,11 +2,11 @@ name: Frontend ESLint
 
 # Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [master]
   pull_request:
-    branches: [master]
+    branches:
+      - "**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
+        working-directory: frontend-new
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -30,6 +30,6 @@ jobs:
       - name: Run eslint on changed files
         uses: tj-actions/eslint-changed-files@v6.3
         with:
-          config_path: "frontend/.eslintrc"
+          config_path: "frontend-new/.eslintrc"
           extensions: "ts,tsx,js,jsx"
           extra_args: "--max-warnings=0"

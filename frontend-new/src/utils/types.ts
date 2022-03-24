@@ -41,6 +41,7 @@ export interface TMessageSource {
     account_id: string // Account ID for the message (eg. Recipient email address)
     name: string // Human readable name of the source
     logo: string // Relative URL to the logo to display
+    logo_v2: string
     is_completable: boolean // Whether to show the done button
     is_replyable: boolean // Whether to show the reply button
 }
@@ -100,11 +101,6 @@ export interface TLinkedAccount {
     is_unlinkable: boolean
 }
 
-export interface Indices {
-    task: number
-    section: number
-}
-
 // React-DND Item Types
 export const ItemTypes = {
     TASK: 'task',
@@ -113,6 +109,11 @@ export const ItemTypes = {
 export interface DropResult {
     id: string
     dropDisabled: boolean
+}
+export interface DropProps {
+    id: string
+    taskIndex: number
+    sectionId: string
 }
 
 export interface TTaskCreateParams {

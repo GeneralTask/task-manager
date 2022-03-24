@@ -38,7 +38,7 @@ type AsanaTasksResponse struct {
 
 type AsanaTasksUpdateFields struct {
 	Name      *string `json:"name,omitempty"`
-	Notes     *string `json:"notes,omitempty"`
+	HTMLNotes *string `json:"html_notes,omitempty"`
 	DueOn     *string `json:"due_on,omitempty"`
 	Completed *bool   `json:"completed,omitempty"`
 }
@@ -58,7 +58,7 @@ func (asanaTask AsanaTaskSource) GetEvents(userID primitive.ObjectID, accountID 
 func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
-		result <- emptyTaskResult(err)
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 		return
 	}
 	defer dbCleanup()
@@ -78,7 +78,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 		if err == nil {
 			err = errors.New("user has not workspaces")
 		}
-		result <- emptyTaskResult(err)
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 		return
 	}
 	workspaceID := userInfo.Data.Workspaces[0].ID
@@ -95,7 +95,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	err = getJSON(client, taskFetchURL, &asanaTasks)
 	if err != nil {
 		log.Printf("failed to fetch asana tasks: %v", err)
-		result <- emptyTaskResult(err)
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 		return
 	}
 
@@ -137,13 +137,13 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			},
 		)
 		if err != nil {
-			result <- emptyTaskResult(err)
+			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 			return
 		}
 		err = res.Decode(&dbTask)
 		if err != nil {
 			log.Printf("failed to update or create task: %v", err)
-			result <- emptyTaskResult(err)
+			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 			return
 		}
 		task.HasBeenReordered = dbTask.HasBeenReordered
@@ -184,7 +184,7 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 	}
 	err = requestJSON(client, "PUT", taskUpdateURL, string(bodyJson), EmptyResponsePlaceholder)
 	if err != nil {
-		log.Printf("failed to fetch asana tasks: %v", err)
+		log.Printf("failed to update asana task: %v", err)
 		return err
 	}
 	return nil
@@ -199,7 +199,7 @@ func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.TaskCh
 	body := AsanaTasksUpdateBody{
 		Data: AsanaTasksUpdateFields{
 			Name:      updateFields.Title,
-			Notes:     updateFields.Body,
+			HTMLNotes: updateFields.Body,
 			DueOn:     dueDate,
 			Completed: updateFields.IsCompleted,
 		},

@@ -35,3 +35,8 @@ export enum LogEvents {
     // for when the refresh spinner is clicked by the user
     MANUAL_TASKS_REFRESH_CLICK = 'manual_tasks_refresh_click',
 }
+
+export enum CompanyPolicyPages {
+    TermsOfService,
+    PrivacyPolicy,
+}

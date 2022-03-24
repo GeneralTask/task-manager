@@ -13,14 +13,15 @@ type messageSource struct {
 	AccountId     string `json:"account_id"`
 	Name          string `json:"name"`
 	Logo          string `json:"logo"`
+	LogoV2          string `json:"logo_v2"`
 	IsCompletable bool   `json:"is_completable"`
 	IsReplyable   bool   `json:"is_replyable"`
 }
 
 type senderV2 struct {
-	Name  		string `bson:"name"`
-	Email  		string `bson:"email"`
-	ReplyTo     string `bson:"reply_to"`
+	Name    string `bson:"name"`
+	Email   string `bson:"email"`
+	ReplyTo string `bson:"reply_to"`
 }
 
 type message struct {
@@ -29,10 +30,11 @@ type message struct {
 	Deeplink   string             `json:"deeplink"`
 	Body       string             `json:"body"`
 	Sender     string             `json:"sender"`
-	SenderV2 senderV2      		  `json:"sender_v2"`
+	SenderV2   senderV2           `json:"sender_v2"`
 	Recipients Recipients         `json:"recipients"`
 	SentAt     string             `json:"sent_at"`
 	IsUnread   bool               `json:"is_unread"`
+	IsTask     bool               `json:"is_task"`
 	Source     messageSource      `json:"source"`
 }
 
@@ -76,8 +78,8 @@ func (api *API) emailToMessage(e *database.Item) *message {
 		Body:     e.Body,
 		Sender:   e.Sender,
 		SenderV2: senderV2{
-			Name: e.Sender,
-			Email: e.Email.SenderEmail,
+			Name:    e.Sender,
+			Email:   e.Email.SenderEmail,
 			ReplyTo: e.Email.ReplyTo,
 		},
 		Recipients: Recipients{
@@ -87,10 +89,12 @@ func (api *API) emailToMessage(e *database.Item) *message {
 		},
 		SentAt:   e.CreatedAtExternal.Time().Format(time.RFC3339),
 		IsUnread: e.Email.IsUnread,
+		IsTask: e.TaskType.IsTask,
 		Source: messageSource{
 			AccountId:     e.SourceAccountID,
 			Name:          messageSourceResult.Details.Name,
 			Logo:          messageSourceResult.Details.Logo,
+			LogoV2:          messageSourceResult.Details.LogoV2,
 			IsCompletable: messageSourceResult.Details.IsCreatable,
 			IsReplyable:   messageSourceResult.Details.IsReplyable,
 		},

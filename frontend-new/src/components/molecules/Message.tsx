@@ -1,48 +1,32 @@
-import React, { Ref, useRef } from 'react'
-import { useDrag } from 'react-dnd'
+import React from 'react'
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
-import { Colors, Flex } from '../../styles'
-import { Indices, ItemTypes, TMessage } from '../../utils/types'
-import Domino from '../atoms/Domino'
+import { Colors, Flex, Shadows } from '../../styles'
+import { logos } from '../../styles/images'
+import { TMessage } from '../../utils/types'
+import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
 import { Icon } from '../atoms/Icon'
 
-interface TaskProps {
+interface MessageProps {
     message: TMessage
     setSheetTaskId: (label: string) => void
 }
 
-const Message = ({ message, setSheetTaskId }: TaskProps) => {
+const Message = ({ message, setSheetTaskId }: MessageProps) => {
     const onPress = () => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(message.id)
         }
     }
 
-    const isDraggable = true
-
-    const indicesRef = useRef<Indices>()
-
-    const [, drag, dragPreview] = useDrag(() => ({
-        type: ItemTypes.TASK,
-        item: { id: message.id, indicesRef: indicesRef },
-        collect: (monitor) => {
-            const isDragging = !!monitor.isDragging()
-            return { opacity: isDragging ? 0.5 : 1 }
-        },
-    }))
-
-    const dragPreviewRef = Platform.OS === 'web' ? dragPreview as Ref<View> : undefined
-    const dragRef = Platform.OS === 'web' ? drag as Ref<View> : undefined
-
     return (
-        <Pressable style={styles.container} onPress={onPress} ref={dragPreviewRef}>
-            <View style={styles.container}>
-                {Platform.OS === 'web' && isDraggable && <Domino ref={dragRef} />}
-                <View style={styles.iconContainer}>
-                    <Icon size="small" />
-                </View>
-                <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'} >{message.title}</Text>
+        <Pressable style={[styles.container, styles.shadow]} onPress={onPress}>
+            <MarkAsTaskButton isTask={false} messageId={message.id} />
+            <View style={styles.iconContainer}>
+                <Icon source={logos[message.source.logo_v2]} size="small" />
             </View>
+            <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
+                {message.title}
+            </Text>
         </Pressable>
     )
 }
@@ -52,11 +36,13 @@ const styles = StyleSheet.create({
         ...Flex.row,
         alignItems: 'center',
         width: '100%',
-        height: '100%',
         backgroundColor: Colors.white,
-        borderRadius: 12,
-        paddingTop: 5,
-        paddingBottom: 5,
+        borderRadius: 4,
+        paddingHorizontal: 8,
+        height: 34,
+    },
+    shadow: {
+        ...Shadows.small,
     },
     iconContainer: {
         marginLeft: 6,
@@ -65,7 +51,7 @@ const styles = StyleSheet.create({
         marginLeft: 9,
         flexShrink: 1,
         flexWrap: 'wrap',
-    }
+    },
 })
 
 export default Message

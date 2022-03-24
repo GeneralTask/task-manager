@@ -1,9 +1,13 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import Cookies from 'js-cookie'
 import { Platform } from 'react-native'
+import { MESSAGES_PER_PAGE } from '../constants'
 import getEnvVars from '../environment'
 import type { RootState } from '../redux/store'
 import { TEvent, TLinkedAccount, TMessage, TSupportedTypes, TTask, TTaskModifyRequestBody, TTaskSection } from '../utils/types'
+import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
+
+
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
 export const generalTaskApi = createApi({
@@ -75,7 +79,7 @@ export const generalTaskApi = createApi({
                 const requestBody: TTaskModifyRequestBody = {}
                 if (data.title) requestBody.title = data.title
                 if (data.due_date) requestBody.due_date = data.due_date
-                if (data.time_duration) requestBody.time_duration = data.time_duration
+                if (data.time_duration) requestBody.time_duration = data.time_duration / 1000000
                 if (data.body) requestBody.body = data.body
                 return {
                     url: `tasks/modify/${data.id}/`,
@@ -84,6 +88,7 @@ export const generalTaskApi = createApi({
                 }
             },
             async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                const formattedDate = data.due_date ? new Date(data.due_date).toISOString().slice(0, 10) : ''
                 const result = dispatch(
                     generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
                         for (let i = 0; i < sections.length; i++) {
@@ -92,7 +97,7 @@ export const generalTaskApi = createApi({
                                 const task = section.tasks[j]
                                 if (task.id === data.id) {
                                     task.title = data.title || task.title
-                                    task.due_date = data.due_date || task.due_date
+                                    task.due_date = data.due_date ? formattedDate : task.due_date
                                     task.time_allocated = data.time_duration || task.time_allocated
                                     task.body = data.body || task.body
                                     return
@@ -103,6 +108,8 @@ export const generalTaskApi = createApi({
                 )
                 try {
                     await queryFulfilled
+                    dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
+
                 } catch {
                     result.undo()
                 }
@@ -123,7 +130,8 @@ export const generalTaskApi = createApi({
                                 const task = section.tasks[j]
                                 if (task.id === data.id) {
                                     task.is_done = data.is_completed
-                                    if (data.is_completed) section.tasks.splice(j, 1)
+                                    // Don't actually remove tasks from the list, just mark them as done (Until refreshing)
+                                    // section.tasks.splice(j, 1)
                                     return
                                 }
                             }
@@ -136,6 +144,69 @@ export const generalTaskApi = createApi({
                     result.undo()
                 }
             }
+        }),
+        reorderTask: builder.mutation<void, { taskId: string, dropSectionId: string, orderingId: number, dragSectionId?: string }>({
+            query: ({ taskId, dropSectionId, orderingId }) => ({
+                url: `/tasks/modify/${taskId}/`,
+                method: 'PATCH',
+                body: {
+                    id_task_section: dropSectionId,
+                    id_ordering: orderingId,
+                },
+            }),
+            invalidatesTags: ['Tasks'],
+            onQueryStarted: async ({ taskId, dropSectionId, orderingId, dragSectionId }, { dispatch, queryFulfilled }) => {
+                const result = dispatch(
+                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections: TTaskSection[]) => {
+                        // move task within the same section
+                        if (dragSectionId === undefined || dragSectionId === dropSectionId) {
+                            const section = sections.find(s => s.id === dropSectionId)
+                            if (section == null) return
+                            const startIndex = section.tasks.findIndex(t => t.id === taskId)
+                            if (startIndex === -1) return
+                            let endIndex = orderingId - 1
+                            if (startIndex < endIndex) {
+                                endIndex -= 1
+                            }
+                            arrayMoveInPlace(section.tasks, startIndex, endIndex)
+
+                            // update ordering ids
+                            resetOrderingIds(section.tasks)
+                        }
+                        // move task from one section to the other
+                        else {
+                            // remove task from old location
+                            const dragSection = sections.find((section) => section.id === dragSectionId)
+                            if (dragSection == null) return
+                            const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === taskId)
+                            if (dragTaskIndex === -1) return
+                            const dragTask = dragSection.tasks[dragTaskIndex]
+                            dragSection.tasks.splice(dragTaskIndex, 1)
+
+                            // add task to new location
+                            const dropSection = sections.find((section) => section.id === dropSectionId)
+                            if (dropSection == null) return
+                            dropSection.tasks.splice(orderingId - 1, 0, dragTask)
+
+                            // update ordering ids
+                            resetOrderingIds(dragSection.tasks)
+                            resetOrderingIds(dropSection.tasks)
+                        }
+
+                    })
+                )
+                try {
+                    await queryFulfilled
+                } catch {
+                    result.undo()
+                }
+            }
+        }),
+        fetchTasksExternal: builder.query<void, void>({
+            query: () => ({
+                url: '/tasks/fetch/',
+                method: 'GET',
+            }),
         }),
         addTaskSection: builder.mutation<void, { name: string }>({
             query: (data) => ({
@@ -188,23 +259,19 @@ export const generalTaskApi = createApi({
                 }
             }
         }),
-        getMessages: builder.query<TMessage[], void>({
-            query: () => 'messages/v2/',
-            providesTags: ['Messages']
-        }),
-        markMessageRead: builder.mutation<void, { id: string, is_read: boolean }>({
+        modifyTaskSection: builder.mutation<void, { id: string, name: string }>({
             query: (data) => ({
-                url: `messages/modify/${data.id}/`,
+                url: `sections/modify/${data.id}/`,
                 method: 'PATCH',
-                body: { is_read: data.is_read },
+                body: { name: data.name },
             }),
             async onQueryStarted(data, { dispatch, queryFulfilled }) {
                 const result = dispatch(
-                    generalTaskApi.util.updateQueryData('getMessages', undefined, (messages) => {
-                        for (let i = 0; i < messages.length; i++) {
-                            const message = messages[i]
-                            if (message.id === data.id) {
-                                message.is_unread = !data.is_read
+                    generalTaskApi.util.updateQueryData('getTasks', undefined, (sections) => {
+                        for (let i = 0; i < sections.length; i++) {
+                            const section = sections[i]
+                            if (section.id === data.id) {
+                                section.name = data.name
                                 return
                             }
                         }
@@ -212,9 +279,39 @@ export const generalTaskApi = createApi({
                 )
                 try {
                     await queryFulfilled
+                    dispatch(generalTaskApi.util.invalidateTags(['Tasks']))
                 } catch {
                     result.undo()
                 }
+            }
+        }),
+        getMessages: builder.query<TMessage[], { only_unread: boolean, page: number }>({
+            query: (data) => ({
+                url: 'messages/v2/',
+                method: 'GET',
+                params: { only_unread: data.only_unread, page: data.page, limit: MESSAGES_PER_PAGE },
+            }),
+            providesTags: (result) => result ?
+                [
+                    ...result.map(({ id }) => ({ type: 'Messages' as const, id })),
+                    { type: 'Messages', id: 'PARTIAL_LIST' },
+                ]
+                : [{ type: 'Messages', id: 'PARTIAL_LIST' }],
+        }),
+        fetchMessages: builder.query<TMessage[], void>({
+            query: () => 'messages/fetch/',
+            async onQueryStarted(_, { dispatch }) {
+                dispatch(generalTaskApi.util.invalidateTags([{ type: 'Messages', id: 'PARTIAL_LIST' }]))
+            }
+        }),
+        markMessageRead: builder.mutation<void, { id: string, is_read: boolean }>({
+            query: (data) => ({
+                url: `messages/modify/${data.id}/`,
+                method: 'PATCH',
+                body: { is_read: data.is_read },
+            }),
+            async onQueryStarted(data, { dispatch }) {
+                dispatch(generalTaskApi.util.invalidateTags([{ type: 'Messages', id: data.id }]))
             }
         }),
         markMessageAsTask: builder.mutation<void, { id: string, is_task: boolean }>({
@@ -236,6 +333,13 @@ export const generalTaskApi = createApi({
                     datetime_end: data.endISO,
                 },
             }),
+        }),
+        postFeedback: builder.mutation<void, { feedback: string }>({
+            query: (data) => ({
+                url: 'feedback/',
+                method: 'POST',
+                body: { feedback: data.feedback },
+            })
         }),
         getLinkedAccounts: builder.query<TLinkedAccount[], void>({
             query: () => ({
@@ -260,4 +364,22 @@ export const generalTaskApi = createApi({
     }),
 })
 
-export const { useGetTasksQuery, useModifyTaskMutation, useCreateTaskMutation, useMarkTaskDoneMutation, useAddTaskSectionMutation, useDeleteTaskSectionMutation, useGetEventsQuery, useGetMessagesQuery, useGetSupportedTypesQuery, useGetLinkedAccountsQuery, useDeleteLinkedAccountMutation } = generalTaskApi
+export const {
+    useGetTasksQuery,
+    useModifyTaskMutation,
+    useCreateTaskMutation,
+    useMarkTaskDoneMutation,
+    useReorderTaskMutation,
+    useFetchTasksExternalQuery,
+    useAddTaskSectionMutation,
+    useDeleteTaskSectionMutation,
+    useGetEventsQuery,
+    useGetMessagesQuery,
+    useFetchMessagesQuery,
+    useGetLinkedAccountsQuery,
+    useGetSupportedTypesQuery,
+    useDeleteLinkedAccountMutation,
+    usePostFeedbackMutation,
+    useModifyTaskSectionMutation,
+    useMarkMessageAsTaskMutation,
+} = generalTaskApi
