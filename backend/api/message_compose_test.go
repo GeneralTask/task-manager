@@ -70,7 +70,7 @@ func TestComposeReplyToEmail(t *testing.T) {
 			bytes.NewBuffer([]byte(`{
 				"message_id": "`+emailID+`",
 				"body": "`+""+`",
-				"recipients": {"to": [{"name": "Mike", "email": "mike@faketest.com"}]},
+				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "invalid_source",
 				"source_account_id": "approved@generaltask.com"
 			}`)))
@@ -84,43 +84,43 @@ func TestComposeReplyToEmail(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid source id\"}", string(body))
 	})
 
-	// t.Run("InvalidTaskType", func(t *testing.T) {
-	// 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	// 	defer cancel()
-	// 	insertedResult, err := taskCollection.InsertOne(dbCtx, database.Item{
-	// 		TaskBase: database.TaskBase{
-	// 			UserID:     userID,
-	// 			IDExternal: "sample_task_id",
-	// 			Title:      "Sample Task",
-	// 			SourceID:   external.TASK_SOURCE_ID_JIRA,
-	// 		},
-	// 	})
+	t.Run("InvalidTaskType", func(t *testing.T) {
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertedResult, err := taskCollection.InsertOne(dbCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:     userID,
+				IDExternal: "sample_task_id",
+				Title:      "Sample Task",
+				SourceID:   external.TASK_SOURCE_ID_JIRA,
+			},
+		})
 
-	// 	taskID := insertedResult.InsertedID.(primitive.ObjectID).Hex()
+		taskID := insertedResult.InsertedID.(primitive.ObjectID).Hex()
 
-	// 	assert.NoError(t, err)
+		assert.NoError(t, err)
 
-	// 	router := GetRouter(GetAPI())
+		router := GetRouter(GetAPI())
 
-	// 	request, _ := http.NewRequest(
-	// 		"POST",
-	// 		"/messages/compose/",
-	// 		bytes.NewBuffer([]byte(`{
-	// 			"message_id": "`+taskID+`",
-	// 			"body": "`+""+`",
-	// 			"recipients": {"to": [{"name": "Mike", "email": "mike@faketest.com"}]},
-	// 			"source_id": "gmail",
-	// 			"source_account_id": "approved@generaltask.com"
-	// 		}`)))
+		request, _ := http.NewRequest(
+			"POST",
+			"/messages/compose/",
+			bytes.NewBuffer([]byte(`{
+				"message_id": "`+taskID+`",
+				"body": "`+""+`",
+				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
+				"source_id": "jira",
+				"source_account_id": "approved@generaltask.com"
+			}`)))
 
-	// 	request.Header.Add("Authorization", "Bearer "+authToken)
-	// 	recorder := httptest.NewRecorder()
-	// 	router.ServeHTTP(recorder, request)
-	// 	assert.Equal(t, http.StatusBadRequest, recorder.Code)
-	// 	body, err := ioutil.ReadAll(recorder.Body)
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, "{\"detail\":\"task cannot be replied to\"}", string(body))
-	// })
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"task cannot be replied to\"}", string(body))
+	})
 
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(GetAPI())
@@ -131,7 +131,7 @@ func TestComposeReplyToEmail(t *testing.T) {
 			bytes.NewBuffer([]byte(`{
 				"message_id": "`+emailID+`",
 				"body": "`+""+`",
-				"recipients": {"to": [{"name": "Mike", "email": "mike@faketest.com"}]},
+				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "gmail",
 				"source_account_id": "approved@generaltask.com"
 			}`)))
@@ -167,7 +167,7 @@ func TestComposeReplyToEmail(t *testing.T) {
 			bytes.NewBuffer([]byte(`{
 				"message_id": "`+emailID+`",
 				"body": "`+""+`",
-				"recipients": {"to": [{"name": "Mike", "email": "mike@faketest.com"}]},
+				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "gmail",
 				"source_account_id": "approved@generaltask.com"
 			}`)))
