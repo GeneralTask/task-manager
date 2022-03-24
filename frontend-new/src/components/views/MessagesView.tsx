@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
-import { Colors, Flex, Screens } from '../../styles'
+import { Colors, Flex, Screens, Spacing } from '../../styles'
 import { TMessage } from '../../utils/types'
 import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
@@ -70,21 +70,13 @@ const styles = StyleSheet.create({
         ...Flex.column,
         paddingTop: 0,
         backgroundColor: Colors.gray._50,
+        minWidth: '550px',
     },
     messagesContent: {
         ...Flex.column,
         marginRight: 10,
         marginLeft: 10,
-        marginTop: Platform.OS === 'web' ? 40 : 20,
-        marginBottom: 100,
-    },
-    endContent: {
-        ...Flex.column,
-        marginRight: 10,
-        marginLeft: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 20,
+        marginTop: Platform.OS === 'web' ? Spacing.margin.xLarge : Spacing.margin.large,
         marginBottom: 100,
     },
 })

@@ -2,7 +2,6 @@ import React from 'react'
 import { StyleSheet, View } from 'react-native'
 import ReactTooltip from 'react-tooltip'
 import { Colors, Flex } from '../../styles'
-import CalendarSidebar from '../calendar/CalendarSidebar'
 import Navbar from '../views/NavigationView'
 import '../../styles/tooltip.css'
 
@@ -24,7 +23,6 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
             />
             <Navbar />
             {children}
-            <CalendarSidebar />
         </View>
     )
 }
