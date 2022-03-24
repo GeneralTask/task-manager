@@ -8,15 +8,15 @@ import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
-import ActionOption from '../molecules/ActionOption'
 import TooltipWrapper from '../atoms/TooltipWrapper'
+import ActionOption from '../molecules/ActionOption'
 
 const DetailsViewContainer = styled.View`
     display: flex;
     flex-direction: column;
     background-color: ${Colors.gray._50};
     width: 400px;
-    margin-top: ${Spacing.margin.xLarge}px;
+    margin-top: ${Spacing.margin.large}px;
     padding: ${Spacing.padding.medium}px;
 `
 const TaskTitleContainer = styled.View`

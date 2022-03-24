@@ -46,11 +46,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
         }
     }
     useEffect(() => {
-        if (params.task === task.id) {
-            setIsSelected(true)
-        } else {
-            setIsSelected(false)
-        }
+        setIsSelected(params.task === task.id)
     }, [[params]])
 
     const [, drag, dragPreview] = useDrag(
