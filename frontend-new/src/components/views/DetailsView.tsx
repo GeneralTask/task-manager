@@ -5,7 +5,7 @@ import styled from 'styled-components/native'
 import { useModifyTaskMutation } from '../../services/generalTaskApi'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
-import { TMessage, TTask } from '../../utils/types'
+import { TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
 import TooltipWrapper from '../atoms/TooltipWrapper'
@@ -62,7 +62,7 @@ const FlexGrowView = styled.View`
 `
 
 interface DetailsViewProps {
-    task: TTask | TMessage
+    task: TTask
 }
 const DetailsView = ({ task }: DetailsViewProps) => {
     const [modifyTask] = useModifyTaskMutation()
