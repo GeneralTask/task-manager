@@ -227,6 +227,19 @@ func TestComposeEmail(t *testing.T) {
 		toStr := `[{"name": "Sample sender", "email": "sample@generaltask.com"}]`
 		testSuccessfulComposeWithServer(t, "", authToken, "test reply", "test subject", toStr, "[]", "[]", server)
 	})
+
+	t.Run("SuccessComposeMultipleRecipients", func(t *testing.T) {
+		var headers = []*gmail.MessagePartHeader{}
+		server := getReplyServer(t,
+			"sample_message_id",
+			"",
+			headers,
+			"To: Sample sender <sample@generaltask.com>,Sample sender 2 <sample2@generaltask.com>\r\nCc: Sample sender cc <samplecc@generaltask.com>\r\nBcc: Sample sender bcc <samplebcc@generaltask.com>\r\nFrom: General Tasker <approved@generaltask.com>\nSubject: test subject\n\ntest reply")
+		toStr := `[{"name": "Sample sender", "email": "sample@generaltask.com"},{"name": "Sample sender 2", "email": "sample2@generaltask.com"}]`
+		ccStr := `[{"name": "Sample sender cc", "email": "samplecc@generaltask.com"}]`
+		bccStr := `[{"name": "Sample sender bcc", "email": "samplebcc@generaltask.com"}]`
+		testSuccessfulComposeWithServer(t, "", authToken, "test reply", "test subject", toStr, ccStr, bccStr, server)
+	})
 }
 
 func testSuccessfulComposeWithServer(t *testing.T,
