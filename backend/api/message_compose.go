@@ -16,25 +16,25 @@ import (
 type messageComposeParams struct {
 	MessageID       *string              `json:"message_id"`
 	Subject         *string              `json:"subject"`
-	Body            *string              `json:"body" binding:"required"`
+	Body            string              `json:"body" binding:"required"`
 	Recipients      *database.Recipients `json:"recipients" binding:"required"`
-	SourceID        *string              `json:"source_id" binding:"required"`
-	SourceAccountID *string              `json:"source_account_id" binding:"required"`
+	SourceID        string              `json:"source_id" binding:"required"`
+	SourceAccountID string              `json:"source_account_id" binding:"required"`
 }
 
 func (api *API) MessageCompose(c *gin.Context) {
 	var requestParams messageComposeParams
 	err := c.BindJSON(&requestParams)
 	if err != nil {
+		log.Printf("parameter missing or malformatted, error: %v", err)
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
-		log.Println(err)
 		return
 	}
 
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(*requestParams.SourceID)
+	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(requestParams.SourceID)
 	if err != nil {
 		log.Printf("failed to load external task source: %v", err)
 		c.JSON(400, gin.H{"detail": "invalid source id"})
@@ -51,19 +51,17 @@ func (api *API) MessageCompose(c *gin.Context) {
 func handleCompose(c *gin.Context, userID primitive.ObjectID, taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
 	if requestParams.Subject == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "subject must be set for composed message"})
-		Handle500(c)
+		return
 	}
 	contents := external.EmailContents{
 		Recipients: requestParams.Recipients,
 		Subject:    *requestParams.Subject,
-		Body:       *requestParams.Body,
+		Body:       requestParams.Body,
 	}
-	log.Println("jerd handleCompose")
-	err := taskSourceResult.Source.SendEmail(userID, *requestParams.SourceAccountID, contents)
+	err := taskSourceResult.Source.SendEmail(userID, requestParams.SourceAccountID, contents)
 	if err != nil {
 		log.Printf("failed to send email: %v", err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "failed to send email"})
-		Handle500(c)
 		return
 	}
 
@@ -88,9 +86,9 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 	}
 	contents := external.EmailContents{
 		Recipients: requestParams.Recipients,
-		Body:       *requestParams.Body,
+		Body:       requestParams.Body,
 	}
-	err = taskSourceResult.Source.Reply(userID, *requestParams.SourceAccountID, messageID, contents)
+	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, messageID, contents)
 	if err != nil {
 		log.Printf("unable to send email with error: %v", err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
