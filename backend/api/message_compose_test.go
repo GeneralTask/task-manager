@@ -258,25 +258,25 @@ func testSuccessfulComposeWithServer(t *testing.T,
 
 	messageIDStr := ""
 	if len(emailID) > 0 {
-		messageIDStr = `"message_id": "`+emailID+`",`
+		messageIDStr = `"message_id": "` + emailID + `",`
 	}
 
 	subjectStr := ""
 	if len(subject) > 0 {
-		messageIDStr = `"subject": "`+subject+`",`
+		messageIDStr = `"subject": "` + subject + `",`
 	}
 
 	request, _ := http.NewRequest(
 		"POST",
 		"/messages/compose/",
 		bytes.NewBuffer([]byte(`{
-			` + messageIDStr + `
-			` + subjectStr + `
+			`+messageIDStr+`
+			`+subjectStr+`
 			"body": "`+body+`",
 			"recipients": {
-				"to": `+ toStr +`,
-				"cc": `+ ccStr +`,
-				"bcc": `+ bccStr +`
+				"to": `+toStr+`,
+				"cc": `+ccStr+`,
+				"bcc": `+bccStr+`
 			},
 			"source_id": "gmail",
 			"source_account_id": "approved@generaltask.com"

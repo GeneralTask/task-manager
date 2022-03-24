@@ -48,7 +48,7 @@ func (api *API) MessageCompose(c *gin.Context) {
 	}
 }
 
-func handleCompose(c *gin.Context, userID primitive.ObjectID,taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
+func handleCompose(c *gin.Context, userID primitive.ObjectID, taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
 	if requestParams.Subject == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "subject must be set for composed message"})
 		Handle500(c)
