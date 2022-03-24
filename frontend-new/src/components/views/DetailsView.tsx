@@ -30,7 +30,6 @@ const TaskTitleContainer = styled.View`
     display: flex;
     flex-direction: row;
     align-items: center;
-    z-index: 1;
 `
 const TitleInput = webStyled.textarea`
     background-color: inherit;
