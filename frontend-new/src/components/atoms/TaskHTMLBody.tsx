@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
-import { ContentState, convertFromHTML, convertToRaw, Editor, EditorState } from 'draft-js'
+import { ContentState, convertFromHTML, convertToRaw, DefaultDraftBlockRenderMap, Editor, EditorState } from 'draft-js'
+import 'draft-js/dist/Draft.css'
 
 const rangeStyleToTag = {
     BOLD: 'strong',
@@ -9,8 +10,10 @@ const rangeStyleToTag = {
     CODE: 'code',
 }
 const htmlToContentState = (html: string) => {
-    const htmlWithBreak = html.replace(/(?:\r\n|\r|\n)/g, '<br>')
-    const blocksFromHTML = convertFromHTML(htmlWithBreak)
+    const htmlWithBreak = html.replace(/(?:\r\n|\r|\n)/g, '<br />')
+    const blockRenderMap = DefaultDraftBlockRenderMap.set('br', { element: 'br' })
+
+    const blocksFromHTML = convertFromHTML(htmlWithBreak, undefined, blockRenderMap)
     return ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap)
 }
 const convertToAsanaMarkdown = (state: ContentState) => {
