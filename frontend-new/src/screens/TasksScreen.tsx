@@ -37,12 +37,7 @@ const TasksScreen = () => {
     if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
     return (
         <>
-            <DefaultTemplate>
-                <>
-                    {currentPage}
-                    {/* {task && <DetailsView task={task} />} */}
-                </>
-            </DefaultTemplate>
+            <DefaultTemplate>{currentPage}</DefaultTemplate>
             {Platform.OS === 'ios' && (
                 <TaskBottomSheet sheetTaskId={sheetTaskId} setSheetTaskId={setSheetTaskId} ref={sheetRef} />
             )}
