@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Colors } from '../../styles'
+import { Colors, Typography } from '../../styles'
 
 export const CalendarHeaderContainer = styled.div`
     display: flex;
@@ -26,14 +26,14 @@ export const HeaderBottomContainer = styled.div`
     padding: 0px 24px;
 `
 export const CalendarHeaderTitle = styled.span`
-    font-size: 18px;
-    font-weight: 600;
-    color: ${Colors.gray._800};
-    line-height: 1.6em;
+    font-size: ${Typography.xSmall.fontSize}px;
+    font-weight: ${Typography.weight._500.fontWeight};
+    color: ${Colors.gray._600};
 `
 export const DateDisplay = styled.div`
-    font-size: 20px;
-    font-weight: 600;
+    font-size: ${Typography.small.fontSize}px;
+    font-weight: ${Typography.weight._600.fontWeight};
+    color: ${Colors.gray._800};
     text-align: center;
 `
 export const HoverButton = styled.button<{ main?: boolean }>`
@@ -48,11 +48,10 @@ export const HoverButton = styled.button<{ main?: boolean }>`
     justify-content: center;
 
     color: ${(props) => (props.main ? 'white' : 'black')};
-
-    background-color: ${(props) => (props.main ? Colors.red._1 : 'transparent')};
+    background-color: ${(props) => (props.main ? Colors.purple._1 : 'transparent')};
 
     &:hover {
-        background: ${(props) => (props.main ? Colors.red._1 : Colors.red._2)};
+        background: ${(props) => (props.main ? Colors.purple._2 : Colors.purple._2)};
     }
 `
 export const Icon = styled.img`

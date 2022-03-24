@@ -11,6 +11,7 @@ import TaskSection from '../components/views/TaskSectionView'
 import { useGetTasksQuery } from '../services/generalTaskApi'
 import { fetchUserInfo } from '../services/queryUtils'
 import { Navigate, useLocation } from '../services/routing'
+import CalendarView from '../components/views/CalendarView'
 
 const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
@@ -37,7 +38,12 @@ const TasksScreen = () => {
     if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
     return (
         <>
-            <DefaultTemplate>{currentPage}</DefaultTemplate>
+            <DefaultTemplate>
+                <>
+                    {currentPage}
+                    <CalendarView />
+                </>
+            </DefaultTemplate>
             {Platform.OS === 'ios' && (
                 <TaskBottomSheet sheetTaskId={sheetTaskId} setSheetTaskId={setSheetTaskId} ref={sheetRef} />
             )}

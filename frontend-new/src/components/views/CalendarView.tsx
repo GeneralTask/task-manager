@@ -1,20 +1,19 @@
 import { DateTime } from 'luxon'
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Colors } from '../../styles'
-import CalendarEvents from './CalendarEvents'
-import CalendarHeader from './CalendarHeader'
+import CalendarEvents from '../calendar/CalendarEvents'
+import CalendarHeader from '../calendar/CalendarHeader'
 
-
-const CalendarSidebarContainer = styled.div`
-    min-width: 400px;
+const CalendarViewContainer = styled.div`
+    min-width: 300px;
     height: 100vh;
-    background-color: ${Colors.gray._50};
+    background-color: ${Colors.gray._100};
     display: flex;
     flex-direction: column;
 `
 
-export default function CalendarSidebar(): JSX.Element {
+const CalendarView = () => {
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const [selectedDateIsToday, setSelectedDateIsToday] = useState<boolean>(true)
 
@@ -24,9 +23,11 @@ export default function CalendarSidebar(): JSX.Element {
     }, [date])
 
     return (
-        <CalendarSidebarContainer>
+        <CalendarViewContainer>
             <CalendarHeader date={date} setDate={setDate} />
             <CalendarEvents date={date} isToday={selectedDateIsToday} />
-        </CalendarSidebarContainer>
+        </CalendarViewContainer>
     )
 }
+
+export default CalendarView
