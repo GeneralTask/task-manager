@@ -1,14 +1,15 @@
 import { DateTime } from 'luxon'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { CALENDAR_INDICATOR_COLOR, CELL_HEIGHT } from './CalendarEvents-styles'
+import { Colors } from '../../styles'
+import { CELL_HEIGHT } from './CalendarEvents-styles'
 
 interface TimeIndicatorContainerProps {
     topOffset: number
 }
 const TimeIndicatorContainer = styled.div<TimeIndicatorContainerProps>`
     width: 100%;
-    background-color: ${CALENDAR_INDICATOR_COLOR};
+    background-color: ${Colors.purple._1};
     height: 1px;
     position: absolute;
     top: ${(props) => props.topOffset}px;

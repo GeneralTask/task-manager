@@ -13,6 +13,7 @@ import { useGetTasksQuery } from '../services/generalTaskApi'
 import { useQuery } from 'react-query'
 import { fetchUserInfo } from '../services/queryUtils'
 import Loading from '../components/atoms/Loading'
+import CalendarView from '../components/views/CalendarView'
 
 const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
@@ -51,6 +52,7 @@ const TasksScreen = () => {
                 <>
                     {currentPage}
                     {task && <DetailsView task={task} />}
+                    <CalendarView />
                 </>
             </DefaultTemplate>
             {Platform.OS === 'ios' && (
