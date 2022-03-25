@@ -1,18 +1,21 @@
+import { Navigate, useLocation, useParams } from '../services/routing'
 import React, { useEffect, useState } from 'react'
-import { Platform } from 'react-native'
+
 import BottomSheet from 'reanimated-bottom-sheet'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
 import DetailsView from '../components/views/DetailsView'
+import Loading from '../components/atoms/Loading'
 import Messages from '../components/views/MessagesView'
+import { Platform } from 'react-native'
+import Settings from '../components/views/SettingsView'
+import { TTask } from '../utils/types'
 import TaskBottomSheet from '../components/views/TaskBottomSheetView'
 import TaskSection from '../components/views/TaskSectionView'
-import Settings from '../components/views/SettingsView'
-import { useLocation, Navigate, useParams } from '../services/routing'
-import { TTask } from '../utils/types'
+import { fetchUserInfo } from '../services/queryUtils'
+import { setSelectedTaskId } from '../redux/tasksPageSlice'
+import { useAppDispatch } from '../redux/hooks'
 import { useGetTasksQuery } from '../services/generalTaskApi'
 import { useQuery } from 'react-query'
-import { fetchUserInfo } from '../services/queryUtils'
-import Loading from '../components/atoms/Loading'
 
 const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
@@ -24,10 +27,15 @@ const TasksScreen = () => {
     const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useQuery('user_info', fetchUserInfo)
     const { data: taskSections, isLoading: isTaskSectionsLoading } = useGetTasksQuery()
 
+    const dispatch = useAppDispatch()
+
     useEffect(() => {
         const section = taskSections?.find((section) => section.id === params.section)
         const task = section?.tasks.find((task) => task.id === params.task)
         setTask(task)
+        if (params.task) {
+            dispatch(setSelectedTaskId(params.task))
+        }
     }, [params, isUserInfoLoading, taskSections])
 
     const currentPage = (() => {

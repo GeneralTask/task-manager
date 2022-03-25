@@ -1,17 +1,18 @@
-import React, { Ref } from 'react'
-import { useDrag } from 'react-dnd'
-import { Platform, StyleSheet, Text, View } from 'react-native'
-import { useNavigate, useParams } from 'react-router-dom'
-import styled, { css } from 'styled-components/native'
-import WebStyled from 'styled-components'
 import { Border, Colors, Spacing } from '../../styles'
-import { logos } from '../../styles/images'
 import { ItemTypes, TTask } from '../../utils/types'
+import { Platform, StyleSheet, Text, View } from 'react-native'
+import React, { Ref } from 'react'
+import styled, { css } from 'styled-components/native'
+import { useNavigate, useParams } from 'react-router-dom'
+
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
+import WebStyled from 'styled-components'
+import { logos } from '../../styles/images'
 import { useAppSelector } from '../../redux/hooks'
+import { useDrag } from 'react-dnd'
 
 const TaskContainerStyle = css<{ isSelected: boolean }>`
     display: flex;
@@ -40,7 +41,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
     const navigate = useNavigate()
     const params = useParams()
     const isExpanded = params.task === task.id
-    const isSelected = useAppSelector((state) => isExpanded ?? state.tasks_page.selected_task_id === task.id)
+    const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_task_id === task.id)
 
     const onPress = () => {
         if (Platform.OS === 'ios') {

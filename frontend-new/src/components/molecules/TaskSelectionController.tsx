@@ -1,9 +1,10 @@
-import { useCallback } from 'react'
-import { TTaskSection } from '../../utils/types'
-import { useKeyboardShortcut } from '../atoms/KeyboardShortcuts'
-import { useNavigate, useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { useNavigate, useParams } from 'react-router-dom'
+
+import { TTaskSection } from '../../utils/types'
 import { setSelectedTaskId } from '../../redux/tasksPageSlice'
+import { useCallback } from 'react'
+import { useKeyboardShortcut } from '../atoms/KeyboardShortcuts'
 
 interface KeyboardSelectorProps {
     taskSection: TTaskSection
@@ -34,15 +35,13 @@ export default function TaskSelectionController({ taskSection }: KeyboardSelecto
                 }
             }
             if (newSelectedTask) {
+                dispatch(setSelectedTaskId(newSelectedTask))
                 if (expandedTask) {
                     navigate(`/tasks/${taskSection.id}/${newSelectedTask}`)
-                } else {
-                    // select task in redux
-                    dispatch(setSelectedTaskId(newSelectedTask))
                 }
             }
         },
-        [selectedTaskId, taskSection]
+        [selectedTaskId, taskSection, expandedTask]
     )
 
     useKeyboardShortcut('ArrowDown', () => onUpDown('down'))
