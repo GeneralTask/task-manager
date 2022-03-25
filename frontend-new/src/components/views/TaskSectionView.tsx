@@ -1,6 +1,6 @@
 import { Colors, Flex, Screens, Spacing } from '../../styles'
 import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { useFetchTasksExternalQuery, useGetTasksQuery } from '../../services/generalTaskApi'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -10,7 +10,6 @@ import DetailsView from './DetailsView'
 import EventBanner from '../molecules/EventBanner'
 import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
-import { TTask } from '../../utils/types'
 import Task from '../molecules/Task'
 import TaskDropContainer from '../molecules/TaskDropContainer'
 import TaskSelectionController from '../molecules/TaskSelectionController'
@@ -24,7 +23,6 @@ const TaskSection = () => {
     const routerSection = useParams().section || ''
     const navigate = useNavigate()
     const params = useParams()
-    const [selectedTask, setSelectedTask] = useState<TTask | undefined>(undefined)
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
@@ -39,12 +37,11 @@ const TaskSection = () => {
             const firstSectionId = taskSections[0].id
             navigate(`/tasks/${firstSectionId}`)
         }
-    })
+    }, [taskSections, routerSection])
 
-    useEffect(() => {
+    const expandedTask = useMemo(() => {
         const section = taskSections?.find((section) => section.id === params.section)
-        const task = section?.tasks.find((task) => task.id === params.task)
-        setSelectedTask(task)
+        return section?.tasks.find((task) => task.id === params.task)
     }, [params, taskSections])
 
     const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
@@ -89,7 +86,7 @@ const TaskSection = () => {
                     )}
                 </View>
             </ScrollView>
-            {selectedTask && <DetailsView task={selectedTask} />}
+            {expandedTask && <DetailsView task={expandedTask} />}
         </>
     )
 }
