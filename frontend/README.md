@@ -22,6 +22,8 @@ Edit the mock API contents in mock-api.json
 
 4. Authenticate with cloudflare (get credentials from John): `wrangler login`
 
+5. Ensure that routing is properly configured by adding `mapRequestToAsset: serveSinglePageApp` field to the worker-site configuration file. 
+
 5. `yarn run build` - this builds with generaltask.com links built in
 
 6. `npx wrangler publish`
