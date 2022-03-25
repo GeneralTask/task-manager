@@ -10,5 +10,6 @@ export const padding = {
     xSmall: 5,
     small: 8,
     medium: 16,
-    large: 40,
+    large: 24,
+    xLarge: 40,
 }

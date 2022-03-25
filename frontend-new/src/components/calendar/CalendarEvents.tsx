@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import React, { Ref, useEffect, useRef } from 'react'
 import { useGetEvents } from '../../services/api-query-hooks'
+import { TimeIndicator } from './TimeIndicator'
 import {
     CalendarCell,
     CalendarRow,
@@ -12,7 +13,6 @@ import {
     DayContainer,
 } from './CalendarEvents-styles'
 import CollisionGroupColumns from './CollisionGroupColumns'
-import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 
 function CalendarDayTable(): JSX.Element {

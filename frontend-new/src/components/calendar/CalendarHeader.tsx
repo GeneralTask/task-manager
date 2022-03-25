@@ -1,16 +1,64 @@
 import { DateTime } from 'luxon'
 import React, { useCallback } from 'react'
-import {
-    CalendarHeaderContainer,
-    HoverButton,
-    Icon,
-    DateDisplay,
-    CalendarHeaderTitle,
-    HeaderTopContainer,
-    HeaderMiddleContainer,
-    HeaderBottomContainer,
-    ArrowButton,
-} from './CalendarHeader-styles'
+import styled from 'styled-components'
+import { Colors, Spacing, Typography } from '../../styles'
+import { icons } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
+import { Divider } from '../atoms/SectionDivider'
+
+export const PaddedContainer = styled.div`
+    padding: ${Spacing.padding.medium}px ${Spacing.padding.large}px;
+`
+export const HeaderMiddleContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`
+export const CalendarHeaderTitle = styled.span`
+    font-size: ${Typography.xSmall.fontSize}px;
+    font-weight: ${Typography.weight._500.fontWeight};
+    color: ${Colors.gray._600};
+`
+export const DateDisplay = styled.div`
+    font-size: ${Typography.small.fontSize}px;
+    font-weight: ${Typography.weight._600.fontWeight};
+    color: ${Colors.gray._800};
+    text-align: center;
+`
+export const HoverButton = styled.button<{ main?: boolean }>`
+    cursor: pointer;
+    height: fit-content;
+    width: fit-content;
+    border: none;
+    border-radius: 50vh;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: ${(props) => (props.main ? 'white' : 'black')};
+    background-color: ${(props) => (props.main ? Colors.purple._1 : 'transparent')};
+
+    &:hover {
+        background: ${Colors.purple._2};
+    }
+`
+export const ArrowButton = styled.button`
+    cursor: pointer;
+    height: fit-content;
+    width: fit-content;
+    border: none;
+    border-radius: 50vh;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    &:hover {
+        background: ${Colors.gray._200}} 
+    }
+`
+
 
 interface CalendarHeaderProps {
     date: DateTime
@@ -33,34 +81,29 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
     )
 
     return (
-        <CalendarHeaderContainer>
-            <HeaderTopContainer>
-                <div style={{ display: 'flex' }}>
-                    <CalendarHeaderTitle>Calendar</CalendarHeaderTitle>
-                </div>
-                <div style={{ display: 'flex' }}>
-                    <HoverButton onClick={(e) => e.stopPropagation()} style={{ display: 'none' }}>
-                        <Icon src={require('../../assets/plus.png')} alt="Add Event" />
-                    </HoverButton>
-                </div>
-            </HeaderTopContainer>
-            <HeaderMiddleContainer>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <DateDisplay>{`${date.toFormat('ccc, LLL d')}`}</DateDisplay>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <HoverButton main onClick={() => setDate(DateTime.now())}>
-                        Today
-                    </HoverButton>
-                    <ArrowButton onClick={selectPrevious}>
-                        <Icon src={require('../../assets/caret_left.png')} alt="Show previous" />
-                    </ArrowButton>
-                    <ArrowButton onClick={selectNext}>
-                        <Icon src={require('../../assets/caret_right.png')} alt="Show next" />
-                    </ArrowButton>
-                </div>
-            </HeaderMiddleContainer>
-            <HeaderBottomContainer />
-        </CalendarHeaderContainer>
+        <div>
+            <PaddedContainer>
+                <CalendarHeaderTitle>Calendar</CalendarHeaderTitle>
+            </PaddedContainer>
+            <Divider color={Colors.gray._200} />
+            <PaddedContainer>
+                <HeaderMiddleContainer>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <DateDisplay>{`${date.toFormat('ccc, LLL d')}`}</DateDisplay>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <HoverButton main onClick={() => setDate(DateTime.now())}>
+                            Today
+                        </HoverButton>
+                        <ArrowButton onClick={selectPrevious}>
+                            <Icon source={icons.caret_left} size="small"></Icon>
+                        </ArrowButton>
+                        <ArrowButton onClick={selectNext}>
+                            <Icon source={icons.caret_right} size="small"></Icon>
+                        </ArrowButton>
+                    </div>
+                </HeaderMiddleContainer>
+            </PaddedContainer>
+        </div>
     )
 }

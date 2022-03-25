@@ -1,13 +1,17 @@
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import styled from 'styled-components/native'
 import { Colors } from '../../styles'
 
-export const Divider = () => <View style={styles.divider} />
-
-const styles = StyleSheet.create({
-    divider: {
-        backgroundColor: Colors.gray._100,
-        height: 1,
-        width: '100%',
-    },
-})
+const DividerView = styled.View<{ color: string }>`
+    height: 1;
+    width: 100%;
+    background-color: ${props => props.color};
+`
+interface DividerProps {
+    color?: string
+}
+export const Divider = ({ color }: DividerProps) => {
+    const backgroundColor = color ?? Colors.gray._100
+    console.log(backgroundColor)
+    return <DividerView color={backgroundColor} />
+}
