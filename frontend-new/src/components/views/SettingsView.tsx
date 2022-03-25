@@ -1,13 +1,13 @@
+import { Picker } from '@react-native-picker/picker'
 import React, { useEffect, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 import styled from 'styled-components/native'
+import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api-query-hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import { SectionHeader } from '../molecules/Header'
-import { Picker } from '@react-native-picker/picker'
-import { useGetSupportedTypesQuery, useGetLinkedAccountsQuery, useDeleteLinkedAccountMutation } from '../../services/generalTaskApi'
 import TaskTemplate from '../atoms/TaskTemplate'
+import { SectionHeader } from '../molecules/Header'
 
 const SettingsViewContainer = styled.View`
     flex: 1;
@@ -46,9 +46,9 @@ const UnlinkButton = styled.Pressable`
 `
 const SettingsView = () => {
     const [selectedType, setSelectedType] = useState<string>()
-    const { data: supportedTypes } = useGetSupportedTypesQuery()
-    const { data: linkedAccounts, refetch } = useGetLinkedAccountsQuery()
-    const [deleteAccount] = useDeleteLinkedAccountMutation()
+    const { data: supportedTypes } = useGetSupportedTypes()
+    const { data: linkedAccounts, refetch } = useGetLinkedAccounts()
+    const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
     const openAuthWindow = () => {
         if (!supportedTypes) return
@@ -77,43 +77,35 @@ const SettingsView = () => {
     return (
         <ScrollView>
             <SettingsViewContainer>
-                <SectionHeader section="Settings" allowRefresh={false} />
+                <SectionHeader sectionName="Settings" allowRefresh={false} />
                 <AccountsContainer>
-                    <Picker
-                        selectedValue={selectedType}
-                        onValueChange={(itemValue) =>
-                            setSelectedType(itemValue)
-                        }>
+                    <Picker selectedValue={selectedType} onValueChange={(itemValue) => setSelectedType(itemValue)}>
                         <Picker.Item label="Add new account" value="add" />
-                        {
-                            supportedTypes?.map(type => (
-                                <Picker.Item key={type.name} label={type.name} value={type.name} />
-                            ))
-                        }
+                        {supportedTypes?.map((type) => (
+                            <Picker.Item key={type.name} label={type.name} value={type.name} />
+                        ))}
                     </Picker>
                 </AccountsContainer>
                 <View>
-                    {
-                        linkedAccounts?.map(account => (
-                            <AccountSpacing key={account.id}>
-                                <TaskTemplate>
-                                    <AccountContainer >
-                                        <IconContainer>
-                                            <Icon size="small" source={logos[account.logo_v2]}></Icon>
-                                        </IconContainer>
-                                        <Text>{account.display_id}</Text>
-                                        {account.is_unlinkable && (
-                                            <UnlinkContainer>
-                                                <UnlinkButton onPress={() => onUnlink(account.id)} >
-                                                    <Text>Remove link</Text>
-                                                </UnlinkButton>
-                                            </UnlinkContainer>
-                                        )}
-                                    </AccountContainer>
-                                </TaskTemplate>
-                            </AccountSpacing>
-                        ))
-                    }
+                    {linkedAccounts?.map((account) => (
+                        <AccountSpacing key={account.id}>
+                            <TaskTemplate>
+                                <AccountContainer>
+                                    <IconContainer>
+                                        <Icon size="small" source={logos[account.logo_v2]}></Icon>
+                                    </IconContainer>
+                                    <Text>{account.display_id}</Text>
+                                    {account.is_unlinkable && (
+                                        <UnlinkContainer>
+                                            <UnlinkButton onPress={() => onUnlink(account.id)}>
+                                                <Text>Remove link</Text>
+                                            </UnlinkButton>
+                                        </UnlinkContainer>
+                                    )}
+                                </AccountContainer>
+                            </TaskTemplate>
+                        </AccountSpacing>
+                    ))}
                 </View>
             </SettingsViewContainer>
         </ScrollView>

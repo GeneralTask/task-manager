@@ -3,7 +3,7 @@ import { useDrop } from 'react-dnd'
 import { ImageSourcePropType, Platform, StyleSheet, View, ViewStyle } from 'react-native'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components/native'
-import { useReorderTaskMutation } from '../../services/generalTaskApi'
+import { useReorderTask } from '../../services/api-query-hooks'
 import { Colors, Flex } from '../../styles'
 import { weight } from '../../styles/typography'
 import { ItemTypes, TTaskSection } from '../../utils/types'
@@ -18,7 +18,7 @@ interface NavigationLinkProps {
     droppable?: boolean
 }
 const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppable }: NavigationLinkProps) => {
-    const [reorderTask] = useReorderTaskMutation()
+    const { mutate: reorderTask } = useReorderTask()
 
     const onDrop = useCallback(
         (item: { id: string; taskIndex: number; sectionId: string }) => {

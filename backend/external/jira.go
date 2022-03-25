@@ -359,8 +359,12 @@ func (jira JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken s
 	return err
 }
 
-func (jira JIRASource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+func (jira JIRASource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error {
 	return errors.New("cannot reply to a JIRA task")
+}
+
+func (jira JIRASource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
+	return errors.New("cannot send email for JIRA source")
 }
 
 func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {

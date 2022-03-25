@@ -162,6 +162,7 @@ type TaskChangeableFields struct {
 	DueDate        primitive.DateTime `json:"due_date" bson:"due_date,omitempty"`
 	TimeAllocation *int64             `json:"time_duration" bson:"time_allocated,omitempty"`
 	IsCompleted    *bool              `json:"is_completed" bson:"is_completed,omitempty"`
+	CompletedAt    primitive.DateTime `json:"completed_at" bson:"completed_at"`
 }
 
 type UserSetting struct {

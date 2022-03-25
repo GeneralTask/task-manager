@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import styled from 'styled-components/native'
-import { Colors, Spacing } from '../../styles'
-import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
-import { TitleMedium, TitleSmall } from '../atoms/title/Title'
-import TextArea from '../atoms/TextArea'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
-import { usePostFeedbackMutation } from '../../services/generalTaskApi'
 import { useAppDispatch } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
+import { usePostFeedback } from '../../services/api-query-hooks'
+import { Colors, Spacing } from '../../styles'
 import { ModalEnum } from '../../utils/enums'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import TextArea from '../atoms/TextArea'
+import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 
 const FeedbackViewContainer = styled.View`
     display: flex;
@@ -33,7 +33,7 @@ const ButtonContainer = styled.View`
 const FeedbackView = () => {
     const dispatch = useAppDispatch()
     const [feedback, setFeedback] = useState('')
-    const [postFeedback] = usePostFeedbackMutation()
+    const { mutate: postFeedback } = usePostFeedback()
     const submitFeedback = async () => {
         postFeedback({ feedback: feedback })
         dispatch(setShowModal(ModalEnum.NONE))

@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { Platform, ScrollView, StyleSheet, View } from 'react-native'
-import { useInfiniteQuery } from 'react-query'
-import { useFetchMessagesQuery } from '../../services/generalTaskApi'
-import { fetchInfiniteMessages } from '../../services/queryUtils'
+import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
 import { Colors, Flex, Screens, Spacing } from '../../styles'
 import { TMessage } from '../../utils/types'
 import Loading from '../atoms/Loading'
@@ -11,14 +9,8 @@ import { SectionHeader } from '../molecules/Header'
 import Message from '../molecules/Message'
 
 const Messages = () => {
-    const { refetch: refetchMessages } = useFetchMessagesQuery()
-    const { data, isLoading, isFetching, fetchNextPage, refetch } = useInfiniteQuery<TMessage[], void>(
-        'messages',
-        fetchInfiniteMessages,
-        {
-            getNextPageParam: (_, pages) => pages.length + 1,
-        }
-    )
+    const { refetch: refetchMessages } = useFetchMessages()
+    const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteMessages()
 
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
@@ -46,7 +38,7 @@ const Messages = () => {
     return (
         <ScrollView>
             <View style={styles.messagesContent}>
-                <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetch} />
+                <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
                 {data?.pages.map((page, index) => {
                     return page?.map((message: TMessage, msgIndex: number) => {
                         if (data.pages.length === index + 1 && page.length === msgIndex + 1) {

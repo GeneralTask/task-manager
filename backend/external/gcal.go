@@ -167,8 +167,12 @@ func (googleCalendar GoogleCalendarSource) GetPullRequests(userID primitive.Obje
 	result <- emptyPullRequestResult(nil)
 }
 
-func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error {
 	return errors.New("cannot reply to a calendar event")
+}
+
+func (googleCalendar GoogleCalendarSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
+	return errors.New("cannot send email for calendar event")
 }
 
 func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {

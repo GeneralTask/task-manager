@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
-import { useAddTaskSectionMutation, useGetTasksQuery } from '../../services/generalTaskApi'
+import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
 import { useLocation, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { icons } from '../../styles/images'
@@ -41,10 +41,10 @@ const GapView = styled.View`
 
 const NavigationView = () => {
     const dispatch = useAppDispatch()
-    const { data: taskSections, isLoading: isLoadingTasks } = useGetTasksQuery()
+    const { data: taskSections, isLoading } = useGetTasks()
     const { section: sectionIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
-    const [addTaskSection] = useAddTaskSectionMutation()
+    const { mutate: addTaskSection } = useAddTaskSection()
     const { pathname } = useLocation()
     return (
         <View style={styles.container}>
@@ -52,7 +52,7 @@ const NavigationView = () => {
                 <Icon size="medium" />
             </NavigationViewHeader>
             <ScrollView style={styles.linksFlexContainer}>
-                {isLoadingTasks ? (
+                {isLoading ? (
                     <Loading />
                 ) : (
                     <>

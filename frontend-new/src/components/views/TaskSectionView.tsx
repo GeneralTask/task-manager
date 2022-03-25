@@ -1,23 +1,22 @@
 import { Colors, Flex, Screens, Spacing } from '../../styles'
 import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
-import React, { useEffect, useMemo, useRef } from 'react'
-import { useFetchTasksExternalQuery, useGetTasksQuery } from '../../services/generalTaskApi'
 import { useNavigate, useParams } from 'react-router-dom'
-
+import React, { useEffect, useMemo, useRef } from 'react'
+import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
+import { getSectionById } from '../../utils/task'
+import Loading from '../atoms/Loading'
 import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
 import DetailsView from './DetailsView'
 import EventBanner from '../molecules/EventBanner'
-import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
 import TaskDropContainer from '../molecules/TaskDropContainer'
 import TaskSelectionController from '../molecules/TaskSelectionController'
-import { getSectionById } from '../../utils/task'
 
 const TaskSection = () => {
-    const { data: taskSections, isLoading, refetch, isFetching } = useGetTasksQuery()
-    const fetchTasksExternalQuery = useFetchTasksExternalQuery()
+    const { data: taskSections, isLoading, refetch, isFetching } = useGetTasks()
+    const { refetch: fetchExternalTasks } = useFetchExternalTasks()
 
     const refetchWasLocal = useRef(false)
     const routerSection = useParams().section || ''
@@ -28,7 +27,7 @@ const TaskSection = () => {
     if (!isFetching) refetchWasLocal.current = false
     const onRefresh = async () => {
         refetchWasLocal.current = true
-        fetchTasksExternalQuery.refetch()
+        fetchExternalTasks()
         refetch()
     }
 

@@ -17,6 +17,7 @@ import (
 	"github.com/chidiwilliams/flatbson"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 )
@@ -26,9 +27,9 @@ type GmailSource struct {
 }
 
 type EmailContents struct {
-	To      string
-	Subject string
-	Body    string
+	Recipients *database.Recipients
+	Subject    string
+	Body       string
 }
 
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
@@ -319,54 +320,30 @@ func (gmailSource GmailSource) SendEmail(userID primitive.ObjectID, accountID st
 		return err
 	}
 	defer dbCleanup()
-	client := getGoogleHttpClient(db, userID, accountID)
 
-	var gmailService *gmail.Service
-
-	if gmailSource.Google.OverrideURLs.GmailSendURL != nil {
-		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
-		defer cancel()
-		gmailService, err = gmail.NewService(
-			extCtx,
-			option.WithoutAuthentication(),
-			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailSendURL),
-		)
-	} else {
-		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
-		defer cancel()
-		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
+	gmailService, err := createGmailService(db, userID, accountID, &gmailSource, parentCtx)
+	if err != nil {
+		return err
 	}
-
+	userObject, err := database.GetUser(db, userID)
 	if err != nil {
 		return err
 	}
 
-	var userObject database.User
-	userCollection := database.GetUserCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
-	if err != nil {
-		return err
-	}
-
-	if err != nil {
-		return err
-	}
-
-	sendAddress := email.To
-	subject := email.Subject
-	body := email.Body
-
-	if len(sendAddress) == 0 {
+	if len(email.Recipients.To) == 0 {
 		return errors.New("missing send address")
 	}
 
-	emailTo := "To: " + sendAddress + "\r\n"
+	subject := email.Subject
+	body := email.Body
+
+	emailTo := "To: " + createEmailRecipientHeader(email.Recipients.To) + "\r\n"
+	emailCc := "Cc: " + createEmailRecipientHeader(email.Recipients.Cc) + "\r\n"
+	EmailBcc := "Bcc: " + createEmailRecipientHeader(email.Recipients.Bcc) + "\r\n"
 	subject = "Subject: " + subject + "\n"
 	emailFrom := fmt.Sprintf("From: %s <%s>\n", userObject.Name, userObject.Email)
 
-	msg := []byte(emailTo + emailFrom + subject + "\n" + body)
+	msg := []byte(emailTo + emailCc + EmailBcc + emailFrom + subject + "\n" + body)
 
 	messageToSend := gmail.Message{
 		Raw: base64.URLEncoding.EncodeToString(msg),
@@ -377,7 +354,7 @@ func (gmailSource GmailSource) SendEmail(userID primitive.ObjectID, accountID st
 	return err
 }
 
-func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -401,7 +378,6 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 		defer cancel()
 		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
 	}
-
 	if err != nil {
 		return err
 	}
@@ -469,7 +445,18 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 		subject = "Re: " + subject
 	}
 
-	emailTo := "To: " + sendAddress + "\r\n"
+	var recipientHeader string
+	if emailContents.Recipients != nil {
+		emailTo := "To: " + createEmailRecipientHeader(emailContents.Recipients.To) + "\r\n"
+		emailCc := "Cc: " + createEmailRecipientHeader(emailContents.Recipients.Cc) + "\r\n"
+		emailBcc := "Bcc: " + createEmailRecipientHeader(emailContents.Recipients.Bcc) + "\r\n"
+		recipientHeader = emailTo + emailCc + emailBcc
+	} else {
+		// For backwards compatibility - TODO remove this after frontend migrates to messages/compose endpoint
+		emailTo := "To: " + sendAddress + "\r\n"
+		recipientHeader = emailTo
+	}
+
 	subject = "Subject: " + subject + "\n"
 	emailFrom := fmt.Sprintf("From: %s <%s>\n", userObject.Name, userObject.Email)
 
@@ -480,7 +467,7 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	}
 	inReply := "In-Reply-To: " + smtpID + "\n"
 	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n"
-	msg := []byte(emailTo + emailFrom + subject + inReply + references + mime + "\n" + body)
+	msg := []byte(recipientHeader + emailFrom + subject + inReply + references + mime + "\n" + emailContents.Body)
 
 	messageToSend := gmail.Message{
 		Raw:      base64.URLEncoding.EncodeToString(msg),
@@ -596,4 +583,44 @@ func parseRecipients(recipientsString string) []database.Recipient {
 		recipients = append(recipients, recipient)
 	}
 	return recipients
+}
+
+func createEmailRecipientHeader(recipients []database.Recipient) string {
+	recipientStrings := []string{}
+	for _, recipient := range recipients {
+		recipientStrings = append(recipientStrings, recipientToString(recipient))
+	}
+	return strings.Join(recipientStrings, ",")
+}
+
+func recipientToString(recipient database.Recipient) string {
+	if len(recipient.Name) > 0 {
+		return fmt.Sprintf("%s <%s>", recipient.Name, recipient.Email)
+	} else {
+		return recipient.Email
+	}
+}
+
+func createGmailService(db *mongo.Database, userID primitive.ObjectID, accountID string, gmailSource *GmailSource, ctx context.Context) (*gmail.Service, error) {
+	var gmailService *gmail.Service
+	var err error
+	if gmailSource.Google.OverrideURLs.GmailSendURL != nil {
+		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
+		defer cancel()
+		gmailService, err = gmail.NewService(
+			extCtx,
+			option.WithoutAuthentication(),
+			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailSendURL),
+		)
+	} else {
+		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
+		defer cancel()
+		client := getGoogleHttpClient(db, userID, accountID)
+		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return gmailService, nil
 }

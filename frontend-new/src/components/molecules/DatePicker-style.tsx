@@ -75,7 +75,7 @@ export const HoverButton = styled.button<{ isToday: boolean; isSelected: boolean
         background: ${(props) =>
             props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : Colors.gray._100};
     }
-    background: ${(props) => (props.isSelected ? Colors.purple : props.isToday ? Colors.red._2 : 'transparent')};
+    background: ${(props) => (props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : 'transparent')};
 `
 export const DayLabel = styled.span<{ grayed: boolean; isSelected: boolean }>`
     position: static;
