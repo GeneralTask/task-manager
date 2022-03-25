@@ -42,7 +42,7 @@ const TaskSection = () => {
     const expandedTask = useMemo(() => {
         const section = taskSections?.find((section) => section.id === params.section)
         return section?.tasks.find((task) => task.id === params.task)
-    }, [params, taskSections])
+    }, [params.task, taskSections])
 
     const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
     const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
