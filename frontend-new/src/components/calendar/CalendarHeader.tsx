@@ -5,6 +5,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
+import { TitleSmall } from '../atoms/title/Title'
 
 export const PaddedContainer = styled.div`
     padding: ${Spacing.padding.medium}px ${Spacing.padding.large}px;
@@ -13,11 +14,6 @@ export const HeaderMiddleContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-`
-export const CalendarHeaderTitle = styled.span`
-    font-size: ${Typography.xSmall.fontSize}px;
-    font-weight: ${Typography.weight._500.fontWeight};
-    color: ${Colors.gray._600};
 `
 export const DateDisplay = styled.div`
     font-size: ${Typography.small.fontSize}px;
@@ -35,10 +31,8 @@ export const HoverButton = styled.button<{ main?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-
     color: ${(props) => (props.main ? 'white' : 'black')};
     background-color: ${(props) => (props.main ? Colors.purple._1 : 'transparent')};
-
     &:hover {
         background: ${Colors.purple._2};
     }
@@ -83,7 +77,7 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
     return (
         <div>
             <PaddedContainer>
-                <CalendarHeaderTitle>Calendar</CalendarHeaderTitle>
+                <TitleSmall>Calendar</TitleSmall>
             </PaddedContainer>
             <Divider color={Colors.gray._200} />
             <PaddedContainer>
