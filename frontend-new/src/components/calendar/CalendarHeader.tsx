@@ -9,6 +9,7 @@ import {
     HeaderTopContainer,
     HeaderMiddleContainer,
     HeaderBottomContainer,
+    ArrowButton,
 } from './CalendarHeader-styles'
 
 interface CalendarHeaderProps {
@@ -16,7 +17,6 @@ interface CalendarHeaderProps {
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
 }
 export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
-
     const selectNext = useCallback(
         () =>
             setDate((date) => {
@@ -48,20 +48,19 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <DateDisplay>{`${date.toFormat('ccc, LLL d')}`}</DateDisplay>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <HoverButton main onClick={() => setDate(DateTime.now())}>
                         Today
                     </HoverButton>
-                    <HoverButton onClick={selectPrevious}>
+                    <ArrowButton onClick={selectPrevious}>
                         <Icon src={require('../../assets/caret_left.png')} alt="Show previous" />
-                    </HoverButton>
-                    <HoverButton onClick={selectNext}>
+                    </ArrowButton>
+                    <ArrowButton onClick={selectNext}>
                         <Icon src={require('../../assets/caret_right.png')} alt="Show next" />
-                    </HoverButton>
+                    </ArrowButton>
                 </div>
             </HeaderMiddleContainer>
-            <HeaderBottomContainer>
-            </HeaderBottomContainer>
+            <HeaderBottomContainer />
         </CalendarHeaderContainer>
     )
 }

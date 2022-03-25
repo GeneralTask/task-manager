@@ -6,7 +6,7 @@ import { useAddTaskSectionMutation, useGetTasksQuery } from '../../services/gene
 import { useLocation, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { icons } from '../../styles/images'
-import { margin } from '../../styles/spacing'
+import { margin, padding } from '../../styles/spacing'
 import { weight } from '../../styles/typography'
 import { authSignOut } from '../../utils/auth'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
@@ -29,8 +29,14 @@ const AddSectionView = styled.View`
 `
 const AddSectionInputView = styled.View`
     font-weight: ${weight._600.fontWeight};
-    margin-left: ${margin.small};
+    margin-left: ${margin.small}px;
     flex: 1;
+`
+const GapView = styled.View`
+    display: flex;
+    flex-direction: column;
+    gap: ${margin.small}px;
+    padding-bottom: ${padding.medium}px;
 `
 
 const NavigationView = () => {
@@ -90,8 +96,10 @@ const NavigationView = () => {
                     </AddSectionInputView>
                 </AddSectionView>
             </ScrollView>
-            <FeedbackButton />
-            <RoundedGeneralButton value="Sign Out" textStyle="dark" onPress={() => authSignOut(dispatch)} />
+            <GapView>
+                <FeedbackButton />
+                <RoundedGeneralButton value="Sign Out" textStyle="dark" onPress={() => authSignOut(dispatch)} />
+            </GapView>
         </View>
     )
 }

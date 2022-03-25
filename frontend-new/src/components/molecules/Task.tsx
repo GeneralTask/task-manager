@@ -53,7 +53,6 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
             navigate(`/tasks/${params.section}/${task.id}`)
         }
     }
-
     const [, drag, dragPreview] = useDrag(
         () => ({
             type: ItemTypes.TASK,
