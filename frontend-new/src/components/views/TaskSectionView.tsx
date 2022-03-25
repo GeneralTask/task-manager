@@ -86,7 +86,7 @@ const TaskSection = () => {
                     )}
                 </View>
             </ScrollView>
-            {selectedTask && <DetailsView task={selectedTask} />}
+            {selectedTask && <DetailsView item={selectedTask} />}
         </>
     )
 }

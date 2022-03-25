@@ -5,7 +5,7 @@ import styled from 'styled-components/native'
 import { useModifyTask } from '../../services/api-query-hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
-import { TTask } from '../../utils/types'
+import { TMessage, TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
 import TooltipWrapper from '../atoms/TooltipWrapper'
@@ -15,7 +15,7 @@ const DetailsViewContainer = styled.View`
     display: flex;
     flex-direction: column;
     background-color: ${Colors.gray._50};
-    width: 400px;
+    width: 640px;
     margin-top: ${Spacing.margin.large}px;
     padding: ${Spacing.padding.medium}px;
 `
@@ -60,23 +60,20 @@ const BodyTextArea = webStyled.textarea`
     font-size: ${Typography.xSmall.fontSize}px;
     height: 250px;
 `
-const MarginTopContainer = styled.View`
-    margin-top: ${Spacing.margin.medium}px;
-    flex: 1;
-    overflow: auto;
-`
 const FlexGrowView = styled.View`
     flex: 1;
 `
 
 interface DetailsViewProps {
-    task: TTask
+    item: TTask | TMessage
 }
-const DetailsView = ({ task }: DetailsViewProps) => {
+const DetailsView = (props: DetailsViewProps) => {
     const { mutate: modifyTask } = useModifyTask()
-    const [title, setTitle] = useState('')
-    const [body, setBody] = useState('')
-    const [sourceName, setSourceName] = useState('')
+
+    const [item, setItem] = useState<TTask | TMessage>(props.item)
+    const [titleInput, setTitleInput] = useState('')
+    const [bodyInput, setBodyInput] = useState('')
+
     const [datePickerShown, setDatePickerShown] = useState(false)
     const [timeEstimateShown, setTimeEstimateShown] = useState(false)
     const titleRef = createRef<HTMLTextAreaElement>()
@@ -85,24 +82,25 @@ const DetailsView = ({ task }: DetailsViewProps) => {
         ReactTooltip.rebuild()
     }, [])
     useEffect(() => {
-        if (datePickerShown) setTimeEstimateShown(false)
+        datePickerShown && setTimeEstimateShown(false)
     }, [datePickerShown])
     useEffect(() => {
-        if (timeEstimateShown) setDatePickerShown(false)
+        timeEstimateShown && setDatePickerShown(false)
     }, [timeEstimateShown])
 
+    // Update the state of the title, body, and sourceName when the task changes
     useEffect(() => {
-        setTitle(task.title)
-        setBody(task.body)
-        setSourceName(task.source.name)
+        setItem(props.item)
+        setTitleInput(props.item.title)
+        setBodyInput(props.item.body)
 
         if (titleRef.current) {
-            titleRef.current.value = task.title
+            titleRef.current.value = item.title
             titleRef.current.style.height = '0px'
             titleRef.current.style.height =
                 titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
         }
-    }, [task])
+    }, [props.item])
 
     useEffect(() => {
         if (titleRef.current) {
@@ -110,7 +108,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
             titleRef.current.style.height =
                 titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
         }
-    }, [title])
+    }, [titleInput])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
         if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
@@ -118,54 +116,59 @@ const DetailsView = ({ task }: DetailsViewProps) => {
     }
 
     const handleBlur = () => {
-        if (!task) return
-        modifyTask({ id: task.id, title: title, body: body })
+        if ((item as TTask).due_date === undefined) return
+        modifyTask({ id: item.id, title: titleInput, body: bodyInput })
     }
 
     return (
         <DetailsViewContainer>
             <TaskTitleButtonsContainer>
-                <Icon source={logos[task.source.logo_v2]} size="small" />
+                <Icon source={logos[item.source.logo_v2]} size="small" />
                 <FlexGrowView />
-                <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
-                    <ActionOption
-                        isShown={datePickerShown}
-                        setIsShown={setDatePickerShown}
-                        action="date_picker"
-                        task={task}
-                    />
-                </TooltipWrapper>
-                <TooltipWrapper inline dataTip="Time Estimate" tooltipId="tooltip">
-                    <ActionOption
-                        isShown={timeEstimateShown}
-                        setIsShown={setTimeEstimateShown}
-                        action="time_allocated"
-                        task={task}
-                    />
-                </TooltipWrapper>
+                {(item as TTask).due_date !== undefined &&
+                    <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
+                        <ActionOption
+                            isShown={datePickerShown}
+                            setIsShown={setDatePickerShown}
+                            action="date_picker"
+                            task={item as TTask}
+                        />
+                    </TooltipWrapper>
+                }
+                {(item as TTask).time_allocated !== undefined &&
+                    <TooltipWrapper inline dataTip="Time Estimate" tooltipId="tooltip">
+                        <ActionOption
+                            isShown={timeEstimateShown}
+                            setIsShown={setTimeEstimateShown}
+                            action="time_allocated"
+                            task={item as TTask}
+                        />
+                    </TooltipWrapper>
+                }
             </TaskTitleButtonsContainer>
             <TaskTitleContainer>
                 <TitleInput
                     ref={titleRef}
                     onKeyDown={handleKeyDown}
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    value={titleInput}
+                    onChange={(e) => setTitleInput(e.target.value)}
                     onBlur={handleBlur}
+                    disabled={(item as TTask).due_date === undefined}
                 />
             </TaskTitleContainer>
-            <MarginTopContainer>
-                {sourceName === 'Asana' ? (
-                    <TaskHTMLBody html={body} />
-                ) : (
-                    <BodyTextArea
-                        placeholder="Add task details"
-                        value={body}
-                        onChange={(e) => setBody(e.target.value)}
-                        onKeyDown={(e) => e.stopPropagation()}
-                        onBlur={handleBlur}
-                    />
-                )}
-            </MarginTopContainer>
+            {/* <MarginTopContainer> */}
+            {item.source.name === 'Asana' || item.source.name === 'Gmail' ? (
+                <TaskHTMLBody html={bodyInput} />
+            ) : (
+                <BodyTextArea
+                    placeholder="Add task details"
+                    value={bodyInput}
+                    onChange={(e) => setBodyInput(e.target.value)}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    onBlur={handleBlur}
+                />
+            )}
+            {/* </BodyContainer> */}
         </DetailsViewContainer>
     )
 }

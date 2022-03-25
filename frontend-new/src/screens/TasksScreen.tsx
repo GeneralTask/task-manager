@@ -39,7 +39,7 @@ const TasksScreen = () => {
             <DefaultTemplate>
                 <>
                     {currentPage}
-                    <CalendarView />
+                    {/* <CalendarView /> */}
                 </>
             </DefaultTemplate>
             {Platform.OS === 'ios' && (
