@@ -60,6 +60,11 @@ const BodyTextArea = webStyled.textarea`
     font-size: ${Typography.xSmall.fontSize}px;
     height: 250px;
 `
+const BodyContainer = styled.View`
+    margin-top: ${Spacing.margin.medium}px;
+    flex: 1;
+    overflow: auto;
+`
 const FlexGrowView = styled.View`
     flex: 1;
 `
@@ -125,7 +130,7 @@ const DetailsView = (props: DetailsViewProps) => {
             <TaskTitleButtonsContainer>
                 <Icon source={logos[item.source.logo_v2]} size="small" />
                 <FlexGrowView />
-                {(item as TTask).due_date !== undefined &&
+                {(item as TTask).due_date !== undefined && (
                     <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
                         <ActionOption
                             isShown={datePickerShown}
@@ -134,8 +139,8 @@ const DetailsView = (props: DetailsViewProps) => {
                             task={item as TTask}
                         />
                     </TooltipWrapper>
-                }
-                {(item as TTask).time_allocated !== undefined &&
+                )}
+                {(item as TTask).time_allocated !== undefined && (
                     <TooltipWrapper inline dataTip="Time Estimate" tooltipId="tooltip">
                         <ActionOption
                             isShown={timeEstimateShown}
@@ -144,7 +149,7 @@ const DetailsView = (props: DetailsViewProps) => {
                             task={item as TTask}
                         />
                     </TooltipWrapper>
-                }
+                )}
             </TaskTitleButtonsContainer>
             <TaskTitleContainer>
                 <TitleInput
@@ -156,19 +161,19 @@ const DetailsView = (props: DetailsViewProps) => {
                     disabled={(item as TTask).due_date === undefined}
                 />
             </TaskTitleContainer>
-            {/* <MarginTopContainer> */}
-            {item.source.name === 'Asana' || item.source.name === 'Gmail' ? (
-                <TaskHTMLBody html={bodyInput} />
-            ) : (
-                <BodyTextArea
-                    placeholder="Add task details"
-                    value={bodyInput}
-                    onChange={(e) => setBodyInput(e.target.value)}
-                    onKeyDown={(e) => e.stopPropagation()}
-                    onBlur={handleBlur}
-                />
-            )}
-            {/* </BodyContainer> */}
+            <BodyContainer>
+                {item.source.name === 'Asana' || item.source.name === 'Gmail' ? (
+                    <TaskHTMLBody html={bodyInput} />
+                ) : (
+                    <BodyTextArea
+                        placeholder="Add task details"
+                        value={bodyInput}
+                        onChange={(e) => setBodyInput(e.target.value)}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onBlur={handleBlur}
+                    />
+                )}
+            </BodyContainer>
         </DetailsViewContainer>
     )
 }
