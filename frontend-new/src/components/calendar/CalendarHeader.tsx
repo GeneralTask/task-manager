@@ -1,58 +1,49 @@
 import { DateTime } from 'luxon'
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
-import { Colors, Spacing, Typography } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import { TitleSmall } from '../atoms/title/Title'
+import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 
 export const PaddedContainer = styled.div`
     padding: ${Spacing.padding.medium}px ${Spacing.padding.large}px;
 `
-export const HeaderMiddleContainer = styled.div`
+export const HeaderBodyContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
 `
-export const DateDisplay = styled.div`
-    font-size: ${Typography.small.fontSize}px;
-    font-weight: ${Typography.weight._600.fontWeight};
-    color: ${Colors.gray._800};
-    text-align: center;
+export const ButtonContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 5px;
 `
-export const HoverButton = styled.button<{ main?: boolean }>`
+const ButtonStyles = styled.button`
     cursor: pointer;
     height: fit-content;
     width: fit-content;
     border: none;
     border-radius: 50vh;
-    padding: 4px 8px;
+    padding: ${Spacing.padding.xSmall}px ${Spacing.padding.small}px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: ${(props) => (props.main ? 'white' : 'black')};
-    background-color: ${(props) => (props.main ? Colors.purple._1 : 'transparent')};
+`
+export const HoverButton = styled(ButtonStyles)`
+    color: ${Colors.white};
+    background-color: ${Colors.purple._1};
     &:hover {
-        background: ${Colors.purple._2};
+        background-color: ${Colors.purple._2};
     }
 `
-export const ArrowButton = styled.button`
-    cursor: pointer;
-    height: fit-content;
-    width: fit-content;
-    border: none;
-    border-radius: 50vh;
-    padding: 4px 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: transparent;
+export const ArrowButton = styled(ButtonStyles)`
+    background-color: inherit;
     &:hover {
-        background: ${Colors.gray._200}} 
+        background-color: ${Colors.gray._200}} 
     }
 `
-
 
 interface CalendarHeaderProps {
     date: DateTime
@@ -81,12 +72,10 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
             </PaddedContainer>
             <Divider color={Colors.gray._200} />
             <PaddedContainer>
-                <HeaderMiddleContainer>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <DateDisplay>{`${date.toFormat('ccc, LLL d')}`}</DateDisplay>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <HoverButton main onClick={() => setDate(DateTime.now())}>
+                <HeaderBodyContainer>
+                    <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>
+                    <ButtonContainer>
+                        <HoverButton onClick={() => setDate(DateTime.now())}>
                             Today
                         </HoverButton>
                         <ArrowButton onClick={selectPrevious}>
@@ -95,8 +84,8 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                         <ArrowButton onClick={selectNext}>
                             <Icon source={icons.caret_right} size="small"></Icon>
                         </ArrowButton>
-                    </div>
-                </HeaderMiddleContainer>
+                    </ButtonContainer>
+                </HeaderBodyContainer>
             </PaddedContainer>
         </div>
     )
