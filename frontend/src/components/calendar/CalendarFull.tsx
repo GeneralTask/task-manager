@@ -1,15 +1,14 @@
 import { DateTime } from 'luxon'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
-import { EVENT_CONTAINER_COLOR, flex, GRAY_800 } from '../../helpers/styles'
-import { dateIsToday, useInterval } from '../../helpers/utils'
+import { Colors } from '../../styles'
 
 import CalendarEvents from './CalendarEvents'
 import CalendarHeader from './CalendarHeader'
 
 const CalendarFullContainer = styled.div`
     flex: 1;
-    background-color: ${EVENT_CONTAINER_COLOR};
+    background-color: ${Colors.background.primary};
     display: flex;
     flex-direction: column;
 `
@@ -28,40 +27,23 @@ const CalendarDayHeader = styled.div`
     height: 40px;
     font-size: 16px;
     font-weight: 600;
-    color: ${GRAY_800};
-    border-bottom: 1px solid ${GRAY_800};
+    color: ${Colors.gray._800};
+    border-bottom: 1px solid ${Colors.gray._800};
 `
 
 export default function CalendarFull(): JSX.Element {
     const [date, setDate] = useState<DateTime>(DateTime.now())
-    const [selectedDateIsToday, setSelectedDateIsToday] = useState<boolean>(true)
-
-    // keep track of when the selected date is supposed to be today
-    useEffect(() => {
-        setSelectedDateIsToday(dateIsToday(date))
-    }, [date])
-
-    // check if the selected date is supposed to be today, but it isn't  (e.g. we passed midnight)
-    useInterval(
-        useCallback(() => {
-            if (selectedDateIsToday && !dateIsToday(date)) {
-                setDate(DateTime.now())
-            }
-        }, [date, selectedDateIsToday]),
-        1,
-        false
-    )
 
     return (
         <CalendarFullContainer>
             <CalendarHeader date={date} setDate={setDate} />
-            <flex.justifyContentSpaceAround>
+            <div style={{ flex: 1, justifyContent: 'space-around' }}>
                 {Array(7)
                     .fill(0)
                     .map((_, i) => {
                         return <CalendarDayHeader>{date.plus({ days: i }).toFormat('ccc dd')}</CalendarDayHeader>
                     })}
-            </flex.justifyContentSpaceAround>
+            </div>
             <WeekContainer>
                 {Array(7)
                     .fill(0)
@@ -69,7 +51,7 @@ export default function CalendarFull(): JSX.Element {
                         return (
                             <CalendarEvents
                                 date={date.plus({ days: i })}
-                                isToday={dateIsToday(date.plus({ days: i }))}
+                                isToday={date.plus({ days: i }).day === DateTime.now().day}
                                 showTimes={i === 0}
                                 scroll={false}
                             />
@@ -79,3 +61,4 @@ export default function CalendarFull(): JSX.Element {
         </CalendarFullContainer>
     )
 }
+

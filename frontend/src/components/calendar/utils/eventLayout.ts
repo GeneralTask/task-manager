@@ -1,4 +1,4 @@
-import { TEvent } from '../../../helpers/types'
+import { TEvent } from '../../../utils/types'
 
 function eventsDoOverlap(eventA: TEvent, eventB: TEvent): boolean {
     const eventAStart = new Date(eventA.datetime_start)
