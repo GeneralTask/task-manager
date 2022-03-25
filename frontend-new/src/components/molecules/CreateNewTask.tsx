@@ -1,22 +1,14 @@
-import { Colors, Flex, Images } from '../../styles'
-import {
-    Image,
-    Platform,
-    StyleSheet,
-    TextInput,
-    View,
-    NativeSyntheticEvent,
-    TextInputKeyPressEventData,
-} from 'react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-
-import { useCreateTaskMutation } from '../../services/generalTaskApi'
+import { Image, NativeSyntheticEvent, Platform, StyleSheet, TextInput, TextInputKeyPressEventData, View } from 'react-native'
+import { useCreateTask } from '../../services/api-query-hooks'
+import { Colors, Flex, Images } from '../../styles'
 import { KeyboardShortcut } from '../atoms/KeyboardShortcuts'
+
 
 interface CreateNewTaskProps {
     section: string
 }
-const CreatNewTask = (props: CreateNewTaskProps) => {
+const CreateNewTask = (props: CreateNewTaskProps) => {
     const inputRef = useRef<TextInput>(null)
 
     // web only
@@ -32,13 +24,13 @@ const CreatNewTask = (props: CreateNewTaskProps) => {
     const onBlur = useCallback(() => setIsFocused(false), [])
 
     const [text, setText] = useState('')
-    const [createTask] = useCreateTaskMutation()
+    const { mutate: createTask } = useCreateTask()
 
     const submitNewTask = async () => {
         if (!text) return
         else {
             setText('')
-            await createTask({
+            createTask({
                 title: text,
                 body: '',
                 id_task_section: props.section,
@@ -112,4 +104,4 @@ const styles = StyleSheet.create({
     tool: {},
 })
 
-export default CreatNewTask
+export default CreateNewTask

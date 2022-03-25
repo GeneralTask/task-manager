@@ -1,25 +1,23 @@
 import React, { useState } from 'react'
 import { Platform } from 'react-native'
-import { useQuery } from 'react-query'
 import BottomSheet from 'reanimated-bottom-sheet'
 import Loading from '../components/atoms/Loading'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
+import CalendarView from '../components/views/CalendarView'
 import Messages from '../components/views/MessagesView'
 import Settings from '../components/views/SettingsView'
 import TaskBottomSheet from '../components/views/TaskBottomSheetView'
 import TaskSection from '../components/views/TaskSectionView'
-import { useGetTasksQuery } from '../services/generalTaskApi'
-import { fetchUserInfo } from '../services/queryUtils'
+import { useGetTasks, useGetUserInfo } from '../services/api-query-hooks'
 import { Navigate, useLocation } from '../services/routing'
-import CalendarView from '../components/views/CalendarView'
 
 const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
     const sheetRef = React.useRef<BottomSheet>(null)
     const location = useLocation()
 
-    const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useQuery('user_info', fetchUserInfo)
-    const { isLoading: isTaskSectionsLoading } = useGetTasksQuery()
+    const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useGetUserInfo()
+    const { isLoading: isTaskSectionsLoading } = useGetTasks()
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {

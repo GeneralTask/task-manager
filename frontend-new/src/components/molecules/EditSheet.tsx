@@ -1,15 +1,15 @@
 import React, { useRef, useState } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { StyleSheet, View } from 'react-native'
+import { TextInput } from 'react-native-gesture-handler'
+import { useModifyTask } from '../../services/api-query-hooks'
 import { Colors, Dimensions, Flex } from '../../styles'
 import { TTask } from '../../utils/types'
 import Handle from '../atoms/GrayHandle'
 import { Icon } from '../atoms/Icon'
-import { Subtitle } from '../atoms/subtitle/Subtitle'
-import { TitleMedium } from '../atoms/title/Title'
 import { Divider } from '../atoms/SectionDivider'
 import { GraySubtitle } from '../atoms/subtitle/GraySubtitle'
-import { TextInput } from 'react-native-gesture-handler'
-import { useModifyTaskMutation } from '../../services/generalTaskApi'
+import { Subtitle } from '../atoms/subtitle/Subtitle'
+import { TitleMedium } from '../atoms/title/Title'
 
 interface EditSheetProps {
     task: TTask
@@ -19,7 +19,7 @@ interface EditSheetProps {
 const EditSheet = ({ task, setText: propsSetText }: EditSheetProps) => {
     const inputRef = useRef<TextInput>(null)
     const [text, setText] = useState(task.body)
-    const [modifyTask] = useModifyTaskMutation()
+    const { mutate: modifyTask } = useModifyTask()
 
     return (
         <View style={styles.container}>
