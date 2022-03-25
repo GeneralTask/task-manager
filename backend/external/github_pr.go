@@ -207,9 +207,7 @@ func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID s
 }
 
 func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
-	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
-		return errors.New("cannot mark PR as done")
-	}
+	// allow users to mark PR as done in GT even if it's not done in Github
 	return nil
 }
 
