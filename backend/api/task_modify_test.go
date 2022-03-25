@@ -266,6 +266,7 @@ func TestMarkAsComplete(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&task)
 		assert.Equal(t, true, task.IsCompleted)
+		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
 	})
 
 	t.Run("CalendarFailure", func(t *testing.T) {

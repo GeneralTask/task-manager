@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -96,6 +97,9 @@ func ValidateFields(c *gin.Context, updateFields *database.TaskChangeableFields,
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted && !taskSourceResult.Details.IsCompletable {
 		c.JSON(400, gin.H{"detail": "cannot be marked done"})
 		return false
+	}
+	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
+		updateFields.CompletedAt = primitive.NewDateTimeFromTime(time.Now())
 	}
 	if updateFields.Title != nil && *updateFields.Title == "" {
 		c.JSON(400, gin.H{"detail": "title cannot be empty"})
