@@ -8,6 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
+import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
 import TaskTemplate from '../atoms/TaskTemplate'
 import WebStyled from 'styled-components'
 import { logos } from '../../styles/images'
@@ -80,6 +81,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
                     {task.title}
                 </Text>
             </TaskContainer>
+            {isSelected && <InvisibleKeyboardShortcut shortcut="Enter" onKeyPress={onPress} />}
         </TaskTemplate>
     )
 }
