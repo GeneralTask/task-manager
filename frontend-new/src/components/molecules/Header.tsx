@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Platform } from 'react-native'
-import styled from 'styled-components/native'
-import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-query-hooks'
 import { Spacing, Typography } from '../../styles'
-import { icons } from '../../styles/images'
+import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-query-hooks'
+
 import { Icon } from '../atoms/Icon'
 import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
+import { Platform } from 'react-native'
+import { icons } from '../../styles/images'
+import styled from 'styled-components/native'
 
 const SectionHeaderContainer = styled.View`
     display: flex;
@@ -77,7 +79,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                 <TouchableIcon onPress={props.refetch}>
                     <Icon size={'small'} source={icons.spinner}></Icon>
                     {Platform.OS === 'web' && props.refetch && (
-                        <InvisibleKeyboardShortcut shortcut="r" onKeyPress={props.refetch} />
+                        <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.REFRESH} onKeyPress={props.refetch} />
                     )}
                 </TouchableIcon>
             )}

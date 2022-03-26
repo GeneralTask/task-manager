@@ -4,6 +4,7 @@ import ActionValue from '../atoms/ActionValue'
 import DatePicker from './DatePicker'
 import { Icon } from '../atoms/Icon'
 import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { Spacing } from '../../styles'
 import { TTask } from '../../utils/types'
 import TimeEstimatePicker from './TimeEstimatePicker'
@@ -58,7 +59,9 @@ const ActionOption = ({ task, action, isShown, setIsShown, keyboardShortcut }: A
             {keyboardShortcut && (
                 <InvisibleKeyboardShortcut shortcut={keyboardShortcut} onKeyPress={() => setIsShown(!isShown)} />
             )}
-            {isShown && <InvisibleKeyboardShortcut shortcut="Escape" onKeyPress={() => setIsShown(false)} />}
+            {isShown && (
+                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={() => setIsShown(false)} />
+            )}
         </ActionButton>
     )
 }
