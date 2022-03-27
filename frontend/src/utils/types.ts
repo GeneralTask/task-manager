@@ -86,7 +86,7 @@ export interface TSetting {
     choices: TSettingChoice[]
 }
 
-export interface TSupportedTypes {
+export interface TSupportedType {
     name: string
     logo: string
     logo_v2: string
@@ -123,4 +123,9 @@ export interface TTaskCreateParams {
     due_date?: string
     time_duration?: number
     id_task_section?: string
+}
+
+export interface TUserInfo {
+    agreed_to_terms: boolean
+    opted_into_marketing: boolean
 }

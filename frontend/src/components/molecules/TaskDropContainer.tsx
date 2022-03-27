@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { View } from 'react-native'
 import styled, { css } from 'styled-components/native'
-import { useReorderTaskMutation } from '../../services/generalTaskApi'
+import { useReorderTask } from '../../services/api-query-hooks'
 import { Colors } from '../../styles'
 import { DropProps, ItemTypes, TTask } from '../../utils/types'
 
@@ -46,7 +46,7 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
     const dropRef = useRef<View>(null)
     const [dropDirection, setDropDirection] = useState(DropDirection.Up)
 
-    const [reorderTask] = useReorderTaskMutation()
+    const { mutate: reorderTask } = useReorderTask()
 
     const getDropDirection = useCallback((dropY: number): Promise<DropDirection> => {
         return new Promise((resolve) => {

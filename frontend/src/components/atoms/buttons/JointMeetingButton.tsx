@@ -1,9 +1,10 @@
-import React from 'react'
-import { Platform } from 'react-native'
-import styled from 'styled-components/native'
 import { Border, Colors } from '../../../styles'
-import { TConferenceCall } from '../../../utils/types'
+import { Linking, Platform } from 'react-native'
+
 import { Icon } from '../Icon'
+import React from 'react'
+import { TConferenceCall } from '../../../utils/types'
+import styled from 'styled-components/native'
 
 const JoinMeetingButtonContainer = styled.Pressable`
     height: 30px;
@@ -24,17 +25,23 @@ interface JoinMeetingButtonProps {
     conferenceCall: TConferenceCall
 }
 const JoinMeetingButton = ({ conferenceCall }: JoinMeetingButtonProps) => {
-    function redirectToConferenceCall() {
-        if (Platform.OS === 'web') {
-            window.location.href = conferenceCall.url
-        }
+    if (Platform.OS === 'web') {
+        return (
+            <a href={conferenceCall.url} target="_blank" rel="noreferrer">
+                <JoinMeetingButtonContainer>
+                    <ButtonText>Join</ButtonText>
+                    <Icon size="xSmall" uri={conferenceCall.logo} />
+                </JoinMeetingButtonContainer>
+            </a>
+        )
+    } else {
+        return (
+            <JoinMeetingButtonContainer onPress={() => Linking.openURL(conferenceCall.url)}>
+                <ButtonText>Join</ButtonText>
+                <Icon size="xSmall" uri={conferenceCall.logo} />
+            </JoinMeetingButtonContainer>
+        )
     }
-    return (
-        <JoinMeetingButtonContainer onPress={() => redirectToConferenceCall()}>
-            <ButtonText>Join</ButtonText>
-            <Icon size='xSmall' uri={conferenceCall.logo} />
-        </JoinMeetingButtonContainer>
-    )
 }
 
 export default JoinMeetingButton

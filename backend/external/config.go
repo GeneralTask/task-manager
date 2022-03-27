@@ -275,7 +275,7 @@ var TaskSourceGithubPR = TaskSourceDetails{
 	Name:          "Git PR",
 	Logo:          "/images/github.svg",
 	LogoV2:        "github",
-	IsCompletable: false,
+	IsCompletable: true,
 	IsCreatable:   false,
 	IsReplyable:   false,
 }

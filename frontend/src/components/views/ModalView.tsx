@@ -1,9 +1,9 @@
 import React from 'react'
 import Modal from 'react-modal'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { ModalEnum } from '../../utils/enums'
 import { setShowModal } from '../../redux/tasksPageSlice'
 import { Colors, Dimensions } from '../../styles'
+import { ModalEnum } from '../../utils/enums'
 
 const SHARED_MODAL_OVERLAY_STYLE: React.CSSProperties = {
     backgroundColor: 'transparent',
