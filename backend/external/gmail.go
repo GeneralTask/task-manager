@@ -36,12 +36,6 @@ type gmailUpdateable struct {
 	database.Email `bson:"email,omitempty"`
 }
 
-func emailToGmailUpdateable(email *database.Item) *gmailUpdateable {
-	return &gmailUpdateable{
-		Email: email.Email,
-	}
-}
-
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -174,6 +168,12 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				},
 			}
 			gmailUpdateableFields := emailToGmailUpdateable(email)
+
+			if email.Title == "march28test" {
+				log.Println("jerd")
+				log.Printf("%+v", email)
+				log.Printf("%+v", email)
+			}
 
 			// We flatten in order to do partial updates of nested documents correctly in mongodb
 			flattenedEmail, err := flatbson.Flatten(email)
@@ -639,4 +639,10 @@ func createGmailService(db *mongo.Database, userID primitive.ObjectID, accountID
 	}
 
 	return gmailService, nil
+}
+
+func emailToGmailUpdateable(email *database.Item) *gmailUpdateable {
+	return &gmailUpdateable{
+		Email: email.Email,
+	}
 }
