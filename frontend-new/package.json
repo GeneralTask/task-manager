@@ -33,6 +33,7 @@
     "@testing-library/react-native": "^9.0.0",
     "@types/axios": "^0.14.0",
     "@types/luxon": "^2.3.0",
+    "@types/sanitize-html": "^2.6.2",
     "@use-expo/font": "^2.0.0",
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
@@ -63,6 +64,7 @@
     "react-test-renderer": "^17.0.2",
     "react-tooltip": "^4.2.21",
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
+    "sanitize-html": "^2.7.0",
     "styled-components": "^5.3.3"
   },
   "devDependencies": {

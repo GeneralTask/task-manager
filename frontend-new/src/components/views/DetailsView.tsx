@@ -163,7 +163,7 @@ const DetailsView = (props: DetailsViewProps) => {
             </TaskTitleContainer>
             <BodyContainer>
                 {item.source.name === 'Asana' || item.source.name === 'Gmail' ? (
-                    <TaskHTMLBody html={bodyInput} />
+                    <TaskHTMLBody dirtyHTML={bodyInput} />
                 ) : (
                     <BodyTextArea
                         placeholder="Add task details"
