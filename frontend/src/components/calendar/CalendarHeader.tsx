@@ -1,118 +1,66 @@
 import { DateTime } from 'luxon'
-import React, { useCallback, useState } from 'react'
-import { flex } from '../../helpers/styles'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { setShowFullCalendar } from '../../redux/tasksPageSlice'
+import React, { useCallback } from 'react'
 import {
     CalendarHeaderContainer,
     HoverButton,
     Icon,
     DateDisplay,
-    dropdownStyles,
     CalendarHeaderTitle,
     HeaderTopContainer,
     HeaderMiddleContainer,
     HeaderBottomContainer,
+    ArrowButton,
 } from './CalendarHeader-styles'
-import Select from 'react-select'
 
-const view_options = [
-    { value: 1, label: 'Day' },
-    { value: 2, label: 'Week' },
-]
 interface CalendarHeaderProps {
     date: DateTime
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
 }
 export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
-    const dispatch = useAppDispatch()
-    const isFullCalendarShown = useAppSelector((state) => state.tasks_page.events.show_full_calendar)
-    const [selectValue, setSelectValue] = useState(isFullCalendarShown ? view_options[1] : view_options[0])
-
     const selectNext = useCallback(
         () =>
             setDate((date) => {
-                const amt = selectValue.label === 'Day' ? 1 : 7
-                return date.plus({ days: amt })
+                return date.plus({ days: 1 })
             }),
         [date, setDate]
     )
     const selectPrevious = useCallback(
         () =>
             setDate((date) => {
-                const amt = selectValue.label === 'Day' ? 1 : 7
-                return date.minus({ days: amt })
+                return date.minus({ days: 1 })
             }),
         [date, setDate]
     )
-    function handleSelectChange(value: number, label: string): void {
-        if (value === 1) {
-            dispatch(setShowFullCalendar(false))
-        } else {
-            dispatch(setShowFullCalendar(true))
-        }
-
-        setSelectValue({ value: value, label: label })
-    }
-    function expand(): void {
-        if (isFullCalendarShown) {
-            dispatch(setShowFullCalendar(false))
-        } else {
-            dispatch(setShowFullCalendar(true))
-        }
-    }
 
     return (
         <CalendarHeaderContainer>
             <HeaderTopContainer>
-                <flex.flex>
+                <div style={{ display: 'flex' }}>
                     <CalendarHeaderTitle>Calendar</CalendarHeaderTitle>
-                </flex.flex>
-                <flex.flex>
+                </div>
+                <div style={{ display: 'flex' }}>
                     <HoverButton onClick={(e) => e.stopPropagation()} style={{ display: 'none' }}>
-                        <Icon src={`${process.env.PUBLIC_URL}/images/Plus.svg`} alt="Add Event" />
+                        <Icon src={require('../../assets/plus.png')} alt="Add Event" />
                     </HoverButton>
-                    <HoverButton onClick={expand}>
-                        <Icon src={`${process.env.PUBLIC_URL}/images/ArrowsOutSimple.svg`} alt="Expand/Collapse" />
-                    </HoverButton>
-                </flex.flex>
+                </div>
             </HeaderTopContainer>
             <HeaderMiddleContainer>
-                <flex.alignItemsCenter>
-                    {selectValue.label === 'Day' ? (
-                        <DateDisplay>{`${date.toFormat('ccc, LLL d')}`}</DateDisplay>
-                    ) : (
-                        <DateDisplay>
-                            {`${date.toFormat('LLL d')} - ${date.plus({ days: 6 }).toFormat('LLL d')}`}
-                        </DateDisplay>
-                    )}
-                </flex.alignItemsCenter>
-                <flex.alignItemsCenter>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <DateDisplay>{`${date.toFormat('ccc, LLL d')}`}</DateDisplay>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <HoverButton main onClick={() => setDate(DateTime.now())}>
                         Today
                     </HoverButton>
-                    <HoverButton onClick={selectPrevious}>
-                        <Icon src={`${process.env.PUBLIC_URL}/images/CaretLeft.svg`} alt="Show previous" />
-                    </HoverButton>
-                    <HoverButton onClick={selectNext}>
-                        <Icon src={`${process.env.PUBLIC_URL}/images/CaretRight.svg`} alt="Show next" />
-                    </HoverButton>
-                </flex.alignItemsCenter>
+                    <ArrowButton onClick={selectPrevious}>
+                        <Icon src={require('../../assets/caret_left.png')} alt="Show previous" />
+                    </ArrowButton>
+                    <ArrowButton onClick={selectNext}>
+                        <Icon src={require('../../assets/caret_right.png')} alt="Show next" />
+                    </ArrowButton>
+                </div>
             </HeaderMiddleContainer>
-            <HeaderBottomContainer>
-                <Select
-                    options={view_options}
-                    value={selectValue}
-                    onChange={(option) => {
-                        if (!option) return
-                        if (typeof option.value != 'number') return
-                        if (typeof option.label != 'string') return
-                        handleSelectChange(option.value, option.label)
-                    }}
-                    isSearchable={false}
-                    styles={dropdownStyles}
-                />
-            </HeaderBottomContainer>
+            <HeaderBottomContainer />
         </CalendarHeaderContainer>
     )
 }

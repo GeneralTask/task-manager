@@ -7,23 +7,31 @@ on:
     branches:
       - "**"
 
+env:
+  EXPO_TOKEN: AGV_CbTRc8-CIyWMAFJTY3WgyFhSq3lGmk1qxhLX
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
     env:
       REACT_APP_API_BASE_URL: http://localhost:8080
-
     defaults:
       run:
         working-directory: frontend
-
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
           node-version: 14
+
+      - name: Setup Expo Build
+        uses: expo/expo-github-action@v5
+        with:
+          expo-version: 3.x
+          token: ${{ secrets.EXPO_TOKEN }}
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-      - run: yarn run build --if-present
-      - run: yarn test --watchAll=false
+
+      - name: Build app
+        run: expo build:web
