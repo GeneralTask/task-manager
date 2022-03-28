@@ -6,11 +6,11 @@ import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hoo
 import { Colors, Flex, Screens, Spacing } from '../../styles'
 import { getSectionById } from '../../utils/task'
 import Loading from '../atoms/Loading'
+import TaskDetails from '../details/TaskDetails'
 import CreateNewTask from '../molecules/CreateNewTask'
 import EventBanner from '../molecules/EventBanner'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
-import TaskDetails from '../molecules/TaskDetails'
 import TaskDropContainer from '../molecules/TaskDropContainer'
 import TaskSelectionController from '../molecules/TaskSelectionController'
 

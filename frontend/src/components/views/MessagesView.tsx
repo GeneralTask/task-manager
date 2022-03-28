@@ -6,9 +6,9 @@ import { Colors, Flex, Screens, Spacing } from '../../styles'
 import { TMessage } from '../../utils/types'
 import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
+import MessageDetails from '../details/MessageDetails'
 import { SectionHeader } from '../molecules/Header'
 import Message from '../molecules/Message'
-import MessageDetails from '../molecules/MessageDetails'
 
 const Messages = () => {
     const { refetch: refetchMessages } = useFetchMessages()
