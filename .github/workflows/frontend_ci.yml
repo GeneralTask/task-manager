@@ -1,12 +1,14 @@
 name: Frontend CI
-env:
-  EXPO_TOKEN: AGV_CbTRc8-CIyWMAFJTY3WgyFhSq3lGmk1qxhLX
+
 on:
   push:
     branches: [master]
   pull_request:
     branches:
       - "**"
+
+env:
+  EXPO_TOKEN: AGV_CbTRc8-CIyWMAFJTY3WgyFhSq3lGmk1qxhLX
 
 jobs:
   build:
