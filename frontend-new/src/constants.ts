@@ -11,6 +11,7 @@ export const ScreenDimensions = {
 export const MESSAGES_PER_PAGE = 50
 export const TASK_REFETCH_INTERVAL = 30
 export const MESSAGES_REFETCH_INTERVAL = 60
+export const EVENTS_REFETCH_INTERVAL = 60
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
