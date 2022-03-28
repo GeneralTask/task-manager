@@ -23,7 +23,6 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 
 		isCompleted := true
 		err := gmailTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted})
-		assert.NotEqual(t, nil, err)
-		assert.Equal(t, "cannot mark PR as done", err.Error())
+		assert.NoError(t, err)
 	})
 }

@@ -1,11 +1,10 @@
 import { DateTime } from 'luxon'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
 import { Colors, Flex, Screens, Spacing } from '../../styles'
 import { getSectionById } from '../../utils/task'
-import { TTask } from '../../utils/types'
 import Loading from '../atoms/Loading'
 import CreateNewTask from '../molecules/CreateNewTask'
 import EventBanner from '../molecules/EventBanner'
@@ -13,6 +12,7 @@ import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
 import TaskDetails from '../molecules/TaskDetails'
 import TaskDropContainer from '../molecules/TaskDropContainer'
+import TaskSelectionController from '../molecules/TaskSelectionController'
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasks()
@@ -22,7 +22,6 @@ const TaskSection = () => {
     const routerSection = useParams().section || ''
     const navigate = useNavigate()
     const params = useParams()
-    const [selectedTask, setSelectedTask] = useState<TTask | undefined>(undefined)
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
@@ -37,13 +36,12 @@ const TaskSection = () => {
             const firstSectionId = taskSections[0].id
             navigate(`/tasks/${firstSectionId}`)
         }
-    })
+    }, [taskSections, routerSection])
 
-    useEffect(() => {
+    const expandedTask = useMemo(() => {
         const section = taskSections?.find((section) => section.id === params.section)
-        const task = section?.tasks.find((task) => task.id === params.task)
-        setSelectedTask(task)
-    }, [params, taskSections])
+        return section?.tasks.find((task) => task.id === params.task)
+    }, [params.task, taskSections])
 
     const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
     const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
@@ -51,6 +49,7 @@ const TaskSection = () => {
     return (
         <>
             <ScrollView style={styles.container} refreshControl={refreshControl}>
+                {Platform.OS === 'web' && currentSection && <TaskSelectionController taskSection={currentSection} />}
                 <EventBanner date={DateTime.now()} />
                 <View style={styles.tasksContent}>
                     {isLoading || !currentSection ? (
@@ -86,7 +85,7 @@ const TaskSection = () => {
                     )}
                 </View>
             </ScrollView>
-            {selectedTask && <TaskDetails task={selectedTask} />}
+            {expandedTask && <TaskDetails task={expandedTask} />}
         </>
     )
 }

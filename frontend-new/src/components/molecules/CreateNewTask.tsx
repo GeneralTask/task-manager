@@ -1,9 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Image, NativeSyntheticEvent, Platform, StyleSheet, TextInput, TextInputKeyPressEventData, View } from 'react-native'
+import {
+    Image,
+    NativeSyntheticEvent,
+    Platform,
+    StyleSheet,
+    TextInput,
+    TextInputKeyPressEventData,
+    View,
+} from 'react-native'
 import { useCreateTask } from '../../services/api-query-hooks'
 import { Colors, Flex, Images } from '../../styles'
 import { KeyboardShortcut } from '../atoms/KeyboardShortcuts'
-
 
 interface CreateNewTaskProps {
     section: string
