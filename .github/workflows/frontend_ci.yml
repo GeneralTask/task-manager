@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: 14
 
-      - name: Setup Expo and EAS
+      - name: Setup Expo Build
         uses: expo/expo-github-action@v5
         with:
           expo-version: 3.x
