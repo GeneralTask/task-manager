@@ -1,4 +1,0 @@
-.reply-input:empty:not(:focus):before {
-    content: 'Enter Response';
-    color: #cccccc;
-}

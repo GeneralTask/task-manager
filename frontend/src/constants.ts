@@ -1,21 +1,25 @@
-export const {
-    REACT_APP_API_BASE_URL,
-    REACT_APP_FRONTEND_BASE_URL,
-    REACT_APP_COOKIE_DOMAIN,
-    ACCESS_CONTROL_ALLOW_ORIGIN,
-} = process.env
+import getEnvVars from './environment'
+
+const { REACT_APP_API_BASE_URL } = getEnvVars()
+
+// Styling Constants
+export const ScreenDimensions = {
+    large: 768,
+}
+
+// API Constants
+export const MESSAGES_PER_PAGE = 50
 
 // Backend Endpoints
-export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/v3/'
-export const FETCH_TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/fetch/'
-export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/v2/'
-export const FETCH_MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/fetch/'
+export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
+export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/'
 export const TASKS_MODIFY_URL = REACT_APP_API_BASE_URL + '/tasks/modify/'
 export const MESSAGES_MODIFY_URL = REACT_APP_API_BASE_URL + '/messages/modify/'
 export const TASKS_CREATE_URL = REACT_APP_API_BASE_URL + '/tasks/create/'
 export const ASANA_URL = REACT_APP_API_BASE_URL + '/link/asana/'
 export const JIRA_URL = REACT_APP_API_BASE_URL + '/link/jira/'
 export const LOGIN_URL = REACT_APP_API_BASE_URL + '/login/'
+export const DEEPLINK_LOGIN_URL = LOGIN_URL + '?use_deeplink=true'
 export const LOGOUT_URL = REACT_APP_API_BASE_URL + '/logout/'
 export const SETTINGS_URL = REACT_APP_API_BASE_URL + '/settings/'
 export const WAITLIST_URL = REACT_APP_API_BASE_URL + '/waitlist/'
@@ -26,41 +30,4 @@ export const FEEDBACK_URL = REACT_APP_API_BASE_URL + '/feedback/'
 
 export const EVENTS_URL = REACT_APP_API_BASE_URL + '/events/'
 
-// Frontend paths
-export const LANDING_PATH = '/'
-export const SETTINGS_PATH = '/settings/'
-export const MESSAGES_PATH = '/messages/'
-export const PRIVACY_PATH = '/privacy/'
-
-//Google Sign-In SVGs
-export const GOOGLE_LIGHT_NORMAL = '/assets/google_signin_buttons/btn_google_signin_light_normal_web@2x.png'
-
-//images
-export const CHEVRON_DOWN = '/images/chevron-arrow-down.svg'
-export const PLUS_ICON = '/images/plus.svg'
-export const DONE_BUTTON = '/images/CheckBox.svg'
-export const UNDONE_BUTTON = '/images/CheckSelected.svg'
-export const BLANK_CALENDAR_ICON = '/images/CalendarBlank.svg'
-export const LABEL_ICON = '/images/Label.svg'
-export const EXPAND_ICON = '/images/ArrowsOutSimple.svg'
-export const TIME_ICON = '/images/Timer.svg'
-export const TRASH_ICON = '/images/TrashSimple.svg'
-export const CLOSE_ICON = '/images/close.svg'
-export const CHECK_CIRCLE = '/images/CheckCircle.svg'
-export const CHECK_SQUARE_OFFSET = '/images/CheckSquareOffset.svg'
-export const GT_TASK_ICON = '/images/generaltask.svg'
-
-//Misc. strings
-export const TASK_STATUS_FETCH_ERROR = 'There was an error fetching tasks'
-export const TASK_STATUS_NO_TASKS = 'No Tasks'
-export const MAX_TASK_BODY_HEIGHT = 495
-export const TOAST_DURATION = 5000
-export const TASKS_FETCH_INTERVAL = 30
-export const MESSAGES_FETCH_INTERVAL = 30
-export const TOOLTIP_DELAY = 500
-export const DEFAULT_ALLOCATION = 3600000000000
-
-export const GT_TASK_SOURCE_ID = 'gt_task'
-export const NOW = 'Now'
-
-export const NO_EVENT_TITLE_DEFAULT = '(No title)'
+export const NO_EVENT_TITLE = '(no title)'

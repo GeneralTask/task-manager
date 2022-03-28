@@ -1,29 +1,28 @@
 import styled from 'styled-components'
-import {
-    TABLE_WIDTH_PERCENTAGE,
-    CELL_HEIGHT,
-    CALENDAR_TD_COLOR,
-    CALENDAR_TIME_COLOR,
-    CELL_TIME_WIDTH,
-    CELL_BORDER_WIDTH,
-    CELL_LEFT_MARGIN,
-    EVENT_TITLE_TEXT_COLOR,
-    EVENT_TIME_TEXT_COLOR,
-    BACKGROUND_WHITE,
-    EVENT_CONTAINER_COLOR,
-    EVENT_SHADOW,
-    EVENT_BOTTOM_PADDING,
-} from '../../helpers/styles'
+import { Colors, Shadows } from '../../styles'
+export const CELL_HEIGHT = 64
+export const TABLE_WIDTH_PERCENTAGE = 100
+export const CELL_TIME_WIDTH = 43
+export const CELL_BORDER_WIDTH = 3
+export const CELL_LEFT_MARGIN = 10
+export const EVENT_CONTAINER_COLOR = Colors.gray._50
+export const EVENT_TITLE_TEXT_COLOR = Colors.gray._700
+export const EVENT_TIME_TEXT_COLOR = Colors.gray._500
+export const CALENDAR_TD_COLOR = Colors.gray._200
+export const CALENDAR_TIME_COLOR = Colors.gray._400
+export const CALENDAR_INDICATOR_COLOR = Colors.red._1
+export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
+export const EVENT_BOTTOM_PADDING = 2.5
 
 const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_TIME_WIDTH}px - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px) * 1/var(--squish-factor)`
 
-export const DayContainer = styled.div<{ scroll: boolean }>`
+export const DayContainer = styled.div`
     width: 100%;
     height: 100%;
     margin-top: 24px;
     flex: 1;
     display: flex;
-    overflow: ${(props) => (props.scroll ? 'auto' : 'none')};
+    overflow: auto;
     justify-content: center;
     position: relative;
 `
@@ -68,9 +67,7 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     height: calc(${(props) => props.eventBodyHeight}px - ${EVENT_BOTTOM_PADDING}px);
     top: ${(props) => props.topOffset}px;
     position: absolute;
-    left: calc(
-        ${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset)
-    );
+    left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + ${CELL_LEFT_MARGIN}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset));
     opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
 `
 export const EventInfoContainer = styled.div`
@@ -105,14 +102,17 @@ export const EventTime = styled.div`
     float: left;
     max-height: 100%;
 `
-export const EventFill = styled.div`
+export const EventFill = styled.div<{ squareStart: boolean, squareEnd: boolean }>`
     width: 100%;
     height: 100%;
-    background: ${BACKGROUND_WHITE};
+    background: ${Colors.white};
     border: 1px solid ${EVENT_CONTAINER_COLOR};
     box-sizing: border-box;
-    box-shadow: ${EVENT_SHADOW};
-    border-radius: 10px;
+    box-shadow: ${Shadows.xLarge};
+    border-top-left-radius: ${(props) => (props.squareStart ? '0' : '10px')};
+    border-top-right-radius: ${(props) => (props.squareStart ? '0' : '10px')};
+    border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : '10px')};
+    border-bottom-right-radius: ${(props) => (props.squareEnd ? '0' : '10px')};
 `
 export const EventFillContinues = styled(EventFill)`
     border-radius: 8px 8px 0 0;
