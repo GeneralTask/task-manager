@@ -8,7 +8,7 @@ import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { SectionHeader } from '../molecules/Header'
 import Message from '../molecules/Message'
-import DetailsView from './DetailsView'
+import MessageDetails from '../molecules/MessageDetails'
 
 const Messages = () => {
     const { refetch: refetchMessages } = useFetchMessages()
@@ -74,7 +74,7 @@ const Messages = () => {
                     {(isLoading || isFetching) && <Loading />}
                 </View>
             </ScrollView>
-            {selectedMessage && <DetailsView item={selectedMessage} />}
+            {selectedMessage && <MessageDetails message={selectedMessage} />}
         </>
     )
 }

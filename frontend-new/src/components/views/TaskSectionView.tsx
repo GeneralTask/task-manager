@@ -11,8 +11,8 @@ import CreateNewTask from '../molecules/CreateNewTask'
 import EventBanner from '../molecules/EventBanner'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
+import TaskDetails from '../molecules/TaskDetails'
 import TaskDropContainer from '../molecules/TaskDropContainer'
-import DetailsView from './DetailsView'
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasks()
@@ -86,7 +86,7 @@ const TaskSection = () => {
                     )}
                 </View>
             </ScrollView>
-            {selectedTask && <DetailsView item={selectedTask} />}
+            {selectedTask && <TaskDetails task={selectedTask} />}
         </>
     )
 }

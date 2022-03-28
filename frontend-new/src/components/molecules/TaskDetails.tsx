@@ -5,11 +5,11 @@ import styled from 'styled-components/native'
 import { useModifyTask } from '../../services/api-query-hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
-import { TMessage, TTask } from '../../utils/types'
+import { TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
 import TooltipWrapper from '../atoms/TooltipWrapper'
-import ActionOption from '../molecules/ActionOption'
+import ActionOption from './ActionOption'
 
 const DetailsViewContainer = styled.View`
     display: flex;
@@ -70,12 +70,12 @@ const FlexGrowView = styled.View`
 `
 
 interface DetailsViewProps {
-    item: TTask | TMessage
+    task: TTask
 }
 const DetailsView = (props: DetailsViewProps) => {
     const { mutate: modifyTask } = useModifyTask()
 
-    const [item, setItem] = useState<TTask | TMessage>(props.item)
+    const [task, setTask] = useState<TTask>(props.task)
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
 
@@ -93,19 +93,19 @@ const DetailsView = (props: DetailsViewProps) => {
         timeEstimateShown && setDatePickerShown(false)
     }, [timeEstimateShown])
 
-    // Update the state of the title, body, and sourceName when the task changes
+    // Update the state when the task changes
     useEffect(() => {
-        setItem(props.item)
-        setTitleInput(props.item.title)
-        setBodyInput(props.item.body)
+        setTask(props.task)
+        setTitleInput(props.task.title)
+        setBodyInput(props.task.body)
 
         if (titleRef.current) {
-            titleRef.current.value = item.title
+            titleRef.current.value = task.title
             titleRef.current.style.height = '0px'
             titleRef.current.style.height =
                 titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
         }
-    }, [props.item])
+    }, [props.task])
 
     useEffect(() => {
         if (titleRef.current) {
@@ -121,35 +121,30 @@ const DetailsView = (props: DetailsViewProps) => {
     }
 
     const handleBlur = () => {
-        if ((item as TTask).due_date === undefined) return
-        modifyTask({ id: item.id, title: titleInput, body: bodyInput })
+        modifyTask({ id: task.id, title: titleInput, body: bodyInput })
     }
 
     return (
         <DetailsViewContainer>
             <TaskTitleButtonsContainer>
-                <Icon source={logos[item.source.logo_v2]} size="small" />
+                <Icon source={logos[task.source.logo_v2]} size="small" />
                 <FlexGrowView />
-                {(item as TTask).due_date !== undefined && (
-                    <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
-                        <ActionOption
-                            isShown={datePickerShown}
-                            setIsShown={setDatePickerShown}
-                            action="date_picker"
-                            task={item as TTask}
-                        />
-                    </TooltipWrapper>
-                )}
-                {(item as TTask).time_allocated !== undefined && (
-                    <TooltipWrapper inline dataTip="Time Estimate" tooltipId="tooltip">
-                        <ActionOption
-                            isShown={timeEstimateShown}
-                            setIsShown={setTimeEstimateShown}
-                            action="time_allocated"
-                            task={item as TTask}
-                        />
-                    </TooltipWrapper>
-                )}
+                <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
+                    <ActionOption
+                        isShown={datePickerShown}
+                        setIsShown={setDatePickerShown}
+                        action="date_picker"
+                        task={task}
+                    />
+                </TooltipWrapper>
+                <TooltipWrapper inline dataTip="Time Estimate" tooltipId="tooltip">
+                    <ActionOption
+                        isShown={timeEstimateShown}
+                        setIsShown={setTimeEstimateShown}
+                        action="time_allocated"
+                        task={task}
+                    />
+                </TooltipWrapper>
             </TaskTitleButtonsContainer>
             <TaskTitleContainer>
                 <TitleInput
@@ -158,11 +153,10 @@ const DetailsView = (props: DetailsViewProps) => {
                     value={titleInput}
                     onChange={(e) => setTitleInput(e.target.value)}
                     onBlur={handleBlur}
-                    disabled={(item as TTask).due_date === undefined}
                 />
             </TaskTitleContainer>
             <BodyContainer>
-                {item.source.name === 'Asana' || item.source.name === 'Gmail' ? (
+                {task.source.name === 'Asana' || task.source.name === 'Gmail' ? (
                     <TaskHTMLBody dirtyHTML={bodyInput} />
                 ) : (
                     <BodyTextArea
