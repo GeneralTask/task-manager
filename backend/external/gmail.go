@@ -169,12 +169,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			}
 			gmailUpdateableFields := emailToGmailUpdateable(email)
 
-			if email.Title == "march28test" {
-				log.Println("jerd")
-				log.Printf("%+v", email)
-				log.Printf("%+v", email)
-			}
-
 			// We flatten in order to do partial updates of nested documents correctly in mongodb
 			flattenedEmail, err := flatbson.Flatten(email)
 			if err != nil {
