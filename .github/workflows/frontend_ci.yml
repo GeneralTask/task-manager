@@ -13,29 +13,26 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     env:
       REACT_APP_API_BASE_URL: http://localhost:8080
-
     defaults:
       run:
         working-directory: frontend
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
 
-      steps:
-        - uses: actions/checkout@v2
-        - uses: actions/setup-node@v2
-          with:
-            node-version: 14
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v7
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
 
-        -name: Setup Expo and EAS
-          uses: expo/expo-github-action@v7
-          with:
-            expo-version: latest
-            eas-version: latest
-            token: ${{ secrets.EXPO_TOKEN }}
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-        - name: Install dependencies
-          run: yarn install --frozen-lockfile
-
-        - name: Build app
-          run: eas build --non-interactive
+      - name: Build app
+        run: eas build --non-interactive
