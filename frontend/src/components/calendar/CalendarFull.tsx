@@ -41,7 +41,7 @@ export default function CalendarFull(): JSX.Element {
                 {Array(7)
                     .fill(0)
                     .map((_, i) => {
-                        return <CalendarDayHeader>{date.plus({ days: i }).toFormat('ccc dd')}</CalendarDayHeader>
+                        return <CalendarDayHeader key={i}>{date.plus({ days: i }).toFormat('ccc dd')}</CalendarDayHeader>
                     })}
             </div>
             <WeekContainer>
@@ -50,10 +50,9 @@ export default function CalendarFull(): JSX.Element {
                     .map((_, i) => {
                         return (
                             <CalendarEvents
+                                key={i}
                                 date={date.plus({ days: i })}
                                 isToday={date.plus({ days: i }).day === DateTime.now().day}
-                                showTimes={i === 0}
-                                scroll={false}
                             />
                         )
                     })}
