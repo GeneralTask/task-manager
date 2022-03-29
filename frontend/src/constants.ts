@@ -10,6 +10,12 @@ export const ScreenDimensions = {
 // API Constants
 export const MESSAGES_PER_PAGE = 50
 
+// Time constants (in seconds)
+export const TASK_REFETCH_INTERVAL = 30
+export const MESSAGES_REFETCH_INTERVAL = 60
+export const EVENTS_REFETCH_INTERVAL = 60
+export const TIME_INDICATOR_INTERVAL = 6
+
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
 export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/'

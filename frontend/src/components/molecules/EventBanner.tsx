@@ -1,11 +1,13 @@
+import { Border, Colors, Typography } from '../../styles'
+import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE } from '../../constants'
+
 import { DateTime } from 'luxon'
-import React, { useEffect } from 'react'
+import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
+import React from 'react'
 import { View } from 'react-native'
 import styled from 'styled-components/native'
-import { NO_EVENT_TITLE } from '../../constants'
 import { useGetEvents } from '../../services/api-query-hooks'
-import { Border, Colors, Typography } from '../../styles'
-import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
+import { useInterval } from '../../utils/utils'
 
 const EventBannerContainer = styled.View`
     position: relative;
@@ -70,12 +72,7 @@ const EventBanner = ({ date }: EventBannerProps) => {
         'banner'
     )
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            refetch()
-        }, 60000)
-        return () => clearInterval(interval)
-    }, [])
+    useInterval(refetch, EVENTS_REFETCH_INTERVAL)
 
     if (!events || events.length === 0) return null
     return (

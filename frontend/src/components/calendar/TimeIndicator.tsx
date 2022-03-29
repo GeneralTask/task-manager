@@ -1,8 +1,11 @@
-import { DateTime } from 'luxon'
-import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
-import { Colors } from '../../styles'
+import React, { useState } from 'react'
+
 import { CELL_HEIGHT } from './CalendarEvents-styles'
+import { Colors } from '../../styles'
+import { DateTime } from 'luxon'
+import { TIME_INDICATOR_INTERVAL } from '../../constants'
+import styled from 'styled-components'
+import { useInterval } from '../../utils/utils'
 
 interface TimeIndicatorContainerProps {
     topOffset: number
@@ -17,10 +20,8 @@ const TimeIndicatorContainer = styled.div<TimeIndicatorContainerProps>`
 
 export function TimeIndicator(): JSX.Element {
     const [time, setTime] = useState(DateTime.now())
-    useEffect(() => {
-        const interval = setInterval(() => setTime(DateTime.now()), 6000)
-        return () => clearInterval(interval)
-    }, [])
+    useInterval(() => setTime(DateTime.now()), TIME_INDICATOR_INTERVAL)
+
     const topOffset = (60 * time.hour + time.minute) * (CELL_HEIGHT / 60)
     return <TimeIndicatorContainer topOffset={topOffset} />
 }
