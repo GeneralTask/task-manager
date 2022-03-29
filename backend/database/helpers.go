@@ -77,6 +77,62 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	return &message, nil
 }
 
+func InsertEmailIfNotExist(db *mongo.Database,
+	userID primitive.ObjectID,
+	threadID string,
+	emailID string,
+	sourceID string,
+	fieldsToInsertIfMissing interface{},
+) (*Email, error) {
+	parentCtx := context.Background()
+	taskCollection := GetTaskCollection(db)
+	filter := bson.M{
+		"$and": []bson.M{
+			{"email_thread.thread_id": threadID},
+			{"source_id": sourceID},
+			{"email_thread.emails.email_id": bson.M{"$ne": emailID}},
+			{"user_id": userID},
+		},
+	}
+	action := bson.M{
+		"$push": bson.M{"email_thread.emails": fieldsToInsertIfMissing},
+	}
+	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err := taskCollection.UpdateOne(
+		dbCtx,
+		filter,
+		action,
+		options.Update().SetUpsert(true),
+	)
+	if err != nil {
+		log.Printf("Failed to get or create task: %v", err)
+		return nil, err
+	}
+
+	var task Email
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = taskCollection.FindOne(
+		dbCtx,
+		bson.M{
+		"$and": []bson.M{
+			{"email_thread.thread_id": threadID},
+			{"source_id": sourceID},
+			{"email_thread.emails.email_id": emailID},
+			{"user_id": userID},
+		},
+	},
+	).Decode(&task)
+	if err != nil {
+		log.Printf("Failed to get task: %v", err)
+		return nil, err
+	}
+
+	return &task, nil
+}
+
 func GetOrCreateTask(db *mongo.Database,
 	userID primitive.ObjectID,
 	IDExternal string,

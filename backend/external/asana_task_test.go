@@ -186,7 +186,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 		dueDateCorrect, _ := time.Parse("2006-01-02", "2021-04-20")
 		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDateCorrect)
 		expectedTask.Title = "Task!"
-		expectedTask.Body = "hmm"
+		expectedTask.TaskBase.Body = "hmm"
 
 		var taskResult = make(chan TaskResult)
 		go asanaTask.GetTasks(userID, "sample_account@email.com", taskResult)

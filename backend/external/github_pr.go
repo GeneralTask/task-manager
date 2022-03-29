@@ -138,7 +138,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			pullRequest,
 			database.PullRequestChangeableFields{
 				Title:       pullRequest.Title,
-				Body:        pullRequest.Body,
+				Body:        pullRequest.TaskBase.Body,
 				IsCompleted: &isCompleted,
 			},
 		)

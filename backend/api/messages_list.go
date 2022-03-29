@@ -75,7 +75,7 @@ func (api *API) emailToMessage(e *database.Item) *message {
 		ID:       e.ID,
 		Title:    e.Title,
 		Deeplink: e.Deeplink,
-		Body:     e.Body,
+		Body:     e.TaskBase.Body,
 		Sender:   e.Sender,
 		SenderV2: senderV2{
 			Name:    e.Sender,

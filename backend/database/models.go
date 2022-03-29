@@ -67,6 +67,7 @@ type Item struct {
 	TaskType      `bson:"task_type"`
 	Task          `bson:"task,omitempty"`
 	Email         `bson:"email,omitempty"`
+	EmailThread   `bson:"email_thread,omitempty"`
 	CalendarEvent `bson:"calendar_event,omitempty"`
 	PullRequest   `bson:"pull_request,omitempty"`
 }
@@ -130,8 +131,18 @@ type CalendarEventChangeableFields struct {
 	Body          string `bson:"body,omitempty"`
 }
 
+type EmailThread struct {
+	ThreadID       string             `bson:"thread_id"`
+	ContainsUnread bool               `bson:"contains_unread"`
+	LastUpdatedAt  primitive.DateTime `bson:"last_updated_at"`
+	Emails         []Email            `bson:"emails,omitempty"`
+}
+
 type Email struct {
 	ThreadID     string     `bson:"thread_id"`
+	EmailID      string     `bson:"email_id"`
+	Title        string     `bson:"title"`
+	Body         string     `bson:"body"`
 	SenderDomain string     `bson:"sender_domain"`
 	SenderEmail  string     `bson:"sender_email"`
 	ReplyTo      string     `bson:"reply_to"`

@@ -86,6 +86,47 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			return
 		}
 
+		var emptyEmails []database.Email
+
+		threadObj := &database.Item{
+			TaskBase: database.TaskBase{
+				UserID: userID,
+				// IDExternal:        message.Id,
+				IDExternal:      thread.Id,
+				IDTaskSection:   constants.IDTaskSectionToday,
+				SourceID:        TASK_SOURCE_ID_GMAIL,
+				Deeplink:        fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, thread.Id),
+				SourceAccountID: accountID,
+			},
+			EmailThread: database.EmailThread{
+				ThreadID:       thread.Id,
+				ContainsUnread: true,
+				Emails:         emptyEmails,
+			},
+			TaskType: database.TaskType{
+				IsMessage: true,
+			},
+		}
+
+		// We flatten in order to do partial updates of nested documents correctly in mongodb
+		flattenedUpdateFields, err := flatbson.Flatten(threadObj)
+		if err != nil {
+			log.Printf("Could not flatten %+v, error: %+v", thread, err)
+			return
+		}
+		res, err := database.UpdateOrCreateTask(db, userID, threadObj.IDExternal, threadObj.SourceID, flattenedUpdateFields, flattenedUpdateFields)
+		if err != nil {
+			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
+			return
+		}
+		var dbThread database.Item
+		err = res.Decode(&dbThread)
+		if err != nil {
+			log.Printf("failed to update or create gmail thread: %v", err)
+			result <- emptyEmailResult(err)
+			return
+		}
+
 		for _, message := range thread.Messages {
 			sender := ""
 			replyTo := ""
@@ -164,29 +205,43 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				},
 			}
 
+			emailNested := database.Email{
+				ThreadID:     thread.Id,
+				EmailID:     message.Id,
+				SenderDomain: senderDomain,
+				SenderEmail:  senderEmail,
+				Body:         *body,
+				Title:        title,
+				ReplyTo:      replyTo,
+				IsUnread:     isMessageUnread(message),
+				Recipients:   recipients,
+			}
+
 			// We flatten in order to do partial updates of nested documents correctly in mongodb
-			flattenedUpdateFields, err := flatbson.Flatten(email)
+			flattenedEmail, err := flatbson.Flatten(emailNested)
 			if err != nil {
 				log.Printf("Could not flatten %+v, error: %+v", email, err)
 				return
 			}
-			res, err := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedUpdateFields, flattenedUpdateFields)
+			// res, err := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedUpdateFields, flattenedUpdateFields)
+			dbEmail, err := database.InsertEmailIfNotExist(db, userID, thread.Id, email.IDExternal, email.SourceID, flattenedEmail)
 			if err != nil {
 				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 				return
 			}
+			_ = dbEmail
 
-			var dbEmail database.Item
-			err = res.Decode(&dbEmail)
-			if err != nil {
-				log.Printf("failed to update or create gmail email: %v", err)
-				result <- emptyEmailResult(err)
-				return
-			}
-			email.HasBeenReordered = dbEmail.HasBeenReordered
-			email.ID = dbEmail.ID
-			email.IDOrdering = dbEmail.IDOrdering
-			email.IDTaskSection = dbEmail.IDTaskSection
+			// var dbEmail database.Item
+			// err = res.Decode(&dbEmail)
+			// if err != nil {
+			// 	log.Printf("failed to update or create gmail email: %v", err)
+			// 	result <- emptyEmailResult(err)
+			// 	return
+			// }
+			// email.HasBeenReordered = dbEmail.HasBeenReordered
+			// email.ID = dbEmail.ID
+			// email.IDOrdering = dbEmail.IDOrdering
+			// email.IDTaskSection = dbEmail.IDTaskSection
 			emails = append(emails, email)
 		}
 	}
@@ -471,7 +526,7 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 
 	messageToSend := gmail.Message{
 		Raw:      base64.URLEncoding.EncodeToString(msg),
-		ThreadId: email.ThreadID,
+		ThreadId: email.EmailThread.ThreadID,
 	}
 
 	_, err = gmailService.Users.Messages.Send("me", &messageToSend).Do()

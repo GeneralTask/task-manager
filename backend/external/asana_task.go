@@ -131,7 +131,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task,
 			database.TaskChangeableFields{
 				Title:       &task.Title,
-				Body:        &task.Body,
+				Body:        &task.TaskBase.Body,
 				DueDate:     task.DueDate,
 				IsCompleted: &isCompleted,
 			},
