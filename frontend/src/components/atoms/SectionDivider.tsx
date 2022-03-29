@@ -3,7 +3,7 @@ import styled from 'styled-components/native'
 import { Colors } from '../../styles'
 
 const DividerView = styled.View<{ color: string }>`
-    height: 1;
+    height: 1px;
     width: 100%;
     background-color: ${props => props.color};
 `
