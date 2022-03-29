@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import { logos } from '../../styles/images'
-import { TMessage } from '../../utils/types'
-import { Icon } from '../atoms/Icon'
-import TaskHTMLBody from '../atoms/TaskHTMLBody'
 import DetailsTemplate, { Title } from './DetailsTemplate'
+import React, { useEffect, useState } from 'react'
+
+import EmailSenderDetails from '../molecules/EmailSenderDetails'
+import { Icon } from '../atoms/Icon'
+import { TMessage } from '../../utils/types'
+import TaskHTMLBody from '../atoms/TaskHTMLBody'
+import { logos } from '../../styles/images'
 
 interface MessageDetailsProps {
     message: TMessage
@@ -20,6 +22,7 @@ const MessageDetails = (props: MessageDetailsProps) => {
         <DetailsTemplate
             top={<Icon source={logos[message.source.logo_v2]} size="small" />}
             title={<Title>{message.title}</Title>}
+            senderDetails={<EmailSenderDetails sender={message.sender_v2} recipients={message.recipients} />}
             body={<TaskHTMLBody dirtyHTML={message.body} />}
         />
     )
