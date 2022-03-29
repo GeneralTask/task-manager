@@ -1,16 +1,49 @@
 import { DateTime } from 'luxon'
 import React, { useCallback } from 'react'
-import {
-    CalendarHeaderContainer,
-    HoverButton,
-    Icon,
-    DateDisplay,
-    CalendarHeaderTitle,
-    HeaderTopContainer,
-    HeaderMiddleContainer,
-    HeaderBottomContainer,
-    ArrowButton,
-} from './CalendarHeader-styles'
+import styled from 'styled-components'
+import { Colors, Spacing } from '../../styles'
+import { icons } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
+import { Divider } from '../atoms/SectionDivider'
+import { TitleMedium, TitleSmall } from '../atoms/title/Title'
+
+export const PaddedContainer = styled.div`
+    padding: ${Spacing.padding.medium}px ${Spacing.padding.large}px;
+`
+export const HeaderBodyContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`
+export const ButtonContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 5px;
+`
+const ButtonStyles = styled.button`
+    cursor: pointer;
+    height: fit-content;
+    width: fit-content;
+    border: none;
+    border-radius: 50vh;
+    padding: ${Spacing.padding.xSmall}px ${Spacing.padding.small}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`
+export const HoverButton = styled(ButtonStyles)`
+    color: ${Colors.white};
+    background-color: ${Colors.purple._1};
+    &:hover {
+        background-color: ${Colors.purple._2};
+    }
+`
+export const ArrowButton = styled(ButtonStyles)`
+    background-color: inherit;
+    &:hover {
+        background-color: ${Colors.gray._200}} 
+    }
+`
 
 interface CalendarHeaderProps {
     date: DateTime
@@ -33,34 +66,27 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
     )
 
     return (
-        <CalendarHeaderContainer>
-            <HeaderTopContainer>
-                <div style={{ display: 'flex' }}>
-                    <CalendarHeaderTitle>Calendar</CalendarHeaderTitle>
-                </div>
-                <div style={{ display: 'flex' }}>
-                    <HoverButton onClick={(e) => e.stopPropagation()} style={{ display: 'none' }}>
-                        <Icon src={require('../../assets/plus.png')} alt="Add Event" />
-                    </HoverButton>
-                </div>
-            </HeaderTopContainer>
-            <HeaderMiddleContainer>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <DateDisplay>{`${date.toFormat('ccc, LLL d')}`}</DateDisplay>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <HoverButton main onClick={() => setDate(DateTime.now())}>
-                        Today
-                    </HoverButton>
-                    <ArrowButton onClick={selectPrevious}>
-                        <Icon src={require('../../assets/caret_left.png')} alt="Show previous" />
-                    </ArrowButton>
-                    <ArrowButton onClick={selectNext}>
-                        <Icon src={require('../../assets/caret_right.png')} alt="Show next" />
-                    </ArrowButton>
-                </div>
-            </HeaderMiddleContainer>
-            <HeaderBottomContainer />
-        </CalendarHeaderContainer>
+        <div>
+            <PaddedContainer>
+                <TitleSmall>Calendar</TitleSmall>
+            </PaddedContainer>
+            <Divider color={Colors.gray._200} />
+            <PaddedContainer>
+                <HeaderBodyContainer>
+                    <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>
+                    <ButtonContainer>
+                        <HoverButton onClick={() => setDate(DateTime.now())}>
+                            Today
+                        </HoverButton>
+                        <ArrowButton onClick={selectPrevious}>
+                            <Icon source={icons.caret_left} size="small" />
+                        </ArrowButton>
+                        <ArrowButton onClick={selectNext}>
+                            <Icon source={icons.caret_right} size="small" />
+                        </ArrowButton>
+                    </ButtonContainer>
+                </HeaderBodyContainer>
+            </PaddedContainer>
+        </div>
     )
 }
