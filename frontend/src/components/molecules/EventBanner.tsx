@@ -7,7 +7,7 @@ import React from 'react'
 import { View } from 'react-native'
 import styled from 'styled-components/native'
 import { useGetEvents } from '../../services/api-query-hooks'
-import { useInterval } from '../../utils/utils'
+import { useInterval } from '../../utils/hooks'
 
 const EventBannerContainer = styled.View`
     position: relative;

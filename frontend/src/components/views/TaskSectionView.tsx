@@ -15,7 +15,7 @@ import Task from '../molecules/Task'
 import TaskDropContainer from '../molecules/TaskDropContainer'
 import TaskSelectionController from '../molecules/TaskSelectionController'
 import { getSectionById } from '../../utils/task'
-import { useInterval } from '../../utils/utils'
+import { useInterval } from '../../utils/hooks'
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasks()

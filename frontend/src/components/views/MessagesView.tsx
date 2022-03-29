@@ -9,7 +9,7 @@ import Message from '../molecules/Message'
 import { SectionHeader } from '../molecules/Header'
 import { TMessage } from '../../utils/types'
 import TaskTemplate from '../atoms/TaskTemplate'
-import { useInterval } from '../../utils/utils'
+import { useInterval } from '../../utils/hooks'
 
 const Messages = () => {
     const { refetch: refetchMessages } = useFetchMessages()
