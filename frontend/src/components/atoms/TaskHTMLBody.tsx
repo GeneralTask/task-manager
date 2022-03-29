@@ -16,7 +16,7 @@ const TaskHTMLBody = ({ dirtyHTML }: TaskHTMLBodyProps) => {
         ...whitelistedHTMLAttributes,
         transformTags,
     })
-    return <span dangerouslySetInnerHTML={{ __html: cleanHTML }} />
+    return <div dangerouslySetInnerHTML={{ __html: cleanHTML }} />
 }
 
 export default TaskHTMLBody

@@ -74,9 +74,9 @@ export const FlexGrowView = styled.View`
     flex: 1;
 `
 interface DetailsTemplateProps {
-    top: JSX.Element
-    title: JSX.Element
-    body: JSX.Element
+    top: JSX.Element | JSX.Element[] | undefined | null
+    title: JSX.Element | JSX.Element[] | undefined | null
+    body: JSX.Element | JSX.Element[] | undefined | null
 }
 
 const DetailsTemplate = (props: DetailsTemplateProps) => {
