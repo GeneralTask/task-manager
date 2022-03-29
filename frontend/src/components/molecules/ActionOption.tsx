@@ -24,7 +24,7 @@ interface ActionOptionProps {
     task: TTask
     action: 'date_picker' | 'time_allocated'
     isShown: boolean
-    keyboardShortcut?: string
+    keyboardShortcut?: KEYBOARD_SHORTCUTS
     setIsShown: (isShown: boolean) => void
 }
 const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: ActionOptionProps) => {
