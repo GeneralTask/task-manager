@@ -79,10 +79,10 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                             Today
                         </HoverButton>
                         <ArrowButton onClick={selectPrevious}>
-                            <Icon source={icons.caret_left} size="small"></Icon>
+                            <Icon source={icons.caret_left} size="small" />
                         </ArrowButton>
                         <ArrowButton onClick={selectNext}>
-                            <Icon source={icons.caret_right} size="small"></Icon>
+                            <Icon source={icons.caret_right} size="small" />
                         </ArrowButton>
                     </ButtonContainer>
                 </HeaderBodyContainer>
