@@ -21,7 +21,12 @@ const getTasks = async () => {
 
 
 export const useFetchExternalTasks = () => {
-    return useQuery('tasksExternal', fetchExternalTasks)
+    const queryClient = useQueryClient()
+    return useQuery('tasksExternal', fetchExternalTasks, {
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+        }
+    })
 }
 const fetchExternalTasks = async () => {
     try {
