@@ -19,7 +19,7 @@ const Messages = () => {
     useEffect(() => {
         setSelectedMessage(undefined)
         data?.pages.forEach((page) => {
-            page.forEach((message: TMessage) => {
+            page?.forEach((message: TMessage) => {
                 if (message.id === params.message) {
                     setSelectedMessage(message)
                 }
