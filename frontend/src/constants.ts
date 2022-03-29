@@ -31,3 +31,15 @@ export const FEEDBACK_URL = REACT_APP_API_BASE_URL + '/feedback/'
 export const EVENTS_URL = REACT_APP_API_BASE_URL + '/events/'
 
 export const NO_EVENT_TITLE = '(no title)'
+
+export const KEYBOARD_SHORTCUTS = {
+    SELECT: 'Enter',
+    CLOSE: 'Escape',
+    NEXT: 'ArrowDown',
+    PREVIOUS: 'ArrowUp',
+    SHOW_DATE_PICKER: 'S',
+    SHOW_TIME_ESTIMATION_PICKER: 'F',
+    CREATE_TASK: 'T',
+    REFRESH: 'R',
+    MARK_COMPLETE: 'D',
+}

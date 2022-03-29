@@ -1,12 +1,15 @@
 import React, { useEffect } from 'react'
-import styled from 'styled-components/native'
-import { Spacing } from '../../styles'
-import { icons } from '../../styles/images'
-import { TTask } from '../../utils/types'
+
 import ActionValue from '../atoms/ActionValue'
-import { Icon } from '../atoms/Icon'
 import DatePicker from './DatePicker'
+import { Icon } from '../atoms/Icon'
+import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
+import { Spacing } from '../../styles'
+import { TTask } from '../../utils/types'
 import TimeEstimatePicker from './TimeEstimatePicker'
+import { icons } from '../../styles/images'
+import styled from 'styled-components/native'
 
 const ActionButton = styled.Pressable`
     display: flex;
@@ -21,9 +24,10 @@ interface ActionOptionProps {
     task: TTask
     action: 'date_picker' | 'time_allocated'
     isShown: boolean
+    keyboardShortcut?: string
     setIsShown: (isShown: boolean) => void
 }
-const ActionOption = ({ task, action, isShown, setIsShown }: ActionOptionProps) => {
+const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: ActionOptionProps) => {
     useEffect(() => {
         setIsShown(false)
     }, [task])
@@ -52,6 +56,12 @@ const ActionOption = ({ task, action, isShown, setIsShown }: ActionOptionProps) 
         <ActionButton onPress={() => setIsShown(!isShown)}>
             {actionString ? <ActionValue value={actionString} /> : <Icon source={icon} size="small" />}
             {isShown && component}
+            {keyboardShortcut && (
+                <InvisibleKeyboardShortcut shortcut={keyboardShortcut} onKeyPress={() => setIsShown(!isShown)} />
+            )}
+            {isShown && (
+                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={() => setIsShown(false)} />
+            )}
         </ActionButton>
     )
 }

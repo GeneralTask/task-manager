@@ -8,6 +8,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
+import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
 import TaskTemplate from '../atoms/TaskTemplate'
 import WebStyled from 'styled-components'
 import { logos } from '../../styles/images'
@@ -72,7 +74,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
         <TaskTemplate>
             <TaskContainer isSelected={isSelected} onPress={onPress} ref={dragPreviewRef}>
                 {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
-                <CompleteButton taskId={task.id} isComplete={task.is_done} />
+                <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />
                 <View style={styles.iconContainer}>
                     <Icon source={logos[task.source.logo_v2]} size="small" />
                 </View>
@@ -80,6 +82,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
                     {task.title}
                 </Text>
             </TaskContainer>
+            {isSelected && <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onPress} />}
         </TaskTemplate>
     )
 }
