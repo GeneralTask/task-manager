@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { Colors, Flex, Images } from '../../styles'
 import {
     Image,
     NativeSyntheticEvent,
@@ -8,9 +8,11 @@ import {
     TextInputKeyPressEventData,
     View,
 } from 'react-native'
-import { useCreateTask } from '../../services/api-query-hooks'
-import { Colors, Flex, Images } from '../../styles'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+
+import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { KeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import { useCreateTask } from '../../services/api-query-hooks'
 
 interface CreateNewTaskProps {
     section: string
@@ -66,7 +68,9 @@ const CreateNewTask = (props: CreateNewTaskProps) => {
                 blurOnSubmit={false}
                 ref={inputRef}
             />
-            {Platform.OS === 'web' && <KeyboardShortcut shortcut="T" onKeyPress={() => setIsFocused(true)} />}
+            {Platform.OS === 'web' && (
+                <KeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CREATE_TASK} onKeyPress={() => setIsFocused(true)} />
+            )}
         </View>
     )
 }

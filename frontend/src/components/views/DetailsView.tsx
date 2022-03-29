@@ -1,15 +1,17 @@
-import React, { createRef, useEffect, useState } from 'react'
-import ReactTooltip from 'react-tooltip'
-import webStyled from 'styled-components'
-import styled from 'styled-components/native'
-import { useModifyTask } from '../../services/api-query-hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
-import { TTask } from '../../utils/types'
+import React, { createRef, useEffect, useState } from 'react'
+
+import ActionOption from '../molecules/ActionOption'
 import { Icon } from '../atoms/Icon'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
+import ReactTooltip from 'react-tooltip'
+import { TTask } from '../../utils/types'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
 import TooltipWrapper from '../atoms/TooltipWrapper'
-import ActionOption from '../molecules/ActionOption'
+import { logos } from '../../styles/images'
+import styled from 'styled-components/native'
+import { useModifyTask } from '../../services/api-query-hooks'
+import webStyled from 'styled-components'
 
 const DetailsViewContainer = styled.View`
     display: flex;
@@ -114,7 +116,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
         if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
-        else e.stopPropagation()
+        e.stopPropagation()
     }
 
     const handleBlur = () => {
@@ -133,6 +135,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
                         setIsShown={setDatePickerShown}
                         action="date_picker"
                         task={task}
+                        keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_DATE_PICKER}
                     />
                 </TooltipWrapper>
                 <TooltipWrapper inline dataTip="Time Estimate" tooltipId="tooltip">
@@ -141,6 +144,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
                         setIsShown={setTimeEstimateShown}
                         action="time_allocated"
                         task={task}
+                        keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_TIME_ESTIMATION_PICKER}
                     />
                 </TooltipWrapper>
             </TaskTitleButtonsContainer>
