@@ -86,7 +86,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			return
 		}
 
-		var emptyEmails []database.Email
+		var nestedEmails []database.Email
 		threadObj := &database.Item{
 			TaskBase: database.TaskBase{
 				UserID: userID,
@@ -99,7 +99,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			EmailThread: database.EmailThread{
 				ThreadID:       thread.Id,
 				ContainsUnread: true,
-				Emails:         emptyEmails,
 			},
 			TaskType: database.TaskType{
 				IsMessage: true,
@@ -158,7 +157,19 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 			recipients := *GetRecipients(message.Payload.Headers)
 
-			email := &database.Item{
+			email := database.Email{
+				ThreadID:     thread.Id,
+				EmailID:      message.Id,
+				SenderDomain: senderDomain,
+				SenderEmail:  senderEmail,
+				Body:         *body,
+				Subject:      title,
+				ReplyTo:      replyTo,
+				IsUnread:     isMessageUnread(message),
+				Recipients:   recipients,
+			}
+			nestedEmails = append(nestedEmails, email)
+			emailItem := &database.Item{
 				TaskBase: database.TaskBase{
 					UserID:            userID,
 					IDExternal:        message.Id,
@@ -171,36 +182,20 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					SourceAccountID:   accountID,
 					CreatedAtExternal: timeSent,
 				},
-				Email: database.Email{
-					SenderDomain: senderDomain,
-					SenderEmail:  senderEmail,
-					ReplyTo:      replyTo,
-					ThreadID:     thread.Id,
-					IsUnread:     isMessageUnread(message),
-					Recipients:   recipients,
-				},
+				Email: email,
 				TaskType: database.TaskType{
 					IsMessage: true,
 				},
 			}
-
-			emailNested := database.Email{
-				ThreadID:     thread.Id,
-				EmailID:      message.Id,
-				SenderDomain: senderDomain,
-				SenderEmail:  senderEmail,
-				Body:         *body,
-				Subject:      title,
-				ReplyTo:      replyTo,
-				IsUnread:     isMessageUnread(message),
-				Recipients:   recipients,
-			}
-			emptyEmails = append(emptyEmails, emailNested)
-			emails = append(emails, email)
+			// emailItem.HasBeenReordered = dbEmail.HasBeenReordered
+			// emailItem.ID = dbEmail.ID
+			// emailItem.IDOrdering = dbEmail.IDOrdering
+			// emailItem.IDTaskSection = dbEmail.IDTaskSection
+			emails = append(emails, emailItem)
 		}
 
 		// We flatten in order to do partial updates of nested documents correctly in mongodb
-		threadObj.EmailThread.Emails = emptyEmails
+		threadObj.EmailThread.Emails = nestedEmails
 		flattenedUpdateFields, err := flatbson.Flatten(threadObj)
 		if err != nil {
 			log.Printf("Could not flatten %+v, error: %+v", thread, err)
