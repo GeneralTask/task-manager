@@ -84,6 +84,11 @@ func InsertEmailIfNotExist(db *mongo.Database,
 	sourceID string,
 	fieldsToInsertIfMissing interface{},
 ) (*Email, error) {
+	// if threadID == "17fd74798be713bc" {
+	// // if emailNested.EmailID == "17fd7604f87fb03a" {
+	// 	log.Println("InsertEmailIfNotExist")
+	// 	log.Println(fieldsToInsertIfMissing)
+	// }
 	parentCtx := context.Background()
 	taskCollection := GetTaskCollection(db)
 	filter := bson.M{
@@ -100,7 +105,7 @@ func InsertEmailIfNotExist(db *mongo.Database,
 	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	_, err := taskCollection.UpdateOne(
+	res, err := taskCollection.UpdateOne(
 		dbCtx,
 		filter,
 		action,
@@ -109,6 +114,11 @@ func InsertEmailIfNotExist(db *mongo.Database,
 	if err != nil {
 		log.Printf("Failed to get or create task: %v", err)
 		return nil, err
+	}
+	// if emailID == "17fd7604f87fb03a" {
+	if threadID == "17fd74798be713bc" {
+		log.Println("jerd res")
+		log.Println(res)
 	}
 
 	var task Email

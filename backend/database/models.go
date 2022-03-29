@@ -141,7 +141,7 @@ type EmailThread struct {
 type Email struct {
 	ThreadID     string     `bson:"thread_id"`
 	EmailID      string     `bson:"email_id"`
-	Title        string     `bson:"title"`
+	Subject      string     `bson:"subject"`
 	Body         string     `bson:"body"`
 	SenderDomain string     `bson:"sender_domain"`
 	SenderEmail  string     `bson:"sender_email"`

@@ -207,14 +207,22 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 			emailNested := database.Email{
 				ThreadID:     thread.Id,
-				EmailID:     message.Id,
+				EmailID:      message.Id,
 				SenderDomain: senderDomain,
 				SenderEmail:  senderEmail,
 				Body:         *body,
-				Title:        title,
+				Subject:      title,
 				ReplyTo:      replyTo,
 				IsUnread:     isMessageUnread(message),
 				Recipients:   recipients,
+			}
+
+			// if title == "Re: march29v3" {
+				// threadid
+			if emailNested.ThreadID == "17fd788b77a7deb8" {
+			// if emailNested.EmailID == "17fd7604f87fb03a" {
+				log.Println("jerd")
+				log.Printf("%+v", emailNested)
 			}
 
 			// We flatten in order to do partial updates of nested documents correctly in mongodb
