@@ -1,11 +1,11 @@
 import { Colors, Images } from "../../styles"
 import { TRecipient, TRecipients, TSender } from "../../utils/types"
+import { useEffect, useState } from "react"
 
 import { Icon } from "../atoms/Icon"
 import { Text } from "react-native"
 import { margin } from "../../styles/spacing"
 import styled from "styled-components/native"
-import { useState } from "react"
 
 const Container = styled.View`
     margin-top: ${margin.xSmall}px;
@@ -43,6 +43,10 @@ interface EmailSenderDetailsProps {
 
 const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => {
     const [showDetails, setShowDetails] = useState(false)
+
+    useEffect(() => {
+        setShowDetails(false)
+    }, [sender, recipients])
 
     const fromDetails = <Row>
         <KeyContainer>From:</KeyContainer>
