@@ -217,13 +217,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				Recipients:   recipients,
 			}
 
-			// if title == "Re: march29v3" {
-				// threadid
-			if emailNested.ThreadID == "17fd788b77a7deb8" {
-			// if emailNested.EmailID == "17fd7604f87fb03a" {
-				log.Println("jerd")
-				log.Printf("%+v", emailNested)
-			}
 
 			// We flatten in order to do partial updates of nested documents correctly in mongodb
 			flattenedEmail, err := flatbson.Flatten(emailNested)
@@ -238,6 +231,12 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				return
 			}
 			_ = dbEmail
+
+			if emailNested.ThreadID == "17fd79a1f54bf0e1" {
+				log.Println("jerd")
+				log.Printf("%+v", emailNested)
+				// time.Sleep(1 * time.Second)
+			}
 
 			// var dbEmail database.Item
 			// err = res.Decode(&dbEmail)
