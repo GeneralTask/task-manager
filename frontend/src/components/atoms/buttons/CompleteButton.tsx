@@ -1,11 +1,15 @@
-import React from 'react'
 import { Image, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native'
-import { useMarkTaskDone } from '../../../services/api-query-hooks'
+
+import { InvisibleKeyboardShortcut } from '../KeyboardShortcuts'
+import { KEYBOARD_SHORTCUTS } from '../../../constants'
+import React from 'react'
 import { icons } from '../../../styles/images'
+import { useMarkTaskDone } from '../../../services/api-query-hooks'
 
 interface CompleteButtonProps {
     isComplete: boolean
     taskId: string
+    isSelected: boolean
     style?: ViewStyle
 }
 const CompleteButton = (props: CompleteButtonProps) => {
@@ -23,6 +27,9 @@ const CompleteButton = (props: CompleteButtonProps) => {
                     <Image style={styles.image} source={icons['task_incomplete']} />
                 )}
             </TouchableOpacity>
+            {props.isSelected && (
+                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.MARK_COMPLETE} onKeyPress={donePressHandler} />
+            )}
         </View>
     )
 }

@@ -1,5 +1,6 @@
 import React, { createRef, useEffect, useState } from 'react'
 import ReactTooltip from 'react-tooltip'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { useModifyTask } from '../../services/api-query-hooks'
 import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -57,7 +58,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
         if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
-        else e.stopPropagation()
+        e.stopPropagation()
     }
 
     const handleBlur = () => {
@@ -75,14 +76,18 @@ const TaskDetails = (props: TaskDetailsProps) => {
                             isShown={datePickerShown}
                             setIsShown={setDatePickerShown}
                             action="date_picker"
-                            task={task} />
+                            task={task}
+                            keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_DATE_PICKER}
+                        />
                     </TooltipWrapper>
                     <TooltipWrapper inline dataTip="Time Estimate" tooltipId="tooltip">
                         <ActionOption
                             isShown={timeEstimateShown}
                             setIsShown={setTimeEstimateShown}
                             action="time_allocated"
-                            task={task} />
+                            task={task}
+                            keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_TIME_ESTIMATION_PICKER}
+                        />
                     </TooltipWrapper>
                 </>
             }
