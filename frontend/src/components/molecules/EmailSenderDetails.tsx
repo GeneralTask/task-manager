@@ -1,4 +1,4 @@
-import { TMessage, TRecipient } from "../../utils/types"
+import { TRecipient, TRecipients, TSender } from "../../utils/types"
 
 import { Icon } from "../atoms/Icon"
 import { Images } from "../../styles"
@@ -38,21 +38,22 @@ const ExpandCollapse = styled.Pressable`
 `
 
 interface EmailSenderDetailsProps {
-    message: TMessage
+    sender: TSender
+    recipients: TRecipients
 }
 
-const EmailSenderDetails = ({ message }: EmailSenderDetailsProps) => {
+const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => {
     const [showDetails, setShowDetails] = useState(false)
 
     const fromDetails = <Row>
         <KeyContainer>From:</KeyContainer>
-        {message.sender_v2.name
+        {sender.name
             ? <ValueContainer>
-                <Bold>{message.sender_v2.name} </Bold>
-                {`<${message.sender_v2.email}>`}
+                <Bold>{sender.name} </Bold>
+                {`<${sender.email}>`}
             </ValueContainer>
             : <ValueContainer>
-                <Bold>{message.sender_v2.email}</Bold>
+                <Bold>{sender.email}</Bold>
             </ValueContainer>}
     </Row >
 
@@ -61,14 +62,14 @@ const EmailSenderDetails = ({ message }: EmailSenderDetailsProps) => {
             <KeyContainer>To:</KeyContainer>
             <ValueContainer>
                 <Text>
-                    {message.recipients.to.map(({ name, email }) => name || email).join(", ")}
+                    {recipients.to.map(({ name, email }) => name || email).join(", ")}
                 </Text>
             </ValueContainer>
         </Row>
         : <>
-            <RecipientDetails category="To:" recipients={message.recipients.to} />
-            <RecipientDetails category="Cc:" recipients={message.recipients.cc} />
-            <RecipientDetails category="Bcc:" recipients={message.recipients.bcc} />
+            <RecipientDetails category="To:" recipients={recipients.to} />
+            <RecipientDetails category="Cc:" recipients={recipients.cc} />
+            <RecipientDetails category="Bcc:" recipients={recipients.bcc} />
         </>
 
     return <Container>

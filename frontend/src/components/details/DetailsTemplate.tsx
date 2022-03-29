@@ -23,8 +23,8 @@ const TaskTitleContainer = styled.View`
     flex-direction: row;
     align-items: center;
 `
-const BodyContainer = styled.View`
-    margin-top: ${Spacing.margin.medium}px;
+const BodyContainer = styled.View<{ marginTop: boolean }>`
+    margin-top: ${props => props.marginTop ? Spacing.margin.medium : 0}px;
     flex: 1;
     overflow: auto;
 `
@@ -32,7 +32,7 @@ export const TitleInput = webStyled.textarea`
     background-color: inherit;
     color: ${Colors.gray._600};
     font: inherit;
-    font-size: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.large.fontSize}px;
     font-weight: ${Typography.weight._600.fontWeight};
     border: none;
     resize: none;
@@ -90,7 +90,7 @@ const DetailsTemplate = (props: DetailsTemplateProps) => {
                 {props.title}
             </TaskTitleContainer>
             {props.senderDetails}
-            <BodyContainer>
+            <BodyContainer marginTop={props.senderDetails === undefined}>
                 {props.body}
             </BodyContainer>
         </DetailsViewContainer>

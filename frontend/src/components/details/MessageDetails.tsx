@@ -27,7 +27,7 @@ const MessageDetails = (props: MessageDetailsProps) => {
         <DetailsTemplate
             top={<Icon source={logos[message.source.logo_v2]} size="small" />}
             title={<Title>{message.title}</Title>}
-            senderDetails={<EmailSenderDetails message={message} />}
+            senderDetails={<EmailSenderDetails sender={message.sender_v2} recipients={message.recipients} />}
             body={<TaskHTMLBody dirtyHTML={message.body} />}
         />
     )
