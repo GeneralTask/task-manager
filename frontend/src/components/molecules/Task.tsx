@@ -1,7 +1,7 @@
 import { Border, Colors, Spacing } from '../../styles'
 import { ItemTypes, TTask } from '../../utils/types'
 import { Platform, StyleSheet, Text, View } from 'react-native'
-import React, { Ref } from 'react'
+import React, { Ref, useCallback } from 'react'
 import styled, { css } from 'styled-components/native'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -45,16 +45,19 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
     const isExpanded = params.task === task.id
     const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_task_id === task.id)
 
-    const onPress = () => {
+    const hideDetailsView = () => navigate(`/tasks/${params.section}`)
+
+    const onPress = useCallback(() => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(task.id)
         }
         if (params.task === task.id) {
-            navigate(`/tasks/${params.section}`)
+            hideDetailsView()
         } else {
             navigate(`/tasks/${params.section}/${task.id}`)
         }
-    }
+    }, [params, task])
+
     const [, drag, dragPreview] = useDrag(
         () => ({
             type: ItemTypes.TASK,
@@ -82,7 +85,10 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
                     {task.title}
                 </Text>
             </TaskContainer>
-            {isSelected && <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onPress} />}
+            {isSelected && Platform.OS === 'web' && <>
+                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={hideDetailsView} />
+                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onPress} />
+            </>}
         </TaskTemplate>
     )
 }
