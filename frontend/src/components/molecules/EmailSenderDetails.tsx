@@ -28,7 +28,6 @@ const ValueContainer = styled.Text`
 `
 const Bold = styled.Text`
     font-weight: bold;
-    margin: 0;
 `
 const ExpandCollapse = styled.Pressable`
     width: 100%;
