@@ -1,7 +1,7 @@
-import webStyled from 'styled-components'
-import styled from 'styled-components/native'
 import { Colors, Spacing, Typography } from '../../styles'
 
+import styled from 'styled-components/native'
+import webStyled from 'styled-components'
 
 const DetailsViewContainer = styled.View`
     display: flex;
@@ -48,7 +48,7 @@ export const Title = webStyled.div`
     background-color: inherit;
     color: ${Colors.gray._600};
     font: inherit;
-    font-size: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.large.fontSize}px;
     font-weight: ${Typography.weight._600.fontWeight};
     border: none;
     resize: none;
@@ -76,6 +76,7 @@ export const FlexGrowView = styled.View`
 interface DetailsTemplateProps {
     top: JSX.Element
     title: JSX.Element
+    senderDetails?: JSX.Element
     body: JSX.Element
 }
 
@@ -88,6 +89,7 @@ const DetailsTemplate = (props: DetailsTemplateProps) => {
             <TaskTitleContainer>
                 {props.title}
             </TaskTitleContainer>
+            {props.senderDetails}
             <BodyContainer>
                 {props.body}
             </BodyContainer>

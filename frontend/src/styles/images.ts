@@ -30,6 +30,7 @@ export const icons: { [key: string]: ImageSourcePropType } = {
     check_gray: require('../assets/check_gray.png'),
     check_unchecked: require('../assets/check_unchecked.png'),
     chevron_down: require('../assets/chevron_down.png'),
+    chevron_up: require('../assets/chevron_up.png'),
     gear: require('../assets/gear.png'),
     inbox: require('../assets/inbox.png'),
     mark_as_task: require('../assets/mark_as_task.png'),

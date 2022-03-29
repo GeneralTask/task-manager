@@ -1,18 +1,29 @@
-import { useFonts } from '@use-expo/font'
-import React from 'react'
+import { Navigate, Outlet, Route, Router, Routes } from './src/services/routing'
+import { QueryClient, QueryClientProvider } from 'react-query'
+
+import CompanyPolicyScreen from './src/screens/CompanyPolicyScreen'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { TouchBackend } from 'react-dnd-touch-backend'
-import { Platform } from 'react-native'
-import { QueryClient, QueryClientProvider } from 'react-query'
-import { Provider } from 'react-redux'
-import store from './src/redux/store'
-import CompanyPolicyScreen from './src/screens/CompanyPolicyScreen'
 import LandingScreen from './src/screens/LandingScreen'
+import { Platform } from 'react-native'
+import PrivateOutlet from './src/services/PrivateOutlet'
+import { Provider } from 'react-redux'
+import React from 'react'
 import TasksScreen from './src/screens/TasksScreen'
 import TermsOfServiceSummaryScreen from './src/screens/TermsOfServiceSummaryScreen'
-import PrivateOutlet from './src/services/PrivateOutlet'
-import { Navigate, Outlet, Route, Router, Routes } from './src/services/routing'
+import { TouchBackend } from 'react-dnd-touch-backend'
+import { createGlobalStyle } from 'styled-components'
+import store from './src/redux/store'
+import { useFonts } from '@use-expo/font'
+
+// import {  } from "styled-components/native";
+
+const GlobalFontStyles = Platform.OS === 'web' ? createGlobalStyle`
+    @font-face {
+        font-family: 'Switzer-Variable';
+        src: require('./src/assets/fonts/fonts/Switzer-Variable.ttf')
+    }
+` : null
 
 const App = () => {
     const backend = Platform.OS === 'web' ? HTML5Backend : TouchBackend
@@ -29,6 +40,7 @@ const App = () => {
 
     return (
         <QueryClientProvider client={queryClient}>
+            {GlobalFontStyles && <GlobalFontStyles />}
             <Provider store={store}>
                 <DndProvider backend={backend}>
                     <Router>

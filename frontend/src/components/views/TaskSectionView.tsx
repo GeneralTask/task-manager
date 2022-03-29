@@ -1,18 +1,19 @@
-import { DateTime } from 'luxon'
-import React, { useEffect, useMemo, useRef } from 'react'
-import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
 import { Colors, Flex, Screens, Spacing } from '../../styles'
-import { getSectionById } from '../../utils/task'
-import Loading from '../atoms/Loading'
-import TaskDetails from '../details/TaskDetails'
+import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
+import React, { useEffect, useMemo, useRef } from 'react'
+import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
+import { useNavigate, useParams } from 'react-router-dom'
+
 import CreateNewTask from '../molecules/CreateNewTask'
+import { DateTime } from 'luxon'
 import EventBanner from '../molecules/EventBanner'
+import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
+import TaskDetails from '../details/TaskDetails'
 import TaskDropContainer from '../molecules/TaskDropContainer'
 import TaskSelectionController from '../molecules/TaskSelectionController'
+import { getSectionById } from '../../utils/task'
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasks()
@@ -37,6 +38,7 @@ const TaskSection = () => {
             navigate(`/tasks/${firstSectionId}`)
         }
     }, [taskSections, routerSection])
+    console.log(taskSections)
 
     const expandedTask = useMemo(() => {
         const section = taskSections?.find((section) => section.id === params.section)
