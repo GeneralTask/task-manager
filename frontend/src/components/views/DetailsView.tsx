@@ -116,7 +116,7 @@ const DetailsView = ({ task }: DetailsViewProps) => {
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
         if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
-        else e.stopPropagation()
+        e.stopPropagation()
     }
 
     const handleBlur = () => {
