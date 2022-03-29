@@ -66,8 +66,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
         modifyTask({ id: task.id, title: titleInput, body: bodyInput })
     }
 
-    console.log({ task })
-
     return (
         <DetailsTemplate
             top={
