@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import ReactTooltip from 'react-tooltip'
 import { logos } from '../../styles/images'
 import { TMessage } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
@@ -11,10 +10,6 @@ interface MessageDetailsProps {
 }
 const MessageDetails = (props: MessageDetailsProps) => {
     const [message, setMessage] = useState<TMessage>(props.message)
-
-    useEffect(() => {
-        ReactTooltip.rebuild()
-    }, [])
 
     // Update the state when the message changes
     useEffect(() => {
