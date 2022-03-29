@@ -102,10 +102,4 @@ function RecipientDetails({ category, recipients }: RecipientDetailsProps): JSX.
     </>
 }
 
-// if (name) {
-//     return `${name} <${email}>`
-// } else {
-//     return email
-// }
-
 export default EmailSenderDetails
