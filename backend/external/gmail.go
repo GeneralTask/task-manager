@@ -87,7 +87,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 
 		var nestedEmails []database.Email
-		threadObj := &database.Item{
+		threadItem := &database.Item{
 			TaskBase: database.TaskBase{
 				UserID: userID,
 				IDExternal:      thread.Id,
@@ -214,13 +214,13 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 
 		// We flatten in order to do partial updates of nested documents correctly in mongodb
-		threadObj.EmailThread.Emails = nestedEmails
-		flattenedUpdateFields, err := flatbson.Flatten(threadObj)
+		threadItem.EmailThread.Emails = nestedEmails
+		flattenedUpdateFields, err := flatbson.Flatten(threadItem)
 		if err != nil {
 			log.Printf("Could not flatten %+v, error: %+v", thread, err)
 			return
 		}
-		res, err := database.UpdateOrCreateTask(db, userID, threadObj.IDExternal, threadObj.SourceID, flattenedUpdateFields, flattenedUpdateFields)
+		res, err := database.UpdateOrCreateTask(db, userID, threadItem.IDExternal, threadItem.SourceID, flattenedUpdateFields, flattenedUpdateFields)
 		if err != nil {
 			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			return
