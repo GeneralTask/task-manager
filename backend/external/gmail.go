@@ -187,10 +187,29 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					IsMessage: true,
 				},
 			}
-			// emailItem.HasBeenReordered = dbEmail.HasBeenReordered
-			// emailItem.ID = dbEmail.ID
-			// emailItem.IDOrdering = dbEmail.IDOrdering
-			// emailItem.IDTaskSection = dbEmail.IDTaskSection
+			// We flatten in order to do partial updates of nested documents correctly in mongodb
+			flattenedUpdateFields, err := flatbson.Flatten(email)
+			if err != nil {
+				log.Printf("Could not flatten %+v, error: %+v", email, err)
+				return
+			}
+			res, err := database.UpdateOrCreateTask(db, userID, emailItem.IDExternal, emailItem.SourceID, flattenedUpdateFields, flattenedUpdateFields)
+			if err != nil {
+				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
+				return
+			}
+
+			var dbEmail database.Item
+			err = res.Decode(&dbEmail)
+			if err != nil {
+				log.Printf("failed to update or create gmail email: %v", err)
+				result <- emptyEmailResult(err)
+				return
+			}
+			emailItem.HasBeenReordered = dbEmail.HasBeenReordered
+			emailItem.ID = dbEmail.ID
+			emailItem.IDOrdering = dbEmail.IDOrdering
+			emailItem.IDTaskSection = dbEmail.IDTaskSection
 			emails = append(emails, emailItem)
 		}
 
