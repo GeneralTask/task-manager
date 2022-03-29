@@ -46,7 +46,8 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
 
     const fromDetails = <Row>
         <KeyContainer>From:</KeyContainer>
-        {typeof sender === 'string' ? <ValueContainer>{sender}</ValueContainer>
+        {typeof sender === 'string'
+            ? <ValueContainer>{sender}</ValueContainer>
             : sender.name
                 ? <ValueContainer>
                     <Bold>{sender.name} </Bold>
