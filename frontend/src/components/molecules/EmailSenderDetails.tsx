@@ -38,7 +38,7 @@ const ExpandCollapse = styled.Pressable`
 `
 
 interface EmailSenderDetailsProps {
-    sender: TSender
+    sender: TSender | string
     recipients: TRecipients
 }
 
@@ -47,14 +47,15 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
 
     const fromDetails = <Row>
         <KeyContainer>From:</KeyContainer>
-        {sender.name
-            ? <ValueContainer>
-                <Bold>{sender.name} </Bold>
-                {`<${sender.email}>`}
-            </ValueContainer>
-            : <ValueContainer>
-                <Bold>{sender.email}</Bold>
-            </ValueContainer>}
+        {typeof sender === 'string' ? <ValueContainer>{sender}</ValueContainer>
+            : sender.name
+                ? <ValueContainer>
+                    <Bold>{sender.name} </Bold>
+                    {`<${sender.email}>`}
+                </ValueContainer>
+                : <ValueContainer>
+                    <Bold>{sender.email}</Bold>
+                </ValueContainer>}
     </Row >
 
     const restOfDetails = !showDetails

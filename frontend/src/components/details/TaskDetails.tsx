@@ -1,13 +1,15 @@
+import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
 import React, { createRef, useEffect, useState } from 'react'
-import ReactTooltip from 'react-tooltip'
-import { useModifyTask } from '../../services/api-query-hooks'
-import { logos } from '../../styles/images'
-import { TTask } from '../../utils/types'
+
+import ActionOption from '../molecules/ActionOption'
+import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import { Icon } from '../atoms/Icon'
+import ReactTooltip from 'react-tooltip'
+import { TTask } from '../../utils/types'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
 import TooltipWrapper from '../atoms/TooltipWrapper'
-import ActionOption from '../molecules/ActionOption'
-import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
+import { logos } from '../../styles/images'
+import { useModifyTask } from '../../services/api-query-hooks'
 
 interface TaskDetailsProps {
     task: TTask
@@ -64,6 +66,8 @@ const TaskDetails = (props: TaskDetailsProps) => {
         modifyTask({ id: task.id, title: titleInput, body: bodyInput })
     }
 
+    console.log({ task })
+
     return (
         <DetailsTemplate
             top={
@@ -95,6 +99,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     onBlur={handleBlur}
                 />
             }
+            senderDetails={<EmailSenderDetails sender={task.sender} recipients={task.recipients} />}
             body={
                 task.source.name === 'Asana' || task.source.name === 'Gmail' ? (
                     <TaskHTMLBody dirtyHTML={bodyInput} />

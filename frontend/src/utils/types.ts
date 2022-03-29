@@ -42,6 +42,7 @@ export interface TTask {
     due_date: string
     source: TTaskSource
     sender: string
+    recipients: TRecipients
     is_done: boolean
 }
 
