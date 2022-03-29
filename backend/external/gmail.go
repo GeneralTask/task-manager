@@ -225,6 +225,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				return
 			}
 			// res, err := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedUpdateFields, flattenedUpdateFields)
+			// dbEmail, err := database.InsertEmailIfNotExist(db, userID, thread.Id, email.IDExternal, email.SourceID, flattenedEmail)
 			dbEmail, err := database.InsertEmailIfNotExist(db, userID, thread.Id, email.IDExternal, email.SourceID, flattenedEmail)
 			if err != nil {
 				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
