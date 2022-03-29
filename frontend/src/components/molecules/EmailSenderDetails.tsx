@@ -1,7 +1,7 @@
+import { Colors, Images } from "../../styles"
 import { TRecipient, TRecipients, TSender } from "../../utils/types"
 
 import { Icon } from "../atoms/Icon"
-import { Images } from "../../styles"
 import { Text } from "react-native"
 import { margin } from "../../styles/spacing"
 import styled from "styled-components/native"
@@ -19,7 +19,7 @@ const KeyContainer = styled.Text`
     display: flex;
     flex-direction: row;
     width: 10%;
-    color: gray;
+    color: ${Colors.gray._600};
 `
 const ValueContainer = styled.Text`
     display: flex;
