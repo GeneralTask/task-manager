@@ -76,7 +76,7 @@ export const FlexGrowView = styled.View`
 interface DetailsTemplateProps {
     top: JSX.Element | JSX.Element[] | undefined | null
     title: JSX.Element | JSX.Element[] | undefined | null
-    senderDetails?: JSX.Element | JSX.Element[] | undefined | null
+    subtitle?: JSX.Element | JSX.Element[] | undefined | null
     body: JSX.Element | JSX.Element[] | undefined | null
 }
 
@@ -89,8 +89,8 @@ const DetailsTemplate = (props: DetailsTemplateProps) => {
             <TaskTitleContainer>
                 {props.title}
             </TaskTitleContainer>
-            {props.senderDetails}
-            <BodyContainer marginTop={props.senderDetails === undefined}>
+            {props.subtitle}
+            <BodyContainer marginTop={props.subtitle === undefined}>
                 {props.body}
             </BodyContainer>
         </DetailsViewContainer>

@@ -102,7 +102,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     onBlur={handleBlur}
                 />
             }
-            senderDetails={task.source.name === 'Gmail' ? <EmailSenderDetails sender={task.sender} recipients={task.recipients} /> : undefined}
+            subtitle={task.source.name === 'Gmail' ? <EmailSenderDetails sender={task.sender} recipients={task.recipients} /> : undefined}
             body={
                 task.source.name === 'Asana' || task.source.name === 'Gmail' ? (
                     <TaskHTMLBody dirtyHTML={bodyInput} />
