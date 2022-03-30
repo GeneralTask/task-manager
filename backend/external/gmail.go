@@ -87,6 +87,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 
 		var nestedEmails []database.Email
+		var mostRecentEmailTimestamp primitive.DateTime
 		threadItem := &database.Item{
 			TaskBase: database.TaskBase{
 				UserID: userID,
@@ -157,6 +158,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 			recipients := *GetRecipients(message.Payload.Headers)
 
+			if timeSent > mostRecentEmailTimestamp {
+				mostRecentEmailTimestamp = timeSent
+			}
 			email := database.Email{
 				ThreadID:     thread.Id,
 				EmailID:      message.Id,
@@ -214,6 +218,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 
 		// We flatten in order to do partial updates of nested documents correctly in mongodb
+		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = nestedEmails
 		flattenedUpdateFields, err := flatbson.Flatten(threadItem)
 		if err != nil {
