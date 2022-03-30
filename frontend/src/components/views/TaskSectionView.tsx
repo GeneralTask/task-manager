@@ -1,24 +1,23 @@
-import { Colors, Flex, Screens, Spacing } from '../../styles'
-import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
-import { useNavigate, useParams } from 'react-router-dom'
-
-import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
-import EventBanner from '../molecules/EventBanner'
-import Loading from '../atoms/Loading'
-import { SectionHeader } from '../molecules/Header'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
+import { useNavigate, useParams } from 'react-router-dom'
 import { TASK_REFETCH_INTERVAL } from '../../constants'
-import Task from '../molecules/Task'
+import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
+import { Colors, Flex, Screens, Spacing } from '../../styles'
+import { useInterval } from '../../utils/hooks'
+import { getSectionById } from '../../utils/task'
+import Loading from '../atoms/Loading'
 import TaskDetails from '../details/TaskDetails'
+import CreateNewTask from '../molecules/CreateNewTask'
+import EventBanner from '../molecules/EventBanner'
+import { SectionHeader } from '../molecules/Header'
+import Task from '../molecules/Task'
 import TaskDropContainer from '../molecules/TaskDropContainer'
 import TaskSelectionController from '../molecules/TaskSelectionController'
-import { getSectionById } from '../../utils/task'
-import { useInterval } from '../../utils/hooks'
 
 const TaskSection = () => {
-    const { data: taskSections, isLoading, refetch, isFetching } = useGetTasks()
+    const { data: taskSections, isLoading, isFetching } = useGetTasks()
     const { refetch: fetchExternalTasks } = useFetchExternalTasks()
 
     const refetchWasLocal = useRef(false)
@@ -31,8 +30,7 @@ const TaskSection = () => {
     const onRefresh = useCallback(async () => {
         refetchWasLocal.current = true
         fetchExternalTasks()
-        refetch()
-    }, [fetchExternalTasks, refetch])
+    }, [fetchExternalTasks])
 
     useInterval(onRefresh, TASK_REFETCH_INTERVAL)
 
