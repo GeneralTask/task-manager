@@ -515,7 +515,7 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 
 	messageToSend := gmail.Message{
 		Raw:      base64.URLEncoding.EncodeToString(msg),
-		ThreadId: email.EmailThread.ThreadID,
+		ThreadId: email.Email.ThreadID,
 	}
 
 	_, err = gmailService.Users.Messages.Send("me", &messageToSend).Do()
