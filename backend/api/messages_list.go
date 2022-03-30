@@ -13,7 +13,7 @@ type messageSource struct {
 	AccountId     string `json:"account_id"`
 	Name          string `json:"name"`
 	Logo          string `json:"logo"`
-	LogoV2          string `json:"logo_v2"`
+	LogoV2        string `json:"logo_v2"`
 	IsCompletable bool   `json:"is_completable"`
 	IsReplyable   bool   `json:"is_replyable"`
 }
@@ -89,12 +89,12 @@ func (api *API) emailToMessage(e *database.Item) *message {
 		},
 		SentAt:   e.CreatedAtExternal.Time().Format(time.RFC3339),
 		IsUnread: e.Email.IsUnread,
-		IsTask: e.TaskType.IsTask,
+		IsTask:   e.TaskType.IsTask,
 		Source: messageSource{
 			AccountId:     e.SourceAccountID,
 			Name:          messageSourceResult.Details.Name,
 			Logo:          messageSourceResult.Details.Logo,
-			LogoV2:          messageSourceResult.Details.LogoV2,
+			LogoV2:        messageSourceResult.Details.LogoV2,
 			IsCompletable: messageSourceResult.Details.IsCreatable,
 			IsReplyable:   messageSourceResult.Details.IsReplyable,
 		},

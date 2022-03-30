@@ -90,7 +90,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		var mostRecentEmailTimestamp primitive.DateTime
 		threadItem := &database.Item{
 			TaskBase: database.TaskBase{
-				UserID: userID,
+				UserID:          userID,
 				IDExternal:      thread.Id,
 				IDTaskSection:   constants.IDTaskSectionToday,
 				SourceID:        TASK_SOURCE_ID_GMAIL,
@@ -102,7 +102,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				ContainsUnread: true,
 			},
 			TaskType: database.TaskType{
-				IsMessage: true,
+				IsThread: true,
 			},
 		}
 
@@ -166,6 +166,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				EmailID:      message.Id,
 				SenderDomain: senderDomain,
 				SenderEmail:  senderEmail,
+				SenderName:   senderName,
 				Body:         *body,
 				Subject:      title,
 				ReplyTo:      replyTo,

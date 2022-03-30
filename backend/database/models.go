@@ -75,6 +75,7 @@ type Item struct {
 type TaskType struct {
 	IsTask        bool `bson:"is_task"`
 	IsMessage     bool `bson:"is_message"`
+	IsThread      bool `bson:"is_thread"`
 	IsEvent       bool `bson:"is_event"`
 	IsPullRequest bool `bson:"is_pull_request"`
 }
@@ -139,15 +140,17 @@ type EmailThread struct {
 }
 
 type Email struct {
-	ThreadID     string     `bson:"thread_id"`
-	EmailID      string     `bson:"email_id"`
-	Subject      string     `bson:"subject"`
-	Body         string     `bson:"body"`
-	SenderDomain string     `bson:"sender_domain"`
-	SenderEmail  string     `bson:"sender_email"`
-	ReplyTo      string     `bson:"reply_to"`
-	IsUnread     bool       `bson:"is_unread"`
-	Recipients   Recipients `bson:"recipients"`
+	ThreadID     string             `bson:"thread_id"`
+	EmailID      string             `bson:"email_id"`
+	Subject      string             `bson:"subject"`
+	Body         string             `bson:"body"`
+	SenderDomain string             `bson:"sender_domain"`
+	SenderEmail  string             `bson:"sender_email"`
+	SenderName   string             `bson:"sender_name"`
+	ReplyTo      string             `bson:"reply_to"`
+	IsUnread     bool               `bson:"is_unread"`
+	Recipients   Recipients         `bson:"recipients"`
+	SentAt       primitive.DateTime `bson:"sent_at"`
 }
 
 type EmailChangeable struct {
