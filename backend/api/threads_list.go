@@ -77,7 +77,6 @@ func (api *API) ThreadsList(c *gin.Context) {
 		params.Pagination = database.Pagination{Limit: &limit, Page: &page}
 	}
 
-	// emails, err := database.GetEmails(db, userID.(primitive.ObjectID), onlyUnread, params.Pagination)
 	threads, err := database.GetEmailThreads(db, userID.(primitive.ObjectID), onlyUnread, params.Pagination)
 	if err != nil {
 		Handle500(c)
