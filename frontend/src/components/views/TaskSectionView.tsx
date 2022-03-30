@@ -1,9 +1,11 @@
 import { DateTime } from 'luxon'
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
 import { useNavigate, useParams } from 'react-router-dom'
+import { TASK_REFETCH_INTERVAL } from '../../constants'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
 import { Colors, Flex, Screens, Spacing } from '../../styles'
+import { useInterval } from '../../utils/hooks'
 import { getSectionById } from '../../utils/task'
 import Loading from '../atoms/Loading'
 import TaskDetails from '../details/TaskDetails'
@@ -25,10 +27,12 @@ const TaskSection = () => {
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
-    const onRefresh = async () => {
+    const onRefresh = useCallback(async () => {
         refetchWasLocal.current = true
         fetchExternalTasks()
-    }
+    }, [fetchExternalTasks])
+
+    useInterval(onRefresh, TASK_REFETCH_INTERVAL)
 
     useEffect(() => {
         if (taskSections && !getSectionById(taskSections, routerSection) && taskSections.length > 0) {
