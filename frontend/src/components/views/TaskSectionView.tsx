@@ -6,12 +6,12 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
-import DetailsView from './DetailsView'
 import EventBanner from '../molecules/EventBanner'
 import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
 import { TASK_REFETCH_INTERVAL } from '../../constants'
 import Task from '../molecules/Task'
+import TaskDetails from '../details/TaskDetails'
 import TaskDropContainer from '../molecules/TaskDropContainer'
 import TaskSelectionController from '../molecules/TaskSelectionController'
 import { getSectionById } from '../../utils/task'
@@ -90,7 +90,7 @@ const TaskSection = () => {
                     )}
                 </View>
             </ScrollView>
-            {expandedTask && <DetailsView task={expandedTask} />}
+            {expandedTask && <TaskDetails task={expandedTask} />}
         </>
     )
 }
