@@ -249,7 +249,7 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 	if onlyUnread {
 		isUnreadFilter := bson.M{
 			"email_thread.emails": bson.M{
-				"$elemMatch": bson.M{ "is_unread": "true"},
+				"$elemMatch": bson.M{"is_unread": bson.M{"$ne": true}},
 			},
 		}
 		filter["$and"] = append(filter["$and"].([]bson.M), isUnreadFilter)
