@@ -1,7 +1,7 @@
 import React from 'react'
 import { icons } from '../../styles/images'
 import { TTaskSection } from '../../utils/types'
-import NavigationLink from '../molecules/NavigationLink'
+import NavigationLink from './NavigationLink'
 
 interface SectionLinksProps {
     taskSections: TTaskSection[]
