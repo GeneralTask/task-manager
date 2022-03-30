@@ -16,9 +16,8 @@ import Task from '../molecules/Task'
 import TaskDropContainer from '../molecules/TaskDropContainer'
 import TaskSelectionController from '../molecules/TaskSelectionController'
 
-
 const TaskSection = () => {
-    const { data: taskSections, isLoading, refetch, isFetching } = useGetTasks()
+    const { data: taskSections, isLoading, isFetching } = useGetTasks()
     const { refetch: fetchExternalTasks } = useFetchExternalTasks()
 
     const refetchWasLocal = useRef(false)
@@ -31,8 +30,7 @@ const TaskSection = () => {
     const onRefresh = useCallback(async () => {
         refetchWasLocal.current = true
         fetchExternalTasks()
-        refetch()
-    }, [fetchExternalTasks, refetch])
+    }, [fetchExternalTasks])
 
     useInterval(onRefresh, TASK_REFETCH_INTERVAL)
 
