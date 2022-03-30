@@ -36,7 +36,7 @@ const IconContainer = styled.View`
 const UnlinkContainer = styled.View`
     margin-left: auto;
     margin-right: ${Spacing.margin.medium}px;
-    padding-left: 100;
+    padding-left: 100px;
     background-color: ${Colors.gray._100};
     border-radius: ${Border.radius.small};
     padding: ${Spacing.padding.xSmall}px ${Spacing.padding.small}px;
@@ -81,8 +81,8 @@ const SettingsView = () => {
                 <AccountsContainer>
                     <Picker selectedValue={selectedType} onValueChange={(itemValue) => setSelectedType(itemValue)}>
                         <Picker.Item label="Add new account" value="add" />
-                        {supportedTypes?.map((type) => (
-                            <Picker.Item key={type.name} label={type.name} value={type.name} />
+                        {supportedTypes?.map((type, i) => (
+                            <Picker.Item key={i} label={type.name} value={type.name} />
                         ))}
                     </Picker>
                 </AccountsContainer>
