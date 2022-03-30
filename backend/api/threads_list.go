@@ -72,7 +72,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 		onlyUnread = true
 	}
 	if !database.IsValidPagination(params.Pagination) {
-		limit := DEFAULT_MESSAGE_LIMIT
+		limit := DEFAULT_THREAD_LIMIT
 		page := 1
 		params.Pagination = database.Pagination{Limit: &limit, Page: &page}
 	}
