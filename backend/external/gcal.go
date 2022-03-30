@@ -136,6 +136,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				Body:          event.TaskBase.Body,
 				TaskType:      event.TaskType,
 			},
+			nil,
 		)
 		if err != nil {
 			result <- emptyCalendarResult(err)

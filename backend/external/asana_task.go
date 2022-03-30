@@ -135,6 +135,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 				DueDate:     task.DueDate,
 				IsCompleted: &isCompleted,
 			},
+			nil,
 		)
 		if err != nil {
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)

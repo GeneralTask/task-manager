@@ -193,12 +193,16 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				},
 			}
 			// We flatten in order to do partial updates of nested documents correctly in mongodb
-			flattenedUpdateFields, err := flatbson.Flatten(email)
+			flattenedUpdateFields, err := flatbson.Flatten(emailItem)
 			if err != nil {
-				log.Printf("Could not flatten %+v, error: %+v", email, err)
+				log.Printf("Could not flatten %+v, error: %+v", emailItem, err)
 				return
 			}
-			res, err := database.UpdateOrCreateTask(db, userID, emailItem.IDExternal, emailItem.SourceID, flattenedUpdateFields, flattenedUpdateFields)
+			res, err := database.UpdateOrCreateTask(
+				db, userID, emailItem.IDExternal,
+				emailItem.SourceID, flattenedUpdateFields, flattenedUpdateFields,
+				&[]bson.M{{"task_type.is_message": true}},
+			)
 			if err != nil {
 				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 				return
@@ -218,15 +222,19 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			emails = append(emails, emailItem)
 		}
 
-		// We flatten in order to do partial updates of nested documents correctly in mongodb
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = nestedEmails
+		// We flatten in order to do partial updates of nested documents correctly in mongodb
 		flattenedUpdateFields, err := flatbson.Flatten(threadItem)
 		if err != nil {
-			log.Printf("Could not flatten %+v, error: %+v", thread, err)
+			log.Printf("Could not flatten %+v, error: %+v", threadItem, err)
 			return
 		}
-		res, err := database.UpdateOrCreateTask(db, userID, threadItem.IDExternal, threadItem.SourceID, flattenedUpdateFields, flattenedUpdateFields)
+		res, err := database.UpdateOrCreateTask(
+			db, userID, threadItem.IDExternal, threadItem.SourceID,
+			flattenedUpdateFields, flattenedUpdateFields,
+			&[]bson.M{{"task_type.is_thread": true}},
+		)
 		if err != nil {
 			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			return

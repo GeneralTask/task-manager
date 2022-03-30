@@ -141,6 +141,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				Body:        pullRequest.TaskBase.Body,
 				IsCompleted: &isCompleted,
 			},
+			nil,
 		)
 		if err != nil {
 			log.Printf("failed to update or create pull request: %v", err)
