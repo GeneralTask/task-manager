@@ -1,18 +1,21 @@
-import { DateTime } from 'luxon'
-import React, { useEffect, useMemo, useRef } from 'react'
-import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
 import { Colors, Flex, Screens, Spacing } from '../../styles'
-import { getSectionById } from '../../utils/task'
-import Loading from '../atoms/Loading'
-import TaskDetails from '../details/TaskDetails'
+import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
+import { useNavigate, useParams } from 'react-router-dom'
+
 import CreateNewTask from '../molecules/CreateNewTask'
+import { DateTime } from 'luxon'
 import EventBanner from '../molecules/EventBanner'
+import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
+import { TASK_REFETCH_INTERVAL } from '../../constants'
 import Task from '../molecules/Task'
+import TaskDetails from '../details/TaskDetails'
 import TaskDropContainer from '../molecules/TaskDropContainer'
 import TaskSelectionController from '../molecules/TaskSelectionController'
+import { getSectionById } from '../../utils/task'
+import { useInterval } from '../../utils/hooks'
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, refetch, isFetching } = useGetTasks()
@@ -25,11 +28,13 @@ const TaskSection = () => {
 
     //stops fetching animation on iOS from triggering when refetch is called in another component
     if (!isFetching) refetchWasLocal.current = false
-    const onRefresh = async () => {
+    const onRefresh = useCallback(async () => {
         refetchWasLocal.current = true
         fetchExternalTasks()
         refetch()
-    }
+    }, [fetchExternalTasks, refetch])
+
+    useInterval(onRefresh, TASK_REFETCH_INTERVAL)
 
     useEffect(() => {
         if (taskSections && !getSectionById(taskSections, routerSection) && taskSections.length > 0) {
