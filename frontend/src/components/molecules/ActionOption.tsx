@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react'
-
-import ActionValue from '../atoms/ActionValue'
-import DatePicker from './DatePicker'
-import { Icon } from '../atoms/Icon'
-import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import styled from 'styled-components/native'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { Spacing } from '../../styles'
-import { TTask } from '../../utils/types'
-import TimeEstimatePicker from './TimeEstimatePicker'
 import { icons } from '../../styles/images'
-import styled from 'styled-components/native'
+import { useClickOutside } from '../../utils/hooks'
+import { TTask } from '../../utils/types'
+import ActionValue from '../atoms/ActionValue'
+import { Icon } from '../atoms/Icon'
+import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import DatePicker from './DatePicker'
+import TimeEstimatePicker from './TimeEstimatePicker'
+
 
 const ActionButton = styled.Pressable`
     display: flex;
@@ -28,6 +29,9 @@ interface ActionOptionProps {
     setIsShown: (isShown: boolean) => void
 }
 const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: ActionOptionProps) => {
+    const actionRef = React.useRef<HTMLDivElement>(null)
+    useClickOutside(actionRef, () => setIsShown(false))
+
     useEffect(() => {
         setIsShown(false)
     }, [task])
@@ -53,16 +57,18 @@ const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: A
     })(action)
 
     return (
-        <ActionButton onPress={() => setIsShown(!isShown)}>
-            {actionString ? <ActionValue value={actionString} /> : <Icon source={icon} size="small" />}
-            {isShown && component}
-            {keyboardShortcut && (
-                <InvisibleKeyboardShortcut shortcut={keyboardShortcut} onKeyPress={() => setIsShown(!isShown)} />
-            )}
-            {isShown && (
-                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={() => setIsShown(false)} />
-            )}
-        </ActionButton>
+        <div ref={actionRef}>
+            <ActionButton onPress={() => setIsShown(!isShown)}>
+                {actionString ? <ActionValue value={actionString} /> : <Icon source={icon} size="small" />}
+                {isShown && component}
+                {keyboardShortcut && (
+                    <InvisibleKeyboardShortcut shortcut={keyboardShortcut} onKeyPress={() => setIsShown(!isShown)} />
+                )}
+                {isShown && (
+                    <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={() => setIsShown(false)} />
+                )}
+            </ActionButton>
+        </div>
     )
 }
 
