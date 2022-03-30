@@ -3,7 +3,7 @@ import ReactTooltip from 'react-tooltip'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { useModifyTask } from '../../services/api-query-hooks'
 import { logos } from '../../styles/images'
-import { TTask, TTaskSection } from '../../utils/types'
+import { TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
 import TooltipWrapper from '../atoms/TooltipWrapper'
@@ -12,13 +12,11 @@ import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './Detai
 
 interface TaskDetailsProps {
     task: TTask
-    section: TTaskSection
 }
 const TaskDetails = (props: TaskDetailsProps) => {
     const { mutate: modifyTask } = useModifyTask()
 
     const [task, setTask] = useState<TTask>(props.task)
-    const [section, setSection] = useState<TTaskSection>(props.section)
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
 
@@ -52,7 +50,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
     // Update the state when the task changes
     useEffect(() => {
         setTask(props.task)
-        setSection(props.section)
         setTitleInput(props.task.title)
         setBodyInput(props.task.body)
 
@@ -93,7 +90,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
                             setIsShown={setDatePickerShown}
                             action="date_picker"
                             task={task}
-                            section={section}
                             keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_DATE_PICKER}
                         />
                     </TooltipWrapper>
@@ -103,7 +99,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
                             setIsShown={setTimeEstimateShown}
                             action="time_allocated"
                             task={task}
-                            section={section}
                             keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_TIME_ESTIMATION_PICKER}
                         />
                     </TooltipWrapper>
@@ -113,7 +108,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
                             setIsShown={setLabelEditorShown}
                             action="label"
                             task={task}
-                            section={section}
                             keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
                         />
                     </TooltipWrapper>

@@ -1,4 +1,5 @@
 import React from 'react'
+import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetTasks, useReorderTask } from '../../services/api-query-hooks'
 import { Colors } from '../../styles'
@@ -37,12 +38,13 @@ export const Header = styled.div`
 
 interface LabelEditorProps {
     task_id: string
-    current_section_id: string
     closeLabelEditor: () => void
 }
-export default function LabelEditor({ task_id, current_section_id, closeLabelEditor }: LabelEditorProps): JSX.Element {
+export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorProps): JSX.Element {
     const { mutate: reorderTask } = useReorderTask()
     const { data } = useGetTasks()
+
+    const current_section_id = useParams().section || ''
 
     const options = data?.map(section => {
         if (section.is_done) return
