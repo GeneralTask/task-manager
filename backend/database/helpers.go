@@ -194,7 +194,7 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 	}
 	if IsValidPagination(pagination) {
 		limit := int64(*pagination.Limit)
-		skip := int64(*pagination.Page - 1) * limit
+		skip := int64(*pagination.Page-1) * limit
 		opts.Skip = &skip
 		opts.Limit = &limit
 	}
@@ -236,7 +236,7 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 	}
 	if IsValidPagination(pagination) {
 		limit := int64(*pagination.Limit)
-		skip := int64(*pagination.Page - 1) * limit
+		skip := int64(*pagination.Page-1) * limit
 		opts.Skip = &skip
 		opts.Limit = &limit
 	}
@@ -248,8 +248,8 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 	}
 	if onlyUnread {
 		isUnreadFilter := bson.M{
-			"thread.emails": bson.M{
-				"$elemMatch": bson.M{ "is_unread": "true" },
+			"email_thread.emails": bson.M{
+				"$elemMatch": bson.M{ "is_unread": "true"},
 			},
 		}
 		filter["$and"] = append(filter["$and"].([]bson.M), isUnreadFilter)

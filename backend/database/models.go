@@ -83,7 +83,7 @@ type TaskType struct {
 type TaskTypeChangeable struct {
 	IsTask        *bool `bson:"is_task,omitempty"`
 	IsMessage     *bool `bson:"is_message,omitempty"`
-	IsThread      bool  `bson:"is_thread,omitempty"`
+	IsThread      *bool `bson:"is_thread,omitempty"`
 	IsEvent       *bool `bson:"is_event,omitempty"`
 	IsPullRequest bool  `bson:"is_pull_request,omitempty"`
 }
@@ -135,7 +135,6 @@ type CalendarEventChangeableFields struct {
 
 type EmailThread struct {
 	ThreadID       string             `bson:"thread_id"`
-	ContainsUnread bool               `bson:"contains_unread"`
 	LastUpdatedAt  primitive.DateTime `bson:"last_updated_at"`
 	Emails         []Email            `bson:"emails,omitempty"`
 }

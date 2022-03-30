@@ -99,7 +99,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			},
 			EmailThread: database.EmailThread{
 				ThreadID:       thread.Id,
-				ContainsUnread: true,
 			},
 			TaskType: database.TaskType{
 				IsThread: true,
