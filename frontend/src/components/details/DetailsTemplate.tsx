@@ -23,8 +23,7 @@ const TaskTitleContainer = styled.View`
     flex-direction: row;
     align-items: center;
 `
-const BodyContainer = styled.View<{ marginTop: boolean }>`
-    margin-top: ${props => props.marginTop ? Spacing.margin.medium : 0}px;
+const BodyContainer = styled.View`
     flex: 1;
     overflow: auto;
 `
@@ -40,6 +39,7 @@ export const TitleInput = webStyled.textarea`
     overflow: hidden;
     display: flex;
     flex: 1;
+    margin-bottom: ${Spacing.margin.medium}px;
     :focus {
         outline: 1px solid ${Colors.gray._500};
     }
@@ -90,7 +90,7 @@ const DetailsTemplate = (props: DetailsTemplateProps) => {
                 {props.title}
             </TaskTitleContainer>
             {props.subtitle}
-            <BodyContainer marginTop={props.subtitle === undefined}>
+            <BodyContainer >
                 {props.body}
             </BodyContainer>
         </DetailsViewContainer>
