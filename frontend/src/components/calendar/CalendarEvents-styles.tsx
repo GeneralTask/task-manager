@@ -4,7 +4,7 @@ export const CELL_HEIGHT = 64
 export const TABLE_WIDTH_PERCENTAGE = 100
 export const CELL_TIME_WIDTH = 43
 export const CELL_BORDER_WIDTH = 3
-export const CELL_LEFT_MARGIN = 10
+export const CELL_LEFT_MARGIN = 6
 export const EVENT_CONTAINER_COLOR = Colors.gray._50
 export const EVENT_TITLE_TEXT_COLOR = Colors.gray._700
 export const EVENT_TIME_TEXT_COLOR = Colors.gray._500
@@ -14,9 +14,24 @@ export const CALENDAR_INDICATOR_COLOR = Colors.red._1
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = 2.5
 
-const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_TIME_WIDTH}px - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px) * 1/var(--squish-factor)`
+const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px) * 1/var(--squish-factor)`
 
 export const DayContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    margin-top: 24px;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    position: relative;
+`
+export const TimeContainer = styled.div`
+    height: 100%;
+    margin-top: 24px;
+    justify-content: center;
+    position: relative;
+`
+export const AllDaysContainer = styled.div`
     width: 100%;
     height: 100%;
     margin-top: 24px;
@@ -70,7 +85,7 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     height: calc(${(props) => props.eventBodyHeight}px - ${EVENT_BOTTOM_PADDING}px);
     top: ${(props) => props.topOffset}px;
     position: absolute;
-    left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_TIME_WIDTH}px + ${CELL_LEFT_MARGIN}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset));
+    left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_LEFT_MARGIN}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset));
     opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
 `
 export const EventInfoContainer = styled.div`

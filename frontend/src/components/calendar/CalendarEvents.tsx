@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import React, { Ref, useEffect, useRef, useState } from 'react'
 import { useGetEvents } from '../../services/api-query-hooks'
 import {
+    AllDaysContainer,
     CalendarCell,
     CalendarRow,
     CalendarTableStyle,
@@ -10,7 +11,8 @@ import {
     CALENDAR_DEFAULT_SCROLL_HOUR,
     CellTime,
     CELL_HEIGHT,
-    DayContainer
+    DayContainer,
+    TimeContainer
 } from './CalendarEvents-styles'
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { TimeIndicator } from './TimeIndicator'
@@ -69,8 +71,8 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
     const endDate = startDate.endOf('day')
     const { data: events } = useGetEvents(
         {
-            startISO: date.minus({ days: 2 }).toISO(),
-            endISO: date.plus({ days: 2 }).toISO(),
+            startISO: date.minus({ days: numDays }).toISO(),
+            endISO: date.plus({ days: numDays }).toISO(),
         },
         'sidebar'
     )
@@ -78,7 +80,7 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
         (event) =>
             DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate
     )
-    const groups = findCollisionGroups(eventList || [])
+    const groups = findCollisionGroups(eventList ?? [])
 
     useEffect(() => {
         setSelectedDateIsToday(startDate.equals(DateTime.now().startOf('day')))
@@ -91,13 +93,24 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
     }, [])
 
     return (
-        <DayContainer ref={eventsContainerRef}>
-            {groups.map((group, index) => (
-                <CollisionGroupColumns key={index} events={group} date={date} />
-            ))}
-            {selectedDateIsToday && <TimeIndicator />}
-            <CalendarTimeTable />
-            <CalendarDayTable />
-        </DayContainer>
+        <AllDaysContainer ref={eventsContainerRef}>
+            <TimeContainer>
+                <CalendarTimeTable />
+            </TimeContainer>
+            <DayContainer>
+                {groups.map((group, index) => (
+                    <CollisionGroupColumns key={index} events={group} date={date} />
+                ))}
+                {selectedDateIsToday && <TimeIndicator />}
+                <CalendarDayTable />
+            </DayContainer>
+            <DayContainer>
+                {groups.map((group, index) => (
+                    <CollisionGroupColumns key={index} events={group} date={date} />
+                ))}
+                {selectedDateIsToday && <TimeIndicator />}
+                <CalendarDayTable />
+            </DayContainer>
+        </AllDaysContainer>
     )
 }
