@@ -9,7 +9,8 @@
     "web": "WEB_PORT=3000 expo start --web",
     "eject": "expo eject",
     "prettier:fix": "prettier --write",
-    "lint": "eslint --fix"
+    "lint": "eslint --fix",
+    "test": "jest"
   },
   "lint-staged": {
     "*.tsx": [
@@ -68,6 +69,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
+    "@types/jest": "^27.4.1",
     "@types/js-cookie": "^3.0.1",
     "@types/react": "~17.0.21",
     "@types/react-modal": "^3.13.1",
