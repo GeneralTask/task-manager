@@ -15,7 +15,7 @@ import TaskDropContainer from '../molecules/TaskDropContainer'
 import TaskSelectionController from '../molecules/TaskSelectionController'
 
 const TaskSection = () => {
-    const { data: taskSections, isLoading, refetch, isFetching } = useGetTasks()
+    const { data: taskSections, isLoading, isFetching } = useGetTasks()
     const { refetch: fetchExternalTasks } = useFetchExternalTasks()
 
     const refetchWasLocal = useRef(false)
@@ -28,7 +28,6 @@ const TaskSection = () => {
     const onRefresh = async () => {
         refetchWasLocal.current = true
         fetchExternalTasks()
-        refetch()
     }
 
     useEffect(() => {
