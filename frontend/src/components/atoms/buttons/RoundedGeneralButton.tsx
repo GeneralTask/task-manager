@@ -25,7 +25,7 @@ const ModalText = styled.Text<{ textStyle: 'light' | 'dark' }>`
     font-size: ${Typography.xSmall.fontSize}px;
 `
 
-interface ModalButtonProps {
+interface RoundedGeneralButtonProps {
     value: string
     onPress: () => void
     color?: string
@@ -33,7 +33,7 @@ interface ModalButtonProps {
     hasBorder?: boolean
     disabled?: boolean
 }
-const RoundedGeneralButton = (props: ModalButtonProps) => {
+const RoundedGeneralButton = (props: RoundedGeneralButtonProps) => {
     const color = props.disabled ? Colors.gray._400 : props.color || Colors.white
     return (
         <PressableStyled disabled={!!props.disabled} onPress={props.onPress} hasBorder={!!props.hasBorder}>
