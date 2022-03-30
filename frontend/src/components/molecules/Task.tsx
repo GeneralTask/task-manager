@@ -1,8 +1,6 @@
-import { Border, Colors, Spacing } from '../../styles'
 import { ItemTypes, TTask } from '../../utils/types'
 import { Platform, StyleSheet, Text, View } from 'react-native'
 import React, { Ref, useCallback } from 'react'
-import styled, { css } from 'styled-components/native'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import CompleteButton from '../atoms/buttons/CompleteButton'
@@ -11,25 +9,10 @@ import { Icon } from '../atoms/Icon'
 import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import TaskTemplate from '../atoms/TaskTemplate'
-import WebStyled from 'styled-components'
 import { logos } from '../../styles/images'
 import { useAppSelector } from '../../redux/hooks'
 import { useDrag } from 'react-dnd'
-
-const TaskContainerStyle = css<{ isSelected: boolean }>`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    height: 100%;
-    background-color: ${Colors.white};
-    border-radius: ${Border.radius.xxSmall};
-    padding: 0 ${Spacing.padding.small}px;
-    border: 1px solid ${(props) => (props.isSelected ? Colors.gray._500 : Colors.gray._100)};
-`
-const TaskContainerWeb = WebStyled.div<{ isSelected: boolean }>`${TaskContainerStyle}`
-const TaskContainerNative = styled.Pressable<{ isSelected: boolean }>`
-    ${TaskContainerStyle}
-`
+import ItemContainer from './ItemContainer'
 
 interface TaskProps {
     task: TTask
@@ -75,7 +58,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
 
     return (
         <TaskTemplate>
-            <TaskContainer isSelected={isSelected} onPress={onPress} ref={dragPreviewRef}>
+            <ItemContainer isSelected={isSelected} onPress={onPress} ref={dragPreviewRef}>
                 {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />
                 <View style={styles.iconContainer}>
@@ -84,7 +67,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
                 <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
                     {task.title}
                 </Text>
-            </TaskContainer>
+            </ItemContainer>
             {isSelected && Platform.OS === 'web' && <>
                 <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={hideDetailsView} />
                 <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onPress} />
@@ -92,27 +75,6 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
         </TaskTemplate>
     )
 }
-
-interface TaskContainerProps {
-    isSelected: boolean
-    onPress: () => void
-    children: React.ReactNode | React.ReactNode[]
-}
-const TaskContainer = React.forwardRef<HTMLDivElement, TaskContainerProps>(({ isSelected, onPress, children }, ref) => {
-    if (Platform.OS === 'web') {
-        return (
-            <TaskContainerWeb isSelected={isSelected} onClick={onPress} ref={ref}>
-                {children}
-            </TaskContainerWeb>
-        )
-    } else {
-        return (
-            <TaskContainerNative isSelected={isSelected} onPress={onPress}>
-                {children}
-            </TaskContainerNative>
-        )
-    }
-})
 
 const styles = StyleSheet.create({
     iconContainer: {
