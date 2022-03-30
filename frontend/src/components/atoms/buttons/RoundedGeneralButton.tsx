@@ -22,7 +22,7 @@ const RoundedView = styled.View<{ color: string }>`
 const ModalText = styled.Text<{ textStyle: 'light' | 'dark' }>`
     color: ${(props) => (props.textStyle === 'light' ? Colors.white : Colors.black)};
     font-weight: ${Typography.weight._600.fontWeight};
-    font-side: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.xSmall.fontSize}px;
 `
 
 interface ModalButtonProps {

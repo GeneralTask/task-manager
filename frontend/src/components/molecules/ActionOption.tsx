@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react'
-
-import ActionValue from '../atoms/ActionValue'
-import DatePicker from './DatePicker'
-import { Icon } from '../atoms/Icon'
-import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import styled from 'styled-components/native'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { Spacing } from '../../styles'
-import { TTask } from '../../utils/types'
-import TimeEstimatePicker from './TimeEstimatePicker'
 import { icons } from '../../styles/images'
-import styled from 'styled-components/native'
+import { TTask, TTaskSection } from '../../utils/types'
+import ActionValue from '../atoms/ActionValue'
+import { Icon } from '../atoms/Icon'
+import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import DatePicker from './DatePicker'
+import LabelEditor from './LabelEditor'
+import TimeEstimatePicker from './TimeEstimatePicker'
+
 
 const ActionButton = styled.Pressable`
     display: flex;
@@ -22,17 +23,18 @@ const ActionButton = styled.Pressable`
 
 interface ActionOptionProps {
     task: TTask
-    action: 'date_picker' | 'time_allocated'
+    section: TTaskSection
+    action: 'date_picker' | 'time_allocated' | 'label'
     isShown: boolean
     keyboardShortcut?: KEYBOARD_SHORTCUTS
     setIsShown: (isShown: boolean) => void
 }
-const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: ActionOptionProps) => {
+const ActionOption = ({ task, section, action, isShown, keyboardShortcut, setIsShown }: ActionOptionProps) => {
     useEffect(() => {
         setIsShown(false)
     }, [task])
 
-    const { icon, component, actionString } = ((action: 'date_picker' | 'time_allocated') => {
+    const { icon, component, actionString } = ((action: 'date_picker' | 'time_allocated' | 'label') => {
         if (action === 'date_picker') {
             return {
                 icon: icons.calendar_blank,
@@ -42,13 +44,22 @@ const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: A
                 actionString: task.due_date,
             }
         }
-        return {
-            icon: icons.timer,
-            component: <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setIsShown(false)} />,
-            actionString:
-                task.time_allocated / 60000000 === 60000 || task.time_allocated / 60000000 === 0
-                    ? ''
-                    : `${task.time_allocated / 60000000}min`,
+        else if (action === 'time_allocated') {
+            return {
+                icon: icons.timer,
+                component: <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setIsShown(false)} />,
+                actionString:
+                    task.time_allocated / 60000000 === 60000 || task.time_allocated / 60000000 === 0
+                        ? ''
+                        : `${task.time_allocated / 60000000}min`,
+            }
+        }
+        else {
+            return {
+                icon: icons.label,
+                component: <LabelEditor task_id={task.id} current_section_id={section.id} closeLabelEditor={() => setIsShown(false)} />,
+                actionString: ''
+            }
         }
     })(action)
 

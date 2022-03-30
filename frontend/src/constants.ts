@@ -45,6 +45,7 @@ export enum KEYBOARD_SHORTCUTS {
     PREVIOUS = 'ArrowUp',
     SHOW_DATE_PICKER = 'S',
     SHOW_TIME_ESTIMATION_PICKER = 'F',
+    SHOW_LABEL_EDITOR = 'L',
     CREATE_TASK = 'T',
     REFRESH = 'R',
     MARK_COMPLETE = 'D',

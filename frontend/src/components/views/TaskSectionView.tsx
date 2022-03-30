@@ -90,7 +90,7 @@ const TaskSection = () => {
                     )}
                 </View>
             </ScrollView>
-            {expandedTask && <TaskDetails task={expandedTask} />}
+            {expandedTask && currentSection && <TaskDetails task={expandedTask} section={currentSection} />}
         </>
     )
 }
