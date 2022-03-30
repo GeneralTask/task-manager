@@ -43,7 +43,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
     const navigate = useNavigate()
     const params = useParams()
     const isExpanded = params.task === task.id
-    const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_task_id === task.id)
+    const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === task.id)
 
     const hideDetailsView = () => navigate(`/tasks/${params.section}`)
 

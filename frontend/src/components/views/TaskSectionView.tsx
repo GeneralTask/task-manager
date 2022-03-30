@@ -14,7 +14,7 @@ import EventBanner from '../molecules/EventBanner'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
 import TaskDropContainer from '../molecules/TaskDropContainer'
-import TaskSelectionController from '../molecules/TaskSelectionController'
+import ItemSelectionController from '../molecules/ItemSelectionController'
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, isFetching } = useGetTasks()
@@ -52,7 +52,7 @@ const TaskSection = () => {
     return (
         <>
             <ScrollView style={styles.container} refreshControl={refreshControl}>
-                {Platform.OS === 'web' && currentSection && <TaskSelectionController taskSection={currentSection} />}
+                {Platform.OS === 'web' && currentSection && <ItemSelectionController taskSection={currentSection} />}
                 <EventBanner date={DateTime.now()} />
                 <View style={styles.tasksContent}>
                     {isLoading || !currentSection ? (

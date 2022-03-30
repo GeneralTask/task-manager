@@ -1,17 +1,18 @@
+import { Navigate, useLocation, useParams } from '../services/routing'
 import React, { useEffect, useRef, useState } from 'react'
-import { Platform } from 'react-native'
+import { useGetTasks, useGetUserInfo } from '../services/api-query-hooks'
+
 import BottomSheet from 'reanimated-bottom-sheet'
 import CalendarView from '../components/views/CalendarView'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
+import Loading from '../components/atoms/Loading'
 import Messages from '../components/views/MessagesView'
+import { Platform } from 'react-native'
 import Settings from '../components/views/SettingsView'
 import TaskBottomSheet from '../components/views/TaskBottomSheetView'
 import TaskSection from '../components/views/TaskSectionView'
-import { useGetTasks, useGetUserInfo } from '../services/api-query-hooks'
-import { Navigate, useLocation, useParams } from '../services/routing'
-import Loading from '../components/atoms/Loading'
+import { setSelectedItemId } from '../redux/tasksPageSlice'
 import { useAppDispatch } from '../redux/hooks'
-import { setSelectedTaskId } from '../redux/tasksPageSlice'
 
 const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
@@ -25,7 +26,7 @@ const TasksScreen = () => {
 
     useEffect(() => {
         if (params.task) {
-            dispatch(setSelectedTaskId(params.task))
+            dispatch(setSelectedItemId(params.task))
         }
     }, [params])
 
