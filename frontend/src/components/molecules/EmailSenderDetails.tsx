@@ -48,18 +48,14 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
         setShowDetails(false)
     }, [sender, recipients])
 
-    const fromDetails = <Row>
+    const senderDisplayText = typeof sender === 'string'
+        ? sender
+        : <>
+            <Bold>{sender.name} </Bold>{`<${sender.email}>`}
+        </>
+    const senderDetailsRow = <Row>
         <KeyContainer>From:</KeyContainer>
-        {typeof sender === 'string'
-            ? <ValueContainer>{sender}</ValueContainer>
-            : sender.name
-                ? <ValueContainer>
-                    <Bold>{sender.name} </Bold>
-                    {`<${sender.email}>`}
-                </ValueContainer>
-                : <ValueContainer>
-                    <Bold>{sender.email}</Bold>
-                </ValueContainer>}
+        <ValueContainer>{senderDisplayText}</ValueContainer>
     </Row >
 
     const restOfDetails = !showDetails
@@ -78,7 +74,7 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
         </>
 
     return <Container>
-        {fromDetails}
+        {senderDetailsRow}
         {restOfDetails}
         <ExpandCollapse onPress={() => setShowDetails(!showDetails)} >
             {showDetails
