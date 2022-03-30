@@ -36,6 +36,23 @@ const ExpandCollapse = styled.Pressable`
     justify-content: center;
 `
 
+interface RecipientDetailsProps {
+    category: string
+    recipients: TRecipient[]
+}
+function RecipientDetails({ category, recipients }: RecipientDetailsProps): JSX.Element {
+    return <>
+        {recipients.map(({ name, email }, index) => {
+            return <Row key={index}>
+                <KeyContainer>{index === 0 && category}</KeyContainer>
+                <ValueContainer>
+                    <Text>{name ? `${name} <${email}>` : email}</Text>
+                </ValueContainer>
+            </Row>
+        })}
+    </>
+}
+
 interface EmailSenderDetailsProps {
     sender: TSender | string
     recipients: TRecipients
@@ -83,23 +100,6 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
             }
         </ExpandCollapse>
     </Container>
-}
-
-interface RecipientDetailsProps {
-    category: string
-    recipients: TRecipient[]
-}
-function RecipientDetails({ category, recipients }: RecipientDetailsProps): JSX.Element {
-    return <>
-        {recipients.map(({ name, email }, index) => {
-            return <Row key={index}>
-                <KeyContainer>{index === 0 && category}</KeyContainer>
-                <ValueContainer>
-                    <Text>{name ? `${name} <${email}>` : email}</Text>
-                </ValueContainer>
-            </Row>
-        })}
-    </>
 }
 
 export default EmailSenderDetails
