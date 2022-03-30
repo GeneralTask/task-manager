@@ -13,7 +13,6 @@ const Container = styled.View`
 const Row = styled.View`
     display: flex;
     flex-direction: row;
-    width: 100%;
 `
 const KeyContainer = styled.Text`
     display: flex;
@@ -24,13 +23,11 @@ const KeyContainer = styled.Text`
 const ValueContainer = styled.Text`
     display: flex;
     flex-direction: row;
-    width: 89%;
 `
 const Bold = styled.Text`
     font-weight: bold;
 `
 const ExpandCollapse = styled.Pressable`
-    width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: center;
