@@ -1,13 +1,13 @@
-import { Colors, Flex, Screens, Spacing } from '../../styles'
+import { DateTime } from 'luxon'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
 import { useNavigate, useParams } from 'react-router-dom'
-import React, { useEffect, useMemo, useRef } from 'react'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
+import { Colors, Flex, Screens, Spacing } from '../../styles'
 import { getSectionById } from '../../utils/task'
 import Loading from '../atoms/Loading'
+import TaskDetails from '../details/TaskDetails'
 import CreateNewTask from '../molecules/CreateNewTask'
-import { DateTime } from 'luxon'
-import DetailsView from './DetailsView'
 import EventBanner from '../molecules/EventBanner'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
@@ -85,7 +85,7 @@ const TaskSection = () => {
                     )}
                 </View>
             </ScrollView>
-            {expandedTask && <DetailsView task={expandedTask} />}
+            {expandedTask && <TaskDetails task={expandedTask} />}
         </>
     )
 }

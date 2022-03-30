@@ -1,23 +1,33 @@
 import { DateTime } from 'luxon'
 import React, { Ref, useEffect, useRef } from 'react'
-import { useGetEventsQuery } from '../../services/generalTaskApi'
+import { useGetEvents } from '../../services/api-query-hooks'
+import { TimeIndicator } from './TimeIndicator'
 import {
     CalendarCell,
-    CalendarRow, CalendarTableStyle, CalendarTD, CALENDAR_DEFAULT_SCROLL_HOUR, CellTime, CELL_HEIGHT, DayContainer
+    CalendarRow,
+    CalendarTableStyle,
+    CalendarTD,
+    CALENDAR_DEFAULT_SCROLL_HOUR,
+    CellTime,
+    CELL_HEIGHT,
+    DayContainer,
 } from './CalendarEvents-styles'
 import CollisionGroupColumns from './CollisionGroupColumns'
-import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 
 function CalendarDayTable(): JSX.Element {
     const hourElements = Array(24)
         .fill(0)
         .map((_, index) => {
-            const timeString = `${((index + 11) % 12) + 1}:00`
+            const hour = ((index + 11) % 12) + 1
+            const isAmPm = (index + 1) <= 12 ? 'am' : 'pm'
+            const timeString = `${hour} ${isAmPm}`
             return (
                 <CalendarRow key={index}>
                     <CalendarTD>
-                        <CalendarCell><CellTime>{timeString}</CellTime></CalendarCell>
+                        <CalendarCell>
+                            <CellTime>{timeString}</CellTime>
+                        </CalendarCell>
                     </CalendarTD>
                 </CalendarRow>
             )
@@ -36,14 +46,20 @@ interface CalendarEventsProps {
 
 export default function CalendarEvents({ date, isToday }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
-
     const startDate = date.startOf('day')
     const endDate = startDate.endOf('day')
-
-    const { data: events } = useGetEventsQuery({ startISO: date.minus({ days: 2 }).toISO(), endISO: date.plus({ days: 2 }).toISO() })
-    const event_list = events?.filter((event) => DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate)
-    const groups = findCollisionGroups(event_list || [])
-
+    const { data: events } = useGetEvents(
+        {
+            startISO: date.minus({ days: 2 }).toISO(),
+            endISO: date.plus({ days: 2 }).toISO(),
+        },
+        'sidebar'
+    )
+    const eventList = events?.filter(
+        (event) =>
+            DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate
+    )
+    const groups = findCollisionGroups(eventList || [])
 
     useEffect(() => {
         if (eventsContainerRef.current) {
@@ -52,7 +68,7 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
     }, [])
 
     return (
-        <DayContainer ref={eventsContainerRef} >
+        <DayContainer ref={eventsContainerRef}>
             {groups.map((group, index) => (
                 <CollisionGroupColumns key={index} events={group} date={date} />
             ))}

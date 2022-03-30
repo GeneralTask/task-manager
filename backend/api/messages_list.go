@@ -19,9 +19,9 @@ type messageSource struct {
 }
 
 type senderV2 struct {
-	Name    string `bson:"name"`
-	Email   string `bson:"email"`
-	ReplyTo string `bson:"reply_to"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	ReplyTo string `json:"reply_to"`
 }
 
 type message struct {
