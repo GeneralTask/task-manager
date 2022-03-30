@@ -18,7 +18,7 @@ import (
 const DEFAULT_THREAD_LIMIT int = 100
 
 type email struct {
-	ID         primitive.ObjectID `json:"id"`
+	SMTPID     string             `json:"smtp_id"`
 	Title      string             `json:"title"`
 	Body       string             `json:"body"`
 	SentAt     string             `json:"sent_at"`
@@ -116,7 +116,7 @@ func (api *API) formatThreadEmails(dbEmails *[]database.Email) *[]email {
 	var emails []email
 	for _, e := range *dbEmails {
 		formattedEmail := email{
-			// ID: e.EmailID, // todo need to generate UUIDs for emails
+			SMTPID: e.SMTPID,
 			Title:    e.Subject,
 			Body:     e.Body,
 			SentAt:   e.SentAt.Time().Format(time.RFC3339),

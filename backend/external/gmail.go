@@ -110,6 +110,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			sender := ""
 			replyTo := ""
 			title := ""
+			smtpID := ""
 			for _, header := range message.Payload.Headers {
 				if header.Name == "From" {
 					sender = header.Value
@@ -117,6 +118,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					replyTo = header.Value
 				} else if header.Name == "Subject" {
 					title = header.Value
+				} else if header.Name == "Message-ID" || header.Name == "Message-Id" {
+					smtpID = header.Value
 				}
 			}
 			var body *string
@@ -162,6 +165,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				mostRecentEmailTimestamp = timeSent
 			}
 			email := database.Email{
+				SMTPID:       smtpID,
 				ThreadID:     thread.Id,
 				EmailID:      message.Id,
 				SenderDomain: senderDomain,

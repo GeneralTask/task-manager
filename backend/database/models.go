@@ -83,7 +83,7 @@ type TaskType struct {
 type TaskTypeChangeable struct {
 	IsTask        *bool `bson:"is_task,omitempty"`
 	IsMessage     *bool `bson:"is_message,omitempty"`
-	IsThread      bool `bson:"is_thread,omitempty"`
+	IsThread      bool  `bson:"is_thread,omitempty"`
 	IsEvent       *bool `bson:"is_event,omitempty"`
 	IsPullRequest bool  `bson:"is_pull_request,omitempty"`
 }
@@ -141,6 +141,7 @@ type EmailThread struct {
 }
 
 type Email struct {
+	SMTPID       string             `bson:"smtp_id"`
 	ThreadID     string             `bson:"thread_id"`
 	EmailID      string             `bson:"email_id"`
 	Subject      string             `bson:"subject"`
