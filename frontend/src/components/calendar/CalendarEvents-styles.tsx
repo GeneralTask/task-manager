@@ -30,10 +30,12 @@ export const CalendarTableStyle = styled.table`
     border-collapse: collapse;
     width: ${TABLE_WIDTH_PERCENTAGE}%;
 `
+export const CalendarTimesTableStyle = styled.table`
+    border-collapse: collapse;
+`
 export const CalendarRow = styled.tr`
     display: block;
     height: ${CELL_HEIGHT}px;
-    border-left: 1px solid ${CALENDAR_TD_COLOR};
 `
 export const CalendarTD = styled.td`
     display: block;
@@ -50,7 +52,8 @@ export const CalendarCell = styled.div`
 export const CellTime = styled.div`
     width: ${CELL_TIME_WIDTH}px;
     height: 40px;
-    margin-top: 6px;
+    margin-top: 4px;
+    margin-right: 4px;
     text-align: right;
 `
 interface EventBodyStyleProps {

@@ -1,21 +1,39 @@
 import { DateTime } from 'luxon'
-import React, { Ref, useEffect, useRef } from 'react'
+import React, { Ref, useEffect, useRef, useState } from 'react'
 import { useGetEvents } from '../../services/api-query-hooks'
-import { TimeIndicator } from './TimeIndicator'
 import {
     CalendarCell,
     CalendarRow,
     CalendarTableStyle,
     CalendarTD,
+    CalendarTimesTableStyle,
     CALENDAR_DEFAULT_SCROLL_HOUR,
     CellTime,
     CELL_HEIGHT,
-    DayContainer,
+    DayContainer
 } from './CalendarEvents-styles'
 import CollisionGroupColumns from './CollisionGroupColumns'
+import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 
 function CalendarDayTable(): JSX.Element {
+    const hourElements = Array(24)
+        .fill(0)
+        .map((_, index) => {
+            return (
+                <CalendarRow key={index}>
+                    <CalendarTD />
+                </CalendarRow>
+            )
+        })
+    return (
+        <CalendarTableStyle>
+            <tbody>{hourElements}</tbody>
+        </CalendarTableStyle>
+    )
+}
+
+function CalendarTimeTable(): JSX.Element {
     const hourElements = Array(24)
         .fill(0)
         .map((_, index) => {
@@ -33,19 +51,20 @@ function CalendarDayTable(): JSX.Element {
             )
         })
     return (
-        <CalendarTableStyle>
+        <CalendarTimesTableStyle>
             <tbody>{hourElements}</tbody>
-        </CalendarTableStyle>
+        </CalendarTimesTableStyle>
     )
 }
 
 interface CalendarEventsProps {
     date: DateTime
-    isToday: boolean
+    numDays: number
 }
 
-export default function CalendarEvents({ date, isToday }: CalendarEventsProps): JSX.Element {
+export default function CalendarEvents({ date, numDays }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
+    const [selectedDateIsToday, setSelectedDateIsToday] = useState<boolean>(false)
     const startDate = date.startOf('day')
     const endDate = startDate.endOf('day')
     const { data: events } = useGetEvents(
@@ -62,6 +81,10 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
     const groups = findCollisionGroups(eventList || [])
 
     useEffect(() => {
+        setSelectedDateIsToday(startDate.equals(DateTime.now().startOf('day')))
+    }, [date])
+
+    useEffect(() => {
         if (eventsContainerRef.current) {
             eventsContainerRef.current.scrollTop = CELL_HEIGHT * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
         }
@@ -72,7 +95,8 @@ export default function CalendarEvents({ date, isToday }: CalendarEventsProps): 
             {groups.map((group, index) => (
                 <CollisionGroupColumns key={index} events={group} date={date} />
             ))}
-            {isToday && <TimeIndicator />}
+            {selectedDateIsToday && <TimeIndicator />}
+            <CalendarTimeTable />
             <CalendarDayTable />
         </DayContainer>
     )

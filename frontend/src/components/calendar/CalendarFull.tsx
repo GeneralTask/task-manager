@@ -2,9 +2,9 @@ import { DateTime } from 'luxon'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { Colors } from '../../styles'
-
 import CalendarEvents from './CalendarEvents'
 import CalendarHeader from './CalendarHeader'
+
 
 const CalendarFullContainer = styled.div`
     flex: 1;
