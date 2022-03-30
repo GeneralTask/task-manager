@@ -48,7 +48,7 @@ const NavigationView = () => {
     const { mutate: addTaskSection } = useAddTaskSection()
     const { pathname } = useLocation()
 
-    const showLoadingSections = isLoading || !taskSections || !sectionIdParam
+    const showLoadingSections = isLoading || !taskSections
 
     return (
         <View style={styles.container}>
@@ -57,7 +57,7 @@ const NavigationView = () => {
             </NavigationViewHeader>
             <ScrollView style={styles.linksFlexContainer}>
                 {showLoadingSections ? <Loading /> :
-                    <NavigationSectionLinks taskSections={taskSections} sectionId={sectionIdParam} pathName={pathname} />
+                    <NavigationSectionLinks taskSections={taskSections} sectionId={sectionIdParam || ''} pathName={pathname} />
                 }
                 <AddSectionView>
                     <Icon size={'small'} source={icons['plus']} />
