@@ -1,26 +1,27 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import { TASK_ACTION_BASE_WIDTH } from '../../constants'
 import { useGetTasks, useReorderTask } from '../../services/api-query-hooks'
 import { Colors } from '../../styles'
+import { radius } from '../../styles/border'
+import { padding } from '../../styles/spacing'
 import { weight, xxSmall } from '../../styles/typography'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { TopNav } from './DatePicker-style'
 
-const LABEL_EDITOR_WIDTH = 150
-const LABEL_EDITOR_PADDING = 10
 export const LabelEditorContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: ${LABEL_EDITOR_WIDTH}px;
+    width: ${TASK_ACTION_BASE_WIDTH}px;
     position: absolute;
     background-color: ${Colors.white};
-    border-radius: 10px;
+    border-radius: ${radius.small};
     box-shadow: 0 0 5px ${Colors.gray._100};
     z-index: 1;
     top: 100%;
     right: 0;
-    padding: ${LABEL_EDITOR_PADDING}px;
+    padding: ${padding.small}px;
     cursor: default;
     gap: 5px;
 `
@@ -33,7 +34,6 @@ export const Header = styled.div`
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: ${Colors.gray._400};
-    padding: 5px;
 `
 
 interface LabelEditorProps {

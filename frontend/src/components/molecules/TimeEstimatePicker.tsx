@@ -1,26 +1,27 @@
 import React from 'react'
 import styled from 'styled-components'
+import { TASK_ACTION_BASE_WIDTH } from '../../constants'
 import { useModifyTask } from '../../services/api-query-hooks'
 import { Colors } from '../../styles'
+import { radius } from '../../styles/border'
 import { icons } from '../../styles/images'
+import { padding } from '../../styles/spacing'
 import { weight, xxSmall } from '../../styles/typography'
 import { TopNav } from './DatePicker-style'
 import GTSelect from './GTSelect'
 
-const TIME_ESTIMATOR_WIDTH = 150
-const TIME_ESTIMATOR_PADDING = 10
 export const TimeEstimateContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: ${TIME_ESTIMATOR_WIDTH}px;
+    width: ${TASK_ACTION_BASE_WIDTH}px;
     position: absolute;
     background-color: ${Colors.white};
-    border-radius: 10px;
+    border-radius: ${radius.small};
     box-shadow: 0 0 5px ${Colors.gray._100};
     z-index: 1;
     top: 100%;
     right: 0;
-    padding: ${TIME_ESTIMATOR_PADDING}px;
+    padding: ${padding.small}px;
     cursor: default;
 `
 
@@ -32,7 +33,6 @@ export const Header = styled.div`
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: ${Colors.gray._400};
-    padding: 5px;
 `
 
 interface TimeEstimateProps {
