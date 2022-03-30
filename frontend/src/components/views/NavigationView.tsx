@@ -14,7 +14,6 @@ import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import WebInput from '../atoms/WebInput'
 import FeedbackButton from '../molecules/FeedbackButton'
-import NavigationLink from '../navigation_sidebar/NavigationLink'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 
 const NavigationViewHeader = styled.View`

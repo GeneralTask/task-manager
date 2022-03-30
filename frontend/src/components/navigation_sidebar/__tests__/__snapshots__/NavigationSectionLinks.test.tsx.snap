@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NavigationSectionLinks renders three components when there are 0 task sections 1`] = `
+Array [
+  <View />,
+  <View />,
+]
+`;
+
+exports[`NavigationSectionLinks renders three components when there is 1 task section 1`] = `
+Array [
+  <View />,
+  <View />,
+  <View />,
+]
+`;
