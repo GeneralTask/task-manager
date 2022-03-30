@@ -12,19 +12,20 @@ interface KeyboardSelectorProps {
 }
 export default function ItemSelectionController({ items, expandItem }: KeyboardSelectorProps) {
     const dispatch = useAppDispatch()
-    const expandedTask = useParams().task
-    // if there is no expanded task, then get the selected task from redux
-    const selectedTaskId = useAppSelector((state) => expandedTask ?? state.tasks_page.selected_item_id)
+    const params = useParams()
+    const expandedItem = params.task ?? useParams().message
+    // if there is no expanded item, then get the selected item from redux
+    const selectedItemId = useAppSelector((state) => expandedItem ?? state.tasks_page.selected_item_id)
 
-    // on press DOWN -> select first task ahh
+    // on press DOWN -> select first item ahh
     const onUpDown = useCallback(
         (direction: 'up' | 'down') => {
             let newSelectedItem = ''
             // if a task is not selected, select the first one
-            if (selectedTaskId == null && items.length > 0) {
+            if (selectedItemId == null && items.length > 0) {
                 newSelectedItem = items[0].id
             } else {
-                const index = items.findIndex((task) => task.id === selectedTaskId)
+                const index = items.findIndex((item) => item.id === selectedItemId)
                 // if for some reason the task is not found, select the first one
                 if (index === -1) {
                     newSelectedItem = items[0].id
@@ -36,12 +37,12 @@ export default function ItemSelectionController({ items, expandItem }: KeyboardS
             }
             if (newSelectedItem) {
                 dispatch(setSelectedItemId(newSelectedItem))
-                if (expandedTask) {
+                if (expandedItem) {
                     expandItem(newSelectedItem)
                 }
             }
         },
-        [selectedTaskId, items, expandedTask]
+        [selectedItemId, items, expandedItem]
     )
 
     useKeyboardShortcut('ArrowDown', () => onUpDown('down'))
