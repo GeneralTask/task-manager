@@ -1,12 +1,13 @@
-import React, { useEffect } from 'react'
-import { Platform, StyleSheet, Text, View } from 'react-native'
-import { useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components/native'
 import { Border, Colors, Flex, Spacing } from '../../styles'
-import { logos } from '../../styles/images'
-import { TMessage } from '../../utils/types'
-import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
+import { Platform, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+
 import { Icon } from '../atoms/Icon'
+import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
+import { TMessage } from '../../utils/types'
+import { logos } from '../../styles/images'
+import styled from 'styled-components/native'
 
 const PressableContainer = styled.Pressable<{ isSelected: boolean }>`
     display: flex;
@@ -20,11 +21,31 @@ const PressableContainer = styled.Pressable<{ isSelected: boolean }>`
     border: 1px solid ${(props) => (props.isSelected ? Colors.gray._500 : Colors.gray._100)};
 `
 
+interface MessageContainerProps {
+    isSelected: boolean
+    onPress: () => void
+    children: React.ReactNode | React.ReactNode[]
+}
+const MessageContainer = ({ isSelected, onPress, children }: MessageContainerProps) => {
+    if (Platform.OS === 'web') {
+        return (
+            <TaskContainerWeb isSelected={isSelected} onClick={onPress} ref={ref}>
+                {children}
+            </TaskContainerWeb>
+        )
+    } else {
+        return (
+            <TaskContainerNative isSelected={isSelected} onPress={onPress}>
+                {children}
+            </TaskContainerNative>
+        )
+    }
+}
+
 interface MessageProps {
     message: TMessage
     setSheetTaskId: (label: string) => void
 }
-
 const Message = ({ message, setSheetTaskId }: MessageProps) => {
     const navigate = useNavigate()
     const params = useParams()
