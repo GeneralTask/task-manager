@@ -49,10 +49,14 @@ const TaskSection = () => {
     const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
     const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
 
+    const expandTask = useCallback((itemId: string) => {
+        if (currentSection) navigate(`/tasks/${currentSection.id}/${itemId}`)
+    }, [currentSection])
+
     return (
         <>
             <ScrollView style={styles.container} refreshControl={refreshControl}>
-                {Platform.OS === 'web' && currentSection && <ItemSelectionController taskSection={currentSection} />}
+                {Platform.OS === 'web' && currentSection && <ItemSelectionController items={currentSection.tasks} expandItem={expandTask} />}
                 <EventBanner date={DateTime.now()} />
                 <View style={styles.tasksContent}>
                     {isLoading || !currentSection ? (
