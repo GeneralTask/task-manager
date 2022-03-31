@@ -1,14 +1,17 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Platform, ScrollView, StyleSheet, View } from 'react-native'
-import { useParams } from 'react-router-dom'
-import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
 import { Colors, Flex, Screens, Spacing } from '../../styles'
-import { TMessage } from '../../utils/types'
+import { Platform, ScrollView, StyleSheet, View } from 'react-native'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
+
 import Loading from '../atoms/Loading'
-import TaskTemplate from '../atoms/TaskTemplate'
+import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
+import Message from '../molecules/Message'
 import MessageDetails from '../details/MessageDetails'
 import { SectionHeader } from '../molecules/Header'
-import Message from '../molecules/Message'
+import { TMessage } from '../../utils/types'
+import TaskTemplate from '../atoms/TaskTemplate'
+import { useInterval } from '../../utils/hooks'
+import { useParams } from 'react-router-dom'
 
 const Messages = () => {
     const { refetch: refetchMessages } = useFetchMessages()
@@ -43,12 +46,7 @@ const Messages = () => {
     )
 
     // Tell the backend to refetch messages from the server every 60 seconds
-    useEffect(() => {
-        const interval = setInterval(() => {
-            refetchMessages()
-        }, 60000)
-        return () => clearInterval(interval)
-    }, [])
+    useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
     return (
         <>
