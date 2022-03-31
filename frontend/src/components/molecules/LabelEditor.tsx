@@ -1,5 +1,5 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { TASK_ACTION_BASE_WIDTH } from '../../constants'
 import { useGetTasks, useReorderTask } from '../../services/api-query-hooks'
@@ -44,14 +44,17 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
     const { mutate: reorderTask } = useReorderTask()
     const { data } = useGetTasks()
 
-    const current_section_id = useParams().section || ''
+    const navigate = useNavigate()
+    const params = useParams()
+    const current_section_id = params.section || ''
 
     const options = data?.map(section => {
-        if (section.is_done) return
+        if (section.is_done || section.id === current_section_id) return
         return (
             <RoundedGeneralButton key={section.id} value={section.name} hasBorder={true} textStyle={'dark'} onPress={() => {
                 reorderTask({ taskId: task_id, dropSectionId: section.id, orderingId: 1, dragSectionId: current_section_id })
                 closeLabelEditor()
+                navigate(`/tasks/${current_section_id}`)
             }} />
         )
     })
