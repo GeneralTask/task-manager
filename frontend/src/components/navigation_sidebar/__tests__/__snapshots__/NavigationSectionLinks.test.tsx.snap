@@ -2,15 +2,457 @@
 
 exports[`NavigationSectionLinks renders three components when there are 0 task sections 1`] = `
 Array [
-  <View />,
-  <View />,
+  <a
+    href="/messages"
+    onClick={[Function]}
+    style={
+      Object {
+        "textDecorationLine": "none",
+        "width": "100%",
+      }
+    }
+  >
+    <View
+      style={
+        Array [
+          Object {
+            "alignItems": "center",
+            "borderColor": "transparent",
+            "borderRadius": 8,
+            "borderStyle": "solid",
+            "borderWidth": 2,
+            "display": "flex",
+            "flexDirection": "row",
+            "height": 28,
+            "marginHorizontal": 6,
+            "marginVertical": 4,
+            "paddingHorizontal": 8,
+            "paddingVertical": 4,
+          },
+          null,
+          null,
+        ]
+      }
+    >
+      <View
+        height={20}
+        style={
+          Array [
+            Object {
+              "alignItems": "center",
+              "height": 20,
+              "justifyContent": "center",
+              "width": 20,
+            },
+          ]
+        }
+        width={20}
+      >
+        <Image
+          source={1}
+          style={
+            Object {
+              "aspectRatio": 1,
+              "height": undefined,
+              "width": "100%",
+            }
+          }
+        />
+      </View>
+      <Text
+        isSelected={false}
+        style={
+          Array [
+            Object {
+              "color": "#71717A",
+              "flexBasis": 0,
+              "flexGrow": 1,
+              "flexShrink": 1,
+              "fontWeight": "500",
+              "marginLeft": 9,
+              "overflow": "hidden",
+            },
+          ]
+        }
+      >
+        Messages
+      </Text>
+      <Text
+        isSelected={false}
+        style={
+          Array [
+            Object {
+              "color": "#71717A",
+              "fontWeight": "500",
+              "marginRight": 9,
+            },
+          ]
+        }
+      />
+    </View>
+  </a>,
+  <a
+    href="/settings"
+    onClick={[Function]}
+    style={
+      Object {
+        "textDecorationLine": "none",
+        "width": "100%",
+      }
+    }
+  >
+    <View
+      style={
+        Array [
+          Object {
+            "alignItems": "center",
+            "borderColor": "transparent",
+            "borderRadius": 8,
+            "borderStyle": "solid",
+            "borderWidth": 2,
+            "display": "flex",
+            "flexDirection": "row",
+            "height": 28,
+            "marginHorizontal": 6,
+            "marginVertical": 4,
+            "paddingHorizontal": 8,
+            "paddingVertical": 4,
+          },
+          null,
+          null,
+        ]
+      }
+    >
+      <View
+        height={20}
+        style={
+          Array [
+            Object {
+              "alignItems": "center",
+              "height": 20,
+              "justifyContent": "center",
+              "width": 20,
+            },
+          ]
+        }
+        width={20}
+      >
+        <Image
+          source={1}
+          style={
+            Object {
+              "aspectRatio": 1,
+              "height": undefined,
+              "width": "100%",
+            }
+          }
+        />
+      </View>
+      <Text
+        isSelected={false}
+        style={
+          Array [
+            Object {
+              "color": "#71717A",
+              "flexBasis": 0,
+              "flexGrow": 1,
+              "flexShrink": 1,
+              "fontWeight": "500",
+              "marginLeft": 9,
+              "overflow": "hidden",
+            },
+          ]
+        }
+      >
+        Settings
+      </Text>
+      <Text
+        isSelected={false}
+        style={
+          Array [
+            Object {
+              "color": "#71717A",
+              "fontWeight": "500",
+              "marginRight": 9,
+            },
+          ]
+        }
+      />
+    </View>
+  </a>,
 ]
 `;
 
 exports[`NavigationSectionLinks renders three components when there is 1 task section 1`] = `
 Array [
-  <View />,
-  <View />,
-  <View />,
+  <a
+    href="/tasks/1"
+    onClick={[Function]}
+    style={
+      Object {
+        "textDecorationLine": "none",
+        "width": "100%",
+      }
+    }
+  >
+    <View
+      style={
+        Array [
+          Object {
+            "alignItems": "center",
+            "borderColor": "transparent",
+            "borderRadius": 8,
+            "borderStyle": "solid",
+            "borderWidth": 2,
+            "display": "flex",
+            "flexDirection": "row",
+            "height": 28,
+            "marginHorizontal": 6,
+            "marginVertical": 4,
+            "paddingHorizontal": 8,
+            "paddingVertical": 4,
+          },
+          null,
+          null,
+        ]
+      }
+    >
+      <View
+        height={20}
+        style={
+          Array [
+            Object {
+              "alignItems": "center",
+              "height": 20,
+              "justifyContent": "center",
+              "width": 20,
+            },
+          ]
+        }
+        width={20}
+      >
+        <Image
+          source={1}
+          style={
+            Object {
+              "aspectRatio": 1,
+              "height": undefined,
+              "width": "100%",
+            }
+          }
+        />
+      </View>
+      <Text
+        isSelected={false}
+        style={
+          Array [
+            Object {
+              "color": "#71717A",
+              "flexBasis": 0,
+              "flexGrow": 1,
+              "flexShrink": 1,
+              "fontWeight": "500",
+              "marginLeft": 9,
+              "overflow": "hidden",
+            },
+          ]
+        }
+      >
+        Section 1
+      </Text>
+      <Text
+        isSelected={false}
+        style={
+          Array [
+            Object {
+              "color": "#71717A",
+              "fontWeight": "500",
+              "marginRight": 9,
+            },
+          ]
+        }
+      >
+        0
+      </Text>
+    </View>
+  </a>,
+  <a
+    href="/messages"
+    onClick={[Function]}
+    style={
+      Object {
+        "textDecorationLine": "none",
+        "width": "100%",
+      }
+    }
+  >
+    <View
+      style={
+        Array [
+          Object {
+            "alignItems": "center",
+            "borderColor": "transparent",
+            "borderRadius": 8,
+            "borderStyle": "solid",
+            "borderWidth": 2,
+            "display": "flex",
+            "flexDirection": "row",
+            "height": 28,
+            "marginHorizontal": 6,
+            "marginVertical": 4,
+            "paddingHorizontal": 8,
+            "paddingVertical": 4,
+          },
+          null,
+          null,
+        ]
+      }
+    >
+      <View
+        height={20}
+        style={
+          Array [
+            Object {
+              "alignItems": "center",
+              "height": 20,
+              "justifyContent": "center",
+              "width": 20,
+            },
+          ]
+        }
+        width={20}
+      >
+        <Image
+          source={1}
+          style={
+            Object {
+              "aspectRatio": 1,
+              "height": undefined,
+              "width": "100%",
+            }
+          }
+        />
+      </View>
+      <Text
+        isSelected={false}
+        style={
+          Array [
+            Object {
+              "color": "#71717A",
+              "flexBasis": 0,
+              "flexGrow": 1,
+              "flexShrink": 1,
+              "fontWeight": "500",
+              "marginLeft": 9,
+              "overflow": "hidden",
+            },
+          ]
+        }
+      >
+        Messages
+      </Text>
+      <Text
+        isSelected={false}
+        style={
+          Array [
+            Object {
+              "color": "#71717A",
+              "fontWeight": "500",
+              "marginRight": 9,
+            },
+          ]
+        }
+      />
+    </View>
+  </a>,
+  <a
+    href="/settings"
+    onClick={[Function]}
+    style={
+      Object {
+        "textDecorationLine": "none",
+        "width": "100%",
+      }
+    }
+  >
+    <View
+      style={
+        Array [
+          Object {
+            "alignItems": "center",
+            "borderColor": "transparent",
+            "borderRadius": 8,
+            "borderStyle": "solid",
+            "borderWidth": 2,
+            "display": "flex",
+            "flexDirection": "row",
+            "height": 28,
+            "marginHorizontal": 6,
+            "marginVertical": 4,
+            "paddingHorizontal": 8,
+            "paddingVertical": 4,
+          },
+          null,
+          null,
+        ]
+      }
+    >
+      <View
+        height={20}
+        style={
+          Array [
+            Object {
+              "alignItems": "center",
+              "height": 20,
+              "justifyContent": "center",
+              "width": 20,
+            },
+          ]
+        }
+        width={20}
+      >
+        <Image
+          source={1}
+          style={
+            Object {
+              "aspectRatio": 1,
+              "height": undefined,
+              "width": "100%",
+            }
+          }
+        />
+      </View>
+      <Text
+        isSelected={false}
+        style={
+          Array [
+            Object {
+              "color": "#71717A",
+              "flexBasis": 0,
+              "flexGrow": 1,
+              "flexShrink": 1,
+              "fontWeight": "500",
+              "marginLeft": 9,
+              "overflow": "hidden",
+            },
+          ]
+        }
+      >
+        Settings
+      </Text>
+      <Text
+        isSelected={false}
+        style={
+          Array [
+            Object {
+              "color": "#71717A",
+              "fontWeight": "500",
+              "marginRight": 9,
+            },
+          ]
+        }
+      />
+    </View>
+  </a>,
 ]
 `;
