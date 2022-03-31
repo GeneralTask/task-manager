@@ -83,7 +83,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 		return
 	}
 
-	orderedMessages, err := api.orderThreads(
+	orderedMessages := api.orderThreads(
 		db,
 		threads,
 		userID.(primitive.ObjectID),
