@@ -95,24 +95,42 @@ func (api *API) ThreadsList(c *gin.Context) {
 	c.JSON(200, orderedMessages)
 }
 
+func (api *API) orderThreads(
+	db *mongo.Database,
+	threadItems *[]database.Item,
+	userID primitive.ObjectID,
+) []*Thread {
+	sort.SliceStable(*threadItems, func(i, j int) bool {
+		a := (*threadItems)[i]
+		b := (*threadItems)[j]
+		return a.EmailThread.LastUpdatedAt > b.EmailThread.LastUpdatedAt
+	})
+
+	var responseThreads []*Thread
+	for _, threadItem := range *threadItems {
+		responseThreads = append(responseThreads, api.createThreadResponse(&threadItem))
+	}
+	return responseThreads
+}
+
 func (api *API) createThreadResponse(t *database.Item) *Thread {
-	messageSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
+	threadSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
 	return &Thread{
 		ID:     t.ID,
 		IsTask: t.IsTask,
 		Source: messageSource{
 			AccountId:     t.SourceAccountID,
-			Name:          messageSourceResult.Details.Name,
-			Logo:          messageSourceResult.Details.Logo,
-			LogoV2:        messageSourceResult.Details.LogoV2,
-			IsCompletable: messageSourceResult.Details.IsCreatable,
-			IsReplyable:   messageSourceResult.Details.IsReplyable,
+			Name:          threadSourceResult.Details.Name,
+			Logo:          threadSourceResult.Details.Logo,
+			LogoV2:        threadSourceResult.Details.LogoV2,
+			IsCompletable: threadSourceResult.Details.IsCreatable,
+			IsReplyable:   threadSourceResult.Details.IsReplyable,
 		},
-		Emails: api.createThreadEmailsResponse(&t.Emails),
+		Emails: createThreadEmailsResponse(&t.Emails),
 	}
 }
 
-func (api *API) createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
+func  createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 	var emails []email
 	for _, e := range *dbEmails {
 		formattedEmail := email{
@@ -135,22 +153,4 @@ func (api *API) createThreadEmailsResponse(dbEmails *[]database.Email) *[]email 
 		emails = append(emails, formattedEmail)
 	}
 	return &emails
-}
-
-func (api *API) orderThreads(
-	db *mongo.Database,
-	threadItems *[]database.Item,
-	userID primitive.ObjectID,
-) []*Thread {
-	sort.SliceStable(*threadItems, func(i, j int) bool {
-		a := (*threadItems)[i]
-		b := (*threadItems)[j]
-		return a.EmailThread.LastUpdatedAt > b.EmailThread.LastUpdatedAt
-	})
-
-	var responseThreads []*Thread
-	for _, threadItem := range *threadItems {
-		responseThreads = append(responseThreads, api.createThreadResponse(&threadItem))
-	}
-	return responseThreads
 }
