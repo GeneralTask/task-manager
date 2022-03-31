@@ -371,6 +371,10 @@ func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string
 	return errors.New("has not been implemented yet")
 }
 
+func (jira JIRASource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+	return errors.New("has not been implemented yet")
+}
+
 func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		token, _ := jira.Atlassian.getToken(userID, accountID)

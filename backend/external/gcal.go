@@ -179,6 +179,115 @@ func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.Object
 	return errors.New("has not been implemented yet")
 }
 
+func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+	parentCtx := context.Background()
+
+	var calendarService *calendar.Service
+
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+
+	if googleCalendar.Google.OverrideURLs.CalendarFetchURL != nil {
+		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		defer cancel()
+		calendarService, err = calendar.NewService(
+			extCtx,
+			option.WithoutAuthentication(),
+			option.WithEndpoint(*googleCalendar.Google.OverrideURLs.CalendarFetchURL),
+		)
+	} else {
+		client := getGoogleHttpClient(db, userID, accountID)
+		if client == nil {
+			log.Printf("failed to fetch google API token")
+			return errors.New("failed to fetch google API token")
+		}
+		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		defer cancel()
+		calendarService, err = calendar.NewService(extCtx, option.WithHTTPClient(client))
+	}
+	if err != nil {
+		log.Printf("unable to create calendar service: %v", err)
+		return fmt.Errorf("unable to create calendar service: %v", err)
+	}
+
+	// log.Printf("jerd %+v", event)
+
+	// TODO - add ID generated from backend or client to prevent duplication
+	gcalEvent := &calendar.Event{
+		Summary:     event.Summary,
+		Location:    event.Location,
+		Description: event.Description,
+		Start: &calendar.EventDateTime{
+			DateTime: event.DatetimeStart.Format(time.RFC3339),
+			TimeZone: event.TimeZone,
+		},
+		End: &calendar.EventDateTime{
+			DateTime: event.DatetimeEnd.Format(time.RFC3339),
+			TimeZone: event.TimeZone,
+		},
+		// Recurrence: []string{"RRULE:FREQ=DAILY;COUNT=2"},
+		Attendees: *createGcalAttendees(&event.Attendees),
+	}
+
+	// attendees := []Attendee{
+	// 	{
+	// 		Name:  "fake",
+	// 		Email: "fake@generaltask.com",
+	// 	},
+	// 	{
+	// 		Name:  "Test",
+	// 		Email: "test@generaltask.com",
+	// 	},
+	// }
+	// gcalEvent = &calendar.Event{
+	// 	Summary:     "Google I/O 2015",
+	// 	Location:    "800 Howard St., San Francisco, CA 94103",
+	// 	Description: "A chance to hear more about Google's developer products.",
+	// 	Start: &calendar.EventDateTime{
+	// 		DateTime: "2022-03-31T09:00:00-07:00",
+	// 		TimeZone: "America/Los_Angeles",
+	// 	},
+	// 	End: &calendar.EventDateTime{
+	// 		DateTime: "2022-03-31T17:00:00-07:00",
+	// 		TimeZone: "America/Los_Angeles",
+	// 	},
+	// 	// Recurrence: []string{"RRULE:FREQ=DAILY;COUNT=2"},
+	// 	Attendees:  *createGcalAttendees(&attendees),
+	// }
+	// log.Printf("jerd %+v", gcalEvent)
+
+	calendarId := "primary"
+
+	gcalEvent, err = calendarService.Events.Insert(calendarId, gcalEvent).Do()
+	if err != nil {
+		log.Fatalf("Unable to create event. %v\n", err)
+	}
+	fmt.Printf("Event created: %s\n", gcalEvent.HtmlLink)
+
+	return nil
+
+}
+
+// type Attendee struct {
+// 	Name  string `json:"name"`
+// 	Email string `json:"email"`
+// }
+
+func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
+	var attendeesList []*calendar.EventAttendee
+	for _, attendee := range *attendees {
+		attendeesList = append(attendeesList, &calendar.EventAttendee{
+			DisplayName: attendee.Name,
+			Email:       attendee.Email,
+		})
+
+	}
+	return &attendeesList
+}
+
 func GetConferenceCall(event *calendar.Event, accountID string) *database.ConferenceCall {
 	// first check for built-in conference URL
 	var conferenceCall *database.ConferenceCall

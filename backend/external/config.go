@@ -267,7 +267,7 @@ var TaskSourceGoogleCalendar = TaskSourceDetails{
 	Logo:          "/images/gcal.svg",
 	LogoV2:        "gcal",
 	IsCompletable: false,
-	IsCreatable:   false,
+	IsCreatable:   true,
 	IsReplyable:   false,
 }
 var TaskSourceGithubPR = TaskSourceDetails{

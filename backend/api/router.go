@@ -30,6 +30,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/linked_accounts/supported_types/", handlers.SupportedAccountTypesList)
 	router.DELETE("/linked_accounts/:account_id/", handlers.DeleteLinkedAccount)
 	router.GET("/events/", handlers.EventsList)
+	router.POST("/events/create/:source_id/", handlers.EventCreate)
 	router.GET("/messages/fetch/", handlers.MessagesFetch)
 	router.GET("/messages/v2/", handlers.MessagesListV2)
 	router.PATCH("/messages/modify/:message_id/", handlers.MessageModify)
