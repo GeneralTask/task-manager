@@ -9,6 +9,8 @@ import { TMessage } from '../../utils/types'
 import { logos } from '../../styles/images'
 import ItemContainer from './ItemContainer'
 import { useAppSelector } from '../../redux/hooks'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
+import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
 
 interface MessageProps {
     message: TMessage
@@ -21,12 +23,14 @@ const Message = ({ message, setSheetTaskId }: MessageProps) => {
     const isExpanded = params.message === message.id
     const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === message.id)
 
+    const hideDetailsView = () => navigate(`/messages/`)
+
     const onPress = () => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(message.id)
         }
         if (params.message === message.id) {
-            navigate(`/messages/`)
+            hideDetailsView()
         } else {
             navigate(`/messages/${message.id}`)
         }
@@ -41,6 +45,10 @@ const Message = ({ message, setSheetTaskId }: MessageProps) => {
             <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
                 {message.title}
             </Text>
+            {isSelected && Platform.OS === 'web' && <>
+                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={hideDetailsView} />
+                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onPress} />
+            </>}
         </ItemContainer>
     )
 }
