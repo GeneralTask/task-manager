@@ -139,18 +139,18 @@ func (api *API) createThreadEmailsResponse(dbEmails *[]database.Email) *[]email 
 
 func (api *API) orderThreads(
 	db *mongo.Database,
-	threads *[]database.Item,
+	threadItems *[]database.Item,
 	userID primitive.ObjectID,
-) ([]*Thread, error) {
-	sort.SliceStable(*threads, func(i, j int) bool {
-		a := (*threads)[i]
-		b := (*threads)[j]
+) []*Thread {
+	sort.SliceStable(*threadItems, func(i, j int) bool {
+		a := (*threadItems)[i]
+		b := (*threadItems)[j]
 		return a.EmailThread.LastUpdatedAt > b.EmailThread.LastUpdatedAt
 	})
 
-	var messages []*Thread
-	for _, thread := range *threads {
-		messages = append(messages, api.createThreadResponse(&thread))
+	var responseThreads []*Thread
+	for _, threadItem := range *threadItems {
+		responseThreads = append(responseThreads, api.createThreadResponse(&threadItem))
 	}
-	return messages, nil
+	return responseThreads
 }
