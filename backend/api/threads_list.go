@@ -108,11 +108,11 @@ func (api *API) createThreadResponse(t *database.Item) *Thread {
 			IsCompletable: messageSourceResult.Details.IsCreatable,
 			IsReplyable:   messageSourceResult.Details.IsReplyable,
 		},
-		Emails: api.formatThreadEmails(&t.Emails),
+		Emails: api.createThreadEmailsResponse(&t.Emails),
 	}
 }
 
-func (api *API) formatThreadEmails(dbEmails *[]database.Email) *[]email {
+func (api *API) createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 	var emails []email
 	for _, e := range *dbEmails {
 		formattedEmail := email{
