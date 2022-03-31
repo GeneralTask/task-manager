@@ -123,7 +123,6 @@ func (api *API) createThreadResponse(t *database.Item) *Thread {
 			Name:          threadSourceResult.Details.Name,
 			Logo:          threadSourceResult.Details.Logo,
 			LogoV2:        threadSourceResult.Details.LogoV2,
-			IsCompletable: threadSourceResult.Details.IsCreatable,
 			IsReplyable:   threadSourceResult.Details.IsReplyable,
 		},
 		Emails: createThreadEmailsResponse(&t.Emails),
