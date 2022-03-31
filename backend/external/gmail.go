@@ -32,6 +32,10 @@ type EmailContents struct {
 	Body       string
 }
 
+type gmailUpdateable struct {
+	database.Email `bson:"email,omitempty"`
+}
+
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -163,14 +167,20 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					IsMessage: true,
 				},
 			}
+			gmailUpdateableFields := emailToGmailUpdateable(email)
 
 			// We flatten in order to do partial updates of nested documents correctly in mongodb
-			flattenedUpdateFields, err := flatbson.Flatten(email)
+			flattenedEmail, err := flatbson.Flatten(email)
 			if err != nil {
 				log.Printf("Could not flatten %+v, error: %+v", email, err)
 				return
 			}
-			res, err := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedUpdateFields, flattenedUpdateFields)
+			flattenedGmailUpdateable, err := flatbson.Flatten(gmailUpdateableFields)
+			if err != nil {
+				log.Printf("Could not flatten %+v, error: %+v", email, err)
+				return
+			}
+			res, err := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedEmail, flattenedGmailUpdateable)
 			if err != nil {
 				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 				return
@@ -623,4 +633,10 @@ func createGmailService(db *mongo.Database, userID primitive.ObjectID, accountID
 	}
 
 	return gmailService, nil
+}
+
+func emailToGmailUpdateable(email *database.Item) *gmailUpdateable {
+	return &gmailUpdateable{
+		Email: email.Email,
+	}
 }
