@@ -18,13 +18,13 @@ import (
 const DEFAULT_THREAD_LIMIT int = 100
 
 type email struct {
-	SMTPID     string             `json:"smtp_id"`
-	Title      string             `json:"title"`
-	Body       string             `json:"body"`
-	SentAt     string             `json:"sent_at"`
-	IsUnread   bool               `json:"is_unread"`
-	Sender     senderV2           `json:"sender"`
-	Recipients Recipients         `json:"recipients"`
+	SMTPID     string     `json:"smtp_id"`
+	Subject    string     `json:"subject"`
+	Body       string     `json:"body"`
+	SentAt     string     `json:"sent_at"`
+	IsUnread   bool       `json:"is_unread"`
+	Sender     senderV2   `json:"sender"`
+	Recipients Recipients `json:"recipients"`
 }
 
 type Thread struct {
@@ -119,22 +119,22 @@ func (api *API) createThreadResponse(t *database.Item) *Thread {
 		ID:     t.ID,
 		IsTask: t.IsTask,
 		Source: messageSource{
-			AccountId:     t.SourceAccountID,
-			Name:          threadSourceResult.Details.Name,
-			Logo:          threadSourceResult.Details.Logo,
-			LogoV2:        threadSourceResult.Details.LogoV2,
-			IsReplyable:   threadSourceResult.Details.IsReplyable,
+			AccountId:   t.SourceAccountID,
+			Name:        threadSourceResult.Details.Name,
+			Logo:        threadSourceResult.Details.Logo,
+			LogoV2:      threadSourceResult.Details.LogoV2,
+			IsReplyable: threadSourceResult.Details.IsReplyable,
 		},
 		Emails: createThreadEmailsResponse(&t.Emails),
 	}
 }
 
-func  createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
+func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 	var emails []email
 	for _, e := range *dbEmails {
 		formattedEmail := email{
-			SMTPID: e.SMTPID,
-			Title:    e.Subject,
+			SMTPID:   e.SMTPID,
+			Subject:  e.Subject,
 			Body:     e.Body,
 			SentAt:   e.SentAt.Time().Format(time.RFC3339),
 			IsUnread: e.IsUnread,
