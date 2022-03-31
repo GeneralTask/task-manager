@@ -25,7 +25,7 @@ func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, 
 }
 
 func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
-	calendarService, err := createGcalService(&googleCalendar, userID, accountID, context.Background())
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
 	if err != nil {
 		result <- emptyCalendarResult(err)
 		return
@@ -234,7 +234,7 @@ func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
 	return &attendeesList
 }
 
-func createGcalService(googleCalendar *GoogleCalendarSource, userID primitive.ObjectID, accountID string, ctx context.Context) (*calendar.Service, error) {
+func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID string, ctx context.Context) (*calendar.Service, error) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return nil, err
@@ -242,13 +242,13 @@ func createGcalService(googleCalendar *GoogleCalendarSource, userID primitive.Ob
 	defer dbCleanup()
 
 	var calendarService *calendar.Service
-	if googleCalendar.Google.OverrideURLs.CalendarFetchURL != nil {
+	if overrideURL != nil {
 		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
 		defer cancel()
 		calendarService, err = calendar.NewService(
 			extCtx,
 			option.WithoutAuthentication(),
-			option.WithEndpoint(*googleCalendar.Google.OverrideURLs.CalendarFetchURL),
+			option.WithEndpoint(*overrideURL),
 		)
 	} else {
 		client := getGoogleHttpClient(db, userID, accountID)
