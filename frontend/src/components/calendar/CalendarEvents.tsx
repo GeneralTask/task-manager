@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
-import React, { Ref, useEffect, useRef, useState } from 'react'
+import React, { Ref, useEffect, useRef } from 'react'
 import { useGetEvents } from '../../services/api-query-hooks'
+import { TEvent } from '../../utils/types'
 import {
     AllDaysContainer,
     CalendarCell,
@@ -66,51 +67,52 @@ interface CalendarEventsProps {
 
 export default function CalendarEvents({ date, numDays }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
-    const [selectedDateIsToday, setSelectedDateIsToday] = useState<boolean>(false)
-    const startDate = date.startOf('day')
-    const endDate = startDate.endOf('day')
     const { data: events } = useGetEvents(
         {
-            startISO: date.minus({ days: numDays }).toISO(),
-            endISO: date.plus({ days: numDays }).toISO(),
+            startISO: date.minus({ days: numDays * 2 }).toISO(),
+            endISO: date.plus({ days: numDays * 2 }).toISO(),
         },
-        'sidebar'
+        'calendar'
     )
-    const eventList = events?.filter(
-        (event) =>
-            DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate
-    )
-    const groups = findCollisionGroups(eventList ?? [])
-
-    useEffect(() => {
-        setSelectedDateIsToday(startDate.equals(DateTime.now().startOf('day')))
-    }, [date])
-
     useEffect(() => {
         if (eventsContainerRef.current) {
             eventsContainerRef.current.scrollTop = CELL_HEIGHT * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
         }
     }, [])
 
+    const allGroups: TEvent[][][] = []
+
+    for (let i = 0; i < numDays; i++) {
+        console.log(i)
+
+        const startDate = date.plus({ days: i }).startOf('day')
+        const endDate = startDate.endOf('day')
+        const eventList = events?.filter(
+            (event) =>
+                DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate
+        )
+        allGroups.push(findCollisionGroups(eventList ?? []))
+    }
+
+    console.log(allGroups)
+
+
     return (
         <AllDaysContainer ref={eventsContainerRef}>
             <TimeContainer>
                 <CalendarTimeTable />
             </TimeContainer>
-            <DayContainer>
-                {groups.map((group, index) => (
-                    <CollisionGroupColumns key={index} events={group} date={date} />
-                ))}
-                {selectedDateIsToday && <TimeIndicator />}
-                <CalendarDayTable />
-            </DayContainer>
-            <DayContainer>
-                {groups.map((group, index) => (
-                    <CollisionGroupColumns key={index} events={group} date={date} />
-                ))}
-                {selectedDateIsToday && <TimeIndicator />}
-                <CalendarDayTable />
-            </DayContainer>
+            {
+                allGroups.map((groups, dayOffset) => (
+                    <DayContainer key={dayOffset}>
+                        {groups.map((group, index) => (
+                            <CollisionGroupColumns key={index} events={group} date={date.plus({ days: dayOffset })} />
+                        ))}
+                        {/* date.startOf('day').equals(DateTime.now().startOf('day')) && */<TimeIndicator />}
+                        <CalendarDayTable />
+                    </DayContainer>
+                ))
+            }
         </AllDaysContainer>
     )
 }

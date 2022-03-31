@@ -25,7 +25,7 @@ const WeekContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    overflow-y: scroll;
+    flex: 1;
 `
 const CalendarDayHeader = styled.div`
     display: flex;
@@ -42,31 +42,19 @@ const CalendarDayHeader = styled.div`
 const CalendarView = () => {
     const [date, setDate] = useState<DateTime>(DateTime.now())
 
-    // return (
-    //     <CalendarFullViewContainer>
-    //         <CalendarHeader date={date} setDate={setDate} />
-    //         <div style={{ justifyContent: 'space-around', flexDirection: 'row', display: 'flex' }}>
-    //             {Array(7)
-    //                 .fill(0)
-    //                 .map((_, i) => {
-    //                     return <CalendarDayHeader key={i}>{date.plus({ days: i }).toFormat('ccc dd')}</CalendarDayHeader>
-    //                 })}
-    //         </div>
-    //         <WeekContainer>
-    //             {Array(7)
-    //                 .fill(0)
-    //                 .map((_, i) => {
-    //                     return (
-    //                         <CalendarEvents
-    //                             key={i}
-    //                             date={date.plus({ days: i })}
-    //                             isToday={date.plus({ days: i }).day === DateTime.now().day}
-    //                         />
-    //                     )
-    //                 })}
-    //         </WeekContainer>
-    //     </CalendarFullViewContainer>
-    // )
+    return (
+        <CalendarFullViewContainer>
+            <CalendarHeader date={date} setDate={setDate} />
+            <div style={{ justifyContent: 'space-around', flexDirection: 'row', display: 'flex', marginLeft: '40px' }}>
+                {Array(7)
+                    .fill(0)
+                    .map((_, i) => {
+                        return <CalendarDayHeader key={i}>{date.plus({ days: i }).toFormat('ccc dd')}</CalendarDayHeader>
+                    })}
+            </div>
+            <CalendarEvents date={date} numDays={7} />
+        </CalendarFullViewContainer>
+    )
     return (
         <CalendarSidebarViewContainer>
             <CalendarHeader date={date} setDate={setDate} />

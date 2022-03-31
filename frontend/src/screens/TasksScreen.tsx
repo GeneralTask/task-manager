@@ -49,7 +49,7 @@ const TasksScreen = () => {
         <>
             <DefaultTemplate>
                 <>
-                    {currentPage}
+                    {/* {currentPage} */}
                     <CalendarView />
                 </>
             </DefaultTemplate>
