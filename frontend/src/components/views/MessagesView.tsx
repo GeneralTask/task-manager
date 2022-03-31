@@ -1,6 +1,6 @@
 import { Colors, Flex, Screens, Spacing } from '../../styles'
 import { Platform, ScrollView, StyleSheet, View } from 'react-native'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -16,21 +16,9 @@ import { useInterval } from '../../utils/hooks'
 
 const Messages = () => {
     const navigate = useNavigate()
+    const params = useParams()
     const { refetch: refetchMessages } = useFetchMessages()
     const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteMessages()
-
-    const params = useParams()
-    const [selectedMessage, setSelectedMessage] = useState<TMessage | undefined>(undefined)
-    useEffect(() => {
-        setSelectedMessage(undefined)
-        data?.pages.forEach((page) => {
-            page?.forEach((message: TMessage) => {
-                if (message.id === params.message) {
-                    setSelectedMessage(message)
-                }
-            })
-        })
-    }, [params, data])
 
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
@@ -50,7 +38,11 @@ const Messages = () => {
     // Tell the backend to refetch messages from the server every 60 seconds
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
-    const messages = data?.pages.flat()
+    const messages = useMemo(() => data?.pages.flat().filter(message => message != null), [data])
+
+    const expandedMessage = useMemo(() => {
+        return messages?.find((message) => message.id === params.message)
+    }, [params.message, messages])
 
     const expandMessage = useCallback((itemId: string) => navigate(`/messages/${itemId}`), [])
 
@@ -72,7 +64,7 @@ const Messages = () => {
                     {(isLoading || isFetching) && <Loading />}
                 </View>
             </ScrollView>
-            {selectedMessage && <MessageDetails message={selectedMessage} />}
+            {expandedMessage && <MessageDetails message={expandedMessage} />}
         </>
     )
 }
