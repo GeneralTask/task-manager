@@ -9,17 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// type EventCreateParams struct {
-// 	AccountID     string              `json:"account_id" binding:"required"`
-// 	Summary       string              `json:"summary"`
-// 	Location      string              `json:"location"`
-// 	Description   string              `json:"description"`
-// 	TimeZone      string              `json:"time_zone"`
-// 	Attendees     []external.Attendee `json:"attendees"`
-// 	DatetimeStart *time.Time          `form:"datetime_start" binding:"required"`
-// 	DatetimeEnd   *time.Time          `form:"datetime_end" binding:"required"`
-// }
-
 func (api *API) EventCreate(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	sourceID := c.Param("source_id")
