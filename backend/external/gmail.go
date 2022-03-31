@@ -202,14 +202,14 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			gmailUpdateableFields := emailToGmailUpdateable(emailItem)
 
 			// We flatten in order to do partial updates of nested documents correctly in mongodb
-			flattenedEmail, err := flatbson.Flatten(email)
+			flattenedEmail, err := flatbson.Flatten(emailItem)
 			if err != nil {
 				log.Printf("Could not flatten %+v, error: %+v", emailItem, err)
 				return
 			}
 			flattenedGmailUpdateable, err := flatbson.Flatten(gmailUpdateableFields)
 			if err != nil {
-				log.Printf("Could not flatten %+v, error: %+v", email, err)
+				log.Printf("Could not flatten %+v, error: %+v", gmailUpdateableFields, err)
 				return
 			}
 			res, err := database.UpdateOrCreateTask(
