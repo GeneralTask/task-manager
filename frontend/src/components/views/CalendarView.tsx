@@ -45,13 +45,13 @@ const CalendarView = () => {
     return (
         <CalendarFullViewContainer>
             <CalendarHeader date={date} setDate={setDate} />
-            <div style={{ justifyContent: 'space-around', flexDirection: 'row', display: 'flex', marginLeft: '40px' }}>
+            {/* <div style={{ justifyContent: 'space-around', flexDirection: 'row', display: 'flex', marginLeft: '40px' }}>
                 {Array(7)
                     .fill(0)
                     .map((_, i) => {
                         return <CalendarDayHeader key={i}>{date.plus({ days: i }).toFormat('ccc dd')}</CalendarDayHeader>
                     })}
-            </div>
+            </div> */}
             <CalendarEvents date={date} numDays={7} />
         </CalendarFullViewContainer>
     )
