@@ -1,6 +1,6 @@
 import { Image, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native'
 
-import { useKeyboardShortcut } from '../KeyboardShortcuts'
+import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import { KEYBOARD_SHORTCUTS } from '../../../constants'
 import React from 'react'
 import { icons } from '../../../styles/images'

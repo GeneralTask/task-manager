@@ -3,7 +3,7 @@ import { Spacing, Typography } from '../../styles'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-query-hooks'
 
 import { Icon } from '../atoms/Icon'
-import { useKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { Platform } from 'react-native'
 import { icons } from '../../styles/images'

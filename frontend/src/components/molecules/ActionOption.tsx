@@ -7,7 +7,7 @@ import { useClickOutside } from '../../utils/hooks'
 import { TTask } from '../../utils/types'
 import ActionValue from '../atoms/ActionValue'
 import { Icon } from '../atoms/Icon'
-import { useKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import DatePicker from './DatePicker'
 import TimeEstimatePicker from './TimeEstimatePicker'
 

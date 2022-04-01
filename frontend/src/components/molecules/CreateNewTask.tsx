@@ -11,8 +11,8 @@ import {
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { KEYBOARD_SHORTCUTS } from '../../constants'
-import { KeyboardShortcut } from '../atoms/KeyboardShortcuts'
 import { useCreateTask } from '../../services/api-query-hooks'
+import KeyboardShortcut from '../atoms/KeyboardShortcut'
 
 interface CreateNewTaskProps {
     section: string
@@ -68,9 +68,7 @@ const CreateNewTask = (props: CreateNewTaskProps) => {
                 blurOnSubmit={false}
                 ref={inputRef}
             />
-            {Platform.OS === 'web' && (
-                <KeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CREATE_TASK} onKeyPress={() => setIsFocused(true)} />
-            )}
+            <KeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CREATE_TASK} onKeyPress={() => setIsFocused(true)} />
         </View>
     )
 }

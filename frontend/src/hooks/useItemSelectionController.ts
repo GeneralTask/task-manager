@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../redux/hooks'
 
 import { setSelectedItemId } from '../redux/tasksPageSlice'
 import { useCallback } from 'react'
-import { useKeyboardShortcut } from '../components/atoms/KeyboardShortcuts'
+import useKeyboardShortcut from './useKeyboardShortcut'
 import { useParams } from 'react-router-dom'
 import { KEYBOARD_SHORTCUTS } from '../constants'
 

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Icon } from '../atoms/Icon'
-import { useKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import ItemContainer from './ItemContainer'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
