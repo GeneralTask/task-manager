@@ -10,6 +10,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -19,14 +20,16 @@ func TestTaskDetail(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 
-	authToken := login("approved@generaltask.com", "General Tasker")
+	testEmail := fmt.Sprintf("%s@generaltask.com", uuid.New().String()[:4])
+	authToken := login(testEmail, "General Tasker")
 	userID := getUserIDFromAuthToken(t, db, authToken)
+	// userID := primitive.NewObjectID()
 	notUserID := primitive.NewObjectID()
 
 	jiraTaskIDHex := insertTestTask(t, userID, database.Item{
 		TaskBase: database.TaskBase{
 			UserID:      userID,
-			IDExternal:  "sample_jira_id",
+			IDExternal:  "sample_jira_id_details",
 			SourceID:    external.TASK_SOURCE_ID_JIRA,
 			IsCompleted: true,
 		},
@@ -35,7 +38,7 @@ func TestTaskDetail(t *testing.T) {
 	nonUserTaskIDHex := insertTestTask(t, userID, database.Item{
 		TaskBase: database.TaskBase{
 			UserID:     notUserID,
-			IDExternal: "sample_jira_id_2",
+			IDExternal: "sample_jira_id_details_2",
 			SourceID:   external.TASK_SOURCE_ID_JIRA,
 		},
 		TaskType: database.TaskType{IsTask: true},
