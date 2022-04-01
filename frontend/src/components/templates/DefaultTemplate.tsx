@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactTooltip from 'react-tooltip'
 import { Colors } from '../../styles'
-import Navbar from '../views/NavigationView'
+import NavigationView from '../views/NavigationView'
 import '../../styles/tooltip.css'
 import styled from 'styled-components'
 
@@ -28,7 +28,7 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
                 textColor={Colors.black}
                 getContent={createTooltipView}
             />
-            <Navbar />
+            <NavigationView />
             {children}
         </DefaultTemplateContainer>
     )
