@@ -22,6 +22,7 @@ export const logos: { [key: string]: ImageSourcePropType } = {
 }
 
 export const icons: { [key: string]: ImageSourcePropType } = {
+    arrows_out: require('../assets/arrows_out.png'),
     calendar_blank: require('../assets/calendar_blank.png'),
     caret_left: require('../assets/caret_left.png'),
     caret_right: require('../assets/caret_right.png'),

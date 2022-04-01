@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { Colors, Shadows } from '../../styles'
+import { weight } from '../../styles/typography'
 export const CELL_HEIGHT = 64
 export const TABLE_WIDTH_PERCENTAGE = 100
 export const CELL_TIME_WIDTH = 43
@@ -18,17 +19,16 @@ const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_BORDER_WIDTH
 
 export const DayContainer = styled.div`
     width: 100%;
-    height: 100%;
-    margin-top: 24px;
+    height: fit-content;
+    /* margin-top: 24px; */
     flex: 1;
     display: flex;
     justify-content: center;
-    flex-direction: column;
     position: relative;
 `
 export const TimeContainer = styled.div`
     height: 100%;
-    margin-top: 24px;
+    /* margin-top: 40px; */
     justify-content: center;
     position: relative;
 `
@@ -56,6 +56,7 @@ export const CalendarRow = styled.tr`
 export const CalendarTD = styled.td`
     display: block;
     border-top: 1px solid ${CALENDAR_TD_COLOR};
+    border-left: 1px solid ${CALENDAR_TD_COLOR};
     height: 100%;
 `
 export const CalendarCell = styled.div`
@@ -143,4 +144,39 @@ export const DateHeader = styled.div`
     height: 20px;
     color: ${EVENT_TITLE_TEXT_COLOR};
     text-align: center;
+`
+
+export const CalendarDayHeader = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+`
+
+export const DayHeaderText = styled.div`
+    font-size: 16px;
+    font-weight: ${weight._600.fontWeight};
+    color: ${Colors.gray._800};
+`
+export const CalendarContainer = styled.div<{ expanded: boolean }>`
+    min-width: 300px;
+    flex: ${(props) => (props.expanded ? '1' : '0')};
+    background-color: ${Colors.gray._100};
+    display: flex;
+    flex-direction: column;
+`
+export const DayAndHeaderContainer = styled.div`
+    display: flex; 
+    flex-direction: column;
+    width: 100%;
+    height: fit-content;
+`
+export const TimeAndHeaderContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
 `

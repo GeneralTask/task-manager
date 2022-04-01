@@ -8,13 +8,14 @@ import Messages from '../components/views/MessagesView'
 import Settings from '../components/views/SettingsView'
 import TaskBottomSheet from '../components/views/TaskBottomSheetView'
 import TaskSection from '../components/views/TaskSectionView'
-import { useAppDispatch } from '../redux/hooks'
+import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import { setSelectedTaskId } from '../redux/tasksPageSlice'
 import { useGetTasks, useGetUserInfo } from '../services/api-query-hooks'
 import { Navigate, useLocation, useParams } from '../services/routing'
 
 const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
+    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const sheetRef = useRef<BottomSheet>(null)
     const location = useLocation()
     const dispatch = useAppDispatch()
@@ -49,7 +50,7 @@ const TasksScreen = () => {
         <>
             <DefaultTemplate>
                 <>
-                    {/* {currentPage} */}
+                    {expandedCalendar || currentPage}
                     <CalendarView />
                 </>
             </DefaultTemplate>

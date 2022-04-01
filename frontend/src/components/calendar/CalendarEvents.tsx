@@ -1,12 +1,12 @@
 import { DateTime } from 'luxon'
 import React, { Ref, useEffect, useRef } from 'react'
-import styled from 'styled-components'
+import { useAppSelector } from '../../redux/hooks'
 import { useGetEvents } from '../../services/api-query-hooks'
-import { Colors } from '../../styles'
 import { TEvent } from '../../utils/types'
 import {
     AllDaysContainer,
     CalendarCell,
+    CalendarDayHeader,
     CalendarRow,
     CalendarTableStyle,
     CalendarTD,
@@ -14,26 +14,15 @@ import {
     CALENDAR_DEFAULT_SCROLL_HOUR,
     CellTime,
     CELL_HEIGHT,
+    DayAndHeaderContainer,
     DayContainer,
+    DayHeaderText,
+    TimeAndHeaderContainer,
     TimeContainer
 } from './CalendarEvents-styles'
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
-
-const CalendarDayHeader = styled.div`
-    /* display: flex; */
-    /* flex-direction: row; */
-    align-items: center;
-    justify-content: center;
-    height: 40px;
-    position: sticky;
-    top: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: ${Colors.gray._800};
-    border-bottom: 1px solid ${Colors.gray._800};
-`
 
 function CalendarDayTable(): JSX.Element {
     const hourElements = Array(24)
@@ -83,6 +72,7 @@ interface CalendarEventsProps {
 
 export default function CalendarEvents({ date, numDays }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
+    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const { data: events } = useGetEvents(
         {
             startISO: date.minus({ days: numDays * 2 }).toISO(),
@@ -97,10 +87,7 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
     }, [])
 
     const allGroups: TEvent[][][] = []
-
     for (let i = 0; i < numDays; i++) {
-        console.log(i)
-
         const startDate = date.plus({ days: i }).startOf('day')
         const endDate = startDate.endOf('day')
         const eventList = events?.filter(
@@ -110,27 +97,31 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
         allGroups.push(findCollisionGroups(eventList ?? []))
     }
 
-    console.log(allGroups)
-
-
     return (
         <AllDaysContainer ref={eventsContainerRef}>
-            <TimeContainer>
-                <CalendarTimeTable />
-                <TimeIndicator />
-            </TimeContainer>
+            <TimeAndHeaderContainer>
+                {expandedCalendar && <CalendarDayHeader />}
+                <TimeContainer>
+                    <TimeIndicator />
+                    <CalendarTimeTable />
+                </TimeContainer>
+            </TimeAndHeaderContainer>
             {
                 allGroups.map((groups, dayOffset) => (
-                    <>
+                    <DayAndHeaderContainer key={dayOffset}>
+                        {expandedCalendar &&
+                            <CalendarDayHeader>
+                                <DayHeaderText>{date.plus({ days: dayOffset }).toFormat('ccc dd')}</DayHeaderText>
+                            </CalendarDayHeader>
+                        }
                         <DayContainer key={dayOffset}>
-                            <CalendarDayHeader>{date.plus({ days: dayOffset }).toFormat('ccc dd')}</CalendarDayHeader>
                             {groups.map((group, index) => (
                                 <CollisionGroupColumns key={index} events={group} date={date.plus({ days: dayOffset })} />
                             ))}
                             {/* date.startOf('day').equals(DateTime.now().startOf('day')) && */<TimeIndicator />}
                             <CalendarDayTable />
                         </DayContainer>
-                    </>
+                    </DayAndHeaderContainer>
                 ))
             }
         </AllDaysContainer>

@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon'
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
@@ -41,7 +43,7 @@ export const HoverButton = styled(ButtonStyles)`
 export const ArrowButton = styled(ButtonStyles)`
     background-color: inherit;
     &:hover {
-        background-color: ${Colors.gray._200}} 
+        background-color: ${Colors.gray._200};
     }
 `
 
@@ -50,6 +52,8 @@ interface CalendarHeaderProps {
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
 }
 export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
+    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
+    const dispatch = useAppDispatch()
     const selectNext = useCallback(
         () =>
             setDate((date) => {
@@ -68,7 +72,12 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
     return (
         <div>
             <PaddedContainer>
-                <TitleSmall>Calendar</TitleSmall>
+                <HeaderBodyContainer>
+                    <TitleSmall>Calendar</TitleSmall>
+                    <ArrowButton onClick={() => dispatch(setExpandedCalendar(!expandedCalendar))}>
+                        <Icon source={icons.arrows_out} size="small" />
+                    </ArrowButton>
+                </HeaderBodyContainer>
             </PaddedContainer>
             <Divider color={Colors.gray._200} />
             <PaddedContainer>
