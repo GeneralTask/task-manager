@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components/native'
+import styled from 'styled-components'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { TitleLarge } from '../atoms/title/Title'
@@ -9,19 +9,20 @@ import UnauthorizedHeader from '../molecules/UnauthorizedHeader'
 import UnauthorizedFooter from '../molecules/UnauthorizedFooter'
 import { CompanyPolicyPages } from '../../utils/enums'
 
-const CompanyPolicyContainer = styled.View`
+const CompanyPolicyContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
 `
-const Body = styled.View`
+const Body = styled.div`
     max-width: 800px;
     margin: ${Spacing.margin.xLarge}px 0px;
 `
-const PolicyHeader = styled.View`
+const PolicyHeader = styled.div`
     display: flex;
     gap: ${Spacing.margin.small}px;
     margin-bottom: ${Spacing.margin.large}px;
+    align-items: center;
 `
 
 interface CompanyPolicyViewProps {
