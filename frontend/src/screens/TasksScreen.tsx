@@ -8,10 +8,10 @@ import Settings from '../components/views/SettingsView'
 import TaskBottomSheet from '../components/views/TaskBottomSheetView'
 import TaskSection from '../components/views/TaskSectionView'
 import { useGetTasks, useGetUserInfo } from '../services/api-query-hooks'
-import { Navigate, useLocation, useParams } from '../services/routing'
-import Loading from '../components/atoms/Loading'
 import { useAppDispatch } from '../redux/hooks'
 import { setSelectedTaskId } from '../redux/tasksPageSlice'
+import { Navigate, useLocation, useParams } from 'react-router-dom'
+import Loading from '../components/atoms/Loading'
 
 const TasksScreen = () => {
     const [sheetTaskId, setSheetTaskId] = useState('')
