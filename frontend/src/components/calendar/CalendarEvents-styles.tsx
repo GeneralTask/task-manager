@@ -20,7 +20,6 @@ const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_BORDER_WIDTH
 export const DayContainer = styled.div`
     width: 100%;
     height: fit-content;
-    /* margin-top: 24px; */
     flex: 1;
     display: flex;
     justify-content: center;
@@ -28,7 +27,6 @@ export const DayContainer = styled.div`
 `
 export const TimeContainer = styled.div`
     height: 100%;
-    /* margin-top: 40px; */
     justify-content: center;
     position: relative;
 `
