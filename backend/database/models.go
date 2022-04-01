@@ -134,9 +134,9 @@ type CalendarEventChangeableFields struct {
 }
 
 type EmailThread struct {
-	ThreadID       string             `bson:"thread_id"`
-	LastUpdatedAt  primitive.DateTime `bson:"last_updated_at"`
-	Emails         []Email            `bson:"emails,omitempty"`
+	ThreadID      string             `bson:"thread_id"`
+	LastUpdatedAt primitive.DateTime `bson:"last_updated_at"`
+	Emails        []Email            `bson:"emails,omitempty"`
 }
 
 type Email struct {
@@ -162,6 +162,15 @@ type MessageChangeable struct {
 	EmailChangeable `bson:"email,omitempty"`
 	TaskType        *TaskTypeChangeable `bson:"task_type,omitempty"`
 	IsCompleted     *bool               `bson:"is_completed,omitempty"`
+}
+
+type ThreadChangeable struct {
+	IsUnread *bool `bson:"is_unread,omitempty"`
+}
+
+type ThreadItemChangeable struct {
+	ThreadChangeable `bson:"email_thread,omitempty"`
+	TaskType         *TaskTypeChangeable `bson:"task_type,omitempty"`
 }
 
 type Task struct {

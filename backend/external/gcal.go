@@ -217,3 +217,7 @@ func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID,
 func (googleCalendar GoogleCalendarSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
 	return nil
 }
+
+func (googleCalendar GoogleCalendarSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, updateFields *database.ThreadItemChangeable) error {
+	return nil
+}
