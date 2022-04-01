@@ -154,7 +154,7 @@ func TestCalendar(t *testing.T) {
 		database.GetOrCreateTask(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
 		// Rescheduling end time along shouldn't trigger a reset like in the next test case
 		standardTask.DatetimeEnd = primitive.NewDateTimeFromTime(endTime)
-		standardTask.Body = "new description"
+		standardTask.TaskBase.Body = "new description"
 
 		autoEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",

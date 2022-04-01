@@ -1,6 +1,6 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import styled from 'styled-components/native'
-import { Link } from '../../../services/routing'
 import { Colors, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
 import { Icon } from '../Icon'

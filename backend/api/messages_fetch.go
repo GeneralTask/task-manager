@@ -139,7 +139,6 @@ func (api *API) MessagesFetch(c *gin.Context) {
 					Name:          taskSourceResult.Details.Name,
 					Logo:          taskSourceResult.Details.Logo,
 					LogoV2:        taskSourceResult.Details.LogoV2,
-					IsCompletable: taskSourceResult.Details.IsCreatable,
 					IsReplyable:   taskSourceResult.Details.IsReplyable,
 				},
 			},

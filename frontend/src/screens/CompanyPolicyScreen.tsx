@@ -1,7 +1,7 @@
 import React from 'react'
 import { View } from 'react-native'
+import { useLocation } from 'react-router-dom'
 import CompanyPolicyView from '../components/views/CompanyPolicyView'
-import { useLocation } from '../services/routing'
 import { CompanyPolicyPages } from '../utils/enums'
 
 const CompanyPolicyScreen = () => {

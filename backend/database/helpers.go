@@ -20,6 +20,7 @@ func UpdateOrCreateTask(
 	sourceID string,
 	fieldsToInsertIfMissing interface{},
 	fieldsToUpdate interface{},
+	additionalFilters *[]bson.M,
 ) (*mongo.SingleResult, error) {
 	parentCtx := context.Background()
 	taskCollection := GetTaskCollection(db)
@@ -29,6 +30,11 @@ func UpdateOrCreateTask(
 			{"source_id": sourceID},
 			{"user_id": userID},
 		},
+	}
+	if additionalFilters != nil && len(*additionalFilters) > 0 {
+		for _, filter := range *additionalFilters {
+			dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), filter)
+		}
 	}
 	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -216,6 +222,53 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 	err = cursor.All(dbCtx, &activeEmails)
 	if err != nil {
 		log.Printf("Failed to fetch emails for user: %v with pagination: %v", err, pagination)
+		return nil, err
+	}
+	return &activeEmails, nil
+}
+
+func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, pagination Pagination) (*[]Item, error) {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	opts := options.FindOptions{
+		Sort: bson.D{{Key: "email_thread.last_updated_at", Value: -1}},
+	}
+	if IsValidPagination(pagination) {
+		limit := int64(*pagination.Limit)
+		skip := int64(*pagination.Page-1) * limit
+		opts.Skip = &skip
+		opts.Limit = &limit
+	}
+	filter := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+			{"task_type.is_thread": true},
+		},
+	}
+	if onlyUnread {
+		isUnreadFilter := bson.M{
+			"email_thread.emails": bson.M{
+				"$elemMatch": bson.M{"is_unread": true},
+			},
+		}
+		filter["$and"] = append(filter["$and"].([]bson.M), isUnreadFilter)
+	}
+	cursor, err := GetTaskCollection(db).Find(
+		dbCtx,
+		filter,
+		&opts,
+	)
+	if err != nil {
+		log.Printf("Failed to fetch threads for user: %v with pagination: %v", err, pagination)
+		return nil, err
+	}
+	var activeEmails []Item
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &activeEmails)
+	if err != nil {
+		log.Printf("Failed to fetch threads for user: %v with pagination: %v", err, pagination)
 		return nil, err
 	}
 	return &activeEmails, nil

@@ -18,7 +18,7 @@ func AssertTasksEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.SourceAccountID, b.SourceAccountID)
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.Title, b.Title)
-	assert.Equal(t, a.Body, b.Body)
+	assert.Equal(t, a.TaskBase.Body, b.TaskBase.Body)
 	assert.Equal(t, a.HasBeenReordered, b.HasBeenReordered)
 	assert.Equal(t, a.TimeAllocation, b.TimeAllocation)
 	assert.Equal(t, a.ConferenceCall, b.ConferenceCall)

@@ -2,10 +2,10 @@ import React from 'react'
 import { Pressable } from 'react-native'
 import { Colors } from '../../styles'
 import styled from 'styled-components/native'
-import { useNavigate } from '../../services/routing'
 import { Spacing } from '../../styles'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
+import { useNavigate } from 'react-router-dom'
 
 const Header = styled.View`
     width: 100%;
