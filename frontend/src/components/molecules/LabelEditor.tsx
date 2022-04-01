@@ -2,6 +2,8 @@ import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { TASK_ACTION_BASE_WIDTH } from '../../constants'
+import { useAppDispatch } from '../../redux/hooks'
+import { setSelectedTaskId } from '../../redux/tasksPageSlice'
 import { useGetTasks, useReorderTask } from '../../services/api-query-hooks'
 import { Colors } from '../../styles'
 import { radius } from '../../styles/border'
@@ -45,6 +47,7 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
     const { data } = useGetTasks()
 
     const navigate = useNavigate()
+    const dispatch = useAppDispatch()
     const params = useParams()
     const current_section_id = params.section || ''
 
@@ -55,6 +58,7 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
                 reorderTask({ taskId: task_id, dropSectionId: section.id, orderingId: 1, dragSectionId: current_section_id })
                 closeLabelEditor()
                 navigate(`/tasks/${current_section_id}`)
+                dispatch(setSelectedTaskId(null))
             }} />
         )
     })
