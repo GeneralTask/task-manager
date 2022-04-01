@@ -1,51 +1,32 @@
 import React from 'react'
-import { Image, Platform, Pressable, StyleSheet, View } from 'react-native'
-import { DEEPLINK_LOGIN_URL, LOGIN_URL } from '../../../constants'
-import * as WebBrowser from 'expo-web-browser'
-import * as Linking from 'expo-linking'
-import { useAppDispatch } from '../../../redux/hooks'
-import { setAuthToken } from '../../../redux/userDataSlice'
+import { LOGIN_URL } from '../../../constants'
+import styled from 'styled-components'
+import NoStyleButton from './NoStyleButton'
+
 
 const googleButtonDimensions = {
     width: 191,
     height: 92,
 }
+const GoogleButtonContainer = styled.div`
+    width: 100%;
+    max-height: ${googleButtonDimensions.height};
+    display: flex;
+    justify-content: center;
+`
+const GoogleSignInImage = styled.img`
+    width: ${googleButtonDimensions.width}px;
+`
 
 const GoogleSignInButton = () => {
-    const dispatch = useAppDispatch()
-
-    const onPressMobile = async () => {
-        const result = await WebBrowser.openAuthSessionAsync(DEEPLINK_LOGIN_URL, '')
-        if (result.type === 'success') {
-            const { queryParams } = Linking.parse(result.url)
-            dispatch(setAuthToken(queryParams.authToken))
-        }
-    }
-    const onPressWeb = async () => {
-        window.location.href = LOGIN_URL
-    }
-    const onPress = Platform.OS === 'web' ? onPressWeb : onPressMobile
+    const onClick = () => window.location.href = LOGIN_URL
     return (
-        <View style={styles.buttonContainer}>
-            <Pressable onPress={onPress}>
-                <Image style={styles.googleSignIn} source={require('../../../assets/google_sign_in.png')} />
-            </Pressable>
-        </View>
+        <GoogleButtonContainer>
+            <NoStyleButton onClick={onClick}>
+                <GoogleSignInImage src={require('../../../assets/google_sign_in.png')} />
+            </NoStyleButton>
+        </GoogleButtonContainer>
     )
 }
-
-const styles = StyleSheet.create({
-    buttonContainer: {
-        flex: 1,
-        alignItems: 'center',
-        maxHeight: googleButtonDimensions.height,
-    },
-    googleSignIn: {
-        flex: 1,
-        width: googleButtonDimensions.width,
-        height: googleButtonDimensions.height,
-        resizeMode: 'contain',
-    },
-})
 
 export default GoogleSignInButton
