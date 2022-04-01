@@ -20,7 +20,6 @@ func (api *API) TaskDetail(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	log.Println("jerd")
 	task, err := database.GetItem(c.Request.Context(), taskID, userID)
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "task not found"})

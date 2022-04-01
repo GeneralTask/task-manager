@@ -194,9 +194,7 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 }
 
 func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
-	log.Println("jerd taskBaseToTaskResult")
 	taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
-	log.Printf("jerd %+v", taskSourceResult)
 	var dueDate string
 	if t.DueDate.Time().Unix() == int64(0) {
 		dueDate = ""

@@ -60,7 +60,6 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	}
 	defer dbCleanup()
 	taskCollection := GetTaskCollection(db)
-	log.Println("jerd")
 
 	var message Item
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -75,7 +74,6 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 		log.Printf("Failed to get item: %+v, error: %v", itemID, err)
 		return nil, err
 	}
-	log.Println("jerd")
 	return &message, nil
 }
 
