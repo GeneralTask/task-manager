@@ -1,8 +1,6 @@
 import React from 'react'
 import { LOGIN_URL } from '../../../constants'
 import styled from 'styled-components'
-import NoStyleButton from './NoStyleButton'
-
 
 const googleButtonDimensions = {
     width: 191,
