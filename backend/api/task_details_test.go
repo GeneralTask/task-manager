@@ -25,9 +25,10 @@ func TestTaskDetail(t *testing.T) {
 
 	jiraTaskIDHex := insertTestTask(t, userID, database.Item{
 		TaskBase: database.TaskBase{
-			UserID:     userID,
-			IDExternal: "sample_jira_id",
-			SourceID:   external.TASK_SOURCE_ID_JIRA,
+			UserID:      userID,
+			IDExternal:  "sample_jira_id",
+			SourceID:    external.TASK_SOURCE_ID_JIRA,
+			IsCompleted: true,
 		},
 		TaskType: database.TaskType{IsTask: true},
 	})
@@ -79,7 +80,7 @@ func TestTaskDetail(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Jira","logo":"/images/jira.svg","logo_v2":"jira","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","recipients":{"to":[],"cc":[],"bcc":[]},"due_date":"","time_allocated":0,"sent_at":"1969-12-31T18:00:00-06:00","is_done":false}`, jiraTaskIDHex),
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Jira","logo":"/images/jira.svg","logo_v2":"jira","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","recipients":{"to":[],"cc":[],"bcc":[]},"due_date":"","time_allocated":0,"sent_at":"1969-12-31T18:00:00-06:00","is_done":true}`, jiraTaskIDHex),
 			string(body))
 	})
 }
