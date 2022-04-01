@@ -1,16 +1,17 @@
-import { useFonts } from '@use-expo/font'
-import React, { lazy, Suspense } from 'react'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import React, { Suspense, lazy } from 'react'
+
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { QueryClient, QueryClientProvider } from 'react-query'
+import LandingScreen from './src/screens/LandingScreen'
+import Loading from './src/components/atoms/Loading'
+import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
 import store from './src/redux/store'
-import PrivateOutlet from './src/services/PrivateOutlet'
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
-import Loading from './src/components/atoms/Loading'
+import { useFonts } from '@use-expo/font'
 
 const CompanyPolicyScreen = lazy(() => import('./src/screens/CompanyPolicyScreen'))
-const LandingScreen = lazy(() => import('./src/screens/LandingScreen'))
 const TasksScreen = lazy(() => import('./src/screens/TasksScreen'))
 const TermsOfServiceSummaryScreen = lazy(() => import('./src/screens/TermsOfServiceSummaryScreen'))
 
