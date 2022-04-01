@@ -1,7 +1,7 @@
 import { Border, Colors, Spacing } from '../../styles'
 import { ItemTypes, TTask } from '../../utils/types'
 import { Platform, StyleSheet, Text, View } from 'react-native'
-import React, { Ref, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import styled, { css } from 'styled-components/native'
 import { useNavigate, useParams } from 'react-router-dom'
 
