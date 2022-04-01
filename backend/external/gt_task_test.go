@@ -88,7 +88,7 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 		task := (*tasks)[0]
 		assert.True(t, task.IsTask)
 		assert.Equal(t, "send tesla stonk to the moon", task.Title)
-		assert.Equal(t, "body", task.Body)
+		assert.Equal(t, "body", task.TaskBase.Body)
 		assert.Equal(t, timeAllocation, task.TimeAllocation)
 	})
 }
