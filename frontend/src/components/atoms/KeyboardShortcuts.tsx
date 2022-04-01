@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components/native'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { useAppSelector } from '../../redux/hooks'
 import { Border, Colors, Typography } from '../../styles'
 import { ModalEnum } from '../../utils/enums'
@@ -26,7 +27,7 @@ const KeyboardShortcutText = styled.Text`
 
 // gets triggered when the lowercase letter is pressed (including with CAPS LOCK, but not when you hit shift+key)
 interface KeyboardShortcutProps {
-    shortcut: string
+    shortcut: KEYBOARD_SHORTCUTS
     onKeyPress: () => void
     disabled?: boolean
 }
@@ -45,7 +46,7 @@ function InvisibleKeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardS
     return <></>
 }
 
-function useKeyboardShortcut(shortcut: string, onKeyPress: () => void, disabled = false, showIndicator = false): boolean {
+function useKeyboardShortcut(shortcut: KEYBOARD_SHORTCUTS, onKeyPress: () => void, disabled = false, showIndicator = false): boolean {
     const isKeyDown = useRef<boolean>(false)
     const [showKeyDownIndicator, setShowKeyDownIndicator] = useState(false)
 
@@ -62,6 +63,7 @@ function useKeyboardShortcut(shortcut: string, onKeyPress: () => void, disabled 
                 }
                 isKeyDown.current = true
                 onKeyPress()
+                event.stopPropagation()
             }
         },
         [shortcut, onKeyPress, isModalOpen, showIndicator, disabled]
@@ -73,19 +75,22 @@ function useKeyboardShortcut(shortcut: string, onKeyPress: () => void, disabled 
                     setShowKeyDownIndicator(false)
                 }
                 isKeyDown.current = false
+                event.stopPropagation()
             }
         },
         [shortcut, isModalOpen, disabled, showIndicator, disabled]
     )
 
     useEffect(() => {
-        document.addEventListener('keydown', onKeyDown)
-        document.addEventListener('keyup', onKeyUp)
+        if (!disabled) {
+            document.addEventListener('keydown', onKeyDown)
+            document.addEventListener('keyup', onKeyUp)
+        }
         return () => {
             document.removeEventListener('keydown', onKeyDown)
             document.removeEventListener('keyup', onKeyUp)
         }
-    }, [onKeyDown, onKeyUp])
+    }, [disabled, onKeyDown, onKeyUp])
 
     return showKeyDownIndicator
 }

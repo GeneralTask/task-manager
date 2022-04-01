@@ -3,7 +3,7 @@ import { Platform, StyleSheet, Text, View } from 'react-native'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Icon } from '../atoms/Icon'
-import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import { useKeyboardShortcut } from '../atoms/KeyboardShortcuts'
 import ItemContainer from './ItemContainer'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
@@ -35,6 +35,8 @@ const Message = ({ message, setSheetTaskId }: MessageProps) => {
             navigate(`/messages/${message.id}`)
         }
     }
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.CLOSE, hideDetailsView, !isExpanded)
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClick, !isSelected)
 
     return (
         <ItemContainer isSelected={isSelected} onClick={onClick} >
@@ -45,10 +47,6 @@ const Message = ({ message, setSheetTaskId }: MessageProps) => {
             <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
                 {message.title}
             </Text>
-            {isSelected && Platform.OS === 'web' && <>
-                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={hideDetailsView} />
-                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onClick} />
-            </>}
         </ItemContainer>
     )
 }
