@@ -1,16 +1,16 @@
 import { Colors, Flex } from '../../styles'
 import { Platform, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Icon } from '../atoms/Icon'
+import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import ItemContainer from './ItemContainer'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
 import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
+import React from 'react'
 import { TMessage } from '../../utils/types'
 import { logos } from '../../styles/images'
-import ItemContainer from './ItemContainer'
 import { useAppSelector } from '../../redux/hooks'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
-import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
 
 interface MessageProps {
     message: TMessage
@@ -37,7 +37,7 @@ const Message = ({ message, setSheetTaskId }: MessageProps) => {
     }
 
     return (
-        <ItemContainer isSelected={isSelected} onClick={onClick} ref={undefined} >
+        <ItemContainer isSelected={isSelected} onClick={onClick} >
             <MarkAsTaskButton isTask={false} messageId={message.id} />
             <View style={styles.iconContainer}>
                 <Icon source={logos[message.source.logo_v2]} size="small" />

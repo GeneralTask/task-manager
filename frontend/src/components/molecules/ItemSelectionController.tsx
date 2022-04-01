@@ -17,7 +17,7 @@ export default function ItemSelectionController({ items, expandItem }: KeyboardS
     // if there is no expanded item, then get the selected item from redux
     const selectedItemId = useAppSelector((state) => expandedItem ?? state.tasks_page.selected_item_id)
 
-    // on press DOWN -> select first item ahh
+    // on press DOWN -> select first item 
     const onUpDown = useCallback(
         (direction: 'up' | 'down') => {
             let newSelectedItem = ''

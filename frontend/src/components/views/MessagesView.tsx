@@ -1,6 +1,6 @@
 import { Colors, Flex, Screens, Spacing } from '../../styles'
-import { Platform, ScrollView, StyleSheet, View } from 'react-native'
 import React, { useCallback, useMemo, useRef } from 'react'
+import { ScrollView, StyleSheet, View } from 'react-native'
 import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -49,7 +49,7 @@ const Messages = () => {
     return (
         <>
             <ScrollView>
-                {Platform.OS === 'web' && messages && <ItemSelectionController items={messages} expandItem={expandMessage} />}
+                {messages && <ItemSelectionController items={messages} expandItem={expandMessage} />}
                 <View style={styles.messagesContent}>
                     <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
                     {messages?.map((message: TMessage, msgIndex: number) =>
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
         ...Flex.column,
         marginRight: 10,
         marginLeft: 10,
-        marginTop: Platform.OS === 'web' ? Spacing.margin.xLarge : Spacing.margin.large,
+        marginTop: Spacing.margin.xLarge,
         marginBottom: 100,
     },
 })

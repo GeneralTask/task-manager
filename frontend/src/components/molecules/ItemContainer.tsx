@@ -1,6 +1,7 @@
-import WebStyled from 'styled-components'
 import { Border, Colors, Spacing } from "../../styles"
+
 import React from "react"
+import WebStyled from 'styled-components'
 
 const ItemContainerDiv = WebStyled.div<{ isSelected: boolean }>`
     display: flex;
@@ -16,7 +17,7 @@ const ItemContainerDiv = WebStyled.div<{ isSelected: boolean }>`
 interface ItemContainerProps {
     isSelected: boolean
     onClick: () => void
-    children: React.ReactNode | React.ReactNode[]
+    children: React.ReactNode
 }
 const ItemContainer = React.forwardRef<HTMLDivElement, ItemContainerProps>(
     ({ isSelected, onClick, children }, ref) =>
