@@ -1,12 +1,12 @@
 import { ItemTypes, TTask } from '../../utils/types'
-import { Platform, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import React, { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
-import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import { useKeyboardShortcut } from '../atoms/KeyboardShortcuts'
 import ItemContainer from './ItemContainer'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import TaskTemplate from '../atoms/TaskTemplate'
@@ -16,24 +16,20 @@ import { useDrag } from 'react-dnd'
 
 interface TaskProps {
     task: TTask
-    setSheetTaskId: (label: string) => void
     dragDisabled: boolean
     index: number
     sectionId: string
 }
 
-const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProps) => {
+const Task = ({ task, dragDisabled, index, sectionId }: TaskProps) => {
     const navigate = useNavigate()
     const params = useParams()
     const isExpanded = params.task === task.id
     const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === task.id)
 
-    const hideDetailsView = () => navigate(`/tasks/${params.section}`)
+    const hideDetailsView = useCallback(() => navigate(`/tasks/${params.section}`), [params])
 
     const onClick = useCallback(() => {
-        if (Platform.OS === 'ios') {
-            setSheetTaskId(task.id)
-        }
         if (params.task === task.id) {
             hideDetailsView()
         } else {
@@ -53,6 +49,11 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
         [task.id, index, sectionId]
     )
 
+
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.CLOSE, hideDetailsView, !isExpanded)
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClick, !isSelected)
+
+
     return (
         <TaskTemplate>
             <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreview}>
@@ -65,10 +66,6 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
                     {task.title}
                 </Text>
             </ItemContainer>
-            {isSelected && <>
-                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={hideDetailsView} />
-                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onClick} />
-            </>}
         </TaskTemplate>
     )
 }
