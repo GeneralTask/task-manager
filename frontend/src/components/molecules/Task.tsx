@@ -1,7 +1,7 @@
 import { Border, Colors, Spacing } from '../../styles'
 import { ItemTypes, TTask } from '../../utils/types'
 import { Platform, StyleSheet, Text, View } from 'react-native'
-import React, { Ref, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import styled, { css } from 'styled-components/native'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -70,13 +70,10 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
         [task.id, index, sectionId]
     )
 
-    const dragPreviewRef = Platform.OS === 'web' ? (dragPreview as Ref<HTMLDivElement>) : undefined
-    const dragRef = Platform.OS === 'web' ? (drag as Ref<View>) : undefined
-
     return (
         <TaskTemplate>
-            <TaskContainer isSelected={isSelected} onPress={onPress} ref={dragPreviewRef}>
-                {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
+            <TaskContainer isSelected={isSelected} onPress={onPress} ref={dragPreview}>
+                {Platform.OS === 'web' && !dragDisabled && <Domino ref={drag} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />
                 <View style={styles.iconContainer}>
                     <Icon source={logos[task.source.logo_v2]} size="small" />
