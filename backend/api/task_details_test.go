@@ -23,7 +23,6 @@ func TestTaskDetail(t *testing.T) {
 	testEmail := fmt.Sprintf("%s@generaltask.com", uuid.New().String()[:4])
 	authToken := login(testEmail, "General Tasker")
 	userID := getUserIDFromAuthToken(t, db, authToken)
-	// userID := primitive.NewObjectID()
 	notUserID := primitive.NewObjectID()
 
 	jiraTaskIDHex := insertTestTask(t, userID, database.Item{
