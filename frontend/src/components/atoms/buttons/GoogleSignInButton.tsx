@@ -1,8 +1,6 @@
 import React from 'react'
 import { LOGIN_URL } from '../../../constants'
 import styled from 'styled-components'
-import NoStyleButton from './NoStyleButton'
-
 
 const googleButtonDimensions = {
     width: 191,
@@ -19,12 +17,11 @@ const GoogleSignInImage = styled.img`
 `
 
 const GoogleSignInButton = () => {
-    const onClick = () => window.location.href = LOGIN_URL
     return (
         <GoogleButtonContainer>
-            <NoStyleButton onClick={onClick}>
+            <a href={LOGIN_URL}>
                 <GoogleSignInImage src={require('../../../assets/google_sign_in.png')} />
-            </NoStyleButton>
+            </a>
         </GoogleButtonContainer>
     )
 }
