@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components/native'
 import { useAppSelector } from '../../redux/hooks'
 import { Border, Colors, Typography } from '../../styles'
@@ -31,7 +31,7 @@ interface KeyboardShortcutProps {
     disabled?: boolean
 }
 function KeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutProps): JSX.Element {
-    const isKeyDown = useKeyboardShortcut(shortcut, onKeyPress, !!disabled)
+    const isKeyDown = useKeyboardShortcut(shortcut, onKeyPress, true, !!disabled)
     return (
         <KeyboardShortcutContainer isPressed={isKeyDown}>
             <KeyboardShortcutText>{shortcut}</KeyboardShortcutText>
@@ -41,12 +41,13 @@ function KeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutPr
 
 // Keeps state inside of separate component so parent does not have to be re-rendered
 function InvisibleKeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutProps): JSX.Element {
-    useKeyboardShortcut(shortcut, onKeyPress, !!disabled)
+    useKeyboardShortcut(shortcut, onKeyPress, false, !!disabled)
     return <></>
 }
 
-function useKeyboardShortcut(shortcut: string, onKeyPress: () => void, disabled = false): boolean {
-    const [isKeyDown, setIsKeyDown] = useState(false)
+function useKeyboardShortcut(shortcut: string, onKeyPress: () => void, showIndicator = false, disabled = false): boolean {
+    const isKeyDown = useRef<boolean>(false)
+    const [showKeyDownIndicator, setShowKeyDownIndicator] = useState(false)
 
     //Keyboard shortcuts should not trigger when modal is open
     const { isModalOpen } = useAppSelector((state) => ({
@@ -56,19 +57,25 @@ function useKeyboardShortcut(shortcut: string, onKeyPress: () => void, disabled 
     const onKeyDown = useCallback(
         (event: KeyboardEvent) => {
             if (!disabled && !isModalOpen && wasValidKeyPressed(shortcut, event)) {
-                setIsKeyDown(true)
+                if (showIndicator) {
+                    setShowKeyDownIndicator(true)
+                }
+                isKeyDown.current = true
                 onKeyPress()
             }
         },
-        [shortcut, onKeyPress, isModalOpen]
+        [shortcut, onKeyPress, isModalOpen, showIndicator, disabled]
     )
     const onKeyUp = useCallback(
         (event: KeyboardEvent) => {
             if (!disabled && !isModalOpen && wasValidKeyPressed(shortcut, event)) {
-                setIsKeyDown(false)
+                if (showIndicator) {
+                    setShowKeyDownIndicator(false)
+                }
+                isKeyDown.current = false
             }
         },
-        [shortcut, isModalOpen, disabled]
+        [shortcut, isModalOpen, disabled, showIndicator, disabled]
     )
 
     useEffect(() => {
@@ -80,7 +87,7 @@ function useKeyboardShortcut(shortcut: string, onKeyPress: () => void, disabled 
         }
     })
 
-    return isKeyDown
+    return showKeyDownIndicator
 }
 
 /**
