@@ -28,7 +28,6 @@ func (api *API) ThreadModify(c *gin.Context) {
 	}
 	var modifyParams threadModifyParams
 	err = c.BindJSON(&modifyParams)
-
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
@@ -65,12 +64,15 @@ func (api *API) ThreadModify(c *gin.Context) {
 		return
 	}
 
+	log.Printf("jerd1 %+v", threadChangeableFields)
+	log.Printf("jerd1 %+v", threadChangeableFields)
 	err = updateThreadInDB(api, c.Request.Context(), threadID, userID, threadChangeableFields)
 	if err != nil {
 		log.Printf("could not update thread %v in DB with fields %+v", threadID, threadChangeableFields)
 		Handle500(c)
 		return
 	}
+	log.Printf("jerd %+v", threadChangeableFields)
 
 	c.JSON(200, gin.H{})
 }
@@ -96,6 +98,10 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 		log.Printf("Could not flatten %+v, error: %+v", updateFields, err)
 		return err
 	}
+	if len(flattenedUpdateFields) == 0 {
+		// If there are no fields to update in the DB
+		return nil
+	}
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	res, err := taskCollection.UpdateOne(
@@ -106,9 +112,8 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 		}},
 		bson.M{"$set": flattenedUpdateFields},
 	)
-
 	if err != nil {
-		log.Printf("failed to update internal DB: %v", err)
+		log.Printf("failed to update internal DB with fields: %+v and error %v", flattenedUpdateFields, err)
 		return err
 	}
 	if res.MatchedCount != 1 {
@@ -122,7 +127,7 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 
 func threadModifyParamsToChangeable(modifyParams *threadModifyParams) *database.ThreadItemChangeable {
 	return &database.ThreadItemChangeable{
-		TaskType:        &database.TaskTypeChangeable{IsTask: modifyParams.IsTask},
+		TaskType:         &database.TaskTypeChangeable{IsTask: modifyParams.IsTask},
 		ThreadChangeable: database.ThreadChangeable{IsUnread: modifyParams.IsUnread},
 	}
 }
