@@ -154,7 +154,6 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
-		// assert.True(t, threadItem.IsUnread)  // we don't set this for ThreadItems
 		assert.True(t, threadItem.IsThread)
 
 		request, _ := http.NewRequest(
@@ -172,177 +171,200 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
-		assert.False(t, threadItem.IsUnread)
 		assert.True(t, threadItem.IsThread)
 	})
 
-	// t.Run("GmailSuccessUnread", func(t *testing.T) {
-	// 	settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyMarkAsRead)
-	// 	unreadGmailModifyServer := getGmailChangeLabelServer(t, "UNREAD", true)
+	t.Run("GmailSuccessUnread", func(t *testing.T) {
+		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyMarkAsRead)
+		unreadGmailModifyServer := getGmailChangeLabelServer(t, "UNREAD", true)
 
-	// 	api := GetAPI()
-	// 	api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
-	// 	unreadRouter := GetRouter(api)
+		api := GetAPI()
+		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
+		unreadRouter := GetRouter(api)
 
-	// 	var message database.Item
-	// 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	// 	defer cancel()
-	// 	err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
-	// 	assert.False(t, message.IsUnread)
-	// 	assert.True(t, message.IsMessage)
+		var message database.Item
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
+		assert.True(t, message.IsThread)
 
-	// 	request, _ := http.NewRequest(
-	// 		"PATCH",
-	// 		"/messages/modify/"+gmailTaskIDHex+"/",
-	// 		bytes.NewBuffer([]byte(`{"is_unread": true}`)))
-	// 	request.Header.Add("Authorization", "Bearer "+authToken)
-	// 	recorder := httptest.NewRecorder()
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/threads/modify/"+threadIDHex+"/",
+			bytes.NewBuffer([]byte(`{"is_unread": true}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
 
-	// 	assert.NoError(t, err)
+		assert.NoError(t, err)
 
-	// 	unreadRouter.ServeHTTP(recorder, request)
-	// 	assert.Equal(t, http.StatusOK, recorder.Code)
+		unreadRouter.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
 
-	// 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	// 	defer cancel()
-	// 	err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
-	// 	assert.True(t, message.IsUnread)
-	// 	assert.True(t, message.IsMessage)
-	// })
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
+		assert.True(t, message.IsThread)
+	})
 
 }
 
-// func TestMarkMessageAsTask(t *testing.T) {
-// 	parentCtx := context.Background()
-// 	db, dbCleanup, err := database.GetDBConnection()
-// 	assert.NoError(t, err)
-// 	defer dbCleanup()
+func TestMarkThreadAsTask(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
 
-// 	authToken := login("approved@generaltask.com", "")
-// 	userID := getUserIDFromAuthToken(t, db, authToken)
+	testEmail := fmt.Sprintf("%s@generaltask.com", uuid.New().String()[:4])
+	authToken := login(testEmail, "General Tasker")
+	userID := getUserIDFromAuthToken(t, db, authToken)
 
-// 	taskCollection := database.GetTaskCollection(db)
+	taskCollection := database.GetTaskCollection(db)
 
-// 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-// 	defer cancel()
-// 	insertResult, err := taskCollection.InsertOne(dbCtx,
-// 		database.Item{
-// 			TaskBase: database.TaskBase{
-// 				UserID:     userID,
-// 				IDExternal: "sample_gmail_id",
-// 				SourceID:   external.TASK_SOURCE_ID_GMAIL,
-// 			},
-// 			Email: database.Email{
-// 				IsUnread: true,
-// 			},
-// 			TaskType: database.TaskType{
-// 				IsMessage: true,
-// 			},
-// 		},
-// 	)
-// 	assert.NoError(t, err)
-// 	gmailTaskID := insertResult.InsertedID.(primitive.ObjectID)
-// 	gmailTaskIDHex := gmailTaskID.Hex()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
 
-// 	t.Run("MarkMessageAsTask", func(t *testing.T) {
-// 		unreadGmailModifyServer := getGmailChangeLabelServer(t, "UNREAD", false)
+	threadIDHex := insertTestItem(t, userID, database.Item{
+		TaskBase: database.TaskBase{
+			UserID:     userID,
+			IDExternal: "sample_gmail_thread_id",
+			SourceID:   external.TASK_SOURCE_ID_GMAIL,
+		},
+		EmailThread: database.EmailThread{
+			ThreadID:      "sample_gmail_thread_id",
+			LastUpdatedAt: 0,
+			Emails: []database.Email{
+				{
+					SMTPID:       "sample_smtp_1",
+					EmailID:      "sample_gmail_thread_id",
+					Subject:      "test subject 1",
+					Body:         "test body 1",
+					SenderDomain: "gmail",
+					SenderEmail:  "test@generaltask.com",
+					SenderName:   "test",
+					ReplyTo:      "test-reply@generaltask.com",
+					IsUnread:     true,
+					Recipients: database.Recipients{
+						To:  []database.Recipient{{Name: "p1", Email: "p1@gmail.com"}},
+						Cc:  []database.Recipient{{Name: "p2", Email: "p2@gmail.com"}},
+						Bcc: []database.Recipient{{Name: "p3", Email: "p3@gmail.com"}},
+					},
+					SentAt: createTimestamp("2019-04-20"),
+				},
+				{
+					SMTPID:       "sample_smtp_1",
+					EmailID:      "sample_gmail_thread_id",
+					Subject:      "test subject 2",
+					Body:         "test body 2",
+					SenderDomain: "gmail",
+					SenderEmail:  "test@generaltask.com",
+					SenderName:   "test",
+					SentAt:       createTimestamp("2018-04-20"),
+				},
+			},
+		},
+		TaskType: database.TaskType{IsThread: true},
+	})
+	threadID, _ := primitive.ObjectIDFromHex(threadIDHex)
 
-// 		api := GetAPI()
-// 		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
-// 		unreadRouter := GetRouter(api)
+	t.Run("MarkMessageAsTask", func(t *testing.T) {
+		unreadGmailModifyServer := getGmailChangeLabelServer(t, "UNREAD", false)
 
-// 		var message database.Item
-// 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-// 		defer cancel()
-// 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
-// 		assert.False(t, message.IsTask)
-// 		assert.True(t, message.IsMessage)
+		api := GetAPI()
+		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
+		unreadRouter := GetRouter(api)
 
-// 		request, _ := http.NewRequest(
-// 			"PATCH",
-// 			"/messages/modify/"+gmailTaskIDHex+"/",
-// 			bytes.NewBuffer([]byte(`{"is_task": true}`)))
-// 		request.Header.Add("Authorization", "Bearer "+authToken)
-// 		recorder := httptest.NewRecorder()
+		var message database.Item
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
+		assert.False(t, message.IsTask)
+		assert.True(t, message.IsThread)
 
-// 		assert.NoError(t, err)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/threads/modify/"+threadIDHex+"/",
+			bytes.NewBuffer([]byte(`{"is_task": true}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
 
-// 		unreadRouter.ServeHTTP(recorder, request)
-// 		assert.Equal(t, http.StatusOK, recorder.Code)
+		assert.NoError(t, err)
 
-// 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-// 		defer cancel()
-// 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
-// 		assert.True(t, message.IsTask)
-// 		assert.True(t, message.IsMessage)
-// 	})
+		unreadRouter.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
 
-// 	t.Run("MarkMessageAsTaskAgain", func(t *testing.T) {
-// 		unreadGmailModifyServer := getGmailChangeLabelServer(t, "UNREAD", false)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
+		assert.True(t, message.IsTask)
+		assert.True(t, message.IsThread)
+	})
 
-// 		api := GetAPI()
-// 		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
-// 		unreadRouter := GetRouter(api)
+	t.Run("MarkMessageAsTaskAgain", func(t *testing.T) {
+		unreadGmailModifyServer := getGmailChangeLabelServer(t, "UNREAD", false)
 
-// 		var message database.Item
-// 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-// 		defer cancel()
-// 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
-// 		assert.True(t, message.IsTask)
-// 		assert.True(t, message.IsMessage)
+		api := GetAPI()
+		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
+		unreadRouter := GetRouter(api)
 
-// 		request, _ := http.NewRequest(
-// 			"PATCH",
-// 			"/messages/modify/"+gmailTaskIDHex+"/",
-// 			bytes.NewBuffer([]byte(`{"is_task": true}`)))
-// 		request.Header.Add("Authorization", "Bearer "+authToken)
-// 		recorder := httptest.NewRecorder()
+		var message database.Item
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
+		assert.True(t, message.IsTask)
+		assert.True(t, message.IsThread)
 
-// 		assert.NoError(t, err)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/threads/modify/"+threadIDHex+"/",
+			bytes.NewBuffer([]byte(`{"is_task": true}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
 
-// 		unreadRouter.ServeHTTP(recorder, request)
-// 		assert.Equal(t, http.StatusOK, recorder.Code)
+		assert.NoError(t, err)
 
-// 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-// 		defer cancel()
-// 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
-// 		assert.True(t, message.IsTask)
-// 		assert.True(t, message.IsMessage)
-// 	})
+		unreadRouter.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
 
-// 	t.Run("MarkMessageBackToNotTask", func(t *testing.T) {
-// 		unreadGmailModifyServer := getGmailChangeLabelServer(t, "UNREAD", false)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
+		assert.True(t, message.IsTask)
+		assert.True(t, message.IsThread)
+	})
 
-// 		api := GetAPI()
-// 		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
-// 		unreadRouter := GetRouter(api)
+	t.Run("MarkMessageBackToNotTask", func(t *testing.T) {
+		unreadGmailModifyServer := getGmailChangeLabelServer(t, "UNREAD", false)
 
-// 		var message database.Item
-// 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-// 		defer cancel()
-// 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
-// 		assert.True(t, message.IsTask)
-// 		assert.True(t, message.IsMessage)
+		api := GetAPI()
+		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
+		unreadRouter := GetRouter(api)
 
-// 		request, _ := http.NewRequest(
-// 			"PATCH",
-// 			"/messages/modify/"+gmailTaskIDHex+"/",
-// 			bytes.NewBuffer([]byte(`{"is_task": false}`)))
-// 		request.Header.Add("Authorization", "Bearer "+authToken)
-// 		recorder := httptest.NewRecorder()
+		var message database.Item
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
+		assert.True(t, message.IsTask)
+		assert.True(t, message.IsThread)
 
-// 		assert.NoError(t, err)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/threads/modify/"+threadIDHex+"/",
+			bytes.NewBuffer([]byte(`{"is_task": false}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
 
-// 		unreadRouter.ServeHTTP(recorder, request)
-// 		assert.Equal(t, http.StatusOK, recorder.Code)
+		assert.NoError(t, err)
 
-// 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-// 		defer cancel()
-// 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&message)
-// 		assert.False(t, message.IsTask)
-// 		assert.True(t, message.IsMessage)
-// 	})
-// }
+		unreadRouter.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
+		assert.False(t, message.IsTask)
+		assert.True(t, message.IsThread)
+	})
+}
 
 func insertTestItem(t *testing.T, userID primitive.ObjectID, task database.Item) string {
 	db, dbCleanup, err := database.GetDBConnection()
