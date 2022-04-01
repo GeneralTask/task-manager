@@ -3,9 +3,9 @@ import { gray } from '../../styles/colors'
 import { View, StyleSheet, Platform } from 'react-native'
 import { Flex } from '../../styles'
 
-const Domino = React.forwardRef<View>((_, ref) => {
+const Domino = React.forwardRef<HTMLDivElement>((_, ref) => {
     return (
-        <View style={styles.DominoOuterContainer} ref={ref}>
+        <div style={styles.DominoOuterContainer} ref={ref}>
             <View style={styles.DominoInnerContainer}>
                 {Array(6)
                     .fill(0)
@@ -13,7 +13,7 @@ const Domino = React.forwardRef<View>((_, ref) => {
                         <View style={styles.DominoDot} key={index} />
                     ))}
             </View>
-        </View>
+        </div>
     )
 })
 
