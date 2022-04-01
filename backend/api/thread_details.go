@@ -27,38 +27,3 @@ func (api *API) ThreadDetail(c *gin.Context) {
 	threadResponse := api.createThreadResponse(thread)
 	c.JSON(200, threadResponse)
 }
-
-// func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
-// 	taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
-// 	var dueDate string
-// 	if t.DueDate.Time().Unix() == int64(0) {
-// 		dueDate = ""
-// 	} else {
-// 		dueDate = t.DueDate.Time().Format("2006-01-02")
-// 	}
-
-// 	return &TaskResult{
-// 		ID:         t.ID,
-// 		IDOrdering: t.IDOrdering,
-// 		Source: TaskSource{
-// 			Name:          taskSourceResult.Details.Name,
-// 			Logo:          taskSourceResult.Details.Logo,
-// 			LogoV2:        taskSourceResult.Details.LogoV2,
-// 			IsCompletable: taskSourceResult.Details.IsCompletable,
-// 			IsReplyable:   taskSourceResult.Details.IsReplyable,
-// 		},
-// 		Deeplink:       t.Deeplink,
-// 		Title:          t.Title,
-// 		Body:           t.Body,
-// 		TimeAllocation: t.TimeAllocation,
-// 		Sender:         t.Sender,
-// 		Recipients: Recipients{
-// 			To:  getRecipients(t.Recipients.To),
-// 			Cc:  getRecipients(t.Recipients.Cc),
-// 			Bcc: getRecipients(t.Recipients.Bcc),
-// 		},
-// 		SentAt:  t.CreatedAtExternal.Time().Format(time.RFC3339),
-// 		DueDate: dueDate,
-// 		IsDone:  t.IsCompleted,
-// 	}
-// }
