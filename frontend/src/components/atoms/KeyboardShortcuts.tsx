@@ -31,7 +31,7 @@ interface KeyboardShortcutProps {
     disabled?: boolean
 }
 function KeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutProps): JSX.Element {
-    const isKeyDown = useKeyboardShortcut(shortcut, onKeyPress, true, !!disabled)
+    const isKeyDown = useKeyboardShortcut(shortcut, onKeyPress, !!disabled, true)
     return (
         <KeyboardShortcutContainer isPressed={isKeyDown}>
             <KeyboardShortcutText>{shortcut}</KeyboardShortcutText>
@@ -41,11 +41,11 @@ function KeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutPr
 
 // Keeps state inside of separate component so parent does not have to be re-rendered
 function InvisibleKeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutProps): JSX.Element {
-    useKeyboardShortcut(shortcut, onKeyPress, false, !!disabled)
+    useKeyboardShortcut(shortcut, onKeyPress, !!disabled)
     return <></>
 }
 
-function useKeyboardShortcut(shortcut: string, onKeyPress: () => void, showIndicator = false, disabled = false): boolean {
+function useKeyboardShortcut(shortcut: string, onKeyPress: () => void, disabled = false, showIndicator = false): boolean {
     const isKeyDown = useRef<boolean>(false)
     const [showKeyDownIndicator, setShowKeyDownIndicator] = useState(false)
 
@@ -85,7 +85,7 @@ function useKeyboardShortcut(shortcut: string, onKeyPress: () => void, showIndic
             document.removeEventListener('keydown', onKeyDown)
             document.removeEventListener('keyup', onKeyUp)
         }
-    })
+    }, [onKeyDown, onKeyUp])
 
     return showKeyDownIndicator
 }
