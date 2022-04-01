@@ -1,8 +1,10 @@
 import { Colors, Flex, Screens, Spacing } from '../../styles'
-import { Platform, ScrollView, StyleSheet, View } from 'react-native'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
+import { ScrollView, StyleSheet, View } from 'react-native'
 import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
+import { useNavigate, useParams } from 'react-router-dom'
 
+import ItemSelectionController from '../molecules/ItemSelectionController'
 import Loading from '../atoms/Loading'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
 import Message from '../molecules/Message'
@@ -11,24 +13,12 @@ import { SectionHeader } from '../molecules/Header'
 import { TMessage } from '../../utils/types'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { useInterval } from '../../utils/hooks'
-import { useParams } from 'react-router-dom'
 
 const Messages = () => {
+    const navigate = useNavigate()
+    const params = useParams()
     const { refetch: refetchMessages } = useFetchMessages()
     const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteMessages()
-
-    const params = useParams()
-    const [selectedMessage, setSelectedMessage] = useState<TMessage | undefined>(undefined)
-    useEffect(() => {
-        setSelectedMessage(undefined)
-        data?.pages.forEach((page) => {
-            page?.forEach((message: TMessage) => {
-                if (message.id === params.message) {
-                    setSelectedMessage(message)
-                }
-            })
-        })
-    }, [params, data])
 
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
@@ -48,31 +38,33 @@ const Messages = () => {
     // Tell the backend to refetch messages from the server every 60 seconds
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
+    const messages = useMemo(() => data?.pages.flat().filter(message => message != null), [data])
+
+    const expandedMessage = useMemo(() => {
+        return messages?.find((message) => message.id === params.message)
+    }, [params.message, messages])
+
+    const expandMessage = useCallback((itemId: string) => navigate(`/messages/${itemId}`), [])
+
     return (
         <>
             <ScrollView>
+                {messages && <ItemSelectionController items={messages} expandItem={expandMessage} />}
                 <View style={styles.messagesContent}>
                     <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
-                    {data?.pages.map((page, index) => {
-                        return page?.map((message: TMessage, msgIndex: number) => {
-                            if (data.pages.length === index + 1 && page.length === msgIndex + 1) {
-                                return (
-                                    <TaskTemplate ref={lastElementRef} style={styles.shell} key={message.id}>
-                                        <Message message={message} setSheetTaskId={() => null} />
-                                    </TaskTemplate>
-                                )
-                            }
-                            return (
-                                <TaskTemplate style={styles.shell} key={message.id}>
-                                    <Message message={message} setSheetTaskId={() => null} />
-                                </TaskTemplate>
-                            )
-                        })
-                    })}
+                    {messages?.map((message: TMessage, msgIndex: number) =>
+                        <TaskTemplate
+                            ref={msgIndex === messages.length - 1 ? lastElementRef : undefined}
+                            style={styles.shell}
+                            key={message.id}
+                        >
+                            <Message message={message} setSheetTaskId={() => null} />
+                        </TaskTemplate>
+                    )}
                     {(isLoading || isFetching) && <Loading />}
                 </View>
             </ScrollView>
-            {selectedMessage && <MessageDetails message={selectedMessage} />}
+            {expandedMessage && <MessageDetails message={expandedMessage} />}
         </>
     )
 }
@@ -92,7 +84,7 @@ const styles = StyleSheet.create({
         ...Flex.column,
         marginRight: 10,
         marginLeft: 10,
-        marginTop: Platform.OS === 'web' ? Spacing.margin.xLarge : Spacing.margin.large,
+        marginTop: Spacing.margin.xLarge,
         marginBottom: 100,
     },
 })

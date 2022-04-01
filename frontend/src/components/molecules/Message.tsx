@@ -1,50 +1,43 @@
-import React, { useEffect } from 'react'
+import { Colors, Flex } from '../../styles'
 import { Platform, StyleSheet, Text, View } from 'react-native'
 import { useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components/native'
-import { Border, Colors, Flex, Spacing } from '../../styles'
-import { logos } from '../../styles/images'
-import { TMessage } from '../../utils/types'
-import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
-import { Icon } from '../atoms/Icon'
 
-const PressableContainer = styled.Pressable<{ isSelected: boolean }>`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    background-color: ${Colors.white};
-    border-radius: ${Border.radius.xxSmall};
-    padding: 0 ${Spacing.padding.small}px;
-    border: 1px solid ${(props) => (props.isSelected ? Colors.gray._500 : Colors.gray._100)};
-`
+import { Icon } from '../atoms/Icon'
+import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import ItemContainer from './ItemContainer'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
+import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
+import React from 'react'
+import { TMessage } from '../../utils/types'
+import { logos } from '../../styles/images'
+import { useAppSelector } from '../../redux/hooks'
 
 interface MessageProps {
     message: TMessage
     setSheetTaskId: (label: string) => void
 }
-
 const Message = ({ message, setSheetTaskId }: MessageProps) => {
     const navigate = useNavigate()
     const params = useParams()
-    const [isSelected, setIsSelected] = React.useState(false)
-    const onPress = () => {
+
+    const isExpanded = params.message === message.id
+    const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === message.id)
+
+    const hideDetailsView = () => navigate(`/messages/`)
+
+    const onClick = () => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(message.id)
         }
         if (params.message === message.id) {
-            navigate(`/messages/`)
+            hideDetailsView()
         } else {
             navigate(`/messages/${message.id}`)
         }
     }
-    useEffect(() => {
-        setIsSelected(params.message === message.id)
-    }, [[params]])
 
     return (
-        <PressableContainer onPress={onPress} isSelected={isSelected}>
+        <ItemContainer isSelected={isSelected} onClick={onClick} >
             <MarkAsTaskButton isTask={false} messageId={message.id} />
             <View style={styles.iconContainer}>
                 <Icon source={logos[message.source.logo_v2]} size="small" />
@@ -52,7 +45,11 @@ const Message = ({ message, setSheetTaskId }: MessageProps) => {
             <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
                 {message.title}
             </Text>
-        </PressableContainer>
+            {isSelected && Platform.OS === 'web' && <>
+                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={hideDetailsView} />
+                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onClick} />
+            </>}
+        </ItemContainer>
     )
 }
 
