@@ -1,16 +1,13 @@
-import { TMessage, TTask } from '../../utils/types'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { TMessage, TTask } from '../utils/types'
+import { useAppDispatch, useAppSelector } from '../redux/hooks'
 
-import { setSelectedItemId } from '../../redux/tasksPageSlice'
+import { setSelectedItemId } from '../redux/tasksPageSlice'
 import { useCallback } from 'react'
-import { useKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import { useKeyboardShortcut } from '../components/atoms/KeyboardShortcuts'
 import { useParams } from 'react-router-dom'
+import { KEYBOARD_SHORTCUTS } from '../constants'
 
-interface KeyboardSelectorProps {
-    items: TTask[] | TMessage[]
-    expandItem: (itemId: string) => void
-}
-export default function ItemSelectionController({ items, expandItem }: KeyboardSelectorProps) {
+export default function useItemSelectionController(items: TTask[] | TMessage[], expandItem: (itemId: string) => void) {
     const dispatch = useAppDispatch()
     const params = useParams()
     const expandedItem = params.task ?? params.message
@@ -45,8 +42,6 @@ export default function ItemSelectionController({ items, expandItem }: KeyboardS
         [selectedItemId, items, expandedItem]
     )
 
-    useKeyboardShortcut('ArrowDown', () => onUpDown('down'))
-    useKeyboardShortcut('ArrowUp', () => onUpDown('up'))
-
-    return <></>
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.DOWN, () => onUpDown('down'))
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.UP, () => onUpDown('up'))
 }
