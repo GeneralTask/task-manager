@@ -42,4 +42,5 @@ type EventCreateObject struct {
 	DatetimeStart *time.Time `json:"datetime_start" binding:"required"`
 	DatetimeEnd   *time.Time `json:"datetime_end" binding:"required"`
 	Attendees     []Attendee `json:"attendees"`
+	AddHangouts   bool       `json:"add_hangouts"`
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/utils"
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
@@ -172,10 +173,16 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 			DateTime: event.DatetimeEnd.Format(time.RFC3339),
 			TimeZone: event.TimeZone,
 		},
-		Attendees: *createGcalAttendees(&event.Attendees),
+		Attendees:      *createGcalAttendees(&event.Attendees),
 	}
+	if event.AddHangouts {
+		gcalEvent.ConferenceData = createConferenceCallRequest()
+	}
+	
 
-	gcalEvent, err = calendarService.Events.Insert(accountID, gcalEvent).Do()
+	gcalEvent, err = calendarService.Events.Insert(accountID, gcalEvent).
+		ConferenceDataVersion(1).
+		Do()
 	if err != nil {
 		log.Fatalf("Unable to create event. %v\n", err)
 	}
@@ -232,6 +239,18 @@ func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
 
 	}
 	return &attendeesList
+}
+
+func createConferenceCallRequest() *calendar.ConferenceData {
+	// todo - add client generated requestId
+	return &calendar.ConferenceData{
+		CreateRequest: &calendar.CreateConferenceRequest{
+			ConferenceSolutionKey: &calendar.ConferenceSolutionKey{
+				Type: "hangoutsMeet",
+			},
+			RequestId: uuid.New().String(),
+		},
+	}
 }
 
 func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID string, ctx context.Context) (*calendar.Service, error) {
