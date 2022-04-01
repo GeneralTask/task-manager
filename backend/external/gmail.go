@@ -36,6 +36,10 @@ type gmailUpdateable struct {
 	database.Email `bson:"email,omitempty"`
 }
 
+type gmailThreadUpdateable struct {
+	database.EmailThread `bson:"email_thread,omitempty"`
+}
+
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -102,7 +106,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				SourceAccountID: accountID,
 			},
 			EmailThread: database.EmailThread{
-				ThreadID:       thread.Id,
+				ThreadID: thread.Id,
 			},
 			TaskType: database.TaskType{
 				IsThread: true,
@@ -238,15 +242,21 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = nestedEmails
+		gmailUpdateableFields := threadItemToGmailUpdateable(threadItem)
 		// We flatten in order to do partial updates of nested documents correctly in mongodb
-		flattenedUpdateFields, err := flatbson.Flatten(threadItem)
+		flattenedThreadItem, err := flatbson.Flatten(threadItem)
 		if err != nil {
 			log.Printf("Could not flatten %+v, error: %+v", threadItem, err)
 			return
 		}
+		flattenedThreadUpdateable, err := flatbson.Flatten(gmailUpdateableFields)
+		if err != nil {
+			log.Printf("Could not flatten %+v, error: %+v", gmailUpdateableFields, err)
+			return
+		}
 		res, err := database.UpdateOrCreateTask(
 			db, userID, threadItem.IDExternal, threadItem.SourceID,
-			flattenedUpdateFields, flattenedUpdateFields,
+			flattenedThreadItem, flattenedThreadUpdateable,
 			&[]bson.M{{"task_type.is_thread": true}},
 		)
 		if err != nil {
@@ -700,5 +710,11 @@ func createGmailService(db *mongo.Database, userID primitive.ObjectID, accountID
 func emailToGmailUpdateable(email *database.Item) *gmailUpdateable {
 	return &gmailUpdateable{
 		Email: email.Email,
+	}
+}
+
+func threadItemToGmailUpdateable(thread *database.Item) *gmailThreadUpdateable {
+	return &gmailThreadUpdateable{
+		EmailThread: thread.EmailThread,
 	}
 }
