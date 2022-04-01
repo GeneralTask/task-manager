@@ -1,11 +1,11 @@
 import React from 'react'
-import { Pressable } from 'react-native'
 import { Colors } from '../../styles'
 import styled from 'styled-components'
 import { Spacing } from '../../styles'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import { useNavigate } from 'react-router-dom'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 const Header = styled.div`
     width: 100%;
@@ -26,9 +26,9 @@ const UnauthorizedHeader = () => {
     return (
         <Header>
             <IconContainer>
-                <Pressable onPress={() => navigate('/')}>
+                <NoStyleButton onClick={() => navigate('/')}>
                     <Icon size="medium" />
-                </Pressable>
+                </NoStyleButton>
             </IconContainer>
             <Divider />
         </Header>
