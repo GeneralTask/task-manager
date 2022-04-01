@@ -22,7 +22,7 @@ func TestTaskDetail(t *testing.T) {
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	notUserID := primitive.NewObjectID()
 
-	_, err = database.GetOrCreateTask(
+	task1, err := database.GetOrCreateTask(
 		db,
 		userID,
 		"123abc",
@@ -116,12 +116,14 @@ func TestTaskDetail(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
+	_ = nonUserTask
+	_ = task1
 	router := GetRouter(GetAPI())
 
 	t.Run("InvalidTaskID", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"GET",
-			fmt.Sprintf("/tasks/details/%s/", primitive.NewObjectID()),
+			fmt.Sprintf("/tasks/detail/%s/", primitive.NewObjectID().Hex()),
 			nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -129,12 +131,12 @@ func TestTaskDetail(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"task not found\"}", string(body))
 	})
-	t.Run("UnsupportedSourceID", func(t *testing.T) {
+	t.Run("TaskDoesNotBelongToUser", func(t *testing.T) {
 		request, _ := http.NewRequest(
-			"POST",
-			fmt.Sprintf("/tasks/details/%s/", nonUserTask.ID),
+			"GET",
+			fmt.Sprintf("/tasks/detail/%s/", nonUserTask.ID.Hex()),
 			nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -142,8 +144,21 @@ func TestTaskDetail(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"task not found\"}", string(body))
 	})
+	// t.Run("Success", func(t *testing.T) {
+	// 	request, _ := http.NewRequest(
+	// 		"GET",
+	// 		fmt.Sprintf("/tasks/detail/%s/", task1.ID.Hex()),
+	// 		nil)
+	// 	request.Header.Add("Authorization", "Bearer "+authToken)
+	// 	recorder := httptest.NewRecorder()
+	// 	router.ServeHTTP(recorder, request)
+	// 	assert.Equal(t, http.StatusNotFound, recorder.Code)
+	// 	body, err := ioutil.ReadAll(recorder.Body)
+	// 	assert.NoError(t, err)
+	// 	assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
+	// })
 	// t.Run("MissingTitle", func(t *testing.T) {
 	// 	request, _ := http.NewRequest(
 	// 		"POST",
@@ -157,24 +172,7 @@ func TestTaskDetail(t *testing.T) {
 	// 	assert.NoError(t, err)
 	// 	assert.Equal(t, "{\"detail\":\"invalid or missing parameter.\"}", string(body))
 	// })
-	// t.Run("WrongAccountID", func(t *testing.T) {
-	// 	// this currently isn't possible because only GT tasks are supported, but we should add this when it's possible
-	// })
-	// t.Run("BadTaskSection", func(t *testing.T) {
-	// 	authToken = login("create_task_bad_task_section@generaltask.com", "")
 
-	// 	request, _ := http.NewRequest(
-	// 		"POST",
-	// 		"/tasks/create/gt_task/",
-	// 		bytes.NewBuffer([]byte(`{"title": "foobar", "id_task_section": "`+primitive.NewObjectID().Hex()+`"}`)))
-	// 	request.Header.Add("Authorization", "Bearer "+authToken)
-	// 	recorder := httptest.NewRecorder()
-	// 	router.ServeHTTP(recorder, request)
-	// 	assert.Equal(t, http.StatusBadRequest, recorder.Code)
-	// 	body, err := ioutil.ReadAll(recorder.Body)
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
-	// })
 	// t.Run("SuccessTitleOnly", func(t *testing.T) {
 	// 	authToken = login("create_task_success_title_only@generaltask.com", "")
 	// 	userID := getUserIDFromAuthToken(t, db, authToken)
