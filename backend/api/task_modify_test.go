@@ -750,7 +750,7 @@ func TestEditFields(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
-		expectedTask.Body = "New Body"
+		expectedTask.TaskBase.Body = "New Body"
 		utils.AssertTasksEqual(t, &expectedTask, &task)
 	})
 	t.Run("Edit Due Date Success", func(t *testing.T) {
@@ -916,7 +916,7 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 
 		expectedTask.Title = "New Title"
-		expectedTask.Body = "New Body"
+		expectedTask.TaskBase.Body = "New Body"
 		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		expectedTask.TimeAllocation = int64(20 * 1000 * 1000)
 

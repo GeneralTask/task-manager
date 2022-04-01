@@ -214,7 +214,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 		},
 		Deeplink:       t.Deeplink,
 		Title:          t.Title,
-		Body:           t.Body,
+		Body:           t.TaskBase.Body,
 		TimeAllocation: t.TimeAllocation,
 		Sender:         t.Sender,
 		Recipients: Recipients{

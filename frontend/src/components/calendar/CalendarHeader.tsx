@@ -26,7 +26,7 @@ const ButtonStyles = styled.button`
     width: fit-content;
     border: none;
     border-radius: 50vh;
-    padding: ${Spacing.padding.xSmall}px ${Spacing.padding.small}px;
+    padding: 0px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -34,14 +34,16 @@ const ButtonStyles = styled.button`
 export const HoverButton = styled(ButtonStyles)`
     color: ${Colors.white};
     background-color: ${Colors.purple._1};
+    padding: ${Spacing.padding.xSmall}px ${Spacing.padding.small}px;
     &:hover {
         background-color: ${Colors.purple._2};
     }
 `
 export const ArrowButton = styled(ButtonStyles)`
     background-color: inherit;
+    padding: ${Spacing.padding.xSmall}px;
     &:hover {
-        background-color: ${Colors.gray._200}} 
+        background-color: ${Colors.gray._200};
     }
 `
 

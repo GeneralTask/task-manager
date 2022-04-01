@@ -123,7 +123,7 @@ func (api *API) EventsList(c *gin.Context) {
 				ID:             event.ID,
 				Deeplink:       event.Deeplink,
 				Title:          event.Title,
-				Body:           event.Body,
+				Body:           event.TaskBase.Body,
 				ConferenceCall: conferenceCall,
 				DatetimeEnd:    event.DatetimeEnd,
 				DatetimeStart:  event.DatetimeStart,

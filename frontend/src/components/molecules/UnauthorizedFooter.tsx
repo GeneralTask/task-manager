@@ -4,7 +4,7 @@ import { Colors } from '../../styles'
 import styled from 'styled-components/native'
 import { Spacing, Typography } from '../../styles'
 import { Icon } from '../atoms/Icon'
-import { useNavigate } from '../../services/routing'
+import { useNavigate } from 'react-router-dom'
 
 const Footer = styled.View`
     position: sticky;

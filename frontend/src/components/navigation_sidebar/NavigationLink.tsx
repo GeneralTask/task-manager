@@ -59,7 +59,7 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppab
                 ]}
             >
                 <Icon size="small" source={icon} />
-                <SectionTitle isSelected={isCurrentPage}>{title}</SectionTitle>
+                <SectionTitle numberOfLines={1} isSelected={isCurrentPage}>{title}</SectionTitle>
                 <SectionTitleItemCount isSelected={isCurrentPage}>{taskSection?.tasks.length}</SectionTitleItemCount>
             </View>
         </Link>
@@ -95,11 +95,10 @@ const linkStyle: CSSProperties & ViewStyle = {
 const SectionTitle = styled.Text<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
-    text-overflow: ellipsis;
-    white-space: nowrap;
     overflow: hidden;
     margin-left: 9px;
     flex: 1;
+    
 `
 const SectionTitleItemCount = styled.Text<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};

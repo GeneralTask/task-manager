@@ -50,7 +50,7 @@ curl localhost:8080/ping
 
 We can setup the server to rebuild/rerun upon local file changes using [CompileDaemon](https://github.com/githubnemo/CompileDaemon):
 ```
-CompileDaemon -command="./backend"
+CompileDaemon -build="go build -o bin/backend" -command="./bin/backend"
 ```
 
 ## Backend testing
