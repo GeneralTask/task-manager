@@ -1,18 +1,18 @@
 import { ItemTypes, TTask } from '../../utils/types'
 import { Platform, StyleSheet, Text, View } from 'react-native'
-import React, { Ref, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import ItemContainer from './ItemContainer'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import { useAppSelector } from '../../redux/hooks'
 import { useDrag } from 'react-dnd'
-import ItemContainer from './ItemContainer'
 
 interface TaskProps {
     task: TTask
@@ -53,13 +53,10 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
         [task.id, index, sectionId]
     )
 
-    const dragPreviewRef = Platform.OS === 'web' ? (dragPreview as Ref<HTMLDivElement>) : undefined
-    const dragRef = Platform.OS === 'web' ? (drag as Ref<View>) : undefined
-
     return (
         <TaskTemplate>
-            <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreviewRef}>
-                {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
+            <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreview}>
+                {!dragDisabled && <Domino ref={drag} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />
                 <View style={styles.iconContainer}>
                     <Icon source={logos[task.source.logo_v2]} size="small" />
@@ -68,7 +65,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
                     {task.title}
                 </Text>
             </ItemContainer>
-            {isSelected && Platform.OS === 'web' && <>
+            {isSelected && <>
                 <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={hideDetailsView} />
                 <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onClick} />
             </>}

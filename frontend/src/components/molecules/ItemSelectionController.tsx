@@ -13,7 +13,7 @@ interface KeyboardSelectorProps {
 export default function ItemSelectionController({ items, expandItem }: KeyboardSelectorProps) {
     const dispatch = useAppDispatch()
     const params = useParams()
-    const expandedItem = params.task ?? useParams().message
+    const expandedItem = params.task ?? params.message
     // if there is no expanded item, then get the selected item from redux
     const selectedItemId = useAppSelector((state) => expandedItem ?? state.tasks_page.selected_item_id)
 
