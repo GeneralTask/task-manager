@@ -60,6 +60,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	}
 	defer dbCleanup()
 	taskCollection := GetTaskCollection(db)
+	log.Println("jerd")
 
 	var message Item
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -74,6 +75,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 		log.Printf("Failed to get item: %+v, error: %v", itemID, err)
 		return nil, err
 	}
+	log.Println("jerd")
 	return &message, nil
 }
 
@@ -188,7 +190,7 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 	}
 	if IsValidPagination(pagination) {
 		limit := int64(*pagination.Limit)
-		skip := int64(*pagination.Page - 1) * limit
+		skip := int64(*pagination.Page-1) * limit
 		opts.Skip = &skip
 		opts.Limit = &limit
 	}
