@@ -19,10 +19,13 @@ const RoundedView = styled.View<{ color: string }>`
     height: 100%;
     width: 100%;
 `
-const ModalText = styled.Text<{ textStyle: 'light' | 'dark' }>`
+const ModalText = styled.Text<{ textStyle: 'light' | 'dark', wrapText?: boolean }>`
     color: ${(props) => (props.textStyle === 'light' ? Colors.white : Colors.black)};
     font-weight: ${Typography.weight._600.fontWeight};
     font-size: ${Typography.xSmall.fontSize}px;
+    white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 
 interface RoundedGeneralButtonProps {
@@ -30,6 +33,7 @@ interface RoundedGeneralButtonProps {
     onPress: () => void
     color?: string
     textStyle?: 'light' | 'dark'
+    wrapText?: boolean
     hasBorder?: boolean
     disabled?: boolean
 }
@@ -38,9 +42,9 @@ const RoundedGeneralButton = (props: RoundedGeneralButtonProps) => {
     return (
         <PressableStyled disabled={!!props.disabled} onPress={props.onPress} hasBorder={!!props.hasBorder}>
             <RoundedView color={color}>
-                <ModalText textStyle={props.textStyle || 'light'}>{props.value}</ModalText>
+                <ModalText textStyle={props.textStyle || 'light'} wrapText={props.wrapText}>{props.value}</ModalText>
             </RoundedView>
-        </PressableStyled>
+        </PressableStyled >
     )
 }
 
