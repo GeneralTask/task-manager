@@ -25,7 +25,7 @@ const Message = ({ message, setSheetTaskId }: MessageProps) => {
 
     const hideDetailsView = () => navigate(`/messages/`)
 
-    const onPress = () => {
+    const onClick = () => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(message.id)
         }
@@ -37,7 +37,7 @@ const Message = ({ message, setSheetTaskId }: MessageProps) => {
     }
 
     return (
-        <ItemContainer isSelected={isSelected} onPress={onPress} ref={undefined} >
+        <ItemContainer isSelected={isSelected} onClick={onClick} ref={undefined} >
             <MarkAsTaskButton isTask={false} messageId={message.id} />
             <View style={styles.iconContainer}>
                 <Icon source={logos[message.source.logo_v2]} size="small" />
@@ -47,7 +47,7 @@ const Message = ({ message, setSheetTaskId }: MessageProps) => {
             </Text>
             {isSelected && Platform.OS === 'web' && <>
                 <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={hideDetailsView} />
-                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onPress} />
+                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onClick} />
             </>}
         </ItemContainer>
     )

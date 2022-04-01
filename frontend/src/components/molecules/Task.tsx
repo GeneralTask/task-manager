@@ -30,7 +30,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
 
     const hideDetailsView = () => navigate(`/tasks/${params.section}`)
 
-    const onPress = useCallback(() => {
+    const onClick = useCallback(() => {
         if (Platform.OS === 'ios') {
             setSheetTaskId(task.id)
         }
@@ -58,7 +58,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
 
     return (
         <TaskTemplate>
-            <ItemContainer isSelected={isSelected} onPress={onPress} ref={dragPreviewRef}>
+            <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreviewRef}>
                 {Platform.OS === 'web' && !dragDisabled && <Domino ref={dragRef} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />
                 <View style={styles.iconContainer}>
@@ -70,7 +70,7 @@ const Task = ({ task, setSheetTaskId, dragDisabled, index, sectionId }: TaskProp
             </ItemContainer>
             {isSelected && Platform.OS === 'web' && <>
                 <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={hideDetailsView} />
-                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onPress} />
+                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.SELECT} onKeyPress={onClick} />
             </>}
         </TaskTemplate>
     )
