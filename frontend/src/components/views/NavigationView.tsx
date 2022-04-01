@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { ScrollView, StyleSheet, View } from 'react-native'
 import { useLocation, useParams } from 'react-router-dom'
-import styled from 'styled-components/native'
+import styled from 'styled-components'
 import { useAppDispatch } from '../../redux/hooks'
 import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
-import { Colors, Flex } from '../../styles'
+import { Colors } from '../../styles'
 import { icons } from '../../styles/images'
 import { margin, padding } from '../../styles/spacing'
 import { weight } from '../../styles/typography'
@@ -16,27 +15,35 @@ import WebInput from '../atoms/WebInput'
 import FeedbackButton from '../molecules/FeedbackButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 
-const NavigationViewHeader = styled.View`
+const NavigationViewContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 232px;
+    background-color: ${Colors.gray._100};
+    padding: ${padding.small}px;
+`
+const NavigationViewHeader = styled.div`
     height: 24px;
     width: 100%;
-    margin-bottom: 16px;
+    margin-bottom: ${margin.medium}px;
 `
-const AddSectionView = styled.View`
+const AddSectionView = styled.div`
     display: flex;
     flex-direction: row;
-    margin: 4px 8px;
-    padding: 4px 8px;
+    margin: ${margin.xSmall}px ${margin.small}px;
+    padding: ${padding.xSmall}px ${padding.small}px;
 `
-const AddSectionInputView = styled.View`
+const AddSectionInputView = styled.div`
     font-weight: ${weight._600.fontWeight};
     margin-left: ${margin.small}px;
     flex: 1;
 `
-const GapView = styled.View`
+const GapView = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${margin.small}px;
-    padding-bottom: ${padding.medium}px;
+    padding-bottom: ${padding.small}px;
+    margin-top: auto;
 `
 
 const NavigationView = () => {
@@ -50,52 +57,33 @@ const NavigationView = () => {
     const showLoadingSections = isLoading || !taskSections
 
     return (
-        <View style={styles.container}>
+        <NavigationViewContainer>
             <NavigationViewHeader>
                 <Icon size="medium" />
             </NavigationViewHeader>
-            <ScrollView style={styles.linksFlexContainer}>
-                {showLoadingSections ? <Loading /> :
-                    <NavigationSectionLinks taskSections={taskSections} sectionId={sectionIdParam || ''} pathName={pathname} />
-                }
-                <AddSectionView>
-                    <Icon size={'small'} source={icons['plus']} />
-                    <AddSectionInputView>
-                        <WebInput
-                            value={sectionName}
-                            onChange={(e) => setSectionName(e.target.value)}
-                            placeholder={'Add Section'}
-                            onSubmit={() => {
-                                setSectionName('')
-                                addTaskSection({ name: sectionName })
-                            }}
-                        />
-                    </AddSectionInputView>
-                </AddSectionView>
-            </ScrollView>
+            {showLoadingSections ? <Loading /> :
+                <NavigationSectionLinks taskSections={taskSections} sectionId={sectionIdParam || ''} pathName={pathname} />
+            }
+            <AddSectionView>
+                <Icon size={'small'} source={icons.plus} />
+                <AddSectionInputView>
+                    <WebInput
+                        value={sectionName}
+                        onChange={(e) => setSectionName(e.target.value)}
+                        placeholder={'Add Section'}
+                        onSubmit={() => {
+                            setSectionName('')
+                            addTaskSection({ name: sectionName })
+                        }}
+                    />
+                </AddSectionInputView>
+            </AddSectionView>
             <GapView>
                 <FeedbackButton />
                 <RoundedGeneralButton value="Sign Out" textStyle="dark" onPress={() => authSignOut(dispatch)} />
             </GapView>
-        </View>
+        </NavigationViewContainer>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        ...Flex.column,
-        width: 232,
-        backgroundColor: Colors.gray._100,
-        paddingLeft: 8,
-        paddingTop: 8,
-        paddingRight: 8,
-    },
-    linkContainerSelected: {
-        backgroundColor: Colors.gray._50,
-    },
-    linksFlexContainer: {
-        flex: 1,
-    },
-})
 
 export default NavigationView
