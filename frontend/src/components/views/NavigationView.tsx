@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
+import { useLocation, useParams } from 'react-router-dom'
 import styled from 'styled-components/native'
 import { useAppDispatch } from '../../redux/hooks'
 import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
-import { useLocation, useParams } from '../../services/routing'
 import { Colors, Flex } from '../../styles'
 import { icons } from '../../styles/images'
 import { margin, padding } from '../../styles/spacing'
@@ -14,7 +14,7 @@ import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import WebInput from '../atoms/WebInput'
 import FeedbackButton from '../molecules/FeedbackButton'
-import NavigationLink from '../molecules/NavigationLink'
+import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 
 const NavigationViewHeader = styled.View`
     height: 24px;
@@ -46,41 +46,18 @@ const NavigationView = () => {
     const [sectionName, setSectionName] = useState('')
     const { mutate: addTaskSection } = useAddTaskSection()
     const { pathname } = useLocation()
+
+    const showLoadingSections = isLoading || !taskSections
+
     return (
         <View style={styles.container}>
             <NavigationViewHeader>
                 <Icon size="medium" />
             </NavigationViewHeader>
             <ScrollView style={styles.linksFlexContainer}>
-                {isLoading ? (
-                    <Loading />
-                ) : (
-                    <>
-                        {taskSections?.map((section, index) => (
-                            <NavigationLink
-                                key={index}
-                                link={`/tasks/${section.id}`}
-                                title={section.name}
-                                icon={icons.inbox}
-                                isCurrentPage={sectionIdParam === section.id}
-                                taskSection={section}
-                                droppable={!section.is_done}
-                            />
-                        ))}
-                        <NavigationLink
-                            link="/messages"
-                            title="Messages"
-                            icon={icons.inbox}
-                            isCurrentPage={pathname === '/messages'}
-                        />
-                        <NavigationLink
-                            link="/settings"
-                            title="Settings"
-                            icon={icons.gear}
-                            isCurrentPage={pathname === '/settings'}
-                        />
-                    </>
-                )}
+                {showLoadingSections ? <Loading /> :
+                    <NavigationSectionLinks taskSections={taskSections} sectionId={sectionIdParam || ''} pathName={pathname} />
+                }
                 <AddSectionView>
                     <Icon size={'small'} source={icons['plus']} />
                     <AddSectionInputView>

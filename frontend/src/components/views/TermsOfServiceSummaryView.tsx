@@ -2,11 +2,11 @@ import Cookies from 'js-cookie'
 import React, { useCallback, useState } from 'react'
 import { Pressable } from 'react-native'
 import { useMutation, useQueryClient } from 'react-query'
-import styled from 'styled-components/native'
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 import { useAppDispatch } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
 import { mutateUserInfo } from '../../services/api-query-hooks'
-import { useNavigate } from '../../services/routing'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { ModalEnum } from '../../utils/enums'
@@ -18,52 +18,54 @@ import { Divider } from '../atoms/SectionDivider'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { TitleLarge } from '../atoms/title/Title'
 
-const TermsOfServiceContainer = styled.View`
+const TermsOfServiceContainer = styled.div`
     display: flex;
     flex-direction: column;
     padding: ${Spacing.padding.medium}px;
     height: 100%;
+    box-sizing: border-box;
 `
-const GapContainer = styled.View`
-    gap: ${Spacing.margin.medium}px;
-`
-const TermsOfServiceHeader = styled.View`
+const TermsOfServiceHeader = styled.div`
     margin-top: ${Spacing.margin.large}px;
     margin-bottom: ${Spacing.margin.medium}px;
 `
-const TitleLargeContainer = styled.View`
+const TitleLargeContainer = styled.div`
     margin-bottom: ${Spacing.margin.small}px;
 `
-const TermsScrollView = styled.View`
+const TermsScrollDiv = styled.div`
     flex: 1;
     overflow-y: scroll;
     margin-top: ${Spacing.margin.small}px;
-    margin-bottom: ${Spacing.margin.small}px;
     padding: ${Spacing.padding.small}px;
 `
-const LinkContainer = styled.View`
+const LinkContainer = styled.div`
     display: flex;
     flex-direction: row;
     gap: ${Spacing.margin.medium}px;
-    margin-top: ${Spacing.margin.small}px;
+    margin-top: ${Spacing.margin.medium}px;
     margin-right: ${Spacing.margin.medium}px;
 `
-const VerticalFlex = styled.View`
+const VerticalFlex = styled.div`
     display: flex;
     flex-direction: row;
 `
-const HorizontalFlex = styled.View`
+const HorizontalFlex = styled.div`
     display: flex;
     flex-direction: row;
+    margin-top: ${Spacing.margin.small}px;
 `
-const AgreementText = styled.Text<{ required?: boolean }>`
+const AgreementText = styled.div<{ required?: boolean }>`
     margin-left: ${Spacing.margin.small}px;
+    font-family: 'Switzer-Variable';
+    font-size: ${Typography.xSmall.fontSize}px;
+    font-weight: ${Typography.weight._500.fontWeight};
+    color: ${Colors.gray._600};
 `
-const RedAsterisk = styled.Text`
+const RedAsterisk = styled.span`
     color: ${Colors.red._1};
     font-weight: ${Typography.weight._500.fontWeight};
 `
-const SubmitButtonContainer = styled.View`
+const SubmitButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
     gap: ${Spacing.margin.small}px;
@@ -111,38 +113,36 @@ const TermsOfServiceSummaryView = () => {
                 <SubtitleSmall>Please read and agree with the terms below.</SubtitleSmall>
             </TermsOfServiceHeader>
             <Divider />
-            <TermsScrollView>
+            <TermsScrollDiv>
                 <TermsOfServiceSummary />
-            </TermsScrollView>
+            </TermsScrollDiv>
             <Divider />
-            <GapContainer>
-                <LinkContainer>
-                    <RedirectButton to="/terms-of-service" target="_blank" text="Read full terms of service" />
-                    <RedirectButton to="/privacy-policy" target="_blank" text="Read privacy policy" />
-                </LinkContainer>
-                <VerticalFlex>
-                    <Pressable onPress={() => setTermsCheck(!termsCheck)}>
-                        <HorizontalFlex>
-                            <Icon size="small" source={termsCheck ? icons.check_gray : icons.check_unchecked} />
-                            <AgreementText required>
-                                I acknowledge General Task&#39;s privacy policy and agree to General Task&#39;s terms of
-                                service.
-                                <RedAsterisk>*</RedAsterisk>
-                            </AgreementText>
-                        </HorizontalFlex>
-                    </Pressable>
-                </VerticalFlex>
-                <VerticalFlex>
-                    <Pressable onPress={() => setPromotionsCheck(!promotionsCheck)}>
-                        <HorizontalFlex>
-                            <Icon size="small" source={promotionsCheck ? icons.check_gray : icons.check_unchecked} />
-                            <AgreementText>
-                                I would like to opt in on General Task&#39;s promotional emails.
-                            </AgreementText>
-                        </HorizontalFlex>
-                    </Pressable>
-                </VerticalFlex>
-            </GapContainer>
+            <LinkContainer>
+                <RedirectButton to="/terms-of-service" target="_blank" text="Read full terms of service" />
+                <RedirectButton to="/privacy-policy" target="_blank" text="Read privacy policy" />
+            </LinkContainer>
+            <VerticalFlex>
+                <Pressable onPress={() => setTermsCheck(!termsCheck)}>
+                    <HorizontalFlex>
+                        <Icon size="small" source={termsCheck ? icons.check_gray : icons.check_unchecked} />
+                        <AgreementText required>
+                            I acknowledge General Task&#39;s privacy policy and agree to General Task&#39;s terms of
+                            service.
+                            <RedAsterisk>*</RedAsterisk>
+                        </AgreementText>
+                    </HorizontalFlex>
+                </Pressable>
+            </VerticalFlex>
+            <VerticalFlex>
+                <Pressable onPress={() => setPromotionsCheck(!promotionsCheck)}>
+                    <HorizontalFlex>
+                        <Icon size="small" source={promotionsCheck ? icons.check_gray : icons.check_unchecked} />
+                        <AgreementText>
+                            I would like to opt in on General Task&#39;s promotional emails.
+                        </AgreementText>
+                    </HorizontalFlex>
+                </Pressable>
+            </VerticalFlex>
             <SubmitButtonContainer>
                 <RoundedGeneralButton
                     onPress={onSubmit}

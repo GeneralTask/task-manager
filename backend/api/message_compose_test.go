@@ -3,6 +3,8 @@ package api
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -284,4 +286,47 @@ func testSuccessfulComposeWithServer(t *testing.T,
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	assert.Equal(t, http.StatusCreated, recorder.Code)
+}
+
+type GmailReplyParams struct {
+	Raw      string `json:"raw"`
+	ThreadID string `json:"threadId"`
+}
+
+func getReplyServer(t *testing.T,
+	messageID string,
+	threadID string,
+	headers []*gmail.MessagePartHeader,
+	expectedRawReply string) *httptest.Server {
+
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			assert.Equal(t, "/gmail/v1/users/me/messages/"+messageID, r.URL.Path)
+			w.WriteHeader(200)
+			email := gmail.Message{
+				Id: "sample_message_id",
+				Payload: &gmail.MessagePart{
+					Headers: headers,
+				},
+			}
+			b, err := json.Marshal(email)
+			assert.NoError(t, err)
+			w.Write(b)
+		} else if r.Method == "POST" {
+			assert.Equal(t, "/gmail/v1/users/me/messages/send", r.URL.Path)
+
+			var params GmailReplyParams
+			json.NewDecoder(r.Body).Decode(&params)
+
+			assert.Equal(t, threadID, params.ThreadID)
+			decodedData, err := base64.URLEncoding.DecodeString(params.Raw)
+			assert.NoError(t, err)
+			assert.Equal(t, expectedRawReply, string(decodedData))
+
+			w.WriteHeader(201)
+			w.Write([]byte(`{}`))
+		} else {
+			assert.Fail(t, "Invalid Method")
+		}
+	}))
 }

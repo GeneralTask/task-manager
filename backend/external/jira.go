@@ -251,6 +251,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 				},
 				IsCompleted: &isCompleted,
 			},
+			nil,
 		)
 		if err != nil {
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)

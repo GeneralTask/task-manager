@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
-import { View } from 'react-native'
-import styled, { css } from 'styled-components/native'
+import styled, { css } from 'styled-components'
 import { useReorderTask } from '../../services/api-query-hooks'
 import { Colors } from '../../styles'
 import { DropProps, ItemTypes, TTask } from '../../utils/types'
 
-const DropOverlay = styled.View`
+const DropOverlay = styled.div`
     width: 100%;
     height: 36px;
     display: flex;
@@ -19,10 +18,10 @@ const DropIndicatorStyles = css<{ isVisible: boolean }>`
     background-color: ${Colors.gray._800};
     visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
 `
-export const DropIndicatorAbove = styled.View`
+export const DropIndicatorAbove = styled.div`
     ${DropIndicatorStyles}
 `
-export const DropIndicatorBelow = styled.View`
+export const DropIndicatorBelow = styled.div`
     ${DropIndicatorStyles}
 `
 
@@ -43,20 +42,20 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
     taskIndex,
     sectionId,
 }: TaskDropContainerProps) => {
-    const dropRef = useRef<View>(null)
+    const dropRef = useRef<HTMLDivElement>(null)
     const [dropDirection, setDropDirection] = useState(DropDirection.Up)
 
     const { mutate: reorderTask } = useReorderTask()
 
-    const getDropDirection = useCallback((dropY: number): Promise<DropDirection> => {
-        return new Promise((resolve) => {
-            dropRef.current?.measureInWindow((_overlayX, overlayY, _overlayWidth, overlayHeight) => {
-                const midpoint = overlayY + overlayHeight / 2
-                const dropDirection = dropY < midpoint ? DropDirection.Up : DropDirection.Down
-                setDropDirection(dropDirection)
-                resolve(dropDirection)
-            })
-        })
+    const getDropDirection = useCallback((dropY: number): DropDirection => {
+        const boundingRect = dropRef.current?.getBoundingClientRect()
+        if (!boundingRect) {
+            return DropDirection.Up
+        }
+        const midpoint = (boundingRect.top + boundingRect.height) / 2
+        const dropDirection = dropY < midpoint ? DropDirection.Up : DropDirection.Down
+        setDropDirection(dropDirection)
+        return dropDirection
     }, [])
 
     const onDrop = useCallback(
