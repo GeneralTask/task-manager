@@ -1,8 +1,9 @@
+import { Border, Colors, Typography } from '../../styles'
+
+import { KEYBOARD_SHORTCUTS } from '../../constants'
 import React from 'react'
 import styled from 'styled-components/native'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import { Border, Colors, Typography } from '../../styles'
 
 const KeyboardShortcutContainer = styled.View<{ isPressed: boolean }>`
     border-radius: ${Border.radius.xSmall};
@@ -12,10 +13,8 @@ const KeyboardShortcutContainer = styled.View<{ isPressed: boolean }>`
     align-items: center;
     width: 20px;
     height: 20px;
-    left: 0px;
-    top: 0px;
     background-color: ${Colors.gray._50};
-    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
     margin-right: 12px;
 `
 const KeyboardShortcutText = styled.Text`
