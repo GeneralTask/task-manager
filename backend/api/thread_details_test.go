@@ -81,6 +81,17 @@ func TestThreadDetail(t *testing.T) {
 	})
 	router := GetRouter(GetAPI())
 
+	t.Run("Unauthorized", func(t *testing.T) {
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(
+			"GET",
+			fmt.Sprintf("/threads/detail/%s/", threadIDHex),
+			nil)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
 	t.Run("InvalidTaskID", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"GET",
