@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect } from 'react'
-import styled from 'styled-components/native'
+
+import ActionValue from '../atoms/ActionValue'
+import DatePicker from './DatePicker'
+import { Icon } from '../atoms/Icon'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { Spacing } from '../../styles'
-import { icons } from '../../styles/images'
-import { useClickOutside } from '../../utils/hooks'
 import { TTask } from '../../utils/types'
-import ActionValue from '../atoms/ActionValue'
-import { Icon } from '../atoms/Icon'
-import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import DatePicker from './DatePicker'
 import TimeEstimatePicker from './TimeEstimatePicker'
-
+import { icons } from '../../styles/images'
+import styled from 'styled-components/native'
+import { useClickOutside } from '../../utils/hooks'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
 const ActionButton = styled.Pressable`
     display: flex;
@@ -18,7 +18,7 @@ const ActionButton = styled.Pressable`
     align-items: center;
     justify-content: center;
     padding: ${Spacing.padding.xSmall}px;
-    margin-right: ${Spacing.margin.small}px;
+    margin-right: ${Spacing.margin._8}px;
 `
 
 interface ActionOptionProps {

@@ -1,13 +1,14 @@
-import React from 'react'
-import styled from 'styled-components'
-import { Spacing } from '../../styles'
-import { icons } from '../../styles/images'
-import { TitleLarge } from '../atoms/title/Title'
-import { Icon } from '../atoms/Icon'
 import { PrivacyPolicy, TermsOfService } from '../atoms/CompanyPoliciesHTML'
-import UnauthorizedHeader from '../molecules/UnauthorizedHeader'
-import UnauthorizedFooter from '../molecules/UnauthorizedFooter'
+
 import { CompanyPolicyPages } from '../../utils/enums'
+import { Icon } from '../atoms/Icon'
+import React from 'react'
+import { Spacing } from '../../styles'
+import { TitleLarge } from '../atoms/title/Title'
+import UnauthorizedFooter from '../molecules/UnauthorizedFooter'
+import UnauthorizedHeader from '../molecules/UnauthorizedHeader'
+import { icons } from '../../styles/images'
+import styled from 'styled-components'
 
 const CompanyPolicyContainer = styled.div`
     display: flex;
@@ -16,12 +17,12 @@ const CompanyPolicyContainer = styled.div`
 `
 const Body = styled.div`
     max-width: 800px;
-    margin: ${Spacing.margin.xLarge}px 0px;
+    margin: ${Spacing.margin._40}px 0px;
 `
 const PolicyHeader = styled.div`
     display: flex;
-    gap: ${Spacing.margin.small}px;
-    margin-bottom: ${Spacing.margin.large}px;
+    gap: ${Spacing.margin._8}px;
+    margin-bottom: ${Spacing.margin._24}px;
     align-items: center;
 `
 

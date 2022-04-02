@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
         ...Flex.column,
         marginRight: 10,
         marginLeft: 10,
-        marginTop: Spacing.margin.xLarge,
+        marginTop: Spacing.margin._40,
         marginBottom: 100,
     },
 })
