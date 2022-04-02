@@ -173,18 +173,18 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 			DateTime: event.DatetimeEnd.Format(time.RFC3339),
 			TimeZone: event.TimeZone,
 		},
-		Attendees:      *createGcalAttendees(&event.Attendees),
+		Attendees: *createGcalAttendees(&event.Attendees),
 	}
 	if event.AddHangouts {
 		gcalEvent.ConferenceData = createConferenceCallRequest()
 	}
-	
 
 	gcalEvent, err = calendarService.Events.Insert(accountID, gcalEvent).
 		ConferenceDataVersion(1).
 		Do()
 	if err != nil {
 		log.Fatalf("Unable to create event. %v\n", err)
+		return err
 	}
 	fmt.Printf("Event created: %s\n", gcalEvent.HtmlLink)
 

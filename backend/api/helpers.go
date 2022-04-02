@@ -5,7 +5,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func getUserObjectIDFromContext(c *gin.Context) primitive.ObjectID {
+func getUserIDFromContext(c *gin.Context) primitive.ObjectID {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 	return userID

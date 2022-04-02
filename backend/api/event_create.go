@@ -23,7 +23,7 @@ func (api *API) EventCreate(c *gin.Context) {
 		return
 	}
 
-	userID := getUserObjectIDFromContext(c)
+	userID := getUserIDFromContext(c)
 	err = taskSourceResult.Source.CreateNewEvent(userID, eventCreateObject.AccountID, eventCreateObject)
 	if err != nil {
 		log.Printf("failed to update external task source: %v", err)
