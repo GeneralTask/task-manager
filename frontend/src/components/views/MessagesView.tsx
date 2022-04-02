@@ -4,7 +4,6 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import ItemSelectionController from '../molecules/ItemSelectionController'
 import Loading from '../atoms/Loading'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
 import Message from '../molecules/Message'
@@ -13,6 +12,7 @@ import { SectionHeader } from '../molecules/Header'
 import { TMessage } from '../../utils/types'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { useInterval } from '../../utils/hooks'
+import useItemSelectionController from '../../hooks/useItemSelectionController'
 
 const Messages = () => {
     const navigate = useNavigate()
@@ -38,7 +38,7 @@ const Messages = () => {
     // Tell the backend to refetch messages from the server every 60 seconds
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
-    const messages = useMemo(() => data?.pages.flat().filter(message => message != null), [data])
+    const messages = useMemo(() => data?.pages.flat().filter(message => message != null) ?? [], [data])
 
     const expandedMessage = useMemo(() => {
         return messages?.find((message) => message.id === params.message)
@@ -46,10 +46,11 @@ const Messages = () => {
 
     const expandMessage = useCallback((itemId: string) => navigate(`/messages/${itemId}`), [])
 
+    useItemSelectionController(messages, expandMessage)
+
     return (
         <>
             <ScrollView>
-                {messages && <ItemSelectionController items={messages} expandItem={expandMessage} />}
                 <View style={styles.messagesContent}>
                     <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
                     {messages?.map((message: TMessage, msgIndex: number) =>
@@ -58,7 +59,7 @@ const Messages = () => {
                             style={styles.shell}
                             key={message.id}
                         >
-                            <Message message={message} setSheetTaskId={() => null} />
+                            <Message message={message} />
                         </TaskTemplate>
                     )}
                     {(isLoading || isFetching) && <Loading />}

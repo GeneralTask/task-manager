@@ -1,6 +1,6 @@
 import { Image, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native'
 
-import { InvisibleKeyboardShortcut } from '../KeyboardShortcuts'
+import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import { KEYBOARD_SHORTCUTS } from '../../../constants'
 import React from 'react'
 import { icons } from '../../../styles/images'
@@ -18,6 +18,7 @@ const CompleteButton = (props: CompleteButtonProps) => {
     const donePressHandler = () => {
         markTaskDone({ taskId: props.taskId, isCompleted: !props.isComplete })
     }
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.MARK_COMPLETE, donePressHandler, !props.isSelected)
     return (
         <View style={[styles.container, props.style]}>
             <TouchableOpacity style={styles.image} onPress={donePressHandler}>
@@ -27,9 +28,6 @@ const CompleteButton = (props: CompleteButtonProps) => {
                     <Image style={styles.image} source={icons['task_incomplete']} />
                 )}
             </TouchableOpacity>
-            {props.isSelected && (
-                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.MARK_COMPLETE} onKeyPress={donePressHandler} />
-            )}
         </View>
     )
 }

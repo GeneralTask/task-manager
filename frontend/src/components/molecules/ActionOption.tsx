@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import styled from 'styled-components/native'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { Spacing } from '../../styles'
@@ -7,7 +7,7 @@ import { useClickOutside } from '../../utils/hooks'
 import { TTask } from '../../utils/types'
 import ActionValue from '../atoms/ActionValue'
 import { Icon } from '../atoms/Icon'
-import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import DatePicker from './DatePicker'
 import TimeEstimatePicker from './TimeEstimatePicker'
 
@@ -25,7 +25,7 @@ interface ActionOptionProps {
     task: TTask
     action: 'date_picker' | 'time_allocated'
     isShown: boolean
-    keyboardShortcut?: KEYBOARD_SHORTCUTS
+    keyboardShortcut: KEYBOARD_SHORTCUTS
     setIsShown: (isShown: boolean) => void
 }
 const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: ActionOptionProps) => {
@@ -56,17 +56,17 @@ const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: A
         }
     })(action)
 
+    // show action when keyboardShortcut is pressed
+    useKeyboardShortcut(keyboardShortcut, useCallback(() => setIsShown(!isShown), [isShown]))
+
+    // when the action is shown, close action when KEYBOARD_SHORTCUTS.CLOSE is pressed
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.CLOSE, useCallback(() => setIsShown(false), []), !isShown)
+
     return (
         <div ref={actionRef}>
             <ActionButton onPress={() => setIsShown(!isShown)}>
                 {actionString ? <ActionValue value={actionString} /> : <Icon source={icon} size="small" />}
                 {isShown && component}
-                {keyboardShortcut && (
-                    <InvisibleKeyboardShortcut shortcut={keyboardShortcut} onKeyPress={() => setIsShown(!isShown)} />
-                )}
-                {isShown && (
-                    <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CLOSE} onKeyPress={() => setIsShown(false)} />
-                )}
             </ActionButton>
         </div>
     )
