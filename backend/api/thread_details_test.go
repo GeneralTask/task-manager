@@ -103,7 +103,7 @@ func TestThreadDetail(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"thread not found\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
 	})
 	t.Run("TaskDoesNotBelongToUser", func(t *testing.T) {
 		request, _ := http.NewRequest(
@@ -116,7 +116,7 @@ func TestThreadDetail(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"thread not found\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
 		request, _ := http.NewRequest(
