@@ -26,6 +26,8 @@ export const LabelEditorContainer = styled.div`
     padding: ${padding.small}px;
     cursor: default;
     gap: 5px;
+    overflow: auto;
+    max-height: 500px;
 `
 
 export const Header = styled.div`
