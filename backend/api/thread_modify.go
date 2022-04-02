@@ -38,7 +38,7 @@ func (api *API) ThreadModify(c *gin.Context) {
 
 	thread, err := database.GetItem(c.Request.Context(), threadID, userID)
 	if err != nil {
-		c.JSON(404, gin.H{"detail": "thread not found.", "threadID": threadID})
+		Handle404(c)
 		return
 	}
 
@@ -64,15 +64,12 @@ func (api *API) ThreadModify(c *gin.Context) {
 		return
 	}
 
-	log.Printf("jerd1 %+v", threadChangeableFields)
-	log.Printf("jerd1 %+v", threadChangeableFields)
 	err = updateThreadInDB(api, c.Request.Context(), threadID, userID, threadChangeableFields)
 	if err != nil {
 		log.Printf("could not update thread %v in DB with fields %+v", threadID, threadChangeableFields)
 		Handle500(c)
 		return
 	}
-	log.Printf("jerd %+v", threadChangeableFields)
 
 	c.JSON(200, gin.H{})
 }
