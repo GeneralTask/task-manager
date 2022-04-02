@@ -146,7 +146,7 @@ func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 			SMTPID:   e.SMTPID,
 			Subject:  e.Subject,
 			Body:     e.Body,
-			SentAt:   e.SentAt.Time().Format(time.RFC3339),
+			SentAt:   e.SentAt.Time().UTC().Format(time.RFC3339),
 			IsUnread: e.IsUnread,
 			Sender: senderV2{
 				Name:    e.SenderName,
