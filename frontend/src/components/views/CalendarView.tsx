@@ -11,6 +11,7 @@ const CalendarViewContainer = styled.div`
     background-color: ${Colors.gray._100};
     display: flex;
     flex-direction: column;
+    font-family: Switzer-Variable;
 `
 
 const CalendarView = () => {
