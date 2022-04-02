@@ -20,7 +20,7 @@ func (api *API) ThreadDetail(c *gin.Context) {
 
 	thread, err := database.GetItem(c.Request.Context(), taskID, userID)
 	if err != nil {
-		c.JSON(404, gin.H{"detail": "thread not found"})
+		Handle404(c)
 		return
 	}
 
