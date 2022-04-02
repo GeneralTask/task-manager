@@ -57,16 +57,16 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
     const selectNext = useCallback(
         () =>
             setDate((date) => {
-                return date.plus({ days: 1 })
+                return date.plus({ days: expandedCalendar ? 7 : 1 })
             }),
-        [date, setDate]
+        [date, setDate, expandedCalendar]
     )
     const selectPrevious = useCallback(
         () =>
             setDate((date) => {
-                return date.minus({ days: 1 })
+                return date.minus({ days: expandedCalendar ? 7 : 1 })
             }),
-        [date, setDate]
+        [date, setDate, expandedCalendar]
     )
 
     return (

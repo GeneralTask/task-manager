@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAppSelector } from '../../redux/hooks'
 import CalendarEvents from '../calendar/CalendarEvents'
 import { CalendarContainer } from '../calendar/CalendarEvents-styles'
@@ -8,6 +8,11 @@ import CalendarHeader from '../calendar/CalendarHeader'
 const CalendarView = () => {
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
+
+    useEffect(() => {
+        expandedCalendar ? setDate(date.startOf('week')) : setDate(DateTime.now())
+    }, [expandedCalendar])
+
     return (
         <CalendarContainer expanded={expandedCalendar}>
             <CalendarHeader date={date} setDate={setDate} />

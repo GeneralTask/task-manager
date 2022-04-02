@@ -151,6 +151,7 @@ export const CalendarDayHeader = styled.div`
     justify-content: center;
     height: 40px;
     position: sticky;
+    background-color: ${Colors.gray._100};
     top: 0;
     z-index: 2;
 `
