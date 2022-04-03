@@ -9,7 +9,7 @@ const PressableStyled = styled.Pressable<{ hasBorder: boolean }>`
         props.hasBorder &&
         `
         border: 1px solid ${Colors.gray._200};
-        box-shadow: ${Shadows.small};
+        box-shadow: ${Shadows.medium};
     `}
 `
 const RoundedView = styled.View<{ color: string }>`
