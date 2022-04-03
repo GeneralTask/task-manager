@@ -1,15 +1,16 @@
-import Cookies from 'js-cookie'
-import React, { useState } from 'react'
+import { Colors, Shadows, Typography } from '../styles'
 import { Controller, useForm } from 'react-hook-form'
-import { Navigate } from 'react-router-dom'
-import styled from 'styled-components'
+import React, { useState } from 'react'
+
+import Cookies from 'js-cookie'
 import GoogleSignInButton from '../components/atoms/buttons/GoogleSignInButton'
 import JoinWaitlistButton from '../components/atoms/buttons/JoinWaitlistButton'
+import { Navigate } from 'react-router-dom'
 import UnauthorizedFooter from '../components/molecules/UnauthorizedFooter'
 import UnauthorizedHeader from '../components/molecules/UnauthorizedHeader'
-import { useAppSelector } from '../redux/hooks'
-import { Colors, Typography } from '../styles'
 import apiClient from '../utils/api'
+import styled from 'styled-components'
+import { useAppSelector } from '../redux/hooks'
 
 const LandingScreenContainer = styled.div`
     background-color: ${Colors.white};
@@ -125,8 +126,23 @@ const LandingScreen = () => {
                 </ResponseContainer>
                 <GoogleSignInButton />
             </FlexGrowContainer>
+            <Duck />
             <UnauthorizedFooter />
         </LandingScreenContainer>
+    )
+}
+
+function Duck() {
+    return (
+        <div style={{ display: 'flex', width: '90%', justifyContent: 'space-between', margin: 20 }}>
+            <div style={{ boxShadow: Shadows.xSmall }} >Hello there</div>
+            <div style={{ boxShadow: Shadows.small }} >Hello there</div>
+            <div style={{ boxShadow: Shadows.medium }} >Hello there</div>
+            <div style={{ boxShadow: Shadows.large }} >Hello there</div>
+            <div style={{ boxShadow: Shadows.xLarge }} >Hello there</div>
+
+            {/* <div style={{ height: 12 }}></div> */}
+        </div>
     )
 }
 

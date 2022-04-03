@@ -1,5 +1,6 @@
-import styled from 'styled-components'
 import { Colors, Shadows } from '../../styles'
+
+import styled from 'styled-components'
 export const CELL_HEIGHT = 64
 export const TABLE_WIDTH_PERCENTAGE = 100
 export const CELL_TIME_WIDTH = 43

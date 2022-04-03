@@ -1,11 +1,11 @@
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import React from 'react'
-import styled from 'styled-components/native'
+import styled from 'styled-components'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
-const KeyboardShortcutContainer = styled.View<{ isPressed: boolean }>`
+const KeyboardShortcutContainer = styled.div<{ isPressed: boolean }>`
     border-radius: ${Border.radius.xSmall};
     border: 2px solid ${({ isPressed }) => (isPressed ? Colors.gray._400 : Colors.gray._50)};
     display: flex;
@@ -14,10 +14,8 @@ const KeyboardShortcutContainer = styled.View<{ isPressed: boolean }>`
     width: 20px;
     height: 20px;
     background-color: ${Colors.gray._50};
-    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: ${Shadows.medium};
     margin-right: ${Spacing.margin._12}px;
-`
-const KeyboardShortcutText = styled.Text`
     color: ${Colors.gray._400};
     font-size: ${Typography.xSmall.fontSize}px;
     line-height: ${Typography.xSmall.lineHeight}px;
@@ -33,7 +31,7 @@ export default function KeyboardShortcut({ shortcut, onKeyPress, disabled }: Key
     const isKeyDown = useKeyboardShortcut(shortcut, onKeyPress, !!disabled, true)
     return (
         <KeyboardShortcutContainer isPressed={isKeyDown}>
-            <KeyboardShortcutText>{shortcut}</KeyboardShortcutText>
+            {shortcut}
         </KeyboardShortcutContainer>
     )
 }

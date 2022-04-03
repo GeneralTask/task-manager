@@ -1,4 +1,4 @@
-import { Border, Colors, Spacing, Typography } from '../../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 
 import React from 'react'
 import styled from 'styled-components/native'
@@ -9,7 +9,7 @@ const PressableStyled = styled.Pressable<{ hasBorder: boolean }>`
         props.hasBorder &&
         `
         border: 1px solid ${Colors.gray._200};
-        box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 2px;
+        box-shadow: ${Shadows.small};
     `}
 `
 const RoundedView = styled.View<{ color: string }>`
