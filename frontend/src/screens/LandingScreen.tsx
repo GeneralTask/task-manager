@@ -1,4 +1,4 @@
-import { Colors, Shadows, Typography } from '../styles'
+import { Colors, Typography } from '../styles'
 import { Controller, useForm } from 'react-hook-form'
 import React, { useState } from 'react'
 
@@ -126,23 +126,8 @@ const LandingScreen = () => {
                 </ResponseContainer>
                 <GoogleSignInButton />
             </FlexGrowContainer>
-            <Duck />
             <UnauthorizedFooter />
         </LandingScreenContainer>
-    )
-}
-
-function Duck() {
-    return (
-        <div style={{ display: 'flex', width: '90%', justifyContent: 'space-between', margin: 20 }}>
-            <div style={{ boxShadow: Shadows.xSmall }} >Hello there</div>
-            <div style={{ boxShadow: Shadows.small }} >Hello there</div>
-            <div style={{ boxShadow: Shadows.medium }} >Hello there</div>
-            <div style={{ boxShadow: Shadows.large }} >Hello there</div>
-            <div style={{ boxShadow: Shadows.xLarge }} >Hello there</div>
-
-            {/* <div style={{ height: 12 }}></div> */}
-        </div>
     )
 }
 
