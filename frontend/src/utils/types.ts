@@ -74,7 +74,12 @@ export interface TMessage {
     recipients: TRecipients
     sent_at: string
     is_unread: boolean
+    is_task: boolean
     source: TMessageSource
+}
+
+export interface TMessageResponse {
+    pages: TMessage[][]
 }
 
 export interface TEvent {
