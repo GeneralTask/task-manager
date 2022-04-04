@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { DropTargetMonitor, useDrop } from 'react-dnd'
-import styled, { css } from 'styled-components'
-import { useReorderTask } from '../../services/api-query-hooks'
-import { Colors } from '../../styles'
 import { DropProps, ItemTypes, TTask } from '../../utils/types'
+import { DropTargetMonitor, useDrop } from 'react-dnd'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import styled, { css } from 'styled-components'
+
+import { Colors } from '../../styles'
+import { useReorderTask } from '../../services/api-query-hooks'
 
 const DropOverlay = styled.div`
     width: 100%;
@@ -52,7 +53,7 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
         if (!boundingRect) {
             return DropDirection.Up
         }
-        const midpoint = (boundingRect.top + boundingRect.height) / 2
+        const midpoint = (boundingRect.top + boundingRect.bottom) / 2
         const dropDirection = dropY < midpoint ? DropDirection.Up : DropDirection.Down
         setDropDirection(dropDirection)
         return dropDirection
