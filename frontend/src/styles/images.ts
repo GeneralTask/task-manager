@@ -34,6 +34,7 @@ export const icons: { [key: string]: ImageSourcePropType } = {
     gear: require('../assets/gear.png'),
     inbox: require('../assets/inbox.png'),
     mark_as_task: require('../assets/mark_as_task.png'),
+    mark_as_task_active: require('../assets/mark_as_task_active.png'),
     messages: require('../assets/messages.png'),
     plus: require('../assets/plus.png'),
     pencil: require('../assets/pencil.png'),
