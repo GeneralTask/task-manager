@@ -1,10 +1,11 @@
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE } from '../../constants'
 
 import { DateTime } from 'luxon'
 import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
 import React from 'react'
 import { View } from 'react-native'
+import WebStyled from 'styled-components'
 import styled from 'styled-components/native'
 import { useGetEvents } from '../../services/api-query-hooks'
 import { useInterval } from '../../utils/hooks'
@@ -16,7 +17,7 @@ const EventBannerContainer = styled.View`
     align-items: center;
     margin-top: 22px;
 `
-const BannerView = styled.View<{ center: boolean }>`
+const BannerView = WebStyled.div<{ center: boolean }>`
     position: relative;
     display: flex;
     flex-direction: row;
@@ -30,7 +31,7 @@ const BannerView = styled.View<{ center: boolean }>`
     background-color: ${Colors.white};
     opacity: 0.97;
     border-radius: ${Border.radius.small};
-    box-shadow: 0px 4px 20px rgba(43, 43, 43, 0.08);
+    box-shadow: ${Shadows.large};
 `
 const BannerTitleView = styled.View`
     background-color: ${Colors.gray._100};
