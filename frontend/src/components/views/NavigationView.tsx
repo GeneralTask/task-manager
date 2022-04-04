@@ -1,19 +1,20 @@
 import React, { useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
-import styled from 'styled-components'
-import { useAppDispatch } from '../../redux/hooks'
-import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
 import { Colors } from '../../styles'
-import { icons } from '../../styles/images'
 import { margin, padding } from '../../styles/spacing'
-import { weight } from '../../styles/typography'
-import { authSignOut } from '../../utils/auth'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
+import { useLocation, useParams } from 'react-router-dom'
+
+import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
-import WebInput from '../atoms/WebInput'
-import FeedbackButton from '../molecules/FeedbackButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import WebInput from '../atoms/WebInput'
+import { authSignOut } from '../../utils/auth'
+import { icons } from '../../styles/images'
+import styled from 'styled-components'
+import { useAppDispatch } from '../../redux/hooks'
+import { weight } from '../../styles/typography'
 
 const NavigationViewContainer = styled.div`
     display: flex;
@@ -25,24 +26,24 @@ const NavigationViewContainer = styled.div`
 const NavigationViewHeader = styled.div`
     height: 24px;
     width: 100%;
-    margin-bottom: ${margin.medium}px;
+    margin-bottom: ${margin._16}px;
 `
 const AddSectionView = styled.div`
     display: flex;
     flex-direction: row;
-    margin: ${margin.xSmall}px ${margin.small}px;
+    margin: ${margin._8}px ${margin._8}px;
     padding: ${padding.xSmall}px ${padding.small}px;
 `
 const AddSectionInputView = styled.div`
     font-weight: ${weight._600.fontWeight};
-    margin-left: ${margin.small}px;
+    margin-left: ${margin._8}px;
     flex: 1;
 `
 const GapView = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${margin.small}px;
-    padding-bottom: ${padding.small}px;
+    gap: ${margin._8}px;
+    padding-bottom: ${padding.medium}px;
     margin-top: auto;
 `
 

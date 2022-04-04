@@ -1,10 +1,11 @@
-import React from 'react'
-import { Colors } from '../../styles'
-import styled from 'styled-components/'
 import { Spacing, Typography } from '../../styles'
+
+import { Colors } from '../../styles'
 import { Icon } from '../atoms/Icon'
-import { useNavigate } from 'react-router-dom'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import React from 'react'
+import styled from 'styled-components/'
+import { useNavigate } from 'react-router-dom'
 
 const Footer = styled.div`
     position: sticky;
@@ -23,7 +24,7 @@ const FooderDiv = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: ${Spacing.margin.medium}px;
+    gap: ${Spacing.margin._16}px;
 `
 const FooterText = styled.span`
     color: ${Colors.white};

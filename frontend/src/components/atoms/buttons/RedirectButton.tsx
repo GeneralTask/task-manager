@@ -1,9 +1,10 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../../styles'
-import { icons } from '../../../styles/images'
+
 import { Icon } from '../Icon'
+import { Link } from 'react-router-dom'
+import React from 'react'
+import { icons } from '../../../styles/images'
+import styled from 'styled-components'
 
 const NoDecorationLink = styled(Link)`
     text-decoration: none;
@@ -13,7 +14,7 @@ const PurpleText = styled.span`
     font-family: Switzer-Variable;
     font-weight: ${Typography.weight._500.fontWeight};
     font-size: ${Typography.xxSmall.fontSize}px;
-    margin-right: ${Spacing.margin.xSmall}px;
+    margin-right: ${Spacing.margin._4}px;
 `
 const VerticalFlex = styled.div`
     display: flex;
