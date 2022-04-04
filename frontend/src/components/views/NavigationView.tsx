@@ -1,20 +1,21 @@
+import { Colors, Flex } from '../../styles'
 import React, { useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
-import { useLocation, useParams } from 'react-router-dom'
-import styled from 'styled-components/native'
-import { useAppDispatch } from '../../redux/hooks'
-import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
-import { Colors, Flex } from '../../styles'
-import { icons } from '../../styles/images'
 import { margin, padding } from '../../styles/spacing'
-import { weight } from '../../styles/typography'
-import { authSignOut } from '../../utils/auth'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
+import { useLocation, useParams } from 'react-router-dom'
+
+import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
-import WebInput from '../atoms/WebInput'
-import FeedbackButton from '../molecules/FeedbackButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import WebInput from '../atoms/WebInput'
+import { authSignOut } from '../../utils/auth'
+import { icons } from '../../styles/images'
+import styled from 'styled-components/native'
+import { useAppDispatch } from '../../redux/hooks'
+import { weight } from '../../styles/typography'
 
 const NavigationViewHeader = styled.View`
     height: 24px;
@@ -29,13 +30,13 @@ const AddSectionView = styled.View`
 `
 const AddSectionInputView = styled.View`
     font-weight: ${weight._600.fontWeight};
-    margin-left: ${margin.small}px;
+    margin-left: ${margin._8}px;
     flex: 1;
 `
 const GapView = styled.View`
     display: flex;
     flex-direction: column;
-    gap: ${margin.small}px;
+    gap: ${margin._8}px;
     padding-bottom: ${padding.medium}px;
 `
 

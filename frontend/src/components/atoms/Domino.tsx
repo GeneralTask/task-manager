@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 const DominoOuterContainer = styled.div`
     cursor: grab;
-    height: ${Spacing.margin.medium}px;
+    height: ${Spacing.margin._16}px;
     padding-left: ${Spacing.padding.xSmall}px;
     padding-right: 12px;
 `

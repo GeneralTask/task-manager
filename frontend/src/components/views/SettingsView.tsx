@@ -1,25 +1,26 @@
-import { Picker } from '@react-native-picker/picker'
+import { Border, Colors, Spacing } from '../../styles'
 import React, { useEffect, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
-import styled from 'styled-components/native'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api-query-hooks'
-import { Border, Colors, Spacing } from '../../styles'
-import { logos } from '../../styles/images'
+
 import { Icon } from '../atoms/Icon'
-import TaskTemplate from '../atoms/TaskTemplate'
+import { Picker } from '@react-native-picker/picker'
 import { SectionHeader } from '../molecules/Header'
+import TaskTemplate from '../atoms/TaskTemplate'
+import { logos } from '../../styles/images'
+import styled from 'styled-components/native'
 
 const SettingsViewContainer = styled.View`
     flex: 1;
     margin-right: 7.5%;
     margin-left: 7.5%;
-    margin-top: ${Spacing.margin.large}px;
+    margin-top: ${Spacing.margin._24}px;
 `
 const AccountsContainer = styled.View`
-    margin-top: ${Spacing.margin.medium}px;
+    margin-top: ${Spacing.margin._16}px;
 `
 const AccountSpacing = styled.View`
-    margin-top: ${Spacing.margin.medium}px;
+    margin-top: ${Spacing.margin._16}px;
 `
 const AccountContainer = styled.View`
     display: flex;
@@ -30,12 +31,12 @@ const AccountContainer = styled.View`
     height: 100%;
 `
 const IconContainer = styled.View`
-    margin-left: ${Spacing.margin.medium}px;
-    margin-right: ${Spacing.margin.medium}px;
+    margin-left: ${Spacing.margin._16}px;
+    margin-right: ${Spacing.margin._16}px;
 `
 const UnlinkContainer = styled.View`
     margin-left: auto;
-    margin-right: ${Spacing.margin.medium}px;
+    margin-right: ${Spacing.margin._16}px;
     padding-left: 100px;
     background-color: ${Colors.gray._100};
     border-radius: ${Border.radius.small};
