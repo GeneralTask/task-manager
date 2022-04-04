@@ -510,7 +510,6 @@ func EmailToEmailItemUpdateable(email *Item) *EmailItemUpdateable {
 
 func ThreadItemToThreadItemUpdateable(thread *Item) *ThreadItemUpdateable {
 	return &ThreadItemUpdateable{
-		EmailThread:   thread.EmailThread,
-		LastUpdatedAt: thread.LastUpdatedAt,
+		EmailThread: thread.EmailThread,
 	}
 }
