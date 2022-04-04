@@ -32,14 +32,6 @@ type EmailContents struct {
 	Body       string
 }
 
-type gmailUpdateable struct {
-	database.Email `bson:"email,omitempty"`
-}
-
-type gmailThreadUpdateable struct {
-	database.EmailThread `bson:"email_thread,omitempty"`
-}
-
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -203,7 +195,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					IsMessage: true,
 				},
 			}
-			gmailUpdateableFields := emailToGmailUpdateable(emailItem)
+			gmailUpdateableFields := database.EmailToEmailItemUpdateable(emailItem)
 
 			// We flatten in order to do partial updates of nested documents correctly in mongodb
 			flattenedEmail, err := flatbson.Flatten(emailItem)
@@ -242,7 +234,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = nestedEmails
-		gmailUpdateableFields := threadItemToGmailUpdateable(threadItem)
+		gmailUpdateableFields := database.ThreadItemToThreadItemUpdateable(threadItem)
 		// We flatten in order to do partial updates of nested documents correctly in mongodb
 		flattenedThreadItem, err := flatbson.Flatten(threadItem)
 		if err != nil {
@@ -705,16 +697,4 @@ func createGmailService(db *mongo.Database, userID primitive.ObjectID, accountID
 	}
 
 	return gmailService, nil
-}
-
-func emailToGmailUpdateable(email *database.Item) *gmailUpdateable {
-	return &gmailUpdateable{
-		Email: email.Email,
-	}
-}
-
-func threadItemToGmailUpdateable(thread *database.Item) *gmailThreadUpdateable {
-	return &gmailThreadUpdateable{
-		EmailThread: thread.EmailThread,
-	}
 }

@@ -134,9 +134,9 @@ type CalendarEventChangeableFields struct {
 }
 
 type EmailThread struct {
-	ThreadID       string             `bson:"thread_id"`
-	LastUpdatedAt  primitive.DateTime `bson:"last_updated_at"`
-	Emails         []Email            `bson:"emails,omitempty"`
+	ThreadID      string             `bson:"thread_id"`
+	LastUpdatedAt primitive.DateTime `bson:"last_updated_at"`
+	Emails        []Email            `bson:"emails,omitempty"`
 }
 
 type Email struct {
@@ -234,4 +234,13 @@ type Recipients struct {
 type Recipient struct {
 	Name  string `bson:"name"`
 	Email string `bson:"email"`
+}
+
+type EmailItemUpdateable struct {
+	Email `bson:"email,omitempty"`
+}
+
+type ThreadItemUpdateable struct {
+	EmailThread   `bson:"email_thread,omitempty"`
+	LastUpdatedAt primitive.DateTime `bson:"last_updated_at,omitempty"`
 }

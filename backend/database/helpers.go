@@ -501,3 +501,16 @@ func IsValidPagination(pagination Pagination) bool {
 	}
 	return *pagination.Limit > 0 && *pagination.Page > 0
 }
+
+func EmailToEmailItemUpdateable(email *Item) *EmailItemUpdateable {
+	return &EmailItemUpdateable{
+		Email: email.Email,
+	}
+}
+
+func ThreadItemToThreadItemUpdateable(thread *Item) *ThreadItemUpdateable {
+	return &ThreadItemUpdateable{
+		EmailThread:   thread.EmailThread,
+		LastUpdatedAt: thread.LastUpdatedAt,
+	}
+}
