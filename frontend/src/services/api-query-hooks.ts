@@ -403,7 +403,6 @@ export const useMarkMessageAsTask = () => {
                 await queryClient.cancelQueries('messages')
 
                 const response: TMessageResponse | undefined = queryClient.getQueryData('messages')
-                console.log('messages', response)
                 if (!response) return
 
                 for (const page of response.pages) {
