@@ -1,28 +1,29 @@
-import { Border, Colors, Spacing } from '../../styles'
 import React, { useEffect, useState } from 'react'
-import { ScrollView, Text, View } from 'react-native'
+import styled from 'styled-components'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api-query-hooks'
-
 import { Icon } from '../atoms/Icon'
-import { Picker } from '@react-native-picker/picker'
 import { SectionHeader } from '../molecules/Header'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
-import styled from 'styled-components/native'
 
-const SettingsViewContainer = styled.View`
+const AUTH_WINDOW_WIDTH = 960
+const AUTH_WINDOW_HEIGHT = 640
+const ScrollViewMimic = styled.div`
+    margin: 40px 10px 100px 10px;
     flex: 1;
-    margin-right: 7.5%;
-    margin-left: 7.5%;
-    margin-top: ${Spacing.margin._24}px;
 `
-const AccountsContainer = styled.View`
+const SettingsViewContainer = styled.div`
+    font-family: Switzer-Variable;
+`
+const AccountsContainer = styled.div`
     margin-top: ${Spacing.margin._16}px;
 `
-const AccountSpacing = styled.View`
+const AccountSpacing = styled.div`
     margin-top: ${Spacing.margin._16}px;
 `
-const AccountContainer = styled.View`
+const AccountContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -30,11 +31,11 @@ const AccountContainer = styled.View`
     border-radius: ${Border.radius.large};
     height: 100%;
 `
-const IconContainer = styled.View`
+const IconContainer = styled.div`
     margin-left: ${Spacing.margin._16}px;
     margin-right: ${Spacing.margin._16}px;
 `
-const UnlinkContainer = styled.View`
+const UnlinkContainer = styled.div`
     margin-left: auto;
     margin-right: ${Spacing.margin._16}px;
     padding-left: 100px;
@@ -42,9 +43,13 @@ const UnlinkContainer = styled.View`
     border-radius: ${Border.radius.small};
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
 `
-const UnlinkButton = styled.Pressable`
-    background-color: ${Colors.gray._100};
+const XSmallFontSpan = styled.span`
+    font-size: ${Typography.xSmall.fontSize}px;
 `
+const FullWidthSelect = styled.select`
+    width: 100%;
+`
+
 const SettingsView = () => {
     const [selectedType, setSelectedType] = useState<string>()
     const { data: supportedTypes } = useGetSupportedTypes()
@@ -55,10 +60,12 @@ const SettingsView = () => {
         if (!supportedTypes) return
         for (const type of supportedTypes) {
             if (type.name === selectedType) {
+                const left = (screen.width - AUTH_WINDOW_WIDTH) / 2;
+                const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4;
                 const win = window.open(
                     type.authorization_url,
                     type.name,
-                    'height=640,width=960,toolbar=no,menubar=no,scrollbars=no,location=no,status=no'
+                    `height=${AUTH_WINDOW_HEIGHT},width=${AUTH_WINDOW_WIDTH},top=${top},left=${left}toolbar=no,menubar=no,scrollbars=no,location=no,status=no`
                 )
                 if (win != null) {
                     const timer = setInterval(() => {
@@ -73,43 +80,45 @@ const SettingsView = () => {
         }
     }
     const onUnlink = (id: string) => deleteAccount({ id: id })
-    useEffect(openAuthWindow, [selectedType])
+    useEffect(() => {
+        openAuthWindow()
+        setSelectedType('add')
+    }, [selectedType])
 
     return (
-        <ScrollView>
+        <ScrollViewMimic>
             <SettingsViewContainer>
                 <SectionHeader sectionName="Settings" allowRefresh={false} />
                 <AccountsContainer>
-                    <Picker selectedValue={selectedType} onValueChange={(itemValue) => setSelectedType(itemValue)}>
-                        <Picker.Item label="Add new account" value="add" />
+                    <FullWidthSelect value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
+                        <option value="add" >Add new account</option>
                         {supportedTypes?.map((type, i) => (
-                            <Picker.Item key={i} label={type.name} value={type.name} />
+                            <option key={i} value={type.name}>{type.name}</option>
                         ))}
-                    </Picker>
+                    </FullWidthSelect>
                 </AccountsContainer>
-                <View>
-                    {linkedAccounts?.map((account) => (
-                        <AccountSpacing key={account.id}>
-                            <TaskTemplate>
-                                <AccountContainer>
-                                    <IconContainer>
-                                        <Icon size="small" source={logos[account.logo_v2]}></Icon>
-                                    </IconContainer>
-                                    <Text>{account.display_id}</Text>
-                                    {account.is_unlinkable && (
-                                        <UnlinkContainer>
-                                            <UnlinkButton onPress={() => onUnlink(account.id)}>
-                                                <Text>Remove link</Text>
-                                            </UnlinkButton>
-                                        </UnlinkContainer>
-                                    )}
-                                </AccountContainer>
-                            </TaskTemplate>
-                        </AccountSpacing>
-                    ))}
-                </View>
+                {linkedAccounts?.map((account) => (
+                    <AccountSpacing key={account.id}>
+                        <TaskTemplate>
+                            <AccountContainer>
+                                <IconContainer>
+                                    <Icon size="small" source={logos[account.logo_v2]}></Icon>
+                                </IconContainer>
+                                <XSmallFontSpan>{account.display_id}</XSmallFontSpan>
+                                {account.is_unlinkable && (
+                                    <UnlinkContainer>
+                                        <NoStyleButton onClick={() => onUnlink(account.id)}>
+                                            <XSmallFontSpan>Remove link</XSmallFontSpan>
+                                        </NoStyleButton>
+                                    </UnlinkContainer>
+                                )}
+                            </AccountContainer>
+                        </TaskTemplate>
+                    </AccountSpacing>
+                ))}
             </SettingsViewContainer>
-        </ScrollView>
+        </ScrollViewMimic>
+
     )
 }
 
