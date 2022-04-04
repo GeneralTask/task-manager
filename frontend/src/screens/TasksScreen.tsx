@@ -1,21 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { Platform } from 'react-native'
-import BottomSheet from 'reanimated-bottom-sheet'
+import { Navigate, useLocation, useParams } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { useGetTasks, useGetUserInfo } from '../services/api-query-hooks'
 import CalendarView from '../components/views/CalendarView'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
+import Loading from '../components/atoms/Loading'
 import Messages from '../components/views/MessagesView'
 import Settings from '../components/views/SettingsView'
-import TaskBottomSheet from '../components/views/TaskBottomSheetView'
 import TaskSection from '../components/views/TaskSectionView'
-import { useGetTasks, useGetUserInfo } from '../services/api-query-hooks'
+import { setSelectedItemId } from '../redux/tasksPageSlice'
 import { useAppDispatch } from '../redux/hooks'
-import { setSelectedTaskId } from '../redux/tasksPageSlice'
-import { Navigate, useLocation, useParams } from 'react-router-dom'
-import Loading from '../components/atoms/Loading'
 
 const TasksScreen = () => {
-    const [sheetTaskId, setSheetTaskId] = useState('')
-    const sheetRef = useRef<BottomSheet>(null)
     const location = useLocation()
     const dispatch = useAppDispatch()
     const params = useParams()
@@ -25,7 +20,7 @@ const TasksScreen = () => {
 
     useEffect(() => {
         if (params.task) {
-            dispatch(setSelectedTaskId(params.task))
+            dispatch(setSelectedItemId(params.task))
         }
     }, [params])
 
@@ -46,17 +41,12 @@ const TasksScreen = () => {
     if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (
-        <>
-            <DefaultTemplate>
-                <>
-                    {currentPage}
-                    <CalendarView />
-                </>
-            </DefaultTemplate>
-            {Platform.OS === 'ios' && (
-                <TaskBottomSheet sheetTaskId={sheetTaskId} setSheetTaskId={setSheetTaskId} ref={sheetRef} />
-            )}
-        </>
+        <DefaultTemplate>
+            <>
+                {currentPage}
+                <CalendarView />
+            </>
+        </DefaultTemplate>
     )
 }
 

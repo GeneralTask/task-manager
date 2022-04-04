@@ -1,9 +1,21 @@
 import React from 'react'
-import { Button } from 'react-native'
-import { Colors } from '../../../styles'
+import styled from 'styled-components'
+import { Colors, Spacing, Typography } from '../../../styles'
 
-const JoinWaitlistButton = (props: { onSubmit: () => void }) => {
-    return <Button color={Colors.purple._1} onPress={props.onSubmit} title={'Join the Waitlist'} />
+const WaitlistButtonStyled = styled.button`
+    background-color: ${Colors.purple._1};
+    border: none;
+    color: ${Colors.white};
+    font-family: Switzer-Variable;
+    font-size: ${Typography.small.fontSize}px;
+    padding: 0px ${Spacing.padding.small}px;
+    cursor: pointer;
+`
+interface JointWaitlistButtonProps {
+    onSubmit: () => void
+}
+const JoinWaitlistButton = (props: JointWaitlistButtonProps) => {
+    return <WaitlistButtonStyled onClick={props.onSubmit}>Join the Waitlist</WaitlistButtonStyled>
 }
 
 export default JoinWaitlistButton

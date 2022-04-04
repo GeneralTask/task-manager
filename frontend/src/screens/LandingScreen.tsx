@@ -1,19 +1,63 @@
 import Cookies from 'js-cookie'
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Keyboard, Platform, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Navigate } from 'react-router-dom'
-import styled from 'styled-components/native'
+import styled from 'styled-components'
 import GoogleSignInButton from '../components/atoms/buttons/GoogleSignInButton'
 import JoinWaitlistButton from '../components/atoms/buttons/JoinWaitlistButton'
 import UnauthorizedFooter from '../components/molecules/UnauthorizedFooter'
 import UnauthorizedHeader from '../components/molecules/UnauthorizedHeader'
 import { useAppSelector } from '../redux/hooks'
-import { Colors, Flex, Images, Screens, Typography } from '../styles'
+import { Colors, Typography } from '../styles'
 import apiClient from '../utils/api'
 
-const FlexGrowContainer = styled.View`
+const LandingScreenContainer = styled.div`
+    background-color: ${Colors.white};
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    font-family: Switzer-Variable;
+`
+const FlexColumn = styled.div`
+    display: flex;
+    flex-direction: column;
+`
+const FlexGrowContainer = styled.div`
     flex: 1;
+`
+const Header = styled.div`
+    max-width: 700px;
+    margin: auto;
+    margin-bottom: 40px;
+    font-size: ${Typography.fontSize.header}px;
+    text-align: center;
+    font-family: inherit;
+`
+const Subheader = styled.div`
+    max-width: 725px;
+    margin: auto;
+    font-size: ${Typography.fontSize.subheader}px;
+    text-align: center;
+`
+const WaitlistContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    height: 35px;
+    margin: auto;
+    margin-top: 30px;
+    width: 500px;
+`
+const WaitlistTextInput = styled.input`
+    outline: none;
+    flex: 1;
+    padding: 0px 10px;
+`
+const ResponseContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    height: 20px;
+    color: ${Colors.response.error};
 `
 
 const LandingScreen = () => {
@@ -32,10 +76,9 @@ const LandingScreen = () => {
 
     const joinWaitlist = async (email: string) => {
         const response: Response = await apiClient.post('/waitlist/', {
-            mode: 'cors',
-            body: JSON.stringify({ email }),
+            email: email,
         })
-        if (response.ok) {
+        if (response.status === 201) {
             setMessage('Success!')
         } else if (response.status === 302) {
             setMessage('This email already exists in the waitlist')
@@ -46,149 +89,45 @@ const LandingScreen = () => {
     const { authToken } = useAppSelector((state) => ({ authToken: state.user_data.auth_token }))
     const authCookie = Cookies.get('authToken')
 
-    if (authToken || authCookie) {
-        return <Navigate to="/tasks" />
-    }
+    if (authToken || authCookie) return <Navigate to="/tasks" />
 
-    const errorMessageView = (
-        <View style={styles.responseContainer}>
-            <Text style={styles.response}>{message}</Text>
-        </View>
-    )
     return (
-        <View style={styles.container}>
+        <LandingScreenContainer>
             <UnauthorizedHeader />
             <FlexGrowContainer>
-                <View style={styles.headerContainer}>
-                    <Text style={styles.header}>The task manager for highly productive people.</Text>
-                    <Text style={styles.subheader}>
+                <FlexColumn>
+                    <Header>The task manager for highly productive people.</Header>
+                    <Subheader>
                         General Task pulls together your emails, messages, and tasks and prioritizes what matters most.{' '}
-                    </Text>
-                    <Text style={styles.subheader}></Text>
-                </View>
-                <View style={styles.waitlistContainer}>
+                    </Subheader>
+                    <Subheader></Subheader>
+                </FlexColumn>
+                <WaitlistContainer>
                     <Controller
                         control={control}
                         rules={{
                             required: true,
                         }}
                         render={({ field: { onChange, value } }) => (
-                            <TextInput
-                                onSubmitEditing={Keyboard.dismiss}
-                                style={styles.input}
-                                onChangeText={onChange}
+                            <WaitlistTextInput
+                                type="text"
+                                onChange={onChange}
                                 value={value}
                                 placeholder="Enter email address"
-                            ></TextInput>
+                            />
                         )}
                         name="email"
                     />
-                    {Platform.OS === 'ios' && errorMessageView}
                     <JoinWaitlistButton onSubmit={handleSubmit(onWaitlistSubmit, onWaitlistError)} />
-                </View>
-                {Platform.OS === 'web' && errorMessageView}
+                </WaitlistContainer>
+                <ResponseContainer>
+                    {message}
+                </ResponseContainer>
                 <GoogleSignInButton />
             </FlexGrowContainer>
             <UnauthorizedFooter />
-        </View>
+        </LandingScreenContainer>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        ...Screens.container,
-        ...Flex.column,
-    },
-    logo: {
-        ...Platform.select({
-            ios: {},
-            default: {
-                marginTop: '10px',
-            },
-        }),
-        resizeMode: 'contain',
-        width: Images.size.logo.header,
-        height: Images.size.logo.header,
-        marginLeft: 10,
-    },
-    headerContainer: {
-        ...Platform.select({
-            ios: {
-                marginTop: '5%',
-            },
-        }),
-    },
-    header: {
-        ...Platform.select({
-            ios: {
-                marginBottom: 10,
-            },
-            default: {
-                marginBottom: '40px',
-                maxWidth: '650px',
-                margin: 'auto',
-            },
-        }),
-        fontSize: Typography.fontSize.header,
-        textAlign: 'center',
-    },
-    subheader: {
-        ...Platform.select({
-            ios: {},
-            default: {
-                maxWidth: '725px',
-                margin: 'auto',
-            },
-        }),
-        fontSize: Typography.fontSize.subheader,
-        textAlign: 'center',
-    },
-    waitlistContainer: {
-        ...Platform.select({
-            ios: {
-                ...Flex.columnCenter,
-            },
-            default: {
-                ...Flex.row,
-                height: '34px',
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                marginTop: '30px',
-                width: '500px',
-            },
-        }),
-    },
-    input: {
-        ...Platform.select({
-            ios: {
-                height: 45,
-                margin: 12,
-                borderWidth: 1,
-                paddingLeft: 10,
-                width: '80%',
-            },
-            default: {
-                borderWidth: 1,
-                flexGrow: 1,
-                paddingLeft: '10px',
-            },
-        }),
-    },
-    responseContainer: {
-        ...Platform.select({
-            ios: {},
-            default: {
-                alignSelf: 'center',
-                marginTop: '10px',
-            },
-        }),
-    },
-    response: {
-        color: Colors.response.error,
-    },
-    footerContainer: {
-        marginTop: 'auto',
-    },
-})
 
 export default LandingScreen

@@ -3,11 +3,12 @@ import { Spacing, Typography } from '../../styles'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-query-hooks'
 
 import { Icon } from '../atoms/Icon'
-import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { Platform } from 'react-native'
 import { icons } from '../../styles/images'
 import styled from 'styled-components/native'
+import { emptyFunction } from '../../utils/utils'
 
 const SectionHeaderContainer = styled.View`
     display: flex;
@@ -63,6 +64,9 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         }
         setIsEditingTitle(false)
     }
+
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.REFRESH, props.refetch ?? emptyFunction, !!props.refetch)
+
     return (
         <SectionHeaderContainer>
             {isEditingTitle ? (
@@ -78,8 +82,6 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             {props.allowRefresh && Platform.OS === 'web' && (
                 <TouchableIcon onPress={props.refetch}>
                     <Icon size={'small'} source={icons.spinner}></Icon>
-                    {Platform.OS === 'web' && props.refetch && (
-                        <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.REFRESH} onKeyPress={props.refetch} />)}
                 </TouchableIcon>
             )}
             {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) && (

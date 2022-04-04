@@ -17,3 +17,6 @@ export function resetOrderingIds(tasks: TTask[]) {
         tasks[i].id_ordering = i
     }
 }
+
+// to avoid creating empty placeholder functions across the app
+export const emptyFunction = () => void 0;

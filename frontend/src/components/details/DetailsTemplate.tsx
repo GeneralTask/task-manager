@@ -1,7 +1,7 @@
-import webStyled from 'styled-components'
-import styled from 'styled-components/native'
 import { Colors, Spacing, Typography } from '../../styles'
 
+import styled from 'styled-components/native'
+import webStyled from 'styled-components'
 
 const DetailsViewContainer = styled.View`
     display: flex;
@@ -24,7 +24,6 @@ const TaskTitleContainer = styled.View`
     align-items: center;
 `
 const BodyContainer = styled.View`
-    margin-top: ${Spacing.margin.medium}px;
     flex: 1;
     overflow: auto;
 `
@@ -32,7 +31,7 @@ export const TitleInput = webStyled.textarea`
     background-color: inherit;
     color: ${Colors.gray._600};
     font: inherit;
-    font-size: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.large.fontSize}px;
     font-weight: ${Typography.weight._600.fontWeight};
     border: none;
     resize: none;
@@ -40,6 +39,7 @@ export const TitleInput = webStyled.textarea`
     overflow: hidden;
     display: flex;
     flex: 1;
+    margin-bottom: ${Spacing.margin.medium}px;
     :focus {
         outline: 1px solid ${Colors.gray._500};
     }
@@ -76,6 +76,7 @@ export const FlexGrowView = styled.View`
 interface DetailsTemplateProps {
     top: JSX.Element | JSX.Element[] | undefined | null
     title: JSX.Element | JSX.Element[] | undefined | null
+    subtitle?: JSX.Element | JSX.Element[] | undefined | null
     body: JSX.Element | JSX.Element[] | undefined | null
 }
 
@@ -88,7 +89,8 @@ const DetailsTemplate = (props: DetailsTemplateProps) => {
             <TaskTitleContainer>
                 {props.title}
             </TaskTitleContainer>
-            <BodyContainer>
+            {props.subtitle}
+            <BodyContainer >
                 {props.body}
             </BodyContainer>
         </DetailsViewContainer>

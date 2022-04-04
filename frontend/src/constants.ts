@@ -48,4 +48,6 @@ export enum KEYBOARD_SHORTCUTS {
     CREATE_TASK = 'T',
     REFRESH = 'R',
     MARK_COMPLETE = 'D',
+    DOWN = 'ArrowDown',
+    UP = 'ArrowUp',
 }

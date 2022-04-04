@@ -14,7 +14,7 @@ import EventBanner from '../molecules/EventBanner'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
 import TaskDropContainer from '../molecules/TaskDropContainer'
-import TaskSelectionController from '../molecules/TaskSelectionController'
+import useItemSelectionController from '../../hooks/useItemSelectionController'
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, isFetching } = useGetTasks()
@@ -49,10 +49,15 @@ const TaskSection = () => {
     const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
     const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
 
+    const expandTask = useCallback((itemId: string) => {
+        if (currentSection) navigate(`/tasks/${currentSection.id}/${itemId}`)
+    }, [currentSection])
+
+    useItemSelectionController(currentSection?.tasks ?? [], expandTask)
+
     return (
         <>
             <ScrollView style={styles.container} refreshControl={refreshControl}>
-                {Platform.OS === 'web' && currentSection && <TaskSelectionController taskSection={currentSection} />}
                 <EventBanner date={DateTime.now()} />
                 <View style={styles.tasksContent}>
                     {isLoading || !currentSection ? (
@@ -76,7 +81,6 @@ const TaskSection = () => {
                                     >
                                         <Task
                                             task={task}
-                                            setSheetTaskId={() => null}
                                             dragDisabled={currentSection.is_done}
                                             index={index}
                                             sectionId={currentSection.id}
