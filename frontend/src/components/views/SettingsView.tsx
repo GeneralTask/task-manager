@@ -40,7 +40,7 @@ const UnlinkContainer = styled.View`
     padding-left: 100px;
     background-color: ${Colors.gray._100};
     border-radius: ${Border.radius.small};
-    padding: ${Spacing.padding.xSmall}px ${Spacing.padding.small}px;
+    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
 `
 const UnlinkButton = styled.Pressable`
     background-color: ${Colors.gray._100};

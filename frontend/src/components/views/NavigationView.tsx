@@ -37,7 +37,7 @@ const GapView = styled.View`
     display: flex;
     flex-direction: column;
     gap: ${margin._8}px;
-    padding-bottom: ${padding.medium}px;
+    padding-bottom: ${padding._16}px;
 `
 
 const NavigationView = () => {

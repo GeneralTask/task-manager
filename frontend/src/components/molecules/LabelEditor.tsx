@@ -1,16 +1,17 @@
-import React from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
-import { TASK_ACTION_BASE_WIDTH } from '../../constants'
-import { useAppDispatch } from '../../redux/hooks'
-import { setSelectedTaskId } from '../../redux/tasksPageSlice'
 import { useGetTasks, useReorderTask } from '../../services/api-query-hooks'
-import { Colors } from '../../styles'
-import { radius } from '../../styles/border'
-import { padding } from '../../styles/spacing'
+import { useNavigate, useParams } from 'react-router-dom'
 import { weight, xxSmall } from '../../styles/typography'
+
+import { Colors } from '../../styles'
+import React from 'react'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import { TASK_ACTION_BASE_WIDTH } from '../../constants'
 import { TopNav } from './DatePicker-style'
+import { padding } from '../../styles/spacing'
+import { radius } from '../../styles/border'
+import { setSelectedItemId } from '../../redux/tasksPageSlice'
+import styled from 'styled-components'
+import { useAppDispatch } from '../../redux/hooks'
 
 export const LabelEditorContainer = styled.div`
     display: flex;
@@ -23,7 +24,7 @@ export const LabelEditorContainer = styled.div`
     z-index: 1;
     top: 100%;
     right: 0;
-    padding: ${padding.small}px;
+    padding: ${padding._8}px;
     cursor: default;
     gap: 5px;
     overflow: auto;
@@ -60,7 +61,7 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
                 reorderTask({ taskId: task_id, dropSectionId: section.id, orderingId: 1, dragSectionId: current_section_id })
                 closeLabelEditor()
                 navigate(`/tasks/${current_section_id}`)
-                dispatch(setSelectedTaskId(null))
+                dispatch(setSelectedItemId(null))
             }} />
         )
     })

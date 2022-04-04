@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom'
 const TermsOfServiceContainer = styled.div`
     display: flex;
     flex-direction: column;
-    padding: ${Spacing.padding.medium}px;
+    padding: ${Spacing.padding._16}px;
     height: 100%;
     box-sizing: border-box;
 `
@@ -37,7 +37,7 @@ const TermsScrollDiv = styled.div`
     flex: 1;
     overflow-y: scroll;
     margin-top: ${Spacing.margin._8}px;
-    padding: ${Spacing.padding.small}px;
+    padding: ${Spacing.padding._8}px;
 `
 const LinkContainer = styled.div`
     display: flex;

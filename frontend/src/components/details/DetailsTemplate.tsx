@@ -9,7 +9,7 @@ const DetailsViewContainer = styled.View`
     background-color: ${Colors.gray._50};
     width: 640px;
     margin-top: ${Spacing.margin._24}px;
-    padding: ${Spacing.padding.medium}px;
+    padding: ${Spacing.padding._16}px;
 `
 const DetailsTopContainer = styled.View`
     display: flex;

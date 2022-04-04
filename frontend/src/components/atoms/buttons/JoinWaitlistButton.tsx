@@ -1,6 +1,7 @@
+import { Colors, Spacing, Typography } from '../../../styles'
+
 import React from 'react'
 import styled from 'styled-components'
-import { Colors, Spacing, Typography } from '../../../styles'
 
 const WaitlistButtonStyled = styled.button`
     background-color: ${Colors.purple._1};
@@ -8,7 +9,7 @@ const WaitlistButtonStyled = styled.button`
     color: ${Colors.white};
     font-family: Switzer-Variable;
     font-size: ${Typography.small.fontSize}px;
-    padding: 0px ${Spacing.padding.small}px;
+    padding: 0px ${Spacing.padding._8}px;
     cursor: pointer;
 `
 interface JointWaitlistButtonProps {
