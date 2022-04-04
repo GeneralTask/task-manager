@@ -1,5 +1,6 @@
-import React from 'react'
 import { Border, Colors, Spacing, Typography } from '../../styles'
+
+import React from 'react'
 import styled from 'styled-components'
 
 const TextAreaStyled = styled.textarea`
@@ -12,7 +13,7 @@ const TextAreaStyled = styled.textarea`
     border-radius: ${Border.radius.small};
     box-shadow: none;
     outline: none;
-    padding: ${Spacing.padding.small}px;
+    padding: ${Spacing.padding._8}px;
     font-family: Switzer-Variable;
     font-style: normal;
     font-weight: normal;

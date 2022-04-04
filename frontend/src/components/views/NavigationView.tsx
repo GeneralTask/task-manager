@@ -3,7 +3,6 @@ import { Colors } from '../../styles'
 import { margin, padding } from '../../styles/spacing'
 import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
 import { useLocation, useParams } from 'react-router-dom'
-
 import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
@@ -21,7 +20,8 @@ const NavigationViewContainer = styled.div`
     flex-direction: column;
     width: 232px;
     background-color: ${Colors.gray._100};
-    padding: ${padding.small}px;
+    padding: ${padding._8}px;
+    box-sizing: border-box;
 `
 const NavigationViewHeader = styled.div`
     height: 24px;
@@ -31,8 +31,8 @@ const NavigationViewHeader = styled.div`
 const AddSectionView = styled.div`
     display: flex;
     flex-direction: row;
-    margin: ${margin._8}px ${margin._8}px;
-    padding: ${padding.xSmall}px ${padding.small}px;
+    margin: ${margin._4}px ${margin._8}px;
+    padding: ${padding._4}px ${padding._8}px;
 `
 const AddSectionInputView = styled.div`
     font-weight: ${weight._600.fontWeight};
@@ -43,7 +43,7 @@ const GapView = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${margin._8}px;
-    padding-bottom: ${padding.medium}px;
+    padding-bottom: ${padding._8}px;
     margin-top: auto;
 `
 

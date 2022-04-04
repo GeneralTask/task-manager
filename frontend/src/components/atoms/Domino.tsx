@@ -8,8 +8,8 @@ import styled from 'styled-components'
 const DominoOuterContainer = styled.div`
     cursor: grab;
     height: ${Spacing.margin._16}px;
-    padding-left: ${Spacing.padding.xSmall}px;
-    padding-right: 12px;
+    padding-left: ${Spacing.padding._4}px;
+    padding-right: ${Spacing.padding._12}px;
 `
 
 const Domino = React.forwardRef<HTMLDivElement>((_, ref) => {

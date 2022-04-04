@@ -15,7 +15,7 @@ const FeedbackViewContainer = styled.View`
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: ${Spacing.padding.medium}px;
+    padding: ${Spacing.padding._16}px;
 `
 const FeedbackHeader = styled.View`
     margin-bottom: ${Spacing.margin._24}px;

@@ -14,7 +14,7 @@ const Footer = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: ${Spacing.padding.small}px ${Spacing.padding.medium}px;
+    padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
     background-color: ${Colors.purple._2};
     width: 100%;
     z-index: 1;

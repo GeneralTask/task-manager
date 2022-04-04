@@ -1,25 +1,24 @@
 import React, { useCallback, useEffect } from 'react'
 
 import ActionValue from '../atoms/ActionValue'
+import DatePicker from './DatePicker'
 import { Icon } from '../atoms/Icon'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
+import LabelEditor from './LabelEditor'
 import { Spacing } from '../../styles'
 import { TTask } from '../../utils/types'
+import TimeEstimatePicker from './TimeEstimatePicker'
 import { icons } from '../../styles/images'
 import styled from 'styled-components/native'
 import { useClickOutside } from '../../utils/hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-
-import DatePicker from './DatePicker'
-import LabelEditor from './LabelEditor'
-import TimeEstimatePicker from './TimeEstimatePicker'
 
 const ActionButton = styled.Pressable`
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    padding: ${Spacing.padding.xSmall}px;
+    padding: ${Spacing.padding._4}px;
     margin-right: ${Spacing.margin._8}px;
 `
 

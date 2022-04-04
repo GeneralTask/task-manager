@@ -1,6 +1,7 @@
+import { Border, Colors, Spacing, Typography } from '../../../styles'
+
 import React from 'react'
 import styled from 'styled-components/native'
-import { Border, Colors, Spacing, Typography } from '../../../styles'
 
 const PressableStyled = styled.Pressable<{ hasBorder: boolean }>`
     border-radius: ${Border.radius.large};
@@ -13,7 +14,7 @@ const PressableStyled = styled.Pressable<{ hasBorder: boolean }>`
 `
 const RoundedView = styled.View<{ color: string }>`
     background-color: ${(props) => props.color};
-    padding: ${Spacing.padding.small}px;
+    padding: ${Spacing.padding._8}px;
     text-align: center;
     border-radius: ${Border.radius.large};
     height: 100%;
