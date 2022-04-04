@@ -212,10 +212,13 @@ export const useReorderTask = () => {
                     dropSection.tasks.splice(data.orderingId - 1, 0, dragTask)
 
                     // update ordering ids
-                    // resetOrderingIds(dropSection.tasks)
+                    resetOrderingIds(dropSection.tasks)
                     resetOrderingIds(dragSection.tasks)
                 }
                 queryClient.setQueryData('tasks', sections)
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries('tasks')
             }
         }
     )

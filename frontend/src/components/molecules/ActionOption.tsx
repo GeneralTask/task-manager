@@ -9,6 +9,7 @@ import ActionValue from '../atoms/ActionValue'
 import { Icon } from '../atoms/Icon'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import DatePicker from './DatePicker'
+import LabelEditor from './LabelEditor'
 import TimeEstimatePicker from './TimeEstimatePicker'
 
 
@@ -23,7 +24,7 @@ const ActionButton = styled.Pressable`
 
 interface ActionOptionProps {
     task: TTask
-    action: 'date_picker' | 'time_allocated'
+    action: 'date_picker' | 'time_allocated' | 'label'
     isShown: boolean
     keyboardShortcut: KEYBOARD_SHORTCUTS
     setIsShown: (isShown: boolean) => void
@@ -36,7 +37,7 @@ const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: A
         setIsShown(false)
     }, [task])
 
-    const { icon, component, actionString } = ((action: 'date_picker' | 'time_allocated') => {
+    const { icon, component, actionString } = ((action: 'date_picker' | 'time_allocated' | 'label') => {
         if (action === 'date_picker') {
             return {
                 icon: icons.calendar_blank,
@@ -46,13 +47,22 @@ const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: A
                 actionString: task.due_date,
             }
         }
-        return {
-            icon: icons.timer,
-            component: <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setIsShown(false)} />,
-            actionString:
-                task.time_allocated / 60000000 === 60000 || task.time_allocated / 60000000 === 0
-                    ? ''
-                    : `${task.time_allocated / 60000000}min`,
+        else if (action === 'time_allocated') {
+            return {
+                icon: icons.timer,
+                component: <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setIsShown(false)} />,
+                actionString:
+                    task.time_allocated / 60000000 === 60000 || task.time_allocated / 60000000 === 0
+                        ? ''
+                        : `${task.time_allocated / 60000000}min`,
+            }
+        }
+        else {
+            return {
+                icon: icons.label,
+                component: <LabelEditor task_id={task.id} closeLabelEditor={() => setIsShown(false)} />,
+                actionString: ''
+            }
         }
     })(action)
 
