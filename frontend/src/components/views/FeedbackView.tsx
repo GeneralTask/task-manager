@@ -1,33 +1,34 @@
-import React, { useState } from 'react'
-import styled from 'styled-components/native'
-import { useAppDispatch } from '../../redux/hooks'
-import { setShowModal } from '../../redux/tasksPageSlice'
-import { usePostFeedback } from '../../services/api-query-hooks'
 import { Colors, Spacing } from '../../styles'
+import React, { useState } from 'react'
+import { TitleMedium, TitleSmall } from '../atoms/title/Title'
+
 import { ModalEnum } from '../../utils/enums'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import TextArea from '../atoms/TextArea'
-import { TitleMedium, TitleSmall } from '../atoms/title/Title'
+import { setShowModal } from '../../redux/tasksPageSlice'
+import styled from 'styled-components/native'
+import { useAppDispatch } from '../../redux/hooks'
+import { usePostFeedback } from '../../services/api-query-hooks'
 
 const FeedbackViewContainer = styled.View`
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: ${Spacing.padding.medium}px;
+    padding: ${Spacing.padding._16}px;
 `
 const FeedbackHeader = styled.View`
-    margin-bottom: ${Spacing.margin.large}px;
+    margin-bottom: ${Spacing.margin._24}px;
 `
 const MarginTop = styled.View`
     flex: 1;
-    margin-top: ${Spacing.margin.xSmall}px;
+    margin-top: ${Spacing.margin._4}px;
 `
 const ButtonContainer = styled.View`
     display: flex;
     flex-direction: row;
-    margin-top: ${Spacing.margin.small}px;
-    gap: ${Spacing.margin.small}px;
+    margin-top: ${Spacing.margin._8}px;
+    gap: ${Spacing.margin._8}px;
 `
 
 const FeedbackView = () => {

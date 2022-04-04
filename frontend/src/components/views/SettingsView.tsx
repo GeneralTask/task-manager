@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api-query-hooks'
-import { Border, Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import { Border, Colors, Spacing, Typography } from '../../styles'
+import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api-query-hooks'
 import { Icon } from '../atoms/Icon'
-import TaskTemplate from '../atoms/TaskTemplate'
 import { SectionHeader } from '../molecules/Header'
+import TaskTemplate from '../atoms/TaskTemplate'
+import { logos } from '../../styles/images'
 
 const AUTH_WINDOW_WIDTH = 960
 const AUTH_WINDOW_HEIGHT = 640
@@ -18,10 +18,10 @@ const SettingsViewContainer = styled.div`
     font-family: Switzer-Variable;
 `
 const AccountsContainer = styled.div`
-    margin-top: ${Spacing.margin.medium}px;
+    margin-top: ${Spacing.margin._16}px;
 `
 const AccountSpacing = styled.div`
-    margin-top: ${Spacing.margin.medium}px;
+    margin-top: ${Spacing.margin._16}px;
 `
 const AccountContainer = styled.div`
     display: flex;
@@ -32,16 +32,16 @@ const AccountContainer = styled.div`
     height: 100%;
 `
 const IconContainer = styled.div`
-    margin-left: ${Spacing.margin.medium}px;
-    margin-right: ${Spacing.margin.medium}px;
+    margin-left: ${Spacing.margin._16}px;
+    margin-right: ${Spacing.margin._16}px;
 `
 const UnlinkContainer = styled.div`
     margin-left: auto;
-    margin-right: ${Spacing.margin.medium}px;
+    margin-right: ${Spacing.margin._16}px;
     padding-left: 100px;
     background-color: ${Colors.gray._100};
     border-radius: ${Border.radius.small};
-    padding: ${Spacing.padding.xSmall}px ${Spacing.padding.small}px;
+    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
 `
 const XSmallFontSpan = styled.span`
     font-size: ${Typography.xSmall.fontSize}px;

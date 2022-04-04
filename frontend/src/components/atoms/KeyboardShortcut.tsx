@@ -1,4 +1,4 @@
-import { Border, Colors, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import React from 'react'
@@ -15,7 +15,7 @@ const KeyboardShortcutContainer = styled.View<{ isPressed: boolean }>`
     height: 20px;
     background-color: ${Colors.gray._50};
     box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
-    margin-right: 12px;
+    margin-right: ${Spacing.margin._12}px;
 `
 const KeyboardShortcutText = styled.Text`
     color: ${Colors.gray._400};

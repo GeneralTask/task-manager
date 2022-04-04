@@ -8,7 +8,7 @@ import { margin } from "../../styles/spacing"
 import styled from "styled-components/native"
 
 const Container = styled.View`
-    margin-top: ${margin.xSmall}px;
+    margin-top: ${margin._4}px;
 `
 const Row = styled.View`
     display: flex;

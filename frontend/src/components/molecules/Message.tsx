@@ -1,17 +1,16 @@
-import { Colors, Flex } from '../../styles'
+import React, { useCallback } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { useNavigate, useParams } from 'react-router-dom'
-
-import { Icon } from '../atoms/Icon'
-import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import ItemContainer from './ItemContainer'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
-import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
-import React from 'react'
-import { TMessage } from '../../utils/types'
-import { logos } from '../../styles/images'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useAppSelector } from '../../redux/hooks'
-import { useCallback } from 'react';
+import { Colors, Flex } from '../../styles'
+import { logos } from '../../styles/images'
+import { TMessage } from '../../utils/types'
+import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
+import { Icon } from '../atoms/Icon'
+import ItemContainer from './ItemContainer'
+
 
 interface MessageProps {
     message: TMessage
@@ -21,6 +20,7 @@ const Message = ({ message }: MessageProps) => {
     const params = useParams()
 
     const isExpanded = params.message === message.id
+    const isTask = message.is_task
     const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === message.id)
 
     const hideDetailsView = useCallback(() => navigate(`/messages/`), [])
@@ -38,7 +38,7 @@ const Message = ({ message }: MessageProps) => {
 
     return (
         <ItemContainer isSelected={isSelected} onClick={onClick} >
-            <MarkAsTaskButton isTask={false} messageId={message.id} />
+            <MarkAsTaskButton isTask={isTask} messageId={message.id} />
             <View style={styles.iconContainer}>
                 <Icon source={logos[message.source.logo_v2]} size="small" />
             </View>

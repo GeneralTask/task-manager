@@ -8,8 +8,8 @@ const DetailsViewContainer = styled.View`
     flex-direction: column;
     background-color: ${Colors.gray._50};
     width: 640px;
-    margin-top: ${Spacing.margin.large}px;
-    padding: ${Spacing.padding.medium}px;
+    margin-top: ${Spacing.margin._24}px;
+    padding: ${Spacing.padding._16}px;
 `
 const DetailsTopContainer = styled.View`
     display: flex;
@@ -39,7 +39,7 @@ export const TitleInput = webStyled.textarea`
     overflow: hidden;
     display: flex;
     flex: 1;
-    margin-bottom: ${Spacing.margin.medium}px;
+    margin-bottom: ${Spacing.margin._16}px;
     :focus {
         outline: 1px solid ${Colors.gray._500};
     }
@@ -64,7 +64,7 @@ export const BodyTextArea = webStyled.textarea`
     resize: none;
     outline: none;
     overflow: auto;
-    padding-right: ${Spacing.margin.small}px;
+    padding-right: ${Spacing.margin._8}px;
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize}px;

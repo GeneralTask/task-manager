@@ -1,14 +1,15 @@
-import { DateTime } from 'luxon'
-import React, { useCallback } from 'react'
-import styled from 'styled-components'
 import { Colors, Spacing } from '../../styles'
-import { icons } from '../../styles/images'
-import { Icon } from '../atoms/Icon'
-import { Divider } from '../atoms/SectionDivider'
+import React, { useCallback } from 'react'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 
+import { DateTime } from 'luxon'
+import { Divider } from '../atoms/SectionDivider'
+import { Icon } from '../atoms/Icon'
+import { icons } from '../../styles/images'
+import styled from 'styled-components'
+
 export const PaddedContainer = styled.div`
-    padding: ${Spacing.padding.medium}px ${Spacing.padding.large}px;
+    padding: ${Spacing.padding._16}px ${Spacing.padding._24}px;
 `
 export const HeaderBodyContainer = styled.div`
     display: flex;
@@ -34,14 +35,14 @@ const ButtonStyles = styled.button`
 export const HoverButton = styled(ButtonStyles)`
     color: ${Colors.white};
     background-color: ${Colors.purple._1};
-    padding: ${Spacing.padding.xSmall}px ${Spacing.padding.small}px;
+    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     &:hover {
         background-color: ${Colors.purple._2};
     }
 `
 export const ArrowButton = styled(ButtonStyles)`
     background-color: inherit;
-    padding: ${Spacing.padding.xSmall}px;
+    padding: ${Spacing.padding._4}px;
     &:hover {
         background-color: ${Colors.gray._200};
     }

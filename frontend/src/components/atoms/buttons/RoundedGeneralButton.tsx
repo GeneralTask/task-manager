@@ -1,6 +1,7 @@
+import { Border, Colors, Spacing, Typography } from '../../../styles'
+
 import React from 'react'
 import styled from 'styled-components/native'
-import { Border, Colors, Spacing, Typography } from '../../../styles'
 
 const PressableStyled = styled.Pressable<{ hasBorder: boolean }>`
     border-radius: ${Border.radius.large};
@@ -13,34 +14,38 @@ const PressableStyled = styled.Pressable<{ hasBorder: boolean }>`
 `
 const RoundedView = styled.View<{ color: string }>`
     background-color: ${(props) => props.color};
-    padding: ${Spacing.padding.small}px;
+    padding: ${Spacing.padding._8}px;
     text-align: center;
     border-radius: ${Border.radius.large};
     height: 100%;
     width: 100%;
 `
-const ModalText = styled.Text<{ textStyle: 'light' | 'dark' }>`
+const ModalText = styled.Text<{ textStyle: 'light' | 'dark', wrapText?: boolean }>`
     color: ${(props) => (props.textStyle === 'light' ? Colors.white : Colors.black)};
     font-weight: ${Typography.weight._600.fontWeight};
-    font-side: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.xSmall.fontSize}px;
+    white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 
-interface ModalButtonProps {
+interface RoundedGeneralButtonProps {
     value: string
     onPress: () => void
     color?: string
     textStyle?: 'light' | 'dark'
+    wrapText?: boolean
     hasBorder?: boolean
     disabled?: boolean
 }
-const RoundedGeneralButton = (props: ModalButtonProps) => {
+const RoundedGeneralButton = (props: RoundedGeneralButtonProps) => {
     const color = props.disabled ? Colors.gray._400 : props.color || Colors.white
     return (
         <PressableStyled disabled={!!props.disabled} onPress={props.onPress} hasBorder={!!props.hasBorder}>
             <RoundedView color={color}>
-                <ModalText textStyle={props.textStyle || 'light'}>{props.value}</ModalText>
+                <ModalText textStyle={props.textStyle || 'light'} wrapText={props.wrapText}>{props.value}</ModalText>
             </RoundedView>
-        </PressableStyled>
+        </PressableStyled >
     )
 }
 
