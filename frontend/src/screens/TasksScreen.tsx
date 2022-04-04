@@ -1,8 +1,11 @@
 import { Navigate, useLocation, useParams } from 'react-router-dom'
 import React, { useEffect } from 'react'
 import { useGetTasks, useGetUserInfo } from '../services/api-query-hooks'
+
 import CalendarView from '../components/views/CalendarView'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import Loading from '../components/atoms/Loading'
 import Messages from '../components/views/MessagesView'
 import Settings from '../components/views/SettingsView'
@@ -41,12 +44,14 @@ const TasksScreen = () => {
     if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (
-        <DefaultTemplate>
-            <>
-                {currentPage}
-                <CalendarView />
-            </>
-        </DefaultTemplate>
+        <DndProvider backend={HTML5Backend}>
+            <DefaultTemplate>
+                <>
+                    {currentPage}
+                    <CalendarView />
+                </>
+            </DefaultTemplate>
+        </DndProvider>
     )
 }
 
