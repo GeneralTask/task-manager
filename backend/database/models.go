@@ -241,6 +241,5 @@ type EmailItemUpdateable struct {
 }
 
 type ThreadItemUpdateable struct {
-	EmailThread   `bson:"email_thread,omitempty"`
-	LastUpdatedAt primitive.DateTime `bson:"last_updated_at,omitempty"`
+	EmailThread `bson:"email_thread,omitempty"`
 }
