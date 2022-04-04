@@ -86,7 +86,7 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                 <HeaderBodyContainer>
                     <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>
                     <ButtonContainer>
-                        <HoverButton onClick={() => setDate(DateTime.now())}>
+                        <HoverButton onClick={() => setDate(expandedCalendar ? DateTime.now().minus({ days: DateTime.now().weekday % 7 }) : DateTime.now())}>
                             Today
                         </HoverButton>
                         <ArrowButton onClick={selectPrevious}>

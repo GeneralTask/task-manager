@@ -10,7 +10,7 @@ const CalendarView = () => {
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
 
     useEffect(() => {
-        expandedCalendar ? setDate(date.startOf('week')) : setDate(DateTime.now())
+        setDate(expandedCalendar ? date.minus({ days: date.weekday % 7 }) : DateTime.now())
     }, [expandedCalendar])
 
     return (
