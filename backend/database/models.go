@@ -169,8 +169,8 @@ type ThreadChangeable struct {
 }
 
 type ThreadItemChangeable struct {
-	ThreadChangeable `bson:"email_thread,omitempty"`
-	TaskType         *TaskTypeChangeable `bson:"task_type,omitempty"`
+	ThreadChangeable   `bson:"email_thread,omitempty"`
+	TaskTypeChangeable *TaskTypeChangeable `bson:"task_type,omitempty"`
 }
 
 type Task struct {

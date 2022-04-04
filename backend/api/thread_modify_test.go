@@ -28,7 +28,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
-	testEmail := fmt.Sprintf("%s@generaltask.com", uuid.New().String()[:4])
+	testEmail := createRandomGTEmail()
 	authToken := login(testEmail, "General Tasker")
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	notUserID := primitive.NewObjectID()

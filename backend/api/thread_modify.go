@@ -75,9 +75,6 @@ func (api *API) ThreadModify(c *gin.Context) {
 }
 
 func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.ThreadItemChangeable) error {
-	// We don't currently have this field in the DB, so unsetting to avoid confusion
-	updateFields.ThreadChangeable.IsUnread = nil
-
 	parentCtx := ctx
 	if parentCtx == nil {
 		parentCtx = context.Background()
@@ -88,6 +85,12 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 	}
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
+
+	// We don't currently have this field in the DB, so unsetting to avoid confusion
+	if updateFields.ThreadChangeable.IsUnread == nil {
+		updateIsUnreadOnDBThreadEmails(threadID, userID, updateFields.ThreadChangeable.IsUnread)
+	}
+	updateFields.ThreadChangeable.IsUnread = nil
 
 	// We flatten in order to do partial updates of nested documents correctly in mongodb
 	flattenedUpdateFields, err := flatbson.Flatten(updateFields)
@@ -122,9 +125,20 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 	return nil
 }
 
+func updateIsUnreadOnDBThreadEmails(threadID primitive.ObjectID, userID primitive.ObjectID, isUnread bool) error {
+	var err error
+	for _, email := range threadItem.EmailThread.Emails {
+		err = changeLabelOnMessage(gmailService, email.EmailID, "UNREAD", addLabel)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func threadModifyParamsToChangeable(modifyParams *threadModifyParams) *database.ThreadItemChangeable {
 	return &database.ThreadItemChangeable{
-		TaskType:         &database.TaskTypeChangeable{IsTask: modifyParams.IsTask},
-		ThreadChangeable: database.ThreadChangeable{IsUnread: modifyParams.IsUnread},
+		TaskTypeChangeable: &database.TaskTypeChangeable{IsTask: modifyParams.IsTask},
+		ThreadChangeable:   database.ThreadChangeable{IsUnread: modifyParams.IsUnread},
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -280,4 +281,8 @@ func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	return recorder
+}
+
+func createRandomGTEmail() string {
+	return fmt.Sprintf("%s@generaltask.com", uuid.New().String())
 }
