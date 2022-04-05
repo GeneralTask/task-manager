@@ -31,7 +31,7 @@ const Domino = React.forwardRef<HTMLDivElement>((_, ref) => {
             <DominoContainer>
                 {Array(6)
                     .fill(0)
-                    .map(() => <Dot />
+                    .map((_, i) => <Dot key={i} />
                     )}
             </DominoContainer>
         </DominoOuterContainer>
