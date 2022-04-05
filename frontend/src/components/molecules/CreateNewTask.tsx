@@ -1,39 +1,50 @@
-import { Colors, Images } from '../../styles'
-import {
-    Image,
-    NativeSyntheticEvent,
-    Platform,
-    StyleSheet,
-    TextInput,
-    TextInputKeyPressEventData,
-    View,
-} from 'react-native'
+import { Colors, Images, Typography } from '../../styles'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { useCreateTask } from '../../services/api-query-hooks'
 import KeyboardShortcut from '../atoms/KeyboardShortcut'
+import styled from 'styled-components'
+import { padding } from '../../styles/spacing'
+import { radius } from '../../styles/border'
+import { Icon } from '../atoms/Icon'
+
+const CreateNewTaskContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: ${padding._8}px;
+    background-color: ${Colors.gray._100};
+    height: 50px;
+    align-items: center;
+    padding: 0px ${padding._8}px;
+    border-radius: ${radius.large};
+    margin-bottom: ${padding._8}px;
+`
+const TaskInput = styled.input`
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: ${Typography.medium.fontSize};
+    font-family: Switzer-Variable;
+    flex: 1;
+`
 
 interface CreateNewTaskProps {
     section: string
 }
 const CreateNewTask = (props: CreateNewTaskProps) => {
-    const inputRef = useRef<TextInput>(null)
-
-    // web only
+    const [text, setText] = useState('')
     const [isFocused, setIsFocused] = useState(false)
+    const handleBlur = useCallback(() => setIsFocused(false), [])
+    const { mutate: createTask } = useCreateTask()
+    const inputRef = useRef<HTMLInputElement>(null)
     useEffect(() => {
+        if (!inputRef.current) return
         if (isFocused) {
-            inputRef.current?.focus()
+            inputRef.current.focus()
         } else {
-            inputRef.current?.blur()
+            inputRef.current.blur()
         }
     }, [isFocused])
-
-    const onBlur = useCallback(() => setIsFocused(false), [])
-
-    const [text, setText] = useState('')
-    const { mutate: createTask } = useCreateTask()
 
     const submitNewTask = async () => {
         if (!text) return
@@ -46,72 +57,25 @@ const CreateNewTask = (props: CreateNewTaskProps) => {
             })
         }
     }
-    const handleKeyDown = (e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
-        if (e.nativeEvent.key === 'Enter') {
-            submitNewTask()
-        } else if (e.nativeEvent.key === 'Escape') {
-            onBlur()
-        }
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        e.stopPropagation()
+        if (e.key === 'Enter') submitNewTask()
+        else if (e.key === 'Escape') handleBlur()
     }
     return (
-        <View style={styles.container}>
-            <View style={styles.plusIconContainer}>
-                <Image style={styles.plusIcon} source={Images.icons.plus} />
-            </View>
-            <TextInput
-                style={styles.input}
-                value={text}
-                onChangeText={(text) => setText(text)}
-                onBlur={onBlur}
-                placeholder="Add new task"
-                onKeyPress={handleKeyDown}
-                blurOnSubmit={false}
+        <CreateNewTaskContainer>
+            <Icon source={Images.icons.plus} size={'small'} />
+            <TaskInput onBlur={handleBlur}
                 ref={inputRef}
-            />
-            <KeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CREATE_TASK} onKeyPress={() => setIsFocused(true)} />
-        </View>
+                value={text}
+                placeholder="Add new task"
+                onKeyDown={handleKeyDown}
+                onChange={(e) => setText(e.target.value)} />
+            <KeyboardShortcut
+                shortcut={KEYBOARD_SHORTCUTS.CREATE_TASK}
+                onKeyPress={() => setIsFocused(true)} />
+        </CreateNewTaskContainer>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        display: 'flex',
-        flexDirection: 'row',
-        backgroundColor: Colors.gray._100,
-        width: '100%',
-        height: 48,
-        alignItems: 'center',
-        paddingLeft: 10,
-        paddingRight: 10,
-        borderRadius: 12,
-        marginBottom: 10,
-    },
-    plusIconContainer: {
-        height: 20,
-        width: 20,
-        marginRight: 10,
-    },
-    plusIcon: {
-        width: '100%',
-        height: '100%',
-    },
-    inputContainer: {
-        flexGrow: 1,
-        minWidth: 0,
-    },
-    input: {
-        ...Platform.select({
-            ios: {
-                width: '90%',
-                marginRight: 10,
-            },
-            default: {
-                outlineStyle: 'none',
-                flexGrow: 1,
-            },
-        }),
-    },
-    tool: {},
-})
 
 export default CreateNewTask
