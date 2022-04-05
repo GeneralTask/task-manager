@@ -1,41 +1,39 @@
-import { Platform, TextStyle } from 'react-native'
-
 export const fontSize = {
-    header: Platform.OS === 'web' ? 58 : 33,
-    subheader: Platform.OS === 'web' ? 27 : 16,
+    header: 58,
+    subheader: 27,
 }
 
-export const xxSmall: TextStyle = {
+export const xxSmall = {
     fontSize: 13,
     lineHeight: 16,
 }
 
-export const xSmall: TextStyle = {
+export const xSmall = {
     fontSize: 14,
     lineHeight: 20,
 }
 
-export const small: TextStyle = {
+export const small = {
     fontSize: 16,
     lineHeight: 24,
 }
 
-export const medium: TextStyle = {
+export const medium = {
     fontSize: 18,
     lineHeight: 24,
 }
 
-export const large: TextStyle = {
+export const large = {
     fontSize: 20,
     lineHeight: 32,
 }
 
-export const xLarge: TextStyle = {
+export const xLarge = {
     fontSize: 24,
     lineHeight: 32,
 }
 
-export const xxLarge: TextStyle = {
+export const xxLarge = {
     fontSize: 32,
     lineHeight: 40,
 }
@@ -43,11 +41,11 @@ export const xxLarge: TextStyle = {
 export const weight = {
     _400: {
         fontWeight: '400',
-    } as TextStyle,
+    },
     _500: {
         fontWeight: '500',
-    } as TextStyle,
+    },
     _600: {
         fontWeight: '600',
-    } as TextStyle,
+    }
 }
