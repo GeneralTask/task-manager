@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { TextInput } from 'react-native-gesture-handler'
 import { useModifyTask } from '../../services/api-query-hooks'
-import { Colors, Dimensions, Flex } from '../../styles'
+import { Colors, Dimensions } from '../../styles'
 import { TTask } from '../../utils/types'
 import Handle from '../atoms/GrayHandle'
 import { Icon } from '../atoms/Icon'
@@ -67,7 +67,8 @@ const EditSheet = ({ task, setText: propsSetText }: EditSheetProps) => {
 
 const styles = StyleSheet.create({
     container: {
-        ...Flex.column,
+        display: 'flex',
+        flexDirection: 'column',
         paddingTop: 16,
         height: Dimensions.editSheetHeight,
     },
@@ -81,7 +82,8 @@ const styles = StyleSheet.create({
         marginTop: 24,
     },
     subtitleContainer: {
-        ...Flex.row,
+        display: 'flex',
+        flexDirection: 'row',
         alignItems: 'center',
         marginTop: 8,
         marginBottom: 8,
@@ -90,7 +92,8 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
     detailsContainer: {
-        ...Flex.column,
+        display: 'flex',
+        flexDirection: 'column',
         marginTop: 8,
         marginBottom: 8,
     },
