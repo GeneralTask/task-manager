@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type threadModifyParams struct {
+type ThreadModifyParams struct {
 	IsUnread *bool `json:"is_unread"`
 	IsTask   *bool `json:"is_task"`
 }
@@ -26,7 +26,7 @@ func (api *API) ThreadModify(c *gin.Context) {
 		Handle404(c)
 		return
 	}
-	var modifyParams threadModifyParams
+	var modifyParams ThreadModifyParams
 	err = c.BindJSON(&modifyParams)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
@@ -43,11 +43,10 @@ func (api *API) ThreadModify(c *gin.Context) {
 	}
 
 	// check if all fields are empty
-	if modifyParams == (threadModifyParams{}) {
+	if modifyParams == (ThreadModifyParams{}) {
 		c.JSON(400, gin.H{"detail": "parameter missing"})
 		return
 	}
-	threadChangeableFields := threadModifyParamsToChangeable(&modifyParams)
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(thread.SourceID)
 	if err != nil {
@@ -57,16 +56,16 @@ func (api *API) ThreadModify(c *gin.Context) {
 	}
 
 	// update external thread
-	err = taskSourceResult.Source.ModifyThread(userID, thread.SourceAccountID, thread.ID, threadChangeableFields)
+	err = taskSourceResult.Source.ModifyThread(userID, thread.SourceAccountID, thread.ID, modifyParams.IsUnread)
 	if err != nil {
 		log.Printf("failed to update external task source: %v", err)
 		Handle500(c)
 		return
 	}
 
-	err = updateThreadInDB(api, c.Request.Context(), threadID, userID, threadChangeableFields)
+	err = updateThreadInDB(api, c.Request.Context(), threadID, userID, &modifyParams)
 	if err != nil {
-		log.Printf("could not update thread %v in DB with fields %+v", threadID, threadChangeableFields)
+		log.Printf("could not update thread %v in DB with error %+v", threadID, err)
 		Handle500(c)
 		return
 	}
@@ -74,11 +73,8 @@ func (api *API) ThreadModify(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.ThreadItemChangeable) error {
+func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID, userID primitive.ObjectID, params *ThreadModifyParams) error {
 	parentCtx := ctx
-	if parentCtx == nil {
-		parentCtx = context.Background()
-	}
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
@@ -86,16 +82,25 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
-	// We don't currently have this field in the DB, so unsetting to avoid confusion
-	if updateFields.ThreadChangeable.IsUnread == nil {
-		updateIsUnreadOnDBThreadEmails(threadID, userID, updateFields.ThreadChangeable.IsUnread)
+	thread, err := database.GetItem(ctx, threadID, userID)
+	if err != nil {
+		return fmt.Errorf("thread not found, threadID: %s", threadID)
 	}
-	updateFields.ThreadChangeable.IsUnread = nil
+	threadChangeable := database.ThreadItemToChangeable(thread)
+
+	if params.IsUnread != nil {
+		for _, email := range threadChangeable.EmailThreadChangeable.Emails {
+			email.IsUnread = *params.IsUnread
+		}
+	}
+	if params.IsTask != nil {
+		threadChangeable.TaskTypeChangeable = &database.TaskTypeChangeable{IsTask: params.IsTask}
+	}
 
 	// We flatten in order to do partial updates of nested documents correctly in mongodb
-	flattenedUpdateFields, err := flatbson.Flatten(updateFields)
+	flattenedUpdateFields, err := flatbson.Flatten(threadChangeable)
 	if err != nil {
-		log.Printf("Could not flatten %+v, error: %+v", updateFields, err)
+		log.Printf("Could not flatten %+v, error: %+v", flattenedUpdateFields, err)
 		return err
 	}
 	if len(flattenedUpdateFields) == 0 {
@@ -125,20 +130,9 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 	return nil
 }
 
-func updateIsUnreadOnDBThreadEmails(threadID primitive.ObjectID, userID primitive.ObjectID, isUnread bool) error {
-	var err error
-	for _, email := range threadItem.EmailThread.Emails {
-		err = changeLabelOnMessage(gmailService, email.EmailID, "UNREAD", addLabel)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func threadModifyParamsToChangeable(modifyParams *threadModifyParams) *database.ThreadItemChangeable {
-	return &database.ThreadItemChangeable{
-		TaskTypeChangeable: &database.TaskTypeChangeable{IsTask: modifyParams.IsTask},
-		ThreadChangeable:   database.ThreadChangeable{IsUnread: modifyParams.IsUnread},
-	}
-}
+//func threadModifyParamsToChangeable(modifyParams *ThreadModifyParams) *database.ThreadItemChangeable {
+//	return &database.ThreadItemChangeable{
+//		TaskTypeChangeable:    &database.TaskTypeChangeable{IsTask: modifyParams.IsTask},
+//		EmailThreadChangeable: database.EmailThreadChangeable{IsUnread: modifyParams.IsUnread},
+//	}
+//}

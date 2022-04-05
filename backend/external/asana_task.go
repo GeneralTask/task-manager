@@ -224,6 +224,6 @@ func (asanaTask AsanaTaskSource) ModifyMessage(userID primitive.ObjectID, accoun
 	return nil
 }
 
-func (asanaTask AsanaTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, updateFields *database.ThreadItemChangeable) error {
+func (asanaTask AsanaTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
 	return nil
 }

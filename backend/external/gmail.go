@@ -234,7 +234,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = nestedEmails
-		gmailUpdateableFields := database.ThreadItemToUpdateable(threadItem)
+		gmailUpdateableFields := database.ThreadItemToChangeable(threadItem)
 		// We flatten in order to do partial updates of nested documents correctly in mongodb
 		flattenedThreadItem, err := flatbson.Flatten(threadItem)
 		if err != nil {
@@ -599,7 +599,7 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 	return err
 }
 
-func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, updateFields *database.ThreadItemChangeable) error {
+func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
 	// todo - mark all emails in the thread as read
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -622,8 +622,8 @@ func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID
 		return err
 	}
 
-	if updateFields.IsUnread != nil {
-		err = changeLabelsOnEmailsInThread(gmailService, &threadItem, "UNREAD", *updateFields.IsUnread)
+	if isUnread != nil {
+		err = changeLabelsOnEmailsInThread(gmailService, &threadItem, "UNREAD", *isUnread)
 	}
 	return err
 }

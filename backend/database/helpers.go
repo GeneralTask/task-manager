@@ -508,7 +508,7 @@ func EmailItemToUpdateable(email *Item) *EmailItemChangeable {
 	}
 }
 
-func ThreadItemToUpdateable(thread *Item) *ThreadItemChangeable {
+func ThreadItemToChangeable(thread *Item) *ThreadItemChangeable {
 	return &ThreadItemChangeable{
 		EmailThreadChangeable: EmailThreadChangeable{
 			ThreadID:      thread.EmailThread.ThreadID,

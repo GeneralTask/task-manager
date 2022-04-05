@@ -164,15 +164,6 @@ type MessageChangeable struct {
 	IsCompleted     *bool               `bson:"is_completed,omitempty"`
 }
 
-type ThreadChangeable struct {
-	IsUnread *bool `bson:"is_unread,omitempty"`
-}
-
-type ThreadItemChangeable struct {
-	ThreadChangeable   `bson:"email_thread,omitempty"`
-	TaskTypeChangeable *TaskTypeChangeable `bson:"task_type,omitempty"`
-}
-
 type Task struct {
 	PriorityID         string  `bson:"priority_id"`
 	PriorityNormalized float64 `bson:"priority_normalized"`
@@ -257,4 +248,9 @@ type EmailThreadChangeable struct {
 
 type ThreadItemChangeable struct {
 	EmailThreadChangeable `bson:"email_thread,omitempty"`
+	TaskTypeChangeable    *TaskTypeChangeable `bson:"task_type,omitempty"`
+}
+
+type ThreadChangeable struct {
+	IsUnread *bool `bson:"is_unread,omitempty"`
 }

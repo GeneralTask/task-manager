@@ -112,6 +112,6 @@ func (generalTask GeneralTaskTaskSource) ModifyMessage(userID primitive.ObjectID
 	return nil
 }
 
-func (generalTask GeneralTaskTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, updateFields *database.ThreadItemChangeable) error {
+func (generalTask GeneralTaskTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
 	return nil
 }

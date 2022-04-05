@@ -218,6 +218,6 @@ func (googleCalendar GoogleCalendarSource) ModifyMessage(userID primitive.Object
 	return nil
 }
 
-func (googleCalendar GoogleCalendarSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, updateFields *database.ThreadItemChangeable) error {
+func (googleCalendar GoogleCalendarSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
 	return nil
 }
