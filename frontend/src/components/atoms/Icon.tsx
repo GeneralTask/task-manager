@@ -1,3 +1,4 @@
+/* eslint @typescript-eslint/no-var-requires: "off" */
 import React from 'react'
 import styled from 'styled-components'
 import { Dimensions } from '../../styles'
