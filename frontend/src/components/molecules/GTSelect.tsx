@@ -1,9 +1,10 @@
-import React from 'react'
-import { ImageSourcePropType, Pressable, View } from 'react-native'
-import styled from 'styled-components'
-import { Colors } from '../../styles'
-import { icons } from '../../styles/images'
+import { Colors, Spacing } from '../../styles'
+
 import { Icon } from '../atoms/Icon'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import React from 'react'
+import { icons } from '../../styles/images'
+import styled from 'styled-components'
 
 const InputContainer = styled.div<{ valid: boolean }>`
     display: flex;
@@ -49,6 +50,12 @@ const Button = styled.button`
         background-color: ${Colors.gray._100};
     }
 `
+const ExpandButton = styled(NoStyleButton)`
+    padding: ${Spacing.padding._8}px;
+`
+const IconContainer = styled.div`
+    margin: ${Spacing.margin._8}px;
+`
 
 interface Props {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -57,7 +64,7 @@ interface Props {
     placeholder?: string
     pattern?: string
     invalidInput?: string
-    inputIcon?: NodeRequire | ImageSourcePropType
+    inputIcon?: NodeRequire
 }
 
 function GTSelect(props: Props): JSX.Element {
@@ -114,7 +121,7 @@ function GTSelect(props: Props): JSX.Element {
     return (
         <>
             <InputContainer valid={valid}>
-                {inputIcon && <View style={{ margin: 6 }}><Icon source={inputIcon} size="xSmall" /></View>}
+                {inputIcon && <IconContainer><Icon source={inputIcon} size="xSmall" /></IconContainer>}
                 <Input
                     onChange={(e) => {
                         checkValid(e.target.value)
@@ -125,9 +132,9 @@ function GTSelect(props: Props): JSX.Element {
                     autoFocus
                 />
                 {options.length && (
-                    <Pressable onPress={() => setExpanded(!expanded)} style={{ margin: 6, padding: 5 }}>
+                    <ExpandButton onClick={() => setExpanded(!expanded)}>
                         <Icon source={icons['chevron_down']} size="xSmall" />
-                    </Pressable>
+                    </ExpandButton>
                 )}
             </InputContainer>
             {expanded && options && <Dropdown>{optionsList()}</Dropdown>}
