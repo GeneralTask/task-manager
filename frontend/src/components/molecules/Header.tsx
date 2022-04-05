@@ -4,7 +4,6 @@ import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-q
 
 import { Icon } from '../atoms/Icon'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
-import { Platform } from 'react-native'
 import { emptyFunction } from '../../utils/utils'
 import { icons } from '../../styles/images'
 import styled from 'styled-components/native'
@@ -79,11 +78,9 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             ) : (
                 <HeaderText>{sectionName}</HeaderText>
             )}
-            {props.allowRefresh && Platform.OS === 'web' && (
-                <TouchableIcon onPress={props.refetch}>
-                    <Icon size={'small'} source={icons.spinner}></Icon>
-                </TouchableIcon>
-            )}
+            <TouchableIcon onPress={props.refetch}>
+                <Icon size={'small'} source={icons.spinner} />
+            </TouchableIcon>
             {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) && (
                 <>
                     <TouchableIcon onPress={() => handleDelete(props.taskSectionId)}>
