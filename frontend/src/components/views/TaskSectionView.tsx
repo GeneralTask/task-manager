@@ -1,9 +1,7 @@
-import { Colors, Screens, Spacing } from '../../styles'
-import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
+import { Colors } from '../../styles'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
-
 import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
 import EventBanner from '../molecules/EventBanners'
@@ -16,6 +14,23 @@ import TaskDropContainer from '../molecules/TaskDropContainer'
 import { getSectionById } from '../../utils/task'
 import { useInterval } from '../../utils/hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
+import styled from 'styled-components'
+
+
+const ScrollViewMimic = styled.div`
+    margin: 40px 10px 0px 10px;
+    padding-bottom: 100px;
+    overflow: scroll;
+    flex: 1;
+`
+const TaskSectionViewContainer = styled.div`
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-top: 0;
+    background-color: ${Colors.gray._50};
+    min-width: 550px;
+`
 
 const TaskSection = () => {
     const { data: taskSections, isLoading, isFetching } = useGetTasks()
@@ -47,7 +62,6 @@ const TaskSection = () => {
         return section?.tasks.find((task) => task.id === params.task)
     }, [params.task, taskSections])
 
-    const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
     const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
 
     const expandTask = useCallback((itemId: string) => {
@@ -58,13 +72,13 @@ const TaskSection = () => {
 
     return (
         <>
-            <ScrollView style={styles.container} refreshControl={refreshControl}>
-                <EventBanner date={DateTime.now()} />
-                <View style={styles.tasksContent}>
+            <EventBanner date={DateTime.now()} />
+            <ScrollViewMimic>
+                <TaskSectionViewContainer>
                     {isLoading || !currentSection ? (
                         <Loading />
                     ) : (
-                        <View>
+                        <>
                             <SectionHeader
                                 sectionName={currentSection.name}
                                 allowRefresh={true}
@@ -89,32 +103,13 @@ const TaskSection = () => {
                                     </TaskDropContainer>
                                 )
                             })}
-                        </View>
+                        </>
                     )}
-                </View>
-            </ScrollView>
+                </TaskSectionViewContainer>
+            </ScrollViewMimic>
             {expandedTask && currentSection && <TaskDetails task={expandedTask} />}
         </>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        ...Screens.container,
-        display: 'flex',
-        flexDirection: 'column',
-        paddingTop: 0,
-        backgroundColor: Colors.gray._50,
-        minWidth: '550px',
-    },
-    tasksContent: {
-        display: 'flex',
-        flexDirection: 'column',
-        marginRight: 10,
-        marginLeft: 10,
-        marginTop: Platform.OS === 'web' ? Spacing.margin._40 : Spacing.margin._24,
-        marginBottom: 100,
-    },
-})
 
 export default TaskSection
