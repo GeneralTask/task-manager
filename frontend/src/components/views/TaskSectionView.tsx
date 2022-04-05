@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
-import EventBanner from '../molecules/EventBanner'
+import EventBanner from '../molecules/EventBanners'
 import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
 import { TASK_REFETCH_INTERVAL } from '../../constants'
