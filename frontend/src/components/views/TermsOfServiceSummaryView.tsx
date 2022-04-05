@@ -6,7 +6,7 @@ import Cookies from 'js-cookie'
 import { Divider } from '../atoms/SectionDivider'
 import { Icon } from '../atoms/Icon'
 import { ModalEnum } from '../../utils/enums'
-import { Pressable } from 'react-native'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import RedirectButton from '../atoms/buttons/RedirectButton'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
@@ -123,7 +123,7 @@ const TermsOfServiceSummaryView = () => {
                 <RedirectButton to="/privacy-policy" target="_blank" text="Read privacy policy" />
             </LinkContainer>
             <VerticalFlex>
-                <Pressable onPress={() => setTermsCheck(!termsCheck)}>
+                <NoStyleButton onClick={() => setTermsCheck(!termsCheck)}>
                     <HorizontalFlex>
                         <Icon size="small" source={termsCheck ? icons.check_gray : icons.check_unchecked} />
                         <AgreementText required>
@@ -132,17 +132,17 @@ const TermsOfServiceSummaryView = () => {
                             <RedAsterisk>*</RedAsterisk>
                         </AgreementText>
                     </HorizontalFlex>
-                </Pressable>
+                </NoStyleButton>
             </VerticalFlex>
             <VerticalFlex>
-                <Pressable onPress={() => setPromotionsCheck(!promotionsCheck)}>
+                <NoStyleButton onClick={() => setPromotionsCheck(!promotionsCheck)}>
                     <HorizontalFlex>
                         <Icon size="small" source={promotionsCheck ? icons.check_gray : icons.check_unchecked} />
                         <AgreementText>
                             I would like to opt in on General Task&#39;s promotional emails.
                         </AgreementText>
                     </HorizontalFlex>
-                </Pressable>
+                </NoStyleButton>
             </VerticalFlex>
             <SubmitButtonContainer>
                 <RoundedGeneralButton
