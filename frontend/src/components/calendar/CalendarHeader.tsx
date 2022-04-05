@@ -70,13 +70,17 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
             }),
         [date, setDate, expandedCalendar]
     )
+    const expandCalendar = (expanded: boolean) => {
+        dispatch(setExpandedCalendar(expanded))
+        setDate(expanded ? date.minus({ days: date.weekday % 7 }) : DateTime.now())
+    }
 
     return (
         <div>
             <PaddedContainer>
                 <HeaderBodyContainer>
                     <TitleSmall>Calendar</TitleSmall>
-                    <ArrowButton onClick={() => dispatch(setExpandedCalendar(!expandedCalendar))}>
+                    <ArrowButton onClick={() => expandCalendar(!expandedCalendar)}>
                         <Icon source={icons.arrows_out} size="small" />
                     </ArrowButton>
                 </HeaderBodyContainer>
