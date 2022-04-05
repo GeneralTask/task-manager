@@ -243,7 +243,7 @@ type EmailItemChangeable struct {
 type EmailThreadChangeable struct {
 	ThreadID      string             `bson:"thread_id,omitempty"`
 	LastUpdatedAt primitive.DateTime `bson:"last_updated_at,omitempty"`
-	Emails        []Email            `bson:"emails,omitempty"`
+	Emails        []*Email           `bson:"emails,omitempty"`
 }
 
 type ThreadItemChangeable struct {
