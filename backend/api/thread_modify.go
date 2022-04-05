@@ -129,10 +129,3 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 
 	return nil
 }
-
-//func threadModifyParamsToChangeable(modifyParams *ThreadModifyParams) *database.ThreadItemChangeable {
-//	return &database.ThreadItemChangeable{
-//		TaskTypeChangeable:    &database.TaskTypeChangeable{IsTask: modifyParams.IsTask},
-//		EmailThreadChangeable: database.EmailThreadChangeable{IsUnread: modifyParams.IsUnread},
-//	}
-//}
