@@ -4,13 +4,8 @@ import React from 'react'
 import { TConferenceCall } from '../../../utils/types'
 import styled from 'styled-components'
 import NoStyleButton from './NoStyleButton'
+import NoStyleAnchor from '../NoStyleAnchor'
 
-const NoStyleAnchor = styled.a`
-    text-decoration: none;
-    color: inherit;
-    outline: 0;
-    cursor: auto;
-`
 const JoinMeetingButtonContainer = styled(NoStyleButton)`
     height: 30px;
     width: 65px;
