@@ -236,7 +236,7 @@ type Recipient struct {
 	Email string `bson:"email"`
 }
 
-type EmailItemUpdateable struct {
+type EmailItemChangeable struct {
 	Email `bson:"email,omitempty"`
 }
 
@@ -246,6 +246,6 @@ type EmailThreadChangeable struct {
 	Emails        []Email            `bson:"emails,omitempty"`
 }
 
-type ThreadItemUpdateable struct {
+type ThreadItemChangeable struct {
 	EmailThreadChangeable `bson:"email_thread,omitempty"`
 }
