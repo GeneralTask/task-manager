@@ -66,6 +66,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 					SenderDomain: "gmail",
 					SenderEmail:  "test@generaltask.com",
 					SenderName:   "test",
+					IsUnread:     true,
 					SentAt:       createTimestamp("2018-04-20"),
 				},
 			},
@@ -153,6 +154,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
 		assert.True(t, threadItem.IsThread)
+		assertThreadEmailsIsUnreadState(t, threadItem, true)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -170,6 +172,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
 		assert.True(t, threadItem.IsThread)
+		assertThreadEmailsIsUnreadState(t, threadItem, false)
 	})
 
 	t.Run("GmailSuccessUnread", func(t *testing.T) {
@@ -180,11 +183,12 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
 		unreadRouter := GetRouter(api)
 
-		var message database.Item
+		var threadItem database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
-		assert.True(t, message.IsThread)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
+		assert.True(t, threadItem.IsThread)
+		assertThreadEmailsIsUnreadState(t, threadItem, false)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -200,8 +204,9 @@ func TestChangeThreadReadStatus(t *testing.T) {
 
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
-		assert.True(t, message.IsThread)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
+		assert.True(t, threadItem.IsThread)
+		assertThreadEmailsIsUnreadState(t, threadItem, true)
 	})
 
 }

@@ -286,3 +286,9 @@ func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder
 func createRandomGTEmail() string {
 	return fmt.Sprintf("%s@generaltask.com", uuid.New().String())
 }
+
+func assertThreadEmailsIsUnreadState(t *testing.T, threadItem database.Item, isUnread bool) {
+	for _, email := range threadItem.Emails {
+		assert.Equal(t, isUnread, email.IsUnread)
+	}
+}
