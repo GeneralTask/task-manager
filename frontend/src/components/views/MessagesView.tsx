@@ -13,9 +13,10 @@ import useItemSelectionController from '../../hooks/useItemSelectionController'
 import styled from 'styled-components'
 
 const ScrollViewMimic = styled.div`
-    margin: 40px 10px 0px 10px;
+    margin: 40px 0px 0px 10px;
+    padding-right: 10px;
     padding-bottom: 100px;
-    overflow: scroll;
+    overflow: auto;
     flex: 1;
 `
 
@@ -60,7 +61,6 @@ const Messages = () => {
                 {messages?.map((message: TMessage, msgIndex: number) =>
                     <TaskTemplate
                         ref={msgIndex === messages.length - 1 ? lastElementRef : undefined}
-                        style={{ marginVertical: 1 }}
                         key={message.id}
                     >
                         <Message message={message} />
