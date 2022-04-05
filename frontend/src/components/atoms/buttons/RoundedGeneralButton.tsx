@@ -12,7 +12,6 @@ const RoundedButton = styled.button<{ hasBorder: boolean, textStyle: 'light' | '
     text-align: center;
     border-radius: ${Border.radius.large};
     height: 100%;
-    width: 100%;
     color: ${(props) => (props.textStyle === 'light' ? Colors.white : Colors.black)};
     font-weight: ${Typography.weight._600.fontWeight};
     font-size: ${Typography.xSmall.fontSize}px;
