@@ -4,7 +4,7 @@ import { ImageSourcePropType, Platform, StyleSheet, View, ViewStyle } from 'reac
 import { Link } from 'react-router-dom'
 import styled from 'styled-components/native'
 import { useReorderTask } from '../../services/api-query-hooks'
-import { Colors, Flex } from '../../styles'
+import { Colors } from '../../styles'
 import { weight } from '../../styles/typography'
 import { ItemTypes, TTaskSection } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
@@ -71,7 +71,8 @@ const styles = StyleSheet.create({
         borderColor: Colors.gray._300,
     },
     linkContainer: {
-        ...Flex.row,
+        display: 'flex',
+        flexDirection: 'row',
         alignItems: 'center',
         height: 28,
         marginVertical: 4,
