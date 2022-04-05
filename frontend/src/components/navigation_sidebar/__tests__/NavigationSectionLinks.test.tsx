@@ -1,10 +1,9 @@
-import React from 'react'
-import { View } from 'react-native'
-import renderer from 'react-test-renderer'
-import { TTaskSection } from '../../../utils/types'
 import NavigationSectionLinks from '../NavigationSectionLinks'
+import React from 'react'
+import { TTaskSection } from '../../../utils/types'
+import renderer from 'react-test-renderer'
 
-const mockNavigationLink = <View></View>
+const mockNavigationLink = <div />
 jest.mock('../NavigationLink', () => {
     return {
         __esModule: true,
