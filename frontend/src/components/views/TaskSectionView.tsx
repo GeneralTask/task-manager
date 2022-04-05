@@ -18,12 +18,11 @@ import styled from 'styled-components'
 
 const BannerAndSectionContainer = styled.div`
     flex: 1;
+    overflow: auto;
 `
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 0px 10px;
     padding-bottom: 100px;
-    overflow: scroll;
-    flex: 1;
 `
 const TaskSectionViewContainer = styled.div`
     height: 100%;
