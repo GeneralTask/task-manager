@@ -1,22 +1,25 @@
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE } from '../../constants'
-
 import { DateTime } from 'luxon'
 import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
 import React from 'react'
-import { View } from 'react-native'
-import styled from 'styled-components/native'
+import styled from 'styled-components'
 import { useGetEvents } from '../../services/api-query-hooks'
 import { useInterval } from '../../utils/hooks'
+import { TEvent } from '../../utils/types'
 
-const EventBannerContainer = styled.View`
+const EventBannerContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    font-family: Switzer-Variable;
+    font-size: ${Typography.xSmall.fontSize}px;
     position: relative;
     width: 100%;
     display: flex;
     align-items: center;
     margin-top: 22px;
 `
-const BannerView = styled.View<{ center: boolean }>`
+const BannerView = styled.div<{ center: boolean }>`
     position: relative;
     display: flex;
     flex-direction: row;
@@ -32,7 +35,7 @@ const BannerView = styled.View<{ center: boolean }>`
     border-radius: ${Border.radius.small};
     box-shadow: 0px 4px 20px rgba(43, 43, 43, 0.08);
 `
-const BannerTitleView = styled.View`
+const BannerTitleView = styled.div`
     background-color: ${Colors.gray._100};
     border-radius: ${Border.radius.xSmall};
     margin-left: 6px;
@@ -41,7 +44,7 @@ const BannerTitleView = styled.View`
     flex-shrink: 1;
     min-width: 0;
 `
-const MessageView = styled.View`
+const MessageView = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -49,17 +52,39 @@ const MessageView = styled.View`
     flex-shrink: 1;
     margin-right: ${Spacing.margin._12}px;
 `
-const MessageText = styled.Text`
+const MessageText = styled.span`
     font-weight: ${Typography.weight._500.fontWeight};
     color: ${Colors.gray._600};
 `
-const OverflowText = styled.Text`
+const OverflowText = styled.span`
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
     font-weight: ${Typography.weight._500.fontWeight};
     color: ${Colors.gray._700};
 `
+
+const get_banners = (events: TEvent[]) => {
+    return events.map((event) => {
+        const timeUntilEvent = Math.ceil(
+            (new Date(event.datetime_start).getTime() - new Date().getTime()) / 1000 / 60
+        )
+        const timeUntilEventMessage = timeUntilEvent > 0 ? `in ${timeUntilEvent} minutes.` : 'is now.'
+        const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
+        return (
+            <BannerView key={event.id} center={event.conference_call == null}>
+                <MessageView>
+                    <MessageText>Your Meeting</MessageText>
+                    <BannerTitleView>
+                        <OverflowText>{eventTitle}</OverflowText>
+                    </BannerTitleView>
+                    <MessageText>{timeUntilEventMessage}</MessageText>
+                </MessageView>
+                {event.conference_call && <JoinMeetingButton conferenceCall={event.conference_call} />}
+            </BannerView>
+        )
+    })
+}
 interface EventBannerProps {
     date: DateTime
 }
@@ -71,35 +96,12 @@ const EventBanner = ({ date }: EventBannerProps) => {
         },
         'banner'
     )
-
     useInterval(refetch, EVENTS_REFETCH_INTERVAL)
 
     if (!events || events.length === 0) return null
     return (
         <EventBannerContainer>
-            {events?.map((event) => {
-                const timeUntilEvent = Math.ceil(
-                    (new Date(event.datetime_start).getTime() - new Date().getTime()) / 1000 / 60
-                )
-                const timeUntilEventMessage = timeUntilEvent > 0 ? `in ${timeUntilEvent} minutes.` : 'is now.'
-                const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
-                return (
-                    <BannerView key={event.id} center={event.conference_call == null}>
-                        <MessageView>
-                            <View>
-                                <MessageText>Your Meeting</MessageText>
-                            </View>
-                            <BannerTitleView>
-                                <OverflowText>{eventTitle}</OverflowText>
-                            </BannerTitleView>
-                            <View>
-                                <MessageText>{timeUntilEventMessage}</MessageText>
-                            </View>
-                        </MessageView>
-                        {event.conference_call && <JoinMeetingButton conferenceCall={event.conference_call} />}
-                    </BannerView>
-                )
-            })}
+            {get_banners(events)}
         </EventBannerContainer>
     )
 }
