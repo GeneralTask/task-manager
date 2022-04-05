@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"time"
-
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -364,22 +362,4 @@ func TestMarkThreadAsTask(t *testing.T) {
 		assert.False(t, message.IsTask)
 		assert.True(t, message.IsThread)
 	})
-}
-
-func insertTestItem(t *testing.T, userID primitive.ObjectID, task database.Item) string {
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
-	defer dbCleanup()
-	taskCollection := database.GetTaskCollection(db)
-
-	insertResult, err := taskCollection.InsertOne(context.Background(), task)
-	assert.NoError(t, err)
-	taskID := insertResult.InsertedID.(primitive.ObjectID)
-	taskIDHex := taskID.Hex()
-	return taskIDHex
-}
-
-func createTimestamp(dt string) primitive.DateTime {
-	createdAt, _ := time.Parse("2006-01-02", dt)
-	return primitive.NewDateTimeFromTime(createdAt)
 }

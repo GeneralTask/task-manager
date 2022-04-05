@@ -35,9 +35,15 @@ type Thread struct {
 	Emails   *[]email           `json:"emails"`
 }
 
+type accountParams struct {
+	SourceID        string `json:"source_id"`
+	SourceAccountID string `json:"source_account_id"`
+}
+
 type threadsListParams struct {
 	database.Pagination `form:",inline" json:",inline"`
-	OnlyUnread          *bool `form:"only_unread" json:"only_unread"`
+	OnlyUnread          *bool          `form:"only_unread" json:"only_unread"`
+	Account             *accountParams `json:"account"`
 }
 
 func (api *API) ThreadsList(c *gin.Context) {
@@ -62,7 +68,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 	}
 
 	var params threadsListParams
-	err = c.Bind(&params)
+	err = c.BindJSON(&params)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
@@ -77,7 +83,11 @@ func (api *API) ThreadsList(c *gin.Context) {
 		params.Pagination = database.Pagination{Limit: &limit, Page: &page}
 	}
 
-	threads, err := database.GetEmailThreads(db, userID.(primitive.ObjectID), onlyUnread, params.Pagination)
+	var accountFilter *[]bson.M
+	if params.Account != nil {
+		accountFilter = &[]bson.M{{"source_id": params.Account.SourceID}, {"source_account_id": params.Account.SourceAccountID}}
+	}
+	threads, err := database.GetEmailThreads(db, userID.(primitive.ObjectID), onlyUnread, params.Pagination, accountFilter)
 	if err != nil {
 		Handle500(c)
 		return
@@ -136,7 +146,7 @@ func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 			SMTPID:   e.SMTPID,
 			Subject:  e.Subject,
 			Body:     e.Body,
-			SentAt:   e.SentAt.Time().Format(time.RFC3339),
+			SentAt:   e.SentAt.Time().UTC().Format(time.RFC3339),
 			IsUnread: e.IsUnread,
 			Sender: senderV2{
 				Name:    e.SenderName,

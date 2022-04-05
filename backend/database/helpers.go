@@ -227,7 +227,7 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 	return &activeEmails, nil
 }
 
-func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, pagination Pagination) (*[]Item, error) {
+func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, pagination Pagination, additionalFilters *[]bson.M) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -245,6 +245,11 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 			{"user_id": userID},
 			{"task_type.is_thread": true},
 		},
+	}
+	if additionalFilters != nil && len(*additionalFilters) > 0 {
+		for _, additionalFilter := range *additionalFilters {
+			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
+		}
 	}
 	if onlyUnread {
 		isUnreadFilter := bson.M{
@@ -502,7 +507,7 @@ func IsValidPagination(pagination Pagination) bool {
 	return *pagination.Limit > 0 && *pagination.Page > 0
 }
 
-func EmailItemToUpdateable(email *Item) *EmailItemChangeable {
+func EmailItemToChangeable(email *Item) *EmailItemChangeable {
 	return &EmailItemChangeable{
 		Email: email.Email,
 	}

@@ -250,7 +250,3 @@ type ThreadItemChangeable struct {
 	EmailThreadChangeable `bson:"email_thread,omitempty"`
 	TaskTypeChangeable    *TaskTypeChangeable `bson:"task_type,omitempty"`
 }
-
-type ThreadChangeable struct {
-	IsUnread *bool `bson:"is_unread,omitempty"`
-}

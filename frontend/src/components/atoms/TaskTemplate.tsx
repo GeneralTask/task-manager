@@ -1,5 +1,7 @@
-import React, { forwardRef, Ref } from 'react'
+import React, { Ref, forwardRef } from 'react'
 import { StyleSheet, View, ViewStyle } from 'react-native'
+
+import { Shadows } from '../../styles'
 
 interface TaskTemplateProps {
     style?: ViewStyle
@@ -20,6 +22,7 @@ const styles = StyleSheet.create({
         position: 'relative',
         height: 34,
         borderRadius: 4,
+        boxShadow: Shadows.xSmall,
     },
 })
 
