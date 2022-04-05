@@ -1,36 +1,24 @@
 import React from 'react'
-import { Image, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native'
 import { useMarkMessageAsTask } from '../../../services/api-query-hooks'
 import { icons } from '../../../styles/images'
+import { Icon } from '../Icon'
+import NoStyleButton from './NoStyleButton'
 
 interface MarkAsTaskButtonProps {
     isTask: boolean
     messageId: string
-    style?: ViewStyle
 }
 const MarkAsTaskButton = (props: MarkAsTaskButtonProps) => {
     const { mutate: markAsTask } = useMarkMessageAsTask()
 
-    const buttonPressHandler = () => {
+    const onClickHandler = () => {
         markAsTask({ id: props.messageId, isTask: !props.isTask })
     }
     return (
-        <View style={[styles.container, props.style]}>
-            <TouchableOpacity style={styles.image} onPress={buttonPressHandler}>
-                <Image style={styles.image} source={props.isTask ? icons.mark_as_task_active : icons.mark_as_task} />
-            </TouchableOpacity>
-        </View>
+        <NoStyleButton onClick={onClickHandler}>
+            <Icon size="small" source={props.isTask ? icons.mark_as_task_active : icons.mark_as_task} />
+        </NoStyleButton>
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        width: 20,
-        height: 20,
-    },
-    image: {
-        width: '100%',
-        height: '100%',
-    },
-})
 export default MarkAsTaskButton
