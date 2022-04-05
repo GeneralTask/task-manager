@@ -240,6 +240,12 @@ type EmailItemUpdateable struct {
 	Email `bson:"email,omitempty"`
 }
 
+type EmailThreadChangeable struct {
+	ThreadID      string             `bson:"thread_id,omitempty"`
+	LastUpdatedAt primitive.DateTime `bson:"last_updated_at,omitempty"`
+	Emails        []Email            `bson:"emails,omitempty"`
+}
+
 type ThreadItemUpdateable struct {
-	EmailThread `bson:"email_thread,omitempty"`
+	EmailThreadChangeable `bson:"email_thread,omitempty"`
 }
