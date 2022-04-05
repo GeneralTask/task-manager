@@ -1,18 +1,31 @@
 import { ItemTypes, TTask } from '../../utils/types'
-import { StyleSheet, Text, View } from 'react-native'
 import React, { useCallback } from 'react'
+import { Spacing, Typography } from '../../styles'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
-import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import ItemContainer from './ItemContainer'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
+import styled from 'styled-components'
 import { useAppSelector } from '../../redux/hooks'
 import { useDrag } from 'react-dnd'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
+
+const IconContainer = styled.div`
+    margin-left: ${Spacing.margin._8}px;
+`
+const Title = styled.div`
+    margin-left: ${Spacing.margin._8}px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: Switzer-Variable;
+    font-size: ${Typography.xSmall.fontSize}px;
+`
 
 interface TaskProps {
     task: TTask
@@ -59,26 +72,15 @@ const Task = ({ task, dragDisabled, index, sectionId }: TaskProps) => {
             <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreview}>
                 {!dragDisabled && <Domino ref={drag} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />
-                <View style={styles.iconContainer}>
+                <IconContainer>
                     <Icon source={logos[task.source.logo_v2]} size="small" />
-                </View>
-                <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
+                </IconContainer>
+                <Title>
                     {task.title}
-                </Text>
+                </Title>
             </ItemContainer>
         </TaskTemplate>
     )
 }
-
-const styles = StyleSheet.create({
-    iconContainer: {
-        marginLeft: 6,
-    },
-    title: {
-        marginLeft: 9,
-        flexShrink: 1,
-        flexWrap: 'wrap',
-    },
-})
 
 export default Task
