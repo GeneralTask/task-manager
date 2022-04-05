@@ -9,6 +9,38 @@ import { useDrop } from 'react-dnd'
 import { useReorderTask } from '../../services/api-query-hooks'
 import { weight } from '../../styles/typography'
 
+const LinkContainer = styled.div<{ isSelected: boolean, isOver: boolean }>`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+
+    border-radius: ${Border.radius.small};
+    border-width: 2px;
+    border-style: solid;
+    border-color: ${(props) => props.isOver ? Colors.gray._300 : 'transparent'};
+    ${(props) => (props.isSelected ? `background-color: ${Colors.gray._50};` : '')};
+`
+const SectionTitle = styled.span<{ isSelected: boolean }>`
+    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
+    font-size: ${Typography.xSmall.fontSize}px;
+    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-left: 9px;
+    flex: 1;
+`
+const SectionTitleItemCount = styled.span<{ isSelected: boolean }>`
+    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
+    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
+    margin-right: 9px;
+`
+const linkStyle: CSSProperties = {
+    textDecorationLine: 'none',
+    width: '100%',
+}
+
 interface NavigationLinkProps {
     isCurrentPage: boolean
     link: string
@@ -61,50 +93,5 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppab
         </Link>
     )
 }
-
-const LinkContainer = styled.div<{ isSelected: boolean, isOver: boolean }>`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
-
-    border-radius: ${Border.radius.small};
-    border-width: 2px;
-    border-style: solid;
-    border-color: transparent;
-
-    background-color: ${(props) => {
-        if (props.isOver) {
-            return 'red'
-        } else if (props.isSelected) {
-            return Colors.gray._50
-        } else {
-            return 'inherit'
-        }
-    }};
-    &:hover {
-        border-color: ${Colors.gray._300};
-    }
-`
-
-const linkStyle: CSSProperties = {
-    textDecorationLine: 'none',
-    width: '100%',
-}
-const SectionTitle = styled.span<{ isSelected: boolean }>`
-    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
-    font-size: ${Typography.xSmall.fontSize}px;
-    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-left: 9px;
-    flex: 1;
-`
-const SectionTitleItemCount = styled.span<{ isSelected: boolean }>`
-    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
-    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
-    margin-right: 9px;
-`
 
 export default NavigationLink
