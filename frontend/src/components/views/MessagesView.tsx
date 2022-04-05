@@ -1,4 +1,4 @@
-import { Colors, Flex, Screens, Spacing } from '../../styles'
+import { Colors, Screens, Spacing } from '../../styles'
 import React, { useCallback, useMemo, useRef } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
@@ -76,13 +76,15 @@ const styles = StyleSheet.create({
     },
     container: {
         ...Screens.container,
-        ...Flex.column,
+        display: 'flex',
+        flexDirection: 'column',
         paddingTop: 0,
         backgroundColor: Colors.gray._50,
         minWidth: '550px',
     },
     messagesContent: {
-        ...Flex.column,
+        display: 'flex',
+        flexDirection: 'column',
         marginRight: 10,
         marginLeft: 10,
         marginTop: Spacing.margin._40,

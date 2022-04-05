@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useAppSelector } from '../../redux/hooks'
-import { Colors, Flex } from '../../styles'
+import { Colors } from '../../styles'
 import { logos } from '../../styles/images'
 import { TMessage } from '../../utils/types'
 import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
@@ -51,7 +51,8 @@ const Message = ({ message }: MessageProps) => {
 
 const styles = StyleSheet.create({
     container: {
-        ...Flex.row,
+        display: 'flex',
+        flexDirection: 'row',
         alignItems: 'center',
         width: '100%',
         backgroundColor: Colors.white,

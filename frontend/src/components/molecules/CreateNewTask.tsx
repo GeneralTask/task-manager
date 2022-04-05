@@ -1,4 +1,4 @@
-import { Colors, Flex, Images } from '../../styles'
+import { Colors, Images } from '../../styles'
 import {
     Image,
     NativeSyntheticEvent,
@@ -75,7 +75,8 @@ const CreateNewTask = (props: CreateNewTaskProps) => {
 
 const styles = StyleSheet.create({
     container: {
-        ...Flex.row,
+        display: 'flex',
+        flexDirection: 'row',
         backgroundColor: Colors.gray._100,
         width: '100%',
         height: 48,
