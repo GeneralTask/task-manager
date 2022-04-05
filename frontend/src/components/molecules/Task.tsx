@@ -1,5 +1,6 @@
 import { ItemTypes, TTask } from '../../utils/types'
 import React, { useCallback } from 'react'
+import { Spacing, Typography } from '../../styles'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import CompleteButton from '../atoms/buttons/CompleteButton'
@@ -7,7 +8,6 @@ import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import ItemContainer from './ItemContainer'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
-import { Spacing } from '../../styles'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
@@ -24,6 +24,7 @@ const Title = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: Switzer-Variable;
+    font-size: ${Typography.xSmall.fontSize}px;
 `
 
 interface TaskProps {
