@@ -1,4 +1,4 @@
-import { Colors, Shadows } from '../../styles'
+import { Colors, Shadows, Spacing } from '../../styles'
 import { weight, xSmall, xxSmall } from '../../styles/typography'
 
 import styled from 'styled-components'
@@ -112,4 +112,7 @@ export const CurrentDateText = styled.span`
     line-height: ${xSmall.lineHeight}px;
     width: 100%;
     color: ${Colors.gray._800};
+`
+export const IconContainer = styled.div`
+    padding: ${Spacing.padding._8}px;
 `
