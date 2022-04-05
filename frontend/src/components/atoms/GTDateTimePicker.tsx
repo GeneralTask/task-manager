@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
-import { View, Text } from 'react-native'
 import DateTimePicker, { IOSNativeProps } from '@react-native-community/datetimepicker'
+import React, { useState } from 'react'
 
 interface TimePickerProps {
     initialValue?: Date
@@ -20,10 +19,10 @@ export const TimePicker = ({ initialValue, onChange }: TimePickerProps) => {
     }
 
     return (
-        <View>
+        <div>
             <DateTimePicker {...props} />
-            <Text>{`${val.getHours()}H${val.getMinutes()}M`}</Text>
-        </View>
+            {`${val.getHours()}H${val.getMinutes()}M`}
+        </div>
     )
 }
 
@@ -45,9 +44,9 @@ export const DatePicker = ({ initialValue, onChange }: DatePickerProps) => {
     }
 
     return (
-        <View>
+        <div>
             <DateTimePicker {...props} />
-            <Text>{`${val.toISOString()}`}</Text>
-        </View>
+            {`${val.toISOString()}`}
+        </div>
     )
 }
