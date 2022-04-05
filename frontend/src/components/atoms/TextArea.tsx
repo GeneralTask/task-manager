@@ -7,6 +7,7 @@ const TextAreaStyled = styled.textarea`
     box-sizing: border-box;
     flex: 1;
     width: 100%;
+    height: 100%;
     resize: none;
     overflow: auto;
     border: 1px solid ${Colors.gray._200};

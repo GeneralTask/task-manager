@@ -78,5 +78,4 @@ const CreateNewTask = (props: CreateNewTaskProps) => {
     )
 }
 
-
 export default CreateNewTask
