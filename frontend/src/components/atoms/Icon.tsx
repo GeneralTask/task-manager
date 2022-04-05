@@ -1,6 +1,6 @@
 /* eslint @typescript-eslint/no-var-requires: "off" */
 import React from 'react'
-import { Image, ImageSourcePropType, StyleSheet } from 'react-native'
+import { Image, StyleSheet } from 'react-native'
 import styled from 'styled-components/native'
 import { Dimensions, Flex } from '../../styles'
 
