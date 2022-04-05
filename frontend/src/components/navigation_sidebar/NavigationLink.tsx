@@ -1,19 +1,19 @@
-import React, { CSSProperties, Ref, useCallback } from 'react'
-import { useDrop } from 'react-dnd'
-import { ImageSourcePropType, Platform, StyleSheet, View, ViewStyle } from 'react-native'
-import { Link } from 'react-router-dom'
-import styled from 'styled-components/native'
-import { useReorderTask } from '../../services/api-query-hooks'
-import { Colors } from '../../styles'
-import { weight } from '../../styles/typography'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { ItemTypes, TTaskSection } from '../../utils/types'
+import React, { CSSProperties, useCallback } from 'react'
+
 import { Icon } from '../atoms/Icon'
+import { Link } from 'react-router-dom'
+import styled from 'styled-components'
+import { useDrop } from 'react-dnd'
+import { useReorderTask } from '../../services/api-query-hooks'
+import { weight } from '../../styles/typography'
 
 interface NavigationLinkProps {
     isCurrentPage: boolean
     link: string
     title: string
-    icon?: NodeRequire | ImageSourcePropType
+    icon?: NodeRequire
     taskSection?: TTaskSection
     droppable?: boolean
 }
@@ -46,62 +46,62 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppab
         [taskSection, onDrop]
     )
 
-    const dropRef = Platform.OS === 'web' ? (drop as Ref<View>) : undefined
 
     return (
         <Link style={linkStyle} to={link}>
-            <View
-                ref={dropRef}
-                style={[
-                    styles.linkContainer,
-                    isCurrentPage ? styles.linkContainerSelected : null,
-                    isOver ? styles.linkOnHover : null,
-                ]}
+            <LinkContainer
+                ref={drop}
+                isSelected={isCurrentPage}
+                isOver={isOver}
             >
                 <Icon size="small" source={icon} />
-                <SectionTitle numberOfLines={1} isSelected={isCurrentPage}>{title}</SectionTitle>
+                <SectionTitle isSelected={isCurrentPage}>{title}</SectionTitle>
                 <SectionTitleItemCount isSelected={isCurrentPage}>{taskSection?.tasks.length}</SectionTitleItemCount>
-            </View>
+            </LinkContainer>
         </Link>
     )
 }
 
-const styles = StyleSheet.create({
-    linkOnHover: {
-        borderColor: Colors.gray._300,
-    },
-    linkContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 28,
-        marginVertical: 4,
-        marginHorizontal: 6,
-        paddingVertical: 4,
-        paddingHorizontal: 8,
+const LinkContainer = styled.div<{ isSelected: boolean, isOver: boolean }>`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
 
-        borderRadius: 8,
-        borderWidth: 2,
-        borderStyle: 'solid',
-        borderColor: 'transparent',
-    },
-    linkContainerSelected: {
-        backgroundColor: Colors.gray._50,
-    },
-})
-const linkStyle: CSSProperties & ViewStyle = {
+    border-radius: ${Border.radius.small};
+    border-width: 2px;
+    border-style: solid;
+    border-color: transparent;
+
+    background-color: ${(props) => {
+        if (props.isOver) {
+            return 'red'
+        } else if (props.isSelected) {
+            return Colors.gray._50
+        } else {
+            return 'inherit'
+        }
+    }};
+    &:hover {
+        border-color: ${Colors.gray._300};
+    }
+`
+
+const linkStyle: CSSProperties = {
     textDecorationLine: 'none',
     width: '100%',
 }
-const SectionTitle = styled.Text<{ isSelected: boolean }>`
+const SectionTitle = styled.span<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
+    font-size: ${Typography.xSmall.fontSize}px;
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
     overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     margin-left: 9px;
     flex: 1;
-    
 `
-const SectionTitleItemCount = styled.Text<{ isSelected: boolean }>`
+const SectionTitleItemCount = styled.span<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
     margin-right: 9px;
