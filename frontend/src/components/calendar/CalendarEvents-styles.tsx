@@ -1,6 +1,5 @@
 import styled from 'styled-components'
 import { Colors, Shadows, Spacing } from '../../styles'
-import { radius } from '../../styles/border'
 import { weight } from '../../styles/typography'
 export const CELL_HEIGHT = 64
 export const TABLE_WIDTH_PERCENTAGE = 100
@@ -159,8 +158,8 @@ export const CalendarDayHeader = styled.div`
 export const DayHeaderText = styled.div<{ isToday: boolean }>`
     font-size: 16px;
     font-weight: ${weight._600.fontWeight};
-    border-radius: ${radius.regular};
-    padding: ${Spacing.padding.small}px;
+    border-radius: 50vh;
+    padding: ${Spacing.padding.xSmall}px ${Spacing.padding.small}px;
     color: ${(props) => (props.isToday ? Colors.white : Colors.gray._800)};
     background-color: ${(props) => (props.isToday ? Colors.purple._1 : Colors.gray._100)};
 
