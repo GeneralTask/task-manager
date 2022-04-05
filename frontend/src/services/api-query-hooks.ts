@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
 import { MESSAGES_PER_PAGE } from '../constants'
 import apiClient from '../utils/api'
-import { TEvent, TLinkedAccount, TMessage, TMessageResponse, TRecipients, TSupportedType, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
+import { TEmailThread, TEvent, TLinkedAccount, TMessage, TMessageResponse, TRecipients, TSupportedType, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 
 /**
@@ -19,6 +19,17 @@ const getTasks = async () => {
     }
 }
 
+export const useGetTaskDetail = (data: { taskId: string }) => {
+    return useQuery<TEmailThread>(['task', data.taskId], () => getTaskDetail(data))
+}
+const getTaskDetail = async (data: { taskId: string }) => {
+    try {
+        const res = await apiClient.get(`/tasks/detail/${data.taskId}`)
+        return res.data
+    } catch {
+        throw new Error('getTaskDetail failed')
+    }
+}
 
 export const useFetchExternalTasks = () => {
     const queryClient = useQueryClient()
@@ -337,6 +348,37 @@ const modifyTaskSection = async (data: { sectionId: string, name: string }) => {
         throw new Error('modifyTaskSection failed')
     }
 }
+/**
+ * THREADS QUERIES
+ */
+export const useGetInfiniteThreads = () => {
+    return useInfiniteQuery<TEmailThread[]>('emailthreads', getInfiniteThreads,
+        {
+            getNextPageParam: (_, pages) => pages.length + 1,
+        }
+    )
+}
+const getInfiniteThreads = async ({ pageParam = 1 }) => {
+    try {
+        const res = await apiClient.get(`/threads/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}`)
+        return res.data
+    } catch {
+        throw new Error('getInfiniteThreads failed')
+    }
+}
+
+export const useGetThreadDetail = (data: { threadId: string }) => {
+    return useQuery<TEmailThread>(['emailthread', data.threadId], () => getThreadDetail(data))
+}
+const getThreadDetail = async (data: { threadId: string }) => {
+    try {
+        const res = await apiClient.get(`/threads/detail/${data.threadId}`)
+        return res.data
+    } catch {
+        throw new Error('getThreadDetail failed')
+    }
+}
+
 /**
  * MESSAGES QUERIES
  */
