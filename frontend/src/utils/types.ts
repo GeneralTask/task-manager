@@ -92,6 +92,27 @@ export interface TEvent {
     conference_call: TConferenceCall | null
 }
 
+export interface TEmail {
+    smtp_id: string
+    thread_id: string
+    email_id: string
+    subject: string
+    body: string
+    sender_domain: string
+    sender_email: string
+    sender_name: string
+    reply_to: string
+    is_unread: boolean
+    recipients: TRecipients
+    sent_at: string
+}
+
+export interface TEmailThread {
+    thread_id: string
+    last_updated_at: string
+    emails: TEmail[]
+}
+
 export interface TTaskSection {
     id: string
     name: string
