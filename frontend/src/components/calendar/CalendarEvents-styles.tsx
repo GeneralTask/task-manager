@@ -1,5 +1,6 @@
 import styled from 'styled-components'
-import { Colors, Shadows } from '../../styles'
+import { Colors, Shadows, Spacing } from '../../styles'
+import { radius } from '../../styles/border'
 import { weight } from '../../styles/typography'
 export const CELL_HEIGHT = 64
 export const TABLE_WIDTH_PERCENTAGE = 100
@@ -33,7 +34,6 @@ export const TimeContainer = styled.div`
 export const AllDaysContainer = styled.div`
     width: 100%;
     height: 100%;
-    margin-top: 24px;
     flex: 1;
     display: flex;
     overflow: auto;
@@ -156,10 +156,14 @@ export const CalendarDayHeader = styled.div`
     z-index: 2;
 `
 
-export const DayHeaderText = styled.div`
+export const DayHeaderText = styled.div<{ isToday: boolean }>`
     font-size: 16px;
     font-weight: ${weight._600.fontWeight};
-    color: ${Colors.gray._800};
+    border-radius: ${radius.regular};
+    padding: ${Spacing.padding.small}px;
+    color: ${(props) => (props.isToday ? Colors.white : Colors.gray._800)};
+    background-color: ${(props) => (props.isToday ? Colors.purple._1 : Colors.gray._100)};
+
 `
 export const CalendarContainer = styled.div<{ expanded: boolean }>`
     min-width: 300px;

@@ -73,13 +73,19 @@ interface CalendarEventsProps {
 export default function CalendarEvents({ date, numDays }: CalendarEventsProps): JSX.Element {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
-    const { data: events } = useGetEvents(
-        {
-            startISO: date.minus({ days: numDays * 2 }).toISO(),
-            endISO: date.plus({ days: numDays * 2 }).toISO(),
-        },
-        'calendar'
-    )
+
+    const events: TEvent[] = []
+    for (let i = -1; i <= 1; i++) {
+        const { data: newEvents } = useGetEvents(
+            {
+                startISO: date.startOf('month').plus({ months: i }).toISO(),
+                endISO: date.endOf('month').plus({ months: i }).toISO(),
+            },
+            'calendar'
+        )
+        events.push(...newEvents ?? [])
+    }
+
     useEffect(() => {
         if (eventsContainerRef.current) {
             eventsContainerRef.current.scrollTop = CELL_HEIGHT * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
@@ -107,22 +113,25 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
                 </TimeContainer>
             </TimeAndHeaderContainer>
             {
-                allGroups.map((groups, dayOffset) => (
-                    <DayAndHeaderContainer key={dayOffset}>
-                        {expandedCalendar &&
-                            <CalendarDayHeader>
-                                <DayHeaderText>{date.plus({ days: dayOffset }).toFormat('ccc dd')}</DayHeaderText>
-                            </CalendarDayHeader>
-                        }
-                        <DayContainer key={dayOffset}>
-                            {groups.map((group, index) => (
-                                <CollisionGroupColumns key={index} events={group} date={date.plus({ days: dayOffset })} />
-                            ))}
-                            {/* date.startOf('day').equals(DateTime.now().startOf('day')) && */<TimeIndicator />}
-                            <CalendarDayTable />
-                        </DayContainer>
-                    </DayAndHeaderContainer>
-                ))
+                allGroups.map((groups, dayOffset) => {
+                    const tmpDate = date.plus({ days: dayOffset })
+                    return (
+                        <DayAndHeaderContainer key={dayOffset}>
+                            {expandedCalendar &&
+                                <CalendarDayHeader>
+                                    <DayHeaderText isToday={tmpDate.startOf('day').equals(DateTime.now().startOf('day'))}>{tmpDate.toFormat('ccc dd')}</DayHeaderText>
+                                </CalendarDayHeader>
+                            }
+                            <DayContainer key={dayOffset}>
+                                {groups.map((group, index) => (
+                                    <CollisionGroupColumns key={index} events={group} date={date.plus({ days: dayOffset })} />
+                                ))}
+                                {/* date.startOf('day').equals(DateTime.now().startOf('day')) && */<TimeIndicator />}
+                                <CalendarDayTable />
+                            </DayContainer>
+                        </DayAndHeaderContainer>
+                    )
+                })
             }
         </AllDaysContainer>
     )
