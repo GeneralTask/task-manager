@@ -1,17 +1,28 @@
 import React, { useCallback } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Spacing, Typography } from '../../styles'
 import { useNavigate, useParams } from 'react-router-dom'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
-import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import { useAppSelector } from '../../redux/hooks'
-import { Colors } from '../../styles'
-import { logos } from '../../styles/images'
-import { TMessage } from '../../utils/types'
-import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
+
 import { Icon } from '../atoms/Icon'
 import ItemContainer from './ItemContainer'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
+import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
+import { TMessage } from '../../utils/types'
+import { logos } from '../../styles/images'
+import styled from 'styled-components'
+import { useAppSelector } from '../../redux/hooks'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
-
+const IconContainer = styled.div`
+    margin-left: ${Spacing.margin._8}px;
+`
+const Title = styled.span`
+    margin-left: ${Spacing.margin._8}px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: Switzer-Variable;
+    font-size: ${Typography.xSmall.fontSize}px;
+`
 interface MessageProps {
     message: TMessage
 }
@@ -39,35 +50,14 @@ const Message = ({ message }: MessageProps) => {
     return (
         <ItemContainer isSelected={isSelected} onClick={onClick} >
             <MarkAsTaskButton isTask={isTask} messageId={message.id} />
-            <View style={styles.iconContainer}>
+            <IconContainer>
                 <Icon source={logos[message.source.logo_v2]} size="small" />
-            </View>
-            <Text style={styles.title} numberOfLines={1} ellipsizeMode={'tail'}>
+            </IconContainer>
+            <Title>
                 {message.title}
-            </Text>
+            </Title>
         </ItemContainer>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: '100%',
-        backgroundColor: Colors.white,
-        borderRadius: 4,
-        paddingHorizontal: 8,
-        height: 34,
-    },
-    iconContainer: {
-        marginLeft: 6,
-    },
-    title: {
-        marginLeft: 9,
-        flexShrink: 1,
-        flexWrap: 'wrap',
-    },
-})
 
 export default Message
