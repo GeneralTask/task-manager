@@ -64,31 +64,33 @@ const OverflowText = styled.span`
     color: ${Colors.gray._700};
 `
 
-const get_banners = (events: TEvent[]) => {
-    return events.map((event) => {
-        const timeUntilEvent = Math.ceil(
-            (new Date(event.datetime_start).getTime() - new Date().getTime()) / 1000 / 60
-        )
-        const timeUntilEventMessage = timeUntilEvent > 0 ? `in ${timeUntilEvent} minutes.` : 'is now.'
-        const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
-        return (
-            <BannerView key={event.id} center={event.conference_call == null}>
-                <MessageView>
-                    <MessageText>Your Meeting</MessageText>
-                    <BannerTitleView>
-                        <OverflowText>{eventTitle}</OverflowText>
-                    </BannerTitleView>
-                    <MessageText>{timeUntilEventMessage}</MessageText>
-                </MessageView>
-                {event.conference_call && <JoinMeetingButton conferenceCall={event.conference_call} />}
-            </BannerView>
-        )
-    })
-}
 interface EventBannerProps {
+    event: TEvent
+}
+const EventBanner = ({ event }: EventBannerProps) => {
+    const timeUntilEvent = Math.ceil(
+        (new Date(event.datetime_start).getTime() - new Date().getTime()) / 1000 / 60
+    )
+    const timeUntilEventMessage = timeUntilEvent > 0 ? `in ${timeUntilEvent} minutes.` : 'is now.'
+    const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
+    return (
+        <BannerView key={event.id} center={event.conference_call == null}>
+            <MessageView>
+                <MessageText>Your Meeting</MessageText>
+                <BannerTitleView>
+                    <OverflowText>{eventTitle}</OverflowText>
+                </BannerTitleView>
+                <MessageText>{timeUntilEventMessage}</MessageText>
+            </MessageView>
+            {event.conference_call && <JoinMeetingButton conferenceCall={event.conference_call} />}
+        </BannerView>
+    )
+}
+
+interface EventBannersProps {
     date: DateTime
 }
-const EventBanner = ({ date }: EventBannerProps) => {
+const EventBanners = ({ date }: EventBannersProps) => {
     const { data: events, refetch } = useGetEvents(
         {
             startISO: date.toISO(),
@@ -101,9 +103,13 @@ const EventBanner = ({ date }: EventBannerProps) => {
     if (!events || events.length === 0) return null
     return (
         <EventBannerContainer>
-            {get_banners(events)}
+            {
+                events.map((event) =>
+                    <EventBanner event={event} key={event.id} />
+                )
+            }
         </EventBannerContainer>
     )
 }
 
-export default EventBanner
+export default EventBanners
