@@ -1,11 +1,11 @@
-import React from 'react'
 import { Colors } from '../../styles'
-import styled from 'styled-components'
-import { Spacing } from '../../styles'
-import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import { useNavigate } from 'react-router-dom'
+import { Icon } from '../atoms/Icon'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import React from 'react'
+import { Spacing } from '../../styles'
+import styled from 'styled-components'
+import { useNavigate } from 'react-router-dom'
 
 const Header = styled.div`
     width: 100%;
@@ -19,7 +19,7 @@ const IconContainer = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: ${Spacing.padding.small}px ${Spacing.padding.medium}px;
+    padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
 `
 const UnauthorizedHeader = () => {
     const navigate = useNavigate()

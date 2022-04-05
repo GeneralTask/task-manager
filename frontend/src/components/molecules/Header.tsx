@@ -3,29 +3,29 @@ import { Spacing, Typography } from '../../styles'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-query-hooks'
 
 import { Icon } from '../atoms/Icon'
-import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { Platform } from 'react-native'
+import { emptyFunction } from '../../utils/utils'
 import { icons } from '../../styles/images'
 import styled from 'styled-components/native'
-import { emptyFunction } from '../../utils/utils'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
 const SectionHeaderContainer = styled.View`
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-bottom: ${Spacing.margin.medium}px;
+    margin-bottom: ${Spacing.margin._16}px;
 `
 const HeaderText = styled.Text`
-    margin-right: ${Spacing.margin.small}px;
+    margin-right: ${Spacing.margin._8}px;
     font-size: ${Typography.xLarge.fontSize}px;
 `
 const HeaderTextEditable = styled.TextInput`
-    margin-right: ${Spacing.margin.small}px;
+    margin-right: ${Spacing.margin._8}px;
     font-size: ${Typography.xLarge.fontSize}px;
 `
 const TouchableIcon = styled.TouchableOpacity`
-    margin-right: ${Spacing.margin.small}px;
+    margin-right: ${Spacing.margin._8}px;
 `
 interface SectionHeaderProps {
     sectionName: string

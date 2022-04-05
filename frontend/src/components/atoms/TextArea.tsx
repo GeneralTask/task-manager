@@ -1,18 +1,20 @@
-import React from 'react'
 import { Border, Colors, Spacing, Typography } from '../../styles'
+
+import React from 'react'
 import styled from 'styled-components'
 
 const TextAreaStyled = styled.textarea`
     box-sizing: border-box;
     flex: 1;
     width: 100%;
+    height: 100%;
     resize: none;
     overflow: auto;
     border: 1px solid ${Colors.gray._200};
     border-radius: ${Border.radius.small};
     box-shadow: none;
     outline: none;
-    padding: ${Spacing.padding.small}px;
+    padding: ${Spacing.padding._8}px;
     font-family: Switzer-Variable;
     font-style: normal;
     font-weight: normal;

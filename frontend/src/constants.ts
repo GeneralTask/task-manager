@@ -3,6 +3,7 @@ import getEnvVars from './environment'
 const { REACT_APP_API_BASE_URL } = getEnvVars()
 
 // Styling Constants
+export const TASK_ACTION_BASE_WIDTH = 150
 export const ScreenDimensions = {
     large: 768,
 }
@@ -45,6 +46,7 @@ export enum KEYBOARD_SHORTCUTS {
     PREVIOUS = 'ArrowUp',
     SHOW_DATE_PICKER = 'S',
     SHOW_TIME_ESTIMATION_PICKER = 'F',
+    SHOW_LABEL_EDITOR = 'L',
     CREATE_TASK = 'T',
     REFRESH = 'R',
     MARK_COMPLETE = 'D',

@@ -1,19 +1,20 @@
-import { DateTime } from 'luxon'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
-import { useNavigate, useParams } from 'react-router-dom'
-import { TASK_REFETCH_INTERVAL } from '../../constants'
-import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
 import { Colors, Flex, Screens, Spacing } from '../../styles'
-import { useInterval } from '../../utils/hooks'
-import { getSectionById } from '../../utils/task'
-import Loading from '../atoms/Loading'
-import TaskDetails from '../details/TaskDetails'
+import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
+import { useNavigate, useParams } from 'react-router-dom'
+
 import CreateNewTask from '../molecules/CreateNewTask'
+import { DateTime } from 'luxon'
 import EventBanner from '../molecules/EventBanner'
+import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
+import { TASK_REFETCH_INTERVAL } from '../../constants'
 import Task from '../molecules/Task'
+import TaskDetails from '../details/TaskDetails'
 import TaskDropContainer from '../molecules/TaskDropContainer'
+import { getSectionById } from '../../utils/task'
+import { useInterval } from '../../utils/hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 
 const TaskSection = () => {
@@ -92,7 +93,7 @@ const TaskSection = () => {
                     )}
                 </View>
             </ScrollView>
-            {expandedTask && <TaskDetails task={expandedTask} />}
+            {expandedTask && currentSection && <TaskDetails task={expandedTask} />}
         </>
     )
 }
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
         ...Flex.column,
         marginRight: 10,
         marginLeft: 10,
-        marginTop: Platform.OS === 'web' ? Spacing.margin.xLarge : Spacing.margin.large,
+        marginTop: Platform.OS === 'web' ? Spacing.margin._40 : Spacing.margin._24,
         marginBottom: 100,
     },
 })

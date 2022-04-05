@@ -1,4 +1,4 @@
-import { Border, Colors, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE } from '../../constants'
 
 import { DateTime } from 'luxon'
@@ -47,7 +47,7 @@ const MessageView = styled.View`
     align-items: center;
     justify-content: center;
     flex-shrink: 1;
-    margin-right: 12px;
+    margin-right: ${Spacing.margin._12}px;
 `
 const MessageText = styled.Text`
     font-weight: ${Typography.weight._500.fontWeight};
