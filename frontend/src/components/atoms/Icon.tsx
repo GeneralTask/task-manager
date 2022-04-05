@@ -14,7 +14,7 @@ const IconContainer = styled.View<{ width: number; height: number }>`
 interface IconProps {
     size: 'xxSmall' | 'xSmall' | 'small' | 'medium' | 'large'
     uri?: string
-    source?: NodeRequire | ImageSourcePropType
+    source?: NodeRequire
 }
 export const Icon = (props: IconProps) => {
     let image = require('../../assets/generaltask.png')
