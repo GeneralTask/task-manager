@@ -195,7 +195,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					IsMessage: true,
 				},
 			}
-			gmailUpdateableFields := database.EmailItemToUpdateable(emailItem)
+			gmailUpdateableFields := database.EmailItemToChangeable(emailItem)
 
 			// We flatten in order to do partial updates of nested documents correctly in mongodb
 			flattenedEmail, err := flatbson.Flatten(emailItem)
@@ -234,7 +234,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = nestedEmails
-		gmailUpdateableFields := database.ThreadItemToUpdateable(threadItem)
+		gmailUpdateableFields := database.ThreadItemToChangeable(threadItem)
 		// We flatten in order to do partial updates of nested documents correctly in mongodb
 		flattenedThreadItem, err := flatbson.Flatten(threadItem)
 		if err != nil {

@@ -502,13 +502,13 @@ func IsValidPagination(pagination Pagination) bool {
 	return *pagination.Limit > 0 && *pagination.Page > 0
 }
 
-func EmailItemToUpdateable(email *Item) *EmailItemChangeable {
+func EmailItemToChangeable(email *Item) *EmailItemChangeable {
 	return &EmailItemChangeable{
 		Email: email.Email,
 	}
 }
 
-func ThreadItemToUpdateable(thread *Item) *ThreadItemChangeable {
+func ThreadItemToChangeable(thread *Item) *ThreadItemChangeable {
 	return &ThreadItemChangeable{
 		EmailThreadChangeable: EmailThreadChangeable{
 			ThreadID:      thread.EmailThread.ThreadID,
