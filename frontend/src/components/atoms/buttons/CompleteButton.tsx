@@ -1,47 +1,28 @@
-import { Image, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native'
-
-import { InvisibleKeyboardShortcut } from '../KeyboardShortcuts'
+import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import { KEYBOARD_SHORTCUTS } from '../../../constants'
 import React from 'react'
 import { icons } from '../../../styles/images'
 import { useMarkTaskDone } from '../../../services/api-query-hooks'
+import NoStyleButton from './NoStyleButton'
+import { Icon } from '../Icon'
 
 interface CompleteButtonProps {
     isComplete: boolean
     taskId: string
     isSelected: boolean
-    style?: ViewStyle
 }
 const CompleteButton = (props: CompleteButtonProps) => {
     const { mutate: markTaskDone } = useMarkTaskDone()
 
-    const donePressHandler = () => {
+    const onClickHandler = () => {
         markTaskDone({ taskId: props.taskId, isCompleted: !props.isComplete })
     }
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.MARK_COMPLETE, onClickHandler, !props.isSelected)
     return (
-        <View style={[styles.container, props.style]}>
-            <TouchableOpacity style={styles.image} onPress={donePressHandler}>
-                {props.isComplete ? (
-                    <Image style={styles.image} source={icons['task_complete']} />
-                ) : (
-                    <Image style={styles.image} source={icons['task_incomplete']} />
-                )}
-            </TouchableOpacity>
-            {props.isSelected && (
-                <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.MARK_COMPLETE} onKeyPress={donePressHandler} />
-            )}
-        </View>
+        <NoStyleButton onClick={onClickHandler}>
+            <Icon size="small" source={props.isComplete ? icons.task_complete : icons.task_incomplete} />
+        </NoStyleButton>
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        width: 20,
-        height: 20,
-    },
-    image: {
-        width: '100%',
-        height: '100%',
-    },
-})
 export default CompleteButton

@@ -10,7 +10,7 @@ import { Divider } from '../atoms/SectionDivider'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 
 export const PaddedContainer = styled.div`
-    padding: ${Spacing.padding.medium}px ${Spacing.padding.large}px;
+    padding: ${Spacing.padding._16}px ${Spacing.padding._24}px;
 `
 export const HeaderBodyContainer = styled.div`
     display: flex;
@@ -36,14 +36,14 @@ const ButtonStyles = styled.button`
 export const HoverButton = styled(ButtonStyles)`
     color: ${Colors.white};
     background-color: ${Colors.purple._1};
-    padding: ${Spacing.padding.xSmall}px ${Spacing.padding.small}px;
+    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     &:hover {
         background-color: ${Colors.purple._2};
     }
 `
 export const ArrowButton = styled(ButtonStyles)`
     background-color: inherit;
-    padding: ${Spacing.padding.xSmall}px;
+    padding: ${Spacing.padding._4}px;
     &:hover {
         background-color: ${Colors.gray._200};
     }

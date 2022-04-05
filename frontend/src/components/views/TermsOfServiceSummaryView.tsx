@@ -1,49 +1,50 @@
-import Cookies from 'js-cookie'
-import React, { useCallback, useState } from 'react'
-import { Pressable } from 'react-native'
-import { useMutation, useQueryClient } from 'react-query'
-import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
-import { useAppDispatch } from '../../redux/hooks'
-import { setShowModal } from '../../redux/tasksPageSlice'
-import { mutateUserInfo } from '../../services/api-query-hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { icons } from '../../styles/images'
+import React, { useCallback, useState } from 'react'
+import { useMutation, useQueryClient } from 'react-query'
+
+import Cookies from 'js-cookie'
+import { Divider } from '../atoms/SectionDivider'
+import { Icon } from '../atoms/Icon'
 import { ModalEnum } from '../../utils/enums'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import RedirectButton from '../atoms/buttons/RedirectButton'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
-import { TermsOfServiceSummary } from '../atoms/CompanyPoliciesHTML'
-import { Icon } from '../atoms/Icon'
-import { Divider } from '../atoms/SectionDivider'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import { TermsOfServiceSummary } from '../atoms/CompanyPoliciesHTML'
 import { TitleLarge } from '../atoms/title/Title'
+import { icons } from '../../styles/images'
+import { mutateUserInfo } from '../../services/api-query-hooks'
+import { setShowModal } from '../../redux/tasksPageSlice'
+import styled from 'styled-components'
+import { useAppDispatch } from '../../redux/hooks'
+import { useNavigate } from 'react-router-dom'
 
 const TermsOfServiceContainer = styled.div`
     display: flex;
     flex-direction: column;
-    padding: ${Spacing.padding.medium}px;
+    padding: ${Spacing.padding._16}px;
     height: 100%;
     box-sizing: border-box;
 `
 const TermsOfServiceHeader = styled.div`
-    margin-top: ${Spacing.margin.large}px;
-    margin-bottom: ${Spacing.margin.medium}px;
+    margin-top: ${Spacing.margin._24}px;
+    margin-bottom: ${Spacing.margin._16}px;
 `
 const TitleLargeContainer = styled.div`
-    margin-bottom: ${Spacing.margin.small}px;
+    margin-bottom: ${Spacing.margin._8}px;
 `
 const TermsScrollDiv = styled.div`
     flex: 1;
     overflow-y: scroll;
-    margin-top: ${Spacing.margin.small}px;
-    padding: ${Spacing.padding.small}px;
+    margin-top: ${Spacing.margin._8}px;
+    padding: ${Spacing.padding._8}px;
 `
 const LinkContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.margin.medium}px;
-    margin-top: ${Spacing.margin.medium}px;
-    margin-right: ${Spacing.margin.medium}px;
+    gap: ${Spacing.margin._16}px;
+    margin-top: ${Spacing.margin._16}px;
+    margin-right: ${Spacing.margin._16}px;
 `
 const VerticalFlex = styled.div`
     display: flex;
@@ -52,10 +53,10 @@ const VerticalFlex = styled.div`
 const HorizontalFlex = styled.div`
     display: flex;
     flex-direction: row;
-    margin-top: ${Spacing.margin.small}px;
+    margin-top: ${Spacing.margin._8}px;
 `
 const AgreementText = styled.div<{ required?: boolean }>`
-    margin-left: ${Spacing.margin.small}px;
+    margin-left: ${Spacing.margin._8}px;
     font-family: 'Switzer-Variable';
     font-size: ${Typography.xSmall.fontSize}px;
     font-weight: ${Typography.weight._500.fontWeight};
@@ -68,8 +69,8 @@ const RedAsterisk = styled.span`
 const SubmitButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.margin.small}px;
-    margin-top: ${Spacing.margin.medium}px;
+    gap: ${Spacing.margin._8}px;
+    margin-top: ${Spacing.margin._16}px;
 `
 
 const TermsOfServiceSummaryView = () => {
@@ -122,7 +123,7 @@ const TermsOfServiceSummaryView = () => {
                 <RedirectButton to="/privacy-policy" target="_blank" text="Read privacy policy" />
             </LinkContainer>
             <VerticalFlex>
-                <Pressable onPress={() => setTermsCheck(!termsCheck)}>
+                <NoStyleButton onClick={() => setTermsCheck(!termsCheck)}>
                     <HorizontalFlex>
                         <Icon size="small" source={termsCheck ? icons.check_gray : icons.check_unchecked} />
                         <AgreementText required>
@@ -131,17 +132,17 @@ const TermsOfServiceSummaryView = () => {
                             <RedAsterisk>*</RedAsterisk>
                         </AgreementText>
                     </HorizontalFlex>
-                </Pressable>
+                </NoStyleButton>
             </VerticalFlex>
             <VerticalFlex>
-                <Pressable onPress={() => setPromotionsCheck(!promotionsCheck)}>
+                <NoStyleButton onClick={() => setPromotionsCheck(!promotionsCheck)}>
                     <HorizontalFlex>
                         <Icon size="small" source={promotionsCheck ? icons.check_gray : icons.check_unchecked} />
                         <AgreementText>
                             I would like to opt in on General Task&#39;s promotional emails.
                         </AgreementText>
                     </HorizontalFlex>
-                </Pressable>
+                </NoStyleButton>
             </VerticalFlex>
             <SubmitButtonContainer>
                 <RoundedGeneralButton

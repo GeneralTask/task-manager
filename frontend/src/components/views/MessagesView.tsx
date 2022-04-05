@@ -1,10 +1,6 @@
-import { Colors, Flex, Screens, Spacing } from '../../styles'
 import React, { useCallback, useMemo, useRef } from 'react'
-import { ScrollView, StyleSheet, View } from 'react-native'
 import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
-
-import ItemSelectionController from '../molecules/ItemSelectionController'
 import Loading from '../atoms/Loading'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
 import Message from '../molecules/Message'
@@ -13,6 +9,16 @@ import { SectionHeader } from '../molecules/Header'
 import { TMessage } from '../../utils/types'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { useInterval } from '../../utils/hooks'
+import useItemSelectionController from '../../hooks/useItemSelectionController'
+import styled from 'styled-components'
+
+const ScrollViewMimic = styled.div`
+    margin: 40px 0px 0px 10px;
+    padding-right: 10px;
+    padding-bottom: 100px;
+    overflow: auto;
+    flex: 1;
+`
 
 const Messages = () => {
     const navigate = useNavigate()
@@ -38,7 +44,7 @@ const Messages = () => {
     // Tell the backend to refetch messages from the server every 60 seconds
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
-    const messages = useMemo(() => data?.pages.flat().filter(message => message != null), [data])
+    const messages = useMemo(() => data?.pages.flat().filter(message => message != null) ?? [], [data])
 
     const expandedMessage = useMemo(() => {
         return messages?.find((message) => message.id === params.message)
@@ -46,47 +52,25 @@ const Messages = () => {
 
     const expandMessage = useCallback((itemId: string) => navigate(`/messages/${itemId}`), [])
 
+    useItemSelectionController(messages, expandMessage)
+
     return (
         <>
-            <ScrollView>
-                {messages && <ItemSelectionController items={messages} expandItem={expandMessage} />}
-                <View style={styles.messagesContent}>
-                    <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
-                    {messages?.map((message: TMessage, msgIndex: number) =>
-                        <TaskTemplate
-                            ref={msgIndex === messages.length - 1 ? lastElementRef : undefined}
-                            style={styles.shell}
-                            key={message.id}
-                        >
-                            <Message message={message} setSheetTaskId={() => null} />
-                        </TaskTemplate>
-                    )}
-                    {(isLoading || isFetching) && <Loading />}
-                </View>
-            </ScrollView>
+            <ScrollViewMimic>
+                <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
+                {messages?.map((message: TMessage, msgIndex: number) =>
+                    <TaskTemplate
+                        ref={msgIndex === messages.length - 1 ? lastElementRef : undefined}
+                        key={message.id}
+                    >
+                        <Message message={message} />
+                    </TaskTemplate>
+                )}
+                {(isLoading || isFetching) && <Loading />}
+            </ScrollViewMimic>
             {expandedMessage && <MessageDetails message={expandedMessage} />}
         </>
     )
 }
-
-const styles = StyleSheet.create({
-    shell: {
-        marginVertical: 1,
-    },
-    container: {
-        ...Screens.container,
-        ...Flex.column,
-        paddingTop: 0,
-        backgroundColor: Colors.gray._50,
-        minWidth: '550px',
-    },
-    messagesContent: {
-        ...Flex.column,
-        marginRight: 10,
-        marginLeft: 10,
-        marginTop: Spacing.margin.xLarge,
-        marginBottom: 100,
-    },
-})
 
 export default Messages

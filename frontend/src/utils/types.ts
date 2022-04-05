@@ -74,7 +74,12 @@ export interface TMessage {
     recipients: TRecipients
     sent_at: string
     is_unread: boolean
+    is_task: boolean
     source: TMessageSource
+}
+
+export interface TMessageResponse {
+    pages: TMessage[][]
 }
 
 export interface TEvent {
@@ -85,6 +90,27 @@ export interface TEvent {
     datetime_start: string
     datetime_end: string
     conference_call: TConferenceCall | null
+}
+
+export interface TEmail {
+    smtp_id: string
+    thread_id: string
+    email_id: string
+    subject: string
+    body: string
+    sender_domain: string
+    sender_email: string
+    sender_name: string
+    reply_to: string
+    is_unread: boolean
+    recipients: TRecipients
+    sent_at: string
+}
+
+export interface TEmailThread {
+    thread_id: string
+    last_updated_at: string
+    emails: TEmail[]
 }
 
 export interface TTaskSection {

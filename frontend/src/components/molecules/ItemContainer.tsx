@@ -10,7 +10,7 @@ const ItemContainerDiv = WebStyled.div<{ isSelected: boolean }>`
     height: 100%;
     background-color: ${Colors.white};
     border-radius: ${Border.radius.xxSmall};
-    padding: 0 ${Spacing.padding.small}px;
+    padding: 0 ${Spacing.padding._8}px;
     border: 1px solid ${(props) => (props.isSelected ? Colors.gray._500 : Colors.gray._100)};
 `
 

@@ -3,31 +3,32 @@ import { TRecipient, TRecipients, TSender } from "../../utils/types"
 import { useEffect, useState } from "react"
 
 import { Icon } from "../atoms/Icon"
-import { Text } from "react-native"
+import NoStyleButton from "../atoms/buttons/NoStyleButton"
 import { margin } from "../../styles/spacing"
-import styled from "styled-components/native"
+import styled from "styled-components"
 
-const Container = styled.View`
-    margin-top: ${margin.xSmall}px;
+const Container = styled.div`
+    margin-top: ${margin._4}px;
 `
-const Row = styled.View`
+const Row = styled.div`
     display: flex;
     flex-direction: row;
 `
-const KeyContainer = styled.Text`
+const KeyContainer = styled.div`
     display: flex;
     flex-direction: row;
     width: 10%;
     color: ${Colors.gray._600};
 `
-const ValueContainer = styled.Text`
+const ValueContainer = styled.div`
     display: flex;
     flex-direction: row;
 `
-const Bold = styled.Text`
+const Bold = styled.span`
     font-weight: bold;
 `
-const ExpandCollapse = styled.Pressable`
+const ExpandCollapse = styled(NoStyleButton)`
+    width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -43,7 +44,7 @@ function RecipientDetails({ category, recipients }: RecipientDetailsProps): JSX.
             return <Row key={index}>
                 <KeyContainer>{index === 0 && category}</KeyContainer>
                 <ValueContainer>
-                    <Text>{name ? `${name} <${email}>` : email}</Text>
+                    {name ? `${name} <${email}>` : email}
                 </ValueContainer>
             </Row>
         })}
@@ -76,9 +77,7 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
         ? <Row>
             <KeyContainer>To:</KeyContainer>
             <ValueContainer>
-                <Text>
-                    {recipients.to.map(({ name, email }) => name || email).join(", ")}
-                </Text>
+                {recipients.to.map(({ name, email }) => name || email).join(", ")}
             </ValueContainer>
         </Row>
         : <>
@@ -90,7 +89,7 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
     return <Container>
         {senderDetailsRow}
         {restOfDetails}
-        <ExpandCollapse onPress={() => setShowDetails(!showDetails)} >
+        <ExpandCollapse onClick={() => setShowDetails(!showDetails)} >
             {showDetails
                 ? <Icon size="small" source={Images.icons.chevron_up} />
                 : <Icon size="small" source={Images.icons.chevron_down} />

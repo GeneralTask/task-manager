@@ -1,17 +1,17 @@
-import { useFonts } from '@use-expo/font'
-import React from 'react'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
+import React, { Suspense, lazy } from 'react'
+
+import LandingScreen from './src/screens/LandingScreen'
+import Loading from './src/components/atoms/Loading'
+import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
 import store from './src/redux/store'
-import CompanyPolicyScreen from './src/screens/CompanyPolicyScreen'
-import LandingScreen from './src/screens/LandingScreen'
-import TasksScreen from './src/screens/TasksScreen'
-import TermsOfServiceSummaryScreen from './src/screens/TermsOfServiceSummaryScreen'
-import PrivateOutlet from './src/services/PrivateOutlet'
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { useFonts } from '@use-expo/font'
 
+const CompanyPolicyScreen = lazy(() => import('./src/screens/CompanyPolicyScreen'))
+const TasksScreen = lazy(() => import('./src/screens/TasksScreen'))
+const TermsOfServiceSummaryScreen = lazy(() => import('./src/screens/TermsOfServiceSummaryScreen'))
 
 const App = () => {
     useFonts({
@@ -28,8 +28,8 @@ const App = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <Provider store={store}>
-                <DndProvider backend={HTML5Backend}>
-                    <BrowserRouter>
+                <BrowserRouter>
+                    <Suspense fallback={<Loading />}>
                         <Routes>
                             <Route path="*" element={<Navigate to="/" />} />
                             <Route path="/" element={<Outlet />}>
@@ -54,8 +54,8 @@ const App = () => {
                                 </Route>
                             </Route>
                         </Routes>
-                    </BrowserRouter>
-                </DndProvider>
+                    </Suspense>
+                </BrowserRouter>
             </Provider>
         </QueryClientProvider>
     )

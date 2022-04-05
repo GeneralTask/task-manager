@@ -1,6 +1,7 @@
-import styled from 'styled-components'
-import { Colors } from '../../styles'
+import { Colors, Shadows } from '../../styles'
 import { weight, xxSmall } from '../../styles/typography'
+
+import styled from 'styled-components'
 
 const TIME_ESTIMATOR_WIDTH = 150
 const TIME_ESTIMATOR_PADDING = 10
@@ -11,7 +12,7 @@ export const TimeEstimateContainer = styled.div`
     position: absolute;
     background-color: ${Colors.white};
     border-radius: 10px;
-    box-shadow: 0 0 5px ${Colors.gray._100};
+    box-shadow: ${Shadows.medium};
     z-index: 1;
     top: 100%;
     right: 0;

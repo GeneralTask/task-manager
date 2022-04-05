@@ -1,6 +1,7 @@
-import styled from 'styled-components'
-import { Colors } from '../../styles'
+import { Colors, Shadows, Spacing } from '../../styles'
 import { weight, xSmall, xxSmall } from '../../styles/typography'
+
+import styled from 'styled-components'
 
 export const PickerContainer = styled.div`
     display: block;
@@ -9,7 +10,7 @@ export const PickerContainer = styled.div`
     position: absolute;
     background-color: ${Colors.white};
     border-radius: 12px;
-    box-shadow: 0 0 5px ${Colors.gray._200};
+    box-shadow: ${Shadows.medium};
     z-index: 1;
     top: 100%;
     right: 0;
@@ -73,7 +74,7 @@ export const HoverButton = styled.button<{ isToday: boolean; isSelected: boolean
     display: flex;
     &:hover {
         background: ${(props) =>
-            props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : Colors.gray._100};
+        props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : Colors.gray._100};
     }
     background: ${(props) => (props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : 'transparent')};
 `
@@ -111,4 +112,7 @@ export const CurrentDateText = styled.span`
     line-height: ${xSmall.lineHeight}px;
     width: 100%;
     color: ${Colors.gray._800};
+`
+export const IconContainer = styled.div`
+    padding: ${Spacing.padding._8}px;
 `

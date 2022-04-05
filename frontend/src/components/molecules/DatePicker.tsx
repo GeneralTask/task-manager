@@ -1,9 +1,3 @@
-import { DateTime, Info } from 'luxon'
-import React, { useCallback, useState } from 'react'
-import { View } from 'react-native'
-import { useModifyTask } from '../../services/api-query-hooks'
-import { icons } from '../../styles/images'
-import { Icon } from '../atoms/Icon'
 import {
     BottomBar,
     BottomDateView,
@@ -11,6 +5,7 @@ import {
     DayLabel,
     DayTable,
     HoverButton,
+    IconContainer,
     MonthContainer,
     MonthYearHeader,
     PickerContainer,
@@ -18,6 +13,12 @@ import {
     WeekDay,
     WeekDayTable,
 } from './DatePicker-style'
+import { DateTime, Info } from 'luxon'
+import React, { useCallback, useState } from 'react'
+
+import { Icon } from '../atoms/Icon'
+import { icons } from '../../styles/images'
+import { useModifyTask } from '../../services/api-query-hooks'
 
 interface DatePickerProps {
     task_id: string
@@ -139,9 +140,9 @@ function DatePicker({ task_id, due_date, closeDatePicker }: DatePickerProps): JS
             {monthTable()}
             <BottomBar>
                 <BottomDateView>
-                    <View style={{ padding: 10 }}>
+                    <IconContainer>
                         <Icon source={icons['calendar_blank']} size="xSmall" />
-                    </View>
+                    </IconContainer>
                     <CurrentDateText>
                         {currentDueDate.isValid ? currentDueDate.toLocaleString() : 'MM/DD/YYYY'}
                     </CurrentDateText>
@@ -155,9 +156,9 @@ function DatePicker({ task_id, due_date, closeDatePicker }: DatePickerProps): JS
                             closeDatePicker()
                         }}
                     >
-                        <View style={{ padding: 10 }}>
+                        <IconContainer>
                             <Icon source={icons['trash']} size="xSmall" />
-                        </View>
+                        </IconContainer>
                     </HoverButton>
                 </BottomDateView>
             </BottomBar>

@@ -1,8 +1,8 @@
 import React from 'react'
-import styled from 'styled-components/native'
+import styled from 'styled-components'
 import { Colors } from '../../styles'
 
-const DividerView = styled.View<{ color: string }>`
+const DividerView = styled.div<{ color: string }>`
     height: 1px;
     width: 100%;
     background-color: ${props => props.color};

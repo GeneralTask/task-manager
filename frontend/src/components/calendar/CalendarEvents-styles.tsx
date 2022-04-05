@@ -125,7 +125,7 @@ export const EventFill = styled.div<{ squareStart: boolean, squareEnd: boolean }
     background: ${Colors.white};
     border: 1px solid ${EVENT_CONTAINER_COLOR};
     box-sizing: border-box;
-    box-shadow: ${Shadows.xLarge};
+    box-shadow: ${Shadows.small};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : '10px')};
     border-top-right-radius: ${(props) => (props.squareStart ? '0' : '10px')};
     border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : '10px')};
@@ -159,7 +159,7 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
     font-size: 16px;
     font-weight: ${weight._600.fontWeight};
     border-radius: 50vh;
-    padding: ${Spacing.padding.xSmall}px ${Spacing.padding.small}px;
+    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     color: ${(props) => (props.isToday ? Colors.white : Colors.gray._800)};
     background-color: ${(props) => (props.isToday ? Colors.purple._1 : Colors.gray._100)};
 

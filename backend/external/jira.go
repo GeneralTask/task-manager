@@ -403,3 +403,7 @@ func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, i
 func (jira JIRASource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
 	return nil
 }
+
+func (jira JIRASource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+	return nil
+}

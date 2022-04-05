@@ -1,17 +1,24 @@
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
 import ReactTooltip from 'react-tooltip'
-import { Colors, Flex } from '../../styles'
-import Navbar from '../views/NavigationView'
+import { Colors } from '../../styles'
+import NavigationView from '../views/NavigationView'
 import '../../styles/tooltip.css'
+import styled from 'styled-components'
 
+const DefaultTemplateContainer = styled.div`
+    display: flex;
+    height: 100vh;
+    font-family: Switzer-Variable;
+    background-color: ${Colors.gray._50};
+    position: relative;
+`
 interface DefaultTemplateProps {
-    children: JSX.Element | JSX.Element[]
+    children: React.ReactNode
 }
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
     const createTooltipView = (message: string) => <span>{message}</span>
     return (
-        <View style={styles.container}>
+        <DefaultTemplateContainer>
             <ReactTooltip
                 id="tooltip"
                 effect="solid"
@@ -21,20 +28,10 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
                 textColor={Colors.black}
                 getContent={createTooltipView}
             />
-            <Navbar />
+            <NavigationView />
             {children}
-        </View>
+        </DefaultTemplateContainer>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        ...Flex.row,
-        height: '100vh',
-        fontFamily: 'Switzer-Variable',
-        backgroundColor: Colors.gray._50,
-        position: 'relative',
-    },
-})
 
 export default DefaultTemplate
