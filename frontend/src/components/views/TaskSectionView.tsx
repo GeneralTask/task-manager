@@ -16,7 +16,9 @@ import { useInterval } from '../../utils/hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import styled from 'styled-components'
 
-
+const BannerAndSectionContainer = styled.div`
+    flex: 1;
+`
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 0px 10px;
     padding-bottom: 100px;
@@ -72,41 +74,44 @@ const TaskSection = () => {
 
     return (
         <>
-            <EventBanner date={DateTime.now()} />
-            <ScrollViewMimic>
-                <TaskSectionViewContainer>
-                    {isLoading || !currentSection ? (
-                        <Loading />
-                    ) : (
-                        <>
-                            <SectionHeader
-                                sectionName={currentSection.name}
-                                allowRefresh={true}
-                                refetch={onRefresh}
-                                taskSectionId={currentSection.id}
-                            />
-                            {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
-                            {currentSection.tasks.map((task, index) => {
-                                return (
-                                    <TaskDropContainer
-                                        key={index}
-                                        task={task}
-                                        taskIndex={index}
-                                        sectionId={currentSection.id}
-                                    >
-                                        <Task
+            <BannerAndSectionContainer>
+                <EventBanner date={DateTime.now()} />
+                <ScrollViewMimic>
+
+                    <TaskSectionViewContainer>
+                        {isLoading || !currentSection ? (
+                            <Loading />
+                        ) : (
+                            <>
+                                <SectionHeader
+                                    sectionName={currentSection.name}
+                                    allowRefresh={true}
+                                    refetch={onRefresh}
+                                    taskSectionId={currentSection.id}
+                                />
+                                {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
+                                {currentSection.tasks.map((task, index) => {
+                                    return (
+                                        <TaskDropContainer
+                                            key={index}
                                             task={task}
-                                            dragDisabled={currentSection.is_done}
-                                            index={index}
+                                            taskIndex={index}
                                             sectionId={currentSection.id}
-                                        />
-                                    </TaskDropContainer>
-                                )
-                            })}
-                        </>
-                    )}
-                </TaskSectionViewContainer>
-            </ScrollViewMimic>
+                                        >
+                                            <Task
+                                                task={task}
+                                                dragDisabled={currentSection.is_done}
+                                                index={index}
+                                                sectionId={currentSection.id}
+                                            />
+                                        </TaskDropContainer>
+                                    )
+                                })}
+                            </>
+                        )}
+                    </TaskSectionViewContainer>
+                </ScrollViewMimic>
+            </BannerAndSectionContainer>
             {expandedTask && currentSection && <TaskDetails task={expandedTask} />}
         </>
     )
