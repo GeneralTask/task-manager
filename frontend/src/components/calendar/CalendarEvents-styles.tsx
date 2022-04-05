@@ -109,7 +109,7 @@ export const EventFill = styled.div<{ squareStart: boolean, squareEnd: boolean }
     background: ${Colors.white};
     border: 1px solid ${EVENT_CONTAINER_COLOR};
     box-sizing: border-box;
-    box-shadow: ${Shadows.xLarge};
+    box-shadow: ${Shadows.small};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : '10px')};
     border-top-right-radius: ${(props) => (props.squareStart ? '0' : '10px')};
     border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : '10px')};

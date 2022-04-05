@@ -248,4 +248,5 @@ type EmailThreadChangeable struct {
 
 type ThreadItemChangeable struct {
 	EmailThreadChangeable `bson:"email_thread,omitempty"`
+	TaskTypeChangeable    *TaskTypeChangeable `bson:"task_type,omitempty"`
 }

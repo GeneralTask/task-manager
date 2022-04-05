@@ -1,12 +1,5 @@
 import React from 'react'
-import { View, Text } from 'react-native'
 
-const Loading = () => {
-    return (
-        <View>
-            <Text>Loading...</Text>
-        </View>
-    )
-}
+const Loading = () => <div>Loading...</div>
 
 export default Loading
