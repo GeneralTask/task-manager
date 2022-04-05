@@ -1,6 +1,4 @@
 import { Spacing } from '../../styles'
-import { StyleSheet, View } from 'react-native'
-
 import React from 'react'
 import { gray } from '../../styles/colors'
 import styled from 'styled-components'
@@ -11,37 +9,33 @@ const DominoOuterContainer = styled.div`
     padding-left: ${Spacing.padding._4}px;
     padding-right: ${Spacing.padding._12}px;
 `
+const DominoContainer = styled.div`
+    height: 100%;
+    width: 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+`
+const Dot = styled.div`
+    width: 3px;
+    height: 3px;
+    border-radius: 50px;
+    background-color: ${gray._400};
+    margin: 1px;
+`
 
 const Domino = React.forwardRef<HTMLDivElement>((_, ref) => {
     return (
         <DominoOuterContainer ref={ref}>
-            <View style={styles.DominoInnerContainer}>
+            <DominoContainer>
                 {Array(6)
                     .fill(0)
-                    .map((_, index) => (
-                        <View style={styles.DominoDot} key={index} />
-                    ))}
-            </View>
+                    .map((_, i) => <Dot key={i} />
+                    )}
+            </DominoContainer>
         </DominoOuterContainer>
     )
-})
-
-const styles = StyleSheet.create({
-    DominoInnerContainer: {
-        height: '100%',
-        width: 10,
-        display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-    },
-    DominoDot: {
-        width: 3,
-        height: 3,
-        borderRadius: 50,
-        backgroundColor: gray._400,
-        margin: 1,
-    },
 })
 
 export default React.memo(Domino)
