@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 const DefaultTemplateContainer = styled.div`
     display: flex;
-    height: '100vh',
+    height: 100vh;
     font-family: Switzer-Variable;
     background-color: ${Colors.gray._50};
     position: relative;
