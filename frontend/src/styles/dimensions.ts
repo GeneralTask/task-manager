@@ -1,4 +1,3 @@
-export const editSheetHeight = 600
 export const iconSize = {
     xxSmall: 10,
     xSmall: 15,
