@@ -79,7 +79,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                 <HeaderText>{sectionName}</HeaderText>
             )}
             <TouchableIcon onPress={props.refetch}>
-                <Icon size={'small'} source={icons.spinner}></Icon>
+                <Icon size={'small'} source={icons.spinner} />
             </TouchableIcon>
             {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) && (
                 <>
