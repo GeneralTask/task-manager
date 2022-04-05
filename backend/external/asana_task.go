@@ -223,3 +223,7 @@ func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accoun
 func (asanaTask AsanaTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
 	return nil
 }
+
+func (asanaTask AsanaTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+	return nil
+}
