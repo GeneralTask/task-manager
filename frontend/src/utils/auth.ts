@@ -1,22 +1,13 @@
 import { Dispatch } from '@reduxjs/toolkit'
 import Cookie from 'js-cookie'
-import { Platform } from 'react-native'
 import { setAuthToken } from '../redux/userDataSlice'
 
-export const isAuthenticated = () => {
-    if (Platform.OS === 'web') {
-        return Cookie.get('authToken') !== undefined
-    }
-    return false
-}
+export const isAuthenticated = () => Cookie.get('authToken') !== undefined
 
 export const authSignOut = (dispatch: Dispatch) => {
     dispatch(setAuthToken(undefined))
-
-    if (Platform.OS === 'web') {
-        Cookie.remove('authToken', { path: '/', domain: '.generaltask.com' }) //production cookie
-        Cookie.remove('authToken') //testing cookie
-        window.location.href = '/'
-    }
+    Cookie.remove('authToken', { path: '/', domain: '.generaltask.com' }) //production cookie
+    Cookie.remove('authToken') //testing cookie
+    window.location.href = '/'
 }
 
