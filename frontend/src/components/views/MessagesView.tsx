@@ -56,7 +56,6 @@ const Messages = () => {
                     {messages?.map((message: TMessage, msgIndex: number) =>
                         <TaskTemplate
                             ref={msgIndex === messages.length - 1 ? lastElementRef : undefined}
-                            style={styles.shell}
                             key={message.id}
                         >
                             <Message message={message} />
@@ -71,9 +70,6 @@ const Messages = () => {
 }
 
 const styles = StyleSheet.create({
-    shell: {
-        marginVertical: 1,
-    },
     container: {
         ...Screens.container,
         ...Flex.column,

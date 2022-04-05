@@ -1,29 +1,25 @@
-import React, { Ref, forwardRef } from 'react'
-import { StyleSheet, View, ViewStyle } from 'react-native'
-
+import React, { forwardRef } from 'react'
+import styled from 'styled-components'
 import { Shadows } from '../../styles'
 
+const TemplateContainer = styled.div`
+    width: 100%;
+    position: relative;
+    height: 34px;
+    border-radius: 4px;
+    box-shadow: ${Shadows.xSmall};
+    padding: 1px 0;
+`
 interface TaskTemplateProps {
-    style?: ViewStyle
     isShadow?: boolean
-    children: React.ReactNode | React.ReactNode[]
+    children: React.ReactNode
 }
-const TaskTemplate = forwardRef((props: TaskTemplateProps, ref) => {
+const TaskTemplate = forwardRef<HTMLDivElement, TaskTemplateProps>((props: TaskTemplateProps, ref) => {
     return (
-        <View style={[props.style, styles.container]} ref={ref as Ref<View>}>
+        <TemplateContainer ref={ref}>
             {props.children}
-        </View>
+        </TemplateContainer>
     )
-})
-
-const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-        position: 'relative',
-        height: 34,
-        borderRadius: 4,
-        boxShadow: Shadows.xSmall,
-    },
 })
 
 export default TaskTemplate
