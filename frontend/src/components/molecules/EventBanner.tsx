@@ -1,4 +1,4 @@
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE } from '../../constants'
 import { DateTime } from 'luxon'
 import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
@@ -33,7 +33,7 @@ const BannerView = styled.div<{ center: boolean }>`
     background-color: ${Colors.white};
     opacity: 0.97;
     border-radius: ${Border.radius.small};
-    box-shadow: 0px 4px 20px rgba(43, 43, 43, 0.08);
+    box-shadow: ${Shadows.large};
 `
 const BannerTitleView = styled.div`
     background-color: ${Colors.gray._100};
