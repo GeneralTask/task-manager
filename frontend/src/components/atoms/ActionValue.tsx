@@ -1,10 +1,9 @@
 import { Border, Colors, Spacing } from '../../styles'
 
 import React from 'react'
-import { Text } from 'react-native'
-import styled from 'styled-components/native'
+import styled from 'styled-components'
 
-const ActionValueContainer = styled.View`
+const ActionValueContainer = styled.div`
     padding: ${Spacing.padding._8}px;
     background-color: ${Colors.gray._300};
     border-radius: ${Border.radius.regular};
@@ -16,7 +15,7 @@ interface ActionValueProps {
 const ActionValue = ({ value }: ActionValueProps) => {
     return (
         <ActionValueContainer>
-            <Text>{value}</Text>
+            {value}
         </ActionValueContainer>
     )
 }

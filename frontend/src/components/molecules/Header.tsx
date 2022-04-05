@@ -65,7 +65,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         setIsEditingTitle(false)
     }
 
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.REFRESH, props.refetch ?? emptyFunction, !!props.refetch)
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.REFRESH, props.refetch ?? emptyFunction, props.refetch == null)
 
     return (
         <SectionHeaderContainer>

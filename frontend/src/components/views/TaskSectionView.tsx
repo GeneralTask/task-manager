@@ -1,4 +1,4 @@
-import { Colors, Flex, Screens, Spacing } from '../../styles'
+import { Colors, Screens, Spacing } from '../../styles'
 import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
-import EventBanner from '../molecules/EventBanner'
+import EventBanner from '../molecules/EventBanners'
 import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
 import { TASK_REFETCH_INTERVAL } from '../../constants'
@@ -101,13 +101,15 @@ const TaskSection = () => {
 const styles = StyleSheet.create({
     container: {
         ...Screens.container,
-        ...Flex.column,
+        display: 'flex',
+        flexDirection: 'column',
         paddingTop: 0,
         backgroundColor: Colors.gray._50,
         minWidth: '550px',
     },
     tasksContent: {
-        ...Flex.column,
+        display: 'flex',
+        flexDirection: 'column',
         marginRight: 10,
         marginLeft: 10,
         marginTop: Platform.OS === 'web' ? Spacing.margin._40 : Spacing.margin._24,

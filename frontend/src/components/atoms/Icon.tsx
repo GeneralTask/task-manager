@@ -2,7 +2,7 @@
 import React from 'react'
 import { Image, ImageSourcePropType, StyleSheet } from 'react-native'
 import styled from 'styled-components/native'
-import { Dimensions, Flex } from '../../styles'
+import { Dimensions } from '../../styles'
 
 const IconContainer = styled.View<{ width: number; height: number }>`
     width: ${(props) => props.width}px;
@@ -47,7 +47,8 @@ const styles = StyleSheet.create({
     iconContainer: {
         width: 20,
         height: 20,
-        ...Flex.column,
+        display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
     },

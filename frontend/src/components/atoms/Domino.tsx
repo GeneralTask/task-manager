@@ -1,4 +1,4 @@
-import { Flex, Spacing } from '../../styles'
+import { Spacing } from '../../styles'
 import { StyleSheet, View } from 'react-native'
 
 import React from 'react'
@@ -30,7 +30,9 @@ const styles = StyleSheet.create({
     DominoInnerContainer: {
         height: '100%',
         width: 10,
-        ...Flex.wrap,
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         alignItems: 'center',
     },
     DominoDot: {
