@@ -21,7 +21,8 @@ const BannerAndSectionContainer = styled.div`
     overflow: auto;
 `
 const ScrollViewMimic = styled.div`
-    margin: 40px 10px 0px 10px;
+    margin: 40px 0px 0px 10px;
+    padding-right: 10px;
     padding-bottom: 100px;
 `
 const TaskSectionViewContainer = styled.div`
