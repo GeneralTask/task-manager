@@ -22,7 +22,7 @@ const getTasks = async () => {
 export const useGetTaskDetail = (data: { taskId: string }) => {
     return useQuery<TEmailThread>(['task', data.taskId], () => getTaskDetail(data))
 }
-export const getTaskDetail = async (data: { taskId: string }) => {
+const getTaskDetail = async (data: { taskId: string }) => {
     try {
         const res = await apiClient.get(`/tasks/detail/${data.taskId}`)
         return res.data
@@ -370,7 +370,7 @@ const getInfiniteThreads = async ({ pageParam = 1 }) => {
 export const useGetThreadDetail = (data: { threadId: string }) => {
     return useQuery<TEmailThread>(['emailthread', data.threadId], () => getThreadDetail(data))
 }
-export const getThreadDetail = async (data: { threadId: string }) => {
+const getThreadDetail = async (data: { threadId: string }) => {
     try {
         const res = await apiClient.get(`/threads/detail/${data.threadId}`)
         return res.data
