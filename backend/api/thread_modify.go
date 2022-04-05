@@ -89,8 +89,8 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 	threadChangeable := database.ThreadItemToChangeable(thread)
 
 	if params.IsUnread != nil {
-		for _, email := range threadChangeable.EmailThreadChangeable.Emails {
-			email.IsUnread = *params.IsUnread
+		for i := range threadChangeable.EmailThreadChangeable.Emails {
+			threadChangeable.EmailThreadChangeable.Emails[i].IsUnread = *params.IsUnread
 		}
 	}
 	if params.IsTask != nil {

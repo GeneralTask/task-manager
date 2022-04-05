@@ -509,16 +509,11 @@ func EmailItemToUpdateable(email *Item) *EmailItemChangeable {
 }
 
 func ThreadItemToChangeable(thread *Item) *ThreadItemChangeable {
-	changeable := &ThreadItemChangeable{
+	return &ThreadItemChangeable{
 		EmailThreadChangeable: EmailThreadChangeable{
 			ThreadID:      thread.EmailThread.ThreadID,
 			LastUpdatedAt: thread.EmailThread.LastUpdatedAt,
+			Emails:        thread.EmailThread.Emails,
 		},
 	}
-	var emails []*Email
-	for i := range thread.Emails {
-		emails = append(emails, &thread.Emails[i])
-	}
-	changeable.Emails = emails
-	return changeable
 }
