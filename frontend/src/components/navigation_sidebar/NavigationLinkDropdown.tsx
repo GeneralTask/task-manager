@@ -49,7 +49,6 @@ const NavigationLinkDropdown = ({ children, isCurrentPage, link, title, icon }: 
     const [isOpen, setIsOpen] = React.useState(true)
     const onNavigate = () => {
         setIsOpen(!isOpen)
-        // setIsOpen(!(isCurrentPage && isOpen)) TODO: Change to this once we have a way to go to 'all tasks'
     }
 
     return (
