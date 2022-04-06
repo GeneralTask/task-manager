@@ -1,14 +1,15 @@
-import React, { useState } from 'react'
 import { Border, Colors } from '../../styles'
+import React, { useState } from 'react'
 import { margin, padding } from '../../styles/spacing'
 import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
 import { useLocation, useParams } from 'react-router-dom'
+
 import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import NoStyleInput from '../atoms/NoStyleInput'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { authSignOut } from '../../utils/auth'
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
@@ -36,7 +37,7 @@ const AddSectionView = styled.div`
     border-width: 2px;
     border-style: solid;
     border-color: transparent;
-    box-sizeing: border-box;
+    box-sizing: border-box;
     align-items: center;
 `
 const IconWidth = styled.div`
@@ -70,8 +71,13 @@ const NavigationView = () => {
             <NavigationViewHeader>
                 <Icon size="medium" />
             </NavigationViewHeader>
-            {showLoadingSections ? <Loading /> :
-                <NavigationSectionLinks taskSections={taskSections} sectionId={sectionIdParam || ''} pathName={pathname} />
+            {taskSections !== undefined ? <NavigationSectionLinks
+                taskSections={taskSections}
+                sectionId={sectionIdParam || ''}
+                pathName={pathname}
+            /> :
+
+                <Loading />
             }
             <AddSectionView>
                 <IconWidth>
