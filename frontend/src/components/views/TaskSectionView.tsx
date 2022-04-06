@@ -1,5 +1,5 @@
 import { Colors } from '../../styles'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 import CreateNewTask from '../molecules/CreateNewTask'
@@ -35,22 +35,20 @@ const TaskSectionViewContainer = styled.div`
 `
 
 const TaskSection = () => {
-    const { data: taskSections, isLoading, isFetching } = useGetTasks()
+    const { data: taskSections, isLoading } = useGetTasks()
     const { refetch: fetchExternalTasks } = useFetchExternalTasks()
 
-    const refetchWasLocal = useRef(false)
+    useInterval(fetchExternalTasks, TASK_REFETCH_INTERVAL)
+
     const routerSection = useParams().section || ''
     const navigate = useNavigate()
     const params = useParams()
 
-    //stops fetching animation on iOS from triggering when refetch is called in another component
-    if (!isFetching) refetchWasLocal.current = false
-    const onRefresh = useCallback(async () => {
-        refetchWasLocal.current = true
-        fetchExternalTasks()
-    }, [fetchExternalTasks])
-
-    useInterval(onRefresh, TASK_REFETCH_INTERVAL)
+    const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
+    const expandTask = useCallback((itemId: string) => {
+        if (currentSection) navigate(`/tasks/${currentSection.id}/${itemId}`)
+    }, [currentSection])
+    useItemSelectionController(currentSection?.tasks ?? [], expandTask)
 
     useEffect(() => {
         if (taskSections && !getSectionById(taskSections, routerSection) && taskSections.length > 0) {
@@ -64,13 +62,6 @@ const TaskSection = () => {
         return section?.tasks.find((task) => task.id === params.task)
     }, [params.task, taskSections])
 
-    const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
-
-    const expandTask = useCallback((itemId: string) => {
-        if (currentSection) navigate(`/tasks/${currentSection.id}/${itemId}`)
-    }, [currentSection])
-
-    useItemSelectionController(currentSection?.tasks ?? [], expandTask)
 
     return (
         <>
@@ -86,7 +77,7 @@ const TaskSection = () => {
                                 <SectionHeader
                                     sectionName={currentSection.name}
                                     allowRefresh={true}
-                                    refetch={onRefresh}
+                                    refetch={fetchExternalTasks}
                                     taskSectionId={currentSection.id}
                                 />
                                 {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
