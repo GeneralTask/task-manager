@@ -20,6 +20,7 @@ const ActionButton = styled.div`
     padding: ${Spacing.padding._4}px;
     margin-right: ${Spacing.margin._8}px;
     position: relative;
+    cursor: pointer;
 `
 
 interface ActionOptionProps {
