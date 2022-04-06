@@ -1,9 +1,7 @@
 import { Colors, Spacing, Typography } from '../../styles'
+import styled from 'styled-components'
 
-import styled from 'styled-components/native'
-import webStyled from 'styled-components'
-
-const DetailsViewContainer = styled.View`
+const DetailsViewContainer = styled.div`
     display: flex;
     flex-direction: column;
     background-color: ${Colors.gray._50};
@@ -11,23 +9,23 @@ const DetailsViewContainer = styled.View`
     margin-top: ${Spacing.margin._24}px;
     padding: ${Spacing.padding._16}px;
 `
-const DetailsTopContainer = styled.View`
+const DetailsTopContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
     z-index: 1;
     height: 50px;
 `
-const TaskTitleContainer = styled.View`
+const TaskTitleContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
 `
-const BodyContainer = styled.View`
+const BodyContainer = styled.div`
     flex: 1;
     overflow: auto;
 `
-export const TitleInput = webStyled.textarea`
+export const TitleInput = styled.textarea`
     background-color: inherit;
     color: ${Colors.gray._600};
     font: inherit;
@@ -44,7 +42,7 @@ export const TitleInput = webStyled.textarea`
         outline: 1px solid ${Colors.gray._500};
     }
 `
-export const Title = webStyled.div`
+export const Title = styled.div`
     background-color: inherit;
     color: ${Colors.gray._600};
     font: inherit;
@@ -57,7 +55,7 @@ export const Title = webStyled.div`
     display: flex;
     flex: 1;
 `
-export const BodyTextArea = webStyled.textarea`
+export const BodyTextArea = styled.textarea`
     display: block;
     background-color: inherit;
     border: none;
@@ -70,14 +68,14 @@ export const BodyTextArea = webStyled.textarea`
     font-size: ${Typography.xSmall.fontSize}px;
     height: 250px;
 `
-export const FlexGrowView = styled.View`
+export const FlexGrowView = styled.div`
     flex: 1;
 `
 interface DetailsTemplateProps {
-    top: JSX.Element | JSX.Element[] | undefined | null
-    title: JSX.Element | JSX.Element[] | undefined | null
-    subtitle?: JSX.Element | JSX.Element[] | undefined | null
-    body: JSX.Element | JSX.Element[] | undefined | null
+    top: React.ReactNode
+    title: React.ReactNode
+    subtitle?: React.ReactNode
+    body: React.ReactNode
 }
 
 const DetailsTemplate = (props: DetailsTemplateProps) => {
