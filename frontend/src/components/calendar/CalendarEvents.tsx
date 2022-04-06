@@ -65,7 +65,12 @@ function CalendarTimeTable(): JSX.Element {
     )
 }
 
-function WeekCalendarEvents(date: DateTime, dayOffset: number, groups: TEvent[][]): JSX.Element {
+interface WeekCalendarEventsProps {
+    date: DateTime
+    dayOffset: number
+    groups: TEvent[][]
+}
+const WeekCalendarEvents = ({ date, dayOffset, groups }: WeekCalendarEventsProps): JSX.Element => {
     const tmpDate = date.plus({ days: dayOffset })
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     return (
@@ -146,7 +151,7 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
                 </TimeContainer>
             </TimeAndHeaderContainer>
             {
-                allGroups.map((groups, dayOffset) => WeekCalendarEvents(date, dayOffset, groups))
+                allGroups.map((groups, dayOffset) => <WeekCalendarEvents key={dayOffset} date={date} dayOffset={dayOffset} groups={groups} />)
             }
         </AllDaysContainer>
     )

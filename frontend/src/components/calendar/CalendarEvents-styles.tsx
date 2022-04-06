@@ -155,7 +155,7 @@ export const CalendarDayHeader = styled.div`
 `
 
 export const DayHeaderText = styled.div<{ isToday: boolean }>`
-    font-size: ${Typography.small}px;
+    font-size: ${Typography.small.fontSize}px;
     font-weight: ${Typography.weight._600.fontWeight};
     border-radius: 50vh;
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
