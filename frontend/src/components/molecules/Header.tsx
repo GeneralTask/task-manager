@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-query-hooks'
 import { Icon } from '../atoms/Icon'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
@@ -23,6 +23,7 @@ const HeaderText = styled.span`
     font-size: ${Typography.xLarge.fontSize}px;
     font-family: Switzer-Variable;
     padding-left: ${Spacing.padding._4}px;
+    border: 2px solid transparent;
 `
 const HeaderTextEditable = styled.input`
     margin-right: ${Spacing.margin._8}px;
@@ -31,6 +32,9 @@ const HeaderTextEditable = styled.input`
     padding-left: ${Spacing.padding._4}px;
     border: none;
     outline: none;
+    &:focus {
+        border: 2px solid ${Colors.gray._400};
+    }
     background-color: transparent;
 `
 interface SectionHeaderProps {
