@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Colors } from '../../styles'
+import { Border, Colors } from '../../styles'
 import { margin, padding } from '../../styles/spacing'
 import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
 import { useLocation, useParams } from 'react-router-dom'
@@ -31,8 +31,16 @@ const NavigationViewHeader = styled.div`
 const AddSectionView = styled.div`
     display: flex;
     flex-direction: row;
-    margin: ${margin._4}px ${margin._8}px;
-    padding: ${padding._4}px ${padding._8}px;
+    padding:  ${padding._4}px ${padding._8}px;
+    border-radius: ${Border.radius.small};
+    border-width: 2px;
+    border-style: solid;
+    border-color: transparent;
+    box-sizeing: border-box;
+    align-items: center;
+`
+const IconWidth = styled.div`
+    width: fit-content;
 `
 const AddSectionInputView = styled.div`
     font-weight: ${weight._600.fontWeight};
@@ -66,7 +74,9 @@ const NavigationView = () => {
                 <NavigationSectionLinks taskSections={taskSections} sectionId={sectionIdParam || ''} pathName={pathname} />
             }
             <AddSectionView>
-                <Icon size={'small'} source={icons.plus} />
+                <IconWidth>
+                    <Icon size="small" source={icons.plus} />
+                </IconWidth>
                 <AddSectionInputView>
                     <WebInput
                         value={sectionName}
@@ -78,6 +88,7 @@ const NavigationView = () => {
                         }}
                     />
                 </AddSectionInputView>
+
             </AddSectionView>
             <GapView>
                 <FeedbackButton />
