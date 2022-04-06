@@ -81,7 +81,10 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                 <HeaderBodyContainer>
                     <TitleSmall>Calendar</TitleSmall>
                     <ArrowButton onClick={() => expandCalendar(!expandedCalendar)}>
-                        <Icon source={icons.arrows_out} size="small" />
+                        {expandedCalendar ?
+                            <Icon source={icons.arrows_in} size="small" /> :
+                            <Icon source={icons.arrows_out} size="small" />
+                        }
                     </ArrowButton>
                 </HeaderBodyContainer>
             </PaddedContainer>

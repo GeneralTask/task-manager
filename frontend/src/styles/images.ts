@@ -13,6 +13,7 @@ export const logos: { [key: string]: NodeRequire } = {
 }
 
 export const icons: { [key: string]: NodeRequire } = {
+    arrows_in: require('../assets/arrows_in.png'),
     arrows_out: require('../assets/arrows_out.png'),
     calendar_blank: require('../assets/calendar_blank.png'),
     caret_left: require('../assets/caret_left.png'),
