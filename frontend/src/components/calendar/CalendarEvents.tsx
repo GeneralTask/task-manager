@@ -74,13 +74,13 @@ const WeekCalendarEvents = ({ date, dayOffset, groups }: WeekCalendarEventsProps
     const tmpDate = date.plus({ days: dayOffset })
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     return (
-        <DayAndHeaderContainer key={dayOffset}>
+        <DayAndHeaderContainer>
             {expandedCalendar &&
                 <CalendarDayHeader>
                     <DayHeaderText isToday={tmpDate.startOf('day').equals(DateTime.now().startOf('day'))}>{tmpDate.toFormat('ccc dd')}</DayHeaderText>
                 </CalendarDayHeader>
             }
-            <DayContainer key={dayOffset}>
+            <DayContainer>
                 {groups.map((group, index) => (
                     <CollisionGroupColumns key={index} events={group} date={tmpDate} />
                 ))}
