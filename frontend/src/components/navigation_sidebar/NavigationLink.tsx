@@ -1,13 +1,15 @@
-import { Border, Colors, Spacing, Typography } from '../../styles'
-import { ItemTypes, TTaskSection } from '../../utils/types'
 import React, { CSSProperties, useCallback } from 'react'
-
-import { Icon } from '../atoms/Icon'
+import { useDrop } from 'react-dnd'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import { useDrop } from 'react-dnd'
+import { useAppDispatch } from '../../redux/hooks'
+import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import { useReorderTask } from '../../services/api-query-hooks'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { weight } from '../../styles/typography'
+import { ItemTypes, TTaskSection } from '../../utils/types'
+import { Icon } from '../atoms/Icon'
+
 
 const LinkContainer = styled.div<{ isSelected: boolean, isOver: boolean }>`
     display: flex;
@@ -51,6 +53,7 @@ interface NavigationLinkProps {
 }
 const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppable }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
+    const dispatch = useAppDispatch()
 
     const onDrop = useCallback(
         (item: { id: string; taskIndex: number; sectionId: string }) => {
@@ -78,9 +81,12 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppab
         [taskSection, onDrop]
     )
 
+    const onNavigate = () => {
+        dispatch(setExpandedCalendar(false))
+    }
 
     return (
-        <Link style={linkStyle} to={link}>
+        <Link style={linkStyle} to={link} onClick={onNavigate}>
             <LinkContainer
                 ref={drop}
                 isSelected={isCurrentPage}

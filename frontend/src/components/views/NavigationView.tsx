@@ -1,19 +1,19 @@
 import React, { useState } from 'react'
-import { Border, Colors } from '../../styles'
-import { margin, padding } from '../../styles/spacing'
-import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
 import { useLocation, useParams } from 'react-router-dom'
-import FeedbackButton from '../molecules/FeedbackButton'
-import { Icon } from '../atoms/Icon'
-import Loading from '../atoms/Loading'
-import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
-import NoStyleInput from '../atoms/NoStyleInput'
-import { authSignOut } from '../../utils/auth'
-import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import { useAppDispatch } from '../../redux/hooks'
+import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
+import { Border, Colors } from '../../styles'
+import { icons } from '../../styles/images'
+import { margin, padding } from '../../styles/spacing'
 import { weight } from '../../styles/typography'
+import { authSignOut } from '../../utils/auth'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import { Icon } from '../atoms/Icon'
+import Loading from '../atoms/Loading'
+import NoStyleInput from '../atoms/NoStyleInput'
+import FeedbackButton from '../molecules/FeedbackButton'
+import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 
 const NavigationViewContainer = styled.div`
     display: flex;
@@ -31,12 +31,11 @@ const NavigationViewHeader = styled.div`
 const AddSectionView = styled.div`
     display: flex;
     flex-direction: row;
-    padding:  ${padding._4}px ${padding._8}px;
+    padding: ${padding._4}px ${padding._8}px;
     border-radius: ${Border.radius.small};
     border-width: 2px;
     border-style: solid;
     border-color: transparent;
-    box-sizeing: border-box;
     align-items: center;
 `
 const IconWidth = styled.div`
