@@ -24,7 +24,7 @@ const Title = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: Switzer-Variable;
-    font-size: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.xSmall.fontSize};
 `
 
 interface TaskProps {

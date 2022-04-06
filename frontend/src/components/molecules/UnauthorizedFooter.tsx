@@ -29,7 +29,7 @@ const FooderDiv = styled.div`
 const FooterText = styled.span`
     color: ${Colors.white};
     font-weight: ${Typography.weight._600};
-    font-size: ${Typography.xxSmall.fontSize}px;
+    font-size: ${Typography.xxSmall.fontSize};
     font-family: 'Switzer-Variable';
 `
 const UnauthorizedFooter = () => {

@@ -17,8 +17,8 @@ const KeyboardShortcutContainer = styled.div<{ isPressed: boolean }>`
     box-shadow: ${Shadows.medium};
     margin-right: ${Spacing.margin._12}px;
     color: ${Colors.gray._400};
-    font-size: ${Typography.xSmall.fontSize}px;
-    line-height: ${Typography.xSmall.lineHeight}px;
+    font-size: ${Typography.xSmall.fontSize};
+    line-height: ${Typography.xSmall.lineHeight};
 `
 
 // gets triggered when the lowercase letter is pressed (including with CAPS LOCK, but not when you hit shift+key)

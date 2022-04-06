@@ -1,36 +1,36 @@
 export const xxSmall = {
-    fontSize: 13,
-    lineHeight: 16,
+    fontSize: '13px',
+    lineHeight: '16px',
 }
 
 export const xSmall = {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: '14px',
+    lineHeight: '20px',
 }
 
 export const small = {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: '16px',
+    lineHeight: '24px',
 }
 
 export const medium = {
-    fontSize: 18,
-    lineHeight: 24,
+    fontSize: '18px',
+    lineHeight: '24px',
 }
 
 export const large = {
-    fontSize: 20,
-    lineHeight: 32,
+    fontSize: '20px',
+    lineHeight: '32px',
 }
 
 export const xLarge = {
-    fontSize: 24,
-    lineHeight: 32,
+    fontSize: '24px',
+    lineHeight: '32px',
 }
 
 export const xxLarge = {
-    fontSize: 32,
-    lineHeight: 40,
+    fontSize: '32px',
+    lineHeight: '40px',
 }
 
 export const weight = {
@@ -40,6 +40,6 @@ export const weight = {
 }
 
 export const landingScreen = {
-    header: 58,
-    subheader: 27,
+    header: '58px',
+    subheader: '27px',
 }

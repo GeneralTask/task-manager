@@ -8,7 +8,7 @@ const WaitlistButtonStyled = styled.button`
     border: none;
     color: ${Colors.white};
     font-family: Switzer-Variable;
-    font-size: ${Typography.small.fontSize}px;
+    font-size: ${Typography.small.fontSize};
     padding: 0px ${Spacing.padding._8}px;
     cursor: pointer;
 `

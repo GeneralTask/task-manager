@@ -10,7 +10,7 @@ const SubtitleStyled = styled.span`
 `
 const SubtitleSmallStyles = styled.span`
     color: ${Colors.gray._500};
-    font-size: ${Typography.xxSmall.fontSize}px;
+    font-size: ${Typography.xxSmall.fontSize};
     font-weight: ${Typography.weight._400};
     font-family: Switzer-Variable;
 `

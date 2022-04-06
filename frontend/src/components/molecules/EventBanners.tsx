@@ -12,7 +12,7 @@ const EventBannerContainer = styled.div`
     display: flex;
     flex-direction: column;
     font-family: Switzer-Variable;
-    font-size: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.xSmall.fontSize};
     position: relative;
     width: 100%;
     display: flex;

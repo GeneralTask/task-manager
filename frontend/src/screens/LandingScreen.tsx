@@ -30,14 +30,14 @@ const Header = styled.div`
     max-width: 700px;
     margin: auto;
     margin-bottom: 40px;
-    font-size: ${Typography.landingScreen.header}px;
+    font-size: ${Typography.landingScreen.header};
     text-align: center;
     font-family: inherit;
 `
 const Subheader = styled.div`
     max-width: 725px;
     margin: auto;
-    font-size: ${Typography.landingScreen.subheader}px;
+    font-size: ${Typography.landingScreen.subheader};
     text-align: center;
 `
 const WaitlistContainer = styled.div`

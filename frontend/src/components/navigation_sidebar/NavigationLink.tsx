@@ -23,7 +23,7 @@ const LinkContainer = styled.div<{ isSelected: boolean, isOver: boolean }>`
 `
 const SectionTitle = styled.span<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};
-    font-size: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.xSmall.fontSize};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
     overflow: hidden;
     text-overflow: ellipsis;
