@@ -53,7 +53,7 @@ const TaskSection = () => {
     useInterval(onRefresh, TASK_REFETCH_INTERVAL)
 
     useEffect(() => {
-        if (taskSections && !getSectionById(taskSections, routerSection) && taskSections.length > 0 && routerSection !== '') {
+        if (taskSections && !getSectionById(taskSections, routerSection) && taskSections.length > 0) {
             const firstSectionId = taskSections[0].id
             navigate(`/tasks/${firstSectionId}`)
         }
@@ -79,18 +79,18 @@ const TaskSection = () => {
                 <ScrollViewMimic>
 
                     <TaskSectionViewContainer>
-                        {isLoading ? (
+                        {isLoading || !currentSection ? (
                             <Loading />
                         ) : (
                             <>
                                 <SectionHeader
-                                    sectionName={currentSection?.name ?? 'Tasks'}
+                                    sectionName={currentSection.name}
                                     allowRefresh={true}
                                     refetch={onRefresh}
-                                    taskSectionId={currentSection?.id}
+                                    taskSectionId={currentSection.id}
                                 />
-                                {currentSection && !currentSection.is_done && <CreateNewTask section={currentSection.id} />}
-                                {currentSection ? currentSection.tasks.map((task, index) => {
+                                {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
+                                {currentSection.tasks.map((task, index) => {
                                     return (
                                         <TaskDropContainer
                                             key={index}
@@ -106,25 +106,7 @@ const TaskSection = () => {
                                             />
                                         </TaskDropContainer>
                                     )
-                                }) :
-                                    taskSections && taskSections.map((section) => section.tasks.map((task, index) => {
-                                        return (
-                                            <TaskDropContainer
-                                                key={index}
-                                                task={task}
-                                                taskIndex={index}
-                                                sectionId={section.id}
-                                            >
-                                                <Task
-                                                    task={task}
-                                                    dragDisabled={true}
-                                                    index={index}
-                                                    sectionId={section.id}
-                                                />
-                                            </TaskDropContainer>
-                                        )
-                                    }))
-                                }
+                                })}
                             </>
                         )}
                     </TaskSectionViewContainer>

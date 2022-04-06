@@ -13,7 +13,7 @@ interface SectionLinksProps {
 const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLinksProps) => {
     return (
         <>
-            <NavigationLinkDropdown title={'Tasks'} icon={icons.inbox} link={'/tasks/'} isCurrentPage={sectionId === ''}>
+            <NavigationLinkDropdown title={'Tasks'} icon={icons.inbox} link={''} isCurrentPage={false}>
                 {taskSections.map((section, index) => (
                     <NavigationLink
                         key={index}
