@@ -8,7 +8,7 @@ import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
-import WebInput from '../atoms/WebInput'
+import NoStyleInput from '../atoms/NoStyleInput'
 import { authSignOut } from '../../utils/auth'
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
@@ -78,7 +78,7 @@ const NavigationView = () => {
                     <Icon size="small" source={icons.plus} />
                 </IconWidth>
                 <AddSectionInputView>
-                    <WebInput
+                    <NoStyleInput
                         value={sectionName}
                         onChange={(e) => setSectionName(e.target.value)}
                         placeholder={'Add Section'}
