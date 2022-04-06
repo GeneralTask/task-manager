@@ -21,7 +21,7 @@ const Title = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: Switzer-Variable;
-    font-size: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.xSmall.fontSize};
 `
 interface MessageProps {
     message: TMessage

@@ -27,9 +27,9 @@ export const TimeEstimateContainer = styled.div`
 
 export const Header = styled.div`
     font-family: Switzer-Variable;
-    font-weight: ${weight._600.fontWeight};
-    font-size: ${xxSmall.fontSize}px;
-    line-height: ${xxSmall.lineHeight}px;
+    font-weight: ${weight._600};
+    font-size: ${xxSmall.fontSize};
+    line-height: ${xxSmall.lineHeight};
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: ${Colors.gray._400};

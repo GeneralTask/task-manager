@@ -29,8 +29,8 @@ export const TitleInput = styled.textarea`
     background-color: inherit;
     color: ${Colors.gray._600};
     font: inherit;
-    font-size: ${Typography.large.fontSize}px;
-    font-weight: ${Typography.weight._600.fontWeight};
+    font-size: ${Typography.large.fontSize};
+    font-weight: ${Typography.weight._600};
     border: none;
     resize: none;
     outline: none;
@@ -46,8 +46,8 @@ export const Title = styled.div`
     background-color: inherit;
     color: ${Colors.gray._600};
     font: inherit;
-    font-size: ${Typography.xSmall.fontSize}px;
-    font-weight: ${Typography.weight._600.fontWeight};
+    font-size: ${Typography.xSmall.fontSize};
+    font-weight: ${Typography.weight._600};
     border: none;
     resize: none;
     outline: none;
@@ -65,7 +65,7 @@ export const BodyTextArea = styled.textarea`
     padding-right: ${Spacing.margin._8}px;
     font: inherit;
     color: ${Colors.gray._600};
-    font-size: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.xSmall.fontSize};
     height: 250px;
 `
 export const FlexGrowView = styled.div`

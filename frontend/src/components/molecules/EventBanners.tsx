@@ -12,7 +12,7 @@ const EventBannerContainer = styled.div`
     display: flex;
     flex-direction: column;
     font-family: Switzer-Variable;
-    font-size: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.xSmall.fontSize};
     position: relative;
     width: 100%;
     display: flex;
@@ -53,14 +53,14 @@ const MessageView = styled.div`
     margin-right: ${Spacing.margin._12}px;
 `
 const MessageText = styled.span`
-    font-weight: ${Typography.weight._500.fontWeight};
+    font-weight: ${Typography.weight._500};
     color: ${Colors.gray._600};
 `
 const OverflowText = styled.span`
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    font-weight: ${Typography.weight._500.fontWeight};
+    font-weight: ${Typography.weight._500};
     color: ${Colors.gray._700};
 `
 

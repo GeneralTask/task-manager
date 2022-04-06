@@ -20,14 +20,14 @@ const SectionHeaderContainer = styled.div`
 `
 const HeaderText = styled.span`
     margin-right: ${Spacing.margin._8}px;
-    font-size: ${Typography.xLarge.fontSize}px;
+    font-size: ${Typography.xLarge.fontSize};
     font-family: Switzer-Variable;
     padding-left: ${Spacing.padding._4}px;
     border: 2px solid transparent;
 `
 const HeaderTextEditable = styled.input`
     margin-right: ${Spacing.margin._8}px;
-    font-size: ${Typography.xLarge.fontSize}px;
+    font-size: ${Typography.xLarge.fontSize};
     font-family: Switzer-Variable;
     padding-left: ${Spacing.padding._4}px;
     border: none;

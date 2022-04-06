@@ -44,7 +44,7 @@ const UnlinkContainer = styled.div`
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
 `
 const XSmallFontSpan = styled.span`
-    font-size: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.xSmall.fontSize};
 `
 const FullWidthSelect = styled.select`
     width: 100%;

@@ -13,8 +13,8 @@ const RoundedButton = styled.button<{ hasBorder: boolean, textStyle: 'light' | '
     border-radius: ${Border.radius.large};
     height: 100%;
     color: ${(props) => (props.textStyle === 'light' ? Colors.white : Colors.black)};
-    font-weight: ${Typography.weight._600.fontWeight};
-    font-size: ${Typography.xSmall.fontSize}px;
+    font-weight: ${Typography.weight._600};
+    font-size: ${Typography.xSmall.fontSize};
     white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
     overflow: hidden;
     text-overflow: ellipsis;
