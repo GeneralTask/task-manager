@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
-
+import { useCallback, useEffect, useRef } from 'react'
 import ActionValue from '../atoms/ActionValue'
 import DatePicker from './DatePicker'
 import { Icon } from '../atoms/Icon'
@@ -9,11 +8,12 @@ import { Spacing } from '../../styles'
 import { TTask } from '../../utils/types'
 import TimeEstimatePicker from './TimeEstimatePicker'
 import { icons } from '../../styles/images'
-import styled from 'styled-components/native'
+import styled from 'styled-components'
 import { useClickOutside } from '../../utils/hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
-const ActionButton = styled.Pressable`
+const ActionButton = styled(NoStyleButton)`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -30,12 +30,16 @@ interface ActionOptionProps {
     setIsShown: (isShown: boolean) => void
 }
 const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: ActionOptionProps) => {
-    const actionRef = React.useRef<HTMLDivElement>(null)
+    const actionRef = useRef<HTMLDivElement>(null)
     useClickOutside(actionRef, () => setIsShown(false))
-
     useEffect(() => {
         setIsShown(false)
     }, [task])
+
+    // show action when keyboardShortcut is pressed
+    useKeyboardShortcut(keyboardShortcut, useCallback(() => setIsShown(!isShown), [isShown]))
+    // when the action is shown, close action when KEYBOARD_SHORTCUTS.CLOSE is pressed
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.CLOSE, useCallback(() => setIsShown(false), []), !isShown)
 
     const { icon, component, actionString } = ((action: 'date_picker' | 'time_allocated' | 'label') => {
         if (action === 'date_picker') {
@@ -66,15 +70,10 @@ const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: A
         }
     })(action)
 
-    // show action when keyboardShortcut is pressed
-    useKeyboardShortcut(keyboardShortcut, useCallback(() => setIsShown(!isShown), [isShown]))
-
-    // when the action is shown, close action when KEYBOARD_SHORTCUTS.CLOSE is pressed
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.CLOSE, useCallback(() => setIsShown(false), []), !isShown)
 
     return (
         <div ref={actionRef}>
-            <ActionButton onPress={() => setIsShown(!isShown)}>
+            <ActionButton onClick={() => setIsShown(!isShown)}>
                 {actionString ? <ActionValue value={actionString} /> : <Icon source={icon} size="small" />}
                 {isShown && component}
             </ActionButton>
