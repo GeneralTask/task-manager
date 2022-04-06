@@ -37,7 +37,7 @@ const TaskSectionViewContainer = styled.div`
 `
 
 const TaskSection = () => {
-    const doubleRef = useRef<HTMLDivElement>(null)
+    const bannerTaskSectionRef = useRef<HTMLDivElement>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
     const { data: taskSections, isLoading } = useGetTasks()
@@ -72,23 +72,22 @@ const TaskSection = () => {
 
     useEffect(() => {
         const listener = (event: MouseEvent) => {
-            if (!doubleRef.current || !sectionViewRef.current) return
-            if (doubleRef.current.contains(event.target as Node) && !sectionViewRef.current.contains(event.target as Node)) {
+            if (!bannerTaskSectionRef.current || !sectionViewRef.current) return
+            if (bannerTaskSectionRef.current.contains(event.target as Node) && !sectionViewRef.current.contains(event.target as Node)) {
                 dispatch(setSelectedItemId(null))
                 hideDetailsView()
             }
         }
         document.addEventListener('click', listener, true)
         return () => document.removeEventListener('click', listener, true)
-    }, [doubleRef, sectionViewRef])
+    }, [bannerTaskSectionRef, sectionViewRef])
 
     return (
         <>
-            <BannerAndSectionContainer ref={doubleRef}>
+            <BannerAndSectionContainer ref={bannerTaskSectionRef}>
                 <EventBanner date={DateTime.now()} />
                 <ScrollViewMimic>
-
-                    <TaskSectionViewContainer >
+                    <TaskSectionViewContainer>
                         {isLoading || !currentSection ? (
                             <Loading />
                         ) : (
