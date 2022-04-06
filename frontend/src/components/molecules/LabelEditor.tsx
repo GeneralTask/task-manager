@@ -33,7 +33,7 @@ export const LabelEditorContainer = styled.div`
 
 export const Header = styled.div`
     font-family: Switzer-Variable;
-    font-weight: ${weight._600.fontWeight};
+    font-weight: ${weight._600};
     font-size: ${xxSmall.fontSize}px;
     line-height: ${xxSmall.lineHeight}px;
     letter-spacing: 0.12em;

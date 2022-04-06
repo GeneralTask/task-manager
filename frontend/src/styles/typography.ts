@@ -1,8 +1,3 @@
-export const fontSize = {
-    header: 58,
-    subheader: 27,
-}
-
 export const xxSmall = {
     fontSize: 13,
     lineHeight: 16,
@@ -39,13 +34,12 @@ export const xxLarge = {
 }
 
 export const weight = {
-    _400: {
-        fontWeight: '400',
-    },
-    _500: {
-        fontWeight: '500',
-    },
-    _600: {
-        fontWeight: '600',
-    }
+    _400: '400',
+    _500: '500',
+    _600: '600',
+}
+
+export const landingScreen = {
+    header: 58,
+    subheader: 27,
 }

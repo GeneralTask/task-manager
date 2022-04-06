@@ -30,7 +30,7 @@ export const TitleInput = styled.textarea`
     color: ${Colors.gray._600};
     font: inherit;
     font-size: ${Typography.large.fontSize}px;
-    font-weight: ${Typography.weight._600.fontWeight};
+    font-weight: ${Typography.weight._600};
     border: none;
     resize: none;
     outline: none;
@@ -47,7 +47,7 @@ export const Title = styled.div`
     color: ${Colors.gray._600};
     font: inherit;
     font-size: ${Typography.xSmall.fontSize}px;
-    font-weight: ${Typography.weight._600.fontWeight};
+    font-weight: ${Typography.weight._600};
     border: none;
     resize: none;
     outline: none;

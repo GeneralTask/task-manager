@@ -22,7 +22,7 @@ const LinkContainer = styled.div<{ isSelected: boolean, isOver: boolean }>`
     ${(props) => (props.isSelected ? `background-color: ${Colors.gray._50};` : '')};
 `
 const SectionTitle = styled.span<{ isSelected: boolean }>`
-    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
+    font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};
     font-size: ${Typography.xSmall.fontSize}px;
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
     overflow: hidden;
@@ -32,7 +32,7 @@ const SectionTitle = styled.span<{ isSelected: boolean }>`
     flex: 1;
 `
 const SectionTitleItemCount = styled.span<{ isSelected: boolean }>`
-    font-weight: ${(props) => (props.isSelected ? weight._600.fontWeight : weight._500.fontWeight)};
+    font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
     margin-right: 9px;
 `

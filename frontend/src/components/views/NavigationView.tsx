@@ -43,7 +43,7 @@ const IconWidth = styled.div`
     width: fit-content;
 `
 const AddSectionInputView = styled.div`
-    font-weight: ${weight._600.fontWeight};
+    font-weight: ${weight._600};
     margin-left: ${margin._8}px;
     flex: 1;
 `

@@ -59,12 +59,12 @@ const AgreementText = styled.div<{ required?: boolean }>`
     margin-left: ${Spacing.margin._8}px;
     font-family: 'Switzer-Variable';
     font-size: ${Typography.xSmall.fontSize}px;
-    font-weight: ${Typography.weight._500.fontWeight};
+    font-weight: ${Typography.weight._500};
     color: ${Colors.gray._600};
 `
 const RedAsterisk = styled.span`
     color: ${Colors.red._1};
-    font-weight: ${Typography.weight._500.fontWeight};
+    font-weight: ${Typography.weight._500};
 `
 const SubmitButtonContainer = styled.div`
     display: flex;
