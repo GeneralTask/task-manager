@@ -65,6 +65,27 @@ function CalendarTimeTable(): JSX.Element {
     )
 }
 
+function WeekCalendarEvents(date: DateTime, dayOffset: number, groups: TEvent[][]): JSX.Element {
+    const tmpDate = date.plus({ days: dayOffset })
+    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
+    return (
+        <DayAndHeaderContainer key={dayOffset}>
+            {expandedCalendar &&
+                <CalendarDayHeader>
+                    <DayHeaderText isToday={tmpDate.startOf('day').equals(DateTime.now().startOf('day'))}>{tmpDate.toFormat('ccc dd')}</DayHeaderText>
+                </CalendarDayHeader>
+            }
+            <DayContainer key={dayOffset}>
+                {groups.map((group, index) => (
+                    <CollisionGroupColumns key={index} events={group} date={tmpDate} />
+                ))}
+                <TimeIndicator />
+                <CalendarDayTable />
+            </DayContainer>
+        </DayAndHeaderContainer>
+    )
+}
+
 interface CalendarEventsProps {
     date: DateTime
     numDays: number
@@ -75,16 +96,28 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
 
     const events: TEvent[] = []
-    for (let i = -1; i <= 1; i++) {
-        const { data: newEvents } = useGetEvents(
-            {
-                startISO: date.startOf('month').plus({ months: i }).toISO(),
-                endISO: date.endOf('month').plus({ months: i }).toISO(),
-            },
-            'calendar'
-        )
-        events.push(...newEvents ?? [])
-    }
+    const { data: eventsBefore } = useGetEvents(
+        {
+            startISO: date.startOf('month').minus({ months: 1 }).toISO(),
+            endISO: date.endOf('month').minus({ months: 1 }).toISO(),
+        },
+        'calendar'
+    )
+    const { data: eventsThisMonth } = useGetEvents(
+        {
+            startISO: date.startOf('month').toISO(),
+            endISO: date.endOf('month').toISO(),
+        },
+        'calendar'
+    )
+    const { data: eventsAfter } = useGetEvents(
+        {
+            startISO: date.startOf('month').plus({ months: 1 }).toISO(),
+            endISO: date.endOf('month').plus({ months: 1 }).toISO(),
+        },
+        'calendar'
+    )
+    events.push(...eventsBefore ?? [], ...eventsThisMonth ?? [], ...eventsAfter ?? [])
 
     useEffect(() => {
         if (eventsContainerRef.current) {
@@ -113,25 +146,7 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
                 </TimeContainer>
             </TimeAndHeaderContainer>
             {
-                allGroups.map((groups, dayOffset) => {
-                    const tmpDate = date.plus({ days: dayOffset })
-                    return (
-                        <DayAndHeaderContainer key={dayOffset}>
-                            {expandedCalendar &&
-                                <CalendarDayHeader>
-                                    <DayHeaderText isToday={tmpDate.startOf('day').equals(DateTime.now().startOf('day'))}>{tmpDate.toFormat('ccc dd')}</DayHeaderText>
-                                </CalendarDayHeader>
-                            }
-                            <DayContainer key={dayOffset}>
-                                {groups.map((group, index) => (
-                                    <CollisionGroupColumns key={index} events={group} date={date.plus({ days: dayOffset })} />
-                                ))}
-                                {/* date.startOf('day').equals(DateTime.now().startOf('day')) && */<TimeIndicator />}
-                                <CalendarDayTable />
-                            </DayContainer>
-                        </DayAndHeaderContainer>
-                    )
-                })
+                allGroups.map((groups, dayOffset) => WeekCalendarEvents(date, dayOffset, groups))
             }
         </AllDaysContainer>
     )
