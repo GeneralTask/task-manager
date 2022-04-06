@@ -1,5 +1,5 @@
 import { Colors } from '../../styles'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 import CreateNewTask from '../molecules/CreateNewTask'
@@ -15,6 +15,8 @@ import { getSectionById } from '../../utils/task'
 import { useInterval } from '../../utils/hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import styled from 'styled-components'
+import { useDispatch } from 'react-redux'
+import { setSelectedItemId } from '../../redux/tasksPageSlice'
 
 const BannerAndSectionContainer = styled.div`
     flex: 1;
@@ -35,14 +37,20 @@ const TaskSectionViewContainer = styled.div`
 `
 
 const TaskSection = () => {
+    const doubleRef = useRef<HTMLDivElement>(null)
+    const sectionViewRef = useRef<HTMLDivElement>(null)
+
     const { data: taskSections, isLoading } = useGetTasks()
     const { refetch: fetchExternalTasks } = useFetchExternalTasks()
+    const dispatch = useDispatch()
 
     useInterval(fetchExternalTasks, TASK_REFETCH_INTERVAL)
 
     const routerSection = useParams().section || ''
     const navigate = useNavigate()
     const params = useParams()
+    const hideDetailsView = useCallback(() => navigate(`/tasks/${params.section}`), [params])
+
 
     const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
     const expandTask = useCallback((itemId: string) => {
@@ -62,14 +70,25 @@ const TaskSection = () => {
         return section?.tasks.find((task) => task.id === params.task)
     }, [params.task, taskSections])
 
+    useEffect(() => {
+        const listener = (event: MouseEvent) => {
+            if (!doubleRef.current || !sectionViewRef.current) return
+            if (doubleRef.current.contains(event.target as Node) && !sectionViewRef.current.contains(event.target as Node)) {
+                dispatch(setSelectedItemId(null))
+                hideDetailsView()
+            }
+        }
+        document.addEventListener('click', listener, true)
+        return () => document.removeEventListener('click', listener, true)
+    }, [doubleRef, sectionViewRef])
 
     return (
         <>
-            <BannerAndSectionContainer>
+            <BannerAndSectionContainer ref={doubleRef}>
                 <EventBanner date={DateTime.now()} />
                 <ScrollViewMimic>
 
-                    <TaskSectionViewContainer>
+                    <TaskSectionViewContainer >
                         {isLoading || !currentSection ? (
                             <Loading />
                         ) : (
@@ -80,24 +99,27 @@ const TaskSection = () => {
                                     refetch={fetchExternalTasks}
                                     taskSectionId={currentSection.id}
                                 />
-                                {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
-                                {currentSection.tasks.map((task, index) => {
-                                    return (
-                                        <TaskDropContainer
-                                            key={index}
-                                            task={task}
-                                            taskIndex={index}
-                                            sectionId={currentSection.id}
-                                        >
-                                            <Task
+                                <div ref={sectionViewRef}>
+                                    {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
+                                    {currentSection.tasks.map((task, index) => {
+                                        return (
+                                            <TaskDropContainer
+                                                key={index}
                                                 task={task}
-                                                dragDisabled={currentSection.is_done}
-                                                index={index}
+                                                taskIndex={index}
                                                 sectionId={currentSection.id}
-                                            />
-                                        </TaskDropContainer>
-                                    )
-                                })}
+                                            >
+                                                <Task
+                                                    task={task}
+                                                    dragDisabled={currentSection.is_done}
+                                                    index={index}
+                                                    sectionId={currentSection.id}
+
+                                                />
+                                            </TaskDropContainer>
+                                        )
+                                    })}
+                                </div>
                             </>
                         )}
                     </TaskSectionViewContainer>
