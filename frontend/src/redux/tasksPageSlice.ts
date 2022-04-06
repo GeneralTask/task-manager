@@ -1,5 +1,4 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-
 import { ModalEnum } from '../utils/enums'
 
 export interface TasksPageState {
@@ -7,6 +6,7 @@ export interface TasksPageState {
         show_modal: ModalEnum
     },
     selected_item_id: string | null,
+    expanded_calendar: boolean,
 }
 
 const initialState: TasksPageState = {
@@ -14,6 +14,7 @@ const initialState: TasksPageState = {
         show_modal: ModalEnum.NONE,
     },
     selected_item_id: null,
+    expanded_calendar: false,
 }
 
 export const tasksPageSlice = createSlice({
@@ -26,11 +27,15 @@ export const tasksPageSlice = createSlice({
         setSelectedItemId(state, action: PayloadAction<string | null>) {
             state.selected_item_id = action.payload
         },
+        setExpandedCalendar(state, action: PayloadAction<boolean>) {
+            state.expanded_calendar = action.payload
+        }
     },
 })
 
 export const {
     setShowModal,
+    setExpandedCalendar,
     setSelectedItemId,
 } = tasksPageSlice.actions
 

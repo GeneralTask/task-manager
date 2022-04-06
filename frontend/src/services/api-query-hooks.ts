@@ -478,8 +478,8 @@ const markMessageAsTask = async (data: { id: string, isTask: boolean }) => {
 /**
  * EVENTS QUERIES
  */
-export const useGetEvents = (params: { startISO: string, endISO: string }, calendarType: 'sidebar' | 'banner') => {
-    return useQuery<TEvent[]>(['events', calendarType], () => getEvents(params))
+export const useGetEvents = (params: { startISO: string, endISO: string }, calendarType: 'calendar' | 'banner') => {
+    return useQuery<TEvent[]>(['events', calendarType, params.startISO], () => getEvents(params))
 }
 const getEvents = async (params: { startISO: string, endISO: string }) => {
     try {
