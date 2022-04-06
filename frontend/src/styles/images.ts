@@ -30,7 +30,7 @@ export const icons: { [key: string]: NodeRequire } = {
     mark_as_task: require('../assets/mark_as_task.png'),
     mark_as_task_active: require('../assets/mark_as_task_active.png'),
     messages: require('../assets/messages.png'),
-    plus: require('../assets/plus.png'),
+    plus: require('../assets/plus.svg'),
     pencil: require('../assets/pencil.png'),
     spinner: require('../assets/spinner.png'),
     task_complete: require('../assets/task_complete.png'),
