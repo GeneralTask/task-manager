@@ -12,6 +12,7 @@ import TooltipWrapper from '../atoms/TooltipWrapper'
 import { logos } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import styled from 'styled-components'
 
 interface TaskDetailsProps {
     task: TTask
@@ -80,6 +81,10 @@ const TaskDetails = (props: TaskDetailsProps) => {
     const handleBlur = () => {
         modifyTask({ id: task.id, title: titleInput, body: bodyInput })
     }
+
+    const MarginRight = styled.div`
+        margin-right: 10px;
+`
  
     return (
         <DetailsTemplate
@@ -87,13 +92,13 @@ const TaskDetails = (props: TaskDetailsProps) => {
                 <>
                     <Icon source={logos[task.source.logo_v2]} size="small" />
                     <FlexGrowView />
-                    <div style={{margin: 10}}>
+                    <MarginRight>
                     {task.deeplink && 
                         <a href={task.deeplink} target="_blank">
                         <RoundedGeneralButton textStyle="dark" value={"View in " + task.source.name} />
                         </a>
                     }
-                    </div>
+                    </MarginRight>
                     <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
                         <ActionOption
                             isShown={datePickerShown}
