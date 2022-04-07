@@ -45,7 +45,7 @@ interface NavigationLinkProps {
     isCurrentPage: boolean
     link: string
     title: string
-    icon?: NodeRequire
+    icon?: string
     taskSection?: TTaskSection
     droppable?: boolean
 }

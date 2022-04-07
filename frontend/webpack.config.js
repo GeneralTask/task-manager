@@ -1,14 +1,8 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable no-undef */
 const path = require('path');
-const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-// App directory
-const appDirectory = fs.realpathSync(process.cwd());
-
-// Gets absolute path of file within app directory
-const resolveAppPath = relativePath => path.resolve(appDirectory, relativePath);
-
-// Host
 const host = process.env.HOST || 'localhost';
 
 // Required for babel-preset-react-app
@@ -55,9 +49,7 @@ module.exports = {
         static: {
             directory: path.join(__dirname, 'public'),
         },
-        // Enable compression
         compress: true,
-        // Enable hot reloading
         hot: true,
         host,
         port: 3000,
