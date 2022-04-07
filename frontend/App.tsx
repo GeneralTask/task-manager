@@ -1,5 +1,3 @@
-// import './src/styles/App.css'
-
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import React, { Suspense, lazy } from 'react'
