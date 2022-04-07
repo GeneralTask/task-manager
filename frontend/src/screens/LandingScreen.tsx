@@ -14,7 +14,7 @@ import { useAppSelector } from '../redux/hooks'
 
 const LandingScreenContainer = styled.div`
     background-color: ${Colors.white};
-    height: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     font-family: Switzer-Variable;
