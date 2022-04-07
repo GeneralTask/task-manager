@@ -1,7 +1,6 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import React, { Suspense, lazy } from 'react'
-import { hot } from "react-hot-loader"
 
 import LandingScreen from './src/screens/LandingScreen'
 import Loading from './src/components/atoms/Loading'
@@ -58,4 +57,4 @@ const App = () => {
     )
 }
 
-export default hot(module)(App)
+export default App

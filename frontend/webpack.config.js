@@ -22,7 +22,6 @@ module.exports = {
                 test: /\.ts$|tsx/,
                 use: ["ts-loader"],
                 exclude: /node_modules/,
-                // include: resolveAppPath('src'),
             },
             {
                 test: /\.js$/,
@@ -50,6 +49,7 @@ module.exports = {
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist'),
+        publicPath: '/',
     },
     devServer: {
         static: {
@@ -61,6 +61,7 @@ module.exports = {
         hot: true,
         host,
         port: 3000,
+        historyApiFallback: true,
     },
     plugins: [
         new HtmlWebpackPlugin({

@@ -1,11 +1,9 @@
-// import App from '../App'
-import ReactDOM from 'react-dom'
+import App from '../App';
 import React from 'react'
-// import NoStyleButton from './components/atoms/buttons/NoStyleButton';
-import GoogleSignInButton from './components/atoms/buttons/GoogleSignInButton';
+import ReactDOM from 'react-dom'
 
 console.log('what')
 ReactDOM.render(
-    < GoogleSignInButton />,
+    < App />,
     document.getElementById('root')
 )

@@ -20,7 +20,7 @@ const GoogleSignInButton = () => {
     return (
         <GoogleButtonContainer>
             <a href={LOGIN_URL}>
-                <GoogleSignInImage src={require("../../../../public/google_sign_in.png")} />
+                <GoogleSignInImage src="../google_sign_in.png" />
             </a>
         </GoogleButtonContainer>
     )
