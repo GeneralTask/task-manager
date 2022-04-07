@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef } from 'react'
+
 import ActionValue from '../atoms/ActionValue'
 import DatePicker from './DatePicker'
 import { Icon } from '../atoms/Icon'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import LabelEditor from './LabelEditor'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import React from 'react'
 import { Spacing } from '../../styles'
 import { TTask } from '../../utils/types'
 import TimeEstimatePicker from './TimeEstimatePicker'
@@ -11,8 +14,6 @@ import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import { useClickOutside } from '../../utils/hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import React from 'react'
 
 const ActionButton = styled(NoStyleButton)`
     display: flex;
@@ -21,6 +22,7 @@ const ActionButton = styled(NoStyleButton)`
     justify-content: center;
     padding: ${Spacing.padding._4}px;
     margin-right: ${Spacing.margin._8}px;
+    position: relative;
 `
 
 interface ActionOptionProps {

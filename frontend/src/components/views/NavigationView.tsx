@@ -32,12 +32,11 @@ const NavigationViewHeader = styled.div`
 const AddSectionView = styled.div`
     display: flex;
     flex-direction: row;
-    padding:  ${padding._4}px ${padding._8}px;
+    padding: ${padding._4}px ${padding._8}px;
     border-radius: ${Border.radius.small};
     border-width: 2px;
     border-style: solid;
     border-color: transparent;
-    box-sizing: border-box;
     align-items: center;
 `
 const IconWidth = styled.div`
