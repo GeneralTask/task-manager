@@ -449,7 +449,7 @@ export const useMarkMessageAsTask = () => {
 
                 const response: TMessageResponse | undefined = queryClient.getQueryData('messages')
                 if (!response) return
-                console.log(response)
+
                 for (const page of response.pages) {
                     if (page == null) break
                     for (const message of page) {
