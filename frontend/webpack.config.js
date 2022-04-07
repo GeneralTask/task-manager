@@ -26,12 +26,6 @@ module.exports = {
                 }
             },
             {
-                test: /\.(png|svg|jpg|jpeg|gif|ttf)$/i,
-                type: 'asset/resource',
-                exclude: /node_modules/,
-                loader: 'url-loader',
-            },
-            {
                 test: /\.css$/i,
                 use: ['style-loader', 'css-loader'],
                 exclude: /node_modules/,
