@@ -1,5 +1,4 @@
-// https://www.sitepoint.com/react-with-typescript-best-practices/
-{
+{ // https://www.sitepoint.com/react-with-typescript-best-practices/
   "compilerOptions": {
     "target": "es5", // Specify ECMAScript target version
     "lib": [
@@ -20,7 +19,6 @@
     "noEmit": false, // Do not emit output (meaning do not compile code, only perform type checking)
     "jsx": "react", // Support JSX in .tsx files
     "sourceMap": true, // Generate corrresponding .map file
-    "declaration": true, // Generate corresponding .d.ts file
     "noUnusedLocals": true, // Report errors on unused locals
     "noUnusedParameters": true, // Report errors on unused parameters
     "incremental": true, // Enable incremental compilation by reading/writing information from prior compilations to a file on disk
@@ -29,5 +27,5 @@
   "include": [
     "src/**/*" // *** The files TypeScript should type check ***
   ],
-  "exclude": ["node_modules", "build"] // *** The files to not type check ***
+  "exclude": ["node_modules", "build", "dist"] // *** The files to not type check ***
 }
