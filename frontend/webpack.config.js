@@ -35,7 +35,7 @@ module.exports = {
                 test: /\.(png|svg|jpg|jpeg|gif|ttf)$/i,
                 type: 'asset/resource',
                 exclude: /node_modules/,
-                loader: 'file-loader',
+                loader: 'url-loader',
             },
             {
                 test: /\.css$/i,

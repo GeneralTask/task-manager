@@ -1,5 +1,5 @@
-import React from 'react'
 import { LOGIN_URL } from '../../../constants'
+import React from 'react'
 import styled from 'styled-components'
 
 const googleButtonDimensions = {
@@ -20,7 +20,7 @@ const GoogleSignInButton = () => {
     return (
         <GoogleButtonContainer>
             <a href={LOGIN_URL}>
-                <GoogleSignInImage src={require("google_sign_in.png")} />
+                <GoogleSignInImage src={require("../../../../public/google_sign_in.png")} />
             </a>
         </GoogleButtonContainer>
     )

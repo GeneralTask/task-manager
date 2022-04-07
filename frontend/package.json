@@ -48,7 +48,8 @@
     "react-tooltip": "^4.2.21",
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
     "sanitize-html": "^2.7.0",
-    "styled-components": "^5.3.3"
+    "styled-components": "^5.3.3",
+    "url-loader": "^4.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",
