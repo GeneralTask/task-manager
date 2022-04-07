@@ -4,13 +4,15 @@ import React, { createRef, useEffect, useState } from 'react'
 import ActionOption from '../molecules/ActionOption'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import { Icon } from '../atoms/Icon'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
+import { DEEPLINK_LOGIN_URL, KEYBOARD_SHORTCUTS } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import { logos } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import { Navigate } from 'react-router-dom'
 
 interface TaskDetailsProps {
     task: TTask
@@ -79,13 +81,20 @@ const TaskDetails = (props: TaskDetailsProps) => {
     const handleBlur = () => {
         modifyTask({ id: task.id, title: titleInput, body: bodyInput })
     }
-
+    console.log(task.deeplink)
     return (
         <DetailsTemplate
             top={
                 <>
                     <Icon source={logos[task.source.logo_v2]} size="small" />
                     <FlexGrowView />
+                    <div style={{margin: 10}}>
+                    {task.deeplink && 
+                        <a href={task.deeplink} target="_blank">
+                        <RoundedGeneralButton textStyle="dark" value={"View in " + task.source.name} />
+                        </a>
+                    }
+                    </div>
                     <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
                         <ActionOption
                             isShown={datePickerShown}
