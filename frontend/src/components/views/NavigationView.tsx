@@ -58,13 +58,13 @@ const GapView = styled.div`
 
 const NavigationView = () => {
     const dispatch = useAppDispatch()
-    const { data: taskSections, isLoading } = useGetTasks()
+    const { data: taskSections } = useGetTasks()
     const { section: sectionIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
     const { mutate: addTaskSection } = useAddTaskSection()
     const { pathname } = useLocation()
 
-    const showLoadingSections = isLoading || !taskSections
+    // const showLoadingSections = isLoading || !taskSections
 
     return (
         <NavigationViewContainer>

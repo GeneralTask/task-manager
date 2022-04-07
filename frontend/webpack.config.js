@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 // App directory
 const appDirectory = fs.realpathSync(process.cwd());
@@ -18,8 +19,27 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
-                use: 'ts-loader',
+                test: /\.ts$|tsx/,
+                use: ["ts-loader"],
+                exclude: /node_modules/,
+                // include: resolveAppPath('src'),
+            },
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: "babel-loader"
+                }
+            },
+            {
+                test: /\.(png|svg|jpg|jpeg|gif|ttf)$/i,
+                type: 'asset/resource',
+                exclude: /node_modules/,
+                loader: 'file-loader',
+            },
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader'],
                 exclude: /node_modules/,
             },
         ],
@@ -42,4 +62,9 @@ module.exports = {
         host,
         port: 3000,
     },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: './public/index.html'
+        })
+    ]
 };

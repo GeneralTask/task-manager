@@ -1,5 +1,6 @@
 import { Colors, Spacing, Typography } from '../../styles'
 import styled from 'styled-components'
+import React from 'react'
 
 const DetailsViewContainer = styled.div`
     display: flex;

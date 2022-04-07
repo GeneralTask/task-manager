@@ -12,6 +12,7 @@ import styled from 'styled-components'
 import { useClickOutside } from '../../utils/hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import React from 'react'
 
 const ActionButton = styled(NoStyleButton)`
     display: flex;
