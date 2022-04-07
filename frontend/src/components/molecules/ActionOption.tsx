@@ -11,15 +11,16 @@ import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import { useClickOutside } from '../../utils/hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
-const ActionButton = styled(NoStyleButton)`
+const ActionButton = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
     padding: ${Spacing.padding._4}px;
     margin-right: ${Spacing.margin._8}px;
+    position: relative;
+    cursor: pointer;
 `
 
 interface ActionOptionProps {
