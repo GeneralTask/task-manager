@@ -10,7 +10,7 @@ import (
 func (api *API) EventCreate(c *gin.Context) {
 	sourceID := c.Param("source_id")
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
-	if err != nil || !taskSourceResult.Details.IsCreatable {
+	if err != nil || !taskSourceResult.Details.CanCreateTask {
 		Handle404(c)
 		return
 	}

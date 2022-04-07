@@ -95,7 +95,7 @@ func (api *API) emailToMessage(e *database.Item) *message {
 			Name:          messageSourceResult.Details.Name,
 			Logo:          messageSourceResult.Details.Logo,
 			LogoV2:        messageSourceResult.Details.LogoV2,
-			IsCompletable: messageSourceResult.Details.IsCreatable,
+			IsCompletable: messageSourceResult.Details.CanCreateTask,
 			IsReplyable:   messageSourceResult.Details.IsReplyable,
 		},
 	}
