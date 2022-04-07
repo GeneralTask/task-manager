@@ -2,17 +2,11 @@
   "name": "frontend",
   "version": "1.0.2",
   "scripts": {
-    "start": "webpack-dev-server --config ./webpack.config.js --mode=development",
-    "android": "expo start --android",
-    "ios": "WEB_PORT=3000 expo start --ios",
-    "web": "WEB_PORT=3000 expo start --web",
-    "eject": "expo eject",
+    "start": "webpack-dev-server --config ./webpack.config.js --mode=development --hot",
+    "build": "webpack --config ./webpack.config.js --mode=production",
     "prettier:fix": "prettier --write",
     "lint": "eslint --fix",
     "test": "jest"
-  },
-  "jest": {
-    "preset": "jest-expo"
   },
   "lint-staged": {
     "*.tsx": [
