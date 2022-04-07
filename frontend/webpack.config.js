@@ -58,11 +58,11 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: './public/index.html'
+            template: './src/index.html'
         }),
         new CopyWebpackPlugin({
             patterns: [
-                { from: 'public', to: 'public' }
+                { from: 'public', to: '' }
             ]
         })
     ]
