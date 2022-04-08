@@ -1,12 +1,12 @@
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
-import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE } from '../../constants'
 import { DateTime } from 'luxon'
-import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
 import React from 'react'
 import styled from 'styled-components'
+import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE } from '../../constants'
 import { useGetEvents } from '../../services/api-query-hooks'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { useInterval } from '../../utils/hooks'
 import { TEvent } from '../../utils/types'
+import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
 
 const EventBannerContainer = styled.div`
     display: flex;
@@ -93,18 +93,26 @@ interface EventBannersProps {
 const EventBanners = ({ date }: EventBannersProps) => {
     const { data: events, refetch } = useGetEvents(
         {
-            startISO: date.toISO(),
-            endISO: date.plus({ minutes: 15 }).toISO(),
+            startISO: date.startOf('day').toISO(),
+            endISO: date.endOf('day').plus({ minutes: 15 }).toISO(),
         },
         'banner'
     )
     useInterval(refetch, EVENTS_REFETCH_INTERVAL)
 
-    if (!events || events.length === 0) return null
+    const eventsWithin15Minutes = events?.filter(event => {
+        const eventStart = DateTime.fromISO(event.datetime_start)
+        const eventEnd = DateTime.fromISO(event.datetime_end)
+        return (
+            eventStart < DateTime.now().plus({ minutes: 15 }) && eventEnd > DateTime.now()
+        )
+    })
+
+    if (!eventsWithin15Minutes || eventsWithin15Minutes.length === 0) return null
     return (
         <EventBannerContainer>
             {
-                events.map((event) =>
+                eventsWithin15Minutes.map((event) =>
                     <EventBanner event={event} key={event.id} />
                 )
             }
