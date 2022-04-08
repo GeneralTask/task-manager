@@ -50,7 +50,7 @@ const Messages = () => {
     // Tell the backend to refetch messages from the server every 60 seconds
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
-    const messages = useMemo(() => data?.pages.flat().filter(message => (message != null && message.source.account_id === currentAccountDisplayId) ?? []), [data])
+    const messages = useMemo(() => data?.pages.flat().filter(message => (message != null && message.source.account_id === currentAccountDisplayId)) ?? [], [data])
 
     const expandedMessage = useMemo(() => {
         return messages?.find((message) => message.id === messageId)
