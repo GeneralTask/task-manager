@@ -29,7 +29,7 @@ apiClient.interceptors.response.use(response => {
     if (error.response.status === 401) {
         axios.defaults.headers.common['Authorization'] = ''
         Cookies.remove('authToken')
-        window.location.href = '/'
+        window.location.href = REACT_APP_FRONTEND_BASE_URL
     }
     return error
 })
