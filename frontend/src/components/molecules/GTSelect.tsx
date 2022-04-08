@@ -64,7 +64,7 @@ interface Props {
     placeholder?: string
     pattern?: string
     invalidInput?: string
-    inputIcon?: NodeRequire
+    inputIcon?: string
 }
 
 function GTSelect(props: Props): JSX.Element {
