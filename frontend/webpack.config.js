@@ -49,6 +49,9 @@ module.exports = {
         host,
         port: 3000,
         historyApiFallback: true,
+        client: {
+            overlay: false,
+        },
     },
     plugins: [
         new HtmlWebpackPlugin({
