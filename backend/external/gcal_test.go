@@ -416,15 +416,15 @@ func TestCreateNewEvent(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		eventCreateObj := EventCreateObject{
-			AccountID:     "test_account_id",
-			Summary:       "test summary",
-			Location:      "test location",
-			Description:   "test description",
-			TimeZone:      "test timezone",
-			DatetimeStart: testutils.CreateTimestamp("2019-04-20"),
-			DatetimeEnd:   testutils.CreateTimestamp("2020-04-20"),
-			Attendees:     []Attendee{{Name: "test attendee", Email: "test_attendee@generaltask.com"}},
-			AddHangouts:   true,
+			AccountID:         "test_account_id",
+			Summary:           "test summary",
+			Location:          "test location",
+			Description:       "test description",
+			TimeZone:          "test timezone",
+			DatetimeStart:     testutils.CreateTimestamp("2019-04-20"),
+			DatetimeEnd:       testutils.CreateTimestamp("2020-04-20"),
+			Attendees:         []Attendee{{Name: "test attendee", Email: "test_attendee@generaltask.com"}},
+			AddConferenceCall: false,
 		}
 		expectedRequestEvent := calendar.Event{
 			Attendees: []*calendar.EventAttendee{{
@@ -446,7 +446,48 @@ func TestCreateNewEvent(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 			},
 		}
-		googleCalendar.CreateNewEvent(userID, "exampleAccountID", eventCreateObj)
+		err := googleCalendar.CreateNewEvent(userID, "exampleAccountID", eventCreateObj)
+		assert.NoError(t, err)
+	})
+	t.Run("SuccessWithConferenceCall", func(t *testing.T) {
+		userID := primitive.NewObjectID()
+
+		eventCreateObj := EventCreateObject{
+			AccountID:         "test_account_id",
+			Summary:           "test summary",
+			Location:          "test location",
+			Description:       "test description",
+			TimeZone:          "test timezone",
+			DatetimeStart:     testutils.CreateTimestamp("2019-04-20"),
+			DatetimeEnd:       testutils.CreateTimestamp("2020-04-20"),
+			Attendees:         []Attendee{{Name: "test attendee", Email: "test_attendee@generaltask.com"}},
+			AddConferenceCall: true,
+		}
+		expectedRequestEvent := calendar.Event{
+			Attendees: []*calendar.EventAttendee{{
+				DisplayName: "test attendee",
+				Email:       "test_attendee@generaltask.com",
+			}},
+			Description: "test description",
+			Start:       &calendar.EventDateTime{Date: "", DateTime: "2019-04-20T00:00:00Z", TimeZone: "test timezone"},
+			End:         &calendar.EventDateTime{Date: "", DateTime: "2020-04-20T00:00:00Z", TimeZone: "test timezone"},
+			Location:    "test location",
+			Summary:     "test summary",
+			ConferenceData: &calendar.ConferenceData{
+				CreateRequest: &calendar.CreateConferenceRequest{ConferenceSolutionKey: &calendar.ConferenceSolutionKey{Type: "hangoutsMeet"}},
+			},
+		}
+
+		server := getEventCreateServer(t, eventCreateObj, &expectedRequestEvent)
+		defer server.Close()
+
+		googleCalendar := GoogleCalendarSource{
+			Google: GoogleService{
+				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+			},
+		}
+		err := googleCalendar.CreateNewEvent(userID, "exampleAccountID", eventCreateObj)
+		assert.NoError(t, err)
 	})
 }
 
@@ -503,9 +544,12 @@ func getEventCreateServer(t *testing.T, eventCreateObj EventCreateObject, expect
 
 		// Verify request is built correctly
 		assertGcalCalendarEventsEqual(t, expectedEvent, &requestEvent)
-		if eventCreateObj.AddHangouts {
+		if eventCreateObj.AddConferenceCall {
 			assert.NotNil(t, requestEvent.ConferenceData)
-			assert.Equal(t, requestEvent.ConferenceData.CreateRequest.ConferenceSolutionKey.Type, "hangoutsMeet")
+			//assert.Equal(t, requestEvent.ConferenceData.CreateRequest.ConferenceSolutionKey.Type, "hangoutsMeet")
+			assert.Equal(t,
+				requestEvent.ConferenceData.CreateRequest.ConferenceSolutionKey.Type,
+				expectedEvent.ConferenceData.CreateRequest.ConferenceSolutionKey.Type)
 		}
 
 		w.WriteHeader(201)

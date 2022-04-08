@@ -176,7 +176,7 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 		},
 		Attendees: *createGcalAttendees(&event.Attendees),
 	}
-	if event.AddHangouts {
+	if event.AddConferenceCall {
 		gcalEvent.ConferenceData = createConferenceCallRequest()
 	}
 
