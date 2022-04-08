@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"testing"
 	"time"
 
@@ -179,7 +180,7 @@ func TestGetEmails(t *testing.T) {
 		userID,
 		"email_paginate_task_1",
 		"gmail",
-		createTestMessage(userID, "email_paginate_task_1", true, createTimestamp("2019-04-20")),
+		createTestMessage(userID, "email_paginate_task_1", true, *testutils.CreateTimestamp("2019-04-20")),
 	)
 	assert.NoError(t, err)
 
@@ -188,7 +189,7 @@ func TestGetEmails(t *testing.T) {
 		userID,
 		"email_paginate_task_2",
 		"gmail",
-		createTestMessage(userID, "email_paginate_task_2", true, createTimestamp("2017-04-20")),
+		createTestMessage(userID, "email_paginate_task_2", true, *testutils.CreateTimestamp("2017-04-20")),
 	)
 	assert.NoError(t, err)
 
@@ -197,7 +198,7 @@ func TestGetEmails(t *testing.T) {
 		userID,
 		"email_paginate_task_3",
 		"gmail",
-		createTestMessage(userID, "email_paginate_task_3", true, createTimestamp("2020-04-20")),
+		createTestMessage(userID, "email_paginate_task_3", true, *testutils.CreateTimestamp("2020-04-20")),
 	)
 	assert.NoError(t, err)
 
@@ -206,7 +207,7 @@ func TestGetEmails(t *testing.T) {
 		userID,
 		"email_paginate_task_4",
 		"gmail",
-		createTestMessage(userID, "email_paginate_task_4", false, createTimestamp("2016-04-20")),
+		createTestMessage(userID, "email_paginate_task_4", false, *testutils.CreateTimestamp("2016-04-20")),
 	)
 
 	assert.NoError(t, err)
