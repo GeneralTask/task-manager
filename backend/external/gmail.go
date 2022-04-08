@@ -219,7 +219,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			return
 		}
-		log.Printf("jerd thread first email objectid %+v", threadItem.Emails[0].ID)
 	}
 	result <- EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL}
 }
@@ -235,13 +234,10 @@ func updateThreadEmails(threadItem *database.Item, fetchedEmails *[]database.Ema
 	for i, _ := range *fetchedEmails {
 		if emailObjectID, ok := emailIDToObjectID[(*fetchedEmails)[i].EmailID]; ok {
 			(*fetchedEmails)[i].ID = emailObjectID
-			log.Printf("jerd true, %+v", (*fetchedEmails)[i].ID)
 		} else {
 			(*fetchedEmails)[i].ID = primitive.NewObjectID()
-			log.Printf("jerd false, %+v", (*fetchedEmails)[i].ID)
 		}
 	}
-	log.Printf("jerd fetchedEmails first email objectid %+v", (*fetchedEmails)[0].ID)
 
 	threadItem.EmailThread.Emails = *fetchedEmails
 }
