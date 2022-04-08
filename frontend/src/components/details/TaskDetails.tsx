@@ -94,8 +94,8 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     <FlexGrowView />
                     <MarginRight>
                     {task.deeplink && 
-                        <a href={task.deeplink} target="_blank">
-                        <RoundedGeneralButton textStyle="dark" value={"View in " + task.source.name} />
+                        <a href={task.deeplink} target="_blank" rel="noreferrer">
+                        <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`}/>
                         </a>
                     }
                     </MarginRight>
