@@ -103,33 +103,33 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
 
     const events: TEvent[] = []
-    const { data: eventsBefore, refetch: refetchBefore } = useGetEvents(
+    const { data: eventPreviousMonth, refetch: refetchPreviousMonth } = useGetEvents(
         {
             startISO: date.startOf('month').minus({ months: 1 }).toISO(),
             endISO: date.endOf('month').minus({ months: 1 }).toISO(),
         },
         'calendar'
     )
-    const { data: eventsThisMonth, refetch: refetch } = useGetEvents(
+    const { data: eventsCurrentMonth, refetch: refetchCurrentMonth } = useGetEvents(
         {
             startISO: date.startOf('month').toISO(),
             endISO: date.endOf('month').toISO(),
         },
         'calendar'
     )
-    const { data: eventsAfter, refetch: refetchAfter } = useGetEvents(
+    const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(
         {
             startISO: date.startOf('month').plus({ months: 1 }).toISO(),
             endISO: date.endOf('month').plus({ months: 1 }).toISO(),
         },
         'calendar'
     )
-    events.push(...eventsBefore ?? [], ...eventsThisMonth ?? [], ...eventsAfter ?? [])
+    events.push(...eventPreviousMonth ?? [], ...eventsCurrentMonth ?? [], ...eventsNextMonth ?? [])
 
     useInterval(() => {
-        refetchBefore()
-        refetch()
-        refetchAfter()
+        refetchPreviousMonth()
+        refetchCurrentMonth()
+        refetchNextMonth()
     }, EVENTS_REFETCH_INTERVAL, false)
 
     useEffect(() => {
