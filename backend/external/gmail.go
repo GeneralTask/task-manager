@@ -104,6 +104,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				IsThread: true,
 			},
 		}
+		database.GetOrCreateItem(db, userID, thread.Id, TASK_SOURCE_ID_GMAIL, threadItem)
 
 		for _, message := range thread.Messages {
 			sender := ""

@@ -83,12 +83,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	return &message, nil
 }
 
-func GetOrCreateTask(db *mongo.Database,
-	userID primitive.ObjectID,
-	IDExternal string,
-	sourceID string,
-	fieldsToInsertIfMissing interface{},
-) (*TaskBase, error) {
+func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*Item, error) {
 	parentCtx := context.Background()
 	taskCollection := GetTaskCollection(db)
 	dbQuery := bson.M{
@@ -112,19 +107,19 @@ func GetOrCreateTask(db *mongo.Database,
 		return nil, err
 	}
 
-	var task TaskBase
+	var item Item
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = taskCollection.FindOne(
 		dbCtx,
 		dbQuery,
-	).Decode(&task)
+	).Decode(&item)
 	if err != nil {
 		log.Printf("Failed to get task: %v", err)
 		return nil, err
 	}
 
-	return &task, nil
+	return &item, nil
 }
 
 func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {

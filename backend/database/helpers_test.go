@@ -18,7 +18,7 @@ func TestGetTasks(t *testing.T) {
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
 	notUserID := primitive.NewObjectID()
-	task1, err := GetOrCreateTask(
+	task1, err := GetOrCreateItem(
 		db,
 		userID,
 		"123abc",
@@ -35,7 +35,7 @@ func TestGetTasks(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err)
-	task2, err := GetOrCreateTask(
+	task2, err := GetOrCreateItem(
 		db,
 		userID,
 		"123abcde",
@@ -53,7 +53,7 @@ func TestGetTasks(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err)
-	_, err = GetOrCreateTask(
+	_, err = GetOrCreateItem(
 		db,
 		userID,
 		"123abd",
@@ -73,7 +73,7 @@ func TestGetTasks(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err)
-	_, err = GetOrCreateTask(
+	_, err = GetOrCreateItem(
 		db,
 		userID,
 		"123abdef",
@@ -94,7 +94,7 @@ func TestGetTasks(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err)
-	_, err = GetOrCreateTask(
+	_, err = GetOrCreateItem(
 		db,
 		notUserID,
 		"123abe",
@@ -131,7 +131,7 @@ func TestMarkItemComplete(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
-	task1, err := GetOrCreateTask(
+	task1, err := GetOrCreateItem(
 		db,
 		userID,
 		"123abc",
@@ -175,7 +175,7 @@ func TestGetEmails(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
-	task1, err := GetOrCreateTask(
+	task1, err := GetOrCreateItem(
 		db,
 		userID,
 		"email_paginate_task_1",
@@ -184,7 +184,7 @@ func TestGetEmails(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	task2, err := GetOrCreateTask(
+	task2, err := GetOrCreateItem(
 		db,
 		userID,
 		"email_paginate_task_2",
@@ -193,7 +193,7 @@ func TestGetEmails(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	task3, err := GetOrCreateTask(
+	task3, err := GetOrCreateItem(
 		db,
 		userID,
 		"email_paginate_task_3",
@@ -202,7 +202,7 @@ func TestGetEmails(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	task4, err := GetOrCreateTask(
+	task4, err := GetOrCreateItem(
 		db,
 		userID,
 		"email_paginate_task_4",
@@ -282,7 +282,7 @@ func TestGetEmailThreads(t *testing.T) {
 	// Unread threads should be [thread1, thread3]
 	// thread 5 does not belong to user
 
-	thread1, err := GetOrCreateTask(
+	thread1, err := GetOrCreateItem(
 		db,
 		userID,
 		"email_thread_id_1",
@@ -291,7 +291,7 @@ func TestGetEmailThreads(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	thread2, err := GetOrCreateTask(
+	thread2, err := GetOrCreateItem(
 		db,
 		userID,
 		"email_thread_id_2",
@@ -300,7 +300,7 @@ func TestGetEmailThreads(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	thread3, err := GetOrCreateTask(
+	thread3, err := GetOrCreateItem(
 		db,
 		userID,
 		"email_thread_id_3",
@@ -309,7 +309,7 @@ func TestGetEmailThreads(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	thread4, err := GetOrCreateTask(
+	thread4, err := GetOrCreateItem(
 		db,
 		userID,
 		"email_thread_id_4",
@@ -318,7 +318,7 @@ func TestGetEmailThreads(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	_, err = GetOrCreateTask(
+	_, err = GetOrCreateItem(
 		db,
 		notUserID,
 		"email_thread_id_5",
