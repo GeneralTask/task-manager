@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactNode } from 'react'
+import React, { CSSProperties, ReactNode, useState } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
@@ -47,7 +47,7 @@ interface NavigationLinkDropdownProps {
     icon?: string
 }
 const NavigationLinkDropdown = ({ children, isCurrentPage, link, title, icon }: NavigationLinkDropdownProps) => {
-    const [isOpen, setIsOpen] = React.useState(true)
+    const [isOpen, setIsOpen] = useState(true)
     const onNavigate = () => {
         setIsOpen(!isOpen)
     }
