@@ -578,7 +578,6 @@ func getEventCreateServer(t *testing.T, eventCreateObj EventCreateObject, expect
 		assertGcalCalendarEventsEqual(t, expectedEvent, &requestEvent)
 		if eventCreateObj.AddConferenceCall {
 			assert.NotNil(t, requestEvent.ConferenceData)
-			//assert.Equal(t, requestEvent.ConferenceData.CreateRequest.ConferenceSolutionKey.Type, "hangoutsMeet")
 			assert.Equal(t,
 				requestEvent.ConferenceData.CreateRequest.ConferenceSolutionKey.Type,
 				expectedEvent.ConferenceData.CreateRequest.ConferenceSolutionKey.Type)
