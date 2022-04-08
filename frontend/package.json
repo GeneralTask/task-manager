@@ -50,6 +50,7 @@
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",
+    "@cloudflare/wrangler": "^1.19.11",
     "@types/jest": "^27.4.1",
     "@types/js-cookie": "^3.0.1",
     "@types/react": "~17.0.21",

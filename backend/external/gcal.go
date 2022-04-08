@@ -11,6 +11,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/utils"
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
@@ -25,43 +26,17 @@ func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, 
 }
 
 func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
-	parentCtx := context.Background()
-	events := []*database.Item{}
-
-	var calendarService *calendar.Service
-	var err error
-
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	if err != nil {
+		result <- emptyCalendarResult(err)
+		return
+	}
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		result <- emptyCalendarResult(err)
 		return
 	}
 	defer dbCleanup()
-
-	if googleCalendar.Google.OverrideURLs.CalendarFetchURL != nil {
-		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
-		defer cancel()
-		calendarService, err = calendar.NewService(
-			extCtx,
-			option.WithoutAuthentication(),
-			option.WithEndpoint(*googleCalendar.Google.OverrideURLs.CalendarFetchURL),
-		)
-	} else {
-		client := getGoogleHttpClient(db, userID, accountID)
-		if client == nil {
-			log.Printf("failed to fetch google API token")
-			result <- emptyCalendarResult(errors.New("failed to fetch google API token"))
-			return
-		}
-		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
-		defer cancel()
-		calendarService, err = calendar.NewService(extCtx, option.WithHTTPClient(client))
-	}
-	if err != nil {
-		log.Printf("unable to create calendar service: %v", err)
-		result <- emptyCalendarResult(err)
-		return
-	}
 
 	calendarResponse, err := calendarService.Events.
 		List("primary").
@@ -70,13 +45,13 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 		SingleEvents(true).
 		OrderBy("startTime").
 		Do()
-
 	if err != nil {
 		log.Printf("unable to load calendar events: %v", err)
 		result <- emptyCalendarResult(err)
 		return
 	}
 
+	events := []*database.Item{}
 	for _, event := range calendarResponse.Items {
 		//exclude all day events which won't have a start time.
 		if len(event.Start.DateTime) == 0 {
@@ -180,6 +155,43 @@ func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.Object
 	return errors.New("has not been implemented yet")
 }
 
+func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	if err != nil {
+		return err
+	}
+
+	// TODO - add ID generated from backend or client to prevent duplication
+	gcalEvent := &calendar.Event{
+		Summary:     event.Summary,
+		Location:    event.Location,
+		Description: event.Description,
+		Start: &calendar.EventDateTime{
+			DateTime: event.DatetimeStart.Format(time.RFC3339),
+			TimeZone: event.TimeZone,
+		},
+		End: &calendar.EventDateTime{
+			DateTime: event.DatetimeEnd.Format(time.RFC3339),
+			TimeZone: event.TimeZone,
+		},
+		Attendees: *createGcalAttendees(&event.Attendees),
+	}
+	if event.AddConferenceCall {
+		gcalEvent.ConferenceData = createConferenceCallRequest()
+	}
+
+	gcalEvent, err = calendarService.Events.Insert(accountID, gcalEvent).
+		ConferenceDataVersion(1).
+		Do()
+	if err != nil {
+		log.Printf("Unable to create event. %v\n", err)
+		return err
+	}
+	fmt.Printf("Event created: %s\n", gcalEvent.HtmlLink)
+
+	return nil
+}
+
 func GetConferenceCall(event *calendar.Event, accountID string) *database.ConferenceCall {
 	// first check for built-in conference URL
 	var conferenceCall *database.ConferenceCall
@@ -220,4 +232,61 @@ func (googleCalendar GoogleCalendarSource) ModifyMessage(userID primitive.Object
 
 func (googleCalendar GoogleCalendarSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
 	return nil
+}
+
+func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
+	var attendeesList []*calendar.EventAttendee
+	for _, attendee := range *attendees {
+		attendeesList = append(attendeesList, &calendar.EventAttendee{
+			DisplayName: attendee.Name,
+			Email:       attendee.Email,
+		})
+
+	}
+	return &attendeesList
+}
+
+func createConferenceCallRequest() *calendar.ConferenceData {
+	// todo - add client generated requestId
+	return &calendar.ConferenceData{
+		CreateRequest: &calendar.CreateConferenceRequest{
+			ConferenceSolutionKey: &calendar.ConferenceSolutionKey{
+				Type: "hangoutsMeet",
+			},
+			RequestId: uuid.New().String(),
+		},
+	}
+}
+
+func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID string, ctx context.Context) (*calendar.Service, error) {
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return nil, err
+	}
+	defer dbCleanup()
+
+	var calendarService *calendar.Service
+	if overrideURL != nil {
+		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
+		defer cancel()
+		calendarService, err = calendar.NewService(
+			extCtx,
+			option.WithoutAuthentication(),
+			option.WithEndpoint(*overrideURL),
+		)
+	} else {
+		client := getGoogleHttpClient(db, userID, accountID)
+		if client == nil {
+			log.Printf("failed to fetch google API token")
+			return nil, errors.New("failed to fetch google API token")
+		}
+		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
+		defer cancel()
+		calendarService, err = calendar.NewService(extCtx, option.WithHTTPClient(client))
+	}
+	if err != nil {
+		log.Printf("unable to create calendar service: %v", err)
+		return nil, fmt.Errorf("unable to create calendar service: %v", err)
+	}
+	return calendarService, nil
 }

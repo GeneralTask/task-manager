@@ -1,22 +1,22 @@
-import { Colors } from '../../styles'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
-import { useNavigate, useParams } from 'react-router-dom'
-import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
-import EventBanner from '../molecules/EventBanners'
-import Loading from '../atoms/Loading'
-import { SectionHeader } from '../molecules/Header'
-import { TASK_REFETCH_INTERVAL } from '../../constants'
-import Task from '../molecules/Task'
-import TaskDetails from '../details/TaskDetails'
-import TaskDropContainer from '../molecules/TaskDropContainer'
-import { getSectionById } from '../../utils/task'
-import { useInterval } from '../../utils/hooks'
-import useItemSelectionController from '../../hooks/useItemSelectionController'
-import styled from 'styled-components'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch } from 'react-redux'
+import { useNavigate, useParams } from 'react-router-dom'
+import styled from 'styled-components'
+import { TASK_REFETCH_INTERVAL } from '../../constants'
+import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { setSelectedItemId } from '../../redux/tasksPageSlice'
+import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
+import { Colors } from '../../styles'
+import { useInterval } from '../../utils/hooks'
+import { getSectionById } from '../../utils/task'
+import Loading from '../atoms/Loading'
+import TaskDetails from '../details/TaskDetails'
+import CreateNewTask from '../molecules/CreateNewTask'
+import EventBanner from '../molecules/EventBanners'
+import { SectionHeader } from '../molecules/Header'
+import Task from '../molecules/Task'
+import TaskDropContainer from '../molecules/TaskDropContainer'
 
 const BannerAndSectionContainer = styled.div`
     flex: 1;
@@ -80,7 +80,7 @@ const TaskSection = () => {
         }
         document.addEventListener('click', listener, true)
         return () => document.removeEventListener('click', listener, true)
-    }, [bannerTaskSectionRef, sectionViewRef])
+    }, [bannerTaskSectionRef, sectionViewRef, params])
 
     return (
         <>

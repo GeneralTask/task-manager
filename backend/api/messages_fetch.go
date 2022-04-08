@@ -135,11 +135,11 @@ func (api *API) MessagesFetch(c *gin.Context) {
 				SentAt:   time.Now().Format(time.RFC3339),
 				IsUnread: false,
 				Source: messageSource{
-					AccountId:     token.AccountID,
-					Name:          taskSourceResult.Details.Name,
-					Logo:          taskSourceResult.Details.Logo,
-					LogoV2:        taskSourceResult.Details.LogoV2,
-					IsReplyable:   taskSourceResult.Details.IsReplyable,
+					AccountId:   token.AccountID,
+					Name:        taskSourceResult.Details.Name,
+					Logo:        taskSourceResult.Details.Logo,
+					LogoV2:      taskSourceResult.Details.LogoV2,
+					IsReplyable: taskSourceResult.Details.IsReplyable,
 				},
 			},
 		}, badTokenMessages...)

@@ -10,11 +10,11 @@ import (
 )
 
 type messageSource struct {
-	AccountId     string `json:"account_id"`
-	Name          string `json:"name"`
-	Logo          string `json:"logo"`
-	LogoV2        string `json:"logo_v2"`
-	IsReplyable   bool   `json:"is_replyable"`
+	AccountId   string `json:"account_id"`
+	Name        string `json:"name"`
+	Logo        string `json:"logo"`
+	LogoV2      string `json:"logo_v2"`
+	IsReplyable bool   `json:"is_replyable"`
 }
 
 type senderV2 struct {
@@ -90,11 +90,11 @@ func (api *API) emailToMessage(e *database.Item) *message {
 		IsUnread: e.Email.IsUnread,
 		IsTask:   e.TaskType.IsTask,
 		Source: messageSource{
-			AccountId:     e.SourceAccountID,
-			Name:          messageSourceResult.Details.Name,
-			Logo:          messageSourceResult.Details.Logo,
-			LogoV2:        messageSourceResult.Details.LogoV2,
-			IsReplyable:   messageSourceResult.Details.IsReplyable,
+			AccountId:   e.SourceAccountID,
+			Name:        messageSourceResult.Details.Name,
+			Logo:        messageSourceResult.Details.Logo,
+			LogoV2:      messageSourceResult.Details.LogoV2,
+			IsReplyable: messageSourceResult.Details.IsReplyable,
 		},
 	}
 }
