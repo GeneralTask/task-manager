@@ -18,6 +18,7 @@ import { setShowModal } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useAppDispatch } from '../../redux/hooks'
 import { useNavigate } from 'react-router-dom'
+import { AUTHORIZATION_COOKE } from '../../constants'
 
 const TermsOfServiceContainer = styled.div`
     display: flex;
@@ -101,7 +102,7 @@ const TermsOfServiceSummaryView = () => {
 
     const onCancel = useCallback(() => {
         dispatch(setShowModal(ModalEnum.NONE))
-        Cookies.remove('authToken')
+        Cookies.remove(AUTHORIZATION_COOKE)
     }, [])
 
     return (
