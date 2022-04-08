@@ -589,23 +589,3 @@ func getEventCreateServer(t *testing.T, eventCreateObj EventCreateObject, expect
 		return
 	}))
 }
-func getEventCreateErrorServer(t *testing.T, eventCreateObj EventCreateObject, expectedEvent *calendar.Event) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var requestEvent calendar.Event
-		json.NewDecoder(r.Body).Decode(&requestEvent)
-
-		// Verify request is built correctly
-		assertGcalCalendarEventsEqual(t, expectedEvent, &requestEvent)
-		if eventCreateObj.AddConferenceCall {
-			assert.NotNil(t, requestEvent.ConferenceData)
-			//assert.Equal(t, requestEvent.ConferenceData.CreateRequest.ConferenceSolutionKey.Type, "hangoutsMeet")
-			assert.Equal(t,
-				requestEvent.ConferenceData.CreateRequest.ConferenceSolutionKey.Type,
-				expectedEvent.ConferenceData.CreateRequest.ConferenceSolutionKey.Type)
-		}
-
-		w.WriteHeader(201)
-		w.Write([]byte(`{"detail": "gcal internal error"}`))
-		return
-	}))
-}
