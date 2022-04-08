@@ -1,46 +1,41 @@
+import { Spacing } from '../../styles'
 import React from 'react'
 import { gray } from '../../styles/colors'
-import { View, StyleSheet, Platform } from 'react-native'
-import { Flex } from '../../styles'
+import styled from 'styled-components'
 
-const Domino = React.forwardRef<View>((_, ref) => {
+const DominoOuterContainer = styled.div`
+    cursor: grab;
+    height: ${Spacing.margin._16}px;
+    padding-left: ${Spacing.padding._4}px;
+    padding-right: ${Spacing.padding._12}px;
+`
+const DominoContainer = styled.div`
+    height: 100%;
+    width: 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+`
+const Dot = styled.div`
+    width: 3px;
+    height: 3px;
+    border-radius: 50px;
+    background-color: ${gray._400};
+    margin: 1px;
+`
+
+const Domino = React.forwardRef<HTMLDivElement>((_, ref) => {
     return (
-        <View style={styles.DominoOuterContainer} ref={ref}>
-            <View style={styles.DominoInnerContainer}>
+        <DominoOuterContainer ref={ref}>
+            <DominoContainer>
                 {Array(6)
                     .fill(0)
-                    .map((_, index) => (
-                        <View style={styles.DominoDot} key={index} />
-                    ))}
-            </View>
-        </View>
+                    .map((_, i) => <Dot key={i} />
+                    )}
+            </DominoContainer>
+        </DominoOuterContainer>
     )
-})
-
-const styles = StyleSheet.create({
-    DominoOuterContainer: {
-        ...Platform.select({
-            web: {
-                cursor: 'grab',
-            },
-        }),
-        height: 16,
-        paddingLeft: 4,
-        paddingRight: 12,
-    },
-    DominoInnerContainer: {
-        height: '100%',
-        width: 10,
-        ...Flex.wrap,
-        alignItems: 'center',
-    },
-    DominoDot: {
-        width: 3,
-        height: 3,
-        borderRadius: 50,
-        backgroundColor: gray._400,
-        margin: 1,
-    },
 })
 
 export default React.memo(Domino)

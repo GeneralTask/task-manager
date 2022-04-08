@@ -1,21 +1,24 @@
 import React from 'react'
-import styled from 'styled-components/native'
+import styled from 'styled-components'
 import { Colors, Typography } from '../../../styles'
 
-const TitleSmallStyle = styled.Text`
+const TitleSmallStyle = styled.span`
     color: ${Colors.gray._500};
-    font-weight: ${Typography.weight._600.fontWeight};
-    font-size: ${Typography.small.fontSize}px;
+    font-weight: ${Typography.weight._600};
+    font-size: ${Typography.small.fontSize};
+    font-family: 'Switzer-Variable';
 `
-const TitleMediumStyle = styled.Text`
+const TitleMediumStyle = styled.span`
     color: ${Colors.gray._700};
-    font-weight: ${Typography.weight._600.fontWeight};
-    font-size: ${Typography.medium.fontSize}px;
+    font-weight: ${Typography.weight._600};
+    font-size: ${Typography.medium.fontSize};
+    font-family: 'Switzer-Variable';
 `
-const TitleLargeStyle = styled.Text`
+const TitleLargeStyle = styled.span`
     color: ${Colors.gray._700};
-    font-weight: ${Typography.weight._600.fontWeight};
-    font-size: ${Typography.large.fontSize}px;
+    font-weight: ${Typography.weight._600};
+    font-size: ${Typography.large.fontSize};
+    font-family: 'Switzer-Variable';
 `
 
 interface TitleProps {

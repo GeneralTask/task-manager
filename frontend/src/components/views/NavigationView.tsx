@@ -1,101 +1,106 @@
+import { Border, Colors } from '../../styles'
 import React, { useState } from 'react'
-import { ScrollView, StyleSheet, View } from 'react-native'
-import styled from 'styled-components/native'
-import { useAppDispatch } from '../../redux/hooks'
-import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
-import { useLocation, useParams } from '../../services/routing'
-import { Colors, Flex } from '../../styles'
-import { icons } from '../../styles/images'
 import { margin, padding } from '../../styles/spacing'
-import { weight } from '../../styles/typography'
-import { authSignOut } from '../../utils/auth'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
+import { useLocation, useParams } from 'react-router-dom'
+
+import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
-import WebInput from '../atoms/WebInput'
-import FeedbackButton from '../molecules/FeedbackButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
+import NoStyleInput from '../atoms/NoStyleInput'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import { authSignOut } from '../../utils/auth'
+import { icons } from '../../styles/images'
+import styled from 'styled-components'
+import { useAppDispatch } from '../../redux/hooks'
+import { weight } from '../../styles/typography'
 
-const NavigationViewHeader = styled.View`
-    height: 24px;
-    width: 100%;
-    margin-bottom: 16px;
-`
-const AddSectionView = styled.View`
-    display: flex;
-    flex-direction: row;
-    margin: 4px 8px;
-    padding: 4px 8px;
-`
-const AddSectionInputView = styled.View`
-    font-weight: ${weight._600.fontWeight};
-    margin-left: ${margin.small}px;
-    flex: 1;
-`
-const GapView = styled.View`
+const NavigationViewContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${margin.small}px;
-    padding-bottom: ${padding.medium}px;
+    width: 232px;
+    background-color: ${Colors.gray._100};
+    padding: ${padding._8}px;
+    box-sizing: border-box;
+`
+const NavigationViewHeader = styled.div`
+    height: 24px;
+    width: 100%;
+    margin-bottom: ${margin._16}px;
+`
+const AddSectionView = styled.div`
+    display: flex;
+    flex-direction: row;
+    padding: ${padding._4}px ${padding._8}px;
+    border-radius: ${Border.radius.small};
+    border-width: 2px;
+    border-style: solid;
+    border-color: transparent;
+    align-items: center;
+`
+const IconWidth = styled.div`
+    width: fit-content;
+`
+const AddSectionInputView = styled.div`
+    font-weight: ${weight._600};
+    margin-left: ${margin._8}px;
+    flex: 1;
+`
+const GapView = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${margin._8}px;
+    padding-bottom: ${padding._8}px;
+    margin-top: auto;
 `
 
 const NavigationView = () => {
     const dispatch = useAppDispatch()
-    const { data: taskSections, isLoading } = useGetTasks()
+    const { data: taskSections } = useGetTasks()
     const { section: sectionIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
     const { mutate: addTaskSection } = useAddTaskSection()
     const { pathname } = useLocation()
 
-    const showLoadingSections = isLoading || !taskSections
+    // const showLoadingSections = isLoading || !taskSections
 
     return (
-        <View style={styles.container}>
+        <NavigationViewContainer>
             <NavigationViewHeader>
                 <Icon size="medium" />
             </NavigationViewHeader>
-            <ScrollView style={styles.linksFlexContainer}>
-                {showLoadingSections ? <Loading /> :
-                    <NavigationSectionLinks taskSections={taskSections} sectionId={sectionIdParam || ''} pathName={pathname} />
-                }
-                <AddSectionView>
-                    <Icon size={'small'} source={icons['plus']} />
-                    <AddSectionInputView>
-                        <WebInput
-                            value={sectionName}
-                            onChange={(e) => setSectionName(e.target.value)}
-                            placeholder={'Add Section'}
-                            onSubmit={() => {
-                                setSectionName('')
-                                addTaskSection({ name: sectionName })
-                            }}
-                        />
-                    </AddSectionInputView>
-                </AddSectionView>
-            </ScrollView>
+            {taskSections !== undefined ? <NavigationSectionLinks
+                taskSections={taskSections}
+                sectionId={sectionIdParam || ''}
+                pathName={pathname}
+            /> :
+
+                <Loading />
+            }
+            <AddSectionView>
+                <IconWidth>
+                    <Icon size="small" source={icons.plus} />
+                </IconWidth>
+                <AddSectionInputView>
+                    <NoStyleInput
+                        value={sectionName}
+                        onChange={(e) => setSectionName(e.target.value)}
+                        placeholder={'Add Section'}
+                        onSubmit={() => {
+                            setSectionName('')
+                            addTaskSection({ name: sectionName })
+                        }}
+                    />
+                </AddSectionInputView>
+
+            </AddSectionView>
             <GapView>
                 <FeedbackButton />
                 <RoundedGeneralButton value="Sign Out" textStyle="dark" onPress={() => authSignOut(dispatch)} />
             </GapView>
-        </View>
+        </NavigationViewContainer>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        ...Flex.column,
-        width: 232,
-        backgroundColor: Colors.gray._100,
-        paddingLeft: 8,
-        paddingTop: 8,
-        paddingRight: 8,
-    },
-    linkContainerSelected: {
-        backgroundColor: Colors.gray._50,
-    },
-    linksFlexContainer: {
-        flex: 1,
-    },
-})
 
 export default NavigationView

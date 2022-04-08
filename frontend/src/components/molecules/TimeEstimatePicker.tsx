@@ -1,9 +1,39 @@
 import React from 'react'
+import styled from 'styled-components'
+import { TASK_ACTION_BASE_WIDTH } from '../../constants'
 import { useModifyTask } from '../../services/api-query-hooks'
+import { Colors } from '../../styles'
+import { radius } from '../../styles/border'
 import { icons } from '../../styles/images'
+import { padding } from '../../styles/spacing'
+import { weight, xxSmall } from '../../styles/typography'
 import { TopNav } from './DatePicker-style'
 import GTSelect from './GTSelect'
-import { Header, TimeEstimateContainer } from './TimeEstimate-style'
+
+export const TimeEstimateContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: ${TASK_ACTION_BASE_WIDTH}px;
+    position: absolute;
+    background-color: ${Colors.white};
+    border-radius: ${radius.small};
+    box-shadow: 0 0 5px ${Colors.gray._100};
+    z-index: 1;
+    top: 100%;
+    right: 0;
+    padding: ${padding._8}px;
+    cursor: default;
+`
+
+export const Header = styled.div`
+    font-family: Switzer-Variable;
+    font-weight: ${weight._600};
+    font-size: ${xxSmall.fontSize};
+    line-height: ${xxSmall.lineHeight};
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: ${Colors.gray._400};
+`
 
 interface TimeEstimateProps {
     task_id: string
@@ -29,11 +59,7 @@ export default function TimeEstimate({ task_id, closeTimeEstimate }: TimeEstimat
     ]
 
     return (
-        <TimeEstimateContainer
-            onClick={(e) => {
-                e.stopPropagation()
-            }}
-        >
+        <TimeEstimateContainer onClick={e => e.stopPropagation()}>
             <TopNav>
                 <Header>Set Duration</Header>
             </TopNav>

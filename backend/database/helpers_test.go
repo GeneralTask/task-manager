@@ -265,6 +265,122 @@ func TestGetEmails(t *testing.T) {
 	})
 }
 
+func TestGetEmailThreads(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	notUserID := primitive.NewObjectID()
+	thread1Email1 := createTestEmail("thread_1_email_1", true, createTimestamp("2017-04-20"))
+	thread1Email2 := createTestEmail("thread_1_email_2", false, createTimestamp("2019-04-20"))
+	thread2Email1 := createTestEmail("thread_2_email_1", false, createTimestamp("2016-04-20"))
+	thread2Email2 := createTestEmail("thread_2_email_2", false, createTimestamp("2020-04-20"))
+	thread3Email1 := createTestEmail("thread_3_email_1", true, createTimestamp("2015-04-20"))
+	thread4Email1 := createTestEmail("thread_4_email_1", false, createTimestamp("2014-04-20"))
+	thread5Email1 := createTestEmail("thread_5_email_1", false, createTimestamp("2014-04-20"))
+	// Threads' LastUpdatedAt descending order should be [thread2, thread1, thread3, thread4]
+	// Unread threads should be [thread1, thread3]
+	// thread 5 does not belong to user
+
+	thread1, err := GetOrCreateTask(
+		db,
+		userID,
+		"email_thread_id_1",
+		"gmail",
+		createTestThread(userID, "email_thread_id_1", createTimestamp("2019-04-20"), &[]Email{*thread1Email1, *thread1Email2}),
+	)
+	assert.NoError(t, err)
+
+	thread2, err := GetOrCreateTask(
+		db,
+		userID,
+		"email_thread_id_2",
+		"gmail",
+		createTestThread(userID, "email_thread_id_2", createTimestamp("2020-04-20"), &[]Email{*thread2Email1, *thread2Email2}),
+	)
+	assert.NoError(t, err)
+
+	thread3, err := GetOrCreateTask(
+		db,
+		userID,
+		"email_thread_id_3",
+		"gmail",
+		createTestThread(userID, "email_thread_id_3", createTimestamp("2015-04-20"), &[]Email{*thread3Email1}),
+	)
+	assert.NoError(t, err)
+
+	thread4, err := GetOrCreateTask(
+		db,
+		userID,
+		"email_thread_id_4",
+		"gmail",
+		createTestThread(userID, "email_thread_id_4", createTimestamp("2014-04-20"), &[]Email{*thread4Email1}),
+	)
+	assert.NoError(t, err)
+
+	_, err = GetOrCreateTask(
+		db,
+		notUserID,
+		"email_thread_id_5",
+		"gmail",
+		createTestThread(notUserID, "email_thread_id_5", createTimestamp("2014-04-20"), &[]Email{*thread5Email1}),
+	)
+	assert.NoError(t, err)
+
+	t.Run("SuccessAllInvalidPagination", func(t *testing.T) {
+		page := 1
+		paged_emails, err := GetEmailThreads(db, userID, false, Pagination{Limit: nil, Page: &page}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, 4, len(*paged_emails))
+		assert.Equal(t, thread2.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, thread1.ID, (*paged_emails)[1].ID)
+		assert.Equal(t, thread3.ID, (*paged_emails)[2].ID)
+		assert.Equal(t, thread4.ID, (*paged_emails)[3].ID)
+	})
+	t.Run("SuccessAllEmptyPagination", func(t *testing.T) {
+		paged_emails, err := GetEmailThreads(db, userID, false, Pagination{}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, 4, len(*paged_emails))
+		assert.Equal(t, thread2.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, thread1.ID, (*paged_emails)[1].ID)
+		assert.Equal(t, thread3.ID, (*paged_emails)[2].ID)
+		assert.Equal(t, thread4.ID, (*paged_emails)[3].ID)
+	})
+	t.Run("SuccessLimited", func(t *testing.T) {
+		limit := 2
+		page := 1
+		paged_emails, err := GetEmailThreads(db, userID, false, Pagination{Limit: &limit, Page: &page}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, 2, len(*paged_emails))
+		assert.Equal(t, thread2.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, thread1.ID, (*paged_emails)[1].ID)
+	})
+	t.Run("SuccessPaged", func(t *testing.T) {
+		limit := 1
+		page := 3
+		paged_emails, err := GetEmailThreads(db, userID, false, Pagination{Limit: &limit, Page: &page}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*paged_emails))
+		assert.Equal(t, thread3.ID, (*paged_emails)[0].ID)
+	})
+	t.Run("SuccessLimitedAndPaged", func(t *testing.T) {
+		limit := 2
+		page := 2
+		paged_emails, err := GetEmailThreads(db, userID, false, Pagination{Limit: &limit, Page: &page}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, 2, len(*paged_emails))
+		assert.Equal(t, thread3.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, thread4.ID, (*paged_emails)[1].ID)
+	})
+	t.Run("SuccessOnlyUnread", func(t *testing.T) {
+		paged_emails, err := GetEmailThreads(db, userID, true, Pagination{}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, 2, len(*paged_emails))
+		assert.Equal(t, thread1.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, thread3.ID, (*paged_emails)[1].ID)
+	})
+}
+
 func TestInsertLogEvent(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
@@ -297,4 +413,36 @@ func createTestMessage(userID primitive.ObjectID, externalID string, isUnread bo
 			IsMessage: true,
 		},
 	}
+}
+
+func createTestThread(userID primitive.ObjectID, externalID string, lastUpdatedAt time.Time, emails *[]Email) *Item {
+	return &Item{
+		TaskBase: TaskBase{
+			IDExternal: externalID,
+			SourceID:   "gmail",
+			UserID:     userID,
+		},
+		EmailThread: EmailThread{
+			ThreadID:      externalID,
+			LastUpdatedAt: primitive.NewDateTimeFromTime(lastUpdatedAt),
+			Emails:        *emails,
+		},
+		TaskType: TaskType{
+			IsThread: true,
+		},
+	}
+}
+
+func createTestEmail(externalID string, isUnread bool, createdAt time.Time) *Email {
+	return &Email{
+		EmailID:      externalID,
+		SenderDomain: "gmail",
+		IsUnread:     isUnread,
+		SentAt:       primitive.NewDateTimeFromTime(createdAt),
+	}
+}
+
+func createTimestamp(dt string) time.Time {
+	createdAt, _ := time.Parse("2006-01-02", dt)
+	return createdAt
 }

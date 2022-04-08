@@ -1,55 +1,54 @@
-import webStyled from 'styled-components'
-import styled from 'styled-components/native'
 import { Colors, Spacing, Typography } from '../../styles'
+import styled from 'styled-components'
+import React from 'react'
 
-
-const DetailsViewContainer = styled.View`
+const DetailsViewContainer = styled.div`
     display: flex;
     flex-direction: column;
     background-color: ${Colors.gray._50};
     width: 640px;
-    margin-top: ${Spacing.margin.large}px;
-    padding: ${Spacing.padding.medium}px;
+    margin-top: ${Spacing.margin._24}px;
+    padding: ${Spacing.padding._16}px;
 `
-const DetailsTopContainer = styled.View`
+const DetailsTopContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
     z-index: 1;
     height: 50px;
 `
-const TaskTitleContainer = styled.View`
+const TaskTitleContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
 `
-const BodyContainer = styled.View`
-    margin-top: ${Spacing.margin.medium}px;
+const BodyContainer = styled.div`
     flex: 1;
     overflow: auto;
 `
-export const TitleInput = webStyled.textarea`
+export const TitleInput = styled.textarea`
     background-color: inherit;
     color: ${Colors.gray._600};
     font: inherit;
-    font-size: ${Typography.xSmall.fontSize}px;
-    font-weight: ${Typography.weight._600.fontWeight};
+    font-size: ${Typography.large.fontSize};
+    font-weight: ${Typography.weight._600};
     border: none;
     resize: none;
     outline: none;
     overflow: hidden;
     display: flex;
     flex: 1;
+    margin-bottom: ${Spacing.margin._16}px;
     :focus {
         outline: 1px solid ${Colors.gray._500};
     }
 `
-export const Title = webStyled.div`
+export const Title = styled.div`
     background-color: inherit;
     color: ${Colors.gray._600};
     font: inherit;
-    font-size: ${Typography.xSmall.fontSize}px;
-    font-weight: ${Typography.weight._600.fontWeight};
+    font-size: ${Typography.xSmall.fontSize};
+    font-weight: ${Typography.weight._600};
     border: none;
     resize: none;
     outline: none;
@@ -57,26 +56,27 @@ export const Title = webStyled.div`
     display: flex;
     flex: 1;
 `
-export const BodyTextArea = webStyled.textarea`
+export const BodyTextArea = styled.textarea`
     display: block;
     background-color: inherit;
     border: none;
     resize: none;
     outline: none;
     overflow: auto;
-    padding-right: ${Spacing.margin.small}px;
+    padding-right: ${Spacing.margin._8}px;
     font: inherit;
     color: ${Colors.gray._600};
-    font-size: ${Typography.xSmall.fontSize}px;
+    font-size: ${Typography.xSmall.fontSize};
     height: 250px;
 `
-export const FlexGrowView = styled.View`
+export const FlexGrowView = styled.div`
     flex: 1;
 `
 interface DetailsTemplateProps {
-    top: JSX.Element | JSX.Element[] | undefined | null
-    title: JSX.Element | JSX.Element[] | undefined | null
-    body: JSX.Element | JSX.Element[] | undefined | null
+    top: React.ReactNode
+    title: React.ReactNode
+    subtitle?: React.ReactNode
+    body: React.ReactNode
 }
 
 const DetailsTemplate = (props: DetailsTemplateProps) => {
@@ -88,7 +88,8 @@ const DetailsTemplate = (props: DetailsTemplateProps) => {
             <TaskTitleContainer>
                 {props.title}
             </TaskTitleContainer>
-            <BodyContainer>
+            {props.subtitle}
+            <BodyContainer >
                 {props.body}
             </BodyContainer>
         </DetailsViewContainer>

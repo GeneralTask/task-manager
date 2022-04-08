@@ -251,6 +251,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 				},
 				IsCompleted: &isCompleted,
 			},
+			nil,
 		)
 		if err != nil {
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
@@ -404,5 +405,9 @@ func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, i
 }
 
 func (jira JIRASource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
+	return nil
+}
+
+func (jira JIRASource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
 	return nil
 }

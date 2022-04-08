@@ -67,6 +67,7 @@ type Item struct {
 	TaskType      `bson:"task_type"`
 	Task          `bson:"task,omitempty"`
 	Email         `bson:"email,omitempty"`
+	EmailThread   `bson:"email_thread,omitempty"`
 	CalendarEvent `bson:"calendar_event,omitempty"`
 	PullRequest   `bson:"pull_request,omitempty"`
 }
@@ -74,6 +75,7 @@ type Item struct {
 type TaskType struct {
 	IsTask        bool `bson:"is_task"`
 	IsMessage     bool `bson:"is_message"`
+	IsThread      bool `bson:"is_thread"`
 	IsEvent       bool `bson:"is_event"`
 	IsPullRequest bool `bson:"is_pull_request"`
 }
@@ -81,6 +83,7 @@ type TaskType struct {
 type TaskTypeChangeable struct {
 	IsTask        *bool `bson:"is_task,omitempty"`
 	IsMessage     *bool `bson:"is_message,omitempty"`
+	IsThread      *bool `bson:"is_thread,omitempty"`
 	IsEvent       *bool `bson:"is_event,omitempty"`
 	IsPullRequest bool  `bson:"is_pull_request,omitempty"`
 }
@@ -130,13 +133,25 @@ type CalendarEventChangeableFields struct {
 	Body          string `bson:"body,omitempty"`
 }
 
+type EmailThread struct {
+	ThreadID      string             `bson:"thread_id"`
+	LastUpdatedAt primitive.DateTime `bson:"last_updated_at"`
+	Emails        []Email            `bson:"emails,omitempty"`
+}
+
 type Email struct {
-	ThreadID     string     `bson:"thread_id"`
-	SenderDomain string     `bson:"sender_domain"`
-	SenderEmail  string     `bson:"sender_email"`
-	ReplyTo      string     `bson:"reply_to"`
-	IsUnread     bool       `bson:"is_unread"`
-	Recipients   Recipients `bson:"recipients"`
+	SMTPID       string             `bson:"smtp_id"`
+	ThreadID     string             `bson:"thread_id"`
+	EmailID      string             `bson:"email_id"`
+	Subject      string             `bson:"subject"`
+	Body         string             `bson:"body"`
+	SenderDomain string             `bson:"sender_domain"`
+	SenderEmail  string             `bson:"sender_email"`
+	SenderName   string             `bson:"sender_name"`
+	ReplyTo      string             `bson:"reply_to"`
+	IsUnread     bool               `bson:"is_unread"`
+	Recipients   Recipients         `bson:"recipients"`
+	SentAt       primitive.DateTime `bson:"sent_at"`
 }
 
 type EmailChangeable struct {
@@ -219,4 +234,19 @@ type Recipients struct {
 type Recipient struct {
 	Name  string `bson:"name"`
 	Email string `bson:"email"`
+}
+
+type EmailItemChangeable struct {
+	Email `bson:"email,omitempty"`
+}
+
+type EmailThreadChangeable struct {
+	ThreadID      string             `bson:"thread_id,omitempty"`
+	LastUpdatedAt primitive.DateTime `bson:"last_updated_at,omitempty"`
+	Emails        []Email            `bson:"emails,omitempty"`
+}
+
+type ThreadItemChangeable struct {
+	EmailThreadChangeable `bson:"email_thread,omitempty"`
+	TaskTypeChangeable    *TaskTypeChangeable `bson:"task_type,omitempty"`
 }

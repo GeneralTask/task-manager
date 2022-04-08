@@ -1,41 +1,31 @@
 import React from 'react'
-import { View, Text, StyleSheet, Platform, ViewStyle } from 'react-native'
-import { Colors, Typography } from '../../styles'
+import styled from 'styled-components'
+import { Border, Colors, Typography } from '../../styles'
 
-interface ShotcutHintProps {
+const ShortcutHintContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    border-radius: ${Border.radius.xxSmall};
+    padding: 0;
+    text-align: center;
+    background-color: ${Colors.white};
+    width: 20px;
+    height: 20px;
+    justify-content: center;
+    align-items: center;
+    font-family: Switzer-Variable;
+    font-size: ${Typography.xSmall}px;
+`
+
+interface ShortcutHintProps {
     character: string,
-    style: ViewStyle,
 }
-const ShotcutHint = (props: ShotcutHintProps) => {
+const ShortcutHint = (props: ShortcutHintProps) => {
     return (
-        <View style={[styles.container, props.style]}>
-            <Text style={styles.character}>{props.character}</Text>
-        </View>
+        <ShortcutHintContainer>
+            {props.character}
+        </ShortcutHintContainer>
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        borderRadius: 5,
-        padding: 0,
-        textAlign: 'center',
-        backgroundColor: Colors.white,
-        width: 20,
-        height: 20,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-
-    },
-    character: {
-        ...Platform.select({
-            ios: {},
-            default: {
-                ...Typography.xSmall,
-                color: Colors.gray._600,
-            }
-        })
-    }
-})
-
-export default ShotcutHint
+export default ShortcutHint

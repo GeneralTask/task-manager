@@ -32,10 +32,6 @@ type EmailContents struct {
 	Body       string
 }
 
-type gmailUpdateable struct {
-	database.Email `bson:"email,omitempty"`
-}
-
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -90,10 +86,30 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			return
 		}
 
+		var nestedEmails []database.Email
+		var mostRecentEmailTimestamp primitive.DateTime
+		threadItem := &database.Item{
+			TaskBase: database.TaskBase{
+				UserID:          userID,
+				IDExternal:      thread.Id,
+				IDTaskSection:   constants.IDTaskSectionToday,
+				SourceID:        TASK_SOURCE_ID_GMAIL,
+				Deeplink:        fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, thread.Id),
+				SourceAccountID: accountID,
+			},
+			EmailThread: database.EmailThread{
+				ThreadID: thread.Id,
+			},
+			TaskType: database.TaskType{
+				IsThread: true,
+			},
+		}
+
 		for _, message := range thread.Messages {
 			sender := ""
 			replyTo := ""
 			title := ""
+			smtpID := ""
 			for _, header := range message.Payload.Headers {
 				if header.Name == "From" {
 					sender = header.Value
@@ -101,6 +117,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					replyTo = header.Value
 				} else if header.Name == "Subject" {
 					title = header.Value
+				} else if header.Name == "Message-ID" || header.Name == "Message-Id" {
+					smtpID = header.Value
 				}
 			}
 			var body *string
@@ -142,7 +160,24 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 			recipients := *GetRecipients(message.Payload.Headers)
 
-			email := &database.Item{
+			if timeSent > mostRecentEmailTimestamp {
+				mostRecentEmailTimestamp = timeSent
+			}
+			email := database.Email{
+				SMTPID:       smtpID,
+				ThreadID:     thread.Id,
+				EmailID:      message.Id,
+				SenderDomain: senderDomain,
+				SenderEmail:  senderEmail,
+				SenderName:   senderName,
+				Body:         *body,
+				Subject:      title,
+				ReplyTo:      replyTo,
+				IsUnread:     isMessageUnread(message),
+				Recipients:   recipients,
+			}
+			nestedEmails = append(nestedEmails, email)
+			emailItem := &database.Item{
 				TaskBase: database.TaskBase{
 					UserID:            userID,
 					IDExternal:        message.Id,
@@ -155,32 +190,29 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					SourceAccountID:   accountID,
 					CreatedAtExternal: timeSent,
 				},
-				Email: database.Email{
-					SenderDomain: senderDomain,
-					SenderEmail:  senderEmail,
-					ReplyTo:      replyTo,
-					ThreadID:     thread.Id,
-					IsUnread:     isMessageUnread(message),
-					Recipients:   recipients,
-				},
+				Email: email,
 				TaskType: database.TaskType{
 					IsMessage: true,
 				},
 			}
-			gmailUpdateableFields := emailToGmailUpdateable(email)
+			gmailUpdateableFields := database.EmailItemToChangeable(emailItem)
 
 			// We flatten in order to do partial updates of nested documents correctly in mongodb
-			flattenedEmail, err := flatbson.Flatten(email)
+			flattenedEmail, err := flatbson.Flatten(emailItem)
 			if err != nil {
-				log.Printf("Could not flatten %+v, error: %+v", email, err)
+				log.Printf("Could not flatten %+v, error: %+v", emailItem, err)
 				return
 			}
 			flattenedGmailUpdateable, err := flatbson.Flatten(gmailUpdateableFields)
 			if err != nil {
-				log.Printf("Could not flatten %+v, error: %+v", email, err)
+				log.Printf("Could not flatten %+v, error: %+v", gmailUpdateableFields, err)
 				return
 			}
-			res, err := database.UpdateOrCreateTask(db, userID, email.IDExternal, email.SourceID, flattenedEmail, flattenedGmailUpdateable)
+			res, err := database.UpdateOrCreateTask(
+				db, userID, emailItem.IDExternal,
+				emailItem.SourceID, flattenedEmail, flattenedGmailUpdateable,
+				&[]bson.M{{"task_type.is_message": true}},
+			)
 			if err != nil {
 				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 				return
@@ -193,12 +225,44 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				result <- emptyEmailResult(err)
 				return
 			}
-			email.HasBeenReordered = dbEmail.HasBeenReordered
-			email.ID = dbEmail.ID
-			email.IDOrdering = dbEmail.IDOrdering
-			email.IDTaskSection = dbEmail.IDTaskSection
-			emails = append(emails, email)
+			emailItem.HasBeenReordered = dbEmail.HasBeenReordered
+			emailItem.ID = dbEmail.ID
+			emailItem.IDOrdering = dbEmail.IDOrdering
+			emailItem.IDTaskSection = dbEmail.IDTaskSection
+			emails = append(emails, emailItem)
 		}
+
+		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
+		threadItem.EmailThread.Emails = nestedEmails
+		gmailUpdateableFields := database.ThreadItemToChangeable(threadItem)
+		// We flatten in order to do partial updates of nested documents correctly in mongodb
+		flattenedThreadItem, err := flatbson.Flatten(threadItem)
+		if err != nil {
+			log.Printf("Could not flatten %+v, error: %+v", threadItem, err)
+			return
+		}
+		flattenedThreadUpdateable, err := flatbson.Flatten(gmailUpdateableFields)
+		if err != nil {
+			log.Printf("Could not flatten %+v, error: %+v", gmailUpdateableFields, err)
+			return
+		}
+		res, err := database.UpdateOrCreateTask(
+			db, userID, threadItem.IDExternal, threadItem.SourceID,
+			flattenedThreadItem, flattenedThreadUpdateable,
+			&[]bson.M{{"task_type.is_thread": true}},
+		)
+		if err != nil {
+			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
+			return
+		}
+		var dbThread database.Item
+		err = res.Decode(&dbThread)
+		if err != nil {
+			log.Printf("failed to update or create gmail thread: %v", err)
+			result <- emptyEmailResult(err)
+			return
+		}
+
 	}
 	result <- EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL}
 }
@@ -331,7 +395,7 @@ func (gmailSource GmailSource) SendEmail(userID primitive.ObjectID, accountID st
 	}
 	defer dbCleanup()
 
-	gmailService, err := createGmailService(db, userID, accountID, &gmailSource, parentCtx)
+	gmailService, err := createGmailService(gmailSource.Google.OverrideURLs.GmailSendURL, db, userID, accountID, &gmailSource, parentCtx)
 	if err != nil {
 		return err
 	}
@@ -481,7 +545,7 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 
 	messageToSend := gmail.Message{
 		Raw:      base64.URLEncoding.EncodeToString(msg),
-		ThreadId: email.ThreadID,
+		ThreadId: email.Email.ThreadID,
 	}
 
 	_, err = gmailService.Users.Messages.Send("me", &messageToSend).Do()
@@ -537,6 +601,46 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 	}
 
 	return err
+}
+
+func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+	// todo - mark all emails in the thread as read
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+
+	gmailService, err := createGmailService(gmailSource.Google.OverrideURLs.GmailModifyURL, db, userID, accountID, &gmailSource, parentCtx)
+	if err != nil {
+		return err
+	}
+
+	var threadItem database.Item
+	taskCollection := database.GetTaskCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = taskCollection.FindOne(dbCtx, bson.M{"$and": []bson.M{{"_id": threadID}, {"user_id": userID}}}).Decode(&threadItem)
+	if err != nil {
+		return err
+	}
+
+	if isUnread != nil {
+		err = changeLabelsOnEmailsInThread(gmailService, &threadItem, "UNREAD", *isUnread)
+	}
+	return err
+}
+
+func changeLabelsOnEmailsInThread(gmailService *gmail.Service, threadItem *database.Item, labelToChange string, addLabel bool) error {
+	var err error
+	for _, email := range threadItem.EmailThread.Emails {
+		err = changeLabelOnMessage(gmailService, email.EmailID, "UNREAD", addLabel)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToChange string, addLabel bool) error {
@@ -615,16 +719,16 @@ func recipientToString(recipient database.Recipient) string {
 	}
 }
 
-func createGmailService(db *mongo.Database, userID primitive.ObjectID, accountID string, gmailSource *GmailSource, ctx context.Context) (*gmail.Service, error) {
+func createGmailService(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string, gmailSource *GmailSource, ctx context.Context) (*gmail.Service, error) {
 	var gmailService *gmail.Service
 	var err error
-	if gmailSource.Google.OverrideURLs.GmailSendURL != nil {
+	if overrideURL != nil {
 		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
 		defer cancel()
 		gmailService, err = gmail.NewService(
 			extCtx,
 			option.WithoutAuthentication(),
-			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailSendURL),
+			option.WithEndpoint(*overrideURL),
 		)
 	} else {
 		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
@@ -637,10 +741,4 @@ func createGmailService(db *mongo.Database, userID primitive.ObjectID, accountID
 	}
 
 	return gmailService, nil
-}
-
-func emailToGmailUpdateable(email *database.Item) *gmailUpdateable {
-	return &gmailUpdateable{
-		Email: email.Email,
-	}
 }

@@ -108,9 +108,10 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			database.CalendarEventChangeableFields{
 				CalendarEvent: event.CalendarEvent,
 				Title:         event.Title,
-				Body:          event.Body,
+				Body:          event.TaskBase.Body,
 				TaskType:      event.TaskType,
 			},
+			nil,
 		)
 		if err != nil {
 			result <- emptyCalendarResult(err)
@@ -226,6 +227,10 @@ func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID,
 }
 
 func (googleCalendar GoogleCalendarSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
+	return nil
+}
+
+func (googleCalendar GoogleCalendarSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
 	return nil
 }
 

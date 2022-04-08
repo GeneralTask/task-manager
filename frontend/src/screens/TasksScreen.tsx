@@ -1,21 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { Platform } from 'react-native'
-import BottomSheet from 'reanimated-bottom-sheet'
-import CalendarView from '../components/views/CalendarView'
+import React, { useEffect } from 'react'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { Navigate, useLocation, useParams } from 'react-router-dom'
+import Loading from '../components/atoms/Loading'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
+import CalendarView from '../components/views/CalendarView'
 import Messages from '../components/views/MessagesView'
 import Settings from '../components/views/SettingsView'
-import TaskBottomSheet from '../components/views/TaskBottomSheetView'
 import TaskSection from '../components/views/TaskSectionView'
+import { useAppDispatch, useAppSelector } from '../redux/hooks'
+import { setSelectedItemId } from '../redux/tasksPageSlice'
 import { useGetTasks, useGetUserInfo } from '../services/api-query-hooks'
-import { Navigate, useLocation, useParams } from '../services/routing'
-import Loading from '../components/atoms/Loading'
-import { useAppDispatch } from '../redux/hooks'
-import { setSelectedTaskId } from '../redux/tasksPageSlice'
 
 const TasksScreen = () => {
-    const [sheetTaskId, setSheetTaskId] = useState('')
-    const sheetRef = useRef<BottomSheet>(null)
+    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const location = useLocation()
     const dispatch = useAppDispatch()
     const params = useParams()
@@ -25,7 +23,7 @@ const TasksScreen = () => {
 
     useEffect(() => {
         if (params.task) {
-            dispatch(setSelectedTaskId(params.task))
+            dispatch(setSelectedItemId(params.task))
         }
     }, [params])
 
@@ -46,17 +44,14 @@ const TasksScreen = () => {
     if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (
-        <>
+        <DndProvider backend={HTML5Backend}>
             <DefaultTemplate>
                 <>
-                    {currentPage}
+                    {expandedCalendar || currentPage}
                     <CalendarView />
                 </>
             </DefaultTemplate>
-            {Platform.OS === 'ios' && (
-                <TaskBottomSheet sheetTaskId={sheetTaskId} setSheetTaskId={setSheetTaskId} ref={sheetRef} />
-            )}
-        </>
+        </DndProvider>
     )
 }
 

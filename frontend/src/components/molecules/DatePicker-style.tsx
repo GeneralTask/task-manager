@@ -1,6 +1,7 @@
-import styled from 'styled-components'
-import { Colors } from '../../styles'
+import { Colors, Shadows, Spacing } from '../../styles'
 import { weight, xSmall, xxSmall } from '../../styles/typography'
+
+import styled from 'styled-components'
 
 export const PickerContainer = styled.div`
     display: block;
@@ -9,7 +10,7 @@ export const PickerContainer = styled.div`
     position: absolute;
     background-color: ${Colors.white};
     border-radius: 12px;
-    box-shadow: 0 0 5px ${Colors.gray._200};
+    box-shadow: ${Shadows.medium};
     z-index: 1;
     top: 100%;
     right: 0;
@@ -43,9 +44,9 @@ export const WeekDay = styled.th`
     width: 24px;
 
     font-family: Switzer-Variable;
-    font-weight: ${weight._500.fontWeight};
-    font-size: ${xxSmall.fontSize}px;
-    line-height: ${xxSmall.lineHeight}px;
+    font-weight: ${weight._500};
+    font-size: ${xxSmall.fontSize};
+    line-height: ${xxSmall.lineHeight};
     color: ${Colors.gray._400};
 `
 export const BottomBar = styled.div`
@@ -56,9 +57,9 @@ export const BottomBar = styled.div`
 export const MonthYearHeader = styled.div`
     font-family: Switzer-Variable;
     font-style: normal;
-    font-weight: ${weight._500.fontWeight};
-    font-size: ${xSmall.fontSize}px;
-    line-height: ${xSmall.lineHeight}px;
+    font-weight: ${weight._500};
+    font-size: ${xSmall.fontSize};
+    line-height: ${xSmall.lineHeight};
     color: ${Colors.gray._800};
 `
 export const HoverButton = styled.button<{ isToday: boolean; isSelected: boolean }>`
@@ -73,7 +74,7 @@ export const HoverButton = styled.button<{ isToday: boolean; isSelected: boolean
     display: flex;
     &:hover {
         background: ${(props) =>
-            props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : Colors.gray._100};
+        props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : Colors.gray._100};
     }
     background: ${(props) => (props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : 'transparent')};
 `
@@ -85,9 +86,9 @@ export const DayLabel = styled.span<{ grayed: boolean; isSelected: boolean }>`
     top: 5.5px;
 
     font-family: Switzer-Variable;
-    font-weight: ${weight._500.fontWeight};
-    font-size: ${xxSmall.fontSize}px;
-    line-height: ${xxSmall.lineHeight}px;
+    font-weight: ${weight._500};
+    font-size: ${xxSmall.fontSize};
+    line-height: ${xxSmall.lineHeight};
 
     display: flex;
     align-items: center;
@@ -106,9 +107,12 @@ export const BottomDateView = styled.div`
 `
 export const CurrentDateText = styled.span`
     font-family: Switzer-Variable;
-    font-weight: ${weight._500.fontWeight};
-    font-size: ${xSmall.fontSize}px;
-    line-height: ${xSmall.lineHeight}px;
+    font-weight: ${weight._500};
+    font-size: ${xSmall.fontSize};
+    line-height: ${xSmall.lineHeight};
     width: 100%;
     color: ${Colors.gray._800};
+`
+export const IconContainer = styled.div`
+    padding: ${Spacing.padding._8}px;
 `

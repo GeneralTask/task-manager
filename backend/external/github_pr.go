@@ -138,9 +138,10 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			pullRequest,
 			database.PullRequestChangeableFields{
 				Title:       pullRequest.Title,
-				Body:        pullRequest.Body,
+				Body:        pullRequest.TaskBase.Body,
 				IsCompleted: &isCompleted,
 			},
+			nil,
 		)
 		if err != nil {
 			log.Printf("failed to update or create pull request: %v", err)
@@ -216,5 +217,9 @@ func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID stri
 }
 
 func (gitPR GithubPRSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
+	return nil
+}
+
+func (gitPR GithubPRSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
 	return nil
 }

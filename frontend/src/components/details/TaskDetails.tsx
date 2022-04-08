@@ -1,14 +1,16 @@
+import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
 import React, { createRef, useEffect, useState } from 'react'
-import ReactTooltip from 'react-tooltip'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
-import { useModifyTask } from '../../services/api-query-hooks'
-import { logos } from '../../styles/images'
-import { TTask } from '../../utils/types'
+
+import ActionOption from '../molecules/ActionOption'
+import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import { Icon } from '../atoms/Icon'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
+import ReactTooltip from 'react-tooltip'
+import { TTask } from '../../utils/types'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
 import TooltipWrapper from '../atoms/TooltipWrapper'
-import ActionOption from '../molecules/ActionOption'
-import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
+import { logos } from '../../styles/images'
+import { useModifyTask } from '../../services/api-query-hooks'
 
 interface TaskDetailsProps {
     task: TTask
@@ -22,17 +24,30 @@ const TaskDetails = (props: TaskDetailsProps) => {
 
     const [datePickerShown, setDatePickerShown] = useState(false)
     const [timeEstimateShown, setTimeEstimateShown] = useState(false)
+    const [labelEditorShown, setLabelEditorShown] = useState(false)
     const titleRef = createRef<HTMLTextAreaElement>()
 
     useEffect(() => {
         ReactTooltip.rebuild()
     }, [])
     useEffect(() => {
-        datePickerShown && setTimeEstimateShown(false)
+        if (timeEstimateShown) {
+            setTimeEstimateShown(false)
+            setLabelEditorShown(false)
+        }
     }, [datePickerShown])
     useEffect(() => {
-        timeEstimateShown && setDatePickerShown(false)
+        if (timeEstimateShown) {
+            setDatePickerShown(false)
+            setLabelEditorShown(false)
+        }
     }, [timeEstimateShown])
+    useEffect(() => {
+        if (labelEditorShown) {
+            setDatePickerShown(false)
+            setTimeEstimateShown(false)
+        }
+    }, [labelEditorShown])
 
     // Update the state when the task changes
     useEffect(() => {
@@ -89,6 +104,15 @@ const TaskDetails = (props: TaskDetailsProps) => {
                             keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_TIME_ESTIMATION_PICKER}
                         />
                     </TooltipWrapper>
+                    <TooltipWrapper inline dataTip="Label" tooltipId="tooltip">
+                        <ActionOption
+                            isShown={labelEditorShown}
+                            setIsShown={setLabelEditorShown}
+                            action="label"
+                            task={task}
+                            keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
+                        />
+                    </TooltipWrapper>
                 </>
             }
             title={
@@ -100,8 +124,9 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     onBlur={handleBlur}
                 />
             }
+            subtitle={task.source.name === 'Gmail' && task.sender && task.recipients ? <EmailSenderDetails sender={task.sender} recipients={task.recipients} /> : undefined}
             body={
-                task.source.name === 'Asana' || task.source.name === 'Gmail' ? (
+                task.source.name === 'Gmail' ? (
                     <TaskHTMLBody dirtyHTML={bodyInput} />
                 ) : (
                     <BodyTextArea

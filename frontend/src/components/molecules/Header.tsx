@@ -1,30 +1,41 @@
 import React, { useEffect, useState } from 'react'
-import { Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-query-hooks'
-
 import { Icon } from '../atoms/Icon'
-import { InvisibleKeyboardShortcut } from '../atoms/KeyboardShortcuts'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
-import { Platform } from 'react-native'
+import { emptyFunction } from '../../utils/utils'
 import { icons } from '../../styles/images'
-import styled from 'styled-components/native'
+import styled from 'styled-components'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import { useNavigate } from 'react-router-dom'
 
-const SectionHeaderContainer = styled.View`
+const SectionHeaderContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-bottom: ${Spacing.margin.medium}px;
+    margin-bottom: ${Spacing.margin._16}px;
+    height: 50px;
+    gap: ${Spacing.padding._4}px;
 `
-const HeaderText = styled.Text`
-    margin-right: ${Spacing.margin.small}px;
-    font-size: ${Typography.xLarge.fontSize}px;
+const HeaderText = styled.span`
+    margin-right: ${Spacing.margin._8}px;
+    font-size: ${Typography.xLarge.fontSize};
+    font-family: Switzer-Variable;
+    padding-left: ${Spacing.padding._4}px;
+    border: 2px solid transparent;
 `
-const HeaderTextEditable = styled.TextInput`
-    margin-right: ${Spacing.margin.small}px;
-    font-size: ${Typography.xLarge.fontSize}px;
-`
-const TouchableIcon = styled.TouchableOpacity`
-    margin-right: ${Spacing.margin.small}px;
+const HeaderTextEditable = styled.input`
+    margin-right: ${Spacing.margin._8}px;
+    font-size: ${Typography.xLarge.fontSize};
+    font-family: Switzer-Variable;
+    padding-left: ${Spacing.padding._4}px;
+    border: none;
+    outline: none;
+    &:focus {
+        border: 2px solid ${Colors.gray._400};
+    }
+    background-color: transparent;
 `
 interface SectionHeaderProps {
     sectionName: string
@@ -37,6 +48,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const { mutate: modifyTaskSection } = useModifyTaskSection()
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [sectionName, setSectionName] = useState(props.sectionName)
+    const navigate = useNavigate()
 
     useEffect(() => {
         setSectionName(props.sectionName)
@@ -52,6 +64,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
 
     const handleDelete = async (id: string | undefined) => {
         if (id) deleteTaskSection({ sectionId: id })
+        navigate('/tasks')
     }
     const handleChangeSectionName = async (id: string | undefined, name: string) => {
         const trimmedName = name.trim()
@@ -63,37 +76,32 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         }
         setIsEditingTitle(false)
     }
+
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.REFRESH, props.refetch ?? emptyFunction, props.refetch == null)
+
+    const headerText = isEditingTitle ? (
+        <HeaderTextEditable
+            value={sectionName}
+            onChange={(e) => setSectionName(e.target.value)}
+            onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
+            autoFocus
+        />
+    ) : <HeaderText>{sectionName}</HeaderText>
+
     return (
         <SectionHeaderContainer>
-            {isEditingTitle ? (
-                <HeaderTextEditable
-                    value={sectionName}
-                    onChangeText={(val) => setSectionName(val)}
-                    onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
-                    autoFocus
-                />
-            ) : (
-                <HeaderText>{sectionName}</HeaderText>
-            )}
-            {props.allowRefresh && Platform.OS === 'web' && (
-                <TouchableIcon onPress={props.refetch}>
-                    <Icon size={'small'} source={icons.spinner}></Icon>
-                    {Platform.OS === 'web' && props.refetch && (
-                        <InvisibleKeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.REFRESH} onKeyPress={props.refetch} />)}
-                </TouchableIcon>
-            )}
-            {props.taskSectionId != undefined && !matchTempSectionId(props.taskSectionId) && (
+            {headerText}
+            <NoStyleButton onClick={props.refetch}>
+                <Icon size={'small'} source={icons.spinner} />
+            </NoStyleButton>
+            {props.taskSectionId && !matchTempSectionId(props.taskSectionId) && (
                 <>
-                    <TouchableIcon onPress={() => handleDelete(props.taskSectionId)}>
+                    <NoStyleButton onClick={() => handleDelete(props.taskSectionId)}>
                         <Icon size={'small'} source={icons['trash']}></Icon>
-                    </TouchableIcon>
-                    <TouchableIcon
-                        onPress={() => {
-                            setIsEditingTitle(true)
-                        }}
-                    >
+                    </NoStyleButton>
+                    <NoStyleButton onClick={() => setIsEditingTitle(true)}>
                         <Icon size={'small'} source={icons['pencil']}></Icon>
-                    </TouchableIcon>
+                    </NoStyleButton>
                 </>
             )}
         </SectionHeaderContainer>

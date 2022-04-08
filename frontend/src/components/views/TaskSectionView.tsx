@@ -1,38 +1,62 @@
-import { DateTime } from 'luxon'
+import { Colors } from '../../styles'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
-import { useNavigate, useParams } from 'react-router-dom'
-import { TASK_REFETCH_INTERVAL } from '../../constants'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
-import { Colors, Flex, Screens, Spacing } from '../../styles'
-import { useInterval } from '../../utils/hooks'
-import { getSectionById } from '../../utils/task'
-import Loading from '../atoms/Loading'
-import TaskDetails from '../details/TaskDetails'
+import { useNavigate, useParams } from 'react-router-dom'
 import CreateNewTask from '../molecules/CreateNewTask'
-import EventBanner from '../molecules/EventBanner'
+import { DateTime } from 'luxon'
+import EventBanner from '../molecules/EventBanners'
+import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
+import { TASK_REFETCH_INTERVAL } from '../../constants'
 import Task from '../molecules/Task'
+import TaskDetails from '../details/TaskDetails'
 import TaskDropContainer from '../molecules/TaskDropContainer'
-import TaskSelectionController from '../molecules/TaskSelectionController'
+import { getSectionById } from '../../utils/task'
+import { useInterval } from '../../utils/hooks'
+import useItemSelectionController from '../../hooks/useItemSelectionController'
+import styled from 'styled-components'
+import { useDispatch } from 'react-redux'
+import { setSelectedItemId } from '../../redux/tasksPageSlice'
+
+const BannerAndSectionContainer = styled.div`
+    flex: 1;
+    overflow: auto;
+`
+const ScrollViewMimic = styled.div`
+    margin: 40px 0px 0px 10px;
+    padding-right: 10px;
+    padding-bottom: 100px;
+`
+const TaskSectionViewContainer = styled.div`
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-top: 0;
+    background-color: ${Colors.gray._50};
+    min-width: 550px;
+`
 
 const TaskSection = () => {
-    const { data: taskSections, isLoading, isFetching } = useGetTasks()
-    const { refetch: fetchExternalTasks } = useFetchExternalTasks()
+    const bannerTaskSectionRef = useRef<HTMLDivElement>(null)
+    const sectionViewRef = useRef<HTMLDivElement>(null)
 
-    const refetchWasLocal = useRef(false)
+    const { data: taskSections, isLoading } = useGetTasks()
+    const { refetch: fetchExternalTasks } = useFetchExternalTasks()
+    const dispatch = useDispatch()
+
+    useInterval(fetchExternalTasks, TASK_REFETCH_INTERVAL)
+
     const routerSection = useParams().section || ''
     const navigate = useNavigate()
     const params = useParams()
+    const hideDetailsView = useCallback(() => navigate(`/tasks/${params.section}`), [params])
 
-    //stops fetching animation on iOS from triggering when refetch is called in another component
-    if (!isFetching) refetchWasLocal.current = false
-    const onRefresh = useCallback(async () => {
-        refetchWasLocal.current = true
-        fetchExternalTasks()
-    }, [fetchExternalTasks])
 
-    useInterval(onRefresh, TASK_REFETCH_INTERVAL)
+    const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
+    const expandTask = useCallback((itemId: string) => {
+        if (currentSection) navigate(`/tasks/${currentSection.id}/${itemId}`)
+    }, [currentSection])
+    useItemSelectionController(currentSection?.tasks ?? [], expandTask)
 
     useEffect(() => {
         if (taskSections && !getSectionById(taskSections, routerSection) && taskSections.length > 0) {
@@ -46,68 +70,63 @@ const TaskSection = () => {
         return section?.tasks.find((task) => task.id === params.task)
     }, [params.task, taskSections])
 
-    const refreshControl = <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
-    const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
+    useEffect(() => {
+        const listener = (event: MouseEvent) => {
+            if (!bannerTaskSectionRef.current || !sectionViewRef.current) return
+            if (bannerTaskSectionRef.current.contains(event.target as Node) && !sectionViewRef.current.contains(event.target as Node)) {
+                dispatch(setSelectedItemId(null))
+                hideDetailsView()
+            }
+        }
+        document.addEventListener('click', listener, true)
+        return () => document.removeEventListener('click', listener, true)
+    }, [bannerTaskSectionRef, sectionViewRef])
 
     return (
         <>
-            <ScrollView style={styles.container} refreshControl={refreshControl}>
-                {Platform.OS === 'web' && currentSection && <TaskSelectionController taskSection={currentSection} />}
+            <BannerAndSectionContainer ref={bannerTaskSectionRef}>
                 <EventBanner date={DateTime.now()} />
-                <View style={styles.tasksContent}>
-                    {isLoading || !currentSection ? (
-                        <Loading />
-                    ) : (
-                        <View>
-                            <SectionHeader
-                                sectionName={currentSection.name}
-                                allowRefresh={true}
-                                refetch={onRefresh}
-                                taskSectionId={currentSection.id}
-                            />
-                            {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
-                            {currentSection.tasks.map((task, index) => {
-                                return (
-                                    <TaskDropContainer
-                                        key={index}
-                                        task={task}
-                                        taskIndex={index}
-                                        sectionId={currentSection.id}
-                                    >
-                                        <Task
-                                            task={task}
-                                            setSheetTaskId={() => null}
-                                            dragDisabled={currentSection.is_done}
-                                            index={index}
-                                            sectionId={currentSection.id}
-                                        />
-                                    </TaskDropContainer>
-                                )
-                            })}
-                        </View>
-                    )}
-                </View>
-            </ScrollView>
-            {expandedTask && <TaskDetails task={expandedTask} />}
+                <ScrollViewMimic>
+                    <TaskSectionViewContainer>
+                        {isLoading || !currentSection ? (
+                            <Loading />
+                        ) : (
+                            <>
+                                <SectionHeader
+                                    sectionName={currentSection.name}
+                                    allowRefresh={true}
+                                    refetch={fetchExternalTasks}
+                                    taskSectionId={currentSection.id}
+                                />
+                                <div ref={sectionViewRef}>
+                                    {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
+                                    {currentSection.tasks.map((task, index) => {
+                                        return (
+                                            <TaskDropContainer
+                                                key={index}
+                                                task={task}
+                                                taskIndex={index}
+                                                sectionId={currentSection.id}
+                                            >
+                                                <Task
+                                                    task={task}
+                                                    dragDisabled={currentSection.is_done}
+                                                    index={index}
+                                                    sectionId={currentSection.id}
+
+                                                />
+                                            </TaskDropContainer>
+                                        )
+                                    })}
+                                </div>
+                            </>
+                        )}
+                    </TaskSectionViewContainer>
+                </ScrollViewMimic>
+            </BannerAndSectionContainer>
+            {expandedTask && currentSection && <TaskDetails task={expandedTask} />}
         </>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        ...Screens.container,
-        ...Flex.column,
-        paddingTop: 0,
-        backgroundColor: Colors.gray._50,
-        minWidth: '550px',
-    },
-    tasksContent: {
-        ...Flex.column,
-        marginRight: 10,
-        marginLeft: 10,
-        marginTop: Platform.OS === 'web' ? Spacing.margin.xLarge : Spacing.margin.large,
-        marginBottom: 100,
-    },
-})
 
 export default TaskSection

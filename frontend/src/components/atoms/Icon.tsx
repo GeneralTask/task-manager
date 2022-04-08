@@ -1,25 +1,31 @@
+import { Dimensions, Images } from '../../styles'
+
 /* eslint @typescript-eslint/no-var-requires: "off" */
 import React from 'react'
-import { Image, ImageSourcePropType, StyleSheet } from 'react-native'
-import styled from 'styled-components/native'
-import { Dimensions, Flex } from '../../styles'
+import styled from 'styled-components'
 
-const IconContainer = styled.View<{ width: number; height: number }>`
+const IconContainer = styled.div<{ width: number; height: number }>`
     width: ${(props) => props.width}px;
     height: ${(props) => props.height}px;
     align-items: center;
     justify-content: center;
 `
+const ImageContainer = styled.img`
+    width: 100%;
+    aspect-ratio: 1;
+`
 
 interface IconProps {
     size: 'xxSmall' | 'xSmall' | 'small' | 'medium' | 'large'
     uri?: string
-    source?: NodeRequire | ImageSourcePropType
+    source?: string
 }
 export const Icon = (props: IconProps) => {
-    let image = require('../../assets/generaltask.png')
-    if (props.source) image = props.source
-    if (props.uri) image = { uri: props.uri }
+    const image = props.uri != undefined
+        ? props.uri
+        : props.source
+            ? props.source
+            : Images.logos.generaltask
 
     const dimension = (() => {
         switch (props.size) {
@@ -38,22 +44,7 @@ export const Icon = (props: IconProps) => {
 
     return (
         <IconContainer width={dimension} height={dimension}>
-            <Image style={styles.icon} source={image} />
+            <ImageContainer src={image} />
         </IconContainer>
     )
 }
-
-const styles = StyleSheet.create({
-    iconContainer: {
-        width: 20,
-        height: 20,
-        ...Flex.column,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    icon: {
-        width: '100%',
-        height: undefined,
-        aspectRatio: 1,
-    },
-})

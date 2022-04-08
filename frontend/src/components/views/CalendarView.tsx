@@ -1,32 +1,19 @@
 import { DateTime } from 'luxon'
-import React, { useState, useEffect } from 'react'
-import styled from 'styled-components'
-import { Colors } from '../../styles'
+import React, { useState } from 'react'
+import { useAppSelector } from '../../redux/hooks'
 import CalendarEvents from '../calendar/CalendarEvents'
+import { CalendarContainer } from '../calendar/CalendarEvents-styles'
 import CalendarHeader from '../calendar/CalendarHeader'
-
-const CalendarViewContainer = styled.div`
-    min-width: 300px;
-    height: 100vh;
-    background-color: ${Colors.gray._100};
-    display: flex;
-    flex-direction: column;
-`
 
 const CalendarView = () => {
     const [date, setDate] = useState<DateTime>(DateTime.now())
-    const [selectedDateIsToday, setSelectedDateIsToday] = useState<boolean>(true)
-
-    // keep track of when the selected date is supposed to be today
-    useEffect(() => {
-        setSelectedDateIsToday(date.day === DateTime.now().day)
-    }, [date])
+    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
 
     return (
-        <CalendarViewContainer>
+        <CalendarContainer expanded={expandedCalendar}>
             <CalendarHeader date={date} setDate={setDate} />
-            <CalendarEvents date={date} isToday={selectedDateIsToday} />
-        </CalendarViewContainer>
+            <CalendarEvents date={date} numDays={expandedCalendar ? 7 : 1} />
+        </CalendarContainer>
     )
 }
 

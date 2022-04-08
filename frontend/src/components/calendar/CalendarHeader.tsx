@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon'
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
@@ -8,7 +10,7 @@ import { Divider } from '../atoms/SectionDivider'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 
 export const PaddedContainer = styled.div`
-    padding: ${Spacing.padding.medium}px ${Spacing.padding.large}px;
+    padding: ${Spacing.padding._16}px ${Spacing.padding._24}px;
 `
 export const HeaderBodyContainer = styled.div`
     display: flex;
@@ -34,14 +36,14 @@ const ButtonStyles = styled.button`
 export const HoverButton = styled(ButtonStyles)`
     color: ${Colors.white};
     background-color: ${Colors.purple._1};
-    padding: ${Spacing.padding.xSmall}px ${Spacing.padding.small}px;
+    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     &:hover {
         background-color: ${Colors.purple._2};
     }
 `
 export const ArrowButton = styled(ButtonStyles)`
     background-color: inherit;
-    padding: ${Spacing.padding.xSmall}px;
+    padding: ${Spacing.padding._4}px;
     &:hover {
         background-color: ${Colors.gray._200};
     }
@@ -52,32 +54,46 @@ interface CalendarHeaderProps {
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
 }
 export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
+    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
+    const dispatch = useAppDispatch()
     const selectNext = useCallback(
         () =>
             setDate((date) => {
-                return date.plus({ days: 1 })
+                return date.plus({ days: expandedCalendar ? 7 : 1 })
             }),
-        [date, setDate]
+        [date, setDate, expandedCalendar]
     )
     const selectPrevious = useCallback(
         () =>
             setDate((date) => {
-                return date.minus({ days: 1 })
+                return date.minus({ days: expandedCalendar ? 7 : 1 })
             }),
-        [date, setDate]
+        [date, setDate, expandedCalendar]
     )
+    const expandCalendar = (expanded: boolean) => {
+        dispatch(setExpandedCalendar(expanded))
+        setDate(expanded ? date.minus({ days: date.weekday % 7 }) : DateTime.now())
+    }
 
     return (
         <div>
             <PaddedContainer>
-                <TitleSmall>Calendar</TitleSmall>
+                <HeaderBodyContainer>
+                    <TitleSmall>Calendar</TitleSmall>
+                    <ArrowButton onClick={() => expandCalendar(!expandedCalendar)}>
+                        {expandedCalendar ?
+                            <Icon source={icons.arrows_in} size="small" /> :
+                            <Icon source={icons.arrows_out} size="small" />
+                        }
+                    </ArrowButton>
+                </HeaderBodyContainer>
             </PaddedContainer>
             <Divider color={Colors.gray._200} />
             <PaddedContainer>
                 <HeaderBodyContainer>
                     <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>
                     <ButtonContainer>
-                        <HoverButton onClick={() => setDate(DateTime.now())}>
+                        <HoverButton onClick={() => setDate(expandedCalendar ? DateTime.now().minus({ days: DateTime.now().weekday % 7 }) : DateTime.now())}>
                             Today
                         </HoverButton>
                         <ArrowButton onClick={selectPrevious}>

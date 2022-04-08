@@ -1,30 +1,27 @@
 import React from 'react'
-import { StyleSheet, Text, TextStyle } from 'react-native'
-import styled from 'styled-components/native'
+import styled from 'styled-components'
 import { Colors, Typography } from '../../../styles'
 
-const SubtitleSmallStyles = styled.Text`
+const SubtitleStyled = styled.span`
+    color: ${Colors.gray._600};
+    font-size: ${Typography.small.fontSize};
+    font-weight: ${Typography.weight._400};
+    font-family: Switzer-Variable;
+`
+const SubtitleSmallStyles = styled.span`
     color: ${Colors.gray._500};
-    font-size: ${Typography.xxSmall.fontSize}px;
-    font-weight: ${Typography.weight._400.fontWeight};
+    font-size: ${Typography.xxSmall.fontSize};
+    font-weight: ${Typography.weight._400};
+    font-family: Switzer-Variable;
 `
 
 interface SubtitleProps {
     children: string
-    style?: TextStyle
 }
-export const Subtitle = ({ children, style }: SubtitleProps) => {
-    return <Text style={[styles.subtitle, style]}>{children}</Text>
+export const Subtitle = ({ children }: SubtitleProps) => {
+    return <SubtitleStyled>{children}</SubtitleStyled>
 }
 
 export const SubtitleSmall = ({ children }: SubtitleProps) => {
     return <SubtitleSmallStyles>{children}</SubtitleSmallStyles>
 }
-
-const styles = StyleSheet.create({
-    subtitle: {
-        ...Typography.small,
-        ...Typography.weight._400,
-        color: Colors.gray._600,
-    },
-})

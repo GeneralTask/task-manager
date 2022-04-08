@@ -238,7 +238,7 @@ var TaskServiceAsana = TaskServiceDetails{
 	Logo:         "/images/asana.svg",
 	LogoV2:       "asana",
 	AuthType:     AuthTypeOauth2,
-	IsLinkable:   true,
+	IsLinkable:   false,
 	IsSignupable: false,
 }
 

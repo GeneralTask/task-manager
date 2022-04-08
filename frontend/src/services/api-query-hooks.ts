@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
 import { MESSAGES_PER_PAGE } from '../constants'
 import apiClient from '../utils/api'
-import { TEvent, TLinkedAccount, TMessage, TSupportedType, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
+import { TEmailThread, TEvent, TLinkedAccount, TMessage, TMessageResponse, TRecipients, TSupportedType, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 
 /**
@@ -19,6 +19,17 @@ const getTasks = async () => {
     }
 }
 
+export const useGetTaskDetail = (data: { taskId: string }) => {
+    return useQuery<TEmailThread>(['task', data.taskId], () => getTaskDetail(data))
+}
+const getTaskDetail = async (data: { taskId: string }) => {
+    try {
+        const res = await apiClient.get(`/tasks/detail/${data.taskId}`)
+        return res.data
+    } catch {
+        throw new Error('getTaskDetail failed')
+    }
+}
 
 export const useFetchExternalTasks = () => {
     const queryClient = useQueryClient()
@@ -69,6 +80,7 @@ export const useCreateTask = () => {
                             },
                             sender: '',
                             is_done: false,
+                            recipients: {} as TRecipients,
                         }
                         section.tasks = [newTask, ...section.tasks]
                         queryClient.setQueryData('tasks', () => sections)
@@ -212,10 +224,13 @@ export const useReorderTask = () => {
                     dropSection.tasks.splice(data.orderingId - 1, 0, dragTask)
 
                     // update ordering ids
-                    // resetOrderingIds(dropSection.tasks)
+                    resetOrderingIds(dropSection.tasks)
                     resetOrderingIds(dragSection.tasks)
                 }
                 queryClient.setQueryData('tasks', sections)
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries('tasks')
             }
         }
     )
@@ -334,6 +349,37 @@ const modifyTaskSection = async (data: { sectionId: string, name: string }) => {
     }
 }
 /**
+ * THREADS QUERIES
+ */
+export const useGetInfiniteThreads = () => {
+    return useInfiniteQuery<TEmailThread[]>('emailthreads', getInfiniteThreads,
+        {
+            getNextPageParam: (_, pages) => pages.length + 1,
+        }
+    )
+}
+const getInfiniteThreads = async ({ pageParam = 1 }) => {
+    try {
+        const res = await apiClient.get(`/threads/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}`)
+        return res.data
+    } catch {
+        throw new Error('getInfiniteThreads failed')
+    }
+}
+
+export const useGetThreadDetail = (data: { threadId: string }) => {
+    return useQuery<TEmailThread>(['emailthread', data.threadId], () => getThreadDetail(data))
+}
+const getThreadDetail = async (data: { threadId: string }) => {
+    try {
+        const res = await apiClient.get(`/threads/detail/${data.threadId}`)
+        return res.data
+    } catch {
+        throw new Error('getThreadDetail failed')
+    }
+}
+
+/**
  * MESSAGES QUERIES
  */
 export const useGetInfiniteMessages = () => {
@@ -393,13 +439,29 @@ const markMessageRead = async (data: { id: string, isRead: boolean }) => {
     }
 }
 
-
 export const useMarkMessageAsTask = () => {
     const queryClient = useQueryClient()
     return useMutation((data: { id: string, isTask: boolean }) => markMessageAsTask(data),
         {
+            onMutate: async (data: { id: string, isTask: boolean }) => {
+                // cancel all current getMessages queries
+                await queryClient.cancelQueries('messages')
+
+                const response: TMessageResponse | undefined = queryClient.getQueryData('messages')
+                if (!response) return
+
+                for (const page of response.pages) {
+                    for (const message of page) {
+                        if (message.id === data.id) {
+                            message.is_task = data.isTask
+                        }
+                    }
+                }
+                queryClient.setQueryData('messages', response)
+            },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
+                queryClient.invalidateQueries('messages')
             }
         }
     )
@@ -416,8 +478,8 @@ const markMessageAsTask = async (data: { id: string, isTask: boolean }) => {
 /**
  * EVENTS QUERIES
  */
-export const useGetEvents = (params: { startISO: string, endISO: string }, calendarType: 'sidebar' | 'banner') => {
-    return useQuery<TEvent[]>(['events', calendarType], () => getEvents(params))
+export const useGetEvents = (params: { startISO: string, endISO: string }, calendarType: 'calendar' | 'banner') => {
+    return useQuery<TEvent[]>(['events', calendarType, params.startISO], () => getEvents(params))
 }
 const getEvents = async (params: { startISO: string, endISO: string }) => {
     try {

@@ -1,12 +1,12 @@
 import React from 'react'
-import { View, Text } from 'react-native'
+import styled from 'styled-components'
 
-const Loading = () => {
-    return (
-        <View>
-            <Text>Loading...</Text>
-        </View>
-    )
-}
+const LoadingBackground = styled.div`
+    width: 100%;
+    height: 100%;
+    background-color: inherit;
+`
+
+const Loading = () => <LoadingBackground />
 
 export default Loading

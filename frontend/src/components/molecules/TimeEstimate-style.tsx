@@ -1,6 +1,7 @@
-import styled from 'styled-components'
-import { Colors } from '../../styles'
+import { Colors, Shadows } from '../../styles'
 import { weight, xxSmall } from '../../styles/typography'
+
+import styled from 'styled-components'
 
 const TIME_ESTIMATOR_WIDTH = 150
 const TIME_ESTIMATOR_PADDING = 10
@@ -11,7 +12,7 @@ export const TimeEstimateContainer = styled.div`
     position: absolute;
     background-color: ${Colors.white};
     border-radius: 10px;
-    box-shadow: 0 0 5px ${Colors.gray._100};
+    box-shadow: ${Shadows.medium};
     z-index: 1;
     top: 100%;
     right: 0;
@@ -21,9 +22,9 @@ export const TimeEstimateContainer = styled.div`
 
 export const Header = styled.div`
     font-family: Switzer-Variable;
-    font-weight: ${weight._600.fontWeight};
-    font-size: ${xxSmall.fontSize}px;
-    line-height: ${xxSmall.lineHeight}px;
+    font-weight: ${weight._600};
+    font-size: ${xxSmall.fontSize};
+    line-height: ${xxSmall.lineHeight};
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: ${Colors.gray._400};

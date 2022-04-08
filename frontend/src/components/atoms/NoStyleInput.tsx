@@ -7,15 +7,15 @@ const StyledInput = styled.input`
     border: none;
     background: transparent;
 `
-interface WebInputProps {
+interface NoStyleInputProps {
     value: string
     onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
     placeholder: string
     onSubmit?: () => void
 }
-const WebInput = React.forwardRef((props: WebInputProps, ref: React.Ref<HTMLInputElement>) => {
+const NoStyleInput = React.forwardRef((props: NoStyleInputProps, ref: React.Ref<HTMLInputElement>) => {
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.nativeEvent.key === 'Enter' && props.onSubmit) {
+        if (e.key === 'Enter' && props.onSubmit) {
             props.onSubmit()
         } else e.stopPropagation()
     }
@@ -30,4 +30,4 @@ const WebInput = React.forwardRef((props: WebInputProps, ref: React.Ref<HTMLInpu
     )
 })
 
-export default WebInput
+export default NoStyleInput

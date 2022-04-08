@@ -214,7 +214,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 		},
 		Deeplink:       t.Deeplink,
 		Title:          t.Title,
-		Body:           t.Body,
+		Body:           t.TaskBase.Body,
 		TimeAllocation: t.TimeAllocation,
 		Sender:         t.Sender,
 		Recipients: Recipients{
@@ -222,7 +222,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 			Cc:  getRecipients(t.Recipients.Cc),
 			Bcc: getRecipients(t.Recipients.Bcc),
 		},
-		SentAt:  t.CreatedAtExternal.Time().Format(time.RFC3339),
+		SentAt:  t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		DueDate: dueDate,
 		IsDone:  t.IsCompleted,
 	}

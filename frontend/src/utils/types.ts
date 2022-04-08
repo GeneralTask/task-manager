@@ -14,6 +14,23 @@ export interface TConferenceCall {
     url: string
 }
 
+export interface TSender {
+    name: string
+    email: string
+    reply_to: string
+}
+
+export interface TRecipients {
+    to: TRecipient[]
+    cc: TRecipient[]
+    bcc: TRecipient[]
+}
+
+export interface TRecipient {
+    name: string
+    email: string
+}
+
 export interface TTask {
     id: string
     id_ordering: number
@@ -25,6 +42,7 @@ export interface TTask {
     due_date: string
     source: TTaskSource
     sender: string
+    recipients: TRecipients
     is_done: boolean
 }
 
@@ -52,9 +70,16 @@ export interface TMessage {
     deeplink: string
     body: string
     sender: string
+    sender_v2: TSender
+    recipients: TRecipients
     sent_at: string
     is_unread: boolean
+    is_task: boolean
     source: TMessageSource
+}
+
+export interface TMessageResponse {
+    pages: TMessage[][]
 }
 
 export interface TEvent {
@@ -65,6 +90,27 @@ export interface TEvent {
     datetime_start: string
     datetime_end: string
     conference_call: TConferenceCall | null
+}
+
+export interface TEmail {
+    smtp_id: string
+    thread_id: string
+    email_id: string
+    subject: string
+    body: string
+    sender_domain: string
+    sender_email: string
+    sender_name: string
+    reply_to: string
+    is_unread: boolean
+    recipients: TRecipients
+    sent_at: string
+}
+
+export interface TEmailThread {
+    thread_id: string
+    last_updated_at: string
+    emails: TEmail[]
 }
 
 export interface TTaskSection {

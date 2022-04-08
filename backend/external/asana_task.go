@@ -131,10 +131,11 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task,
 			database.TaskChangeableFields{
 				Title:       &task.Title,
-				Body:        &task.Body,
+				Body:        &task.TaskBase.Body,
 				DueDate:     task.DueDate,
 				IsCompleted: &isCompleted,
 			},
+			nil,
 		)
 		if err != nil {
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
@@ -224,5 +225,9 @@ func (asanaTask AsanaTaskSource) CreateNewEvent(userID primitive.ObjectID, accou
 }
 
 func (asanaTask AsanaTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
+	return nil
+}
+
+func (asanaTask AsanaTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
 	return nil
 }
