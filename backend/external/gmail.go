@@ -211,7 +211,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
-		threadItem.EmailThread.Emails = nestedEmails
 		updateThreadEmails(threadItem, &nestedEmails)
 		err = createOrUpdateGmailThread(db, userID, threadItem)
 		if err != nil {
