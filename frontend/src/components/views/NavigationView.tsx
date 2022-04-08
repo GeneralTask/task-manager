@@ -1,20 +1,20 @@
-import { Border, Colors } from '../../styles'
 import React, { useState } from 'react'
-import { margin, padding } from '../../styles/spacing'
-import { useAddTaskSection, useGetTasks } from '../../services/api-query-hooks'
 import { useLocation, useParams } from 'react-router-dom'
-
-import FeedbackButton from '../molecules/FeedbackButton'
-import { Icon } from '../atoms/Icon'
-import Loading from '../atoms/Loading'
-import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
-import NoStyleInput from '../atoms/NoStyleInput'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
-import { authSignOut } from '../../utils/auth'
-import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import { useAppDispatch } from '../../redux/hooks'
+import { useAddTaskSection, useGetLinkedAccounts, useGetTasks } from '../../services/api-query-hooks'
+import { Border, Colors } from '../../styles'
+import { icons } from '../../styles/images'
+import { margin, padding } from '../../styles/spacing'
 import { weight } from '../../styles/typography'
+import { authSignOut } from '../../utils/auth'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import { Icon } from '../atoms/Icon'
+import Loading from '../atoms/Loading'
+import NoStyleInput from '../atoms/NoStyleInput'
+import FeedbackButton from '../molecules/FeedbackButton'
+import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
+
 
 const NavigationViewContainer = styled.div`
     display: flex;
@@ -58,20 +58,20 @@ const GapView = styled.div`
 const NavigationView = () => {
     const dispatch = useAppDispatch()
     const { data: taskSections } = useGetTasks()
+    const { data: linkedAccounts } = useGetLinkedAccounts()
     const { section: sectionIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
     const { mutate: addTaskSection } = useAddTaskSection()
     const { pathname } = useLocation()
-
-    // const showLoadingSections = isLoading || !taskSections
 
     return (
         <NavigationViewContainer>
             <NavigationViewHeader>
                 <Icon size="medium" />
             </NavigationViewHeader>
-            {taskSections !== undefined ? <NavigationSectionLinks
+            {(taskSections !== undefined && linkedAccounts !== undefined) ? <NavigationSectionLinks
                 taskSections={taskSections}
+                linkedAccounts={linkedAccounts}
                 sectionId={sectionIdParam || ''}
                 pathName={pathname}
             /> :

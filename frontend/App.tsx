@@ -1,12 +1,12 @@
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import React, { lazy, Suspense } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import React, { Suspense, lazy } from 'react'
-
-import LandingScreen from './src/screens/LandingScreen'
-import Loading from './src/components/atoms/Loading'
-import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import Loading from './src/components/atoms/Loading'
 import store from './src/redux/store'
+import LandingScreen from './src/screens/LandingScreen'
+import PrivateOutlet from './src/services/PrivateOutlet'
+
 
 const CompanyPolicyScreen = lazy(() => import('./src/screens/CompanyPolicyScreen'))
 const TasksScreen = lazy(() => import('./src/screens/TasksScreen'))
@@ -43,7 +43,9 @@ const App = () => {
                                 </Route>
                                 <Route path="messages" element={<PrivateOutlet />}>
                                     <Route index element={<TasksScreen />} />
-                                    <Route path=":message" element={<TasksScreen />} />
+                                    <Route path=":account" element={<TasksScreen />}>
+                                        <Route path=":message" element={<TasksScreen />} />
+                                    </Route>
                                 </Route>
                                 <Route path="settings" element={<PrivateOutlet />}>
                                     <Route index element={<TasksScreen />} />

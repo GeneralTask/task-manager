@@ -1,16 +1,17 @@
 import React from 'react'
 import { icons } from '../../styles/images'
-import { TTaskSection } from '../../utils/types'
+import { TLinkedAccount, TTaskSection } from '../../utils/types'
 import NavigationLink from './NavigationLink'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
 
 interface SectionLinksProps {
     taskSections: TTaskSection[]
+    linkedAccounts: TLinkedAccount[]
     sectionId: string
     pathName: string
 }
 
-const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLinksProps) => {
+const NavigationSectionLinks = ({ taskSections, linkedAccounts, sectionId, pathName }: SectionLinksProps) => {
     return (
         <>
             <NavigationLinkDropdown title={'Tasks'} icon={icons.inbox} link={''} isCurrentPage={false}>
@@ -26,17 +27,19 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                     />
                 ))}
             </NavigationLinkDropdown>
-            <NavigationLink
-                link="/messages"
-                title="Messages"
-                icon={icons.inbox}
-                isCurrentPage={pathName === '/messages'}
-            />
+            <NavigationLinkDropdown title={'Messages'} icon={icons.inbox} link={'/messages/'} isCurrentPage={false}>
+                <NavigationLink
+                    link="/messages"
+                    title="Messages"
+                    icon={icons.inbox}
+                    isCurrentPage={pathName.startsWith('/messages')}
+                />
+            </NavigationLinkDropdown>
             <NavigationLink
                 link="/settings"
                 title="Settings"
                 icon={icons.gear}
-                isCurrentPage={pathName === '/settings'}
+                isCurrentPage={pathName.startsWith('/settings')}
             />
         </>
     )
