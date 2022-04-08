@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -55,6 +56,37 @@ func UpdateOrCreateTask(
 		dbQuery,
 		bson.M{"$set": fieldsToUpdate},
 	), nil
+}
+
+func GetEmailFromSMTPID(ctx context.Context, smptID string, userID primitive.ObjectID) (*Email, error) {
+	parentCtx := ctx
+	db, dbCleanup, err := GetDBConnection()
+	if err != nil {
+		log.Print("Failed to establish DB connection", err)
+		return nil, err
+	}
+	defer dbCleanup()
+	taskCollection := GetTaskCollection(db)
+
+	var thread Item
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = taskCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"email_thread.emails.smtp_id": smptID},
+			{"user_id": userID},
+		}}).Decode(&thread)
+	if err != nil {
+		log.Printf("Failed to get email with smtp ID: %+v, error: %v", smptID, err)
+		return nil, err
+	}
+
+	if len(thread.EmailThread.Emails) == 0 {
+		log.Printf("Failed to get email with smtp ID: %+v, thread Item %+v has empty Emails list", smptID, thread)
+		return nil, fmt.Errorf("failed to get email with smtp ID: %+v, thread Item %+v has empty Emails list", smptID, thread)
+	}
+	return &thread.EmailThread.Emails[0], nil
 }
 
 func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Item, error) {

@@ -2,18 +2,18 @@ package api
 
 import (
 	"context"
-	"log"
-	"net/http"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
+	"net/http"
 )
 
 type messageComposeParamsV2 struct {
+	SMTPID          *string              `json:"smtp_id"`
 	Subject         *string              `json:"subject"`
 	Body            *string              `json:"body" binding:"required"`
 	Recipients      *database.Recipients `json:"recipients" binding:"required"`
@@ -43,11 +43,11 @@ func (api *API) MessageComposeV2(c *gin.Context) {
 	if requestParams.MessageID != nil {
 		handleReply(c, userID, taskSourceResult, &requestParams)
 	} else {
-		handleCompose(c, userID, taskSourceResult, &requestParams)
+		handleComposeV2(c, userID, taskSourceResult, &requestParams)
 	}
 }
 
-func handleCompose(c *gin.Context, userID primitive.ObjectID, taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
+func handleComposeV2(c *gin.Context, userID primitive.ObjectID, taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
 	if requestParams.Subject == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "subject must be set for composed message"})
 		return
@@ -67,18 +67,21 @@ func handleCompose(c *gin.Context, userID primitive.ObjectID, taskSourceResult *
 	c.JSON(http.StatusCreated, gin.H{})
 }
 
-func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
+func handleReplyV2(c *gin.Context, userID primitive.ObjectID, taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParamsV2) {
 	if !taskSourceResult.Details.IsReplyable {
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
 		return
 	}
 	messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
+
+	GetEmailFromSMTPID
+
 	if err != nil {
 		log.Printf("could not parse message id with error: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "could not parse message id"})
 		return
 	}
-	err = checkMesageBelongsToUser(userID, messageID)
+	err = checkMessageBelongsToUserV2(userID, messageID)
 	if err != nil {
 		Handle404(c)
 		return
@@ -96,7 +99,12 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 	c.JSON(http.StatusCreated, gin.H{})
 }
 
-func checkMesageBelongsToUser(userID primitive.ObjectID, messageID primitive.ObjectID) error {
+func getEmailFromSMTPID(smptID string) (*database.Email, error) {
+
+	return nil, nil
+}
+
+func checkMessageBelongsToUserV2(userID primitive.ObjectID, messageID primitive.ObjectID) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
