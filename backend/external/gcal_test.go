@@ -501,6 +501,7 @@ func getEventCreateServer(t *testing.T, eventCreateObj EventCreateObject, expect
 		var requestEvent calendar.Event
 		json.NewDecoder(r.Body).Decode(&requestEvent)
 
+		// Verify request is built correctly
 		assertGcalCalendarEventsEqual(t, expectedEvent, &requestEvent)
 		if eventCreateObj.AddHangouts {
 			assert.NotNil(t, requestEvent.ConferenceData)
