@@ -1,12 +1,14 @@
-import { Colors, Images, Typography } from '../../styles'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
-import { useCreateTask } from '../../services/api-query-hooks'
-import KeyboardShortcut from '../atoms/KeyboardShortcut'
+import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
-import { padding } from '../../styles/spacing'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
+import { useAppDispatch } from '../../redux/hooks'
+import { setSelectedItemId } from '../../redux/tasksPageSlice'
+import { useCreateTask } from '../../services/api-query-hooks'
+import { Colors, Images, Typography } from '../../styles'
 import { radius } from '../../styles/border'
+import { padding } from '../../styles/spacing'
 import { Icon } from '../atoms/Icon'
+import KeyboardShortcut from '../atoms/KeyboardShortcut'
 
 const CreateNewTaskContainer = styled.div`
     display: flex;
@@ -33,18 +35,9 @@ interface CreateNewTaskProps {
 }
 const CreateNewTask = (props: CreateNewTaskProps) => {
     const [text, setText] = useState('')
-    const [isFocused, setIsFocused] = useState(false)
-    const handleBlur = useCallback(() => setIsFocused(false), [])
     const { mutate: createTask } = useCreateTask()
+    const dispatch = useAppDispatch()
     const inputRef = useRef<HTMLInputElement>(null)
-    useEffect(() => {
-        if (!inputRef.current) return
-        if (isFocused) {
-            inputRef.current.focus()
-        } else {
-            inputRef.current.blur()
-        }
-    }, [isFocused])
 
     const submitNewTask = async () => {
         if (!text) return
@@ -58,22 +51,24 @@ const CreateNewTask = (props: CreateNewTaskProps) => {
         }
     }
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        e.stopPropagation()
+        if (e.key === 'ArrowDown') inputRef.current?.blur()
+        else e.stopPropagation()
         if (e.key === 'Enter') submitNewTask()
-        else if (e.key === 'Escape') handleBlur()
+        else if (e.key === 'Escape') inputRef.current?.blur()
     }
     return (
         <CreateNewTaskContainer>
             <Icon source={Images.icons.plus} size={'small'} />
-            <TaskInput onBlur={handleBlur}
+            <TaskInput
                 ref={inputRef}
                 value={text}
                 placeholder="Add new task"
                 onKeyDown={handleKeyDown}
+                onFocus={() => dispatch(setSelectedItemId(null))}
                 onChange={(e) => setText(e.target.value)} />
             <KeyboardShortcut
                 shortcut={KEYBOARD_SHORTCUTS.CREATE_TASK}
-                onKeyPress={() => setIsFocused(true)} />
+                onKeyPress={() => inputRef.current?.focus()} />
         </CreateNewTaskContainer>
     )
 }
