@@ -4,10 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/GeneralTask/task-manager/backend/testutils"
+	"github.com/google/go-cmp/cmp"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -488,7 +487,18 @@ func TestCreateNewEvent(t *testing.T) {
 		//	ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		//}
 
-		server := getEventCreateServer(t, eventCreateObj)
+		expectedRequestEvent := calendar.Event{
+			Attendees: []*calendar.EventAttendee{},
+			//ConferenceData: (*calendar.ConferenceData)(nil),
+			Description: "test description",
+			Start:       &calendar.EventDateTime{Date: "", DateTime: "2019-04-20T00:00:00Z", TimeZone: "test timezone"},
+			End:         &calendar.EventDateTime{Date: "", DateTime: "2020-04-20T00:00:00Z", TimeZone: "test timezone"},
+			Location:    "test location",
+			Summary:     "test summary",
+			//ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0,
+		}
+
+		server := getEventCreateServer(t, eventCreateObj, &expectedRequestEvent)
 		//server := getServerForTasks(nil)
 		defer server.Close()
 
@@ -837,6 +847,27 @@ func assertCalendarEventsEqual(t *testing.T, a *database.Item, b *database.Item)
 	assert.Equal(t, a.ConferenceCall, b.ConferenceCall)
 }
 
+func assertGcalCalendarEventsEqual(t *testing.T, a *calendar.Event, b *calendar.Event) {
+
+	//Attendees: []*calendar.EventAttendee{},
+	////ConferenceData: (*calendar.ConferenceData)(nil),
+	//	Description: "test description",
+	//		End:         nil,
+	//		Location:    "test location",
+	//		Start:       nil,
+	//		Summary:     "test summary",
+
+	assert.Equal(t, a.Description, b.Description)
+	assert.Equal(t, a.Location, b.Location)
+	assert.Equal(t, a.Summary, b.Summary)
+	if a.Start != nil && b.Start != nil {
+		assert.Equal(t, a.Start.DateTime, a.Start.DateTime)
+		cmp.Equal(*a.Start, *b.Start)
+	} else {
+		assert.Equal(t, a.Start, b.Start)
+	}
+}
+
 func getServerForTasks(events []*calendar.Event) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resp := &calendar.Events{
@@ -861,56 +892,28 @@ type eventCreateParams struct {
 	Description string `json:"description"`
 }
 
-func getEventCreateServer(t *testing.T, eventCreateObj EventCreateObject) *httptest.Server {
+func getEventCreateServer(t *testing.T, eventCreateObj EventCreateObject, expectedEvent *calendar.Event) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		data, _ := ioutil.ReadAll(r.Body)
 
-		fmt.Printf("%+v", string(data))
+		//requestEvent := calendar.Event{
+		//	Attendees: []*calendar.EventAttendee{},
+		//	//ConferenceData: (*calendar.ConferenceData)(nil),
+		//	Description: "test description",
+		//	End:         nil,
+		//	Location:    "test location",
+		//	Start:       nil,
+		//	Summary:     "test summary",
+		//	//ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0,
+		//}
 
-		//buf := new(bytes.Buffer)
-		//buf.ReadFrom(r.Body)
-		//newStr := buf.String()
-		//log.Printf("jerd body string %+v", newStr)
-		////{"description":"test description","end":{"dateTime":"2020-04-20T00:00:00Z"},"location":"test location","start":{"dateTime":"2019-04-20T00:00:00Z"},"summary":"test summary"}
-		////{"attendees":[{"displayName":"test attendee","email":"test_attendee@generaltask.com"}],"description":"test description","end":{"dateTime":"2020-04-20T00:00:00Z","timeZone":"test timezone"},"location":"test location","start":{"dateTime":"2019-04-20T00:00:00Z","timeZone":"test timezone"},"summary":"test summary"}
-		////expectedBody := `{"attendees":[{"displayName":"test attendee","email":"test_attendee@generaltask.com"}],"description":"test description","end":{"dateTime":"2020-04-20T00:00:00Z","timeZone":"test timezone"},"location":"test location","start":{"dateTime":"2019-04-20T00:00:00Z","timeZone":"test timezone"},"summary":"test summary"}\\n`
-		//expectedBody := "{\"attendees\":[{\"displayName\":\"test attendee\",\"email\":\"test_attendee@generaltask.com\"}],\"description\":\"test description\",\"end\":{\"dateTime\":\"2020-04-20T00:00:00Z\",\"timeZone\":\"test timezone\"},\"location\":\"test location\",\"start\":{\"dateTime\":\"2019-04-20T00:00:00Z\",\"timeZone\":\"test timezone\"},\"summary\":\"test summary\"}\n"
-		//assert.Equal(t, expectedBody, newStr)
+		var requestEvent calendar.Event
+		json.NewDecoder(bytes.NewReader(data)).Decode(&requestEvent)
 
-		//var params eventCreateParams
-		params := calendar.Event{
-			AnyoneCanAddSelf:false, Attachments:[]*calendar.EventAttachment(nil), Attendees:[]*calendar.EventAttendee{(*calendar.EventAttendee)(0x1400049e1e0)}, AttendeesOmitted:false, ColorId:"", ConferenceData:(*calendar.ConferenceData)(nil), Created:"", Creator:(*calendar.EventCreator)(nil), Description:"test description", End:(*calendar.EventDateTime)(0x140005ac7e0), EndTimeUnspecified:false, Etag:"", EventType:"", ExtendedProperties:(*calendar.EventExtendedProperties)(nil), Gadget:(*calendar.EventGadget)(nil), GuestsCanInviteOthers:(*bool)(nil), GuestsCanModify:false, GuestsCanSeeOtherGuests:(*bool)(nil), HangoutLink:"", HtmlLink:"", ICalUID:"", Id:"", Kind:"", Location:"test location", Locked:false, Organizer:(*calendar.EventOrganizer)(nil), OriginalStartTime:(*calendar.EventDateTime)(nil), PrivateCopy:false, Recurrence:[]string(nil), RecurringEventId:"", Reminders:(*calendar.EventReminders)(nil), Sequence:0, Source:(*calendar.EventSource)(nil), Start:(*calendar.EventDateTime)(0x140005ac840), Status:"", Summary:"test summary", Transparency:"", Updated:"", Visibility:"", ServerResponse:googleapi.ServerResponse{HTTPStatusCode:0, Header:http.Header(nil)}, ForceSendFields:[]string(nil), NullFields:[]string(nil)
-		}
-
-
-
-		//_ = calendar.Event{}
-
-		json.NewDecoder(bytes.NewReader(data)).Decode(&params)
-		log.Printf("jerd event create server %+v", params)
-		log.Printf("jerd event create server %#v", params)
-
-		//assert.Equal(t, threadID, params.ThreadID)
-		//decodedData, err := base64.URLEncoding.DecodeString(params.Raw)
-		//assert.NoError(t, err)
-		//assert.Equal(t, expectedRawReply, string(decodedData))
-		log.Println("jerd get event create server")
-		assert.True(t, false)
+		assertGcalCalendarEventsEqual(t, expectedEvent, &requestEvent)
 
 		w.WriteHeader(201)
 		w.Write([]byte(`{}`))
 		return
-
-		//resp := &calendar.Event{
-		//	//Items:          events,
-		//	ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 200},
-		//}
-		//
-		//b, err := json.Marshal(resp)
-		//if err != nil {
-		//	http.Error(w, "unable to marshal request: "+err.Error(), http.StatusBadRequest)
-		//	return
-		//}
-		//w.Write(b)
 	}))
 }
