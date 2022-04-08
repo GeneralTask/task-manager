@@ -17,4 +17,4 @@ const CalendarView = () => {
     )
 }
 
-export default CalendarView
+export default React.memo(CalendarView)
