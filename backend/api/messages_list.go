@@ -46,20 +46,20 @@ func markReadMessagesInDB(
 ) error {
 	fetchedEmailTaskIDs := make(map[primitive.ObjectID]bool)
 	for _, email := range *fetchedEmails {
-		fetchedEmailTaskIDs[email.ID] = true
+		fetchedEmailTaskIDs[email.TaskBase.ID] = true
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentEmail := range *currentEmails {
-		if !fetchedEmailTaskIDs[currentEmail.ID] && !failedFetchSources[currentEmail.SourceID] {
+		if !fetchedEmailTaskIDs[currentEmail.TaskBase.ID] && !failedFetchSources[currentEmail.SourceID] {
 			f := false
 			messageChangeable := database.MessageChangeable{
 				EmailChangeable: database.EmailChangeable{
 					IsUnread: &f,
 				},
 			}
-			err := updateMessageInDB(api, nil, currentEmail.ID, currentEmail.UserID, &messageChangeable)
+			err := updateMessageInDB(api, nil, currentEmail.TaskBase.ID, currentEmail.UserID, &messageChangeable)
 			if err != nil {
-				log.Printf("failed to mark message read: (ID=%v) with error: %v", currentEmail.ID, err)
+				log.Printf("failed to mark message read: (ID=%v) with error: %v", currentEmail.TaskBase.ID, err)
 				return err
 			}
 		}
@@ -71,7 +71,7 @@ func (api *API) emailToMessage(e *database.Item) *message {
 	messageSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(e.SourceID)
 
 	return &message{
-		ID:       e.ID,
+		ID:       e.TaskBase.ID,
 		Title:    e.Title,
 		Deeplink: e.Deeplink,
 		Body:     e.TaskBase.Body,

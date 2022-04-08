@@ -56,7 +56,7 @@ func (api *API) ThreadModify(c *gin.Context) {
 	}
 
 	// update external thread
-	err = taskSourceResult.Source.ModifyThread(userID, thread.SourceAccountID, thread.ID, modifyParams.IsUnread)
+	err = taskSourceResult.Source.ModifyThread(userID, thread.SourceAccountID, thread.TaskBase.ID, modifyParams.IsUnread)
 	if err != nil {
 		log.Printf("failed to update external task source: %v", err)
 		Handle500(c)

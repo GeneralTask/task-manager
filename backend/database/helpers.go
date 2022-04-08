@@ -93,7 +93,6 @@ func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 			{"user_id": userID},
 		},
 	}
-	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err := taskCollection.UpdateOne(
@@ -103,7 +102,7 @@ func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Printf("Failed to get or create task: %v", err)
+		log.Printf("Failed to get or create item: %v", err)
 		return nil, err
 	}
 
@@ -115,7 +114,7 @@ func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 		dbQuery,
 	).Decode(&item)
 	if err != nil {
-		log.Printf("Failed to get task: %v", err)
+		log.Printf("Failed to get item: %v", err)
 		return nil, err
 	}
 

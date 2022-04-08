@@ -152,8 +152,8 @@ func adjustForCompletedTasks(
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
-		if !newTaskIDs[currentTask.ID] && !currentTask.IsMessage && !failedFetchSources[currentTask.SourceID] {
-			err := database.MarkItemComplete(db, currentTask.ID)
+		if !newTaskIDs[currentTask.TaskBase.ID] && !currentTask.IsMessage && !failedFetchSources[currentTask.SourceID] {
+			err := database.MarkItemComplete(db, currentTask.TaskBase.ID)
 			if err != nil {
 				log.Printf("failed to update task ordering ID: %v", err)
 				return err
@@ -203,7 +203,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 	}
 
 	return &TaskResult{
-		ID:         t.ID,
+		ID:         t.TaskBase.ID,
 		IDOrdering: t.IDOrdering,
 		Source: TaskSource{
 			Name:          taskSourceResult.Details.Name,
