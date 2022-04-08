@@ -6,6 +6,7 @@ import { useAppDispatch } from '../../redux/hooks'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import { useReorderTask } from '../../services/api-query-hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
+import { margin } from '../../styles/spacing'
 import { weight } from '../../styles/typography'
 import { ItemTypes, TTaskSection } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
@@ -30,7 +31,7 @@ const SectionTitle = styled.span<{ isSelected: boolean }>`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-left: 9px;
+    margin-left: ${margin._8}px;
     flex: 1;
 `
 const SectionTitleItemCount = styled.span<{ isSelected: boolean }>`

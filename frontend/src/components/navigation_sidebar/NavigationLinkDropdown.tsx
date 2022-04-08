@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import { margin } from '../../styles/spacing'
 import { Icon } from '../atoms/Icon'
 
 
@@ -16,8 +17,8 @@ const DropdownContainer = styled.div<{ isSelected: boolean }>`
     border-width: 2px;
     border-style: solid;
     border-color: transparent;
-    gap: 9px;
-    ${(props) => (props.isSelected ? `background-color: ${Colors.gray._50};` : '')};
+    gap: ${margin._8}px;
+    ${(props) => (props.isSelected && `background-color: ${Colors.gray._50};`)};
 `
 const LinksContainer = styled.div`
     display: flex;
