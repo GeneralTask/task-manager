@@ -12,7 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const DEFAULT_THREAD_LIMIT int = 100
@@ -93,11 +92,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 		return
 	}
 
-	orderedMessages := api.orderThreads(
-		db,
-		threads,
-		userID.(primitive.ObjectID),
-	)
+	orderedMessages := api.orderThreads(threads)
 	if err != nil {
 		Handle500(c)
 		return
@@ -105,11 +100,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 	c.JSON(200, orderedMessages)
 }
 
-func (api *API) orderThreads(
-	db *mongo.Database,
-	threadItems *[]database.Item,
-	userID primitive.ObjectID,
-) []*Thread {
+func (api *API) orderThreads(threadItems *[]database.Item) []*Thread {
 	sort.SliceStable(*threadItems, func(i, j int) bool {
 		a := (*threadItems)[i]
 		b := (*threadItems)[j]
