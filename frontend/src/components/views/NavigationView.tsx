@@ -59,7 +59,7 @@ const NavigationView = () => {
     const dispatch = useAppDispatch()
     const { data: taskSections } = useGetTasks()
     const { data: linkedAccounts } = useGetLinkedAccounts()
-    const { section: sectionIdParam } = useParams()
+    const { section: sectionIdParam, account: accountIdParam } = useParams()
     const [sectionName, setSectionName] = useState('')
     const { mutate: addTaskSection } = useAddTaskSection()
     const { pathname } = useLocation()
@@ -73,6 +73,7 @@ const NavigationView = () => {
                 taskSections={taskSections}
                 linkedAccounts={linkedAccounts}
                 sectionId={sectionIdParam || ''}
+                accountId={accountIdParam || ''}
                 pathName={pathname}
             /> :
 

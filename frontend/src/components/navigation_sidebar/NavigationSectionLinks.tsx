@@ -8,10 +8,11 @@ interface SectionLinksProps {
     taskSections: TTaskSection[]
     linkedAccounts: TLinkedAccount[]
     sectionId: string
+    accountId: string
     pathName: string
 }
 
-const NavigationSectionLinks = ({ taskSections, linkedAccounts, sectionId, pathName }: SectionLinksProps) => {
+const NavigationSectionLinks = ({ taskSections, linkedAccounts, sectionId, accountId, pathName }: SectionLinksProps) => {
     return (
         <>
             <NavigationLinkDropdown title={'Tasks'} icon={icons.inbox} link={''} isCurrentPage={false}>
@@ -28,12 +29,15 @@ const NavigationSectionLinks = ({ taskSections, linkedAccounts, sectionId, pathN
                 ))}
             </NavigationLinkDropdown>
             <NavigationLinkDropdown title={'Messages'} icon={icons.inbox} link={'/messages/'} isCurrentPage={false}>
-                <NavigationLink
-                    link="/messages"
-                    title="Messages"
-                    icon={icons.inbox}
-                    isCurrentPage={pathName.startsWith('/messages')}
-                />
+                {linkedAccounts.map(account => (
+                    <NavigationLink
+                        key={account.id}
+                        link={`/messages/${account.id}`}
+                        title={account.display_id}
+                        icon={icons.inbox}
+                        isCurrentPage={accountId === account.id}
+                    />
+                ))}
             </NavigationLinkDropdown>
             <NavigationLink
                 link="/settings"
