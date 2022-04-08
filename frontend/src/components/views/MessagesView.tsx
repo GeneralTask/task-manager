@@ -1,16 +1,16 @@
 import React, { useCallback, useMemo, useRef } from 'react'
-import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
-import Loading from '../atoms/Loading'
+import styled from 'styled-components'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
-import Message from '../molecules/Message'
+import useItemSelectionController from '../../hooks/useItemSelectionController'
+import { useFetchMessages, useGetInfiniteMessages, useGetLinkedAccounts } from '../../services/api-query-hooks'
+import { useInterval } from '../../utils/hooks'
+import { TMessage } from '../../utils/types'
+import Loading from '../atoms/Loading'
+import TaskTemplate from '../atoms/TaskTemplate'
 import MessageDetails from '../details/MessageDetails'
 import { SectionHeader } from '../molecules/Header'
-import { TMessage } from '../../utils/types'
-import TaskTemplate from '../atoms/TaskTemplate'
-import { useInterval } from '../../utils/hooks'
-import useItemSelectionController from '../../hooks/useItemSelectionController'
-import styled from 'styled-components'
+import Message from '../molecules/Message'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -22,7 +22,13 @@ const ScrollViewMimic = styled.div`
 
 const Messages = () => {
     const navigate = useNavigate()
-    const params = useParams()
+    const { account: accountId, message: messageId } = useParams()
+    const { data: linkedAccounts } = useGetLinkedAccounts()
+    const currentAccountDisplayId = useMemo(() => {
+        const account = linkedAccounts?.find(account => account.id === accountId)
+        return account ? account.display_id : null
+    }, [accountId, linkedAccounts])
+
     const { refetch: refetchMessages } = useFetchMessages()
     const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteMessages()
 
@@ -44,11 +50,11 @@ const Messages = () => {
     // Tell the backend to refetch messages from the server every 60 seconds
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
-    const messages = useMemo(() => data?.pages.flat().filter(message => message != null) ?? [], [data])
+    const messages = useMemo(() => data?.pages.flat().filter(message => (message != null && message.source.account_id === currentAccountDisplayId) ?? []), [data])
 
     const expandedMessage = useMemo(() => {
-        return messages?.find((message) => message.id === params.message)
-    }, [params.message, messages])
+        return messages?.find((message) => message.id === messageId)
+    }, [messageId, messages])
 
     const expandMessage = useCallback((itemId: string) => navigate(`/messages/${itemId}`), [])
 
