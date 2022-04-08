@@ -22,7 +22,7 @@ type messageComposeParamsV2 struct {
 }
 
 func (api *API) MessageComposeV2(c *gin.Context) {
-	var requestParams messageComposeParams
+	var requestParams messageComposeParamsV2
 	err := c.BindJSON(&requestParams)
 	if err != nil {
 		log.Printf("parameter missing or malformatted, error: %v", err)
@@ -40,14 +40,14 @@ func (api *API) MessageComposeV2(c *gin.Context) {
 		return
 	}
 
-	if requestParams.MessageID != nil {
-		handleReply(c, userID, taskSourceResult, &requestParams)
+	if requestParams.SMTPID != nil {
+		handleReplyV2(c, userID, taskSourceResult, &requestParams)
 	} else {
 		handleComposeV2(c, userID, taskSourceResult, &requestParams)
 	}
 }
 
-func handleComposeV2(c *gin.Context, userID primitive.ObjectID, taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
+func handleComposeV2(c *gin.Context, userID primitive.ObjectID, taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParamsV2) {
 	if requestParams.Subject == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "subject must be set for composed message"})
 		return
@@ -72,36 +72,25 @@ func handleReplyV2(c *gin.Context, userID primitive.ObjectID, taskSourceResult *
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
 		return
 	}
-	messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
 
-	GetEmailFromSMTPID
-
-	if err != nil {
-		log.Printf("could not parse message id with error: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"detail": "could not parse message id"})
-		return
-	}
-	err = checkMessageBelongsToUserV2(userID, messageID)
+	email, err := database.GetEmailFromSMTPID(c.Request.Context(), *requestParams.SMTPID, userID)
 	if err != nil {
 		Handle404(c)
 		return
 	}
+
 	contents := external.EmailContents{
 		Recipients: requestParams.Recipients,
 		Body:       *requestParams.Body,
 	}
-	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, messageID, contents)
+	//err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, messageID, "", contents)
+	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, email.ThreadID, email.ThreadID, contents)
 	if err != nil {
 		log.Printf("unable to send email with error: %v", err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{})
-}
-
-func getEmailFromSMTPID(smptID string) (*database.Email, error) {
-
-	return nil, nil
 }
 
 func checkMessageBelongsToUserV2(userID primitive.ObjectID, messageID primitive.ObjectID) error {

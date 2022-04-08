@@ -12,7 +12,7 @@ type TaskSource interface {
 	GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult)
 	GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult)
 	GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult)
-	Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error
+	Reply(userID primitive.ObjectID, accountID string, threadID string, emailID string, emailContents EmailContents) error
 	SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error
 	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error
 	ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error

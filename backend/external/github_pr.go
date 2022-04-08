@@ -195,7 +195,7 @@ func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bo
 	return false
 }
 
-func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error {
+func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, threadID string, emailID string, emailContents EmailContents) error {
 	return errors.New("cannot reply to a PR")
 }
 

@@ -88,7 +88,7 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 		Recipients: requestParams.Recipients,
 		Body:       *requestParams.Body,
 	}
-	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, messageID, contents)
+	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, "", "", contents)
 	if err != nil {
 		log.Printf("unable to send email with error: %v", err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})

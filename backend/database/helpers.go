@@ -71,12 +71,15 @@ func GetEmailFromSMTPID(ctx context.Context, smptID string, userID primitive.Obj
 	var thread Item
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
+
 	err = taskCollection.FindOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
 			{"email_thread.emails.smtp_id": smptID},
 			{"user_id": userID},
-		}}).Decode(&thread)
+		}},
+		options.FindOne().SetProjection(bson.M{"email_thread.emails.$": 1}),
+	).Decode(&thread)
 	if err != nil {
 		log.Printf("Failed to get email with smtp ID: %+v, error: %v", smptID, err)
 		return nil, err
