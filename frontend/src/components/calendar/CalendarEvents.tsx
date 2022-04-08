@@ -1,7 +1,9 @@
 import { DateTime } from 'luxon'
 import React, { Ref, useEffect, useRef } from 'react'
+import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import { useAppSelector } from '../../redux/hooks'
 import { useGetEvents } from '../../services/api-query-hooks'
+import { useInterval } from '../../utils/hooks'
 import { TEvent } from '../../utils/types'
 import {
     AllDaysContainer,
@@ -101,21 +103,21 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
 
     const events: TEvent[] = []
-    const { data: eventsBefore } = useGetEvents(
+    const { data: eventsBefore, refetch: refetchBefore } = useGetEvents(
         {
             startISO: date.startOf('month').minus({ months: 1 }).toISO(),
             endISO: date.endOf('month').minus({ months: 1 }).toISO(),
         },
         'calendar'
     )
-    const { data: eventsThisMonth } = useGetEvents(
+    const { data: eventsThisMonth, refetch: refetch } = useGetEvents(
         {
             startISO: date.startOf('month').toISO(),
             endISO: date.endOf('month').toISO(),
         },
         'calendar'
     )
-    const { data: eventsAfter } = useGetEvents(
+    const { data: eventsAfter, refetch: refetchAfter } = useGetEvents(
         {
             startISO: date.startOf('month').plus({ months: 1 }).toISO(),
             endISO: date.endOf('month').plus({ months: 1 }).toISO(),
@@ -123,6 +125,12 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
         'calendar'
     )
     events.push(...eventsBefore ?? [], ...eventsThisMonth ?? [], ...eventsAfter ?? [])
+
+    useInterval(() => {
+        refetchBefore()
+        refetch()
+        refetchAfter()
+    }, EVENTS_REFETCH_INTERVAL, false)
 
     useEffect(() => {
         if (eventsContainerRef.current) {

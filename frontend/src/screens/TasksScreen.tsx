@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { useMemo } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Navigate, useLocation, useParams } from 'react-router-dom'
@@ -13,6 +14,7 @@ import { setSelectedItemId } from '../redux/tasksPageSlice'
 import { useGetTasks, useGetUserInfo } from '../services/api-query-hooks'
 
 const TasksScreen = () => {
+    const memoizedCalendar = useMemo(() => <CalendarView />, [])
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const location = useLocation()
     const dispatch = useAppDispatch()
@@ -48,7 +50,7 @@ const TasksScreen = () => {
             <DefaultTemplate>
                 <>
                     {expandedCalendar || currentPage}
-                    <CalendarView />
+                    {memoizedCalendar}
                 </>
             </DefaultTemplate>
         </DndProvider>
