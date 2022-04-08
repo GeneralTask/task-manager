@@ -1,12 +1,9 @@
 package api
 
 import (
-	"context"
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"net/http"
@@ -83,7 +80,6 @@ func handleReplyV2(c *gin.Context, userID primitive.ObjectID, taskSourceResult *
 		Recipients: requestParams.Recipients,
 		Body:       *requestParams.Body,
 	}
-	//err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, messageID, "", contents)
 	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, email.ThreadID, email.ThreadID, contents)
 	if err != nil {
 		log.Printf("unable to send email with error: %v", err)
@@ -91,22 +87,4 @@ func handleReplyV2(c *gin.Context, userID primitive.ObjectID, taskSourceResult *
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{})
-}
-
-func checkMessageBelongsToUserV2(userID primitive.ObjectID, messageID primitive.ObjectID) error {
-	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return err
-	}
-	defer dbCleanup()
-
-	taskCollection := database.GetTaskCollection(db)
-	var taskBase database.TaskBase
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{{"_id": messageID}, {"user_id": userID}}}).Decode(&taskBase)
-	return err
 }
