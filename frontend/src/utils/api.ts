@@ -1,5 +1,5 @@
-import axios from 'axios'
 import Cookies from 'js-cookie'
+import axios from 'axios'
 import getEnvVars from '../environment'
 
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()

@@ -1,7 +1,8 @@
+import { Dimensions, Images } from '../../styles'
+
 /* eslint @typescript-eslint/no-var-requires: "off" */
 import React from 'react'
 import styled from 'styled-components'
-import { Dimensions } from '../../styles'
 
 const IconContainer = styled.div<{ width: number; height: number }>`
     width: ${(props) => props.width}px;
@@ -17,12 +18,14 @@ const ImageContainer = styled.img`
 interface IconProps {
     size: 'xxSmall' | 'xSmall' | 'small' | 'medium' | 'large'
     uri?: string
-    source?: NodeRequire
+    source?: string
 }
 export const Icon = (props: IconProps) => {
-    let image = require('../../assets/generaltask.png')
-    if (props.source) image = props.source
-    if (props.uri) image = { uri: props.uri }
+    const image = props.uri != undefined
+        ? props.uri
+        : props.source
+            ? props.source
+            : Images.logos.generaltask
 
     const dimension = (() => {
         switch (props.size) {
