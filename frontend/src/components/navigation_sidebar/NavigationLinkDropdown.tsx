@@ -44,7 +44,7 @@ interface NavigationLinkDropdownProps {
     isCurrentPage: boolean
     link: string
     title: string
-    icon?: NodeRequire
+    icon?: string
 }
 const NavigationLinkDropdown = ({ children, isCurrentPage, link, title, icon }: NavigationLinkDropdownProps) => {
     const [isOpen, setIsOpen] = React.useState(true)
