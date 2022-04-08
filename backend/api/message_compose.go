@@ -1,20 +1,16 @@
 package api
 
 import (
-	"context"
-	"log"
-	"net/http"
-
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
+	"net/http"
 )
 
 type messageComposeParams struct {
-	MessageID       *string              `json:"message_id"`
+	SMTPID          *string              `json:"smtp_id"`
 	Subject         *string              `json:"subject"`
 	Body            *string              `json:"body" binding:"required"`
 	Recipients      *database.Recipients `json:"recipients" binding:"required"`
@@ -41,7 +37,7 @@ func (api *API) MessageCompose(c *gin.Context) {
 		return
 	}
 
-	if requestParams.MessageID != nil {
+	if requestParams.SMTPID != nil {
 		handleReply(c, userID, taskSourceResult, &requestParams)
 	} else {
 		handleCompose(c, userID, taskSourceResult, &requestParams)
@@ -73,44 +69,22 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
 		return
 	}
-	messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
-	if err != nil {
-		log.Printf("could not parse message id with error: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"detail": "could not parse message id"})
-		return
-	}
-	err = checkMesageBelongsToUser(userID, messageID)
+
+	email, err := database.GetEmailFromSMTPID(c.Request.Context(), *requestParams.SMTPID, userID)
 	if err != nil {
 		Handle404(c)
 		return
 	}
+
 	contents := external.EmailContents{
 		Recipients: requestParams.Recipients,
 		Body:       *requestParams.Body,
 	}
-	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, "", "", contents)
+	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, email.ThreadID, email.ThreadID, contents)
 	if err != nil {
 		log.Printf("unable to send email with error: %v", err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{})
-}
-
-func checkMesageBelongsToUser(userID primitive.ObjectID, messageID primitive.ObjectID) error {
-	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return err
-	}
-	defer dbCleanup()
-
-	taskCollection := database.GetTaskCollection(db)
-	var taskBase database.TaskBase
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{{"_id": messageID}, {"user_id": userID}}}).Decode(&taskBase)
-	return err
 }

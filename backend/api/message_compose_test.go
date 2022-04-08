@@ -31,20 +31,24 @@ func TestComposeEmail(t *testing.T) {
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	insertedResult, err := taskCollection.InsertOne(dbCtx, database.Item{
+
+	smtpID := "sample_smtp_id"
+	_, err = taskCollection.InsertOne(dbCtx, database.Item{
 		TaskBase: database.TaskBase{
 			UserID:     userID,
-			IDExternal: "sample_message_id",
+			IDExternal: "sample_thread_id",
 			Title:      "Sample subject",
 			SourceID:   external.TASK_SOURCE_ID_GMAIL,
 		},
-		Email: database.Email{
+		EmailThread: database.EmailThread{
 			ThreadID: "sample_thread_id",
+			Emails: []database.Email{{
+				SMTPID:   smtpID,
+				ThreadID: "sample_thread_id",
+				EmailID:  "sample_email_id",
+			}},
 		},
 	})
-
-	emailID := insertedResult.InsertedID.(primitive.ObjectID).Hex()
-	assert.NoError(t, err)
 
 	t.Run("MissingBody", func(t *testing.T) {
 		router := GetRouter(GetAPI())
@@ -52,7 +56,7 @@ func TestComposeEmail(t *testing.T) {
 		request, _ := http.NewRequest(
 			"POST",
 			"/messages/compose/",
-			bytes.NewBuffer([]byte(`{"message_id'": "`+emailID+`"}`)))
+			bytes.NewBuffer([]byte(`{"smtp_id'": "`+smtpID+`"}`)))
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -70,7 +74,7 @@ func TestComposeEmail(t *testing.T) {
 			"POST",
 			"/messages/compose/",
 			bytes.NewBuffer([]byte(`{
-				"message_id": "`+emailID+`",
+				"smtp_id": "`+smtpID+`",
 				"body": "`+"test body"+`",
 				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "invalid_source",
@@ -108,7 +112,7 @@ func TestComposeEmail(t *testing.T) {
 			"POST",
 			"/messages/compose/",
 			bytes.NewBuffer([]byte(`{
-				"message_id": "`+taskID+`",
+				"smtp_id": "`+taskID+`",
 				"body": "`+"test body"+`",
 				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "jira",
@@ -131,7 +135,7 @@ func TestComposeEmail(t *testing.T) {
 			"POST",
 			"/messages/compose/",
 			bytes.NewBuffer([]byte(`{
-				"message_id": "`+emailID+`",
+				"smtp_id": "`+smtpID+`",
 				"body": "`+"test body"+`",
 				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "gmail",
@@ -146,28 +150,31 @@ func TestComposeEmail(t *testing.T) {
 	t.Run("TaskDoesNotBelongToUser", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		insertedResult, err := taskCollection.InsertOne(dbCtx, database.Item{
+
+		nonUserSmtpId := "new_smtp_id"
+		_, err = taskCollection.InsertOne(dbCtx, database.Item{
 			TaskBase: database.TaskBase{
 				UserID:     primitive.NewObjectID(),
-				IDExternal: "sample_message_id",
+				IDExternal: "sample_thread_id",
 				Title:      "Sample subject",
 				SourceID:   external.TASK_SOURCE_ID_GMAIL,
 			},
-			Email: database.Email{
+			EmailThread: database.EmailThread{
 				ThreadID: "sample_thread_id",
+				Emails: []database.Email{{
+					SMTPID:   nonUserSmtpId,
+					ThreadID: "sample_thread_id",
+					EmailID:  "sample_email_id",
+				}},
 			},
 		})
-
-		emailID := insertedResult.InsertedID.(primitive.ObjectID).Hex()
-		assert.NoError(t, err)
-
 		router := GetRouter(GetAPI())
 
 		request, _ := http.NewRequest(
 			"POST",
 			"/messages/compose/",
 			bytes.NewBuffer([]byte(`{
-				"message_id": "`+emailID+`",
+				"smtp_id": "`+nonUserSmtpId+`",
 				"body": "`+"test body"+`",
 				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "gmail",
@@ -197,12 +204,12 @@ func TestComposeEmail(t *testing.T) {
 		}
 
 		server := getReplyServer(t,
-			"sample_message_id",
+			"sample_thread_id",
 			"sample_thread_id",
 			headers,
 			"To: Sample sender <sample@generaltask.com>\r\nCc: \r\nBcc: \r\nFrom: General Tasker <approved@generaltask.com>\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
 		toStr := `[{"name": "Sample sender", "email": "sample@generaltask.com"}]`
-		testSuccessfulComposeWithServer(t, emailID, authToken, "test reply", "", toStr, "[]", "[]", server)
+		testSuccessfulComposeWithServer(t, smtpID, authToken, "test reply", "", toStr, "[]", "[]", server)
 	})
 
 	t.Run("SuccessCompose", func(t *testing.T) {
@@ -243,7 +250,7 @@ func TestComposeEmail(t *testing.T) {
 }
 
 func testSuccessfulComposeWithServer(t *testing.T,
-	emailID string,
+	smtpID string,
 	authToken string,
 	body string,
 	subject string,
@@ -256,21 +263,21 @@ func testSuccessfulComposeWithServer(t *testing.T,
 	api.ExternalConfig.GoogleOverrideURLs.GmailSendURL = &server.URL
 	router := GetRouter(api)
 
-	messageIDStr := ""
-	if len(emailID) > 0 {
-		messageIDStr = `"message_id": "` + emailID + `",`
+	smtpIDStr := ""
+	if len(smtpID) > 0 {
+		smtpIDStr = `"smtp_id": "` + smtpID + `",`
 	}
 
 	subjectStr := ""
 	if len(subject) > 0 {
-		messageIDStr = `"subject": "` + subject + `",`
+		smtpIDStr = `"subject": "` + subject + `",`
 	}
 
 	request, _ := http.NewRequest(
 		"POST",
 		"/messages/compose/",
 		bytes.NewBuffer([]byte(`{
-			`+messageIDStr+`
+			`+smtpIDStr+`
 			`+subjectStr+`
 			"body": "`+body+`",
 			"recipients": {
