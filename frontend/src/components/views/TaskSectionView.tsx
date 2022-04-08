@@ -80,7 +80,7 @@ const TaskSection = () => {
         }
         document.addEventListener('click', listener, true)
         return () => document.removeEventListener('click', listener, true)
-    }, [bannerTaskSectionRef, sectionViewRef])
+    }, [bannerTaskSectionRef, sectionViewRef, params])
 
     return (
         <>
