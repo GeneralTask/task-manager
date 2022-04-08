@@ -37,7 +37,7 @@ const SectionTitle = styled.span<{ isSelected: boolean }>`
 const SectionTitleItemCount = styled.span<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
-    margin-right: 9px;
+    margin-right: ${margin._8}px;
 `
 const linkStyle: CSSProperties = {
     textDecorationLine: 'none',
