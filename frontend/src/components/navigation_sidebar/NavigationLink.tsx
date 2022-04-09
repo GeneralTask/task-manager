@@ -82,12 +82,13 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppab
         [taskSection, onDrop]
     )
 
-    const onNavigate = () => {
+    const onClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        if (taskSection?.id === '-1') e.preventDefault()
         dispatch(setExpandedCalendar(false))
     }
 
     return (
-        <Link style={linkStyle} to={link} onClick={onNavigate}>
+        <Link style={linkStyle} to={link} onClick={(e) => onClick(e)}>
             <LinkContainer
                 ref={drop}
                 isSelected={isCurrentPage}
