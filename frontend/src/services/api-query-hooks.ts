@@ -163,11 +163,8 @@ export const useMarkTaskDone = () => {
                     for (const task of section.tasks) {
                         if (task.id === data.taskId) {
                             task.is_done = data.isCompleted
-                            console.log('timeout started')
                             setTimeout(() => {
-                                console.log('timeout called')
                                 if (task.is_done && section.tasks.includes(task)) {
-                                    console.log('splice!')
                                     section.tasks.splice(section.tasks.indexOf(task), 1)
                                     queryClient.setQueryData('tasks', sections)
                                 }
