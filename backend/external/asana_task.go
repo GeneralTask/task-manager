@@ -122,12 +122,21 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
 		isCompleted := false
-		dbTask, err := database.UpdateOrCreateTask(db, userID, task.IDExternal, task.SourceID, task, database.TaskChangeableFields{
-			Title:       &task.Title,
-			Body:        &task.TaskBase.Body,
-			DueDate:     task.DueDate,
-			IsCompleted: &isCompleted,
-		}, nil, false)
+		dbTask, err := database.UpdateOrCreateTask(
+			db,
+			userID,
+			task.IDExternal,
+			task.SourceID,
+			task,
+			database.TaskChangeableFields{
+				Title:       &task.Title,
+				Body:        &task.TaskBase.Body,
+				DueDate:     task.DueDate,
+				IsCompleted: &isCompleted,
+			},
+			nil,
+			false,
+		)
 		if err != nil {
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 			return

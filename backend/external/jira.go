@@ -235,15 +235,24 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 
 	isCompleted := false
 	for _, task := range tasks {
-		dbTask, err := database.UpdateOrCreateTask(db, userID, task.IDExternal, task.SourceID, task, database.TaskChangeableFields{
-			Title:   &task.Title,
-			DueDate: task.DueDate,
-			Task: database.Task{
-				PriorityID:         task.PriorityID,
-				PriorityNormalized: float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength),
+		dbTask, err := database.UpdateOrCreateTask(
+			db,
+			userID,
+			task.IDExternal,
+			task.SourceID,
+			task,
+			database.TaskChangeableFields{
+				Title:   &task.Title,
+				DueDate: task.DueDate,
+				Task: database.Task{
+					PriorityID:         task.PriorityID,
+					PriorityNormalized: float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength),
+				},
+				IsCompleted: &isCompleted,
 			},
-			IsCompleted: &isCompleted,
-		}, nil, false)
+			nil,
+			false,
+		)
 		if err != nil {
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
