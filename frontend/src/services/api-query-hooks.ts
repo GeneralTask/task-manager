@@ -451,7 +451,7 @@ export const useMarkMessageAsTask = () => {
                 if (!response) return
 
                 for (const page of response.pages) {
-                    if (page == null) break
+                    if (!page) break
                     for (const message of page) {
                         if (message.id === data.id) {
                             message.is_task = data.isTask

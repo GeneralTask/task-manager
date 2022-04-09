@@ -13,6 +13,7 @@ import { logos } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
+import { Spacing } from '../../styles'
 
 interface TaskDetailsProps {
     task: TTask
@@ -82,8 +83,8 @@ const TaskDetails = (props: TaskDetailsProps) => {
         modifyTask({ id: task.id, title: titleInput, body: bodyInput })
     }
 
-    const MarginRight = styled.div`
-        margin-right: 10px;
+    const MarginRightContainer = styled.div`
+        margin-right: ${Spacing.margin._16}px;
 `
  
     return (
@@ -92,13 +93,13 @@ const TaskDetails = (props: TaskDetailsProps) => {
                 <>
                     <Icon source={logos[task.source.logo_v2]} size="small" />
                     <FlexGrowView />
-                    <MarginRight>
+                    <MarginRightContainer>
                     {task.deeplink && 
                         <a href={task.deeplink} target="_blank" rel="noreferrer">
                         <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`}/>
                         </a>
                     }
-                    </MarginRight>
+                    </MarginRightContainer>
                     <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
                         <ActionOption
                             isShown={datePickerShown}
