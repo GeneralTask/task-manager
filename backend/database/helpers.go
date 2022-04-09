@@ -14,7 +14,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func UpdateOrCreateTask(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}, fieldsToUpdate interface{}, additionalFilters *[]bson.M, flattenFields bool) (*Item, error) {
+func UpdateOrCreateTask(
+	db *mongo.Database,
+	userID primitive.ObjectID,
+	IDExternal string,
+	sourceID string,
+	fieldsToInsertIfMissing interface{},
+	fieldsToUpdate interface{},
+	additionalFilters *[]bson.M,
+	flattenFields bool,
+) (*Item, error) {
 	var err error
 	if flattenFields {
 		fieldsToInsertIfMissing, err = FlattenStruct(fieldsToInsertIfMissing)
@@ -41,7 +50,7 @@ func UpdateOrCreateTask(db *mongo.Database, userID primitive.ObjectID, IDExterna
 			dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), filter)
 		}
 	}
-	// Unfortunately you cannot put both $set and $setOnInsert, so they are separate operations
+	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = taskCollection.UpdateOne(
@@ -64,7 +73,7 @@ func UpdateOrCreateTask(db *mongo.Database, userID primitive.ObjectID, IDExterna
 	var item Item
 	err = mongoResult.Decode(&item)
 	if err != nil {
-		log.Printf("Failed to update or create task: %v", err)
+		log.Printf("Failed to update or create item: %v", err)
 		return nil, err
 	}
 	return &item, nil

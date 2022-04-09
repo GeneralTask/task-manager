@@ -197,14 +197,16 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			}
 
 			dbEmail, err := database.UpdateOrCreateTask(
-				db, userID, threadItem.IDExternal, threadItem.SourceID,
+				db, userID, emailItem.IDExternal, emailItem.SourceID,
 				emailItem, database.EmailItemToChangeable(emailItem),
-				&[]bson.M{{"task_type.is_message": true}}, true)
+				&[]bson.M{{"task_type.is_message": true}},
+				true,
+			)
 			if err != nil {
-				log.Printf("failed to update or create gmail email: %v", err)
 				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 				return
 			}
+
 			emailItem.HasBeenReordered = dbEmail.HasBeenReordered
 			emailItem.ID = dbEmail.ID
 			emailItem.IDOrdering = dbEmail.IDOrdering
