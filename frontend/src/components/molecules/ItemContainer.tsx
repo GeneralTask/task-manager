@@ -12,6 +12,7 @@ const ItemContainerDiv = WebStyled.div<{ isSelected: boolean }>`
     border-radius: ${Border.radius.xxSmall};
     padding: 0 ${Spacing.padding._8}px;
     border: 1px solid ${(props) => (props.isSelected ? Colors.gray._500 : Colors.gray._100)};
+    cursor: pointer;
 `
 
 interface ItemContainerProps {
