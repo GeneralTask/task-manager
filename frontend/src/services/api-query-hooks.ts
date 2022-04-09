@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
-import { MESSAGES_PER_PAGE } from '../constants'
+import { MESSAGES_PER_PAGE, TASK_SECTION_DEFAULT_ID } from '../constants'
 import apiClient from '../utils/api'
 import { TEmailThread, TEvent, TLinkedAccount, TMessage, TMessageResponse, TRecipients, TSupportedType, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
@@ -260,7 +260,7 @@ export const useAddTaskSection = () => {
                 const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
                 if (!sections) return
                 const newSection: TTaskSection = {
-                    id: '-1',
+                    id: TASK_SECTION_DEFAULT_ID,
                     name: data.name,
                     is_done: false,
                     tasks: [],
