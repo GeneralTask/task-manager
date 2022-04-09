@@ -57,7 +57,6 @@
     "@typescript-eslint/parser": "^5.14.0",
     "babel-jest": "^27.5.1",
     "babel-loader": "^8.2.4",
-    "babel-plugin-styled-components": "^2.0.6",
     "copy-webpack-plugin": "^10.2.4",
     "css-loader": "^6.7.1",
     "eslint": "^8.11.0",
