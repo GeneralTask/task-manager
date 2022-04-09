@@ -134,7 +134,7 @@ func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 	var emails []email
 	for _, e := range *dbEmails {
 		formattedEmail := email{
-			MessageID: e.ID,
+			MessageID: e.MessageID,
 			Subject:   e.Subject,
 			Body:      e.Body,
 			SentAt:    e.SentAt.Time().UTC().Format(time.RFC3339),
