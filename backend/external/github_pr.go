@@ -129,11 +129,19 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 	for _, pullRequest := range pullRequestItems {
 		isCompleted := false
-		dbPR, err := database.UpdateOrCreateTask(db, userID, string(pullRequest.IDExternal), pullRequest.SourceID, pullRequest, database.PullRequestChangeableFields{
-			Title:       pullRequest.Title,
-			Body:        pullRequest.TaskBase.Body,
-			IsCompleted: &isCompleted,
-		}, nil, false)
+		dbPR, err := database.UpdateOrCreateTask(
+			db,
+			userID,
+			string(pullRequest.IDExternal),
+			pullRequest.SourceID,
+			pullRequest,
+			database.PullRequestChangeableFields{
+				Title:       pullRequest.Title,
+				Body:        pullRequest.TaskBase.Body,
+				IsCompleted: &isCompleted,
+			},
+			nil,
+			false)
 		if err != nil {
 			log.Printf("failed to update or create pull request: %v", err)
 			result <- emptyPullRequestResult(err)
