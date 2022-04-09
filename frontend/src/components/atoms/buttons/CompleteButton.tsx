@@ -1,10 +1,10 @@
-import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
-import { KEYBOARD_SHORTCUTS } from '../../../constants'
 import React from 'react'
-import { icons } from '../../../styles/images'
+import { KEYBOARD_SHORTCUTS } from '../../../constants'
+import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import { useMarkTaskDone } from '../../../services/api-query-hooks'
-import NoStyleButton from './NoStyleButton'
+import { icons } from '../../../styles/images'
 import { Icon } from '../Icon'
+import NoStyleButton from './NoStyleButton'
 
 interface CompleteButtonProps {
     isComplete: boolean

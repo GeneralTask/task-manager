@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
-import { MESSAGES_PER_PAGE } from '../constants'
+import { MESSAGES_PER_PAGE, TASK_MARK_AS_DONE_TIMEOUT } from '../constants'
 import apiClient from '../utils/api'
 import { TEmailThread, TEvent, TLinkedAccount, TMessage, TMessageResponse, TRecipients, TSupportedType, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
@@ -163,8 +163,15 @@ export const useMarkTaskDone = () => {
                     for (const task of section.tasks) {
                         if (task.id === data.taskId) {
                             task.is_done = data.isCompleted
-                            // Don't actually remove tasks from the list, just mark them as done (Until refreshing)
-                            // section.tasks.splice(j, 1)
+                            console.log('timeout started')
+                            setTimeout(() => {
+                                console.log('timeout called')
+                                if (task.is_done && section.tasks.includes(task)) {
+                                    console.log('splice!')
+                                    section.tasks.splice(section.tasks.indexOf(task), 1)
+                                    queryClient.setQueryData('tasks', sections)
+                                }
+                            }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
                         }
                     }
                 }

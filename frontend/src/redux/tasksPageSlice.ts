@@ -1,4 +1,4 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { ModalEnum } from '../utils/enums'
 
 export interface TasksPageState {
@@ -7,6 +7,7 @@ export interface TasksPageState {
     },
     selected_item_id: string | null,
     expanded_calendar: boolean,
+    enable_auto_refresh: boolean,
 }
 
 const initialState: TasksPageState = {
@@ -15,6 +16,7 @@ const initialState: TasksPageState = {
     },
     selected_item_id: null,
     expanded_calendar: false,
+    enable_auto_refresh: true,
 }
 
 export const tasksPageSlice = createSlice({
@@ -29,7 +31,10 @@ export const tasksPageSlice = createSlice({
         },
         setExpandedCalendar(state, action: PayloadAction<boolean>) {
             state.expanded_calendar = action.payload
-        }
+        },
+        setEnableAutoRefresh(state, action: PayloadAction<boolean>) {
+            state.enable_auto_refresh = action.payload
+        },
     },
 })
 
@@ -37,6 +42,7 @@ export const {
     setShowModal,
     setExpandedCalendar,
     setSelectedItemId,
+    setEnableAutoRefresh,
 } = tasksPageSlice.actions
 
 export default tasksPageSlice.reducer
