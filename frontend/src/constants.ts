@@ -10,6 +10,7 @@ export const ScreenDimensions = {
 
 // API Constants
 export const MESSAGES_PER_PAGE = 50
+export const TASK_SECTION_DEFAULT_ID = '-1'
 export const AUTHORIZATION_COOKE = 'authToken'
 
 // Time constants (in seconds)
