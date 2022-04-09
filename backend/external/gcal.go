@@ -98,8 +98,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				IsEvent: true,
 			},
 		}
-		var dbEvent database.Item
-		res, err := database.UpdateOrCreateTask(
+		dbEvent, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			event.IDExternal,
@@ -112,19 +111,14 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				TaskType:      event.TaskType,
 			},
 			nil,
+			false,
 		)
 		if err != nil {
 			result <- emptyCalendarResult(err)
 			return
 		}
-		err = res.Decode(&dbEvent)
-		if err != nil {
-			log.Printf("failed to update or create calendar event: %v", err)
-			result <- emptyCalendarResult(err)
-			return
-		}
 		event.HasBeenReordered = dbEvent.HasBeenReordered
-		event.TaskBase.ID = dbEvent.TaskBase.ID
+		event.ID = dbEvent.ID
 		event.IDOrdering = dbEvent.IDOrdering
 		// If the meeting is rescheduled, we want to reset the IDOrdering so that reordered tasks are not also moved
 		if event.DatetimeStart != dbEvent.DatetimeStart {

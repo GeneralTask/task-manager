@@ -140,7 +140,7 @@ type EmailThread struct {
 }
 
 type Email struct {
-	ID           primitive.ObjectID `bson:"id"`
+	MessageID    primitive.ObjectID `bson:"message_id"`
 	SMTPID       string             `bson:"smtp_id"`
 	ThreadID     string             `bson:"thread_id"`
 	EmailID      string             `bson:"email_id"`

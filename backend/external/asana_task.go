@@ -122,8 +122,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
 		isCompleted := false
-		var dbTask database.Item
-		res, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			task.IDExternal,
@@ -136,19 +135,14 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 				IsCompleted: &isCompleted,
 			},
 			nil,
+			false,
 		)
 		if err != nil {
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 			return
 		}
-		err = res.Decode(&dbTask)
-		if err != nil {
-			log.Printf("failed to update or create task: %v", err)
-			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
-			return
-		}
 		task.HasBeenReordered = dbTask.HasBeenReordered
-		task.TaskBase.ID = dbTask.TaskBase.ID
+		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
 		task.TimeAllocation = dbTask.TimeAllocation
