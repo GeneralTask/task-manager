@@ -230,15 +230,15 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails *[]database.Email) *[]database.Email {
 	emailIDToObjectID := make(map[string]primitive.ObjectID)
 	for _, dbEmail := range threadItem.Emails {
-		if dbEmail.ID != primitive.NilObjectID {
-			emailIDToObjectID[dbEmail.EmailID] = dbEmail.ID
+		if dbEmail.MessageID != primitive.NilObjectID {
+			emailIDToObjectID[dbEmail.EmailID] = dbEmail.MessageID
 		}
 	}
 	for i, _ := range *fetchedEmails {
 		if emailObjectID, ok := emailIDToObjectID[(*fetchedEmails)[i].EmailID]; ok {
-			(*fetchedEmails)[i].ID = emailObjectID
+			(*fetchedEmails)[i].MessageID = emailObjectID
 		} else {
-			(*fetchedEmails)[i].ID = primitive.NewObjectID()
+			(*fetchedEmails)[i].MessageID = primitive.NewObjectID()
 		}
 	}
 	return fetchedEmails
