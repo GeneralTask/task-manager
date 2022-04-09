@@ -249,7 +249,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			return
 		}
 		task.HasBeenReordered = dbTask.HasBeenReordered
-		task.TaskBase.ID = dbTask.TaskBase.ID
+		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
 		if dbTask.PriorityID != task.PriorityID && !dbTask.HasBeenReordered {

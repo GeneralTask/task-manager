@@ -139,7 +139,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			result <- emptyPullRequestResult(err)
 			return
 		}
-		pullRequest.TaskBase.ID = dbPR.TaskBase.ID
+		pullRequest.ID = dbPR.ID
 		pullRequest.IDOrdering = dbPR.IDOrdering
 		pullRequest.IDTaskSection = dbPR.IDTaskSection
 	}

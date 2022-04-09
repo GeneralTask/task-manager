@@ -120,7 +120,7 @@ func (api *API) EventsList(c *gin.Context) {
 				}
 			}
 			calendarEvents = append(calendarEvents, EventResult{
-				ID:             event.TaskBase.ID,
+				ID:             event.ID,
 				Deeplink:       event.Deeplink,
 				Title:          event.Title,
 				Body:           event.TaskBase.Body,

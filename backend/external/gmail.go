@@ -206,7 +206,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				return
 			}
 			emailItem.HasBeenReordered = dbEmail.HasBeenReordered
-			emailItem.TaskBase.ID = dbEmail.TaskBase.ID
+			emailItem.ID = dbEmail.ID
 			emailItem.IDOrdering = dbEmail.IDOrdering
 			emailItem.IDTaskSection = dbEmail.IDTaskSection
 			emails = append(emails, emailItem)

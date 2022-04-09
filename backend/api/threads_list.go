@@ -117,7 +117,7 @@ func (api *API) orderThreads(threadItems *[]database.Item) []*Thread {
 func (api *API) createThreadResponse(t *database.Item) *Thread {
 	threadSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
 	return &Thread{
-		ID:     t.TaskBase.ID,
+		ID:     t.ID,
 		IsTask: t.IsTask,
 		Source: messageSource{
 			AccountId:   t.SourceAccountID,

@@ -133,7 +133,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			return
 		}
 		task.HasBeenReordered = dbTask.HasBeenReordered
-		task.TaskBase.ID = dbTask.TaskBase.ID
+		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
 		task.TimeAllocation = dbTask.TimeAllocation
