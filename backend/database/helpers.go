@@ -14,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func UpdateOrCreateTask(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}, fieldsToUpdate interface{}, additionalFilters *[]bson.M, flattenFields bool) (*mongo.SingleResult, error) {
+func UpdateOrCreateTask(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}, fieldsToUpdate interface{}, additionalFilters *[]bson.M, flattenFields bool) (*Item, error) {
 	var err error
 	if flattenFields {
 		fieldsToInsertIfMissing, err = FlattenStruct(fieldsToInsertIfMissing)
@@ -55,11 +55,19 @@ func UpdateOrCreateTask(db *mongo.Database, userID primitive.ObjectID, IDExterna
 		return nil, err
 	}
 
-	return taskCollection.FindOneAndUpdate(
+	mongoResult := taskCollection.FindOneAndUpdate(
 		dbCtx,
 		dbQuery,
 		bson.M{"$set": fieldsToUpdate},
-	), nil
+	)
+
+	var item Item
+	err = mongoResult.Decode(&item)
+	if err != nil {
+		log.Printf("Failed to update or create task: %v", err)
+		return nil, err
+	}
+	return &item, nil
 }
 
 func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Item, error) {

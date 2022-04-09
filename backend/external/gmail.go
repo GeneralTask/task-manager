@@ -14,7 +14,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"github.com/GeneralTask/task-manager/backend/utils"
-	"github.com/chidiwilliams/flatbson"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -197,7 +196,10 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				},
 			}
 
-			dbEmail, err := createOrUpdateGmailEmail(db, userID, emailItem)
+			dbEmail, err := database.UpdateOrCreateTask(
+				db, userID, threadItem.IDExternal, threadItem.SourceID,
+				emailItem, database.EmailItemToChangeable(emailItem),
+				&[]bson.M{{"task_type.is_message": true}}, true)
 			if err != nil {
 				log.Printf("failed to update or create gmail email: %v", err)
 				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
@@ -211,8 +213,11 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
-		updateThreadEmails(threadItem, &nestedEmails)
-		err = createOrUpdateGmailThread(db, userID, threadItem)
+		threadItem.EmailThread.Emails = *assignOrGenerateNestedEmailIDs(threadItem, &nestedEmails)
+		_, err = database.UpdateOrCreateTask(
+			db, userID, threadItem.IDExternal, threadItem.SourceID,
+			threadItem, database.ThreadItemToChangeable(threadItem),
+			&[]bson.M{{"task_type.is_thread": true}}, true)
 		if err != nil {
 			log.Printf("failed to update or create gmail thread: %v", err)
 			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
@@ -222,14 +227,13 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	result <- EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL}
 }
 
-func updateThreadEmails(threadItem *database.Item, fetchedEmails *[]database.Email) {
+func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails *[]database.Email) *[]database.Email {
 	emailIDToObjectID := make(map[string]primitive.ObjectID)
 	for _, dbEmail := range threadItem.Emails {
 		if dbEmail.ID != primitive.NilObjectID {
 			emailIDToObjectID[dbEmail.EmailID] = dbEmail.ID
 		}
 	}
-
 	for i, _ := range *fetchedEmails {
 		if emailObjectID, ok := emailIDToObjectID[(*fetchedEmails)[i].EmailID]; ok {
 			(*fetchedEmails)[i].ID = emailObjectID
@@ -237,56 +241,7 @@ func updateThreadEmails(threadItem *database.Item, fetchedEmails *[]database.Ema
 			(*fetchedEmails)[i].ID = primitive.NewObjectID()
 		}
 	}
-
-	threadItem.EmailThread.Emails = *fetchedEmails
-}
-
-func createOrUpdateGmailThread(db *mongo.Database, userID primitive.ObjectID, threadItem *database.Item) error {
-	gmailUpdateableFields := database.ThreadItemToChangeable(threadItem)
-	res, err := database.UpdateOrCreateTask(
-		db, userID, threadItem.IDExternal, threadItem.SourceID, threadItem,
-		gmailUpdateableFields, &[]bson.M{{"task_type.is_thread": true}}, true)
-	if err != nil {
-		return err
-	}
-
-	var dbThread database.Item
-	err = res.Decode(&dbThread)
-	if err != nil {
-		log.Printf("failed to update or create gmail thread: %v", err)
-		return err
-	}
-
-	return nil
-}
-
-func createOrUpdateGmailEmail(db *mongo.Database, userID primitive.ObjectID, emailItem *database.Item) (*database.Item, error) {
-	gmailUpdateableFields := database.EmailItemToChangeable(emailItem)
-
-	// We flatten in order to do partial updates of nested documents correctly in mongodb
-	flattenedEmail, err := flatbson.Flatten(emailItem)
-	if err != nil {
-		log.Printf("Could not flatten %+v, error: %+v", emailItem, err)
-		return nil, err
-	}
-	flattenedGmailUpdateable, err := flatbson.Flatten(gmailUpdateableFields)
-	if err != nil {
-		log.Printf("Could not flatten %+v, error: %+v", gmailUpdateableFields, err)
-		return nil, err
-	}
-	res, err := database.UpdateOrCreateTask(db, userID, emailItem.IDExternal, emailItem.SourceID, flattenedEmail, flattenedGmailUpdateable, &[]bson.M{{"task_type.is_message": true}}, false)
-	if err != nil {
-		return nil, err
-	}
-
-	var dbEmail database.Item
-	err = res.Decode(&dbEmail)
-	if err != nil {
-		log.Printf("failed to update or create gmail email: %v", err)
-		return nil, err
-	}
-
-	return &dbEmail, nil
+	return fetchedEmails
 }
 
 func getThreadFromGmail(gmailService *gmail.Service, threadID string, result chan<- *gmail.Thread) {
