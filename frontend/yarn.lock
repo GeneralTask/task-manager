@@ -8049,6 +8049,11 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
+typescript-plugin-styled-components@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/typescript-plugin-styled-components/-/typescript-plugin-styled-components-2.0.0.tgz#97e94187cca0f3058c6ad8fefffbca6766c56123"
+  integrity sha512-Wu7F96dwuphgiACHfu63vTbRRg6tkPwLnpFJwdxM70Y0PLfeKLRnvs2Yo5MAySMwE120ODMKk9W4TtJgY1ZumA==
+
 typescript@~4.3.5:
   version "4.3.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.5.tgz#4d1c37cc16e893973c45a06886b7113234f119f4"
