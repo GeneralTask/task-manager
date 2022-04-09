@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"github.com/chidiwilliams/flatbson"
 	"log"
 	"time"
 
@@ -13,15 +14,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func UpdateOrCreateTask(
-	db *mongo.Database,
-	userID primitive.ObjectID,
-	IDExternal string,
-	sourceID string,
-	fieldsToInsertIfMissing interface{},
-	fieldsToUpdate interface{},
-	additionalFilters *[]bson.M,
-) (*mongo.SingleResult, error) {
+func UpdateOrCreateTask(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}, fieldsToUpdate interface{}, additionalFilters *[]bson.M, flattenFields bool) (*mongo.SingleResult, error) {
+	var err error
+	if flattenFields {
+		fieldsToInsertIfMissing, err = FlattenStruct(fieldsToInsertIfMissing)
+		if err != nil {
+			return nil, err
+		}
+		fieldsToUpdate, err = FlattenStruct(fieldsToUpdate)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	parentCtx := context.Background()
 	taskCollection := GetTaskCollection(db)
 	dbQuery := bson.M{
@@ -36,10 +41,10 @@ func UpdateOrCreateTask(
 			dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), filter)
 		}
 	}
-	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
+	// Unfortunately you cannot put both $set and $setOnInsert, so they are separate operations
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	_, err := taskCollection.UpdateOne(
+	_, err = taskCollection.UpdateOne(
 		dbCtx,
 		dbQuery,
 		bson.M{"$setOnInsert": fieldsToInsertIfMissing},
@@ -515,4 +520,13 @@ func ThreadItemToChangeable(thread *Item) *ThreadItemChangeable {
 			Emails:        thread.EmailThread.Emails,
 		},
 	}
+}
+
+func FlattenStruct(s interface{}) (map[string]interface{}, error) {
+	flattened, err := flatbson.Flatten(s)
+	if err != nil {
+		log.Printf("Could not flatten %+v, error: %+v", s, err)
+		return nil, err
+	}
+	return flattened, nil
 }

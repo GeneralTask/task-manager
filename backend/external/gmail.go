@@ -243,26 +243,13 @@ func updateThreadEmails(threadItem *database.Item, fetchedEmails *[]database.Ema
 
 func createOrUpdateGmailThread(db *mongo.Database, userID primitive.ObjectID, threadItem *database.Item) error {
 	gmailUpdateableFields := database.ThreadItemToChangeable(threadItem)
-
-	// We flatten in order to do partial updates of nested documents correctly in mongodb
-	flattenedThreadItem, err := flatbson.Flatten(threadItem)
-	if err != nil {
-		log.Printf("Could not flatten %+v, error: %+v", threadItem, err)
-		return err
-	}
-	flattenedThreadUpdateable, err := flatbson.Flatten(gmailUpdateableFields)
-	if err != nil {
-		log.Printf("Could not flatten %+v, error: %+v", gmailUpdateableFields, err)
-		return err
-	}
 	res, err := database.UpdateOrCreateTask(
-		db, userID, threadItem.IDExternal, threadItem.SourceID,
-		flattenedThreadItem, flattenedThreadUpdateable,
-		&[]bson.M{{"task_type.is_thread": true}},
-	)
+		db, userID, threadItem.IDExternal, threadItem.SourceID, threadItem,
+		gmailUpdateableFields, &[]bson.M{{"task_type.is_thread": true}}, true)
 	if err != nil {
 		return err
 	}
+
 	var dbThread database.Item
 	err = res.Decode(&dbThread)
 	if err != nil {
@@ -287,11 +274,7 @@ func createOrUpdateGmailEmail(db *mongo.Database, userID primitive.ObjectID, ema
 		log.Printf("Could not flatten %+v, error: %+v", gmailUpdateableFields, err)
 		return nil, err
 	}
-	res, err := database.UpdateOrCreateTask(
-		db, userID, emailItem.IDExternal,
-		emailItem.SourceID, flattenedEmail, flattenedGmailUpdateable,
-		&[]bson.M{{"task_type.is_message": true}},
-	)
+	res, err := database.UpdateOrCreateTask(db, userID, emailItem.IDExternal, emailItem.SourceID, flattenedEmail, flattenedGmailUpdateable, &[]bson.M{{"task_type.is_message": true}}, false)
 	if err != nil {
 		return nil, err
 	}

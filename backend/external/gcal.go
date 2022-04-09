@@ -99,20 +99,12 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			},
 		}
 		var dbEvent database.Item
-		res, err := database.UpdateOrCreateTask(
-			db,
-			userID,
-			event.IDExternal,
-			event.SourceID,
-			event,
-			database.CalendarEventChangeableFields{
-				CalendarEvent: event.CalendarEvent,
-				Title:         event.Title,
-				Body:          event.TaskBase.Body,
-				TaskType:      event.TaskType,
-			},
-			nil,
-		)
+		res, err := database.UpdateOrCreateTask(db, userID, event.IDExternal, event.SourceID, event, database.CalendarEventChangeableFields{
+			CalendarEvent: event.CalendarEvent,
+			Title:         event.Title,
+			Body:          event.TaskBase.Body,
+			TaskType:      event.TaskType,
+		}, nil, false)
 		if err != nil {
 			result <- emptyCalendarResult(err)
 			return
