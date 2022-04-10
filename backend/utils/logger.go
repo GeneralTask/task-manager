@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const MilitaryTimeOnly = "03:04:05"
+
 func ConfigureLogger(env config.Environment) {
 	if env == config.Dev {
 		log.Logger = CreateConsoleLogger().With().Caller().Logger()
@@ -24,7 +26,7 @@ func ConfigureLogger(env config.Environment) {
 
 func CreateConsoleLogger() zerolog.Logger {
 	consoleWriter := zerolog.NewConsoleWriter(func(w *zerolog.ConsoleWriter) {
-		w.FormatTimestamp = consoleFormatTimestamp(time.RFC3339)
+		w.FormatTimestamp = consoleFormatTimestamp(MilitaryTimeOnly)
 		w.Out = os.Stderr
 	})
 	return log.Output(consoleWriter)
