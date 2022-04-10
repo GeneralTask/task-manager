@@ -43,16 +43,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 	emails := []*database.Item{}
 
-	client := getGoogleHttpClient(db, userID, accountID)
-	if client == nil {
-		log.Printf("failed to fetch google API token")
-		result <- emptyEmailResultWithSource(errors.New("failed to fetch google API token"), TASK_SOURCE_ID_GMAIL)
-		return
-	}
-
-	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
-	defer cancel()
-	gmailService, err := gmail.NewService(extCtx, option.WithHTTPClient(client))
+	gmailService, err := createGmailService(gmailSource.Google.OverrideURLs.GmailFetchURL, db, userID, accountID, &gmailSource, parentCtx)
 	if err != nil {
 		log.Printf("unable to create Gmail service: %v", err)
 		result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
@@ -734,6 +725,10 @@ func createGmailService(overrideURL *string, db *mongo.Database, userID primitiv
 		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
 		defer cancel()
 		client := getGoogleHttpClient(db, userID, accountID)
+		if client == nil {
+			log.Printf("failed to fetch google API token")
+			return nil, errors.New("failed to fetch google API token")
+		}
 		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
 	}
 	if err != nil {
