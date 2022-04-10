@@ -46,7 +46,7 @@ func UpdateOrCreateTask(
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Info().Msgf("Failed to update or create task: %v", err)
+		log.Error().Msgf("Failed to update or create task: %v", err)
 		return nil, err
 	}
 
@@ -77,7 +77,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 			{"user_id": userID},
 		}}).Decode(&message)
 	if err != nil {
-		log.Info().Msgf("Failed to get item: %+v, error: %v", itemID, err)
+		log.Error().Msgf("Failed to get item: %+v, error: %v", itemID, err)
 		return nil, err
 	}
 	return &message, nil
@@ -108,7 +108,7 @@ func GetOrCreateTask(db *mongo.Database,
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Info().Msgf("Failed to get or create task: %v", err)
+		log.Error().Msgf("Failed to get or create task: %v", err)
 		return nil, err
 	}
 
@@ -120,7 +120,7 @@ func GetOrCreateTask(db *mongo.Database,
 		dbQuery,
 	).Decode(&task)
 	if err != nil {
-		log.Info().Msgf("Failed to get task: %v", err)
+		log.Error().Msgf("Failed to get task: %v", err)
 		return nil, err
 	}
 
@@ -142,7 +142,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 		},
 	)
 	if err != nil {
-		log.Info().Msgf("Failed to fetch tasks for user: %v", err)
+		log.Error().Msgf("Failed to fetch tasks for user: %v", err)
 		return nil, err
 	}
 	var tasks []Item
@@ -150,7 +150,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
-		log.Info().Msgf("Failed to fetch tasks for user: %v", err)
+		log.Error().Msgf("Failed to fetch tasks for user: %v", err)
 		return nil, err
 	}
 	return &tasks, nil
@@ -171,7 +171,7 @@ func GetUnreadEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Item, er
 		},
 	)
 	if err != nil {
-		log.Info().Msgf("Failed to fetch emails for user: %v", err)
+		log.Error().Msgf("Failed to fetch emails for user: %v", err)
 		return nil, err
 	}
 	var activeEmails []Item
@@ -179,7 +179,7 @@ func GetUnreadEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Item, er
 	defer cancel()
 	err = cursor.All(dbCtx, &activeEmails)
 	if err != nil {
-		log.Info().Msgf("Failed to fetch emails for user: %v", err)
+		log.Error().Msgf("Failed to fetch emails for user: %v", err)
 		return nil, err
 	}
 	return &activeEmails, nil
@@ -213,7 +213,7 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 		&opts,
 	)
 	if err != nil {
-		log.Info().Msgf("Failed to fetch emails for user: %v with pagination: %v", err, pagination)
+		log.Error().Msgf("Failed to fetch emails for user: %v with pagination: %v", err, pagination)
 		return nil, err
 	}
 	var activeEmails []Item
@@ -221,7 +221,7 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 	defer cancel()
 	err = cursor.All(dbCtx, &activeEmails)
 	if err != nil {
-		log.Info().Msgf("Failed to fetch emails for user: %v with pagination: %v", err, pagination)
+		log.Error().Msgf("Failed to fetch emails for user: %v with pagination: %v", err, pagination)
 		return nil, err
 	}
 	return &activeEmails, nil
@@ -265,7 +265,7 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 		&opts,
 	)
 	if err != nil {
-		log.Info().Msgf("Failed to fetch threads for user: %v with pagination: %v", err, pagination)
+		log.Error().Msgf("Failed to fetch threads for user: %v with pagination: %v", err, pagination)
 		return nil, err
 	}
 	var activeEmails []Item
@@ -273,7 +273,7 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 	defer cancel()
 	err = cursor.All(dbCtx, &activeEmails)
 	if err != nil {
-		log.Info().Msgf("Failed to fetch threads for user: %v with pagination: %v", err, pagination)
+		log.Error().Msgf("Failed to fetch threads for user: %v with pagination: %v", err, pagination)
 		return nil, err
 	}
 	return &activeEmails, nil
@@ -299,7 +299,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 		findOptions,
 	)
 	if err != nil {
-		log.Info().Msgf("Failed to fetch tasks for user: %v", err)
+		log.Error().Msgf("Failed to fetch tasks for user: %v", err)
 		return nil, err
 	}
 	var tasks []Item
@@ -307,7 +307,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
-		log.Info().Msgf("Failed to fetch tasks for user: %v", err)
+		log.Error().Msgf("Failed to fetch tasks for user: %v", err)
 		return nil, err
 	}
 	return &tasks, nil
@@ -324,7 +324,7 @@ func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSect
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Info().Msgf("failed to fetch sections for user: %+v", err)
+		log.Error().Msgf("failed to fetch sections for user: %+v", err)
 		return nil, err
 	}
 	var sections []TaskSection
@@ -332,7 +332,7 @@ func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSect
 	defer cancel()
 	err = cursor.All(dbCtx, &sections)
 	if err != nil {
-		log.Info().Msgf("failed to fetch sections for user: %v", err)
+		log.Error().Msgf("failed to fetch sections for user: %v", err)
 		return nil, err
 	}
 	return &sections, nil
@@ -370,7 +370,7 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 		bson.M{"_id": userID},
 	).Decode(&userObject)
 	if err != nil {
-		log.Info().Msgf("Failed to load user: %v", err)
+		log.Error().Msgf("Failed to load user: %v", err)
 		return nil, err
 	}
 	return &userObject, nil
@@ -386,7 +386,7 @@ func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID, useDeeplin
 	defer cancel()
 	cursor, err := GetStateTokenCollection(db).InsertOne(dbCtx, stateToken)
 	if err != nil {
-		log.Info().Msgf("Failed to create new state token: %v", err)
+		log.Error().Msgf("Failed to create new state token: %v", err)
 		return nil, err
 	}
 	stateTokenStr := cursor.InsertedID.(primitive.ObjectID).Hex()
@@ -406,7 +406,7 @@ func GetStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userID *
 	defer cancel()
 	err := GetStateTokenCollection(db).FindOne(dbCtx, query).Decode(&token)
 	if err != nil {
-		log.Info().Msgf("Failed to get state token: %v", err)
+		log.Error().Msgf("Failed to get state token: %v", err)
 		return nil, err
 	}
 	return &token, nil
@@ -424,7 +424,7 @@ func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userI
 	defer cancel()
 	result, err := GetStateTokenCollection(db).DeleteOne(dbCtx, deletionQuery)
 	if err != nil {
-		log.Info().Msgf("Failed to delete state token: %v", err)
+		log.Error().Msgf("Failed to delete state token: %v", err)
 		return err
 	}
 	if result.DeletedCount != 1 {

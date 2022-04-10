@@ -28,7 +28,7 @@ func (api *API) Logout(c *gin.Context) {
 	defer cancel()
 	result, err := tokenCollection.DeleteOne(dbCtx, bson.M{"token": token})
 	if err != nil {
-		log.Info().Msgf("Failed to remove token: %v", err)
+		log.Error().Msgf("Failed to remove token: %v", err)
 		Handle500(c)
 		return
 	}

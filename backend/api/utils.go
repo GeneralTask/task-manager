@@ -79,7 +79,7 @@ func TokenMiddleware(c *gin.Context) {
 	defer cancel()
 	err = internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": token}).Decode(&internalToken)
 	if err != nil {
-		log.Info().Msgf("auth failed: %v\n", err)
+		log.Error().Msgf("auth failed: %v\n", err)
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
 		return
 	}

@@ -18,7 +18,7 @@ func (api *API) EventCreate(c *gin.Context) {
 	var eventCreateObject external.EventCreateObject
 	err = c.Bind(&eventCreateObject)
 	if err != nil {
-		log.Info().Msgf("invalid or missing parameter, err: %v", err)
+		log.Error().Msgf("invalid or missing parameter, err: %v", err)
 		c.JSON(400, gin.H{"detail": "invalid or missing parameter."})
 		return
 	}
@@ -26,7 +26,7 @@ func (api *API) EventCreate(c *gin.Context) {
 	userID := getUserIDFromContext(c)
 	err = taskSourceResult.Source.CreateNewEvent(userID, eventCreateObject.AccountID, eventCreateObject)
 	if err != nil {
-		log.Info().Msgf("failed to update external task source: %v", err)
+		log.Error().Msgf("failed to update external task source: %v", err)
 		Handle500(c)
 		return
 	}
