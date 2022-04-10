@@ -176,7 +176,7 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 		},
 		Attendees: *createGcalAttendees(&event.Attendees),
 	}
-	if event.AddHangouts {
+	if event.AddConferenceCall {
 		gcalEvent.ConferenceData = createConferenceCallRequest()
 	}
 
@@ -184,7 +184,7 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 		ConferenceDataVersion(1).
 		Do()
 	if err != nil {
-		log.Fatalf("Unable to create event. %v\n", err)
+		log.Printf("Unable to create event. %v\n", err)
 		return err
 	}
 	fmt.Printf("Event created: %s\n", gcalEvent.HtmlLink)

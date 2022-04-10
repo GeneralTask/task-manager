@@ -25,7 +25,7 @@ jobs:
         run: "yarn global add @cloudflare/wrangler"
 
       - name: build
-        run: "yarn run build"
+        run: "yarn build"
 
       - name: deploy using wrangler
         run: "wrangler publish"

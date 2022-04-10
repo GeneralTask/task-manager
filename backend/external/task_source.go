@@ -35,13 +35,13 @@ type Attendee struct {
 }
 
 type EventCreateObject struct {
-	AccountID     string     `json:"account_id" binding:"required"`
-	Summary       string     `json:"summary"`
-	Location      string     `json:"location"`
-	Description   string     `json:"description"`
-	TimeZone      string     `json:"time_zone"`
-	DatetimeStart *time.Time `json:"datetime_start" binding:"required"`
-	DatetimeEnd   *time.Time `json:"datetime_end" binding:"required"`
-	Attendees     []Attendee `json:"attendees"`
-	AddHangouts   bool       `json:"add_hangouts"`
+	AccountID         string     `json:"account_id" binding:"required"`
+	Summary           string     `json:"summary"`
+	Location          string     `json:"location"`
+	Description       string     `json:"description"`
+	TimeZone          string     `json:"time_zone"`
+	DatetimeStart     *time.Time `json:"datetime_start" binding:"required"`
+	DatetimeEnd       *time.Time `json:"datetime_end" binding:"required"`
+	Attendees         []Attendee `json:"attendees"`
+	AddConferenceCall bool       `json:"add_conference_call"`
 }

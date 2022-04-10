@@ -1,8 +1,8 @@
 account_id = "91d7983e0bff08e0cf76f81cf79abe50"
 
-name = "frontend-new"
+name = "frontend"
 type = "webpack"
 route = 'generaltask.com/*'
 zone_id = '3902eeab1159d5dbc8604825e8b7c7b0'
-site = {bucket = "./web-build",entry-point = "workers-site"}
+site = {bucket = "./dist",entry-point = "workers-site"}
 compatibility_date = "2022-03-24"
