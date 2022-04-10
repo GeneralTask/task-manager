@@ -15,13 +15,18 @@ const (
 	Prod
 )
 
+// LevelFieldMarshalFunc allows customization of global level field marshaling.
+var LevelFieldMarshalFunc = func(e Environment) string {
+	return e.String()
+}
+
 func GetEnvironment() Environment {
-	environmentMap := map[string]Environment{
-		"dev":  Dev,
-		"prod": Prod,
-	}
-	if env, ok := environmentMap[GetConfigValue("ENVIRONMENT")]; ok {
-		return env
+	envStr := GetConfigValue("ENVIRONMENT")
+	switch envStr {
+	case Dev.String():
+		return Dev
+	case Prod.String():
+		return Prod
 	}
 	log.Fatal().Msgf("env `ENVIRONMENT=%s` is not valid", GetConfigValue("ENVIRONMENT"))
 	return Undefined
