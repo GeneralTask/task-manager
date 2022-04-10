@@ -241,11 +241,11 @@ func assertThreadItemsEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.SourceID, b.SourceID)
 	//assert.Fail(t, "fass")
 
-	//assert.Equal(t, a.EmailThread.Emails, b.EmailThread.Emails)
 	assert.Equal(t, len(a.EmailThread.Emails), len(b.EmailThread.Emails))
 	if len(a.EmailThread.Emails) != len(b.EmailThread.Emails) {
 		return
 	}
+	assert.Equal(t, a.EmailThread.Emails, b.EmailThread.Emails)
 	for i := range a.EmailThread.Emails {
 		aEmail := a.EmailThread.Emails[i]
 		bEmail := b.EmailThread.Emails[i]
@@ -321,11 +321,11 @@ func createTestThreadEmail(
 	dt string,
 ) *database.Email {
 	return &database.Email{
-		SMTPID:   fmt.Sprintf("smtp_%s", externalMessageID),
-		ThreadID: threadID,
-		EmailID:  externalMessageID,
-		Subject:  subject,
-		//Body:         "",
+		SMTPID:       fmt.Sprintf("smtp_%s", externalMessageID),
+		ThreadID:     threadID,
+		EmailID:      externalMessageID,
+		Subject:      subject,
+		Body:         fmt.Sprintf("\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <style>\n        html, body {\n            font-size: 16px;\n            font-family: \"Gothic A1\", sans-serif;\n        }\n    </style>\n</head>\n<body>\n<div>test message body %s</div>\n</body>\n</html>\n", externalMessageID),
 		SenderDomain: "generaltask.com",
 		SenderEmail:  "from@generaltask.com",
 		SenderName:   "First Last",
@@ -336,6 +336,8 @@ func createTestThreadEmail(
 				{Name: "Recipient", Email: "recipient@generaltask.com"},
 				{Name: "John Test", Email: "johntest@generaltask.com"},
 			},
+			Cc:  []database.Recipient{},
+			Bcc: []database.Recipient{},
 		},
 		SentAt: *testutils.CreateDateTime(dt),
 	}
