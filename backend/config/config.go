@@ -7,6 +7,36 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type Environment int
+
+const (
+	Undefined Environment = iota
+	Dev
+	Prod
+)
+
+func GetEnvironment() Environment {
+	environmentMap := map[string]Environment{
+		"dev":  Dev,
+		"prod": Prod,
+	}
+	if env, ok := environmentMap[GetConfigValue("ENVIRONMENT")]; ok {
+		return env
+	}
+	log.Fatalf("env `ENVIRONMENT=%s` is not valid", GetConfigValue("ENVIRONMENT"))
+	return Undefined
+}
+
+func (env Environment) String() string {
+	switch env {
+	case Dev:
+		return "dev"
+	case Prod:
+		return "prod"
+	}
+	return "unknown"
+}
+
 func GetConfigValue(key string) string {
 	// Works if running main.go
 	err := godotenv.Load(".env")

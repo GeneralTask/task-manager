@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"log"
+	"github.com/rs/zerolog/log"
 	"sort"
 	"time"
 
@@ -73,6 +73,10 @@ func (api *API) ThreadsList(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
+
+	olog.Printf("params: %v", params)
+	log.Printf("params: %v", params)
+	log.Info().Msgf("params: %v", params)
 	onlyUnread := false
 	if params.OnlyUnread != nil && *params.OnlyUnread {
 		onlyUnread = true
