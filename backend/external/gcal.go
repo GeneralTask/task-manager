@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"strings"
 	"time"
 

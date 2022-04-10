@@ -1,7 +1,7 @@
 package api
 
 import (
-	"log"
+	"github.com/rs/zerolog/log"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"

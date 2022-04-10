@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"strings"
 
 	"github.com/GeneralTask/task-manager/backend/config"

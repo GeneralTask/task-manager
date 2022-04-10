@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"log"
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -80,7 +80,7 @@ func (github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 	}
 
 	tokenString, err := json.Marshal(&token)
-	log.Println("token string:", string(tokenString))
+	log.Print("token string:", string(tokenString))
 	if err != nil {
 		log.Printf("error parsing token: %v", err)
 		return errors.New("internal server error")

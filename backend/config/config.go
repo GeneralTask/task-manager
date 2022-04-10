@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"github.com/rs/zerolog/log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -23,7 +23,7 @@ func GetEnvironment() Environment {
 	if env, ok := environmentMap[GetConfigValue("ENVIRONMENT")]; ok {
 		return env
 	}
-	log.Fatalf("env `ENVIRONMENT=%s` is not valid", GetConfigValue("ENVIRONMENT"))
+	log.Fatal().Msgf("env `ENVIRONMENT=%s` is not valid", GetConfigValue("ENVIRONMENT"))
 	return Undefined
 }
 
@@ -46,7 +46,7 @@ func GetConfigValue(key string) string {
 		if err != nil {
 			// In nearly all cases, we don't want to crash the server for an error, but failing to load the config
 			// file is one place where crashing makes sense.
-			log.Fatalf("Error loading .env file: %v", err)
+			log.Fatal().Err(err).Msg("Error loading .env file")
 		}
 	}
 	return os.Getenv(key)

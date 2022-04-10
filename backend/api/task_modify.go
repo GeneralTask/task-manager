@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"errors"
-	"log"
+	"github.com/rs/zerolog/log"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -228,7 +228,7 @@ func UpdateTaskInDB(api *API, c *gin.Context, taskID primitive.ObjectID, userID 
 		return
 	}
 	if res.MatchedCount != 1 {
-		log.Println("failed to update task", res)
+		log.Print("failed to update task", res)
 		Handle500(c)
 		return
 	}

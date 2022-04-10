@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"log"
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -127,7 +127,7 @@ func (api *API) SectionModify(c *gin.Context) {
 		return
 	}
 	if res.MatchedCount != 1 {
-		log.Println("failed to update section", res)
+		log.Print("failed to update section", res)
 		Handle404(c)
 		return
 	}
@@ -170,7 +170,7 @@ func (api *API) SectionDelete(c *gin.Context) {
 		return
 	}
 	if res.DeletedCount != 1 {
-		log.Println("failed to delete section", res)
+		log.Print("failed to delete section", res)
 		Handle404(c)
 		return
 	}

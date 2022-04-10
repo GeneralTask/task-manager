@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"log"
+	"github.com/rs/zerolog/log"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"

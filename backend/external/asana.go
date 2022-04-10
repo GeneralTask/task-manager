@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -67,12 +67,12 @@ func (asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 	}
 	tokenExtra := token.Extra("data")
 	if tokenExtra == nil {
-		log.Println("missing 'data' from token response")
+		log.Print("missing 'data' from token response")
 		return errors.New("internal server error")
 	}
 	accountEmail, ok := tokenExtra.(map[string]interface{})["email"]
 	if !ok {
-		log.Println("missing 'email' in 'data' from token response")
+		log.Print("missing 'email' in 'data' from token response")
 		return errors.New("internal server error")
 	}
 

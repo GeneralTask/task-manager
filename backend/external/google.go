@@ -3,7 +3,7 @@ package external
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -179,7 +179,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 		return primitive.NilObjectID, nil, nil, err
 	}
 	if userInfo.SUB == "" {
-		log.Println("failed to retrieve google user ID")
+		log.Print("failed to retrieve google user ID")
 		return primitive.NilObjectID, nil, nil, err
 	}
 

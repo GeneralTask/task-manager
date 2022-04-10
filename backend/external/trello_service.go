@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"log"
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -55,7 +55,7 @@ func (trello TrelloService) GetLinkURL(stateTokenID primitive.ObjectID, userID p
 	authSecretCollection := database.GetOauth1RequestsSecretsCollection(db)
 	_, err = authSecretCollection.DeleteMany(dbCtx, bson.M{"user_id": userID})
 	if err != nil {
-		log.Fatalf("failed to delete old request secrets: %v", err)
+		log.Fatal().Msgf("failed to delete old request secrets: %v", err)
 	}
 	_, err = authSecretCollection.InsertOne(dbCtx, &secret)
 	if err != nil {

@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"errors"
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -51,7 +51,7 @@ func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 }
 
 func (api *API) Ping(c *gin.Context) {
-	log.Println("success!")
+	log.Print("success!")
 	c.JSON(200, "success")
 }
 

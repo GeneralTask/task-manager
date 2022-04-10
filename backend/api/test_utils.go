@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"io/ioutil"
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -142,7 +142,7 @@ func newStateToken(authToken string, useDeeplink bool) (*string, error) {
 		defer cancel()
 		err := internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": authToken}).Decode(&token)
 		if err != nil {
-			log.Fatalf("Failed to find internal api token for test")
+			log.Fatal().Msgf("Failed to find internal api token for test")
 		}
 		userID = &token.UserID
 	}

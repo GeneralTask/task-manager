@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"strings"
 	"time"
 
@@ -382,7 +382,7 @@ func (gmailSource GmailSource) MarkAsDone(userID primitive.ObjectID, accountID s
 		emailID,
 		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{labelToRemove}},
 	).Do()
-	log.Println("resulting message:", message)
+	log.Print("resulting message:", message)
 
 	return err
 }
@@ -655,7 +655,7 @@ func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToCh
 		emailID,
 		&modifyRequest,
 	).Do()
-	log.Println("resulting message:", message)
+	log.Print("resulting message:", message)
 
 	return err
 }
