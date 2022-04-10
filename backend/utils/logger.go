@@ -16,7 +16,7 @@ func ConfigureLogger(env config.Environment) {
 	}
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	logLevel, err := zerolog.ParseLevel(config.GetConfigValue("LOG_LEVEL"))
-	if err == nil && logLevel != "" {
+	if err == nil && logLevel != zerolog.NoLevel {
 		zerolog.SetGlobalLevel(logLevel)
 	}
 	log.Info().Msgf("Log level set to %s", logLevel)
