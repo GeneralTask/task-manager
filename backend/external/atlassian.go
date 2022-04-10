@@ -5,8 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"github.com/rs/zerolog/log"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -203,7 +203,7 @@ func (atlassian AtlassianService) getSites(token *oauth2.Token) *[]AtlassianSite
 	}
 
 	if len(AtlassianSites) == 0 {
-		log.Print("no accessible JIRA resources found")
+		log.Error().Msg("no accessible JIRA resources found")
 		return nil
 	}
 	return &AtlassianSites

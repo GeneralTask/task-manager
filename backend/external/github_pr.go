@@ -72,14 +72,14 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	defer cancel()
 	githubUser, _, err := githubClient.Users.Get(extCtx, CurrentlyAuthedUserFilter)
 	if err != nil || githubUser == nil {
-		log.Print("failed to fetch Github user")
+		log.Error().Msg("failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
 		return
 	}
 
 	repos, _, err := githubClient.Repositories.List(extCtx, CurrentlyAuthedUserFilter, nil)
 	if err != nil {
-		log.Print("failed to fetch Github repos for user")
+		log.Error().Msg("failed to fetch Github repos for user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
 		return
 	}

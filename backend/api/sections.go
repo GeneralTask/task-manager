@@ -127,7 +127,7 @@ func (api *API) SectionModify(c *gin.Context) {
 		return
 	}
 	if res.MatchedCount != 1 {
-		log.Print("failed to update section", res)
+		log.Error().Msgf("failed to update section", res)
 		Handle404(c)
 		return
 	}
@@ -170,7 +170,7 @@ func (api *API) SectionDelete(c *gin.Context) {
 		return
 	}
 	if res.DeletedCount != 1 {
-		log.Print("failed to delete section", res)
+		log.Error().Msgf("failed to delete section", res)
 		Handle404(c)
 		return
 	}

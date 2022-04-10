@@ -51,7 +51,7 @@ func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 }
 
 func (api *API) Ping(c *gin.Context) {
-	log.Print("success!")
+	log.Info().Msg("success!")
 	c.JSON(200, "success")
 }
 

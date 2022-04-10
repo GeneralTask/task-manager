@@ -80,7 +80,7 @@ func (github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 	}
 
 	tokenString, err := json.Marshal(&token)
-	log.Print("token string:", string(tokenString))
+	log.Info().Msgf("token string:", string(tokenString))
 	if err != nil {
 		log.Error().Msgf("error parsing token: %v", err)
 		return errors.New("internal server error")

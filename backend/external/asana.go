@@ -67,12 +67,12 @@ func (asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 	}
 	tokenExtra := token.Extra("data")
 	if tokenExtra == nil {
-		log.Print("missing 'data' from token response")
+		log.Error().Msg("missing 'data' from token response")
 		return errors.New("internal server error")
 	}
 	accountEmail, ok := tokenExtra.(map[string]interface{})["email"]
 	if !ok {
-		log.Print("missing 'email' in 'data' from token response")
+		log.Error().Msg("missing 'email' in 'data' from token response")
 		return errors.New("internal server error")
 	}
 

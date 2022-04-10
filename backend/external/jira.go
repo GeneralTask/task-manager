@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"io/ioutil"
 	"github.com/rs/zerolog/log"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -332,7 +331,7 @@ func (jira JIRASource) getFinalTransitionID(apiBaseURL string, AtlassianAuthToke
 	}
 
 	typeOfArray := reflect.TypeOf(data["transitions"]).String()
-	fmt.Print(typeOfArray)
+	log.Info().Str("typeOfArray", typeOfArray).Send()
 	transitionsArray, castResult := data["transitions"].([]interface{})
 	if !castResult || len(transitionsArray) < 1 {
 		return nil
