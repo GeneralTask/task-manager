@@ -61,7 +61,7 @@ func (api *API) EventsList(c *gin.Context) {
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
-		log.Info().Msgf("failed to find user: %v", err)
+		log.Error().Msgf("failed to find user: %v", err)
 		Handle500(c)
 		return
 	}
@@ -74,7 +74,7 @@ func (api *API) EventsList(c *gin.Context) {
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Info().Msgf("failed to fetch api tokens: %v", err)
+		log.Error().Msgf("failed to fetch api tokens: %v", err)
 		Handle500(c)
 		return
 	}
@@ -82,7 +82,7 @@ func (api *API) EventsList(c *gin.Context) {
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
-		log.Info().Msgf("failed to iterate through api tokens: %v", err)
+		log.Error().Msgf("failed to iterate through api tokens: %v", err)
 		Handle500(c)
 		return
 	}
@@ -92,7 +92,7 @@ func (api *API) EventsList(c *gin.Context) {
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
-			log.Info().Msgf("error loading task service: %v", err)
+			log.Error().Msgf("error loading task service: %v", err)
 			continue
 		}
 		for _, taskSource := range taskServiceResult.Sources {

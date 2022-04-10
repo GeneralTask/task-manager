@@ -74,7 +74,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	var userInfo AsanaUserInfoResponse
 	err = getJSON(client, userInfoURL, &userInfo)
 	if err != nil || len(userInfo.Data.Workspaces) == 0 {
-		log.Info().Msgf("failed to get asana workspace ID: %v", err)
+		log.Error().Msgf("failed to get asana workspace ID: %v", err)
 		if err == nil {
 			err = errors.New("user has not workspaces")
 		}
@@ -94,7 +94,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	var asanaTasks AsanaTasksResponse
 	err = getJSON(client, taskFetchURL, &asanaTasks)
 	if err != nil {
-		log.Info().Msgf("failed to fetch asana tasks: %v", err)
+		log.Error().Msgf("failed to fetch asana tasks: %v", err)
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 		return
 	}
@@ -143,7 +143,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 		}
 		err = res.Decode(&dbTask)
 		if err != nil {
-			log.Info().Msgf("failed to update or create task: %v", err)
+			log.Error().Msgf("failed to update or create task: %v", err)
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 			return
 		}
@@ -185,7 +185,7 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 	}
 	err = requestJSON(client, "PUT", taskUpdateURL, string(bodyJson), EmptyResponsePlaceholder)
 	if err != nil {
-		log.Info().Msgf("failed to update asana task: %v", err)
+		log.Error().Msgf("failed to update asana task: %v", err)
 		return err
 	}
 	return nil

@@ -52,7 +52,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
 	if token == nil {
-		log.Info().Msgf("failed to fetch Github API token")
+		log.Error().Msgf("failed to fetch Github API token")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
 		return
 	}
@@ -144,13 +144,13 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			nil,
 		)
 		if err != nil {
-			log.Info().Msgf("failed to update or create pull request: %v", err)
+			log.Error().Msgf("failed to update or create pull request: %v", err)
 			result <- emptyPullRequestResult(err)
 			return
 		}
 		err = res.Decode(&dbPR)
 		if err != nil {
-			log.Info().Msgf("failed to update or create pull request: %v", err)
+			log.Error().Msgf("failed to update or create pull request: %v", err)
 			result <- emptyPullRequestResult(err)
 			return
 		}

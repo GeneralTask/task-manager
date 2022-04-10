@@ -13,7 +13,6 @@ func main() {
 	utils.ConfigureLogger(env)
 
 	log.Info().Msgf("Starting server in %s environment", env)
-	log.Info().Msgf("Starting server in %s environment", env)
 	// TODO: Validate .env/config at server startup
 
 	err := migrations.RunMigrations("migrations")

@@ -94,13 +94,13 @@ func (atlassian AtlassianService) HandleLinkCallback(params CallbackParams, user
 	defer cancel()
 	token, err := atlassian.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
-		log.Info().Msgf("failed to fetch token from Atlassian: %v", err)
+		log.Error().Msgf("failed to fetch token from Atlassian: %v", err)
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		log.Info().Msgf("error parsing token: %v", err)
+		log.Error().Msgf("error parsing token: %v", err)
 		return errors.New("internal server error")
 	}
 
@@ -132,7 +132,7 @@ func (atlassian AtlassianService) HandleLinkCallback(params CallbackParams, user
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Info().Msgf("failed to create external token record: %v", err)
+		log.Error().Msgf("failed to create external token record: %v", err)
 		return errors.New("internal server error")
 	}
 
@@ -152,14 +152,14 @@ func (atlassian AtlassianService) HandleLinkCallback(params CallbackParams, user
 	)
 
 	if err != nil {
-		log.Info().Msgf("failed to create external site collection record: %v", err)
+		log.Error().Msgf("failed to create external site collection record: %v", err)
 		return errors.New("internal server error")
 	}
 
 	JIRA := JIRASource{Atlassian: atlassian}
 	err = JIRA.GetListOfPriorities(userID, token.AccessToken)
 	if err != nil {
-		log.Info().Msgf("failed to download priorities: %v", err)
+		log.Error().Msgf("failed to download priorities: %v", err)
 		return errors.New("internal server error")
 	}
 	return nil
@@ -176,29 +176,29 @@ func (atlassian AtlassianService) getSites(token *oauth2.Token) *[]AtlassianSite
 	}
 	req, err := http.NewRequest("GET", cloudIDURL, nil)
 	if err != nil {
-		log.Info().Msgf("error forming cloud ID request: %v", err)
+		log.Error().Msgf("error forming cloud ID request: %v", err)
 		return nil
 	}
 	req.Header.Add("Authorization", "Bearer "+token.AccessToken)
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Info().Msgf("failed to load cloud ID: %v", err)
+		log.Error().Msgf("failed to load cloud ID: %v", err)
 		return nil
 	}
 	cloudIDData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Info().Msgf("failed to read cloud ID response: %v", err)
+		log.Error().Msgf("failed to read cloud ID response: %v", err)
 		return nil
 	}
 	if resp.StatusCode != 200 {
-		log.Info().Msgf("cloud ID request failed: %s", cloudIDData)
+		log.Error().Msgf("cloud ID request failed: %s", cloudIDData)
 		return nil
 	}
 	AtlassianSites := []AtlassianSite{}
 	err = json.Unmarshal(cloudIDData, &AtlassianSites)
 	if err != nil {
-		log.Info().Msgf("failed to parse cloud ID response: %v", err)
+		log.Error().Msgf("failed to parse cloud ID response: %v", err)
 		return nil
 	}
 
@@ -257,7 +257,7 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 	var token AtlassianAuthToken
 	err = json.Unmarshal([]byte(JIRAToken.Token), &token)
 	if err != nil {
-		log.Info().Msgf("failed to parse JIRA token: %v", err)
+		log.Error().Msgf("failed to parse JIRA token: %v", err)
 		return nil, err
 	}
 	params := []byte(`{"grant_type": "refresh_token","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","refresh_token": "` + token.RefreshToken + `"}`)
@@ -267,28 +267,28 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 	}
 	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
-		log.Info().Msgf("error forming token request: %v", err)
+		log.Error().Msgf("error forming token request: %v", err)
 		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Info().Msgf("failed to request token: %v", err)
+		log.Error().Msgf("failed to request token: %v", err)
 		return nil, err
 	}
 	tokenString, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Info().Msgf("failed to read token response: %v", err)
+		log.Error().Msgf("failed to read token response: %v", err)
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		log.Info().Msgf("JIRA authorization failed: %s", tokenString)
+		log.Error().Msgf("JIRA authorization failed: %s", tokenString)
 		return nil, err
 	}
 	var newToken AtlassianAuthToken
 	err = json.Unmarshal(tokenString, &newToken)
 	if err != nil {
-		log.Info().Msgf("failed to parse new JIRA token: %v", err)
+		log.Error().Msgf("failed to parse new JIRA token: %v", err)
 		return nil, err
 	}
 	return &newToken, nil
