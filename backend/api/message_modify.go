@@ -52,7 +52,7 @@ func (api *API) MessageModify(c *gin.Context) {
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(message.SourceID)
 	if err != nil {
-		log.Printf("failed to load external task source: %v", err)
+		log.Info().Msgf("failed to load external task source: %v", err)
 		Handle500(c)
 		return
 	}
@@ -60,14 +60,14 @@ func (api *API) MessageModify(c *gin.Context) {
 	// update external message
 	err = taskSourceResult.Source.ModifyMessage(userID, message.SourceAccountID, message.IDExternal, messageChangeableFields)
 	if err != nil {
-		log.Printf("failed to update external task source: %v", err)
+		log.Info().Msgf("failed to update external task source: %v", err)
 		Handle500(c)
 		return
 	}
 
 	err = updateMessageInDB(api, c.Request.Context(), messageID, userID, messageChangeableFields)
 	if err != nil {
-		log.Printf("could not update message %v in DB with fields %+v", messageID, messageChangeableFields)
+		log.Info().Msgf("could not update message %v in DB with fields %+v", messageID, messageChangeableFields)
 		Handle500(c)
 		return
 	}
@@ -90,7 +90,7 @@ func updateMessageInDB(api *API, ctx context.Context, messageID primitive.Object
 	// We flatten in order to do partial updates of nested documents correctly in mongodb
 	flattenedUpdateFields, err := flatbson.Flatten(updateFields)
 	if err != nil {
-		log.Printf("Could not flatten %+v, error: %+v", updateFields, err)
+		log.Info().Msgf("Could not flatten %+v, error: %+v", updateFields, err)
 		return err
 	}
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -105,12 +105,12 @@ func updateMessageInDB(api *API, ctx context.Context, messageID primitive.Object
 	)
 
 	if err != nil {
-		log.Printf("failed to update internal DB: %v", err)
+		log.Info().Msgf("failed to update internal DB: %v", err)
 		return err
 	}
 	if res.MatchedCount != 1 {
 		// Note, we don't consider res.ModifiedCount because no-op updates don't count as modified
-		log.Printf("failed to find message %+v", res)
+		log.Info().Msgf("failed to find message %+v", res)
 		return fmt.Errorf("failed to find message %+v", res)
 	}
 

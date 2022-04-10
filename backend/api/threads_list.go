@@ -62,7 +62,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
-		log.Printf("failed to find user: %v", err)
+		log.Info().Msgf("failed to find user: %v", err)
 		Handle500(c)
 		return
 	}

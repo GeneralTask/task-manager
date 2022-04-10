@@ -134,7 +134,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	JQL := "assignee=currentuser() AND status != Done"
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
 	if err != nil {
-		log.Printf("error forming search request: %v", err)
+		log.Info().Msgf("error forming search request: %v", err)
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
@@ -142,18 +142,18 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Printf("failed to load search results: %v", err)
+		log.Info().Msgf("failed to load search results: %v", err)
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
 	taskData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("failed to read search response: %v", err)
+		log.Info().Msgf("failed to read search response: %v", err)
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("search failed: %s %v", taskData, resp.StatusCode)
+		log.Info().Msgf("search failed: %s %v", taskData, resp.StatusCode)
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
@@ -161,7 +161,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	var jiraTasks JIRATaskList
 	err = json.Unmarshal(taskData, &jiraTasks)
 	if err != nil {
-		log.Printf("failed to parse JIRA tasks: %v", err)
+		log.Info().Msgf("failed to parse JIRA tasks: %v", err)
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
@@ -177,7 +177,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	for _, jiraTask := range jiraTasks.Issues {
 		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
 		if err != nil {
-			log.Printf("unable to parse JIRA template: %v", err)
+			log.Info().Msgf("unable to parse JIRA template: %v", err)
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
@@ -225,7 +225,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	if needsRefresh {
 		err = jira.GetListOfPriorities(userID, authToken.AccessToken)
 		if err != nil {
-			log.Printf("failed to fetch priorities: %v", err)
+			log.Info().Msgf("failed to fetch priorities: %v", err)
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
@@ -259,7 +259,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 		}
 		err = res.Decode(&dbTask)
 		if err != nil {
-			log.Printf("failed to update or create task: %v", err)
+			log.Info().Msgf("failed to update or create task: %v", err)
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
@@ -288,7 +288,7 @@ func (JIRA JIRASource) fetchLocalPriorityMapping(prioritiesCollection *mongo.Col
 	defer cancel()
 	cursor, err := prioritiesCollection.Find(dbCtx, bson.M{"user_id": userID})
 	if err != nil {
-		log.Printf("failed to fetch local priorities: %v", err)
+		log.Info().Msgf("failed to fetch local priorities: %v", err)
 		return nil
 	}
 	var priorities []database.JIRAPriority
@@ -314,20 +314,20 @@ func (jira JIRASource) getFinalTransitionID(apiBaseURL string, AtlassianAuthToke
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Printf("failed to request transitions: %v", err)
+		log.Info().Msgf("failed to request transitions: %v", err)
 		return nil
 	}
 
 	responseString, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("failed to read http response body: %v", err)
+		log.Info().Msgf("failed to read http response body: %v", err)
 		return nil
 	}
 
 	var data map[string]interface{}
 	err = json.Unmarshal(responseString, &data)
 	if err != nil {
-		log.Printf("failed to parse json data: %v", err)
+		log.Info().Msgf("failed to parse json data: %v", err)
 		return nil
 	}
 

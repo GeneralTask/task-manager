@@ -23,7 +23,7 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 	var params WaitlistParams
 	err := c.BindJSON(&params)
 	if err != nil || params.Email == "" {
-		log.Printf("error: %v", err)
+		log.Info().Msgf("error: %v", err)
 		c.JSON(400, gin.H{"detail": "invalid or missing 'email' parameter."})
 		return
 	}
@@ -45,7 +45,7 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 	defer cancel()
 	count, err := waitlistCollection.CountDocuments(dbCtx, bson.M{"email": email})
 	if err != nil {
-		log.Printf("failed to query waitlist: %v", err)
+		log.Info().Msgf("failed to query waitlist: %v", err)
 		Handle500(c)
 		return
 	}
@@ -64,7 +64,7 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 		},
 	)
 	if err != nil {
-		log.Printf("failed to insert waitlist entry: %v", err)
+		log.Info().Msgf("failed to insert waitlist entry: %v", err)
 		Handle500(c)
 		return
 	}

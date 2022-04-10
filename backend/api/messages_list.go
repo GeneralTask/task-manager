@@ -59,7 +59,7 @@ func markReadMessagesInDB(
 			}
 			err := updateMessageInDB(api, nil, currentEmail.ID, currentEmail.UserID, &messageChangeable)
 			if err != nil {
-				log.Printf("failed to mark message read: (ID=%v) with error: %v", currentEmail.ID, err)
+				log.Info().Msgf("failed to mark message read: (ID=%v) with error: %v", currentEmail.ID, err)
 				return err
 			}
 		}

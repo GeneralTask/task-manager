@@ -38,7 +38,7 @@ func (api *API) MessagesListV2(c *gin.Context) {
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
-		log.Printf("failed to find user: %v", err)
+		log.Info().Msgf("failed to find user: %v", err)
 		Handle500(c)
 		return
 	}
@@ -85,7 +85,7 @@ func (api *API) orderMessagesV2(
 ) ([]*message, error) {
 	orderingSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailOrderingPreference)
 	if err != nil {
-		log.Printf("failed to fetch email ordering setting: %v", err)
+		log.Info().Msgf("failed to fetch email ordering setting: %v", err)
 		return []*message{}, err
 	}
 	newestEmailsFirst := *orderingSetting == settings.ChoiceKeyNewestFirst

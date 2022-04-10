@@ -21,7 +21,7 @@ func (api *API) FeedbackAdd(c *gin.Context) {
 	var params FeedbackParams
 	err := c.BindJSON(&params)
 	if err != nil || params.Feedback == "" {
-		log.Printf("error: %v", err)
+		log.Info().Msgf("error: %v", err)
 		c.JSON(400, gin.H{"detail": "invalid or missing 'feedback' parameter."})
 		return
 	}
@@ -47,13 +47,13 @@ func (api *API) FeedbackAdd(c *gin.Context) {
 		},
 	)
 	if err != nil {
-		log.Printf("failed to insert feedback item: %+v", err)
+		log.Info().Msgf("failed to insert feedback item: %+v", err)
 		Handle500(c)
 		return
 	}
 	err = slack.SendFeedbackMessage(params.Feedback)
 	if err != nil {
-		log.Printf("failed to send slack feedback message: %+v", err)
+		log.Info().Msgf("failed to send slack feedback message: %+v", err)
 	}
 	c.JSON(201, gin.H{})
 }

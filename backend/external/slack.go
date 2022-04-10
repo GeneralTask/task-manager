@@ -53,13 +53,13 @@ func (slack SlackService) HandleLinkCallback(params CallbackParams, userID primi
 	defer cancel()
 	token, err := slack.Config.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
-		log.Printf("failed to fetch token from Slack: %v", err)
+		log.Info().Msgf("failed to fetch token from Slack: %v", err)
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		log.Printf("error parsing token: %v", err)
+		log.Info().Msgf("error parsing token: %v", err)
 		return errors.New("internal server error")
 	}
 
@@ -81,7 +81,7 @@ func (slack SlackService) HandleLinkCallback(params CallbackParams, userID primi
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Printf("error saving token: %v", err)
+		log.Info().Msgf("error saving token: %v", err)
 		return errors.New("internal server error")
 	}
 	return nil
