@@ -143,6 +143,7 @@ func TestGetEmails(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		userID := primitive.NewObjectID()
 
+		////////////////////////////////////////////////////////////////////////////////
 		// (1) Arrange: setup testing objects and mock data
 		threadsMap := map[string]*gmail.Thread{
 			"gmail_thread_1": {
@@ -171,11 +172,13 @@ func TestGetEmails(t *testing.T) {
 			},
 		}
 
+		////////////////////////////////////////////////////////////////////////////////
 		// (2) Act: call the API / perform the work
 		var emailResult = make(chan EmailResult)
 		go mockGmailSource.GetEmails(userID, "me", emailResult)
 		result := <-emailResult
 
+		////////////////////////////////////////////////////////////////////////////////
 		// (3) Assert: verify results as expected
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 3, len(result.Emails))
@@ -220,20 +223,15 @@ func TestGetEmails(t *testing.T) {
 		threadItems, err := database.GetEmailThreads(db, userID, false, database.Pagination{}, nil)
 		assert.NoError(t, err)
 
+		assert.Equal(t, len(expectedThreadsInDB), len(*threadItems))
+		if len(expectedThreadsInDB) != len(*threadItems) {
+			return
+		}
 		for i, dbThreadItem := range *threadItems {
 			expectedThreadItem := expectedThreadsInDB[i]
-			//log.Printf("%+v", thread.EmailThread)
-			log.Printf("%+v", dbThreadItem.EmailThread.ThreadID)
-			log.Printf("%+v", expectedThreadItem.EmailThread.ThreadID)
 			assertThreadItemsEqual(t, expectedThreadItem, &dbThreadItem)
 
 		}
-
-		//thread, err := database.GetItem(context.Background(), taskID, userID)
-		//log.
-		//firstTask := result.CalendarEvents[0]
-		//assertCalendarEventsEqual(t, &standardTask, firstTask)
-		//assert.NoError(t, err)
 	})
 }
 
@@ -242,6 +240,39 @@ func assertThreadItemsEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.SourceID, b.SourceID)
+	//assert.Fail(t, "fass")
+
+	//log.Printf("%+v", a.EmailThread.Emails)
+	//log.Printf("%+v", len(a.EmailThread.Emails))
+	haveSameNumEmails := len(a.EmailThread.Emails) == len(b.EmailThread.Emails)
+	assert.True(t, haveSameNumEmails)
+	if !haveSameNumEmails {
+		return
+	}
+	for i := range a.EmailThread.Emails {
+		//log.Println("jerd i", i)
+		aEmail := a.EmailThread.Emails[i]
+		//log.Println("a")
+		bEmail := b.EmailThread.Emails[i]
+		//log.Println("b")
+		haveSameNumToRecipients := len(aEmail.Recipients.To) == len(bEmail.Recipients.To)
+		assert.True(t, haveSameNumToRecipients)
+		if !haveSameNumToRecipients {
+			return
+		}
+		for j := range aEmail.Recipients.To {
+			//log.Println("jerd i,j", i, j)
+			aTo := aEmail.Recipients.To[j]
+			//log.Println("1")
+			bTo := bEmail.Recipients.To[j]
+			//log.Println("2")
+			assert.Equal(t, aTo.Name, bTo.Name)
+			//log.Println("3")
+			assert.Equal(t, aTo.Email, bTo.Email)
+			//log.Println("4")
+		}
+	}
+	log.Println("finish")
 }
 
 func getGinGmailFetchServer(t *testing.T, threadsMap map[string]*gmail.Thread) *httptest.Server {
@@ -262,11 +293,7 @@ func getGinGmailFetchServer(t *testing.T, threadsMap map[string]*gmail.Thread) *
 				c.JSON(200, response)
 			})
 			v1.GET("/threads/:threadID", func(c *gin.Context) {
-				log.Println(c.Param("threadID"))
-				log.Println(threadsMap[c.Param("threadID")])
-
 				response := threadsMap[c.Param("threadID")]
-
 				c.JSON(200, response)
 			})
 		}
@@ -289,10 +316,11 @@ func createTestGmailMessage(
 				Data: base64.URLEncoding.EncodeToString([]byte(fmt.Sprintf("test message body %s", externalMessageID))),
 			},
 			Headers: []*gmail.MessagePartHeader{
-				{Name: "From", Value: "<First Last> from@generaltask.com"},
+				{Name: "From", Value: "First Last <from@generaltask.com>"},
 				{Name: "Reply-To", Value: "reply-to@generaltask.com"},
 				{Name: "Subject", Value: subject},
 				{Name: "Message-ID", Value: fmt.Sprintf("smtp_%s", externalMessageID)},
+				{Name: "To", Value: "Recipient <recipient@generaltask.com>,John Test <johntest@generaltask.com>"},
 			},
 			MimeType: "text/plain",
 			// todo - not sure about using `Parts`
@@ -323,7 +351,12 @@ func createTestThreadEmail(
 		SenderName:   "First Last",
 		ReplyTo:      "reply-to@generaltask.com",
 		IsUnread:     isUnread,
-		//Recipients:   database.Recipients{},
+		Recipients: database.Recipients{
+			To: []database.Recipient{
+				{Name: "Recipient", Email: "recipient@generaltask.com"},
+				{Name: "John Test", Email: "johntest@generaltask.com"},
+			},
+		},
 		SentAt: *testutils.CreateDateTime(dt),
 	}
 }
