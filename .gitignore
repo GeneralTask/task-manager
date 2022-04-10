@@ -4,7 +4,11 @@
 *.dll
 *.so
 *.dylib
+
+# Binaries built with air https://github.com/cosmtrek/air
 backend/bin
+.air.toml
+
 
 # Test binary, built with `go test -c`
 *.test
