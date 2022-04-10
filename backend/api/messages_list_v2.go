@@ -19,7 +19,7 @@ const DEFAULT_MESSAGE_LIMIT int = 100
 
 type messagesListParams struct {
 	database.Pagination `form:",inline" json:",inline"`
-	OnlyUnread  *bool `form:"only_unread" json:"only_unread"`
+	OnlyUnread          *bool `form:"only_unread" json:"only_unread"`
 }
 
 func (api *API) MessagesListV2(c *gin.Context) {
@@ -58,7 +58,6 @@ func (api *API) MessagesListV2(c *gin.Context) {
 		page := 1
 		params.Pagination = database.Pagination{Limit: &limit, Page: &page}
 	}
-
 
 	emails, err := database.GetEmails(db, userID.(primitive.ObjectID), onlyUnread, params.Pagination)
 	if err != nil {
