@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/api/gmail/v1"
-	"log"
 	"net/http/httptest"
 	"testing"
 )
@@ -242,45 +241,26 @@ func assertThreadItemsEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.SourceID, b.SourceID)
 	//assert.Fail(t, "fass")
 
-	//log.Printf("%+v", a.EmailThread.Emails)
-	//log.Printf("%+v", len(a.EmailThread.Emails))
-	haveSameNumEmails := len(a.EmailThread.Emails) == len(b.EmailThread.Emails)
-	assert.True(t, haveSameNumEmails)
-	if !haveSameNumEmails {
+	//assert.Equal(t, a.EmailThread.Emails, b.EmailThread.Emails)
+	assert.Equal(t, len(a.EmailThread.Emails), len(b.EmailThread.Emails))
+	if len(a.EmailThread.Emails) != len(b.EmailThread.Emails) {
 		return
 	}
 	for i := range a.EmailThread.Emails {
-		//log.Println("jerd i", i)
 		aEmail := a.EmailThread.Emails[i]
-		//log.Println("a")
 		bEmail := b.EmailThread.Emails[i]
-		//log.Println("b")
-		haveSameNumToRecipients := len(aEmail.Recipients.To) == len(bEmail.Recipients.To)
-		assert.True(t, haveSameNumToRecipients)
-		if !haveSameNumToRecipients {
-			return
-		}
-		for j := range aEmail.Recipients.To {
-			//log.Println("jerd i,j", i, j)
-			aTo := aEmail.Recipients.To[j]
-			//log.Println("1")
-			bTo := bEmail.Recipients.To[j]
-			//log.Println("2")
-			assert.Equal(t, aTo.Name, bTo.Name)
-			//log.Println("3")
-			assert.Equal(t, aTo.Email, bTo.Email)
-			//log.Println("4")
-		}
+
+		assert.Equal(t, aEmail.SentAt, bEmail.SentAt)
+
+		assert.Equal(t, len(aEmail.Recipients.To), len(bEmail.Recipients.To))
+		assert.Equal(t, aEmail.Recipients.To, bEmail.Recipients.To)
 	}
-	log.Println("finish")
 }
 
 func getGinGmailFetchServer(t *testing.T, threadsMap map[string]*gmail.Thread) *httptest.Server {
 	return httptest.NewServer(func() *gin.Engine {
 		w := httptest.NewRecorder()
 		_, r := gin.CreateTestContext(w)
-
-		//assert.Fail(t, "jerd")
 
 		v1 := r.Group("/gmail/v1/users/:gmailAccountID")
 		{

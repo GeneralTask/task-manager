@@ -146,11 +146,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 			senderName, senderEmail := utils.ExtractSenderName(sender)
 			senderDomain := utils.ExtractEmailDomain(senderEmail)
-
-			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
-
 			recipients := *GetRecipients(message.Payload.Headers)
 
+			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate, 0))
 			if timeSent > mostRecentEmailTimestamp {
 				mostRecentEmailTimestamp = timeSent
 			}
@@ -166,6 +164,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				ReplyTo:      replyTo,
 				IsUnread:     isMessageUnread(message),
 				Recipients:   recipients,
+				SentAt:       timeSent,
 			}
 			nestedEmails = append(nestedEmails, email)
 			emailItem := &database.Item{
