@@ -61,7 +61,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	parentCtx := ctx
 	db, dbCleanup, err := GetDBConnection()
 	if err != nil {
-		log.Error().Msgf("Failed to establish DB connection", err)
+		log.Error().Err(err).Msg("Failed to establish DB connection")
 		return nil, err
 	}
 	defer dbCleanup()

@@ -127,7 +127,7 @@ func (api *API) SectionModify(c *gin.Context) {
 		return
 	}
 	if res.MatchedCount != 1 {
-		log.Error().Msgf("failed to update section", res)
+		log.Error().Msgf("failed to update section %+v", res)
 		Handle404(c)
 		return
 	}
@@ -165,12 +165,12 @@ func (api *API) SectionDelete(c *gin.Context) {
 		}},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to update internal DB: %+v", err)
+		log.Error().Err(err).Msg("failed to update internal DB")
 		Handle500(c)
 		return
 	}
 	if res.DeletedCount != 1 {
-		log.Error().Msgf("failed to delete section", res)
+		log.Error().Msgf("failed to delete section %+v", res)
 		Handle404(c)
 		return
 	}
