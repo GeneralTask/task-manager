@@ -6,7 +6,7 @@
 *.dylib
 
 # Binaries built with air https://github.com/cosmtrek/air
-backend/bin
+backend/tmp
 .air.toml
 
 
