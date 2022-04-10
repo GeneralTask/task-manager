@@ -4,17 +4,16 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/testutils"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
-
-	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestThreadList(t *testing.T) {
@@ -36,10 +35,10 @@ func TestThreadList(t *testing.T) {
 		},
 		EmailThread: database.EmailThread{
 			ThreadID:      "sample_gmail_thread_id",
-			LastUpdatedAt: createTimestamp("2020-04-20"),
+			LastUpdatedAt: *testutils.CreateDateTime("2020-04-20"),
 			Emails: []database.Email{
-				{EmailID: "sample_email_1_1", SentAt: createTimestamp("2018-04-20"), IsUnread: false},
-				{EmailID: "sample_email_1_2", SentAt: createTimestamp("2020-04-20"), IsUnread: false},
+				{EmailID: "sample_email_1_1", SentAt: *testutils.CreateDateTime("2018-04-20"), IsUnread: false},
+				{EmailID: "sample_email_1_2", SentAt: *testutils.CreateDateTime("2020-04-20"), IsUnread: false},
 			},
 		},
 		TaskType: database.TaskType{IsThread: true},
@@ -53,9 +52,9 @@ func TestThreadList(t *testing.T) {
 		},
 		EmailThread: database.EmailThread{
 			ThreadID:      "sample_gmail_thread_id2",
-			LastUpdatedAt: createTimestamp("2019-04-20"),
+			LastUpdatedAt: *testutils.CreateDateTime("2019-04-20"),
 			Emails: []database.Email{
-				{EmailID: "sample_email_2", SentAt: createTimestamp("2019-04-20"), IsUnread: true},
+				{EmailID: "sample_email_2", SentAt: *testutils.CreateDateTime("2019-04-20"), IsUnread: true},
 			},
 		},
 		TaskType: database.TaskType{IsThread: true},
@@ -69,9 +68,9 @@ func TestThreadList(t *testing.T) {
 		},
 		EmailThread: database.EmailThread{
 			ThreadID:      "sample_gmail_thread_id3",
-			LastUpdatedAt: createTimestamp("2021-04-20"),
+			LastUpdatedAt: *testutils.CreateDateTime("2021-04-20"),
 			Emails: []database.Email{
-				{EmailID: "sample_email_3", SentAt: createTimestamp("2021-04-20"), IsUnread: false},
+				{EmailID: "sample_email_3", SentAt: *testutils.CreateDateTime("2021-04-20"), IsUnread: false},
 			},
 		},
 		TaskType: database.TaskType{IsThread: true},
@@ -197,9 +196,4 @@ func insertTestItem(t *testing.T, userID primitive.ObjectID, task database.Item)
 	taskID := insertResult.InsertedID.(primitive.ObjectID)
 	taskIDHex := taskID.Hex()
 	return taskIDHex
-}
-
-func createTimestamp(dt string) primitive.DateTime {
-	createdAt, _ := time.Parse("2006-01-02", dt)
-	return primitive.NewDateTimeFromTime(createdAt)
 }
