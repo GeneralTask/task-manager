@@ -3,11 +3,24 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
 	"time"
 )
+
+func ConfigureLogger(env config.Environment) {
+	if env == config.Dev {
+		log.Logger = CreateConsoleLogger().With().Caller().Logger()
+	}
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	logLevel, err := zerolog.ParseLevel(config.GetConfigValue("LOG_LEVEL"))
+	if err == nil {
+		zerolog.SetGlobalLevel(logLevel)
+	}
+	log.Info().Msgf("Log level set to %s", logLevel)
+}
 
 func CreateConsoleLogger() zerolog.Logger {
 	consoleWriter := zerolog.NewConsoleWriter(func(w *zerolog.ConsoleWriter) {

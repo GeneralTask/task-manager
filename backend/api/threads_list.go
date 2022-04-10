@@ -74,8 +74,6 @@ func (api *API) ThreadsList(c *gin.Context) {
 		return
 	}
 
-	log.Printf("params: %v", params)
-	log.Info().Msgf("params: %v", params)
 	onlyUnread := false
 	if params.OnlyUnread != nil && *params.OnlyUnread {
 		onlyUnread = true

@@ -11,10 +11,10 @@ import (
 
 func main() {
 	env := config.GetEnvironment()
-	if env == config.Dev {
-		log.Logger = utils.CreateConsoleLogger().With().Caller().Logger()
-	}
+	utils.ConfigureLogger(env)
+
 	log.Printf("Starting server in %s environment", env)
+	log.Info().Msgf("Starting server in %s environment", env)
 	// TODO: Validate .env/config at server startup
 
 	err := migrations.RunMigrations("migrations")
