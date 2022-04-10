@@ -148,66 +148,17 @@ func TestGetEmails(t *testing.T) {
 			"gmail_thread_1": {
 				Id: "gmail_thread_1",
 				Messages: []*gmail.Message{
-					{
-						Id:           "gmail_thread_1_email_1",
-						InternalDate: testutils.CreateTimestamp("2001-04-20").Unix(),
-						LabelIds:     []string{"UNREAD"},
-						Payload: &gmail.MessagePart{
-							Body: &gmail.MessagePartBody{
-								Data: base64.URLEncoding.EncodeToString([]byte("test message body gmail_thread_1_email_1")),
-							},
-							Headers: []*gmail.MessagePartHeader{
-								{Name: "From", Value: "from@generaltask.com"},
-								{Name: "Reply-To", Value: "reply-to@generaltask.com"},
-								{Name: "Subject", Value: "test subject"},
-								{Name: "Message-ID", Value: "smtp_gmail_thread_1_email_1"},
-							},
-							MimeType: "text/plain",
-							// todo - not sure about using `Parts`
-							//Parts:    []*gmail.MessagePart{}
-						},
-					},
-					{
-						Id:           "gmail_thread_1_email_2",
-						InternalDate: testutils.CreateTimestamp("2020-04-20").Unix(),
-						LabelIds:     []string{"UNREAD"},
-						Payload: &gmail.MessagePart{
-							Body: &gmail.MessagePartBody{
-								Data: base64.URLEncoding.EncodeToString([]byte("test message body gmail_thread_1_email_2")),
-							},
-							Headers: []*gmail.MessagePartHeader{
-								{Name: "From", Value: "from@generaltask.com"},
-								{Name: "Reply-To", Value: "reply-to@generaltask.com"},
-								{Name: "Subject", Value: "test subject"},
-								{Name: "Message-ID", Value: "smtp_gmail_thread_1_email_1"},
-							},
-							MimeType: "text/plain",
-							// todo - not sure about using `Parts`
-							//Parts:    []*gmail.MessagePart{}
-						},
-					},
+					createTestGmailMessage("gmail_thread_1_email_1", true,
+						"test subject", "2001-04-20"),
+					createTestGmailMessage("gmail_thread_1_email_2", false,
+						"test subject", "2020-04-20"),
 				},
 			},
 			"gmail_thread_2": {
 				Id: "gmail_thread_2",
 				Messages: []*gmail.Message{
-					{
-						Id:           "gmail_thread_2_email_1",
-						InternalDate: testutils.CreateTimestamp("2019-04-20").Unix(),
-						LabelIds:     []string{},
-						Payload: &gmail.MessagePart{
-							Body: &gmail.MessagePartBody{
-								Data: base64.URLEncoding.EncodeToString([]byte("test message body gmail_thread_2_email_1")),
-							},
-							Headers: []*gmail.MessagePartHeader{
-								{Name: "From", Value: "from@generaltask.com"},
-								{Name: "Reply-To", Value: "reply-to@generaltask.com"},
-								{Name: "Subject", Value: "test subject"},
-								{Name: "Message-ID", Value: "smtp_gmail_thread_1_email_1"},
-							},
-							MimeType: "text/plain",
-						},
-					},
+					createTestGmailMessage("gmail_thread_2_email_1", false,
+						"test subject", "2019-04-20"),
 				},
 			},
 		}
@@ -231,26 +182,34 @@ func TestGetEmails(t *testing.T) {
 
 		expectedThreadsInDB := []*database.Item{
 			{
-				TaskBase: database.TaskBase{},
+				TaskBase: database.TaskBase{
+					SourceID:   "gmail",
+					IDExternal: "gmail_thread_1",
+				},
 				TaskType: database.TaskType{IsThread: true},
 				EmailThread: database.EmailThread{
 					ThreadID:      "gmail_thread_1",
 					LastUpdatedAt: *testutils.CreateDateTime("2020-04-20"),
 					Emails: []database.Email{
-						{
-							SMTPID:       "",
-							ThreadID:     "",
-							EmailID:      "",
-							Subject:      "",
-							Body:         "",
-							SenderDomain: "",
-							SenderEmail:  "",
-							SenderName:   "",
-							ReplyTo:      "",
-							IsUnread:     false,
-							Recipients:   database.Recipients{},
-							SentAt:       0,
-						},
+						*createTestThreadEmail("gmail_thread_1_email_1", true,
+							"gmail_thread_1", "test subject", "2001-04-20"),
+						*createTestThreadEmail("gmail_thread_1_email_2", false,
+							"gmail_thread_1", "test subject", "2020-04-20"),
+					},
+				},
+			},
+			{
+				TaskBase: database.TaskBase{
+					SourceID:   "gmail",
+					IDExternal: "gmail_thread_2",
+				},
+				TaskType: database.TaskType{IsThread: true},
+				EmailThread: database.EmailThread{
+					ThreadID:      "gmail_thread_1",
+					LastUpdatedAt: *testutils.CreateDateTime("2020-04-20"),
+					Emails: []database.Email{
+						*createTestThreadEmail("gmail_thread_2_email_1", false,
+							"gmail_thread_2", "test subject", "2019-04-20"),
 					},
 				},
 			},
@@ -261,9 +220,13 @@ func TestGetEmails(t *testing.T) {
 		threadItems, err := database.GetEmailThreads(db, userID, false, database.Pagination{}, nil)
 		assert.NoError(t, err)
 
-		for _, thread := range *threadItems {
+		for i, dbThreadItem := range *threadItems {
+			expectedThreadItem := expectedThreadsInDB[i]
 			//log.Printf("%+v", thread.EmailThread)
-			log.Printf("%+v", thread.EmailThread.ThreadID)
+			log.Printf("%+v", dbThreadItem.EmailThread.ThreadID)
+			log.Printf("%+v", expectedThreadItem.EmailThread.ThreadID)
+			assertThreadItemsEqual(t, expectedThreadItem, &dbThreadItem)
+
 		}
 
 		//thread, err := database.GetItem(context.Background(), taskID, userID)
@@ -283,14 +246,10 @@ func assertThreadItemsEqual(t *testing.T, a *database.Item, b *database.Item) {
 
 func getGinGmailFetchServer(t *testing.T, threadsMap map[string]*gmail.Thread) *httptest.Server {
 	return httptest.NewServer(func() *gin.Engine {
-
-		//r := gin.Default()
-		//gin.SetMode(gin.ReleaseMode)
-		//r := gin.New()
 		w := httptest.NewRecorder()
 		_, r := gin.CreateTestContext(w)
 
-		assert.Fail(t, "oops")
+		//assert.Fail(t, "jerd")
 
 		v1 := r.Group("/gmail/v1/users/:gmailAccountID")
 		{
@@ -330,7 +289,7 @@ func createTestGmailMessage(
 				Data: base64.URLEncoding.EncodeToString([]byte(fmt.Sprintf("test message body %s", externalMessageID))),
 			},
 			Headers: []*gmail.MessagePartHeader{
-				{Name: "From", Value: "from@generaltask.com"},
+				{Name: "From", Value: "<First Last> from@generaltask.com"},
 				{Name: "Reply-To", Value: "reply-to@generaltask.com"},
 				{Name: "Subject", Value: subject},
 				{Name: "Message-ID", Value: fmt.Sprintf("smtp_%s", externalMessageID)},
@@ -343,5 +302,28 @@ func createTestGmailMessage(
 	if isUnread {
 		res.LabelIds = append(res.LabelIds, "UNREAD")
 	}
-	return res
+	return &res
+}
+
+func createTestThreadEmail(
+	externalMessageID string,
+	isUnread bool,
+	threadID string,
+	subject string,
+	dt string,
+) *database.Email {
+	return &database.Email{
+		SMTPID:   fmt.Sprintf("smtp_%s", externalMessageID),
+		ThreadID: threadID,
+		EmailID:  externalMessageID,
+		Subject:  subject,
+		//Body:         "",
+		SenderDomain: "generaltask.com",
+		SenderEmail:  "from@generaltask.com",
+		SenderName:   "First Last",
+		ReplyTo:      "reply-to@generaltask.com",
+		IsUnread:     isUnread,
+		//Recipients:   database.Recipients{},
+		SentAt: *testutils.CreateDateTime(dt),
+	}
 }
