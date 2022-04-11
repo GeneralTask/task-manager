@@ -3,8 +3,9 @@ import { useDrop } from "react-dnd"
 import styled from "styled-components"
 import { useReorderTask } from "../../../services/api-query-hooks"
 import { DropProps, ItemTypes } from "../../../utils/types"
+import { DropIndicatorAbove } from "../TaskDropContainer"
 
-const DropAreaContainer = styled.div<{ isOver: boolean }>`
+const DropAreaContainer = styled.div`
     flex: 1;
 `
 
@@ -42,7 +43,9 @@ const DropAreaBelow = ({ dropIndex, taskSectionId }: DropAreaBelowProps) => {
         drop(dropRef)
     }, [dropRef])
 
-    return <DropAreaContainer isOver={isOver} ref={dropRef} />
+    return <DropAreaContainer ref={dropRef} >
+        <DropIndicatorAbove isVisible={isOver} />
+    </DropAreaContainer>
 }
 
 export default DropAreaBelow
