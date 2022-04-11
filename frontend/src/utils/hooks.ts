@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect } from 'react'
 
 // duration in seconds
 export function useInterval(func: () => void, seconds: number, callFuncImmediately = true): void {
