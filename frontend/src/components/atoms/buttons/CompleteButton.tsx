@@ -14,7 +14,8 @@ interface CompleteButtonProps {
 const CompleteButton = (props: CompleteButtonProps) => {
     const { mutate: markTaskDone } = useMarkTaskDone()
 
-    const onClickHandler = () => {
+    const onClickHandler = (e?: React.MouseEvent<HTMLButtonElement>) => {
+        if (e) e.stopPropagation()
         markTaskDone({ taskId: props.taskId, isCompleted: !props.isComplete })
     }
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.MARK_COMPLETE, onClickHandler, !props.isSelected)
