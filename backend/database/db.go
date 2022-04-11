@@ -17,6 +17,10 @@ type DBHandle struct {
 
 var dbh *DBHandle
 
+func init() {
+	InitDB(dbh)
+}
+
 // InitDB sets up the connection pool global variable.
 func InitDB(dbHandle *DBHandle) (*DBHandle, error) {
 	var err error
