@@ -19,7 +19,7 @@ const DropAreaBelow = ({ dropIndex, taskSectionId }: DropAreaBelowProps) => {
     const { mutate: reorderTask } = useReorderTask()
 
     const onDrop = useCallback(
-        async (item: DropProps) => {
+        (item: DropProps) => {
             reorderTask({
                 taskId: item.id,
                 orderingId: dropIndex,
@@ -43,9 +43,11 @@ const DropAreaBelow = ({ dropIndex, taskSectionId }: DropAreaBelowProps) => {
         drop(dropRef)
     }, [dropRef])
 
-    return <DropAreaContainer ref={dropRef} >
-        <DropIndicatorAbove isVisible={isOver} />
-    </DropAreaContainer>
+    return (
+        <DropAreaContainer ref={dropRef} >
+            <DropIndicatorAbove isVisible={isOver} />
+        </DropAreaContainer>
+    )
 }
 
 export default DropAreaBelow
