@@ -1,31 +1,37 @@
-import { DateTime } from 'luxon'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useDispatch } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
-import { TASK_REFETCH_INTERVAL } from '../../constants'
-import useItemSelectionController from '../../hooks/useItemSelectionController'
-import { setSelectedItemId } from '../../redux/tasksPageSlice'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
+import { useNavigate, useParams } from 'react-router-dom'
+
 import { Colors } from '../../styles'
-import { useInterval } from '../../utils/hooks'
-import { getSectionById } from '../../utils/task'
-import Loading from '../atoms/Loading'
-import TaskDetails from '../details/TaskDetails'
 import CreateNewTask from '../molecules/CreateNewTask'
+import { DateTime } from 'luxon'
+import DropAreaBelow from '../molecules/task-dnd/DropAreaBelow'
 import EventBanner from '../molecules/EventBanners'
+import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
+import { TASK_REFETCH_INTERVAL } from '../../constants'
 import Task from '../molecules/Task'
+import TaskDetails from '../details/TaskDetails'
 import TaskDropContainer from '../molecules/TaskDropContainer'
+import { getSectionById } from '../../utils/task'
+import { setSelectedItemId } from '../../redux/tasksPageSlice'
+import styled from 'styled-components'
+import { useDispatch } from 'react-redux'
+import { useInterval } from '../../utils/hooks'
+import useItemSelectionController from '../../hooks/useItemSelectionController'
 
 const BannerAndSectionContainer = styled.div`
+    display: flex;
+    flex-direction: column;
     flex: 1;
     overflow: auto;
 `
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
     padding-right: 10px;
-    padding-bottom: 100px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 `
 const TaskSectionViewContainer = styled.div`
     height: 100%;
@@ -34,6 +40,11 @@ const TaskSectionViewContainer = styled.div`
     padding-top: 0;
     background-color: ${Colors.gray._50};
     min-width: 550px;
+`
+const TasksContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 `
 
 const TaskSection = () => {
@@ -98,7 +109,7 @@ const TaskSection = () => {
                                     refetch={fetchExternalTasks}
                                     taskSectionId={currentSection.id}
                                 />
-                                <div ref={sectionViewRef}>
+                                <TasksContainer ref={sectionViewRef} >
                                     {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                                     {currentSection.tasks.map((task, index) => {
                                         return (
@@ -118,7 +129,11 @@ const TaskSection = () => {
                                             </TaskDropContainer>
                                         )
                                     })}
-                                </div>
+                                    <DropAreaBelow
+                                        dropIndex={currentSection.tasks.length + 1}
+                                        taskSectionId={currentSection.id}
+                                    />
+                                </TasksContainer>
                             </>
                         )}
                     </TaskSectionViewContainer>
