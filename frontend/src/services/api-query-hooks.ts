@@ -163,6 +163,7 @@ export const useMarkTaskDone = () => {
                     for (const task of section.tasks) {
                         if (task.id === data.taskId) {
                             task.is_done = data.isCompleted
+                            // Sets a timeout so that the task is removed from the section after 5 seconds of being marked done
                             setTimeout(() => {
                                 if (task.is_done && section.tasks.includes(task)) {
                                     section.tasks.splice(section.tasks.indexOf(task), 1)
