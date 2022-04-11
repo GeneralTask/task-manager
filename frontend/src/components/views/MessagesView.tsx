@@ -1,15 +1,15 @@
 import React, { useCallback, useMemo, useRef } from 'react'
-import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
-import Loading from '../atoms/Loading'
-import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
-import Message from '../molecules/Message'
-import MessageDetails from '../details/MessageDetails'
-import { SectionHeader } from '../molecules/Header'
-import TaskTemplate from '../atoms/TaskTemplate'
-import { useInterval } from '../../utils/hooks'
-import useItemSelectionController from '../../hooks/useItemSelectionController'
 import styled from 'styled-components'
+import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
+import useItemSelectionController from '../../hooks/useItemSelectionController'
+import { useFetchMessages, useGetInfiniteThreads } from '../../services/api-query-hooks'
+import { useInterval } from '../../utils/hooks'
+import Loading from '../atoms/Loading'
+import TaskTemplate from '../atoms/TaskTemplate'
+import ThreadDetails from '../details/ThreadDetails'
+import { SectionHeader } from '../molecules/Header'
+import Thread from '../molecules/Thread'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -23,15 +23,15 @@ const MessagesView = () => {
     const navigate = useNavigate()
     const params = useParams()
     const { refetch: refetchMessages } = useFetchMessages()
-    const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteMessages()
+    const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteThreads()
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
-    const messages = useMemo(() => data?.pages.flat().filter((message) => message != null) ?? [], [data])
+    const threads = useMemo(() => data?.pages.flat().filter(thread => thread != null) ?? [], [data])
 
-    const expandedMessage = useMemo(() => {
-        return messages?.find((message) => message.id === params.message)
-    }, [params.message, messages])
-    useItemSelectionController(messages, (itemId: string) => navigate(`/messages/${itemId}`))
+    const expandedThread = useMemo(() => {
+        return threads?.find((thread) => thread.id === params.thread)
+    }, [params.thread, threads])
+    useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
 
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
@@ -50,14 +50,17 @@ const MessagesView = () => {
         <>
             <ScrollViewMimic>
                 <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
-                {messages.map((message, index) => (
-                    <TaskTemplate ref={index === messages.length - 1 ? lastElementRef : undefined} key={message.id}>
-                        <Message message={message} />
+                {threads.map((thread, index) =>
+                    <TaskTemplate
+                        ref={index === threads.length - 1 ? lastElementRef : undefined}
+                        key={thread.id}
+                    >
+                        <Thread thread={thread} />
                     </TaskTemplate>
-                ))}
+                )}
                 {(isLoading || isFetching) && <Loading />}
             </ScrollViewMimic>
-            {expandedMessage && <MessageDetails message={expandedMessage} />}
+            {expandedThread && <ThreadDetails thread={expandedThread} />}
         </>
     )
 }
