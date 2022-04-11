@@ -10,6 +10,63 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+type DBHandle struct {
+	db      *mongo.Database
+	cleanup *func()
+}
+
+var dbh *DBHandle
+
+// InitDB sets up the connection pool global variable.
+func InitDB(dbHandle *DBHandle) (*DBHandle, error) {
+	var err error
+	if dbHandle != nil {
+		dbh = dbHandle
+		return dbh, nil
+	}
+
+	dbh, err = createDBHandle()
+	if err != nil {
+		log.Printf("Failed to connect to db, %+v", err)
+		return nil, err
+	}
+	return dbh, err
+}
+
+func GetDBConn() (*mongo.Database, error) {
+	var err error
+	if dbh != nil {
+		return dbh.db, nil
+	}
+
+	dbh, err = InitDB(nil)
+	if err != nil {
+		log.Printf("Failed to init DB handler, %+v", err)
+		return nil, err
+	}
+	return dbh.db, nil
+}
+
+func (dbHandle *DBHandle) CloseConnection() {
+	if dbHandle.cleanup != nil {
+		(*dbHandle.cleanup)()
+	}
+}
+
+func createDBHandle() (*DBHandle, error) {
+	db, cleanup, err := GetDBConnection()
+	if err != nil {
+		log.Printf("Failed to connect to db, %+v", err)
+		// TODO: this should probably be fatal
+		return nil, err
+	}
+	dbh = &DBHandle{
+		db:      db,
+		cleanup: &cleanup,
+	}
+	return dbh, nil
+}
+
 // GetDBConnection returns a MongoDB client
 func GetDBConnection() (*mongo.Database, func(), error) {
 	// This code is drawn from https://github.com/mongodb/mongo-go-driver

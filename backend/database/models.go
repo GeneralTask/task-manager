@@ -72,6 +72,22 @@ type Item struct {
 	PullRequest   `bson:"pull_request,omitempty"`
 }
 
+type ThreadItem struct {
+	Item `bson:",inline"`
+}
+
+type EmailItem struct {
+	Item `bson:",inline"`
+}
+
+type EventItem struct {
+	Item `bson:",inline"`
+}
+
+type PullRequestItem struct {
+	Item `bson:",inline"`
+}
+
 type TaskType struct {
 	IsTask        bool `bson:"is_task"`
 	IsMessage     bool `bson:"is_message"`

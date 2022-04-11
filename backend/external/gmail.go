@@ -34,12 +34,11 @@ type EmailContents struct {
 
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
+	db, err := database.GetDBConn()
 	if err != nil {
 		result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		return
 	}
-	defer dbCleanup()
 
 	emails := []*database.Item{}
 
