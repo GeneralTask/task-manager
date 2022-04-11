@@ -22,7 +22,6 @@ const DropIndicatorStyles = css<{ isVisible: boolean }>`
 `
 export const DropIndicatorAbove = styled.div`
     ${DropIndicatorStyles}
-    /* top: -0.5px; */
 `
 const DropIndicatorBelow = styled.div`
     ${DropIndicatorStyles}

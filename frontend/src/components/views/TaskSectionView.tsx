@@ -29,7 +29,6 @@ const BannerAndSectionContainer = styled.div`
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
     padding-right: 10px;
-    /* padding-bottom: 100px; */
     display: flex;
     flex-direction: column;
     flex: 1;
