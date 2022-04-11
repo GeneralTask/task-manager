@@ -42,6 +42,11 @@ const TaskSectionViewContainer = styled.div`
     background-color: ${Colors.gray._50};
     min-width: 550px;
 `
+const TasksContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+`
 
 const TaskSection = () => {
     const bannerTaskSectionRef = useRef<HTMLDivElement>(null)
@@ -105,7 +110,7 @@ const TaskSection = () => {
                                     refetch={fetchExternalTasks}
                                     taskSectionId={currentSection.id}
                                 />
-                                <div ref={sectionViewRef} style={{ backgroundColor: 'red' }}>
+                                <TasksContainer ref={sectionViewRef} >
                                     {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                                     {currentSection.tasks.map((task, index) => {
                                         return (
@@ -125,8 +130,11 @@ const TaskSection = () => {
                                             </TaskDropContainer>
                                         )
                                     })}
-                                    <DropAreaBelow />
-                                </div>
+                                    <DropAreaBelow
+                                        dropIndex={currentSection.tasks.length + 1}
+                                        taskSectionId={currentSection.id}
+                                    />
+                                </TasksContainer>
                             </>
                         )}
                     </TaskSectionViewContainer>

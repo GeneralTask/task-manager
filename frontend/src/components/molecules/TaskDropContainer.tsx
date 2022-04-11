@@ -94,7 +94,7 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
 
     useEffect(() => {
         drop(dropRef)
-    }, [])
+    }, [dropRef])
 
     return (
         <DropOverlay ref={dropRef}>
