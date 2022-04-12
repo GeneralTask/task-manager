@@ -98,7 +98,7 @@ export interface TEmail {
     body: string
     sent_at: string
     is_unread: boolean
-    sender_v2: TSender
+    sender: TSender
     recipients: TRecipients
 }
 

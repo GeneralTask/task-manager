@@ -19,13 +19,14 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     return (
         <FlexColumnContainer>
             {
-                thread.emails.map(email => (
+                thread.emails.map((email, index) => (
                     <DetailsTemplate
                         key={email.message_id}
                         top={<Icon source={logos[thread.source.logo_v2]} size="small" />}
                         title={<Title>{email.subject}</Title>}
-                        subtitle={<EmailSenderDetails sender={email.sender_v2 ?? ''} recipients={email.recipients} />}
+                        subtitle={<EmailSenderDetails sender={email.sender} recipients={email.recipients} />}
                         body={<TaskHTMLBody dirtyHTML={email.body} />}
+                        collapsed={index !== thread.emails.length - 1}
                     />
                 ))
             }
