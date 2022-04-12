@@ -16,7 +16,7 @@ describe('join waitlist from landing page', () => {
         // Check if 'success' field shows up
         cy.findByTestId('response-container').should('be.visible')
         cy.findByTestId('response-container').invoke('text').then((text) => {
-            expect(text).to.equal('Success!')
+            expect(text).to.equal('Sccess!')
         })
     })
 })
