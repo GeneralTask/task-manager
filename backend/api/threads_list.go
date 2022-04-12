@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"sort"
 	"time"
