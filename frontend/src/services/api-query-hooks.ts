@@ -569,7 +569,7 @@ export const useCreateEvent = () => {
 }
 const createEvent = async (data: CreateEventParams) => {
     try {
-        const res = await apiClient.post('/tasks/create/gt_task/', data)
+        const res = await apiClient.post('/events/create/gcal/', data)
         return res.data
     } catch {
         throw new Error('createTask failed')
