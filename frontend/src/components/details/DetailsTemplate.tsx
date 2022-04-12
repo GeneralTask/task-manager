@@ -57,17 +57,21 @@ export const Title = styled.div`
     flex: 1;
 `
 export const BodyTextArea = styled.textarea`
+    width: 95%;
     display: block;
     background-color: inherit;
     border: none;
     resize: none;
     outline: none;
     overflow: auto;
-    padding-right: ${Spacing.margin._8}px;
+    padding: ${Spacing.margin._8}px;
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
     height: 250px;
+    :focus {
+        border: 1px solid ${Colors.gray._500};
+    }
 `
 export const FlexGrowView = styled.div`
     flex: 1;
