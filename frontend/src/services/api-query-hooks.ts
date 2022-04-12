@@ -526,6 +526,57 @@ const getEvents = async (params: { startISO: string, endISO: string }) => {
     }
 }
 
+interface CreateEventParams {
+    account_id: string
+    datetime_start: string
+    datetime_end: string
+    summary?: string
+    location?: string
+    description?: string
+    time_zone?: string
+    attendees?: { name: string, email: string }[]
+    add_conference_call?: boolean
+}
+
+export const useCreateEvent = () => {
+    const queryClient = useQueryClient()
+    return useMutation((data: CreateEventParams) => createEvent(data),
+        {
+            onMutate: async (data: CreateEventParams) => {
+                await queryClient.cancelQueries('events')
+
+                const events: TEvent[] | undefined = queryClient.getQueryData('events')
+                if (events == null) return
+
+                const newEvent: TEvent = {
+                    id: '0',
+                    title: data.summary ?? '',
+                    body: data.description ?? '',
+                    deeplink: '',
+                    datetime_start: data.datetime_start,
+                    datetime_end: data.datetime_end,
+                    conference_call: null,
+                }
+                events.push(newEvent)
+                queryClient.setQueryData('events', () => events)
+                return
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries('events')
+            }
+        }
+    )
+}
+const createEvent = async (data: CreateEventParams) => {
+    try {
+        const res = await apiClient.post('/tasks/create/gt_task/', data)
+        return res.data
+    } catch {
+        throw new Error('createTask failed')
+    }
+}
+
+
 /**
  * USER INFO QUERIES
  */
