@@ -6,7 +6,8 @@
     "build": "webpack --config ./webpack.config.js --mode=production",
     "prettier:fix": "prettier --write",
     "lint": "eslint --fix",
-    "test": "jest"
+    "test": "jest",
+    "cy:run": "cypress run"
   },
   "lint-staged": {
     "*.tsx": [
@@ -46,9 +47,12 @@
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",
     "@cloudflare/wrangler": "^1.19.11",
+    "@testing-library/cypress": "^8.0.2",
+    "@testing-library/dom": "^8.13.0",
     "@types/jest": "^27.4.1",
     "@types/js-cookie": "^3.0.1",
     "@types/luxon": "^2.3.0",
+    "@types/node": "^17.0.23",
     "@types/react": "~17.0.21",
     "@types/react-dom": "^17.0.14",
     "@types/react-modal": "^3.13.1",
@@ -61,6 +65,7 @@
     "babel-loader": "^8.2.4",
     "copy-webpack-plugin": "^10.2.4",
     "css-loader": "^6.7.1",
+    "cypress": "^9.5.3",
     "eslint": "^8.11.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
