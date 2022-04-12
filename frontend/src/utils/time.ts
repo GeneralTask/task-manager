@@ -4,12 +4,13 @@
 
 import { DateTime } from "luxon";
 
-// returns the index of the *first* block that the event fits completely into
 interface DateRange {
     start: DateTime
     end: DateTime
 }
-export function getRelativeDate(event: DateRange, blocks: DateRange[]): number {
+
+// returns the index of the *first* block that the event fits completely into
+export function getContainingTimeBlock(event: DateRange, blocks: DateRange[]): number {
     for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i];
         if (event.start >= block.start && event.end <= block.end) {

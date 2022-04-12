@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
 import { MESSAGES_PER_PAGE, TASK_SECTION_DEFAULT_ID } from '../constants'
 import apiClient from '../utils/api'
-import { getMonthBlocks, getRelativeDate } from '../utils/time'
+import { getMonthBlocks, getContainingTimeBlock } from '../utils/time'
 import { TEmailThread, TEmailThreadResponse, TEvent, TLinkedAccount, TMessage, TMessageResponse, TRecipients, TSupportedType, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 
@@ -551,7 +551,7 @@ export const useCreateEvent = () => {
                 await queryClient.cancelQueries('events')
 
                 const timeBlocks = getMonthBlocks(date)
-                const blockIndex = getRelativeDate({
+                const blockIndex = getContainingTimeBlock({
                     start: DateTime.fromISO(createEventPayload.datetime_start),
                     end: DateTime.fromISO(createEventPayload.datetime_end)
                 }, timeBlocks)
