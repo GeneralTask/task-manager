@@ -13,15 +13,15 @@ const FlexColumnContainer = styled.div`
     overflow-y: auto;
 `
 interface ThreadDetailsProps {
-    thread: TEmailThread
+    thread: TEmailThread | undefined
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     return (
         <FlexColumnContainer>
             {
-                thread.emails.map((email, index) => (
+                thread && thread.emails.map((email, index) => (
                     <DetailsTemplate
-                        key={email.message_id}
+                        key={index}
                         top={<Icon source={logos[thread.source.logo_v2]} size="small" />}
                         title={<Title>{email.subject}</Title>}
                         subtitle={<EmailSenderDetails sender={email.sender} recipients={email.recipients} />}

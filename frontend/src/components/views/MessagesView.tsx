@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
+import { useAppDispatch } from '../../redux/hooks'
+import { setSelectedItemId } from '../../redux/tasksPageSlice'
 import { useFetchMessages, useGetInfiniteThreads } from '../../services/api-query-hooks'
 import { useInterval } from '../../utils/hooks'
 import Loading from '../atoms/Loading'
@@ -22,6 +24,7 @@ const ScrollViewMimic = styled.div`
 const MessagesView = () => {
     const navigate = useNavigate()
     const params = useParams()
+    const dispatch = useAppDispatch()
     const { refetch: refetchMessages } = useFetchMessages()
     const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteThreads()
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
@@ -29,7 +32,12 @@ const MessagesView = () => {
     const threads = useMemo(() => data?.pages.flat().filter(thread => thread != null) ?? [], [data])
 
     const expandedThread = useMemo(() => {
-        return threads?.find((thread) => thread.id === params.thread)
+        if (threads.length > 0) {
+            const tmpThread = threads?.find((thread) => thread.id === params.thread) ?? threads?.[0]
+            dispatch(setSelectedItemId(tmpThread?.id))
+            return tmpThread
+        }
+        return undefined
     }, [params.thread, threads])
     useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
 
@@ -53,6 +61,7 @@ const MessagesView = () => {
                 {threads.map((thread, index) =>
                     <TaskTemplate
                         ref={index === threads.length - 1 ? lastElementRef : undefined}
+                        lines={3}
                         key={thread.id}
                     >
                         <Thread thread={thread} />
@@ -60,7 +69,7 @@ const MessagesView = () => {
                 )}
                 {(isLoading || isFetching) && <Loading />}
             </ScrollViewMimic>
-            {expandedThread && <ThreadDetails thread={expandedThread} />}
+            {<ThreadDetails thread={expandedThread} />}
         </>
     )
 }

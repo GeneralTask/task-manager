@@ -15,8 +15,15 @@ import ItemContainer from './ItemContainer'
 const IconContainer = styled.div`
     margin-left: ${Spacing.margin._8}px;
 `
+const InfoContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0px;
+`
 const Title = styled.span`
     margin-left: ${Spacing.margin._8}px;
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -32,14 +39,10 @@ const Thread = ({ thread }: ThreadProps) => {
     const isExpanded = params.thread === thread.id
     const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === thread.id)
 
-    const hideDetailsView = useCallback(() => navigate(`/messages/`), [])
-
     const onClickHandler = useCallback(() => {
-        if (params.thread === thread.id) hideDetailsView()
-        else navigate(`/messages/${thread.id}`)
+        navigate(`/messages/${thread.id}`)
     }, [params, thread])
 
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.CLOSE, hideDetailsView, !isExpanded)
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClickHandler, !isSelected)
 
     return (
@@ -48,7 +51,11 @@ const Thread = ({ thread }: ThreadProps) => {
             <IconContainer>
                 <Icon source={logos[thread.source.logo_v2]} size="small" />
             </IconContainer>
-            <Title>{thread.emails[0]?.subject}</Title>
+            <InfoContainer>
+                <Title>{`${thread.emails[0]?.subject} (${thread.emails.length})`}</Title>
+                <Title>{`${thread.emails[0]?.subject} (${thread.emails.length})`}</Title>
+                <Title>{`${thread.emails[0]?.subject} (${thread.emails.length})`}</Title>
+            </InfoContainer>
         </ItemContainer>
     )
 }
