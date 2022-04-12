@@ -7,17 +7,11 @@ import Loading from './src/components/atoms/Loading'
 import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
 import store from './src/redux/store'
-import { worker } from './src/mocks/worker'
-import { isDevelopmentMode } from './src/environment'
 
 
 const CompanyPolicyScreen = lazy(() => import('./src/screens/CompanyPolicyScreen'))
 const TasksScreen = lazy(() => import('./src/screens/TasksScreen'))
 const TermsOfServiceSummaryScreen = lazy(() => import('./src/screens/TermsOfServiceSummaryScreen'))
-
-if (isDevelopmentMode) {
-    worker.start()
-}
 
 const App = () => {
     const queryClient = new QueryClient({
