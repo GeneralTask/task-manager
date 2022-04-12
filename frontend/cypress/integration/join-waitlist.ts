@@ -13,7 +13,7 @@ describe('join waitlist from landing page', () => {
         // Wait for request to complete
         cy.wait('@waitlistPost')
 
-        // Check if success field shows up
+        // Check if 'success' field shows up
         cy.findByTestId('response-container').should('be.visible')
         cy.findByTestId('response-container').invoke('text').then((text) => {
             expect(text).to.equal('Success!')
