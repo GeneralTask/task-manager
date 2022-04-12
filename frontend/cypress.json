@@ -1,6 +1,7 @@
 {
     "baseUrl": "http://localhost:3000",
     "env": {
-        "api_url": "http://localhost:8080"
+        "api_url": "http://localhost:8080",
+        "default_timeout": 500
     }
 }

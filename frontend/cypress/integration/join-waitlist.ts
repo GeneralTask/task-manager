@@ -1,4 +1,5 @@
 const apiURL = Cypress.env('api_url')
+const defaultTimeout: number = Cypress.env('default_timeout')
 
 describe('joint waitlist from landing page', () => {
     it('visit unauthorized landing page', () => {
@@ -18,6 +19,7 @@ describe('joint waitlist from landing page', () => {
         cy.get('input').type('joint_waitlist_test@generaltask.com')
         cy.get('button').contains('Join the Waitlist').click()
         cy.findByTestId('response-container').should('be.visible')
+        cy.wait(defaultTimeout)
         cy.findByTestId('response-container').invoke('text').then((text) => {
             expect(text).to.equal('Success!')
         })
