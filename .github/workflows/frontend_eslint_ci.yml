@@ -25,6 +25,8 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14
+      - name: Test
+        run: git config --global --add safe.directory /github/workspace
       - name: Install
         run: yarn add --dev @typescript-eslint/eslint-plugin@latest
       - name: Run eslint on changed files
