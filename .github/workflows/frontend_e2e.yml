@@ -25,4 +25,6 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Cypress run
-        run: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v2
+        with:
+          start: yarn start
