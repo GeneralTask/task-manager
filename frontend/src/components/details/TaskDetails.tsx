@@ -100,24 +100,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
                         </a>
                     }
                     </MarginRightContainer>
-                    <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
-                        <ActionOption
-                            isShown={datePickerShown}
-                            setIsShown={setDatePickerShown}
-                            action="date_picker"
-                            task={task}
-                            keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_DATE_PICKER}
-                        />
-                    </TooltipWrapper>
-                    <TooltipWrapper inline dataTip="Time Estimate" tooltipId="tooltip">
-                        <ActionOption
-                            isShown={timeEstimateShown}
-                            setIsShown={setTimeEstimateShown}
-                            action="time_allocated"
-                            task={task}
-                            keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_TIME_ESTIMATION_PICKER}
-                        />
-                    </TooltipWrapper>
                     <TooltipWrapper inline dataTip="Label" tooltipId="tooltip">
                         <ActionOption
                             isShown={labelEditorShown}
