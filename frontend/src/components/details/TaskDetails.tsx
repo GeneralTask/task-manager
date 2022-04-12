@@ -25,32 +25,12 @@ const TaskDetails = (props: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
 
-    const [datePickerShown, setDatePickerShown] = useState(false)
-    const [timeEstimateShown, setTimeEstimateShown] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
     const titleRef = createRef<HTMLTextAreaElement>()
 
     useEffect(() => {
         ReactTooltip.rebuild()
     }, [])
-    useEffect(() => {
-        if (timeEstimateShown) {
-            setTimeEstimateShown(false)
-            setLabelEditorShown(false)
-        }
-    }, [datePickerShown])
-    useEffect(() => {
-        if (timeEstimateShown) {
-            setDatePickerShown(false)
-            setLabelEditorShown(false)
-        }
-    }, [timeEstimateShown])
-    useEffect(() => {
-        if (labelEditorShown) {
-            setDatePickerShown(false)
-            setTimeEstimateShown(false)
-        }
-    }, [labelEditorShown])
 
     // Update the state when the task changes
     useEffect(() => {
@@ -104,7 +84,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
                         <ActionOption
                             isShown={labelEditorShown}
                             setIsShown={setLabelEditorShown}
-                            action="label"
                             task={task}
                             keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
                         />
