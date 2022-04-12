@@ -20,5 +20,3 @@ describe('join waitlist from landing page', () => {
         })
     })
 })
-
-export { }

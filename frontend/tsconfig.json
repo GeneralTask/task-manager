@@ -14,7 +14,7 @@
     "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references to the same file.
     "module": "esnext", // Specify module code generation
     "moduleResolution": "node", // Resolve modules using Node.js style
-    "isolatedModules": true, // Unconditionally emit imports for unresolved files
+    "isolatedModules": false, // Unconditionally emit imports for unresolved files
     "resolveJsonModule": true, // Include modules imported with .json extension
     "noEmit": false, // Do not emit output (meaning do not compile code, only perform type checking)
     "jsx": "react", // Support JSX in .tsx files
