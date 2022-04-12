@@ -6,7 +6,8 @@
     "build": "webpack --config ./webpack.config.js --mode=production",
     "prettier:fix": "prettier --write",
     "lint": "eslint --fix",
-    "test": "jest"
+    "test": "jest",
+    "cy:run": "cypress run"
   },
   "lint-staged": {
     "*.tsx": [
