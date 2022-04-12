@@ -1,10 +1,12 @@
+import { DateTime } from 'luxon'
 import React, { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useAppSelector } from '../../redux/hooks'
-import { Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
 import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
@@ -15,20 +17,32 @@ import ItemContainer from './ItemContainer'
 const IconContainer = styled.div`
     margin-left: ${Spacing.margin._8}px;
 `
-const InfoContainer = styled.div`
+const TitleContainer = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    min-width: 0px;
+    min-width: 0;
 `
 const Title = styled.span`
     margin-left: ${Spacing.margin._8}px;
-    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: Switzer-Variable;
+    font-size: ${Typography.small.fontSize};
+    color: ${Colors.gray._600};
+`
+const SubTitle = styled(Title)`
     font-size: ${Typography.xSmall.fontSize};
+`
+const BodyPreview = styled(SubTitle)`
+    color: ${Colors.gray._400};
+`
+const SentAt = styled.span`
+    margin-left: ${Spacing.margin._8}px;
+    font-family: Switzer-Variable;
+    font-size: ${Typography.small.fontSize};
+    color: ${Colors.gray._400};
+    min-width: fit-content;
 `
 interface ThreadProps {
     thread: TEmailThread
@@ -45,17 +59,26 @@ const Thread = ({ thread }: ThreadProps) => {
 
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClickHandler, !isSelected)
 
+    const senders = thread.emails[0]?.sender.name
+    const title = `${thread.emails[0]?.subject} (${thread.emails.length})`
+    const bodyPreview = sanitizeHtml(thread.emails[0]?.body, {
+        allowedTags: [],
+        allowedAttributes: {},
+    })
+    const sentAt = DateTime.fromISO(thread.emails[0]?.sent_at).toFormat('dd LLL yyyy')
+
     return (
         <ItemContainer isSelected={isSelected} onClick={onClickHandler} >
             <MarkAsTaskButton isTask={thread.is_task} messageId={thread.id} />
             <IconContainer>
                 <Icon source={logos[thread.source.logo_v2]} size="small" />
             </IconContainer>
-            <InfoContainer>
-                <Title>{`${thread.emails[0]?.subject} (${thread.emails.length})`}</Title>
-                <Title>{`${thread.emails[0]?.subject} (${thread.emails.length})`}</Title>
-                <Title>{`${thread.emails[0]?.subject} (${thread.emails.length})`}</Title>
-            </InfoContainer>
+            <TitleContainer>
+                <Title>{senders}</Title>
+                <SubTitle>{title}</SubTitle>
+                <BodyPreview>{bodyPreview}</BodyPreview>
+            </TitleContainer>
+            <SentAt>{sentAt}</SentAt>
         </ItemContainer>
     )
 }
