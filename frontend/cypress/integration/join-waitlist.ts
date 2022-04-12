@@ -1,4 +1,4 @@
-describe('joint waitlist from landing page', () => {
+describe('join waitlist from landing page', () => {
     it('visit unauthorized landing page', () => {
 
         cy.visit('/')
