@@ -220,6 +220,10 @@ func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accoun
 	return errors.New("cannot create new asana task")
 }
 
+func (asanaTask AsanaTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+	return errors.New("has not been implemented yet")
+}
+
 func (asanaTask AsanaTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
 	return nil
 }

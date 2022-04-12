@@ -110,7 +110,12 @@ export interface TEmail {
 export interface TEmailThread {
     thread_id: string
     last_updated_at: string
+    is_task: boolean
     emails: TEmail[]
+}
+
+export interface TEmailThreadResponse {
+    pages: TEmailThread[][]
 }
 
 export interface TTaskSection {

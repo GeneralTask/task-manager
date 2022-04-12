@@ -6,6 +6,7 @@ import { Icon } from "../atoms/Icon"
 import NoStyleButton from "../atoms/buttons/NoStyleButton"
 import { margin } from "../../styles/spacing"
 import styled from "styled-components"
+import React from "react"
 
 const Container = styled.div`
     margin-top: ${margin._4}px;

@@ -243,66 +243,73 @@ var TaskServiceAsana = TaskServiceDetails{
 }
 
 type TaskSourceDetails struct {
-	ID            string
-	Name          string
-	Logo          string
-	LogoV2        string
-	IsCompletable bool
-	IsCreatable   bool
-	IsReplyable   bool
+	ID                     string
+	Name                   string
+	Logo                   string
+	LogoV2                 string
+	IsCompletable          bool
+	CanCreateTask          bool
+	IsReplyable            bool
+	CanCreateCalendarEvent bool
 }
 
 var TaskSourceGeneralTask = TaskSourceDetails{
-	ID:            TASK_SOURCE_ID_GT_TASK,
-	Name:          "General Task",
-	Logo:          "/images/generaltask.svg",
-	LogoV2:        "generaltask",
-	IsCompletable: true,
-	IsCreatable:   true,
-	IsReplyable:   false,
+	ID:                     TASK_SOURCE_ID_GT_TASK,
+	Name:                   "General Task",
+	Logo:                   "/images/generaltask.svg",
+	LogoV2:                 "generaltask",
+	IsCompletable:          true,
+	CanCreateTask:          true,
+	IsReplyable:            false,
+	CanCreateCalendarEvent: false,
 }
 var TaskSourceGoogleCalendar = TaskSourceDetails{
-	ID:            TASK_SOURCE_ID_GCAL,
-	Name:          "Google Calendar",
-	Logo:          "/images/gcal.svg",
-	LogoV2:        "gcal",
-	IsCompletable: false,
-	IsCreatable:   false,
-	IsReplyable:   false,
+	ID:                     TASK_SOURCE_ID_GCAL,
+	Name:                   "Google Calendar",
+	Logo:                   "/images/gcal.svg",
+	LogoV2:                 "gcal",
+	IsCompletable:          false,
+	CanCreateTask:          false,
+	IsReplyable:            false,
+	CanCreateCalendarEvent: true,
 }
 var TaskSourceGithubPR = TaskSourceDetails{
-	ID:            TASK_SOURCE_ID_GITHUB_PR,
-	Name:          "Git PR",
-	Logo:          "/images/github.svg",
-	LogoV2:        "github",
-	IsCompletable: true,
-	IsCreatable:   false,
-	IsReplyable:   false,
+	ID:                     TASK_SOURCE_ID_GITHUB_PR,
+	Name:                   "Git PR",
+	Logo:                   "/images/github.svg",
+	LogoV2:                 "github",
+	IsCompletable:          true,
+	CanCreateTask:          false,
+	IsReplyable:            false,
+	CanCreateCalendarEvent: false,
 }
 var TaskSourceGmail = TaskSourceDetails{
-	ID:            TASK_SOURCE_ID_GMAIL,
-	Name:          "Gmail",
-	Logo:          "/images/gmail.svg",
-	LogoV2:        "gmail",
-	IsCompletable: true,
-	IsCreatable:   false,
-	IsReplyable:   true,
+	ID:                     TASK_SOURCE_ID_GMAIL,
+	Name:                   "Gmail",
+	Logo:                   "/images/gmail.svg",
+	LogoV2:                 "gmail",
+	IsCompletable:          true,
+	CanCreateTask:          false,
+	IsReplyable:            true,
+	CanCreateCalendarEvent: false,
 }
 var TaskSourceJIRA = TaskSourceDetails{
-	ID:            TASK_SOURCE_ID_JIRA,
-	Name:          "Jira",
-	Logo:          "/images/jira.svg",
-	LogoV2:        "jira",
-	IsCompletable: true,
-	IsCreatable:   false,
-	IsReplyable:   false,
+	ID:                     TASK_SOURCE_ID_JIRA,
+	Name:                   "Jira",
+	Logo:                   "/images/jira.svg",
+	LogoV2:                 "jira",
+	IsCompletable:          true,
+	CanCreateTask:          false,
+	IsReplyable:            false,
+	CanCreateCalendarEvent: false,
 }
 var TaskSourceAsana = TaskSourceDetails{
-	ID:            TASK_SOURCE_ID_ASANA,
-	Name:          "Asana",
-	Logo:          "/images/asana.svg",
-	LogoV2:        "asana",
-	IsCompletable: true,
-	IsCreatable:   false,
-	IsReplyable:   false,
+	ID:                     TASK_SOURCE_ID_ASANA,
+	Name:                   "Asana",
+	Logo:                   "/images/asana.svg",
+	LogoV2:                 "asana",
+	IsCompletable:          true,
+	CanCreateTask:          false,
+	IsReplyable:            false,
+	CanCreateCalendarEvent: false,
 }

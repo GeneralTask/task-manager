@@ -9,9 +9,10 @@ const ENV = {
     }
 }
 
+export const isDevelopmentMode: boolean = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
+
 const getEnvVars = () => {
-    if (__DEV__) return ENV.dev
-    return ENV.prod
+    return isDevelopmentMode ? ENV.dev : ENV.prod;
 }
 
 export default getEnvVars

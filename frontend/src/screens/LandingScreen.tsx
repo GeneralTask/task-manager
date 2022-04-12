@@ -11,10 +11,11 @@ import UnauthorizedHeader from '../components/molecules/UnauthorizedHeader'
 import apiClient from '../utils/api'
 import styled from 'styled-components'
 import { useAppSelector } from '../redux/hooks'
+import { AUTHORIZATION_COOKE } from '../constants'
 
 const LandingScreenContainer = styled.div`
     background-color: ${Colors.white};
-    height: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     font-family: Switzer-Variable;
@@ -88,7 +89,7 @@ const LandingScreen = () => {
         }
     }
     const { authToken } = useAppSelector((state) => ({ authToken: state.user_data.auth_token }))
-    const authCookie = Cookies.get('authToken')
+    const authCookie = Cookies.get(AUTHORIZATION_COOKE)
 
     if (authToken || authCookie) return <Navigate to="/tasks" />
 
@@ -121,7 +122,7 @@ const LandingScreen = () => {
                     />
                     <JoinWaitlistButton onSubmit={handleSubmit(onWaitlistSubmit, onWaitlistError)} />
                 </WaitlistContainer>
-                <ResponseContainer>
+                <ResponseContainer data-testid="response-container">
                     {message}
                 </ResponseContainer>
                 <GoogleSignInButton />
