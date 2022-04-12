@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"sort"
 	"time"
@@ -35,14 +36,14 @@ type Thread struct {
 }
 
 type accountParams struct {
-	SourceID        string `json:"source_id"`
-	SourceAccountID string `json:"source_account_id"`
+	SourceID        *string `form:"source_id"`
+	SourceAccountID *string `form:"source_account_id"`
 }
 
 type threadsListParams struct {
-	database.Pagination `form:",inline" json:",inline"`
-	OnlyUnread          *bool          `form:"only_unread" json:"only_unread"`
-	Account             *accountParams `json:"account"`
+	database.Pagination `form:",inline"`
+	OnlyUnread          *bool `form:"only_unread"`
+	accountParams       `form:",inline"`
 }
 
 func (api *API) ThreadsList(c *gin.Context) {
@@ -67,7 +68,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 	}
 
 	var params threadsListParams
-	err = c.BindJSON(&params)
+	err = c.Bind(&params)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
@@ -83,8 +84,8 @@ func (api *API) ThreadsList(c *gin.Context) {
 	}
 
 	var accountFilter *[]bson.M
-	if params.Account != nil {
-		accountFilter = &[]bson.M{{"source_id": params.Account.SourceID}, {"source_account_id": params.Account.SourceAccountID}}
+	if params.SourceID != nil && params.SourceAccountID != nil {
+		accountFilter = &[]bson.M{{"source_id": params.SourceID}, {"source_account_id": params.SourceAccountID}}
 	}
 	threads, err := database.GetEmailThreads(db, userID.(primitive.ObjectID), onlyUnread, params.Pagination, accountFilter)
 	if err != nil {
