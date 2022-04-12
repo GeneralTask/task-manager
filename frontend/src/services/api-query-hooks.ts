@@ -1,6 +1,8 @@
+import { DateTime } from 'luxon'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
 import { MESSAGES_PER_PAGE, TASK_SECTION_DEFAULT_ID } from '../constants'
 import apiClient from '../utils/api'
+import { getMonthBlocks, getRelativeDate } from '../utils/time'
 import { TEmailThread, TEmailThreadResponse, TEvent, TLinkedAccount, TMessage, TMessageResponse, TRecipients, TSupportedType, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 
@@ -526,7 +528,7 @@ const getEvents = async (params: { startISO: string, endISO: string }) => {
     }
 }
 
-interface CreateEventParams {
+interface CreateEventPayload {
     account_id: string
     datetime_start: string
     datetime_end: string
@@ -537,24 +539,39 @@ interface CreateEventParams {
     attendees?: { name: string, email: string }[]
     add_conference_call?: boolean
 }
-
+interface CreateEventParams {
+    createEventPayload: CreateEventPayload
+    date: DateTime
+}
 export const useCreateEvent = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: CreateEventParams) => createEvent(data),
+    return useMutation(({ createEventPayload }: CreateEventParams) => createEvent(createEventPayload),
         {
-            onMutate: async (data: CreateEventParams) => {
+            onMutate: async ({ createEventPayload, date }: CreateEventParams) => {
                 await queryClient.cancelQueries('events')
 
-                const events: TEvent[] | undefined = queryClient.getQueryData('events')
+                const timeBlocks = getMonthBlocks(date)
+                const blockIndex = getRelativeDate({
+                    start: DateTime.fromISO(createEventPayload.datetime_start),
+                    end: DateTime.fromISO(createEventPayload.datetime_end)
+                }, timeBlocks)
+                const block = timeBlocks[blockIndex]
+
+                const events: TEvent[] | undefined = queryClient.getQueryData([
+                    'events',
+                    'calendar',
+                    block.start.toISO(),
+                ])
+
                 if (events == null) return
 
                 const newEvent: TEvent = {
                     id: '0',
-                    title: data.summary ?? '',
-                    body: data.description ?? '',
+                    title: createEventPayload.summary ?? '',
+                    body: createEventPayload.description ?? '',
                     deeplink: '',
-                    datetime_start: data.datetime_start,
-                    datetime_end: data.datetime_end,
+                    datetime_start: createEventPayload.datetime_start,
+                    datetime_end: createEventPayload.datetime_end,
                     conference_call: null,
                 }
                 events.push(newEvent)
@@ -567,7 +584,7 @@ export const useCreateEvent = () => {
         }
     )
 }
-const createEvent = async (data: CreateEventParams) => {
+const createEvent = async (data: CreateEventPayload) => {
     try {
         const res = await apiClient.post('/events/create/gcal/', data)
         return res.data
