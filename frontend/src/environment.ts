@@ -9,7 +9,7 @@ const ENV = {
     }
 }
 
-const isDevelopmentMode: boolean = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
+export const isDevelopmentMode: boolean = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
 const getEnvVars = () => {
     return isDevelopmentMode ? ENV.dev : ENV.prod;
