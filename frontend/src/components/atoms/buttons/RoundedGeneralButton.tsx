@@ -23,7 +23,7 @@ const RoundedButton = styled.button<{ hasBorder: boolean, textStyle: 'light' | '
 
 interface RoundedGeneralButtonProps {
     value: string
-    onPress: () => void
+    onPress?: () => void
     color?: string
     textStyle?: 'light' | 'dark'
     wrapText?: boolean
