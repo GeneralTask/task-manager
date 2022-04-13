@@ -1,4 +1,3 @@
-
 export const logos: { [key: string]: string } = {
     generaltask: '/images/generaltask.png',
     generaltask_gray: '/images/generaltask_gray.png',

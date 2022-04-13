@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 export interface UserDataState {
-    auth_token: string | undefined,
+    auth_token: string | undefined
 }
 
 const initialState: UserDataState = {
@@ -14,7 +14,7 @@ export const userDataSlice = createSlice({
     reducers: {
         setAuthToken(state, action: PayloadAction<string | undefined>) {
             state.auth_token = action.payload
-        }
+        },
     },
 })
 

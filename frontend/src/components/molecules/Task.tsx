@@ -62,10 +62,8 @@ const Task = ({ task, dragDisabled, index, sectionId }: TaskProps) => {
         [task.id, index, sectionId]
     )
 
-
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.CLOSE, hideDetailsView, !isExpanded)
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClick, !isSelected)
-
 
     return (
         <TaskTemplate>
@@ -75,9 +73,7 @@ const Task = ({ task, dragDisabled, index, sectionId }: TaskProps) => {
                 <IconContainer>
                     <Icon source={logos[task.source.logo_v2]} size="small" />
                 </IconContainer>
-                <Title>
-                    {task.title}
-                </Title>
+                <Title>{task.title}</Title>
             </ItemContainer>
         </TaskTemplate>
     )

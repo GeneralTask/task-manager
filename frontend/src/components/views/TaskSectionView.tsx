@@ -62,11 +62,13 @@ const TaskSection = () => {
     const params = useParams()
     const hideDetailsView = useCallback(() => navigate(`/tasks/${params.section}`), [params])
 
-
     const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
-    const expandTask = useCallback((itemId: string) => {
-        if (currentSection) navigate(`/tasks/${currentSection.id}/${itemId}`)
-    }, [currentSection])
+    const expandTask = useCallback(
+        (itemId: string) => {
+            if (currentSection) navigate(`/tasks/${currentSection.id}/${itemId}`)
+        },
+        [currentSection]
+    )
     useItemSelectionController(currentSection?.tasks ?? [], expandTask)
 
     useEffect(() => {
@@ -84,7 +86,10 @@ const TaskSection = () => {
     useEffect(() => {
         const listener = (event: MouseEvent) => {
             if (!bannerTaskSectionRef.current || !sectionViewRef.current) return
-            if (bannerTaskSectionRef.current.contains(event.target as Node) && !sectionViewRef.current.contains(event.target as Node)) {
+            if (
+                bannerTaskSectionRef.current.contains(event.target as Node) &&
+                !sectionViewRef.current.contains(event.target as Node)
+            ) {
                 dispatch(setSelectedItemId(null))
                 hideDetailsView()
             }
@@ -109,7 +114,7 @@ const TaskSection = () => {
                                     refetch={fetchExternalTasks}
                                     taskSectionId={currentSection.id}
                                 />
-                                <TasksContainer ref={sectionViewRef} >
+                                <TasksContainer ref={sectionViewRef}>
                                     {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                                     {currentSection.tasks.map((task, index) => {
                                         return (
@@ -124,7 +129,6 @@ const TaskSection = () => {
                                                     dragDisabled={currentSection.is_done}
                                                     index={index}
                                                     sectionId={currentSection.id}
-
                                                 />
                                             </TaskDropContainer>
                                         )

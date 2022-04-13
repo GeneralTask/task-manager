@@ -11,6 +11,9 @@ import TaskHTMLBody from '../atoms/TaskHTMLBody'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import { logos } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import styled from 'styled-components'
+import { Spacing } from '../../styles'
 
 interface TaskDetailsProps {
     task: TTask
@@ -80,12 +83,23 @@ const TaskDetails = (props: TaskDetailsProps) => {
         modifyTask({ id: task.id, title: titleInput, body: bodyInput })
     }
 
+    const MarginRightContainer = styled.div`
+        margin-right: ${Spacing.margin._16}px;
+    `
+
     return (
         <DetailsTemplate
             top={
                 <>
                     <Icon source={logos[task.source.logo_v2]} size="small" />
                     <FlexGrowView />
+                    <MarginRightContainer>
+                        {task.deeplink && (
+                            <a href={task.deeplink} target="_blank" rel="noreferrer">
+                                <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
+                            </a>
+                        )}
+                    </MarginRightContainer>
                     <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
                         <ActionOption
                             isShown={datePickerShown}
@@ -124,7 +138,11 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     onBlur={handleBlur}
                 />
             }
-            subtitle={task.source.name === 'Gmail' && task.sender && task.recipients ? <EmailSenderDetails sender={task.sender} recipients={task.recipients} /> : undefined}
+            subtitle={
+                task.source.name === 'Gmail' && task.sender && task.recipients ? (
+                    <EmailSenderDetails sender={task.sender} recipients={task.recipients} />
+                ) : undefined
+            }
             body={
                 task.source.name === 'Gmail' ? (
                     <TaskHTMLBody dirtyHTML={bodyInput} />

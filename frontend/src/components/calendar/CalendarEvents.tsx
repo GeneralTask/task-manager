@@ -13,7 +13,7 @@ import {
     DayContainer,
     DayHeaderText,
     TimeAndHeaderContainer,
-    TimeContainer
+    TimeContainer,
 } from './CalendarEvents-styles'
 import React, { Ref, useEffect, useMemo, useRef } from 'react'
 
@@ -50,7 +50,7 @@ function CalendarTimeTable(): JSX.Element {
         .fill(0)
         .map((_, index) => {
             const hour = ((index + 11) % 12) + 1
-            const isAmPm = (index + 1) <= 12 ? 'am' : 'pm'
+            const isAmPm = index + 1 <= 12 ? 'am' : 'pm'
             const timeString = `${hour} ${isAmPm}`
             return (
                 <CalendarRow key={index}>
@@ -79,11 +79,13 @@ const WeekCalendarEvents = ({ date, dayOffset, groups }: WeekCalendarEventsProps
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     return (
         <DayAndHeaderContainer>
-            {expandedCalendar &&
+            {expandedCalendar && (
                 <CalendarDayHeader>
-                    <DayHeaderText isToday={tmpDate.startOf('day').equals(DateTime.now().startOf('day'))}>{tmpDate.toFormat('ccc dd')}</DayHeaderText>
+                    <DayHeaderText isToday={tmpDate.startOf('day').equals(DateTime.now().startOf('day'))}>
+                        {tmpDate.toFormat('ccc dd')}
+                    </DayHeaderText>
                 </CalendarDayHeader>
-            }
+            )}
             <DayContainer>
                 {groups.map((group, index) => (
                     <CollisionGroupColumns key={index} events={group} date={tmpDate} />
@@ -121,13 +123,17 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
         monthBlocks[2],
         'calendar'
     )
-    events.push(...eventPreviousMonth ?? [], ...eventsCurrentMonth ?? [], ...eventsNextMonth ?? [])
+    events.push(...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? []))
 
-    useInterval(() => {
-        refetchPreviousMonth()
-        refetchCurrentMonth()
-        refetchNextMonth()
-    }, EVENTS_REFETCH_INTERVAL, false)
+    useInterval(
+        () => {
+            refetchPreviousMonth()
+            refetchCurrentMonth()
+            refetchNextMonth()
+        },
+        EVENTS_REFETCH_INTERVAL,
+        false
+    )
 
     useEffect(() => {
         if (eventsContainerRef.current) {
@@ -155,9 +161,9 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
                     <CalendarTimeTable />
                 </TimeContainer>
             </TimeAndHeaderContainer>
-            {
-                allGroups.map((groups, dayOffset) => <WeekCalendarEvents key={dayOffset} date={date} dayOffset={dayOffset} groups={groups} />)
-            }
+            {allGroups.map((groups, dayOffset) => (
+                <WeekCalendarEvents key={dayOffset} date={date} dayOffset={dayOffset} groups={groups} />
+            ))}
         </AllDaysContainer>
     )
 }
