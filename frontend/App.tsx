@@ -6,6 +6,7 @@ import Loading from './src/components/atoms/Loading'
 import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
 import store from './src/redux/store'
+import { PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
 
 const CompanyPolicyScreen = lazy(() => import('./src/screens/CompanyPolicyScreen'))
 const TasksScreen = lazy(() => import('./src/screens/TasksScreen'))
@@ -29,8 +30,8 @@ const App = () => {
                             <Route path="*" element={<Navigate to="/" />} />
                             <Route path="/" element={<Outlet />}>
                                 <Route index element={<LandingScreen />} />
-                                <Route path="terms-of-service" element={<CompanyPolicyScreen />} />
-                                <Route path="privacy-policy" element={<CompanyPolicyScreen />} />
+                                <Route path={TERMS_OF_SERVICE_ROUTE} element={<CompanyPolicyScreen />} />
+                                <Route path={PRIVACY_POLICY_ROUTE} element={<CompanyPolicyScreen />} />
                                 <Route path="tos-summary" element={<PrivateOutlet />}>
                                     <Route index element={<TermsOfServiceSummaryScreen />} />
                                 </Route>

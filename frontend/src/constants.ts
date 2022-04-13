@@ -36,6 +36,10 @@ export const LOG_EVENTS_URL = REACT_APP_API_BASE_URL + '/log_events/'
 export const FEEDBACK_URL = REACT_APP_API_BASE_URL + '/feedback/'
 export const EVENTS_URL = REACT_APP_API_BASE_URL + '/events/'
 
+// Routes
+export const TERMS_OF_SERVICE_ROUTE = 'terms-of-service'
+export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
+
 export const NO_EVENT_TITLE = '(no title)'
 
 export enum KEYBOARD_SHORTCUTS {
