@@ -1,13 +1,11 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import React, { Suspense, lazy } from 'react'
-
 import LandingScreen from './src/screens/LandingScreen'
 import Loading from './src/components/atoms/Loading'
 import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
 import store from './src/redux/store'
-
 
 const CompanyPolicyScreen = lazy(() => import('./src/screens/CompanyPolicyScreen'))
 const TasksScreen = lazy(() => import('./src/screens/TasksScreen'))
