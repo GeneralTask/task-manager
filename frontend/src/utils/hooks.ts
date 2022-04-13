@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import React, { useEffect } from 'react'
 
 // duration in seconds
 export function useInterval(func: () => void, seconds: number, callFuncImmediately = true): void {
@@ -6,6 +6,14 @@ export function useInterval(func: () => void, seconds: number, callFuncImmediate
         if (callFuncImmediately) func()
         const interval = setInterval(func, seconds * 1000)
         return () => clearInterval(interval)
+    }, [func, seconds])
+}
+
+// duration in seconds
+export function useTimeout(func: () => void, seconds: number): void {
+    useEffect(() => {
+        const interval = setTimeout(func, seconds * 1000)
+        return () => clearTimeout(interval)
     }, [func, seconds])
 }
 

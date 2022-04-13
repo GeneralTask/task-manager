@@ -1,10 +1,10 @@
-import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
-import { KEYBOARD_SHORTCUTS } from '../../../constants'
 import React from 'react'
-import { icons } from '../../../styles/images'
+import { KEYBOARD_SHORTCUTS } from '../../../constants'
+import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import { useMarkTaskDone } from '../../../services/api-query-hooks'
-import NoStyleButton from './NoStyleButton'
+import { icons } from '../../../styles/images'
 import { Icon } from '../Icon'
+import NoStyleButton from './NoStyleButton'
 
 interface CompleteButtonProps {
     isComplete: boolean
@@ -14,7 +14,8 @@ interface CompleteButtonProps {
 const CompleteButton = (props: CompleteButtonProps) => {
     const { mutate: markTaskDone } = useMarkTaskDone()
 
-    const onClickHandler = () => {
+    const onClickHandler = (e?: React.MouseEvent<HTMLButtonElement>) => {
+        if (e) e.stopPropagation()
         markTaskDone({ taskId: props.taskId, isCompleted: !props.isComplete })
     }
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.MARK_COMPLETE, onClickHandler, !props.isSelected)

@@ -104,6 +104,11 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			},
 		}
 		threadItem, err := database.GetOrCreateItem(db, userID, thread.Id, TASK_SOURCE_ID_GMAIL, threadItem)
+		if err != nil {
+			log.Printf("failed to get or create gmail thread: %v", err)
+			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
+			return
+		}
 
 		for _, message := range thread.Messages {
 			sender := ""
@@ -175,6 +180,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				ReplyTo:      replyTo,
 				IsUnread:     isMessageUnread(message),
 				Recipients:   recipients,
+				SentAt:       timeSent,
 			}
 			nestedEmails = append(nestedEmails, email)
 			emailItem := &database.Item{
@@ -215,7 +221,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
-		threadItem.EmailThread.Emails = *assignOrGenerateNestedEmailIDs(threadItem, &nestedEmails)
+		threadItem.EmailThread.Emails = assignOrGenerateNestedEmailIDs(threadItem, nestedEmails)
 		_, err = database.UpdateOrCreateTask(
 			db, userID, threadItem.IDExternal, threadItem.SourceID,
 			threadItem, database.ThreadItemToChangeable(threadItem),
@@ -229,18 +235,18 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	result <- EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL}
 }
 
-func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails *[]database.Email) *[]database.Email {
+func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []database.Email) []database.Email {
 	emailIDToObjectID := make(map[string]primitive.ObjectID)
 	for _, dbEmail := range threadItem.Emails {
 		if dbEmail.MessageID != primitive.NilObjectID {
 			emailIDToObjectID[dbEmail.EmailID] = dbEmail.MessageID
 		}
 	}
-	for i, _ := range *fetchedEmails {
-		if emailObjectID, ok := emailIDToObjectID[(*fetchedEmails)[i].EmailID]; ok {
-			(*fetchedEmails)[i].MessageID = emailObjectID
+	for i, _ := range fetchedEmails {
+		if emailObjectID, ok := emailIDToObjectID[fetchedEmails[i].EmailID]; ok {
+			fetchedEmails[i].MessageID = emailObjectID
 		} else {
-			(*fetchedEmails)[i].MessageID = primitive.NewObjectID()
+			fetchedEmails[i].MessageID = primitive.NewObjectID()
 		}
 	}
 	return fetchedEmails

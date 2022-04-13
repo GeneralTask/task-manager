@@ -119,13 +119,10 @@ func TestThreadList(t *testing.T) {
 			string(body))
 	})
 	t.Run("SuccessPaged", func(t *testing.T) {
-		params := []byte(`{
-			"page": 2,
-			"limit": 1
-		}`)
+		params := []byte(`{}`)
 		request, _ := http.NewRequest(
 			"GET",
-			"/threads/",
+			"/threads/?page=2&limit=1",
 			bytes.NewBuffer(params))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -139,12 +136,10 @@ func TestThreadList(t *testing.T) {
 			string(body))
 	})
 	t.Run("SuccessOnlyUnread", func(t *testing.T) {
-		params := []byte(`{
-			"only_unread": true
-		}`)
+		params := []byte(`{}`)
 		request, _ := http.NewRequest(
 			"GET",
-			"/threads/",
+			"/threads/?only_unread=true",
 			bytes.NewBuffer(params))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -158,15 +153,10 @@ func TestThreadList(t *testing.T) {
 			string(body))
 	})
 	t.Run("SuccessSingleAccount", func(t *testing.T) {
-		params := []byte(fmt.Sprintf(`{
-			"account": {
-				 "source_id": "gmail",
-				 "source_account_id": "prefix_%s"
-			}			
-		}`, testEmail))
+		params := []byte(`{}`)
 		request, _ := http.NewRequest(
 			"GET",
-			"/threads/",
+			fmt.Sprintf("/threads/?source_id=gmail&source_account_id=prefix_%s", testEmail),
 			bytes.NewBuffer(params))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()

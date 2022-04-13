@@ -5,7 +5,7 @@ import { Navigate, useLocation, useParams } from 'react-router-dom'
 import Loading from '../components/atoms/Loading'
 import DefaultTemplate from '../components/templates/DefaultTemplate'
 import CalendarView from '../components/views/CalendarView'
-import Messages from '../components/views/MessagesView'
+import MessagesView from '../components/views/MessagesView'
 import Settings from '../components/views/SettingsView'
 import TaskSection from '../components/views/TaskSectionView'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
@@ -22,9 +22,8 @@ const TasksScreen = () => {
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
 
     useEffect(() => {
-        if (params.task) {
-            dispatch(setSelectedItemId(params.task))
-        }
+        if (!params.task) return
+        dispatch(setSelectedItemId(params.task))
     }, [params])
 
     const currentPage = (() => {
@@ -32,7 +31,7 @@ const TasksScreen = () => {
             case 'tasks':
                 return <TaskSection />
             case 'messages':
-                return <Messages />
+                return <MessagesView />
             case 'settings':
                 return <Settings />
             default:
