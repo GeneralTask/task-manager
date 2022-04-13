@@ -34,14 +34,15 @@ describe('join waitlist tests', () => {
 
     it('submit invalid non-duplicate email in join waitlist form', () => {
         // Intercept waitlist requests
-        cy.intercept('POST', '/waitlist/').as('waitlistPost')
+        cy.intercept('POST', '/waitlist/', { statusCode: 400 }).as('waitlistPostFail')
+
 
         // Enter invalid email and click Join the Waitlist button
         cy.get('input').type('join_waitlist_test_fail')
         cy.get('button').contains('Join the Waitlist').click()
 
         // Wait for request to complete
-        cy.wait('@waitlistPost')
+        cy.wait('@waitlistPostFail')
 
         // Check if error field shows
         cy.findByTestId('response-container').should('be.visible')
