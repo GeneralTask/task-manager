@@ -85,8 +85,8 @@ const TaskDetails = (props: TaskDetailsProps) => {
 
     const MarginRightContainer = styled.div`
         margin-right: ${Spacing.margin._16}px;
-`
- 
+    `
+
     return (
         <DetailsTemplate
             top={
@@ -94,11 +94,11 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     <Icon source={logos[task.source.logo_v2]} size="small" />
                     <FlexGrowView />
                     <MarginRightContainer>
-                    {task.deeplink && 
-                        <a href={task.deeplink} target="_blank" rel="noreferrer">
-                        <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`}/>
-                        </a>
-                    }
+                        {task.deeplink && (
+                            <a href={task.deeplink} target="_blank" rel="noreferrer">
+                                <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
+                            </a>
+                        )}
                     </MarginRightContainer>
                     <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
                         <ActionOption
@@ -138,7 +138,11 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     onBlur={handleBlur}
                 />
             }
-            subtitle={task.source.name === 'Gmail' && task.sender && task.recipients ? <EmailSenderDetails sender={task.sender} recipients={task.recipients} /> : undefined}
+            subtitle={
+                task.source.name === 'Gmail' && task.sender && task.recipients ? (
+                    <EmailSenderDetails sender={task.sender} recipients={task.recipients} />
+                ) : undefined
+            }
             body={
                 task.source.name === 'Gmail' ? (
                     <TaskHTMLBody dirtyHTML={bodyInput} />

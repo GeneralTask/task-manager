@@ -68,9 +68,7 @@ interface EventBannerProps {
     event: TEvent
 }
 const EventBanner = ({ event }: EventBannerProps) => {
-    const timeUntilEvent = Math.ceil(
-        (new Date(event.datetime_start).getTime() - new Date().getTime()) / 1000 / 60
-    )
+    const timeUntilEvent = Math.ceil((new Date(event.datetime_start).getTime() - new Date().getTime()) / 1000 / 60)
     const timeUntilEventMessage = timeUntilEvent > 0 ? `in ${timeUntilEvent} minutes.` : 'is now.'
     const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
     return (
@@ -100,22 +98,18 @@ const EventBanners = ({ date }: EventBannersProps) => {
     )
     useInterval(refetch, EVENTS_REFETCH_INTERVAL)
 
-    const eventsWithin15Minutes = events?.filter(event => {
+    const eventsWithin15Minutes = events?.filter((event) => {
         const eventStart = DateTime.fromISO(event.datetime_start)
         const eventEnd = DateTime.fromISO(event.datetime_end)
-        return (
-            eventStart < DateTime.now().plus({ minutes: 15 }) && eventEnd > DateTime.now()
-        )
+        return eventStart < DateTime.now().plus({ minutes: 15 }) && eventEnd > DateTime.now()
     })
 
     if (!eventsWithin15Minutes || eventsWithin15Minutes.length === 0) return null
     return (
         <EventBannerContainer>
-            {
-                eventsWithin15Minutes.map((event) =>
-                    <EventBanner event={event} key={event.id} />
-                )
-            }
+            {eventsWithin15Minutes.map((event) => (
+                <EventBanner event={event} key={event.id} />
+            ))}
         </EventBannerContainer>
     )
 }

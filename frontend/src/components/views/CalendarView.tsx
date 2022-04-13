@@ -12,9 +12,13 @@ const CalendarView = () => {
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
-    useInterval(() => {
-        if (timeoutTimer.isIdle()) setDate(DateTime.now())
-    }, 1, false)
+    useInterval(
+        () => {
+            if (timeoutTimer.isIdle()) setDate(DateTime.now())
+        },
+        1,
+        false
+    )
     return (
         <CalendarContainer expanded={expandedCalendar}>
             <CalendarHeader date={date} setDate={setDate} />

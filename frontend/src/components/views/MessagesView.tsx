@@ -26,7 +26,7 @@ const MessagesView = () => {
     const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteMessages()
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
-    const messages = useMemo(() => data?.pages.flat().filter(message => message != null) ?? [], [data])
+    const messages = useMemo(() => data?.pages.flat().filter((message) => message != null) ?? [], [data])
 
     const expandedMessage = useMemo(() => {
         return messages?.find((message) => message.id === params.message)
@@ -42,21 +42,19 @@ const MessagesView = () => {
                 if (entries[0].isIntersecting) fetchNextPage()
             })
             if (node) observer.current.observe(node)
-        }, [isLoading]
+        },
+        [isLoading]
     )
 
     return (
         <>
             <ScrollViewMimic>
                 <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
-                {messages.map((message, index) =>
-                    <TaskTemplate
-                        ref={index === messages.length - 1 ? lastElementRef : undefined}
-                        key={message.id}
-                    >
+                {messages.map((message, index) => (
+                    <TaskTemplate ref={index === messages.length - 1 ? lastElementRef : undefined} key={message.id}>
                         <Message message={message} />
                     </TaskTemplate>
-                )}
+                ))}
                 {(isLoading || isFetching) && <Loading />}
             </ScrollViewMimic>
             {expandedMessage && <MessageDetails message={expandedMessage} />}

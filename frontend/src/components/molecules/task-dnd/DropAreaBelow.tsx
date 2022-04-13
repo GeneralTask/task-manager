@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useRef } from "react"
-import { useDrop } from "react-dnd"
-import styled from "styled-components"
-import { useReorderTask } from "../../../services/api-query-hooks"
-import { DropProps, ItemTypes } from "../../../utils/types"
-import { DropIndicatorAbove } from "../TaskDropContainer"
+import React, { useCallback, useEffect, useRef } from 'react'
+import { useDrop } from 'react-dnd'
+import styled from 'styled-components'
+import { useReorderTask } from '../../../services/api-query-hooks'
+import { DropProps, ItemTypes } from '../../../utils/types'
+import { DropIndicatorAbove } from '../TaskDropContainer'
 
 const DropAreaContainer = styled.div`
     flex: 1;
@@ -37,7 +37,8 @@ const DropAreaBelow = ({ dropIndex, taskSectionId }: DropAreaBelowProps) => {
                 return !!monitor.isOver()
             },
             drop: onDrop,
-        }), [onDrop]
+        }),
+        [onDrop]
     )
 
     useEffect(() => {
@@ -45,7 +46,7 @@ const DropAreaBelow = ({ dropIndex, taskSectionId }: DropAreaBelowProps) => {
     }, [dropRef])
 
     return (
-        <DropAreaContainer ref={dropRef} >
+        <DropAreaContainer ref={dropRef}>
             <DropIndicatorAbove isVisible={isOver} />
         </DropAreaContainer>
     )
