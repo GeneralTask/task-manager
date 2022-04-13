@@ -1,11 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
-import { Icon } from '../atoms/Icon'
-import TaskHTMLBody from '../atoms/TaskHTMLBody'
-import EmailSenderDetails from '../molecules/EmailSenderDetails'
-import DetailsTemplate, { Title } from './DetailsTemplate'
+import EmailTemplate from './EmailTemplate'
 
 const FlexColumnContainer = styled.div`
     display: flex;
@@ -20,12 +16,11 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         <FlexColumnContainer>
             {
                 thread && thread.emails.map((email, index) => (
-                    <DetailsTemplate
+                    <EmailTemplate
                         key={index}
-                        top={<Icon source={logos[thread.source.logo_v2]} size="small" />}
-                        title={<Title>{email.subject}</Title>}
-                        subtitle={<EmailSenderDetails sender={email.sender} recipients={email.recipients} />}
-                        body={<TaskHTMLBody dirtyHTML={email.body} />}
+                        sender={email.sender.name}
+                        // subtitle={<EmailSenderDetails sender={email.sender} recipients={email.recipients} />}
+                        body={email.body}
                         collapsed={index !== thread.emails.length - 1}
                     />
                 ))

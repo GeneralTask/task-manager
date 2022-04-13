@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 import React, { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
@@ -11,6 +10,7 @@ import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
 import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
 import { Icon } from '../atoms/Icon'
+import { NoHTMLBody } from '../atoms/TaskHTMLBody'
 import ItemContainer from './ItemContainer'
 
 
@@ -61,10 +61,7 @@ const Thread = ({ thread }: ThreadProps) => {
 
     const senders = thread.emails[0]?.sender.name
     const title = `${thread.emails[0]?.subject} (${thread.emails.length})`
-    const bodyPreview = sanitizeHtml(thread.emails[0]?.body, {
-        allowedTags: [],
-        allowedAttributes: {},
-    })
+    const bodyDirtyHTML = thread.emails[0]?.body
     const sentAt = DateTime.fromISO(thread.emails[0]?.sent_at).toFormat('dd LLL yyyy')
 
     return (
@@ -76,7 +73,7 @@ const Thread = ({ thread }: ThreadProps) => {
             <TitleContainer>
                 <Title>{senders}</Title>
                 <SubTitle>{title}</SubTitle>
-                <BodyPreview>{bodyPreview}</BodyPreview>
+                <BodyPreview><NoHTMLBody dirtyHTML={bodyDirtyHTML} /></BodyPreview>
             </TitleContainer>
             <SentAt>{sentAt}</SentAt>
         </ItemContainer>

@@ -9,8 +9,6 @@ const DetailsViewContainer = styled.div`
     width: 640px;
     margin-top: ${Spacing.margin._24}px;
     padding: ${Spacing.padding._16}px;
-    border-top: 1px solid ${Colors.gray._200};
-    border-bottom: 1px solid ${Colors.gray._200};
 `
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -79,23 +77,20 @@ interface DetailsTemplateProps {
     title: React.ReactNode
     subtitle?: React.ReactNode
     body: React.ReactNode
-    collapsed?: boolean
 }
 
 const DetailsTemplate = (props: DetailsTemplateProps) => {
     return (
         <DetailsViewContainer>
-            {props.collapsed ||
-                <DetailsTopContainer>
-                    {props.top}
-                </DetailsTopContainer>
-            }
+            <DetailsTopContainer>
+                {props.top}
+            </DetailsTopContainer>
             <TaskTitleContainer>
                 {props.title}
             </TaskTitleContainer>
             {props.subtitle}
-            <BodyContainer >
-                {props.collapsed || props.body}
+            <BodyContainer>
+                {props.body}
             </BodyContainer>
         </DetailsViewContainer>
     )
