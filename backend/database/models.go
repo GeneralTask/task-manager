@@ -15,6 +15,7 @@ type User struct {
 	LastRefreshed      primitive.DateTime `bson:"last_refreshed,omitempty"`
 	AgreedToTerms      *bool              `bson:"agreed_to_terms,omitempty"`
 	OptedIntoMarketing *bool              `bson:"opted_into_marketing,omitempty"`
+	CreatedAt          primitive.DateTime `bson:"created_at,omitempty"`
 }
 
 // InternalAPIToken model
