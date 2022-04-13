@@ -1,10 +1,11 @@
-import { DateTime } from 'luxon'
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
 import { MESSAGES_PER_PAGE, TASK_SECTION_DEFAULT_ID } from '../constants'
-import apiClient from '../utils/api'
-import { getMonthBlocks, getContainingTimeBlock } from '../utils/time'
 import { TEmailThread, TEmailThreadResponse, TEvent, TLinkedAccount, TMessage, TMessageResponse, TRecipients, TSupportedType, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
+
+import { DateTime } from 'luxon'
+import apiClient from '../utils/api'
+import { getMonthsAroundDate } from '../utils/time'
 
 /**
  * TASKS QUERIES
@@ -550,11 +551,10 @@ export const useCreateEvent = () => {
             onMutate: async ({ createEventPayload, date }: CreateEventParams) => {
                 await queryClient.cancelQueries('events')
 
-                const timeBlocks = getMonthBlocks(date)
-                const blockIndex = getContainingTimeBlock({
-                    start: DateTime.fromISO(createEventPayload.datetime_start),
-                    end: DateTime.fromISO(createEventPayload.datetime_end)
-                }, timeBlocks)
+                const timeBlocks = getMonthsAroundDate(date, 1)
+                const start = DateTime.fromISO(createEventPayload.datetime_start)
+                const end = DateTime.fromISO(createEventPayload.datetime_end)
+                const blockIndex = timeBlocks.findIndex(block => start >= block.start && end <= block.end)
                 const block = timeBlocks[blockIndex]
 
                 const events: TEvent[] | undefined = queryClient.getQueryData([

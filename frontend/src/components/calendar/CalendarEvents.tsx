@@ -1,31 +1,32 @@
-import { DateTime } from 'luxon'
-import React, { Ref, useEffect, useMemo, useRef } from 'react'
-import { EVENTS_REFETCH_INTERVAL } from '../../constants'
-import { useAppSelector } from '../../redux/hooks'
-import { useGetEvents } from '../../services/api-query-hooks'
-import { useInterval } from '../../utils/hooks'
-import { getMonthBlocks } from '../../utils/time'
-import { TEvent } from '../../utils/types'
 import {
     AllDaysContainer,
+    CALENDAR_DEFAULT_SCROLL_HOUR,
+    CELL_HEIGHT,
     CalendarCell,
     CalendarDayHeader,
     CalendarRow,
-    CalendarTableStyle,
     CalendarTD,
+    CalendarTableStyle,
     CalendarTimesTableStyle,
-    CALENDAR_DEFAULT_SCROLL_HOUR,
     CellTime,
-    CELL_HEIGHT,
     DayAndHeaderContainer,
     DayContainer,
     DayHeaderText,
     TimeAndHeaderContainer,
     TimeContainer
 } from './CalendarEvents-styles'
+import React, { Ref, useEffect, useMemo, useRef } from 'react'
+
 import CollisionGroupColumns from './CollisionGroupColumns'
+import { DateTime } from 'luxon'
+import { EVENTS_REFETCH_INTERVAL } from '../../constants'
+import { TEvent } from '../../utils/types'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
+import { getMonthsAroundDate } from '../../utils/time'
+import { useAppSelector } from '../../redux/hooks'
+import { useGetEvents } from '../../services/api-query-hooks'
+import { useInterval } from '../../utils/hooks'
 
 function CalendarDayTable(): JSX.Element {
     const hourElements = Array(24)
@@ -104,7 +105,7 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
 
     const monthBlocks = useMemo(() => {
-        const blocks = getMonthBlocks(date)
+        const blocks = getMonthsAroundDate(date, 1)
         return blocks.map(block => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     }, [date])
     const events: TEvent[] = []

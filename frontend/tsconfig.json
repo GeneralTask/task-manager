@@ -1,6 +1,6 @@
 { // https://www.sitepoint.com/react-with-typescript-best-practices/
   "compilerOptions": {
-    "target": "es5", // Specify ECMAScript target version
+    "target": "es6", // Specify ECMAScript target version
     "lib": [
       "dom",
       "dom.iterable",

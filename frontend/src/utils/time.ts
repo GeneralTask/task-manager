@@ -9,32 +9,15 @@ interface DateRange {
     end: DateTime
 }
 
-// returns the index of the *first* block that the event fits completely into
-export function getContainingTimeBlock(event: DateRange, blocks: DateRange[]): number {
-    for (let i = 0; i < blocks.length; i++) {
-        const block = blocks[i];
-        if (event.start >= block.start && event.end <= block.end) {
-            return i;
-        }
-    }
-    return -1;
+// returns an array of the month of date, numMonths before, and numMonths after
+// for example given date = now, numMonths = 1, will return [now - 1 month, now, now + 1 month] 
+export function getMonthsAroundDate(date: DateTime, numMonths = 1): DateRange[] {
+    const startOfFirstMonth = date.startOf('month').minus({ months: numMonths })
+    const endOfFirstMonth = date.endOf('month').minus({ months: numMonths })
+
+    return [...Array(numMonths * 2 + 1).keys()].map((i: number): DateRange => ({
+        start: startOfFirstMonth.plus({ months: i }),
+        end: endOfFirstMonth.plus({ months: i }),
+    }))
 }
 
-export function getMonthBlocks(date: DateTime): DateRange[] {
-    const startOfMonth = date.startOf('month')
-    const endOfMonth = date.endOf('month')
-    return [
-        {
-            start: startOfMonth.minus({ months: 1 }),
-            end: endOfMonth.minus({ months: 1 }),
-        },
-        {
-            start: startOfMonth,
-            end: endOfMonth,
-        },
-        {
-            start: startOfMonth.plus({ months: 1 }),
-            end: endOfMonth.plus({ months: 1 }),
-        }
-    ]
-}
