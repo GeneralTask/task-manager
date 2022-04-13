@@ -580,7 +580,6 @@ export const useCreateEvent = () => {
                 }
                 events.push(newEvent)
                 queryClient.setQueryData('events', () => events)
-                return
             },
             onSettled: () => {
                 queryClient.invalidateQueries('events')
@@ -593,7 +592,7 @@ const createEvent = async (data: CreateEventPayload) => {
         const res = await apiClient.post('/events/create/gcal/', data)
         return res.data
     } catch {
-        throw new Error('createTask failed')
+        throw new Error('createEvent failed')
     }
 }
 
