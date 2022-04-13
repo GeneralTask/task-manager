@@ -1,6 +1,8 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import React, { Suspense, lazy } from 'react'
+import './src/index.css'
+
 import LandingScreen from './src/screens/LandingScreen'
 import Loading from './src/components/atoms/Loading'
 import PrivateOutlet from './src/services/PrivateOutlet'
