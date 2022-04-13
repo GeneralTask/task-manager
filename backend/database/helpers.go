@@ -103,13 +103,13 @@ func GetEmailFromMessageID(ctx context.Context, messageID primitive.ObjectID, us
 		options.FindOne().SetProjection(bson.M{"email_thread.emails.$": 1}),
 	).Decode(&thread)
 	if err != nil {
-		log.Printf("Failed to get email with smtp ID: %+v, error: %v", messageID, err)
+		log.Printf("Failed to get email with messageID: %+v, error: %v", messageID, err)
 		return nil, err
 	}
 
 	if len(thread.EmailThread.Emails) == 0 {
-		log.Printf("Failed to get email with smtp ID: %+v, thread Item %+v has empty Emails list", messageID, thread)
-		return nil, fmt.Errorf("failed to get email with smtp ID: %+v, thread Item %+v has empty Emails list", messageID, thread)
+		log.Printf("Failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
+		return nil, fmt.Errorf("failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
 	}
 	return &thread.EmailThread.Emails[0], nil
 }
