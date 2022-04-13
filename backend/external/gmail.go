@@ -175,6 +175,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				ReplyTo:      replyTo,
 				IsUnread:     isMessageUnread(message),
 				Recipients:   recipients,
+				SentAt:       timeSent,
 			}
 			nestedEmails = append(nestedEmails, email)
 			emailItem := &database.Item{
