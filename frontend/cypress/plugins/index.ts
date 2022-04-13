@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
 
-module.exports = (_on: Cypress.PluginEvents, _config: Cypress.PluginConfigOptions) => {
+module.exports = () => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
 }
