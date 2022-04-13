@@ -70,7 +70,12 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 		return
 	}
 
-	messageID, _ := primitive.ObjectIDFromHex(*requestParams.MessageID)
+	messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
+	if err != nil {
+		log.Printf("could not parse message id with error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"detail": "could not parse message id"})
+		return
+	}
 	email, err := database.GetEmailFromMessageID(c.Request.Context(), messageID, userID)
 	if err != nil {
 		Handle404(c)
