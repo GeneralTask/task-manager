@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/chidiwilliams/flatbson"
 	"log"
 	"time"
 
@@ -22,7 +23,20 @@ func UpdateOrCreateTask(
 	fieldsToInsertIfMissing interface{},
 	fieldsToUpdate interface{},
 	additionalFilters *[]bson.M,
-) (*mongo.SingleResult, error) {
+	flattenFields bool,
+) (*Item, error) {
+	var err error
+	if flattenFields {
+		fieldsToInsertIfMissing, err = FlattenStruct(fieldsToInsertIfMissing)
+		if err != nil {
+			return nil, err
+		}
+		fieldsToUpdate, err = FlattenStruct(fieldsToUpdate)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	parentCtx := context.Background()
 	taskCollection := GetTaskCollection(db)
 	dbQuery := bson.M{
@@ -40,7 +54,7 @@ func UpdateOrCreateTask(
 	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	_, err := taskCollection.UpdateOne(
+	_, err = taskCollection.UpdateOne(
 		dbCtx,
 		dbQuery,
 		bson.M{"$setOnInsert": fieldsToInsertIfMissing},
@@ -51,11 +65,19 @@ func UpdateOrCreateTask(
 		return nil, err
 	}
 
-	return taskCollection.FindOneAndUpdate(
+	mongoResult := taskCollection.FindOneAndUpdate(
 		dbCtx,
 		dbQuery,
 		bson.M{"$set": fieldsToUpdate},
-	), nil
+	)
+
+	var item Item
+	err = mongoResult.Decode(&item)
+	if err != nil {
+		log.Printf("Failed to update or create item: %v", err)
+		return nil, err
+	}
+	return &item, nil
 }
 
 func GetEmailFromMessageID(ctx context.Context, messageID primitive.ObjectID, userID primitive.ObjectID) (*Email, error) {
@@ -118,12 +140,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	return &message, nil
 }
 
-func GetOrCreateTask(db *mongo.Database,
-	userID primitive.ObjectID,
-	IDExternal string,
-	sourceID string,
-	fieldsToInsertIfMissing interface{},
-) (*TaskBase, error) {
+func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*Item, error) {
 	parentCtx := context.Background()
 	taskCollection := GetTaskCollection(db)
 	dbQuery := bson.M{
@@ -133,7 +150,6 @@ func GetOrCreateTask(db *mongo.Database,
 			{"user_id": userID},
 		},
 	}
-	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err := taskCollection.UpdateOne(
@@ -143,23 +159,23 @@ func GetOrCreateTask(db *mongo.Database,
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Printf("Failed to get or create task: %v", err)
+		log.Printf("Failed to get or create item: %v", err)
 		return nil, err
 	}
 
-	var task TaskBase
+	var item Item
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = taskCollection.FindOne(
 		dbCtx,
 		dbQuery,
-	).Decode(&task)
+	).Decode(&item)
 	if err != nil {
-		log.Printf("Failed to get task: %v", err)
+		log.Printf("Failed to get item: %v", err)
 		return nil, err
 	}
 
-	return &task, nil
+	return &item, nil
 }
 
 func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
@@ -556,4 +572,13 @@ func ThreadItemToChangeable(thread *Item) *ThreadItemChangeable {
 			Emails:        thread.EmailThread.Emails,
 		},
 	}
+}
+
+func FlattenStruct(s interface{}) (map[string]interface{}, error) {
+	flattened, err := flatbson.Flatten(s)
+	if err != nil {
+		log.Printf("Could not flatten %+v, error: %+v", s, err)
+		return nil, err
+	}
+	return flattened, nil
 }

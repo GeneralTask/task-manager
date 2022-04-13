@@ -1,6 +1,5 @@
 import DetailsTemplate, { Title } from './DetailsTemplate'
-import React, { useEffect, useState } from 'react'
-
+import React from 'react'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import { Icon } from '../atoms/Icon'
 import { TMessage } from '../../utils/types'
@@ -10,14 +9,7 @@ import { logos } from '../../styles/images'
 interface MessageDetailsProps {
     message: TMessage
 }
-const MessageDetails = (props: MessageDetailsProps) => {
-    const [message, setMessage] = useState<TMessage>(props.message)
-
-    // Update the state when the message changes
-    useEffect(() => {
-        setMessage(props.message)
-    }, [props.message])
-
+const MessageDetails = ({ message }: MessageDetailsProps) => {
     return (
         <DetailsTemplate
             top={<Icon source={logos[message.source.logo_v2]} size="small" />}

@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-undef */
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const createStyledComponentsTransformer = require('typescript-plugin-styled-components').default;
 
+const styledComponentsTransformer = createStyledComponentsTransformer();
 const host = process.env.HOST || 'localhost';
 
 // Required for babel-preset-react-app
@@ -15,15 +17,18 @@ module.exports = {
         rules: [
             {
                 test: /\.ts$|tsx/,
-                use: ["ts-loader"],
+                use: {
+                    loader: 'ts-loader',
+                    options: {
+                        getCustomTransformers: () => ({ before: [styledComponentsTransformer] })
+                    }
+                },
                 exclude: /node_modules/,
             },
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                use: {
-                    loader: "babel-loader"
-                }
+                use: "babel-loader",
             },
             {
                 test: /\.css$/i,
@@ -49,6 +54,9 @@ module.exports = {
         host,
         port: 3000,
         historyApiFallback: true,
+        client: {
+            overlay: false,
+        },
     },
     plugins: [
         new HtmlWebpackPlugin({

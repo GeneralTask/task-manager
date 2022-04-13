@@ -9,6 +9,8 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+yarn-error.log
+cypress/videos/
 
 # macOS
 .DS_Store

@@ -6,7 +6,6 @@ import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
 import Message from '../molecules/Message'
 import MessageDetails from '../details/MessageDetails'
 import { SectionHeader } from '../molecules/Header'
-import { TMessage } from '../../utils/types'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { useInterval } from '../../utils/hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
@@ -20,28 +19,11 @@ const ScrollViewMimic = styled.div`
     flex: 1;
 `
 
-const Messages = () => {
+const MessagesView = () => {
     const navigate = useNavigate()
     const params = useParams()
     const { refetch: refetchMessages } = useFetchMessages()
     const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteMessages()
-
-    const observer = useRef<IntersectionObserver>()
-    const lastElementRef = useCallback(
-        (node) => {
-            if (isLoading || isFetching) return
-            if (observer.current) observer.current.disconnect()
-            observer.current = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting) {
-                    fetchNextPage()
-                }
-            })
-            if (node) observer.current.observe(node)
-        },
-        [isLoading]
-    )
-
-    // Tell the backend to refetch messages from the server every 60 seconds
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
     const messages = useMemo(() => data?.pages.flat().filter(message => message != null) ?? [], [data])
@@ -49,18 +31,27 @@ const Messages = () => {
     const expandedMessage = useMemo(() => {
         return messages?.find((message) => message.id === params.message)
     }, [params.message, messages])
+    useItemSelectionController(messages, (itemId: string) => navigate(`/messages/${itemId}`))
 
-    const expandMessage = useCallback((itemId: string) => navigate(`/messages/${itemId}`), [])
-
-    useItemSelectionController(messages, expandMessage)
+    const observer = useRef<IntersectionObserver>()
+    const lastElementRef = useCallback(
+        (node) => {
+            if (isLoading || isFetching) return
+            if (observer.current) observer.current.disconnect()
+            observer.current = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) fetchNextPage()
+            })
+            if (node) observer.current.observe(node)
+        }, [isLoading]
+    )
 
     return (
         <>
             <ScrollViewMimic>
                 <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
-                {messages?.map((message: TMessage, msgIndex: number) =>
+                {messages.map((message, index) =>
                     <TaskTemplate
-                        ref={msgIndex === messages.length - 1 ? lastElementRef : undefined}
+                        ref={index === messages.length - 1 ? lastElementRef : undefined}
                         key={message.id}
                     >
                         <Message message={message} />
@@ -73,4 +64,4 @@ const Messages = () => {
     )
 }
 
-export default Messages
+export default MessagesView

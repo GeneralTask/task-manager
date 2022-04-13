@@ -29,33 +29,26 @@ interface MessageProps {
 const Message = ({ message }: MessageProps) => {
     const navigate = useNavigate()
     const params = useParams()
-
     const isExpanded = params.message === message.id
-    const isTask = message.is_task
     const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === message.id)
 
     const hideDetailsView = useCallback(() => navigate(`/messages/`), [])
 
-    const onClick = useCallback(() => {
-        if (params.message === message.id) {
-            hideDetailsView()
-        } else {
-            navigate(`/messages/${message.id}`)
-        }
+    const onClickHandler = useCallback(() => {
+        if (params.message === message.id) hideDetailsView()
+        else navigate(`/messages/${message.id}`)
     }, [params, message])
 
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.CLOSE, hideDetailsView, !isExpanded)
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClick, !isSelected)
+    useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClickHandler, !isSelected)
 
     return (
-        <ItemContainer isSelected={isSelected} onClick={onClick} >
-            <MarkAsTaskButton isTask={isTask} messageId={message.id} />
+        <ItemContainer isSelected={isSelected} onClick={onClickHandler} >
+            <MarkAsTaskButton isTask={message.is_task} messageId={message.id} />
             <IconContainer>
                 <Icon source={logos[message.source.logo_v2]} size="small" />
             </IconContainer>
-            <Title>
-                {message.title}
-            </Title>
+            <Title>{message.title}</Title>
         </ItemContainer>
     )
 }

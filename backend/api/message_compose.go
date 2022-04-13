@@ -76,9 +76,9 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 		Handle404(c)
 		return
 	}
-	log.Printf("email %+v", email)
 	log.Printf(email.ThreadID)
 	log.Printf(email.EmailID)
+	log.Printf("email %+v", email)
 
 	contents := external.EmailContents{
 		Recipients: requestParams.Recipients,
