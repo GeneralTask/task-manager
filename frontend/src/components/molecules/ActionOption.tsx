@@ -40,9 +40,16 @@ const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: A
     }, [task])
 
     // show action when keyboardShortcut is pressed
-    useKeyboardShortcut(keyboardShortcut, useCallback(() => setIsShown(!isShown), [isShown]))
+    useKeyboardShortcut(
+        keyboardShortcut,
+        useCallback(() => setIsShown(!isShown), [isShown])
+    )
     // when the action is shown, close action when KEYBOARD_SHORTCUTS.CLOSE is pressed
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.CLOSE, useCallback(() => setIsShown(false), []), !isShown)
+    useKeyboardShortcut(
+        KEYBOARD_SHORTCUTS.CLOSE,
+        useCallback(() => setIsShown(false), []),
+        !isShown
+    )
 
     const { icon, component, actionString } = ((action: 'date_picker' | 'time_allocated' | 'label') => {
         if (action === 'date_picker') {
@@ -53,8 +60,7 @@ const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: A
                 ),
                 actionString: task.due_date,
             }
-        }
-        else if (action === 'time_allocated') {
+        } else if (action === 'time_allocated') {
             return {
                 icon: icons.timer,
                 component: <TimeEstimatePicker task_id={task.id} closeTimeEstimate={() => setIsShown(false)} />,
@@ -63,16 +69,14 @@ const ActionOption = ({ task, action, isShown, keyboardShortcut, setIsShown }: A
                         ? ''
                         : `${task.time_allocated / 60000000}min`,
             }
-        }
-        else {
+        } else {
             return {
                 icon: icons.label,
                 component: <LabelEditor task_id={task.id} closeLabelEditor={() => setIsShown(false)} />,
-                actionString: ''
+                actionString: '',
             }
         }
     })(action)
-
 
     return (
         <div ref={actionRef}>

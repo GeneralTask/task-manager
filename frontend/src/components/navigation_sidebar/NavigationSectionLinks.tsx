@@ -14,7 +14,7 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
     return (
         <>
             <NavigationLinkDropdown title={'Tasks'} icon={icons.inbox} link={''} isCurrentPage={false}>
-                {taskSections.map(section => (
+                {taskSections.map((section) => (
                     <NavigationLink
                         key={section.id}
                         link={`/tasks/${section.id}`}

@@ -65,10 +65,9 @@ const CreateNewTask = (props: CreateNewTaskProps) => {
                 placeholder="Add new task"
                 onKeyDown={handleKeyDown}
                 onFocus={() => dispatch(setSelectedItemId(null))}
-                onChange={(e) => setText(e.target.value)} />
-            <KeyboardShortcut
-                shortcut={KEYBOARD_SHORTCUTS.CREATE_TASK}
-                onKeyPress={() => inputRef.current?.focus()} />
+                onChange={(e) => setText(e.target.value)}
+            />
+            <KeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CREATE_TASK} onKeyPress={() => inputRef.current?.focus()} />
         </CreateNewTaskContainer>
     )
 }

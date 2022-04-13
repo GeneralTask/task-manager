@@ -3,10 +3,10 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import React from 'react'
 import styled from 'styled-components'
 
-const RoundedButton = styled.button<{ hasBorder: boolean, textStyle: 'light' | 'dark', wrapText?: boolean }>`
+const RoundedButton = styled.button<{ hasBorder: boolean; textStyle: 'light' | 'dark'; wrapText?: boolean }>`
     border-radius: ${Border.radius.large};
     box-shadow: ${Shadows.medium};
-    border: ${(props) => props.hasBorder ? `1px solid ${Colors.gray._200}` : 'none'};
+    border: ${(props) => (props.hasBorder ? `1px solid ${Colors.gray._200}` : 'none')};
     background-color: ${(props) => props.color};
     padding: ${Spacing.padding._8}px;
     text-align: center;
@@ -42,7 +42,7 @@ const RoundedGeneralButton = (props: RoundedGeneralButtonProps) => {
             wrapText={props.wrapText}
         >
             {props.value}
-        </RoundedButton >
+        </RoundedButton>
     )
 }
 
