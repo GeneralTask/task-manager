@@ -104,6 +104,11 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			},
 		}
 		threadItem, err := database.GetOrCreateItem(db, userID, thread.Id, TASK_SOURCE_ID_GMAIL, threadItem)
+		if err != nil {
+			log.Printf("failed to get or create gmail thread: %v", err)
+			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
+			return
+		}
 
 		for _, message := range thread.Messages {
 			sender := ""
