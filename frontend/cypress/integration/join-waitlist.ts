@@ -53,7 +53,7 @@ describe('join waitlist tests', () => {
 
     it('submit valid duplicate email in join waitlist form', () => {
         // Intercept waitlist requests
-        cy.intercept('POST', '/waitlist/', { statusCode: 201 }).as('waitlistPost')
+        cy.intercept('POST', '/waitlist/', { statusCode: 201, times: 1 }).as('waitlistPost')
 
         // Enter valid email and click Join the Waitlist button
         cy.get('input').type('join_waitlist_test@generaltask.com')
