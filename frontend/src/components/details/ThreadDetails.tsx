@@ -10,18 +10,22 @@ const FlexColumnContainer = styled.div`
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    width: 700px;
 `
 const HeaderContainer = styled.div`
-    flex: 1;
+    flex: 0;
     display: flex;
-    height: 100px;
+    height: 70px;
     padding: ${Spacing.padding._16}px;
     align-items: center;
+    background-color: ${Colors.white};
 `
 const HeaderTitleContainer = styled.div`
-    flex: 1;
     display: flex;
+    flex: 1;
+    margin-left: ${Spacing.margin._8}px;
     flex-direction: column;
+    min-width: 0;
 `
 const Title = styled.span`
     margin-left: ${Spacing.margin._8}px;

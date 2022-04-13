@@ -1,4 +1,4 @@
-import { Colors, Spacing, Typography } from '../../styles'
+import { Colors, Typography } from '../../styles'
 import styled from 'styled-components'
 import React, { useEffect, useState } from 'react'
 import { NoHTMLBody, TaskHTMLBody } from '../atoms/TaskHTMLBody'
@@ -7,8 +7,6 @@ const DetailsViewContainer = styled.div`
     display: flex;
     flex-direction: column;
     background-color: ${Colors.gray._50};
-    width: 640px;
-    padding: ${Spacing.padding._16}px;
     border-bottom: 1px solid ${Colors.gray._200};
 `
 const CollapseExpandContainer = styled.div`
@@ -25,7 +23,6 @@ const SenderContainer = styled.div`
 `
 const BodyContainer = styled.div`
     flex: 1;
-    overflow: auto;
 `
 const BodyContainerCollapsed = styled.span`
     flex: 1;
