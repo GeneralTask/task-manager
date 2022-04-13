@@ -62,7 +62,6 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     <EmailTemplate
                         key={index}
                         sender={email.sender.name}
-                        // subtitle={<EmailSenderDetails sender={email.sender} recipients={email.recipients} />}
                         body={email.body}
                         collapsed={index !== thread.emails.length - 1}
                     />
