@@ -56,7 +56,7 @@ func (generalTask GeneralTaskTaskSource) GetPullRequests(userID primitive.Object
 	result <- emptyPullRequestResult(nil)
 }
 
-func (generalTask GeneralTaskTaskSource) Reply(userID primitive.ObjectID, accountID string, threadID string, emailID string, emailContents EmailContents) error {
+func (generalTask GeneralTaskTaskSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
 	return errors.New("general task task does not support replies")
 }
 

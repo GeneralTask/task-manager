@@ -76,20 +76,12 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "could not parse message id"})
 		return
 	}
-	email, err := database.GetEmailFromMessageID(c.Request.Context(), messageID, userID)
-	if err != nil {
-		Handle404(c)
-		return
-	}
-	log.Printf(email.ThreadID)
-	log.Printf(email.EmailID)
-	log.Printf("email %+v", email)
 
 	contents := external.EmailContents{
 		Recipients: requestParams.Recipients,
 		Body:       *requestParams.Body,
 	}
-	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, email.ThreadID, email.ThreadID, contents)
+	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, messageID, contents)
 	if err != nil {
 		log.Printf("unable to send email with error: %v", err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})

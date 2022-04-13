@@ -413,7 +413,7 @@ func (gmailSource GmailSource) SendEmail(userID primitive.ObjectID, accountID st
 	return err
 }
 
-func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string, threadID string, emailID string, emailContents EmailContents) error {
+func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -447,21 +447,18 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
+		log.Printf("Could not find user, err: %+v", err)
 		return err
 	}
 
-	//var email database.Item
-	//taskCollection := database.GetTaskCollection(db)
-	//dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	//defer cancel()
-	//err = taskCollection.FindOne(dbCtx, bson.M{"$and": []bson.M{{"_id": threadID}, {"user_id": userID}}}).Decode(&email)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	messageResponse, err := gmailService.Users.Messages.Get("me", emailID).Do()
-
+	email, err := database.GetEmailFromMessageID(parentCtx, messageID, userID)
 	if err != nil {
+		log.Printf("Could not find message in DB, err: %+v", err)
+		return err
+	}
+	messageResponse, err := gmailService.Users.Messages.Get("me", email.EmailID).Do()
+	if err != nil {
+		log.Printf("Could not get message from gmail, err: %+v", err)
 		return err
 	}
 
@@ -530,7 +527,7 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 
 	messageToSend := gmail.Message{
 		Raw:      base64.URLEncoding.EncodeToString(msg),
-		ThreadId: threadID,
+		ThreadId: email.ThreadID,
 	}
 
 	_, err = gmailService.Users.Messages.Send("me", &messageToSend).Do()
