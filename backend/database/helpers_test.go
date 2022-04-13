@@ -316,19 +316,19 @@ func TestGetEmailFromSMTPID(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("EmailDoesNotBelongToUser", func(t *testing.T) {
-		_, err := GetEmailFromSMTPID(context.Background(), "smtp_t4_e1", userID)
+		_, err := GetEmailFromMessageID(context.Background(), "smtp_t4_e1", userID)
 		assert.Error(t, err)
 	})
 	t.Run("Success", func(t *testing.T) {
-		email, err := GetEmailFromSMTPID(context.Background(), "smtp_t2_e1", userID)
+		email, err := GetEmailFromMessageID(context.Background(), "smtp_t2_e1", userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "thread_2_email_1", email.EmailID)
 
-		email, err = GetEmailFromSMTPID(context.Background(), "smtp_t2_e2", userID)
+		email, err = GetEmailFromMessageID(context.Background(), "smtp_t2_e2", userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "thread_2_email_2", email.EmailID)
 
-		email, err = GetEmailFromSMTPID(context.Background(), "smtp_t3_e1", userID)
+		email, err = GetEmailFromMessageID(context.Background(), "smtp_t3_e1", userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "thread_3_email_1", email.EmailID)
 	})

@@ -58,7 +58,7 @@ func UpdateOrCreateTask(
 	), nil
 }
 
-func GetEmailFromSMTPID(ctx context.Context, smptID string, userID primitive.ObjectID) (*Email, error) {
+func GetEmailFromMessageID(ctx context.Context, messageID primitive.ObjectID, userID primitive.ObjectID) (*Email, error) {
 	parentCtx := ctx
 	db, dbCleanup, err := GetDBConnection()
 	if err != nil {
@@ -75,19 +75,19 @@ func GetEmailFromSMTPID(ctx context.Context, smptID string, userID primitive.Obj
 	err = taskCollection.FindOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
-			{"email_thread.emails.smtp_id": smptID},
+			{"email_thread.emails.message_id": messageID},
 			{"user_id": userID},
 		}},
 		options.FindOne().SetProjection(bson.M{"email_thread.emails.$": 1}),
 	).Decode(&thread)
 	if err != nil {
-		log.Printf("Failed to get email with smtp ID: %+v, error: %v", smptID, err)
+		log.Printf("Failed to get email with smtp ID: %+v, error: %v", messageID, err)
 		return nil, err
 	}
 
 	if len(thread.EmailThread.Emails) == 0 {
-		log.Printf("Failed to get email with smtp ID: %+v, thread Item %+v has empty Emails list", smptID, thread)
-		return nil, fmt.Errorf("failed to get email with smtp ID: %+v, thread Item %+v has empty Emails list", smptID, thread)
+		log.Printf("Failed to get email with smtp ID: %+v, thread Item %+v has empty Emails list", messageID, thread)
+		return nil, fmt.Errorf("failed to get email with smtp ID: %+v, thread Item %+v has empty Emails list", messageID, thread)
 	}
 	return &thread.EmailThread.Emails[0], nil
 }

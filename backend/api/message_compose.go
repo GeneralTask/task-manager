@@ -10,7 +10,7 @@ import (
 )
 
 type messageComposeParams struct {
-	SMTPID          *string              `json:"smtp_id"`
+	MessageID       *string              `json:"message_id"`
 	Subject         *string              `json:"subject"`
 	Body            *string              `json:"body" binding:"required"`
 	Recipients      *database.Recipients `json:"recipients" binding:"required"`
@@ -37,7 +37,7 @@ func (api *API) MessageCompose(c *gin.Context) {
 		return
 	}
 
-	if requestParams.SMTPID != nil {
+	if requestParams.MessageID != nil {
 		handleReply(c, userID, taskSourceResult, &requestParams)
 	} else {
 		handleCompose(c, userID, taskSourceResult, &requestParams)
@@ -70,11 +70,15 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 		return
 	}
 
-	email, err := database.GetEmailFromSMTPID(c.Request.Context(), *requestParams.SMTPID, userID)
+	messageID, _ := primitive.ObjectIDFromHex(*requestParams.MessageID)
+	email, err := database.GetEmailFromMessageID(c.Request.Context(), messageID, userID)
 	if err != nil {
 		Handle404(c)
 		return
 	}
+	log.Printf("email %+v", email)
+	log.Printf(email.ThreadID)
+	log.Printf(email.EmailID)
 
 	contents := external.EmailContents{
 		Recipients: requestParams.Recipients,
