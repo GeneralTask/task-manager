@@ -74,7 +74,7 @@ describe('join waitlist tests', () => {
 
         // Check if error field shows
         cy.findByTestId('response-container').should('be.visible')
-        cy.findByTestId('response-container').invoke('text').then((text) => {
+        cy.findByTestId('response-container').invoke('text').should((text) => {
             expect(text).to.equal('There was an error adding you to the waitlist')
         })
     })
