@@ -529,6 +529,10 @@ const getEvents = async (params: { startISO: string, endISO: string }) => {
     }
 }
 
+interface EventAttendee {
+    name: string
+    email: string
+}
 interface CreateEventPayload {
     account_id: string
     datetime_start: string
@@ -537,7 +541,7 @@ interface CreateEventPayload {
     location?: string
     description?: string
     time_zone?: string
-    attendees?: { name: string, email: string }[]
+    attendees?: EventAttendee[]
     add_conference_call?: boolean
 }
 interface CreateEventParams {
