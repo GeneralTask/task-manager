@@ -133,7 +133,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsTask: true,
 			},
 		}
-		database.GetOrCreateTask(
+		database.GetOrCreateItem(
 			db,
 			*userID,
 			"42069",
@@ -190,7 +190,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsTask: true,
 			},
 		}
-		database.GetOrCreateTask(
+		database.GetOrCreateItem(
 			db,
 			*userID,
 			"42069",
@@ -250,7 +250,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsTask: true,
 			},
 		}
-		database.GetOrCreateTask(
+		database.GetOrCreateItem(
 			db,
 			*userID,
 			"42069",

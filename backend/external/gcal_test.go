@@ -152,7 +152,7 @@ func TestCalendar(t *testing.T) {
 				IsEvent: true,
 			},
 		}
-		database.GetOrCreateTask(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
+		database.GetOrCreateItem(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
 		// Rescheduling end time along shouldn't trigger a reset like in the next test case
 		standardTask.DatetimeEnd = primitive.NewDateTimeFromTime(endTime)
 		standardTask.TaskBase.Body = "new description"
@@ -249,7 +249,7 @@ func TestCalendar(t *testing.T) {
 				IsEvent: true,
 			},
 		}
-		database.GetOrCreateTask(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
+		database.GetOrCreateItem(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
 		standardTask.DatetimeStart = primitive.NewDateTimeFromTime(startTime)
 		// IDOrdering expected to be zero because ordering is reset upon rescheduling
 		standardTask.IDOrdering = 0
