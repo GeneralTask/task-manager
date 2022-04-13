@@ -185,7 +185,7 @@ func TestComposeEmail(t *testing.T) {
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		assert.Equal(t, http.StatusServiceUnavailable, recorder.Code)
 	})
 
 	t.Run("SuccessReply", func(t *testing.T) {

@@ -420,26 +420,6 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 		return err
 	}
 	defer dbCleanup()
-	client := getGoogleHttpClient(db, userID, accountID)
-
-	var gmailService *gmail.Service
-
-	if gmailSource.Google.OverrideURLs.GmailReplyURL != nil {
-		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
-		defer cancel()
-		gmailService, err = gmail.NewService(
-			extCtx,
-			option.WithoutAuthentication(),
-			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailReplyURL),
-		)
-	} else {
-		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
-		defer cancel()
-		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
-	}
-	if err != nil {
-		return err
-	}
 
 	var userObject database.User
 	userCollection := database.GetUserCollection(db)
@@ -454,6 +434,11 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	email, err := database.GetEmailFromMessageID(parentCtx, messageID, userID)
 	if err != nil {
 		log.Printf("Could not find message in DB, err: %+v", err)
+		return err
+	}
+
+	gmailService, err := createGmailService(gmailSource.Google.OverrideURLs.GmailSendURL, db, userID, accountID, &gmailSource, parentCtx)
+	if err != nil {
 		return err
 	}
 	messageResponse, err := gmailService.Users.Messages.Get("me", email.EmailID).Do()
