@@ -10,7 +10,7 @@ const apiClient = axios.create({
 })
 
 apiClient.interceptors.request.use(
-    config => {
+    (config) => {
         config.headers = {
             Authorization: `Bearer ${Cookies.get(AUTHORIZATION_COOKE)}`,
             'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
@@ -21,18 +21,21 @@ apiClient.interceptors.request.use(
         }
         return config
     },
-    error => Promise.reject(error)
+    (error) => Promise.reject(error)
 )
 
-apiClient.interceptors.response.use(response => {
-    return response
-}, error => {
-    if (error.response.status === 401) {
-        axios.defaults.headers.common['Authorization'] = ''
-        Cookies.remove(AUTHORIZATION_COOKE)
-        window.location.href = REACT_APP_FRONTEND_BASE_URL
+apiClient.interceptors.response.use(
+    (response) => {
+        return response
+    },
+    (error) => {
+        if (error.response.status === 401) {
+            axios.defaults.headers.common['Authorization'] = ''
+            Cookies.remove(AUTHORIZATION_COOKE)
+            window.location.href = REACT_APP_FRONTEND_BASE_URL
+        }
+        return error
     }
-    return error
-})
+)
 
 export default apiClient

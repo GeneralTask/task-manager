@@ -9,11 +9,10 @@ export const iconSize = {
 export const modalSize = {
     small: {
         width: 478,
-        height: 440
+        height: 440,
     },
     medium: {
         width: 723,
-        height: 620
-    }
+        height: 620,
+    },
 }
-

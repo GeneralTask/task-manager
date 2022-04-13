@@ -9,11 +9,12 @@
     "test": "jest",
     "cy:run": "cypress run",
     "prepare": "cd .. && husky install frontend/.husky",
-    "prettier:check": "prettier --config .prettierrc --check \"src/**/*.{ts,css,html,tsx}\""
+    "prettier:check": "prettier --config .prettierrc --check \"src/**/*.{ts,css,html,tsx}\"",
+    "prettier:write": "prettier --config .prettierrc --write \"src/**/*.{ts,css,html,tsx}\""
   },
   "lint-staged": {
     "*.tsx": [
-      "prettier --write"
+      "prettier --config .prettierrc --write"
     ]
   },
   "dependencies": {

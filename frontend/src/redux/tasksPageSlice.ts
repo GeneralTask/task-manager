@@ -4,9 +4,9 @@ import { ModalEnum } from '../utils/enums'
 export interface TasksPageState {
     modals: {
         show_modal: ModalEnum
-    },
-    selected_item_id: string | null,
-    expanded_calendar: boolean,
+    }
+    selected_item_id: string | null
+    expanded_calendar: boolean
 }
 
 const initialState: TasksPageState = {
@@ -33,10 +33,6 @@ export const tasksPageSlice = createSlice({
     },
 })
 
-export const {
-    setShowModal,
-    setExpandedCalendar,
-    setSelectedItemId,
-} = tasksPageSlice.actions
+export const { setShowModal, setExpandedCalendar, setSelectedItemId } = tasksPageSlice.actions
 
 export default tasksPageSlice.reducer

@@ -21,11 +21,7 @@ interface IconProps {
     source?: string
 }
 export const Icon = (props: IconProps) => {
-    const image = props.uri != undefined
-        ? props.uri
-        : props.source
-            ? props.source
-            : Images.logos.generaltask
+    const image = props.uri != undefined ? props.uri : props.source ? props.source : Images.logos.generaltask
 
     const dimension = (() => {
         switch (props.size) {

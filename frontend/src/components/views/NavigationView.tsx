@@ -70,14 +70,15 @@ const NavigationView = () => {
             <NavigationViewHeader>
                 <Icon size="medium" />
             </NavigationViewHeader>
-            {taskSections !== undefined ? <NavigationSectionLinks
-                taskSections={taskSections}
-                sectionId={sectionIdParam || ''}
-                pathName={pathname}
-            /> :
-
+            {taskSections !== undefined ? (
+                <NavigationSectionLinks
+                    taskSections={taskSections}
+                    sectionId={sectionIdParam || ''}
+                    pathName={pathname}
+                />
+            ) : (
                 <Loading />
-            }
+            )}
             <AddSectionView>
                 <IconWidth>
                     <Icon size="small" source={icons.plus} />
@@ -93,7 +94,6 @@ const NavigationView = () => {
                         }}
                     />
                 </AddSectionInputView>
-
             </AddSectionView>
             <GapView>
                 <FeedbackButton />

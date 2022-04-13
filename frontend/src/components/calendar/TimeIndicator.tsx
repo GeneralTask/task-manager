@@ -20,7 +20,10 @@ const TimeIndicatorContainer = styled.div<TimeIndicatorContainerProps>`
 
 export function TimeIndicator(): JSX.Element {
     const [time, setTime] = useState(DateTime.now())
-    useInterval(useCallback(() => setTime(DateTime.now()), []), TIME_INDICATOR_INTERVAL)
+    useInterval(
+        useCallback(() => setTime(DateTime.now()), []),
+        TIME_INDICATOR_INTERVAL
+    )
 
     const topOffset = (60 * time.hour + time.minute) * (CELL_HEIGHT / 60)
     return <TimeIndicatorContainer topOffset={topOffset} />
