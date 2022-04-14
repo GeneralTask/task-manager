@@ -3,16 +3,16 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import React, { Suspense, lazy } from 'react'
 import './src/index.css'
 
-import LandingScreen from './src/screens/LandingScreen'
+import LandingScreen from './src/components/screens/LandingScreen'
 import Loading from './src/components/atoms/Loading'
 import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
 import store from './src/redux/store'
 import { PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
 
-const CompanyPolicyScreen = lazy(() => import('./src/screens/CompanyPolicyScreen'))
-const MainScreen = lazy(() => import('./src/screens/MainScreen'))
-const TermsOfServiceSummaryScreen = lazy(() => import('./src/screens/TermsOfServiceSummaryScreen'))
+const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
+const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
+const TermsOfServiceSummaryScreen = lazy(() => import('./src/components/screens/TermsOfServiceSummaryScreen'))
 
 const App = () => {
     const queryClient = new QueryClient({

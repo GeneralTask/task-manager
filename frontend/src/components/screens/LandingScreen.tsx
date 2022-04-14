@@ -1,17 +1,17 @@
-import { Colors, Typography } from '../styles'
+import { Colors, Typography } from '../../styles'
 import { Controller, useForm } from 'react-hook-form'
 import React, { useState } from 'react'
 
 import Cookies from 'js-cookie'
-import GoogleSignInButton from '../components/atoms/buttons/GoogleSignInButton'
-import JoinWaitlistButton from '../components/atoms/buttons/JoinWaitlistButton'
+import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
+import JoinWaitlistButton from '../atoms/buttons/JoinWaitlistButton'
 import { Navigate } from 'react-router-dom'
-import UnauthorizedFooter from '../components/molecules/UnauthorizedFooter'
-import UnauthorizedHeader from '../components/molecules/UnauthorizedHeader'
-import apiClient from '../utils/api'
+import UnauthorizedFooter from '../molecules/UnauthorizedFooter'
+import UnauthorizedHeader from '../molecules/UnauthorizedHeader'
+import apiClient from '../../utils/api'
 import styled from 'styled-components'
-import { useAppSelector } from '../redux/hooks'
-import { AUTHORIZATION_COOKE } from '../constants'
+import { useAppSelector } from '../../redux/hooks'
+import { AUTHORIZATION_COOKE } from '../../constants'
 
 const LandingScreenContainer = styled.div`
     background-color: ${Colors.white};
