@@ -5,7 +5,7 @@ import { Colors } from '../../styles'
 import { DateTime } from 'luxon'
 import { TIME_INDICATOR_INTERVAL } from '../../constants'
 import styled from 'styled-components'
-import { useInterval } from '../../utils/hooks'
+import { useInterval } from '../../hooks'
 
 interface TimeIndicatorContainerProps {
     topOffset: number
