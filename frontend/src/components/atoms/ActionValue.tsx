@@ -13,11 +13,7 @@ interface ActionValueProps {
 }
 
 const ActionValue = ({ value }: ActionValueProps) => {
-    return (
-        <ActionValueContainer>
-            {value}
-        </ActionValueContainer>
-    )
+    return <ActionValueContainer>{value}</ActionValueContainer>
 }
 
 export default ActionValue

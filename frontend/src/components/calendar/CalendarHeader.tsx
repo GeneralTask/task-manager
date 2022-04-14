@@ -81,10 +81,11 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                 <HeaderBodyContainer>
                     <TitleSmall>Calendar</TitleSmall>
                     <ArrowButton onClick={() => expandCalendar(!expandedCalendar)}>
-                        {expandedCalendar ?
-                            <Icon source={icons.arrows_in} size="small" /> :
+                        {expandedCalendar ? (
+                            <Icon source={icons.arrows_in} size="small" />
+                        ) : (
                             <Icon source={icons.arrows_out} size="small" />
-                        }
+                        )}
                     </ArrowButton>
                 </HeaderBodyContainer>
             </PaddedContainer>
@@ -93,7 +94,15 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                 <HeaderBodyContainer>
                     <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>
                     <ButtonContainer>
-                        <HoverButton onClick={() => setDate(expandedCalendar ? DateTime.now().minus({ days: DateTime.now().weekday % 7 }) : DateTime.now())}>
+                        <HoverButton
+                            onClick={() =>
+                                setDate(
+                                    expandedCalendar
+                                        ? DateTime.now().minus({ days: DateTime.now().weekday % 7 })
+                                        : DateTime.now()
+                                )
+                            }
+                        >
                             Today
                         </HoverButton>
                         <ArrowButton onClick={selectPrevious}>

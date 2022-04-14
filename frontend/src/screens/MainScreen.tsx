@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import { setSelectedItemId } from '../redux/tasksPageSlice'
 import { useGetTasks, useGetUserInfo } from '../services/api-query-hooks'
 
-const TasksScreen = () => {
+const MainScreen = () => {
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const location = useLocation()
     const dispatch = useAppDispatch()
@@ -54,4 +54,4 @@ const TasksScreen = () => {
     )
 }
 
-export default TasksScreen
+export default MainScreen

@@ -74,7 +74,7 @@ export const HoverButton = styled.button<{ isToday: boolean; isSelected: boolean
     display: flex;
     &:hover {
         background: ${(props) =>
-        props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : Colors.gray._100};
+            props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : Colors.gray._100};
     }
     background: ${(props) => (props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : 'transparent')};
 `

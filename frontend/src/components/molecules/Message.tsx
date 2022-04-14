@@ -43,7 +43,7 @@ const Message = ({ message }: MessageProps) => {
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClickHandler, !isSelected)
 
     return (
-        <ItemContainer isSelected={isSelected} onClick={onClickHandler} >
+        <ItemContainer isSelected={isSelected} onClick={onClickHandler}>
             <MarkAsTaskButton isTask={message.is_task} messageId={message.id} />
             <IconContainer>
                 <Icon source={logos[message.source.logo_v2]} size="small" />

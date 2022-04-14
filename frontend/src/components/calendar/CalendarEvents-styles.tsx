@@ -83,7 +83,9 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     height: calc(${(props) => props.eventBodyHeight}px - ${EVENT_BOTTOM_PADDING}px);
     top: ${(props) => props.topOffset}px;
     position: absolute;
-    left: calc(${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_LEFT_MARGIN}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset));
+    left: calc(
+        ${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_LEFT_MARGIN}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset)
+    );
     opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
 `
 export const EventInfoContainer = styled.div`
@@ -118,7 +120,7 @@ export const EventTime = styled.div`
     float: left;
     max-height: 100%;
 `
-export const EventFill = styled.div<{ squareStart: boolean, squareEnd: boolean }>`
+export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean }>`
     width: 100%;
     height: 100%;
     background: ${Colors.white};
@@ -161,7 +163,6 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     color: ${(props) => (props.isToday ? Colors.white : Colors.gray._800)};
     background-color: ${(props) => (props.isToday ? Colors.purple._1 : Colors.gray._100)};
-
 `
 export const CalendarContainer = styled.div<{ expanded: boolean }>`
     min-width: 300px;
@@ -172,7 +173,7 @@ export const CalendarContainer = styled.div<{ expanded: boolean }>`
     font-family: Switzer-Variable;
 `
 export const DayAndHeaderContainer = styled.div`
-    display: flex; 
+    display: flex;
     flex-direction: column;
     width: 100%;
     height: fit-content;

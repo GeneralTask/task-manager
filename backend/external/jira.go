@@ -235,8 +235,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 
 	isCompleted := false
 	for _, task := range tasks {
-		var dbTask database.Item
-		res, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			task.IDExternal,
@@ -252,14 +251,9 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 				IsCompleted: &isCompleted,
 			},
 			nil,
+			false,
 		)
 		if err != nil {
-			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
-			return
-		}
-		err = res.Decode(&dbTask)
-		if err != nil {
-			log.Printf("failed to update or create task: %v", err)
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}

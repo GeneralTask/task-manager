@@ -59,7 +59,7 @@ export default function TimeEstimate({ task_id, closeTimeEstimate }: TimeEstimat
     ]
 
     return (
-        <TimeEstimateContainer onClick={e => e.stopPropagation()}>
+        <TimeEstimateContainer onClick={(e) => e.stopPropagation()}>
             <TopNav>
                 <Header>Set Duration</Header>
             </TopNav>

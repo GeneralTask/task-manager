@@ -17,7 +17,13 @@ const CollisionGroupColumns = (props: CollisionGroupColumnsProps): JSX.Element =
     eventColumns.forEach((column, index) => {
         column.forEach((event) => {
             eventBodies.push(
-                <EventBody key={event.id} event={event} leftOffset={index} collisionGroupSize={numColumns} date={props.date} />
+                <EventBody
+                    key={event.id}
+                    event={event}
+                    leftOffset={index}
+                    collisionGroupSize={numColumns}
+                    date={props.date}
+                />
             )
         })
     })

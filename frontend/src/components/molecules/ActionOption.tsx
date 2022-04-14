@@ -10,7 +10,7 @@ import { Spacing } from '../../styles'
 import { TTask } from '../../utils/types'
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
-import { useClickOutside } from '../../utils/hooks'
+import { useClickOutside } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
 const ActionButton = styled(NoStyleButton)`
@@ -37,9 +37,16 @@ const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOpt
     }, [task])
 
     // show action when keyboardShortcut is pressed
-    useKeyboardShortcut(keyboardShortcut, useCallback(() => setIsShown(!isShown), [isShown]))
+    useKeyboardShortcut(
+        keyboardShortcut,
+        useCallback(() => setIsShown(!isShown), [isShown])
+    )
     // when the action is shown, close action when KEYBOARD_SHORTCUTS.CLOSE is pressed
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.CLOSE, useCallback(() => setIsShown(false), []), !isShown)
+    useKeyboardShortcut(
+        KEYBOARD_SHORTCUTS.CLOSE,
+        useCallback(() => setIsShown(false), []),
+        !isShown
+    )
 
     const { icon, component, actionString } = (() => {
         return {

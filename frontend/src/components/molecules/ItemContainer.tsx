@@ -1,6 +1,6 @@
-import { Border, Colors, Spacing } from "../../styles"
+import { Border, Colors, Spacing } from '../../styles'
 
-import React from "react"
+import React from 'react'
 import WebStyled from 'styled-components'
 
 const ItemContainerDiv = WebStyled.div<{ isSelected: boolean }>`
@@ -20,11 +20,10 @@ interface ItemContainerProps {
     onClick: () => void
     children: React.ReactNode
 }
-const ItemContainer = React.forwardRef<HTMLDivElement, ItemContainerProps>(
-    ({ isSelected, onClick, children }, ref) =>
-        <ItemContainerDiv isSelected={isSelected} onClick={onClick} ref={ref}>
-            {children}
-        </ItemContainerDiv>
-)
+const ItemContainer = React.forwardRef<HTMLDivElement, ItemContainerProps>(({ isSelected, onClick, children }, ref) => (
+    <ItemContainerDiv isSelected={isSelected} onClick={onClick} ref={ref}>
+        {children}
+    </ItemContainerDiv>
+))
 
 export default ItemContainer

@@ -1,4 +1,3 @@
-
 const TermsOfServiceHTML = `
 <html>
 <head>

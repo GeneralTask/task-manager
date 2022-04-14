@@ -11,4 +11,3 @@ export const authSignOut = (dispatch: Dispatch) => {
     Cookie.remove(AUTHORIZATION_COOKE) //testing cookie
     window.location.href = '/'
 }
-
