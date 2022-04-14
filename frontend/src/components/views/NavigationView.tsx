@@ -39,9 +39,6 @@ const AddSectionView = styled.div`
     border-color: transparent;
     align-items: center;
 `
-const IconWidth = styled.div`
-    width: fit-content;
-`
 const AddSectionInputView = styled.div`
     font-weight: ${weight._600};
     margin-left: ${margin._8}px;
@@ -63,14 +60,12 @@ const NavigationView = () => {
     const { mutate: addTaskSection } = useAddTaskSection()
     const { pathname } = useLocation()
 
-    // const showLoadingSections = isLoading || !taskSections
-
     return (
         <NavigationViewContainer>
             <NavigationViewHeader>
                 <Icon size="medium" />
             </NavigationViewHeader>
-            {taskSections !== undefined ? (
+            {taskSections ? (
                 <NavigationSectionLinks
                     taskSections={taskSections}
                     sectionId={sectionIdParam || ''}
@@ -80,9 +75,7 @@ const NavigationView = () => {
                 <Loading />
             )}
             <AddSectionView>
-                <IconWidth>
-                    <Icon size="small" source={icons.plus} />
-                </IconWidth>
+                <Icon size="small" source={icons.plus} />
                 <AddSectionInputView>
                     <NoStyleInput
                         value={sectionName}

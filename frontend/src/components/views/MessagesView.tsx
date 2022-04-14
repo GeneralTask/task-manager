@@ -2,14 +2,14 @@ import React, { useCallback, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
+import { SectionHeader } from '../molecules/Header'
+import TaskTemplate from '../atoms/TaskTemplate'
+import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { useFetchMessages, useGetInfiniteThreads } from '../../services/api-query-hooks'
-import { useInterval } from '../../utils/hooks'
 import Loading from '../atoms/Loading'
-import TaskTemplate from '../atoms/TaskTemplate'
-import ThreadDetails from '../details/ThreadDetails'
-import { SectionHeader } from '../molecules/Header'
 import Thread from '../molecules/Thread'
+import ThreadDetails from '../details/ThreadDetails'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;

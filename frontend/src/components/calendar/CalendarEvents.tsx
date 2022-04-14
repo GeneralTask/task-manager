@@ -3,7 +3,7 @@ import React, { Ref, useEffect, useRef } from 'react'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import { useAppSelector } from '../../redux/hooks'
 import { useGetEvents } from '../../services/api-query-hooks'
-import { useInterval } from '../../utils/hooks'
+import { useInterval } from '../../hooks'
 import { TEvent } from '../../utils/types'
 import {
     AllDaysContainer,

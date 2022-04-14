@@ -17,7 +17,7 @@ import { getSectionById } from '../../utils/task'
 import { setSelectedItemId } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
-import { useInterval } from '../../utils/hooks'
+import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 
 const BannerAndSectionContainer = styled.div`

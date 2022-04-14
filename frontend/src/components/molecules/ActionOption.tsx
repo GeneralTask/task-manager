@@ -12,7 +12,7 @@ import { TTask } from '../../utils/types'
 import TimeEstimatePicker from './TimeEstimatePicker'
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
-import { useClickOutside } from '../../utils/hooks'
+import { useClickOutside } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
 const ActionButton = styled(NoStyleButton)`
