@@ -56,22 +56,25 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
 
     return (
         <FlexColumnContainer>
-            <HeaderContainer>
-                <Icon size={'medium'} source={logos.gmail} />
-                <HeaderTitleContainer>
-                    <Title>{title}</Title>
-                    <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
-                </HeaderTitleContainer>
-            </HeaderContainer>
-            {thread &&
-                thread.emails.map((email, index) => (
-                    <EmailTemplate
-                        key={index}
-                        sender={email.sender.name}
-                        body={email.body}
-                        collapsed={index !== thread.emails.length - 1}
-                    />
-                ))}
+            {thread && (
+                <>
+                    <HeaderContainer>
+                        <Icon size={'medium'} source={logos.gmail} />
+                        <HeaderTitleContainer>
+                            <Title>{title}</Title>
+                            <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
+                        </HeaderTitleContainer>
+                    </HeaderContainer>
+                    {thread.emails.map((email, index) => (
+                        <EmailTemplate
+                            key={index}
+                            sender={email.sender.name}
+                            body={email.body}
+                            collapsed={index !== thread.emails.length - 1}
+                        />
+                    ))}
+                </>
+            )}
         </FlexColumnContainer>
     )
 }
