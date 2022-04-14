@@ -65,7 +65,7 @@ const Thread = ({ thread }: ThreadProps) => {
 
     return (
         <ItemContainer isSelected={isSelected} onClick={onClickHandler}>
-            <MarkAsTaskButton isTask={thread.is_task} messageId={thread.id} />
+            <MarkAsTaskButton isTask={thread.is_task} threadId={thread.id} />
             <IconContainer>
                 <Icon source={logos[thread.source.logo_v2]} size="small" />
             </IconContainer>
