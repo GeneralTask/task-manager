@@ -57,7 +57,7 @@ export const Title = styled.div`
     flex: 1;
 `
 export const BodyTextArea = styled.textarea`
-    width: 95%;
+    width: 100%;
     display: block;
     background-color: inherit;
     border: none;
@@ -69,6 +69,7 @@ export const BodyTextArea = styled.textarea`
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
     height: 250px;
+    box-sizing: border-box;
     :focus {
         border: 1px solid ${Colors.gray._500};
     }
