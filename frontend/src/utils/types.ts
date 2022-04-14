@@ -93,24 +93,20 @@ export interface TEvent {
 }
 
 export interface TEmail {
-    smtp_id: string
-    id: string
-    email_id: string
+    message_id: string
     subject: string
     body: string
-    sender_domain: string
-    sender_email: string
-    sender_name: string
-    reply_to: string
-    is_unread: boolean
-    recipients: TRecipients
     sent_at: string
+    is_unread: boolean
+    sender: TSender
+    recipients: TRecipients
 }
 
 export interface TEmailThread {
     id: string
-    last_updated_at: string
     is_task: boolean
+    deeplink: string
+    source: TMessageSource
     emails: TEmail[]
 }
 
