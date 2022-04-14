@@ -44,9 +44,15 @@ interface ThreadDetailsProps {
     thread: TEmailThread | undefined
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
-
-    const title = `${thread?.emails[0]?.subject} (${thread?.emails.length})`
-    const people = Array.from(new Set(thread?.emails.map((email) => (email.recipients.to)).flat().map((recipient) => (recipient.email))))
+    const title = `${thread?.emails[0]?.subject ?? ''} (${thread?.emails.length ?? 0})`
+    const recipient_emails = Array.from(
+        new Set(
+            thread?.emails
+                .map((email) => email.recipients.to)
+                .flat()
+                .map((recipient) => recipient.email)
+        )
+    )
 
     return (
         <FlexColumnContainer>
@@ -54,19 +60,18 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                 <Icon size={'medium'} source={logos.gmail} />
                 <HeaderTitleContainer>
                     <Title>{title}</Title>
-                    <SubTitle>{`To: ${people.join(', ')}`}</SubTitle>
+                    <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
                 </HeaderTitleContainer>
             </HeaderContainer>
-            {
-                thread && thread.emails.map((email, index) => (
+            {thread &&
+                thread.emails.map((email, index) => (
                     <EmailTemplate
                         key={index}
                         sender={email.sender.name}
                         body={email.body}
                         collapsed={index !== thread.emails.length - 1}
                     />
-                ))
-            }
+                ))}
         </FlexColumnContainer>
     )
 }

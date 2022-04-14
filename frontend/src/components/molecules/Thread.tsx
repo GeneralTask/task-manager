@@ -10,9 +10,8 @@ import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
 import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
 import { Icon } from '../atoms/Icon'
-import { NoHTMLBody } from '../atoms/TaskHTMLBody'
+import { removeHTMLTags } from '../atoms/TaskHTMLBody'
 import ItemContainer from './ItemContainer'
-
 
 const IconContainer = styled.div`
     margin-left: ${Spacing.margin._8}px;
@@ -65,7 +64,7 @@ const Thread = ({ thread }: ThreadProps) => {
     const sentAt = DateTime.fromISO(thread.emails[0]?.sent_at).toFormat('dd LLL yyyy')
 
     return (
-        <ItemContainer isSelected={isSelected} onClick={onClickHandler} >
+        <ItemContainer isSelected={isSelected} onClick={onClickHandler}>
             <MarkAsTaskButton isTask={thread.is_task} messageId={thread.id} />
             <IconContainer>
                 <Icon source={logos[thread.source.logo_v2]} size="small" />
@@ -73,7 +72,7 @@ const Thread = ({ thread }: ThreadProps) => {
             <TitleContainer>
                 <Title>{senders}</Title>
                 <SubTitle>{title}</SubTitle>
-                <BodyPreview><NoHTMLBody dirtyHTML={bodyDirtyHTML} /></BodyPreview>
+                <BodyPreview>{removeHTMLTags(bodyDirtyHTML)}</BodyPreview>
             </TitleContainer>
             <SentAt>{sentAt}</SentAt>
         </ItemContainer>

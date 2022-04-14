@@ -20,10 +20,10 @@ export const TaskHTMLBody = ({ dirtyHTML }: HTMLBodyProps) => {
     return <div dangerouslySetInnerHTML={{ __html: cleanHTML }} />
 }
 
-export const NoHTMLBody = ({ dirtyHTML }: HTMLBodyProps) => {
+export const removeHTMLTags = (dirtyHTML: string) => {
     const cleanHTML = sanitizeHtml(dirtyHTML, {
         allowedTags: [],
         allowedAttributes: {},
     })
-    return <div dangerouslySetInnerHTML={{ __html: cleanHTML }} />
+    return cleanHTML
 }

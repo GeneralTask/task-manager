@@ -1,7 +1,7 @@
 import { Colors, Typography } from '../../styles'
 import styled from 'styled-components'
 import React, { useEffect, useState } from 'react'
-import { NoHTMLBody, TaskHTMLBody } from '../atoms/TaskHTMLBody'
+import { removeHTMLTags, TaskHTMLBody } from '../atoms/TaskHTMLBody'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -54,7 +54,7 @@ const EmailTemplate = (props: DetailsTemplateProps) => {
     const [isCollapsed, setIsCollapsed] = useState(props.collapsed ?? false)
 
     useEffect(() => {
-        setIsCollapsed(props.collapsed ?? false)
+        setIsCollapsed(!!props.collapsed)
     }, [props.collapsed])
 
     return (
@@ -64,17 +64,13 @@ const EmailTemplate = (props: DetailsTemplateProps) => {
                     <Title>{props.sender}</Title>
                     {props.time_sent}
                 </SenderContainer>
-                {isCollapsed &&
-                    <BodyContainerCollapsed>
-                        <NoHTMLBody dirtyHTML={props.body} />
-                    </BodyContainerCollapsed>
-                }
+                {isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.body)}</BodyContainerCollapsed>}
             </CollapseExpandContainer>
-            {isCollapsed ||
+            {isCollapsed || (
                 <BodyContainer>
                     <TaskHTMLBody dirtyHTML={props.body} />
                 </BodyContainer>
-            }
+            )}
         </DetailsViewContainer>
     )
 }
