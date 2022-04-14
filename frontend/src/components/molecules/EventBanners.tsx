@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE } from '../../constants'
 import { useGetEvents } from '../../services/api-query-hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
-import { useInterval } from '../../utils/hooks'
+import { useInterval } from '../../hooks'
 import { TEvent } from '../../utils/types'
 import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
 
