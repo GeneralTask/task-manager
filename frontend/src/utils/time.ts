@@ -1,7 +1,3 @@
-// parameters:
-// event: a date range
-// blocks: a list of date ranges
-
 import { DateTime } from "luxon";
 
 interface DateRange {
