@@ -94,7 +94,7 @@ export interface TEvent {
 
 export interface TEmail {
     smtp_id: string
-    thread_id: string
+    id: string
     email_id: string
     subject: string
     body: string
@@ -108,7 +108,7 @@ export interface TEmail {
 }
 
 export interface TEmailThread {
-    thread_id: string
+    id: string
     last_updated_at: string
     is_task: boolean
     emails: TEmail[]

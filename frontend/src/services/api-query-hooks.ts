@@ -409,8 +409,8 @@ const getThreadDetail = async (data: { threadId: string }) => {
 
 export const useMarkThreadAsTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { thread_id: string; isTask: boolean }) => markThreadAsTask(data), {
-        onMutate: async (data: { thread_id: string; isTask: boolean }) => {
+    return useMutation((data: { id: string; isTask: boolean }) => markThreadAsTask(data), {
+        onMutate: async (data: { id: string; isTask: boolean }) => {
             // cancel all current getThreads queries
             await queryClient.cancelQueries('emailthreads')
 
@@ -419,7 +419,7 @@ export const useMarkThreadAsTask = () => {
 
             for (const page of response.pages) {
                 for (const thread of page) {
-                    if (thread.thread_id === data.thread_id) {
+                    if (thread.id === data.id) {
                         thread.is_task = data.isTask
                     }
                 }
@@ -432,9 +432,9 @@ export const useMarkThreadAsTask = () => {
         },
     })
 }
-const markThreadAsTask = async (data: { thread_id: string; isTask: boolean }) => {
+const markThreadAsTask = async (data: { id: string; isTask: boolean }) => {
     try {
-        const res = await apiClient.patch(`/messages/modify/${data.thread_id}/`, { is_task: data.isTask })
+        const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_task: data.isTask })
         return res.data
     } catch {
         throw new Error('markMessageAsTask failed')
