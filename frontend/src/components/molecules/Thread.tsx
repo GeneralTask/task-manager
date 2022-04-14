@@ -8,7 +8,6 @@ import { useAppSelector } from '../../redux/hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
-import MarkAsTaskButton from '../atoms/buttons/MarkAsTaskButton'
 import { Icon } from '../atoms/Icon'
 import { removeHTMLTags } from '../atoms/TaskHTMLBody'
 import ItemContainer from './ItemContainer'
@@ -65,7 +64,6 @@ const Thread = ({ thread }: ThreadProps) => {
 
     return (
         <ItemContainer isSelected={isSelected} onClick={onClickHandler}>
-            <MarkAsTaskButton isTask={thread.is_task} threadId={thread.id} />
             <IconContainer>
                 <Icon source={logos[thread.source.logo_v2]} size="small" />
             </IconContainer>
