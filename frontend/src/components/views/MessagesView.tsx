@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
@@ -10,6 +10,8 @@ import { useFetchMessages, useGetInfiniteThreads } from '../../services/api-quer
 import Loading from '../atoms/Loading'
 import Thread from '../molecules/Thread'
 import ThreadDetails from '../details/ThreadDetails'
+import { setSelectedItemId } from '../../redux/tasksPageSlice'
+import { useAppDispatch } from '../../redux/hooks'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -21,6 +23,7 @@ const ScrollViewMimic = styled.div`
 
 const MessagesView = () => {
     const navigate = useNavigate()
+    const dispatch = useAppDispatch()
     const params = useParams()
     const { refetch: refetchMessages } = useFetchMessages()
     const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteThreads()
@@ -35,6 +38,12 @@ const MessagesView = () => {
         return undefined
     }, [params.thread, threads])
     useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
+
+    useEffect(() => {
+        if (expandedThread) {
+            dispatch(setSelectedItemId(expandedThread.id))
+        }
+    }, [expandedThread])
 
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
