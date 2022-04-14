@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
@@ -30,20 +30,16 @@ const MessagesView = () => {
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
-
-    const expandedThread = useMemo(() => {
-        if (threads.length > 0) {
-            return threads.find((thread) => thread.id === params.thread) ?? threads[0]
-        }
-        return undefined
-    }, [params.thread, threads])
     useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
 
-    useEffect(() => {
-        if (expandedThread) {
-            dispatch(setSelectedItemId(expandedThread.id))
+    const getExpandedThread = () => {
+        if (threads.length > 0) {
+            const tmpThread = threads.find((thread) => thread.id === params.thread) ?? threads[0]
+            dispatch(setSelectedItemId(tmpThread.id))
+            return tmpThread
         }
-    }, [expandedThread])
+        return undefined
+    }
 
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
@@ -51,11 +47,13 @@ const MessagesView = () => {
             if (isLoading || isFetching) return
             if (observer.current) observer.current.disconnect()
             observer.current = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting) fetchNextPage()
+                if (entries[0].isIntersecting && data && data.pages[data.pages.length - 1].length > 0) {
+                    fetchNextPage()
+                }
             })
             if (node) observer.current.observe(node)
         },
-        [isLoading]
+        [isLoading, isFetching]
     )
 
     return (
@@ -71,9 +69,13 @@ const MessagesView = () => {
                         <Thread thread={thread} />
                     </TaskTemplate>
                 ))}
-                {(isLoading || isFetching) && <Loading />}
+                {(isLoading || isFetching) && (
+                    <div>
+                        <Loading />
+                    </div>
+                )}
             </ScrollViewMimic>
-            {<ThreadDetails thread={expandedThread} />}
+            {<ThreadDetails thread={getExpandedThread()} />}
         </>
     )
 }
