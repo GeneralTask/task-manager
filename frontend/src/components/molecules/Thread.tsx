@@ -8,8 +8,8 @@ import { useAppSelector } from '../../redux/hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
+import { removeHTMLTags } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import { removeHTMLTags } from '../atoms/TaskHTMLBody'
 import ItemContainer from './ItemContainer'
 
 const IconContainer = styled.div`

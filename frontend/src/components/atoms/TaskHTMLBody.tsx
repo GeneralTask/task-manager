@@ -1,11 +1,11 @@
 import React from 'react'
 import sanitizeHtml from 'sanitize-html'
 
-interface HTMLBodyProps {
+interface TaskHTMLBodyProps {
     dirtyHTML: string
 }
 
-export const TaskHTMLBody = ({ dirtyHTML }: HTMLBodyProps) => {
+export const TaskHTMLBody = ({ dirtyHTML }: TaskHTMLBodyProps) => {
     const whitelistedHTMLAttributes: sanitizeHtml.IOptions = {
         allowedAttributes: false,
         allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'a', 'center']),
@@ -18,12 +18,4 @@ export const TaskHTMLBody = ({ dirtyHTML }: HTMLBodyProps) => {
         transformTags,
     })
     return <div dangerouslySetInnerHTML={{ __html: cleanHTML }} />
-}
-
-export const removeHTMLTags = (dirtyHTML: string) => {
-    const cleanHTML = sanitizeHtml(dirtyHTML, {
-        allowedTags: [],
-        allowedAttributes: {},
-    })
-    return cleanHTML
 }
