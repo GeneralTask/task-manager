@@ -6,13 +6,13 @@ const ENV = {
     prod: {
         REACT_APP_API_BASE_URL: 'https://api.generaltask.com',
         REACT_APP_FRONTEND_BASE_URL: 'https://generaltask.com',
-    }
+    },
 }
 
-const isDevelopmentMode: boolean = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
+export const isDevelopmentMode: boolean = !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
 
 const getEnvVars = () => {
-    return isDevelopmentMode ? ENV.dev : ENV.prod;
+    return isDevelopmentMode ? ENV.dev : ENV.prod
 }
 
 export default getEnvVars

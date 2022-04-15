@@ -75,7 +75,7 @@ func TestThreadList(t *testing.T) {
 		},
 		TaskType: database.TaskType{IsThread: true},
 	})
-	nonUserThreadIDHex := insertTestItem(t, notUserID, database.Item{
+	_ = insertTestItem(t, notUserID, database.Item{
 		TaskBase: database.TaskBase{
 			UserID:     notUserID,
 			IDExternal: "sample_gmail_thread_id_non_user",
@@ -88,11 +88,6 @@ func TestThreadList(t *testing.T) {
 		TaskType: database.TaskType{IsThread: true},
 	})
 	router := GetRouter(GetAPI())
-
-	_ = nonUserThreadIDHex
-	_ = threadIDHex3
-	_ = threadIDHex2
-	_ = threadIDHex1
 
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(GetAPI())
@@ -118,18 +113,15 @@ func TestThreadList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t,
-			fmt.Sprintf("[{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"smtp_id\":\"\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2021-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]},{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"smtp_id\":\"\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2018-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}},{\"smtp_id\":\"\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2020-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]},{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"prefix_%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"smtp_id\":\"\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2019-04-20T00:00:00Z\",\"is_unread\":true,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]}]",
+			fmt.Sprintf("[{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2021-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]},{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2018-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}},{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2020-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]},{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"prefix_%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2019-04-20T00:00:00Z\",\"is_unread\":true,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]}]",
 				threadIDHex3, testEmail, threadIDHex1, testEmail, threadIDHex2, testEmail),
 			string(body))
 	})
 	t.Run("SuccessPaged", func(t *testing.T) {
-		params := []byte(`{
-			"page": 2,
-			"limit": 1
-		}`)
+		params := []byte(`{}`)
 		request, _ := http.NewRequest(
 			"GET",
-			"/threads/",
+			"/threads/?page=2&limit=1",
 			bytes.NewBuffer(params))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -138,17 +130,15 @@ func TestThreadList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t,
-			fmt.Sprintf("[{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"smtp_id\":\"\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2018-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}},{\"smtp_id\":\"\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2020-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]}]",
+			fmt.Sprintf("[{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2018-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}},{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2020-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]}]",
 				threadIDHex1, testEmail),
 			string(body))
 	})
 	t.Run("SuccessOnlyUnread", func(t *testing.T) {
-		params := []byte(`{
-			"only_unread": true
-		}`)
+		params := []byte(`{}`)
 		request, _ := http.NewRequest(
 			"GET",
-			"/threads/",
+			"/threads/?only_unread=true",
 			bytes.NewBuffer(params))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -157,20 +147,15 @@ func TestThreadList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t,
-			fmt.Sprintf("[{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"prefix_%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"smtp_id\":\"\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2019-04-20T00:00:00Z\",\"is_unread\":true,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]}]",
+			fmt.Sprintf("[{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"prefix_%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2019-04-20T00:00:00Z\",\"is_unread\":true,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]}]",
 				threadIDHex2, testEmail),
 			string(body))
 	})
 	t.Run("SuccessSingleAccount", func(t *testing.T) {
-		params := []byte(fmt.Sprintf(`{
-			"account": {
-				 "source_id": "gmail",
-				 "source_account_id": "prefix_%s"
-			}			
-		}`, testEmail))
+		params := []byte(`{}`)
 		request, _ := http.NewRequest(
 			"GET",
-			"/threads/",
+			fmt.Sprintf("/threads/?source_id=gmail&source_account_id=prefix_%s", testEmail),
 			bytes.NewBuffer(params))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -179,7 +164,7 @@ func TestThreadList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t,
-			fmt.Sprintf("[{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"prefix_%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"smtp_id\":\"\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2019-04-20T00:00:00Z\",\"is_unread\":true,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]}]",
+			fmt.Sprintf("[{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"prefix_%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2019-04-20T00:00:00Z\",\"is_unread\":true,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]}]",
 				threadIDHex2, testEmail),
 			string(body))
 	})

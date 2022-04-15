@@ -22,11 +22,10 @@ const DropIndicatorStyles = css<{ isVisible: boolean }>`
 `
 export const DropIndicatorAbove = styled.div`
     ${DropIndicatorStyles}
-    top: -0.5px;
 `
-export const DropIndicatorBelow = styled.div`
+const DropIndicatorBelow = styled.div`
     ${DropIndicatorStyles}
-    top: 0.5px;
+    top: 2px;
 `
 
 interface TaskDropContainerProps {
@@ -94,7 +93,7 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
 
     useEffect(() => {
         drop(dropRef)
-    }, [])
+    }, [dropRef])
 
     return (
         <DropOverlay ref={dropRef}>

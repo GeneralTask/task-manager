@@ -12,19 +12,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const DEFAULT_THREAD_LIMIT int = 100
 
 type email struct {
-	SMTPID     string     `json:"smtp_id"`
-	Subject    string     `json:"subject"`
-	Body       string     `json:"body"`
-	SentAt     string     `json:"sent_at"`
-	IsUnread   bool       `json:"is_unread"`
-	Sender     senderV2   `json:"sender"`
-	Recipients Recipients `json:"recipients"`
+	MessageID  primitive.ObjectID `json:"message_id"`
+	Subject    string             `json:"subject"`
+	Body       string             `json:"body"`
+	SentAt     string             `json:"sent_at"`
+	IsUnread   bool               `json:"is_unread"`
+	Sender     senderV2           `json:"sender"`
+	Recipients Recipients         `json:"recipients"`
 }
 
 type Thread struct {
@@ -36,14 +35,14 @@ type Thread struct {
 }
 
 type accountParams struct {
-	SourceID        string `json:"source_id"`
-	SourceAccountID string `json:"source_account_id"`
+	SourceID        *string `form:"source_id"`
+	SourceAccountID *string `form:"source_account_id"`
 }
 
 type threadsListParams struct {
-	database.Pagination `form:",inline" json:",inline"`
-	OnlyUnread          *bool          `form:"only_unread" json:"only_unread"`
-	Account             *accountParams `json:"account"`
+	database.Pagination `form:",inline"`
+	OnlyUnread          *bool `form:"only_unread"`
+	accountParams       `form:",inline"`
 }
 
 func (api *API) ThreadsList(c *gin.Context) {
@@ -68,7 +67,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 	}
 
 	var params threadsListParams
-	err = c.BindJSON(&params)
+	err = c.Bind(&params)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
@@ -84,8 +83,8 @@ func (api *API) ThreadsList(c *gin.Context) {
 	}
 
 	var accountFilter *[]bson.M
-	if params.Account != nil {
-		accountFilter = &[]bson.M{{"source_id": params.Account.SourceID}, {"source_account_id": params.Account.SourceAccountID}}
+	if params.SourceID != nil && params.SourceAccountID != nil {
+		accountFilter = &[]bson.M{{"source_id": params.SourceID}, {"source_account_id": params.SourceAccountID}}
 	}
 	threads, err := database.GetEmailThreads(db, userID.(primitive.ObjectID), onlyUnread, params.Pagination, accountFilter)
 	if err != nil {
@@ -93,11 +92,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 		return
 	}
 
-	orderedMessages := api.orderThreads(
-		db,
-		threads,
-		userID.(primitive.ObjectID),
-	)
+	orderedMessages := api.orderThreads(threads)
 	if err != nil {
 		Handle500(c)
 		return
@@ -105,11 +100,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 	c.JSON(200, orderedMessages)
 }
 
-func (api *API) orderThreads(
-	db *mongo.Database,
-	threadItems *[]database.Item,
-	userID primitive.ObjectID,
-) []*Thread {
+func (api *API) orderThreads(threadItems *[]database.Item) []*Thread {
 	sort.SliceStable(*threadItems, func(i, j int) bool {
 		a := (*threadItems)[i]
 		b := (*threadItems)[j]
@@ -143,11 +134,11 @@ func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 	var emails []email
 	for _, e := range *dbEmails {
 		formattedEmail := email{
-			SMTPID:   e.SMTPID,
-			Subject:  e.Subject,
-			Body:     e.Body,
-			SentAt:   e.SentAt.Time().UTC().Format(time.RFC3339),
-			IsUnread: e.IsUnread,
+			MessageID: e.MessageID,
+			Subject:   e.Subject,
+			Body:      e.Body,
+			SentAt:    e.SentAt.Time().UTC().Format(time.RFC3339),
+			IsUnread:  e.IsUnread,
 			Sender: senderV2{
 				Name:    e.SenderName,
 				Email:   e.SenderEmail,

@@ -48,10 +48,7 @@ go run .
 curl localhost:8080/ping
 ```
 
-We can setup the server to rebuild/rerun upon local file changes using [CompileDaemon](https://github.com/githubnemo/CompileDaemon):
-```
-CompileDaemon -build="go build -o bin/backend" -command="./bin/backend"
-```
+We can setup the server to rebuild/rerun upon local file changes using [air](https://github.com/cosmtrek/air)
 
 ## Backend testing
 

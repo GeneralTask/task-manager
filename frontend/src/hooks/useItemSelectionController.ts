@@ -14,7 +14,7 @@ export default function useItemSelectionController(items: TTask[] | TMessage[], 
     // if there is no expanded item, then get the selected item from redux
     const selectedItemId = useAppSelector((state) => expandedItem ?? state.tasks_page.selected_item_id)
 
-    // on press DOWN -> select first item 
+    // on press DOWN -> select first item
     const onUpDown = useCallback(
         (direction: 'up' | 'down') => {
             let newSelectedItem = ''

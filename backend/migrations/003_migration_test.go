@@ -27,22 +27,22 @@ func TestMigrate003(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		externalTokenCollection.InsertOne(dbCtx, database.ExternalAPIToken{
-			ID: primitive.ObjectID{1},
-			AccountID: "test_migrate_003",
+			ID:             primitive.ObjectID{1},
+			AccountID:      "test_migrate_003",
 			ServiceID:      external.TASK_SERVICE_ID_GOOGLE,
 			IsPrimaryLogin: false,
 			IsUnlinkable:   false,
 		})
 		externalTokenCollection.InsertOne(dbCtx, database.ExternalAPIToken{
-			ID: primitive.ObjectID{2},
-			AccountID: "test_migrate_003",
+			ID:             primitive.ObjectID{2},
+			AccountID:      "test_migrate_003",
 			ServiceID:      external.TASK_SERVICE_ID_GOOGLE,
 			IsPrimaryLogin: true,
 			IsUnlinkable:   false,
 		})
 		externalTokenCollection.InsertOne(dbCtx, database.ExternalAPIToken{
-			ID: primitive.ObjectID{3},
-			AccountID: "test_migrate_003",
+			ID:             primitive.ObjectID{3},
+			AccountID:      "test_migrate_003",
 			ServiceID:      external.TASK_SERVICE_ID_SLACK,
 			IsPrimaryLogin: true,
 			IsUnlinkable:   false,

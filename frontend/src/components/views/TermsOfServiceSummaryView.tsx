@@ -139,9 +139,7 @@ const TermsOfServiceSummaryView = () => {
                 <NoStyleButton onClick={() => setPromotionsCheck(!promotionsCheck)}>
                     <HorizontalFlex>
                         <Icon size="small" source={promotionsCheck ? icons.check_gray : icons.check_unchecked} />
-                        <AgreementText>
-                            I would like to opt in on General Task&#39;s promotional emails.
-                        </AgreementText>
+                        <AgreementText>I would like to opt in on General Task&#39;s promotional emails.</AgreementText>
                     </HorizontalFlex>
                 </NoStyleButton>
             </VerticalFlex>
