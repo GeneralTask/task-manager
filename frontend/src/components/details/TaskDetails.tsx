@@ -79,8 +79,8 @@ const TaskDetails = (props: TaskDetailsProps) => {
     }, [titleInput, bodyInput, task.id, modifyTask])
 
     const onEdit = useCallback(() => {
-        setIsEditing(true)
         if (syncTimer.current) clearTimeout(syncTimer.current)
+        setIsEditing(true)
         syncTimer.current = setTimeout(syncDetails, DETAILS_SYNC_TIMEOUT * 1000)
     }, [syncDetails])
 
