@@ -22,6 +22,8 @@ const LabelEditorContainer = styled.div`
     top: 100%;
     right: 0;
     cursor: default;
+`
+const Options = styled.div`
     overflow: auto;
     max-height: 500px;
 `
@@ -106,7 +108,7 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
             <TopNav>
                 <Header>Set Label</Header>
             </TopNav>
-            {options}
+            <Options>{options}</Options>
         </LabelEditorContainer>
     )
 }
