@@ -4,7 +4,7 @@ import React, { createRef, useEffect, useMemo, useState } from 'react'
 import ActionOption from '../molecules/ActionOption'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import { Icon } from '../atoms/Icon'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
@@ -81,7 +81,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
     const onEdit = useCallback(() => {
         setIsEditing(true)
         if (syncTimer.current) clearTimeout(syncTimer.current)
-        syncTimer.current = setTimeout(syncDetails, 1000)
+        syncTimer.current = setTimeout(syncDetails, DETAILS_SYNC_TIMEOUT * 1000)
     }, [syncDetails])
 
     useEffect(onEdit, [titleInput, bodyInput])
