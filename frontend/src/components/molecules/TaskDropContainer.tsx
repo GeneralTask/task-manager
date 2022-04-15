@@ -8,7 +8,7 @@ import { useReorderTask } from '../../services/api-query-hooks'
 
 const DropOverlay = styled.div`
     width: 100%;
-    height: 36px;
+    height: fit-content;
     display: flex;
     flex-direction: column;
     align-items: center;
