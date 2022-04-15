@@ -27,7 +27,7 @@ jobs:
 
       - name: Start backend server
         working-directory: backend
-        run: go run .
+        run: go run . &
 
       - name: Install dependencies
         working-directory: frontend
@@ -37,6 +37,6 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           start: yarn start
-          wait-on: 'http://localhost:3000'
+          wait-on: 'http://localhost:3000', 'http://localhost:8080'
           command: yarn cy:run
           working-directory: frontend
