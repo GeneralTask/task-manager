@@ -241,7 +241,13 @@ func assertThreadItemsEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.SourceID, b.SourceID)
 
 	assert.Equal(t, len(a.EmailThread.Emails), len(b.EmailThread.Emails))
-	assert.Equal(t, a.EmailThread.Emails, b.EmailThread.Emails)
+	for i := range a.EmailThread.Emails {
+		aEmail := a.EmailThread.Emails[i]
+		bEmail := b.EmailThread.Emails[i]
+		aEmail.MessageID = primitive.NilObjectID
+		bEmail.MessageID = primitive.NilObjectID
+		assert.Equal(t, aEmail, bEmail)
+	}
 }
 
 func getGinGmailFetchServer(t *testing.T, threadsMap map[string]*gmail.Thread) *httptest.Server {
