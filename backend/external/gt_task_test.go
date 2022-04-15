@@ -112,7 +112,7 @@ func insertTestTasks(t *testing.T, userID primitive.ObjectID, tasks []*database.
 	assert.NoError(t, err)
 	defer dbCleanup()
 	for _, task := range tasks {
-		_, err := database.GetOrCreateTask(
+		_, err := database.GetOrCreateItem(
 			db,
 			userID,
 			task.IDExternal,

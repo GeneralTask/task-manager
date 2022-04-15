@@ -98,8 +98,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				IsEvent: true,
 			},
 		}
-		var dbEvent database.Item
-		res, err := database.UpdateOrCreateTask(
+		dbEvent, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			event.IDExternal,
@@ -112,14 +111,9 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				TaskType:      event.TaskType,
 			},
 			nil,
+			false,
 		)
 		if err != nil {
-			result <- emptyCalendarResult(err)
-			return
-		}
-		err = res.Decode(&dbEvent)
-		if err != nil {
-			log.Printf("failed to update or create calendar event: %v", err)
 			result <- emptyCalendarResult(err)
 			return
 		}
@@ -143,7 +137,7 @@ func (googleCalendar GoogleCalendarSource) GetPullRequests(userID primitive.Obje
 	result <- emptyPullRequestResult(nil)
 }
 
-func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error {
+func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
 	return errors.New("cannot reply to a calendar event")
 }
 

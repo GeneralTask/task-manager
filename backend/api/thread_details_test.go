@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -48,7 +49,7 @@ func TestThreadDetail(t *testing.T) {
 						Cc:  []database.Recipient{{Name: "p2", Email: "p2@gmail.com"}},
 						Bcc: []database.Recipient{{Name: "p3", Email: "p3@gmail.com"}},
 					},
-					SentAt: createTimestamp("2019-04-20"),
+					SentAt: *testutils.CreateDateTime("2019-04-20"),
 				},
 				{
 					SMTPID:       "sample_smtp_1",
@@ -58,7 +59,7 @@ func TestThreadDetail(t *testing.T) {
 					SenderDomain: "gmail",
 					SenderEmail:  "test@generaltask.com",
 					SenderName:   "test",
-					SentAt:       createTimestamp("2018-04-20"),
+					SentAt:       *testutils.CreateDateTime("2018-04-20"),
 				},
 			},
 		},
@@ -127,7 +128,7 @@ func TestThreadDetail(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t,
-			fmt.Sprintf("{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"smtp_id\":\"sample_smtp_1\",\"subject\":\"test subject 1\",\"body\":\"test body 1\",\"sent_at\":\"2019-04-20T00:00:00Z\",\"is_unread\":true,\"sender\":{\"name\":\"test\",\"email\":\"test@generaltask.com\",\"reply_to\":\"test-reply@generaltask.com\"},\"recipients\":{\"to\":[{\"name\":\"p1\",\"email\":\"p1@gmail.com\"}],\"cc\":[{\"name\":\"p2\",\"email\":\"p2@gmail.com\"}],\"bcc\":[{\"name\":\"p3\",\"email\":\"p3@gmail.com\"}]}},{\"smtp_id\":\"sample_smtp_1\",\"subject\":\"test subject 2\",\"body\":\"test body 2\",\"sent_at\":\"2018-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"test\",\"email\":\"test@generaltask.com\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]}", threadIDHex),
+			fmt.Sprintf("{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"source\":{\"account_id\":\"\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"message_id\":\"000000000000000000000000\",\"subject\":\"test subject 1\",\"body\":\"test body 1\",\"sent_at\":\"2019-04-20T00:00:00Z\",\"is_unread\":true,\"sender\":{\"name\":\"test\",\"email\":\"test@generaltask.com\",\"reply_to\":\"test-reply@generaltask.com\"},\"recipients\":{\"to\":[{\"name\":\"p1\",\"email\":\"p1@gmail.com\"}],\"cc\":[{\"name\":\"p2\",\"email\":\"p2@gmail.com\"}],\"bcc\":[{\"name\":\"p3\",\"email\":\"p3@gmail.com\"}]}},{\"message_id\":\"000000000000000000000000\",\"subject\":\"test subject 2\",\"body\":\"test body 2\",\"sent_at\":\"2018-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"test\",\"email\":\"test@generaltask.com\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]}", threadIDHex),
 			string(body))
 	})
 }

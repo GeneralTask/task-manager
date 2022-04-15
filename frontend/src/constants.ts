@@ -15,6 +15,7 @@ export const TASK_REFETCH_INTERVAL = 30
 export const MESSAGES_REFETCH_INTERVAL = 60
 export const EVENTS_REFETCH_INTERVAL = 60
 export const TIME_INDICATOR_INTERVAL = 6
+export const TASK_MARK_AS_DONE_TIMEOUT = 5
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
@@ -34,6 +35,10 @@ export const SUPPORTED_TYPES_URL = REACT_APP_API_BASE_URL + '/linked_accounts/su
 export const LOG_EVENTS_URL = REACT_APP_API_BASE_URL + '/log_events/'
 export const FEEDBACK_URL = REACT_APP_API_BASE_URL + '/feedback/'
 export const EVENTS_URL = REACT_APP_API_BASE_URL + '/events/'
+
+// Routes
+export const TERMS_OF_SERVICE_ROUTE = 'terms-of-service'
+export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 
 export const NO_EVENT_TITLE = '(no title)'
 

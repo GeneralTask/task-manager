@@ -122,8 +122,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
 		isCompleted := false
-		var dbTask database.Item
-		res, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			task.IDExternal,
@@ -136,14 +135,9 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 				IsCompleted: &isCompleted,
 			},
 			nil,
+			false,
 		)
 		if err != nil {
-			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
-			return
-		}
-		err = res.Decode(&dbTask)
-		if err != nil {
-			log.Printf("failed to update or create task: %v", err)
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 			return
 		}
@@ -208,7 +202,7 @@ func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.TaskCh
 	return &body
 }
 
-func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error {
+func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
 	return errors.New("cannot reply to an asana task")
 }
 

@@ -1,7 +1,20 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
-import { MESSAGES_PER_PAGE, TASK_SECTION_DEFAULT_ID } from '../constants'
+import { MESSAGES_PER_PAGE, TASK_MARK_AS_DONE_TIMEOUT, TASK_SECTION_DEFAULT_ID } from '../constants'
 import apiClient from '../utils/api'
-import { TEmailThread, TEmailThreadResponse, TEvent, TLinkedAccount, TMessage, TMessageResponse, TRecipients, TSupportedType, TTask, TTaskModifyRequestBody, TTaskSection, TUserInfo } from '../utils/types'
+import {
+    TEmailThread,
+    TEmailThreadResponse,
+    TEvent,
+    TLinkedAccount,
+    TMessage,
+    TMessageResponse,
+    TRecipients,
+    TSupportedType,
+    TTask,
+    TTaskModifyRequestBody,
+    TTaskSection,
+    TUserInfo,
+} from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 
 /**
@@ -36,7 +49,7 @@ export const useFetchExternalTasks = () => {
     return useQuery('tasksExternal', fetchExternalTasks, {
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
-        }
+        },
     })
 }
 const fetchExternalTasks = async () => {
@@ -48,53 +61,50 @@ const fetchExternalTasks = async () => {
     }
 }
 
-
 export const useCreateTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { title: string, body: string, id_task_section: string }) => createTask(data),
-        {
-            onMutate: async (data: { title: string, body: string, id_task_section: string }) => {
-                // cancel all current getTasks queries
-                await queryClient.cancelQueries('tasks')
+    return useMutation((data: { title: string; body: string; id_task_section: string }) => createTask(data), {
+        onMutate: async (data: { title: string; body: string; id_task_section: string }) => {
+            // cancel all current getTasks queries
+            await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
-                if (!sections) return
+            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            if (!sections) return
 
-                for (const section of sections) {
-                    if (section.id === data.id_task_section) {
-                        const newTask: TTask = {
-                            id: '0',
-                            id_ordering: 0,
-                            title: data.title,
-                            body: data.body,
-                            deeplink: '',
-                            sent_at: '',
-                            time_allocated: 0,
-                            due_date: '',
-                            source: {
-                                name: 'General Task',
-                                logo: '',
-                                logo_v2: 'generaltask',
-                                is_completable: false,
-                                is_replyable: false,
-                            },
-                            sender: '',
-                            is_done: false,
-                            recipients: {} as TRecipients,
-                        }
-                        section.tasks = [newTask, ...section.tasks]
-                        queryClient.setQueryData('tasks', () => sections)
-                        return
+            for (const section of sections) {
+                if (section.id === data.id_task_section) {
+                    const newTask: TTask = {
+                        id: '0',
+                        id_ordering: 0,
+                        title: data.title,
+                        body: data.body,
+                        deeplink: '',
+                        sent_at: '',
+                        time_allocated: 0,
+                        due_date: '',
+                        source: {
+                            name: 'General Task',
+                            logo: '',
+                            logo_v2: 'generaltask',
+                            is_completable: false,
+                            is_replyable: false,
+                        },
+                        sender: '',
+                        is_done: false,
+                        recipients: {} as TRecipients,
                     }
+                    section.tasks = [newTask, ...section.tasks]
+                    queryClient.setQueryData('tasks', () => sections)
+                    return
                 }
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('tasks')
             }
-        }
-    )
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+        },
+    })
 }
-const createTask = async (data: { title: string, body: string, id_task_section: string }) => {
+const createTask = async (data: { title: string; body: string; id_task_section: string }) => {
     try {
         const res = await apiClient.post('/tasks/create/gt_task/', data)
         return res.data
@@ -103,12 +113,19 @@ const createTask = async (data: { title: string, body: string, id_task_section: 
     }
 }
 
-
 export const useModifyTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { id: string, title?: string, dueDate?: string, timeAllocated?: number, body?: string }) => modifyTask(data),
+    return useMutation(
+        (data: { id: string; title?: string; dueDate?: string; timeAllocated?: number; body?: string }) =>
+            modifyTask(data),
         {
-            onMutate: async (data: { id: string, title?: string, dueDate?: string, timeAllocated?: number, body?: string }) => {
+            onMutate: async (data: {
+                id: string
+                title?: string
+                dueDate?: string
+                timeAllocated?: number
+                body?: string
+            }) => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
@@ -129,11 +146,17 @@ export const useModifyTask = () => {
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
-            }
+            },
         }
     )
 }
-const modifyTask = async (data: { id: string, title?: string, dueDate?: string, timeAllocated?: number, body?: string }) => {
+const modifyTask = async (data: {
+    id: string
+    title?: string
+    dueDate?: string
+    timeAllocated?: number
+    body?: string
+}) => {
     const requestBody: TTaskModifyRequestBody = {}
     if (data.title) requestBody.title = data.title
     if (data.dueDate) requestBody.due_date = data.dueDate
@@ -147,33 +170,35 @@ const modifyTask = async (data: { id: string, title?: string, dueDate?: string, 
     }
 }
 
-
 export const useMarkTaskDone = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { taskId: string, isCompleted: boolean }) => markTaskDone(data),
-        {
-            onMutate: async (data: { taskId: string, isCompleted: boolean }) => {
-                // cancel all current getTasks queries
-                await queryClient.cancelQueries('tasks')
+    return useMutation((data: { taskId: string; isCompleted: boolean }) => markTaskDone(data), {
+        onMutate: async (data: { taskId: string; isCompleted: boolean }) => {
+            // cancel all current getTasks queries
+            await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
-                if (!sections) return
+            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            if (!sections) return
 
-                for (const section of sections) {
-                    for (const task of section.tasks) {
-                        if (task.id === data.taskId) {
-                            task.is_done = data.isCompleted
-                            // Don't actually remove tasks from the list, just mark them as done (Until refreshing)
-                            // section.tasks.splice(j, 1)
-                        }
+            for (const section of sections) {
+                for (const task of section.tasks) {
+                    if (task.id === data.taskId) {
+                        task.is_done = data.isCompleted
+                        // Sets a timeout so that the task is removed from the section after 5 seconds of being marked done
+                        setTimeout(() => {
+                            if (task.is_done && section.tasks.includes(task)) {
+                                section.tasks.splice(section.tasks.indexOf(task), 1)
+                                queryClient.setQueryData('tasks', sections)
+                            }
+                        }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
                     }
                 }
-                queryClient.setQueryData('tasks', sections)
             }
-        }
-    )
+            queryClient.setQueryData('tasks', sections)
+        },
+    })
 }
-const markTaskDone = async (data: { taskId: string, isCompleted: boolean }) => {
+const markTaskDone = async (data: { taskId: string; isCompleted: boolean }) => {
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { is_completed: data.isCompleted })
         return res.data
@@ -182,12 +207,18 @@ const markTaskDone = async (data: { taskId: string, isCompleted: boolean }) => {
     }
 }
 
-
 export const useReorderTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { taskId: string, dropSectionId: string, orderingId: number, dragSectionId?: string }) => reorderTask(data),
+    return useMutation(
+        (data: { taskId: string; dropSectionId: string; orderingId: number; dragSectionId?: string }) =>
+            reorderTask(data),
         {
-            onMutate: async (data: { taskId: string, dropSectionId: string, orderingId: number, dragSectionId?: string }) => {
+            onMutate: async (data: {
+                taskId: string
+                dropSectionId: string
+                orderingId: number
+                dragSectionId?: string
+            }) => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
@@ -195,9 +226,9 @@ export const useReorderTask = () => {
                 if (!sections) return
                 // move within the existing section
                 if (data.dragSectionId === undefined || data.dragSectionId === data.dropSectionId) {
-                    const section = sections.find(s => s.id === data.dropSectionId)
+                    const section = sections.find((s) => s.id === data.dropSectionId)
                     if (section == null) return
-                    const startIndex = section.tasks.findIndex(t => t.id === data.taskId)
+                    const startIndex = section.tasks.findIndex((t) => t.id === data.taskId)
                     if (startIndex === -1) return
                     let endIndex = data.orderingId - 1
                     if (startIndex < endIndex) {
@@ -231,19 +262,26 @@ export const useReorderTask = () => {
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
-            }
+            },
         }
     )
 }
-const reorderTask = async (data: { taskId: string, dropSectionId: string, orderingId: number, dragSectionId?: string }) => {
+const reorderTask = async (data: {
+    taskId: string
+    dropSectionId: string
+    orderingId: number
+    dragSectionId?: string
+}) => {
     try {
-        const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { id_task_section: data.dropSectionId, id_ordering: data.orderingId })
+        const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, {
+            id_task_section: data.dropSectionId,
+            id_ordering: data.orderingId,
+        })
         return res.data
     } catch {
         throw new Error('reorderTask failed')
     }
 }
-
 
 /**
  * TASK SECTION QUERIES
@@ -251,28 +289,26 @@ const reorderTask = async (data: { taskId: string, dropSectionId: string, orderi
 
 export const useAddTaskSection = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { name: string }) => addTaskSection(data),
-        {
-            onMutate: async (data: { name: string }) => {
-                // cancel all current getTasks queries
-                await queryClient.cancelQueries('tasks')
+    return useMutation((data: { name: string }) => addTaskSection(data), {
+        onMutate: async (data: { name: string }) => {
+            // cancel all current getTasks queries
+            await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
-                if (!sections) return
-                const newSection: TTaskSection = {
-                    id: TASK_SECTION_DEFAULT_ID,
-                    name: data.name,
-                    is_done: false,
-                    tasks: [],
-                }
-                sections.splice(sections.length - 1, 0, newSection)
-                queryClient.setQueryData('tasks', sections)
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('tasks')
+            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            if (!sections) return
+            const newSection: TTaskSection = {
+                id: TASK_SECTION_DEFAULT_ID,
+                name: data.name,
+                is_done: false,
+                tasks: [],
             }
-        }
-    )
+            sections.splice(sections.length - 1, 0, newSection)
+            queryClient.setQueryData('tasks', sections)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+        },
+    })
 }
 const addTaskSection = async (data: { name: string }) => {
     try {
@@ -283,31 +319,28 @@ const addTaskSection = async (data: { name: string }) => {
     }
 }
 
-
 export const useDeleteTaskSection = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { sectionId: string }) => deleteTaskSection(data),
-        {
-            onMutate: async (data: { sectionId: string }) => {
-                // cancel all current getTasks queries
-                await queryClient.cancelQueries('tasks')
+    return useMutation((data: { sectionId: string }) => deleteTaskSection(data), {
+        onMutate: async (data: { sectionId: string }) => {
+            // cancel all current getTasks queries
+            await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
-                if (!sections) return
-                for (let i = 0; i < sections.length; i++) {
-                    const section = sections[i]
-                    if (section.id === data.sectionId) {
-                        sections.splice(i, 1)
-                        return
-                    }
+            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            if (!sections) return
+            for (let i = 0; i < sections.length; i++) {
+                const section = sections[i]
+                if (section.id === data.sectionId) {
+                    sections.splice(i, 1)
+                    return
                 }
-                queryClient.setQueryData('tasks', sections)
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('tasks')
             }
-        }
-    )
+            queryClient.setQueryData('tasks', sections)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+        },
+    })
 }
 const deleteTaskSection = async (data: { sectionId: string }) => {
     try {
@@ -318,29 +351,26 @@ const deleteTaskSection = async (data: { sectionId: string }) => {
     }
 }
 
-
 export const useModifyTaskSection = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { sectionId: string, name: string }) => modifyTaskSection(data),
-        {
-            onMutate: async (data: { sectionId: string, name: string }) => {
-                // cancel all current getTasks queries
-                await queryClient.cancelQueries('tasks')
+    return useMutation((data: { sectionId: string; name: string }) => modifyTaskSection(data), {
+        onMutate: async (data: { sectionId: string; name: string }) => {
+            // cancel all current getTasks queries
+            await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
-                if (!sections) return
+            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            if (!sections) return
 
-                for (const section of sections) {
-                    if (section.id === data.sectionId) {
-                        section.name = data.name
-                    }
+            for (const section of sections) {
+                if (section.id === data.sectionId) {
+                    section.name = data.name
                 }
-                queryClient.setQueryData('tasks', sections)
             }
-        }
-    )
+            queryClient.setQueryData('tasks', sections)
+        },
+    })
 }
-const modifyTaskSection = async (data: { sectionId: string, name: string }) => {
+const modifyTaskSection = async (data: { sectionId: string; name: string }) => {
     try {
         const res = await apiClient.patch(`/sections/modify/${data.sectionId}/`, { name: data.name })
         return res.data
@@ -352,11 +382,9 @@ const modifyTaskSection = async (data: { sectionId: string, name: string }) => {
  * THREADS QUERIES
  */
 export const useGetInfiniteThreads = () => {
-    return useInfiniteQuery<TEmailThread[]>('emailthreads', getInfiniteThreads,
-        {
-            getNextPageParam: (_, pages) => pages.length + 1,
-        }
-    )
+    return useInfiniteQuery<TEmailThread[]>('emailthreads', getInfiniteThreads, {
+        getNextPageParam: (_, pages) => pages.length + 1,
+    })
 }
 const getInfiniteThreads = async ({ pageParam = 1 }) => {
     try {
@@ -381,32 +409,30 @@ const getThreadDetail = async (data: { threadId: string }) => {
 
 export const useMarkThreadAsTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { thread_id: string, isTask: boolean }) => markThreadAsTask(data),
-        {
-            onMutate: async (data: { thread_id: string, isTask: boolean }) => {
-                // cancel all current getThreads queries
-                await queryClient.cancelQueries('emailthreads')
+    return useMutation((data: { thread_id: string; isTask: boolean }) => markThreadAsTask(data), {
+        onMutate: async (data: { thread_id: string; isTask: boolean }) => {
+            // cancel all current getThreads queries
+            await queryClient.cancelQueries('emailthreads')
 
-                const response: TEmailThreadResponse | undefined = queryClient.getQueryData('messages')
-                if (!response) return
+            const response: TEmailThreadResponse | undefined = queryClient.getQueryData('messages')
+            if (!response) return
 
-                for (const page of response.pages) {
-                    for (const thread of page) {
-                        if (thread.thread_id === data.thread_id) {
-                            thread.is_task = data.isTask
-                        }
+            for (const page of response.pages) {
+                for (const thread of page) {
+                    if (thread.thread_id === data.thread_id) {
+                        thread.is_task = data.isTask
                     }
                 }
-                queryClient.setQueryData('emailthreads', response)
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('tasks')
-                queryClient.invalidateQueries('emailthreads')
             }
-        }
-    )
+            queryClient.setQueryData('emailthreads', response)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+            queryClient.invalidateQueries('emailthreads')
+        },
+    })
 }
-const markThreadAsTask = async (data: { thread_id: string, isTask: boolean }) => {
+const markThreadAsTask = async (data: { thread_id: string; isTask: boolean }) => {
     try {
         const res = await apiClient.patch(`/messages/modify/${data.thread_id}/`, { is_task: data.isTask })
         return res.data
@@ -419,11 +445,9 @@ const markThreadAsTask = async (data: { thread_id: string, isTask: boolean }) =>
  * MESSAGES QUERIES
  */
 export const useGetInfiniteMessages = () => {
-    return useInfiniteQuery<TMessage[], void>('messages', getInfiniteMessages,
-        {
-            getNextPageParam: (_, pages) => pages.length + 1,
-        }
-    )
+    return useInfiniteQuery<TMessage[], void>('messages', getInfiniteMessages, {
+        getNextPageParam: (_, pages) => pages.length + 1,
+    })
 }
 const getInfiniteMessages = async ({ pageParam = 1 }) => {
     try {
@@ -434,16 +458,13 @@ const getInfiniteMessages = async ({ pageParam = 1 }) => {
     }
 }
 
-
 export const useFetchMessages = () => {
     const queryClient = useQueryClient()
-    return useQuery([], () => fetchMessages(),
-        {
-            onSettled: () => {
-                queryClient.invalidateQueries('messages')
-            },
-        }
-    )
+    return useQuery([], () => fetchMessages(), {
+        onSettled: () => {
+            queryClient.invalidateQueries('messages')
+        },
+    })
 }
 const fetchMessages = async () => {
     try {
@@ -454,19 +475,16 @@ const fetchMessages = async () => {
     }
 }
 
-
 export const useMarkMessageRead = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { id: string, isRead: boolean }) => markMessageRead(data),
-        {
-            onSettled: (_, error, variables) => {
-                if (error) return
-                queryClient.invalidateQueries(['messages', variables.id])
-            }
-        }
-    )
+    return useMutation((data: { id: string; isRead: boolean }) => markMessageRead(data), {
+        onSettled: (_, error, variables) => {
+            if (error) return
+            queryClient.invalidateQueries(['messages', variables.id])
+        },
+    })
 }
-const markMessageRead = async (data: { id: string, isRead: boolean }) => {
+const markMessageRead = async (data: { id: string; isRead: boolean }) => {
     try {
         const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_read: data.isRead })
         return res.data
@@ -477,32 +495,31 @@ const markMessageRead = async (data: { id: string, isRead: boolean }) => {
 
 export const useMarkMessageAsTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { id: string, isTask: boolean }) => markMessageAsTask(data),
-        {
-            onMutate: async (data: { id: string, isTask: boolean }) => {
-                // cancel all current getMessages queries
-                await queryClient.cancelQueries('messages')
+    return useMutation((data: { id: string; isTask: boolean }) => markMessageAsTask(data), {
+        onMutate: async (data: { id: string; isTask: boolean }) => {
+            // cancel all current getMessages queries
+            await queryClient.cancelQueries('messages')
 
-                const response: TMessageResponse | undefined = queryClient.getQueryData('messages')
-                if (!response) return
+            const response: TMessageResponse | undefined = queryClient.getQueryData('messages')
+            if (!response) return
 
-                for (const page of response.pages) {
-                    for (const message of page) {
-                        if (message.id === data.id) {
-                            message.is_task = data.isTask
-                        }
+            for (const page of response.pages) {
+                if (!page) break
+                for (const message of page) {
+                    if (message.id === data.id) {
+                        message.is_task = data.isTask
                     }
                 }
-                queryClient.setQueryData('messages', response)
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('tasks')
-                queryClient.invalidateQueries('messages')
             }
-        }
-    )
+            queryClient.setQueryData('messages', response)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+            queryClient.invalidateQueries('messages')
+        },
+    })
 }
-const markMessageAsTask = async (data: { id: string, isTask: boolean }) => {
+const markMessageAsTask = async (data: { id: string; isTask: boolean }) => {
     try {
         const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_task: data.isTask })
         return res.data
@@ -514,12 +531,14 @@ const markMessageAsTask = async (data: { id: string, isTask: boolean }) => {
 /**
  * EVENTS QUERIES
  */
-export const useGetEvents = (params: { startISO: string, endISO: string }, calendarType: 'calendar' | 'banner') => {
+export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
     return useQuery<TEvent[]>(['events', calendarType, params.startISO], () => getEvents(params))
 }
-const getEvents = async (params: { startISO: string, endISO: string }) => {
+const getEvents = async (params: { startISO: string; endISO: string }) => {
     try {
-        const res = await apiClient.get('/events/', { params: { datetime_start: params.startISO, datetime_end: params.endISO } })
+        const res = await apiClient.get('/events/', {
+            params: { datetime_start: params.startISO, datetime_end: params.endISO },
+        })
         return res.data
     } catch {
         throw new Error('getEvents failed')
@@ -565,7 +584,6 @@ const getLinkedAccounts = async () => {
     }
 }
 
-
 export const useGetSupportedTypes = () => {
     return useQuery<TSupportedType[]>([], getSupportedTypes)
 }
@@ -578,16 +596,13 @@ const getSupportedTypes = async () => {
     }
 }
 
-
 export const useDeleteLinkedAccount = () => {
     const queryClient = useQueryClient()
-    return useMutation(deleteLinkedAccount,
-        {
-            onSettled: () => {
-                queryClient.invalidateQueries('linked_accounts')
-            }
-        }
-    )
+    return useMutation(deleteLinkedAccount, {
+        onSettled: () => {
+            queryClient.invalidateQueries('linked_accounts')
+        },
+    })
 }
 const deleteLinkedAccount = async (data: { id: string }) => {
     try {

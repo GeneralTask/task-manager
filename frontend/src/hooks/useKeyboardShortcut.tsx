@@ -3,7 +3,12 @@ import { KEYBOARD_SHORTCUTS } from '../constants'
 import { useAppSelector } from '../redux/hooks'
 import { ModalEnum } from '../utils/enums'
 
-export default function useKeyboardShortcut(shortcut: KEYBOARD_SHORTCUTS, onKeyPress: () => void, disabled = false, showIndicator = false): boolean {
+export default function useKeyboardShortcut(
+    shortcut: KEYBOARD_SHORTCUTS,
+    onKeyPress: () => void,
+    disabled = false,
+    showIndicator = false
+): boolean {
     const isKeyDown = useRef<boolean>(false)
     const [showKeyDownIndicator, setShowKeyDownIndicator] = useState(false)
 

@@ -128,9 +128,8 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 
 	for _, pullRequest := range pullRequestItems {
-		var dbPR database.Item
 		isCompleted := false
-		res, err := database.UpdateOrCreateTask(
+		dbPR, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			string(pullRequest.IDExternal),
@@ -142,13 +141,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				IsCompleted: &isCompleted,
 			},
 			nil,
-		)
-		if err != nil {
-			log.Printf("failed to update or create pull request: %v", err)
-			result <- emptyPullRequestResult(err)
-			return
-		}
-		err = res.Decode(&dbPR)
+			false)
 		if err != nil {
 			log.Printf("failed to update or create pull request: %v", err)
 			result <- emptyPullRequestResult(err)
@@ -195,7 +188,7 @@ func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bo
 	return false
 }
 
-func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error {
+func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
 	return errors.New("cannot reply to a PR")
 }
 

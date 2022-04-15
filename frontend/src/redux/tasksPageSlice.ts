@@ -1,12 +1,12 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { ModalEnum } from '../utils/enums'
 
 export interface TasksPageState {
     modals: {
         show_modal: ModalEnum
-    },
-    selected_item_id: string | null,
-    expanded_calendar: boolean,
+    }
+    selected_item_id: string | null
+    expanded_calendar: boolean
 }
 
 const initialState: TasksPageState = {
@@ -29,14 +29,10 @@ export const tasksPageSlice = createSlice({
         },
         setExpandedCalendar(state, action: PayloadAction<boolean>) {
             state.expanded_calendar = action.payload
-        }
+        },
     },
 })
 
-export const {
-    setShowModal,
-    setExpandedCalendar,
-    setSelectedItemId,
-} = tasksPageSlice.actions
+export const { setShowModal, setExpandedCalendar, setSelectedItemId } = tasksPageSlice.actions
 
 export default tasksPageSlice.reducer

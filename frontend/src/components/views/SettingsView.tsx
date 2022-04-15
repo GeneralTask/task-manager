@@ -60,8 +60,8 @@ const SettingsView = () => {
         if (!supportedTypes) return
         for (const type of supportedTypes) {
             if (type.name === selectedType) {
-                const left = (screen.width - AUTH_WINDOW_WIDTH) / 2;
-                const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4;
+                const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
+                const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
                 const win = window.open(
                     type.authorization_url,
                     type.name,
@@ -91,9 +91,11 @@ const SettingsView = () => {
                 <SectionHeader sectionName="Settings" allowRefresh={false} />
                 <AccountsContainer>
                     <FullWidthSelect value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
-                        <option value="add" >Add new account</option>
+                        <option value="add">Add new account</option>
                         {supportedTypes?.map((type, i) => (
-                            <option key={i} value={type.name}>{type.name}</option>
+                            <option key={i} value={type.name}>
+                                {type.name}
+                            </option>
                         ))}
                     </FullWidthSelect>
                 </AccountsContainer>
@@ -118,7 +120,6 @@ const SettingsView = () => {
                 ))}
             </SettingsViewContainer>
         </ScrollViewMimic>
-
     )
 }
 
