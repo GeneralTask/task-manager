@@ -60,7 +60,7 @@ export const BodyTextArea = styled.textarea`
     width: 100%;
     display: block;
     background-color: inherit;
-    border: none;
+    border: 1px solid transparent;
     resize: none;
     outline: none;
     overflow: auto;
@@ -71,8 +71,8 @@ export const BodyTextArea = styled.textarea`
     height: 250px;
     box-sizing: border-box;
     :focus {
-        box-shadow: inset 0 0 0 1px ${Colors.gray._500};
-    }
+        border: 1px solid ${Colors.gray._500};
+}
 `
 export const FlexGrowView = styled.div`
     flex: 1;
