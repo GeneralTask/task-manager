@@ -15,6 +15,7 @@ import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
 import { Spacing } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import { useCallback, useRef } from 'react'
 
 const MarginRight16 = styled.div`
     margin-right: ${Spacing.margin._16}px;
@@ -33,9 +34,10 @@ const TaskDetails = (props: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
-
     const [labelEditorShown, setLabelEditorShown] = useState(false)
+
     const titleRef = createRef<HTMLTextAreaElement>()
+    const syncTimer = useRef<NodeJS.Timeout>()
 
     const syncIndicatorText = useMemo(() => {
         if (isEditing) return 'Editing...'
@@ -70,10 +72,19 @@ const TaskDetails = (props: TaskDetailsProps) => {
         }
     }, [titleInput])
 
-    const handleBlur = () => {
+    const syncDetails = useCallback(() => {
+        if (syncTimer.current) clearTimeout(syncTimer.current)
         setIsEditing(false)
         modifyTask({ id: task.id, title: titleInput, body: bodyInput })
-    }
+    }, [titleInput, bodyInput, task.id, modifyTask])
+
+    const onEdit = useCallback(() => {
+        setIsEditing(true)
+        if (syncTimer.current) clearTimeout(syncTimer.current)
+        syncTimer.current = setTimeout(syncDetails, 1000)
+    }, [syncDetails])
+
+    useEffect(onEdit, [titleInput, bodyInput])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
         if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
@@ -111,11 +122,8 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     ref={titleRef}
                     onKeyDown={handleKeyDown}
                     value={titleInput}
-                    onChange={(e) => {
-                        setTitleInput(e.target.value)
-                        setIsEditing(true)
-                    }}
-                    onBlur={handleBlur}
+                    onChange={(e) => setTitleInput(e.target.value)}
+                    onBlur={syncDetails}
                 />
             }
             subtitle={
@@ -130,12 +138,9 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     <BodyTextArea
                         placeholder="Add task details"
                         value={bodyInput}
-                        onChange={(e) => {
-                            setBodyInput(e.target.value)
-                            setIsEditing(true)
-                        }}
+                        onChange={(e) => setBodyInput(e.target.value)}
                         onKeyDown={(e) => e.stopPropagation()}
-                        onBlur={handleBlur}
+                        onBlur={syncDetails}
                     />
                 )
             }
