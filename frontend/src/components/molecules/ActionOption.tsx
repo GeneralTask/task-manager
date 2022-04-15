@@ -12,7 +12,11 @@ import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import { useClickOutside } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 
+const ButtonAndPopoverContainer = styled.div`
+    position: relative;
+`
 const ActionButton = styled(NoStyleButton)`
     display: flex;
     flex-direction: row;
@@ -48,21 +52,23 @@ const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOpt
         !isShown
     )
 
-    const { icon, component, actionString } = (() => {
+    const { icon, popover, actionString } = (() => {
         return {
             icon: icons.label,
-            component: <LabelEditor task_id={task.id} closeLabelEditor={() => setIsShown(false)} />,
-            actionString: ''
+            popover: <LabelEditor task_id={task.id} closeLabelEditor={() => setIsShown(false)} />,
+            actionString: '',
         }
     })()
 
     return (
-        <div ref={actionRef}>
+        <ButtonAndPopoverContainer ref={actionRef}>
             <ActionButton onClick={() => setIsShown(!isShown)}>
-                {actionString ? <ActionValue value={actionString} /> : <Icon source={icon} size="small" />}
-                {isShown && component}
+                <TooltipWrapper inline dataTip="Label" tooltipId="tooltip">
+                    {actionString ? <ActionValue value={actionString} /> : <Icon source={icon} size="small" />}
+                </TooltipWrapper>
             </ActionButton>
-        </div>
+            {isShown && popover}
+        </ButtonAndPopoverContainer>
     )
 }
 

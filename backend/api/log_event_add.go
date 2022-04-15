@@ -1,7 +1,7 @@
 package api
 
 import (
-	"log"
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -16,7 +16,7 @@ func (api *API) LogEventAdd(c *gin.Context) {
 	var params LogEventParams
 	err := c.BindJSON(&params)
 	if err != nil {
-		log.Printf("error: %v", err)
+		log.Error().Msgf("error: %v", err)
 		c.JSON(400, gin.H{"detail": "invalid or missing 'event_type' parameter."})
 		return
 	}
@@ -31,7 +31,7 @@ func (api *API) LogEventAdd(c *gin.Context) {
 	userID, _ := c.Get("user")
 	err = database.InsertLogEvent(db, userID.(primitive.ObjectID), params.EventType)
 	if err != nil {
-		log.Printf("failed to insert waitlist entry: %v", err)
+		log.Error().Msgf("failed to insert waitlist entry: %v", err)
 		Handle500(c)
 		return
 	}

@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"strings"
 	"time"
 
@@ -42,18 +42,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 	emails := []*database.Item{}
 
-	client := getGoogleHttpClient(db, userID, accountID)
-	if client == nil {
-		log.Printf("failed to fetch google API token")
-		result <- emptyEmailResultWithSource(errors.New("failed to fetch google API token"), TASK_SOURCE_ID_GMAIL)
-		return
-	}
-
-	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
-	defer cancel()
-	gmailService, err := gmail.NewService(extCtx, option.WithHTTPClient(client))
+	gmailService, err := createGmailService(gmailSource.Google.OverrideURLs.GmailFetchURL, db, userID, accountID, &gmailSource, parentCtx)
 	if err != nil {
-		log.Printf("unable to create Gmail service: %v", err)
+		log.Error().Msgf("unable to create Gmail service: %v", err)
 		result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		return
 	}
@@ -61,7 +52,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	// loads the most recent 100 threads in the inbox
 	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox").Do()
 	if err != nil {
-		log.Printf("failed to load Gmail threads for user: %v", err)
+		log.Error().Msgf("failed to load Gmail threads for user: %v", err)
 		isBadToken := strings.Contains(err.Error(), "invalid_grant")
 		result <- EmailResult{
 			Emails:     []*database.Item{},
@@ -80,7 +71,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	for _, threadChannel := range threadChannels {
 		thread := <-threadChannel
 		if thread == nil {
-			log.Printf("failed to load thread: %v", err)
+			log.Error().Msgf("failed to load thread: %v", err)
 			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			return
 		}
@@ -133,7 +124,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			for _, messagePart := range messageParts {
 				parsedBody, err := parseMessagePartBody(messagePart.MimeType, messagePart.Body)
 				if err != nil {
-					log.Printf("failed to parse message body: %v", err)
+					log.Error().Msgf("failed to parse message body: %v", err)
 					continue
 				}
 				if messagePart.MimeType == "text/html" {
@@ -160,11 +151,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 			senderName, senderEmail := utils.ExtractSenderName(sender)
 			senderDomain := utils.ExtractEmailDomain(senderEmail)
-
-			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
-
 			recipients := *GetRecipients(message.Payload.Headers)
 
+			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate, 0))
 			if timeSent > mostRecentEmailTimestamp {
 				mostRecentEmailTimestamp = timeSent
 			}
@@ -255,7 +244,7 @@ func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []d
 func getThreadFromGmail(gmailService *gmail.Service, threadID string, result chan<- *gmail.Thread) {
 	thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
 	if err != nil {
-		log.Printf("failed to load thread: %v", err)
+		log.Error().Msgf("failed to load thread: %v", err)
 		result <- nil
 		return
 	}
@@ -287,7 +276,7 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 	data := body.Data
 	bodyData, err := base64.URLEncoding.DecodeString(data)
 	if err != nil {
-		log.Printf("failed to decode email body: %v", err)
+		log.Error().Msgf("failed to decode email body: %v", err)
 		return nil, err
 	}
 
@@ -296,7 +285,7 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 	if mimeType == "text/plain" {
 		formattedBody, err := templating.FormatPlainTextAsHTML(bodyString)
 		if err != nil {
-			log.Printf("failed to decode email body: %v", err)
+			log.Error().Msgf("failed to decode email body: %v", err)
 			return nil, err
 		} else {
 			bodyString = formattedBody
@@ -342,13 +331,13 @@ func (gmailSource GmailSource) MarkAsDone(userID primitive.ObjectID, accountID s
 	}
 
 	if err != nil {
-		log.Printf("unable to create Gmail service: %v", err)
+		log.Error().Msgf("unable to create Gmail service: %v", err)
 		return err
 	}
 
 	doneSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailDonePreference)
 	if err != nil {
-		log.Printf("failed to load user setting: %s", err)
+		log.Error().Msgf("failed to load user setting: %s", err)
 		return err
 	}
 	var labelToRemove string
@@ -358,7 +347,7 @@ func (gmailSource GmailSource) MarkAsDone(userID primitive.ObjectID, accountID s
 	case settings.ChoiceKeyMarkAsRead:
 		labelToRemove = "UNREAD"
 	default:
-		log.Printf("invalid done user setting: %s", *doneSetting)
+		log.Error().Msgf("invalid done user setting: %s", *doneSetting)
 		return err
 	}
 
@@ -367,7 +356,7 @@ func (gmailSource GmailSource) MarkAsDone(userID primitive.ObjectID, accountID s
 		emailID,
 		&gmail.ModifyMessageRequest{RemoveLabelIds: []string{labelToRemove}},
 	).Do()
-	log.Println("resulting message:", message)
+	log.Print("resulting message:", message)
 
 	return err
 }
@@ -413,33 +402,13 @@ func (gmailSource GmailSource) SendEmail(userID primitive.ObjectID, accountID st
 	return err
 }
 
-func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error {
+func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
 	}
 	defer dbCleanup()
-	client := getGoogleHttpClient(db, userID, accountID)
-
-	var gmailService *gmail.Service
-
-	if gmailSource.Google.OverrideURLs.GmailReplyURL != nil {
-		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
-		defer cancel()
-		gmailService, err = gmail.NewService(
-			extCtx,
-			option.WithoutAuthentication(),
-			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailReplyURL),
-		)
-	} else {
-		extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
-		defer cancel()
-		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
-	}
-	if err != nil {
-		return err
-	}
 
 	var userObject database.User
 	userCollection := database.GetUserCollection(db)
@@ -447,21 +416,23 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
+		log.Printf("Could not find user, err: %+v", err)
 		return err
 	}
 
-	var email database.Item
-	taskCollection := database.GetTaskCollection(db)
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = taskCollection.FindOne(dbCtx, bson.M{"$and": []bson.M{{"_id": taskID}, {"user_id": userID}}}).Decode(&email)
+	email, err := database.GetEmailFromMessageID(parentCtx, messageID, userID)
 	if err != nil {
+		log.Printf("Could not find message in DB, err: %+v", err)
 		return err
 	}
 
-	messageResponse, err := gmailService.Users.Messages.Get("me", email.IDExternal).Do()
-
+	gmailService, err := createGmailService(gmailSource.Google.OverrideURLs.GmailSendURL, db, userID, accountID, &gmailSource, parentCtx)
 	if err != nil {
+		return err
+	}
+	messageResponse, err := gmailService.Users.Messages.Get("me", email.EmailID).Do()
+	if err != nil {
+		log.Printf("Could not get message from gmail, err: %+v", err)
 		return err
 	}
 
@@ -530,7 +501,7 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 
 	messageToSend := gmail.Message{
 		Raw:      base64.URLEncoding.EncodeToString(msg),
-		ThreadId: email.Email.ThreadID,
+		ThreadId: email.ThreadID,
 	}
 
 	_, err = gmailService.Users.Messages.Send("me", &messageToSend).Do()
@@ -577,7 +548,7 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 	}
 
 	if err != nil {
-		log.Printf("unable to create Gmail service: %v", err)
+		log.Error().Msgf("unable to create Gmail service: %v", err)
 		return err
 	}
 
@@ -640,7 +611,7 @@ func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToCh
 		emailID,
 		&modifyRequest,
 	).Do()
-	log.Println("resulting message:", message)
+	log.Print("resulting message:", message)
 
 	return err
 }
@@ -719,6 +690,10 @@ func createGmailService(overrideURL *string, db *mongo.Database, userID primitiv
 		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
 		defer cancel()
 		client := getGoogleHttpClient(db, userID, accountID)
+		if client == nil {
+			log.Printf("failed to fetch google API token")
+			return nil, errors.New("failed to fetch google API token")
+		}
 		gmailService, err = gmail.NewService(extCtx, option.WithHTTPClient(client))
 	}
 	if err != nil {

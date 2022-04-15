@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"log"
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -37,7 +37,7 @@ func (api *API) UserInfoGet(c *gin.Context) {
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
-		log.Printf("failed to find user: %v", err)
+		log.Error().Msgf("failed to find user: %v", err)
 		Handle500(c)
 		return
 	}
@@ -52,7 +52,7 @@ func (api *API) UserInfoUpdate(c *gin.Context) {
 	var params UserInfoParams
 	err := c.BindJSON(&params)
 	if err != nil {
-		log.Printf("error: %v", err)
+		log.Error().Msgf("error: %v", err)
 		c.JSON(400, gin.H{"detail": "invalid or missing parameters."})
 		return
 	}

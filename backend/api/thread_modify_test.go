@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -56,7 +57,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 						Cc:  []database.Recipient{{Name: "p2", Email: "p2@gmail.com"}},
 						Bcc: []database.Recipient{{Name: "p3", Email: "p3@gmail.com"}},
 					},
-					SentAt: createTimestamp("2019-04-20"),
+					SentAt: *testutils.CreateDateTime("2019-04-20"),
 				},
 				{
 					SMTPID:       "sample_smtp_1",
@@ -67,7 +68,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 					SenderEmail:  "test@generaltask.com",
 					SenderName:   "test",
 					IsUnread:     true,
-					SentAt:       createTimestamp("2018-04-20"),
+					SentAt:       *testutils.CreateDateTime("2018-04-20"),
 				},
 			},
 		},
@@ -251,7 +252,7 @@ func TestMarkThreadAsTask(t *testing.T) {
 						Cc:  []database.Recipient{{Name: "p2", Email: "p2@gmail.com"}},
 						Bcc: []database.Recipient{{Name: "p3", Email: "p3@gmail.com"}},
 					},
-					SentAt: createTimestamp("2019-04-20"),
+					SentAt: *testutils.CreateDateTime("2019-04-20"),
 				},
 				{
 					SMTPID:       "sample_smtp_1",
@@ -261,7 +262,7 @@ func TestMarkThreadAsTask(t *testing.T) {
 					SenderDomain: "gmail",
 					SenderEmail:  "test@generaltask.com",
 					SenderName:   "test",
-					SentAt:       createTimestamp("2018-04-20"),
+					SentAt:       *testutils.CreateDateTime("2018-04-20"),
 				},
 			},
 		},

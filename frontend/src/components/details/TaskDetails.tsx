@@ -8,7 +8,6 @@ import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
-import TooltipWrapper from '../atoms/TooltipWrapper'
 import { logos } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
@@ -117,14 +116,12 @@ const TaskDetails = (props: TaskDetailsProps) => {
                             </a>
                         )}
                     </MarginRight16>
-                    <TooltipWrapper inline dataTip="Label" tooltipId="tooltip">
-                        <ActionOption
-                            isShown={labelEditorShown}
-                            setIsShown={setLabelEditorShown}
-                            task={task}
-                            keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
-                        />
-                    </TooltipWrapper>
+                    <ActionOption
+                        isShown={labelEditorShown}
+                        setIsShown={setLabelEditorShown}
+                        task={task}
+                        keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
+                    />
                 </>
             }
             title={
