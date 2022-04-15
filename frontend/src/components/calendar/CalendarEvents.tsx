@@ -26,7 +26,7 @@ import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
 import { useAppSelector } from '../../redux/hooks'
 import { useGetEvents } from '../../services/api-query-hooks'
-import { useInterval } from '../../utils/hooks'
+import useInterval from '../../hooks/useInterval'
 
 function CalendarDayTable(): JSX.Element {
     const hourElements = Array(24)
@@ -108,21 +108,12 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
 
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
-        return blocks.map(block => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
+        return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     }, [date])
     const events: TEvent[] = []
-    const { data: eventPreviousMonth, refetch: refetchPreviousMonth } = useGetEvents(
-        monthBlocks[0],
-        'calendar'
-    )
-    const { data: eventsCurrentMonth, refetch: refetchCurrentMonth } = useGetEvents(
-        monthBlocks[1],
-        'calendar'
-    )
-    const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(
-        monthBlocks[2],
-        'calendar'
-    )
+    const { data: eventPreviousMonth, refetch: refetchPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
+    const { data: eventsCurrentMonth, refetch: refetchCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
+    const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
     events.push(...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? []))
 
     useInterval(

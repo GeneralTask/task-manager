@@ -14,8 +14,15 @@
   },
   "lint-staged": {
     "*.tsx": [
-      "prettier --config .prettierrc --write"
+      "prettier --write"
     ]
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 120
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.2",

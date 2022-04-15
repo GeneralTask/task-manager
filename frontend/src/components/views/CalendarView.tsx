@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useIdleTimer } from 'react-idle-timer'
 
 import { useAppSelector } from '../../redux/hooks'
-import { useInterval } from '../../utils/hooks'
+import { useInterval } from '../../hooks'
 import CalendarEvents from '../calendar/CalendarEvents'
 import { CalendarContainer } from '../calendar/CalendarEvents-styles'
 import CalendarHeader from '../calendar/CalendarHeader'

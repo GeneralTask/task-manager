@@ -25,9 +25,13 @@ const NavigationViewContainer = styled.div`
     box-sizing: border-box;
 `
 const NavigationViewHeader = styled.div`
-    height: 24px;
+    flex-basis: 24px;
     width: 100%;
     margin-bottom: ${margin._16}px;
+`
+const OverflowContainer = styled.div`
+    flex: 1;
+    overflow: auto;
 `
 const AddSectionView = styled.div`
     display: flex;
@@ -38,9 +42,6 @@ const AddSectionView = styled.div`
     border-style: solid;
     border-color: transparent;
     align-items: center;
-`
-const IconWidth = styled.div`
-    width: fit-content;
 `
 const AddSectionInputView = styled.div`
     font-weight: ${weight._600};
@@ -63,38 +64,36 @@ const NavigationView = () => {
     const { mutate: addTaskSection } = useAddTaskSection()
     const { pathname } = useLocation()
 
-    // const showLoadingSections = isLoading || !taskSections
-
     return (
         <NavigationViewContainer>
             <NavigationViewHeader>
                 <Icon size="medium" />
             </NavigationViewHeader>
-            {taskSections !== undefined ? (
-                <NavigationSectionLinks
-                    taskSections={taskSections}
-                    sectionId={sectionIdParam || ''}
-                    pathName={pathname}
-                />
-            ) : (
-                <Loading />
-            )}
-            <AddSectionView>
-                <IconWidth>
-                    <Icon size="small" source={icons.plus} />
-                </IconWidth>
-                <AddSectionInputView>
-                    <NoStyleInput
-                        value={sectionName}
-                        onChange={(e) => setSectionName(e.target.value)}
-                        placeholder={'Add Section'}
-                        onSubmit={() => {
-                            setSectionName('')
-                            addTaskSection({ name: sectionName })
-                        }}
+            <OverflowContainer>
+                {taskSections ? (
+                    <NavigationSectionLinks
+                        taskSections={taskSections}
+                        sectionId={sectionIdParam || ''}
+                        pathName={pathname}
                     />
-                </AddSectionInputView>
-            </AddSectionView>
+                ) : (
+                    <Loading />
+                )}
+                <AddSectionView>
+                    <Icon size="small" source={icons.plus} />
+                    <AddSectionInputView>
+                        <NoStyleInput
+                            value={sectionName}
+                            onChange={(e) => setSectionName(e.target.value)}
+                            placeholder={'Add Section'}
+                            onSubmit={() => {
+                                setSectionName('')
+                                addTaskSection({ name: sectionName })
+                            }}
+                        />
+                    </AddSectionInputView>
+                </AddSectionView>
+            </OverflowContainer>
             <GapView>
                 <FeedbackButton />
                 <RoundedGeneralButton value="Sign Out" textStyle="dark" onPress={() => authSignOut(dispatch)} />

@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"log"
+	"github.com/rs/zerolog/log"
 	"sort"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -31,7 +31,7 @@ func (api *API) TasksListV3(c *gin.Context) {
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
-		log.Printf("failed to find user: %v", err)
+		log.Error().Msgf("failed to find user: %v", err)
 		Handle500(c)
 		return
 	}
@@ -99,7 +99,7 @@ func (api *API) extractSectionTasksV3(
 ) ([]*TaskSection, error) {
 	userSections, err := database.GetTaskSections(db, userID)
 	if err != nil {
-		log.Printf("failed to fetch task sections: %+v", err)
+		log.Error().Msgf("failed to fetch task sections: %+v", err)
 		return []*TaskSection{}, err
 	}
 	resultSections := []*TaskSection{

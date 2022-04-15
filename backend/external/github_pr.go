@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"strings"
 	"time"
 
@@ -52,7 +52,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
 	if token == nil {
-		log.Printf("failed to fetch Github API token")
+		log.Error().Msgf("failed to fetch Github API token")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
 		return
 	}
@@ -72,14 +72,14 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	defer cancel()
 	githubUser, _, err := githubClient.Users.Get(extCtx, CurrentlyAuthedUserFilter)
 	if err != nil || githubUser == nil {
-		log.Println("failed to fetch Github user")
+		log.Error().Msg("failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
 		return
 	}
 
 	repos, _, err := githubClient.Repositories.List(extCtx, CurrentlyAuthedUserFilter, nil)
 	if err != nil {
-		log.Println("failed to fetch Github repos for user")
+		log.Error().Msg("failed to fetch Github repos for user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
 		return
 	}
@@ -143,7 +143,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			nil,
 			false)
 		if err != nil {
-			log.Printf("failed to update or create pull request: %v", err)
+			log.Error().Msgf("failed to update or create pull request: %v", err)
 			result <- emptyPullRequestResult(err)
 			return
 		}
@@ -188,7 +188,7 @@ func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bo
 	return false
 }
 
-func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error {
+func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
 	return errors.New("cannot reply to a PR")
 }
 

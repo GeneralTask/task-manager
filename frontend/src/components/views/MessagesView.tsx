@@ -7,7 +7,7 @@ import Message from '../molecules/Message'
 import MessageDetails from '../details/MessageDetails'
 import { SectionHeader } from '../molecules/Header'
 import TaskTemplate from '../atoms/TaskTemplate'
-import { useInterval } from '../../utils/hooks'
+import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import styled from 'styled-components'
 
