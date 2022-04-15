@@ -209,6 +209,13 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
 	).Decode(&user)
 
+	userCollection.FindOneAndUpdate(
+		dbCtx,
+		bson.M{"google_id": userInfo.SUB},
+		bson.M{"$setOnInsert": &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}},
+		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+	).Decode(&user)
+
 	if user.ID == primitive.NilObjectID {
 		log.Error().Msgf("unable to create user")
 		return primitive.NilObjectID, &userIsNew, nil, err

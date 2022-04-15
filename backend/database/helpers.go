@@ -80,6 +80,38 @@ func UpdateOrCreateTask(
 	return &item, nil
 }
 
+func UpdateOrCreateRecord(
+	ctx context.Context,
+	collection *mongo.Collection,
+	dbQuery bson.M,
+	fieldsToInsertIfMissing interface{},
+	fieldsToUpdate interface{},
+) (*mongo.SingleResult, error) {
+	// Unfortunately you cannot put both $set and $setOnInsert, so they are separate operations
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	log.Debug().Msgf("dbQuery: %+v", dbQuery)
+	log.Debug().Msgf("fieldsToInsertIfMissing: %+v", fieldsToInsertIfMissing)
+	log.Debug().Msgf("fieldsToUpdate: %+v", fieldsToUpdate)
+	_, err := collection.UpdateOne(
+		dbCtx,
+		dbQuery,
+		bson.M{"$setOnInsert": fieldsToInsertIfMissing},
+		options.Update().SetUpsert(true),
+	)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to update or create task")
+		return nil, err
+	}
+
+	mongoResult := collection.FindOneAndUpdate(
+		dbCtx,
+		dbQuery,
+		bson.M{"$set": fieldsToUpdate},
+	)
+	return mongoResult, nil
+}
+
 func GetEmailFromMessageID(ctx context.Context, messageID primitive.ObjectID, userID primitive.ObjectID) (*Email, error) {
 	parentCtx := ctx
 	db, dbCleanup, err := GetDBConnection()
