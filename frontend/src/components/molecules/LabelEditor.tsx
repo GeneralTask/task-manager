@@ -54,20 +54,31 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
     const params = useParams()
     const current_section_id = params.section || ''
 
-    const options = data?.map(section => {
+    const options = data?.map((section) => {
         if (section.is_done || section.id === current_section_id) return
         return (
-            <RoundedGeneralButton key={section.id} value={section.name} hasBorder={true} textStyle={'dark'} onPress={() => {
-                reorderTask({ taskId: task_id, dropSectionId: section.id, orderingId: 1, dragSectionId: current_section_id })
-                closeLabelEditor()
-                navigate(`/tasks/${current_section_id}`)
-                dispatch(setSelectedItemId(null))
-            }} />
+            <RoundedGeneralButton
+                key={section.id}
+                value={section.name}
+                hasBorder={true}
+                textStyle={'dark'}
+                onPress={() => {
+                    reorderTask({
+                        taskId: task_id,
+                        dropSectionId: section.id,
+                        orderingId: 1,
+                        dragSectionId: current_section_id,
+                    })
+                    closeLabelEditor()
+                    navigate(`/tasks/${current_section_id}`)
+                    dispatch(setSelectedItemId(null))
+                }}
+            />
         )
     })
 
     return (
-        <LabelEditorContainer onClick={e => e.stopPropagation()}>
+        <LabelEditorContainer onClick={(e) => e.stopPropagation()}>
             <TopNav>
                 <Header>Set Label</Header>
             </TopNav>

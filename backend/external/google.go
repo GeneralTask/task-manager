@@ -21,6 +21,7 @@ type GoogleURLOverrides struct {
 	GmailModifyURL   *string
 	GmailReplyURL    *string
 	GmailSendURL     *string
+	GmailFetchURL    *string
 }
 
 type GoogleService struct {

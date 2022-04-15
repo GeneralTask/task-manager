@@ -1,15 +1,12 @@
 package api
 
 import (
-	"context"
 	"github.com/rs/zerolog/log"
 	"net/http"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -73,17 +70,14 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
 		return
 	}
+
 	messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
 	if err != nil {
 		log.Error().Msgf("could not parse message id with error: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "could not parse message id"})
 		return
 	}
-	err = checkMesageBelongsToUser(userID, messageID)
-	if err != nil {
-		Handle404(c)
-		return
-	}
+
 	contents := external.EmailContents{
 		Recipients: requestParams.Recipients,
 		Body:       *requestParams.Body,
@@ -95,22 +89,4 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{})
-}
-
-func checkMesageBelongsToUser(userID primitive.ObjectID, messageID primitive.ObjectID) error {
-	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return err
-	}
-	defer dbCleanup()
-
-	taskCollection := database.GetTaskCollection(db)
-	var taskBase database.TaskBase
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{{"_id": messageID}, {"user_id": userID}}}).Decode(&taskBase)
-	return err
 }

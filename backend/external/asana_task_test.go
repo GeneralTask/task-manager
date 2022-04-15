@@ -175,7 +175,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 				IsTask: true,
 			},
 		}
-		database.GetOrCreateTask(
+		database.GetOrCreateItem(
 			db,
 			userID,
 			"6942069420",

@@ -2,7 +2,13 @@ import { DateTime } from 'luxon'
 import React from 'react'
 import { TEvent } from '../../utils/types'
 import {
-    CELL_HEIGHT, EventBodyStyle, EventFill, EventInfo, EventInfoContainer, EventTime, EventTitle
+    CELL_HEIGHT,
+    EventBodyStyle,
+    EventFill,
+    EventInfo,
+    EventInfoContainer,
+    EventTime,
+    EventTitle,
 } from './CalendarEvents-styles'
 
 const LONG_EVENT_THRESHOLD = 45 // minutes
@@ -22,7 +28,9 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const endedAfterToday = endTime >= props.date.endOf('day')
 
     const top = startedBeforeToday ? 0 : CELL_HEIGHT * startTime.diff(props.date.startOf('day'), 'hours').hours
-    const bottom = endedAfterToday ? CELL_HEIGHT * 24 : CELL_HEIGHT * endTime.diff(props.date.startOf('day'), 'hours').hours
+    const bottom = endedAfterToday
+        ? CELL_HEIGHT * 24
+        : CELL_HEIGHT * endTime.diff(props.date.startOf('day'), 'hours').hours
     const eventBodyHeight = Math.max(bottom - top, MINIMUM_BODY_HEIGHT)
 
     const startTimeString = startTime.toFormat('h:mm') // ex: 3:00

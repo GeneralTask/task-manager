@@ -234,8 +234,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 
 	isCompleted := false
 	for _, task := range tasks {
-		var dbTask database.Item
-		res, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			task.IDExternal,
@@ -251,14 +250,9 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 				IsCompleted: &isCompleted,
 			},
 			nil,
+			false,
 		)
 		if err != nil {
-			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
-			return
-		}
-		err = res.Decode(&dbTask)
-		if err != nil {
-			log.Error().Msgf("failed to update or create task: %v", err)
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
@@ -359,7 +353,7 @@ func (jira JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken s
 	return err
 }
 
-func (jira JIRASource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, emailContents EmailContents) error {
+func (jira JIRASource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
 	return errors.New("cannot reply to a JIRA task")
 }
 

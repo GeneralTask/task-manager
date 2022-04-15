@@ -19,7 +19,6 @@ const JoinMeetingButtonContainer = styled(NoStyleButton)`
 const ButtonText = styled.span`
     color: ${Colors.white};
     margin-right: 5px;
-    
 `
 
 interface JoinMeetingButtonProps {
@@ -33,6 +32,5 @@ const JoinMeetingButton = ({ conferenceCall }: JoinMeetingButtonProps) => (
         </JoinMeetingButtonContainer>
     </NoStyleAnchor>
 )
-
 
 export default JoinMeetingButton
