@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"errors"
-	"log"
+	"github.com/rs/zerolog/log"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -61,7 +61,7 @@ func (api *API) TaskModify(c *gin.Context) {
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
 	if err != nil {
-		log.Printf("failed to load external task source: %v", err)
+		log.Error().Msgf("failed to load external task source: %v", err)
 		Handle500(c)
 		return
 	}
@@ -75,7 +75,7 @@ func (api *API) TaskModify(c *gin.Context) {
 		// update external task
 		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskChangeableFields)
 		if err != nil {
-			log.Printf("failed to update external task source: %v", err)
+			log.Error().Msgf("failed to update external task source: %v", err)
 			Handle500(c)
 			return
 		}
@@ -147,7 +147,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		bson.M{"$set": updateFields},
 	)
 	if err != nil {
-		log.Printf("failed to update task in db: %v", err)
+		log.Error().Msgf("failed to update task in db: %v", err)
 		Handle500(c)
 		return err
 	}
@@ -169,7 +169,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		bson.M{"$inc": bson.M{"id_ordering": 1}},
 	)
 	if err != nil {
-		log.Printf("failed to move back other tasks in db: %v", err)
+		log.Error().Msgf("failed to move back other tasks in db: %v", err)
 		Handle500(c)
 		return err
 	}
@@ -223,12 +223,12 @@ func UpdateTaskInDB(api *API, c *gin.Context, taskID primitive.ObjectID, userID 
 		bson.M{"$set": updateFields},
 	)
 	if err != nil {
-		log.Printf("failed to update internal DB: %v", err)
+		log.Error().Msgf("failed to update internal DB: %v", err)
 		Handle500(c)
 		return
 	}
 	if res.MatchedCount != 1 {
-		log.Println("failed to update task", res)
+		log.Print("failed to update task", res)
 		Handle500(c)
 		return
 	}
