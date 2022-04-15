@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"errors"
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -51,7 +51,7 @@ func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 }
 
 func (api *API) Ping(c *gin.Context) {
-	log.Println("success!")
+	log.Info().Msg("success!")
 	c.JSON(200, "success")
 }
 
@@ -79,7 +79,7 @@ func TokenMiddleware(c *gin.Context) {
 	defer cancel()
 	err = internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": token}).Decode(&internalToken)
 	if err != nil {
-		log.Printf("auth failed: %v\n", err)
+		log.Error().Msgf("auth failed: %v\n", err)
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
 		return
 	}

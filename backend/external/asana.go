@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -62,23 +62,23 @@ func (asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 	defer cancel()
 	token, err := asana.Config.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
-		log.Printf("failed to fetch token from Asana: %v", err)
+		log.Error().Msgf("failed to fetch token from Asana: %v", err)
 		return errors.New("internal server error")
 	}
 	tokenExtra := token.Extra("data")
 	if tokenExtra == nil {
-		log.Println("missing 'data' from token response")
+		log.Error().Msg("missing 'data' from token response")
 		return errors.New("internal server error")
 	}
 	accountEmail, ok := tokenExtra.(map[string]interface{})["email"]
 	if !ok {
-		log.Println("missing 'email' in 'data' from token response")
+		log.Error().Msg("missing 'email' in 'data' from token response")
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		log.Printf("error parsing token: %v", err)
+		log.Error().Msgf("error parsing token: %v", err)
 		return errors.New("internal server error")
 	}
 
@@ -101,7 +101,7 @@ func (asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Printf("error saving token: %v", err)
+		log.Error().Msgf("error saving token: %v", err)
 		return errors.New("internal server error")
 	}
 

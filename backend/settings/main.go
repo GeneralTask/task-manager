@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -89,7 +89,7 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 			return &setting.DefaultChoice, nil
 		}
 	}
-	log.Printf("invalid setting: %s", fieldKey)
+	log.Error().Msgf("invalid setting: %s", fieldKey)
 	return nil, fmt.Errorf("invalid setting: %s", fieldKey)
 }
 
@@ -131,7 +131,7 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Printf("failed to update user setting: %v", err)
+		log.Error().Msgf("failed to update user setting: %v", err)
 		return errors.New("internal server error")
 	}
 	return nil

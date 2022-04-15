@@ -1,12 +1,13 @@
 package api
 
 import (
+	"github.com/rs/zerolog/log"
+	"net/http"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"log"
-	"net/http"
 )
 
 type messageComposeParams struct {
@@ -22,7 +23,7 @@ func (api *API) MessageCompose(c *gin.Context) {
 	var requestParams messageComposeParams
 	err := c.BindJSON(&requestParams)
 	if err != nil {
-		log.Printf("parameter missing or malformatted, error: %v", err)
+		log.Error().Msgf("parameter missing or malformatted, error: %v", err)
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
@@ -32,7 +33,7 @@ func (api *API) MessageCompose(c *gin.Context) {
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(requestParams.SourceID)
 	if err != nil {
-		log.Printf("failed to load external task source: %v", err)
+		log.Error().Msgf("failed to load external task source: %v", err)
 		c.JSON(400, gin.H{"detail": "invalid source id"})
 		return
 	}
@@ -56,7 +57,7 @@ func handleCompose(c *gin.Context, userID primitive.ObjectID, taskSourceResult *
 	}
 	err := taskSourceResult.Source.SendEmail(userID, requestParams.SourceAccountID, contents)
 	if err != nil {
-		log.Printf("failed to send email: %v", err)
+		log.Error().Msgf("failed to send email: %v", err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "failed to send email"})
 		return
 	}
@@ -72,7 +73,7 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 
 	messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
 	if err != nil {
-		log.Printf("could not parse message id with error: %v", err)
+		log.Error().Msgf("could not parse message id with error: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "could not parse message id"})
 		return
 	}
@@ -83,7 +84,7 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 	}
 	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, messageID, contents)
 	if err != nil {
-		log.Printf("unable to send email with error: %v", err)
+		log.Error().Msgf("unable to send email with error: %v", err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
 		return
 	}

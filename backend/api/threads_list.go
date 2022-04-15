@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"log"
+	"github.com/rs/zerolog/log"
 	"sort"
 	"time"
 
@@ -61,7 +61,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
-		log.Printf("failed to find user: %v", err)
+		log.Error().Msgf("failed to find user: %v", err)
 		Handle500(c)
 		return
 	}
@@ -72,6 +72,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
+
 	onlyUnread := false
 	if params.OnlyUnread != nil && *params.OnlyUnread {
 		onlyUnread = true
