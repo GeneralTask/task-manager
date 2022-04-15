@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE } from '../../constants'
 import { useGetEvents } from '../../services/api-query-hooks'
@@ -89,6 +89,7 @@ interface EventBannersProps {
     date: DateTime
 }
 const EventBanners = ({ date }: EventBannersProps) => {
+    const [eventsWithin15Minutes, setEventsWithin15Minutes] = useState<TEvent[]>([])
     const { data: events, refetch } = useGetEvents(
         {
             startISO: date.startOf('day').toISO(),
@@ -98,11 +99,22 @@ const EventBanners = ({ date }: EventBannersProps) => {
     )
     useInterval(refetch, EVENTS_REFETCH_INTERVAL)
 
-    const eventsWithin15Minutes = events?.filter((event) => {
-        const eventStart = DateTime.fromISO(event.datetime_start)
-        const eventEnd = DateTime.fromISO(event.datetime_end)
-        return eventStart < DateTime.now().plus({ minutes: 15 }) && eventEnd > DateTime.now()
-    })
+    // Every second check if the events are within 15 minutes or are currently happening
+    useInterval(
+        () => {
+            const updatedEvents = events?.filter((event) => {
+                const eventStart = DateTime.fromISO(event.datetime_start)
+                const eventEnd = DateTime.fromISO(event.datetime_end)
+                return eventStart < DateTime.now().plus({ minutes: 15 }) && eventEnd > DateTime.now()
+            })
+
+            if (updatedEvents && updatedEvents !== eventsWithin15Minutes) {
+                setEventsWithin15Minutes(updatedEvents)
+            }
+        },
+        1,
+        false
+    )
 
     if (!eventsWithin15Minutes || eventsWithin15Minutes.length === 0) return null
     return (
