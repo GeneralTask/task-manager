@@ -20,8 +20,6 @@ const DropdownContainer = styled.div<{ isSelected: boolean }>`
     ${(props) => props.isSelected && `background-color: ${Colors.gray._50};`};
 `
 const LinksContainer = styled.div`
-    flex-grow: 1;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     margin-left: ${Spacing.margin._24}px;
