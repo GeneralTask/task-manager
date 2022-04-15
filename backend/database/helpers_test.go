@@ -265,19 +265,88 @@ func TestGetEmails(t *testing.T) {
 	})
 }
 
+func TestGetEmailFromSMTPID(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	notUserID := primitive.NewObjectID()
+	thread1Email1 := createTestEmail("thread_1_email_1", true, createTimestamp("2017-04-20"), primitive.NewObjectID())
+	thread1Email2 := createTestEmail("thread_1_email_2", false, createTimestamp("2019-04-20"), primitive.NewObjectID())
+	thread2Email1 := createTestEmail("thread_2_email_1", false, createTimestamp("2016-04-20"), primitive.NewObjectID())
+	thread2Email2 := createTestEmail("thread_2_email_2", false, createTimestamp("2020-04-20"), primitive.NewObjectID())
+	thread3Email1 := createTestEmail("thread_3_email_1", true, createTimestamp("2015-04-20"), primitive.NewObjectID())
+	thread4Email1 := createTestEmail("thread_4_email_1", false, createTimestamp("2014-04-20"), primitive.NewObjectID())
+	// thread 4 does not belong to user
+
+	_, err = GetOrCreateItem(
+		db,
+		userID,
+		"email_thread_id_1",
+		"gmail",
+		createTestThread(userID, "email_thread_id_1", createTimestamp("2019-04-20"), &[]Email{*thread1Email1, *thread1Email2}),
+	)
+	assert.NoError(t, err)
+
+	_, err = GetOrCreateItem(
+		db,
+		userID,
+		"email_thread_id_2",
+		"gmail",
+		createTestThread(userID, "email_thread_id_2", createTimestamp("2020-04-20"), &[]Email{*thread2Email1, *thread2Email2}),
+	)
+	assert.NoError(t, err)
+
+	_, err = GetOrCreateItem(
+		db,
+		userID,
+		"email_thread_id_3",
+		"gmail",
+		createTestThread(userID, "email_thread_id_3", createTimestamp("2015-04-20"), &[]Email{*thread3Email1}),
+	)
+	assert.NoError(t, err)
+
+	_, err = GetOrCreateItem(
+		db,
+		notUserID,
+		"email_thread_id_4",
+		"gmail",
+		createTestThread(notUserID, "email_thread_id_4", createTimestamp("2014-04-20"), &[]Email{*thread4Email1}),
+	)
+	assert.NoError(t, err)
+
+	t.Run("EmailDoesNotBelongToUser", func(t *testing.T) {
+		_, err := GetEmailFromMessageID(context.Background(), thread4Email1.MessageID, userID)
+		assert.Error(t, err)
+	})
+	t.Run("Success", func(t *testing.T) {
+		email, err := GetEmailFromMessageID(context.Background(), thread2Email1.MessageID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, "thread_2_email_1", email.EmailID)
+
+		email, err = GetEmailFromMessageID(context.Background(), thread2Email2.MessageID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, "thread_2_email_2", email.EmailID)
+
+		email, err = GetEmailFromMessageID(context.Background(), thread3Email1.MessageID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, "thread_3_email_1", email.EmailID)
+	})
+}
+
 func TestGetEmailThreads(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
 	notUserID := primitive.NewObjectID()
-	thread1Email1 := createTestEmail("thread_1_email_1", true, createTimestamp("2017-04-20"))
-	thread1Email2 := createTestEmail("thread_1_email_2", false, createTimestamp("2019-04-20"))
-	thread2Email1 := createTestEmail("thread_2_email_1", false, createTimestamp("2016-04-20"))
-	thread2Email2 := createTestEmail("thread_2_email_2", false, createTimestamp("2020-04-20"))
-	thread3Email1 := createTestEmail("thread_3_email_1", true, createTimestamp("2015-04-20"))
-	thread4Email1 := createTestEmail("thread_4_email_1", false, createTimestamp("2014-04-20"))
-	thread5Email1 := createTestEmail("thread_5_email_1", false, createTimestamp("2014-04-20"))
+	thread1Email1 := createTestEmail("thread_1_email_1", true, createTimestamp("2017-04-20"), primitive.NewObjectID())
+	thread1Email2 := createTestEmail("thread_1_email_2", false, createTimestamp("2019-04-20"), primitive.NewObjectID())
+	thread2Email1 := createTestEmail("thread_2_email_1", false, createTimestamp("2016-04-20"), primitive.NewObjectID())
+	thread2Email2 := createTestEmail("thread_2_email_2", false, createTimestamp("2020-04-20"), primitive.NewObjectID())
+	thread3Email1 := createTestEmail("thread_3_email_1", true, createTimestamp("2015-04-20"), primitive.NewObjectID())
+	thread4Email1 := createTestEmail("thread_4_email_1", false, createTimestamp("2014-04-20"), primitive.NewObjectID())
+	thread5Email1 := createTestEmail("thread_5_email_1", false, createTimestamp("2014-04-20"), primitive.NewObjectID())
 	// Threads' LastUpdatedAt descending order should be [thread2, thread1, thread3, thread4]
 	// Unread threads should be [thread1, thread3]
 	// thread 5 does not belong to user
@@ -433,12 +502,13 @@ func createTestThread(userID primitive.ObjectID, externalID string, lastUpdatedA
 	}
 }
 
-func createTestEmail(externalID string, isUnread bool, createdAt time.Time) *Email {
+func createTestEmail(emailID string, isUnread bool, createdAt time.Time, messageID primitive.ObjectID) *Email {
 	return &Email{
-		EmailID:      externalID,
+		EmailID:      emailID,
 		SenderDomain: "gmail",
 		IsUnread:     isUnread,
 		SentAt:       primitive.NewDateTimeFromTime(createdAt),
+		MessageID:    messageID,
 	}
 }
 

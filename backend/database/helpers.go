@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/chidiwilliams/flatbson"
 	"log"
 	"time"
@@ -77,6 +78,40 @@ func UpdateOrCreateTask(
 		return nil, err
 	}
 	return &item, nil
+}
+
+func GetEmailFromMessageID(ctx context.Context, messageID primitive.ObjectID, userID primitive.ObjectID) (*Email, error) {
+	parentCtx := ctx
+	db, dbCleanup, err := GetDBConnection()
+	if err != nil {
+		log.Print("Failed to establish DB connection", err)
+		return nil, err
+	}
+	defer dbCleanup()
+	taskCollection := GetTaskCollection(db)
+
+	var thread Item
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	err = taskCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"email_thread.emails.message_id": messageID},
+			{"user_id": userID},
+		}},
+		options.FindOne().SetProjection(bson.M{"email_thread.emails.$": 1}),
+	).Decode(&thread)
+	if err != nil {
+		log.Printf("Failed to get email with messageID: %+v, error: %v", messageID, err)
+		return nil, err
+	}
+
+	if len(thread.EmailThread.Emails) == 0 {
+		log.Printf("Failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
+		return nil, fmt.Errorf("failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
+	}
+	return &thread.EmailThread.Emails[0], nil
 }
 
 func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Item, error) {
