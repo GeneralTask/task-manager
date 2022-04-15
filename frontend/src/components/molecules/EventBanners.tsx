@@ -85,6 +85,12 @@ const EventBanner = ({ event }: EventBannerProps) => {
     )
 }
 
+const isMettingWithin15Minutes = (event: TEvent) => {
+    const eventStart = DateTime.fromISO(event.datetime_start)
+    const eventEnd = DateTime.fromISO(event.datetime_end)
+    return eventStart < DateTime.now().plus({ minutes: 15 }) && eventEnd > DateTime.now()
+}
+
 interface EventBannersProps {
     date: DateTime
 }
@@ -99,15 +105,9 @@ const EventBanners = ({ date }: EventBannersProps) => {
     )
     useInterval(refetch, EVENTS_REFETCH_INTERVAL)
 
-    // Every second check if the events are within 15 minutes or are currently happening
     useInterval(
         () => {
-            const updatedEvents = events?.filter((event) => {
-                const eventStart = DateTime.fromISO(event.datetime_start)
-                const eventEnd = DateTime.fromISO(event.datetime_end)
-                return eventStart < DateTime.now().plus({ minutes: 15 }) && eventEnd > DateTime.now()
-            })
-
+            const updatedEvents = events?.filter((event) => isMettingWithin15Minutes(event))
             if (updatedEvents && updatedEvents !== eventsWithin15Minutes) {
                 setEventsWithin15Minutes(updatedEvents)
             }
