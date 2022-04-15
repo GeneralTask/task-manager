@@ -3,7 +3,7 @@ import getEnvVars from './environment'
 const { REACT_APP_API_BASE_URL } = getEnvVars()
 
 // Styling Constants
-export const TASK_ACTION_BASE_WIDTH = 150
+export const TASK_ACTION_BASE_WIDTH = 200
 
 // API Constants
 export const MESSAGES_PER_PAGE = 50
