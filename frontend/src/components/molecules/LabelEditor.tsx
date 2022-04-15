@@ -29,8 +29,8 @@ const Options = styled.div`
 `
 const TopNav = styled.div`
     display: flex;
-    justify-content: space-around;
-    padding: ${Spacing.padding._12}px 0;
+    padding: ${Spacing.padding._12}px ${Spacing.padding._16}px;
+    border-bottom: 1px solid ${Colors.gray._100};
 `
 const Header = styled.div`
     color: ${Colors.gray._600};
@@ -39,8 +39,8 @@ const ListItem = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: ${Spacing.padding._12}px;
-    border-bottom: 1px solid ${Colors.gray._200};
+    padding: ${Spacing.padding._12}px ${Spacing.padding._16}px;
+    border-bottom: 1px solid ${Colors.gray._100};
     &:hover {
         background-color: ${Colors.gray._100};
     }
@@ -95,7 +95,7 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
         return (
             <ListItem key={section.id} onClick={handleOnClick}>
                 <SectionTitleBox isSelected={isCurrentSection}>
-                    <Icon size={'small'} source={icons.inbox} />
+                    <Icon size={'small'} source={isCurrentSection ? icons.inbox_purple : icons.inbox} />
                     <SectionName>{section.name}</SectionName>
                 </SectionTitleBox>
                 {isCurrentSection && <Icon size={'xSmall'} source={icons.task_complete} />}
