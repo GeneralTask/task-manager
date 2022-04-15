@@ -28,6 +28,9 @@ const ValueContainer = styled.div`
 const Bold = styled.span`
     font-weight: bold;
 `
+const DetailsContainer = styled.div`
+    height: 20px;
+`
 const ExpandCollapse = styled(NoStyleButton)`
     width: 100%;
     display: flex;
@@ -62,6 +65,8 @@ interface EmailSenderDetailsProps {
 const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => {
     const [showDetails, setShowDetails] = useState(false)
 
+    const canShowMoreDetails = recipients.to.length > 1 || recipients.cc.length > 0 || recipients.bcc.length > 0
+
     useEffect(() => {
         setShowDetails(false)
     }, [sender, recipients])
@@ -75,6 +80,7 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
                 {`<${sender.email}>`}
             </>
         )
+
     const senderDetailsRow = (
         <Row>
             <KeyContainer>From:</KeyContainer>
@@ -99,13 +105,17 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
         <Container>
             {senderDetailsRow}
             {restOfDetails}
-            <ExpandCollapse onClick={() => setShowDetails(!showDetails)}>
-                {showDetails ? (
-                    <Icon size="small" source={Images.icons.chevron_up} />
-                ) : (
-                    <Icon size="small" source={Images.icons.chevron_down} />
+            <DetailsContainer>
+                {canShowMoreDetails && (
+                    <ExpandCollapse onClick={() => setShowDetails(!showDetails)}>
+                        {showDetails ? (
+                            <Icon size="small" source={Images.icons.chevron_up} />
+                        ) : (
+                            <Icon size="small" source={Images.icons.chevron_down} />
+                        )}
+                    </ExpandCollapse>
                 )}
-            </ExpandCollapse>
+            </DetailsContainer>
         </Container>
     )
 }
