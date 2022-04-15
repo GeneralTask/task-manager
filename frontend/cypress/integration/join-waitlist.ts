@@ -28,14 +28,8 @@ describe('join waitlist tests', () => {
     })
 
     it('submit empty string in join waitlist form', () => {
-        // Intercept waitlist requests
-        cy.intercept('POST', '/waitlist/').as('waitlistPost')
-
         // Click Join the Waitlist button without entering email
         cy.get('button').contains('Join the Waitlist').click()
-
-        // Wait for request to complete
-        cy.wait('@waitlistPost')
 
         // Check if 'Email field is required' field shows
         cy.findByTestId('response-container').should('be.visible')
