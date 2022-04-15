@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE } from '../../constants'
+import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useGetEvents } from '../../services/api-query-hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { useInterval } from '../../hooks'
@@ -112,7 +112,7 @@ const EventBanners = ({ date }: EventBannersProps) => {
                 setEventsWithin15Minutes(updatedEvents)
             }
         },
-        1,
+        SINGLE_SECOND_INTERVAL,
         false
     )
 
