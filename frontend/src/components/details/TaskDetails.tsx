@@ -1,5 +1,5 @@
 import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
-import React, { createRef, useEffect, useState } from 'react'
+import React, { createRef, useEffect, useMemo, useState } from 'react'
 
 import ActionOption from '../molecules/ActionOption'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
@@ -14,19 +14,35 @@ import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
 import { Spacing } from '../../styles'
+import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+
+const MarginRight16 = styled.div`
+    margin-right: ${Spacing.margin._16}px;
+`
+const MarginRight8 = styled.div`
+    margin-right: ${Spacing.margin._8}px;
+`
 
 interface TaskDetailsProps {
     task: TTask
 }
 const TaskDetails = (props: TaskDetailsProps) => {
-    const { mutate: modifyTask } = useModifyTask()
+    const { mutate: modifyTask, isError, isLoading } = useModifyTask()
 
     const [task, setTask] = useState<TTask>(props.task)
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
+    const [isEditing, setIsEditing] = useState(false)
 
     const [labelEditorShown, setLabelEditorShown] = useState(false)
     const titleRef = createRef<HTMLTextAreaElement>()
+
+    const syncIndicatorText = useMemo(() => {
+        if (isEditing) return 'Editing...'
+        if (isLoading) return 'Syncing...'
+        if (isError) return 'There was an error syncing with our servers'
+        return 'Synced'
+    }, [isError, isLoading, isEditing])
 
     useEffect(() => {
         ReactTooltip.rebuild()
@@ -54,32 +70,32 @@ const TaskDetails = (props: TaskDetailsProps) => {
         }
     }, [titleInput])
 
+    const handleBlur = () => {
+        setIsEditing(false)
+        modifyTask({ id: task.id, title: titleInput, body: bodyInput })
+    }
+
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
         if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
         e.stopPropagation()
     }
 
-    const handleBlur = () => {
-        modifyTask({ id: task.id, title: titleInput, body: bodyInput })
-    }
-
-    const MarginRightContainer = styled.div`
-        margin-right: ${Spacing.margin._16}px;
-    `
-
     return (
         <DetailsTemplate
             top={
                 <>
-                    <Icon source={logos[task.source.logo_v2]} size="small" />
+                    <MarginRight8>
+                        <Icon source={logos[task.source.logo_v2]} size="small" />
+                    </MarginRight8>
+                    <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                     <FlexGrowView />
-                    <MarginRightContainer>
+                    <MarginRight16>
                         {task.deeplink && (
                             <a href={task.deeplink} target="_blank" rel="noreferrer">
                                 <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
                             </a>
                         )}
-                    </MarginRightContainer>
+                    </MarginRight16>
                     <TooltipWrapper inline dataTip="Label" tooltipId="tooltip">
                         <ActionOption
                             isShown={labelEditorShown}
@@ -95,7 +111,10 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     ref={titleRef}
                     onKeyDown={handleKeyDown}
                     value={titleInput}
-                    onChange={(e) => setTitleInput(e.target.value)}
+                    onChange={(e) => {
+                        setTitleInput(e.target.value)
+                        setIsEditing(true)
+                    }}
                     onBlur={handleBlur}
                 />
             }
@@ -111,7 +130,10 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     <BodyTextArea
                         placeholder="Add task details"
                         value={bodyInput}
-                        onChange={(e) => setBodyInput(e.target.value)}
+                        onChange={(e) => {
+                            setBodyInput(e.target.value)
+                            setIsEditing(true)
+                        }}
                         onKeyDown={(e) => e.stopPropagation()}
                         onBlur={handleBlur}
                     />
