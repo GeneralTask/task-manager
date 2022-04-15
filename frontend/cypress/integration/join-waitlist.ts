@@ -52,7 +52,7 @@ describe('join waitlist tests', () => {
 
 
     it('submit valid duplicate email in join waitlist form', () => {
-        // Intercept waitlist requests
+        // Randomly generate a valid email address
         const email = Chance.email()
 
         // Intercept waitlist request
