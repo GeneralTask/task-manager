@@ -7,12 +7,18 @@ describe('join waitlist tests', () => {
     })
 
     it('submit valid non-duplicate email in join waitlist form', () => {
+        // Intercept waitlist requests
+        cy.intercept('POST', '/waitlist/').as('waitlistPost')
+
         // Randomly generate a valid email address
         const email = Chance.email()
 
         // Enter email and click Join the Waitlist button
         cy.get('input').type(email)
         cy.get('button').contains('Join the Waitlist').click()
+
+        // Wait for request to complete
+        cy.wait('@waitlistPost')
 
         // Check if 'success' field shows
         cy.findByTestId('response-container').should('be.visible')
@@ -22,8 +28,14 @@ describe('join waitlist tests', () => {
     })
 
     it('submit empty string in join waitlist form', () => {
+        // Intercept waitlist requests
+        cy.intercept('POST', '/waitlist/').as('waitlistPost')
+
         // Click Join the Waitlist button without entering email
         cy.get('button').contains('Join the Waitlist').click()
+
+        // Wait for request to complete
+        cy.wait('@waitlistPost')
 
         // Check if 'Email field is required' field shows
         cy.findByTestId('response-container').should('be.visible')
@@ -34,14 +46,14 @@ describe('join waitlist tests', () => {
 
     it('submit invalid non-duplicate email in join waitlist form', () => {
         // Intercept waitlist requests
-        cy.intercept('POST', '/waitlist/').as('waitlistPostFail')
+        cy.intercept('POST', '/waitlist/').as('waitlistPost')
 
         // Enter invalid email and click Join the Waitlist button
         cy.get('input').type('join_waitlist_test_fail')
         cy.get('button').contains('Join the Waitlist').click()
 
         // Wait for request to complete
-        cy.wait('@waitlistPostFail')
+        cy.wait('@waitlistPost')
 
         // Check if error field shows
         cy.findByTestId('response-container').should('be.visible')
