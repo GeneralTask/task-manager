@@ -17,6 +17,10 @@ import { Spacing } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
 
+const SYNCING = 'Syncing...'
+const SYNC_ERROR = 'There was an error syncing with our servers'
+const SYNCED = 'Synced'
+
 const MarginRight16 = styled.div`
     margin-right: ${Spacing.margin._16}px;
 `
@@ -40,9 +44,9 @@ const TaskDetails = (props: TaskDetailsProps) => {
     const syncTimer = useRef<NodeJS.Timeout>()
 
     const syncIndicatorText = useMemo(() => {
-        if (isEditing || isLoading) return 'Syncing...'
-        if (isError) return 'There was an error syncing with our servers'
-        return 'Synced'
+        if (isEditing || isLoading) return SYNCING
+        if (isError) return SYNC_ERROR
+        return SYNCED
     }, [isError, isLoading, isEditing])
 
     useEffect(() => {
@@ -81,8 +85,9 @@ const TaskDetails = (props: TaskDetailsProps) => {
     const syncDetails = useCallback(() => {
         if (syncTimer.current) clearTimeout(syncTimer.current)
         setIsEditing(false)
-        console.log({ id: task.id, title: titleRef?.current?.value, body: bodyRef?.current?.value })
-        modifyTask({ id: task.id, title: titleRef?.current?.value, body: bodyRef?.current?.value })
+        const title = titleRef?.current ? titleRef.current.value : ''
+        const body = bodyRef?.current ? bodyRef.current.value : ''
+        modifyTask({ id: task.id, title, body })
     }, [task.id, modifyTask])
 
     const onEdit = useCallback(() => {
