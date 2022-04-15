@@ -1,6 +1,7 @@
 import React from 'react'
 import { useLocation } from 'react-router-dom'
 import CompanyPolicyView from '../components/views/CompanyPolicyView'
+import { PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from '../constants'
 import { CompanyPolicyPages } from '../utils/enums'
 
 const CompanyPolicyScreen = () => {
@@ -8,19 +9,15 @@ const CompanyPolicyScreen = () => {
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {
-            case 'terms-of-service':
+            case TERMS_OF_SERVICE_ROUTE:
                 return CompanyPolicyPages.TermsOfService
-            case 'privacy-policy':
+            case PRIVACY_POLICY_ROUTE:
                 return CompanyPolicyPages.PrivacyPolicy
             default:
                 return CompanyPolicyPages.TermsOfService
         }
     })()
 
-    return (
-        <div>
-            <CompanyPolicyView page={currentPage} />
-        </div>
-    )
+    return <CompanyPolicyView page={currentPage} />
 }
 export default CompanyPolicyScreen

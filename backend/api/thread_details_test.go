@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -48,7 +49,7 @@ func TestThreadDetail(t *testing.T) {
 						Cc:  []database.Recipient{{Name: "p2", Email: "p2@gmail.com"}},
 						Bcc: []database.Recipient{{Name: "p3", Email: "p3@gmail.com"}},
 					},
-					SentAt: createTimestamp("2019-04-20"),
+					SentAt: *testutils.CreateDateTime("2019-04-20"),
 				},
 				{
 					SMTPID:       "sample_smtp_1",
@@ -58,7 +59,7 @@ func TestThreadDetail(t *testing.T) {
 					SenderDomain: "gmail",
 					SenderEmail:  "test@generaltask.com",
 					SenderName:   "test",
-					SentAt:       createTimestamp("2018-04-20"),
+					SentAt:       *testutils.CreateDateTime("2018-04-20"),
 				},
 			},
 		},

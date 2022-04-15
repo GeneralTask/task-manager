@@ -6,7 +6,6 @@ import { icons } from '../../styles/images'
 import { margin } from '../../styles/spacing'
 import { Icon } from '../atoms/Icon'
 
-
 const DropdownContainer = styled.div<{ isSelected: boolean }>`
     display: flex;
     flex-direction: row;
@@ -18,7 +17,7 @@ const DropdownContainer = styled.div<{ isSelected: boolean }>`
     border-style: solid;
     border-color: transparent;
     gap: ${margin._8}px;
-    ${(props) => (props.isSelected && `background-color: ${Colors.gray._50};`)};
+    ${(props) => props.isSelected && `background-color: ${Colors.gray._50};`};
 `
 const LinksContainer = styled.div`
     display: flex;
@@ -61,11 +60,7 @@ const NavigationLinkDropdown = ({ children, isCurrentPage, link, title, icon }: 
                     <SectionTitle isSelected={isCurrentPage}>{title}</SectionTitle>
                 </DropdownContainer>
             </Link>
-            {isOpen &&
-                <LinksContainer>
-                    {children}
-                </LinksContainer>
-            }
+            {isOpen && <LinksContainer>{children}</LinksContainer>}
         </>
     )
 }
