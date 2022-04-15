@@ -1,5 +1,5 @@
 import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
-import React, { createRef, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import ActionOption from '../molecules/ActionOption'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
@@ -23,7 +23,6 @@ const MarginRight16 = styled.div`
 const MarginRight8 = styled.div`
     margin-right: ${Spacing.margin._8}px;
 `
-
 interface TaskDetailsProps {
     task: TTask
 }
@@ -36,12 +35,12 @@ const TaskDetails = (props: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
 
-    const titleRef = createRef<HTMLTextAreaElement>()
+    const titleRef = useRef<HTMLTextAreaElement>(null)
+    const bodyRef = useRef<HTMLTextAreaElement>(null)
     const syncTimer = useRef<NodeJS.Timeout>()
 
     const syncIndicatorText = useMemo(() => {
-        if (isEditing) return 'Editing...'
-        if (isLoading) return 'Syncing...'
+        if (isEditing || isLoading) return 'Syncing...'
         if (isError) return 'There was an error syncing with our servers'
         return 'Synced'
     }, [isError, isLoading, isEditing])
@@ -72,19 +71,25 @@ const TaskDetails = (props: TaskDetailsProps) => {
         }
     }, [titleInput])
 
+    useEffect(() => {
+        // to ensure the timeout is cleared on component unmount
+        return () => {
+            if (syncTimer.current) clearTimeout(syncTimer.current)
+        }
+    }, [])
+
     const syncDetails = useCallback(() => {
         if (syncTimer.current) clearTimeout(syncTimer.current)
         setIsEditing(false)
-        modifyTask({ id: task.id, title: titleInput, body: bodyInput })
-    }, [titleInput, bodyInput, task.id, modifyTask])
+        console.log({ id: task.id, title: titleRef?.current?.value, body: bodyRef?.current?.value })
+        modifyTask({ id: task.id, title: titleRef?.current?.value, body: bodyRef?.current?.value })
+    }, [task.id, modifyTask])
 
     const onEdit = useCallback(() => {
         if (syncTimer.current) clearTimeout(syncTimer.current)
         setIsEditing(true)
         syncTimer.current = setTimeout(syncDetails, DETAILS_SYNC_TIMEOUT * 1000)
     }, [syncDetails])
-
-    useEffect(onEdit, [titleInput, bodyInput])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
         if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
@@ -122,7 +127,10 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     ref={titleRef}
                     onKeyDown={handleKeyDown}
                     value={titleInput}
-                    onChange={(e) => setTitleInput(e.target.value)}
+                    onChange={(e) => {
+                        setTitleInput(e.target.value)
+                        onEdit()
+                    }}
                     onBlur={syncDetails}
                 />
             }
@@ -136,9 +144,13 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     <TaskHTMLBody dirtyHTML={bodyInput} />
                 ) : (
                     <BodyTextArea
+                        ref={bodyRef}
                         placeholder="Add task details"
                         value={bodyInput}
-                        onChange={(e) => setBodyInput(e.target.value)}
+                        onChange={(e) => {
+                            setBodyInput(e.target.value)
+                            onEdit()
+                        }}
                         onKeyDown={(e) => e.stopPropagation()}
                         onBlur={syncDetails}
                     />
