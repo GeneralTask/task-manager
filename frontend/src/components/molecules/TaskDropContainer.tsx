@@ -14,11 +14,12 @@ const DropOverlay = styled.div`
     align-items: center;
 `
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
-    height: 2px;
     width: 100%;
     background-color: ${Colors.gray._800};
     visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
     position: relative;
+    flex-basis: 2px;
+    flex-shrink: 0;
 `
 export const DropIndicatorAbove = styled.div`
     ${DropIndicatorStyles}
