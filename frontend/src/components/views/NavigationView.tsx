@@ -25,7 +25,7 @@ const NavigationViewContainer = styled.div`
     box-sizing: border-box;
 `
 const NavigationViewHeader = styled.div`
-    height: 24px;
+    flex-basis: 24px;
     width: 100%;
     margin-bottom: ${margin._16}px;
 `
