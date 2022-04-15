@@ -1,8 +1,7 @@
 import React from 'react'
 import { useGetTasks, useReorderTask } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Colors, Shadows, Spacing } from '../../styles'
-import { TASK_ACTION_BASE_WIDTH } from '../../constants'
+import { Colors, Dimensions, Shadows, Spacing } from '../../styles'
 import { radius } from '../../styles/border'
 import { setSelectedItemId } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
@@ -13,7 +12,7 @@ import { icons } from '../../styles/images'
 const LabelEditorContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: ${TASK_ACTION_BASE_WIDTH}px;
+    width: ${Dimensions.taskAction.width};
     position: absolute;
     background-color: ${Colors.white};
     border-radius: ${radius.regular};
@@ -23,12 +22,11 @@ const LabelEditorContainer = styled.div`
     right: 0;
     cursor: default;
 `
-const Options = styled.div`
+const OptionsContainer = styled.div`
     overflow: auto;
     max-height: 500px;
 `
 const TopNav = styled.div`
-    display: flex;
     padding: ${Spacing.padding._12}px ${Spacing.padding._16}px;
     border-bottom: 1px solid ${Colors.gray._100};
 `
@@ -46,7 +44,7 @@ const ListItem = styled.div`
     }
     cursor: pointer;
 `
-const SectionTitleBox = styled.span<{ isSelected: boolean }>`
+const SectionTitleBox = styled.div<{ isSelected: boolean }>`
     display: flex;
     flex: 1;
     flex-direction: row;
@@ -108,7 +106,7 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
             <TopNav>
                 <Header>Set Label</Header>
             </TopNav>
-            <Options>{options}</Options>
+            <OptionsContainer>{options}</OptionsContainer>
         </LabelEditorContainer>
     )
 }
