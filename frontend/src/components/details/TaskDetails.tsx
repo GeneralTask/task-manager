@@ -1,10 +1,10 @@
 import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
-import React, { createRef, useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import ActionOption from '../molecules/ActionOption'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import { Icon } from '../atoms/Icon'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
@@ -13,19 +13,40 @@ import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
 import { Spacing } from '../../styles'
+import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import { useCallback, useRef } from 'react'
 
+const SYNCING = 'Syncing...'
+const SYNC_ERROR = 'There was an error syncing with our servers'
+const SYNCED = 'Synced'
+
+const MarginRight16 = styled.div`
+    margin-right: ${Spacing.margin._16}px;
+`
+const MarginRight8 = styled.div`
+    margin-right: ${Spacing.margin._8}px;
+`
 interface TaskDetailsProps {
     task: TTask
 }
 const TaskDetails = (props: TaskDetailsProps) => {
-    const { mutate: modifyTask } = useModifyTask()
+    const { mutate: modifyTask, isError, isLoading } = useModifyTask()
 
     const [task, setTask] = useState<TTask>(props.task)
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
-
+    const [isEditing, setIsEditing] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
-    const titleRef = createRef<HTMLTextAreaElement>()
+
+    const titleRef = useRef<HTMLTextAreaElement>(null)
+    const bodyRef = useRef<HTMLTextAreaElement>(null)
+    const syncTimer = useRef<NodeJS.Timeout>()
+
+    const syncIndicatorText = useMemo(() => {
+        if (isEditing || isLoading) return SYNCING
+        if (isError) return SYNC_ERROR
+        return SYNCED
+    }, [isError, isLoading, isEditing])
 
     useEffect(() => {
         ReactTooltip.rebuild()
@@ -53,32 +74,48 @@ const TaskDetails = (props: TaskDetailsProps) => {
         }
     }, [titleInput])
 
+    useEffect(() => {
+        // to ensure the timeout is cleared on component unmount
+        return () => {
+            if (syncTimer.current) clearTimeout(syncTimer.current)
+        }
+    }, [])
+
+    const syncDetails = useCallback(() => {
+        if (syncTimer.current) clearTimeout(syncTimer.current)
+        setIsEditing(false)
+        const title = titleRef?.current ? titleRef.current.value : ''
+        const body = bodyRef?.current ? bodyRef.current.value : ''
+        modifyTask({ id: task.id, title, body })
+    }, [task.id, modifyTask])
+
+    const onEdit = useCallback(() => {
+        if (syncTimer.current) clearTimeout(syncTimer.current)
+        setIsEditing(true)
+        syncTimer.current = setTimeout(syncDetails, DETAILS_SYNC_TIMEOUT * 1000)
+    }, [syncDetails])
+
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
         if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
         e.stopPropagation()
     }
 
-    const handleBlur = () => {
-        modifyTask({ id: task.id, title: titleInput, body: bodyInput })
-    }
-
-    const MarginRightContainer = styled.div`
-        margin-right: ${Spacing.margin._16}px;
-    `
-
     return (
         <DetailsTemplate
             top={
                 <>
-                    <Icon source={logos[task.source.logo_v2]} size="small" />
+                    <MarginRight8>
+                        <Icon source={logos[task.source.logo_v2]} size="small" />
+                    </MarginRight8>
+                    <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                     <FlexGrowView />
-                    <MarginRightContainer>
+                    <MarginRight16>
                         {task.deeplink && (
                             <a href={task.deeplink} target="_blank" rel="noreferrer">
                                 <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
                             </a>
                         )}
-                    </MarginRightContainer>
+                    </MarginRight16>
                     <ActionOption
                         isShown={labelEditorShown}
                         setIsShown={setLabelEditorShown}
@@ -92,8 +129,10 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     ref={titleRef}
                     onKeyDown={handleKeyDown}
                     value={titleInput}
-                    onChange={(e) => setTitleInput(e.target.value)}
-                    onBlur={handleBlur}
+                    onChange={(e) => {
+                        setTitleInput(e.target.value)
+                        onEdit()
+                    }}
                 />
             }
             subtitle={
@@ -106,11 +145,14 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     <TaskHTMLBody dirtyHTML={bodyInput} />
                 ) : (
                     <BodyTextArea
+                        ref={bodyRef}
                         placeholder="Add task details"
                         value={bodyInput}
-                        onChange={(e) => setBodyInput(e.target.value)}
+                        onChange={(e) => {
+                            setBodyInput(e.target.value)
+                            onEdit()
+                        }}
                         onKeyDown={(e) => e.stopPropagation()}
-                        onBlur={handleBlur}
                     />
                 )
             }

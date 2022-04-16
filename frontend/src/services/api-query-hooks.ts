@@ -161,10 +161,10 @@ const modifyTask = async (data: {
     body?: string
 }) => {
     const requestBody: TTaskModifyRequestBody = {}
-    if (data.title) requestBody.title = data.title
-    if (data.dueDate) requestBody.due_date = data.dueDate
-    if (data.timeAllocated) requestBody.time_duration = data.timeAllocated / 1000000
-    if (data.body) requestBody.body = data.body
+    if (data.title !== undefined) requestBody.title = data.title
+    if (data.dueDate !== undefined) requestBody.due_date = data.dueDate
+    if (data.timeAllocated !== undefined) requestBody.time_duration = data.timeAllocated / 1000000
+    if (data.body !== undefined) requestBody.body = data.body
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return res.data
