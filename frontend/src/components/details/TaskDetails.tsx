@@ -133,7 +133,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
                         setTitleInput(e.target.value)
                         onEdit()
                     }}
-                    onBlur={syncDetails}
                 />
             }
             subtitle={
@@ -154,7 +153,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
                             onEdit()
                         }}
                         onKeyDown={(e) => e.stopPropagation()}
-                        onBlur={syncDetails}
                     />
                 )
             }
