@@ -1,3 +1,6 @@
+import chance from "chance"
+const Chance = new chance()
+
 describe('join waitlist tests', () => {
     beforeEach('visit unauthorized landing page', () => {
         cy.visit('/')
@@ -5,10 +8,13 @@ describe('join waitlist tests', () => {
 
     it('submit valid non-duplicate email in join waitlist form', () => {
         // Intercept waitlist requests
-        cy.intercept('POST', '/waitlist/', { statusCode: 201 }).as('waitlistPost')
+        cy.intercept('POST', '/waitlist/').as('waitlistPost')
+
+        // Randomly generate a valid email address
+        const email = Chance.email()
 
         // Enter email and click Join the Waitlist button
-        cy.get('input').type('join_waitlist_test@generaltask.com')
+        cy.get('input').type(email)
         cy.get('button').contains('Join the Waitlist').click()
 
         // Wait for request to complete
@@ -34,15 +40,14 @@ describe('join waitlist tests', () => {
 
     it('submit invalid non-duplicate email in join waitlist form', () => {
         // Intercept waitlist requests
-        cy.intercept('POST', '/waitlist/', { statusCode: 400 }).as('waitlistPostFail')
-
+        cy.intercept('POST', '/waitlist/').as('waitlistPost')
 
         // Enter invalid email and click Join the Waitlist button
         cy.get('input').type('join_waitlist_test_fail')
         cy.get('button').contains('Join the Waitlist').click()
 
         // Wait for request to complete
-        cy.wait('@waitlistPostFail')
+        cy.wait('@waitlistPost')
 
         // Check if error field shows
         cy.findByTestId('response-container').should('be.visible')
@@ -53,25 +58,25 @@ describe('join waitlist tests', () => {
 
 
     it('submit valid duplicate email in join waitlist form', () => {
-        // Intercept waitlist requests
-        cy.intercept('POST', '/waitlist/', { statusCode: 201, times: 1 }).as('waitlistPost')
+        // Randomly generate a valid email address
+        const email = Chance.email()
+
+        // Intercept waitlist request
+        cy.intercept('POST', '/waitlist/').as('waitlistPost')
 
         // Enter valid email and click Join the Waitlist button
-        cy.get('input').type('join_waitlist_test@generaltask.com')
+        cy.get('input').type(email)
         cy.get('button').contains('Join the Waitlist').click()
 
         // Wait for request to complete
         cy.wait('@waitlistPost')
 
-        // Intercept waitlist requests
-        cy.intercept('POST', '/waitlist/', { statusCode: 400 }).as('waitlistPostFail')
-
         // Enter valid duplicate email and click Join the Waitlist button
-        cy.get('input').clear().type('join_waitlist_test@generaltask.com')
+        cy.get('input').clear().type(email)
         cy.get('button').contains('Join the Waitlist').click()
 
         // Wait for request to complete
-        cy.wait('@waitlistPostFail')
+        cy.wait('@waitlistPost')
 
         // Check if error field shows
         cy.findByTestId('response-container').should('be.visible')
