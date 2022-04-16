@@ -72,7 +72,7 @@ export const BodyTextArea = styled.textarea`
     box-sizing: border-box;
     :focus {
         border: 1px solid ${Colors.gray._500};
-}
+    }
 `
 export const FlexGrowView = styled.div`
     flex: 1;
