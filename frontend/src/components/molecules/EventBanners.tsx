@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
-import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE } from '../../constants'
+import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useGetEvents } from '../../services/api-query-hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { useInterval } from '../../hooks'
@@ -85,10 +85,17 @@ const EventBanner = ({ event }: EventBannerProps) => {
     )
 }
 
+const isMeetingWithin15Minutes = (event: TEvent) => {
+    const eventStart = DateTime.fromISO(event.datetime_start)
+    const eventEnd = DateTime.fromISO(event.datetime_end)
+    return eventStart < DateTime.now().plus({ minutes: 15 }) && eventEnd > DateTime.now()
+}
+
 interface EventBannersProps {
     date: DateTime
 }
 const EventBanners = ({ date }: EventBannersProps) => {
+    const [eventsWithin15Minutes, setEventsWithin15Minutes] = useState<TEvent[]>([])
     const { data: events, refetch } = useGetEvents(
         {
             startISO: date.startOf('day').toISO(),
@@ -98,11 +105,16 @@ const EventBanners = ({ date }: EventBannersProps) => {
     )
     useInterval(refetch, EVENTS_REFETCH_INTERVAL)
 
-    const eventsWithin15Minutes = events?.filter((event) => {
-        const eventStart = DateTime.fromISO(event.datetime_start)
-        const eventEnd = DateTime.fromISO(event.datetime_end)
-        return eventStart < DateTime.now().plus({ minutes: 15 }) && eventEnd > DateTime.now()
-    })
+    useInterval(
+        () => {
+            const updatedEvents = events?.filter((event) => isMeetingWithin15Minutes(event))
+            if (updatedEvents && updatedEvents !== eventsWithin15Minutes) {
+                setEventsWithin15Minutes(updatedEvents)
+            }
+        },
+        SINGLE_SECOND_INTERVAL,
+        false
+    )
 
     if (!eventsWithin15Minutes || eventsWithin15Minutes.length === 0) return null
     return (

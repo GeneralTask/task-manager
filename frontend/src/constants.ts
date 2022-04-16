@@ -17,6 +17,7 @@ export const EVENTS_REFETCH_INTERVAL = 60
 export const TIME_INDICATOR_INTERVAL = 6
 export const TASK_MARK_AS_DONE_TIMEOUT = 2
 export const DETAILS_SYNC_TIMEOUT = 1
+export const SINGLE_SECOND_INTERVAL = 1
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'

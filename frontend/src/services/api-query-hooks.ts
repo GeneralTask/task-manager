@@ -1,6 +1,4 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
 import { MESSAGES_PER_PAGE, TASK_MARK_AS_DONE_TIMEOUT, TASK_SECTION_DEFAULT_ID } from '../constants'
-import apiClient from '../utils/api'
 import {
     TEmailThread,
     TEmailThreadResponse,
@@ -16,6 +14,11 @@ import {
     TUserInfo,
 } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
+
+import { DateTime } from 'luxon'
+import apiClient from '../utils/api'
+import { getMonthsAroundDate } from '../utils/time'
 
 /**
  * TASKS QUERIES
@@ -544,6 +547,74 @@ const getEvents = async (params: { startISO: string; endISO: string }) => {
         throw new Error('getEvents failed')
     }
 }
+
+interface EventAttendee {
+    name: string
+    email: string
+}
+interface CreateEventPayload {
+    account_id: string
+    datetime_start: string
+    datetime_end: string
+    summary?: string
+    location?: string
+    description?: string
+    time_zone?: string
+    attendees?: EventAttendee[]
+    add_conference_call?: boolean
+}
+interface CreateEventParams {
+    createEventPayload: CreateEventPayload
+    date: DateTime
+}
+export const useCreateEvent = () => {
+    const queryClient = useQueryClient()
+    return useMutation(({ createEventPayload }: CreateEventParams) => createEvent(createEventPayload),
+        {
+            onMutate: async ({ createEventPayload, date }: CreateEventParams) => {
+                await queryClient.cancelQueries('events')
+
+                const timeBlocks = getMonthsAroundDate(date, 1)
+                const start = DateTime.fromISO(createEventPayload.datetime_start)
+                const end = DateTime.fromISO(createEventPayload.datetime_end)
+                const blockIndex = timeBlocks.findIndex(block => start >= block.start && end <= block.end)
+                const block = timeBlocks[blockIndex]
+
+                const events: TEvent[] | undefined = queryClient.getQueryData([
+                    'events',
+                    'calendar',
+                    block.start.toISO(),
+                ])
+
+                if (events == null) return
+
+                const newEvent: TEvent = {
+                    id: '0',
+                    title: createEventPayload.summary ?? '',
+                    body: createEventPayload.description ?? '',
+                    deeplink: '',
+                    datetime_start: createEventPayload.datetime_start,
+                    datetime_end: createEventPayload.datetime_end,
+                    conference_call: null,
+                }
+                events.push(newEvent)
+                queryClient.setQueryData('events', () => events)
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries('events')
+            }
+        }
+    )
+}
+const createEvent = async (data: CreateEventPayload) => {
+    try {
+        const res = await apiClient.post('/events/create/gcal/', data)
+        return res.data
+    } catch {
+        throw new Error('createEvent failed')
+    }
+}
+
 
 /**
  * USER INFO QUERIES
