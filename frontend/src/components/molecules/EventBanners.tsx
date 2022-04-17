@@ -62,7 +62,7 @@ const MessageText = styled.span`
 `
 const OverflowText = styled.span`
     text-overflow: ellipsis;
-    white-space: nowrap;    
+    white-space: nowrap;
     overflow: hidden;
     font-weight: ${Typography.weight._500};
     color: ${Colors.gray._700};
