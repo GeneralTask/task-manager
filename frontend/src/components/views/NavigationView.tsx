@@ -74,7 +74,7 @@ const NavigationView = () => {
                     <NavigationSectionLinks
                         taskSections={taskSections}
                         sectionId={sectionIdParam || ''}
-                        pathName={pathname}
+                        pathName={pathname.split('/')[1]}
                     />
                 ) : (
                     <Loading />
