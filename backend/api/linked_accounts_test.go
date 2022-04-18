@@ -171,14 +171,13 @@ func createGoogleLink(t *testing.T, db *mongo.Database, authToken string, email 
 		&database.ExternalAPIToken{
 			ServiceID:    external.TASK_SERVICE_ID_GOOGLE,
 			UserID:       getUserIDFromAuthToken(t, db, authToken),
-			DisplayID:	  email,
+			DisplayID:    email,
 			IsUnlinkable: false,
 		},
 	)
 	assert.NoError(t, err)
 	return res.InsertedID.(primitive.ObjectID)
 }
-
 
 func createJIRADungeon(t *testing.T, db *mongo.Database, authToken string) primitive.ObjectID {
 	parentCtx := context.Background()

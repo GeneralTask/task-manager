@@ -8,17 +8,18 @@ import { useReorderTask } from '../../services/api-query-hooks'
 
 const DropOverlay = styled.div`
     width: 100%;
-    height: 36px;
+    height: fit-content;
     display: flex;
     flex-direction: column;
     align-items: center;
 `
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
-    height: 2px;
     width: 100%;
     background-color: ${Colors.gray._800};
     visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
     position: relative;
+    flex-basis: 2px;
+    flex-shrink: 0;
 `
 export const DropIndicatorAbove = styled.div`
     ${DropIndicatorStyles}

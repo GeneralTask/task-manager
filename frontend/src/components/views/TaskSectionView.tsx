@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Colors } from '../../styles'
 import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
-import DropAreaBelow from '../molecules/task-dnd/DropAreaBelow'
+import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
 import EventBanner from '../molecules/EventBanners'
 import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
@@ -19,6 +19,7 @@ import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
 import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
+import withTaskDeselect from '../molecules/TaskDeselectWrapper'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;
@@ -98,6 +99,8 @@ const TaskSection = () => {
         return () => document.removeEventListener('click', listener, true)
     }, [bannerTaskSectionRef, sectionViewRef, params])
 
+    const WithDeselectDropArea = withTaskDeselect(TaskDropArea)
+
     return (
         <>
             <BannerAndSectionContainer ref={bannerTaskSectionRef}>
@@ -133,7 +136,7 @@ const TaskSection = () => {
                                             </TaskDropContainer>
                                         )
                                     })}
-                                    <DropAreaBelow
+                                    <WithDeselectDropArea
                                         dropIndex={currentSection.tasks.length + 1}
                                         taskSectionId={currentSection.id}
                                     />

@@ -11,9 +11,9 @@ import PrivateOutlet from './src/services/PrivateOutlet'
 
 
 
-const CompanyPolicyScreen = lazy(() => import('./src/screens/CompanyPolicyScreen'))
-const MainScreen = lazy(() => import('./src/screens/MainScreen'))
-const TermsOfServiceSummaryScreen = lazy(() => import('./src/screens/TermsOfServiceSummaryScreen'))
+const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
+const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
+const TermsOfServiceSummaryScreen = lazy(() => import('./src/components/screens/TermsOfServiceSummaryScreen'))
 
 const App = () => {
     const queryClient = new QueryClient({

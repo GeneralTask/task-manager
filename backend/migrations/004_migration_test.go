@@ -2,7 +2,7 @@ package migrations
 
 import (
 	"context"
-	"log"
+	"github.com/rs/zerolog/log"
 	"testing"
 	"time"
 
@@ -63,12 +63,12 @@ func getIndexes(ctx context.Context, collection *mongo.Collection) []bson.M {
 	opts := options.ListIndexes().SetMaxTime(2 * time.Second)
 	cursor, err := indexView.List(ctx, opts)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Send()
 	}
 
 	var result []bson.M
 	if err = cursor.All(ctx, &result); err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Send()
 	}
 	return result
 }

@@ -12,16 +12,22 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REACT_APP_API_BASE_URL: http://localhost:8080
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
           node-version: 14
 
+      - name: Spin up db
+        working-directory: backend
+        run: docker-compose up -d
+
+      - name: Start backend server
+        working-directory: backend
+        run: go run . &
+
       - name: Install dependencies
+        working-directory: frontend
         run: yarn install --frozen-lockfile
 
       - name: Cypress run
