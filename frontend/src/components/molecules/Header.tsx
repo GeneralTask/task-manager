@@ -86,7 +86,9 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
             autoFocus
         />
-    ) : <HeaderText>{sectionName}</HeaderText>
+    ) : (
+        <HeaderText>{sectionName}</HeaderText>
+    )
 
     return (
         <SectionHeaderContainer>

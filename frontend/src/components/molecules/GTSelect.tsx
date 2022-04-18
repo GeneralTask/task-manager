@@ -121,7 +121,11 @@ function GTSelect(props: Props): JSX.Element {
     return (
         <>
             <InputContainer valid={valid}>
-                {inputIcon && <IconContainer><Icon source={inputIcon} size="xSmall" /></IconContainer>}
+                {inputIcon && (
+                    <IconContainer>
+                        <Icon source={inputIcon} size="xSmall" />
+                    </IconContainer>
+                )}
                 <Input
                     onChange={(e) => {
                         checkValid(e.target.value)

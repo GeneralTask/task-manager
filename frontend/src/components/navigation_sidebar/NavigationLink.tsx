@@ -12,8 +12,7 @@ import { weight } from '../../styles/typography'
 import { ItemTypes, TTaskSection } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 
-
-const LinkContainer = styled.div<{ isSelected: boolean, isOver: boolean }>`
+const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -22,7 +21,7 @@ const LinkContainer = styled.div<{ isSelected: boolean, isOver: boolean }>`
     border-radius: ${Border.radius.small};
     border-width: 2px;
     border-style: solid;
-    border-color: ${(props) => props.isOver ? Colors.gray._300 : 'transparent'};
+    border-color: ${(props) => (props.isOver ? Colors.gray._300 : 'transparent')};
     ${(props) => (props.isSelected ? `background-color: ${Colors.gray._50};` : '')};
 `
 const SectionTitle = styled.span<{ isSelected: boolean }>`
@@ -90,11 +89,7 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppab
 
     return (
         <Link style={linkStyle} to={link} onClick={(e) => onClick(e)}>
-            <LinkContainer
-                ref={drop}
-                isSelected={isCurrentPage}
-                isOver={isOver}
-            >
+            <LinkContainer ref={drop} isSelected={isCurrentPage} isOver={isOver}>
                 <Icon size="small" source={icon} />
                 <SectionTitle isSelected={isCurrentPage}>{title}</SectionTitle>
                 <SectionTitleItemCount isSelected={isCurrentPage}>{taskSection?.tasks.length}</SectionTitleItemCount>

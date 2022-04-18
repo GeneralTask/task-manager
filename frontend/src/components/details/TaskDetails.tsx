@@ -8,7 +8,6 @@ import { KEYBOARD_SHORTCUTS } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
 import TaskHTMLBody from '../atoms/TaskHTMLBody'
-import TooltipWrapper from '../atoms/TooltipWrapper'
 import { logos } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
@@ -25,32 +24,12 @@ const TaskDetails = (props: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
 
-    const [datePickerShown, setDatePickerShown] = useState(false)
-    const [timeEstimateShown, setTimeEstimateShown] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
     const titleRef = createRef<HTMLTextAreaElement>()
 
     useEffect(() => {
         ReactTooltip.rebuild()
     }, [])
-    useEffect(() => {
-        if (timeEstimateShown) {
-            setTimeEstimateShown(false)
-            setLabelEditorShown(false)
-        }
-    }, [datePickerShown])
-    useEffect(() => {
-        if (timeEstimateShown) {
-            setDatePickerShown(false)
-            setLabelEditorShown(false)
-        }
-    }, [timeEstimateShown])
-    useEffect(() => {
-        if (labelEditorShown) {
-            setDatePickerShown(false)
-            setTimeEstimateShown(false)
-        }
-    }, [labelEditorShown])
 
     // Update the state when the task changes
     useEffect(() => {
@@ -85,8 +64,8 @@ const TaskDetails = (props: TaskDetailsProps) => {
 
     const MarginRightContainer = styled.div`
         margin-right: ${Spacing.margin._16}px;
-`
- 
+    `
+
     return (
         <DetailsTemplate
             top={
@@ -94,39 +73,18 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     <Icon source={logos[task.source.logo_v2]} size="small" />
                     <FlexGrowView />
                     <MarginRightContainer>
-                    {task.deeplink && 
-                        <a href={task.deeplink} target="_blank" rel="noreferrer">
-                        <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`}/>
-                        </a>
-                    }
+                        {task.deeplink && (
+                            <a href={task.deeplink} target="_blank" rel="noreferrer">
+                                <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
+                            </a>
+                        )}
                     </MarginRightContainer>
-                    <TooltipWrapper inline dataTip="Due Date" tooltipId="tooltip">
-                        <ActionOption
-                            isShown={datePickerShown}
-                            setIsShown={setDatePickerShown}
-                            action="date_picker"
-                            task={task}
-                            keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_DATE_PICKER}
-                        />
-                    </TooltipWrapper>
-                    <TooltipWrapper inline dataTip="Time Estimate" tooltipId="tooltip">
-                        <ActionOption
-                            isShown={timeEstimateShown}
-                            setIsShown={setTimeEstimateShown}
-                            action="time_allocated"
-                            task={task}
-                            keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_TIME_ESTIMATION_PICKER}
-                        />
-                    </TooltipWrapper>
-                    <TooltipWrapper inline dataTip="Label" tooltipId="tooltip">
-                        <ActionOption
-                            isShown={labelEditorShown}
-                            setIsShown={setLabelEditorShown}
-                            action="label"
-                            task={task}
-                            keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
-                        />
-                    </TooltipWrapper>
+                    <ActionOption
+                        isShown={labelEditorShown}
+                        setIsShown={setLabelEditorShown}
+                        task={task}
+                        keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
+                    />
                 </>
             }
             title={
@@ -138,7 +96,11 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     onBlur={handleBlur}
                 />
             }
-            subtitle={task.source.name === 'Gmail' && task.sender && task.recipients ? <EmailSenderDetails sender={task.sender} recipients={task.recipients} /> : undefined}
+            subtitle={
+                task.source.name === 'Gmail' && task.sender && task.recipients ? (
+                    <EmailSenderDetails sender={task.sender} recipients={task.recipients} />
+                ) : undefined
+            }
             body={
                 task.source.name === 'Gmail' ? (
                     <TaskHTMLBody dirtyHTML={bodyInput} />

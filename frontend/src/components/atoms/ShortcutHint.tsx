@@ -18,14 +18,10 @@ const ShortcutHintContainer = styled.div`
 `
 
 interface ShortcutHintProps {
-    character: string,
+    character: string
 }
 const ShortcutHint = (props: ShortcutHintProps) => {
-    return (
-        <ShortcutHintContainer>
-            {props.character}
-        </ShortcutHintContainer>
-    )
+    return <ShortcutHintContainer>{props.character}</ShortcutHintContainer>
 }
 
 export default ShortcutHint

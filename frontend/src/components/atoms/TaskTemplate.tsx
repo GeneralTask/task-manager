@@ -15,11 +15,7 @@ interface TaskTemplateProps {
     children: React.ReactNode
 }
 const TaskTemplate = forwardRef<HTMLDivElement, TaskTemplateProps>((props: TaskTemplateProps, ref) => {
-    return (
-        <TemplateContainer ref={ref}>
-            {props.children}
-        </TemplateContainer>
-    )
+    return <TemplateContainer ref={ref}>{props.children}</TemplateContainer>
 })
 
 export default TaskTemplate
