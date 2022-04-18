@@ -4,7 +4,7 @@ import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import { Icon } from '../atoms/Icon'
 import { TMessage } from '../../utils/types'
 import { logos } from '../../styles/images'
-import { TaskHTMLBody } from '../atoms/TaskHTMLBody'
+import TaskHTMLBody from '../atoms/TaskHTMLBody'
 
 interface MessageDetailsProps {
     message: TMessage
