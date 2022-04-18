@@ -12,7 +12,7 @@ from pymongo import MongoClient
 CONNECTION_TEMPLATE = """mongodb://{user}:{password}@cluster0-shard-00-00.dbkij.mongodb.net:27017,cluster0-shard-00-01.dbkij.mongodb.net:27017,cluster0-shard-00-02.dbkij.mongodb.net:27017/myFirstDatabase?authSource=admin&replicaSet=atlas-xn7hxv-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true"""
 
 
-def main():
+def main(dt):
     user = os.environ["MONGO_USER"]
     password = os.environ["MONGO_PASSWORD"]
 
@@ -28,11 +28,12 @@ def main():
 
 
     # start = datetime(2022, 1, 1, tzinfo=pytz.timezone("US/Pacific"))
-    start = datetime(2022, 1, 1, tzinfo=pytz.timezone("US/Pacific"))
+    end = datetime.strptime(dt, "%Y-%m-%d")
+    print(end)
     activity_cooloff_mins = 10
     num_sessions_threshold = 5
     window = timedelta(days=30)
-    generate_user_daily_report(events, start, window, activity_cooloff_mins, num_sessions_threshold)
+    # generate_user_daily_report(events, start, window, activity_cooloff_mins, num_sessions_threshold)
 
 def generate_user_daily_report(events, start, window, activity_cooloff_mins, num_sessions_threshold):
     date_filter = {"created_at": {"$gt": start, "$lt": start+window}}
@@ -123,8 +124,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dt", type=str, default=None)
     args = parser.parse_args()
-    dt = args.dt if args.dt else datetime.today().strftime('%Y-%m-%d')
+    dt = args.dt if args.dt else datetime.today().strftime("%Y-%m-%d")
 
 
-    # main()
+    main(dt)
 
