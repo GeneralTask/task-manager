@@ -6,10 +6,8 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom
 import Loading from './src/components/atoms/Loading'
 import { PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
 import store from './src/redux/store'
-import LandingScreen from './src/screens/LandingScreen'
 import PrivateOutlet from './src/services/PrivateOutlet'
-
-
+import LandingScreen from './src/components/screens/LandingScreen'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
 const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
