@@ -30,7 +30,7 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                 link="/messages"
                 title="Messages"
                 icon={icons.inbox}
-                isCurrentPage={pathName === '/messages'}
+                isCurrentPage={pathName.startsWith('/messages')}
             />
             <NavigationLink
                 link="/settings"
