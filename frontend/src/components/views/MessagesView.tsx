@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react'
+import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
@@ -32,14 +32,18 @@ const MessagesView = () => {
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
     useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
 
-    const getExpandedThread = () => {
+    const expandedThread = useMemo(() => {
         if (threads.length > 0) {
-            const tmpThread = threads.find((thread) => thread.id === params.thread) ?? threads[0]
-            dispatch(setSelectedItemId(tmpThread.id))
-            return tmpThread
+            return threads.find((thread) => thread.id === params.thread) ?? threads[0]
         }
         return undefined
-    }
+    }, [params.thread, threads])
+
+    useLayoutEffect(() => {
+        if (expandedThread) {
+            dispatch(setSelectedItemId(expandedThread.id))
+        }
+    }, [expandedThread])
 
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
@@ -75,7 +79,7 @@ const MessagesView = () => {
                     </div>
                 )}
             </ScrollViewMimic>
-            {<ThreadDetails thread={getExpandedThread()} />}
+            {<ThreadDetails thread={expandedThread} />}
         </>
     )
 }
