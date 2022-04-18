@@ -70,7 +70,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             key={index}
                             sender={email.sender.name}
                             body={email.body}
-                            collapsed={index !== thread.emails.length - 1}
+                            isCollapsed={index !== thread.emails.length - 1}
                         />
                     ))}
                 </>

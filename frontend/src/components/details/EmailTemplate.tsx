@@ -48,15 +48,13 @@ interface DetailsTemplateProps {
     sender: string
     time_sent?: string
     body: string
-    collapsed?: boolean
+    isCollapsed?: boolean
 }
 
 const EmailTemplate = (props: DetailsTemplateProps) => {
-    const [isCollapsed, setIsCollapsed] = useState(props.collapsed ?? false)
+    const [isCollapsed, setIsCollapsed] = useState(!!props.isCollapsed)
 
-    useEffect(() => {
-        setIsCollapsed(!!props.collapsed)
-    }, [props.collapsed])
+    useEffect(() => setIsCollapsed(!!props.isCollapsed), [props.isCollapsed])
 
     return (
         <DetailsViewContainer>
