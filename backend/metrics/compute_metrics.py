@@ -1,10 +1,10 @@
-
 import os
 from datetime import date, datetime, timedelta
 from pprint import pprint
 
 import dash_auth
 import mpld3
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import pytz
@@ -15,6 +15,7 @@ from pymongo import MongoClient
 from log import get_logger
 
 DEFAULT_WINDOW = 14
+SESSION_COUNT_THRESHOLDS = [1, 3, 5]
 CONNECTION_TEMPLATE = """mongodb://{user}:{password}@cluster0-shard-00-00.dbkij.mongodb.net:27017,cluster0-shard-00-01.dbkij.mongodb.net:27017,cluster0-shard-00-02.dbkij.mongodb.net:27017/myFirstDatabase?authSource=admin&replicaSet=atlas-xn7hxv-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true"""
 logger = get_logger(__name__)
 
@@ -81,6 +82,29 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
     daily_users.head()
 
 
+    df_events_per_user = df_events_per_user.reset_index()
+
+    for threshold in SESSION_COUNT_THRESHOLDS:
+        df_events_per_user[f"gt_{threshold}"] = np.where(df_events_per_user['num_sessions'] >= threshold, True, False)
+    timeseries = (
+        df_events_per_user
+        .sort_values(by=["dt", "num_sessions"])
+        .groupby("dt")
+        .agg({f"gt_{threshold}": "sum" for threshold in SESSION_COUNT_THRESHOLDS})
+        .reset_index()
+    )
+    # timeseries.head(20)
+    timeseries = timeseries.set_index(keys=["dt"])
+    timeseries.columns.name = "threshold"
+    fig_timeseries = px.line(timeseries)
+    # fig_timeseries.show()
+
+
+
+
+
+
+
     p = (
         ggplot(daily_users, aes('dt', 'num_users'))
         + geom_col()
@@ -97,12 +121,47 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
         VALID_USERNAME_PASSWORD_PAIRS
     )
 
-    app.layout = html.Div([
-        html.H1('Welcome to the app'),
-        # html.H3('You are successfully authorized'),
-        # dcc.Dropdown(['A', 'B'], 'A', id='dropdown'),
-        dcc.Graph(id='graph', figure=fig)
-    ], className='container')
+
+    app.layout = html.Div(children=[
+        # All elements from the top of the page
+        html.Div([
+            html.H1(children='Hello Dash'),
+
+            html.Div(children='''
+                Dash: A web application framework for Python.
+            '''),
+
+            dcc.Graph(
+                id='graph1',
+                figure=fig
+            ),  
+        ]),
+        # New Div for all elements in the new 'row' of the page
+        html.Div([
+            html.H1(children='Hello Dash'),
+
+            html.Div(children='''
+                Dash: A web application framework for Python.
+            '''),
+
+            dcc.Graph(
+                id='graph2',
+                figure=fig_timeseries
+            ),  
+        ]),
+    ])
+
+
+
+
+    # app.layout = html.Div(children=[
+    #     html.Div(
+    #         html.H1('Welcome to the app'),
+    #         # html.H3('You are successfully authorized'),
+    #         # dcc.Dropdown(['A', 'B'], 'A', id='dropdown'),
+    #         dcc.Graph(id='graph', figure=fig)
+    #     )
+    # ], className='container')
 
 
 
