@@ -153,7 +153,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			senderDomain := utils.ExtractEmailDomain(senderEmail)
 			recipients := *GetRecipients(message.Payload.Headers)
 
-			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate, 0))
+			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
 			if timeSent > mostRecentEmailTimestamp {
 				mostRecentEmailTimestamp = timeSent
 			}
