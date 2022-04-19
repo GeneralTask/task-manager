@@ -13,7 +13,6 @@ const FlexColumnContainer = styled.div`
     width: 700px;
 `
 const HeaderContainer = styled.div`
-    flex: 0;
     display: flex;
     height: 70px;
     padding: ${Spacing.padding._16}px;
@@ -67,7 +66,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     </HeaderContainer>
                     {thread.emails.map((email, index) => (
                         <EmailTemplate
-                            key={index}
+                            key={email.message_id}
                             sender={email.sender.name}
                             body={email.body}
                             isCollapsed={index !== thread.emails.length - 1}

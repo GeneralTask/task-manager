@@ -51,7 +51,7 @@ const MessagesView = () => {
             if (isLoading || isFetching) return
             if (observer.current) observer.current.disconnect()
             observer.current = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting && data && data.pages[data.pages.length - 1].length > 0) {
+                if (entries[0].isIntersecting && data && data.pages[data.pages.length - 1]?.length > 0) {
                     fetchNextPage()
                 }
             })
