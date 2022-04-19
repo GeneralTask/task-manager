@@ -13,6 +13,7 @@ const FlexColumnContainer = styled.div`
     width: 700px;
 `
 const HeaderContainer = styled.div`
+    flex: 0;
     display: flex;
     height: 70px;
     padding: ${Spacing.padding._16}px;
