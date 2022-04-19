@@ -16,3 +16,5 @@ export const modalSize = {
         height: 620,
     },
 }
+
+export const TASK_ACTION_WIDTH = '200px'
