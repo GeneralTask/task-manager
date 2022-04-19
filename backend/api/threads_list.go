@@ -133,7 +133,6 @@ func (api *API) createThreadResponse(t *database.Item) *Thread {
 
 func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 	var emails []email
-
 	for _, e := range *dbEmails {
 		formattedEmail := email{
 			MessageID: e.MessageID,
