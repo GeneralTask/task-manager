@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { useInterval } from '../../hooks'
 import CalendarEvents from '../calendar/CalendarEvents'
 import { CalendarContainer } from '../calendar/CalendarEvents-styles'
-import CalendarHeader from '../calendar/CalendarHeader'
+import CalendarHeader, { CursorPointerDiv } from '../calendar/CalendarHeader'
 import styled from 'styled-components'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
@@ -43,9 +43,9 @@ const CalendarView = () => {
     )
     return isCalendarCollapsed ? (
         <CollapsedCalendarView>
-            <div onClick={() => setIsCalendarCollapsed(false)}>
+            <CursorPointerDiv onClick={() => setIsCalendarCollapsed(false)}>
                 <Icon source={icons.caret_left} size="small" />
-            </div>
+            </CursorPointerDiv>
         </CollapsedCalendarView>
     ) : (
         <CalendarContainer expanded={expandedCalendar}>

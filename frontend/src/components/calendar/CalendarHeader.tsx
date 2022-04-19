@@ -22,6 +22,9 @@ export const ButtonContainer = styled.div`
     align-items: center;
     gap: 5px;
 `
+export const CursorPointerDiv = styled.div`
+    cursor: pointer;
+`
 const ButtonStyles = styled.button`
     cursor: pointer;
     height: fit-content;
@@ -93,9 +96,9 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                                 <Icon source={icons.arrows_out} size="small" />
                             )}
                         </ArrowButton>
-                        <div onClick={() => collapseCalendar()}>
+                        <CursorPointerDiv onClick={() => collapseCalendar()}>
                             <Icon source={icons.caret_right} size="small" />
-                        </div>
+                        </CursorPointerDiv>
                     </HeaderIconsContainer>
                 </HeaderBodyContainer>
             </PaddedContainer>
