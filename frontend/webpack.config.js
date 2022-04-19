@@ -74,6 +74,6 @@ module.exports = {
                 { from: 'public', to: '' }
             ]
         }),
-        process.env.NODE_ENV = 'development' && new ReactRefreshWebpackPlugin(),
+        process.env.NODE_ENV = 'development' && new ReactRefreshWebpackPlugin({ overlay: false }),
     ].filter(Boolean),
 };
