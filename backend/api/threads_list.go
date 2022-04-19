@@ -135,11 +135,6 @@ func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 	var emails []email
 
 	for _, e := range *dbEmails {
-		log.Printf("jerd response %+v", e)
-		log.Printf("jerd response %+v", e.SentAt)
-		log.Printf("jerd response %+v", e.SentAt.Time())
-		log.Printf("jerd response %+v", e.SentAt.Time().UTC())
-		log.Printf("jerd response %+v", e.SentAt.Time().UTC().Format(time.RFC3339))
 		formattedEmail := email{
 			MessageID: e.MessageID,
 			Subject:   e.Subject,
