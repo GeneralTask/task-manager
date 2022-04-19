@@ -27,7 +27,8 @@ module.exports = {
                                 styledComponentsTransformer,
                                 process.env.NODE_ENV === 'development' && ReactRefreshTypeScript(),
                             ].filter(Boolean)
-                        })
+                        }),
+                        transpileOnly: true,
                     }
                 },
                 exclude: /node_modules/,
