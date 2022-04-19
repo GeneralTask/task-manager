@@ -283,7 +283,7 @@ func createTestGmailMessage(
 
 	res := gmail.Message{
 		Id:           externalMessageID,
-		InternalDate: testutils.CreateTimestamp(dt).Unix(),
+		InternalDate: testutils.CreateTimestamp(dt).Unix() * 1000,
 		Payload: &gmail.MessagePart{
 			Body: &gmail.MessagePartBody{
 				Data: base64.URLEncoding.EncodeToString([]byte(fmt.Sprintf("test message body %s", externalMessageID))),
