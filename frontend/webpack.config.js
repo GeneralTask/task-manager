@@ -4,6 +4,9 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const createStyledComponentsTransformer = require('typescript-plugin-styled-components').default;
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const ReactRefreshTypeScript = require('react-refresh-typescript');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const styledComponentsTransformer = createStyledComponentsTransformer();
 const host = process.env.HOST || 'localhost';
@@ -20,7 +23,13 @@ module.exports = {
                 use: {
                     loader: 'ts-loader',
                     options: {
-                        getCustomTransformers: () => ({ before: [styledComponentsTransformer] })
+                        getCustomTransformers: () => ({
+                            before: [
+                                styledComponentsTransformer,
+                                process.env.NODE_ENV === 'development' && ReactRefreshTypeScript(),
+                            ].filter(Boolean)
+                        }),
+                        transpileOnly: true,
                     }
                 },
                 exclude: /node_modules/,
@@ -66,6 +75,11 @@ module.exports = {
             patterns: [
                 { from: 'public', to: '' }
             ]
-        })
+        }),
     ]
+        // dev plugins
+        .concat(process.env.NODE_ENV !== 'development' ? [] : [
+            new ReactRefreshWebpackPlugin({ overlay: false }),
+            new ForkTsCheckerWebpackPlugin(),
+        ])
 };
