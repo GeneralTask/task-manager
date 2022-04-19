@@ -49,7 +49,7 @@ const CalendarView = () => {
         </CollapsedCalendarView>
     ) : (
         <CalendarContainer expanded={expandedCalendar}>
-            <CalendarHeader collapseCalendar={() => handleCollapseCalendar()} date={date} setDate={setDate} />
+            <CalendarHeader collapseCalendar={handleCollapseCalendar} date={date} setDate={setDate} />
             <CalendarEvents date={date} numDays={expandedCalendar ? 7 : 1} />
         </CalendarContainer>
     )
