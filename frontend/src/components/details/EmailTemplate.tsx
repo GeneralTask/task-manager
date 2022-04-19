@@ -48,7 +48,7 @@ interface DetailsTemplateProps {
     sender: string
     time_sent?: string
     body: string
-    isCollapsed?: boolean
+    isCollapsed: boolean
 }
 
 const EmailTemplate = (props: DetailsTemplateProps) => {
