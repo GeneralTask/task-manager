@@ -43,7 +43,6 @@ const BannerTitleView = styled.div`
     padding: 2px 7px;
     flex-shrink: 1;
     min-width: 0;
-    max-width: 260px;
     overflow: hidden;
     text-overflow: ellipsis;
 `
@@ -54,6 +53,7 @@ const MessageView = styled.div`
     justify-content: center;
     flex-shrink: 1;
     margin-right: ${Spacing.margin._12}px;
+    min-width: 0px;
 `
 const MessageText = styled.span`
     white-space: nowrap;
