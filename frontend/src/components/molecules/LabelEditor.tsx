@@ -12,7 +12,7 @@ import { icons } from '../../styles/images'
 const LabelEditorContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: ${Dimensions.taskAction.width};
+    width: ${Dimensions.TASK_ACTION_WIDTH};
     position: absolute;
     background-color: ${Colors.white};
     border-radius: ${radius.regular};

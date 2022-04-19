@@ -17,6 +17,4 @@ export const modalSize = {
     },
 }
 
-export const taskAction = {
-    width: '200px',
-}
+export const TASK_ACTION_WIDTH = '200px'

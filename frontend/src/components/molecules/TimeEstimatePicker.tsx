@@ -12,7 +12,7 @@ import GTSelect from './GTSelect'
 export const TimeEstimateContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: ${Dimensions.taskAction.width};
+    width: ${Dimensions.TASK_ACTION_WIDTH};
     position: absolute;
     background-color: ${Colors.white};
     border-radius: ${radius.small};
