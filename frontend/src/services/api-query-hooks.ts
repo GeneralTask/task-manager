@@ -19,6 +19,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-q
 import { DateTime } from 'luxon'
 import apiClient from '../utils/api'
 import { getMonthsAroundDate } from '../utils/time'
+import { TCreateEventPayload } from './query-payload-types'
 
 /**
  * TASKS QUERIES
@@ -550,23 +551,8 @@ const getEvents = async (params: { startISO: string; endISO: string }) => {
     }
 }
 
-interface EventAttendee {
-    name: string
-    email: string
-}
-interface CreateEventPayload {
-    account_id: string
-    datetime_start: string
-    datetime_end: string
-    summary?: string
-    location?: string
-    description?: string
-    time_zone?: string
-    attendees?: EventAttendee[]
-    add_conference_call?: boolean
-}
 interface CreateEventParams {
-    createEventPayload: CreateEventPayload
+    createEventPayload: TCreateEventPayload
     date: DateTime
 }
 export const useCreateEvent = () => {
@@ -608,7 +594,7 @@ export const useCreateEvent = () => {
         }
     )
 }
-const createEvent = async (data: CreateEventPayload) => {
+const createEvent = async (data: TCreateEventPayload) => {
     try {
         const res = await apiClient.post('/events/create/gcal/', data)
         return res.data
