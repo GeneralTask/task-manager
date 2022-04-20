@@ -3,14 +3,17 @@ import React, { useCallback } from 'react'
 import styled from 'styled-components'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
-import { Colors, Spacing } from '../../styles'
+import { Colors, Dimensions, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 
 export const PaddedContainer = styled.div`
-    padding: ${Spacing.padding._16}px ${Spacing.padding._24}px;
+    padding-top: ${Spacing.padding._16}px;
+    padding-right: ${(Dimensions.COLLAPSED_CALENDAR_WIDTH - Dimensions.iconSize.small) / 2}px;
+    padding-bottom: ${Spacing.padding._16}px;
+    padding-left: ${Spacing.padding._24}px;
 `
 export const HeaderBodyContainer = styled.div`
     display: flex;
@@ -24,6 +27,12 @@ export const ButtonContainer = styled.div`
 `
 export const CursorPointerDiv = styled.div`
     cursor: pointer;
+    height: fit-content;
+    border-radius: 50%;
+    padding: ${Spacing.padding._4}px;
+    &:hover {
+        background-color: ${Colors.gray._200};
+    }
 `
 const ButtonStyles = styled.button`
     cursor: pointer;

@@ -16,3 +16,5 @@ export const modalSize = {
         height: 620,
     },
 }
+
+export const COLLAPSED_CALENDAR_WIDTH = 40;

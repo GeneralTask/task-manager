@@ -10,16 +10,17 @@ import CalendarHeader, { CursorPointerDiv } from '../calendar/CalendarHeader'
 import styled from 'styled-components'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
-import { Colors } from '../../styles'
+import { Colors, Dimensions, Spacing } from '../../styles'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 
 const CollapsedCalendarView = styled.div`
-    padding-top: 20px;
-    padding-right: 4px;
-    width: 40px;
+    padding-top: ${Spacing.padding._16}px;
+    padding-right: ${Spacing.padding._4}px;
+    width: ${Dimensions.COLLAPSED_CALENDAR_WIDTH}px;
     background-color: ${Colors.gray._100};
     display: flex;
     justify-content: center;
+    cursor: pointer;
 `
 
 const CalendarView = () => {
@@ -42,8 +43,8 @@ const CalendarView = () => {
         false
     )
     return isCalendarCollapsed ? (
-        <CollapsedCalendarView>
-            <CursorPointerDiv onClick={() => setIsCalendarCollapsed(false)}>
+        <CollapsedCalendarView onClick={() => setIsCalendarCollapsed(false)}>
+            <CursorPointerDiv>
                 <Icon source={icons.caret_left} size="small" />
             </CursorPointerDiv>
         </CollapsedCalendarView>
