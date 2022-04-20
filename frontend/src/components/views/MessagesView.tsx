@@ -1,15 +1,17 @@
-import React, { useCallback, useMemo, useRef } from 'react'
-import { useFetchMessages, useGetInfiniteMessages } from '../../services/api-query-hooks'
+import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import Loading from '../atoms/Loading'
+import styled from 'styled-components'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
-import Message from '../molecules/Message'
-import MessageDetails from '../details/MessageDetails'
 import { SectionHeader } from '../molecules/Header'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
-import styled from 'styled-components'
+import { useFetchMessages, useGetInfiniteThreads } from '../../services/api-query-hooks'
+import Loading from '../atoms/Loading'
+import Thread from '../molecules/Thread'
+import ThreadDetails from '../details/ThreadDetails'
+import { setSelectedItemId } from '../../redux/tasksPageSlice'
+import { useAppDispatch } from '../../redux/hooks'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -21,17 +23,27 @@ const ScrollViewMimic = styled.div`
 
 const MessagesView = () => {
     const navigate = useNavigate()
+    const dispatch = useAppDispatch()
     const params = useParams()
     const { refetch: refetchMessages } = useFetchMessages()
-    const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteMessages()
+    const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteThreads()
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
-    const messages = useMemo(() => data?.pages.flat().filter((message) => message != null) ?? [], [data])
+    const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
+    useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
 
-    const expandedMessage = useMemo(() => {
-        return messages?.find((message) => message.id === params.message)
-    }, [params.message, messages])
-    useItemSelectionController(messages, (itemId: string) => navigate(`/messages/${itemId}`))
+    const expandedThread = useMemo(() => {
+        if (threads.length > 0) {
+            return threads.find((thread) => thread.id === params.thread) ?? threads[0]
+        }
+        return undefined
+    }, [params.thread, threads])
+
+    useLayoutEffect(() => {
+        if (expandedThread) {
+            dispatch(setSelectedItemId(expandedThread.id))
+        }
+    }, [expandedThread])
 
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
@@ -39,25 +51,35 @@ const MessagesView = () => {
             if (isLoading || isFetching) return
             if (observer.current) observer.current.disconnect()
             observer.current = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting) fetchNextPage()
+                if (entries[0].isIntersecting && data && data.pages[data.pages.length - 1]?.length > 0) {
+                    fetchNextPage()
+                }
             })
             if (node) observer.current.observe(node)
         },
-        [isLoading]
+        [isLoading, isFetching]
     )
 
     return (
         <>
             <ScrollViewMimic>
                 <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
-                {messages.map((message, index) => (
-                    <TaskTemplate ref={index === messages.length - 1 ? lastElementRef : undefined} key={message.id}>
-                        <Message message={message} />
+                {threads.map((thread, index) => (
+                    <TaskTemplate
+                        ref={index === threads.length - 1 ? lastElementRef : undefined}
+                        lines={3}
+                        key={thread.id}
+                    >
+                        <Thread thread={thread} />
                     </TaskTemplate>
                 ))}
-                {(isLoading || isFetching) && <Loading />}
+                {(isLoading || isFetching) && (
+                    <div>
+                        <Loading />
+                    </div>
+                )}
             </ScrollViewMimic>
-            {expandedMessage && <MessageDetails message={expandedMessage} />}
+            {<ThreadDetails thread={expandedThread} />}
         </>
     )
 }

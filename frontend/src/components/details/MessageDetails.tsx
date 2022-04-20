@@ -3,8 +3,8 @@ import React from 'react'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import { Icon } from '../atoms/Icon'
 import { TMessage } from '../../utils/types'
-import TaskHTMLBody from '../atoms/TaskHTMLBody'
 import { logos } from '../../styles/images'
+import TaskHTMLBody from '../atoms/TaskHTMLBody'
 
 interface MessageDetailsProps {
     message: TMessage
