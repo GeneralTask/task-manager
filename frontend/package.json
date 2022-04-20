@@ -2,8 +2,8 @@
   "name": "frontend",
   "version": "1.0.2",
   "scripts": {
-    "start": "webpack-dev-server --config ./webpack.config.js --mode=development",
-    "build": "webpack --config ./webpack.config.js --mode=production",
+    "start": "webpack-dev-server --config ./webpack.dev.js",
+    "build": "webpack --config ./webpack.prod.js",
     "prettier:fix": "prettier --write",
     "lint": "eslint --fix",
     "test": "jest",
@@ -94,7 +94,8 @@
     "typescript-plugin-styled-components": "^2.0.0",
     "webpack": "^5.71.0",
     "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.8.1"
+    "webpack-dev-server": "^4.8.1",
+    "webpack-merge": "^5.8.0"
   },
   "private": true
 }
