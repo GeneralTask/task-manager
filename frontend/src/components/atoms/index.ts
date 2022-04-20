@@ -10,7 +10,7 @@ import NoStyleAnchor from './NoStyleAnchor'
 import NoStyleInput from './NoStyleInput'
 import Divider from './SectionDivider'
 import ShortcutHint from './ShortcutHint'
-import TaskHTMLBody from './TaskHTMLBody'
+import SanitizedHTML from './SanitizedHTML'
 import TaskTemplate from './TaskTemplate'
 import TextArea from './TextArea'
 import TooltipWrapper from './TooltipWrapper'
@@ -30,7 +30,7 @@ export {
     NoStyleInput,
     Divider,
     ShortcutHint,
-    TaskHTMLBody,
+    SanitizedHTML,
     TaskTemplate,
     TextArea,
     TooltipWrapper

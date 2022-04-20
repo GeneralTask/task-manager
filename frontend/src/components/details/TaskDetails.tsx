@@ -3,11 +3,10 @@ import React, { useEffect, useMemo, useState } from 'react'
 
 import ActionOption from '../molecules/ActionOption'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
-import { Icon } from '@atoms'
+import { Icon, SanitizedHTML } from '@atoms'
 import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
-import { TaskHTMLBody } from '@atoms'
 import { logos } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
@@ -142,7 +141,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
             }
             body={
                 task.source.name === 'Gmail' ? (
-                    <TaskHTMLBody dirtyHTML={bodyInput} />
+                    <SanitizedHTML dirtyHTML={bodyInput} />
                 ) : (
                     <BodyTextArea
                         ref={bodyRef}
