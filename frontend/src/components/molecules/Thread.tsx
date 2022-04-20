@@ -36,15 +36,11 @@ const BodyPreview = styled(SubTitle)`
     color: ${Colors.gray._400};
 `
 const SentAt = styled.span`
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: auto;
     font-family: Switzer-Variable;
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._400};
     min-width: fit-content;
-`
-const FlexGrowSpacer = styled.div`
-    display: flex;
-    flex-grow: 1;
 `
 interface ThreadProps {
     thread: TEmailThread
@@ -76,7 +72,6 @@ const Thread = ({ thread }: ThreadProps) => {
                 <SubTitle>{title}</SubTitle>
                 <BodyPreview>{removeHTMLTags(bodyDirtyHTML)}</BodyPreview>
             </TitleContainer>
-            <FlexGrowSpacer />
             <SentAt>{sentAt}</SentAt>
         </ItemContainer>
     )
