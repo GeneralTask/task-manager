@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { Border, Colors, Spacing } from '../../styles'
+import { Colors } from '../../styles'
 import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
 import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
@@ -46,14 +46,6 @@ const TasksContainer = styled.div`
     display: flex;
     flex-direction: column;
     height: 100%;
-    border-radius: ${Border.radius.large};
-    background-color: ${Colors.gray._100};
-`
-const TaskDivider = styled.div`
-    border-bottom: 1px solid ${Colors.gray._200};
-    margin-bottom: -1px;
-    margin-left: ${Spacing.margin._16}px;
-    margin-right: ${Spacing.margin._16}px;
 `
 
 const TaskSection = () => {
@@ -128,22 +120,19 @@ const TaskSection = () => {
                                 {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                                 <TasksContainer ref={sectionViewRef}>
                                     {currentSection.tasks.map((task, index) => (
-                                        <>
-                                            <TaskDropContainer
-                                                key={index}
+                                        <TaskDropContainer
+                                            key={index}
+                                            task={task}
+                                            taskIndex={index}
+                                            sectionId={currentSection.id}
+                                        >
+                                            <Task
                                                 task={task}
-                                                taskIndex={index}
+                                                dragDisabled={currentSection.is_done}
+                                                index={index}
                                                 sectionId={currentSection.id}
-                                            >
-                                                <Task
-                                                    task={task}
-                                                    dragDisabled={currentSection.is_done}
-                                                    index={index}
-                                                    sectionId={currentSection.id}
-                                                />
-                                            </TaskDropContainer>
-                                            {index !== currentSection.tasks.length - 1 && <TaskDivider />}
-                                        </>
+                                            />
+                                        </TaskDropContainer>
                                     ))}
                                     <WithDeselectDropArea
                                         dropIndex={currentSection.tasks.length + 1}

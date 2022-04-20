@@ -7,7 +7,7 @@ const DEFAULT_LINEHEIGHT = 17
 const TemplateContainer = styled.div`
     width: 100%;
     position: relative;
-    height: ${DEFAULT_LINEHEIGHT * 2}px;
+    height: ${DEFAULT_LINEHEIGHT * 5}px;
     border-radius: ${Border.radius.large};
     padding: 1px 0;
 `

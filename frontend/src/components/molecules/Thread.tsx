@@ -10,7 +10,7 @@ import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
 import { removeHTMLTags, timeSince } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import ItemContainer from './ItemContainer'
+import ThreadContainer from './ThreadContainer'
 
 const IconContainer = styled.div`
     margin-left: ${Spacing.margin._8}px;
@@ -64,7 +64,7 @@ const Thread = ({ thread }: ThreadProps) => {
     const sentAt = timeSince(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
 
     return (
-        <ItemContainer isSelected={isSelected} onClick={onClickHandler}>
+        <ThreadContainer isSelected={isSelected} onClick={onClickHandler}>
             <IconContainer>
                 <Icon source={logos[thread.source.logo_v2]} size="small" />
             </IconContainer>
@@ -74,7 +74,7 @@ const Thread = ({ thread }: ThreadProps) => {
                 <BodyPreview>{removeHTMLTags(bodyDirtyHTML)}</BodyPreview>
             </TitleContainer>
             <SentAt>{sentAt}</SentAt>
-        </ItemContainer>
+        </ThreadContainer>
     )
 }
 

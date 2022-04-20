@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
 import { SectionHeader } from '../molecules/Header'
-import TaskTemplate from '../atoms/TaskTemplate'
 import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { useFetchMessages, useGetInfiniteThreads } from '../../services/api-query-hooks'
@@ -13,6 +12,7 @@ import ThreadDetails from '../details/ThreadDetails'
 import { setSelectedItemId } from '../../redux/tasksPageSlice'
 import { useAppDispatch } from '../../redux/hooks'
 import { Border, Colors, Spacing } from '../../styles'
+import ThreadTemplate from '../atoms/ThreadTemplate'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -78,13 +78,12 @@ const MessagesView = () => {
                 <MessagesContainer>
                     {threads.map((thread, index) => (
                         <>
-                            <TaskTemplate
+                            <ThreadTemplate
                                 ref={index === threads.length - 1 ? lastElementRef : undefined}
-                                lines={3}
                                 key={thread.id}
                             >
                                 <Thread thread={thread} />
-                            </TaskTemplate>
+                            </ThreadTemplate>
                             {index !== threads.length - 1 && <MessageDivider />}
                         </>
                     ))}
