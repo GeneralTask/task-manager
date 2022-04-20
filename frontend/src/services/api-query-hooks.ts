@@ -16,9 +16,13 @@ import {
     TCreateEventPayload,
     TCreateTaskData,
     TEmailThreadResponse,
+    TMarkAsTaskData,
+    TMarkMessageReadData,
     TMarkTaskDoneData,
     TModifyTaskData,
+    TModifyTaskSectionData,
     TPostFeedbackData,
+    TReorderTaskData,
     TTaskModifyRequestBody,
 } from './query-payload-types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
@@ -208,15 +212,10 @@ const markTaskDone = async (data: TMarkTaskDoneData) => {
 export const useReorderTask = () => {
     const queryClient = useQueryClient()
     return useMutation(
-        (data: { taskId: string; dropSectionId: string; orderingId: number; dragSectionId?: string }) =>
+        (data: TReorderTaskData) =>
             reorderTask(data),
         {
-            onMutate: async (data: {
-                taskId: string
-                dropSectionId: string
-                orderingId: number
-                dragSectionId?: string
-            }) => {
+            onMutate: async (data: TReorderTaskData) => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
@@ -264,12 +263,7 @@ export const useReorderTask = () => {
         }
     )
 }
-const reorderTask = async (data: {
-    taskId: string
-    dropSectionId: string
-    orderingId: number
-    dragSectionId?: string
-}) => {
+const reorderTask = async (data: TReorderTaskData) => {
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, {
             id_task_section: data.dropSectionId,
@@ -351,8 +345,8 @@ const deleteTaskSection = async (data: { sectionId: string }) => {
 
 export const useModifyTaskSection = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { sectionId: string; name: string }) => modifyTaskSection(data), {
-        onMutate: async (data: { sectionId: string; name: string }) => {
+    return useMutation((data: TModifyTaskSectionData) => modifyTaskSection(data), {
+        onMutate: async (data: TModifyTaskSectionData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
@@ -368,7 +362,7 @@ export const useModifyTaskSection = () => {
         },
     })
 }
-const modifyTaskSection = async (data: { sectionId: string; name: string }) => {
+const modifyTaskSection = async (data: TModifyTaskSectionData) => {
     try {
         const res = await apiClient.patch(`/sections/modify/${data.sectionId}/`, { name: data.name })
         return res.data
@@ -407,9 +401,9 @@ const getThreadDetail = async (data: { threadId: string }) => {
 
 export const useMarkThreadAsTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { id: string, isTask: boolean }) => markThreadAsTask(data),
+    return useMutation((data: TMarkAsTaskData) => markThreadAsTask(data),
         {
-            onMutate: async (data: { id: string, isTask: boolean }) => {
+            onMutate: async (data: TMarkAsTaskData) => {
                 // cancel all current getThreads queries
                 await queryClient.cancelQueries('emailthreads')
 
@@ -432,7 +426,7 @@ export const useMarkThreadAsTask = () => {
         }
     )
 }
-const markThreadAsTask = async (data: { id: string, isTask: boolean }) => {
+const markThreadAsTask = async (data: TMarkAsTaskData) => {
     try {
         const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_task: data.isTask })
         return res.data
@@ -477,14 +471,14 @@ const fetchMessages = async () => {
 
 export const useMarkMessageRead = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { id: string; isRead: boolean }) => markMessageRead(data), {
+    return useMutation((data: TMarkMessageReadData) => markMessageRead(data), {
         onSettled: (_, error, variables) => {
             if (error) return
             queryClient.invalidateQueries(['messages', variables.id])
         },
     })
 }
-const markMessageRead = async (data: { id: string; isRead: boolean }) => {
+const markMessageRead = async (data: TMarkMessageReadData) => {
     try {
         const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_read: data.isRead })
         return res.data
@@ -495,8 +489,8 @@ const markMessageRead = async (data: { id: string; isRead: boolean }) => {
 
 export const useMarkMessageAsTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { id: string; isTask: boolean }) => markMessageAsTask(data), {
-        onMutate: async (data: { id: string; isTask: boolean }) => {
+    return useMutation((data: TMarkAsTaskData) => markMessageAsTask(data), {
+        onMutate: async (data: TMarkAsTaskData) => {
             // cancel all current getMessages queries
             await queryClient.cancelQueries('messages')
 
@@ -519,7 +513,7 @@ export const useMarkMessageAsTask = () => {
         },
     })
 }
-const markMessageAsTask = async (data: { id: string; isTask: boolean }) => {
+const markMessageAsTask = async (data: TMarkAsTaskData) => {
     try {
         const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_task: data.isTask })
         return res.data

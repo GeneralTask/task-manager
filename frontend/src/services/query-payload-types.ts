@@ -48,6 +48,24 @@ interface TMarkTaskDoneData {
     taskId: string
     isCompleted: boolean
 }
+interface TReorderTaskData {
+    taskId: string
+    dropSectionId: string
+    orderingId: number
+    dragSectionId?: string
+}
+interface TModifyTaskSectionData {
+    sectionId: string
+    name: string
+}
+interface TMarkAsTaskData {
+    id: string
+    isTask: boolean
+}
+interface TMarkMessageReadData {
+    id: string
+    isRead: boolean
+}
 
 export {
     TCreateEventPayload,
@@ -58,4 +76,8 @@ export {
     TCreateTaskData,
     TModifyTaskData,
     TMarkTaskDoneData,
+    TReorderTaskData,
+    TModifyTaskSectionData,
+    TMarkAsTaskData,
+    TMarkMessageReadData,
 }
