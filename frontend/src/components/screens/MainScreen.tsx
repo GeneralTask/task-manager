@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Navigate, useLocation, useParams } from 'react-router-dom'
-import Loading from '../atoms/Loading'
 import DefaultTemplate from '../templates/DefaultTemplate'
 import CalendarView from '../views/CalendarView'
 import MessagesView from '../views/MessagesView'
@@ -11,6 +10,7 @@ import TaskSection from '../views/TaskSectionView'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setSelectedItemId } from '../../redux/tasksPageSlice'
 import { useGetTasks, useGetUserInfo } from '../../services/api-query-hooks'
+import Loading from '@atoms/Loading'
 
 const MainScreen = () => {
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)

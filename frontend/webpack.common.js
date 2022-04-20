@@ -40,6 +40,9 @@ module.exports = {
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
+        alias: {
+            '@atoms': path.resolve(__dirname, 'src/components/atoms'),
+        }
     },
     output: {
         filename: 'bundle.js',

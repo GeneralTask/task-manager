@@ -7,6 +7,7 @@
       "esnext"
     ], // List of library files to be included in the compilation
     "allowJs": true, // Allow JavaScript files to be compiled
+    "baseUrl": ".",
     "skipLibCheck": true, // Skip type checking of all declaration files
     "esModuleInterop": true, // Disables namespace imports (import * as fs from "fs") and enables CJS/AMD/UMD style imports (import fs from "fs")
     "allowSyntheticDefaultImports": true, // Allow default imports from modules with no default export
@@ -14,6 +15,9 @@
     "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references to the same file.
     "module": "esnext", // Specify module code generation
     "moduleResolution": "node", // Resolve modules using Node.js style
+    "paths": {
+      "@atoms/*": ["src/components/atoms/*"],
+    },
     "isolatedModules": false, // Unconditionally emit imports for unresolved files
     "resolveJsonModule": true, // Include modules imported with .json extension
     "noEmit": false, // Do not emit output (meaning do not compile code, only perform type checking)
