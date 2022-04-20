@@ -1,7 +1,6 @@
 import { MESSAGES_PER_PAGE, TASK_MARK_AS_DONE_TIMEOUT, TASK_SECTION_DEFAULT_ID } from '../constants'
 import {
     TEmailThread,
-    TEmailThreadResponse,
     TEvent,
     TLinkedAccount,
     TMessage,
@@ -9,17 +8,22 @@ import {
     TRecipients,
     TSupportedType,
     TTask,
-    TTaskModifyRequestBody,
     TTaskSection,
     TUserInfo,
 } from '../utils/types'
+import {
+    TAddTaskSectionData,
+    TCreateEventPayload,
+    TCreateTaskData,
+    TEmailThreadResponse,
+    TPostFeedbackData,
+    TTaskModifyRequestBody,
+} from './query-payload-types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
-
 import { DateTime } from 'luxon'
 import apiClient from '../utils/api'
 import { getMonthsAroundDate } from '../utils/time'
-import { TCreateEventPayload } from './query-payload-types'
 
 /**
  * TASKS QUERIES
@@ -67,8 +71,8 @@ const fetchExternalTasks = async () => {
 
 export const useCreateTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { title: string; body: string; id_task_section: string }) => createTask(data), {
-        onMutate: async (data: { title: string; body: string; id_task_section: string }) => {
+    return useMutation((data: TCreateTaskData) => createTask(data), {
+        onMutate: async (data: TCreateTaskData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
@@ -108,7 +112,7 @@ export const useCreateTask = () => {
         },
     })
 }
-const createTask = async (data: { title: string; body: string; id_task_section: string }) => {
+const createTask = async (data: TCreateTaskData) => {
     try {
         const res = await apiClient.post('/tasks/create/gt_task/', data)
         return res.data
@@ -293,8 +297,8 @@ const reorderTask = async (data: {
 
 export const useAddTaskSection = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { name: string }) => addTaskSection(data), {
-        onMutate: async (data: { name: string }) => {
+    return useMutation((data: TAddTaskSectionData) => addTaskSection(data), {
+        onMutate: async (data: TAddTaskSectionData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
@@ -314,9 +318,9 @@ export const useAddTaskSection = () => {
         },
     })
 }
-const addTaskSection = async (data: { name: string }) => {
+const addTaskSection = async (data: TAddTaskSectionData) => {
     try {
-        const res = await apiClient.post('/sections/create/', { name: data.name })
+        const res = await apiClient.post('/sections/create/', data)
         return res.data
     } catch {
         throw new Error('addTaskSection failed')
@@ -678,7 +682,7 @@ const deleteLinkedAccount = async (data: { id: string }) => {
 export const usePostFeedback = () => {
     return useMutation(postFeedback)
 }
-const postFeedback = async (data: { feedback: string }) => {
+const postFeedback = async (data: TPostFeedbackData) => {
     try {
         const res = await apiClient.post('/feedback/', data)
         return res.data
