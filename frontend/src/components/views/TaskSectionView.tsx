@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { Border, Colors } from '../../styles'
+import { Border, Colors, Spacing } from '../../styles'
 import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
 import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
@@ -48,6 +48,12 @@ const TasksContainer = styled.div`
     height: 100%;
     border-radius: ${Border.radius.large};
     background-color: ${Colors.gray._100};
+`
+const TaskDivider = styled.div`
+    border-bottom: 1px solid ${Colors.gray._200};
+    margin-top: ${Spacing.margin._4}px;
+    margin-left: ${Spacing.margin._16}px;
+    margin-right: ${Spacing.margin._16}px;
 `
 
 const TaskSection = () => {
@@ -121,8 +127,8 @@ const TaskSection = () => {
                                 />
                                 {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                                 <TasksContainer ref={sectionViewRef}>
-                                    {currentSection.tasks.map((task, index) => {
-                                        return (
+                                    {currentSection.tasks.map((task, index) => (
+                                        <>
                                             <TaskDropContainer
                                                 key={index}
                                                 task={task}
@@ -136,8 +142,9 @@ const TaskSection = () => {
                                                     sectionId={currentSection.id}
                                                 />
                                             </TaskDropContainer>
-                                        )
-                                    })}
+                                            {index !== currentSection.tasks.length - 1 && <TaskDivider />}
+                                        </>
+                                    ))}
                                     <WithDeselectDropArea
                                         dropIndex={currentSection.tasks.length + 1}
                                         taskSectionId={currentSection.id}
