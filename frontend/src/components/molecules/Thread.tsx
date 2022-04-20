@@ -37,6 +37,7 @@ const BodyPreview = styled(SubTitle)`
 `
 const SentAt = styled.span`
     margin-left: auto;
+    padding-left: ${Spacing.margin._8}px;
     font-family: Switzer-Variable;
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._400};
