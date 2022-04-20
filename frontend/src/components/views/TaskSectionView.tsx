@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { Colors } from '../../styles'
+import { Border, Colors } from '../../styles'
 import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
 import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
@@ -46,6 +46,8 @@ const TasksContainer = styled.div`
     display: flex;
     flex-direction: column;
     height: 100%;
+    border-radius: ${Border.radius.large};
+    background-color: ${Colors.gray._100};
 `
 
 const TaskSection = () => {
@@ -117,8 +119,8 @@ const TaskSection = () => {
                                     refetch={fetchExternalTasks}
                                     taskSectionId={currentSection.id}
                                 />
+                                {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                                 <TasksContainer ref={sectionViewRef}>
-                                    {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                                     {currentSection.tasks.map((task, index) => {
                                         return (
                                             <TaskDropContainer
