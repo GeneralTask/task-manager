@@ -7,7 +7,7 @@ import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
-import TaskHTMLBody from '../atoms/TaskHTMLBody'
+import SanitizedHTML from '../atoms/SanitizedHTML'
 import { logos } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
@@ -142,7 +142,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
             }
             body={
                 task.source.name === 'Gmail' ? (
-                    <TaskHTMLBody dirtyHTML={bodyInput} />
+                    <SanitizedHTML dirtyHTML={bodyInput} />
                 ) : (
                     <BodyTextArea
                         ref={bodyRef}
