@@ -93,13 +93,9 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
         .agg({f"gt_{threshold}": "sum" for threshold in SESSION_COUNT_THRESHOLDS})
         .reset_index()
     )
-    # timeseries.head(20)
     timeseries = timeseries.set_index(keys=["dt"])
     timeseries.columns.name = "threshold"
     fig_timeseries = px.line(timeseries)
-    # fig_timeseries.show()
-
-
 
 
 
@@ -134,6 +130,11 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
             dcc.Graph(
                 id='graph1',
                 figure=fig
+            ),  
+
+            dcc.Graph(
+                id='graph1.2',
+                figure=fig_timeseries
             ),  
         ]),
         # New Div for all elements in the new 'row' of the page

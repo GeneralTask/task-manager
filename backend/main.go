@@ -11,7 +11,7 @@ import (
 )
 
 func printjk() {
-	log.Println("jerd")
+	log.Print("jerd")
 }
 
 func main() {
