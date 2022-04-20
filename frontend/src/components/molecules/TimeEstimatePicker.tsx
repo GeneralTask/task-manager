@@ -1,8 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import { TASK_ACTION_BASE_WIDTH } from '../../constants'
 import { useModifyTask } from '../../services/api-query-hooks'
-import { Colors } from '../../styles'
+import { Colors, Dimensions } from '../../styles'
 import { radius } from '../../styles/border'
 import { icons } from '../../styles/images'
 import { padding } from '../../styles/spacing'
@@ -13,7 +12,7 @@ import GTSelect from './GTSelect'
 export const TimeEstimateContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: ${TASK_ACTION_BASE_WIDTH}px;
+    width: ${Dimensions.TASK_ACTION_WIDTH};
     position: absolute;
     background-color: ${Colors.white};
     border-radius: ${radius.small};
