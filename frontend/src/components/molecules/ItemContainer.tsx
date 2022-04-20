@@ -1,4 +1,4 @@
-import { Border, Colors, Spacing } from '../../styles'
+import { Border, Colors, Shadows, Spacing } from '../../styles'
 
 import React from 'react'
 import styled from 'styled-components'
@@ -8,10 +8,10 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean }>`
     flex-direction: row;
     align-items: center;
     height: 100%;
-    background-color: ${Colors.white};
-    border-radius: ${Border.radius.xxSmall};
+    border-radius: ${Border.radius.large};
     padding: 0 ${Spacing.padding._8}px;
-    border: 1px solid ${(props) => (props.isSelected ? Colors.gray._500 : Colors.gray._100)};
+    border: 2px solid ${(props) => (props.isSelected ? Colors.purple._3 : 'transparent')};
+    box-shadow: ${(props) => (props.isSelected ? Shadows.xSmall : 'none')};
     cursor: pointer;
 `
 

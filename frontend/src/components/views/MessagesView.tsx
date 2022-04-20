@@ -12,6 +12,7 @@ import Thread from '../molecules/Thread'
 import ThreadDetails from '../details/ThreadDetails'
 import { setSelectedItemId } from '../../redux/tasksPageSlice'
 import { useAppDispatch } from '../../redux/hooks'
+import { Border, Colors } from '../../styles'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -19,6 +20,10 @@ const ScrollViewMimic = styled.div`
     padding-bottom: 100px;
     overflow: auto;
     flex: 1;
+`
+const MessagesContainer = styled.div`
+    border-radius: ${Border.radius.large};
+    background-color: ${Colors.gray._100};
 `
 
 const MessagesView = () => {
@@ -64,15 +69,17 @@ const MessagesView = () => {
         <>
             <ScrollViewMimic>
                 <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
-                {threads.map((thread, index) => (
-                    <TaskTemplate
-                        ref={index === threads.length - 1 ? lastElementRef : undefined}
-                        lines={3}
-                        key={thread.id}
-                    >
-                        <Thread thread={thread} />
-                    </TaskTemplate>
-                ))}
+                <MessagesContainer>
+                    {threads.map((thread, index) => (
+                        <TaskTemplate
+                            ref={index === threads.length - 1 ? lastElementRef : undefined}
+                            lines={3}
+                            key={thread.id}
+                        >
+                            <Thread thread={thread} />
+                        </TaskTemplate>
+                    ))}
+                </MessagesContainer>
                 {(isLoading || isFetching) && (
                     <div>
                         <Loading />

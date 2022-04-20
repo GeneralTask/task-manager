@@ -8,7 +8,7 @@ import { useAppSelector } from '../../redux/hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
-import { removeHTMLTags } from '../../utils/utils'
+import { removeHTMLTags, timeSince } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import ItemContainer from './ItemContainer'
 
@@ -64,7 +64,7 @@ const Thread = ({ thread }: ThreadProps) => {
     const senders = thread.emails[0]?.sender.name
     const title = `${thread.emails[0]?.subject} (${thread.emails.length})`
     const bodyDirtyHTML = thread.emails[0]?.body
-    const sentAt = DateTime.fromISO(thread.emails[0]?.sent_at).toFormat('dd LLL yyyy')
+    const sentAt = timeSince(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
 
     return (
         <ItemContainer isSelected={isSelected} onClick={onClickHandler}>
