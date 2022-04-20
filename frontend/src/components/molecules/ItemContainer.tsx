@@ -12,6 +12,7 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean }>`
     padding: 0 ${Spacing.padding._8}px;
     border: 2px solid ${(props) => (props.isSelected ? Colors.purple._3 : 'transparent')};
     box-shadow: ${(props) => (props.isSelected ? Shadows.xSmall : 'none')};
+    background-color: ${(props) => (props.isSelected ? Colors.white : 'transparent')};
     cursor: pointer;
 `
 
