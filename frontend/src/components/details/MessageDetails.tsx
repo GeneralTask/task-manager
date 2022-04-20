@@ -4,7 +4,7 @@ import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import { Icon } from '../atoms/Icon'
 import { TMessage } from '../../utils/types'
 import { logos } from '../../styles/images'
-import TaskHTMLBody from '../atoms/TaskHTMLBody'
+import SanitizedHTML from '../atoms/SanitizedHTML'
 
 interface MessageDetailsProps {
     message: TMessage
@@ -15,7 +15,7 @@ const MessageDetails = ({ message }: MessageDetailsProps) => {
             top={<Icon source={logos[message.source.logo_v2]} size="small" />}
             title={<Title>{message.title}</Title>}
             subtitle={<EmailSenderDetails sender={message.sender_v2} recipients={message.recipients} />}
-            body={<TaskHTMLBody dirtyHTML={message.body} />}
+            body={<SanitizedHTML dirtyHTML={message.body} />}
         />
     )
 }

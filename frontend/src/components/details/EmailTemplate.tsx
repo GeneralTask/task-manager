@@ -1,7 +1,7 @@
 import { Colors, Typography } from '../../styles'
 import styled from 'styled-components'
 import React, { useEffect, useState } from 'react'
-import TaskHTMLBody from '../atoms/TaskHTMLBody'
+import SanitizedHTML from '../atoms/SanitizedHTML'
 import { removeHTMLTags } from '../../utils/utils'
 
 const DetailsViewContainer = styled.div`
@@ -67,7 +67,7 @@ const EmailTemplate = (props: DetailsTemplateProps) => {
             </CollapseExpandContainer>
             {isCollapsed || (
                 <BodyContainer>
-                    <TaskHTMLBody dirtyHTML={props.body} />
+                    <SanitizedHTML dirtyHTML={props.body} />
                 </BodyContainer>
             )}
         </DetailsViewContainer>
