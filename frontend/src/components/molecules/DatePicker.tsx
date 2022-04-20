@@ -16,7 +16,7 @@ import {
 import { DateTime, Info } from 'luxon'
 import React, { useCallback, useState } from 'react'
 
-import { Icon } from '../atoms/Icon'
+import { Icon } from '@atoms'
 import { icons } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 

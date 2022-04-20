@@ -10,7 +10,7 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { margin } from '../../styles/spacing'
 import { weight } from '../../styles/typography'
 import { ItemTypes, TTaskSection } from '../../utils/types'
-import { Icon } from '../atoms/Icon'
+import { Icon } from '@atoms'
 
 const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     display: flex;

@@ -5,8 +5,8 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import { Colors, Dimensions, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
-import { Icon } from '../atoms/Icon'
-import { Divider } from '../atoms/SectionDivider'
+import { Icon } from '@atoms'
+import { Divider } from '@atoms'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 
 export const PaddedContainer = styled.div`

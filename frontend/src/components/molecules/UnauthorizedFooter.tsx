@@ -1,7 +1,7 @@
 import { Spacing, Typography } from '../../styles'
 
 import { Colors } from '../../styles'
-import { Icon } from '../atoms/Icon'
+import { Icon } from '@atoms'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import React from 'react'
 import styled from 'styled-components/'

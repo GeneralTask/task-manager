@@ -3,9 +3,8 @@ import styled from 'styled-components'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api-query-hooks'
-import { Icon } from '../atoms/Icon'
+import { Icon, TaskTemplate } from '@atoms'
 import { SectionHeader } from '../molecules/Header'
-import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 
 const AUTH_WINDOW_WIDTH = 960

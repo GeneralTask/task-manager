@@ -7,8 +7,7 @@ import { useCreateTask } from '../../services/api-query-hooks'
 import { Colors, Images, Typography } from '../../styles'
 import { radius } from '../../styles/border'
 import { padding } from '../../styles/spacing'
-import { Icon } from '../atoms/Icon'
-import KeyboardShortcut from '../atoms/KeyboardShortcut'
+import { Icon, KeyboardShortcut } from '@atoms'
 
 const CreateNewTaskContainer = styled.div`
     display: flex;

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { margin } from '../../styles/spacing'
-import { Icon } from '../atoms/Icon'
+import { Icon } from '@atoms'
 
 const DropdownContainer = styled.div<{ isSelected: boolean }>`
     display: flex;

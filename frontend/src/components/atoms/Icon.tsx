@@ -21,7 +21,7 @@ interface IconProps {
     uri?: string
     source?: string
 }
-export const Icon = (props: IconProps) => {
+const Icon = (props: IconProps) => {
     const image = props.uri != undefined ? props.uri : props.source ? props.source : Images.logos.generaltask
 
     const dimension = (() => {
@@ -45,3 +45,5 @@ export const Icon = (props: IconProps) => {
         </IconContainer>
     )
 }
+
+export default Icon

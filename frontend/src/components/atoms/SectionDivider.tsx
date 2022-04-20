@@ -10,7 +10,9 @@ const DividerView = styled.div<{ color: string }>`
 interface DividerProps {
     color?: string
 }
-export const Divider = ({ color }: DividerProps) => {
+const Divider = ({ color }: DividerProps) => {
     const backgroundColor = color ?? Colors.gray._100
     return <DividerView color={backgroundColor} />
 }
+
+export default Divider

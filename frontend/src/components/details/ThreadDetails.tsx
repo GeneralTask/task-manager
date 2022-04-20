@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
-import { Icon } from '../atoms/Icon'
+import { Icon } from '@atoms'
 import EmailTemplate from './EmailTemplate'
 
 const FlexColumnContainer = styled.div`

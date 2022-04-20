@@ -3,7 +3,7 @@ import { KEYBOARD_SHORTCUTS } from '../../../constants'
 import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import { useMarkTaskDone } from '../../../services/api-query-hooks'
 import { icons } from '../../../styles/images'
-import { Icon } from '../Icon'
+import { Icon } from '@atoms'
 import NoStyleButton from './NoStyleButton'
 
 interface CompleteButtonProps {

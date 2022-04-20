@@ -1,7 +1,7 @@
 import React from 'react'
 import { useMarkThreadAsTask } from '../../../services/api-query-hooks'
 import { icons } from '../../../styles/images'
-import { Icon } from '../Icon'
+import { Icon } from '@atoms'
 import NoStyleButton from './NoStyleButton'
 
 interface MarkAsTaskButtonProps {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react'
 
-import ActionValue from '../atoms/ActionValue'
-import { Icon } from '../atoms/Icon'
+import { ActionValue } from '@atoms'
+import { Icon } from '@atoms'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import LabelEditor from './LabelEditor'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
@@ -12,7 +12,7 @@ import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import { useClickOutside } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import TooltipWrapper from '../atoms/TooltipWrapper'
+import { TooltipWrapper } from '@atoms'
 
 const ButtonAndPopoverContainer = styled.div`
     position: relative;

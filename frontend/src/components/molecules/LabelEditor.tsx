@@ -6,7 +6,7 @@ import { radius } from '../../styles/border'
 import { setSelectedItemId } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useAppDispatch } from '../../redux/hooks'
-import { Icon } from '../atoms/Icon'
+import { Icon } from '@atoms'
 import { icons } from '../../styles/images'
 
 const LabelEditorContainer = styled.div`

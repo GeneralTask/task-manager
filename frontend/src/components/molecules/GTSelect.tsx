@@ -1,6 +1,6 @@
 import { Colors, Spacing } from '../../styles'
 
-import { Icon } from '../atoms/Icon'
+import { Icon } from '@atoms'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import React from 'react'
 import { icons } from '../../styles/images'

@@ -1,7 +1,7 @@
 import { Colors, Typography } from '../../styles'
 import styled from 'styled-components'
 import React, { useEffect, useState } from 'react'
-import TaskHTMLBody from '../atoms/TaskHTMLBody'
+import { TaskHTMLBody } from '@atoms'
 import { removeHTMLTags } from '../../utils/utils'
 
 const DetailsViewContainer = styled.div`

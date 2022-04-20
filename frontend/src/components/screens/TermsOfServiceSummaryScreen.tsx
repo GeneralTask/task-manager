@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
-import Loading from '../atoms/Loading'
+import { Loading } from '@atoms'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import ModalView from '../views/ModalView'
 import TermsOfServiceView from '../views/TermsOfServiceSummaryView'

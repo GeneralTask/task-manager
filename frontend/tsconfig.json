@@ -6,6 +6,10 @@
       "dom.iterable",
       "esnext"
     ], // List of library files to be included in the compilation
+    "baseUrl": ".",
+    "paths": {
+      "@atoms": ["src/components/atoms"]
+    },
     "allowJs": true, // Allow JavaScript files to be compiled
     "skipLibCheck": true, // Skip type checking of all declaration files
     "esModuleInterop": true, // Disables namespace imports (import * as fs from "fs") and enables CJS/AMD/UMD style imports (import fs from "fs")

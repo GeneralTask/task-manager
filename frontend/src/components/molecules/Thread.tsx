@@ -9,7 +9,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
 import { removeHTMLTags } from '../../utils/utils'
-import { Icon } from '../atoms/Icon'
+import { Icon } from '@atoms'
 import ItemContainer from './ItemContainer'
 
 const IconContainer = styled.div`

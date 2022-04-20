@@ -1,5 +1,5 @@
 import { Border, Colors } from '../../../styles'
-import { Icon } from '../Icon'
+import { Icon } from '@atoms'
 import React from 'react'
 import { TConferenceCall } from '../../../utils/types'
 import styled from 'styled-components'

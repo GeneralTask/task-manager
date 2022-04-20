@@ -2,7 +2,7 @@ import { Colors, Images } from '../../styles'
 import { TRecipient, TRecipients, TSender } from '../../utils/types'
 import { useEffect, useState } from 'react'
 
-import { Icon } from '../atoms/Icon'
+import { Icon } from '@atoms'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { margin } from '../../styles/spacing'
 import styled from 'styled-components'

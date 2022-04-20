@@ -1,6 +1,5 @@
 import { Colors } from '../../styles'
-import { Divider } from '../atoms/SectionDivider'
-import { Icon } from '../atoms/Icon'
+import { Icon, Divider } from '@atoms'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import React from 'react'
 import { Spacing } from '../../styles'

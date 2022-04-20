@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Colors, Spacing, Typography } from '../../styles'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-query-hooks'
-import { Icon } from '../atoms/Icon'
+import { Icon } from '@atoms'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { emptyFunction } from '../../utils/utils'
 import { icons } from '../../styles/images'
