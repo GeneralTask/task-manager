@@ -37,6 +37,17 @@ interface TCreateTaskData {
     body: string
     id_task_section: string
 }
+interface TModifyTaskData {
+    id: string
+    title?: string
+    dueDate?: string
+    timeAllocated?: number
+    body?: string
+}
+interface TMarkTaskDoneData {
+    taskId: string
+    isCompleted: boolean
+}
 
 export {
     TCreateEventPayload,
@@ -45,4 +56,6 @@ export {
     TAddTaskSectionData,
     TPostFeedbackData,
     TCreateTaskData,
+    TModifyTaskData,
+    TMarkTaskDoneData,
 }

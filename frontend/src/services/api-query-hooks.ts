@@ -16,6 +16,8 @@ import {
     TCreateEventPayload,
     TCreateTaskData,
     TEmailThreadResponse,
+    TMarkTaskDoneData,
+    TModifyTaskData,
     TPostFeedbackData,
     TTaskModifyRequestBody,
 } from './query-payload-types'
@@ -124,16 +126,10 @@ const createTask = async (data: TCreateTaskData) => {
 export const useModifyTask = () => {
     const queryClient = useQueryClient()
     return useMutation(
-        (data: { id: string; title?: string; dueDate?: string; timeAllocated?: number; body?: string }) =>
+        (data: TModifyTaskData) =>
             modifyTask(data),
         {
-            onMutate: async (data: {
-                id: string
-                title?: string
-                dueDate?: string
-                timeAllocated?: number
-                body?: string
-            }) => {
+            onMutate: async (data: TModifyTaskData) => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
@@ -158,13 +154,7 @@ export const useModifyTask = () => {
         }
     )
 }
-const modifyTask = async (data: {
-    id: string
-    title?: string
-    dueDate?: string
-    timeAllocated?: number
-    body?: string
-}) => {
+const modifyTask = async (data: TModifyTaskData) => {
     const requestBody: TTaskModifyRequestBody = {}
     if (data.title !== undefined) requestBody.title = data.title
     if (data.dueDate !== undefined) requestBody.due_date = data.dueDate
@@ -180,8 +170,8 @@ const modifyTask = async (data: {
 
 export const useMarkTaskDone = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { taskId: string; isCompleted: boolean }) => markTaskDone(data), {
-        onMutate: async (data: { taskId: string; isCompleted: boolean }) => {
+    return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {
+        onMutate: async (data: TMarkTaskDoneData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
@@ -206,7 +196,7 @@ export const useMarkTaskDone = () => {
         },
     })
 }
-const markTaskDone = async (data: { taskId: string; isCompleted: boolean }) => {
+const markTaskDone = async (data: TMarkTaskDoneData) => {
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { is_completed: data.isCompleted })
         return res.data
