@@ -1,10 +1,16 @@
 import React from 'react'
 import sanitizeHtml from 'sanitize-html'
+import styled from 'styled-components'
 
-interface TaskHTMLBodyProps {
+const SanitizedHTMLContainer = styled.div`
+    width: 100%;
+    overflow: auto;
+`
+
+interface SanitizedHTMLDivProps {
     dirtyHTML: string
 }
-const TaskHTMLBody = ({ dirtyHTML }: TaskHTMLBodyProps) => {
+const SanitizedHTML = ({ dirtyHTML }: SanitizedHTMLDivProps) => {
     const whitelistedHTMLAttributes: sanitizeHtml.IOptions = {
         allowedAttributes: false,
         allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'a', 'center']),
@@ -16,7 +22,7 @@ const TaskHTMLBody = ({ dirtyHTML }: TaskHTMLBodyProps) => {
         ...whitelistedHTMLAttributes,
         transformTags,
     })
-    return <div dangerouslySetInnerHTML={{ __html: cleanHTML }} />
+    return <SanitizedHTMLContainer dangerouslySetInnerHTML={{ __html: cleanHTML }} />
 }
 
-export default TaskHTMLBody
+export default SanitizedHTML

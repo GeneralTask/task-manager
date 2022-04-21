@@ -1,9 +1,9 @@
 import { Border, Colors, Spacing } from '../../styles'
 
 import React from 'react'
-import WebStyled from 'styled-components'
+import styled from 'styled-components'
 
-const ItemContainerDiv = WebStyled.div<{ isSelected: boolean }>`
+const ItemContainerDiv = styled.div<{ isSelected: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: center;

@@ -2,11 +2,8 @@ import getEnvVars from './environment'
 
 const { REACT_APP_API_BASE_URL } = getEnvVars()
 
-// Styling Constants
-export const TASK_ACTION_BASE_WIDTH = 150
-
 // API Constants
-export const MESSAGES_PER_PAGE = 50
+export const MESSAGES_PER_PAGE = 30
 export const TASK_SECTION_DEFAULT_ID = '-1'
 export const AUTHORIZATION_COOKE = 'authToken'
 

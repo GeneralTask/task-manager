@@ -12,6 +12,7 @@ import KeyboardShortcut from '../atoms/KeyboardShortcut'
 
 const CreateNewTaskContainer = styled.div`
     display: flex;
+    flex-shrink: 0;
     flex-direction: row;
     gap: ${padding._8}px;
     background-color: ${Colors.gray._100};

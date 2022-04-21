@@ -1,21 +1,28 @@
 import React, { forwardRef } from 'react'
 import styled from 'styled-components'
-import { Shadows } from '../../styles'
+import { Border, Shadows } from '../../styles'
 
-const TemplateContainer = styled.div`
+const DEFAULT_LINEHEIGHT = 17
+
+const TemplateContainer = styled.div<{ lines: number }>`
     width: 100%;
     position: relative;
-    height: 34px;
-    border-radius: 4px;
+    height: ${({ lines }) => (lines + 1) * DEFAULT_LINEHEIGHT}px;
+    border-radius: ${Border.radius.xxSmall};
     box-shadow: ${Shadows.xSmall};
     padding: 1px 0;
 `
 interface TaskTemplateProps {
     isShadow?: boolean
     children: React.ReactNode
+    lines?: number
 }
 const TaskTemplate = forwardRef<HTMLDivElement, TaskTemplateProps>((props: TaskTemplateProps, ref) => {
-    return <TemplateContainer ref={ref}>{props.children}</TemplateContainer>
+    return (
+        <TemplateContainer ref={ref} lines={props.lines ?? 1}>
+            {props.children}
+        </TemplateContainer>
+    )
 })
 
 export default TaskTemplate

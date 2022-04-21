@@ -53,7 +53,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox").Do()
 	if err != nil {
 		log.Error().Msgf("failed to load Gmail threads for user: %v", err)
-		isBadToken := strings.Contains(err.Error(), "invalid_grant")
+		isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
+			strings.Contains(err.Error(), "authError")
 		result <- EmailResult{
 			Emails:     []*database.Item{},
 			Error:      err,
@@ -153,7 +154,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			senderDomain := utils.ExtractEmailDomain(senderEmail)
 			recipients := *GetRecipients(message.Payload.Headers)
 
-			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate, 0))
+			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
 			if timeSent > mostRecentEmailTimestamp {
 				mostRecentEmailTimestamp = timeSent
 			}

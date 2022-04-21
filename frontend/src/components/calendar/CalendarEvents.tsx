@@ -15,7 +15,7 @@ import {
     TimeAndHeaderContainer,
     TimeContainer,
 } from './CalendarEvents-styles'
-import React, { Ref, useEffect, useMemo, useRef } from 'react'
+import React, { Ref, useLayoutEffect, useMemo, useRef } from 'react'
 
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
@@ -102,7 +102,7 @@ interface CalendarEventsProps {
     numDays: number
 }
 
-export default function CalendarEvents({ date, numDays }: CalendarEventsProps): JSX.Element {
+const CalendarEvents = ({ date, numDays }: CalendarEventsProps) => {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
 
@@ -126,7 +126,7 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
         false
     )
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (eventsContainerRef.current) {
             eventsContainerRef.current.scrollTop = CELL_HEIGHT * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
         }
@@ -158,3 +158,5 @@ export default function CalendarEvents({ date, numDays }: CalendarEventsProps): 
         </AllDaysContainer>
     )
 }
+
+export default CalendarEvents
