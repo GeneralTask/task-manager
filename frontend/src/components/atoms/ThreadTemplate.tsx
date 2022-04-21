@@ -6,7 +6,7 @@ import { TASK_DEFAULT_LINE_HEIGHT } from '../../styles/dimensions'
 const TemplateContainer = styled.div`
     width: 100%;
     position: relative;
-    height: ${TASK_DEFAULT_LINE_HEIGHT * 2}px;
+    height: ${TASK_DEFAULT_LINE_HEIGHT * 5}px;
     border-radius: ${Border.radius.large};
     padding: 1px 0;
 `

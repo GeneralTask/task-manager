@@ -8,9 +8,9 @@ import { useAppSelector } from '../../redux/hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
-import { removeHTMLTags } from '../../utils/utils'
+import { removeHTMLTags, getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import ItemContainer from './ItemContainer'
+import ThreadContainer from './ThreadContainer'
 
 const IconContainer = styled.div`
     margin-left: ${Spacing.margin._8}px;
@@ -35,8 +35,9 @@ const SubTitle = styled(Title)`
 const BodyPreview = styled(SubTitle)`
     color: ${Colors.gray._400};
 `
-const SentAt = styled.span`
+const SentAtContainer = styled.span`
     margin-left: auto;
+    padding-left: ${Spacing.margin._8}px;
     font-family: Switzer-Variable;
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._400};
@@ -60,10 +61,10 @@ const Thread = ({ thread }: ThreadProps) => {
     const senders = thread.emails[0]?.sender.name
     const title = `${thread.emails[0]?.subject} (${thread.emails.length})`
     const bodyDirtyHTML = thread.emails[0]?.body
-    const sentAt = DateTime.fromISO(thread.emails[0]?.sent_at).toFormat('dd LLL yyyy')
+    const sentAt = getHumanTimeSinceDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
 
     return (
-        <ItemContainer isSelected={isSelected} onClick={onClickHandler}>
+        <ThreadContainer isSelected={isSelected} onClick={onClickHandler}>
             <IconContainer>
                 <Icon source={logos[thread.source.logo_v2]} size="small" />
             </IconContainer>
@@ -72,8 +73,8 @@ const Thread = ({ thread }: ThreadProps) => {
                 <SubTitle>{title}</SubTitle>
                 <BodyPreview>{removeHTMLTags(bodyDirtyHTML)}</BodyPreview>
             </TitleContainer>
-            <SentAt>{sentAt}</SentAt>
-        </ItemContainer>
+            <SentAtContainer>{sentAt}</SentAtContainer>
+        </ThreadContainer>
     )
 }
 

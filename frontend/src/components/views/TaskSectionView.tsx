@@ -117,25 +117,23 @@ const TaskSection = () => {
                                     refetch={fetchExternalTasks}
                                     taskSectionId={currentSection.id}
                                 />
+                                {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                                 <TasksContainer ref={sectionViewRef}>
-                                    {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
-                                    {currentSection.tasks.map((task, index) => {
-                                        return (
-                                            <TaskDropContainer
-                                                key={index}
+                                    {currentSection.tasks.map((task, index) => (
+                                        <TaskDropContainer
+                                            key={task.id}
+                                            task={task}
+                                            taskIndex={index}
+                                            sectionId={currentSection.id}
+                                        >
+                                            <Task
                                                 task={task}
-                                                taskIndex={index}
+                                                dragDisabled={currentSection.is_done}
+                                                index={index}
                                                 sectionId={currentSection.id}
-                                            >
-                                                <Task
-                                                    task={task}
-                                                    dragDisabled={currentSection.is_done}
-                                                    index={index}
-                                                    sectionId={currentSection.id}
-                                                />
-                                            </TaskDropContainer>
-                                        )
-                                    })}
+                                            />
+                                        </TaskDropContainer>
+                                    ))}
                                     <WithDeselectDropArea
                                         dropIndex={currentSection.tasks.length + 1}
                                         taskSectionId={currentSection.id}
