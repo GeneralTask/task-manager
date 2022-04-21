@@ -157,6 +157,7 @@ func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 }
 
 // formatDateTime corrects the DateTime object if it was constructed with milliseconds - https://stackoverflow.com/questions/23929145/how-to-test-if-a-given-time-stamp-is-in-seconds-or-milliseconds
+// This is a hack in order to correct previously malformed DateTimes computed using milliseconds
 func formatDateTime(dt primitive.DateTime) primitive.DateTime {
 	unixTS := dt.Time().Unix()
 	if unixTS > 99999999999 {
