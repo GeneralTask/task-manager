@@ -46,6 +46,13 @@ const MainScreen = () => {
         <DndProvider backend={HTML5Backend}>
             <DefaultTemplate>
                 <>
+                    <button
+                        onClick={() => {
+                            history.pushState({ foo: 'bar' }, 'test', 'messages')
+                        }}
+                    >
+                        Clik me
+                    </button>
                     {expandedCalendar || currentPage}
                     <CalendarView />
                 </>
