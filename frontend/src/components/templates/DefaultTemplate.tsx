@@ -4,6 +4,8 @@ import { Colors } from '../../styles'
 import NavigationView from '../views/NavigationView'
 import '../../styles/tooltip.css'
 import styled from 'styled-components'
+import KeyboardShortcut from '../atoms/KeyboardShortcut'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
 
 const DefaultTemplateContainer = styled.div`
     display: flex;
@@ -15,8 +17,24 @@ const DefaultTemplateContainer = styled.div`
 interface DefaultTemplateProps {
     children: React.ReactNode
 }
+
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
-    const createTooltipView = (message: string) => <span>{message}</span>
+    const createTooltipView = (message: string) => (
+        <>
+            {message == 'Label' ? (
+                <>
+                    <span>{message}</span>
+                    <KeyboardShortcut
+                        shortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
+                        onKeyPress={() => {}}
+                    ></KeyboardShortcut>
+                </>
+            ) : (
+                <span>{message}</span>
+            )}
+        </>
+    )
+
     return (
         <DefaultTemplateContainer>
             <ReactTooltip
