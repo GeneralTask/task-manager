@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
@@ -55,6 +55,11 @@ const MessagesView = () => {
             dispatch(setSelectedItemId(expandedThread.id))
         }
     }, [expandedThread])
+    useEffect(() => {
+        if (expandedThread) {
+            navigate(`/messages/${expandedThread.id}`)
+        }
+    }, [expandedThread])
 
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
@@ -77,15 +82,12 @@ const MessagesView = () => {
                 <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
                 <MessagesContainer>
                     {threads.map((thread, index) => (
-                        <>
-                            <ThreadTemplate
-                                ref={index === threads.length - 1 ? lastElementRef : undefined}
-                                key={thread.id}
-                            >
+                        <div key={thread.id}>
+                            <ThreadTemplate ref={index === threads.length - 1 ? lastElementRef : undefined}>
                                 <Thread thread={thread} />
                             </ThreadTemplate>
                             {index !== threads.length - 1 && <MessageDivider />}
-                        </>
+                        </div>
                     ))}
                 </MessagesContainer>
                 {(isLoading || isFetching) && (
