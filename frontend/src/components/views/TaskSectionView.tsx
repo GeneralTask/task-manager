@@ -121,7 +121,7 @@ const TaskSection = () => {
                                 <TasksContainer ref={sectionViewRef}>
                                     {currentSection.tasks.map((task, index) => (
                                         <TaskDropContainer
-                                            key={index}
+                                            key={task.id}
                                             task={task}
                                             taskIndex={index}
                                             sectionId={currentSection.id}

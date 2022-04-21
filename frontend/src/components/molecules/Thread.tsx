@@ -35,7 +35,7 @@ const SubTitle = styled(Title)`
 const BodyPreview = styled(SubTitle)`
     color: ${Colors.gray._400};
 `
-const SentAt = styled.span`
+const SentAtContainer = styled.span`
     margin-left: auto;
     padding-left: ${Spacing.margin._8}px;
     font-family: Switzer-Variable;
@@ -73,7 +73,7 @@ const Thread = ({ thread }: ThreadProps) => {
                 <SubTitle>{title}</SubTitle>
                 <BodyPreview>{removeHTMLTags(bodyDirtyHTML)}</BodyPreview>
             </TitleContainer>
-            <SentAt>{sentAt}</SentAt>
+            <SentAtContainer>{sentAt}</SentAtContainer>
         </ThreadContainer>
     )
 }
