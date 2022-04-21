@@ -27,14 +27,9 @@ export const removeHTMLTags = (dirtyHTML: string) => {
     })
 }
 
-export const timeSince = (date: DateTime) => {
+export const getHumanTimeSinceDateTime = (date: DateTime) => {
     const now = DateTime.now()
-    const diff = now.diff(date, ['years', 'months', 'days', 'hours', 'minutes', 'milliseconds'])
-    const years = diff.years
-    const months = diff.months
-    const days = diff.days
-    const hours = diff.hours
-    const minutes = diff.minutes
+    const { years, months, days, hours, minutes } = now.diff(date, ['years', 'months', 'days', 'hours', 'minutes', 'milliseconds'])
 
     if (years > 0) {
         return `${years} year${years > 1 ? 's' : ''} ago`

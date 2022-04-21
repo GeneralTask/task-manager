@@ -1,13 +1,12 @@
 import React, { forwardRef } from 'react'
 import styled from 'styled-components'
 import { Border } from '../../styles'
-
-const DEFAULT_LINEHEIGHT = 17
+import { TASK_DEFAULT_LINE_HEIGHT } from '../../styles/dimensions'
 
 const TemplateContainer = styled.div`
     width: 100%;
     position: relative;
-    height: ${DEFAULT_LINEHEIGHT * 2}px;
+    height: ${TASK_DEFAULT_LINE_HEIGHT * 2}px;
     border-radius: ${Border.radius.large};
     padding: 1px 0;
 `
