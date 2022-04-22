@@ -1,16 +1,10 @@
-import { Colors, Images } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { TRecipient, TRecipients, TSender } from '../../utils/types'
-import { useEffect, useState } from 'react'
-
-import { Icon } from '../atoms/Icon'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { margin } from '../../styles/spacing'
 import styled from 'styled-components'
 import React from 'react'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 
-const Container = styled.div`
-    margin-top: ${margin._4}px;
-`
+const Container = styled.div``
 const Row = styled.div`
     display: flex;
     flex-direction: row;
@@ -18,24 +12,19 @@ const Row = styled.div`
 const KeyContainer = styled.div`
     display: flex;
     flex-direction: row;
-    width: 10%;
+    margin-right: ${Spacing.margin._4}px;
     color: ${Colors.gray._600};
 `
 const ValueContainer = styled.div`
     display: flex;
     flex-direction: row;
 `
-const Bold = styled.span`
-    font-weight: bold;
+const Gray = styled.span`
+    font-size: ${Typography.xSmall.fontSize};
+    color: ${Colors.gray._400};
 `
-const DetailsContainer = styled.div`
-    height: 20px;
-`
-const ExpandCollapse = styled(NoStyleButton)`
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
+const Underline = styled.span`
+    text-decoration: underline;
 `
 
 interface RecipientDetailsProps {
@@ -63,38 +52,21 @@ interface EmailSenderDetailsProps {
 }
 
 const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => {
-    const [showDetails, setShowDetails] = useState(false)
-
-    const canShowMoreDetails = recipients.to.length > 1 || recipients.cc.length > 0 || recipients.bcc.length > 0
-
-    useEffect(() => {
-        setShowDetails(false)
-    }, [sender, recipients])
-
-    const senderDisplayText =
-        typeof sender === 'string' ? (
-            sender
-        ) : (
-            <>
-                <Bold>{sender.name} </Bold>
-                {`<${sender.email}>`}
-            </>
-        )
-
-    const senderDetailsRow = (
-        <Row>
-            <KeyContainer>From:</KeyContainer>
-            <ValueContainer>{senderDisplayText}</ValueContainer>
-        </Row>
+    const senderName = typeof sender === 'string' ? sender : sender.name
+    const senderEmail = typeof sender === 'string' ? undefined : sender.email
+    const numRecipients = recipients.to.length + recipients.cc.length + recipients.bcc.length
+    const textDisplay = (
+        <Gray>
+            <Underline>{`${numRecipients} ${numRecipients === 1 ? 'recipient' : 'recipients'}`}</Underline> ▼
+        </Gray>
     )
 
-    const restOfDetails = !showDetails ? (
-        <Row>
-            <KeyContainer>To:</KeyContainer>
-            <ValueContainer>{recipients.to.map(({ name, email }) => name || email).join(', ')}</ValueContainer>
-        </Row>
-    ) : (
+    const details = (
         <>
+            <Row>
+                <KeyContainer>From:</KeyContainer>
+                <ValueContainer>{senderEmail ? `${senderName} <${senderEmail}>` : senderName}</ValueContainer>
+            </Row>
             <RecipientDetails category="To:" recipients={recipients.to} />
             <RecipientDetails category="Cc:" recipients={recipients.cc} />
             <RecipientDetails category="Bcc:" recipients={recipients.bcc} />
@@ -102,21 +74,9 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
     )
 
     return (
-        <Container>
-            {senderDetailsRow}
-            {restOfDetails}
-            <DetailsContainer>
-                {canShowMoreDetails && (
-                    <ExpandCollapse onClick={() => setShowDetails(!showDetails)}>
-                        {showDetails ? (
-                            <Icon size="small" source={Images.icons.chevron_up} />
-                        ) : (
-                            <Icon size="small" source={Images.icons.chevron_down} />
-                        )}
-                    </ExpandCollapse>
-                )}
-            </DetailsContainer>
-        </Container>
+        <TooltipWrapper dataTip={details} tooltipId="tooltip">
+            <Container>{textDisplay}</Container>
+        </TooltipWrapper>
     )
 }
 
