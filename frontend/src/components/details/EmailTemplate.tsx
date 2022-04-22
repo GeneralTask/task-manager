@@ -65,6 +65,7 @@ const EmailTemplate = (props: DetailsTemplateProps) => {
 
     useEffect(() => setIsCollapsed(!!props.isCollapsed), [props.isCollapsed])
     useEffect(() => {
+        ReactTooltip.hide()
         ReactTooltip.rebuild()
     }, [])
 
