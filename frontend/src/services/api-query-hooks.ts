@@ -1,18 +1,7 @@
 import { MESSAGES_PER_PAGE, TASK_MARK_AS_DONE_TIMEOUT, TASK_SECTION_DEFAULT_ID } from '../constants'
 import {
-    TEmailThread,
-    TEvent,
-    TLinkedAccount,
-    TMessage,
-    TMessageResponse,
-    TRecipients,
-    TSupportedType,
-    TTask,
-    TTaskSection,
-    TUserInfo,
-} from '../utils/types'
-import {
     TAddTaskSectionData,
+    TComposeMessageData,
     TCreateEventPayload,
     TCreateTaskData,
     TEmailThreadResponse,
@@ -25,8 +14,21 @@ import {
     TReorderTaskData,
     TTaskModifyRequestBody,
 } from './query-payload-types'
+import {
+    TEmailThread,
+    TEvent,
+    TLinkedAccount,
+    TMessage,
+    TMessageResponse,
+    TRecipients,
+    TSupportedType,
+    TTask,
+    TTaskSection,
+    TUserInfo,
+} from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
+
 import { DateTime } from 'luxon'
 import apiClient from '../utils/api'
 import { getMonthsAroundDate } from '../utils/time'
@@ -519,6 +521,33 @@ const markMessageAsTask = async (data: TMarkAsTaskData) => {
         return res.data
     } catch {
         throw new Error('markMessageAsTask failed')
+    }
+}
+export const useComposeMessage = () => {
+    const queryClient = useQueryClient()
+    return useMutation((data: TComposeMessageData) => composeMessage(data), {
+        onMutate: async (data: TComposeMessageData) => {
+            // cancel all current getMessages queries
+            await queryClient.cancelQueries('messages')
+
+            const response: TMessageResponse | undefined = queryClient.getQueryData('messages')
+            if (!response) return
+
+            // do optimistic render here?
+
+            queryClient.setQueryData('messages', response)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('messages')
+        },
+    })
+}
+const composeMessage = async (data: TComposeMessageData) => {
+    try {
+        const res = await apiClient.patch(`/messages/compose/`, data)
+        return res.data
+    } catch {
+        throw new Error('composeMessage failed')
     }
 }
 

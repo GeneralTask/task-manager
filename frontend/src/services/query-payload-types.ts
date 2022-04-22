@@ -1,4 +1,4 @@
-import { TEmailThread } from "../utils/types"
+import { TEmailThread, TRecipients } from "../utils/types"
 
 interface TEventAttendee {
     name: string
@@ -66,6 +66,14 @@ interface TMarkMessageReadData {
     id: string
     isRead: boolean
 }
+interface TComposeMessageData {
+    message_id?: string
+    subject?: string
+    body: string
+    recipients: TRecipients
+    source_id: string
+    source_account_id: string
+}
 
 export {
     TCreateEventPayload,
@@ -80,4 +88,5 @@ export {
     TModifyTaskSectionData,
     TMarkAsTaskData,
     TMarkMessageReadData,
+    TComposeMessageData,
 }
