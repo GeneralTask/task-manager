@@ -25,9 +25,11 @@
     "printWidth": 120
   },
   "dependencies": {
+    "@lexical/react": "^0.2.4",
     "@reduxjs/toolkit": "^1.7.2",
     "axios": "^0.26.1",
     "js-cookie": "^3.0.1",
+    "lexical": "^0.2.4",
     "luxon": "^2.3.1",
     "prop-types": ">=15",
     "react": "17.0.1",

@@ -1,10 +1,12 @@
-import React from 'react'
-import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
-import { TEmailThread } from '../../utils/types'
-import { Icon } from '../atoms/Icon'
+
+import EmailReplyContainer from './EmailReply/EmailReplyContainer'
 import EmailTemplate from './EmailTemplate'
+import { Icon } from '../atoms/Icon'
+import React from 'react'
+import { TEmailThread } from '../../utils/types'
+import { logos } from '../../styles/images'
+import styled from 'styled-components'
 
 const FlexColumnContainer = styled.div`
     display: flex;
@@ -73,6 +75,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             isCollapsed={index !== thread.emails.length - 1}
                         />
                     ))}
+                    <EmailReplyContainer />
                 </>
             )}
         </FlexColumnContainer>
