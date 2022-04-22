@@ -42,15 +42,16 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: Tas
     const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === task.id)
     const observer = useRef<IntersectionObserver>()
     const selectedTask = useAppSelector((state) => state.tasks_page.selected_item_id)
-    const isScrolling = useRef<Boolean>(false)
+    const isScrolling = useRef<boolean>(false)
 
     // Add event listener to check if scrolling occurs in task section
     useEffect(() => {
-        sectionScrollingRef?.current?.addEventListener('scroll', () => {
+        const setScrollTrue = () => {
             isScrolling.current = true
-        })
+        }
+        sectionScrollingRef?.current?.addEventListener('scroll', setScrollTrue)
         return () => {
-            sectionScrollingRef?.current?.removeEventListener('scroll', () => {})
+            sectionScrollingRef?.current?.removeEventListener('scroll', setScrollTrue)
         }
     }, [])
 
