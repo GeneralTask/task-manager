@@ -55,6 +55,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                 .map((recipient) => recipient.email)
         )
     )
+    console.log({ thread })
 
     return (
         <FlexColumnContainer>
@@ -75,7 +76,10 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             isCollapsed={index !== thread.emails.length - 1}
                         />
                     ))}
-                    <EmailReplyContainer />
+                    <EmailReplyContainer
+                        email={thread.emails[thread.emails.length - 1]}
+                        sourceAccountId={thread.source.account_id}
+                    />
                 </>
             )}
         </FlexColumnContainer>

@@ -526,17 +526,17 @@ const markMessageAsTask = async (data: TMarkAsTaskData) => {
 export const useComposeMessage = () => {
     const queryClient = useQueryClient()
     return useMutation((data: TComposeMessageData) => composeMessage(data), {
-        onMutate: async (data: TComposeMessageData) => {
-            // cancel all current getMessages queries
-            await queryClient.cancelQueries('messages')
+        // onMutate: async (data: TComposeMessageData) => {
+        //     // cancel all current getMessages queries
+        //     await queryClient.cancelQueries('messages')
 
-            const response: TMessageResponse | undefined = queryClient.getQueryData('messages')
-            if (!response) return
+        //     const response: TMessageResponse | undefined = queryClient.getQueryData('messages')
+        //     if (!response) return
 
-            // do optimistic render here?
+        //     // do optimistic render here?
 
-            queryClient.setQueryData('messages', response)
-        },
+        //     queryClient.setQueryData('messages', response)
+        // },
         onSettled: () => {
             queryClient.invalidateQueries('messages')
         },
@@ -544,7 +544,7 @@ export const useComposeMessage = () => {
 }
 const composeMessage = async (data: TComposeMessageData) => {
     try {
-        const res = await apiClient.patch(`/messages/compose/`, data)
+        const res = await apiClient.post(`/messages/compose/`, data)
         return res.data
     } catch {
         throw new Error('composeMessage failed')
