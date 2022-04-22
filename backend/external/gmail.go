@@ -50,7 +50,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	}
 
 	// loads the most recent 100 threads in the inbox
-	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox").Do()
+	//threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(200).Q("label:inbox").Do()
+	threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(100).Q("label:inbox").Do()
 	if err != nil {
 		log.Error().Msgf("failed to load Gmail threads for user: %v", err)
 		isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
@@ -199,6 +200,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				true,
 			)
 			if err != nil {
+				log.Error().Msgf("Could not update or create %+v", emailItem)
 				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 				return
 			}
