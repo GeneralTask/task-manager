@@ -2,6 +2,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { TRecipient, TRecipients, TSender } from '../../utils/types'
 import styled from 'styled-components'
 import React from 'react'
+import * as ReactDOMServer from 'react-dom/server'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 
 const Row = styled.div`
@@ -9,16 +10,13 @@ const Row = styled.div`
     flex-direction: row;
 `
 const KeyContainer = styled.div`
-    display: flex;
-    flex-direction: row;
     margin-right: ${Spacing.margin._4}px;
     color: ${Colors.gray._600};
 `
 const ValueContainer = styled.div`
-    display: flex;
-    flex-direction: row;
+    color: ${Colors.gray._800};
 `
-const Gray = styled.span`
+const SmallGrayText = styled.span`
     font-size: ${Typography.xSmall.fontSize};
     color: ${Colors.gray._400};
 `
@@ -54,11 +52,6 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
     const senderName = typeof sender === 'string' ? sender : sender.name
     const senderEmail = typeof sender === 'string' ? undefined : sender.email
     const numRecipients = recipients.to.length + recipients.cc.length + recipients.bcc.length
-    const textDisplay = (
-        <Gray>
-            <Underline>{`${numRecipients} ${numRecipients === 1 ? 'recipient' : 'recipients'}`}</Underline> ▼
-        </Gray>
-    )
 
     const details = (
         <>
@@ -73,8 +66,10 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
     )
 
     return (
-        <TooltipWrapper dataTip={details} tooltipId="tooltip">
-            {textDisplay}
+        <TooltipWrapper dataTip={ReactDOMServer.renderToString(details)} tooltipId="tooltip">
+            <SmallGrayText>
+                <Underline>{`${numRecipients} ${numRecipients === 1 ? 'recipient' : 'recipients'}`}</Underline> ▼
+            </SmallGrayText>
         </TooltipWrapper>
     )
 }
