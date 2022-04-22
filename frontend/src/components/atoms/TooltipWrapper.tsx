@@ -8,16 +8,16 @@ interface TooltipWrapperProps {
     inline?: boolean
 }
 const TooltipWrapper = ({ children, dataTip, tooltipId, inline }: TooltipWrapperProps) => {
-    const tooltip = typeof dataTip !== 'string' ? ReactDOMServer.renderToString(dataTip) : dataTip
+    const tooltip = typeof dataTip === 'string' ? dataTip : ReactDOMServer.renderToString(dataTip)
 
     if (inline)
         return (
-            <span data-tip={tooltip} data-for={tooltipId} data-html={typeof dataTip !== 'string'}>
+            <span data-tip={tooltip} data-for={tooltipId} data-html={true}>
                 {children}
             </span>
         )
     return (
-        <div data-tip={tooltip} data-for={tooltipId} data-html={typeof dataTip !== 'string'}>
+        <div data-tip={tooltip} data-for={tooltipId} data-html={true}>
             {children}
         </div>
     )
