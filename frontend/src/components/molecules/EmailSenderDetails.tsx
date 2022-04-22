@@ -51,7 +51,7 @@ interface EmailSenderDetailsProps {
 const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => {
     const numRecipients = recipients.to.length + recipients.cc.length + recipients.bcc.length
 
-    const details = (
+    const details = ReactDOMServer.renderToString(
         <>
             <Row>
                 <KeyContainer>From:</KeyContainer>
@@ -64,7 +64,7 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
     )
 
     return (
-        <TooltipWrapper dataTip={ReactDOMServer.renderToString(details)} tooltipId="tooltip">
+        <TooltipWrapper dataTip={details} tooltipId="tooltip">
             <SmallGrayText>
                 <Underline>{`${numRecipients} ${numRecipients === 1 ? 'recipient' : 'recipients'}`}</Underline> ▼
             </SmallGrayText>

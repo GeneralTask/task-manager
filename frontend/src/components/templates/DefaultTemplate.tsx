@@ -16,7 +16,6 @@ interface DefaultTemplateProps {
     children: React.ReactNode
 }
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
-    const createTooltipView = (message: string) => message
     return (
         <DefaultTemplateContainer>
             <ReactTooltip
@@ -28,7 +27,6 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
                 className="tooltip"
                 backgroundColor={Colors.white}
                 textColor={Colors.black}
-                getContent={createTooltipView}
             />
             <NavigationView />
             {children}
