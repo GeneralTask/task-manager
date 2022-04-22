@@ -1,5 +1,5 @@
 import { ItemTypes, TTask } from '../../utils/types'
-import React, { useCallback } from 'react'
+import React, { MutableRefObject, useCallback, useEffect, useRef } from 'react'
 import { Spacing, Typography } from '../../styles'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -32,13 +32,55 @@ interface TaskProps {
     dragDisabled: boolean
     index: number
     sectionId: string
+    sectionScrollingRef: MutableRefObject<HTMLDivElement | null>
 }
 
-const Task = ({ task, dragDisabled, index, sectionId }: TaskProps) => {
+const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: TaskProps) => {
     const navigate = useNavigate()
     const params = useParams()
     const isExpanded = params.task === task.id
     const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === task.id)
+    const observer = useRef<IntersectionObserver>()
+    const selectedTask = useAppSelector((state) => state.tasks_page.selected_item_id)
+    const isScrolling = useRef<boolean>(false)
+
+    // Add event listener to check if scrolling occurs in task section
+    useEffect(() => {
+        const setScrollTrue = () => {
+            isScrolling.current = true
+        }
+        sectionScrollingRef?.current?.addEventListener('scroll', setScrollTrue)
+        return () => {
+            sectionScrollingRef?.current?.removeEventListener('scroll', setScrollTrue)
+        }
+    }, [])
+
+    //If task selection changes, re-enable auto-scrolling for task section
+    useEffect(() => {
+        if (sectionScrollingRef.current) {
+            isScrolling.current = false
+        }
+    }, [selectedTask])
+
+    //Auto-scroll to task if it is selected and out of view
+    const elementRef = useCallback(
+        (node) => {
+            if (observer.current) observer.current.disconnect()
+            observer.current = new IntersectionObserver(
+                (entries) => {
+                    if (!entries[0].isIntersecting && isSelected && !isScrolling.current) {
+                        node.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center',
+                        })
+                    }
+                },
+                { threshold: 1.0 }
+            )
+            if (node) observer.current.observe(node)
+        },
+        [isSelected, isScrolling.current]
+    )
 
     const hideDetailsView = useCallback(() => navigate(`/tasks/${params.section}`), [params])
 
@@ -66,7 +108,7 @@ const Task = ({ task, dragDisabled, index, sectionId }: TaskProps) => {
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClick, !isSelected)
 
     return (
-        <TaskTemplate>
+        <TaskTemplate ref={elementRef}>
             <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreview}>
                 {!dragDisabled && <Domino ref={drag} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />

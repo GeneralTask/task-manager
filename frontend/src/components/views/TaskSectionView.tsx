@@ -49,7 +49,8 @@ const TasksContainer = styled.div`
 `
 
 const TaskSection = () => {
-    const bannerTaskSectionRef = useRef<HTMLDivElement>(null)
+    const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
+    const bannerTaskSectionRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
     const { data: taskSections, isLoading } = useGetTasks()
@@ -103,7 +104,13 @@ const TaskSection = () => {
 
     return (
         <>
-            <BannerAndSectionContainer ref={bannerTaskSectionRef}>
+            <BannerAndSectionContainer
+                id="testing"
+                ref={(node) => {
+                    sectionScrollingRef.current = node
+                    bannerTaskSectionRef.current = node
+                }}
+            >
                 <EventBanner date={DateTime.now()} />
                 <ScrollViewMimic>
                     <TaskSectionViewContainer>
@@ -131,6 +138,7 @@ const TaskSection = () => {
                                                 dragDisabled={currentSection.is_done}
                                                 index={index}
                                                 sectionId={currentSection.id}
+                                                sectionScrollingRef={sectionScrollingRef}
                                             />
                                         </TaskDropContainer>
                                     ))}
