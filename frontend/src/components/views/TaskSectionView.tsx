@@ -103,7 +103,7 @@ const TaskSection = () => {
 
     return (
         <>
-            <BannerAndSectionContainer ref={bannerTaskSectionRef}>
+            <BannerAndSectionContainer id="testing" ref={bannerTaskSectionRef}>
                 <EventBanner date={DateTime.now()} />
                 <ScrollViewMimic>
                     <TaskSectionViewContainer>

@@ -1,5 +1,5 @@
 import { ItemTypes, TTask } from '../../utils/types'
-import React, { useCallback } from 'react'
+import React, { createRef, useCallback, useEffect, useRef } from 'react'
 import { Spacing, Typography } from '../../styles'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -39,6 +39,42 @@ const Task = ({ task, dragDisabled, index, sectionId }: TaskProps) => {
     const params = useParams()
     const isExpanded = params.task === task.id
     const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === task.id)
+    const observer = useRef<IntersectionObserver>()
+    const selectedTask = useAppSelector((state) => state.tasks_page.selected_item_id)
+
+    const isScrolling = useRef<Boolean>(false)
+    useEffect(() => {
+        document.getElementById('testing')?.addEventListener('scroll', () => {
+            isScrolling.current = true
+        })
+        return () => {
+            document.getElementById('testing')?.removeEventListener('scroll', () => {})
+        }
+    }, [])
+    useEffect(() => {
+        if (isScrolling.current) {
+            isScrolling.current = false
+        }
+    }, [selectedTask])
+
+    const elementRef = useCallback(
+        (node) => {
+            if (observer.current) observer.current.disconnect()
+            observer.current = new IntersectionObserver(
+                (entries) => {
+                    if (!entries[0].isIntersecting && isSelected && !isScrolling.current) {
+                        node.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center',
+                        })
+                    }
+                },
+                { threshold: 1.0 }
+            )
+            if (node) observer.current.observe(node)
+        },
+        [isSelected, isScrolling.current]
+    )
 
     const hideDetailsView = useCallback(() => navigate(`/tasks/${params.section}`), [params])
 
@@ -66,7 +102,7 @@ const Task = ({ task, dragDisabled, index, sectionId }: TaskProps) => {
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClick, !isSelected)
 
     return (
-        <TaskTemplate>
+        <TaskTemplate ref={elementRef}>
             <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreview}>
                 {!dragDisabled && <Domino ref={drag} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />
