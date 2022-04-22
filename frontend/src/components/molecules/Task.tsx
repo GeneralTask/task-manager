@@ -1,5 +1,5 @@
 import { ItemTypes, TTask } from '../../utils/types'
-import React, { createRef, useCallback, useEffect, useRef } from 'react'
+import React, { MutableRefObject, useCallback, useEffect, useRef } from 'react'
 import { Spacing, Typography } from '../../styles'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -32,31 +32,36 @@ interface TaskProps {
     dragDisabled: boolean
     index: number
     sectionId: string
+    sectionScrollingRef: MutableRefObject<HTMLDivElement | null>
 }
 
-const Task = ({ task, dragDisabled, index, sectionId }: TaskProps) => {
+const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: TaskProps) => {
     const navigate = useNavigate()
     const params = useParams()
     const isExpanded = params.task === task.id
     const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === task.id)
     const observer = useRef<IntersectionObserver>()
     const selectedTask = useAppSelector((state) => state.tasks_page.selected_item_id)
-
     const isScrolling = useRef<Boolean>(false)
+
+    // Add event listener to check if scrolling occurs in task section
     useEffect(() => {
-        document.getElementById('testing')?.addEventListener('scroll', () => {
+        sectionScrollingRef?.current?.addEventListener('scroll', () => {
             isScrolling.current = true
         })
         return () => {
-            document.getElementById('testing')?.removeEventListener('scroll', () => {})
+            sectionScrollingRef?.current?.removeEventListener('scroll', () => {})
         }
     }, [])
+
+    //If task selection changes, re-enable auto-scrolling for task section
     useEffect(() => {
-        if (isScrolling.current) {
+        if (sectionScrollingRef.current) {
             isScrolling.current = false
         }
     }, [selectedTask])
 
+    //Auto-scroll to task if it is selected and out of view
     const elementRef = useCallback(
         (node) => {
             if (observer.current) observer.current.disconnect()
