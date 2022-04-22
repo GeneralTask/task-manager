@@ -2,7 +2,6 @@ import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './Detai
 import React, { useEffect, useMemo, useState } from 'react'
 
 import ActionOption from '../molecules/ActionOption'
-import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
 import ReactTooltip from 'react-tooltip'
@@ -134,11 +133,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
                         onEdit()
                     }}
                 />
-            }
-            subtitle={
-                task.source.name === 'Gmail' && task.sender && task.recipients ? (
-                    <EmailSenderDetails sender={task.sender} recipients={task.recipients} />
-                ) : undefined
             }
             body={
                 task.source.name === 'Gmail' ? (

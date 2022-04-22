@@ -16,7 +16,7 @@ interface DefaultTemplateProps {
     children: React.ReactNode
 }
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
-    const createTooltipView = (message: string | JSX.Element) => message
+    const createTooltipView = (message: string) => message
     return (
         <DefaultTemplateContainer>
             <ReactTooltip

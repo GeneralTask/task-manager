@@ -44,20 +44,18 @@ function RecipientDetails({ category, recipients }: RecipientDetailsProps): JSX.
 }
 
 interface EmailSenderDetailsProps {
-    sender: TSender | string
+    sender: TSender
     recipients: TRecipients
 }
 
 const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => {
-    const senderName = typeof sender === 'string' ? sender : sender.name
-    const senderEmail = typeof sender === 'string' ? undefined : sender.email
     const numRecipients = recipients.to.length + recipients.cc.length + recipients.bcc.length
 
     const details = (
         <>
             <Row>
                 <KeyContainer>From:</KeyContainer>
-                <ValueContainer>{senderEmail ? `${senderName} <${senderEmail}>` : senderName}</ValueContainer>
+                <ValueContainer>{`${sender.name} <${sender.email}>`}</ValueContainer>
             </Row>
             <RecipientDetails category="To:" recipients={recipients.to} />
             <RecipientDetails category="Cc:" recipients={recipients.cc} />
