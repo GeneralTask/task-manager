@@ -31,6 +31,7 @@ const SentAtContainer = styled.div`
 `
 const BodyContainer = styled.div`
     flex: 1;
+    margin: ${Spacing.margin._8}px;
 `
 const BodyContainerCollapsed = styled.span`
     flex: 1;
