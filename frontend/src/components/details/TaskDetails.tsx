@@ -16,9 +16,11 @@ import { Spacing } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
 
-const SYNCING = 'Syncing...'
-const SYNC_ERROR = 'There was an error syncing with our servers'
-const SYNCED = 'Synced'
+const SYNC_MESSAGES = {
+    SYNCING: 'Syncing...',
+    ERROR: 'There was an error syncing with our servers',
+    COMPLETE: '',
+}
 
 const MarginRight16 = styled.div`
     margin-right: ${Spacing.margin._16}px;
@@ -37,15 +39,20 @@ const TaskDetails = (props: TaskDetailsProps) => {
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
+    const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
     const bodyRef = useRef<HTMLTextAreaElement>(null)
     const syncTimer = useRef<NodeJS.Timeout>()
 
-    const syncIndicatorText = useMemo(() => {
-        if (isEditing || isLoading) return SYNCING
-        if (isError) return SYNC_ERROR
-        return SYNCED
+    useEffect(() => {
+        if (isEditing || isLoading) {
+            setSyncIndicatorText(SYNC_MESSAGES.SYNCING)
+        } else if (isError) {
+            setSyncIndicatorText(SYNC_MESSAGES.ERROR)
+        } else {
+            setSyncIndicatorText(SYNC_MESSAGES.COMPLETE)
+        }
     }, [isError, isLoading, isEditing])
 
     useEffect(() => {
