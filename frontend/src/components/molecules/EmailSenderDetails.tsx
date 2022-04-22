@@ -4,7 +4,6 @@ import styled from 'styled-components'
 import React from 'react'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 
-const Container = styled.div``
 const Row = styled.div`
     display: flex;
     flex-direction: row;
@@ -75,7 +74,7 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
 
     return (
         <TooltipWrapper dataTip={details} tooltipId="tooltip">
-            <Container>{textDisplay}</Container>
+            {textDisplay}
         </TooltipWrapper>
     )
 }
