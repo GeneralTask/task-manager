@@ -105,7 +105,7 @@ func (api *API) orderThreads(threadItems *[]database.Item) []*Thread {
 	sort.SliceStable(*threadItems, func(i, j int) bool {
 		a := (*threadItems)[i]
 		b := (*threadItems)[j]
-		return a.EmailThread.LastUpdatedAt > b.EmailThread.LastUpdatedAt
+		return formatDateTime(a.EmailThread.LastUpdatedAt) > formatDateTime(b.EmailThread.LastUpdatedAt)
 	})
 
 	var responseThreads []*Thread
