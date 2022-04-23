@@ -24,7 +24,6 @@ const TaskTitleContainer = styled.div`
 `
 const BodyContainer = styled.div`
     flex: 1;
-    overflow: auto;
 `
 export const TitleInput = styled.textarea`
     background-color: inherit;
@@ -58,6 +57,7 @@ export const Title = styled.div`
 `
 export const BodyTextArea = styled.textarea`
     width: 100%;
+    height: 100%;
     display: block;
     background-color: inherit;
     border: 1px solid transparent;
@@ -68,7 +68,6 @@ export const BodyTextArea = styled.textarea`
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
-    height: 250px;
     box-sizing: border-box;
     :focus {
         border: 1px solid ${Colors.gray._500};
@@ -87,16 +86,10 @@ interface DetailsTemplateProps {
 const DetailsTemplate = (props: DetailsTemplateProps) => {
     return (
         <DetailsViewContainer>
-            <DetailsTopContainer>
-                {props.top}
-            </DetailsTopContainer>
-            <TaskTitleContainer>
-                {props.title}
-            </TaskTitleContainer>
+            <DetailsTopContainer>{props.top}</DetailsTopContainer>
+            <TaskTitleContainer>{props.title}</TaskTitleContainer>
             {props.subtitle}
-            <BodyContainer>
-                {props.body}
-            </BodyContainer>
+            <BodyContainer>{props.body}</BodyContainer>
         </DetailsViewContainer>
     )
 }
