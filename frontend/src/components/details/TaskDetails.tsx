@@ -1,5 +1,5 @@
 import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import ActionOption from '../molecules/ActionOption'
 import { Icon } from '../atoms/Icon'
