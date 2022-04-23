@@ -7,10 +7,11 @@ import { Icon } from '../atoms/Icon'
 import EmailTemplate from './EmailTemplate'
 
 const FlexColumnContainer = styled.div`
+    flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 300px;
     overflow-y: auto;
-    width: 700px;
 `
 const HeaderContainer = styled.div`
     flex: 0;

@@ -21,14 +21,13 @@ const BannerAndSectionContainer = styled.div`
     display: flex;
     flex-direction: column;
     margin-right: auto;
-    overflow: auto;
     flex-shrink: 0;
 `
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
     padding-right: 10px;
-    display: flex;
-    flex-direction: column;
+    padding-bottom: 100px;
+    overflow-y: auto;
     flex: 1;
 `
 const TaskSectionViewContainer = styled.div`

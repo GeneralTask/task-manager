@@ -16,12 +16,14 @@ const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
     padding-right: 10px;
     padding-bottom: 100px;
-    overflow: auto;
-    flex: 1;
+    overflow-y: auto;
+    margin-right: auto;
+    flex-shrink: 0;
 `
 const MessagesContainer = styled.div`
     border-radius: ${Border.radius.large};
     background-color: ${Colors.gray._100};
+    width: 480px;
 `
 const MessageDivider = styled.div`
     border-bottom: 1px solid ${Colors.gray._200};
