@@ -31,7 +31,7 @@ const ScrollViewMimic = styled.div`
     flex: 1;
 `
 const TaskSectionViewContainer = styled.div`
-    height: 100%;
+    flex: 1;
     display: flex;
     flex-direction: column;
     padding-top: 0;
