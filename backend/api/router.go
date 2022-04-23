@@ -23,6 +23,10 @@ func GetRouter(handlers *API) *gin.Engine {
 	//logout needs to use the token directly rather than the user so no need to run token middleware
 	router.POST("/logout/", handlers.Logout)
 
+	// Unauthenticated endpoints only for dev environment
+	router.POST("/create_test_user/", handlers.CreateTestUser)
+
+	// Add middlewares
 	router.Use(TokenMiddleware)
 	router.Use(LoggingMiddleware)
 	// Authenticated endpoints
