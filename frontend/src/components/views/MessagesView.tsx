@@ -39,6 +39,7 @@ const MessagesView = () => {
     const { refetch: refetchMessages } = useFetchMessages()
     const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteThreads()
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
+    const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
 
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
     useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
@@ -78,13 +79,13 @@ const MessagesView = () => {
 
     return (
         <>
-            <ScrollViewMimic>
+            <ScrollViewMimic ref={sectionScrollingRef}>
                 <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
                 <MessagesContainer>
                     {threads.map((thread, index) => (
                         <div key={thread.id}>
                             <ThreadTemplate ref={index === threads.length - 1 ? lastElementRef : undefined}>
-                                <Thread thread={thread} />
+                                <Thread thread={thread} sectionScrollingRef={sectionScrollingRef} />
                             </ThreadTemplate>
                             {index !== threads.length - 1 && <MessageDivider />}
                         </div>
