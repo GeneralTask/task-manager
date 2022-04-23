@@ -1,4 +1,4 @@
-import { EmailReplyContainer, FullWidth } from './EmailReplyStyles'
+import { EmailReplyContainer, FlexGrow, FullWidth } from './EmailReplyStyles'
 import React, { useCallback, useState } from 'react'
 
 import EmailRecipientsInput from './EmailRecipientsInput'
@@ -48,10 +48,10 @@ const EmailReply = ({ email, sourceAccountId, discardDraft }: EmailReplyProps) =
     return (
         <EmailReplyContainer>
             <FullWidth>
-                {/* <FlexGrow> */}
-                {/* <NoStyleInput placeholder="To:" value={replyTo} onChange={(e) => setReplyTo(e.target.value)} /> */}
-                <EmailRecipientsInput />
-                {/* </FlexGrow> */}
+                <FlexGrow>
+                    {/* <NoStyleInput placeholder="To:" value={replyTo} onChange={(e) => setReplyTo(e.target.value)} /> */}
+                    <EmailRecipientsInput />
+                </FlexGrow>
                 <NoStyleButton onClick={discardDraft}>
                     <Icon size="small" source={Images.icons.trash} />
                 </NoStyleButton>

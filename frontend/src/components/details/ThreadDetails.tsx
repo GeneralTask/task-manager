@@ -55,7 +55,6 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                 .map((recipient) => recipient.email)
         )
     )
-    console.log({ thread })
 
     return (
         <FlexColumnContainer>

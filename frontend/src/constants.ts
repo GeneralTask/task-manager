@@ -50,7 +50,7 @@ export enum KEYBOARD_SHORTCUTS {
     SHOW_TIME_ESTIMATION_PICKER = 'F',
     SHOW_LABEL_EDITOR = 'L',
     CREATE_TASK = 'T',
-    REFRESH = 'R',
+    REFRESH = 'Ref',
     MARK_COMPLETE = 'D',
     DOWN = 'ArrowDown',
     UP = 'ArrowUp',
