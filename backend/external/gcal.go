@@ -21,7 +21,7 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
