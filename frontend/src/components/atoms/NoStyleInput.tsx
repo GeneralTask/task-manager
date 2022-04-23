@@ -18,7 +18,8 @@ const NoStyleInput = React.forwardRef((props: NoStyleInputProps, ref: React.Ref<
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && props.onSubmit) {
             props.onSubmit()
-        } else e.stopPropagation()
+        }
+        e.stopPropagation()
     }
     return (
         <StyledInput
