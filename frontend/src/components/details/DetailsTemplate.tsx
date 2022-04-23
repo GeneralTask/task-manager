@@ -3,10 +3,11 @@ import styled from 'styled-components'
 import React from 'react'
 
 const DetailsViewContainer = styled.div`
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     background-color: ${Colors.gray._50};
-    width: 640px;
+    min-width: 300px;
     margin-top: ${Spacing.margin._24}px;
     padding: ${Spacing.padding._16}px;
 `
@@ -42,6 +43,7 @@ export const TitleInput = styled.textarea`
     :focus {
         outline: 1px solid ${Colors.gray._500};
     }
+    height: 31px;
 `
 export const Title = styled.div`
     background-color: inherit;
@@ -87,16 +89,10 @@ interface DetailsTemplateProps {
 const DetailsTemplate = (props: DetailsTemplateProps) => {
     return (
         <DetailsViewContainer>
-            <DetailsTopContainer>
-                {props.top}
-            </DetailsTopContainer>
-            <TaskTitleContainer>
-                {props.title}
-            </TaskTitleContainer>
+            <DetailsTopContainer>{props.top}</DetailsTopContainer>
+            <TaskTitleContainer>{props.title}</TaskTitleContainer>
             {props.subtitle}
-            <BodyContainer>
-                {props.body}
-            </BodyContainer>
+            <BodyContainer>{props.body}</BodyContainer>
         </DetailsViewContainer>
     )
 }

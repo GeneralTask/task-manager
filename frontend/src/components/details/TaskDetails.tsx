@@ -1,5 +1,5 @@
 import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 
 import ActionOption from '../molecules/ActionOption'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
@@ -60,7 +60,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
     }, [])
 
     // Update the state when the task changes
-    useEffect(() => {
+    useLayoutEffect(() => {
         setTask(props.task)
         setTitleInput(props.task.title)
         setBodyInput(props.task.body)
@@ -73,7 +73,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
         }
     }, [props.task])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (titleRef.current) {
             titleRef.current.style.height = '0px'
             titleRef.current.style.height =
