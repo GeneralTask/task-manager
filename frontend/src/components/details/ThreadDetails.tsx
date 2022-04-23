@@ -1,8 +1,10 @@
+import { DateTime } from 'luxon'
 import React from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
+import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import EmailTemplate from './EmailTemplate'
 
@@ -69,7 +71,9 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     {thread.emails.map((email, index) => (
                         <EmailTemplate
                             key={email.message_id}
-                            sender={email.sender.name}
+                            sender={email.sender}
+                            recipients={email.recipients}
+                            time_sent={getHumanTimeSinceDateTime(DateTime.fromISO(email.sent_at))}
                             body={email.body}
                             isCollapsed={index !== thread.emails.length - 1}
                         />
