@@ -24,23 +24,7 @@ const EmailReplyContainer = ({ email, sourceAccountId }: EmailReplyContainerProp
         )
     } else {
         return (
-            <div>
-                <div>
-                    reply here{' '}
-                    <button
-                        onClick={() => {
-                            setShowReplyForm(false)
-                        }}
-                    >
-                        stop replying
-                    </button>
-                </div>
-                <EmailReply
-                    email={email}
-                    sourceAccountId={sourceAccountId}
-                    discardDraft={() => setShowReplyForm(false)}
-                />
-            </div>
+            <EmailReply email={email} sourceAccountId={sourceAccountId} discardDraft={() => setShowReplyForm(false)} />
         )
     }
 }

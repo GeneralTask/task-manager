@@ -1,6 +1,7 @@
 import { EmailReplyContainer, FullWidth } from './EmailReplyStyles'
 import React, { useCallback, useState } from 'react'
 
+import EmailRecipientsInput from './EmailRecipientsInput'
 import { Icon } from '../../atoms/Icon'
 import { Images } from '../../../styles'
 import NoStyleButton from '../../atoms/buttons/NoStyleButton'
@@ -15,7 +16,7 @@ interface EmailReplyProps {
     discardDraft: () => void
 }
 const EmailReply = ({ email, sourceAccountId, discardDraft }: EmailReplyProps) => {
-    const [replyTo, setReplyTo] = useState(email.sender.email)
+    const [replyTo, _setReplyTo] = useState(email.sender.email)
     const [subject, setSubject] = useState((email.subject.slice(0, 3) === 'Re:' ? '' : 'Re: ') + email.subject)
     const [body, setBody] = useState('')
 
@@ -48,7 +49,8 @@ const EmailReply = ({ email, sourceAccountId, discardDraft }: EmailReplyProps) =
         <EmailReplyContainer>
             <FullWidth>
                 {/* <FlexGrow> */}
-                <NoStyleInput placeholder="To:" value={replyTo} onChange={(e) => setReplyTo(e.target.value)} />
+                {/* <NoStyleInput placeholder="To:" value={replyTo} onChange={(e) => setReplyTo(e.target.value)} /> */}
+                <EmailRecipientsInput />
                 {/* </FlexGrow> */}
                 <NoStyleButton onClick={discardDraft}>
                     <Icon size="small" source={Images.icons.trash} />
