@@ -6,6 +6,7 @@ const StyledInput = styled.input`
     flex-grow: 1;
     border: none;
     background: transparent;
+    padding: 0;
 `
 interface NoStyleInputProps {
     value: string

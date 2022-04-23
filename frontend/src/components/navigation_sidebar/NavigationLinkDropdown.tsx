@@ -29,14 +29,27 @@ const SectionTitle = styled.span`
     white-space: nowrap;
     flex: 1;
 `
+const AddSectionContainer = styled.div`
+    padding: ${Spacing.padding._4}px;
+    &:hover {
+        background-color: ${Colors.gray._200};
+        border-radius: 50%;
+    }
+`
 
 interface NavigationLinkDropdownProps {
     children: ReactNode
     title: string
+    openAddSectionInput: () => void
 }
-const NavigationLinkDropdown = ({ children, title }: NavigationLinkDropdownProps) => {
+const NavigationLinkDropdown = ({ children, title, openAddSectionInput }: NavigationLinkDropdownProps) => {
     const [isOpen, setIsOpen] = useState(true)
     const onClickHandler = () => setIsOpen(!isOpen)
+    const openAddSectionHandler = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation()
+        openAddSectionInput()
+        setIsOpen(true)
+    }
 
     return (
         <>
@@ -44,6 +57,9 @@ const NavigationLinkDropdown = ({ children, title }: NavigationLinkDropdownProps
                 <Icon size="xSmall" source={isOpen ? icons.chevron_down : icons.caret_right} />
                 <Icon size="small" source={icons.inbox} />
                 <SectionTitle>{title}</SectionTitle>
+                <AddSectionContainer onClick={openAddSectionHandler}>
+                    <Icon size="small" source={icons.plus} />
+                </AddSectionContainer>
             </DropdownContainer>
             {isOpen && <LinksContainer>{children}</LinksContainer>}
         </>
