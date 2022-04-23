@@ -6,7 +6,6 @@ import { useLocation, useParams } from 'react-router-dom'
 
 import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
-import Loading from '../atoms/Loading'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 import NoStyleInput from '../atoms/NoStyleInput'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
@@ -70,14 +69,12 @@ const NavigationView = () => {
                 <Icon size="medium" />
             </NavigationViewHeader>
             <OverflowContainer>
-                {taskSections ? (
+                {taskSections && (
                     <NavigationSectionLinks
                         taskSections={taskSections}
                         sectionId={sectionIdParam || ''}
                         pathName={pathname.split('/')[1]}
                     />
-                ) : (
-                    <Loading />
                 )}
                 <AddSectionView>
                     <Icon size="small" source={icons.plus} />
