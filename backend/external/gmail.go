@@ -272,16 +272,6 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 
 }
 
-func getThreadFromGmail2(gmailService *gmail.Service, threadID string, result chan<- *gmail.Thread) {
-	thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
-	if err != nil {
-		log.Error().Msgf("failed to load thread: %v", err)
-		result <- nil
-		return
-	}
-	result <- thread
-}
-
 func isMessageUnread(message *gmail.Message) bool {
 	for _, label := range message.LabelIds {
 		if label == "UNREAD" {
