@@ -22,6 +22,7 @@ const BannerAndSectionContainer = styled.div`
     flex-direction: column;
     margin-right: auto;
     overflow: auto;
+    flex-shrink: 0;
 `
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -36,7 +37,7 @@ const TaskSectionViewContainer = styled.div`
     flex-direction: column;
     padding-top: 0;
     background-color: ${Colors.gray._50};
-    width: 550px;
+    width: 480px;
 `
 const TasksContainer = styled.div`
     display: flex;
