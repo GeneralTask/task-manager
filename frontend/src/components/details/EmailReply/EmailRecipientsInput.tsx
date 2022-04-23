@@ -1,6 +1,6 @@
 import './MultiEmailStyles.css'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { ReactMultiEmail } from 'react-multi-email'
 import styled from 'styled-components'
@@ -20,20 +20,18 @@ const EmailTag = styled.div`
 
 const EmailRecipientsInput = () => {
     const [emails, setEmails] = useState<string[]>([])
-    const ref = useRef<HTMLInputElement>()
+    // const ref = useRef<HTMLInputElement>()
 
     useEffect(() => {
-        const input = document.querySelector('#react-multi-email')
+        const input = document.querySelector('.react-multi-email > input')
         if (input) {
-            ref.current = input as HTMLInputElement
+            input.addEventListener('keydown', (e) => {
+                e.stopPropagation()
+            })
         }
     }, [])
-    const input = document.querySelector('.react-multi-email > input')
-    if (input) {
-        ref.current = input as HTMLInputElement
-    }
 
-    console.log({ text: ref.current?.value })
+    // console.log({ text: ref.current?.value })
 
     // const duck = React.createElement(ReactMultiEmail, {
     //     emails,
