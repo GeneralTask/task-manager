@@ -202,9 +202,29 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
+
+	//
+	//userNew := &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}}
+	//mongoResult, err := database.UpdateOrCreateDocument(dbCtx, userCollection, bson.M{"google_id": userInfo.SUB},
+	//	userNew, fieldsToUpdate)
+	//_ = mongoResult
+	//if err != nil {
+	//	log.Error().Msgf("Failed to update or create item: %v", err)
+	//	return nil, err
+	//}
+	//
+	//var item Item
+	//err = mongoResult.Decode(&item)
+	//if err != nil {
+	//	log.Printf("Failed to update or create item: %v", err)
+	//	return nil, err
+	//}
+	//return &item, nil
+
+
 	userCollection.FindOneAndUpdate(
 		dbCtx,
-		bson.M{"google_id": userInfo.SUB},
+		,
 		bson.M{"$setOnInsert": &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}},
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
 	).Decode(&user)
