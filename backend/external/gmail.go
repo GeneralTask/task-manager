@@ -22,6 +22,11 @@ import (
 	"google.golang.org/api/option"
 )
 
+const (
+	defaultFetchMaxResults = int64(100)
+	fullFetchMaxResults    = int64(500)
+)
+
 type GmailSource struct {
 	Google GoogleService
 }
@@ -51,11 +56,11 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	}
 
 	// loads the most recent 100 or 500 threads in the inbox
-	maxResults := int64(100)
+	maxResults := defaultFetchMaxResults
 	if fullRefresh {
 		log.Debug().Msg("Performing full gmail thread refresh")
 		// TODO: for a full refresh, we probably want to paginate through this request until we've fetched all threads in the DB
-		maxResults = int64(500)
+		maxResults = fullFetchMaxResults
 	}
 	threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(maxResults).Q("label:inbox").Do()
 	if err != nil {
