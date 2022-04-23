@@ -52,7 +52,6 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const isSelected = params.thread === thread.id
 
     const observer = useRef<IntersectionObserver>()
-    const selectedThread = useAppSelector((state) => state.tasks_page.selected_item_id)
     const isScrolling = useRef<boolean>(false)
 
     // Add event listener to check if scrolling occurs in thread section
@@ -71,7 +70,7 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
         if (sectionScrollingRef.current) {
             isScrolling.current = false
         }
-    }, [selectedThread])
+    }, [params.thread])
 
     //Auto-scroll to thread if it is selected and out of view
     const elementRef = useCallback(
