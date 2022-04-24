@@ -18,6 +18,11 @@ type User struct {
 	CreatedAt          primitive.DateTime `bson:"created_at,omitempty"`
 }
 
+type UserChangeable struct {
+	Email string `bson:"email,omitempty"`
+	Name  string `bson:"name,omitempty"`
+}
+
 // InternalAPIToken model
 type InternalAPIToken struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`

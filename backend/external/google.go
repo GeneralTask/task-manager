@@ -198,43 +198,23 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	}
 	userIsNew := count == int64(0)
 
-	var user database.User
-
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 
-	//
-	//userNew := &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}}
-	//mongoResult, err := database.UpdateOrCreateDocument(dbCtx, userCollection, bson.M{"google_id": userInfo.SUB},
-	//	userNew, fieldsToUpdate)
-	//_ = mongoResult
-	//if err != nil {
-	//	log.Error().Msgf("Failed to update or create item: %v", err)
-	//	return nil, err
-	//}
-	//
-	//var item Item
-	//err = mongoResult.Decode(&item)
-	//if err != nil {
-	//	log.Printf("Failed to update or create item: %v", err)
-	//	return nil, err
-	//}
-	//return &item, nil
+	userNew := &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}
+	userChangeable := &database.UserChangeable{Email: userInfo.EMAIL, Name: userInfo.Name}
+	mongoResult, err := database.UpdateOrCreateDocument(dbCtx, userCollection, bson.M{"google_id": userInfo.SUB}, userNew, userChangeable)
+	if err != nil {
+		log.Error().Msgf("Failed to update or create user: %v", err)
+		return primitive.NilObjectID, nil, nil, err
+	}
 
-
-	userCollection.FindOneAndUpdate(
-		dbCtx,
-		,
-		bson.M{"$setOnInsert": &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}},
-		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
-	).Decode(&user)
-
-	userCollection.FindOneAndUpdate(
-		dbCtx,
-		bson.M{"google_id": userInfo.SUB},
-		bson.M{"$setOnInsert": &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}},
-		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
-	).Decode(&user)
+	var user database.User
+	err = mongoResult.Decode(&user)
+	if err != nil {
+		log.Error().Msgf("Failed to update or create user: %v", err)
+		return primitive.NilObjectID, nil, nil, err
+	}
 
 	if user.ID == primitive.NilObjectID {
 		log.Error().Msgf("unable to create user")
