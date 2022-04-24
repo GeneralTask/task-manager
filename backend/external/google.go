@@ -201,20 +201,33 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 
+	var user database.User
 	userNew := &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}
 	userChangeable := &database.UserChangeable{Email: userInfo.EMAIL, Name: userInfo.Name}
-	mongoResult, err := database.UpdateOrCreateDocument(dbCtx, userCollection, bson.M{"google_id": userInfo.SUB}, userNew, userChangeable)
-	if err != nil {
-		log.Error().Msgf("Failed to update or create user: %v", err)
-		return primitive.NilObjectID, nil, nil, err
-	}
+	//mongoResult, err := database.UpdateOrCreateDocument(dbCtx, userCollection, bson.M{"google_id": userInfo.SUB}, userNew, userChangeable)
+	//if err != nil {
+	//	log.Error().Msgf("Failed to update or create user: %v", err)
+	//	return primitive.NilObjectID, nil, nil, err
+	//}
+	//
+	//err = mongoResult.Decode(&user)
+	//if err != nil {
+	//	log.Error().Msgf("Failed to update or create user: %v", err)
+	//	return primitive.NilObjectID, nil, nil, err
+	//}
+	//
+	userCollection.FindOneAndUpdate(
+		dbCtx,
+		bson.M{"google_id": userInfo.SUB},
+		bson.M{"$set": userNew},
+	).Decode(&user)
 
-	var user database.User
-	err = mongoResult.Decode(&user)
-	if err != nil {
-		log.Error().Msgf("Failed to update or create user: %v", err)
-		return primitive.NilObjectID, nil, nil, err
-	}
+	userCollection.FindOneAndUpdate(
+		dbCtx,
+		bson.M{"google_id": userInfo.SUB},
+		bson.M{"$setOnInsert": userChangeable},
+		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+	).Decode(&user)
 
 	if user.ID == primitive.NilObjectID {
 		log.Error().Msgf("unable to create user")
