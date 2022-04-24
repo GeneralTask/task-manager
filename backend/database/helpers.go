@@ -228,35 +228,6 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 	return &tasks, nil
 }
 
-func GetUnreadEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
-	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	cursor, err := GetTaskCollection(db).Find(
-		dbCtx,
-		bson.M{
-			"$and": []bson.M{
-				{"user_id": userID},
-				{"task_type.is_message": true},
-				{"email.is_unread": true},
-			},
-		},
-	)
-	if err != nil {
-		log.Error().Msgf("Failed to fetch emails for user: %v", err)
-		return nil, err
-	}
-	var activeEmails []Item
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &activeEmails)
-	if err != nil {
-		log.Error().Msgf("Failed to fetch emails for user: %v", err)
-		return nil, err
-	}
-	return &activeEmails, nil
-}
-
 func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, pagination Pagination) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)

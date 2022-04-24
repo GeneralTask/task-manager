@@ -1,15 +1,11 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-undef */
-const path = require('path');
+const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const createStyledComponentsTransformer = require('typescript-plugin-styled-components').default;
+const createStyledComponentsTransformer = require('typescript-plugin-styled-components').default
 
-const styledComponentsTransformer = createStyledComponentsTransformer();
-const host = process.env.HOST || 'localhost';
-
-// Required for babel-preset-react-app
-process.env.NODE_ENV = 'development';
+const styledComponentsTransformer = createStyledComponentsTransformer()
 
 module.exports = {
     entry: './src/index.tsx',
@@ -20,7 +16,12 @@ module.exports = {
                 use: {
                     loader: 'ts-loader',
                     options: {
-                        getCustomTransformers: () => ({ before: [styledComponentsTransformer] })
+                        getCustomTransformers: () => ({
+                            before: [
+                                styledComponentsTransformer
+                            ]
+                        }),
+                        transpileOnly: true,
                     }
                 },
                 exclude: /node_modules/,
@@ -45,19 +46,6 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         publicPath: '/',
     },
-    devServer: {
-        static: {
-            directory: path.join(__dirname, 'public'),
-        },
-        compress: true,
-        hot: true,
-        host,
-        port: 3000,
-        historyApiFallback: true,
-        client: {
-            overlay: false,
-        },
-    },
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/index.html'
@@ -66,6 +54,6 @@ module.exports = {
             patterns: [
                 { from: 'public', to: '' }
             ]
-        })
+        }),
     ]
-};
+}

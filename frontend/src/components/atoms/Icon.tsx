@@ -9,6 +9,7 @@ const IconContainer = styled.div<{ width: number; height: number }>`
     height: ${(props) => props.height}px;
     align-items: center;
     justify-content: center;
+    user-select: none;
 `
 const ImageContainer = styled.img`
     width: 100%;

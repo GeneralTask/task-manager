@@ -14,11 +14,17 @@ import (
 	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"github.com/GeneralTask/task-manager/backend/utils"
+	"github.com/cenkalti/backoff/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
+)
+
+const (
+	defaultFetchMaxResults = int64(100)
+	fullFetchMaxResults    = int64(500)
 )
 
 type GmailSource struct {
@@ -31,7 +37,7 @@ type EmailContents struct {
 	Body       string
 }
 
-func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -49,11 +55,18 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		return
 	}
 
-	// loads the most recent 100 threads in the inbox
-	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox").Do()
+	// loads the most recent 100 or 500 threads in the inbox
+	maxResults := defaultFetchMaxResults
+	if fullRefresh {
+		log.Debug().Msg("Performing full gmail thread refresh")
+		// TODO: for a full refresh, we probably want to paginate through this request until we've fetched all threads in the DB
+		maxResults = fullFetchMaxResults
+	}
+	threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(maxResults).Q("label:inbox").Do()
 	if err != nil {
 		log.Error().Msgf("failed to load Gmail threads for user: %v", err)
-		isBadToken := strings.Contains(err.Error(), "invalid_grant")
+		isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
+			strings.Contains(err.Error(), "authError")
 		result <- EmailResult{
 			Emails:     []*database.Item{},
 			Error:      err,
@@ -153,7 +166,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			senderDomain := utils.ExtractEmailDomain(senderEmail)
 			recipients := *GetRecipients(message.Payload.Headers)
 
-			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate, 0))
+			timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
 			if timeSent > mostRecentEmailTimestamp {
 				mostRecentEmailTimestamp = timeSent
 			}
@@ -198,6 +211,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				true,
 			)
 			if err != nil {
+				log.Error().Msgf("Could not update or create %+v", emailItem)
 				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 				return
 			}
@@ -242,13 +256,25 @@ func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []d
 }
 
 func getThreadFromGmail(gmailService *gmail.Service, threadID string, result chan<- *gmail.Thread) {
-	thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
+	getThreadCall := func() error {
+		thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
+		if err != nil {
+			return err
+		}
+		result <- thread
+		return nil
+	}
+	notify := func(err error, ts time.Duration) {
+		log.Debug().Err(err).Msgf("retrying threadID %s with backoff delay %+v", threadID, ts)
+	}
+
+	err := backoff.RetryNotify(getThreadCall, backoff.NewExponentialBackOff(), notify)
 	if err != nil {
-		log.Error().Msgf("failed to load thread: %v", err)
+		log.Error().Err(err).Msgf("permanently failed to load threadID %s", threadID)
 		result <- nil
 		return
 	}
-	result <- thread
+
 }
 
 func isMessageUnread(message *gmail.Message) bool {

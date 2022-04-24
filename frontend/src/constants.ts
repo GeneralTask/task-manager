@@ -2,11 +2,8 @@ import getEnvVars from './environment'
 
 const { REACT_APP_API_BASE_URL } = getEnvVars()
 
-// Styling Constants
-export const TASK_ACTION_BASE_WIDTH = 150
-
 // API Constants
-export const MESSAGES_PER_PAGE = 50
+export const MESSAGES_PER_PAGE = 30
 export const TASK_SECTION_DEFAULT_ID = '-1'
 export const AUTHORIZATION_COOKE = 'authToken'
 
@@ -15,7 +12,9 @@ export const TASK_REFETCH_INTERVAL = 30
 export const MESSAGES_REFETCH_INTERVAL = 60
 export const EVENTS_REFETCH_INTERVAL = 60
 export const TIME_INDICATOR_INTERVAL = 6
-export const TASK_MARK_AS_DONE_TIMEOUT = 5
+export const TASK_MARK_AS_DONE_TIMEOUT = 2
+export const DETAILS_SYNC_TIMEOUT = 1
+export const SINGLE_SECOND_INTERVAL = 1
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'

@@ -105,7 +105,7 @@ func (api *API) orderThreads(threadItems *[]database.Item) []*Thread {
 	sort.SliceStable(*threadItems, func(i, j int) bool {
 		a := (*threadItems)[i]
 		b := (*threadItems)[j]
-		return a.EmailThread.LastUpdatedAt > b.EmailThread.LastUpdatedAt
+		return formatDateTime(a.EmailThread.LastUpdatedAt) > formatDateTime(b.EmailThread.LastUpdatedAt)
 	})
 
 	var responseThreads []*Thread
@@ -138,7 +138,7 @@ func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 			MessageID: e.MessageID,
 			Subject:   e.Subject,
 			Body:      e.Body,
-			SentAt:    e.SentAt.Time().UTC().Format(time.RFC3339),
+			SentAt:    formatDateTime(e.SentAt).Time().UTC().Format(time.RFC3339),
 			IsUnread:  e.IsUnread,
 			Sender: senderV2{
 				Name:    e.SenderName,
@@ -154,4 +154,14 @@ func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 		emails = append(emails, formattedEmail)
 	}
 	return &emails
+}
+
+// formatDateTime corrects the DateTime object if it was constructed with milliseconds - https://stackoverflow.com/questions/23929145/how-to-test-if-a-given-time-stamp-is-in-seconds-or-milliseconds
+// This is a hack in order to correct previously malformed DateTimes computed using milliseconds
+func formatDateTime(dt primitive.DateTime) primitive.DateTime {
+	unixTS := dt.Time().Unix()
+	if unixTS > 99999999999 {
+		unixTS = unixTS / 1000
+	}
+	return primitive.NewDateTimeFromTime(time.Unix(unixTS, 0))
 }

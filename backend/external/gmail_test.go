@@ -174,7 +174,7 @@ func TestGetEmails(t *testing.T) {
 		////////////////////////////////////////////////////////////////////////////////
 		// (2) Act: call the API / perform the work
 		var emailResult = make(chan EmailResult)
-		go mockGmailSource.GetEmails(userID, "me", emailResult)
+		go mockGmailSource.GetEmails(userID, "me", emailResult, false)
 		result := <-emailResult
 
 		////////////////////////////////////////////////////////////////////////////////
@@ -283,7 +283,7 @@ func createTestGmailMessage(
 
 	res := gmail.Message{
 		Id:           externalMessageID,
-		InternalDate: testutils.CreateTimestamp(dt).Unix(),
+		InternalDate: testutils.CreateTimestamp(dt).Unix() * 1000,
 		Payload: &gmail.MessagePart{
 			Body: &gmail.MessagePartBody{
 				Data: base64.URLEncoding.EncodeToString([]byte(fmt.Sprintf("test message body %s", externalMessageID))),

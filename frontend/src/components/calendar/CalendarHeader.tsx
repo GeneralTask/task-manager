@@ -3,14 +3,17 @@ import React, { useCallback } from 'react'
 import styled from 'styled-components'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
-import { Colors, Spacing } from '../../styles'
+import { Colors, Dimensions, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 
 export const PaddedContainer = styled.div`
-    padding: ${Spacing.padding._16}px ${Spacing.padding._24}px;
+    padding-top: ${Spacing.padding._16}px;
+    padding-right: ${(Dimensions.COLLAPSED_CALENDAR_WIDTH - Dimensions.iconSize.small) / 2}px;
+    padding-bottom: ${Spacing.padding._16}px;
+    padding-left: ${Spacing.padding._24}px;
 `
 export const HeaderBodyContainer = styled.div`
     display: flex;
@@ -21,6 +24,15 @@ export const ButtonContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 5px;
+`
+export const CursorPointerDiv = styled.div`
+    cursor: pointer;
+    height: fit-content;
+    border-radius: 50%;
+    padding: ${Spacing.padding._4}px;
+    &:hover {
+        background-color: ${Colors.gray._200};
+    }
 `
 const ButtonStyles = styled.button`
     cursor: pointer;
@@ -48,27 +60,32 @@ export const ArrowButton = styled(ButtonStyles)`
         background-color: ${Colors.gray._200};
     }
 `
+const HeaderIconsContainer = styled.div`
+    display: flex;
+    align-items: center;
+`
 
 interface CalendarHeaderProps {
+    collapseCalendar: () => void
     date: DateTime
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
 }
-export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
-    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
+export default function CalendarHeader({ collapseCalendar, date, setDate }: CalendarHeaderProps): JSX.Element {
+    const isCalendarExpanded = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const dispatch = useAppDispatch()
     const selectNext = useCallback(
         () =>
             setDate((date) => {
-                return date.plus({ days: expandedCalendar ? 7 : 1 })
+                return date.plus({ days: isCalendarExpanded ? 7 : 1 })
             }),
-        [date, setDate, expandedCalendar]
+        [date, setDate, isCalendarExpanded]
     )
     const selectPrevious = useCallback(
         () =>
             setDate((date) => {
-                return date.minus({ days: expandedCalendar ? 7 : 1 })
+                return date.minus({ days: isCalendarExpanded ? 7 : 1 })
             }),
-        [date, setDate, expandedCalendar]
+        [date, setDate, isCalendarExpanded]
     )
     const expandCalendar = (expanded: boolean) => {
         dispatch(setExpandedCalendar(expanded))
@@ -80,13 +97,18 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
             <PaddedContainer>
                 <HeaderBodyContainer>
                     <TitleSmall>Calendar</TitleSmall>
-                    <ArrowButton onClick={() => expandCalendar(!expandedCalendar)}>
-                        {expandedCalendar ? (
-                            <Icon source={icons.arrows_in} size="small" />
-                        ) : (
-                            <Icon source={icons.arrows_out} size="small" />
-                        )}
-                    </ArrowButton>
+                    <HeaderIconsContainer>
+                        <ArrowButton onClick={() => expandCalendar(!isCalendarExpanded)}>
+                            {isCalendarExpanded ? (
+                                <Icon source={icons.arrows_in} size="small" />
+                            ) : (
+                                <Icon source={icons.arrows_out} size="small" />
+                            )}
+                        </ArrowButton>
+                        <CursorPointerDiv onClick={() => collapseCalendar()}>
+                            <Icon source={icons.caret_right} size="small" />
+                        </CursorPointerDiv>
+                    </HeaderIconsContainer>
                 </HeaderBodyContainer>
             </PaddedContainer>
             <Divider color={Colors.gray._200} />
@@ -97,7 +119,7 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
                         <HoverButton
                             onClick={() =>
                                 setDate(
-                                    expandedCalendar
+                                    isCalendarExpanded
                                         ? DateTime.now().minus({ days: DateTime.now().weekday % 7 })
                                         : DateTime.now()
                                 )

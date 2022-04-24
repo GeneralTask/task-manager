@@ -1,18 +1,17 @@
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import React, { lazy, Suspense } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import React, { Suspense, lazy } from 'react'
 import './src/index.css'
-
-import LandingScreen from './src/screens/LandingScreen'
-import Loading from './src/components/atoms/Loading'
-import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
-import store from './src/redux/store'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import Loading from './src/components/atoms/Loading'
 import { PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
+import store from './src/redux/store'
+import PrivateOutlet from './src/services/PrivateOutlet'
+import LandingScreen from './src/components/screens/LandingScreen'
 
-const CompanyPolicyScreen = lazy(() => import('./src/screens/CompanyPolicyScreen'))
-const MainScreen = lazy(() => import('./src/screens/MainScreen'))
-const TermsOfServiceSummaryScreen = lazy(() => import('./src/screens/TermsOfServiceSummaryScreen'))
+const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
+const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
+const TermsOfServiceSummaryScreen = lazy(() => import('./src/components/screens/TermsOfServiceSummaryScreen'))
 
 const App = () => {
     const queryClient = new QueryClient({
@@ -45,7 +44,7 @@ const App = () => {
                                 </Route>
                                 <Route path="messages" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
-                                    <Route path=":message" element={<MainScreen />} />
+                                    <Route path=":thread" element={<MainScreen />} />
                                 </Route>
                                 <Route path="settings" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
