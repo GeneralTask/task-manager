@@ -30,7 +30,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-// sample from https://stackoverflow.com/questions/26225513/how-to-test-os-exit-scenarios-in-go
+// sampled from https://stackoverflow.com/questions/26225513/how-to-test-os-exit-scenarios-in-go
 func TestUnsetEnvironmentFatals(t *testing.T) {
 	if os.Getenv("TEST_UNSET_ENV") == "1" {
 		os.Setenv("ENVIRONMENT", "")
