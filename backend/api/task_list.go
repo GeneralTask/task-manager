@@ -2,8 +2,9 @@ package api
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -38,10 +39,11 @@ type TaskResult struct {
 }
 
 type TaskSection struct {
-	ID     primitive.ObjectID `json:"id"`
-	Name   string             `json:"name"`
-	Tasks  []*TaskResult      `json:"tasks"`
-	IsDone bool               `json:"is_done"`
+	ID         primitive.ObjectID `json:"id"`
+	Name       string             `json:"name"`
+	Tasks      []*TaskResult      `json:"tasks"`
+	IsDone     bool               `json:"is_done"`
+	IsPriority bool               `json:"is_priority"`
 }
 
 type Recipients struct {
@@ -58,12 +60,13 @@ type Recipient struct {
 type TaskGroupType string
 
 const (
-	ScheduledTask          TaskGroupType = "scheduled_task"
-	UnscheduledGroup       TaskGroupType = "unscheduled_group"
-	TaskSectionNameToday   string        = "Today"
-	TaskSectionNameBlocked string        = "Blocked"
-	TaskSectionNameBacklog string        = "Backlog"
-	TaskSectionNameDone    string        = "Done"
+	ScheduledTask           TaskGroupType = "scheduled_task"
+	UnscheduledGroup        TaskGroupType = "unscheduled_group"
+	TaskSectionNamePriority string        = "🚀 Priority"
+	TaskSectionNameToday    string        = "Today"
+	TaskSectionNameBlocked  string        = "Blocked"
+	TaskSectionNameBacklog  string        = "Backlog"
+	TaskSectionNameDone     string        = "Done"
 )
 
 func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Item, map[string]bool, error) {

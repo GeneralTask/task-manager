@@ -109,6 +109,7 @@ func getValidTaskSection(taskSectionIDHex string, userID primitive.ObjectID, db 
 	defer cancel()
 	count, err := taskSectionCollection.CountDocuments(dbCtx, bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": IDTaskSection}}})
 	if (err != nil || count == int64(0)) &&
+		IDTaskSection != constants.IDTaskSectionPriority &&
 		IDTaskSection != constants.IDTaskSectionToday &&
 		IDTaskSection != constants.IDTaskSectionBlocked &&
 		IDTaskSection != constants.IDTaskSectionBacklog {

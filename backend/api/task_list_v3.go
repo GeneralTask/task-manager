@@ -2,8 +2,9 @@ package api
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"sort"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 
@@ -88,6 +89,12 @@ func (api *API) mergeTasksV3(
 		Name:   TaskSectionNameDone,
 		Tasks:  completedTaskResults,
 		IsDone: true,
+	})
+	sections = append(sections, &TaskSection{
+		ID:         constants.IDTaskSectionPriority,
+		Name:       TaskSectionNamePriority,
+		Tasks:      getPriorityTaskResults(),
+		IsPriority: true,
 	})
 	return sections, nil
 }
