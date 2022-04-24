@@ -90,13 +90,54 @@ func (api *API) mergeTasksV3(
 		Tasks:  completedTaskResults,
 		IsDone: true,
 	})
-	sections = append(sections, &TaskSection{
-		ID:         constants.IDTaskSectionPriority,
-		Name:       TaskSectionNamePriority,
-		Tasks:      getPriorityTaskResults(),
-		IsPriority: true,
-	})
+	priorityTasks, err := api.getPriorityTaskResults(db, userID)
+	if err == nil && priorityTasks != nil {
+		sections = append(sections, &TaskSection{
+			ID:         constants.IDTaskSectionPriority,
+			Name:       TaskSectionNamePriority,
+			Tasks:      *priorityTasks,
+			IsPriority: true,
+		})
+	} else {
+		log.Error().Msgf("failed to fetch priority tasks: %v", err)
+	}
 	return sections, nil
+}
+
+func (api *API) getPriorityTaskResults(db *mongo.Database, userID primitive.ObjectID) (*[]*TaskResult, error) {
+	// first, show unread email threads oldest to newest
+	limit := 10
+	page := 1
+	emails, err := database.GetEmailThreads(db, userID, true, database.Pagination{Limit: &limit, Page: &page}, nil)
+	if err != nil {
+		return nil, err
+	}
+	taskResults := []*TaskResult{}
+	for _, email := range *emails {
+		if len(email.Emails) > 0 {
+			email.Title = email.Emails[0].Subject
+			email.TaskBase.Body = email.Emails[0].Body
+		}
+		taskResults = append([]*TaskResult{api.taskBaseToTaskResult(&email)}, taskResults...)
+	}
+	taskResults = append([]*TaskResult{{
+		Title: "👇👇👇👇👇👇👇👇👇👇 First, unread emails, oldest to newest 👇👇👇👇👇👇👇👇👇👇",
+	}}, taskResults...)
+	taskResults = append(taskResults, &TaskResult{
+		Title: "👇👇👇👇👇👇👇👇👇👇 Then, pull requests! 👇👇👇👇👇👇👇👇👇👇",
+	})
+	// then, show pull requests
+	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}, {"is_completed": false}})
+	if err != nil {
+		return nil, err
+	}
+	for _, pullRequest := range *pullRequests {
+		taskResults = append(taskResults, api.taskBaseToTaskResult(&pullRequest))
+	}
+	taskResults = append(taskResults, &TaskResult{
+		Title: "👇👇👇👇👇👇👇👇👇👇 Coming soon, linear tasks ordered by priority / cycle! 👇👇👇👇👇👇👇👇👇👇",
+	})
+	return &taskResults, nil
 }
 
 func (api *API) extractSectionTasksV3(

@@ -62,7 +62,7 @@ type TaskGroupType string
 const (
 	ScheduledTask           TaskGroupType = "scheduled_task"
 	UnscheduledGroup        TaskGroupType = "unscheduled_group"
-	TaskSectionNamePriority string        = "🚀 Priority"
+	TaskSectionNamePriority string        = "🚀 Priority (read only)"
 	TaskSectionNameToday    string        = "Today"
 	TaskSectionNameBlocked  string        = "Blocked"
 	TaskSectionNameBacklog  string        = "Backlog"
