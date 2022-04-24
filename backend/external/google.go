@@ -207,12 +207,12 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 
 	userCollection.FindOneAndUpdate(dbCtx,
 		bson.M{"google_id": userInfo.SUB},
-		bson.M{"$set": userNew})
+		bson.M{"$setOnInsert": userNew})
 
 	userCollection.FindOneAndUpdate(
 		dbCtx,
 		bson.M{"google_id": userInfo.SUB},
-		bson.M{"$setOnInsert": userChangeable},
+		bson.M{"$set": userChangeable},
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
 	).Decode(&user)
 
