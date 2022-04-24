@@ -205,10 +205,13 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	userNew := &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}
 	userChangeable := &database.UserChangeable{Email: userInfo.EMAIL, Name: userInfo.Name}
 
+	log.Debug().Msgf("userNew: %+v", userNew)
 	userCollection.FindOneAndUpdate(dbCtx,
 		bson.M{"google_id": userInfo.SUB},
-		bson.M{"$setOnInsert": userNew})
+		bson.M{"$setOnInsert": userNew},
+		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After))
 
+	log.Debug().Msgf("userChangeable: %+v", userNew)
 	userCollection.FindOneAndUpdate(
 		dbCtx,
 		bson.M{"google_id": userInfo.SUB},
