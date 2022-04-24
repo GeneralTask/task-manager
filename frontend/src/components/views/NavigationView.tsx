@@ -6,6 +6,8 @@ import { useLocation, useParams } from 'react-router-dom'
 
 import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
+import KeyboardShortcut from '../atoms/KeyboardShortcut'
 import Loading from '../atoms/Loading'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 import NoStyleInput from '../atoms/NoStyleInput'
@@ -98,6 +100,10 @@ const NavigationView = () => {
                 <FeedbackButton />
                 <RoundedGeneralButton value="Sign Out" textStyle="dark" onPress={() => authSignOut(dispatch)} />
             </GapView>
+            <KeyboardShortcut
+                shortcut={KEYBOARD_SHORTCUTS.MARK_COMPLETE}
+                onKeyPress={() => console.log('keyboard shortcut')}
+            />
         </NavigationViewContainer>
     )
 }

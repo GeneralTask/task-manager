@@ -2,6 +2,10 @@ import { Border, Colors, Spacing } from '../../../styles'
 
 import styled from 'styled-components'
 
+export const EmailReplyMinHeightContainer = styled.div`
+    min-height: 800px;
+`
+
 export const EmailReplyContainer = styled.div`
     /* width: calc(100% - (${Spacing.padding._16}px * 2)); */
     padding: ${Spacing.padding._16}px;
