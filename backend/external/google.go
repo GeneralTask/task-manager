@@ -198,18 +198,16 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	}
 	userIsNew := count == int64(0)
 
+	var user database.User
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 
-	var user database.User
 	userNew := &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}
 	userChangeable := &database.UserChangeable{Email: userInfo.EMAIL, Name: userInfo.Name}
 
-	userCollection.FindOneAndUpdate(
-		dbCtx,
+	userCollection.FindOneAndUpdate(dbCtx,
 		bson.M{"google_id": userInfo.SUB},
-		bson.M{"$set": userNew},
-	).Decode(&user)
+		bson.M{"$set": userNew})
 
 	userCollection.FindOneAndUpdate(
 		dbCtx,
