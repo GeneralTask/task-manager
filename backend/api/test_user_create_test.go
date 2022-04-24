@@ -75,4 +75,5 @@ func TestCreateTestUser(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
+
 }
