@@ -51,14 +51,25 @@ func UpdateOrCreateTask(
 			dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), filter)
 		}
 	}
-	// Unfortunately you cannot put both $set and $setOnInsert, so they are separate operations
+	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	mongoResult, err := UpdateOrCreateDocument(dbCtx, taskCollection, dbQuery, fieldsToInsertIfMissing, fieldsToUpdate)
+	_, err = taskCollection.UpdateOne(
+		dbCtx,
+		dbQuery,
+		bson.M{"$setOnInsert": fieldsToInsertIfMissing},
+		options.Update().SetUpsert(true),
+	)
 	if err != nil {
-		log.Error().Msgf("Failed to update or create item: %v", err)
+		log.Error().Msgf("Failed to update or create task: %v", err)
 		return nil, err
 	}
+
+	mongoResult := taskCollection.FindOneAndUpdate(
+		dbCtx,
+		dbQuery,
+		bson.M{"$set": fieldsToUpdate},
+	)
 
 	var item Item
 	err = mongoResult.Decode(&item)
@@ -67,38 +78,6 @@ func UpdateOrCreateTask(
 		return nil, err
 	}
 	return &item, nil
-}
-
-func UpdateOrCreateDocument(
-	ctx context.Context,
-	collection *mongo.Collection,
-	dbQuery bson.M,
-	fieldsToInsertIfMissing interface{},
-	fieldsToUpdate interface{},
-) (*mongo.SingleResult, error) {
-	log.Debug().Msgf("dbQuery: %+v", dbQuery)
-	log.Debug().Msgf("fieldsToInsertIfMissing: %+v", fieldsToInsertIfMissing)
-	log.Debug().Msgf("fieldsToUpdate: %+v", fieldsToUpdate)
-	// Unfortunately you cannot put both $set and $setOnInsert, so they are separate operations
-	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
-	defer cancel()
-	_, err := collection.UpdateOne(
-		dbCtx,
-		dbQuery,
-		bson.M{"$setOnInsert": fieldsToInsertIfMissing},
-		options.Update().SetUpsert(true),
-	)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to update or create task")
-		return nil, err
-	}
-
-	mongoResult := collection.FindOneAndUpdate(
-		dbCtx,
-		dbQuery,
-		bson.M{"$set": fieldsToUpdate},
-	)
-	return mongoResult, nil
 }
 
 func GetEmailFromMessageID(ctx context.Context, messageID primitive.ObjectID, userID primitive.ObjectID) (*Email, error) {

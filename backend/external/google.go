@@ -204,18 +204,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	var user database.User
 	userNew := &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}
 	userChangeable := &database.UserChangeable{Email: userInfo.EMAIL, Name: userInfo.Name}
-	//mongoResult, err := database.UpdateOrCreateDocument(dbCtx, userCollection, bson.M{"google_id": userInfo.SUB}, userNew, userChangeable)
-	//if err != nil {
-	//	log.Error().Msgf("Failed to update or create user: %v", err)
-	//	return primitive.NilObjectID, nil, nil, err
-	//}
-	//
-	//err = mongoResult.Decode(&user)
-	//if err != nil {
-	//	log.Error().Msgf("Failed to update or create user: %v", err)
-	//	return primitive.NilObjectID, nil, nil, err
-	//}
-	//
+
 	userCollection.FindOneAndUpdate(
 		dbCtx,
 		bson.M{"google_id": userInfo.SUB},
