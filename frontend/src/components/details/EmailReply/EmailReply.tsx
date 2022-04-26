@@ -5,7 +5,6 @@ import EmailRecipientsInput from './EmailRecipientsInput'
 import { Icon } from '../../atoms/Icon'
 import { Images } from '../../../styles'
 import NoStyleButton from '../../atoms/buttons/NoStyleButton'
-import NoStyleInput from '../../atoms/NoStyleInput'
 import { TEmail } from '../../../utils/types'
 import TextArea from '../../atoms/TextArea'
 import { useComposeMessage } from '../../../services/api-query-hooks'
@@ -57,7 +56,12 @@ const EmailReply = ({ email, sourceAccountId, discardDraft }: EmailReplyProps) =
                 </NoStyleButton>
             </FullWidth>
             <FullWidth>
-                <NoStyleInput placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
+                <input
+                    className="email-header"
+                    placeholder="Subject"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                />
             </FullWidth>
             <FullWidth>
                 <TextArea
