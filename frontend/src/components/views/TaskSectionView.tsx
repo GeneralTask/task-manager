@@ -93,12 +93,15 @@ const TaskSection = () => {
             <BannerAndSectionContainer
                 id="testing"
                 ref={(node) => {
-                    sectionScrollingRef.current = node
                     bannerTaskSectionRef.current = node
                 }}
             >
                 <EventBanner date={DateTime.now()} />
-                <ScrollViewMimic>
+                <ScrollViewMimic
+                    ref={(node) => {
+                        sectionScrollingRef.current = node
+                    }}
+                >
                     <TaskSectionViewContainer>
                         {isLoading || !currentSection ? (
                             <Loading />
