@@ -1,10 +1,7 @@
-import { EmailInput, EmailInputContainer, EmailReplyContainer, FlexGrow, FullWidth } from './EmailReplyStyles'
+import { EmailInput, EmailInputContainer, EmailReplyContainer, FullWidth } from './EmailReplyStyles'
 import React, { useCallback, useLayoutEffect, useState } from 'react'
 
 import EmailRecipientsInput from './EmailRecipientsInput'
-import { Icon } from '../../atoms/Icon'
-import { Images } from '../../../styles'
-import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 import { TEmail } from '../../../utils/types'
 import TextArea from '../../atoms/TextArea'
 import styled from 'styled-components'
@@ -22,7 +19,7 @@ interface EmailReplyProps {
     sourceAccountId: string
     discardDraft: () => void
 }
-const EmailReply = ({ email, sourceAccountId, discardDraft }: EmailReplyProps) => {
+const EmailReply = ({ email, sourceAccountId }: EmailReplyProps) => {
     const [replyTo, setReplyTo] = useState(email.sender.email)
     const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
@@ -60,15 +57,7 @@ const EmailReply = ({ email, sourceAccountId, discardDraft }: EmailReplyProps) =
 
     return (
         <EmailReplyContainer>
-            <FullWidth>
-                <FlexGrow>
-                    {/* <NoStyleInput placeholder="To:" value={replyTo} onChange={(e) => setReplyTo(e.target.value)} /> */}
-                    <EmailRecipientsInput />
-                </FlexGrow>
-                <NoStyleButton onClick={discardDraft}>
-                    <Icon size="small" source={Images.icons.trash} />
-                </NoStyleButton>
-            </FullWidth>
+            <EmailRecipientsInput sender={email.sender.email} />
             <SubjectContainer>
                 <SubjectInput
                     className="email-header"

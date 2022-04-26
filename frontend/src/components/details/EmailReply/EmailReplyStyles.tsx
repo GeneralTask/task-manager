@@ -59,3 +59,15 @@ export const FlexGrow = styled.div`
 export const EmailReplyMinHeightContainer = styled.div`
     min-height: 800px;
 `
+
+export const EmailRecipientsContainer = styled.div`
+    display: flex;
+    max-width: 100%;
+    align-content: flex-start;
+    flex: 1 0 auto;
+    flex-wrap: wrap;
+`
+export const EmailTag = styled.div`
+    max-width: 100%;
+    margin: 0 4px;
+`
