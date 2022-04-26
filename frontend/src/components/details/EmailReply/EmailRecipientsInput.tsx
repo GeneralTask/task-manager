@@ -1,7 +1,7 @@
 // import './MultiEmailStyles.css'
 
 import { EmailRecipientsContainer, EmailTag } from './EmailReplyStyles'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { ReactMultiEmail } from 'react-multi-email'
 
@@ -14,6 +14,8 @@ interface EmailRecipientsInputProps {
 
 const EmailRecipientsInput = ({ sender }: EmailRecipientsInputProps) => {
     const [emails, setEmails] = useState<string[]>([sender])
+
+    useEffect(() => setEmails([sender]), [sender])
 
     // blocks all keys from propogating except those used in react-multi-email
     const enableBuiltInKBShortcuts = useCallback((node: HTMLDivElement) => {
@@ -33,6 +35,7 @@ const EmailRecipientsInput = ({ sender }: EmailRecipientsInputProps) => {
                 onChange={(_emails: string[]) => {
                     setEmails(_emails)
                 }}
+                placeholder="To:"
                 getLabel={(email: string, index: number, removeEmail: (index: number) => void) => {
                     return (
                         <EmailTag key={index}>
