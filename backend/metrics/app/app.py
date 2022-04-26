@@ -24,10 +24,6 @@ CONNECTION_TEMPLATE = """mongodb://{user}:{password}@cluster0-shard-00-00.dbkij.
 logger = get_logger(__name__)
 
 
-
-
-
-
 def main(dt, window):
     user = os.environ["MONGO_USER"]
     password = os.environ["MONGO_PASSWORD"]
@@ -37,17 +33,20 @@ def main(dt, window):
         unicode_decode_error_handler='ignore',
     )
 
-
     main_db = client.main
     events_collection = main_db.log_events
 
-    end = datetime.strptime(dt, "%Y-%m-%d").astimezone(pytz.timezone("US/Pacific"))
+    end = datetime.strptime(
+        dt, "%Y-%m-%d").astimezone(pytz.timezone("US/Pacific"))
     activity_cooloff_mins = 10
     num_sessions_threshold = 5
-    generate_user_daily_report(events_collection, end, window, activity_cooloff_mins, num_sessions_threshold)
+    generate_user_daily_report(
+        events_collection, end, window, activity_cooloff_mins, num_sessions_threshold)
+
 
 def generate_user_daily_report(events_collection, end, window, activity_cooloff_mins, num_sessions_threshold):
-    date_filter = {"created_at": {"$gt": end - timedelta(days=window), "$lt": end}}
+    date_filter = {"created_at": {
+        "$gt": end - timedelta(days=window), "$lt": end}}
     logger.info(date_filter)
 
     cursor = events_collection.find(date_filter)
@@ -59,12 +58,13 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
         .groupby(by='user_id')["created_at"]
         .diff()
     )
-    events_df["ts_pst"] = events_df.created_at.dt.tz_localize(pytz.utc).dt.tz_convert('US/Pacific')
+    events_df["ts_pst"] = events_df.created_at.dt.tz_localize(
+        pytz.utc).dt.tz_convert('US/Pacific')
     logger.info(events_df)
 
-
     # includes NaT, which indicates the first event of the day
-    df_new_sessions = events_df[~(events_df.time_since_previous_event_this_day < timedelta(minutes=activity_cooloff_mins))]
+    df_new_sessions = events_df[~(
+        events_df.time_since_previous_event_this_day < timedelta(minutes=activity_cooloff_mins))]
     df_new_sessions["dt"] = df_new_sessions.ts_pst.dt.date  # date in PST
 
     df_events_per_user = (
@@ -74,7 +74,8 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
     )
 
     users_with_enough_sessions = (
-        df_events_per_user[df_events_per_user.num_sessions > num_sessions_threshold]
+        df_events_per_user[df_events_per_user.num_sessions >
+                           num_sessions_threshold]
         .reset_index()
     )
 
@@ -88,11 +89,11 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
     daily_users["dt"] = pd.to_datetime(daily_users.dt)
     daily_users.head()
 
-
     df_events_per_user = df_events_per_user.reset_index()
 
     for threshold in SESSION_COUNT_THRESHOLDS:
-        df_events_per_user[f"gt_{threshold}"] = np.where(df_events_per_user['num_sessions'] >= threshold, True, False)
+        df_events_per_user[f"gt_{threshold}"] = np.where(
+            df_events_per_user['num_sessions'] >= threshold, True, False)
     timeseries = (
         df_events_per_user
         .sort_values(by=["dt", "num_sessions"])
@@ -133,12 +134,12 @@ app.layout = html.Div(children=[
         dcc.Graph(
             id='graph1',
             figure=fig
-        ),  
+        ),
 
         dcc.Graph(
             id='graph1.2',
             figure=fig_timeseries
-        ),  
+        ),
     ]),
 ])
 
