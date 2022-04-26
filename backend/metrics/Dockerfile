@@ -20,5 +20,10 @@ WORKDIR /app
 # RUN set -ex && \
 #     pip install -r requirements.txt
 EXPOSE 8050
-CMD ["python", "app.py"]
+# CMD ["python", "app.py"]
+# CMD gunicorn -w 10 -b 0.0.0.0:5000 -t 100000 --max-requests 20 app:server
+# CMD gunicorn -w 1 -b 0.0.0.0:5000 -t 1 --max-requests 20 app:server
+CMD gunicorn -b 0.0.0.0:80 --timeout 600 app:server
+# CMD ["python", "app.py"]
+
 

@@ -1,3 +1,4 @@
+import argparse
 import os
 from datetime import date, datetime, timedelta
 from pprint import pprint
@@ -14,10 +15,25 @@ from pymongo import MongoClient
 
 from log import get_logger
 
+VALID_USERNAME_PASSWORD_PAIRS = {
+    'hello': 'world'
+}
 DEFAULT_WINDOW = 14
 SESSION_COUNT_THRESHOLDS = [1, 3, 5]
 CONNECTION_TEMPLATE = """mongodb://{user}:{password}@cluster0-shard-00-00.dbkij.mongodb.net:27017,cluster0-shard-00-01.dbkij.mongodb.net:27017,cluster0-shard-00-02.dbkij.mongodb.net:27017/myFirstDatabase?authSource=admin&replicaSet=atlas-xn7hxv-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true"""
 logger = get_logger(__name__)
+
+
+
+
+
+
+# global fig
+# global fig_timeseries
+
+
+
+
 
 
 
@@ -95,6 +111,7 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
     )
     timeseries = timeseries.set_index(keys=["dt"])
     timeseries.columns.name = "threshold"
+    global fig_timeseries
     fig_timeseries = px.line(timeseries)
 
 
@@ -106,87 +123,97 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
         + geom_col()
     )
 
+    global fig
     fig = px.bar(daily_users, x='dt', y='num_users')
     # fig.show()
-    VALID_USERNAME_PASSWORD_PAIRS = {
-        'hello': 'world'
-    }
-    app = Dash(__name__)
-    auth = dash_auth.BasicAuth(
-        app,
-        VALID_USERNAME_PASSWORD_PAIRS
-    )
-
-
-    app.layout = html.Div(children=[
-        # All elements from the top of the page
-        html.Div([
-            html.H1(children='Hello Dash'),
-
-            html.Div(children='''
-                Dash: A web application framework for Python.
-            '''),
-
-            dcc.Graph(
-                id='graph1',
-                figure=fig
-            ),  
-
-            dcc.Graph(
-                id='graph1.2',
-                figure=fig_timeseries
-            ),  
-        ]),
-        # New Div for all elements in the new 'row' of the page
-        html.Div([
-            html.H1(children='Hello Dash'),
-
-            html.Div(children='''
-                Dash: A web application framework for Python.
-            '''),
-
-            dcc.Graph(
-                id='graph2',
-                figure=fig_timeseries
-            ),  
-        ]),
-    ])
 
 
 
 
-    # app.layout = html.Div(children=[
-    #     html.Div(
-    #         html.H1('Welcome to the app'),
-    #         # html.H3('You are successfully authorized'),
-    #         # dcc.Dropdown(['A', 'B'], 'A', id='dropdown'),
-    #         dcc.Graph(id='graph', figure=fig)
-    #     )
-    # ], className='container')
+# if __name__ == "__main__":
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument("--dt", type=str, default=None)
+#     parser.add_argument("--window", type=int, default=DEFAULT_WINDOW)
+#     args = parser.parse_args()
+#     dt = args.dt if args.dt else datetime.today().strftime("%Y-%m-%d")
+
+
+#     main(dt, args.window)
 
 
 
 
-    # app.layout = html.Div([
+
+
+
+
+
+
+app = Dash(__name__)
+server = app.server
+
+
+
+
+
+
+
+
+# parser = argparse.ArgumentParser()
+# parser.add_argument("--dt", type=str, default=None)
+# parser.add_argument("--window", type=int, default=DEFAULT_WINDOW)
+# args = parser.parse_args()
+# dt = args.dt if args.dt else datetime.today().strftime("%Y-%m-%d")
+
+
+# main(dt, args.window)
+main("2022-04-21", DEFAULT_WINDOW)
+
+auth = dash_auth.BasicAuth(
+    app,
+    VALID_USERNAME_PASSWORD_PAIRS
+)
+
+
+app.layout = html.Div(children=[
+    # All elements from the top of the page
+    html.Div([
+        html.H1(children='Hello Dash'),
+
+        html.Div(children='''
+            Dash: A web application framework for Python.
+        '''),
+
+        dcc.Graph(
+            id='graph1',
+            figure=fig
+        ),  
+
+        dcc.Graph(
+            id='graph1.2',
+            figure=fig_timeseries
+        ),  
+    ]),
+    # # New Div for all elements in the new 'row' of the page
+    # html.Div([
+    #     html.H1(children='Hello Dash'),
+
+    #     html.Div(children='''
+    #         Dash: A web application framework for Python.
+    #     '''),
+
     #     dcc.Graph(
-    #         id='life-exp-vs-gdp',
-    #         figure=fig
-    #     )
-    # ])
-
-    app.run_server(debug=True)
-    
+    #         id='graph2',
+    #         figure=fig_timeseries
+    #     ),  
+    # ]),
+])
 
 
-import argparse
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dt", type=str, default=None)
-    parser.add_argument("--window", type=int, default=DEFAULT_WINDOW)
-    args = parser.parse_args()
-    dt = args.dt if args.dt else datetime.today().strftime("%Y-%m-%d")
 
 
-    main(dt, args.window)
 
+# app.run_server(debug=True)
+# app.run_server(host= '0.0.0.0',debug=False)
+# app.run_server(host='0.0.0.0', port=8050, debug=True)
+app.run_server(debug=True, host="0.0.0.0", port=8050, use_reloader=False)
