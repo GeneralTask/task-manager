@@ -1,9 +1,11 @@
 import './MultiEmailStyles.css'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { ReactMultiEmail } from 'react-multi-email'
 import styled from 'styled-components'
+
+const REACT_MULTI_EMAIL_KB_SHORTCUT = ['Enter', 'Tab', 'Backspace']
 
 const EmailRecipientsContainer = styled.div`
     display: flex;
@@ -21,17 +23,19 @@ const EmailTag = styled.div`
 
 const EmailRecipientsInput = () => {
     const [emails, setEmails] = useState<string[]>([])
-    const ref = useRef<HTMLDivElement>(null)
 
-    useEffect(() => {
-        // const input = document.querySelector('.react-multi-email > input')
-        ref.current?.addEventListener('keydown', (e) => {
-            e.stopPropagation()
-        })
+    const enableBuiltInKBShortcuts = useCallback((node: HTMLDivElement) => {
+        if (node) {
+            node.addEventListener('keydown', (e) => {
+                if (!REACT_MULTI_EMAIL_KB_SHORTCUT.includes(e.code)) {
+                    e.stopPropagation()
+                }
+            })
+        }
     }, [])
 
     return (
-        <EmailRecipientsContainer ref={ref}>
+        <EmailRecipientsContainer ref={enableBuiltInKBShortcuts}>
             <ReactMultiEmail
                 emails={emails}
                 onChange={(_emails: string[]) => {
