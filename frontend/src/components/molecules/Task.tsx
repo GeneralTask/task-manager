@@ -37,7 +37,8 @@ interface TaskProps {
 const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: TaskProps) => {
     const navigate = useNavigate()
     const params = useParams()
-    const isSelected = params.task === task.id
+    const selectedTask = params.task
+    const isSelected = selectedTask === task.id
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
 
@@ -57,7 +58,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: Tas
         if (sectionScrollingRef.current) {
             isScrolling.current = false
         }
-    }, [params.task])
+    }, [selectedTask])
 
     //Auto-scroll to task if it is selected and out of view
     const elementRef = useCallback(
