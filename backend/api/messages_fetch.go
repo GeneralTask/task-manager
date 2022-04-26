@@ -65,6 +65,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		return
 	}
 
+	_, fullRefresh := c.GetQuery("fullRefresh")
 	emailChannels := []chan external.EmailResult{}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
@@ -76,7 +77,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		}
 		for _, taskSource := range taskServiceResult.Sources {
 			var emails = make(chan external.EmailResult)
-			go taskSource.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails)
+			go taskSource.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails, fullRefresh)
 			emailChannels = append(emailChannels, emails)
 		}
 	}

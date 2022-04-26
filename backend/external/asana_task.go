@@ -47,7 +47,7 @@ type AsanaTasksUpdateBody struct {
 	Data AsanaTasksUpdateFields `json:"data"`
 }
 
-func (asanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (asanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
