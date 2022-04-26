@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { useAddTaskSection } from '../../services/api-query-hooks'
-import { Spacing } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import { weight } from '../../styles/typography'
 import { TTaskSection } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import NoStyleInput from '../atoms/NoStyleInput'
@@ -20,6 +21,12 @@ const AddSectionInputContainer = styled.div`
     margin-left: ${Spacing.margin._8}px;
     flex: 1;
     min-width: 0;
+    & input {
+        display: block;
+        font-weight: ${weight._500};
+        font-size: ${Typography.xSmall.fontSize};
+        color: ${Colors.gray._500};
+    }
 `
 
 interface SectionLinksProps {
@@ -64,17 +71,19 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
     return (
         <>
             <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
-                {taskSections.map((section) => (
-                    <NavigationLink
-                        key={section.id}
-                        link={`/tasks/${section.id}`}
-                        title={section.name}
-                        icon={icons.label}
-                        isCurrentPage={sectionId === section.id}
-                        taskSection={section}
-                        droppable={!section.is_done}
-                    />
-                ))}
+                {taskSections
+                    .filter((section) => !section.is_done)
+                    .map((section) => (
+                        <NavigationLink
+                            key={section.id}
+                            link={`/tasks/${section.id}`}
+                            title={section.name}
+                            icon={icons.label}
+                            isCurrentPage={sectionId === section.id}
+                            taskSection={section}
+                            droppable
+                        />
+                    ))}
                 {isAddSectionInputVisible && (
                     <AddSectionContainer>
                         <span>
@@ -91,6 +100,19 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                         </AddSectionInputContainer>
                     </AddSectionContainer>
                 )}
+                {taskSections
+                    .filter((section) => section.is_done)
+                    .map((section) => (
+                        <NavigationLink
+                            key={section.id}
+                            link={`/tasks/${section.id}`}
+                            title={section.name}
+                            icon={icons.label}
+                            isCurrentPage={sectionId === section.id}
+                            taskSection={section}
+                            droppable={false}
+                        />
+                    ))}
             </NavigationLinkDropdown>
             <NavigationLink
                 link="/messages"
