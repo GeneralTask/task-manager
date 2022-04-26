@@ -5,17 +5,17 @@ import { useReorderTask } from '../../../services/api-query-hooks'
 import { DropProps, ItemTypes } from '../../../utils/types'
 import { DropIndicatorAbove } from '../TaskDropContainer'
 
-const DropAreaContainer = styled.div`
-    flex: 1;
-    min-height: 64px;
+const TaskDropAreaContainer = styled.div`
+    width: 100%;
+    height: max(100%, 64px);
 `
 
-interface DropAreaBelowProps {
+interface TaskDropAreaProps {
     dropIndex: number
     taskSectionId: string
 }
 
-const DropAreaBelow = ({ dropIndex, taskSectionId }: DropAreaBelowProps) => {
+const TaskDropArea = ({ dropIndex, taskSectionId }: TaskDropAreaProps) => {
     const dropRef = useRef<HTMLDivElement>(null)
     const { mutate: reorderTask } = useReorderTask()
 
@@ -46,10 +46,10 @@ const DropAreaBelow = ({ dropIndex, taskSectionId }: DropAreaBelowProps) => {
     }, [dropRef])
 
     return (
-        <DropAreaContainer ref={dropRef}>
+        <TaskDropAreaContainer ref={dropRef}>
             <DropIndicatorAbove isVisible={isOver} />
-        </DropAreaContainer>
+        </TaskDropAreaContainer>
     )
 }
 
-export default DropAreaBelow
+export default TaskDropArea

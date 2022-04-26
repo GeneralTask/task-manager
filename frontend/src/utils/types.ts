@@ -46,15 +46,6 @@ export interface TTask {
     is_done: boolean
 }
 
-export interface TTaskModifyRequestBody {
-    id_task_section?: string
-    id_ordering?: number
-    title?: string
-    due_date?: string
-    time_duration?: number
-    body?: string
-}
-
 export interface TMessageSource {
     account_id: string // Account ID for the message (eg. Recipient email address)
     name: string // Human readable name of the source
@@ -93,29 +84,21 @@ export interface TEvent {
 }
 
 export interface TEmail {
-    smtp_id: string
-    thread_id: string
-    email_id: string
+    message_id: string
     subject: string
     body: string
-    sender_domain: string
-    sender_email: string
-    sender_name: string
-    reply_to: string
-    is_unread: boolean
-    recipients: TRecipients
     sent_at: string
+    is_unread: boolean
+    sender: TSender
+    recipients: TRecipients
 }
 
 export interface TEmailThread {
-    thread_id: string
-    last_updated_at: string
+    id: string
     is_task: boolean
+    deeplink: string
+    source: TMessageSource
     emails: TEmail[]
-}
-
-export interface TEmailThreadResponse {
-    pages: TEmailThread[][]
 }
 
 export interface TTaskSection {

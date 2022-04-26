@@ -24,7 +24,6 @@ const TaskTitleContainer = styled.div`
 `
 const BodyContainer = styled.div`
     flex: 1;
-    overflow: auto;
 `
 export const TitleInput = styled.textarea`
     background-color: inherit;
@@ -57,17 +56,22 @@ export const Title = styled.div`
     flex: 1;
 `
 export const BodyTextArea = styled.textarea`
+    width: 100%;
+    height: 100%;
     display: block;
     background-color: inherit;
-    border: none;
+    border: 1px solid transparent;
     resize: none;
     outline: none;
     overflow: auto;
-    padding-right: ${Spacing.margin._8}px;
+    padding: ${Spacing.margin._8}px;
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
-    height: 250px;
+    box-sizing: border-box;
+    :focus {
+        border: 1px solid ${Colors.gray._500};
+    }
 `
 export const FlexGrowView = styled.div`
     flex: 1;

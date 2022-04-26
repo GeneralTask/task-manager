@@ -25,6 +25,7 @@ export const icons: { [key: string]: string } = {
     chevron_down: '/images/chevron_down.png',
     gear: '/images/gear.png',
     inbox: '/images/inbox.png',
+    inbox_purple: '/images/inbox_purple.png',
     label: '/images/label.png',
     mark_as_task: '/images/mark_as_task.png',
     mark_as_task_active: '/images/mark_as_task_active.png',

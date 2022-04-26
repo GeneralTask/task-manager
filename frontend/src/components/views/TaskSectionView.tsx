@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Colors } from '../../styles'
 import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
-import DropAreaBelow from '../molecules/task-dnd/DropAreaBelow'
+import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
 import EventBanner from '../molecules/EventBanners'
 import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
@@ -19,6 +19,7 @@ import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
 import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
+import withTaskDeselect from '../molecules/TaskDeselectWrapper'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;
@@ -44,11 +45,12 @@ const TaskSectionViewContainer = styled.div`
 const TasksContainer = styled.div`
     display: flex;
     flex-direction: column;
-    height: 100%;
+    flex: 1;
 `
 
 const TaskSection = () => {
-    const bannerTaskSectionRef = useRef<HTMLDivElement>(null)
+    const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
+    const bannerTaskSectionRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
     const { data: taskSections, isLoading } = useGetTasks()
@@ -98,9 +100,17 @@ const TaskSection = () => {
         return () => document.removeEventListener('click', listener, true)
     }, [bannerTaskSectionRef, sectionViewRef, params])
 
+    const WithDeselectDropArea = withTaskDeselect(TaskDropArea)
+
     return (
         <>
-            <BannerAndSectionContainer ref={bannerTaskSectionRef}>
+            <BannerAndSectionContainer
+                id="testing"
+                ref={(node) => {
+                    sectionScrollingRef.current = node
+                    bannerTaskSectionRef.current = node
+                }}
+            >
                 <EventBanner date={DateTime.now()} />
                 <ScrollViewMimic>
                     <TaskSectionViewContainer>
@@ -114,26 +124,25 @@ const TaskSection = () => {
                                     refetch={fetchExternalTasks}
                                     taskSectionId={currentSection.id}
                                 />
+                                {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
                                 <TasksContainer ref={sectionViewRef}>
-                                    {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
-                                    {currentSection.tasks.map((task, index) => {
-                                        return (
-                                            <TaskDropContainer
-                                                key={index}
+                                    {currentSection.tasks.map((task, index) => (
+                                        <TaskDropContainer
+                                            key={task.id}
+                                            task={task}
+                                            taskIndex={index}
+                                            sectionId={currentSection.id}
+                                        >
+                                            <Task
                                                 task={task}
-                                                taskIndex={index}
+                                                dragDisabled={currentSection.is_done}
+                                                index={index}
                                                 sectionId={currentSection.id}
-                                            >
-                                                <Task
-                                                    task={task}
-                                                    dragDisabled={currentSection.is_done}
-                                                    index={index}
-                                                    sectionId={currentSection.id}
-                                                />
-                                            </TaskDropContainer>
-                                        )
-                                    })}
-                                    <DropAreaBelow
+                                                sectionScrollingRef={sectionScrollingRef}
+                                            />
+                                        </TaskDropContainer>
+                                    ))}
+                                    <WithDeselectDropArea
                                         dropIndex={currentSection.tasks.length + 1}
                                         taskSectionId={currentSection.id}
                                     />
