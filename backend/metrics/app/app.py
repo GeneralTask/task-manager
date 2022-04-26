@@ -28,15 +28,6 @@ logger = get_logger(__name__)
 
 
 
-# global fig
-# global fig_timeseries
-
-
-
-
-
-
-
 def main(dt, window):
     user = os.environ["MONGO_USER"]
     password = os.environ["MONGO_PASSWORD"]
@@ -114,46 +105,8 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
     global fig_timeseries
     fig_timeseries = px.line(timeseries)
 
-
-
-
-
-    p = (
-        ggplot(daily_users, aes('dt', 'num_users'))
-        + geom_col()
-    )
-
     global fig
     fig = px.bar(daily_users, x='dt', y='num_users')
-    # fig.show()
-
-
-
-
-# if __name__ == "__main__":
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument("--dt", type=str, default=None)
-#     parser.add_argument("--window", type=int, default=DEFAULT_WINDOW)
-#     args = parser.parse_args()
-#     dt = args.dt if args.dt else datetime.today().strftime("%Y-%m-%d")
-
-
-#     main(dt, args.window)
-
-
-
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--dt", type=str, default=None)
-args = parser.parse_args()
-print("jerd ", args.dt)
-# parser.add_argument("--window", type=int, default=DEFAULT_WINDOW)
-# dt = args.dt if args.dt else datetime.today().strftime("%Y-%m-%d")
-
-
-
-
 
 
 app = Dash(__name__)
