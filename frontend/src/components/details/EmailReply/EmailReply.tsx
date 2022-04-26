@@ -1,5 +1,5 @@
-import { EmailReplyContainer, FlexGrow, FullWidth } from './EmailReplyStyles'
-import React, { useCallback, useState } from 'react'
+import { EmailInput, EmailInputContainer, EmailReplyContainer, FlexGrow, FullWidth } from './EmailReplyStyles'
+import React, { useCallback, useLayoutEffect, useState } from 'react'
 
 import EmailRecipientsInput from './EmailRecipientsInput'
 import { Icon } from '../../atoms/Icon'
@@ -7,7 +7,15 @@ import { Images } from '../../../styles'
 import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 import { TEmail } from '../../../utils/types'
 import TextArea from '../../atoms/TextArea'
+import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
+
+const SubjectContainer = styled.div`
+    ${EmailInputContainer}
+`
+const SubjectInput = styled.input`
+    ${EmailInput}
+`
 
 interface EmailReplyProps {
     email: TEmail
@@ -15,9 +23,15 @@ interface EmailReplyProps {
     discardDraft: () => void
 }
 const EmailReply = ({ email, sourceAccountId, discardDraft }: EmailReplyProps) => {
-    const [replyTo, _setReplyTo] = useState(email.sender.email)
-    const [subject, setSubject] = useState((email.subject.slice(0, 3) === 'Re:' ? '' : 'Re: ') + email.subject)
+    const [replyTo, setReplyTo] = useState(email.sender.email)
+    const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
+
+    useLayoutEffect(() => {
+        setReplyTo(email.sender.email)
+        setSubject((email.subject.slice(0, 3) === 'Re:' ? '' : 'Re: ') + email.subject)
+        setBody('')
+    }, [email])
 
     const { mutate, isLoading } = useComposeMessage()
 
@@ -55,14 +69,14 @@ const EmailReply = ({ email, sourceAccountId, discardDraft }: EmailReplyProps) =
                     <Icon size="small" source={Images.icons.trash} />
                 </NoStyleButton>
             </FullWidth>
-            <FullWidth>
-                <input
+            <SubjectContainer>
+                <SubjectInput
                     className="email-header"
                     placeholder="Subject"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                 />
-            </FullWidth>
+            </SubjectContainer>
             <FullWidth>
                 <TextArea
                     placeholder="Body"

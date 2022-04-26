@@ -1,18 +1,7 @@
 import { Border, Colors, Spacing } from '../../../styles'
 import styled, { css } from 'styled-components'
 
-const ReactMultiEmailInput = css`
-    width: auto !important;
-    outline: none !important;
-    border: 0 none !important;
-    display: inline-block !important;
-    line-height: 1;
-    vertical-align: baseline !important;
-    padding: 0.4em 0.1em !important;
-    flex-grow: 1;
-`
-
-const ReactMultiEmailContainer = css`
+export const EmailInputContainer = css`
     margin: 0;
     max-width: 100%;
     -webkit-box-flex: 1;
@@ -37,16 +26,26 @@ const ReactMultiEmailContainer = css`
     align-content: flex-start;
 `
 
+export const EmailInput = css`
+    width: auto !important;
+    outline: none !important;
+    border: 0 none !important;
+    display: inline-block !important;
+    line-height: 1;
+    vertical-align: baseline !important;
+    padding: 0.4em 0.1em !important;
+    flex-grow: 1;
+`
+
 export const EmailReplyContainer = styled.div`
-    /* width: calc(100% - (${Spacing.padding._16}px * 2)); */
     padding: ${Spacing.padding._16}px;
     border: 2px solid ${Colors.purple._3};
     border-radius: ${Border.radius.large};
     .react-multi-email {
-        ${ReactMultiEmailContainer}
+        ${EmailInputContainer}
     }
     .react-multi-email > input {
-        ${ReactMultiEmailInput}
+        ${EmailInput}
     }
 `
 export const FullWidth = styled.div`
