@@ -4,7 +4,7 @@ import React from 'react'
 import { INPUT_VARIABLE_DEFAULT_LINE_HEIGHT } from '../../styles/dimensions'
 
 const DetailsViewContainer = styled.div`
-    flex-grow: 1;
+    flex: 1;
     display: flex;
     flex-direction: column;
     background-color: ${Colors.gray._50};
