@@ -1,5 +1,11 @@
 FROM python:3.9-slim
 
+ARG dash_user
+ENV DASH_USER=$dash_user
+
+ARG dash_password
+ENV DASH_PASSWORD=$dash_password
+
 ARG mongo_user
 ENV MONGO_USER=$mongo_user
 

@@ -15,13 +15,19 @@ from pymongo import MongoClient
 
 from log import get_logger
 
-VALID_USERNAME_PASSWORD_PAIRS = {
-    'hello': 'world'
-}
 DEFAULT_WINDOW = 14
 SESSION_COUNT_THRESHOLDS = [1, 3, 5]
 CONNECTION_TEMPLATE = """mongodb://{user}:{password}@cluster0-shard-00-00.dbkij.mongodb.net:27017,cluster0-shard-00-01.dbkij.mongodb.net:27017,cluster0-shard-00-02.dbkij.mongodb.net:27017/myFirstDatabase?authSource=admin&replicaSet=atlas-xn7hxv-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true"""
 logger = get_logger(__name__)
+
+dash_user = os.getenv("DASH_USER")
+dash_password = os.getenv("DASH_PASSWORD")
+if not dash_user or not dash_password:
+    logger.fatal("DASH_USER or DASH_PASSWORD not set!")
+    exit(1)
+VALID_USERNAME_PASSWORD_PAIRS = {
+    os.environ["DASH_USER"]: os.environ["DASH_PASSWORD"]
+}
 
 
 def main(dt, window):
@@ -60,7 +66,7 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
     )
     events_df["ts_pst"] = events_df.created_at.dt.tz_localize(
         pytz.utc).dt.tz_convert('US/Pacific')
-    logger.info(events_df)
+    logger.info(events_df.head())
 
     # includes NaT, which indicates the first event of the day
     df_new_sessions = events_df[~(
@@ -87,7 +93,9 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
         .reset_index()
     )
     daily_users["dt"] = pd.to_datetime(daily_users.dt)
-    daily_users.head()
+
+    global fig_daily_users
+    fig_daily_users = px.bar(daily_users, x='dt', y='num_users')
 
     df_events_per_user = df_events_per_user.reset_index()
 
@@ -104,10 +112,22 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
     timeseries = timeseries.set_index(keys=["dt"])
     timeseries.columns.name = "threshold"
     global fig_timeseries
-    fig_timeseries = px.line(timeseries)
+    fig_timeseries = px.line(
+        timeseries,
+        labels=dict(total_bill="Total Bill ($)", tip="Tip ($)", sex="Payer Gender")
+    )
+    fig_timeseries.update_layout(
+        title="Daily Users By Session Count",
+        xaxis_title="Date",
+        yaxis_title="Num Users",
+        legend_title="Min Sessions per Day",
+        font=dict(
+            family="Courier New, monospace",
+            size=18,
+            color="RebeccaPurple"
+        )
+    )
 
-    global fig
-    fig = px.bar(daily_users, x='dt', y='num_users')
 
 
 app = Dash(__name__)
@@ -128,14 +148,17 @@ app.layout = html.Div(children=[
         html.H1(children='Hello Dash'),
 
         html.Div(children='''
-            Dash: A web application framework for Python.
+            Number of users with at least 5 sessions per day. Sessions are defined by a new backend event after 10 minutes since the previous one.
         '''),
 
         dcc.Graph(
             id='graph1',
-            figure=fig
+            figure=fig_daily_users
         ),
 
+        html.Div(children='''
+            Daily users by min session count
+        '''),
         dcc.Graph(
             id='graph1.2',
             figure=fig_timeseries
