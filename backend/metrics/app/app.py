@@ -144,6 +144,13 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
 
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--dt", type=str, default=None)
+args = parser.parse_args()
+print("jerd ", args.dt)
+# parser.add_argument("--window", type=int, default=DEFAULT_WINDOW)
+# dt = args.dt if args.dt else datetime.today().strftime("%Y-%m-%d")
+
 
 
 
@@ -152,22 +159,8 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
 app = Dash(__name__)
 server = app.server
 
-
-
-
-
-
-
-
-# parser = argparse.ArgumentParser()
-# parser.add_argument("--dt", type=str, default=None)
-# parser.add_argument("--window", type=int, default=DEFAULT_WINDOW)
-# args = parser.parse_args()
-# dt = args.dt if args.dt else datetime.today().strftime("%Y-%m-%d")
-
-
-# main(dt, args.window)
-main("2022-04-21", DEFAULT_WINDOW)
+# TODO: figure out a way to pass these CLI args through gunicorn
+main(datetime.today().strftime("%Y-%m-%d"), DEFAULT_WINDOW)
 
 auth = dash_auth.BasicAuth(
     app,
@@ -194,26 +187,7 @@ app.layout = html.Div(children=[
             figure=fig_timeseries
         ),  
     ]),
-    # # New Div for all elements in the new 'row' of the page
-    # html.Div([
-    #     html.H1(children='Hello Dash'),
-
-    #     html.Div(children='''
-    #         Dash: A web application framework for Python.
-    #     '''),
-
-    #     dcc.Graph(
-    #         id='graph2',
-    #         figure=fig_timeseries
-    #     ),  
-    # ]),
 ])
 
 
-
-
-
-# app.run_server(debug=True)
-# app.run_server(host= '0.0.0.0',debug=False)
-# app.run_server(host='0.0.0.0', port=8050, debug=True)
 app.run_server(debug=True, host="0.0.0.0", port=8050, use_reloader=False)
