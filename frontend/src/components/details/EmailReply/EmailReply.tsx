@@ -1,5 +1,5 @@
 import { EmailInput, EmailInputContainer, EmailReplyContainer, FullWidth } from './EmailReplyStyles'
-import React, { useCallback, useLayoutEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import EmailRecipientsInput from './EmailRecipientsInput'
 import { TEmail } from '../../../utils/types'
@@ -24,7 +24,7 @@ const EmailReply = ({ email, sourceAccountId }: EmailReplyProps) => {
     const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         setReplyTo(email.sender.email)
         setSubject((email.subject.slice(0, 3) === 'Re:' ? '' : 'Re: ') + email.subject)
         setBody('')
