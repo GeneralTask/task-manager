@@ -1,5 +1,5 @@
-import EmailReply from './EmailReply'
-import { EmailReplyMinHeightContainer } from './EmailReplyStyles'
+import EmailReply from './EmailCompose'
+import { EmailReplyMinHeightContainer } from './EmailCompose-styles'
 import React from 'react'
 import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import { TEmail } from '../../../utils/types'

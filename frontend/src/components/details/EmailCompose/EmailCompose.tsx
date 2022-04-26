@@ -1,4 +1,4 @@
-import { EmailInput, EmailInputContainer, EmailReplyContainer, FullWidth } from './EmailReplyStyles'
+import { EmailInput, EmailInputContainer, EmailComposeContainer, FullWidth, ButtonSpacer } from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import EmailRecipientsInput from './EmailRecipientsInput'
@@ -6,6 +6,8 @@ import { TEmail } from '../../../utils/types'
 import TextArea from '../../atoms/TextArea'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
+import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
+import { Colors } from '../../../styles'
 
 const SubjectContainer = styled.div`
     ${EmailInputContainer}
@@ -19,7 +21,7 @@ interface EmailReplyProps {
     sourceAccountId: string
     discardDraft: () => void
 }
-const EmailReply = ({ email, sourceAccountId }: EmailReplyProps) => {
+const EmailReply = ({ email, sourceAccountId, discardDraft }: EmailReplyProps) => {
     const [replyTo, setReplyTo] = useState(email.sender.email)
     const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
@@ -56,7 +58,7 @@ const EmailReply = ({ email, sourceAccountId }: EmailReplyProps) => {
     )
 
     return (
-        <EmailReplyContainer>
+        <EmailComposeContainer>
             <EmailRecipientsInput sender={email.sender.email} />
             <SubjectContainer>
                 <SubjectInput
@@ -75,11 +77,17 @@ const EmailReply = ({ email, sourceAccountId }: EmailReplyProps) => {
                     value={body}
                 />
             </FullWidth>
-            <FullWidth style={{ justifyContent: 'end' }}>
+            <FullWidth>
+                <RoundedGeneralButton
+                    onPress={() => sendEmail(replyTo, subject, body)}
+                    value="Send"
+                    color={Colors.purple._1}
+                />
+                <ButtonSpacer />
+                <RoundedGeneralButton onPress={discardDraft} value="Cancel" textStyle="dark" />
                 {isLoading ? 'Sending...' : ''}
-                <button onClick={() => sendEmail(replyTo, subject, body)}>Send</button>
             </FullWidth>
-        </EmailReplyContainer>
+        </EmailComposeContainer>
     )
 }
 

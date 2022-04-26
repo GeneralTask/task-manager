@@ -37,7 +37,7 @@ export const EmailInput = css`
     flex-grow: 1;
 `
 
-export const EmailReplyContainer = styled.div`
+export const EmailComposeContainer = styled.div`
     padding: ${Spacing.padding._16}px;
     border: 2px solid ${Colors.purple._3};
     border-radius: ${Border.radius.large};
@@ -73,4 +73,8 @@ export const EmailRecipientsContainer = styled.div`
 export const EmailTag = styled.div`
     max-width: 100%;
     margin: 0 4px;
+`
+
+export const ButtonSpacer = styled.div`
+    margin-right: ${Spacing.margin._8}px;
 `

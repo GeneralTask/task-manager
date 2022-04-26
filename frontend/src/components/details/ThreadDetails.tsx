@@ -1,6 +1,6 @@
 import { Colors, Spacing, Typography } from '../../styles'
 
-import EmailReplyContainer from './EmailReply/EmailReplyContainer'
+import EmailReplyContainer from './EmailCompose/EmailReplyContainer'
 import EmailTemplate from './EmailTemplate'
 import { Icon } from '../atoms/Icon'
 import React from 'react'
