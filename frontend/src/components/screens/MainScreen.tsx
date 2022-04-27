@@ -9,7 +9,7 @@ import MessagesView from '../views/MessagesView'
 import Settings from '../views/SettingsView'
 import TaskSection from '../views/TaskSectionView'
 import { useAppSelector } from '../../redux/hooks'
-import { useGetTasks, useGetUserInfo } from '../../services/api-query-hooks'
+import { useGetInfiniteThreads, useGetTasks, useGetUserInfo } from '../../services/api-query-hooks'
 
 const MainScreen = () => {
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
@@ -17,6 +17,7 @@ const MainScreen = () => {
 
     const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
+    useGetInfiniteThreads()
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {
