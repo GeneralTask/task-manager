@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/rs/zerolog/log"
 	"net/http"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -198,19 +199,28 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	userIsNew := count == int64(0)
 
 	var user database.User
-
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
+
+	userNew := &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}
+	userChangeable := &database.UserChangeable{Email: userInfo.EMAIL, Name: userInfo.Name}
+
+	log.Debug().Msgf("userNew: %+v", userNew)
+	userCollection.FindOneAndUpdate(dbCtx,
+		bson.M{"google_id": userInfo.SUB},
+		bson.M{"$setOnInsert": userNew},
+		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After))
+
+	log.Debug().Msgf("userChangeable: %+v", userChangeable)
 	userCollection.FindOneAndUpdate(
 		dbCtx,
 		bson.M{"google_id": userInfo.SUB},
-		bson.M{"$set": &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name}},
+		bson.M{"$set": userChangeable},
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
 	).Decode(&user)
 
 	if user.ID == primitive.NilObjectID {
 		log.Error().Msgf("unable to create user")
-
 		return primitive.NilObjectID, &userIsNew, nil, err
 	}
 
