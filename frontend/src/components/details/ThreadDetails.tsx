@@ -78,7 +78,12 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             sender={email.sender.name}
                             body={email.body}
                             isCollapsed={index !== thread.emails.length - 1}
-                            composeState={email.message_id === composeState.showComposeForEmailId}
+                            composeType={
+                                email.message_id !== composeState.showComposeForEmailId
+                                    ? null
+                                    : composeState.emailComposeType
+                            }
+                            setThreadComposeState={setComposeState}
                         />
                     ))}
                     <EmailReplyContainer

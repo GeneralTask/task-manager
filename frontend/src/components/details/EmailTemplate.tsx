@@ -3,6 +3,8 @@ import styled from 'styled-components'
 import React, { useEffect, useState } from 'react'
 import SanitizedHTML from '../atoms/SanitizedHTML'
 import { removeHTMLTags } from '../../utils/utils'
+import { EmailComposeType } from '../../utils/enums'
+import { TEmailComposeState } from '../../utils/types'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -44,14 +46,16 @@ const Title = styled.div`
     display: flex;
     flex: 1;
 `
-interface DetailsTemplateProps {
+interface EmailTemplateProps {
     sender: string
     time_sent?: string
     body: string
     isCollapsed: boolean
+    composeType: EmailComposeType | null // null if not in compose mode, otherwise the compose type
+    setThreadComposeState: (state: TEmailComposeState) => void
 }
 
-const EmailTemplate = (props: DetailsTemplateProps) => {
+const EmailTemplate = (props: EmailTemplateProps) => {
     const [isCollapsed, setIsCollapsed] = useState(!!props.isCollapsed)
 
     useEffect(() => setIsCollapsed(!!props.isCollapsed), [props.isCollapsed])
@@ -70,6 +74,10 @@ const EmailTemplate = (props: DetailsTemplateProps) => {
                     <SanitizedHTML dirtyHTML={props.body} />
                 </BodyContainer>
             )}
+            {/* {props.composeType && <EmailCompose
+                email={props.subject i guess}
+            />} */}
+            <div style={{ width: '100%' }}>yo whats up man</div>
         </DetailsViewContainer>
     )
 }
