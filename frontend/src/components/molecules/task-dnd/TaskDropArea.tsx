@@ -7,7 +7,7 @@ import { DropIndicatorAbove } from '../TaskDropContainer'
 
 const TaskDropAreaContainer = styled.div`
     width: 100%;
-    height: max(100%, 64px);
+    height: 100px;
 `
 
 interface TaskDropAreaProps {
@@ -46,9 +46,10 @@ const TaskDropArea = ({ dropIndex, taskSectionId }: TaskDropAreaProps) => {
     }, [dropRef])
 
     return (
-        <TaskDropAreaContainer ref={dropRef}>
+        <>
             <DropIndicatorAbove isVisible={isOver} />
-        </TaskDropAreaContainer>
+            <TaskDropAreaContainer ref={dropRef} />
+        </>
     )
 }
 
