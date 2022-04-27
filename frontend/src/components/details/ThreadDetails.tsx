@@ -74,9 +74,8 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     </HeaderContainer>
                     {thread.emails.map((email, index) => (
                         <EmailTemplate
+                            email={email}
                             key={email.message_id}
-                            sender={email.sender.name}
-                            body={email.body}
                             isCollapsed={index !== thread.emails.length - 1}
                             composeType={
                                 email.message_id !== composeState.showComposeForEmailId
@@ -84,6 +83,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                     : composeState.emailComposeType
                             }
                             setThreadComposeState={setComposeState}
+                            sourceAccountId={thread.source.account_id}
                         />
                     ))}
                     <EmailReplyContainer

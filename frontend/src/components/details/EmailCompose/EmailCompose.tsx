@@ -20,49 +20,46 @@ const SubjectInput = styled.input`
 interface EmailComposeProps {
     email: TEmail
     initialRecipients?: TRecipients
-    emailComposeType: EmailComposeType
+    composeType: EmailComposeType
     sourceAccountId: string
     discardDraft: () => void
 }
-const EmailCompose = ({ email, sourceAccountId, discardDraft }: EmailComposeProps) => {
-    const [recipients, setRecipients] = useState<TRecipients>(email.sender.email)
+const EmailCompose = (props: EmailComposeProps) => {
+    const [recipients, _setRecipients] = useState<TRecipients>(
+        props.initialRecipients ?? {
+            to: [],
+            cc: [],
+            bcc: [],
+        }
+    )
     const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
 
     useEffect(() => {
-        setReplyTo(email.sender.email)
-        setSubject((email.subject.slice(0, 3) === 'Re:' ? '' : 'Re: ') + email.subject)
+        // setReplyTo(email.sender.email)
+        setSubject((props.email.subject.slice(0, 3) === 'Re:' ? '' : 'Re: ') + props.email.subject)
         setBody('')
-    }, [email])
+    }, [props.email])
 
     const { mutate, isLoading } = useComposeMessage()
 
     const sendEmail = useCallback(
-        (to: string, subject, body) => {
+        (recipients: TRecipients, subject: string, body: string) => {
             mutate({
-                message_id: email.message_id,
+                message_id: props.email.message_id,
                 subject,
                 body,
-                recipients: {
-                    to: [
-                        {
-                            email: to,
-                            name: '',
-                        },
-                    ],
-                    cc: [],
-                    bcc: [],
-                },
+                recipients,
                 source_id: 'gmail',
-                source_account_id: sourceAccountId,
+                source_account_id: props.sourceAccountId,
             })
         },
-        [email, sourceAccountId, mutate]
+        [props.email, props.sourceAccountId, mutate]
     )
 
     return (
         <EmailComposeContainer>
-            <EmailRecipientsInput sender={email.sender.email} />
+            <EmailRecipientsInput sender={props.email.sender.email} />
             <SubjectContainer>
                 <SubjectInput
                     className="email-header"
@@ -82,12 +79,12 @@ const EmailCompose = ({ email, sourceAccountId, discardDraft }: EmailComposeProp
             </FullWidth>
             <FullWidth>
                 <RoundedGeneralButton
-                    onPress={() => sendEmail(replyTo, subject, body)}
+                    onPress={() => sendEmail(recipients, subject, body)}
                     value="Send"
                     color={Colors.purple._1}
                 />
                 <ButtonSpacer />
-                <RoundedGeneralButton onPress={discardDraft} value="Cancel" textStyle="dark" />
+                <RoundedGeneralButton onPress={props.discardDraft} value="Cancel" textStyle="dark" />
                 {isLoading ? 'Sending...' : ''}
             </FullWidth>
         </EmailComposeContainer>

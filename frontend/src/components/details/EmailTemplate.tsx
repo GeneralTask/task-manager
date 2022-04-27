@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react'
 import SanitizedHTML from '../atoms/SanitizedHTML'
 import { removeHTMLTags } from '../../utils/utils'
 import { EmailComposeType } from '../../utils/enums'
-import { TEmailComposeState } from '../../utils/types'
+import { TEmail, TEmailComposeState } from '../../utils/types'
+import EmailCompose from './EmailCompose/EmailCompose'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -47,12 +48,12 @@ const Title = styled.div`
     flex: 1;
 `
 interface EmailTemplateProps {
-    sender: string
+    email: TEmail
     time_sent?: string
-    body: string
     isCollapsed: boolean
     composeType: EmailComposeType | null // null if not in compose mode, otherwise the compose type
     setThreadComposeState: (state: TEmailComposeState) => void
+    sourceAccountId: string
 }
 
 const EmailTemplate = (props: EmailTemplateProps) => {
@@ -64,20 +65,26 @@ const EmailTemplate = (props: EmailTemplateProps) => {
         <DetailsViewContainer>
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
                 <SenderContainer>
-                    <Title>{props.sender}</Title>
+                    <Title>{props.email.sender.name}</Title>
                     {props.time_sent}
                 </SenderContainer>
-                {isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.body)}</BodyContainerCollapsed>}
+                {isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.email.body)}</BodyContainerCollapsed>}
             </CollapseExpandContainer>
             {isCollapsed || (
                 <BodyContainer>
-                    <SanitizedHTML dirtyHTML={props.body} />
+                    <SanitizedHTML dirtyHTML={props.email.body} />
                 </BodyContainer>
             )}
-            {props.composeType && <EmailCompose
-                email={props.subject i guess}
-            />}
-            <div style={{ width: '100%' }}>yo whats up man</div>
+            {props.composeType && (
+                <EmailCompose
+                    email={props.email}
+                    composeType={props.composeType}
+                    sourceAccountId={props.sourceAccountId}
+                    discardDraft={() =>
+                        props.setThreadComposeState({ emailComposeType: null, showComposeForEmailId: null })
+                    }
+                />
+            )}
         </DetailsViewContainer>
     )
 }
