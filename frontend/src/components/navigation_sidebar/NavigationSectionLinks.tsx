@@ -44,6 +44,7 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
         setSectionName(e.target.value)
     }
     const onKeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        e.stopPropagation()
         if (e.key === 'Enter' && sectionName.trim() !== '') {
             setSectionName('')
             addTaskSection({ name: sectionName })
