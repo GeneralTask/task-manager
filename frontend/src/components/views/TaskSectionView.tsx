@@ -5,7 +5,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Colors } from '../../styles'
 import CreateNewTask from '../molecules/CreateNewTask'
 import { DateTime } from 'luxon'
-import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
 import EventBanner from '../molecules/EventBanners'
 import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
@@ -14,33 +13,30 @@ import Task from '../molecules/Task'
 import TaskDetails from '../details/TaskDetails'
 import TaskDropContainer from '../molecules/TaskDropContainer'
 import { getSectionById } from '../../utils/task'
-import { setSelectedItemId } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
-import { useDispatch } from 'react-redux'
 import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
-import withTaskDeselect from '../molecules/TaskDeselectWrapper'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;
     flex-direction: column;
-    flex: 1;
-    overflow: auto;
+    margin-right: auto;
+    flex-shrink: 0;
 `
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
     padding-right: 10px;
-    display: flex;
-    flex-direction: column;
+    padding-bottom: 100px;
+    overflow-y: auto;
     flex: 1;
 `
 const TaskSectionViewContainer = styled.div`
-    height: 100%;
+    flex: 1;
     display: flex;
     flex-direction: column;
     padding-top: 0;
     background-color: ${Colors.gray._50};
-    min-width: 550px;
+    width: 480px;
 `
 const TasksContainer = styled.div`
     display: flex;
@@ -55,14 +51,12 @@ const TaskSection = () => {
 
     const { data: taskSections, isLoading } = useGetTasks()
     const { refetch: fetchExternalTasks } = useFetchExternalTasks()
-    const dispatch = useDispatch()
 
     useInterval(fetchExternalTasks, TASK_REFETCH_INTERVAL)
 
     const routerSection = useParams().section || ''
     const navigate = useNavigate()
     const params = useParams()
-    const hideDetailsView = useCallback(() => navigate(`/tasks/${params.section}`), [params])
 
     const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
     const expandTask = useCallback(
@@ -82,37 +76,23 @@ const TaskSection = () => {
 
     const expandedTask = useMemo(() => {
         const section = taskSections?.find((section) => section.id === params.section)
-        return section?.tasks.find((task) => task.id === params.task)
-    }, [params.task, taskSections])
+        if (section?.tasks && section.tasks.length > 0) {
+            return section.tasks.find((task) => task.id === params.task) ?? section.tasks[0]
+        }
+        return undefined
+    }, [params.task, params.section, taskSections])
 
     useEffect(() => {
-        const listener = (event: MouseEvent) => {
-            if (!bannerTaskSectionRef.current || !sectionViewRef.current) return
-            if (
-                bannerTaskSectionRef.current.contains(event.target as Node) &&
-                !sectionViewRef.current.contains(event.target as Node)
-            ) {
-                dispatch(setSelectedItemId(null))
-                hideDetailsView()
-            }
+        if (expandedTask) {
+            navigate(`/tasks/${routerSection}/${expandedTask.id}`)
         }
-        document.addEventListener('click', listener, true)
-        return () => document.removeEventListener('click', listener, true)
-    }, [bannerTaskSectionRef, sectionViewRef, params])
-
-    const WithDeselectDropArea = withTaskDeselect(TaskDropArea)
+    }, [expandedTask])
 
     return (
         <>
-            <BannerAndSectionContainer
-                id="testing"
-                ref={(node) => {
-                    sectionScrollingRef.current = node
-                    bannerTaskSectionRef.current = node
-                }}
-            >
+            <BannerAndSectionContainer ref={bannerTaskSectionRef}>
                 <EventBanner date={DateTime.now()} />
-                <ScrollViewMimic>
+                <ScrollViewMimic ref={sectionScrollingRef}>
                     <TaskSectionViewContainer>
                         {isLoading || !currentSection ? (
                             <Loading />
@@ -142,10 +122,6 @@ const TaskSection = () => {
                                             />
                                         </TaskDropContainer>
                                     ))}
-                                    <WithDeselectDropArea
-                                        dropIndex={currentSection.tasks.length + 1}
-                                        taskSectionId={currentSection.id}
-                                    />
                                 </TasksContainer>
                             </>
                         )}

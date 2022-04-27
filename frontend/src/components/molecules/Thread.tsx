@@ -4,7 +4,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import { useAppSelector } from '../../redux/hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
@@ -50,11 +49,9 @@ interface ThreadProps {
 const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const navigate = useNavigate()
     const params = useParams()
-    const isExpanded = params.thread === thread.id
-    const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === thread.id)
+    const isSelected = params.thread === thread.id
 
     const observer = useRef<IntersectionObserver>()
-    const selectedThread = useAppSelector((state) => state.tasks_page.selected_item_id)
     const isScrolling = useRef<boolean>(false)
 
     // Add event listener to check if scrolling occurs in thread section
@@ -73,7 +70,7 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
         if (sectionScrollingRef.current) {
             isScrolling.current = false
         }
-    }, [selectedThread])
+    }, [params.thread])
 
     //Auto-scroll to thread if it is selected and out of view
     const elementRef = useCallback(
