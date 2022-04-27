@@ -3,9 +3,7 @@ import { useGetTasks, useReorderTask } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Colors, Dimensions, Shadows, Spacing } from '../../styles'
 import { radius } from '../../styles/border'
-import { setSelectedItemId } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
-import { useAppDispatch } from '../../redux/hooks'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
 
@@ -70,7 +68,6 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
     const { data } = useGetTasks()
 
     const navigate = useNavigate()
-    const dispatch = useAppDispatch()
     const params = useParams()
     const current_section_id = params.section || ''
 
@@ -87,7 +84,6 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
             })
             closeLabelEditor()
             navigate(`/tasks/${current_section_id}`)
-            dispatch(setSelectedItemId(null))
         }
 
         return (
