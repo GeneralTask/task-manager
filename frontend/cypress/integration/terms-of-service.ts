@@ -22,6 +22,6 @@ describe('new user is redirected to terms of service page', () => {
     it('clicking submit button and accepting TOS redirects to landing page', () => {
         cy.findByTestId('terms-check-button').click()
         cy.findByTestId('terms-submit-button').click()
-        cy.location('pathname', { timeout: 60000 }).should('equal', '/')
+        cy.location('pathname', { timeout: 60000 }).should('include', '/tasks')
     })
 })
