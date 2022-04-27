@@ -4,6 +4,7 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { margin } from '../../styles/spacing'
 import { Icon } from '../atoms/Icon'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 
 const DropdownContainer = styled.div`
     display: flex;
@@ -58,7 +59,9 @@ const NavigationLinkDropdown = ({ children, title, openAddSectionInput }: Naviga
                 <Icon size="small" source={icons.inbox} />
                 <SectionTitle>{title}</SectionTitle>
                 <AddSectionContainer onClick={openAddSectionHandler}>
-                    <Icon size="small" source={icons.plus} />
+                    <TooltipWrapper dataTip="Add Section" tooltipId="tooltip">
+                        <Icon size="small" source={icons.plus} />
+                    </TooltipWrapper>
                 </AddSectionContainer>
             </DropdownContainer>
             {isOpen && <LinksContainer>{children}</LinksContainer>}
