@@ -211,7 +211,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 		bson.M{"$setOnInsert": userNew},
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After))
 
-	log.Debug().Msgf("userChangeable: %+v", userNew)
+	log.Debug().Msgf("userChangeable: %+v", userChangeable)
 	userCollection.FindOneAndUpdate(
 		dbCtx,
 		bson.M{"google_id": userInfo.SUB},
