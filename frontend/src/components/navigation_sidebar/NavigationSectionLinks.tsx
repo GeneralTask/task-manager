@@ -7,26 +7,26 @@ import { weight } from '../../styles/typography'
 import { TTaskSection } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import NoStyleInput from '../atoms/NoStyleInput'
-import NavigationLink from './NavigationLink'
+import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
 
-const AddSectionContainer = styled.div`
-    display: flex;
-    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
-    border: 2px solid transparent;
-    align-items: center;
-`
 const AddSectionInputContainer = styled.div`
+    display: flex;
+    align-items: center;
     overflow: clip;
     margin-left: ${Spacing.margin._8}px;
     flex: 1;
     min-width: 0;
     & input {
-        display: block;
         font-weight: ${weight._500};
         font-size: ${Typography.xSmall.fontSize};
         color: ${Colors.gray._500};
+        border: none;
+        font-family: inherit;
     }
+`
+const IconContainer = styled.div`
+    margin-left: 10px;
 `
 
 interface SectionLinksProps {
@@ -95,10 +95,10 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                         />
                     ))}
                 {isAddSectionInputVisible && (
-                    <AddSectionContainer>
-                        <span>
+                    <NavigationLinkTemplate>
+                        <IconContainer>
                             <Icon size="small" source={icons.label} />
-                        </span>
+                        </IconContainer>
                         <AddSectionInputContainer>
                             <NoStyleInput
                                 ref={inputRef}
@@ -108,7 +108,7 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                                 placeholder="Add Section"
                             />
                         </AddSectionInputContainer>
-                    </AddSectionContainer>
+                    </NavigationLinkTemplate>
                 )}
                 {taskSections
                     .filter((section) => section.is_done)
