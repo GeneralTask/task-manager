@@ -10,13 +10,14 @@ import Settings from '../views/SettingsView'
 import TaskSection from '../views/TaskSectionView'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setSelectedItemId } from '../../redux/tasksPageSlice'
-import { useGetTasks, useGetUserInfo } from '../../services/api-query-hooks'
+import { useGetInfiniteThreads, useGetTasks, useGetUserInfo } from '../../services/api-query-hooks'
 
 const MainScreen = () => {
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const location = useLocation()
     const dispatch = useAppDispatch()
     const params = useParams()
+    useGetInfiniteThreads()
 
     const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
