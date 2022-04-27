@@ -4,8 +4,6 @@ import { Colors } from '../../styles'
 import NavigationView from '../views/NavigationView'
 import '../../styles/tooltip.css'
 import styled from 'styled-components'
-import KeyboardShortcut from '../atoms/KeyboardShortcut'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
 
 const DefaultTemplateContainer = styled.div`
     display: flex;

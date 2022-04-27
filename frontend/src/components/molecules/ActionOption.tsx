@@ -35,6 +35,10 @@ const TooltipContainer = styled.div`
     align-items: center;
     justify-content: center;
 `
+
+const LabelContainer = styled.div`
+    margin-right: ${Spacing.margin._4}px;
+`
 interface ActionOptionProps {
     task: TTask
     isShown: boolean
@@ -44,7 +48,7 @@ interface ActionOptionProps {
 
 const label = ReactDOMServer.renderToString(
     <TooltipContainer>
-        <span>Label</span>
+        <LabelContainer>Label</LabelContainer>
         <KeyboardShortcutContainer isPressed={false}>{KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}</KeyboardShortcutContainer>
     </TooltipContainer>
 )
