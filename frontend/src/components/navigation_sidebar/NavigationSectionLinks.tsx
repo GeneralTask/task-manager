@@ -39,10 +39,19 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
     const [sectionName, setSectionName] = useState('')
     const { mutate: addTaskSection } = useAddTaskSection()
-    const onAddSectionSubmitHandler = () => {
-        setSectionName('')
-        addTaskSection({ name: sectionName })
-        setIsAddSectionInputVisible(false)
+
+    const onKeyChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSectionName(e.target.value)
+    }
+    const onKeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && sectionName.trim() !== '') {
+            setSectionName('')
+            addTaskSection({ name: sectionName })
+            setIsAddSectionInputVisible(false)
+        } else if (e.key === 'Escape' && inputRef.current) {
+            setSectionName('')
+            setIsAddSectionInputVisible(false)
+        }
     }
     const inputRef = useRef<HTMLInputElement>(null)
     const onOpenAddSectionInputHandler = useCallback(() => {
@@ -93,9 +102,9 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                             <NoStyleInput
                                 ref={inputRef}
                                 value={sectionName}
-                                onChange={(e) => setSectionName(e.target.value)}
-                                placeholder={'Add Section'}
-                                onSubmit={onAddSectionSubmitHandler}
+                                onChange={onKeyChangeHandler}
+                                onKeyDown={onKeyDownHandler}
+                                placeholder="Add Section"
                             />
                         </AddSectionInputContainer>
                     </AddSectionContainer>
