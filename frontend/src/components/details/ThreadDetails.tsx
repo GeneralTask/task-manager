@@ -1,10 +1,10 @@
 import { Colors, Spacing, Typography } from '../../styles'
+import React, { useState } from 'react'
+import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import EmailReplyContainer from './EmailCompose/EmailReplyContainer'
 import EmailTemplate from './EmailTemplate'
 import { Icon } from '../atoms/Icon'
-import React, { useState } from 'react'
-import { TEmailThread, TEmailComposeState } from '../../utils/types'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 

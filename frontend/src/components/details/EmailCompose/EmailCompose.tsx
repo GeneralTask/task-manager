@@ -1,14 +1,14 @@
-import { EmailInput, EmailInputContainer, EmailComposeContainer, FullWidth, ButtonSpacer } from './EmailCompose-styles'
+import { ButtonSpacer, EmailComposeContainer, EmailInput, EmailInputContainer, FullWidth } from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
-
-import EmailRecipientsInput from './EmailRecipientsInput'
 import { TEmail, TRecipients } from '../../../utils/types'
+
+import { Colors } from '../../../styles'
+import { EmailComposeType } from '../../../utils/enums'
+import EmailRecipientsInput from './EmailRecipientsInput'
+import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
-import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
-import { Colors } from '../../../styles'
-import { EmailComposeType } from '../../../utils/enums'
 
 const SubjectContainer = styled.div`
     ${EmailInputContainer}

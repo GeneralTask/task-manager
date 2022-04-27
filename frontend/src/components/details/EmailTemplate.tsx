@@ -74,9 +74,9 @@ const EmailTemplate = (props: EmailTemplateProps) => {
                     <SanitizedHTML dirtyHTML={props.body} />
                 </BodyContainer>
             )}
-            {/* {props.composeType && <EmailCompose
+            {props.composeType && <EmailCompose
                 email={props.subject i guess}
-            />} */}
+            />}
             <div style={{ width: '100%' }}>yo whats up man</div>
         </DetailsViewContainer>
     )
