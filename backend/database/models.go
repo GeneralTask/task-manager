@@ -19,8 +19,9 @@ type User struct {
 }
 
 type UserChangeable struct {
-	Email string `bson:"email,omitempty"`
-	Name  string `bson:"name,omitempty"`
+	Email         string             `bson:"email,omitempty"`
+	Name          string             `bson:"name,omitempty"`
+	LastRefreshed primitive.DateTime `bson:"last_refreshed,omitempty"`
 }
 
 // InternalAPIToken model
