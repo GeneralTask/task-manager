@@ -3,8 +3,8 @@ import { Colors, Spacing, Typography } from '../../styles'
 import EmailReplyContainer from './EmailCompose/EmailReplyContainer'
 import EmailTemplate from './EmailTemplate'
 import { Icon } from '../atoms/Icon'
-import React from 'react'
-import { TEmailThread } from '../../utils/types'
+import React, { useState } from 'react'
+import { TEmailThread, TEmailComposeState } from '../../utils/types'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 
@@ -42,10 +42,15 @@ const SubTitle = styled(Title)`
     font-size: ${Typography.xSmall.fontSize};
     color: ${Colors.gray._400};
 `
+
 interface ThreadDetailsProps {
     thread: TEmailThread | undefined
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
+    const [composeState, setComposeState] = useState<TEmailComposeState>({
+        emailComposeType: null,
+        showComposeForEmailId: null,
+    })
     const title = `${thread?.emails[0]?.subject ?? ''} (${thread?.emails.length ?? 0})`
     const recipient_emails = Array.from(
         new Set(
@@ -73,6 +78,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             sender={email.sender.name}
                             body={email.body}
                             isCollapsed={index !== thread.emails.length - 1}
+                            composeState={email.message_id === composeState.showComposeForEmailId}
                         />
                     ))}
                     <EmailReplyContainer

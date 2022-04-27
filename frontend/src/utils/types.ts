@@ -1,3 +1,5 @@
+import { EmailComposeType } from "./enums"
+
 export type Datestring = string
 
 export interface TTaskSource {
@@ -162,4 +164,9 @@ export interface TTaskCreateParams {
 export interface TUserInfo {
     agreed_to_terms: boolean
     opted_into_marketing: boolean
+}
+
+export interface TEmailComposeState {
+    emailComposeType: EmailComposeType | null
+    showComposeForEmailId: string | null // the id of the email to show the compose form for
 }

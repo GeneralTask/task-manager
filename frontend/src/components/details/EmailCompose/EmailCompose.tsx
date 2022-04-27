@@ -2,12 +2,13 @@ import { EmailInput, EmailInputContainer, EmailComposeContainer, FullWidth, Butt
 import React, { useCallback, useEffect, useState } from 'react'
 
 import EmailRecipientsInput from './EmailRecipientsInput'
-import { TEmail } from '../../../utils/types'
+import { TEmail, TRecipients } from '../../../utils/types'
 import TextArea from '../../atoms/TextArea'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
 import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import { Colors } from '../../../styles'
+import { EmailComposeType } from '../../../utils/enums'
 
 const SubjectContainer = styled.div`
     ${EmailInputContainer}
@@ -16,13 +17,15 @@ const SubjectInput = styled.input`
     ${EmailInput}
 `
 
-interface EmailReplyProps {
+interface EmailComposeProps {
     email: TEmail
+    initialRecipients?: TRecipients
+    emailComposeType: EmailComposeType
     sourceAccountId: string
     discardDraft: () => void
 }
-const EmailReply = ({ email, sourceAccountId, discardDraft }: EmailReplyProps) => {
-    const [replyTo, setReplyTo] = useState(email.sender.email)
+const EmailCompose = ({ email, sourceAccountId, discardDraft }: EmailComposeProps) => {
+    const [recipients, setRecipients] = useState<TRecipients>(email.sender.email)
     const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
 
@@ -91,4 +94,4 @@ const EmailReply = ({ email, sourceAccountId, discardDraft }: EmailReplyProps) =
     )
 }
 
-export default EmailReply
+export default EmailCompose
