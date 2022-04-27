@@ -7,7 +7,10 @@ import { DropIndicatorAbove } from '../TaskDropContainer'
 
 const TaskDropAreaContainer = styled.div`
     width: 100%;
-    height: 100px;
+    flex: 1;
+    height: 100%;
+    min-height: 100px;
+    margin-top: -2px;
 `
 
 interface TaskDropAreaProps {

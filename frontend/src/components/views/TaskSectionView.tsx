@@ -33,6 +33,7 @@ const ScrollViewMimic = styled.div`
 const TaskSectionViewContainer = styled.div`
     flex: 1;
     display: flex;
+    height: 100%;
     flex-direction: column;
     padding-top: 0;
     background-color: ${Colors.gray._50};
@@ -41,7 +42,6 @@ const TaskSectionViewContainer = styled.div`
 const TasksContainer = styled.div`
     display: flex;
     flex-direction: column;
-    flex: 1;
 `
 
 const TaskSection = () => {
@@ -122,11 +122,11 @@ const TaskSection = () => {
                                             />
                                         </TaskDropContainer>
                                     ))}
-                                    <TaskDropArea
-                                        dropIndex={currentSection.tasks.length + 1}
-                                        taskSectionId={currentSection.id}
-                                    />
                                 </TasksContainer>
+                                <TaskDropArea
+                                    dropIndex={currentSection.tasks.length + 1}
+                                    taskSectionId={currentSection.id}
+                                />
                             </>
                         )}
                     </TaskSectionViewContainer>
