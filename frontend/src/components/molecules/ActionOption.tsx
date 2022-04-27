@@ -31,6 +31,7 @@ const ActionButton = styled(NoStyleButton)`
 
 const TooltipContainer = styled.div`
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
 `
@@ -42,14 +43,10 @@ interface ActionOptionProps {
 }
 
 const label = ReactDOMServer.renderToString(
-    <>
+    <TooltipContainer>
         <span>Label</span>
-        <TooltipContainer>
-            <KeyboardShortcutContainer isPressed={false}>
-                {KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
-            </KeyboardShortcutContainer>
-        </TooltipContainer>
-    </>
+        <KeyboardShortcutContainer isPressed={false}>{KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}</KeyboardShortcutContainer>
+    </TooltipContainer>
 )
 
 const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOptionProps) => {
