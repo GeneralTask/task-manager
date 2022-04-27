@@ -101,13 +101,13 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 			log.Error().Msgf("error loading task service: %v", err)
 			continue
 		}
-		for _, taskSource := range taskServiceResult.Sources {
+		for _, taskSourceResult := range taskServiceResult.Sources {
 			var tasks = make(chan external.TaskResult)
-			go taskSource.GetTasks(userID.(primitive.ObjectID), token.AccountID, tasks)
+			go taskSourceResult.Source.GetTasks(userID.(primitive.ObjectID), token.AccountID, tasks)
 			taskChannels = append(taskChannels, tasks)
 
 			var pullRequests = make(chan external.PullRequestResult)
-			go taskSource.GetPullRequests(userID.(primitive.ObjectID), token.AccountID, pullRequests)
+			go taskSourceResult.Source.GetPullRequests(userID.(primitive.ObjectID), token.AccountID, pullRequests)
 			pullRequestChannels = append(pullRequestChannels, pullRequests)
 		}
 	}

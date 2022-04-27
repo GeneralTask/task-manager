@@ -95,9 +95,9 @@ func (api *API) EventsList(c *gin.Context) {
 			log.Error().Msgf("error loading task service: %v", err)
 			continue
 		}
-		for _, taskSource := range taskServiceResult.Sources {
+		for _, taskSourceResult := range taskServiceResult.Sources {
 			var calendarEvents = make(chan external.CalendarResult)
-			go taskSource.GetEvents(userID.(primitive.ObjectID), token.AccountID, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd, calendarEvents)
+			go taskSourceResult.Source.GetEvents(userID.(primitive.ObjectID), token.AccountID, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd, calendarEvents)
 			calendarEventChannels = append(calendarEventChannels, calendarEvents)
 		}
 	}

@@ -67,29 +67,34 @@ func (api *API) MessagesFetch(c *gin.Context) {
 
 	_, fullRefresh := c.GetQuery("fullRefresh")
 	emailChannels := []chan external.EmailResult{}
+	emailChannelToToken := make(map[chan external.EmailResult]database.ExternalAPIToken)
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
+		log.Debug().Msgf("Processing task service %+v for account %s", taskServiceResult.Details.Name, token.AccountID)
 		if err != nil {
-			log.Error().Msgf("error loading task service: %v", err)
+			log.Error().Err(err).Msg("error loading task service")
 			Handle500(c)
 			return
 		}
-		for _, taskSource := range taskServiceResult.Sources {
+		for _, taskSourceResult := range taskServiceResult.Sources {
+			log.Debug().Str("taskServiceID", taskServiceResult.Details.ID).Str("taskSourceID", taskSourceResult.Details.ID).
+				Str("tokenAccountID", token.AccountID).Send()
 			var emails = make(chan external.EmailResult)
-			go taskSource.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails, fullRefresh)
+			go taskSourceResult.Source.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails, fullRefresh)
 			emailChannels = append(emailChannels, emails)
+			emailChannelToToken[emails] = token
 		}
 	}
 
 	fetchedEmails := []*database.Item{}
-	badTokens := []*database.ExternalAPIToken{}
+	badTokens := []database.ExternalAPIToken{}
 	failedFetchSources := make(map[string]bool)
-	for index, emailChannel := range emailChannels {
+	for _, emailChannel := range emailChannels {
 		emailResult := <-emailChannel
 		if emailResult.Error != nil {
 			if emailResult.IsBadToken {
-				badTokens = append(badTokens, &tokens[index])
+				badTokens = append(badTokens, emailChannelToToken[emailChannel])
 			}
 			failedFetchSources[emailResult.SourceID] = true
 			continue
