@@ -37,7 +37,7 @@ const TooltipContainer = styled.div`
 `
 
 const LabelContainer = styled.div`
-    margin-right: ${Spacing.margin._4}px;
+    margin-right: ${Spacing.margin._8}px;
 `
 interface ActionOptionProps {
     task: TTask
