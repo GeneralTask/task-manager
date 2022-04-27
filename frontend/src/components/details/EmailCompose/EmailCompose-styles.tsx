@@ -1,5 +1,6 @@
-import { Border, Colors, Spacing } from '../../../styles'
+import { Border, Colors, Shadows, Spacing } from '../../../styles'
 import styled, { css } from 'styled-components'
+import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 
 export const EmailInputContainer = css`
     margin: 0;
@@ -77,4 +78,19 @@ export const EmailTag = styled.div`
 
 export const ButtonSpacer = styled.div`
     margin-right: ${Spacing.margin._8}px;
+`
+
+export const EmailActionButtonContainer = styled.div`
+    flex: 1;
+    padding: ${Spacing.padding._4}px;
+`
+
+export const EmailActionButton = styled(NoStyleButton)`
+    background-color: ${Colors.gray._100};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: ${Shadows.small};
+    width: 100%;
+    padding: ${Spacing.padding._8}px 0;
 `

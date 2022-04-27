@@ -1,8 +1,14 @@
 import EmailReply from './EmailCompose'
-import { EmailReplyMinHeightContainer } from './EmailCompose-styles'
+import {
+    EmailActionButton,
+    EmailActionButtonContainer,
+    EmailReplyMinHeightContainer,
+    FullWidth,
+} from './EmailCompose-styles'
 import React from 'react'
-import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import { TEmail } from '../../../utils/types'
+import { Icon } from '../../atoms/Icon'
+import { Images } from '../../../styles'
 
 interface EmailReplyContainerProps {
     email: TEmail
@@ -20,15 +26,35 @@ const EmailReplyContainer = ({ email, sourceAccountId }: EmailReplyContainerProp
                     discardDraft={() => setShowReplyForm(false)}
                 />
             ) : (
-                <div>
-                    <RoundedGeneralButton
-                        value="Reply"
-                        textStyle="dark"
-                        onPress={() => {
-                            setShowReplyForm(true)
-                        }}
-                    />
-                </div>
+                <FullWidth>
+                    <EmailActionButtonContainer>
+                        <EmailActionButton
+                            onClick={() => {
+                                setShowReplyForm(true)
+                            }}
+                        >
+                            <Icon size="medium" source={Images.icons.reply} />
+                        </EmailActionButton>
+                    </EmailActionButtonContainer>
+                    <EmailActionButtonContainer>
+                        <EmailActionButton
+                            onClick={() => {
+                                setShowReplyForm(true)
+                            }}
+                        >
+                            <Icon size="medium" source={Images.icons.replyAll} />
+                        </EmailActionButton>
+                    </EmailActionButtonContainer>
+                    <EmailActionButtonContainer>
+                        <EmailActionButton
+                            onClick={() => {
+                                setShowReplyForm(true)
+                            }}
+                        >
+                            <Icon size="medium" source={Images.icons.forward} />
+                        </EmailActionButton>
+                    </EmailActionButtonContainer>
+                </FullWidth>
             )}
         </EmailReplyMinHeightContainer>
     )
