@@ -32,9 +32,9 @@ const SectionTitle = styled.span`
 `
 const AddSectionContainer = styled.div`
     padding: ${Spacing.padding._4}px;
+    border-radius: 50%;
     &:hover {
         background-color: ${Colors.gray._200};
-        border-radius: 50%;
     }
 `
 
