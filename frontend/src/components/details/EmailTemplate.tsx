@@ -1,8 +1,11 @@
-import { Colors, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import styled from 'styled-components'
 import React, { useEffect, useState } from 'react'
-import TaskHTMLBody from '../atoms/TaskHTMLBody'
+import SanitizedHTML from '../atoms/SanitizedHTML'
 import { removeHTMLTags } from '../../utils/utils'
+import { TRecipients, TSender } from '../../utils/types'
+import EmailSenderDetails from '../molecules/EmailSenderDetails'
+import ReactTooltip from 'react-tooltip'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -20,10 +23,15 @@ const SenderContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     height: 50px;
+`
+const SentAtContainer = styled.div`
+    margin-left: auto;
 `
 const BodyContainer = styled.div`
     flex: 1;
+    margin: ${Spacing.margin._8}px;
 `
 const BodyContainerCollapsed = styled.span`
     flex: 1;
@@ -45,8 +53,9 @@ const Title = styled.div`
     flex: 1;
 `
 interface DetailsTemplateProps {
-    sender: string
-    time_sent?: string
+    sender: TSender
+    recipients: TRecipients
+    time_sent: string
     body: string
     isCollapsed: boolean
 }
@@ -55,19 +64,26 @@ const EmailTemplate = (props: DetailsTemplateProps) => {
     const [isCollapsed, setIsCollapsed] = useState(!!props.isCollapsed)
 
     useEffect(() => setIsCollapsed(!!props.isCollapsed), [props.isCollapsed])
+    useEffect(() => {
+        ReactTooltip.hide()
+        ReactTooltip.rebuild()
+    }, [])
 
     return (
         <DetailsViewContainer>
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
                 <SenderContainer>
-                    <Title>{props.sender}</Title>
-                    {props.time_sent}
+                    <div>
+                        <Title>{props.sender.name}</Title>
+                        <EmailSenderDetails sender={props.sender} recipients={props.recipients} />
+                    </div>
+                    <SentAtContainer>{props.time_sent}</SentAtContainer>
                 </SenderContainer>
                 {isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.body)}</BodyContainerCollapsed>}
             </CollapseExpandContainer>
             {isCollapsed || (
                 <BodyContainer>
-                    <TaskHTMLBody dirtyHTML={props.body} />
+                    <SanitizedHTML dirtyHTML={props.body} />
                 </BodyContainer>
             )}
         </DetailsViewContainer>

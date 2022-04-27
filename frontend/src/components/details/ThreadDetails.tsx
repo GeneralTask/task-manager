@@ -1,16 +1,19 @@
+import { DateTime } from 'luxon'
 import React from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
+import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import EmailTemplate from './EmailTemplate'
 
 const FlexColumnContainer = styled.div`
+    flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 300px;
     overflow-y: auto;
-    width: 700px;
 `
 const HeaderContainer = styled.div`
     flex: 0;
@@ -68,7 +71,9 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     {thread.emails.map((email, index) => (
                         <EmailTemplate
                             key={email.message_id}
-                            sender={email.sender.name}
+                            sender={email.sender}
+                            recipients={email.recipients}
+                            time_sent={getHumanTimeSinceDateTime(DateTime.fromISO(email.sent_at))}
                             body={email.body}
                             isCollapsed={index !== thread.emails.length - 1}
                         />

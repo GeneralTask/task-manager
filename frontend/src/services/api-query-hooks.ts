@@ -1,7 +1,6 @@
 import { MESSAGES_PER_PAGE, TASK_MARK_AS_DONE_TIMEOUT, TASK_SECTION_DEFAULT_ID } from '../constants'
 import {
     TEmailThread,
-    TEmailThreadResponse,
     TEvent,
     TLinkedAccount,
     TMessage,
@@ -9,13 +8,25 @@ import {
     TRecipients,
     TSupportedType,
     TTask,
-    TTaskModifyRequestBody,
     TTaskSection,
     TUserInfo,
 } from '../utils/types'
+import {
+    TAddTaskSectionData,
+    TCreateEventPayload,
+    TCreateTaskData,
+    TEmailThreadResponse,
+    TMarkAsTaskData,
+    TMarkMessageReadData,
+    TMarkTaskDoneData,
+    TModifyTaskData,
+    TModifyTaskSectionData,
+    TPostFeedbackData,
+    TReorderTaskData,
+    TTaskModifyRequestBody,
+} from './query-payload-types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
-
 import { DateTime } from 'luxon'
 import apiClient from '../utils/api'
 import { getMonthsAroundDate } from '../utils/time'
@@ -66,8 +77,8 @@ const fetchExternalTasks = async () => {
 
 export const useCreateTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { title: string; body: string; id_task_section: string }) => createTask(data), {
-        onMutate: async (data: { title: string; body: string; id_task_section: string }) => {
+    return useMutation((data: TCreateTaskData) => createTask(data), {
+        onMutate: async (data: TCreateTaskData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
@@ -107,7 +118,7 @@ export const useCreateTask = () => {
         },
     })
 }
-const createTask = async (data: { title: string; body: string; id_task_section: string }) => {
+const createTask = async (data: TCreateTaskData) => {
     try {
         const res = await apiClient.post('/tasks/create/gt_task/', data)
         return res.data
@@ -119,16 +130,10 @@ const createTask = async (data: { title: string; body: string; id_task_section: 
 export const useModifyTask = () => {
     const queryClient = useQueryClient()
     return useMutation(
-        (data: { id: string; title?: string; dueDate?: string; timeAllocated?: number; body?: string }) =>
+        (data: TModifyTaskData) =>
             modifyTask(data),
         {
-            onMutate: async (data: {
-                id: string
-                title?: string
-                dueDate?: string
-                timeAllocated?: number
-                body?: string
-            }) => {
+            onMutate: async (data: TModifyTaskData) => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
@@ -153,13 +158,7 @@ export const useModifyTask = () => {
         }
     )
 }
-const modifyTask = async (data: {
-    id: string
-    title?: string
-    dueDate?: string
-    timeAllocated?: number
-    body?: string
-}) => {
+const modifyTask = async (data: TModifyTaskData) => {
     const requestBody: TTaskModifyRequestBody = {}
     if (data.title !== undefined) requestBody.title = data.title
     if (data.dueDate !== undefined) requestBody.due_date = data.dueDate
@@ -175,8 +174,8 @@ const modifyTask = async (data: {
 
 export const useMarkTaskDone = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { taskId: string; isCompleted: boolean }) => markTaskDone(data), {
-        onMutate: async (data: { taskId: string; isCompleted: boolean }) => {
+    return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {
+        onMutate: async (data: TMarkTaskDoneData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
@@ -201,7 +200,7 @@ export const useMarkTaskDone = () => {
         },
     })
 }
-const markTaskDone = async (data: { taskId: string; isCompleted: boolean }) => {
+const markTaskDone = async (data: TMarkTaskDoneData) => {
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { is_completed: data.isCompleted })
         return res.data
@@ -213,15 +212,10 @@ const markTaskDone = async (data: { taskId: string; isCompleted: boolean }) => {
 export const useReorderTask = () => {
     const queryClient = useQueryClient()
     return useMutation(
-        (data: { taskId: string; dropSectionId: string; orderingId: number; dragSectionId?: string }) =>
+        (data: TReorderTaskData) =>
             reorderTask(data),
         {
-            onMutate: async (data: {
-                taskId: string
-                dropSectionId: string
-                orderingId: number
-                dragSectionId?: string
-            }) => {
+            onMutate: async (data: TReorderTaskData) => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
@@ -269,12 +263,7 @@ export const useReorderTask = () => {
         }
     )
 }
-const reorderTask = async (data: {
-    taskId: string
-    dropSectionId: string
-    orderingId: number
-    dragSectionId?: string
-}) => {
+const reorderTask = async (data: TReorderTaskData) => {
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, {
             id_task_section: data.dropSectionId,
@@ -292,8 +281,8 @@ const reorderTask = async (data: {
 
 export const useAddTaskSection = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { name: string }) => addTaskSection(data), {
-        onMutate: async (data: { name: string }) => {
+    return useMutation((data: TAddTaskSectionData) => addTaskSection(data), {
+        onMutate: async (data: TAddTaskSectionData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
@@ -313,9 +302,9 @@ export const useAddTaskSection = () => {
         },
     })
 }
-const addTaskSection = async (data: { name: string }) => {
+const addTaskSection = async (data: TAddTaskSectionData) => {
     try {
-        const res = await apiClient.post('/sections/create/', { name: data.name })
+        const res = await apiClient.post('/sections/create/', data)
         return res.data
     } catch {
         throw new Error('addTaskSection failed')
@@ -356,8 +345,8 @@ const deleteTaskSection = async (data: { sectionId: string }) => {
 
 export const useModifyTaskSection = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { sectionId: string; name: string }) => modifyTaskSection(data), {
-        onMutate: async (data: { sectionId: string; name: string }) => {
+    return useMutation((data: TModifyTaskSectionData) => modifyTaskSection(data), {
+        onMutate: async (data: TModifyTaskSectionData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
@@ -373,7 +362,7 @@ export const useModifyTaskSection = () => {
         },
     })
 }
-const modifyTaskSection = async (data: { sectionId: string; name: string }) => {
+const modifyTaskSection = async (data: TModifyTaskSectionData) => {
     try {
         const res = await apiClient.patch(`/sections/modify/${data.sectionId}/`, { name: data.name })
         return res.data
@@ -412,9 +401,9 @@ const getThreadDetail = async (data: { threadId: string }) => {
 
 export const useMarkThreadAsTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { id: string, isTask: boolean }) => markThreadAsTask(data),
+    return useMutation((data: TMarkAsTaskData) => markThreadAsTask(data),
         {
-            onMutate: async (data: { id: string, isTask: boolean }) => {
+            onMutate: async (data: TMarkAsTaskData) => {
                 // cancel all current getThreads queries
                 await queryClient.cancelQueries('emailthreads')
 
@@ -437,7 +426,7 @@ export const useMarkThreadAsTask = () => {
         }
     )
 }
-const markThreadAsTask = async (data: { id: string, isTask: boolean }) => {
+const markThreadAsTask = async (data: TMarkAsTaskData) => {
     try {
         const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_task: data.isTask })
         return res.data
@@ -482,14 +471,14 @@ const fetchMessages = async () => {
 
 export const useMarkMessageRead = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { id: string; isRead: boolean }) => markMessageRead(data), {
+    return useMutation((data: TMarkMessageReadData) => markMessageRead(data), {
         onSettled: (_, error, variables) => {
             if (error) return
             queryClient.invalidateQueries(['messages', variables.id])
         },
     })
 }
-const markMessageRead = async (data: { id: string; isRead: boolean }) => {
+const markMessageRead = async (data: TMarkMessageReadData) => {
     try {
         const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_read: data.isRead })
         return res.data
@@ -500,8 +489,8 @@ const markMessageRead = async (data: { id: string; isRead: boolean }) => {
 
 export const useMarkMessageAsTask = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: { id: string; isTask: boolean }) => markMessageAsTask(data), {
-        onMutate: async (data: { id: string; isTask: boolean }) => {
+    return useMutation((data: TMarkAsTaskData) => markMessageAsTask(data), {
+        onMutate: async (data: TMarkAsTaskData) => {
             // cancel all current getMessages queries
             await queryClient.cancelQueries('messages')
 
@@ -524,7 +513,7 @@ export const useMarkMessageAsTask = () => {
         },
     })
 }
-const markMessageAsTask = async (data: { id: string; isTask: boolean }) => {
+const markMessageAsTask = async (data: TMarkAsTaskData) => {
     try {
         const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_task: data.isTask })
         return res.data
@@ -550,23 +539,8 @@ const getEvents = async (params: { startISO: string; endISO: string }) => {
     }
 }
 
-interface EventAttendee {
-    name: string
-    email: string
-}
-interface CreateEventPayload {
-    account_id: string
-    datetime_start: string
-    datetime_end: string
-    summary?: string
-    location?: string
-    description?: string
-    time_zone?: string
-    attendees?: EventAttendee[]
-    add_conference_call?: boolean
-}
 interface CreateEventParams {
-    createEventPayload: CreateEventPayload
+    createEventPayload: TCreateEventPayload
     date: DateTime
 }
 export const useCreateEvent = () => {
@@ -608,7 +582,7 @@ export const useCreateEvent = () => {
         }
     )
 }
-const createEvent = async (data: CreateEventPayload) => {
+const createEvent = async (data: TCreateEventPayload) => {
     try {
         const res = await apiClient.post('/events/create/gcal/', data)
         return res.data
@@ -692,7 +666,7 @@ const deleteLinkedAccount = async (data: { id: string }) => {
 export const usePostFeedback = () => {
     return useMutation(postFeedback)
 }
-const postFeedback = async (data: { feedback: string }) => {
+const postFeedback = async (data: TPostFeedbackData) => {
     try {
         const res = await apiClient.post('/feedback/', data)
         return res.data

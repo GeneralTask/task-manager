@@ -1,33 +1,44 @@
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
 import { SectionHeader } from '../molecules/Header'
-import TaskTemplate from '../atoms/TaskTemplate'
 import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { useFetchMessages, useGetInfiniteThreads } from '../../services/api-query-hooks'
 import Loading from '../atoms/Loading'
 import Thread from '../molecules/Thread'
 import ThreadDetails from '../details/ThreadDetails'
-import { setSelectedItemId } from '../../redux/tasksPageSlice'
-import { useAppDispatch } from '../../redux/hooks'
+import { Border, Colors, Spacing } from '../../styles'
+import ThreadTemplate from '../atoms/ThreadTemplate'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
     padding-right: 10px;
     padding-bottom: 100px;
-    overflow: auto;
-    flex: 1;
+    overflow-y: auto;
+    margin-right: auto;
+    flex-shrink: 0;
+`
+const MessagesContainer = styled.div`
+    border-radius: ${Border.radius.large};
+    background-color: ${Colors.gray._100};
+    width: 480px;
+`
+const MessageDivider = styled.div`
+    border-bottom: 1px solid ${Colors.gray._200};
+    margin-top: ${Spacing.margin._4}px;
+    margin-left: ${Spacing.margin._16}px;
+    margin-right: ${Spacing.margin._16}px;
 `
 
 const MessagesView = () => {
     const navigate = useNavigate()
-    const dispatch = useAppDispatch()
     const params = useParams()
     const { refetch: refetchMessages } = useFetchMessages()
     const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteThreads()
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
+    const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
 
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
     useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
@@ -39,9 +50,9 @@ const MessagesView = () => {
         return undefined
     }, [params.thread, threads])
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (expandedThread) {
-            dispatch(setSelectedItemId(expandedThread.id))
+            navigate(`/messages/${expandedThread.id}`)
         }
     }, [expandedThread])
 
@@ -62,17 +73,18 @@ const MessagesView = () => {
 
     return (
         <>
-            <ScrollViewMimic>
+            <ScrollViewMimic ref={sectionScrollingRef}>
                 <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
-                {threads.map((thread, index) => (
-                    <TaskTemplate
-                        ref={index === threads.length - 1 ? lastElementRef : undefined}
-                        lines={3}
-                        key={thread.id}
-                    >
-                        <Thread thread={thread} />
-                    </TaskTemplate>
-                ))}
+                <MessagesContainer>
+                    {threads.map((thread, index) => (
+                        <div key={thread.id}>
+                            <ThreadTemplate ref={index === threads.length - 1 ? lastElementRef : undefined}>
+                                <Thread thread={thread} sectionScrollingRef={sectionScrollingRef} />
+                            </ThreadTemplate>
+                            {index !== threads.length - 1 && <MessageDivider />}
+                        </div>
+                    ))}
+                </MessagesContainer>
                 {(isLoading || isFetching) && (
                     <div>
                         <Loading />

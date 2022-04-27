@@ -19,32 +19,17 @@ interface DefaultTemplateProps {
 }
 
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
-    const createTooltipView = (message: string) => (
-        <>
-            {message == 'Label' ? (
-                <>
-                    <span>{message}</span>
-                    <KeyboardShortcut
-                        shortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
-                        onKeyPress={() => {}}
-                    ></KeyboardShortcut>
-                </>
-            ) : (
-                <span>{message}</span>
-            )}
-        </>
-    )
-
     return (
         <DefaultTemplateContainer>
             <ReactTooltip
                 id="tooltip"
                 effect="solid"
                 delayShow={250}
+                delayHide={250}
+                delayUpdate={500}
                 className="tooltip"
                 backgroundColor={Colors.white}
                 textColor={Colors.black}
-                getContent={createTooltipView}
             />
             <NavigationView />
             {children}
