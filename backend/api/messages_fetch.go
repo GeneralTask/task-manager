@@ -99,7 +99,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 				tokenChangeable := database.ExternalAPITokenChangeable{IsBadToken: true}
 				res := externalAPITokenCollection.FindOneAndUpdate(dbCtx, bson.M{"_id": badToken.ID}, bson.M{"$set": tokenChangeable})
 				if res.Err() != nil {
-					log.Error().Err(res.Err()).Msg("Could not update token in db")
+					log.Error().Err(res.Err()).Msgf("could not update token %+v in db", badToken)
 				}
 			}
 			failedFetchSources[emailResult.SourceID] = true

@@ -78,12 +78,13 @@ func TestLinkedAccountsList(t *testing.T) {
 		authToken := login("linkedaccounts3@generaltask.com", "")
 		createGoogleLink(t, db, authToken, "linkedaccounts3@generaltask.com", true).Hex()
 		jiraTokenID := createJIRADungeon(t, db, authToken).Hex()
-		assert.NoError(t, err)
+
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/linked_accounts/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
+
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
