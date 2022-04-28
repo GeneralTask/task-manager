@@ -5,24 +5,26 @@ import {
     FullWidth,
 } from './EmailCompose-styles'
 import React from 'react'
-import { TEmail } from '../../../utils/types'
+import { TEmailComposeState } from '../../../utils/types'
 import { Icon } from '../../atoms/Icon'
 import { Images } from '../../../styles'
+import { EmailComposeType } from '../../../utils/enums'
 
-interface EmailReplyContainerProps {
-    email: TEmail
-    sourceAccountId: string
+interface EmailMainActionsProps {
+    emailId: string
+    setThreadComposeState: (state: TEmailComposeState) => void
 }
-const EmailReplyContainer = (props: EmailReplyContainerProps) => {
-    console.log(props)
-    const setShowReplyForm = (b: boolean) => !b
+const EmailMainActions = ({ emailId, setThreadComposeState }: EmailMainActionsProps) => {
     return (
         <EmailReplyMinHeightContainer>
             <FullWidth>
                 <EmailActionButtonContainer>
                     <EmailActionButton
                         onClick={() => {
-                            setShowReplyForm(true)
+                            setThreadComposeState({
+                                emailComposeType: EmailComposeType.REPLY,
+                                showComposeForEmailId: emailId,
+                            })
                         }}
                     >
                         <Icon size="medium" source={Images.icons.reply} />
@@ -31,7 +33,10 @@ const EmailReplyContainer = (props: EmailReplyContainerProps) => {
                 <EmailActionButtonContainer>
                     <EmailActionButton
                         onClick={() => {
-                            setShowReplyForm(true)
+                            setThreadComposeState({
+                                emailComposeType: EmailComposeType.REPLY_ALL,
+                                showComposeForEmailId: emailId,
+                            })
                         }}
                     >
                         <Icon size="medium" source={Images.icons.replyAll} />
@@ -40,7 +45,10 @@ const EmailReplyContainer = (props: EmailReplyContainerProps) => {
                 <EmailActionButtonContainer>
                     <EmailActionButton
                         onClick={() => {
-                            setShowReplyForm(true)
+                            setThreadComposeState({
+                                emailComposeType: EmailComposeType.FORWARD,
+                                showComposeForEmailId: emailId,
+                            })
                         }}
                     >
                         <Icon size="medium" source={Images.icons.forward} />
@@ -51,4 +59,4 @@ const EmailReplyContainer = (props: EmailReplyContainerProps) => {
     )
 }
 
-export default EmailReplyContainer
+export default EmailMainActions

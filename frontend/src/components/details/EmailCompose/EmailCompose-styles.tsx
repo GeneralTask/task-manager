@@ -82,7 +82,7 @@ export const ButtonSpacer = styled.div`
 
 export const EmailActionButtonContainer = styled.div`
     flex: 1;
-    padding: ${Spacing.padding._4}px;
+    padding: ${Spacing.padding._8}px;
 `
 
 export const EmailActionButton = styled(NoStyleButton)`

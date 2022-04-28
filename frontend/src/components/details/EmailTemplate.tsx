@@ -6,6 +6,7 @@ import { removeHTMLTags } from '../../utils/utils'
 import { EmailComposeType } from '../../utils/enums'
 import { TEmail, TEmailComposeState } from '../../utils/types'
 import EmailCompose from './EmailCompose/EmailCompose'
+import EmailMainActions from './EmailCompose/EmailMainActions'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -54,6 +55,7 @@ interface EmailTemplateProps {
     composeType: EmailComposeType | null // null if not in compose mode, otherwise the compose type
     setThreadComposeState: (state: TEmailComposeState) => void
     sourceAccountId: string
+    showMainActions: boolean
 }
 
 const EmailTemplate = (props: EmailTemplateProps) => {
@@ -75,7 +77,7 @@ const EmailTemplate = (props: EmailTemplateProps) => {
                     <SanitizedHTML dirtyHTML={props.email.body} />
                 </BodyContainer>
             )}
-            {props.composeType && (
+            {props.composeType != null && (
                 <EmailCompose
                     email={props.email}
                     composeType={props.composeType}
@@ -83,6 +85,12 @@ const EmailTemplate = (props: EmailTemplateProps) => {
                     discardDraft={() =>
                         props.setThreadComposeState({ emailComposeType: null, showComposeForEmailId: null })
                     }
+                />
+            )}
+            {props.composeType == null && props.showMainActions && (
+                <EmailMainActions
+                    emailId={props.email.message_id}
+                    setThreadComposeState={props.setThreadComposeState}
                 />
             )}
         </DetailsViewContainer>
