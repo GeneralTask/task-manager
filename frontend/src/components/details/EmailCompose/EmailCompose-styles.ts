@@ -14,7 +14,6 @@ export const EmailInputContainer = css`
     border: 1px solid ${Colors.gray._200};
     color: ${Colors.black};
     border-radius: ${Border.radius.small};
-    transition: box-shadow 0.1s ease, border-color 0.1s ease;
     font-size: ${Typography.xSmall.fontSize};
     line-height: ${Typography.xSmall.lineHeight};
     position: relative;
