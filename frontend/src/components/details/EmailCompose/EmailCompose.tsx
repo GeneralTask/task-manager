@@ -1,4 +1,11 @@
-import { ButtonSpacer, EmailComposeContainer, EmailInput, EmailInputContainer, FullWidth } from './EmailCompose-styles'
+import {
+    ButtonsContainer,
+    ButtonSpacer,
+    EmailComposeContainer,
+    EmailInput,
+    EmailInputContainer,
+    FullWidth,
+} from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
 import { TEmail, TRecipients } from '../../../utils/types'
 
@@ -77,7 +84,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                     value={body}
                 />
             </FullWidth>
-            <FullWidth>
+            <ButtonsContainer>
                 <RoundedGeneralButton
                     onPress={() => sendEmail(recipients, subject, body)}
                     value="Send"
@@ -85,8 +92,9 @@ const EmailCompose = (props: EmailComposeProps) => {
                 />
                 <ButtonSpacer />
                 <RoundedGeneralButton onPress={props.discardDraft} value="Cancel" textStyle="dark" />
+                <ButtonSpacer />
                 {isLoading ? 'Sending...' : ''}
-            </FullWidth>
+            </ButtonsContainer>
         </EmailComposeContainer>
     )
 }

@@ -96,3 +96,9 @@ export const EmailActionButton = styled(NoStyleButton)`
     width: 100%;
     padding: ${Spacing.padding._8}px 0;
 `
+
+export const ButtonsContainer = styled(FullWidth)`
+    margin-top: ${Spacing.margin._8}px;
+    display: flex;
+    align-items: center;
+`
