@@ -16,6 +16,7 @@ import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
+import { attachSubjectPrefix, stripSubjectPrefix } from './EmailComposeUtils'
 
 const SubjectContainer = styled.div`
     ${EmailInputContainer}
@@ -44,7 +45,7 @@ const EmailCompose = (props: EmailComposeProps) => {
 
     useEffect(() => {
         setRecipients(props.initialRecipients ?? emptyRecipients)
-        setSubject((props.email.subject.slice(0, 3) === 'Re:' ? '' : 'Re: ') + props.email.subject)
+        setSubject(attachSubjectPrefix(stripSubjectPrefix(props.email.subject), props.composeType))
         setBody('')
     }, [props.email, props.initialRecipients])
 
@@ -52,8 +53,13 @@ const EmailCompose = (props: EmailComposeProps) => {
 
     const sendEmail = useCallback(
         (recipients: TRecipients, subject: string, body: string) => {
+            // creates a new thread if the subject changes
+            const messageId =
+                stripSubjectPrefix(subject) === stripSubjectPrefix(props.email.subject)
+                    ? props.email.message_id
+                    : undefined
             mutate({
-                message_id: props.email.message_id,
+                message_id: messageId,
                 subject,
                 body,
                 recipients,
