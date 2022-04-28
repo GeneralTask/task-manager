@@ -38,7 +38,7 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
     const onChange = useCallback((newEmails: string[]) => setEmails(newEmails), [setEmails])
     const getLabel = useCallback((email: string, index: number, removeEmail: (index: number) => void) => {
         return (
-            <EmailTag key={index}>
+            <EmailTag key={email}>
                 {email}
                 <span data-tag-handle onClick={() => removeEmail(index)}>
                     ×

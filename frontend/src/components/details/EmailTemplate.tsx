@@ -58,7 +58,7 @@ const Title = styled.div`
 `
 interface EmailTemplateProps {
     email: TEmail
-    time_sent?: string
+    timeSent?: string
     isCollapsed: boolean
     composeType: EmailComposeType | null // null if not in compose mode, otherwise the compose type
     setThreadComposeState: (state: TEmailComposeState) => void
@@ -91,7 +91,7 @@ const EmailTemplate = (props: EmailTemplateProps) => {
                         <Title>{props.email.sender.name}</Title>
                         <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
                     </div>
-                    <SentAtContainer>{props.time_sent}</SentAtContainer>
+                    <SentAtContainer>{props.timeSent}</SentAtContainer>
                 </SenderContainer>
                 {isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.email.body)}</BodyContainerCollapsed>}
             </CollapseExpandContainer>

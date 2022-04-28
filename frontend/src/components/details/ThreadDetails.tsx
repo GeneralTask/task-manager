@@ -78,7 +78,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         <EmailTemplate
                             email={email}
                             key={email.message_id}
-                            time_sent={getHumanTimeSinceDateTime(DateTime.fromISO(email.sent_at))}
+                            timeSent={getHumanTimeSinceDateTime(DateTime.fromISO(email.sent_at))}
                             isCollapsed={index !== thread.emails.length - 1}
                             composeType={
                                 email.message_id !== composeState.showComposeForEmailId
