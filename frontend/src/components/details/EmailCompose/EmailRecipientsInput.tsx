@@ -16,6 +16,7 @@ interface EmailRecipientsInputProps {
 const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInputProps) => {
     const [emails, setEmails] = useState<string[]>(recipients.to.map((r) => r.email))
 
+    // need a separate state because ReactMultiEmail needs an array of strings, but recipients is an array of objects
     useEffect(() => {
         setRecipients({
             ...recipients,

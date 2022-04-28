@@ -1,5 +1,6 @@
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import styled, { css } from 'styled-components'
+
 import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 
 // EmailInputContainer and EmailInput are adapted from 'react-multi-email/style.css'
@@ -60,10 +61,6 @@ export const FullWidth = styled.div`
 `
 export const FlexGrow = styled.div`
     flex: 1;
-`
-
-export const EmailReplyMinHeightContainer = styled.div`
-    min-height: 800px;
 `
 
 export const EmailRecipientsContainer = styled.div`
