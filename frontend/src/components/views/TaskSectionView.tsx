@@ -16,6 +16,7 @@ import { getSectionById } from '../../utils/task'
 import styled from 'styled-components'
 import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
+import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;
@@ -26,13 +27,13 @@ const BannerAndSectionContainer = styled.div`
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
     padding-right: 10px;
-    padding-bottom: 100px;
     overflow-y: auto;
     flex: 1;
 `
 const TaskSectionViewContainer = styled.div`
     flex: 1;
     display: flex;
+    height: 100%;
     flex-direction: column;
     padding-top: 0;
     background-color: ${Colors.gray._50};
@@ -41,7 +42,6 @@ const TaskSectionViewContainer = styled.div`
 const TasksContainer = styled.div`
     display: flex;
     flex-direction: column;
-    flex: 1;
 `
 
 const TaskSection = () => {
@@ -123,6 +123,10 @@ const TaskSection = () => {
                                         </TaskDropContainer>
                                     ))}
                                 </TasksContainer>
+                                <TaskDropArea
+                                    dropIndex={currentSection.tasks.length + 1}
+                                    taskSectionId={currentSection.id}
+                                />
                             </>
                         )}
                     </TaskSectionViewContainer>
