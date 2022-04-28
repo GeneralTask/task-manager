@@ -174,7 +174,7 @@ func TestGetEmails(t *testing.T) {
 		////////////////////////////////////////////////////////////////////////////////
 		// (2) Act: call the API / perform the work
 		var emailResult = make(chan EmailResult)
-		go mockGmailSource.GetEmails(userID, "me", emailResult)
+		go mockGmailSource.GetEmails(userID, "me", emailResult, false)
 		result := <-emailResult
 
 		////////////////////////////////////////////////////////////////////////////////

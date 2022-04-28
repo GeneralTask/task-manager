@@ -1,6 +1,6 @@
-import React, { CSSProperties, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { TASK_SECTION_DEFAULT_ID } from '../../constants'
 import { useAppDispatch } from '../../redux/hooks'
@@ -12,12 +12,14 @@ import { weight } from '../../styles/typography'
 import { ItemTypes, TTaskSection } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 
+const LINK_TEMPLATE_HEIGHT = 32
+
 const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: center;
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
-
+    width: 100%;
     border-radius: ${Border.radius.small};
     border-width: 2px;
     border-style: solid;
@@ -38,11 +40,16 @@ const SectionTitleItemCount = styled.span<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
     margin-right: ${margin._8}px;
+    margin-left: auto;
 `
-const linkStyle: CSSProperties = {
-    textDecorationLine: 'none',
-    width: '100%',
-}
+export const NavigationLinkTemplate = styled.div`
+    height: ${LINK_TEMPLATE_HEIGHT}px;
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+`
 
 interface NavigationLinkProps {
     isCurrentPage: boolean
@@ -55,6 +62,7 @@ interface NavigationLinkProps {
 const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppable }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
     const dispatch = useAppDispatch()
+    const navigate = useNavigate()
 
     const onDrop = useCallback(
         (item: { id: string; taskIndex: number; sectionId: string }) => {
@@ -82,19 +90,20 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppab
         [taskSection, onDrop]
     )
 
-    const onClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    const onClickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
         if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
         dispatch(setExpandedCalendar(false))
+        navigate(link)
     }
 
     return (
-        <Link style={linkStyle} to={link} onClick={(e) => onClick(e)}>
+        <NavigationLinkTemplate onClick={onClickHandler}>
             <LinkContainer ref={drop} isSelected={isCurrentPage} isOver={isOver}>
                 <Icon size="small" source={icon} />
                 <SectionTitle isSelected={isCurrentPage}>{title}</SectionTitle>
                 <SectionTitleItemCount isSelected={isCurrentPage}>{taskSection?.tasks.length}</SectionTitleItemCount>
             </LinkContainer>
-        </Link>
+        </NavigationLinkTemplate>
     )
 }
 

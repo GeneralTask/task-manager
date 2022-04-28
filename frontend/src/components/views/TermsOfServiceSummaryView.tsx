@@ -124,7 +124,7 @@ const TermsOfServiceSummaryView = () => {
                 <RedirectButton to="/privacy-policy" target="_blank" text="Read privacy policy" />
             </LinkContainer>
             <VerticalFlex>
-                <NoStyleButton onClick={() => setTermsCheck(!termsCheck)}>
+                <NoStyleButton data-testId="terms-check-button" onClick={() => setTermsCheck(!termsCheck)}>
                     <HorizontalFlex>
                         <Icon size="small" source={termsCheck ? icons.check_gray : icons.check_unchecked} />
                         <AgreementText required>
@@ -149,6 +149,7 @@ const TermsOfServiceSummaryView = () => {
                     value="Continue"
                     color={Colors.purple._1}
                     disabled={!termsCheck}
+                    testId="terms-submit-button"
                 />
                 <RoundedGeneralButton onPress={onCancel} textStyle="dark" value="Cancel" hasBorder />
             </SubmitButtonContainer>

@@ -1,24 +1,19 @@
 import { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { KEYBOARD_SHORTCUTS } from '../constants'
-import { useAppDispatch, useAppSelector } from '../redux/hooks'
-import { setSelectedItemId } from '../redux/tasksPageSlice'
 import { TEmailThread, TTask } from '../utils/types'
 import useKeyboardShortcut from './useKeyboardShortcut'
 
 
-export default function useItemSelectionController(items: TTask[] | TEmailThread[], expandItem: (itemId: string) => void) {
-    const dispatch = useAppDispatch()
+export default function useItemSelectionController(items: TTask[] | TEmailThread[], selectItem: (itemId: string) => void) {
     const params = useParams()
-    const expandedItem = params.task ?? params.thread
-    // if there is no expanded item, then get the selected item from redux
-    const selectedItemId = useAppSelector((state) => expandedItem ?? state.tasks_page.selected_item_id)
+    const selectedItemId = params.task ?? params.thread
 
     // on press DOWN -> select first item
     const onUpDown = useCallback(
         (direction: 'up' | 'down') => {
             let newSelectedItem = ''
-            // if a task is not selected, select the first one
+            // if an item is not selected, select the first one
             if (selectedItemId == null && items.length > 0) {
                 newSelectedItem = items[0].id
             } else {
@@ -33,13 +28,10 @@ export default function useItemSelectionController(items: TTask[] | TEmailThread
                 }
             }
             if (newSelectedItem) {
-                dispatch(setSelectedItemId(newSelectedItem))
-                if (expandedItem) {
-                    expandItem(newSelectedItem)
-                }
+                selectItem(newSelectedItem)
             }
         },
-        [selectedItemId, items, expandedItem]
+        [selectedItemId, items]
     )
 
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.DOWN, () => onUpDown('down'))

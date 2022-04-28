@@ -24,7 +24,7 @@ type GithubPRSource struct {
 	Github GithubService
 }
 
-func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 

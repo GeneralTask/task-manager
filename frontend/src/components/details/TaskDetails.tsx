@@ -1,8 +1,6 @@
 import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
-import React, { useEffect, useMemo, useState } from 'react'
-
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import ActionOption from '../molecules/ActionOption'
-import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
 import ReactTooltip from 'react-tooltip'
@@ -16,9 +14,11 @@ import { Spacing } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
 
-const SYNCING = 'Syncing...'
-const SYNC_ERROR = 'There was an error syncing with our servers'
-const SYNCED = 'Synced'
+const SYNC_MESSAGES = {
+    SYNCING: 'Syncing...',
+    ERROR: 'There was an error syncing with our servers',
+    COMPLETE: '',
+}
 
 const MarginRight16 = styled.div`
     margin-right: ${Spacing.margin._16}px;
@@ -37,15 +37,20 @@ const TaskDetails = (props: TaskDetailsProps) => {
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
+    const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
     const bodyRef = useRef<HTMLTextAreaElement>(null)
     const syncTimer = useRef<NodeJS.Timeout>()
 
-    const syncIndicatorText = useMemo(() => {
-        if (isEditing || isLoading) return SYNCING
-        if (isError) return SYNC_ERROR
-        return SYNCED
+    useEffect(() => {
+        if (isEditing || isLoading) {
+            setSyncIndicatorText(SYNC_MESSAGES.SYNCING)
+        } else if (isError) {
+            setSyncIndicatorText(SYNC_MESSAGES.ERROR)
+        } else {
+            setSyncIndicatorText(SYNC_MESSAGES.COMPLETE)
+        }
     }, [isError, isLoading, isEditing])
 
     useEffect(() => {
@@ -53,7 +58,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
     }, [])
 
     // Update the state when the task changes
-    useEffect(() => {
+    useLayoutEffect(() => {
         setTask(props.task)
         setTitleInput(props.task.title)
         setBodyInput(props.task.body)
@@ -66,7 +71,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
         }
     }, [props.task])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (titleRef.current) {
             titleRef.current.style.height = '0px'
             titleRef.current.style.height =
@@ -134,11 +139,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
                         onEdit()
                     }}
                 />
-            }
-            subtitle={
-                task.source.name === 'Gmail' && task.sender && task.recipients ? (
-                    <EmailSenderDetails sender={task.sender} recipients={task.recipients} />
-                ) : undefined
             }
             body={
                 task.source.name === 'Gmail' ? (

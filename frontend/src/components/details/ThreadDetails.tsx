@@ -1,17 +1,22 @@
-import { Colors, Spacing, Typography } from '../../styles'
+import { DateTime } from 'luxon'
 import React, { useState } from 'react'
+import styled from 'styled-components'
+import { Colors, Spacing, Typography } from '../../styles'
+import { logos } from '../../styles/images'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
-
+import { getHumanTimeSinceDateTime } from '../../utils/utils'
+import { Icon } from '../atoms/Icon'
 import EmailTemplate from './EmailTemplate'
 import { Icon } from '../atoms/Icon'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 
 const FlexColumnContainer = styled.div`
+    flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 300px;
     overflow-y: auto;
-    width: 700px;
 `
 const HeaderContainer = styled.div`
     flex: 0;
@@ -75,6 +80,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         <EmailTemplate
                             email={email}
                             key={email.message_id}
+                            time_sent={getHumanTimeSinceDateTime(DateTime.fromISO(email.sent_at))}
                             isCollapsed={index !== thread.emails.length - 1}
                             composeType={
                                 email.message_id !== composeState.showComposeForEmailId
