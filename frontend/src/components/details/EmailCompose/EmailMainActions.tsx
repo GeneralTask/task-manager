@@ -24,31 +24,6 @@ const EmailMainActions = ({ emailId, setThreadComposeState }: EmailMainActionsPr
                     <Icon size="medium" source={Images.icons.reply} />
                 </EmailActionButton>
             </EmailActionButtonContainer>
-            {/* coming soon */}
-            {/* <EmailActionButtonContainer>
-                <EmailActionButton
-                    onClick={() => {
-                        setThreadComposeState({
-                            emailComposeType: EmailComposeType.REPLY_ALL,
-                            emailId: emailId,
-                        })
-                    }}
-                >
-                    <Icon size="medium" source={Images.icons.replyAll} />
-                </EmailActionButton>
-            </EmailActionButtonContainer>
-            <EmailActionButtonContainer>
-                <EmailActionButton
-                    onClick={() => {
-                        setThreadComposeState({
-                            emailComposeType: EmailComposeType.FORWARD,
-                            emailId: emailId,
-                        })
-                    }}
-                >
-                    <Icon size="medium" source={Images.icons.forward} />
-                </EmailActionButton>
-            </EmailActionButtonContainer> */}
         </FullWidth>
     )
 }
