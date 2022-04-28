@@ -168,5 +168,5 @@ export interface TUserInfo {
 
 export interface TEmailComposeState {
     emailComposeType: EmailComposeType | null
-    showComposeForEmailId: string | null // the id of the email to show the compose form for
+    emailId: string | null // the id of the email to show the compose form for
 }

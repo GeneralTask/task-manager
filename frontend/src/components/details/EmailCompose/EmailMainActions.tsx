@@ -17,7 +17,7 @@ const EmailMainActions = ({ emailId, setThreadComposeState }: EmailMainActionsPr
                     onClick={() => {
                         setThreadComposeState({
                             emailComposeType: EmailComposeType.REPLY,
-                            showComposeForEmailId: emailId,
+                            emailId: emailId,
                         })
                     }}
                 >
@@ -30,7 +30,7 @@ const EmailMainActions = ({ emailId, setThreadComposeState }: EmailMainActionsPr
                     onClick={() => {
                         setThreadComposeState({
                             emailComposeType: EmailComposeType.REPLY_ALL,
-                            showComposeForEmailId: emailId,
+                            emailId: emailId,
                         })
                     }}
                 >
@@ -42,7 +42,7 @@ const EmailMainActions = ({ emailId, setThreadComposeState }: EmailMainActionsPr
                     onClick={() => {
                         setThreadComposeState({
                             emailComposeType: EmailComposeType.FORWARD,
-                            showComposeForEmailId: emailId,
+                            emailId: emailId,
                         })
                     }}
                 >

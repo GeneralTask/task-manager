@@ -51,7 +51,7 @@ interface ThreadDetailsProps {
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
-        showComposeForEmailId: null,
+        emailId: null,
     })
     const title = `${thread?.emails[0]?.subject ?? ''} (${thread?.emails.length ?? 0})`
     const recipient_emails = Array.from(
@@ -81,9 +81,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             timeSent={getHumanTimeSinceDateTime(DateTime.fromISO(email.sent_at))}
                             isCollapsed={index !== thread.emails.length - 1}
                             composeType={
-                                email.message_id !== composeState.showComposeForEmailId
-                                    ? null
-                                    : composeState.emailComposeType
+                                email.message_id === composeState.emailId ? composeState.emailComposeType : null
                             }
                             setThreadComposeState={setComposeState}
                             sourceAccountId={thread.source.account_id}
