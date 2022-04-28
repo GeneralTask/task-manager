@@ -1,10 +1,10 @@
 import {
+    BodyContainer,
     ButtonsContainer,
     ButtonSpacer,
     EmailComposeContainer,
     EmailInput,
     EmailInputContainer,
-    FullWidth,
 } from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
 import { TEmail, TRecipients } from '../../../utils/types'
@@ -36,7 +36,7 @@ interface EmailComposeProps {
     initialRecipients?: TRecipients
     composeType: EmailComposeType
     sourceAccountId: string
-    discardDraft: () => void
+    onClose: () => void
 }
 const EmailCompose = (props: EmailComposeProps) => {
     const [recipients, setRecipients] = useState<TRecipients>(props.initialRecipients ?? emptyRecipients)
@@ -81,7 +81,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                     onChange={(e) => setSubject(e.target.value)}
                 />
             </SubjectContainer>
-            <FullWidth>
+            <BodyContainer>
                 <TextArea
                     placeholder="Body"
                     setValue={(value) => {
@@ -89,15 +89,16 @@ const EmailCompose = (props: EmailComposeProps) => {
                     }}
                     value={body}
                 />
-            </FullWidth>
+            </BodyContainer>
             <ButtonsContainer>
                 <RoundedGeneralButton
                     onPress={() => sendEmail(recipients, subject, body)}
                     value="Send"
                     color={Colors.purple._1}
+                    disabled={recipients.to.length === 0}
                 />
                 <ButtonSpacer />
-                <RoundedGeneralButton onPress={props.discardDraft} value="Cancel" textStyle="dark" />
+                <RoundedGeneralButton onPress={props.onClose} value="Cancel" textStyle="dark" />
                 <ButtonSpacer />
                 {isLoading && 'Sending...'}
             </ButtonsContainer>

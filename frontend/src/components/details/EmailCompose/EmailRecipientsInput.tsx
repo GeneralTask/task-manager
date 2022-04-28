@@ -1,4 +1,4 @@
-import { EmailRecipientsContainer, EmailTag } from './EmailCompose-styles'
+import { EmailRecipientsContainer, EmailTag, RemoveEmailButton } from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { ReactMultiEmail } from 'react-multi-email'
@@ -40,9 +40,9 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
         return (
             <EmailTag key={email}>
                 {email}
-                <span data-tag-handle onClick={() => removeEmail(index)}>
+                <RemoveEmailButton data-tag-handle onClick={() => removeEmail(index)}>
                     ×
-                </span>
+                </RemoveEmailButton>
             </EmailTag>
         )
     }, [])

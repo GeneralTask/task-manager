@@ -95,3 +95,13 @@ export const ButtonsContainer = styled(FullWidth)`
     display: flex;
     align-items: center;
 `
+
+export const RemoveEmailButton = styled.span`
+    cursor: pointer;
+    font-size: ${Typography.large.fontSize};
+    margin-left: ${Spacing.margin._4}px;
+`
+
+export const BodyContainer = styled.div`
+    height: 150px
+`

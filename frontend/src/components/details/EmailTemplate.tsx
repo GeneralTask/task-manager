@@ -106,7 +106,7 @@ const EmailTemplate = (props: EmailTemplateProps) => {
                     initialRecipients={initialReplyRecipients}
                     composeType={props.composeType}
                     sourceAccountId={props.sourceAccountId}
-                    discardDraft={() => props.setThreadComposeState({ emailComposeType: null, emailId: null })}
+                    onClose={() => props.setThreadComposeState({ emailComposeType: null, emailId: null })}
                 />
             )}
             {props.composeType == null && props.showMainActions && (
