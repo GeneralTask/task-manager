@@ -61,6 +61,7 @@ func TestCreateTestUser(t *testing.T) {
 	})
 
 	t.Run("FailsInProd", func(t *testing.T) {
+		// Note since tests are run concurrently across packages, setting an envar like this could have interaction with other test
 		env := os.Getenv("ENVIRONMENT")
 		os.Setenv("ENVIRONMENT", "prod")
 		defer os.Setenv("ENVIRONMENT", env)
