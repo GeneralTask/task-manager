@@ -96,9 +96,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                     color={Colors.purple._1}
                     disabled={recipients.to.length === 0}
                 />
-                <ButtonSpacer />
                 <RoundedGeneralButton onPress={props.onClose} value="Cancel" textStyle="dark" />
-                <ButtonSpacer />
                 {isLoading && 'Sending...'}
             </ButtonsContainer>
         </EmailComposeContainer>
