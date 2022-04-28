@@ -41,6 +41,11 @@ type ExternalAPIToken struct {
 	DisplayID      string             `bson:"display_id"`
 	IsUnlinkable   bool               `bson:"is_unlinkable"`
 	IsPrimaryLogin bool               `bson:"is_primary_login"`
+	IsBadToken     bool               `bson:"is_bad_token"`
+}
+
+type ExternalAPITokenChangeable struct {
+	IsBadToken bool `bson:"is_bad_token,omitempty"`
 }
 
 type AtlassianSiteConfiguration struct {
