@@ -17,6 +17,12 @@ const SubjectInput = styled.input`
     ${EmailInput}
 `
 
+const emptyRecipients: TRecipients = {
+    to: [],
+    cc: [],
+    bcc: [],
+}
+
 interface EmailComposeProps {
     email: TEmail
     initialRecipients?: TRecipients
@@ -25,21 +31,15 @@ interface EmailComposeProps {
     discardDraft: () => void
 }
 const EmailCompose = (props: EmailComposeProps) => {
-    const [recipients, _setRecipients] = useState<TRecipients>(
-        props.initialRecipients ?? {
-            to: [],
-            cc: [],
-            bcc: [],
-        }
-    )
+    const [recipients, setRecipients] = useState<TRecipients>(props.initialRecipients ?? emptyRecipients)
     const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
 
     useEffect(() => {
-        // setReplyTo(email.sender.email)
+        setRecipients(props.initialRecipients ?? emptyRecipients)
         setSubject((props.email.subject.slice(0, 3) === 'Re:' ? '' : 'Re: ') + props.email.subject)
         setBody('')
-    }, [props.email])
+    }, [props.email, props.initialRecipients])
 
     const { mutate, isLoading } = useComposeMessage()
 
@@ -59,7 +59,7 @@ const EmailCompose = (props: EmailComposeProps) => {
 
     return (
         <EmailComposeContainer>
-            <EmailRecipientsInput sender={props.email.sender.email} />
+            <EmailRecipientsInput recipients={recipients} setRecipients={setRecipients} />
             <SubjectContainer>
                 <SubjectInput
                     className="email-header"

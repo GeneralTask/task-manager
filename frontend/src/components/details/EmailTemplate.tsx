@@ -1,6 +1,6 @@
 import { Colors, Typography } from '../../styles'
 import React, { useEffect, useState } from 'react'
-import { TEmail, TEmailComposeState } from '../../utils/types'
+import { TEmail, TEmailComposeState, TRecipients } from '../../utils/types'
 
 import EmailCompose from './EmailCompose/EmailCompose'
 import { EmailComposeType } from '../../utils/enums'
@@ -64,6 +64,14 @@ const EmailTemplate = (props: EmailTemplateProps) => {
 
     useEffect(() => setIsCollapsed(!!props.isCollapsed), [props.isCollapsed])
 
+    useEffect(() => setIsCollapsed(false), [props.email])
+
+    const initialReplyRecipients: TRecipients = {
+        to: [props.email.sender],
+        cc: [],
+        bcc: [],
+    }
+
     return (
         <DetailsViewContainer>
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -80,6 +88,7 @@ const EmailTemplate = (props: EmailTemplateProps) => {
             {props.composeType != null && (
                 <EmailCompose
                     email={props.email}
+                    initialRecipients={initialReplyRecipients}
                     composeType={props.composeType}
                     sourceAccountId={props.sourceAccountId}
                     discardDraft={() =>

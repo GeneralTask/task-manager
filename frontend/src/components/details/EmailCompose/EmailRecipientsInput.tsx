@@ -2,18 +2,26 @@ import { EmailRecipientsContainer, EmailTag } from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { ReactMultiEmail } from 'react-multi-email'
+import { TRecipients } from '../../../utils/types'
 
 // Keyboard shortcuts used in react-multi-email/ReactMultiEmail.tsx
 const REACT_MULTI_EMAIL_KB_SHORTCUT = ['Enter', 'Tab', 'Backspace']
 
 interface EmailRecipientsInputProps {
-    sender: string
+    recipients: TRecipients
+    setRecipients: (recipients: TRecipients) => void
 }
 
-const EmailRecipientsInput = ({ sender }: EmailRecipientsInputProps) => {
-    const [emails, setEmails] = useState<string[]>([sender])
+// CURRENTLY ONLY SUPPORTS "TO" RECIPIENTS - WILL ADD CC AND BCC SOON
+const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInputProps) => {
+    const [emails, setEmails] = useState<string[]>(recipients.to.map((r) => r.email))
 
-    useEffect(() => setEmails([sender]), [sender])
+    useEffect(() => {
+        setRecipients({
+            ...recipients,
+            to: emails.map((r) => ({ email: r, name: '' })),
+        })
+    }, [emails])
 
     // blocks all keys from propogating except those used in react-multi-email
     const enableBuiltInKBShortcuts = useCallback((node: HTMLDivElement) => {
@@ -30,8 +38,8 @@ const EmailRecipientsInput = ({ sender }: EmailRecipientsInputProps) => {
         <EmailRecipientsContainer ref={enableBuiltInKBShortcuts}>
             <ReactMultiEmail
                 emails={emails}
-                onChange={(_emails: string[]) => {
-                    setEmails(_emails)
+                onChange={(emails: string[]) => {
+                    setEmails(emails)
                 }}
                 placeholder="To:"
                 getLabel={(email: string, index: number, removeEmail: (index: number) => void) => {
