@@ -21,7 +21,7 @@ interface ItemContainerProps {
     children: React.ReactNode
 }
 const ItemContainer = React.forwardRef<HTMLDivElement, ItemContainerProps>(({ isSelected, onClick, children }, ref) => (
-    <ItemContainerDiv isSelected={isSelected} onClick={onClick} ref={ref}>
+    <ItemContainerDiv isSelected={isSelected} onClick={onClick} ref={ref} data-testid="list-item">
         {children}
     </ItemContainerDiv>
 ))

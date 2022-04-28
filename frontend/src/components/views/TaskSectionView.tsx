@@ -105,7 +105,7 @@ const TaskSection = () => {
                                     taskSectionId={currentSection.id}
                                 />
                                 {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
-                                <TasksContainer ref={sectionViewRef}>
+                                <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
                                     {currentSection.tasks.map((task, index) => (
                                         <TaskDropContainer
                                             key={task.id}
