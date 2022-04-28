@@ -4,10 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
-
 	"github.com/chidiwilliams/flatbson"
 	"github.com/rs/zerolog/log"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"go.mongodb.org/mongo-driver/bson"
@@ -206,39 +205,6 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 		return nil, err
 	}
 	return &tasks, nil
-}
-
-func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]Item, error) {
-	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	filter := bson.M{
-		"$and": []bson.M{
-			{"user_id": userID},
-		},
-	}
-	if additionalFilters != nil && len(*additionalFilters) > 0 {
-		for _, additionalFilter := range *additionalFilters {
-			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
-		}
-	}
-	cursor, err := GetTaskCollection(db).Find(
-		dbCtx,
-		filter,
-	)
-	if err != nil {
-		log.Error().Msgf("Failed to fetch items for user: %v", err)
-		return nil, err
-	}
-	var items []Item
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &items)
-	if err != nil {
-		log.Error().Msgf("Failed to fetch items for user: %v", err)
-		return nil, err
-	}
-	return &items, nil
 }
 
 func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, pagination Pagination) (*[]Item, error) {
