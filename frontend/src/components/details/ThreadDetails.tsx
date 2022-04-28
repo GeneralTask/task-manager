@@ -1,13 +1,11 @@
-import { DateTime } from 'luxon'
-import React, { useState } from 'react'
-import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
+import React, { useState } from 'react'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
-import { getHumanTimeSinceDateTime } from '../../utils/utils'
-import { Icon } from '../atoms/Icon'
+
+import { DateTime } from 'luxon'
 import EmailTemplate from './EmailTemplate'
 import { Icon } from '../atoms/Icon'
+import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 

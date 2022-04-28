@@ -5,12 +5,11 @@ import { TEmail, TEmailComposeState, TRecipients } from '../../utils/types'
 import EmailCompose from './EmailCompose/EmailCompose'
 import { EmailComposeType } from '../../utils/enums'
 import EmailMainActions from './EmailCompose/EmailMainActions'
+import EmailSenderDetails from '../molecules/EmailSenderDetails'
+import ReactTooltip from 'react-tooltip'
 import SanitizedHTML from '../atoms/SanitizedHTML'
 import { removeHTMLTags } from '../../utils/utils'
 import styled from 'styled-components'
-import { TRecipients, TSender } from '../../utils/types'
-import EmailSenderDetails from '../molecules/EmailSenderDetails'
-import ReactTooltip from 'react-tooltip'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -93,36 +92,32 @@ const EmailTemplate = (props: EmailTemplateProps) => {
                         <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
                     </div>
                     <SentAtContainer>{props.time_sent}</SentAtContainer>
-                </SenderContainer >
-    { isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.email.body)}</BodyContainerCollapsed>}
-            </CollapseExpandContainer >
-    { isCollapsed || (
-        <BodyContainer>
-            <SanitizedHTML dirtyHTML={props.email.body} />
-        </BodyContainer>
-    )}
-{
-    props.composeType != null && (
-        <EmailCompose
-            email={props.email}
-            initialRecipients={initialReplyRecipients}
-            composeType={props.composeType}
-            sourceAccountId={props.sourceAccountId}
-            discardDraft={() =>
-                props.setThreadComposeState({ emailComposeType: null, showComposeForEmailId: null })
-            }
-        />
-    )
-}
-{
-    props.composeType == null && props.showMainActions && (
-        <EmailMainActions
-            emailId={props.email.message_id}
-            setThreadComposeState={props.setThreadComposeState}
-        />
-    )
-}
-        </DetailsViewContainer >
+                </SenderContainer>
+                {isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.email.body)}</BodyContainerCollapsed>}
+            </CollapseExpandContainer>
+            {isCollapsed || (
+                <BodyContainer>
+                    <SanitizedHTML dirtyHTML={props.email.body} />
+                </BodyContainer>
+            )}
+            {props.composeType != null && (
+                <EmailCompose
+                    email={props.email}
+                    initialRecipients={initialReplyRecipients}
+                    composeType={props.composeType}
+                    sourceAccountId={props.sourceAccountId}
+                    discardDraft={() =>
+                        props.setThreadComposeState({ emailComposeType: null, showComposeForEmailId: null })
+                    }
+                />
+            )}
+            {props.composeType == null && props.showMainActions && (
+                <EmailMainActions
+                    emailId={props.email.message_id}
+                    setThreadComposeState={props.setThreadComposeState}
+                />
+            )}
+        </DetailsViewContainer>
     )
 }
 
