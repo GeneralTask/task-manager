@@ -99,7 +99,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                 <ButtonSpacer />
                 <RoundedGeneralButton onPress={props.discardDraft} value="Cancel" textStyle="dark" />
                 <ButtonSpacer />
-                {isLoading ? 'Sending...' : ''}
+                {isLoading && 'Sending...'}
             </ButtonsContainer>
         </EmailComposeContainer>
     )

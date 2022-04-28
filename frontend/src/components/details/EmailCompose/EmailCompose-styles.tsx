@@ -32,7 +32,7 @@ export const EmailInput = css`
     vertical-align: baseline !important;
     margin: 0 ${Spacing.padding._4}px;
     padding: 0;
-    flex-grow: 1;
+    flex: 1;
     font-size: ${Typography.xSmall.fontSize};
     font-family: Switzer-Variable;
 `
