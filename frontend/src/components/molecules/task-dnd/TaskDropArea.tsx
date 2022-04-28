@@ -9,7 +9,6 @@ const TaskDropAreaContainer = styled.div`
     width: 100%;
     flex: 1;
     min-height: 100px;
-    margin-top: -2px;
 `
 
 interface TaskDropAreaProps {
