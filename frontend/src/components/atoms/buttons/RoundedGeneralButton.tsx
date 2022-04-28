@@ -29,6 +29,7 @@ interface RoundedGeneralButtonProps {
     wrapText?: boolean
     hasBorder?: boolean
     disabled?: boolean
+    testId?: string
 }
 const RoundedGeneralButton = (props: RoundedGeneralButtonProps) => {
     const color = props.disabled ? Colors.gray._400 : props.color || Colors.white
@@ -40,6 +41,7 @@ const RoundedGeneralButton = (props: RoundedGeneralButtonProps) => {
             color={color}
             textStyle={props.textStyle || 'light'}
             wrapText={props.wrapText}
+            data-testId={props.testId}
         >
             {props.value}
         </RoundedButton>
