@@ -40,7 +40,7 @@ export const EmailInput = css`
 
 export const EmailComposeContainer = styled.div`
     padding: ${Spacing.padding._16}px;
-    border: 2px solid ${Colors.purple._3};
+    margin: ${Spacing.margin._16}px 0;
     border-radius: ${Border.radius.large};
     .react-multi-email {
         ${EmailInputContainer}
@@ -73,7 +73,7 @@ export const EmailRecipientsContainer = styled.div`
 `
 export const EmailTag = styled.div`
     max-width: 100%;
-    margin: 0 4px;
+    margin: 0 ${Spacing.margin._4}px;
 `
 
 export const ButtonSpacer = styled.div`
@@ -81,7 +81,7 @@ export const ButtonSpacer = styled.div`
 `
 
 export const EmailActionButtonContainer = styled.div`
-    flex: 1;
+    width: calc(100% / 3);
     padding: ${Spacing.padding._8}px;
 `
 

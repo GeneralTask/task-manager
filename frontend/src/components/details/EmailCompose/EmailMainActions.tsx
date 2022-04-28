@@ -24,7 +24,8 @@ const EmailMainActions = ({ emailId, setThreadComposeState }: EmailMainActionsPr
                     <Icon size="medium" source={Images.icons.reply} />
                 </EmailActionButton>
             </EmailActionButtonContainer>
-            <EmailActionButtonContainer>
+            {/* coming soon */}
+            {/* <EmailActionButtonContainer>
                 <EmailActionButton
                     onClick={() => {
                         setThreadComposeState({
@@ -47,7 +48,7 @@ const EmailMainActions = ({ emailId, setThreadComposeState }: EmailMainActionsPr
                 >
                     <Icon size="medium" source={Images.icons.forward} />
                 </EmailActionButton>
-            </EmailActionButtonContainer>
+            </EmailActionButtonContainer> */}
         </FullWidth>
     )
 }
