@@ -52,7 +52,6 @@ export const EmailComposeContainer = styled.div`
 `
 export const FullWidth = styled.div`
     width: 100%;
-    display: flex;
 `
 export const FlexGrow = styled.div`
     flex: 1;
