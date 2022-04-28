@@ -7,38 +7,34 @@ import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 
 export const EmailInputContainer = css`
     margin: 0;
-    max-width: 100%;
-    -webkit-box-flex: 1;
-    -ms-flex: 1 0 auto;
+    background-color: ${Colors.gray._50};
+    width: calc(100% - ${Spacing.padding._8 * 2}px);
     flex: 1 0 auto;
-    outline: 0;
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-    text-align: left;
-    line-height: 1.21428571em;
     padding: ${Spacing.padding._8}px;
-    background: #fff;
     border: 1px solid ${Colors.gray._200};
     color: ${Colors.black};
     border-radius: ${Border.radius.small};
-    -webkit-transition: box-shadow 0.1s ease, border-color 0.1s ease;
     transition: box-shadow 0.1s ease, border-color 0.1s ease;
     font-size: ${Typography.xSmall.fontSize};
+    line-height: ${Typography.xSmall.lineHeight};
     position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    align-content: flex-start;
 `
 
 export const EmailInput = css`
-    width: auto !important;
-    outline: none !important;
-    border: 0 none !important;
-    display: inline-block !important;
+    width: auto;
+    background-color: inherit;
+    outline: none;
+    border: none;
     line-height: 1;
     vertical-align: baseline !important;
-    padding: 0.4em 0.1em !important;
+    margin: 0 ${Spacing.padding._4}px;
+    padding: 0;
     flex-grow: 1;
+    font-size: ${Typography.xSmall.fontSize};
+    font-family: Switzer-Variable;
 `
 
 export const EmailComposeContainer = styled.div`
