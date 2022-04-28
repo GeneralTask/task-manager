@@ -1,6 +1,8 @@
-import { Border, Colors, Shadows, Spacing } from '../../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import styled, { css } from 'styled-components'
 import NoStyleButton from '../../atoms/buttons/NoStyleButton'
+
+// EmailInputContainer and EmailInput are adapted from 'react-multi-email/style.css'
 
 export const EmailInputContainer = css`
     margin: 0;
@@ -12,14 +14,14 @@ export const EmailInputContainer = css`
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
     text-align: left;
     line-height: 1.21428571em;
-    padding: 0.4em 0.5em;
+    padding: ${Spacing.padding._8}px;
     background: #fff;
-    border: 1px solid rgba(34, 36, 38, 0.15);
-    color: rgba(0, 0, 0, 0.87);
-    border-radius: 0.28571429rem;
+    border: 1px solid ${Colors.gray._200};
+    color: ${Colors.black};
+    border-radius: ${Border.radius.small};
     -webkit-transition: box-shadow 0.1s ease, border-color 0.1s ease;
     transition: box-shadow 0.1s ease, border-color 0.1s ease;
-    font-size: 13px;
+    font-size: ${Typography.xSmall.fontSize};
     position: relative;
     display: flex;
     flex-wrap: wrap;
