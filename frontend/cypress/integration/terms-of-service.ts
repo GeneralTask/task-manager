@@ -1,10 +1,11 @@
 const REDIRECT_TIMEOUT = 6000;
 import chance from "chance"
 const Chance = new chance()
+const API_URL = Cypress.env('api_url')
 
 describe('new user is redirected to terms of service page', () => {
     beforeEach('make request for authorization token', () => {
-        cy.request('POST', 'localhost:8080/create_test_user/', {
+        cy.request('POST', `${API_URL}/create_test_user/`, {
             email: `${Chance.string()}@generaltask.com`,
             name: 'Test User',
         }).then((response) => {
