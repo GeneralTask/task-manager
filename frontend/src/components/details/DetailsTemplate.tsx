@@ -28,7 +28,7 @@ const BodyContainer = styled.div`
     flex: 1;
 `
 export const TitleInput = styled.textarea`
-    background-color: white;
+    background-color: inherit;
     color: ${Colors.gray._600};
     font: inherit;
     font-size: ${Typography.large.fontSize};
