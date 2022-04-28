@@ -47,7 +47,7 @@ const EmailCompose = (props: EmailComposeProps) => {
         setRecipients(props.initialRecipients ?? emptyRecipients)
         setSubject(attachSubjectPrefix(stripSubjectPrefix(props.email.subject), props.composeType))
         setBody('')
-    }, [props.email, props.initialRecipients])
+    }, [props.email.message_id])
 
     const { mutate, isLoading } = useComposeMessage()
 

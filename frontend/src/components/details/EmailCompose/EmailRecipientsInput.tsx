@@ -35,25 +35,21 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
         }
     }, [])
 
+    const onChange = useCallback((newEmails: string[]) => setEmails(newEmails), [setEmails])
+    const getLabel = useCallback((email: string, index: number, removeEmail: (index: number) => void) => {
+        return (
+            <EmailTag key={index}>
+                {email}
+                <span data-tag-handle onClick={() => removeEmail(index)}>
+                    ×
+                </span>
+            </EmailTag>
+        )
+    }, [])
+
     return (
         <EmailRecipientsContainer ref={enableBuiltInKBShortcuts}>
-            <ReactMultiEmail
-                emails={emails}
-                onChange={(emails: string[]) => {
-                    setEmails(emails)
-                }}
-                placeholder="To:"
-                getLabel={(email: string, index: number, removeEmail: (index: number) => void) => {
-                    return (
-                        <EmailTag key={index}>
-                            {email}
-                            <span data-tag-handle onClick={() => removeEmail(index)}>
-                                ×
-                            </span>
-                        </EmailTag>
-                    )
-                }}
-            />
+            <ReactMultiEmail emails={emails} onChange={onChange} placeholder="To:" getLabel={getLabel} />
         </EmailRecipientsContainer>
     )
 }
