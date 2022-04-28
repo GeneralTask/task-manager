@@ -1,12 +1,15 @@
-import { Colors, Typography } from '../../styles'
-import styled from 'styled-components'
-import React, { useEffect, useState } from 'react'
+import { Colors, Images, Typography } from '../../styles'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { TEmail, TEmailComposeState } from '../../utils/types'
+
+import EmailCompose from './EmailCompose/EmailCompose'
+import { EmailComposeType } from '../../utils/enums'
+import EmailMainActions from './EmailCompose/EmailMainActions'
+import { Icon } from '../atoms/Icon'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import SanitizedHTML from '../atoms/SanitizedHTML'
 import { removeHTMLTags } from '../../utils/utils'
-import { EmailComposeType } from '../../utils/enums'
-import { TEmail, TEmailComposeState } from '../../utils/types'
-import EmailCompose from './EmailCompose/EmailCompose'
-import EmailMainActions from './EmailCompose/EmailMainActions'
+import styled from 'styled-components'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -60,15 +63,35 @@ interface EmailTemplateProps {
 
 const EmailTemplate = (props: EmailTemplateProps) => {
     const [isCollapsed, setIsCollapsed] = useState(!!props.isCollapsed)
+    const [showEmailActions, setShowEmailActions] = useState(false)
 
     useEffect(() => setIsCollapsed(!!props.isCollapsed), [props.isCollapsed])
+
+    const onSkinnyHamburgerClick = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        console.log({ e })
+        e.stopPropagation()
+        setShowEmailActions((show) => !show)
+    }, [])
+
+    const actionSelector = useMemo(() => {
+        return (
+            <select>
+                <option>Action 1</option>
+                <option>Action 2</option>
+                <option>Action 3</option>
+            </select>
+        )
+    }, [])
 
     return (
         <DetailsViewContainer>
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
                 <SenderContainer>
                     <Title>{props.email.sender.name}</Title>
-                    {props.time_sent}
+                    <NoStyleButton onClick={onSkinnyHamburgerClick}>
+                        <Icon size="small" source={Images.icons.verticalDots} />
+                    </NoStyleButton>
+                    {showEmailActions && actionSelector}
                 </SenderContainer>
                 {isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.email.body)}</BodyContainerCollapsed>}
             </CollapseExpandContainer>

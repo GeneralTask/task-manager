@@ -1,13 +1,14 @@
-import React from 'react'
-import styled from 'styled-components'
-import { useModifyTask } from '../../services/api-query-hooks'
 import { Colors, Dimensions } from '../../styles'
-import { radius } from '../../styles/border'
+import { weight, xxSmall } from '../../styles/typography'
+
+import GTSelect from './GTInputSelect'
+import React from 'react'
+import { TopNav } from './DatePicker-style'
 import { icons } from '../../styles/images'
 import { padding } from '../../styles/spacing'
-import { weight, xxSmall } from '../../styles/typography'
-import { TopNav } from './DatePicker-style'
-import GTSelect from './GTSelect'
+import { radius } from '../../styles/border'
+import styled from 'styled-components'
+import { useModifyTask } from '../../services/api-query-hooks'
 
 export const TimeEstimateContainer = styled.div`
     display: flex;
