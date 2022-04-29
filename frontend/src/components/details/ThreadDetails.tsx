@@ -1,12 +1,13 @@
-import { DateTime } from 'luxon'
-import React from 'react'
-import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
-import { TEmailThread } from '../../utils/types'
-import { getHumanTimeSinceDateTime } from '../../utils/utils'
-import { Icon } from '../atoms/Icon'
+import React, { useState } from 'react'
+import { TEmailComposeState, TEmailThread } from '../../utils/types'
+
+import { DateTime } from 'luxon'
 import EmailTemplate from './EmailTemplate'
+import { Icon } from '../atoms/Icon'
+import { getHumanTimeSinceDateTime } from '../../utils/utils'
+import { logos } from '../../styles/images'
+import styled from 'styled-components'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
@@ -43,10 +44,15 @@ const SubTitle = styled(Title)`
     font-size: ${Typography.xSmall.fontSize};
     color: ${Colors.gray._400};
 `
+
 interface ThreadDetailsProps {
     thread: TEmailThread | undefined
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
+    const [composeState, setComposeState] = useState<TEmailComposeState>({
+        emailComposeType: null,
+        emailId: null,
+    })
     const title = `${thread?.emails[0]?.subject ?? ''} (${thread?.emails.length ?? 0})`
     const recipient_emails = Array.from(
         new Set(
@@ -70,12 +76,16 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     </HeaderContainer>
                     {thread.emails.map((email, index) => (
                         <EmailTemplate
+                            email={email}
                             key={email.message_id}
-                            sender={email.sender}
-                            recipients={email.recipients}
-                            time_sent={getHumanTimeSinceDateTime(DateTime.fromISO(email.sent_at))}
-                            body={email.body}
+                            timeSent={getHumanTimeSinceDateTime(DateTime.fromISO(email.sent_at))}
                             isCollapsed={index !== thread.emails.length - 1}
+                            composeType={
+                                email.message_id === composeState.emailId ? composeState.emailComposeType : null
+                            }
+                            setThreadComposeState={setComposeState}
+                            sourceAccountId={thread.source.account_id}
+                            showMainActions={index === thread.emails.length - 1}
                         />
                     ))}
                 </>
