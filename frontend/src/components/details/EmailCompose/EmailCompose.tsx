@@ -15,7 +15,7 @@ import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
-import { attachSubjectPrefix, stripSubjectPrefix } from './EmailComposeUtils'
+import { attachSubjectPrefix, stripSubjectPrefix } from './emailComposeUtils'
 
 const SubjectContainer = styled.div`
     ${EmailInputContainer}
