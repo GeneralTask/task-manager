@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,7 +25,7 @@ type meetingBannerAction struct {
 }
 
 func (api *API) MeetingBanner(c *gin.Context) {
-	c.JSON(201, meetingBanner{
+	c.JSON(http.StatusOK, meetingBanner{
 		Title:    "Your next meeting is at 4:20pm",
 		Subtitle: "It looks like you've got a little time before your next meeting (6.9 min)",
 		Events: []meetingBannerEvent{{
