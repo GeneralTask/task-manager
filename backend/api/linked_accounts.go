@@ -18,13 +18,14 @@ type SupportedAccountType struct {
 	AuthorizationURL string `json:"authorization_url"`
 }
 
-type LinkedAccount struct {
+type linkedAccount struct {
 	ID           string `json:"id"`
 	DisplayID    string `json:"display_id"`
 	Name         string `json:"name"`
 	Logo         string `json:"logo"`
 	LogoV2       string `json:"logo_v2"`
 	IsUnlinkable bool   `json:"is_unlinkable"`
+	HasBadToken  bool   `json:"has_bad_token"`
 }
 
 func (api *API) SupportedAccountTypesList(c *gin.Context) {
@@ -76,7 +77,7 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	linkedAccounts := []LinkedAccount{}
+	linkedAccounts := []linkedAccount{}
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
@@ -84,13 +85,14 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 			Handle500(c)
 			return
 		}
-		linkedAccounts = append(linkedAccounts, LinkedAccount{
+		linkedAccounts = append(linkedAccounts, linkedAccount{
 			ID:           token.ID.Hex(),
 			DisplayID:    token.DisplayID,
 			Name:         taskServiceResult.Details.Name,
 			Logo:         taskServiceResult.Details.Logo,
 			LogoV2:       taskServiceResult.Details.LogoV2,
 			IsUnlinkable: token.IsUnlinkable,
+			HasBadToken:  token.IsBadToken,
 		})
 	}
 	c.JSON(200, linkedAccounts)
