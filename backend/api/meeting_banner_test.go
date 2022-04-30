@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/GeneralTask/task-manager/backend/testutils"
 	"net/http"
 	"testing"
 
@@ -11,9 +10,9 @@ import (
 func TestMeetingBanner(t *testing.T) {
 	authToken := login("approved@generaltask.com", "")
 
-	testutils.UnauthorizedTest(t, "GET", "/meeting_banner/", nil)
+	UnauthorizedTest(t, "GET", "/meeting_banner/", nil)
 	t.Run("Success", func(t *testing.T) {
-		body := testutils.ServeRequest(t, authToken, "GET", "/meeting_banner/", nil, http.StatusOK)
+		body := ServeRequest(t, authToken, "GET", "/meeting_banner/", nil, http.StatusOK)
 		assert.Equal(t, "{\"title\":\"Your next meeting is at 4:20pm\",\"subtitle\":\"It looks like you've got a little time before your next meeting (6.9 min)\",\"events\":[{\"title\":\"Blast off\",\"meeting_link\":\"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"}],\"actions\":[{\"logo\":\"github\",\"title\":\"Review PR: Email reply v0\",\"link\":\"https://github.com/GeneralTask/task-manager/pull/1027\"}]}", string(body))
 	})
 }
