@@ -8,7 +8,7 @@ export const EmailInputContainer = css`
     margin: 0;
     width: calc(100% - ${Spacing.padding._8 * 2}px);
     min-height: 30px;
-    background-color: ${Colors.white};
+    /* background-color: ${Colors.white}; */
     flex: 1 0 auto;
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     color: ${Colors.black};
@@ -33,8 +33,10 @@ export const EmailInput = css`
     font-family: Switzer-Variable;
 `
 export const EmailComposeContainer = styled.div`
-    padding: ${Spacing.padding._16}px;
-    margin: ${Spacing.margin._16}px 0;
+    padding: ${Spacing.padding._4}px;
+    padding-top: 0;
+    margin: ${Spacing.margin._16}px;
+    border: 2px solid ${Colors.gray._300};
     border-radius: ${Border.radius.large};
     .react-multi-email {
         ${EmailInputContainer}
