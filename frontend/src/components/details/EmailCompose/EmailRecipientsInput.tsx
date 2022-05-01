@@ -21,6 +21,9 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
     const [ccEmails, setCcEmails] = useState<string[]>(recipients.cc.map((r) => r.email))
     const [bccEmails, setBccEmails] = useState<string[]>(recipients.bcc.map((r) => r.email))
 
+    const [showCc, setShowCc] = useState(false)
+    const [showBcc, setShowBcc] = useState(false)
+
     // need a separate state because ReactMultiEmail needs an array of strings, but recipients is an array of objects
     useEffect(() => {
         setRecipients({
@@ -59,12 +62,22 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
 
     return (
         <EmailRecipientsContainer ref={enableBuiltInKBShortcuts}>
-            <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
+            <>
+                <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
+            </>
             <RecipientDivider />
-            <ReactMultiEmail emails={ccEmails} onChange={onCcChange} placeholder="Cc:" getLabel={getLabel} />
-            <RecipientDivider />
-            <ReactMultiEmail emails={bccEmails} onChange={onBccChange} placeholder="Bcc:" getLabel={getLabel} />
-            <RecipientDivider />
+            {showCc && (
+                <>
+                    <ReactMultiEmail emails={ccEmails} onChange={onCcChange} placeholder="Cc:" getLabel={getLabel} />
+                    <RecipientDivider />
+                </>
+            )}
+            {showBcc && (
+                <>
+                    <ReactMultiEmail emails={bccEmails} onChange={onBccChange} placeholder="Bcc:" getLabel={getLabel} />
+                    <RecipientDivider />
+                </>
+            )}
         </EmailRecipientsContainer>
     )
 }

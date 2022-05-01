@@ -8,7 +8,6 @@ export const EmailInputContainer = css`
     margin: 0;
     width: calc(100% - ${Spacing.padding._8 * 2}px);
     min-height: 30px;
-    /* background-color: ${Colors.white}; */
     flex: 1 0 auto;
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     color: ${Colors.black};
@@ -33,7 +32,6 @@ export const EmailInput = css`
     font-family: Switzer-Variable;
 `
 export const EmailComposeContainer = styled.div`
-    padding: ${Spacing.padding._4}px;
     padding-top: 0;
     margin: ${Spacing.margin._16}px;
     border: 2px solid ${Colors.gray._300};
@@ -60,7 +58,7 @@ export const EmailRecipientsContainer = styled.div`
 `
 export const EmailTag = styled.div`
     max-width: 100%;
-    margin: 0 ${Spacing.margin._4}px;
+    margin: ${Spacing.margin._4}px;
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     border: 1px solid ${Colors.gray._200};
     border-radius: ${Border.radius.xxLarge};
@@ -82,10 +80,10 @@ export const EmailActionButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._8}px 0;
 `
 export const ButtonsContainer = styled(FullWidth)`
-    margin-top: ${Spacing.margin._8}px;
     display: flex;
     align-items: center;
     gap: ${Spacing.margin._8}px;
+    padding: ${Spacing.padding._8}px;
 `
 export const BodyContainer = styled.div`
     height: 150px;
@@ -94,5 +92,4 @@ export const RecipientDivider = styled.div`
     width: 100%;
     height: 1px;
     background-color: ${Colors.gray._200};
-    /* margin: ${Spacing.margin._8}px 0; */
 `
