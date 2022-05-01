@@ -15,6 +15,8 @@ from pymongo import MongoClient
 
 from log import get_logger
 
+ACTIVITY_COOLOFF_MINS = 10
+NUM_SESSIONS_THRESHOLD = 5
 DEFAULT_WINDOW = 14
 SESSION_COUNT_THRESHOLDS = [1, 3, 5]
 CONNECTION_TEMPLATE = """mongodb://{user}:{password}@cluster0-shard-00-00.dbkij.mongodb.net:27017,cluster0-shard-00-01.dbkij.mongodb.net:27017,cluster0-shard-00-02.dbkij.mongodb.net:27017/myFirstDatabase?authSource=admin&replicaSet=atlas-xn7hxv-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true"""
@@ -25,9 +27,7 @@ dash_password = os.getenv("DASH_PASSWORD")
 if not dash_user or not dash_password:
     logger.fatal("DASH_USER or DASH_PASSWORD not set!")
     exit(1)
-VALID_USERNAME_PASSWORD_PAIRS = {
-    os.environ["DASH_USER"]: os.environ["DASH_PASSWORD"]
-}
+VALID_USERNAME_PASSWORD_PAIRS = {dash_user: dash_password}
 
 
 def main(dt, window):
@@ -44,10 +44,8 @@ def main(dt, window):
 
     end = datetime.strptime(
         dt, "%Y-%m-%d").astimezone(pytz.timezone("US/Pacific"))
-    activity_cooloff_mins = 10
-    num_sessions_threshold = 5
     generate_user_daily_report(
-        events_collection, end, window, activity_cooloff_mins, num_sessions_threshold)
+        events_collection, end, window, ACTIVITY_COOLOFF_MINS, NUM_SESSIONS_THRESHOLD)
 
 
 def generate_user_daily_report(events_collection, end, window, activity_cooloff_mins, num_sessions_threshold):
@@ -112,10 +110,7 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
     timeseries = timeseries.set_index(keys=["dt"])
     timeseries.columns.name = "threshold"
     global fig_timeseries
-    fig_timeseries = px.line(
-        timeseries,
-        labels=dict(total_bill="Total Bill ($)", tip="Tip ($)", sex="Payer Gender")
-    )
+    fig_timeseries = px.line(timeseries)
     fig_timeseries.update_layout(
         title="Daily Users By Session Count",
         xaxis_title="Date",
@@ -167,4 +162,6 @@ app.layout = html.Div(children=[
 ])
 
 
-app.run_server(debug=True, host="0.0.0.0", port=8050, use_reloader=False)
+if __name__ == "__main__":
+    logger.info("Running as __main__ app")
+    app.run_server(debug=True, host="0.0.0.0", port=8050, use_reloader=False)
