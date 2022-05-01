@@ -6,7 +6,7 @@ import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 // EmailInputContainer and EmailInput are adapted from 'react-multi-email/style.css'
 export const EmailInputContainer = css`
     margin: 0;
-    background-color: ${Colors.gray._50};
+    background-color: ${Colors.white};
     width: calc(100% - ${Spacing.padding._8 * 2}px);
     flex: 1 0 auto;
     padding: ${Spacing.padding._8}px;
