@@ -85,12 +85,12 @@ export const ButtonsContainer = styled(FullWidth)`
     align-items: center;
     gap: ${Spacing.margin._8}px;
 `
-export const RemoveEmailButton = styled(NoStyleButton)`
-    font-size: ${Typography.large.fontSize};
-    margin-left: ${Spacing.margin._4}px;
-    display: flex;
-    align-items: center;
-`
 export const BodyContainer = styled.div`
-    height: 150px
+    height: 150px;
+`
+export const RecipientDivider = styled.div`
+    width: 100%;
+    height: 1px;
+    background-color: ${Colors.gray._200};
+    /* margin: ${Spacing.margin._8}px 0; */
 `

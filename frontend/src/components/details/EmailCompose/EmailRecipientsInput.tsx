@@ -1,4 +1,4 @@
-import { EmailRecipientsContainer, EmailTag } from './EmailCompose-styles'
+import { EmailRecipientsContainer, EmailTag, RecipientDivider } from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { Icon } from '../../atoms/Icon'
@@ -60,8 +60,11 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
     return (
         <EmailRecipientsContainer ref={enableBuiltInKBShortcuts}>
             <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
+            <RecipientDivider />
             <ReactMultiEmail emails={ccEmails} onChange={onCcChange} placeholder="Cc:" getLabel={getLabel} />
+            <RecipientDivider />
             <ReactMultiEmail emails={bccEmails} onChange={onBccChange} placeholder="Bcc:" getLabel={getLabel} />
+            <RecipientDivider />
         </EmailRecipientsContainer>
     )
 }
