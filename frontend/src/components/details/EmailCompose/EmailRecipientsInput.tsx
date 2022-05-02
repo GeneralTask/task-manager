@@ -72,7 +72,7 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
             <FlexExpand>
                 <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
             </FlexExpand>
-            <AddEmailRecipientsContainer style={{ marginLeft: 'auto' }}>
+            <AddEmailRecipientsContainer>
                 {!showCc && <AddEmailRecipientsButton onClick={() => setShowCc(true)}>Cc</AddEmailRecipientsButton>}
                 {!showBcc && <AddEmailRecipientsButton onClick={() => setShowBcc(true)}>Bcc</AddEmailRecipientsButton>}
             </AddEmailRecipientsContainer>
