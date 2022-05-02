@@ -13,7 +13,7 @@ export const EmailInputContainer = css`
     color: ${Colors.black};
     font-size: ${Typography.xSmall.fontSize};
     line-height: ${Typography.xSmall.lineHeight};
-    position: relative;
+    /* position: relative; */
     display: flex;
     flex-wrap: wrap;
     align-items: center;

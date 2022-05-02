@@ -21,8 +21,8 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
     const [ccEmails, setCcEmails] = useState<string[]>(recipients.cc.map((r) => r.email))
     const [bccEmails, setBccEmails] = useState<string[]>(recipients.bcc.map((r) => r.email))
 
-    const [showCc, setShowCc] = useState(false)
-    const [showBcc, setShowBcc] = useState(false)
+    const [showCc, _setShowCc] = useState(false)
+    const [showBcc, _setShowBcc] = useState(false)
 
     // need a separate state because ReactMultiEmail needs an array of strings, but recipients is an array of objects
     useEffect(() => {
