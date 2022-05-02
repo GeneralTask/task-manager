@@ -175,7 +175,7 @@ func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db
 				UserID:          userID,
 				IDExternal:      primitive.NewObjectID().Hex(),
 				IDOrdering:      index + 1,
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				SourceID:        external.TASK_SOURCE_ID_GT_TASK,
 				Title:           title,
 				Body:            "",

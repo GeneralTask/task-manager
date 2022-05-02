@@ -185,7 +185,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      jiraTask.ID,
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				Deeplink:        siteConfiguration.SiteURL + "/browse/" + jiraTask.Key,
 				SourceID:        TASK_SOURCE_ID_JIRA,
 				Title:           jiraTask.Fields.Summary,

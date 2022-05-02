@@ -104,18 +104,8 @@ func (api *API) extractSectionTasksV3(
 	}
 	resultSections := []*TaskSection{
 		{
-			ID:    constants.IDTaskSectionToday,
-			Name:  TaskSectionNameToday,
-			Tasks: []*TaskResult{},
-		},
-		{
-			ID:    constants.IDTaskSectionBlocked,
-			Name:  TaskSectionNameBlocked,
-			Tasks: []*TaskResult{},
-		},
-		{
-			ID:    constants.IDTaskSectionBacklog,
-			Name:  TaskSectionNameBacklog,
+			ID:    constants.IDTaskSectionDefault,
+			Name:  TaskSectionNameDefault,
 			Tasks: []*TaskResult{},
 		},
 	}

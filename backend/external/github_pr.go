@@ -109,7 +109,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      fmt.Sprint(*pullRequest.ID),
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				Deeplink:        *pullRequest.HTMLURL,
 				SourceID:        TASK_SOURCE_ID_GITHUB_PR,
 				Title:           *pullRequest.Title,

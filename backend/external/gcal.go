@@ -81,7 +81,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      event.Id,
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				Deeplink:        fmt.Sprintf("%s&authuser=%s", event.HtmlLink, accountID),
 				SourceID:        TASK_SOURCE_ID_GCAL,
 				Title:           event.Summary,
