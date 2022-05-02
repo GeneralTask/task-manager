@@ -1,4 +1,11 @@
-import { EmailFieldDivider, EmailRecipientsContainer, EmailTag } from './EmailCompose-styles'
+import {
+    AddEmailRecipientsButton,
+    AddEmailRecipientsContainer,
+    EmailFieldDivider,
+    EmailRecipientsContainer,
+    EmailTag,
+    FlexGrow,
+} from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { Icon } from '../../atoms/Icon'
@@ -21,8 +28,8 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
     const [ccEmails, setCcEmails] = useState<string[]>(recipients.cc.map((r) => r.email))
     const [bccEmails, setBccEmails] = useState<string[]>(recipients.bcc.map((r) => r.email))
 
-    const [showCc, setShowCc] = useState(false)
-    const [showBcc, setShowBcc] = useState(false)
+    const [showCc, setShowCc] = useState(recipients.cc.length > 0)
+    const [showBcc, setShowBcc] = useState(recipients.bcc.length > 0)
 
     // need a separate state because ReactMultiEmail needs an array of strings, but recipients is an array of objects
     useEffect(() => {
@@ -62,15 +69,13 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
 
     return (
         <EmailRecipientsContainer ref={enableBuiltInKBShortcuts}>
-            <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
-            <div>
-                {!showCc && <button onClick={() => setShowCc(true)}>Cc</button>}
-                {!showBcc && <button onClick={() => setShowBcc(true)}>Bcc</button>}
-            </div>
-            {/* <div style={{ display: 'flex', justifyContent: 'end', 'width': '100%' }}>
-                {!showCc && <button onClick={() => setShowCc(true)}>Cc</button>}
-                {!showBcc && <button onClick={() => setShowBcc(true)}>Bcc</button>}
-            </div> */}
+            <FlexGrow>
+                <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
+            </FlexGrow>
+            <AddEmailRecipientsContainer style={{ marginLeft: 'auto' }}>
+                {!showCc && <AddEmailRecipientsButton onClick={() => setShowCc(true)}>Cc</AddEmailRecipientsButton>}
+                {!showBcc && <AddEmailRecipientsButton onClick={() => setShowBcc(true)}>Bcc</AddEmailRecipientsButton>}
+            </AddEmailRecipientsContainer>
             <EmailFieldDivider />
             {showCc && (
                 <>

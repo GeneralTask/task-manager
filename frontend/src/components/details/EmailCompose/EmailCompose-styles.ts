@@ -6,8 +6,8 @@ import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 // EmailInputContainer and EmailInput are adapted from 'react-multi-email/style.css'
 export const EmailInputContainer = css`
     margin: 0;
-    max-width: calc(100% - ${Spacing.padding._8 * 2}px);
-    min-height: 30px;
+    /* max-width: calc(100% - ${Spacing.padding._8 * 2}px); */
+    min-height: 38px;
     flex: 1 0 auto;
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     color: ${Colors.black};
@@ -16,7 +16,6 @@ export const EmailInputContainer = css`
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    /* justify-content: space-between; */
 `
 export const EmailInput = css`
     width: auto;
@@ -92,4 +91,20 @@ export const EmailFieldDivider = styled.div`
     width: 100%;
     height: 1px;
     background-color: ${Colors.gray._200};
+`
+export const AddEmailRecipientsContainer = styled.div`
+    display: flex;
+    align-items: end;
+    margin-left: auto;
+    padding: ${Spacing.padding._8}px;
+    gap: ${Spacing.margin._4}px;
+`
+export const AddEmailRecipientsButton = styled(NoStyleButton)`
+    border: 2px solid ${Colors.gray._100};
+    border-radius: ${Border.radius.regular};
+    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+    font-size: ${Typography.xSmall.fontSize};
+`
+export const FlexGrow = styled.div`
+    flex: 1;
 `
