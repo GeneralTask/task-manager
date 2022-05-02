@@ -17,7 +17,7 @@
     "sourceType": "module"
   },
   "plugins": ["react", "@typescript-eslint", "unused-imports"],
-  "ignorePatterns": ["dist", "build", "node_modules", "cypress/**/*.ts"],
+  "ignorePatterns": ["dist", "build", "node_modules"],
   "rules": {
     "@typescript-eslint/no-unused-vars": "warn",
     "unused-imports/no-unused-imports": "warn",
