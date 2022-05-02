@@ -4,6 +4,4 @@ export const radius = {
     small: '8px',
     regular: '10px',
     large: '12px',
-    xLarge: '16px',
-    xxLarge: '20px',
 }

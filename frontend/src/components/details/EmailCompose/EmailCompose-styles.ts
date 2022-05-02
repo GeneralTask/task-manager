@@ -60,10 +60,11 @@ export const EmailTag = styled.div`
     margin: ${Spacing.margin._4}px;
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     border: 1px solid ${Colors.gray._200};
-    border-radius: ${Border.radius.xxLarge};
+    border-radius: ${Border.radius.large};
     display: flex;
     align-items: center;
     gap: ${Spacing.margin._4}px;
+    background-color: ${Colors.gray._100};
 `
 export const EmailActionButtonContainer = styled.div`
     width: calc(100% / 3);
