@@ -27,7 +27,7 @@
   },
   "include": [
     "src/**/*", // *** The files TypeScript should type check ***
-    "cypress/**/*.ts", // *** The files TypeScript should type check ***
+    "cypress/**/*.ts", "cypress/tsconfig.json", // *** The files TypeScript should type check ***
   ],
   "exclude": ["node_modules", "build", "dist"] // *** The files to not type check ***
 }
