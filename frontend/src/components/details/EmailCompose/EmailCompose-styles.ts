@@ -105,6 +105,6 @@ export const AddEmailRecipientsButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     font-size: ${Typography.xSmall.fontSize};
 `
-export const FlexGrow = styled.div`
+export const FlexExpand = styled.div`
     flex: 1;
 `

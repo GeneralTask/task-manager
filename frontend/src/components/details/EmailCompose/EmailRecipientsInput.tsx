@@ -4,7 +4,7 @@ import {
     EmailFieldDivider,
     EmailRecipientsContainer,
     EmailTag,
-    FlexGrow,
+    FlexExpand,
 } from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
@@ -69,9 +69,9 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
 
     return (
         <EmailRecipientsContainer ref={enableBuiltInKBShortcuts}>
-            <FlexGrow>
+            <FlexExpand>
                 <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
-            </FlexGrow>
+            </FlexExpand>
             <AddEmailRecipientsContainer style={{ marginLeft: 'auto' }}>
                 {!showCc && <AddEmailRecipientsButton onClick={() => setShowCc(true)}>Cc</AddEmailRecipientsButton>}
                 {!showBcc && <AddEmailRecipientsButton onClick={() => setShowBcc(true)}>Bcc</AddEmailRecipientsButton>}
