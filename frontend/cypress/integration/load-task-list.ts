@@ -1,4 +1,3 @@
-
 describe('Starters tasks load upon first login', () => {
     before('login the user', () => {
         cy.login()
