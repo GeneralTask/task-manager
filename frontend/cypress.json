@@ -1,5 +1,6 @@
 {
     "baseUrl": "http://localhost:3000",
+    "supportFile": "cypress/support",
     "env": {
         "api_url": "http://localhost:8080"
     }

@@ -1,18 +1,8 @@
 const REDIRECT_TIMEOUT = 6000;
-import chance from "chance"
-const Chance = new chance()
-const API_URL = Cypress.env('api_url')
 
 describe('new user is redirected to terms of service page', () => {
-    beforeEach('make request for authorization token', () => {
-        cy.request('POST', `${API_URL}/create_test_user/`, {
-            email: `${Chance.string()}@generaltask.com`,
-            name: 'Test User',
-        }).then((response) => {
-            cy.setCookie('authToken', `${response.body.token}`)
-        })
-    })
-    beforeEach('visit generaltask', () => {
+    beforeEach('login the user', () => {
+        cy.login()
         cy.visit('/')
     })
     it('user redirects to terms of service page', () => {
@@ -22,8 +12,7 @@ describe('new user is redirected to terms of service page', () => {
         cy.findByTestId('terms-submit-button').should('be.disabled')
     })
     it('clicking submit button and accepting TOS redirects to landing page', () => {
-        cy.findByTestId('terms-check-button').click()
-        cy.findByTestId('terms-submit-button').click()
+        cy.acceptTermsOfService()
         cy.location('pathname', { timeout: REDIRECT_TIMEOUT }).should('include', '/tasks')
     })
 })
