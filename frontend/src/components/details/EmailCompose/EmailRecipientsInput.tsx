@@ -1,4 +1,4 @@
-import { EmailRecipientsContainer, EmailTag, RecipientDivider } from './EmailCompose-styles'
+import { EmailFieldDivider, EmailRecipientsContainer, EmailTag } from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { Icon } from '../../atoms/Icon'
@@ -21,8 +21,8 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
     const [ccEmails, setCcEmails] = useState<string[]>(recipients.cc.map((r) => r.email))
     const [bccEmails, setBccEmails] = useState<string[]>(recipients.bcc.map((r) => r.email))
 
-    const [showCc, _setShowCc] = useState(false)
-    const [showBcc, _setShowBcc] = useState(false)
+    const [showCc, setShowCc] = useState(false)
+    const [showBcc, setShowBcc] = useState(false)
 
     // need a separate state because ReactMultiEmail needs an array of strings, but recipients is an array of objects
     useEffect(() => {
@@ -62,20 +62,26 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
 
     return (
         <EmailRecipientsContainer ref={enableBuiltInKBShortcuts}>
-            <>
-                <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
-            </>
-            <RecipientDivider />
+            <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
+            <div>
+                {!showCc && <button onClick={() => setShowCc(true)}>Cc</button>}
+                {!showBcc && <button onClick={() => setShowBcc(true)}>Bcc</button>}
+            </div>
+            {/* <div style={{ display: 'flex', justifyContent: 'end', 'width': '100%' }}>
+                {!showCc && <button onClick={() => setShowCc(true)}>Cc</button>}
+                {!showBcc && <button onClick={() => setShowBcc(true)}>Bcc</button>}
+            </div> */}
+            <EmailFieldDivider />
             {showCc && (
                 <>
                     <ReactMultiEmail emails={ccEmails} onChange={onCcChange} placeholder="Cc:" getLabel={getLabel} />
-                    <RecipientDivider />
+                    <EmailFieldDivider />
                 </>
             )}
             {showBcc && (
                 <>
                     <ReactMultiEmail emails={bccEmails} onChange={onBccChange} placeholder="Bcc:" getLabel={getLabel} />
-                    <RecipientDivider />
+                    <EmailFieldDivider />
                 </>
             )}
         </EmailRecipientsContainer>
