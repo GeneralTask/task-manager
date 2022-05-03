@@ -8,7 +8,7 @@ describe('user can create a new General Task task', () => {
         Cypress.Cookies.preserveOnce('authToken')
     })
     it('user visits initial task section', () => {
-        cy.visit('/tasks/000000000000000000000001')
+        cy.visit('/tasks')
     })
     it('add text to "create new task" field', () => {
         cy.findByPlaceholderText('Add new task').type('New task')
