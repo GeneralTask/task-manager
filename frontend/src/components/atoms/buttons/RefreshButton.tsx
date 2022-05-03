@@ -1,4 +1,5 @@
 import styled, { css, keyframes } from 'styled-components'
+import NoStyleButton from './NoStyleButton'
 
 const spin = keyframes`
     from {
@@ -11,20 +12,8 @@ const spin = keyframes`
 const animation = css`
     animation: ${spin} 1s linear infinite;
 `
-
-const RefreshButton = styled.button<{ isRefreshing?: boolean }>`
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0;
-    font-size: inherit;
-    color: inherit;
-    cursor: pointer;
-    outline: none;
+const RefreshButton = styled(NoStyleButton)<{ isRefreshing?: boolean }>`
     ${(props) => props.isRefreshing && animation}
-    &:focus {
-        outline: none;
-    }
 `
 
 export default RefreshButton
