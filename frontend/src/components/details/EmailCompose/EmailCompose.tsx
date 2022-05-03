@@ -2,7 +2,6 @@ import {
     BodyContainer,
     ButtonsContainer,
     EmailComposeContainer,
-    EmailFieldDivider,
     EmailInput,
     EmailInputContainer,
 } from './EmailCompose-styles'
@@ -17,6 +16,7 @@ import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
+import { Divider } from '../../atoms/SectionDivider'
 
 const SubjectContainer = styled.div`
     ${EmailInputContainer}
@@ -81,7 +81,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                     onChange={(e) => setSubject(e.target.value)}
                 />
             </SubjectContainer>
-            <EmailFieldDivider />
+            <Divider color={Colors.gray._200} />
             <BodyContainer>
                 <TextArea
                     placeholder="Body"

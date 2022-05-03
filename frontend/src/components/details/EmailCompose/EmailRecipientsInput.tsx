@@ -1,7 +1,6 @@
 import {
     AddEmailRecipientsButton,
     AddEmailRecipientsContainer,
-    EmailFieldDivider,
     EmailRecipientsContainer,
     EmailTag,
     FlexExpand,
@@ -9,10 +8,11 @@ import {
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { Icon } from '../../atoms/Icon'
-import { Images } from '../../../styles'
+import { Colors, Images } from '../../../styles'
 import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 import { ReactMultiEmail } from 'react-multi-email'
 import { TRecipients } from '../../../utils/types'
+import { Divider } from '../../atoms/SectionDivider'
 
 // Keyboard shortcuts used in react-multi-email/ReactMultiEmail.tsx
 const REACT_MULTI_EMAIL_KB_SHORTCUT = ['Enter', 'Tab', 'Backspace']
@@ -76,7 +76,7 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
                 {!showCc && <AddEmailRecipientsButton onClick={() => setShowCc(true)}>Cc</AddEmailRecipientsButton>}
                 {!showBcc && <AddEmailRecipientsButton onClick={() => setShowBcc(true)}>Bcc</AddEmailRecipientsButton>}
             </AddEmailRecipientsContainer>
-            <EmailFieldDivider />
+            <Divider color={Colors.gray._200} />
             {showCc && (
                 <>
                     <FlexExpand>
@@ -87,7 +87,7 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
                             getLabel={getLabel}
                         />
                     </FlexExpand>
-                    <EmailFieldDivider />
+                    <Divider color={Colors.gray._200} />
                 </>
             )}
             {showBcc && (
@@ -100,7 +100,7 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
                             getLabel={getLabel}
                         />
                     </FlexExpand>
-                    <EmailFieldDivider />
+                    <Divider color={Colors.gray._200} />
                 </>
             )}
         </EmailRecipientsContainer>

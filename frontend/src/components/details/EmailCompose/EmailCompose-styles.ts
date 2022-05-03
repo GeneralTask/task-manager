@@ -84,11 +84,6 @@ export const ButtonsContainer = styled(FullWidth)`
 export const BodyContainer = styled.div`
     height: 150px;
 `
-export const EmailFieldDivider = styled.div`
-    width: 100%;
-    height: 1px;
-    background-color: ${Colors.gray._200};
-`
 export const AddEmailRecipientsContainer = styled.div`
     display: flex;
     align-items: end;
