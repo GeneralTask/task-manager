@@ -36,7 +36,7 @@ if not mongo_user or not mongo_password:
     exit(1)
 
 
-def main(dt, window):
+def generate_user_daily_report(dt, window):
     client = MongoClient(
         CONNECTION_TEMPLATE.format(user=mongo_user, password=mongo_password),
         unicode_decode_error_handler='ignore',
@@ -47,11 +47,11 @@ def main(dt, window):
 
     end = datetime.strptime(
         dt, "%Y-%m-%d").astimezone(pytz.timezone("US/Pacific"))
-    generate_user_daily_report(
+    _generate_user_daily_report(
         events_collection, end, window, ACTIVITY_COOLOFF_MINS, NUM_SESSIONS_THRESHOLD)
 
 
-def generate_user_daily_report(events_collection, end, window, activity_cooloff_mins, num_sessions_threshold):
+def _generate_user_daily_report(events_collection, end, window, activity_cooloff_mins, num_sessions_threshold):
     date_filter = {"created_at": {
         "$gt": end - timedelta(days=window), "$lt": end}}
     logger.info(date_filter)
@@ -131,7 +131,7 @@ app = Dash(__name__)
 server = app.server
 
 # TODO: figure out a way to pass these CLI args through gunicorn
-main(datetime.today().strftime("%Y-%m-%d"), DEFAULT_WINDOW)
+generate_user_daily_report(datetime.today().strftime("%Y-%m-%d"), DEFAULT_WINDOW)
 
 auth = dash_auth.BasicAuth(
     app,
