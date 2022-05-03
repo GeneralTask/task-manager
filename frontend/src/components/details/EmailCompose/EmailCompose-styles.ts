@@ -27,6 +27,7 @@ export const EmailInput = css`
     flex: 1;
     font-size: ${Typography.xSmall.fontSize};
     font-family: Switzer-Variable;
+    height: 30px;
 `
 export const EmailComposeContainer = styled.div`
     padding-top: 0;
@@ -39,7 +40,6 @@ export const EmailComposeContainer = styled.div`
     .react-multi-email > input {
         ${EmailInput}
         margin: 0 ${Spacing.padding._4}px;
-        padding: ${Spacing.padding._8}px 0;
     }
 `
 export const FullWidth = styled.div`
