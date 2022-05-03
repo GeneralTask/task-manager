@@ -40,9 +40,6 @@ export const EmailComposeContainer = styled.div`
     .react-multi-email > input {
         ${EmailInput}
     }
-    data-placeholder {
-        color: red;
-    }
 `
 export const FullWidth = styled.div`
     width: 100%;
