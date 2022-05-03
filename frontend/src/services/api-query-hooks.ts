@@ -526,6 +526,24 @@ const markMessageAsTask = async (data: TMarkAsTaskData) => {
 export const useComposeMessage = () => {
     const queryClient = useQueryClient()
     return useMutation((data: TComposeMessageData) => composeMessage(data), {
+        onMutate: async (data: TComposeMessageData) => {
+            // if message is part of a thread
+            if (data.message_id) {
+                await queryClient.cancelQueries('emailthreads')
+
+                const response: TEmailThreadResponse | undefined = queryClient.getQueryData('messages')
+                if (!response) return
+
+            }
+            await queryClient.cancelQueries('messages')
+
+
+            const response: TMessageResponse | undefined = queryClient.getQueryData('messages')
+            if (!response) return
+
+
+            queryClient.setQueryData('messages', response)
+        },
         onSettled: () => {
             queryClient.invalidateQueries('messages')
         },
