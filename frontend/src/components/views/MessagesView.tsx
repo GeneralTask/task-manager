@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
 import { SectionHeader } from '../molecules/Header'
-import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { useFetchMessages, useGetInfiniteThreads } from '../../services/api-query-hooks'
 import Loading from '../atoms/Loading'
@@ -37,7 +35,6 @@ const MessagesView = () => {
     const params = useParams()
     const { refetch: refetchMessages, isFetching: isRefetchingMessages } = useFetchMessages()
     const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteThreads()
-    useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
 
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])

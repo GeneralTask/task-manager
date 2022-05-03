@@ -9,7 +9,15 @@ import MessagesView from '../views/MessagesView'
 import Settings from '../views/SettingsView'
 import TaskSection from '../views/TaskSectionView'
 import { useAppSelector } from '../../redux/hooks'
-import { useGetInfiniteThreads, useGetTasks, useGetUserInfo } from '../../services/api-query-hooks'
+import {
+    useFetchExternalTasks,
+    useFetchMessages,
+    useGetInfiniteThreads,
+    useGetTasks,
+    useGetUserInfo,
+} from '../../services/api-query-hooks'
+import { useInterval } from '../../hooks'
+import { MESSAGES_REFETCH_INTERVAL, TASK_REFETCH_INTERVAL } from '../../constants'
 
 const MainScreen = () => {
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
@@ -18,6 +26,12 @@ const MainScreen = () => {
     const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
     useGetInfiniteThreads()
+
+    // Refetch tasks and messages independent of current page
+    const { refetch: refetchExternalTasks } = useFetchExternalTasks()
+    useInterval(refetchExternalTasks, TASK_REFETCH_INTERVAL)
+    const { refetch: refetchMessages } = useFetchMessages()
+    useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {

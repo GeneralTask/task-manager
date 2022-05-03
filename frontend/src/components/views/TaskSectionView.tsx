@@ -8,13 +8,11 @@ import { DateTime } from 'luxon'
 import EventBanner from '../molecules/EventBanners'
 import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
-import { TASK_REFETCH_INTERVAL } from '../../constants'
 import Task from '../molecules/Task'
 import TaskDetails from '../details/TaskDetails'
 import TaskDropContainer from '../molecules/TaskDropContainer'
 import { getSectionById } from '../../utils/task'
 import styled from 'styled-components'
-import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
 
@@ -51,8 +49,6 @@ const TaskSection = () => {
 
     const { data: taskSections, isLoading } = useGetTasks()
     const { refetch: fetchExternalTasks, isFetching: isRefetchingTasks } = useFetchExternalTasks()
-
-    useInterval(fetchExternalTasks, TASK_REFETCH_INTERVAL)
 
     const routerSection = useParams().section || ''
     const navigate = useNavigate()
