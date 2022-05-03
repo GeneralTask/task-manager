@@ -79,13 +79,27 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
             <EmailFieldDivider />
             {showCc && (
                 <>
-                    <ReactMultiEmail emails={ccEmails} onChange={onCcChange} placeholder="Cc:" getLabel={getLabel} />
+                    <FlexExpand>
+                        <ReactMultiEmail
+                            emails={ccEmails}
+                            onChange={onCcChange}
+                            placeholder="Cc:"
+                            getLabel={getLabel}
+                        />
+                    </FlexExpand>
                     <EmailFieldDivider />
                 </>
             )}
             {showBcc && (
                 <>
-                    <ReactMultiEmail emails={bccEmails} onChange={onBccChange} placeholder="Bcc:" getLabel={getLabel} />
+                    <FlexExpand>
+                        <ReactMultiEmail
+                            emails={bccEmails}
+                            onChange={onBccChange}
+                            placeholder="Bcc:"
+                            getLabel={getLabel}
+                        />
+                    </FlexExpand>
                     <EmailFieldDivider />
                 </>
             )}
