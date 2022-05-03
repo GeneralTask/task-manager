@@ -52,9 +52,9 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
         }
     }, [])
 
-    const onToChange = useCallback((newEmails: string[]) => setToEmails(newEmails), [setToEmails])
-    const onCcChange = useCallback((newEmails: string[]) => setCcEmails(newEmails), [setCcEmails])
-    const onBccChange = useCallback((newEmails: string[]) => setBccEmails(newEmails), [setBccEmails])
+    const onToChange = useCallback((newEmails: string[]) => setToEmails(newEmails), [])
+    const onCcChange = useCallback((newEmails: string[]) => setCcEmails(newEmails), [])
+    const onBccChange = useCallback((newEmails: string[]) => setBccEmails(newEmails), [])
 
     const getLabel = useCallback((email: string, index: number, removeEmail: (index: number) => void) => {
         return (
