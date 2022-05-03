@@ -35,7 +35,7 @@ export const icons: { [key: string]: string } = {
     pencil: '/images/pencil.png',
     reply: '/images/reply.svg',
     replyAll: '/images/reply-all.svg',
-    spinner: '/images/spinner.png',
+    spinner: '/images/spinner.svg',
     task_complete: '/images/task_complete.png',
     task_incomplete: '/images/task_incomplete.png',
     timer: '/images/timer.png',
