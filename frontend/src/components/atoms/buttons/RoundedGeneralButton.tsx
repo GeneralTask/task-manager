@@ -41,7 +41,7 @@ const RoundedGeneralButton = (props: RoundedGeneralButtonProps) => {
             color={color}
             textStyle={props.textStyle || 'light'}
             wrapText={props.wrapText}
-            data-testId={props.testId}
+            data-testid={props.testId}
         >
             {props.value}
         </RoundedButton>
