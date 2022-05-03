@@ -15,6 +15,7 @@ import {
     TTaskModifyRequestBody,
 } from './query-payload-types'
 import {
+    TEmail,
     TEmailThread,
     TEvent,
     TLinkedAccount,
@@ -526,8 +527,44 @@ const markMessageAsTask = async (data: TMarkAsTaskData) => {
 export const useComposeMessage = () => {
     const queryClient = useQueryClient()
     return useMutation((data: TComposeMessageData) => composeMessage(data), {
+        onMutate: async (data: TComposeMessageData) => {
+            const response: TEmailThreadResponse | undefined = queryClient.getQueryData('emailthreads')
+            if (!response) return
+
+            // if message is part of a thread
+            if (data.message_id) {
+                await queryClient.cancelQueries('emailthreads')
+
+                const thread = response.pages.flat().find(
+                    thread => thread.emails.find(
+                        email => email.message_id === data.message_id
+                    ) !== null
+                )
+                if (!thread) return
+
+                const emailIndex = thread.emails.findIndex(email => email.message_id === data.message_id)
+                if (emailIndex === -1) return
+
+                const tempEmail: TEmail = {
+                    message_id: '0',
+                    subject: data.subject || 'No subject',
+                    body: data.body,
+                    sent_at: 'now',
+                    is_unread: false,
+                    sender: {
+                        name: '',
+                        email: data.source_account_id,
+                        reply_to: '',
+                    },
+                    recipients: data.recipients,
+                }
+                thread.emails.splice(emailIndex + 1, 0, tempEmail)
+            }
+
+            queryClient.setQueryData('emailthreads', response)
+        },
         onSettled: () => {
-            queryClient.invalidateQueries('messages')
+            queryClient.invalidateQueries('emailthreads')
         },
     })
 }
