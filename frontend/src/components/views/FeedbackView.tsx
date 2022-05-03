@@ -1,6 +1,7 @@
-import { Colors, Spacing } from '../../styles'
+import { Border, Colors, Spacing } from '../../styles'
 import React, { useState } from 'react'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
+
 import { ModalEnum } from '../../utils/enums'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
@@ -22,9 +23,11 @@ const FeedbackHeader = styled.div`
     display: flex;
     flex-direction: column;
 `
-const MarginTop = styled.div`
+const TextAreaContainer = styled.div`
     flex: 1;
     margin-top: ${Spacing.margin._4}px;
+    border: 1px solid ${Colors.gray._200};
+    border-radius: ${Border.radius.small};
 `
 const ButtonContainer = styled.div`
     display: flex;
@@ -51,9 +54,9 @@ const FeedbackView = () => {
                 <SubtitleSmall>Let us know how we can improve!</SubtitleSmall>
             </FeedbackHeader>
             <TitleSmall>Feedback</TitleSmall>
-            <MarginTop>
+            <TextAreaContainer>
                 <TextArea value={feedback} placeholder="Type in your feedback here." setValue={setFeedback} />
-            </MarginTop>
+            </TextAreaContainer>
             <ButtonContainer>
                 <RoundedGeneralButton onPress={submitFeedback} value="Send feedback" color={Colors.purple._1} />
                 <RoundedGeneralButton onPress={closeModal} value="Cancel" hasBorder textStyle="dark" />

@@ -1,4 +1,4 @@
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Spacing, Typography } from '../../styles'
 
 import React from 'react'
 import styled from 'styled-components'
@@ -10,8 +10,7 @@ const TextAreaStyled = styled.textarea`
     height: 100%;
     resize: none;
     overflow: auto;
-    border: 1px solid ${Colors.gray._200};
-    border-radius: ${Border.radius.small};
+    border: none;
     box-shadow: none;
     outline: none;
     padding: ${Spacing.padding._8}px;
@@ -19,6 +18,7 @@ const TextAreaStyled = styled.textarea`
     font-style: normal;
     font-weight: normal;
     font-size: ${Typography.xSmall.fontSize};
+    background-color: inherit;
 `
 
 interface TextAreaProps {

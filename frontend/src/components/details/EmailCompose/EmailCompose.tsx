@@ -7,6 +7,7 @@ import {
 } from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
 import { TEmail, TRecipients } from '../../../utils/types'
+import { attachSubjectPrefix, stripSubjectPrefix } from './emailComposeUtils'
 
 import { Colors } from '../../../styles'
 import { EmailComposeType } from '../../../utils/enums'
@@ -15,7 +16,7 @@ import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
-import { attachSubjectPrefix, stripSubjectPrefix } from './emailComposeUtils'
+import { Divider } from '../../atoms/SectionDivider'
 
 const SubjectContainer = styled.div`
     ${EmailInputContainer}
@@ -80,6 +81,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                     onChange={(e) => setSubject(e.target.value)}
                 />
             </SubjectContainer>
+            <Divider color={Colors.gray._200} />
             <BodyContainer>
                 <TextArea
                     placeholder="Body"

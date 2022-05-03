@@ -41,6 +41,7 @@ export const icons: { [key: string]: string } = {
     timer: '/images/timer.png',
     trash: '/images/trash.png',
     verticalDots: '/images/vertical_dots.svg',
+    x: '/images/x.svg',
 }
 
 export const buttons: { [key: string]: string } = {

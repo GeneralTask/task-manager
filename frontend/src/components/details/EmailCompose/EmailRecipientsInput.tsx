@@ -1,6 +1,16 @@
-import { EmailRecipientsContainer, EmailTag, RemoveEmailButton } from './EmailCompose-styles'
+import {
+    AddEmailRecipientsButton,
+    AddEmailRecipientsContainer,
+    EmailRecipientsContainer,
+    EmailTag,
+    FlexExpand,
+} from './EmailCompose-styles'
+import { Colors, Images } from '../../../styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
+import { Divider } from '../../atoms/SectionDivider'
+import { Icon } from '../../atoms/Icon'
+import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 import { ReactMultiEmail } from 'react-multi-email'
 import { TRecipients } from '../../../utils/types'
 
@@ -14,15 +24,22 @@ interface EmailRecipientsInputProps {
 
 // CURRENTLY ONLY SUPPORTS "TO" RECIPIENTS - WILL ADD CC AND BCC SOON
 const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInputProps) => {
-    const [emails, setEmails] = useState<string[]>(recipients.to.map((r) => r.email))
+    const [toEmails, setToEmails] = useState<string[]>(recipients.to.map((r) => r.email))
+    const [ccEmails, setCcEmails] = useState<string[]>(recipients.cc.map((r) => r.email))
+    const [bccEmails, setBccEmails] = useState<string[]>(recipients.bcc.map((r) => r.email))
+
+    const [showCc, setShowCc] = useState(recipients.cc.length > 0)
+    const [showBcc, setShowBcc] = useState(recipients.bcc.length > 0)
 
     // need a separate state because ReactMultiEmail needs an array of strings, but recipients is an array of objects
     useEffect(() => {
         setRecipients({
             ...recipients,
-            to: emails.map((r) => ({ email: r, name: '' })),
+            to: toEmails.map((email) => ({ email, name: '' })),
+            cc: ccEmails.map((email) => ({ email, name: '' })),
+            bcc: bccEmails.map((email) => ({ email, name: '' })),
         })
-    }, [emails])
+    }, [toEmails, ccEmails, bccEmails])
 
     // blocks all keys from propogating except those used in react-multi-email
     const enableBuiltInKBShortcuts = useCallback((node: HTMLDivElement) => {
@@ -35,21 +52,64 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
         }
     }, [])
 
-    const onChange = useCallback((newEmails: string[]) => setEmails(newEmails), [setEmails])
+    const onToChange = useCallback((newEmails: string[]) => setToEmails(newEmails), [])
+    const onCcChange = useCallback((newEmails: string[]) => setCcEmails(newEmails), [])
+    const onBccChange = useCallback((newEmails: string[]) => setBccEmails(newEmails), [])
+
     const getLabel = useCallback((email: string, index: number, removeEmail: (index: number) => void) => {
         return (
             <EmailTag key={email}>
                 {email}
-                <RemoveEmailButton data-tag-handle onClick={() => removeEmail(index)}>
-                    ×
-                </RemoveEmailButton>
+                <NoStyleButton data-tag-handle onClick={() => removeEmail(index)}>
+                    <Icon size="xSmall" source={Images.icons.x} />
+                </NoStyleButton>
             </EmailTag>
         )
     }, [])
 
     return (
         <EmailRecipientsContainer ref={enableBuiltInKBShortcuts}>
-            <ReactMultiEmail emails={emails} onChange={onChange} placeholder="To:" getLabel={getLabel} />
+            <FlexExpand>
+                <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
+            </FlexExpand>
+            {!showCc ||
+                (!showBcc && (
+                    <AddEmailRecipientsContainer>
+                        {!showCc && (
+                            <AddEmailRecipientsButton onClick={() => setShowCc(true)}>Cc</AddEmailRecipientsButton>
+                        )}
+                        {!showBcc && (
+                            <AddEmailRecipientsButton onClick={() => setShowBcc(true)}>Bcc</AddEmailRecipientsButton>
+                        )}
+                    </AddEmailRecipientsContainer>
+                ))}
+            <Divider color={Colors.gray._200} />
+            {showCc && (
+                <>
+                    <FlexExpand>
+                        <ReactMultiEmail
+                            emails={ccEmails}
+                            onChange={onCcChange}
+                            placeholder="Cc:"
+                            getLabel={getLabel}
+                        />
+                    </FlexExpand>
+                    <Divider color={Colors.gray._200} />
+                </>
+            )}
+            {showBcc && (
+                <>
+                    <FlexExpand>
+                        <ReactMultiEmail
+                            emails={bccEmails}
+                            onChange={onBccChange}
+                            placeholder="Bcc:"
+                            getLabel={getLabel}
+                        />
+                    </FlexExpand>
+                    <Divider color={Colors.gray._200} />
+                </>
+            )}
         </EmailRecipientsContainer>
     )
 }
