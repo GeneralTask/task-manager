@@ -35,7 +35,7 @@ const MessageDivider = styled.div`
 const MessagesView = () => {
     const navigate = useNavigate()
     const params = useParams()
-    const { refetch: refetchMessages, isFetching: isRefetching } = useFetchMessages()
+    const { refetch: refetchMessages, isFetching: isRefetchingMessages } = useFetchMessages()
     const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteThreads()
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
@@ -78,7 +78,7 @@ const MessagesView = () => {
                     sectionName="Messages"
                     allowRefresh={true}
                     refetch={refetchMessages}
-                    isRefetching={isRefetching}
+                    isRefetching={isRefetchingMessages}
                 />
                 <MessagesContainer>
                     {threads.map((thread, index) => (
