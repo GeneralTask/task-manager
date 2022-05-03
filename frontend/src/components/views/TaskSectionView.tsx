@@ -50,7 +50,7 @@ const TaskSection = () => {
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
     const { data: taskSections, isLoading } = useGetTasks()
-    const { refetch: fetchExternalTasks } = useFetchExternalTasks()
+    const { refetch: fetchExternalTasks, isFetching: isRefetching } = useFetchExternalTasks()
 
     useInterval(fetchExternalTasks, TASK_REFETCH_INTERVAL)
 
@@ -102,6 +102,7 @@ const TaskSection = () => {
                                     sectionName={currentSection.name}
                                     allowRefresh={true}
                                     refetch={fetchExternalTasks}
+                                    isRefetching={isRefetching}
                                     taskSectionId={currentSection.id}
                                 />
                                 {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
