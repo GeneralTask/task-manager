@@ -23,7 +23,6 @@ const SubjectContainer = styled.div`
 `
 const SubjectInput = styled.input`
     ${EmailInput}
-    margin: 0;
 `
 
 const emptyRecipients: TRecipients = {
