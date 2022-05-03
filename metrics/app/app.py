@@ -29,13 +29,16 @@ if not dash_user or not dash_password:
     exit(1)
 VALID_USERNAME_PASSWORD_PAIRS = {dash_user: dash_password}
 
+mongo_user = os.getenv("MONGO_USER")
+mongo_password = os.getenv("MONGO_PASSWORD")
+if not mongo_user or not mongo_password:
+    logger.fatal("MONGO_USER or MONGO_PASSWORD not set!")
+    exit(1)
+
 
 def main(dt, window):
-    user = os.environ["MONGO_USER"]
-    password = os.environ["MONGO_PASSWORD"]
-
     client = MongoClient(
-        CONNECTION_TEMPLATE.format(user=user, password=password),
+        CONNECTION_TEMPLATE.format(user=mongo_user, password=mongo_password),
         unicode_decode_error_handler='ignore',
     )
 
@@ -122,7 +125,6 @@ def generate_user_daily_report(events_collection, end, window, activity_cooloff_
             color="RebeccaPurple"
         )
     )
-
 
 
 app = Dash(__name__)
