@@ -7,6 +7,5 @@ services:
       DASH_PASSWORD: ${DASH_PASSWORD}
       MONGO_USER: ${MONGO_USER}
       MONGO_PASSWORD: ${MONGO_PASSWORD}
-
     ports:
       - "8050:8050"
