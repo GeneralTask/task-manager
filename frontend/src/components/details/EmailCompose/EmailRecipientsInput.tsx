@@ -5,14 +5,14 @@ import {
     EmailTag,
     FlexExpand,
 } from './EmailCompose-styles'
+import { Colors, Images } from '../../../styles'
 import React, { useCallback, useEffect, useState } from 'react'
 
+import { Divider } from '../../atoms/SectionDivider'
 import { Icon } from '../../atoms/Icon'
-import { Colors, Images } from '../../../styles'
 import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 import { ReactMultiEmail } from 'react-multi-email'
 import { TRecipients } from '../../../utils/types'
-import { Divider } from '../../atoms/SectionDivider'
 
 // Keyboard shortcuts used in react-multi-email/ReactMultiEmail.tsx
 const REACT_MULTI_EMAIL_KB_SHORTCUT = ['Enter', 'Tab', 'Backspace']
@@ -72,10 +72,17 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
             <FlexExpand>
                 <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
             </FlexExpand>
-            <AddEmailRecipientsContainer>
-                {!showCc && <AddEmailRecipientsButton onClick={() => setShowCc(true)}>Cc</AddEmailRecipientsButton>}
-                {!showBcc && <AddEmailRecipientsButton onClick={() => setShowBcc(true)}>Bcc</AddEmailRecipientsButton>}
-            </AddEmailRecipientsContainer>
+            {!showCc ||
+                (!showBcc && (
+                    <AddEmailRecipientsContainer>
+                        {!showCc && (
+                            <AddEmailRecipientsButton onClick={() => setShowCc(true)}>Cc</AddEmailRecipientsButton>
+                        )}
+                        {!showBcc && (
+                            <AddEmailRecipientsButton onClick={() => setShowBcc(true)}>Bcc</AddEmailRecipientsButton>
+                        )}
+                    </AddEmailRecipientsContainer>
+                ))}
             <Divider color={Colors.gray._200} />
             {showCc && (
                 <>
