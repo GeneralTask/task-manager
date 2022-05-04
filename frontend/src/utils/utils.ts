@@ -52,7 +52,7 @@ export const getHumanDateTime = (date: DateTime) => {
     } else if (days === 1) {
         return 'Yesterday'
     }
-    return `${date.toLocaleString({ month: 'numeric', day: 'numeric', year: '2-digit' })}`
+    return date.toLocaleString({ month: 'numeric', day: 'numeric', year: '2-digit' })
 }
 
 // to avoid creating empty placeholder functions across the app
