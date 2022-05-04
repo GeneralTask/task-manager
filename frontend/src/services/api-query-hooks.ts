@@ -563,8 +563,8 @@ export const useComposeMessage = () => {
 
             queryClient.setQueryData('emailthreads', response)
         },
-        onSettled: () => {
-            fetchMessages()
+        onSettled: async () => {
+            await fetchMessages()
             queryClient.invalidateQueries('emailthreads')
         }
     })
