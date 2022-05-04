@@ -16,6 +16,7 @@ const ScrollViewMimic = styled.div`
 `
 const SettingsViewContainer = styled.div`
     font-family: Switzer-Variable;
+    min-width: 400px;
 `
 const AccountsContainer = styled.div`
     margin-top: ${Spacing.margin._16}px;
