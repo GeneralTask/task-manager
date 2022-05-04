@@ -208,7 +208,7 @@ func TestComposeEmail(t *testing.T) {
 			"sample_email_id",
 			"sample_thread_id",
 			headers,
-			"To: Sample sender <sample@generaltask.com>\r\nCc: \r\nBcc: \r\nFrom: General Tasker <approved@generaltask.com>\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
+			"To: Sample sender <sample@generaltask.com>\r\nFrom: General Tasker <approved@generaltask.com>\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
 		toStr := `[{"name": "Sample sender", "email": "sample@generaltask.com"}]`
 		testSuccessfulComposeWithServer(t, messageID.Hex(), authToken, "test reply", "", toStr, "[]", "[]", server)
 	})
