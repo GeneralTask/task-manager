@@ -263,7 +263,7 @@ var TaskServiceLinear = TaskServiceDetails{
 	Logo:         "/images/linear.svg",
 	LogoV2:       "linear",
 	AuthType:     AuthTypeOauth2,
-	IsLinkable:   true,
+	IsLinkable:   false,
 	IsSignupable: false,
 }
 
