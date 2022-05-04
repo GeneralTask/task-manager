@@ -62,13 +62,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
         setTask(props.task)
         setTitleInput(props.task.title)
         setBodyInput(props.task.body)
-
-        if (titleRef.current) {
-            titleRef.current.value = task.title
-            titleRef.current.style.height = '0px'
-            titleRef.current.style.height =
-                titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
-        }
     }, [props.task])
 
     useLayoutEffect(() => {
@@ -77,7 +70,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
             titleRef.current.style.height =
                 titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
         }
-    }, [titleInput])
+    }, [titleInput, props.task])
 
     useEffect(() => {
         // to ensure the timeout is cleared on component unmount
@@ -92,7 +85,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
         const title = titleRef?.current ? titleRef.current.value : ''
         const body = bodyRef?.current ? bodyRef.current.value : ''
         modifyTask({ id: task.id, title, body })
-    }, [task.id, modifyTask])
+    }, [task.id, titleRef.current, bodyRef.current, modifyTask])
 
     const onEdit = useCallback(() => {
         if (syncTimer.current) clearTimeout(syncTimer.current)
