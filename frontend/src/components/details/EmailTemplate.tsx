@@ -75,8 +75,6 @@ const EmailTemplate = (props: EmailTemplateProps) => {
         ReactTooltip.rebuild()
     }, [])
 
-    useEffect(() => setIsCollapsed(false), [props.email])
-
     const initialReplyRecipients: TRecipients = {
         to: [props.email.sender],
         cc: [],
