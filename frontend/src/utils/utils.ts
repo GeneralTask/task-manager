@@ -28,8 +28,7 @@ export const removeHTMLTags = (dirtyHTML: string) => {
 }
 
 export const getHumanTimeSinceDateTime = (date: DateTime) => {
-    const now = DateTime.now()
-    const { years, months, days, hours, minutes } = now.diff(date, ['years', 'months', 'days', 'hours', 'minutes', 'milliseconds'])
+    const { years, months, days, hours, minutes } = DateTime.now().diff(date, ['years', 'months', 'days', 'hours', 'minutes', 'milliseconds'])
 
     if (years > 0) {
         return `${years} year${years > 1 ? 's' : ''} ago`
@@ -44,6 +43,17 @@ export const getHumanTimeSinceDateTime = (date: DateTime) => {
     } else {
         return `just now`
     }
+}
+
+export const getHumanDateTime = (date: DateTime) => {
+    const { days } = DateTime.now().diff(date, ['milliseconds', 'days'])
+
+    if (days === 0) {
+        return date.toLocaleString({ hour12: true, hour: 'numeric', minute: 'numeric' })
+    } else if (days === 1) {
+        return 'Yesterday'
+    }
+    return `${date.toLocaleString({ month: 'numeric', day: 'numeric', year: '2-digit' })}`
 }
 
 // to avoid creating empty placeholder functions across the app

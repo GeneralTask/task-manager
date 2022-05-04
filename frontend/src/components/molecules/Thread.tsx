@@ -7,7 +7,7 @@ import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
-import { removeHTMLTags, getHumanTimeSinceDateTime } from '../../utils/utils'
+import { removeHTMLTags, getHumanDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import ThreadContainer from './ThreadContainer'
 
@@ -101,7 +101,7 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const senders = thread.emails[0]?.sender.name
     const title = `${thread.emails[0]?.subject} (${thread.emails.length})`
     const bodyDirtyHTML = thread.emails[0]?.body
-    const sentAt = getHumanTimeSinceDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
+    const sentAt = getHumanDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
 
     return (
         <ThreadContainer ref={elementRef} isSelected={isSelected} onClick={onClickHandler}>
