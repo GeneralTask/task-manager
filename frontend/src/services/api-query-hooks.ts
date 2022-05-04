@@ -559,6 +559,8 @@ export const useComposeMessage = () => {
                     recipients: data.recipients,
                 }
                 thread.emails.splice(emailIndex + 1, 0, tempEmail)
+
+                console.log({ thread, emailIndex })
             }
 
             queryClient.setQueryData('emailthreads', response)
