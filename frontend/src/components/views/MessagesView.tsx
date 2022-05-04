@@ -34,7 +34,13 @@ const MessagesView = () => {
     const navigate = useNavigate()
     const params = useParams()
     const { refetch: refetchMessages, isFetching: isRefetchingMessages } = useFetchMessages()
-    const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteThreads()
+    const {
+        data,
+        isLoading: isLoadingThreads,
+        isFetching: isFetchingThreads,
+        fetchNextPage,
+        refetch: getThreads,
+    } = useGetInfiniteThreads()
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
 
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
@@ -56,7 +62,7 @@ const MessagesView = () => {
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
         (node) => {
-            if (isLoading || isFetching) return
+            if (isLoadingThreads || isFetchingThreads) return
             if (observer.current) observer.current.disconnect()
             observer.current = new IntersectionObserver((entries) => {
                 if (entries[0].isIntersecting && data && data.pages[data.pages.length - 1]?.length > 0) {
@@ -65,7 +71,7 @@ const MessagesView = () => {
             })
             if (node) observer.current.observe(node)
         },
-        [isLoading, isFetching]
+        [isLoadingThreads, isFetchingThreads]
     )
 
     return (
@@ -74,8 +80,11 @@ const MessagesView = () => {
                 <SectionHeader
                     sectionName="Messages"
                     allowRefresh={true}
-                    refetch={refetchMessages}
-                    isRefetching={isRefetchingMessages}
+                    refetch={() => {
+                        refetchMessages()
+                        getThreads()
+                    }}
+                    isRefetching={isRefetchingMessages || isFetchingThreads}
                 />
                 <MessagesContainer>
                     {threads.map((thread, index) => (
@@ -87,7 +96,7 @@ const MessagesView = () => {
                         </div>
                     ))}
                 </MessagesContainer>
-                {(isLoading || isFetching) && (
+                {(isLoadingThreads || isFetchingThreads) && (
                     <div>
                         <Loading />
                     </div>
