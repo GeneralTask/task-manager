@@ -67,7 +67,7 @@ interface Props {
     inputIcon?: string
 }
 
-function GTSelect(props: Props): JSX.Element {
+function GTInputSelect(props: Props): JSX.Element {
     const { onChange, onSubmit, placeholder, inputIcon, options, invalidInput } = props
     const [valid, setValid] = React.useState(true)
     const [expanded, setExpanded] = React.useState(true)
@@ -146,4 +146,4 @@ function GTSelect(props: Props): JSX.Element {
     )
 }
 
-export default GTSelect
+export default GTInputSelect

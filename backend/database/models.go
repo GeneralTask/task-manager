@@ -15,6 +15,13 @@ type User struct {
 	LastRefreshed      primitive.DateTime `bson:"last_refreshed,omitempty"`
 	AgreedToTerms      *bool              `bson:"agreed_to_terms,omitempty"`
 	OptedIntoMarketing *bool              `bson:"opted_into_marketing,omitempty"`
+	CreatedAt          primitive.DateTime `bson:"created_at,omitempty"`
+}
+
+type UserChangeable struct {
+	Email         string             `bson:"email,omitempty"`
+	Name          string             `bson:"name,omitempty"`
+	LastRefreshed primitive.DateTime `bson:"last_refreshed,omitempty"`
 }
 
 // InternalAPIToken model
@@ -34,6 +41,11 @@ type ExternalAPIToken struct {
 	DisplayID      string             `bson:"display_id"`
 	IsUnlinkable   bool               `bson:"is_unlinkable"`
 	IsPrimaryLogin bool               `bson:"is_primary_login"`
+	IsBadToken     bool               `bson:"is_bad_token"`
+}
+
+type ExternalAPITokenChangeable struct {
+	IsBadToken bool `bson:"is_bad_token,omitempty"`
 }
 
 type AtlassianSiteConfiguration struct {

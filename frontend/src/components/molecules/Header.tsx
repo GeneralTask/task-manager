@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { useNavigate } from 'react-router-dom'
+import RefreshButton from '../atoms/buttons/RefreshButton'
 
 const SectionHeaderContainer = styled.div`
     display: flex;
@@ -41,6 +42,7 @@ interface SectionHeaderProps {
     sectionName: string
     allowRefresh: boolean
     refetch?: () => void
+    isRefetching?: boolean
     taskSectionId?: string
 }
 export const SectionHeader = (props: SectionHeaderProps) => {
@@ -93,9 +95,11 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     return (
         <SectionHeaderContainer>
             {headerText}
-            <NoStyleButton onClick={props.refetch}>
-                <Icon size={'small'} source={icons.spinner} />
-            </NoStyleButton>
+            {props.allowRefresh && (
+                <RefreshButton onClick={props.refetch} isRefreshing={props.isRefetching}>
+                    <Icon size={'small'} source={icons.spinner} />
+                </RefreshButton>
+            )}
             {props.taskSectionId && !matchTempSectionId(props.taskSectionId) && (
                 <>
                     <NoStyleButton onClick={() => handleDelete(props.taskSectionId)}>

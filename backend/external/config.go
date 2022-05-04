@@ -49,7 +49,7 @@ func GetConfig() Config {
 type TaskServiceResult struct {
 	Service TaskService
 	Details TaskServiceDetails
-	Sources []TaskSource
+	Sources []TaskSourceResult
 }
 
 type TaskSourceResult struct {
@@ -121,44 +121,45 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 		OverrideURLs: config.GoogleOverrideURLs,
 	}
 	githubService := GithubService{Config: config.Github}
+
 	return map[string]TaskServiceResult{
 		TASK_SERVICE_ID_ATLASSIAN: {
 			Service: atlassianService,
 			Details: TaskServiceAtlassian,
-			Sources: []TaskSource{JIRASource{Atlassian: atlassianService}},
+			Sources: []TaskSourceResult{{Source: JIRASource{Atlassian: atlassianService}, Details: TaskSourceJIRA}},
 		},
 		TASK_SERVICE_ID_GT: {
 			Service: GeneralTaskService{},
 			Details: TaskServiceGeneralTask,
-			Sources: []TaskSource{GeneralTaskTaskSource{}},
+			Sources: []TaskSourceResult{{Source: GeneralTaskTaskSource{}, Details: TaskSourceGeneralTask}},
 		},
 		TASK_SERVICE_ID_GOOGLE: {
 			Service: googleService,
 			Details: TaskServiceGoogle,
-			Sources: []TaskSource{
-				GmailSource{Google: googleService},
-				GoogleCalendarSource{Google: googleService},
+			Sources: []TaskSourceResult{
+				{Source: GmailSource{Google: googleService}, Details: TaskSourceGmail},
+				{Source: GoogleCalendarSource{Google: googleService}, Details: TaskSourceGoogleCalendar},
 			},
 		},
 		TASK_SERVICE_ID_SLACK: {
 			Service: SlackService{Config: config.Slack},
 			Details: TaskServiceSlack,
-			Sources: []TaskSource{},
+			Sources: []TaskSourceResult{},
 		},
 		TASK_SERVICE_ID_GITHUB: {
 			Service: githubService,
 			Details: TaskServiceGithub,
-			Sources: []TaskSource{GithubPRSource{Github: githubService}},
+			Sources: []TaskSourceResult{{Source: GithubPRSource{Github: githubService}, Details: TaskSourceGithubPR}},
 		},
 		TASK_SERVICE_ID_TRELLO: {
 			Service: TrelloService{Config: config.Trello},
 			Details: TaskServiceTrello,
-			Sources: []TaskSource{},
+			Sources: []TaskSourceResult{},
 		},
 		TASK_SERVICE_ID_ASANA: {
 			Service: asanaService,
 			Details: TaskServiceAsana,
-			Sources: []TaskSource{AsanaTaskSource{Asana: asanaService}},
+			Sources: []TaskSourceResult{{Source: AsanaTaskSource{Asana: asanaService}, Details: TaskSourceAsana}},
 		},
 	}
 }

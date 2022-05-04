@@ -18,8 +18,7 @@ const DropIndicatorStyles = css<{ isVisible: boolean }>`
     background-color: ${Colors.gray._800};
     visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
     position: relative;
-    flex-basis: 2px;
-    flex-shrink: 0;
+    height: 2px;
 `
 export const DropIndicatorAbove = styled.div`
     ${DropIndicatorStyles}
