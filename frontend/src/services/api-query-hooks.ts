@@ -549,24 +549,19 @@ export const useComposeMessage = () => {
                     message_id: '0',
                     subject: data.subject || 'No subject',
                     body: data.body,
-                    sent_at: 'now',
+                    sent_at: new Date().toISOString(),
                     is_unread: false,
                     sender: {
-                        name: '',
+                        name: 'You',
                         email: data.source_account_id,
                         reply_to: '',
                     },
                     recipients: data.recipients,
                 }
                 thread.emails.splice(emailIndex + 1, 0, tempEmail)
-
-                console.log({ thread, emailIndex })
             }
 
             queryClient.setQueryData('emailthreads', response)
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries('emailthreads')
         },
     })
 }
