@@ -45,7 +45,7 @@ export const getHumanTimeSinceDateTime = (date: DateTime) => {
 }
 
 export const getHumanDateTime = (date: DateTime) => {
-    const { days } = DateTime.now().diff(date, ['milliseconds', 'days'])
+    const { days } = DateTime.now().endOf('day').diff(date, ['milliseconds', 'days'])
 
     if (days === 0) {
         return date.toLocaleString({ hour12: true, hour: 'numeric', minute: 'numeric' })
