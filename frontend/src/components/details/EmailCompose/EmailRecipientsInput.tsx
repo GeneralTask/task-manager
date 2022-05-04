@@ -72,17 +72,14 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
             <FlexExpand>
                 <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
             </FlexExpand>
-            {!showCc ||
-                (!showBcc && (
-                    <AddEmailRecipientsContainer>
-                        {!showCc && (
-                            <AddEmailRecipientsButton onClick={() => setShowCc(true)}>Cc</AddEmailRecipientsButton>
-                        )}
-                        {!showBcc && (
-                            <AddEmailRecipientsButton onClick={() => setShowBcc(true)}>Bcc</AddEmailRecipientsButton>
-                        )}
-                    </AddEmailRecipientsContainer>
-                ))}
+            {(!showCc || !showBcc) && (
+                <AddEmailRecipientsContainer>
+                    {!showCc && <AddEmailRecipientsButton onClick={() => setShowCc(true)}>Cc</AddEmailRecipientsButton>}
+                    {!showBcc && (
+                        <AddEmailRecipientsButton onClick={() => setShowBcc(true)}>Bcc</AddEmailRecipientsButton>
+                    )}
+                </AddEmailRecipientsContainer>
+            )}
             <Divider color={Colors.gray._200} />
             {showCc && (
                 <>
