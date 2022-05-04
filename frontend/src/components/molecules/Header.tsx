@@ -95,9 +95,11 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     return (
         <SectionHeaderContainer>
             {headerText}
-            <RefreshButton onClick={props.refetch} isRefreshing={props.isRefetching}>
-                <Icon size={'small'} source={icons.spinner} />
-            </RefreshButton>
+            {props.allowRefresh && (
+                <RefreshButton onClick={props.refetch} isRefreshing={props.isRefetching}>
+                    <Icon size={'small'} source={icons.spinner} />
+                </RefreshButton>
+            )}
             {props.taskSectionId && !matchTempSectionId(props.taskSectionId) && (
                 <>
                     <NoStyleButton onClick={() => handleDelete(props.taskSectionId)}>
