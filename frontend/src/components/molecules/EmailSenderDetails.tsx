@@ -28,20 +28,16 @@ interface RecipientDetailsProps {
     category: string
     recipients: TRecipient[]
 }
-function RecipientDetails({ category, recipients }: RecipientDetailsProps): JSX.Element {
-    return (
-        <>
-            {recipients.map(({ name, email }, index) => {
-                return (
-                    <Row key={index}>
-                        <KeyContainer>{index === 0 && category}</KeyContainer>
-                        <ValueContainer>{name ? `${name} <${email}>` : email}</ValueContainer>
-                    </Row>
-                )
-            })}
-        </>
-    )
-}
+const RecipientDetails = ({ category, recipients }: RecipientDetailsProps) => (
+    <>
+        {recipients.map(({ name, email }, index) => (
+            <Row key={index}>
+                <KeyContainer>{index === 0 && category}</KeyContainer>
+                <ValueContainer>{name ? `${name} <${email}>` : email}</ValueContainer>
+            </Row>
+        ))}
+    </>
+)
 
 interface EmailSenderDetailsProps {
     sender: TSender
@@ -49,7 +45,10 @@ interface EmailSenderDetailsProps {
 }
 
 const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => {
-    const numRecipients = recipients.to.length + recipients.cc.length + recipients.bcc.length
+    const toRecipients = recipients.to.filter(({ email, name }) => email || name)
+    const ccRecipients = recipients.cc.filter(({ email, name }) => email || name)
+    const bccRecipients = recipients.bcc.filter(({ email, name }) => email || name)
+    const recipientsCount = [...toRecipients, ...ccRecipients, ...bccRecipients].length
 
     const details = ReactDOMServer.renderToString(
         <>
@@ -57,16 +56,16 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
                 <KeyContainer>From:</KeyContainer>
                 <ValueContainer>{`${sender.name} <${sender.email}>`}</ValueContainer>
             </Row>
-            <RecipientDetails category="To:" recipients={recipients.to} />
-            <RecipientDetails category="Cc:" recipients={recipients.cc} />
-            <RecipientDetails category="Bcc:" recipients={recipients.bcc} />
+            <RecipientDetails category="To:" recipients={toRecipients} />
+            <RecipientDetails category="Cc:" recipients={ccRecipients} />
+            <RecipientDetails category="Bcc:" recipients={bccRecipients} />
         </>
     )
 
     return (
         <TooltipWrapper dataTip={details} tooltipId="tooltip">
             <SmallGrayText>
-                <Underline>{`${numRecipients} ${numRecipients === 1 ? 'recipient' : 'recipients'}`}</Underline> ▼
+                <Underline>{`${recipientsCount} ${recipientsCount === 1 ? 'recipient' : 'recipients'}`}</Underline> ▼
             </SmallGrayText>
         </TooltipWrapper>
     )
