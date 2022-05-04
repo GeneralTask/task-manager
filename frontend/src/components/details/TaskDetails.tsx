@@ -53,10 +53,6 @@ const TaskDetails = (props: TaskDetailsProps) => {
         }
     }, [isError, isLoading, isEditing])
 
-    useEffect(() => {
-        ReactTooltip.rebuild()
-    }, [])
-
     // Update the state when the task changes
     useLayoutEffect(() => {
         setTask(props.task)
@@ -73,7 +69,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
     }, [titleInput, props.task])
 
     useEffect(() => {
-        // to ensure the timeout is cleared on component unmount
+        ReactTooltip.rebuild()
         return () => {
             if (syncTimer.current) clearTimeout(syncTimer.current)
         }
