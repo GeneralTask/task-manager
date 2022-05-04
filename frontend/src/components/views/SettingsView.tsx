@@ -42,6 +42,7 @@ const UnlinkContainer = styled.div`
     background-color: ${Colors.gray._100};
     border-radius: ${Border.radius.small};
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+    min-width: fit-content;
 `
 const XSmallFontSpan = styled.span`
     font-size: ${Typography.xSmall.fontSize};
