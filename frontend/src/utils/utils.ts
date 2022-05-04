@@ -31,18 +31,17 @@ export const getHumanTimeSinceDateTime = (date: DateTime) => {
     const { years, months, days, hours, minutes } = DateTime.now().diff(date, ['years', 'months', 'days', 'hours', 'minutes', 'milliseconds'])
 
     if (years > 0) {
-        return `${years} year${years > 1 ? 's' : ''} ago`
+        return `${years} ${years > 1 ? 'years' : 'year'} ago`
     } else if (months > 0) {
-        return `${months} month${months > 1 ? 's' : ''} ago`
+        return `${months} ${months > 1 ? 'months' : 'month'} ago`
     } else if (days > 0) {
-        return `${days} day${days > 1 ? 's' : ''} ago`
+        return `${days} ${days > 1 ? 'days' : 'day'} ago`
     } else if (hours > 0) {
-        return `${hours} hour${hours > 1 ? 's' : ''} ago`
+        return `${hours} ${hours > 1 ? 'hours' : 'hour'} ago`
     } else if (minutes > 0) {
-        return `${minutes} min${minutes > 1 ? 's' : ''} ago`
-    } else {
-        return `just now`
+        return `${minutes} ${minutes > 1 ? 'mins' : 'min'} ago`
     }
+    return `just now`
 }
 
 export const getHumanDateTime = (date: DateTime) => {
