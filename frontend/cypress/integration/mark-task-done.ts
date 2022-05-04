@@ -12,7 +12,8 @@ describe('user can mark as task as done', () => {
         cy.intercept('PATCH', '/tasks/modify/*').as('markTaskDoneMutation')
 
         cy.findAllByTestId('list-item').first().within(() => {
-            cy.get('button').click()
+            cy.get('button').find('img').should('have.attr', 'src', '/images/task_incomplete.png').click()
+            cy.get('button').find('img').should('have.attr', 'src', '/images/task_complete.png')
         })
         cy.wait('@markTaskDoneMutation')
     })
