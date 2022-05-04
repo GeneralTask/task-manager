@@ -1,11 +1,12 @@
 import { Border, Colors, Images, Spacing, Typography } from '../../styles'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState, TRecipients } from '../../utils/types'
 
 import EmailCompose from './EmailCompose/EmailCompose'
 import { EmailComposeType } from '../../utils/enums'
 import EmailMainActions from './EmailCompose/EmailMainActions'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
+import GTSelect from '../molecules/GTSelect'
 import { Icon } from '../atoms/Icon'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import ReactTooltip from 'react-tooltip'
@@ -64,6 +65,7 @@ const Flex = styled.div`
 `
 const IconButton = styled(NoStyleButton)`
     border-radius: ${Border.radius.xxSmall};
+    position: relative;
     &:hover {
         background-color: ${Colors.gray._200};
     }
@@ -94,10 +96,12 @@ const EmailTemplate = (props: EmailTemplateProps) => {
         bcc: [],
     }
 
-    const handleEmailActionsButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const emailActionsButtonRef = useRef<HTMLButtonElement>(null)
+
+    const handleEmailActionsButtonClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation()
         setShowEmailActions((show) => !show)
-    }
+    }, [])
 
     return (
         <DetailsViewContainer>
@@ -110,9 +114,18 @@ const EmailTemplate = (props: EmailTemplateProps) => {
                         </Flex>
                         <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
                     </div>
-                    <IconButton onClick={handleEmailActionsButtonClick}>
-                        <Icon size="small" source={Images.icons.skinnyHamburger} />
-                    </IconButton>
+                    <div>
+                        <IconButton ref={emailActionsButtonRef} onClick={handleEmailActionsButtonClick}>
+                            <Icon size="small" source={Images.icons.skinnyHamburger} />
+                        </IconButton>
+                        {showEmailActions && (
+                            <GTSelect
+                                options={['hi', 'there']}
+                                onClose={() => setShowEmailActions(false)}
+                                parentRef={emailActionsButtonRef}
+                            />
+                        )}
+                    </div>
                 </SenderContainer>
                 {isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.email.body)}</BodyContainerCollapsed>}
             </CollapseExpandContainer>

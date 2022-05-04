@@ -1,12 +1,9 @@
 import { Colors, Dimensions, Shadows, Spacing } from '../../styles'
-import { useGetTasks, useReorderTask } from '../../services/api-query-hooks'
-import { useNavigate, useParams } from 'react-router-dom'
+import React, { ReactChild, useRef } from 'react'
 
-import { Icon } from '../atoms/Icon'
-import React from 'react'
-import { icons } from '../../styles/images'
 import { radius } from '../../styles/border'
 import styled from 'styled-components'
+import { useClickOutside } from '../../hooks'
 
 const LabelEditorContainer = styled.div`
     display: flex;
@@ -20,6 +17,7 @@ const LabelEditorContainer = styled.div`
     top: 100%;
     right: 0;
     cursor: default;
+    outline: none;
 `
 const OptionsContainer = styled.div`
     overflow: auto;
@@ -43,13 +41,13 @@ const ListItem = styled.div`
     }
     cursor: pointer;
 `
-const SectionTitleBox = styled.div<{ isSelected: boolean }>`
+const SectionTitleBox = styled.div`
     display: flex;
     flex: 1;
     flex-direction: row;
     align-items: center;
     gap: ${Spacing.padding._8}px;
-    color: ${(props) => (props.isSelected ? Colors.purple._1 : Colors.gray._600)};
+    color: ${Colors.gray._600};
     min-width: 0;
 `
 const SectionName = styled.span`
@@ -59,52 +57,39 @@ const SectionName = styled.span`
     text-overflow: ellipsis;
     text-align: left;
 `
+const PositionRelative = styled.div`
+    position: relative;
+`
 
 interface GTSelectProps {
-    task_id: string
-    closeLabelEditor: () => void
+    options: ReactChild[]
+    onClose: () => void
+    title?: ReactChild
+    parentRef?: React.RefObject<HTMLElement> // pass this in to exclude parent from click outside
 }
-const GTSelect = ({ task_id, closeLabelEditor }: GTSelectProps) => {
-    const { mutate: reorderTask } = useReorderTask()
-    const { data } = useGetTasks()
-
-    const navigate = useNavigate()
-    const params = useParams()
-    const current_section_id = params.section || ''
-
-    const options = data?.map((section) => {
-        if (section.is_done) return
-        const isCurrentSection = section.id === current_section_id
-
-        const handleOnClick = () => {
-            reorderTask({
-                taskId: task_id,
-                dropSectionId: section.id,
-                orderingId: 1,
-                dragSectionId: current_section_id,
-            })
-            closeLabelEditor()
-            navigate(`/tasks/${current_section_id}`)
-        }
-
+const GTSelect = ({ options, onClose, title, parentRef }: GTSelectProps) => {
+    const selectRef = useRef(null)
+    useClickOutside(parentRef ?? selectRef, onClose)
+    const optionsList = options.map((option, index) => {
         return (
-            <ListItem key={section.id} onClick={handleOnClick}>
-                <SectionTitleBox isSelected={isCurrentSection}>
-                    <Icon size={'small'} source={isCurrentSection ? icons.inbox_purple : icons.inbox} />
-                    <SectionName>{section.name}</SectionName>
+            <ListItem key={index} tabIndex={0} onClick={onClose}>
+                <SectionTitleBox>
+                    <SectionName>{option}</SectionName>
                 </SectionTitleBox>
-                {isCurrentSection && <Icon size={'xSmall'} source={icons.task_complete} />}
             </ListItem>
         )
     })
-
     return (
-        <LabelEditorContainer onClick={(e) => e.stopPropagation()}>
-            <TopNav>
-                <Header>Set Label</Header>
-            </TopNav>
-            <OptionsContainer>{options}</OptionsContainer>
-        </LabelEditorContainer>
+        <PositionRelative>
+            <LabelEditorContainer ref={selectRef} onClick={(e) => e.stopPropagation()}>
+                {title && (
+                    <TopNav>
+                        <Header>{title}</Header>
+                    </TopNav>
+                )}
+                <OptionsContainer>{optionsList}</OptionsContainer>
+            </LabelEditorContainer>
+        </PositionRelative>
     )
 }
 
