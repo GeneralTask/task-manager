@@ -135,6 +135,7 @@ export interface TLinkedAccount {
     logo: string
     logo_v2: string
     is_unlinkable: boolean
+    has_bad_token: boolean
 }
 
 // React-DND Item Types

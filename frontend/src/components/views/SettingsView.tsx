@@ -35,16 +35,16 @@ const IconContainer = styled.div`
     margin-left: ${Spacing.margin._16}px;
     margin-right: ${Spacing.margin._16}px;
 `
-const UnlinkContainer = styled.div`
-    margin-left: auto;
+const AccountButtonContainer = styled.div<{ important?: boolean }>`
     margin-right: ${Spacing.margin._16}px;
-    padding-left: 100px;
-    background-color: ${Colors.gray._100};
+    background-color: ${(props) => (props.important ? Colors.red._1 : Colors.gray._100)};
+    color: ${(props) => (props.important ? Colors.white : Colors.black)};
     border-radius: ${Border.radius.small};
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
 `
 const XSmallFontSpan = styled.span`
     font-size: ${Typography.xSmall.fontSize};
+    margin-right: auto;
 `
 const FullWidthSelect = styled.select`
     width: 100%;
@@ -80,6 +80,7 @@ const SettingsView = () => {
         }
     }
     const onUnlink = (id: string) => deleteAccount({ id: id })
+    const onRelink = (name: string) => setSelectedType(name)
     useEffect(() => {
         openAuthWindow()
         setSelectedType('add')
@@ -107,12 +108,19 @@ const SettingsView = () => {
                                     <Icon size="small" source={logos[account.logo_v2]}></Icon>
                                 </IconContainer>
                                 <XSmallFontSpan>{account.display_id}</XSmallFontSpan>
+                                {account.has_bad_token && (
+                                    <AccountButtonContainer important>
+                                        <NoStyleButton onClick={() => onRelink(account.name)}>
+                                            <XSmallFontSpan>Re-link Account</XSmallFontSpan>
+                                        </NoStyleButton>
+                                    </AccountButtonContainer>
+                                )}
                                 {account.is_unlinkable && (
-                                    <UnlinkContainer>
+                                    <AccountButtonContainer>
                                         <NoStyleButton onClick={() => onUnlink(account.id)}>
                                             <XSmallFontSpan>Remove link</XSmallFontSpan>
                                         </NoStyleButton>
-                                    </UnlinkContainer>
+                                    </AccountButtonContainer>
                                 )}
                             </AccountContainer>
                         </TaskTemplate>
