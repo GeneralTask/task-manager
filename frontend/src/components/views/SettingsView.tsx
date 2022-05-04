@@ -57,10 +57,10 @@ const SettingsView = () => {
     const { data: linkedAccounts, refetch } = useGetLinkedAccounts()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
-    const openAuthWindow = () => {
+    const openAuthWindow = (authorizationType: string) => {
         if (!supportedTypes) return
         for (const type of supportedTypes) {
-            if (type.name === selectedType) {
+            if (type.name === authorizationType) {
                 const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
                 const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
                 const win = window.open(
@@ -72,7 +72,6 @@ const SettingsView = () => {
                     const timer = setInterval(() => {
                         if (win.closed) {
                             clearInterval(timer)
-                            setSelectedType('add')
                             refetch()
                         }
                     }, 10)
@@ -81,9 +80,9 @@ const SettingsView = () => {
         }
     }
     const onUnlink = (id: string) => deleteAccount({ id: id })
-    const onRelink = (name: string) => setSelectedType(name)
+    const onRelink = (accountType: string) => openAuthWindow(accountType)
     useEffect(() => {
-        openAuthWindow()
+        selectedType && openAuthWindow(selectedType)
         setSelectedType('add')
     }, [selectedType])
 
