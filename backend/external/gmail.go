@@ -669,6 +669,10 @@ func GetRecipients(headers []*gmail.MessagePartHeader) *database.Recipients {
 // accepts recipients in form: `"Recipient Name" <recipient@email.com>, "Recipient 2 Name" <recipient2@email.com>`
 // adds to recipients parameter
 func parseRecipients(recipientsString string) []database.Recipient {
+	recipientsString = strings.TrimSpace(recipientsString)
+	if recipientsString == "" {
+		return []database.Recipient{}
+	}
 	split := strings.Split(recipientsString, ",")
 	recipients := []database.Recipient{}
 	for _, s := range split {
