@@ -33,6 +33,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-q
 import { DateTime } from 'luxon'
 import apiClient from '../utils/api'
 import { getMonthsAroundDate } from '../utils/time'
+import { DEFAULT_MESSAGE_ID, DEFAULT_SENDER, DEFAULT_SUBJECT } from '../constants/emailConstants'
 
 /**
  * TASKS QUERIES
@@ -546,13 +547,13 @@ export const useComposeMessage = () => {
                 if (emailIndex === -1) return
 
                 const tempEmail: TEmail = {
-                    message_id: '0',
-                    subject: data.subject || 'No subject',
+                    message_id: DEFAULT_MESSAGE_ID,
+                    subject: data.subject || DEFAULT_SUBJECT,
                     body: data.body,
                     sent_at: new Date().toISOString(),
                     is_unread: false,
                     sender: {
-                        name: 'You',
+                        name: DEFAULT_SENDER,
                         email: data.source_account_id,
                         reply_to: '',
                     },
