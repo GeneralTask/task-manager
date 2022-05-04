@@ -5,8 +5,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"io/ioutil"
 	"github.com/rs/zerolog/log"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -291,4 +292,35 @@ func assertThreadEmailsIsUnreadState(t *testing.T, threadItem database.Item, isU
 	for _, email := range threadItem.Emails {
 		assert.Equal(t, isUnread, email.IsUnread)
 	}
+}
+
+func ServeRequest(
+	t *testing.T,
+	authToken string,
+	method string,
+	url string,
+	requestBody io.Reader,
+	expectedReponseCode int,
+) []byte {
+	router := GetRouter(GetAPI())
+	request, _ := http.NewRequest(method, url, requestBody)
+	request.Header.Add("Authorization", "Bearer "+authToken)
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, expectedReponseCode, recorder.Code)
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.NoError(t, err)
+	return responseBody
+}
+
+func UnauthorizedTest(t *testing.T, method string, url string, body io.Reader) bool {
+	return t.Run("Unauthorized", func(t *testing.T) {
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(method, url, body)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
 }
