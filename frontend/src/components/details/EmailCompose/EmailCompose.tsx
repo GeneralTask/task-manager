@@ -10,13 +10,13 @@ import { TEmail, TRecipients } from '../../../utils/types'
 import { attachSubjectPrefix, stripSubjectPrefix } from './emailComposeUtils'
 
 import { Colors } from '../../../styles'
+import { Divider } from '../../atoms/SectionDivider'
 import { EmailComposeType } from '../../../utils/enums'
 import EmailRecipientsInput from './EmailRecipientsInput'
 import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
-import { Divider } from '../../atoms/SectionDivider'
 
 const SubjectContainer = styled.div`
     ${EmailInputContainer}
@@ -66,8 +66,9 @@ const EmailCompose = (props: EmailComposeProps) => {
                 source_id: 'gmail',
                 source_account_id: props.sourceAccountId,
             })
+            props.onClose()
         },
-        [props.email, props.sourceAccountId, mutate]
+        [props.email, props.sourceAccountId, mutate, props.onClose]
     )
 
     return (
