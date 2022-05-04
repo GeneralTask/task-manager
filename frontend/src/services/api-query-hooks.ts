@@ -533,34 +533,33 @@ export const useComposeMessage = () => {
             if (!response) return
 
             // if message is part of a thread
-            if (data.message_id) {
-                await queryClient.cancelQueries('emailthreads')
+            if (!data.message_id) return
+            await queryClient.cancelQueries('emailthreads')
 
-                const thread = response.pages.flat().find(
-                    thread => thread.emails.find(
-                        email => email.message_id === data.message_id
-                    ) !== null
-                )
-                if (!thread) return
+            const thread = response.pages.flat().find(
+                thread => thread.emails.find(
+                    email => email.message_id === data.message_id
+                ) !== null
+            )
+            if (!thread) return
 
-                const emailIndex = thread.emails.findIndex(email => email.message_id === data.message_id)
-                if (emailIndex === -1) return
+            const emailIndex = thread.emails.findIndex(email => email.message_id === data.message_id)
+            if (emailIndex === -1) return
 
-                const tempEmail: TEmail = {
-                    message_id: DEFAULT_MESSAGE_ID,
-                    subject: data.subject || DEFAULT_SUBJECT,
-                    body: data.body,
-                    sent_at: new Date().toISOString(),
-                    is_unread: false,
-                    sender: {
-                        name: DEFAULT_SENDER,
-                        email: data.source_account_id,
-                        reply_to: '',
-                    },
-                    recipients: data.recipients,
-                }
-                thread.emails.splice(emailIndex + 1, 0, tempEmail)
+            const tempEmail: TEmail = {
+                message_id: DEFAULT_MESSAGE_ID,
+                subject: data.subject || DEFAULT_SUBJECT,
+                body: data.body,
+                sent_at: new Date().toISOString(),
+                is_unread: false,
+                sender: {
+                    name: DEFAULT_SENDER,
+                    email: data.source_account_id,
+                    reply_to: '',
+                },
+                recipients: data.recipients,
             }
+            thread.emails.splice(emailIndex + 1, 0, tempEmail)
 
             queryClient.setQueryData('emailthreads', response)
         },
