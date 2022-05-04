@@ -28,20 +28,16 @@ interface RecipientDetailsProps {
     category: string
     recipients: TRecipient[]
 }
-function RecipientDetails({ category, recipients }: RecipientDetailsProps): JSX.Element {
-    return (
-        <>
-            {recipients.map(({ name, email }, index) => {
-                return (
-                    <Row key={index}>
-                        <KeyContainer>{index === 0 && category}</KeyContainer>
-                        <ValueContainer>{name ? `${name} <${email}>` : email}</ValueContainer>
-                    </Row>
-                )
-            })}
-        </>
-    )
-}
+const RecipientDetails = ({ category, recipients }: RecipientDetailsProps) => (
+    <>
+        {recipients.map(({ name, email }, index) => (
+            <Row key={index}>
+                <KeyContainer>{index === 0 && category}</KeyContainer>
+                <ValueContainer>{name ? `${name} <${email}>` : email}</ValueContainer>
+            </Row>
+        ))}
+    </>
+)
 
 interface EmailSenderDetailsProps {
     sender: TSender
