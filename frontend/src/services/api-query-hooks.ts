@@ -459,7 +459,7 @@ export const useFetchMessages = () => {
     const queryClient = useQueryClient()
     return useQuery([], () => fetchMessages(), {
         onSettled: () => {
-            queryClient.invalidateQueries('messages')
+            queryClient.invalidateQueries('emailthreads')
         },
     })
 }
@@ -563,6 +563,10 @@ export const useComposeMessage = () => {
 
             queryClient.setQueryData('emailthreads', response)
         },
+        onSettled: () => {
+            fetchMessages()
+            queryClient.invalidateQueries('emailthreads')
+        }
     })
 }
 const composeMessage = async (data: TComposeMessageData) => {
