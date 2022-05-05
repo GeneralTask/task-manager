@@ -1,5 +1,5 @@
 import { Colors, Dimensions, Shadows, Spacing } from '../../styles'
-import React, { ReactChild, useRef } from 'react'
+import React, { ReactNode, useRef } from 'react'
 
 import { radius } from '../../styles/border'
 import styled from 'styled-components'
@@ -20,7 +20,8 @@ const SelectContainer = styled.div`
     outline: none;
 `
 const OptionsContainer = styled.div`
-    overflow: auto;
+    overflow: hidden;
+    border-radius: inherit;
     max-height: 500px;
 `
 const TitleContainer = styled.div`
@@ -33,10 +34,10 @@ const ListItem = styled.div`
     justify-content: space-between;
     align-items: center;
     padding: ${Spacing.padding._12}px ${Spacing.padding._16}px;
-    border-bottom: 1px solid ${Colors.gray._100};
     &:hover {
         background-color: ${Colors.gray._100};
     }
+    overflow: hidden;
     cursor: pointer;
 `
 const SectionTitleBox = styled.div`
@@ -53,14 +54,14 @@ const PositionRelative = styled.div`
 `
 
 interface GTSelectOption {
-    item: ReactChild
+    item: ReactNode
     onClick: () => void
 }
 
 interface GTSelectProps {
     options: GTSelectOption[]
     onClose: () => void
-    title?: ReactChild
+    title?: ReactNode
     parentRef?: React.RefObject<HTMLElement> // pass this in to exclude parent from click outside
 }
 const GTSelect = ({ options, onClose, title, parentRef }: GTSelectProps) => {

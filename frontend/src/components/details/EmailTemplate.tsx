@@ -1,5 +1,5 @@
-import { Border, Colors, Images, Spacing, Typography } from '../../styles'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Border, Colors, Spacing, Typography } from '../../styles'
+import React, { useEffect, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState, TRecipients } from '../../utils/types'
 
 import EmailCompose from './EmailCompose/EmailCompose'
@@ -13,6 +13,7 @@ import ReactTooltip from 'react-tooltip'
 import SanitizedHTML from '../atoms/SanitizedHTML'
 import { removeHTMLTags } from '../../utils/utils'
 import styled from 'styled-components'
+import { icons } from '../../styles/images'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -105,31 +106,27 @@ const EmailTemplate = (props: EmailTemplateProps) => {
 
     const emailActionsRef = useRef<HTMLDivElement>(null)
 
-    const handleEmailActionsButtonClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleEmailActionsButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation()
         setShowEmailActions((show) => !show)
-    }, [])
+    }
 
-    const emailActionOptions = useMemo(
-        () => [
-            {
-                item: (
-                    <EmailActionContainer>
-                        <Icon size="medium" source={Images.icons.reply} />
-                        Reply
-                    </EmailActionContainer>
-                ),
-                onClick: () => {
-                    console.log('hi')
-                    props.setThreadComposeState({
-                        emailComposeType: EmailComposeType.REPLY,
-                        emailId: props.email.message_id,
-                    })
-                },
+    const emailActionOptions = [
+        {
+            item: (
+                <EmailActionContainer>
+                    <Icon size="medium" source={icons.reply} />
+                    Reply
+                </EmailActionContainer>
+            ),
+            onClick: () => {
+                props.setThreadComposeState({
+                    emailComposeType: EmailComposeType.REPLY,
+                    emailId: props.email.message_id,
+                })
             },
-        ],
-        [props.email.message_id]
-    )
+        },
+    ]
 
     return (
         <DetailsViewContainer>
@@ -144,7 +141,7 @@ const EmailTemplate = (props: EmailTemplateProps) => {
                     </div>
                     <div ref={emailActionsRef}>
                         <IconButton onClick={handleEmailActionsButtonClick}>
-                            <Icon size="small" source={Images.icons.skinnyHamburger} />
+                            <Icon size="small" source={icons.skinnyHamburger} />
                         </IconButton>
                         {showEmailActions && (
                             <GTSelect
