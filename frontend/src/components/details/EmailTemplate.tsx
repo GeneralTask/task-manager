@@ -103,7 +103,7 @@ const EmailTemplate = (props: EmailTemplateProps) => {
         bcc: [],
     }
 
-    const emailActionsButtonRef = useRef<HTMLButtonElement>(null)
+    const emailActionsRef = useRef<HTMLDivElement>(null)
 
     const handleEmailActionsButtonClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation()
@@ -121,8 +121,8 @@ const EmailTemplate = (props: EmailTemplateProps) => {
                         </Flex>
                         <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
                     </div>
-                    <div>
-                        <IconButton ref={emailActionsButtonRef} onClick={handleEmailActionsButtonClick}>
+                    <div ref={emailActionsRef}>
+                        <IconButton onClick={handleEmailActionsButtonClick}>
                             <Icon size="small" source={Images.icons.skinnyHamburger} />
                         </IconButton>
                         {showEmailActions && (
@@ -145,7 +145,7 @@ const EmailTemplate = (props: EmailTemplateProps) => {
                                     },
                                 ]}
                                 onClose={() => setShowEmailActions(false)}
-                                parentRef={emailActionsButtonRef}
+                                parentRef={emailActionsRef}
                             />
                         )}
                     </div>

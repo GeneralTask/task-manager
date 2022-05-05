@@ -67,7 +67,7 @@ interface GTSelectProps {
 }
 const GTSelect = ({ options, onClose, title, parentRef }: GTSelectProps) => {
     const selectRef = useRef(null)
-    useClickOutside(selectRef, onClose)
+    useClickOutside(parentRef ?? selectRef, onClose)
     const optionsList = options.map((option, index) => (
         <ListItem
             key={index}
