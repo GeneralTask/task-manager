@@ -4,17 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/rs/zerolog/log"
-	"net/http"
-
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/shurcooL/graphql"
+	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/oauth2"
+	"net/http"
 )
 
 type LinearService struct {
@@ -73,6 +74,7 @@ func (linear LinearService) HandleLinkCallback(params CallbackParams, userID pri
 		log.Error().Msgf("error parsing token: %v", err)
 		return errors.New("internal server error")
 	}
+	accountID := getLinearAccountID(token)
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -85,8 +87,8 @@ func (linear LinearService) HandleLinkCallback(params CallbackParams, userID pri
 			UserID:         userID,
 			ServiceID:      TASK_SERVICE_ID_LINEAR,
 			Token:          string(tokenString),
-			AccountID:      "todo",
-			DisplayID:      "todo",
+			AccountID:      accountID,
+			DisplayID:      accountID,
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
 		}},
@@ -98,6 +100,26 @@ func (linear LinearService) HandleLinkCallback(params CallbackParams, userID pri
 	}
 
 	return nil
+}
+
+func getLinearAccountID(token *oauth2.Token) string {
+	httpClient := oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(token))
+	client := graphql.NewClient("https://api.linear.app/graphql", httpClient)
+
+	var query struct {
+		Viewer struct {
+			Id    graphql.String
+			Name  graphql.String
+			Email graphql.String
+		}
+	}
+	err := client.Query(context.Background(), &query, nil)
+	if err != nil {
+		log.Error().Err(err).Interface("query", query).Msg("could not execute query")
+		return "" // TODO: maybe add a placeholder instead of empty string
+	}
+	log.Debug().Msgf("%+v", query)
+	return string(query.Viewer.Email)
 }
 
 func (linear LinearService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
