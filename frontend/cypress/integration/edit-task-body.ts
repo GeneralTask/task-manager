@@ -19,7 +19,7 @@ describe('user can edit a task body', () => {
         cy.findAllByText(/Try creating a task above!/i).should('have.length', 2)
 
         // edit the task body
-        cy.findByTestId('task-body-input').clear().type('new task body').blur()
+        cy.findByTestId('task-body-input').clear().type('new task body')
 
         // wait for task body modify request to finish
         cy.wait('@modifyTaskBodyMutation')
