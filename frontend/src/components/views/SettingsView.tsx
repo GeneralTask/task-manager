@@ -7,9 +7,8 @@ import { Icon } from '../atoms/Icon'
 import { SectionHeader } from '../molecules/Header'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
+import { openAuthWindow } from '../../utils/auth'
 
-const AUTH_WINDOW_WIDTH = 960
-const AUTH_WINDOW_HEIGHT = 640
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
     flex: 1;
@@ -52,37 +51,15 @@ const FullWidthSelect = styled.select`
 `
 
 const SettingsView = () => {
-    const [selectedType, setSelectedType] = useState<string>()
+    const [selectedType, setSelectedType] = useState<string>('add')
     const { data: supportedTypes } = useGetSupportedTypes()
     const { data: linkedAccounts, refetch } = useGetLinkedAccounts()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
-    const openAuthWindow = (authorizationType: string) => {
-        if (!supportedTypes) return
-        for (const type of supportedTypes) {
-            if (type.name === authorizationType) {
-                const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
-                const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
-                const win = window.open(
-                    type.authorization_url,
-                    type.name,
-                    `height=${AUTH_WINDOW_HEIGHT},width=${AUTH_WINDOW_WIDTH},top=${top},left=${left}toolbar=no,menubar=no,scrollbars=no,location=no,status=no`
-                )
-                if (win != null) {
-                    const timer = setInterval(() => {
-                        if (win.closed) {
-                            clearInterval(timer)
-                            refetch()
-                        }
-                    }, 10)
-                }
-            }
-        }
-    }
     const onUnlink = (id: string) => deleteAccount({ id: id })
-    const onRelink = (accountType: string) => openAuthWindow(accountType)
+    const onRelink = (accountType: string) => supportedTypes && openAuthWindow(accountType, supportedTypes, refetch)
     useEffect(() => {
-        selectedType && openAuthWindow(selectedType)
+        supportedTypes && openAuthWindow(selectedType, supportedTypes, refetch)
         setSelectedType('add')
     }, [selectedType])
 
