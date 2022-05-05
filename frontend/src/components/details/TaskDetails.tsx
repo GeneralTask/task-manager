@@ -41,7 +41,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
     const bodyRef = useRef<HTMLTextAreaElement>(null)
-    const syncTimer = useRef<NodeJS.Timeout>()
+    const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     useEffect(() => {
         if (isEditing || isLoading) {
@@ -71,23 +71,33 @@ const TaskDetails = (props: TaskDetailsProps) => {
     useEffect(() => {
         ReactTooltip.rebuild()
         return () => {
-            if (syncTimer.current) clearTimeout(syncTimer.current)
+            for (const timer of Object.values(timers.current)) {
+                timer.callback()
+                clearTimeout(timer.timeout)
+            }
         }
     }, [])
 
-    const syncDetails = useCallback(() => {
-        if (syncTimer.current) clearTimeout(syncTimer.current)
-        setIsEditing(false)
-        const title = titleRef?.current ? titleRef.current.value : ''
-        const body = bodyRef?.current ? bodyRef.current.value : ''
-        modifyTask({ id: task.id, title, body })
-    }, [task.id, titleRef.current, bodyRef.current, modifyTask])
+    const syncDetails = useCallback(
+        (taskId: string, title: string, body: string) => {
+            setIsEditing(false)
+            if (timers.current[taskId]) clearTimeout(timers.current[taskId].timeout)
+            modifyTask({ id: taskId, title, body })
+        },
+        [task.id, titleRef.current, bodyRef.current, modifyTask]
+    )
 
-    const onEdit = useCallback(() => {
-        if (syncTimer.current) clearTimeout(syncTimer.current)
-        setIsEditing(true)
-        syncTimer.current = setTimeout(syncDetails, DETAILS_SYNC_TIMEOUT * 1000)
-    }, [syncDetails])
+    const onEdit = useCallback(
+        (taskId: string, title: string, body: string) => {
+            setIsEditing(true)
+            if (timers.current[taskId]) clearTimeout(timers.current[taskId].timeout)
+            timers.current[taskId] = {
+                timeout: setTimeout(() => syncDetails(taskId, title, body), DETAILS_SYNC_TIMEOUT * 1000),
+                callback: () => syncDetails(taskId, title, body),
+            }
+        },
+        [syncDetails]
+    )
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
         if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
@@ -125,7 +135,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     value={titleInput}
                     onChange={(e) => {
                         setTitleInput(e.target.value)
-                        onEdit()
+                        onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                     }}
                 />
             }
@@ -139,7 +149,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
                         value={bodyInput}
                         onChange={(e) => {
                             setBodyInput(e.target.value)
-                            onEdit()
+                            onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                         }}
                         onKeyDown={(e) => e.stopPropagation()}
                     />
