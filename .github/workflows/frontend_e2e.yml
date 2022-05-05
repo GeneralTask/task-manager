@@ -1,4 +1,4 @@
-name: Frontend End-to-End tests
+name: E2E Cypress
 
 on:
   push:

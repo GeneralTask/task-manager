@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useIdleTimer } from 'react-idle-timer'
 
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
@@ -12,6 +12,8 @@ import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
 import { Colors, Dimensions, Spacing } from '../../styles'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
+import { useGetEvents } from '../../services/api-query-hooks'
+import { getMonthsAroundDate } from '../../utils/time'
 
 const CollapsedCalendarView = styled.div`
     padding-top: ${Spacing.padding._16}px;
@@ -27,6 +29,12 @@ const CalendarView = () => {
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
+    const monthBlocks = useMemo(() => {
+        const blocks = getMonthsAroundDate(date, 1)
+        return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
+    }, [date])
+    useGetEvents(monthBlocks[1], 'calendar')
+
     const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(true)
     const dispatch = useAppDispatch()
 

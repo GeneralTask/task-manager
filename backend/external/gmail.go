@@ -5,9 +5,10 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -245,7 +246,7 @@ func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []d
 			emailIDToObjectID[dbEmail.EmailID] = dbEmail.MessageID
 		}
 	}
-	for i, _ := range fetchedEmails {
+	for i := range fetchedEmails {
 		if emailObjectID, ok := emailIDToObjectID[fetchedEmails[i].EmailID]; ok {
 			fetchedEmails[i].MessageID = emailObjectID
 		} else {
@@ -503,10 +504,13 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 
 	var recipientHeader string
 	if emailContents.Recipients != nil {
-		emailTo := "To: " + createEmailRecipientHeader(emailContents.Recipients.To) + "\r\n"
-		emailCc := "Cc: " + createEmailRecipientHeader(emailContents.Recipients.Cc) + "\r\n"
-		emailBcc := "Bcc: " + createEmailRecipientHeader(emailContents.Recipients.Bcc) + "\r\n"
-		recipientHeader = emailTo + emailCc + emailBcc
+		recipientHeader = "To: " + createEmailRecipientHeader(emailContents.Recipients.To) + "\r\n"
+		if len(emailContents.Recipients.Cc) > 0 {
+			recipientHeader += "Cc: " + createEmailRecipientHeader(emailContents.Recipients.Cc) + "\r\n"
+		}
+		if len(emailContents.Recipients.Bcc) > 0 {
+			recipientHeader += "Bcc: " + createEmailRecipientHeader(emailContents.Recipients.Bcc) + "\r\n"
+		}
 	} else {
 		// For backwards compatibility - TODO remove this after frontend migrates to messages/compose endpoint
 		emailTo := "To: " + sendAddress + "\r\n"
@@ -665,6 +669,10 @@ func GetRecipients(headers []*gmail.MessagePartHeader) *database.Recipients {
 // accepts recipients in form: `"Recipient Name" <recipient@email.com>, "Recipient 2 Name" <recipient2@email.com>`
 // adds to recipients parameter
 func parseRecipients(recipientsString string) []database.Recipient {
+	recipientsString = strings.TrimSpace(recipientsString)
+	if recipientsString == "" {
+		return []database.Recipient{}
+	}
 	split := strings.Split(recipientsString, ",")
 	recipients := []database.Recipient{}
 	for _, s := range split {

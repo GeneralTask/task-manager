@@ -11,7 +11,6 @@ import { KEYBOARD_SHORTCUTS } from '../../constants'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
-import { useAppSelector } from '../../redux/hooks'
 import { useDrag } from 'react-dnd'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
@@ -38,10 +37,9 @@ interface TaskProps {
 const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: TaskProps) => {
     const navigate = useNavigate()
     const params = useParams()
-    const isExpanded = params.task === task.id
-    const isSelected = useAppSelector((state) => isExpanded || state.tasks_page.selected_item_id === task.id)
+    const selectedTask = params.task
+    const isSelected = selectedTask === task.id
     const observer = useRef<IntersectionObserver>()
-    const selectedTask = useAppSelector((state) => state.tasks_page.selected_item_id)
     const isScrolling = useRef<boolean>(false)
 
     // Add event listener to check if scrolling occurs in task section
@@ -82,14 +80,8 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: Tas
         [isSelected, isScrolling.current]
     )
 
-    const hideDetailsView = useCallback(() => navigate(`/tasks/${params.section}`), [params])
-
     const onClick = useCallback(() => {
-        if (params.task === task.id) {
-            hideDetailsView()
-        } else {
-            navigate(`/tasks/${params.section}/${task.id}`)
-        }
+        navigate(`/tasks/${params.section}/${task.id}`)
     }, [params, task])
 
     const [, drag, dragPreview] = useDrag(
@@ -104,7 +96,6 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: Tas
         [task.id, index, sectionId]
     )
 
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.CLOSE, hideDetailsView, !isExpanded)
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClick, !isSelected)
 
     return (

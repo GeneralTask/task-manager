@@ -23,6 +23,7 @@ export const icons: { [key: string]: string } = {
     check_unchecked: '/images/check_unchecked.png',
     chevron_up: '/images/chevron_up.png',
     chevron_down: '/images/chevron_down.png',
+    forward: '/images/forward.svg',
     gear: '/images/gear.png',
     inbox: '/images/inbox.png',
     inbox_purple: '/images/inbox_purple.png',
@@ -32,11 +33,15 @@ export const icons: { [key: string]: string } = {
     messages: '/images/messages.png',
     plus: '/images/plus.png',
     pencil: '/images/pencil.png',
-    spinner: '/images/spinner.png',
+    reply: '/images/reply.svg',
+    replyAll: '/images/reply-all.svg',
+    spinner: '/images/spinner.svg',
     task_complete: '/images/task_complete.png',
     task_incomplete: '/images/task_incomplete.png',
     timer: '/images/timer.png',
     trash: '/images/trash.png',
+    verticalDots: '/images/vertical_dots.svg',
+    x: '/images/x.svg',
 }
 
 export const buttons: { [key: string]: string } = {

@@ -30,6 +30,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.Use(TokenMiddleware)
 	router.Use(LoggingMiddleware)
 	// Authenticated endpoints
+	router.GET("/meeting_banner/", handlers.MeetingBanner)
 	router.GET("/linked_accounts/", handlers.LinkedAccountsList)
 	router.GET("/linked_accounts/supported_types/", handlers.SupportedAccountTypesList)
 	router.DELETE("/linked_accounts/:account_id/", handlers.DeleteLinkedAccount)

@@ -1,12 +1,14 @@
 import { Colors, Spacing, Typography } from '../../styles'
 import styled from 'styled-components'
 import React from 'react'
+import { INPUT_VARIABLE_DEFAULT_LINE_HEIGHT } from '../../styles/dimensions'
 
 const DetailsViewContainer = styled.div`
+    flex: 1;
     display: flex;
     flex-direction: column;
     background-color: ${Colors.gray._50};
-    width: 640px;
+    min-width: 300px;
     margin-top: ${Spacing.margin._24}px;
     padding: ${Spacing.padding._16}px;
 `
@@ -41,6 +43,7 @@ export const TitleInput = styled.textarea`
     :focus {
         outline: 1px solid ${Colors.gray._500};
     }
+    height: ${INPUT_VARIABLE_DEFAULT_LINE_HEIGHT}px;
 `
 export const Title = styled.div`
     background-color: inherit;

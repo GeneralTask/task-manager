@@ -1,16 +1,12 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { MESSAGES_REFETCH_INTERVAL } from '../../constants'
 import { SectionHeader } from '../molecules/Header'
-import { useInterval } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { useFetchMessages, useGetInfiniteThreads } from '../../services/api-query-hooks'
 import Loading from '../atoms/Loading'
 import Thread from '../molecules/Thread'
 import ThreadDetails from '../details/ThreadDetails'
-import { setSelectedItemId } from '../../redux/tasksPageSlice'
-import { useAppDispatch } from '../../redux/hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import ThreadTemplate from '../atoms/ThreadTemplate'
 
@@ -18,12 +14,14 @@ const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
     padding-right: 10px;
     padding-bottom: 100px;
-    overflow: auto;
-    flex: 1;
+    overflow-y: auto;
+    margin-right: auto;
+    flex-shrink: 0;
 `
 const MessagesContainer = styled.div`
     border-radius: ${Border.radius.large};
     background-color: ${Colors.gray._100};
+    width: 480px;
 `
 const MessageDivider = styled.div`
     border-bottom: 1px solid ${Colors.gray._200};
@@ -34,11 +32,15 @@ const MessageDivider = styled.div`
 
 const MessagesView = () => {
     const navigate = useNavigate()
-    const dispatch = useAppDispatch()
     const params = useParams()
-    const { refetch: refetchMessages } = useFetchMessages()
-    const { data, isLoading, isFetching, fetchNextPage } = useGetInfiniteThreads()
-    useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
+    const { refetch: refetchMessages, isFetching: isRefetchingMessages } = useFetchMessages()
+    const {
+        data,
+        isLoading: isLoadingThreads,
+        isFetching: isFetchingThreads,
+        fetchNextPage,
+        refetch: getThreads,
+    } = useGetInfiniteThreads()
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
 
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
@@ -51,11 +53,6 @@ const MessagesView = () => {
         return undefined
     }, [params.thread, threads])
 
-    useLayoutEffect(() => {
-        if (expandedThread) {
-            dispatch(setSelectedItemId(expandedThread.id))
-        }
-    }, [expandedThread])
     useEffect(() => {
         if (expandedThread) {
             navigate(`/messages/${expandedThread.id}`)
@@ -65,7 +62,7 @@ const MessagesView = () => {
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
         (node) => {
-            if (isLoading || isFetching) return
+            if (isLoadingThreads || isFetchingThreads) return
             if (observer.current) observer.current.disconnect()
             observer.current = new IntersectionObserver((entries) => {
                 if (entries[0].isIntersecting && data && data.pages[data.pages.length - 1]?.length > 0) {
@@ -74,13 +71,21 @@ const MessagesView = () => {
             })
             if (node) observer.current.observe(node)
         },
-        [isLoading, isFetching]
+        [isLoadingThreads, isFetchingThreads]
     )
 
     return (
         <>
             <ScrollViewMimic ref={sectionScrollingRef}>
-                <SectionHeader sectionName="Messages" allowRefresh={true} refetch={refetchMessages} />
+                <SectionHeader
+                    sectionName="Messages"
+                    allowRefresh={true}
+                    refetch={() => {
+                        refetchMessages()
+                        getThreads()
+                    }}
+                    isRefetching={isRefetchingMessages || isFetchingThreads}
+                />
                 <MessagesContainer>
                     {threads.map((thread, index) => (
                         <div key={thread.id}>
@@ -91,7 +96,7 @@ const MessagesView = () => {
                         </div>
                     ))}
                 </MessagesContainer>
-                {(isLoading || isFetching) && (
+                {(isLoadingThreads || isFetchingThreads) && (
                     <div>
                         <Loading />
                     </div>

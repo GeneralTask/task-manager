@@ -1,6 +1,5 @@
 import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
-import React, { useEffect, useState } from 'react'
-
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import ActionOption from '../molecules/ActionOption'
 import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
@@ -59,7 +58,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
     }, [])
 
     // Update the state when the task changes
-    useEffect(() => {
+    useLayoutEffect(() => {
         setTask(props.task)
         setTitleInput(props.task.title)
         setBodyInput(props.task.body)
@@ -72,7 +71,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
         }
     }, [props.task])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (titleRef.current) {
             titleRef.current.style.height = '0px'
             titleRef.current.style.height =

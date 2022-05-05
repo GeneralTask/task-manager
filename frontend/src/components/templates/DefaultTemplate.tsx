@@ -15,6 +15,7 @@ const DefaultTemplateContainer = styled.div`
 interface DefaultTemplateProps {
     children: React.ReactNode
 }
+
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
     return (
         <DefaultTemplateContainer>
