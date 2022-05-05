@@ -23,11 +23,9 @@ const OptionsContainer = styled.div`
     overflow: auto;
     max-height: 500px;
 `
-const TopNav = styled.div`
+const TitleContainer = styled.div`
     padding: ${Spacing.padding._12}px ${Spacing.padding._16}px;
     border-bottom: 1px solid ${Colors.gray._100};
-`
-const Header = styled.div`
     color: ${Colors.gray._600};
 `
 const ListItem = styled.div`
@@ -83,11 +81,7 @@ const GTSelect = ({ options, onClose, title, parentRef }: GTSelectProps) => {
     return (
         <PositionRelative>
             <SelectContainer ref={selectRef} onClick={(e) => e.stopPropagation()}>
-                {title && (
-                    <TopNav>
-                        <Header>{title}</Header>
-                    </TopNav>
-                )}
+                {title && <TitleContainer>{title}</TitleContainer>}
                 <OptionsContainer>{optionsList}</OptionsContainer>
             </SelectContainer>
         </PositionRelative>
