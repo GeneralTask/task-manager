@@ -88,4 +88,4 @@ const GTSelect = ({ options, onClose, title, parentRef }: GTSelectProps) => {
     )
 }
 
-export default GTSelect
+export default React.memo(GTSelect)
