@@ -88,7 +88,7 @@ interface DetailsTemplateProps {
 
 const DetailsTemplate = (props: DetailsTemplateProps) => {
     return (
-        <DetailsViewContainer>
+        <DetailsViewContainer data-testid="details-view-container">
             <DetailsTopContainer>{props.top}</DetailsTopContainer>
             <TaskTitleContainer>{props.title}</TaskTitleContainer>
             {props.subtitle}
