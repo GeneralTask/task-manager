@@ -4,9 +4,6 @@ describe('user can edit a task body', () => {
         cy.visit('/')
         cy.acceptTermsOfService()
     })
-    beforeEach(() => {
-        Cypress.Cookies.preserveOnce('authToken')
-    })
     it('select a task', () => {
         // Intercept task modify request
         cy.intercept('PATCH', '/tasks/modify/*').as('modifyTaskBodyMutation')
