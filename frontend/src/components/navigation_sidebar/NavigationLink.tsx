@@ -7,7 +7,6 @@ import { useAppDispatch } from '../../redux/hooks'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import { useReorderTask } from '../../services/api-query-hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import { LINK_CONTAINER_WIDTH } from '../../styles/dimensions'
 import { margin } from '../../styles/spacing'
 import { weight } from '../../styles/typography'
 import { ItemTypes, TTaskSection } from '../../utils/types'
@@ -20,12 +19,13 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     flex-direction: row;
     align-items: center;
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
-    width: ${LINK_CONTAINER_WIDTH};
+    width: 100%;
     border-radius: ${Border.radius.small};
     border-width: 2px;
     border-style: solid;
     border-color: ${(props) => (props.isOver ? Colors.gray._300 : 'transparent')};
     ${(props) => props.isSelected && `background-color: ${Colors.gray._50};`};
+    box-sizing: border-box;
 `
 const SectionTitle = styled.span<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};
