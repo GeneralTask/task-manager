@@ -1,5 +1,5 @@
 import { Border, Colors, Images, Spacing, Typography } from '../../styles'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState, TRecipients } from '../../utils/types'
 
 import EmailCompose from './EmailCompose/EmailCompose'
@@ -110,6 +110,27 @@ const EmailTemplate = (props: EmailTemplateProps) => {
         setShowEmailActions((show) => !show)
     }, [])
 
+    const emailActionOptions = useMemo(
+        () => [
+            {
+                item: (
+                    <EmailActionContainer>
+                        <Icon size="medium" source={Images.icons.reply} />
+                        Reply
+                    </EmailActionContainer>
+                ),
+                onClick: () => {
+                    console.log('hi')
+                    props.setThreadComposeState({
+                        emailComposeType: EmailComposeType.REPLY,
+                        emailId: props.email.message_id,
+                    })
+                },
+            },
+        ],
+        [props.email.message_id]
+    )
+
     return (
         <DetailsViewContainer>
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -127,23 +148,7 @@ const EmailTemplate = (props: EmailTemplateProps) => {
                         </IconButton>
                         {showEmailActions && (
                             <GTSelect
-                                options={[
-                                    {
-                                        item: (
-                                            <EmailActionContainer>
-                                                <Icon size="medium" source={Images.icons.reply} />
-                                                Reply
-                                            </EmailActionContainer>
-                                        ),
-                                        onClick: () => {
-                                            console.log('hi')
-                                            props.setThreadComposeState({
-                                                emailComposeType: EmailComposeType.REPLY,
-                                                emailId: props.email.message_id,
-                                            })
-                                        },
-                                    },
-                                ]}
+                                options={emailActionOptions}
                                 onClose={() => setShowEmailActions(false)}
                                 parentRef={emailActionsRef}
                             />

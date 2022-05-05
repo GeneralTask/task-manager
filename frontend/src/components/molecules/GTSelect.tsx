@@ -54,13 +54,13 @@ const PositionRelative = styled.div`
     position: relative;
 `
 
-interface Option {
+interface GTSelectOption {
     item: ReactChild
     onClick: () => void
 }
 
 interface GTSelectProps {
-    options: Option[]
+    options: GTSelectOption[]
     onClose: () => void
     title?: ReactChild
     parentRef?: React.RefObject<HTMLElement> // pass this in to exclude parent from click outside
