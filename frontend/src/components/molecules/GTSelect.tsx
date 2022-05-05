@@ -50,35 +50,36 @@ const SectionTitleBox = styled.div`
     color: ${Colors.gray._600};
     min-width: 0;
 `
-const SectionName = styled.span`
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: left;
-`
 const PositionRelative = styled.div`
     position: relative;
 `
 
+interface Option {
+    item: ReactChild
+    onClick: () => void
+}
+
 interface GTSelectProps {
-    options: ReactChild[]
+    options: Option[]
     onClose: () => void
     title?: ReactChild
     parentRef?: React.RefObject<HTMLElement> // pass this in to exclude parent from click outside
 }
 const GTSelect = ({ options, onClose, title, parentRef }: GTSelectProps) => {
     const selectRef = useRef(null)
-    useClickOutside(parentRef ?? selectRef, onClose)
-    const optionsList = options.map((option, index) => {
-        return (
-            <ListItem key={index} tabIndex={0} onClick={onClose}>
-                <SectionTitleBox>
-                    <SectionName>{option}</SectionName>
-                </SectionTitleBox>
-            </ListItem>
-        )
-    })
+    useClickOutside(selectRef, onClose)
+    const optionsList = options.map((option, index) => (
+        <ListItem
+            key={index}
+            tabIndex={0}
+            onClick={() => {
+                option.onClick()
+                onClose()
+            }}
+        >
+            <SectionTitleBox>{option.item}</SectionTitleBox>
+        </ListItem>
+    ))
     return (
         <PositionRelative>
             <LabelEditorContainer ref={selectRef} onClick={(e) => e.stopPropagation()}>

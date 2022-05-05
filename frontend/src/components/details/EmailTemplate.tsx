@@ -63,13 +63,20 @@ const Title = styled.div`
 const Flex = styled.div`
     display: flex;
 `
+const EmailActionContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing.padding._8}px;
+`
 const IconButton = styled(NoStyleButton)`
     border-radius: ${Border.radius.xxSmall};
     position: relative;
+    padding: ${Spacing.padding._4}px;
     &:hover {
         background-color: ${Colors.gray._200};
     }
 `
+
 interface EmailTemplateProps {
     email: TEmail
     timeSent?: string
@@ -120,7 +127,23 @@ const EmailTemplate = (props: EmailTemplateProps) => {
                         </IconButton>
                         {showEmailActions && (
                             <GTSelect
-                                options={['hi', 'there']}
+                                options={[
+                                    {
+                                        item: (
+                                            <EmailActionContainer>
+                                                <Icon size="medium" source={Images.icons.reply} />
+                                                Reply
+                                            </EmailActionContainer>
+                                        ),
+                                        onClick: () => {
+                                            console.log('hi')
+                                            props.setThreadComposeState({
+                                                emailComposeType: EmailComposeType.REPLY,
+                                                emailId: props.email.message_id,
+                                            })
+                                        },
+                                    },
+                                ]}
                                 onClose={() => setShowEmailActions(false)}
                                 parentRef={emailActionsButtonRef}
                             />
