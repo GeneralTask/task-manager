@@ -66,7 +66,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
             titleRef.current.style.height =
                 titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
         }
-    }, [titleInput, props.task])
+    }, [titleInput])
 
     useEffect(() => {
         ReactTooltip.rebuild()
