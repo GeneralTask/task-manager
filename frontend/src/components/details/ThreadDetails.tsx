@@ -63,8 +63,6 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         )
     )
 
-    console.log({ composeState })
-
     return (
         <FlexColumnContainer>
             {thread && (
