@@ -7,6 +7,7 @@ import { Icon } from '../atoms/Icon'
 import { SectionHeader } from '../molecules/Header'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
+import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 
 const AUTH_WINDOW_WIDTH = 960
 const AUTH_WINDOW_HEIGHT = 640
@@ -16,6 +17,7 @@ const ScrollViewMimic = styled.div`
 `
 const SettingsViewContainer = styled.div`
     font-family: Switzer-Variable;
+    min-width: ${DEFAULT_VIEW_WIDTH};
 `
 const AccountsContainer = styled.div`
     margin-top: ${Spacing.margin._16}px;
@@ -42,6 +44,7 @@ const UnlinkContainer = styled.div`
     background-color: ${Colors.gray._100};
     border-radius: ${Border.radius.small};
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+    min-width: fit-content;
 `
 const XSmallFontSpan = styled.span`
     font-size: ${Typography.xSmall.fontSize};
