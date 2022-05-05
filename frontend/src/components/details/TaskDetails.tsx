@@ -84,7 +84,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
             if (timers.current[taskId]) clearTimeout(timers.current[taskId].timeout)
             modifyTask({ id: taskId, title, body })
         },
-        [task.id, titleRef.current, bodyRef.current, modifyTask]
+        [task.id, modifyTask]
     )
 
     const onEdit = useCallback(
