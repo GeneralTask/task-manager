@@ -5,7 +5,7 @@ import { radius } from '../../styles/border'
 import styled from 'styled-components'
 import { useClickOutside } from '../../hooks'
 
-const LabelEditorContainer = styled.div`
+const SelectContainer = styled.div`
     display: flex;
     flex-direction: column;
     width: ${Dimensions.TASK_ACTION_WIDTH};
@@ -82,14 +82,14 @@ const GTSelect = ({ options, onClose, title, parentRef }: GTSelectProps) => {
     ))
     return (
         <PositionRelative>
-            <LabelEditorContainer ref={selectRef} onClick={(e) => e.stopPropagation()}>
+            <SelectContainer ref={selectRef} onClick={(e) => e.stopPropagation()}>
                 {title && (
                     <TopNav>
                         <Header>{title}</Header>
                     </TopNav>
                 )}
                 <OptionsContainer>{optionsList}</OptionsContainer>
-            </LabelEditorContainer>
+            </SelectContainer>
         </PositionRelative>
     )
 }
