@@ -12,11 +12,10 @@ describe('user can edit a task body', () => {
         cy.intercept('PATCH', '/tasks/modify/*').as('modifyTaskBodyMutation')
 
         // select one task
-        cy.findByText(/Try creating a task above!/i).click()
+        cy.findAllByTestId('list-item').first().click()
 
         // make sure detail view has opened
         cy.findByTestId('details-view-container').should('be.visible')
-        cy.findAllByText(/Try creating a task above!/i).should('have.length', 2)
 
         // edit the task body
         cy.findByTestId('task-body-input').clear().type('new task body')
