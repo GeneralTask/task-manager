@@ -688,7 +688,7 @@ const getLinkedAccounts = async () => {
 }
 
 export const useGetSupportedTypes = () => {
-    return useQuery<TSupportedType[]>([], getSupportedTypes)
+    return useQuery<TSupportedType[]>('supported_types', getSupportedTypes)
 }
 const getSupportedTypes = async () => {
     try {
