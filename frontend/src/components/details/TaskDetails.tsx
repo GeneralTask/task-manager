@@ -132,6 +132,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
             title={
                 <TitleInput
                     ref={titleRef}
+                    data-testid="task-title-input"
                     onKeyDown={handleKeyDown}
                     value={titleInput}
                     onChange={(e) => {
@@ -146,6 +147,7 @@ const TaskDetails = (props: TaskDetailsProps) => {
                 ) : (
                     <BodyTextArea
                         ref={bodyRef}
+                        data-testid="task-body-input"
                         placeholder="Add task details"
                         value={bodyInput}
                         onChange={(e) => {
