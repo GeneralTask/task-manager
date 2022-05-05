@@ -9,6 +9,7 @@ import Thread from '../molecules/Thread'
 import ThreadDetails from '../details/ThreadDetails'
 import { Border, Colors, Spacing } from '../../styles'
 import ThreadTemplate from '../atoms/ThreadTemplate'
+import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -21,7 +22,7 @@ const ScrollViewMimic = styled.div`
 const MessagesContainer = styled.div`
     border-radius: ${Border.radius.large};
     background-color: ${Colors.gray._100};
-    width: 480px;
+    width: ${DEFAULT_VIEW_WIDTH};
 `
 const MessageDivider = styled.div`
     border-bottom: 1px solid ${Colors.gray._200};
