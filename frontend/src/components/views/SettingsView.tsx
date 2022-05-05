@@ -8,6 +8,7 @@ import { SectionHeader } from '../molecules/Header'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import { openAuthWindow } from '../../utils/auth'
+import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -15,6 +16,7 @@ const ScrollViewMimic = styled.div`
 `
 const SettingsViewContainer = styled.div`
     font-family: Switzer-Variable;
+    min-width: ${DEFAULT_VIEW_WIDTH};
 `
 const AccountsContainer = styled.div`
     margin-top: ${Spacing.margin._16}px;
@@ -41,6 +43,7 @@ const AccountButtonContainer = styled.div<{ important?: boolean }>`
     color: ${Colors.black};
     border-radius: ${Border.radius.small};
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+    min-width: fit-content;
 `
 const XSmallFontSpan = styled.span`
     font-size: ${Typography.xSmall.fontSize};

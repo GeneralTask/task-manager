@@ -87,9 +87,9 @@ export const BodyContainer = styled.div`
 `
 export const AddEmailRecipientsContainer = styled.div`
     display: flex;
-    align-items: end;
+    align-items: center;
     margin-left: auto;
-    padding: ${Spacing.padding._8}px;
+    padding: 0 ${Spacing.padding._8}px;
     gap: ${Spacing.margin._4}px;
 `
 export const AddEmailRecipientsButton = styled(NoStyleButton)`

@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+*.pyc
 
 # Binaries built with air https://github.com/cosmtrek/air
 backend/tmp
