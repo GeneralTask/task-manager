@@ -108,7 +108,7 @@ func getLinearAccountID(token *oauth2.Token, overrideURL *string) string {
 		log.Error().Err(err).Interface("query", query).Msg("could not execute query")
 		return "" // TODO: maybe add a placeholder instead of empty string
 	}
-	log.Debug().Msgf("%+v", query)
+	log.Debug().Interface("query", query).Send()
 	return string(query.Viewer.Email)
 }
 
