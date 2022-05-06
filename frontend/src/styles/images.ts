@@ -8,6 +8,7 @@ export const logos: { [key: string]: string } = {
     gmail_gray: '/images/gmail_gray.png',
     gcal: '/images/gcal.png',
     gcal_gray: '/images/gcal_gray.png',
+    linear: '/images/linear.png',
     slack: '/images/slack.png',
 }
 
