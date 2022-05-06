@@ -22,3 +22,21 @@ describe('user can create a new General Task task', () => {
         cy.findAllByTestId('list-item').first().should('contain', 'New task')
     })
 })
+
+describe('user cannot create new General Task task without title', () => {
+    before('login the user', () => {
+        cy.login()
+        cy.visit('/')
+        cy.acceptTermsOfService()
+    })
+    beforeEach(() => {
+        Cypress.Cookies.preserveOnce('authToken')
+    })
+    it('clicking "enter" in the input field should not create a new task', () => {
+        cy.intercept('POST', '/tasks/create/gt_task/', () => {
+            throw new Error('Create new task request should not be sent')
+        })
+        cy.findByPlaceholderText('Add new task').type('{enter}')
+        cy.findAllByTestId('list-item').should('have.length', 3)
+    })
+})
