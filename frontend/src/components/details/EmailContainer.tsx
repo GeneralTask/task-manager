@@ -78,7 +78,7 @@ const IconButton = styled(NoStyleButton)`
     }
 `
 
-interface EmailTemplateProps {
+interface EmailContainerProps {
     email: TEmail
     timeSent?: string
     isCollapsed: boolean
@@ -88,7 +88,7 @@ interface EmailTemplateProps {
     showMainActions: boolean
 }
 
-const EmailTemplate = (props: EmailTemplateProps) => {
+const EmailContainer = (props: EmailContainerProps) => {
     const [isCollapsed, setIsCollapsed] = useState(!!props.isCollapsed)
     const [showEmailActions, setShowEmailActions] = useState(false)
 
@@ -178,4 +178,4 @@ const EmailTemplate = (props: EmailTemplateProps) => {
     )
 }
 
-export default EmailTemplate
+export default EmailContainer
