@@ -1,9 +1,10 @@
 import { EmailActionButton, EmailActionButtonContainer, FullWidth } from './EmailCompose-styles'
-import React from 'react'
-import { TEmailComposeState } from '../../../utils/types'
+
+import { EmailComposeType } from '../../../utils/enums'
 import { Icon } from '../../atoms/Icon'
 import { Images } from '../../../styles'
-import { EmailComposeType } from '../../../utils/enums'
+import React from 'react'
+import { TEmailComposeState } from '../../../utils/types'
 
 interface EmailMainActionsProps {
     emailId: string
@@ -17,7 +18,7 @@ const EmailMainActions = ({ emailId, setThreadComposeState }: EmailMainActionsPr
                     onClick={() => {
                         setThreadComposeState({
                             emailComposeType: EmailComposeType.REPLY,
-                            emailId: emailId,
+                            emailId,
                         })
                     }}
                 >

@@ -15,6 +15,7 @@ import { getSectionById } from '../../utils/task'
 import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
+import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;
@@ -35,7 +36,7 @@ const TaskSectionViewContainer = styled.div`
     flex-direction: column;
     padding-top: 0;
     background-color: ${Colors.gray._50};
-    width: 480px;
+    width: ${DEFAULT_VIEW_WIDTH};
 `
 const TasksContainer = styled.div`
     display: flex;

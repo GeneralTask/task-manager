@@ -8,6 +8,7 @@ export const logos: { [key: string]: string } = {
     gmail_gray: '/images/gmail_gray.png',
     gcal: '/images/gcal.png',
     gcal_gray: '/images/gcal_gray.png',
+    linear: '/images/linear.png',
     slack: '/images/slack.png',
 }
 
@@ -40,7 +41,7 @@ export const icons: { [key: string]: string } = {
     task_incomplete: '/images/task_incomplete.png',
     timer: '/images/timer.png',
     trash: '/images/trash.png',
-    verticalDots: '/images/vertical_dots.svg',
+    skinnyHamburger: '/images/vertical_dots.svg',
     x: '/images/x.svg',
 }
 

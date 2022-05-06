@@ -1,3 +1,4 @@
+import { DEFAULT_MESSAGE_ID, DEFAULT_SENDER, DEFAULT_SUBJECT } from '../constants/emailConstants'
 import { MESSAGES_PER_PAGE, TASK_MARK_AS_DONE_TIMEOUT, TASK_SECTION_DEFAULT_ID } from '../constants'
 import {
     TAddTaskSectionData,
@@ -33,7 +34,6 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-q
 import { DateTime } from 'luxon'
 import apiClient from '../utils/api'
 import { getMonthsAroundDate } from '../utils/time'
-import { DEFAULT_MESSAGE_ID, DEFAULT_SENDER, DEFAULT_SUBJECT } from '../constants/emailConstants'
 
 /**
  * TASKS QUERIES
@@ -543,9 +543,6 @@ export const useComposeMessage = () => {
             )
             if (!thread) return
 
-            const emailIndex = thread.emails.findIndex(email => email.message_id === data.message_id)
-            if (emailIndex === -1) return
-
             const tempEmail: TEmail = {
                 message_id: DEFAULT_MESSAGE_ID,
                 subject: data.subject || DEFAULT_SUBJECT,
@@ -559,7 +556,7 @@ export const useComposeMessage = () => {
                 },
                 recipients: data.recipients,
             }
-            thread.emails.splice(emailIndex + 1, 0, tempEmail)
+            thread.emails.push(tempEmail)
 
             queryClient.setQueryData('emailthreads', response)
         },
@@ -688,7 +685,7 @@ const getLinkedAccounts = async () => {
 }
 
 export const useGetSupportedTypes = () => {
-    return useQuery<TSupportedType[]>([], getSupportedTypes)
+    return useQuery<TSupportedType[]>('supported_types', getSupportedTypes)
 }
 const getSupportedTypes = async () => {
     try {

@@ -72,7 +72,7 @@ const EmailCompose = (props: EmailComposeProps) => {
     )
 
     return (
-        <EmailComposeContainer>
+        <EmailComposeContainer ref={(node) => node?.scrollIntoView()}>
             <EmailRecipientsInput recipients={recipients} setRecipients={setRecipients} />
             <SubjectContainer>
                 <SubjectInput
