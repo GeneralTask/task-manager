@@ -43,7 +43,7 @@ func TestCalendar(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:    0,
 				IDExternal:    "standard_event",
-				IDTaskSection: constants.IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				Deeplink:      "generaltask.com&authuser=exampleAccountID",
 				Title:         "Standard Event",
 				Body:          "event <strong>description</strong>",
@@ -136,7 +136,7 @@ func TestCalendar(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      1,
 				IDExternal:      "standard_event",
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				Deeplink:        "generaltask.com&authuser=exampleAccountID",
 				Title:           "Standard Event",
 				Body:            "old description",
@@ -234,7 +234,7 @@ func TestCalendar(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      1,
 				IDExternal:      "standard_event",
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				Deeplink:        "generaltask.com&authuser=exampleAccountID",
 				Title:           "Standard Event",
 				SourceID:        TASK_SOURCE_ID_GCAL,
@@ -336,7 +336,7 @@ func TestCalendar(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:    0,
 				IDExternal:    "standard_event",
-				IDTaskSection: constants.IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				Deeplink:      "generaltask.com&authuser=exampleAccountID",
 				Title:         "Standard Event",
 				SourceID:      TASK_SOURCE_ID_GCAL,

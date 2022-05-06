@@ -65,7 +65,7 @@ func (generalTask GeneralTaskTaskSource) SendEmail(userID primitive.ObjectID, ac
 }
 
 func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	taskSection := constants.IDTaskSectionToday
+	taskSection := constants.IDTaskSectionDefault
 	if task.IDTaskSection != primitive.NilObjectID {
 		taskSection = task.IDTaskSection
 	}
