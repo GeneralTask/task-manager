@@ -1,4 +1,4 @@
-import { EmailActionButton, EmailActionButtonContainer, EmailMainActionsContainer } from './EmailCompose-styles'
+import { EmailActionButton, EmailActionButtonContainer, Flex } from './EmailCompose-styles'
 import { TEmail, TEmailComposeState } from '../../../utils/types'
 
 import { EmailComposeType } from '../../../utils/enums'
@@ -13,7 +13,7 @@ interface EmailMainActionsProps {
 const EmailMainActions = ({ email, setThreadComposeState }: EmailMainActionsProps) => {
     const numRecipients = email.recipients.to.length + email.recipients.cc.length + email.recipients.bcc.length
     return (
-        <EmailMainActionsContainer>
+        <Flex>
             <EmailActionButtonContainer>
                 <EmailActionButton
                     onClick={() => {
@@ -40,7 +40,7 @@ const EmailMainActions = ({ email, setThreadComposeState }: EmailMainActionsProp
                     </EmailActionButton>
                 </EmailActionButtonContainer>
             )}
-        </EmailMainActionsContainer>
+        </Flex>
     )
 }
 

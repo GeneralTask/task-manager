@@ -101,6 +101,6 @@ export const AddEmailRecipientsButton = styled(NoStyleButton)`
 export const FlexExpand = styled.div`
     flex: 1;
 `
-export const EmailMainActionsContainer = styled(FullWidth)`
+export const Flex = styled(FullWidth)`
     display: flex;
 `
