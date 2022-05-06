@@ -23,7 +23,6 @@ type LinearConfigValues struct {
 	TaskUpdateURL *string
 }
 
-// LinearConfig ...
 type LinearConfig struct {
 	OauthConfig  OauthConfigWrapper
 	ConfigValues LinearConfigValues
@@ -32,11 +31,6 @@ type LinearConfig struct {
 type LinearService struct {
 	Config LinearConfig
 }
-
-//type LinearService struct {
-//	Config       OauthConfigWrapper
-//	ConfigValues LinearConfigValues
-//}
 
 func (linear LinearService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
 	authURL := linear.Config.OauthConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
@@ -156,24 +150,6 @@ func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.O
 func getLinearHttpClient(db *mongo.Database, userID primitive.ObjectID, accountID string) *http.Client {
 	return getExternalOauth2Client(db, userID, accountID, TASK_SERVICE_ID_LINEAR, getLinearOauthConfig())
 }
-
-//
-//func getLinearConfig() *LinearConfig {
-//	return &LinearConfig{
-//		Config:       getLinearOauthConfig(),
-//		ConfigValues: LinearConfigValues{},
-//	}
-//	return &OauthConfig{Config: &oauth2.Config{
-//		ClientID:     config.GetConfigValue("LINEAR_OAUTH_CLIENT_ID"),
-//		ClientSecret: config.GetConfigValue("LINEAR_OAUTH_CLIENT_SECRET"),
-//		RedirectURL:  config.GetConfigValue("SERVER_URL") + "link/linear/callback/",
-//		Scopes:       []string{"read", "write"},
-//		Endpoint: oauth2.Endpoint{
-//			AuthURL:  "https://linear.app/oauth/authorize",
-//			TokenURL: "https://api.linear.app/oauth/token",
-//		},
-//	}}
-//}
 
 func getLinearOauthConfig() *OauthConfig {
 	return &OauthConfig{Config: &oauth2.Config{
