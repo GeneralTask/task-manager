@@ -5,15 +5,10 @@ import styled from 'styled-components'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
 import { removeHTMLTags, getHumanDateTime } from '../../utils/utils'
-import { Icon } from '../atoms/Icon'
 import ThreadContainer from './ThreadContainer'
 
-const IconContainer = styled.div`
-    margin-left: ${Spacing.margin._8}px;
-`
 const TitleContainer = styled.div`
     display: flex;
     flex-direction: column;
