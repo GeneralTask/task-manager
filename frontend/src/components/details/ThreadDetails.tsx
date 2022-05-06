@@ -14,7 +14,6 @@ const FlexColumnContainer = styled.div`
     display: flex;
     flex-direction: column;
     min-width: 300px;
-    overflow-y: auto;
 `
 const HeaderContainer = styled.div`
     flex: 0;
@@ -23,6 +22,7 @@ const HeaderContainer = styled.div`
     padding: ${Spacing.padding._16}px;
     align-items: center;
     background-color: ${Colors.white};
+    position: sticky;
 `
 const HeaderTitleContainer = styled.div`
     display: flex;
@@ -43,6 +43,11 @@ const Title = styled.span`
 const SubTitle = styled(Title)`
     font-size: ${Typography.xSmall.fontSize};
     color: ${Colors.gray._400};
+`
+const EmailThreadsContainer = styled.div`
+    flex: 1;
+    overflow-y: auto;
+    min-width: 0;
 `
 
 interface ThreadDetailsProps {
@@ -80,21 +85,23 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
                         </HeaderTitleContainer>
                     </HeaderContainer>
-                    {thread.emails.map((email, index) => (
-                        <EmailContainer
-                            email={email}
-                            ref={index === thread.emails.length - 1 ? lastEmailScrollingRef : null}
-                            key={email.message_id}
-                            timeSent={getHumanDateTime(DateTime.fromISO(email.sent_at))}
-                            isCollapsed={index !== thread.emails.length - 1}
-                            composeType={
-                                email.message_id === composeState.emailId ? composeState.emailComposeType : null
-                            }
-                            setThreadComposeState={setComposeState}
-                            sourceAccountId={thread.source.account_id}
-                            showMainActions={index === thread.emails.length - 1}
-                        />
-                    ))}
+                    <EmailThreadsContainer>
+                        {thread.emails.map((email, index) => (
+                            <EmailContainer
+                                email={email}
+                                ref={index === thread.emails.length - 1 ? lastEmailScrollingRef : null}
+                                key={email.message_id}
+                                timeSent={getHumanDateTime(DateTime.fromISO(email.sent_at))}
+                                isCollapsed={index !== thread.emails.length - 1}
+                                composeType={
+                                    email.message_id === composeState.emailId ? composeState.emailComposeType : null
+                                }
+                                setThreadComposeState={setComposeState}
+                                sourceAccountId={thread.source.account_id}
+                                showMainActions={index === thread.emails.length - 1}
+                            />
+                        ))}
+                    </EmailThreadsContainer>
                 </>
             )}
         </FlexColumnContainer>
