@@ -16,7 +16,7 @@ describe('user can mark as task as done', () => {
             cy.get('button').find('img').should('have.attr', 'src', '/images/task_complete.png')
         })
         cy.wait('@markTaskDoneMutation').then(({ response }) => {
-            expect(response.statusCode).to.eq(200)
+            expect(response?.statusCode).to.eq(200)
         })
     })
     it('task appears in done section', () => {
