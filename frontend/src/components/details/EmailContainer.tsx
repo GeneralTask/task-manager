@@ -78,7 +78,7 @@ const IconButton = styled(NoStyleButton)`
     }
 `
 
-interface EmailTemplateProps {
+interface EmailContainerProps {
     email: TEmail
     timeSent?: string
     isCollapsed: boolean
@@ -88,7 +88,7 @@ interface EmailTemplateProps {
     showMainActions: boolean
 }
 
-const EmailTemplate = React.forwardRef<HTMLDivElement, EmailTemplateProps>((props, ref) => {
+const EmailContainer = React.forwardRef<HTMLDivElement, EmailContainerProps>((props, ref) => {
     const [isCollapsed, setIsCollapsed] = useState(!!props.isCollapsed)
     const [showEmailActions, setShowEmailActions] = useState(false)
 
@@ -178,4 +178,4 @@ const EmailTemplate = React.forwardRef<HTMLDivElement, EmailTemplateProps>((prop
     )
 })
 
-export default EmailTemplate
+export default EmailContainer

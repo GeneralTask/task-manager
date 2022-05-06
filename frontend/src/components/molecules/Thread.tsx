@@ -105,9 +105,6 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
 
     return (
         <ThreadContainer ref={elementRef} isSelected={isSelected} onClick={onClickHandler}>
-            <IconContainer>
-                <Icon source={logos[thread.source.logo_v2]} size="small" />
-            </IconContainer>
             <TitleContainer>
                 <Title>{senders}</Title>
                 <SubTitle>{title}</SubTitle>
