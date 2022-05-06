@@ -21,4 +21,4 @@ jobs:
       - name: Install
         run: yarn add --dev @typescript-eslint/eslint-plugin@latest
       - name: Run ESLint
-        run: eslint . --ext .ts,.tsx --max-warnings=0
+        run: yarn run eslint . --ext .ts,.tsx --max-warnings=0
