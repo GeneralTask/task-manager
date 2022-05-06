@@ -13,14 +13,13 @@ export function stripSubjectPrefix(subject: string): string {
     return subject
 }
 
-const composeTypeToPrefix = new Map<EmailComposeType | null, string>([
+const composeTypeToPrefix = new Map<EmailComposeType, string>([
     [EmailComposeType.REPLY, 'Re: '],
     [EmailComposeType.REPLY_ALL, 'Re: '],
     [EmailComposeType.FORWARD, 'Fwd: '],
-    [null, ''],
 ])
 
-export function attachSubjectPrefix(subject: string, composeType: EmailComposeType | null): string {
+export function attachSubjectPrefix(subject: string, composeType: EmailComposeType): string {
     const prefix = composeTypeToPrefix.get(composeType)
     return prefix + subject
 }
