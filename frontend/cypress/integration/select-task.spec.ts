@@ -6,7 +6,7 @@ describe('selecting a task open the details view', () => {
         cy.visit('/')
         cy.acceptTermsOfService()
     })
-    it('clicking on a task should show its associated details view', () => {
+    it('clicking on a task should show its respective details view', () => {
         // iterate over the tasks and click on each one
         cy.findAllByTestId('list-item').each(($el) => {
             cy.wrap($el).click()
