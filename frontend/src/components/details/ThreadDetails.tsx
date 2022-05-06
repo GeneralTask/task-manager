@@ -5,7 +5,7 @@ import { TEmailComposeState, TEmailThread } from '../../utils/types'
 import { DateTime } from 'luxon'
 import EmailTemplate from './EmailTemplate'
 import { Icon } from '../atoms/Icon'
-import { getHumanTimeSinceDateTime } from '../../utils/utils'
+import { getHumanDateTime } from '../../utils/utils'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 
@@ -78,7 +78,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         <EmailTemplate
                             email={email}
                             key={email.message_id}
-                            timeSent={getHumanTimeSinceDateTime(DateTime.fromISO(email.sent_at))}
+                            timeSent={getHumanDateTime(DateTime.fromISO(email.sent_at))}
                             isCollapsed={index !== thread.emails.length - 1}
                             composeType={
                                 email.message_id === composeState.emailId ? composeState.emailComposeType : null
