@@ -40,7 +40,6 @@ export function getInitialRecipients(email: TEmail, composeType: EmailComposeTyp
         default:
             initialToRecipients = []
     }
-    console.log({ initialToRecipients, composeType })
     return {
         to: initialToRecipients.map(email => ({ email, name: '' })),
         cc: [],
