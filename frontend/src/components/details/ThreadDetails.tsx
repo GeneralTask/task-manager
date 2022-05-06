@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import { DateTime } from 'luxon'
-import EmailTemplate from './EmailTemplate'
+import EmailContainer from './EmailContainer'
 import { Icon } from '../atoms/Icon'
 import { getHumanDateTime } from '../../utils/utils'
 import { logos } from '../../styles/images'
@@ -75,7 +75,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         </HeaderTitleContainer>
                     </HeaderContainer>
                     {thread.emails.map((email, index) => (
-                        <EmailTemplate
+                        <EmailContainer
                             email={email}
                             key={email.message_id}
                             timeSent={getHumanDateTime(DateTime.fromISO(email.sent_at))}
