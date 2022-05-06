@@ -32,9 +32,11 @@ type Config struct {
 	Slack                 OauthConfigWrapper
 	Trello                *oauth1.Config
 	Asana                 OauthConfigWrapper
-	Linear                OauthConfigWrapper
-	GoogleOverrideURLs    GoogleURLOverrides
-	Atlassian             AtlassianConfig
+	//Linear                OauthConfigWrapper
+	GoogleOverrideURLs GoogleURLOverrides
+	//LinearOverrideURLs    LinearURLOverrides
+	Linear    LinearConfig
+	Atlassian AtlassianConfig
 }
 
 func GetConfig() Config {
@@ -45,7 +47,7 @@ func GetConfig() Config {
 		Slack:                 getSlackConfig(),
 		Trello:                getTrelloConfig(),
 		Asana:                 getAsanaConfig(),
-		Linear:                getLinearConfig(),
+		Linear:                LinearConfig{OauthConfig: getLinearOauthConfig()},
 		Atlassian:             AtlassianConfig{OauthConfig: getAtlassianOauthConfig()},
 	}
 }
