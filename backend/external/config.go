@@ -260,7 +260,7 @@ var TaskServiceAsana = TaskServiceDetails{
 var TaskServiceLinear = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_LINEAR,
 	Name:         "Linear",
-	Logo:         "/images/linear.svg",
+	Logo:         "/images/linear.png",
 	LogoV2:       "linear",
 	AuthType:     AuthTypeOauth2,
 	IsLinkable:   false,
@@ -341,7 +341,7 @@ var TaskSourceAsana = TaskSourceDetails{
 var TaskSourceLinear = TaskSourceDetails{
 	ID:                     TASK_SOURCE_ID_LINEAR,
 	Name:                   "Linear",
-	Logo:                   "/images/linear.svg",
+	Logo:                   "/images/linear.png",
 	LogoV2:                 "linear",
 	IsCompletable:          true,
 	CanCreateTask:          false,
