@@ -52,7 +52,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     const lastEmailScrollingRef = useRef<HTMLDivElement>(null)
 
     useLayoutEffect(() => {
-        lastEmailScrollingRef.current?.scrollIntoView({})
+        lastEmailScrollingRef.current?.scrollIntoView()
     }, [thread?.id])
 
     const [composeState, setComposeState] = useState<TEmailComposeState>({
