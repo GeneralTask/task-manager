@@ -92,6 +92,7 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                             isCurrentPage={sectionId === section.id}
                             taskSection={section}
                             droppable
+                            testId="task-section-link"
                         />
                     ))}
                 {isAddSectionInputVisible && (
@@ -106,6 +107,7 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                                 onChange={onKeyChangeHandler}
                                 onKeyDown={onKeyDownHandler}
                                 placeholder="Add Section"
+                                data-testid="add-section-input"
                             />
                         </AddSectionInputContainer>
                     </NavigationLinkTemplate>
@@ -121,6 +123,7 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                             isCurrentPage={sectionId === section.id}
                             taskSection={section}
                             droppable={false}
+                            testId="done-section-link"
                         />
                     ))}
             </NavigationLinkDropdown>
@@ -129,12 +132,14 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                 title="Messages"
                 icon={icons.inbox}
                 isCurrentPage={pathName === 'messages'}
+                testId="messages-link"
             />
             <NavigationLink
                 link="/settings"
                 title="Settings"
                 icon={icons.gear}
                 isCurrentPage={pathName === 'settings'}
+                testId="settings-link"
             />
         </>
     )

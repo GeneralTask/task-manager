@@ -14,6 +14,16 @@ declare global {
              * @example cy.acceptTermsOfService()
              */
             acceptTermsOfService(): Chainable<Element>
+            /**
+             * Custom command to start dragging an element
+             * @example cy.findByTestId('some-div').dragStart()
+             */
+            dragStart(): Chainable<Element>
+            /**
+             * Custom command to finish dragging an element
+             * @example cy.findByTestId('some-other-div').dragEnd()
+             */
+            dragEnd(): Chainable<Element>
         }
     }
 }
