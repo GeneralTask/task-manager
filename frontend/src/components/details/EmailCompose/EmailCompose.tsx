@@ -7,7 +7,7 @@ import {
 } from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
 import { TEmail, TRecipients } from '../../../utils/types'
-import { attachSubjectPrefix, stripSubjectPrefix } from './emailComposeUtils'
+import { attachSubjectPrefix, getInitialRecipients, stripSubjectPrefix } from './emailComposeUtils'
 
 import { Colors } from '../../../styles'
 import { Divider } from '../../atoms/SectionDivider'
@@ -25,26 +25,21 @@ const SubjectInput = styled.input`
     ${EmailInput}
 `
 
-const emptyRecipients: TRecipients = {
-    to: [],
-    cc: [],
-    bcc: [],
-}
-
 interface EmailComposeProps {
     email: TEmail
-    initialRecipients?: TRecipients
     composeType: EmailComposeType
     sourceAccountId: string
     onClose: () => void
 }
 const EmailCompose = (props: EmailComposeProps) => {
-    const [recipients, setRecipients] = useState<TRecipients>(props.initialRecipients ?? emptyRecipients)
+    const [recipients, setRecipients] = useState<TRecipients>(
+        getInitialRecipients(props.email, props.composeType, props.sourceAccountId)
+    )
     const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
 
     useEffect(() => {
-        setRecipients(props.initialRecipients ?? emptyRecipients)
+        setRecipients(getInitialRecipients(props.email, props.composeType, props.sourceAccountId))
         setSubject(attachSubjectPrefix(stripSubjectPrefix(props.email.subject), props.composeType))
         setBody('')
     }, [props.email.message_id])

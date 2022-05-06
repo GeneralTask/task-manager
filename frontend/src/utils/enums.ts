@@ -42,8 +42,8 @@ export enum CompanyPolicyPages {
 }
 
 export enum EmailComposeType {
-    REPLY = 'Re: ',
-    REPLY_ALL = 'Re: ',
-    FORWARD = 'Fwd: ',
-    NEW = '',
+    REPLY,
+    REPLY_ALL,
+    FORWARD,
+    NEW,
 }

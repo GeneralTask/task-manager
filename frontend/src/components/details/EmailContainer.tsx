@@ -1,6 +1,6 @@
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import React, { useEffect, useRef, useState } from 'react'
-import { TEmail, TEmailComposeState, TRecipients } from '../../utils/types'
+import { TEmail, TEmailComposeState } from '../../utils/types'
 
 import EmailCompose from './EmailCompose/EmailCompose'
 import { EmailComposeType } from '../../utils/enums'
@@ -98,12 +98,6 @@ const EmailContainer = React.forwardRef<HTMLDivElement, EmailContainerProps>((pr
         ReactTooltip.rebuild()
     }, [])
 
-    const initialReplyRecipients: TRecipients = {
-        to: [props.email.sender],
-        cc: [],
-        bcc: [],
-    }
-
     const emailActionsRef = useRef<HTMLDivElement>(null)
 
     const handleEmailActionsButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -162,7 +156,6 @@ const EmailContainer = React.forwardRef<HTMLDivElement, EmailContainerProps>((pr
             {props.composeType != null && (
                 <EmailCompose
                     email={props.email}
-                    initialRecipients={initialReplyRecipients}
                     composeType={props.composeType}
                     sourceAccountId={props.sourceAccountId}
                     onClose={() => props.setThreadComposeState({ emailComposeType: null, emailId: null })}
