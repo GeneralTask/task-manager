@@ -1,4 +1,4 @@
-describe('user can create a new General Task task', () => {
+describe('tests related to task creation from task section', () => {
     before('login the user', () => {
         cy.login()
         cy.visit('/')
@@ -14,16 +14,17 @@ describe('user can create a new General Task task', () => {
         cy.findByPlaceholderText('Add new task').type('{enter}')
         cy.findAllByTestId('list-item').should('have.length', 3)
     })
-    context('user can create a new General Task task with title', () => {
-        before('add text to "create new task" field', () => {
-            cy.findByPlaceholderText('Add new task').type('New task')
-        })
-        it('clicking "enter" in the input field should create a new task with title "New task"', () => {
-            cy.intercept('POST', '/tasks/create/gt_task/').as('createTask')
-            cy.findByPlaceholderText('Add new task').type('{enter}')
-            cy.wait('@createTask')
-            cy.findAllByTestId('list-item').should('have.length', 4)
-            cy.findAllByTestId('list-item').first().should('contain', 'New task')
-        })
+    it('clicking "enter" in the input field should create a new task with title "New task"', () => {
+        // Add task title to input field
+        cy.findByPlaceholderText('Add new task').type('New task')
+        cy.intercept('POST', '/tasks/create/gt_task/').as('createTask')
+
+        // Click enter
+        cy.findByPlaceholderText('Add new task').type('{enter}')
+        cy.wait('@createTask')
+
+        // Check that task is created
+        cy.findAllByTestId('list-item').should('have.length', 4)
+        cy.findAllByTestId('list-item').first().should('contain', 'New task')
     })
 })
