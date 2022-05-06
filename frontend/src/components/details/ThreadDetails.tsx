@@ -1,5 +1,5 @@
 import { Colors, Spacing, Typography } from '../../styles'
-import React, { useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import { DateTime } from 'luxon'
@@ -49,6 +49,12 @@ interface ThreadDetailsProps {
     thread: TEmailThread | undefined
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
+    const lastEmailScrollingRef = useRef<HTMLDivElement>(null)
+
+    useLayoutEffect(() => {
+        lastEmailScrollingRef.current?.scrollIntoView()
+    }, [thread?.id])
+
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
         emailId: null,
@@ -77,6 +83,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     {thread.emails.map((email, index) => (
                         <EmailContainer
                             email={email}
+                            ref={index === thread.emails.length - 1 ? lastEmailScrollingRef : null}
                             key={email.message_id}
                             timeSent={getHumanDateTime(DateTime.fromISO(email.sent_at))}
                             isCollapsed={index !== thread.emails.length - 1}
