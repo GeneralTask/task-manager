@@ -11,9 +11,9 @@ import { Icon } from '../atoms/Icon'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import ReactTooltip from 'react-tooltip'
 import SanitizedHTML from '../atoms/SanitizedHTML'
+import { icons } from '../../styles/images'
 import { removeHTMLTags } from '../../utils/utils'
 import styled from 'styled-components'
-import { icons } from '../../styles/images'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -88,7 +88,7 @@ interface EmailTemplateProps {
     showMainActions: boolean
 }
 
-const EmailTemplate = (props: EmailTemplateProps) => {
+const EmailTemplate = React.forwardRef<HTMLDivElement, EmailTemplateProps>((props, ref) => {
     const [isCollapsed, setIsCollapsed] = useState(!!props.isCollapsed)
     const [showEmailActions, setShowEmailActions] = useState(false)
 
@@ -129,7 +129,7 @@ const EmailTemplate = (props: EmailTemplateProps) => {
     ]
 
     return (
-        <DetailsViewContainer>
+        <DetailsViewContainer ref={ref}>
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
                 <SenderContainer>
                     <div>
@@ -176,6 +176,6 @@ const EmailTemplate = (props: EmailTemplateProps) => {
             )}
         </DetailsViewContainer>
     )
-}
+})
 
 export default EmailTemplate
