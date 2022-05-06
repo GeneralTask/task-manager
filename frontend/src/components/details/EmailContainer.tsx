@@ -169,10 +169,7 @@ const EmailContainer = React.forwardRef<HTMLDivElement, EmailContainerProps>((pr
                 />
             )}
             {props.composeType == null && props.showMainActions && (
-                <EmailMainActions
-                    emailId={props.email.message_id}
-                    setThreadComposeState={props.setThreadComposeState}
-                />
+                <EmailMainActions email={props.email} setThreadComposeState={props.setThreadComposeState} />
             )}
         </DetailsViewContainer>
     )
