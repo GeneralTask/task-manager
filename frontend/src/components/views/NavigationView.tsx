@@ -15,7 +15,7 @@ import { useAppDispatch } from '../../redux/hooks'
 const NavigationViewContainer = styled.div`
     display: flex;
     flex-direction: column;
-    flex-basis: 232px;
+    flex-basis: 230px;
     background-color: ${Colors.gray._100};
     padding: ${padding._8}px;
     box-sizing: border-box;
