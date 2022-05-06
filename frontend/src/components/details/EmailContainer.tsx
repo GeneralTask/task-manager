@@ -1,15 +1,19 @@
-import { Colors, Spacing, Typography } from '../../styles'
-import React, { useEffect, useState } from 'react'
+import { Border, Colors, Spacing, Typography } from '../../styles'
+import React, { useEffect, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState, TRecipients } from '../../utils/types'
 
 import EmailCompose from './EmailCompose/EmailCompose'
 import { EmailComposeType } from '../../utils/enums'
 import EmailMainActions from './EmailCompose/EmailMainActions'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
+import GTSelect from '../molecules/GTSelect'
+import { Icon } from '../atoms/Icon'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import ReactTooltip from 'react-tooltip'
 import SanitizedHTML from '../atoms/SanitizedHTML'
 import { removeHTMLTags } from '../../utils/utils'
 import styled from 'styled-components'
+import { icons } from '../../styles/images'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -29,9 +33,11 @@ const SenderContainer = styled.div`
     align-items: center;
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     height: 50px;
+    justify-content: space-between;
 `
 const SentAtContainer = styled.div`
-    margin-left: auto;
+    font-size: ${Typography.xSmall.fontSize};
+    margin-left: ${Spacing.margin._8}px;
 `
 const BodyContainer = styled.div`
     flex: 1;
@@ -45,7 +51,6 @@ const BodyContainerCollapsed = styled.span`
     min-width: 0;
     color: ${Colors.gray._400};
 `
-
 const Title = styled.div`
     background-color: inherit;
     color: ${Colors.gray._600};
@@ -56,6 +61,23 @@ const Title = styled.div`
     display: flex;
     flex: 1;
 `
+const Flex = styled.div`
+    display: flex;
+`
+const EmailActionContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing.padding._8}px;
+`
+const IconButton = styled(NoStyleButton)`
+    border-radius: ${Border.radius.xxSmall};
+    position: relative;
+    padding: ${Spacing.padding._4}px;
+    &:hover {
+        background-color: ${Colors.gray._200};
+    }
+`
+
 interface EmailTemplateProps {
     email: TEmail
     timeSent?: string
@@ -68,6 +90,7 @@ interface EmailTemplateProps {
 
 const EmailTemplate = (props: EmailTemplateProps) => {
     const [isCollapsed, setIsCollapsed] = useState(!!props.isCollapsed)
+    const [showEmailActions, setShowEmailActions] = useState(false)
 
     useEffect(() => setIsCollapsed(!!props.isCollapsed), [props.isCollapsed])
     useEffect(() => {
@@ -81,15 +104,53 @@ const EmailTemplate = (props: EmailTemplateProps) => {
         bcc: [],
     }
 
+    const emailActionsRef = useRef<HTMLDivElement>(null)
+
+    const handleEmailActionsButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation()
+        setShowEmailActions((show) => !show)
+    }
+
+    const emailActionOptions = [
+        {
+            item: (
+                <EmailActionContainer>
+                    <Icon size="medium" source={icons.reply} />
+                    Reply
+                </EmailActionContainer>
+            ),
+            onClick: () => {
+                props.setThreadComposeState({
+                    emailComposeType: EmailComposeType.REPLY,
+                    emailId: props.email.message_id,
+                })
+            },
+        },
+    ]
+
     return (
         <DetailsViewContainer>
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
                 <SenderContainer>
                     <div>
-                        <Title>{props.email.sender.name}</Title>
+                        <Flex>
+                            <Title>{props.email.sender.name}</Title>
+                            <SentAtContainer>{props.timeSent}</SentAtContainer>
+                        </Flex>
                         <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
                     </div>
-                    <SentAtContainer>{props.timeSent}</SentAtContainer>
+                    <div ref={emailActionsRef}>
+                        <IconButton onClick={handleEmailActionsButtonClick}>
+                            <Icon size="small" source={icons.skinnyHamburger} />
+                        </IconButton>
+                        {showEmailActions && (
+                            <GTSelect
+                                options={emailActionOptions}
+                                onClose={() => setShowEmailActions(false)}
+                                parentRef={emailActionsRef}
+                            />
+                        )}
+                    </div>
                 </SenderContainer>
                 {isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.email.body)}</BodyContainerCollapsed>}
             </CollapseExpandContainer>

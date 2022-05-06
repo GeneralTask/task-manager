@@ -40,7 +40,7 @@ export const icons: { [key: string]: string } = {
     task_incomplete: '/images/task_incomplete.png',
     timer: '/images/timer.png',
     trash: '/images/trash.png',
-    verticalDots: '/images/vertical_dots.svg',
+    skinnyHamburger: '/images/vertical_dots.svg',
     x: '/images/x.svg',
 }
 
