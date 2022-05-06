@@ -40,6 +40,18 @@ const EmailMainActions = ({ email, setThreadComposeState }: EmailMainActionsProp
                     </EmailActionButton>
                 </EmailActionButtonContainer>
             )}
+            <EmailActionButtonContainer>
+                <EmailActionButton
+                    onClick={() => {
+                        setThreadComposeState({
+                            emailComposeType: EmailComposeType.FORWARD,
+                            emailId: email.message_id,
+                        })
+                    }}
+                >
+                    <Icon size="medium" source={Images.icons.forward} />
+                </EmailActionButton>
+            </EmailActionButtonContainer>
         </Flex>
     )
 }
