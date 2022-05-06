@@ -59,7 +59,7 @@ interface NavigationLinkProps {
     icon?: string
     taskSection?: TTaskSection
     droppable?: boolean
-    testId: string
+    testId?: string
 }
 const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppable, testId }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()

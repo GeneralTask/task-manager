@@ -132,14 +132,12 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                 title="Messages"
                 icon={icons.inbox}
                 isCurrentPage={pathName === 'messages'}
-                testId="messages-link"
             />
             <NavigationLink
                 link="/settings"
                 title="Settings"
                 icon={icons.gear}
                 isCurrentPage={pathName === 'settings'}
-                testId="settings-link"
             />
         </>
     )
