@@ -65,8 +65,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const matchTempSectionId = (id: string) => tempSectionIds.includes(id)
 
     const handleDelete = async (id: string | undefined) => {
-        if (!id) return
-        if (confirm('Are you sure you want to delete this section?')) {
+        if (id && confirm('Are you sure you want to delete this section?')) {
             deleteTaskSection({ sectionId: id })
             navigate('/tasks')
         }
