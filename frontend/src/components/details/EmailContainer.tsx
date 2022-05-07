@@ -120,6 +120,34 @@ const EmailContainer = React.forwardRef<HTMLDivElement, EmailContainerProps>((pr
                 })
             },
         },
+        {
+            item: (
+                <EmailActionContainer>
+                    <Icon size="medium" source={icons.replyAll} />
+                    Reply All
+                </EmailActionContainer>
+            ),
+            onClick: () => {
+                props.setThreadComposeState({
+                    emailComposeType: EmailComposeType.REPLY_ALL,
+                    emailId: props.email.message_id,
+                })
+            },
+        },
+        {
+            item: (
+                <EmailActionContainer>
+                    <Icon size="medium" source={icons.forward} />
+                    Forward
+                </EmailActionContainer>
+            ),
+            onClick: () => {
+                props.setThreadComposeState({
+                    emailComposeType: EmailComposeType.FORWARD,
+                    emailId: props.email.message_id,
+                })
+            },
+        },
     ]
 
     return (
