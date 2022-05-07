@@ -24,21 +24,17 @@ export function attachSubjectPrefix(subject: string, composeType: EmailComposeTy
     return prefix + subject
 }
 
-export function getInitialRecipients(email: TEmail, composeType: EmailComposeType | null, exclude: string): TRecipients {
-    let initialToRecipients: string[]
-    switch (composeType) {
-        case EmailComposeType.REPLY:
-            initialToRecipients = [email.sender.email]
-            break
-        case EmailComposeType.REPLY_ALL:
-            initialToRecipients = [
-                email.sender.email,
-                ...email.recipients.to.map(recipient => recipient.email).filter(email => email !== exclude),
-                ...email.recipients.cc.map(recipient => recipient.email).filter(email => email !== exclude),
-            ]
-            break
-        default:
-            initialToRecipients = []
+export function getInitialRecipients(email: TEmail, composeType: EmailComposeType, exclude: string): TRecipients {
+    let initialToRecipients: string[] = []
+    if (composeType === EmailComposeType.REPLY) {
+        initialToRecipients = [email.sender.email]
+    }
+    else if (composeType === EmailComposeType.REPLY_ALL) {
+        initialToRecipients = [
+            email.sender.email,
+            ...email.recipients.to.map(recipient => recipient.email).filter(email => email !== exclude),
+            ...email.recipients.cc.map(recipient => recipient.email).filter(email => email !== exclude),
+        ]
     }
     return {
         to: initialToRecipients.map(email => ({ email, name: '' })),
