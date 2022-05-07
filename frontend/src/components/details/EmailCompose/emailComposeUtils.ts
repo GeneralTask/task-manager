@@ -30,11 +30,11 @@ export function getInitialRecipients(email: TEmail, composeType: EmailComposeTyp
         initialToRecipients = [email.sender.email]
     }
     else if (composeType === EmailComposeType.REPLY_ALL) {
-        initialToRecipients = [
+        initialToRecipients = [...new Set([
             email.sender.email,
             ...email.recipients.to.map(recipient => recipient.email).filter(email => email !== exclude),
             ...email.recipients.cc.map(recipient => recipient.email).filter(email => email !== exclude),
-        ]
+        ])]
     }
     return {
         to: initialToRecipients.map(email => ({ email, name: '' })),
