@@ -65,8 +65,11 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const matchTempSectionId = (id: string) => tempSectionIds.includes(id)
 
     const handleDelete = async (id: string | undefined) => {
-        if (id) deleteTaskSection({ sectionId: id })
-        navigate('/tasks')
+        if (!id) return
+        if (confirm('Are you sure you want to delete this section?')) {
+            deleteTaskSection({ sectionId: id })
+            navigate('/tasks')
+        }
     }
     const handleChangeSectionName = async (id: string | undefined, name: string) => {
         const trimmedName = name.trim()
