@@ -10,6 +10,8 @@ import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { useNavigate } from 'react-router-dom'
 import RefreshButton from '../atoms/buttons/RefreshButton'
+import useSound from 'use-sound'
+import { sounds } from '../../styles/sounds'
 
 const SectionHeaderContainer = styled.div`
     display: flex;
@@ -50,6 +52,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const { mutate: modifyTaskSection } = useModifyTaskSection()
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [sectionName, setSectionName] = useState(props.sectionName)
+    const [playYouSure] = useSound(sounds.yousure)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -66,6 +69,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
 
     const handleDelete = async (id: string | undefined) => {
         if (id) deleteTaskSection({ sectionId: id })
+        playYouSure()
         navigate('/tasks')
     }
     const handleChangeSectionName = async (id: string | undefined, name: string) => {

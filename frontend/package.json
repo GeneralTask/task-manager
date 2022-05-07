@@ -44,7 +44,8 @@
     "react-router-dom": "6",
     "react-tooltip": "^4.2.21",
     "sanitize-html": "^2.7.0",
-    "styled-components": "^5.3.3"
+    "styled-components": "^5.3.3",
+    "use-sound": "^4.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",
