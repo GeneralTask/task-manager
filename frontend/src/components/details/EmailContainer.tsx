@@ -45,6 +45,7 @@ const BodyContainer = styled.div`
     margin: ${Spacing.margin._8}px;
 `
 const BodyContainerCollapsed = styled.span`
+    margin-left: ${Spacing.margin._8}px;
     flex: 1;
     overflow: hidden;
     white-space: nowrap;
@@ -195,12 +196,10 @@ const EmailContainer = (props: EmailContainerProps) => {
                     onClose={() => props.setThreadComposeState({ emailComposeType: null, emailId: null })}
                 />
             )}
-            {
-                props.composeType == null && props.isLastThread && (
-                    <EmailMainActions email={props.email} setThreadComposeState={props.setThreadComposeState} />
-                )
-            }
-        </DetailsViewContainer >
+            {props.composeType == null && props.isLastThread && (
+                <EmailMainActions email={props.email} setThreadComposeState={props.setThreadComposeState} />
+            )}
+        </DetailsViewContainer>
     )
 }
 
