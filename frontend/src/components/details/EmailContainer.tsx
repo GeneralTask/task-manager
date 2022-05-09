@@ -1,6 +1,6 @@
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { TEmail, TEmailComposeState, TRecipients } from '../../utils/types'
+import { TEmail, TEmailComposeState } from '../../utils/types'
 
 import EmailCompose from './EmailCompose/EmailCompose'
 import { EmailComposeType } from '../../utils/enums'
@@ -94,12 +94,6 @@ const EmailContainer = (props: EmailContainerProps) => {
     const scrollingRef = useRef<HTMLDivElement>(null)
     const emailActionsRef = useRef<HTMLDivElement>(null)
 
-    const initialReplyRecipients: TRecipients = {
-        to: [props.email.sender],
-        cc: [],
-        bcc: [],
-    }
-
     useEffect(() => {
         ReactTooltip.hide()
         ReactTooltip.rebuild()
@@ -128,6 +122,34 @@ const EmailContainer = (props: EmailContainerProps) => {
             onClick: () => {
                 props.setThreadComposeState({
                     emailComposeType: EmailComposeType.REPLY,
+                    emailId: props.email.message_id,
+                })
+            },
+        },
+        {
+            item: (
+                <EmailActionContainer>
+                    <Icon size="medium" source={icons.replyAll} />
+                    Reply All
+                </EmailActionContainer>
+            ),
+            onClick: () => {
+                props.setThreadComposeState({
+                    emailComposeType: EmailComposeType.REPLY_ALL,
+                    emailId: props.email.message_id,
+                })
+            },
+        },
+        {
+            item: (
+                <EmailActionContainer>
+                    <Icon size="medium" source={icons.forward} />
+                    Forward
+                </EmailActionContainer>
+            ),
+            onClick: () => {
+                props.setThreadComposeState({
+                    emailComposeType: EmailComposeType.FORWARD,
                     emailId: props.email.message_id,
                 })
             },
@@ -168,19 +190,17 @@ const EmailContainer = (props: EmailContainerProps) => {
             {props.composeType != null && (
                 <EmailCompose
                     email={props.email}
-                    initialRecipients={initialReplyRecipients}
                     composeType={props.composeType}
                     sourceAccountId={props.sourceAccountId}
                     onClose={() => props.setThreadComposeState({ emailComposeType: null, emailId: null })}
                 />
             )}
-            {props.composeType == null && props.isLastThread && (
-                <EmailMainActions
-                    emailId={props.email.message_id}
-                    setThreadComposeState={props.setThreadComposeState}
-                />
-            )}
-        </DetailsViewContainer>
+            {
+                props.composeType == null && props.isLastThread && (
+                    <EmailMainActions email={props.email} setThreadComposeState={props.setThreadComposeState} />
+                )
+            }
+        </DetailsViewContainer >
     )
 }
 
