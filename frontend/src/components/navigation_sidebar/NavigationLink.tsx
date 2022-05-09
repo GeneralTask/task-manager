@@ -24,7 +24,8 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     border-width: 2px;
     border-style: solid;
     border-color: ${(props) => (props.isOver ? Colors.gray._300 : 'transparent')};
-    ${(props) => (props.isSelected ? `background-color: ${Colors.gray._50};` : '')};
+    ${(props) => props.isSelected && `background-color: ${Colors.gray._50};`};
+    box-sizing: border-box;
 `
 const SectionTitle = styled.span<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};

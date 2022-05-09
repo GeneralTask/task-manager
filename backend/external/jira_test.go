@@ -75,7 +75,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:    0,
 				IDExternal:    "42069",
-				IDTaskSection: constants.IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
 				Title:         "Sample Taskeroni",
 				SourceID:      TASK_SOURCE_ID_JIRA,
@@ -120,7 +120,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      2,
 				IDExternal:      "42069",
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				IsCompleted:     true,
 				Deeplink:        "https://dankmemes.com/browse/MOON-1969",
 				Title:           "Sample Taskeroni",
@@ -235,7 +235,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:       2,
 				IDExternal:       "42069",
-				IDTaskSection:    constants.IDTaskSectionToday,
+				IDTaskSection:    constants.IDTaskSectionDefault,
 				HasBeenReordered: true,
 				Deeplink:         "https://dankmemes.com/browse/MOON-1969",
 				Title:            "Sample Taskeroni",

@@ -113,7 +113,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:        0,
 				IDExternal:        "6942069420",
-				IDTaskSection:     constants.IDTaskSectionToday,
+				IDTaskSection:     constants.IDTaskSectionDefault,
 				Deeplink:          "https://example.com/",
 				Title:             "Task!",
 				Body:              "hmm",
@@ -159,7 +159,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:        0,
 				IDExternal:        "6942069420",
-				IDTaskSection:     constants.IDTaskSectionToday,
+				IDTaskSection:     constants.IDTaskSectionDefault,
 				IsCompleted:       true,
 				Deeplink:          "https://example.com/",
 				Title:             "Task wrong!",

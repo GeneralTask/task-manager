@@ -103,7 +103,7 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 		// 1 hour is the default
 		assert.Equal(t, int64(3600000000000), task.TimeAllocation)
-		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
+		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
 	})
 	t.Run("SuccessCustomSection", func(t *testing.T) {
 		authToken = login("create_task_success_custom_section@generaltask.com", "")

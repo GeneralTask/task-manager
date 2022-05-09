@@ -96,7 +96,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      thread.Id,
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				SourceID:        TASK_SOURCE_ID_GMAIL,
 				Deeplink:        fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, thread.Id),
 				SourceAccountID: accountID,
@@ -190,7 +190,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				TaskBase: database.TaskBase{
 					UserID:            userID,
 					IDExternal:        message.Id,
-					IDTaskSection:     constants.IDTaskSectionToday,
+					IDTaskSection:     constants.IDTaskSectionDefault,
 					Sender:            senderName,
 					SourceID:          TASK_SOURCE_ID_GMAIL,
 					Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, thread.Id),

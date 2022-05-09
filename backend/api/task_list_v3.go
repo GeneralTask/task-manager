@@ -121,8 +121,8 @@ func (api *API) getPriorityTaskResults(db *mongo.Database, userID primitive.Obje
 		taskResults = append([]*TaskResult{api.taskBaseToTaskResult(&thread)}, taskResults...)
 	}
 	taskResults = append([]*TaskResult{fakeTaskResultFromTitle(
-		"👇👇👇👇👇👇👇👇👇👇 First, unread emails, oldest to newest 👇👇👇👇👇👇👇👇👇👇")}, taskResults...)
-	taskResults = append(taskResults, fakeTaskResultFromTitle("👇👇👇👇👇👇👇👇👇👇 Then, pull requests! 👇👇👇👇👇👇👇👇👇👇"))
+		"👇---------- First, unread emails, oldest to newest ----------👇")}, taskResults...)
+	taskResults = append(taskResults, fakeTaskResultFromTitle("👇---------- Then, pull requests! ----------👇"))
 	// then, show pull requests
 	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}, {"is_completed": false}})
 	if err != nil {
@@ -132,7 +132,7 @@ func (api *API) getPriorityTaskResults(db *mongo.Database, userID primitive.Obje
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&pullRequest))
 	}
 	taskResults = append(taskResults, fakeTaskResultFromTitle(
-		"👇👇👇👇👇👇👇👇👇👇 Coming soon, linear tasks ordered by priority / cycle! 👇👇👇👇👇👇👇👇👇👇"))
+		"👇---------- Coming soon, linear tasks ordered by priority / cycle! ----------👇"))
 	updateOrderingIDsV2(db, &taskResults)
 	return &taskResults, nil
 }
@@ -156,18 +156,8 @@ func (api *API) extractSectionTasksV3(
 	}
 	resultSections := []*TaskSection{
 		{
-			ID:    constants.IDTaskSectionToday,
-			Name:  TaskSectionNameToday,
-			Tasks: []*TaskResult{},
-		},
-		{
-			ID:    constants.IDTaskSectionBlocked,
-			Name:  TaskSectionNameBlocked,
-			Tasks: []*TaskResult{},
-		},
-		{
-			ID:    constants.IDTaskSectionBacklog,
-			Name:  TaskSectionNameBacklog,
+			ID:    constants.IDTaskSectionDefault,
+			Name:  TaskSectionNameDefault,
 			Tasks: []*TaskResult{},
 		},
 	}

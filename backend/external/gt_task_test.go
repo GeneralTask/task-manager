@@ -98,7 +98,7 @@ func createTestTask(userID primitive.ObjectID) *database.Item {
 		TaskBase: database.TaskBase{
 			IDOrdering:      2,
 			IDExternal:      primitive.NewObjectID().Hex(),
-			IDTaskSection:   constants.IDTaskSectionToday,
+			IDTaskSection:   constants.IDTaskSectionDefault,
 			Title:           "Sample Taskeroni",
 			SourceID:        TASK_SOURCE_ID_GT_TASK,
 			UserID:          userID,

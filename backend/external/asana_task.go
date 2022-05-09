@@ -105,7 +105,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			TaskBase: database.TaskBase{
 				UserID:            userID,
 				IDExternal:        asanaTaskData.GID,
-				IDTaskSection:     constants.IDTaskSectionToday,
+				IDTaskSection:     constants.IDTaskSectionDefault,
 				Deeplink:          asanaTaskData.PermalinkURL,
 				SourceID:          TASK_SOURCE_ID_ASANA,
 				Title:             asanaTaskData.Name,

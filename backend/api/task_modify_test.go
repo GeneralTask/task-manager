@@ -344,7 +344,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    2,
-				IDTaskSection: constants.IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -358,7 +358,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        primitive.NewObjectID(),
 				IDOrdering:    3,
-				IDTaskSection: constants.IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -372,7 +372,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    1,
-				IDTaskSection: constants.IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -408,7 +408,7 @@ func TestTaskReorder(t *testing.T) {
 		taskIDHex := taskID.Hex()
 
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+constants.IDTaskSectionToday.Hex()+`"}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+constants.IDTaskSectionDefault.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -425,7 +425,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
-		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
+		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -551,7 +551,7 @@ func TestTaskReorder(t *testing.T) {
 		taskIDHex := taskID.Hex()
 
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+constants.IDTaskSectionToday.Hex()+`"}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+constants.IDTaskSectionDefault.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -568,7 +568,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, task.IDOrdering)
-		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
+		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("OnlyReorderingID", func(t *testing.T) {
@@ -632,7 +632,7 @@ func TestEditFields(t *testing.T) {
 		TaskBase: database.TaskBase{
 			IDExternal:       "ID External",
 			IDOrdering:       1,
-			IDTaskSection:    constants.IDTaskSectionToday,
+			IDTaskSection:    constants.IDTaskSectionDefault,
 			IsCompleted:      false,
 			Sender:           "Sender",
 			SourceID:         "gt_task",
