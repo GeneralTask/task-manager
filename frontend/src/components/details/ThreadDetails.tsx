@@ -2,10 +2,8 @@ import { Colors, Spacing, Typography } from '../../styles'
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
-import { DateTime } from 'luxon'
 import EmailContainer from './EmailContainer'
 import { Icon } from '../atoms/Icon'
-import { getHumanDateTime } from '../../utils/utils'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 
@@ -54,12 +52,6 @@ interface ThreadDetailsProps {
     thread: TEmailThread | undefined
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
-    const lastEmailScrollingRef = useRef<HTMLDivElement>(null)
-
-    useLayoutEffect(() => {
-        lastEmailScrollingRef.current?.scrollIntoView()
-    }, [thread?.id])
-
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
         emailId: null,
@@ -88,17 +80,14 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     <EmailThreadsContainer>
                         {thread.emails.map((email, index) => (
                             <EmailContainer
-                                email={email}
-                                ref={index === thread.emails.length - 1 ? lastEmailScrollingRef : null}
                                 key={email.message_id}
-                                timeSent={getHumanDateTime(DateTime.fromISO(email.sent_at))}
-                                isCollapsed={index !== thread.emails.length - 1}
+                                email={email}
+                                isLastThread={index === thread.emails.length - 1}
                                 composeType={
                                     email.message_id === composeState.emailId ? composeState.emailComposeType : null
                                 }
                                 setThreadComposeState={setComposeState}
                                 sourceAccountId={thread.source.account_id}
-                                showMainActions={index === thread.emails.length - 1}
                             />
                         ))}
                     </EmailThreadsContainer>
