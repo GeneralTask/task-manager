@@ -120,9 +120,11 @@ const EmailContainer = (props: EmailContainerProps) => {
                 </EmailActionContainer>
             ),
             onClick: () => {
+                console.log(props.isLastThread)
                 props.setThreadComposeState({
                     emailComposeType: EmailComposeType.REPLY,
                     emailId: props.email.message_id,
+                    isLastEmail: props.isLastThread,
                 })
             },
         },
@@ -137,6 +139,7 @@ const EmailContainer = (props: EmailContainerProps) => {
                 props.setThreadComposeState({
                     emailComposeType: EmailComposeType.REPLY_ALL,
                     emailId: props.email.message_id,
+                    isLastEmail: props.isLastThread,
                 })
             },
         },
@@ -151,6 +154,7 @@ const EmailContainer = (props: EmailContainerProps) => {
                 props.setThreadComposeState({
                     emailComposeType: EmailComposeType.FORWARD,
                     emailId: props.email.message_id,
+                    isLastEmail: props.isLastThread,
                 })
             },
         },
@@ -187,20 +191,24 @@ const EmailContainer = (props: EmailContainerProps) => {
                     <SanitizedHTML dirtyHTML={props.email.body} />
                 </BodyContainer>
             )}
-            {props.composeType != null && (
+            {props.composeType != null && !props.isLastThread && (
                 <EmailCompose
                     email={props.email}
                     composeType={props.composeType}
                     sourceAccountId={props.sourceAccountId}
-                    onClose={() => props.setThreadComposeState({ emailComposeType: null, emailId: null })}
+                    onClose={() =>
+                        props.setThreadComposeState({
+                            emailComposeType: null,
+                            emailId: null,
+                            isLastEmail: props.isLastThread,
+                        })
+                    }
                 />
             )}
-            {
-                props.composeType == null && props.isLastThread && (
-                    <EmailMainActions email={props.email} setThreadComposeState={props.setThreadComposeState} />
-                )
-            }
-        </DetailsViewContainer >
+            {props.composeType == null && props.isLastThread && (
+                <EmailMainActions email={props.email} setThreadComposeState={props.setThreadComposeState} />
+            )}
+        </DetailsViewContainer>
     )
 }
 

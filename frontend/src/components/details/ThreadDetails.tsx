@@ -1,11 +1,12 @@
 import { Colors, Spacing, Typography } from '../../styles'
-import React, { useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import EmailContainer from './EmailContainer'
 import { Icon } from '../atoms/Icon'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
+import EmailCompose from './EmailCompose/EmailCompose'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
@@ -55,7 +56,15 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
         emailId: null,
+        isLastEmail: false,
     })
+    useLayoutEffect(() => {
+        setComposeState({
+            emailComposeType: null,
+            emailId: null,
+            isLastEmail: false,
+        })
+    }, [thread])
     const title = `${thread?.emails[0]?.subject ?? ''} (${thread?.emails.length ?? 0})`
     const recipient_emails = Array.from(
         new Set(
@@ -91,6 +100,16 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             />
                         ))}
                     </EmailThreadsContainer>
+                </>
+            )}
+            {composeState.isLastEmail && thread && composeState.emailComposeType != null && (
+                <>
+                    <EmailCompose
+                        email={thread.emails[thread?.emails.length - 1]}
+                        composeType={composeState.emailComposeType}
+                        sourceAccountId={thread.source.account_id}
+                        onClose={() => setComposeState({ emailComposeType: null, emailId: null, isLastEmail: true })}
+                    />
                 </>
             )}
         </FlexColumnContainer>
