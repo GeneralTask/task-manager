@@ -46,4 +46,5 @@ export enum EmailComposeType {
     REPLY_ALL,
     FORWARD,
     NEW,
+    PENDING, // for emails that can still be unsent
 }

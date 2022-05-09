@@ -6,6 +6,8 @@ import EmailContainer from './EmailContainer'
 import { Icon } from '../atoms/Icon'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
+import { SentEmailBanner } from './EmailCompose/EmailCompose-styles'
+import { EmailComposeType } from '../../utils/enums'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
@@ -90,6 +92,9 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                 sourceAccountId={thread.source.account_id}
                             />
                         ))}
+                        {composeState.emailComposeType === EmailComposeType.PENDING && (
+                            <SentEmailBanner>Your email was sent.</SentEmailBanner>
+                        )}
                     </EmailThreadsContainer>
                 </>
             )}

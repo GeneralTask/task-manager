@@ -104,3 +104,8 @@ export const FlexExpand = styled.div`
 export const Flex = styled.div`
     display: flex;
 `
+export const SentEmailBanner = styled.div`
+    background-color: ${Colors.black};
+    color: ${Colors.white};
+    width: 100%;
+`
