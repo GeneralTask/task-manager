@@ -38,6 +38,9 @@ const HeaderTextEditable = styled.input`
     }
     background-color: transparent;
 `
+
+const immutableSectionIds = ['000000000000000000000000', '000000000000000000000001', '000000000000000000000004']
+const matchImmutableSectionId = (id: string) => immutableSectionIds.includes(id)
 interface SectionHeaderProps {
     sectionName: string
     allowRefresh: boolean
@@ -56,9 +59,6 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     useEffect(() => {
         setSectionName(props.sectionName)
     }, [props.sectionName])
-
-    const immutableSectionIds = ['000000000000000000000000', '000000000000000000000001', '000000000000000000000004']
-    const matchImmutableSectionId = (id: string) => immutableSectionIds.includes(id)
 
     const handleDelete = async (id: string | undefined) => {
         if (id) deleteTaskSection({ sectionId: id })
