@@ -20,17 +20,27 @@ describe('user can reorder tasks using react-dnd', () => {
         cy.findAllByTestId('list-item').first().findByTestId('drag-domino').dragStart()
         cy.findAllByTestId('list-item').first().invoke('text').then(($text) => {
             // End drag on bottom of the task list
-            cy.findByTestId('task-drop-area').dragEnd()
+            cy.findByTestId('task-drop-area').dragEnd('center')
             cy.wait('@taskModifyMutation').then(({ response }) => { expect(response?.statusCode).to.eq(200) })
             cy.findAllByTestId('list-item').last().should('have.text', $text)
         })
     })
-    it('user can move task between other tasks', () => {
+    it('user can move task below other tasks', () => {
         // Start drag on first task
         cy.findAllByTestId('list-item').first().findByTestId('drag-domino').dragStart()
         cy.findAllByTestId('list-item').first().invoke('text').then(($text) => {
-            // End drag on second task
-            cy.findAllByTestId('list-item').eq(1).dragEnd()
+            // End drag on bottom of second task
+            cy.findAllByTestId('list-item').eq(1).dragEnd('bottom')
+            cy.wait('@taskModifyMutation').then(({ response }) => { expect(response?.statusCode).to.eq(200) })
+            cy.findAllByTestId('list-item').eq(1).should('have.text', $text)
+        })
+    })
+    it('user can move task above other tasks', () => {
+        // Start drag on first task
+        cy.findAllByTestId('list-item').first().findByTestId('drag-domino').dragStart()
+        cy.findAllByTestId('list-item').first().invoke('text').then(($text) => {
+            // End drag on top of second task
+            cy.findAllByTestId('list-item').eq(2).dragEnd('top')
             cy.wait('@taskModifyMutation').then(({ response }) => { expect(response?.statusCode).to.eq(200) })
             cy.findAllByTestId('list-item').eq(1).should('have.text', $text)
         })
@@ -46,7 +56,7 @@ describe('user can reorder tasks using react-dnd', () => {
         cy.findAllByTestId('list-item').first().findByTestId('drag-domino').dragStart()
         cy.findAllByTestId('list-item').first().invoke('text').then(($text) => {
             // End drag on second task section
-            cy.findAllByTestId('task-section-link').eq(1).dragEnd().click()
+            cy.findAllByTestId('task-section-link').eq(1).dragEnd('center').click()
             cy.wait('@taskModifyMutation').then(({ response }) => { expect(response?.statusCode).to.eq(200) })
             cy.findByTestId('list-item').should('have.text', $text)
         })
@@ -56,7 +66,7 @@ describe('user can reorder tasks using react-dnd', () => {
         cy.findAllByTestId('list-item').first().findByTestId('drag-domino').dragStart()
         cy.findAllByTestId('list-item').first().invoke('text').then(($text) => {
             // End drag on done section
-            cy.findByTestId('done-section-link').dragEnd()
+            cy.findByTestId('done-section-link').dragEnd('center')
             // Verify that the task was not moved
             cy.findAllByTestId('list-item').first().should('have.text', $text)
         })

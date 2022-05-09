@@ -3,6 +3,8 @@ import chance from 'chance'
 const Chance = new chance()
 const API_URL = Cypress.env('api_url')
 
+export type POSITION_OPTIONS = 'topLeft' | 'top' | 'topRight' | 'left' | 'center' | 'right' | 'bottomLeft' | 'bottom' | 'bottomRight'
+
 Cypress.Commands.add('login', () => {
     cy.request('POST', `${API_URL}/create_test_user/`, {
         email: `${Chance.string()}@generaltask.com`,
@@ -21,6 +23,6 @@ Cypress.Commands.add('dragStart', { prevSubject: 'element' }, (subject: JQuery) 
     cy.wrap(subject).trigger('dragstart').trigger('dragleave')
     cy.wait(200)
 })
-Cypress.Commands.add('dragEnd', { prevSubject: 'element' }, (subject: JQuery) => {
-    cy.wrap(subject).trigger('dragenter').trigger('dragover').trigger('drop').trigger('dragend')
+Cypress.Commands.add('dragEnd', { prevSubject: 'element' }, (subject: JQuery, position: POSITION_OPTIONS) => {
+    cy.wrap(subject).trigger('dragenter', position).trigger('dragover', position).trigger('drop', position).trigger('dragend', position)
 })

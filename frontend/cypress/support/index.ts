@@ -1,5 +1,6 @@
 import '@testing-library/cypress/add-commands'
 import './commands'
+import { POSITION_OPTIONS } from './commands'
 
 declare global {
     namespace Cypress {
@@ -23,7 +24,7 @@ declare global {
              * Custom command to finish dragging an element
              * @example cy.findByTestId('some-other-div').dragEnd()
              */
-            dragEnd(): Chainable<Element>
+            dragEnd(position: POSITION_OPTIONS): Chainable<Element>
         }
     }
 }
