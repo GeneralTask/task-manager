@@ -1,5 +1,5 @@
 import { Colors, Spacing, Typography } from '../../styles'
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import EmailContainer from './EmailContainer'
