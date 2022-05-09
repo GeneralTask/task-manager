@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Colors, Spacing, Typography } from '../../styles'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-query-hooks'
 import { Icon } from '../atoms/Icon'
@@ -38,6 +38,9 @@ const HeaderTextEditable = styled.input`
     }
     background-color: transparent;
 `
+
+const immutableSectionIds = ['000000000000000000000000', '000000000000000000000001', '000000000000000000000004']
+const matchImmutableSectionId = (id: string) => immutableSectionIds.includes(id)
 interface SectionHeaderProps {
     sectionName: string
     allowRefresh: boolean
@@ -50,23 +53,18 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const { mutate: modifyTaskSection } = useModifyTaskSection()
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [sectionName, setSectionName] = useState(props.sectionName)
+    const sectionTitleRef = useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
 
     useEffect(() => {
         setSectionName(props.sectionName)
     }, [props.sectionName])
 
-    const tempSectionIds = [
-        '000000000000000000000001',
-        '000000000000000000000002',
-        '000000000000000000000003',
-        '000000000000000000000004',
-    ]
-    const matchTempSectionId = (id: string) => tempSectionIds.includes(id)
-
     const handleDelete = async (id: string | undefined) => {
-        if (id) deleteTaskSection({ sectionId: id })
-        navigate('/tasks')
+        if (id && confirm('Are you sure you want to delete this section?')) {
+            deleteTaskSection({ sectionId: id })
+            navigate('/tasks')
+        }
     }
     const handleChangeSectionName = async (id: string | undefined, name: string) => {
         const trimmedName = name.trim()
@@ -78,13 +76,19 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         }
         setIsEditingTitle(false)
     }
+    const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+        if (sectionTitleRef.current && (e.key === 'Enter' || e.key === 'Escape')) sectionTitleRef.current.blur()
+        e.stopPropagation()
+    }
 
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.REFRESH, props.refetch ?? emptyFunction, props.refetch == null)
 
     const headerText = isEditingTitle ? (
         <HeaderTextEditable
+            ref={sectionTitleRef}
             value={sectionName}
             onChange={(e) => setSectionName(e.target.value)}
+            onKeyDown={handleKeyDown}
             onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
             autoFocus
         />
@@ -100,7 +104,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                     <Icon size={'small'} source={icons.spinner} />
                 </RefreshButton>
             )}
-            {props.taskSectionId && !matchTempSectionId(props.taskSectionId) && (
+            {props.taskSectionId && !matchImmutableSectionId(props.taskSectionId) && (
                 <>
                     <NoStyleButton onClick={() => handleDelete(props.taskSectionId)}>
                         <Icon size={'small'} source={icons['trash']}></Icon>

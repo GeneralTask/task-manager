@@ -47,7 +47,7 @@ const TaskDropArea = ({ dropIndex, taskSectionId }: TaskDropAreaProps) => {
     }, [dropRef])
 
     return (
-        <TaskDropAreaContainer ref={dropRef}>
+        <TaskDropAreaContainer ref={dropRef} data-testid="task-drop-area">
             <DropIndicatorAbove isVisible={isOver} />
         </TaskDropAreaContainer>
     )

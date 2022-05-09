@@ -1,5 +1,5 @@
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState } from '../../utils/types'
 
 import EmailCompose from './EmailCompose/EmailCompose'
@@ -12,8 +12,9 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import ReactTooltip from 'react-tooltip'
 import SanitizedHTML from '../atoms/SanitizedHTML'
 import { icons } from '../../styles/images'
-import { removeHTMLTags } from '../../utils/utils'
+import { getHumanDateTime, removeHTMLTags } from '../../utils/utils'
 import styled from 'styled-components'
+import { DateTime } from 'luxon'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -80,25 +81,30 @@ const IconButton = styled(NoStyleButton)`
 
 interface EmailContainerProps {
     email: TEmail
-    timeSent?: string
-    isCollapsed: boolean
+    isLastThread: boolean
     composeType: EmailComposeType | null // null if not in compose mode, otherwise the compose type
     setThreadComposeState: (state: TEmailComposeState) => void
     sourceAccountId: string
-    showMainActions: boolean
 }
 
-const EmailContainer = React.forwardRef<HTMLDivElement, EmailContainerProps>((props, ref) => {
-    const [isCollapsed, setIsCollapsed] = useState(!!props.isCollapsed)
+const EmailContainer = (props: EmailContainerProps) => {
+    const [isCollapsed, setIsCollapsed] = useState(props.isLastThread)
     const [showEmailActions, setShowEmailActions] = useState(false)
+    const timeSent = getHumanDateTime(DateTime.fromISO(props.email.sent_at))
+    const scrollingRef = useRef<HTMLDivElement>(null)
+    const emailActionsRef = useRef<HTMLDivElement>(null)
 
-    useEffect(() => setIsCollapsed(!!props.isCollapsed), [props.isCollapsed])
     useEffect(() => {
         ReactTooltip.hide()
         ReactTooltip.rebuild()
     }, [])
 
-    const emailActionsRef = useRef<HTMLDivElement>(null)
+    useLayoutEffect(() => {
+        setIsCollapsed(props.isLastThread)
+        if (props.isLastThread) {
+            scrollingRef.current?.scrollIntoView()
+        }
+    }, [props.isLastThread])
 
     const handleEmailActionsButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation()
@@ -151,13 +157,13 @@ const EmailContainer = React.forwardRef<HTMLDivElement, EmailContainerProps>((pr
     ]
 
     return (
-        <DetailsViewContainer ref={ref}>
+        <DetailsViewContainer ref={scrollingRef}>
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
                 <SenderContainer>
                     <div>
                         <Flex>
                             <Title>{props.email.sender.name}</Title>
-                            <SentAtContainer>{props.timeSent}</SentAtContainer>
+                            <SentAtContainer>{timeSent}</SentAtContainer>
                         </Flex>
                         <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
                     </div>
@@ -189,11 +195,13 @@ const EmailContainer = React.forwardRef<HTMLDivElement, EmailContainerProps>((pr
                     onClose={() => props.setThreadComposeState({ emailComposeType: null, emailId: null })}
                 />
             )}
-            {props.composeType == null && props.showMainActions && (
-                <EmailMainActions email={props.email} setThreadComposeState={props.setThreadComposeState} />
-            )}
-        </DetailsViewContainer>
+            {
+                props.composeType == null && props.isLastThread && (
+                    <EmailMainActions email={props.email} setThreadComposeState={props.setThreadComposeState} />
+                )
+            }
+        </DetailsViewContainer >
     )
-})
+}
 
 export default EmailContainer
