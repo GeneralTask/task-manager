@@ -17,6 +17,12 @@ import (
 	"net/http"
 )
 
+const (
+	LinearGraphqlEndpoint = "https://api.linear.app/graphql"
+	LinearAuthUrl         = "https://linear.app/oauth/authorize"
+	LinearTokenUrl        = "https://api.linear.app/oauth/token"
+)
+
 type LinearConfigValues struct {
 	UserInfoURL   *string
 	TaskFetchURL  *string
@@ -65,7 +71,10 @@ func (linear LinearService) HandleLinkCallback(params CallbackParams, userID pri
 		return errors.New("internal server error")
 	}
 
-	accountID := getLinearAccountID(token, linear.Config.ConfigValues.UserInfoURL)
+	accountID, err := getLinearAccountID(token, linear.Config.ConfigValues.UserInfoURL)
+	if err != nil {
+		accountID = "" // TODO: maybe add a placeholder instead of empty string
+	}
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -93,7 +102,7 @@ func (linear LinearService) HandleLinkCallback(params CallbackParams, userID pri
 	return nil
 }
 
-func getLinearAccountID(token *oauth2.Token, overrideURL *string) string {
+func getLinearAccountID(token *oauth2.Token, overrideURL *string) (string, error) {
 	client := getLinearClientFromToken(token, overrideURL)
 
 	var query struct {
@@ -106,10 +115,10 @@ func getLinearAccountID(token *oauth2.Token, overrideURL *string) string {
 	err := client.Query(context.Background(), &query, nil)
 	if err != nil {
 		log.Error().Err(err).Interface("query", query).Msg("could not execute query")
-		return "" // TODO: maybe add a placeholder instead of empty string
+		return "", err
 	}
 	log.Debug().Interface("query", query).Send()
-	return string(query.Viewer.Email)
+	return string(query.Viewer.Email), nil
 }
 
 func (linear LinearService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
@@ -122,7 +131,7 @@ func getLinearClientFromToken(token *oauth2.Token, overrideURL *string) *graphql
 		client = graphql.NewClient(*overrideURL, nil)
 	} else {
 		httpClient := oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(token))
-		client = graphql.NewClient("https://api.linear.app/graphql", httpClient)
+		client = graphql.NewClient(LinearGraphqlEndpoint, httpClient)
 	}
 	return client
 }
@@ -138,7 +147,7 @@ func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.O
 			log.Printf("failed to fetch google API token")
 			return nil, errors.New("failed to fetch google API token")
 		}
-		client = graphql.NewClient("https://api.linear.app/graphql", httpClient)
+		client = graphql.NewClient(LinearGraphqlEndpoint, httpClient)
 	}
 	if err != nil {
 		return nil, err
@@ -158,8 +167,8 @@ func getLinearOauthConfig() *OauthConfig {
 		RedirectURL:  config.GetConfigValue("SERVER_URL") + "link/linear/callback/",
 		Scopes:       []string{"read", "write"},
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://linear.app/oauth/authorize",
-			TokenURL: "https://api.linear.app/oauth/token",
+			AuthURL:  LinearAuthUrl,
+			TokenURL: LinearTokenUrl,
 		},
 	}}
 }
