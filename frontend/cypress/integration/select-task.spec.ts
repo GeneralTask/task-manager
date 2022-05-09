@@ -1,4 +1,4 @@
-const SELECTED_TASK_BORDER_CSS = '1px solid rgb(113, 113, 122)'
+const SELECTED_TASK_BORDER_COLOR = 'rgb(113, 113, 122)'
 
 describe('selecting a task open the details view', () => {
     before('login the user', () => {
@@ -19,7 +19,7 @@ describe('selecting a task open the details view', () => {
         // iterate over the tasks and click on each one
         cy.findAllByTestId('list-item').each(($el) => {
             cy.wrap($el).click()
-            cy.wrap($el).should('have.css', 'border', SELECTED_TASK_BORDER_CSS)
+            cy.wrap($el).should('have.css', 'border-color', SELECTED_TASK_BORDER_COLOR)
         })
     })
 })
