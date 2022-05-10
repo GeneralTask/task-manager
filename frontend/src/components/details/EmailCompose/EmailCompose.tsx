@@ -29,8 +29,9 @@ const SubjectInput = styled.input`
 interface EmailComposeProps {
     email: TEmail
     composeType: EmailComposeType
+    isPending: boolean
     sourceAccountId: string
-    setThreadComposeState: (state: TEmailComposeState) => void
+    setThreadComposeState: React.Dispatch<React.SetStateAction<TEmailComposeState>>
 }
 const EmailCompose = (props: EmailComposeProps) => {
     const [recipients, setRecipients] = useState<TRecipients>(
@@ -77,15 +78,15 @@ const EmailCompose = (props: EmailComposeProps) => {
                 emailId: null,
             })
         }, EMAIL_UNDO_TIMEOUT * 1000)
-        // props.setThreadComposeState((composeState) => ({
-        //     ...composeState,
-        //     undoTimeout: timeout,
-        // }))
+        props.setThreadComposeState((composeState) => ({
+            ...composeState,
+            undoTimeout: timeout,
+        }))
     }
 
-    // if (props.composeType === EmailComposeType.PENDING) {
-    //     return null
-    // }
+    if (props.isPending) {
+        return null
+    }
 
     return (
         <EmailComposeContainer ref={(node) => node?.scrollIntoView()}>

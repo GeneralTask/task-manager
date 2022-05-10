@@ -82,7 +82,7 @@ interface EmailContainerProps {
     email: TEmail
     isLastThread: boolean
     composeState: TEmailComposeState
-    setThreadComposeState: (state: TEmailComposeState) => void
+    setThreadComposeState: React.Dispatch<React.SetStateAction<TEmailComposeState>>
     sourceAccountId: string
 }
 
@@ -186,10 +186,11 @@ const EmailContainer = (props: EmailContainerProps) => {
                     <SanitizedHTML dirtyHTML={props.email.body} />
                 </BodyContainer>
             )}
-            {props.composeState.emailComposeType != null && (
+            {props.composeState.emailComposeType != null && props.composeState.emailId === props.email.message_id && (
                 <EmailCompose
                     email={props.email}
                     composeType={props.composeState.emailComposeType}
+                    isPending={props.composeState.undoTimeout !== undefined}
                     sourceAccountId={props.sourceAccountId}
                     setThreadComposeState={props.setThreadComposeState}
                 />
