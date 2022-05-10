@@ -70,19 +70,22 @@ const EmailCompose = (props: EmailComposeProps) => {
         [props.email, props.sourceAccountId, mutate, props.setThreadComposeState]
     )
 
-    const startSendEmail = (recipients: TRecipients, subject: string, body: string) => {
-        const timeout = setTimeout(() => {
-            sendEmail(recipients, subject, body)
-            props.setThreadComposeState({
-                emailComposeType: null,
-                emailId: null,
-            })
-        }, EMAIL_UNDO_TIMEOUT * 1000)
-        props.setThreadComposeState((composeState) => ({
-            ...composeState,
-            undoTimeout: timeout,
-        }))
-    }
+    const startSendEmail = useCallback(
+        (recipients: TRecipients, subject: string, body: string) => {
+            const timeout = setTimeout(() => {
+                sendEmail(recipients, subject, body)
+                props.setThreadComposeState({
+                    emailComposeType: null,
+                    emailId: null,
+                })
+            }, EMAIL_UNDO_TIMEOUT * 1000)
+            props.setThreadComposeState((composeState) => ({
+                ...composeState,
+                undoTimeout: timeout,
+            }))
+        },
+        [sendEmail]
+    )
 
     if (props.isPending) {
         return null

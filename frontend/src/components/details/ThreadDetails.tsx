@@ -1,5 +1,5 @@
 import { Colors, Spacing, Typography } from '../../styles'
-import React, { useState } from 'react'
+import React, { useLayoutEffect, useState } from 'react'
 import { SentEmailBanner, ThreadBottomSpacer, UndoButton } from './EmailCompose/EmailCompose-styles'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
@@ -58,6 +58,14 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         emailComposeType: null,
         emailId: null,
     })
+
+    useLayoutEffect(() => {
+        setComposeState({
+            emailComposeType: null,
+            emailId: null,
+        })
+    }, [thread?.id])
+
     const title = `${thread?.emails[0]?.subject ?? ''} (${thread?.emails.length ?? 0})`
     const recipient_emails = Array.from(
         new Set(
