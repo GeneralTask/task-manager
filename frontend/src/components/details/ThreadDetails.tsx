@@ -1,5 +1,5 @@
 import { Colors, Spacing, Typography } from '../../styles'
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { Fragment, useEffect, useLayoutEffect, useState } from 'react'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import EmailContainer from './EmailContainer'
@@ -88,29 +88,44 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     </HeaderContainer>
                     <EmailThreadsContainer>
                         {thread.emails.map((email, index) => (
-                            <EmailContainer
-                                key={email.message_id}
-                                email={email}
-                                isLastThread={index === thread.emails.length - 1}
-                                composeType={
-                                    email.message_id === composeState.emailId ? composeState.emailComposeType : null
-                                }
-                                setThreadComposeState={setComposeState}
-                                sourceAccountId={thread.source.account_id}
-                            />
+                            <Fragment key={email.message_id}>
+                                <EmailContainer
+                                    email={email}
+                                    isLastThread={index === thread.emails.length - 1}
+                                    composeType={
+                                        email.message_id === composeState.emailId ? composeState.emailComposeType : null
+                                    }
+                                    setThreadComposeState={setComposeState}
+                                    sourceAccountId={thread.source.account_id}
+                                />
+                                {composeState.emailId === email.message_id &&
+                                    !composeState.isLastEmail &&
+                                    composeState.emailComposeType != null && (
+                                        <EmailCompose
+                                            email={thread.emails[thread?.emails.length - 1]}
+                                            composeType={composeState.emailComposeType}
+                                            sourceAccountId={thread.source.account_id}
+                                            onClose={() =>
+                                                setComposeState({
+                                                    emailComposeType: null,
+                                                    emailId: null,
+                                                    isLastEmail: false,
+                                                })
+                                            }
+                                        />
+                                    )}
+                            </Fragment>
                         ))}
                     </EmailThreadsContainer>
                 </>
             )}
-            {composeState.isLastEmail && thread && composeState.emailComposeType != null && (
-                <>
-                    <EmailCompose
-                        email={thread.emails[thread?.emails.length - 1]}
-                        composeType={composeState.emailComposeType}
-                        sourceAccountId={thread.source.account_id}
-                        onClose={() => setComposeState({ emailComposeType: null, emailId: null, isLastEmail: true })}
-                    />
-                </>
+            {thread && composeState.isLastEmail && composeState.emailComposeType != null && (
+                <EmailCompose
+                    email={thread.emails[thread?.emails.length - 1]}
+                    composeType={composeState.emailComposeType}
+                    sourceAccountId={thread.source.account_id}
+                    onClose={() => setComposeState({ emailComposeType: null, emailId: null, isLastEmail: false })}
+                />
             )}
         </FlexColumnContainer>
     )

@@ -192,20 +192,6 @@ const EmailContainer = (props: EmailContainerProps) => {
                     <SanitizedHTML dirtyHTML={props.email.body} />
                 </BodyContainer>
             )}
-            {props.composeType != null && !props.isLastThread && (
-                <EmailCompose
-                    email={props.email}
-                    composeType={props.composeType}
-                    sourceAccountId={props.sourceAccountId}
-                    onClose={() =>
-                        props.setThreadComposeState({
-                            emailComposeType: null,
-                            emailId: null,
-                            isLastEmail: props.isLastThread,
-                        })
-                    }
-                />
-            )}
             {props.composeType == null && props.isLastThread && (
                 <EmailMainActions email={props.email} setThreadComposeState={props.setThreadComposeState} />
             )}
