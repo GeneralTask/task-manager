@@ -89,7 +89,7 @@ interface EmailContainerProps {
 }
 
 const EmailContainer = (props: EmailContainerProps) => {
-    const [isCollapsed, setIsCollapsed] = useState(props.isLastThread)
+    const [isCollapsed, setIsCollapsed] = useState(!props.isLastThread)
     const [showEmailActions, setShowEmailActions] = useState(false)
     const timeSent = getHumanDateTime(DateTime.fromISO(props.email.sent_at))
     const scrollingRef = useRef<HTMLDivElement>(null)
@@ -101,7 +101,7 @@ const EmailContainer = (props: EmailContainerProps) => {
     }, [])
 
     useLayoutEffect(() => {
-        setIsCollapsed(props.isLastThread)
+        setIsCollapsed(!props.isLastThread)
         if (props.isLastThread) {
             scrollingRef.current?.scrollIntoView()
         }
