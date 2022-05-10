@@ -3,11 +3,11 @@ import React, { useState } from 'react'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import EmailContainer from './EmailContainer'
+import EmailMainActions from './EmailCompose/EmailMainActions'
 import { Icon } from '../atoms/Icon'
+import { SentEmailBanner } from './EmailCompose/EmailCompose-styles'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
-import { SentEmailBanner } from './EmailCompose/EmailCompose-styles'
-import { EmailComposeType } from '../../utils/enums'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
@@ -68,6 +68,16 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         )
     )
 
+    const onUndoSend = () => {
+        if (composeState.undoTimeout) clearTimeout(composeState.undoTimeout)
+        setComposeState({
+            ...composeState,
+            undoTimeout: undefined,
+        })
+    }
+
+    console.log({ composeState })
+
     return (
         <FlexColumnContainer>
             {thread && (
@@ -85,15 +95,22 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                 key={email.message_id}
                                 email={email}
                                 isLastThread={index === thread.emails.length - 1}
-                                composeType={
-                                    email.message_id === composeState.emailId ? composeState.emailComposeType : null
-                                }
+                                composeState={composeState}
                                 setThreadComposeState={setComposeState}
                                 sourceAccountId={thread.source.account_id}
                             />
                         ))}
-                        {composeState.emailComposeType === EmailComposeType.PENDING && (
-                            <SentEmailBanner>Your email was sent.</SentEmailBanner>
+                        {composeState.emailComposeType === null && (
+                            <EmailMainActions
+                                email={thread.emails[thread.emails.length - 1]}
+                                setThreadComposeState={setComposeState}
+                            />
+                        )}
+                        {composeState.undoTimeout != null && (
+                            <SentEmailBanner>
+                                Your email was sent.
+                                <button onClick={onUndoSend}>Undo</button>
+                            </SentEmailBanner>
                         )}
                     </EmailThreadsContainer>
                 </>
