@@ -125,7 +125,6 @@ const EmailContainer = (props: EmailContainerProps) => {
                 props.setThreadComposeState({
                     emailComposeType: EmailComposeType.REPLY,
                     emailId: props.email.message_id,
-                    isLastEmail: props.isLastThread,
                 })
             },
         },
@@ -140,7 +139,6 @@ const EmailContainer = (props: EmailContainerProps) => {
                 props.setThreadComposeState({
                     emailComposeType: EmailComposeType.REPLY_ALL,
                     emailId: props.email.message_id,
-                    isLastEmail: props.isLastThread,
                 })
             },
         },
@@ -155,7 +153,6 @@ const EmailContainer = (props: EmailContainerProps) => {
                 props.setThreadComposeState({
                     emailComposeType: EmailComposeType.FORWARD,
                     emailId: props.email.message_id,
-                    isLastEmail: props.isLastThread,
                 })
             },
         },

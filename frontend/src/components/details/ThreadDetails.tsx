@@ -56,13 +56,11 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
         emailId: null,
-        isLastEmail: false,
     })
     useLayoutEffect(() => {
         setComposeState({
             emailComposeType: null,
             emailId: null,
-            isLastEmail: false,
         })
     }, [thread])
     const title = `${thread?.emails[0]?.subject ?? ''} (${thread?.emails.length ?? 0})`
@@ -99,7 +97,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                     sourceAccountId={thread.source.account_id}
                                 />
                                 {composeState.emailId === email.message_id &&
-                                    !composeState.isLastEmail &&
+                                    index !== thread.emails.length - 1 &&
                                     composeState.emailComposeType != null && (
                                         <EmailCompose
                                             email={thread.emails[thread?.emails.length - 1]}
@@ -109,7 +107,6 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                                 setComposeState({
                                                     emailComposeType: null,
                                                     emailId: null,
-                                                    isLastEmail: false,
                                                 })
                                             }
                                         />
@@ -119,14 +116,16 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     </EmailThreadsContainer>
                 </>
             )}
-            {thread && composeState.isLastEmail && composeState.emailComposeType != null && (
-                <EmailCompose
-                    email={thread.emails[thread?.emails.length - 1]}
-                    composeType={composeState.emailComposeType}
-                    sourceAccountId={thread.source.account_id}
-                    onClose={() => setComposeState({ emailComposeType: null, emailId: null, isLastEmail: false })}
-                />
-            )}
+            {thread &&
+                composeState.emailId === thread.emails[thread.emails.length - 1].message_id &&
+                composeState.emailComposeType != null && (
+                    <EmailCompose
+                        email={thread.emails[thread?.emails.length - 1]}
+                        composeType={composeState.emailComposeType}
+                        sourceAccountId={thread.source.account_id}
+                        onClose={() => setComposeState({ emailComposeType: null, emailId: null })}
+                    />
+                )}
         </FlexColumnContainer>
     )
 }
