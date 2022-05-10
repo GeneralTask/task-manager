@@ -32,8 +32,8 @@ type Config struct {
 	Slack                 OauthConfigWrapper
 	Trello                *oauth1.Config
 	Asana                 OauthConfigWrapper
-	Linear                OauthConfigWrapper
 	GoogleOverrideURLs    GoogleURLOverrides
+	Linear                LinearConfig
 	Atlassian             AtlassianConfig
 }
 
@@ -45,7 +45,7 @@ func GetConfig() Config {
 		Slack:                 getSlackConfig(),
 		Trello:                getTrelloConfig(),
 		Asana:                 getAsanaConfig(),
-		Linear:                getLinearConfig(),
+		Linear:                LinearConfig{OauthConfig: getLinearOauthConfig()},
 		Atlassian:             AtlassianConfig{OauthConfig: getAtlassianOauthConfig()},
 	}
 }
@@ -263,7 +263,7 @@ var TaskServiceLinear = TaskServiceDetails{
 	Logo:         "/images/linear.png",
 	LogoV2:       "linear",
 	AuthType:     AuthTypeOauth2,
-	IsLinkable:   false,
+	IsLinkable:   true,
 	IsSignupable: false,
 }
 
