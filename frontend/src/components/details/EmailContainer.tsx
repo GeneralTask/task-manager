@@ -101,7 +101,7 @@ const EmailContainer = (props: EmailContainerProps) => {
     }, [])
 
     useLayoutEffect(() => {
-        setIsCollapsed(props.isLastThread)
+        setIsCollapsed(!props.isLastThread)
         if (props.isLastThread) {
             scrollingRef.current?.scrollIntoView()
         }
