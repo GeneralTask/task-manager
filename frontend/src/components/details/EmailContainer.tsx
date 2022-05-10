@@ -45,6 +45,7 @@ const BodyContainer = styled.div`
     margin: ${Spacing.margin._8}px;
 `
 const BodyContainerCollapsed = styled.span`
+    margin-left: ${Spacing.margin._8}px;
     flex: 1;
     overflow: hidden;
     white-space: nowrap;
