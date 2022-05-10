@@ -2,7 +2,6 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState } from '../../utils/types'
 
-import EmailCompose from './EmailCompose/EmailCompose'
 import { EmailComposeType } from '../../utils/enums'
 import EmailMainActions from './EmailCompose/EmailMainActions'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
