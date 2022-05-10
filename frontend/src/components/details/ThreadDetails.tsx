@@ -1,6 +1,6 @@
 import { Colors, Spacing, Typography } from '../../styles'
-import { MinHeightContainer, SentEmailBanner, UndoButton } from './EmailCompose/EmailCompose-styles'
 import React, { useState } from 'react'
+import { SentEmailBanner, ThreadBottomSpacer, UndoButton } from './EmailCompose/EmailCompose-styles'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import EmailContainer from './EmailContainer'
@@ -98,20 +98,19 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                 sourceAccountId={thread.source.account_id}
                             />
                         ))}
-                        <MinHeightContainer>
-                            {composeState.emailComposeType === null && (
-                                <EmailMainActions
-                                    email={thread.emails[thread.emails.length - 1]}
-                                    setThreadComposeState={setComposeState}
-                                />
-                            )}
-                            {composeState.undoTimeout !== undefined && (
-                                <SentEmailBanner>
-                                    Your email was sent.
-                                    <UndoButton onClick={onUndoSend}>Undo</UndoButton>
-                                </SentEmailBanner>
-                            )}
-                        </MinHeightContainer>
+                        {composeState.emailComposeType === null && (
+                            <EmailMainActions
+                                email={thread.emails[thread.emails.length - 1]}
+                                setThreadComposeState={setComposeState}
+                            />
+                        )}
+                        {composeState.undoTimeout !== undefined && (
+                            <SentEmailBanner>
+                                Your email was sent.
+                                <UndoButton onClick={onUndoSend}>Undo</UndoButton>
+                            </SentEmailBanner>
+                        )}
+                        <ThreadBottomSpacer />
                     </EmailThreadsContainer>
                 </>
             )}
