@@ -107,5 +107,18 @@ export const Flex = styled.div`
 export const SentEmailBanner = styled.div`
     background-color: ${Colors.black};
     color: ${Colors.white};
-    width: 100%;
+    margin: ${Spacing.margin._8}px;
+    border-radius: ${Border.radius.small};
+    padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`
+export const UndoButton = styled(NoStyleButton)`
+    background-color: ${Colors.purple._1};
+    border-radius: ${Border.radius.small};
+    padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
+`
+export const MinHeightContainer = styled.div`
+    min-height: 500px;
 `

@@ -1,11 +1,11 @@
 import { Colors, Spacing, Typography } from '../../styles'
+import { MinHeightContainer, SentEmailBanner, UndoButton } from './EmailCompose/EmailCompose-styles'
 import React, { useState } from 'react'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import EmailContainer from './EmailContainer'
 import EmailMainActions from './EmailCompose/EmailMainActions'
 import { Icon } from '../atoms/Icon'
-import { SentEmailBanner } from './EmailCompose/EmailCompose-styles'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 
@@ -76,8 +76,6 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         })
     }
 
-    console.log({ composeState })
-
     return (
         <FlexColumnContainer>
             {thread && (
@@ -100,18 +98,20 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                 sourceAccountId={thread.source.account_id}
                             />
                         ))}
-                        {composeState.emailComposeType === null && (
-                            <EmailMainActions
-                                email={thread.emails[thread.emails.length - 1]}
-                                setThreadComposeState={setComposeState}
-                            />
-                        )}
-                        {composeState.undoTimeout != null && (
-                            <SentEmailBanner>
-                                Your email was sent.
-                                <button onClick={onUndoSend}>Undo</button>
-                            </SentEmailBanner>
-                        )}
+                        <MinHeightContainer>
+                            {composeState.emailComposeType === null && (
+                                <EmailMainActions
+                                    email={thread.emails[thread.emails.length - 1]}
+                                    setThreadComposeState={setComposeState}
+                                />
+                            )}
+                            {composeState.undoTimeout !== undefined && (
+                                <SentEmailBanner>
+                                    Your email was sent.
+                                    <UndoButton onClick={onUndoSend}>Undo</UndoButton>
+                                </SentEmailBanner>
+                            )}
+                        </MinHeightContainer>
                     </EmailThreadsContainer>
                 </>
             )}
