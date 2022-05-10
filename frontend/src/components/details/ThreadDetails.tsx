@@ -1,8 +1,10 @@
 import { Colors, Spacing, Typography } from '../../styles'
 import React, { useState } from 'react'
+import { SentEmailBanner, ThreadBottomSpacer, UndoButton } from './EmailCompose/EmailCompose-styles'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import EmailContainer from './EmailContainer'
+import EmailMainActions from './EmailCompose/EmailMainActions'
 import { Icon } from '../atoms/Icon'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
@@ -66,6 +68,14 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         )
     )
 
+    const onUndoSend = () => {
+        if (composeState.undoTimeout) clearTimeout(composeState.undoTimeout)
+        setComposeState({
+            ...composeState,
+            undoTimeout: undefined,
+        })
+    }
+
     return (
         <FlexColumnContainer>
             {thread && (
@@ -83,13 +93,24 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                 key={email.message_id}
                                 email={email}
                                 isLastThread={index === thread.emails.length - 1}
-                                composeType={
-                                    email.message_id === composeState.emailId ? composeState.emailComposeType : null
-                                }
+                                composeState={composeState}
                                 setThreadComposeState={setComposeState}
                                 sourceAccountId={thread.source.account_id}
                             />
                         ))}
+                        {composeState.emailComposeType === null && (
+                            <EmailMainActions
+                                email={thread.emails[thread.emails.length - 1]}
+                                setThreadComposeState={setComposeState}
+                            />
+                        )}
+                        {composeState.undoTimeout !== undefined && (
+                            <SentEmailBanner>
+                                Your email was sent.
+                                <UndoButton onClick={onUndoSend}>Undo</UndoButton>
+                            </SentEmailBanner>
+                        )}
+                        <ThreadBottomSpacer />
                     </EmailThreadsContainer>
                 </>
             )}

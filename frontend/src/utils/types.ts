@@ -170,4 +170,5 @@ export interface TUserInfo {
 export interface TEmailComposeState {
     emailComposeType: EmailComposeType | null
     emailId: string | null // the id of the email to show the compose form for
+    undoTimeout?: NodeJS.Timeout
 }
