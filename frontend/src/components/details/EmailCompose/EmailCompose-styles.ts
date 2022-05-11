@@ -119,6 +119,3 @@ export const UndoButton = styled(NoStyleButton)`
     border-radius: ${Border.radius.small};
     padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
 `
-export const ThreadBottomSpacer = styled.div`
-    min-height: 20vh;
-`

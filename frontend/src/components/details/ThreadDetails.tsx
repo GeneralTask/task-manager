@@ -1,6 +1,6 @@
 import { Colors, Spacing, Typography } from '../../styles'
 import React, { useLayoutEffect, useState } from 'react'
-import { SentEmailBanner, ThreadBottomSpacer, UndoButton } from './EmailCompose/EmailCompose-styles'
+import { SentEmailBanner, UndoButton } from './EmailCompose/EmailCompose-styles'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import EmailContainer from './EmailContainer'
@@ -48,6 +48,7 @@ const EmailThreadsContainer = styled.div`
     flex: 1;
     overflow-y: auto;
     min-width: 0;
+    margin-bottom: 20vh;
 `
 
 interface ThreadDetailsProps {
@@ -118,7 +119,6 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                 <UndoButton onClick={onUndoSend}>Undo</UndoButton>
                             </SentEmailBanner>
                         )}
-                        <ThreadBottomSpacer />
                     </EmailThreadsContainer>
                 </>
             )}
