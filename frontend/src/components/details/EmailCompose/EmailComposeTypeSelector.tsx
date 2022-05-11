@@ -21,50 +21,54 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         setShowEmailActions((show) => !show)
     }
 
-    const emailActionOptions = [
-        {
-            item: (
-                <EmailActionOption>
-                    {isNewEmail && <Icon size="medium" source={icons.reply} />}
-                    <NoWrap>Reply</NoWrap>
-                </EmailActionOption>
-            ),
-            onClick: () => {
-                setThreadComposeState({
-                    emailComposeType: EmailComposeType.REPLY,
-                    emailId: email.message_id,
-                })
-            },
+    const replyOption = {
+        item: (
+            <EmailActionOption>
+                {isNewEmail && <Icon size="medium" source={icons.reply} />}
+                <NoWrap>Reply</NoWrap>
+            </EmailActionOption>
+        ),
+        onClick: () => {
+            setThreadComposeState({
+                emailComposeType: EmailComposeType.REPLY,
+                emailId: email.message_id,
+            })
         },
-        {
-            item: (
-                <EmailActionOption>
-                    {isNewEmail && <Icon size="medium" source={icons.replyAll} />}
-                    <NoWrap>Reply All</NoWrap>
-                </EmailActionOption>
-            ),
-            onClick: () => {
-                setThreadComposeState({
-                    emailComposeType: EmailComposeType.REPLY_ALL,
-                    emailId: email.message_id,
-                })
-            },
+    }
+    const replyAllOption = {
+        item: (
+            <EmailActionOption>
+                {isNewEmail && <Icon size="medium" source={icons.replyAll} />}
+                <NoWrap>Reply All</NoWrap>
+            </EmailActionOption>
+        ),
+        onClick: () => {
+            setThreadComposeState({
+                emailComposeType: EmailComposeType.REPLY_ALL,
+                emailId: email.message_id,
+            })
         },
-        {
-            item: (
-                <EmailActionOption>
-                    {isNewEmail && <Icon size="medium" source={icons.forward} />}
-                    <NoWrap>Forward</NoWrap>
-                </EmailActionOption>
-            ),
-            onClick: () => {
-                setThreadComposeState({
-                    emailComposeType: EmailComposeType.FORWARD,
-                    emailId: email.message_id,
-                })
-            },
+    }
+    const forwardOption = {
+        item: (
+            <EmailActionOption>
+                {isNewEmail && <Icon size="medium" source={icons.forward} />}
+                <NoWrap>Forward</NoWrap>
+            </EmailActionOption>
+        ),
+        onClick: () => {
+            setThreadComposeState({
+                emailComposeType: EmailComposeType.FORWARD,
+                emailId: email.message_id,
+            })
         },
-    ]
+    }
+
+    const emailActionOptions = [replyOption, forwardOption]
+    const numRecipients = email.recipients.to.length + email.recipients.cc.length
+    if (numRecipients > 1) {
+        emailActionOptions.splice(1, 0, replyAllOption)
+    }
 
     return (
         <div ref={emailActionsRef}>
