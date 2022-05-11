@@ -81,7 +81,7 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
             {showEmailActions && (
                 <GTSelect
                     options={emailActionOptions}
-                    location="right"
+                    location={isNewEmail ? 'left' : 'right'}
                     onClose={() => setShowEmailActions(false)}
                     parentRef={emailActionsRef}
                 />
