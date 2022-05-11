@@ -1,16 +1,17 @@
-import React, { useRef, useState } from 'react'
-import { icons } from '../../../styles/images'
-import { EmailComposeType } from '../../../utils/enums'
-import { TEmail, TEmailComposeState } from '../../../utils/types'
-import { Icon } from '../../atoms/Icon'
-import GTSelect from '../../molecules/GTSelect'
 import { EmailActionOption, EmailComposeIconButton, NoWrap } from './EmailCompose-styles'
+import React, { useRef, useState } from 'react'
+import { TEmail, TEmailComposeState } from '../../../utils/types'
+
+import { EmailComposeType } from '../../../utils/enums'
+import GTSelect from '../../molecules/GTSelect'
+import { Icon } from '../../atoms/Icon'
+import { icons } from '../../../styles/images'
 
 interface EmailComposeTypeSelectorProps {
     email: TEmail
     setThreadComposeState: React.Dispatch<React.SetStateAction<TEmailComposeState>>
-    isNewEmail: boolean
     // if isNewEmail, appears as ellipsis button in thread. If false, appears as caret_down in compose form with smaller options
+    isNewEmail: boolean
 }
 const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: EmailComposeTypeSelectorProps) => {
     const [showEmailActions, setShowEmailActions] = useState(false)
