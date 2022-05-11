@@ -24,12 +24,11 @@ const IconButton = styled(NoStyleButton)`
 
 interface EmailComposeTypeSelectorProps {
     email: TEmail
-    optionsSize: 'small' | 'large'
-    toggleButtonIcon: string
-    hasBorder: boolean
     setThreadComposeState: React.Dispatch<React.SetStateAction<TEmailComposeState>>
+    isNewEmail: boolean
+    // if isNewEmail, appears as ellipsis button in thread. If false, appears as caret_down in compose form with smaller options
 }
-const EmailComposeTypeSelector = (props: EmailComposeTypeSelectorProps) => {
+const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: EmailComposeTypeSelectorProps) => {
     const [showEmailActions, setShowEmailActions] = useState(false)
     const emailActionsRef = useRef<HTMLDivElement>(null)
 
@@ -47,9 +46,9 @@ const EmailComposeTypeSelector = (props: EmailComposeTypeSelectorProps) => {
                 </EmailActionContainer>
             ),
             onClick: () => {
-                props.setThreadComposeState({
+                setThreadComposeState({
                     emailComposeType: EmailComposeType.REPLY,
-                    emailId: props.email.message_id,
+                    emailId: email.message_id,
                 })
             },
         },
@@ -61,9 +60,9 @@ const EmailComposeTypeSelector = (props: EmailComposeTypeSelectorProps) => {
                 </EmailActionContainer>
             ),
             onClick: () => {
-                props.setThreadComposeState({
+                setThreadComposeState({
                     emailComposeType: EmailComposeType.REPLY_ALL,
-                    emailId: props.email.message_id,
+                    emailId: email.message_id,
                 })
             },
         },
@@ -75,17 +74,20 @@ const EmailComposeTypeSelector = (props: EmailComposeTypeSelectorProps) => {
                 </EmailActionContainer>
             ),
             onClick: () => {
-                props.setThreadComposeState({
+                setThreadComposeState({
                     emailComposeType: EmailComposeType.FORWARD,
-                    emailId: props.email.message_id,
+                    emailId: email.message_id,
                 })
             },
         },
     ]
+
+    const icon = isNewEmail ? icons.skinnyHamburger : icons.caret_down
+
     return (
         <div ref={emailActionsRef}>
             <IconButton onClick={handleEmailActionsButtonClick}>
-                <Icon size="small" source={props.toggleButtonIcon} />
+                <Icon size="small" source={icon} />
             </IconButton>
             {showEmailActions && (
                 <GTSelect

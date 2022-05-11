@@ -101,9 +101,7 @@ const EmailContainer = (props: EmailContainerProps) => {
                     </div>
                     <EmailComposeTypeSelector
                         email={props.email}
-                        optionsSize="large"
-                        toggleButtonIcon={icons.skinnyHamburger}
-                        hasBorder={false}
+                        isNewEmail={true}
                         setThreadComposeState={props.setThreadComposeState}
                     />
                 </SenderContainer>
