@@ -1,7 +1,6 @@
 import {
     BodyContainer,
     ButtonsContainer,
-    ComposeSelectorButton,
     ComposeSelectorButtonContainer,
     EmailComposeContainer,
     EmailComposeFormContainer,
@@ -12,7 +11,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { TEmail, TEmailComposeState, TRecipients } from '../../../utils/types'
 import { attachSubjectPrefix, getInitialRecipients, stripSubjectPrefix } from './emailComposeUtils'
 
-import { Colors, Images } from '../../../styles'
+import { Colors } from '../../../styles'
 import { Divider } from '../../atoms/SectionDivider'
 import { EMAIL_UNDO_TIMEOUT } from '../../../constants'
 import { EmailComposeType } from '../../../utils/enums'
@@ -21,7 +20,7 @@ import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
-import { Icon } from '../../atoms/Icon'
+import EmailComposeTypeSelector from './EmailComposeTypeSelector'
 
 const SubjectContainer = styled.div`
     ${EmailInputContainer}
@@ -43,6 +42,10 @@ const EmailCompose = (props: EmailComposeProps) => {
     )
     const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
+
+    useEffect(() => {
+        setRecipients(getInitialRecipients(props.email, props.composeType, props.sourceAccountId))
+    }, [props.composeType])
 
     useEffect(() => {
         setRecipients(getInitialRecipients(props.email, props.composeType, props.sourceAccountId))
@@ -98,9 +101,11 @@ const EmailCompose = (props: EmailComposeProps) => {
     return (
         <EmailComposeContainer>
             <ComposeSelectorButtonContainer>
-                <ComposeSelectorButton>
-                    <Icon source={Images.icons.caret_down} size="xxSmall" />
-                </ComposeSelectorButton>
+                <EmailComposeTypeSelector
+                    email={props.email}
+                    isNewEmail={false}
+                    setThreadComposeState={props.setThreadComposeState}
+                />
             </ComposeSelectorButtonContainer>
             <EmailComposeFormContainer ref={(node) => node?.scrollIntoView()}>
                 <EmailRecipientsInput recipients={recipients} setRecipients={setRecipients} />

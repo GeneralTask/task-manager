@@ -13,10 +13,16 @@ const EmailActionContainer = styled.div`
     align-items: center;
     gap: ${Spacing.padding._8}px;
 `
-const IconButton = styled(NoStyleButton)`
+const IconButton = styled(NoStyleButton)<{ hasBorder: boolean }>`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid ${(props) => (props.hasBorder ? Colors.gray._200 : 'transparent')};
     border-radius: ${Border.radius.xxSmall};
     position: relative;
     padding: ${Spacing.padding._4}px;
+    min-height: 20px;
+    min-width: 20px;
     &:hover {
         background-color: ${Colors.gray._200};
     }
@@ -37,7 +43,6 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         setShowEmailActions((show) => !show)
     }
 
-    const buttonIcon = isNewEmail ? icons.skinnyHamburger : icons.caret_down
     const optionIconSize = isNewEmail ? 'medium' : 'small'
 
     const emailActionOptions = [
@@ -87,8 +92,11 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
 
     return (
         <div ref={emailActionsRef}>
-            <IconButton onClick={handleEmailActionsButtonClick}>
-                <Icon size="small" source={buttonIcon} />
+            <IconButton onClick={handleEmailActionsButtonClick} hasBorder={!isNewEmail}>
+                <Icon
+                    size={isNewEmail ? 'small' : 'xxSmall'}
+                    source={isNewEmail ? icons.skinnyHamburger : icons.caret_down}
+                />
             </IconButton>
             {showEmailActions && (
                 <GTSelect
