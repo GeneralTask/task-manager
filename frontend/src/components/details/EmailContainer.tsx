@@ -164,11 +164,9 @@ const EmailContainer = (props: EmailContainerProps) => {
                             <Title>{props.email.sender.name}</Title>
                             <SentAtContainer>{timeSent}</SentAtContainer>
                         </Flex>
-                        <div>
-                            {!isCollapsed && (
-                                <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
-                            )}
-                        </div>
+                        {!isCollapsed && (
+                            <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
+                        )}
                     </div>
                     <div ref={emailActionsRef}>
                         <IconButton onClick={handleEmailActionsButtonClick}>
