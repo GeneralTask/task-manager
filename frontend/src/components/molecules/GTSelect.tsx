@@ -5,7 +5,7 @@ import { radius } from '../../styles/border'
 import styled from 'styled-components'
 import { useClickOutside } from '../../hooks'
 
-const SelectContainer = styled.div`
+const SelectContainer = styled.div<{ alignLeft: boolean }>`
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -13,8 +13,7 @@ const SelectContainer = styled.div`
     border-radius: ${radius.regular};
     box-shadow: ${Shadows.medium};
     z-index: 1;
-    top: 100%;
-    right: 0;
+    ${({ alignLeft }) => alignLeft && 'right: 0;'}
     cursor: default;
     outline: none;
 `
@@ -60,10 +59,15 @@ interface GTSelectOption {
 interface GTSelectProps {
     options: GTSelectOption[]
     onClose: () => void
+    location?: 'left' | 'right'
     title?: ReactNode
     parentRef?: React.RefObject<HTMLElement> // pass this in to exclude parent from click outside
 }
-const GTSelect = ({ options, onClose, title, parentRef }: GTSelectProps) => {
+const GTSelect = ({ options, onClose, location, title, parentRef }: GTSelectProps) => {
+    if (!location) {
+        // default location to right
+        location = 'right'
+    }
     const selectRef = useRef(null)
     useClickOutside(parentRef ?? selectRef, onClose)
     const optionsList = options.map((option, index) => (
@@ -80,7 +84,7 @@ const GTSelect = ({ options, onClose, title, parentRef }: GTSelectProps) => {
     ))
     return (
         <PositionRelative>
-            <SelectContainer ref={selectRef} onClick={(e) => e.stopPropagation()}>
+            <SelectContainer ref={selectRef} onClick={(e) => e.stopPropagation()} alignLeft={location === 'left'}>
                 {title && <TitleContainer>{title}</TitleContainer>}
                 <OptionsContainer>{optionsList}</OptionsContainer>
             </SelectContainer>
