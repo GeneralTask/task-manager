@@ -91,4 +91,4 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
     )
 }
 
-export default EmailComposeTypeSelector
+export default React.memo(EmailComposeTypeSelector)

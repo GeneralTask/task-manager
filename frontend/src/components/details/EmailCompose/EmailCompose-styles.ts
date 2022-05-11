@@ -31,6 +31,7 @@ export const EmailInput = css`
 `
 export const EmailComposeContainer = styled.div`
     display: flex;
+    margin-bottom: ${Spacing.margin._16}px;
 `
 export const EmailComposeFormContainer = styled.div`
     flex: 1;

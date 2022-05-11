@@ -5,11 +5,11 @@ import { getHumanDateTime, removeHTMLTags } from '../../utils/utils'
 
 import { DateTime } from 'luxon'
 import EmailCompose from './EmailCompose/EmailCompose'
+import EmailComposeTypeSelector from './EmailCompose/EmailComposeTypeSelector'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import ReactTooltip from 'react-tooltip'
 import SanitizedHTML from '../atoms/SanitizedHTML'
 import styled from 'styled-components'
-import EmailComposeTypeSelector from './EmailCompose/EmailComposeTypeSelector'
 
 const DetailsViewContainer = styled.div`
     display: flex;
