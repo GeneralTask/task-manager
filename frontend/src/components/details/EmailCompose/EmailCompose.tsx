@@ -1,7 +1,10 @@
 import {
     BodyContainer,
     ButtonsContainer,
+    ComposeSelectorButton,
+    ComposeSelectorButtonContainer,
     EmailComposeContainer,
+    EmailComposeFormContainer,
     EmailInput,
     EmailInputContainer,
 } from './EmailCompose-styles'
@@ -9,7 +12,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { TEmail, TEmailComposeState, TRecipients } from '../../../utils/types'
 import { attachSubjectPrefix, getInitialRecipients, stripSubjectPrefix } from './emailComposeUtils'
 
-import { Colors } from '../../../styles'
+import { Colors, Images } from '../../../styles'
 import { Divider } from '../../atoms/SectionDivider'
 import { EMAIL_UNDO_TIMEOUT } from '../../../constants'
 import { EmailComposeType } from '../../../utils/enums'
@@ -18,6 +21,7 @@ import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
+import { Icon } from '../../atoms/Icon'
 
 const SubjectContainer = styled.div`
     ${EmailInputContainer}
@@ -92,36 +96,43 @@ const EmailCompose = (props: EmailComposeProps) => {
     }
 
     return (
-        <EmailComposeContainer ref={(node) => node?.scrollIntoView()}>
-            <EmailRecipientsInput recipients={recipients} setRecipients={setRecipients} />
-            <SubjectContainer>
-                <SubjectInput
-                    className="email-header"
-                    placeholder="Subject"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                />
-            </SubjectContainer>
-            <Divider color={Colors.gray._200} />
-            <BodyContainer>
-                <TextArea
-                    placeholder="Body"
-                    setValue={(value) => {
-                        setBody(value)
-                    }}
-                    value={body}
-                />
-            </BodyContainer>
-            <ButtonsContainer>
-                <RoundedGeneralButton
-                    onPress={() => startSendEmail(recipients, subject, body)}
-                    value="Send"
-                    color={Colors.purple._1}
-                    disabled={recipients.to.length === 0}
-                />
-                <RoundedGeneralButton onPress={onClose} value="Cancel" textStyle="dark" />
-                {isLoading && 'Sending...'}
-            </ButtonsContainer>
+        <EmailComposeContainer>
+            <ComposeSelectorButtonContainer>
+                <ComposeSelectorButton>
+                    <Icon source={Images.icons.caret_down} size="xxSmall" />
+                </ComposeSelectorButton>
+            </ComposeSelectorButtonContainer>
+            <EmailComposeFormContainer ref={(node) => node?.scrollIntoView()}>
+                <EmailRecipientsInput recipients={recipients} setRecipients={setRecipients} />
+                <SubjectContainer>
+                    <SubjectInput
+                        className="email-header"
+                        placeholder="Subject"
+                        value={subject}
+                        onChange={(e) => setSubject(e.target.value)}
+                    />
+                </SubjectContainer>
+                <Divider color={Colors.gray._200} />
+                <BodyContainer>
+                    <TextArea
+                        placeholder="Body"
+                        setValue={(value) => {
+                            setBody(value)
+                        }}
+                        value={body}
+                    />
+                </BodyContainer>
+                <ButtonsContainer>
+                    <RoundedGeneralButton
+                        onPress={() => startSendEmail(recipients, subject, body)}
+                        value="Send"
+                        color={Colors.purple._1}
+                        disabled={recipients.to.length === 0}
+                    />
+                    <RoundedGeneralButton onPress={onClose} value="Cancel" textStyle="dark" />
+                    {isLoading && 'Sending...'}
+                </ButtonsContainer>
+            </EmailComposeFormContainer>
         </EmailComposeContainer>
     )
 }
