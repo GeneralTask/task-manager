@@ -33,9 +33,6 @@ export const EmailComposeContainer = styled.div`
     display: flex;
 `
 export const EmailComposeFormContainer = styled.div`
-    /* margin: ${Spacing.margin._16}px; */
-    /* border: 2px solid ${Colors.gray._300}; */
-    /* border-radius: ${Border.radius.large}; */
     flex: 1;
     .react-multi-email {
         ${EmailInputContainer}
@@ -44,9 +41,6 @@ export const EmailComposeFormContainer = styled.div`
         ${EmailInput}
         margin: 0 ${Spacing.padding._4}px;
     }
-`
-export const FullWidth = styled.div`
-    /* width: 100%; */
 `
 export const EmailRecipientsContainer = styled.div`
     display: flex;
