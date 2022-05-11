@@ -20,7 +20,6 @@ const EmailMainActions = ({ email, setThreadComposeState }: EmailMainActionsProp
                         setThreadComposeState({
                             emailComposeType: EmailComposeType.REPLY,
                             emailId: email.message_id,
-                            isLastEmail: true,
                         })
                     }}
                 >
@@ -34,7 +33,6 @@ const EmailMainActions = ({ email, setThreadComposeState }: EmailMainActionsProp
                             setThreadComposeState({
                                 emailComposeType: EmailComposeType.REPLY_ALL,
                                 emailId: email.message_id,
-                                isLastEmail: true,
                             })
                         }}
                     >
@@ -48,7 +46,6 @@ const EmailMainActions = ({ email, setThreadComposeState }: EmailMainActionsProp
                         setThreadComposeState({
                             emailComposeType: EmailComposeType.FORWARD,
                             emailId: email.message_id,
-                            isLastEmail: true,
                         })
                     }}
                 >

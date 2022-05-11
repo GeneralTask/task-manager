@@ -1,9 +1,10 @@
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState } from '../../utils/types'
+import { getHumanDateTime, removeHTMLTags } from '../../utils/utils'
 
+import { DateTime } from 'luxon'
 import { EmailComposeType } from '../../utils/enums'
-import EmailMainActions from './EmailCompose/EmailMainActions'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import GTSelect from '../molecules/GTSelect'
 import { Icon } from '../atoms/Icon'
@@ -11,9 +12,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import ReactTooltip from 'react-tooltip'
 import SanitizedHTML from '../atoms/SanitizedHTML'
 import { icons } from '../../styles/images'
-import { getHumanDateTime, removeHTMLTags } from '../../utils/utils'
 import styled from 'styled-components'
-import { DateTime } from 'luxon'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -82,8 +81,8 @@ const IconButton = styled(NoStyleButton)`
 interface EmailContainerProps {
     email: TEmail
     isLastThread: boolean
-    composeType: EmailComposeType | null // null if not in compose mode, otherwise the compose type
-    setThreadComposeState: (state: TEmailComposeState) => void
+    composeState: TEmailComposeState
+    setThreadComposeState: React.Dispatch<React.SetStateAction<TEmailComposeState>>
     sourceAccountId: string
 }
 
@@ -186,9 +185,6 @@ const EmailContainer = (props: EmailContainerProps) => {
                 <BodyContainer>
                     <SanitizedHTML dirtyHTML={props.email.body} />
                 </BodyContainer>
-            )}
-            {props.composeType == null && props.isLastThread && (
-                <EmailMainActions email={props.email} setThreadComposeState={props.setThreadComposeState} />
             )}
         </DetailsViewContainer>
     )

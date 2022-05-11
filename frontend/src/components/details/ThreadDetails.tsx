@@ -1,8 +1,10 @@
 import { Colors, Spacing, Typography } from '../../styles'
 import React, { Fragment, useLayoutEffect, useState } from 'react'
+import { SentEmailBanner, UndoButton } from './EmailCompose/EmailCompose-styles'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import EmailContainer from './EmailContainer'
+import EmailMainActions from './EmailCompose/EmailMainActions'
 import { Icon } from '../atoms/Icon'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
@@ -62,7 +64,8 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
             emailComposeType: null,
             emailId: null,
         })
-    }, [thread])
+    }, [thread?.id])
+
     const title = `${thread?.emails[0]?.subject ?? ''} (${thread?.emails.length ?? 0})`
     const recipient_emails = Array.from(
         new Set(
@@ -72,6 +75,14 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                 .map((recipient) => recipient.email)
         )
     )
+
+    const onUndoSend = () => {
+        if (composeState.undoTimeout) clearTimeout(composeState.undoTimeout)
+        setComposeState({
+            ...composeState,
+            undoTimeout: undefined,
+        })
+    }
 
     return (
         <FlexColumnContainer>
@@ -90,9 +101,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                 <EmailContainer
                                     email={email}
                                     isLastThread={index === thread.emails.length - 1}
-                                    composeType={
-                                        email.message_id === composeState.emailId ? composeState.emailComposeType : null
-                                    }
+                                    composeState={composeState}
                                     setThreadComposeState={setComposeState}
                                     sourceAccountId={thread.source.account_id}
                                 />
@@ -103,17 +112,26 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                             email={thread.emails[thread?.emails.length - 1]}
                                             composeType={composeState.emailComposeType}
                                             sourceAccountId={thread.source.account_id}
-                                            onClose={() =>
-                                                setComposeState({
-                                                    emailComposeType: null,
-                                                    emailId: null,
-                                                })
-                                            }
+                                            isPending={false}
+                                            setThreadComposeState={setComposeState}
                                         />
                                     )}
                             </Fragment>
                         ))}
+
+                        {composeState.undoTimeout !== undefined && (
+                            <SentEmailBanner>
+                                Your email was sent.
+                                <UndoButton onClick={onUndoSend}>Undo</UndoButton>
+                            </SentEmailBanner>
+                        )}
                     </EmailThreadsContainer>
+                    {composeState.emailComposeType === null && (
+                        <EmailMainActions
+                            email={thread.emails[thread.emails.length - 1]}
+                            setThreadComposeState={setComposeState}
+                        />
+                    )}
                 </>
             )}
             {thread &&
@@ -123,7 +141,8 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         email={thread.emails[thread?.emails.length - 1]}
                         composeType={composeState.emailComposeType}
                         sourceAccountId={thread.source.account_id}
-                        onClose={() => setComposeState({ emailComposeType: null, emailId: null })}
+                        isPending={false}
+                        setThreadComposeState={setComposeState}
                     />
                 )}
         </FlexColumnContainer>
