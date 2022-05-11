@@ -120,7 +120,6 @@ const EmailContainer = (props: EmailContainerProps) => {
                 </EmailActionContainer>
             ),
             onClick: () => {
-                console.log(props.isLastThread)
                 props.setThreadComposeState({
                     emailComposeType: EmailComposeType.REPLY,
                     emailId: props.email.message_id,
