@@ -37,11 +37,14 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         setShowEmailActions((show) => !show)
     }
 
+    const buttonIcon = isNewEmail ? icons.skinnyHamburger : icons.caret_down
+    const optionIconSize = isNewEmail ? 'medium' : 'small'
+
     const emailActionOptions = [
         {
             item: (
                 <EmailActionContainer>
-                    <Icon size="medium" source={icons.reply} />
+                    <Icon size={optionIconSize} source={icons.reply} />
                     Reply
                 </EmailActionContainer>
             ),
@@ -55,7 +58,7 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         {
             item: (
                 <EmailActionContainer>
-                    <Icon size="medium" source={icons.replyAll} />
+                    <Icon size={optionIconSize} source={icons.replyAll} />
                     Reply All
                 </EmailActionContainer>
             ),
@@ -69,7 +72,7 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         {
             item: (
                 <EmailActionContainer>
-                    <Icon size="medium" source={icons.forward} />
+                    <Icon size={optionIconSize} source={icons.forward} />
                     Forward
                 </EmailActionContainer>
             ),
@@ -82,12 +85,10 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         },
     ]
 
-    const icon = isNewEmail ? icons.skinnyHamburger : icons.caret_down
-
     return (
         <div ref={emailActionsRef}>
             <IconButton onClick={handleEmailActionsButtonClick}>
-                <Icon size="small" source={icon} />
+                <Icon size="small" source={buttonIcon} />
             </IconButton>
             {showEmailActions && (
                 <GTSelect

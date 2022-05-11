@@ -10,7 +10,6 @@ import ReactTooltip from 'react-tooltip'
 import SanitizedHTML from '../atoms/SanitizedHTML'
 import styled from 'styled-components'
 import EmailComposeTypeSelector from './EmailCompose/EmailComposeTypeSelector'
-import { icons } from '../../styles/images'
 
 const DetailsViewContainer = styled.div`
     display: flex;
