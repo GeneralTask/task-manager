@@ -128,15 +128,21 @@ export const ComposeSelectorButtonContainer = styled.div`
     height: 30px;
     margin: ${Spacing.margin._4}px 0 0 ${Spacing.margin._8}px;
 `
-export const ComposeSelectorButton = styled(NoStyleButton)`
-    border: 2px solid ${Colors.gray._200};
-    border-radius: ${Border.radius.xxSmall};
-    padding: ${Spacing.padding._4}px;
+export const EmailActionOption = styled.div`
     display: flex;
     align-items: center;
-    height: 20px;
-    width: 20px;
+    gap: ${Spacing.padding._8}px;
+`
+export const EmailComposeIconButton = styled(NoStyleButton) <{ hasBorder: boolean }>`
+    display: flex;
     justify-content: center;
+    align-items: center;
+    border: 2px solid ${(props) => (props.hasBorder ? Colors.gray._200 : 'transparent')};
+    border-radius: ${Border.radius.xxSmall};
+    position: relative;
+    padding: ${Spacing.padding._4}px;
+    min-height: 20px;
+    min-width: 20px;
     &:hover {
         background-color: ${Colors.gray._200};
     }

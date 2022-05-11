@@ -1,32 +1,10 @@
 import React, { useRef, useState } from 'react'
-import styled from 'styled-components'
-import { Spacing, Border, Colors } from '../../../styles'
 import { icons } from '../../../styles/images'
 import { EmailComposeType } from '../../../utils/enums'
 import { TEmail, TEmailComposeState } from '../../../utils/types'
-import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 import { Icon } from '../../atoms/Icon'
 import GTSelect from '../../molecules/GTSelect'
-
-const EmailActionContainer = styled.div`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing.padding._8}px;
-`
-const IconButton = styled(NoStyleButton)<{ hasBorder: boolean }>`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid ${(props) => (props.hasBorder ? Colors.gray._200 : 'transparent')};
-    border-radius: ${Border.radius.xxSmall};
-    position: relative;
-    padding: ${Spacing.padding._4}px;
-    min-height: 20px;
-    min-width: 20px;
-    &:hover {
-        background-color: ${Colors.gray._200};
-    }
-`
+import { EmailActionOption, EmailComposeIconButton } from './EmailCompose-styles'
 
 interface EmailComposeTypeSelectorProps {
     email: TEmail
@@ -48,10 +26,10 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
     const emailActionOptions = [
         {
             item: (
-                <EmailActionContainer>
+                <EmailActionOption>
                     <Icon size={optionIconSize} source={icons.reply} />
                     Reply
-                </EmailActionContainer>
+                </EmailActionOption>
             ),
             onClick: () => {
                 setThreadComposeState({
@@ -62,10 +40,10 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         },
         {
             item: (
-                <EmailActionContainer>
+                <EmailActionOption>
                     <Icon size={optionIconSize} source={icons.replyAll} />
                     Reply All
-                </EmailActionContainer>
+                </EmailActionOption>
             ),
             onClick: () => {
                 setThreadComposeState({
@@ -76,10 +54,10 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         },
         {
             item: (
-                <EmailActionContainer>
+                <EmailActionOption>
                     <Icon size={optionIconSize} source={icons.forward} />
                     Forward
-                </EmailActionContainer>
+                </EmailActionOption>
             ),
             onClick: () => {
                 setThreadComposeState({
@@ -92,12 +70,12 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
 
     return (
         <div ref={emailActionsRef}>
-            <IconButton onClick={handleEmailActionsButtonClick} hasBorder={!isNewEmail}>
+            <EmailComposeIconButton onClick={handleEmailActionsButtonClick} hasBorder={!isNewEmail}>
                 <Icon
                     size={isNewEmail ? 'small' : 'xxSmall'}
                     source={isNewEmail ? icons.skinnyHamburger : icons.caret_down}
                 />
-            </IconButton>
+            </EmailComposeIconButton>
             {showEmailActions && (
                 <GTSelect
                     options={emailActionOptions}
