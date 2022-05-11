@@ -48,7 +48,7 @@ const EmailThreadsContainer = styled.div`
     flex: 1;
     overflow-y: auto;
     min-width: 0;
-    margin-bottom: 20vh;
+    padding-bottom: 20vh;
 `
 
 interface ThreadDetailsProps {

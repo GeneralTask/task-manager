@@ -24,9 +24,12 @@ const IconButton = styled(NoStyleButton)`
 
 interface EmailComposeTypeSelectorProps {
     email: TEmail
+    optionsSize: 'small' | 'large'
+    toggleButtonIcon: string
+    hasBorder: boolean
     setThreadComposeState: React.Dispatch<React.SetStateAction<TEmailComposeState>>
 }
-const EmailComposeTypeSelector = ({ email, setThreadComposeState }: EmailComposeTypeSelectorProps) => {
+const EmailComposeTypeSelector = (props: EmailComposeTypeSelectorProps) => {
     const [showEmailActions, setShowEmailActions] = useState(false)
     const emailActionsRef = useRef<HTMLDivElement>(null)
 
@@ -44,9 +47,9 @@ const EmailComposeTypeSelector = ({ email, setThreadComposeState }: EmailCompose
                 </EmailActionContainer>
             ),
             onClick: () => {
-                setThreadComposeState({
+                props.setThreadComposeState({
                     emailComposeType: EmailComposeType.REPLY,
-                    emailId: email.message_id,
+                    emailId: props.email.message_id,
                 })
             },
         },
@@ -58,9 +61,9 @@ const EmailComposeTypeSelector = ({ email, setThreadComposeState }: EmailCompose
                 </EmailActionContainer>
             ),
             onClick: () => {
-                setThreadComposeState({
+                props.setThreadComposeState({
                     emailComposeType: EmailComposeType.REPLY_ALL,
-                    emailId: email.message_id,
+                    emailId: props.email.message_id,
                 })
             },
         },
@@ -72,9 +75,9 @@ const EmailComposeTypeSelector = ({ email, setThreadComposeState }: EmailCompose
                 </EmailActionContainer>
             ),
             onClick: () => {
-                setThreadComposeState({
+                props.setThreadComposeState({
                     emailComposeType: EmailComposeType.FORWARD,
-                    emailId: email.message_id,
+                    emailId: props.email.message_id,
                 })
             },
         },
@@ -82,7 +85,7 @@ const EmailComposeTypeSelector = ({ email, setThreadComposeState }: EmailCompose
     return (
         <div ref={emailActionsRef}>
             <IconButton onClick={handleEmailActionsButtonClick}>
-                <Icon size="small" source={icons.skinnyHamburger} />
+                <Icon size="small" source={props.toggleButtonIcon} />
             </IconButton>
             {showEmailActions && (
                 <GTSelect

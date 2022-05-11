@@ -10,6 +10,7 @@ import ReactTooltip from 'react-tooltip'
 import SanitizedHTML from '../atoms/SanitizedHTML'
 import styled from 'styled-components'
 import EmailComposeTypeSelector from './EmailCompose/EmailComposeTypeSelector'
+import { icons } from '../../styles/images'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -98,7 +99,13 @@ const EmailContainer = (props: EmailContainerProps) => {
                         </Flex>
                         <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
                     </div>
-                    <EmailComposeTypeSelector email={props.email} setThreadComposeState={props.setThreadComposeState} />
+                    <EmailComposeTypeSelector
+                        email={props.email}
+                        optionsSize="large"
+                        toggleButtonIcon={icons.skinnyHamburger}
+                        hasBorder={false}
+                        setThreadComposeState={props.setThreadComposeState}
+                    />
                 </SenderContainer>
                 {isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.email.body)}</BodyContainerCollapsed>}
             </CollapseExpandContainer>
