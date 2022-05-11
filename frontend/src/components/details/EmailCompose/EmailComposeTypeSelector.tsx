@@ -4,7 +4,7 @@ import { EmailComposeType } from '../../../utils/enums'
 import { TEmail, TEmailComposeState } from '../../../utils/types'
 import { Icon } from '../../atoms/Icon'
 import GTSelect from '../../molecules/GTSelect'
-import { EmailActionOption, EmailComposeIconButton } from './EmailCompose-styles'
+import { EmailActionOption, EmailComposeIconButton, NoWrap } from './EmailCompose-styles'
 
 interface EmailComposeTypeSelectorProps {
     email: TEmail
@@ -21,14 +21,12 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         setShowEmailActions((show) => !show)
     }
 
-    const optionIconSize = isNewEmail ? 'medium' : 'small'
-
     const emailActionOptions = [
         {
             item: (
                 <EmailActionOption>
-                    <Icon size={optionIconSize} source={icons.reply} />
-                    Reply
+                    {isNewEmail && <Icon size="medium" source={icons.reply} />}
+                    <NoWrap>Reply</NoWrap>
                 </EmailActionOption>
             ),
             onClick: () => {
@@ -41,8 +39,8 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         {
             item: (
                 <EmailActionOption>
-                    <Icon size={optionIconSize} source={icons.replyAll} />
-                    Reply All
+                    {isNewEmail && <Icon size="medium" source={icons.replyAll} />}
+                    <NoWrap>Reply All</NoWrap>
                 </EmailActionOption>
             ),
             onClick: () => {
@@ -55,8 +53,8 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         {
             item: (
                 <EmailActionOption>
-                    <Icon size={optionIconSize} source={icons.forward} />
-                    Forward
+                    {isNewEmail && <Icon size="medium" source={icons.forward} />}
+                    <NoWrap>Forward</NoWrap>
                 </EmailActionOption>
             ),
             onClick: () => {

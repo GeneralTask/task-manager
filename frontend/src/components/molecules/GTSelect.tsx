@@ -1,4 +1,4 @@
-import { Colors, Dimensions, Shadows, Spacing } from '../../styles'
+import { Colors, Shadows, Spacing } from '../../styles'
 import React, { ReactNode, useRef } from 'react'
 
 import { radius } from '../../styles/border'
@@ -8,7 +8,6 @@ import { useClickOutside } from '../../hooks'
 const SelectContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: ${Dimensions.TASK_ACTION_WIDTH};
     position: absolute;
     background-color: ${Colors.white};
     border-radius: ${radius.regular};
@@ -33,7 +32,7 @@ const ListItem = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: ${Spacing.padding._12}px ${Spacing.padding._16}px;
+    padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
     &:hover {
         background-color: ${Colors.gray._100};
     }

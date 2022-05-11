@@ -147,3 +147,6 @@ export const EmailComposeIconButton = styled(NoStyleButton) <{ hasBorder: boolea
         background-color: ${Colors.gray._200};
     }
 `
+export const NoWrap = styled.span`
+    white-space: nowrap;
+`
