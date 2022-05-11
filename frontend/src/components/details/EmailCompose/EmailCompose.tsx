@@ -44,14 +44,13 @@ const EmailCompose = (props: EmailComposeProps) => {
     const [body, setBody] = useState('')
 
     useEffect(() => {
-        setRecipients(getInitialRecipients(props.email, props.composeType, props.sourceAccountId))
-    }, [props.composeType])
+        setBody('')
+    }, [props.email.message_id])
 
     useEffect(() => {
         setRecipients(getInitialRecipients(props.email, props.composeType, props.sourceAccountId))
         setSubject(attachSubjectPrefix(stripSubjectPrefix(props.email.subject), props.composeType))
-        setBody('')
-    }, [props.email.message_id])
+    }, [props.email.message_id, props.composeType])
 
     const { mutate, isLoading } = useComposeMessage()
 
