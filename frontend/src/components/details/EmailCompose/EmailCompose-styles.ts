@@ -116,6 +116,12 @@ export const UndoButton = styled(NoStyleButton)`
     border-radius: ${Border.radius.small};
     padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
 `
+export const ComposeSelectorButtonContainer = styled.div`
+    display: flex;
+    align-items: center;
+    height: 30px;
+    margin: ${Spacing.margin._4}px 0 0 ${Spacing.margin._8}px;
+`
 export const EmailActionOption = styled.div`
     display: flex;
     align-items: center;

@@ -15,12 +15,12 @@ import { Colors } from '../../../styles'
 import { Divider } from '../../atoms/SectionDivider'
 import { EMAIL_UNDO_TIMEOUT } from '../../../constants'
 import { EmailComposeType } from '../../../utils/enums'
+import EmailComposeTypeSelector from './EmailComposeTypeSelector'
 import EmailRecipientsInput from './EmailRecipientsInput'
 import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
-import EmailComposeTypeSelector from './EmailComposeTypeSelector'
 
 const SubjectContainer = styled.div`
     ${EmailInputContainer}
