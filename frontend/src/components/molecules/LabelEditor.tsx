@@ -72,7 +72,8 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
     const current_section_id = params.section || ''
 
     const options = data?.map((section) => {
-        if (section.is_done) return
+        // Do not allow moving to the done or the priority sections
+        if (section.is_done || section.id === '000000000000000000000000') return
         const isCurrentSection = section.id === current_section_id
 
         const handleOnClick = () => {
