@@ -7,6 +7,8 @@ import styled from 'styled-components'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
 
+const PRIORITY_SECTION_ID = '000000000000000000000000'
+
 const LabelEditorContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -73,7 +75,7 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
 
     const options = data?.map((section) => {
         // Do not allow moving to the done or the priority sections
-        if (section.is_done || section.id === '000000000000000000000000') return
+        if (section.is_done || section.id === PRIORITY_SECTION_ID) return
         const isCurrentSection = section.id === current_section_id
 
         const handleOnClick = () => {
