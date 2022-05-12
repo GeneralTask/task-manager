@@ -89,13 +89,6 @@ func createTaskFromEmailThread(userID primitive.ObjectID, thread *database.Item,
 	}
 	newTask.Task = taskDetails
 
-	//if task.DueDate != nil {
-	//	newTask.DueDate = primitive.NewDateTimeFromTime(*task.DueDate)
-	//}
-	//if task.TimeAllocation != nil {
-	//	newTask.TimeAllocation = *task.TimeAllocation
-	//}
-
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
