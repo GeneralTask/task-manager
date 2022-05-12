@@ -64,10 +64,7 @@ interface GTSelectProps {
     parentRef?: React.RefObject<HTMLElement> // pass this in to exclude parent from click outside
 }
 const GTSelect = ({ options, onClose, location, title, parentRef }: GTSelectProps) => {
-    if (!location) {
-        // default location to right
-        location = 'right'
-    }
+    location = location ?? 'right'
     const selectRef = useRef(null)
     useClickOutside(parentRef ?? selectRef, onClose)
     const optionsList = options.map((option, index) => (
