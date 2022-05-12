@@ -66,8 +66,7 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
     }
 
     const emailActionOptions = [replyOption, forwardOption]
-    const numRecipients = email.recipients.to.length + email.recipients.cc.length
-    if (numRecipients > 1) {
+    if (email.recipients.to.length + email.recipients.cc.length > 1) {
         emailActionOptions.splice(1, 0, replyAllOption)
     }
 
