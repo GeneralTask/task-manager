@@ -112,7 +112,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                             email={thread.emails[thread?.emails.length - 1]}
                                             composeType={composeState.emailComposeType}
                                             sourceAccountId={thread.source.account_id}
-                                            isPending={false}
+                                            isPending={composeState.undoTimeout !== undefined}
                                             setThreadComposeState={setComposeState}
                                         />
                                     )}
@@ -141,7 +141,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         email={thread.emails[thread?.emails.length - 1]}
                         composeType={composeState.emailComposeType}
                         sourceAccountId={thread.source.account_id}
-                        isPending={false}
+                        isPending={composeState.undoTimeout !== undefined}
                         setThreadComposeState={setComposeState}
                     />
                 )}
