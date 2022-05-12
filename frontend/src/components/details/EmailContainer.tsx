@@ -4,7 +4,6 @@ import { TEmail, TEmailComposeState } from '../../utils/types'
 import { getHumanDateTime, removeHTMLTags } from '../../utils/utils'
 
 import { DateTime } from 'luxon'
-import EmailCompose from './EmailCompose/EmailCompose'
 import { EmailComposeType } from '../../utils/enums'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import GTSelect from '../molecules/GTSelect'
@@ -186,15 +185,6 @@ const EmailContainer = (props: EmailContainerProps) => {
                 <BodyContainer>
                     <SanitizedHTML dirtyHTML={props.email.body} />
                 </BodyContainer>
-            )}
-            {props.composeState.emailComposeType != null && props.composeState.emailId === props.email.message_id && (
-                <EmailCompose
-                    email={props.email}
-                    composeType={props.composeState.emailComposeType}
-                    isPending={props.composeState.undoTimeout !== undefined}
-                    sourceAccountId={props.sourceAccountId}
-                    setThreadComposeState={props.setThreadComposeState}
-                />
             )}
         </DetailsViewContainer>
     )
