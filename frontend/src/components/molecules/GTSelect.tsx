@@ -5,7 +5,7 @@ import { radius } from '../../styles/border'
 import styled from 'styled-components'
 import { useClickOutside } from '../../hooks'
 
-const SelectContainer = styled.div<{ alignLeft: boolean }>`
+const SelectContainer = styled.div<{ alignment: 'left' | 'right' }>`
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -13,7 +13,7 @@ const SelectContainer = styled.div<{ alignLeft: boolean }>`
     border-radius: ${radius.regular};
     box-shadow: ${Shadows.medium};
     z-index: 1;
-    ${({ alignLeft }) => alignLeft && 'right: 0;'}
+    ${({ alignment }) => alignment === 'left' && 'right: 0;'}
     cursor: default;
     outline: none;
 `
@@ -81,7 +81,7 @@ const GTSelect = ({ options, onClose, location, title, parentRef }: GTSelectProp
     ))
     return (
         <PositionRelative>
-            <SelectContainer ref={selectRef} onClick={(e) => e.stopPropagation()} alignLeft={location === 'left'}>
+            <SelectContainer ref={selectRef} onClick={(e) => e.stopPropagation()} alignment={location}>
                 {title && <TitleContainer>{title}</TitleContainer>}
                 <OptionsContainer>{optionsList}</OptionsContainer>
             </SelectContainer>
