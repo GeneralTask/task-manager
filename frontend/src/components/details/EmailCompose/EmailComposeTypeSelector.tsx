@@ -11,9 +11,10 @@ interface EmailComposeTypeSelectorProps {
     email: TEmail
     setThreadComposeState: React.Dispatch<React.SetStateAction<TEmailComposeState>>
     // if isNewEmail, appears as ellipsis button in thread. If false, appears as caret_down in compose form with smaller options
-    isNewEmail: boolean
+    isNewEmail?: boolean
 }
 const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: EmailComposeTypeSelectorProps) => {
+    isNewEmail = isNewEmail ?? false
     const [showEmailActions, setShowEmailActions] = useState(false)
     const emailActionsRef = useRef<HTMLDivElement>(null)
 

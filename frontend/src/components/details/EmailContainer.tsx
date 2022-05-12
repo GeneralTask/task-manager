@@ -100,7 +100,7 @@ const EmailContainer = (props: EmailContainerProps) => {
                     </div>
                     <EmailComposeTypeSelector
                         email={props.email}
-                        isNewEmail={true}
+                        isNewEmail
                         setThreadComposeState={props.setThreadComposeState}
                     />
                 </SenderContainer>

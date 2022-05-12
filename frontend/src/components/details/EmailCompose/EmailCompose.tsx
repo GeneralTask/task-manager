@@ -100,11 +100,7 @@ const EmailCompose = (props: EmailComposeProps) => {
     return (
         <EmailComposeContainer>
             <ComposeSelectorButtonContainer>
-                <EmailComposeTypeSelector
-                    email={props.email}
-                    isNewEmail={false}
-                    setThreadComposeState={props.setThreadComposeState}
-                />
+                <EmailComposeTypeSelector email={props.email} setThreadComposeState={props.setThreadComposeState} />
             </ComposeSelectorButtonContainer>
             <EmailComposeFormContainer ref={(node) => node?.scrollIntoView()}>
                 <EmailRecipientsInput recipients={recipients} setRecipients={setRecipients} />
