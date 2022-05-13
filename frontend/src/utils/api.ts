@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie'
 import axios from 'axios'
 import getEnvVars from '../environment'
-import { AUTHORIZATION_COOKE } from '../constants'
+import { AUTHORIZATION_COOKE, COOKIE_DOMAIN } from '../constants'
 
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
@@ -31,7 +31,7 @@ apiClient.interceptors.response.use(
     (error) => {
         if (error.response.status === 401) {
             axios.defaults.headers.common['Authorization'] = ''
-            Cookies.remove(AUTHORIZATION_COOKE)
+            Cookies.remove(AUTHORIZATION_COOKE, { path: '/', domain: COOKIE_DOMAIN })
             window.location.href = REACT_APP_FRONTEND_BASE_URL
         }
         return error
