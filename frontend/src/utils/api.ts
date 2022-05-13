@@ -1,4 +1,4 @@
-import Cookies from 'js-cookie'
+import Cookie from 'js-cookie'
 import axios from 'axios'
 import getEnvVars from '../environment'
 import { AUTHORIZATION_COOKE, COOKIE_DOMAIN } from '../constants'
@@ -31,8 +31,8 @@ apiClient.interceptors.response.use(
     (error) => {
         if (error.response.status === 401) {
             axios.defaults.headers.common['Authorization'] = ''
-            Cookies.remove(AUTHORIZATION_COOKE, { path: '/', domain: COOKIE_DOMAIN })
-            Cookies.remove(AUTHORIZATION_COOKE) // used for cypress tests
+            Cookie.remove(AUTHORIZATION_COOKE, { path: '/', domain: COOKIE_DOMAIN })
+            Cookie.remove(AUTHORIZATION_COOKE) // used for cypress tests
             window.location.replace(REACT_APP_FRONTEND_BASE_URL)
         }
         return error

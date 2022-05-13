@@ -9,7 +9,8 @@ export const isAuthenticated = () => Cookie.get(AUTHORIZATION_COOKE) !== undefin
 
 export const authSignOut = () => {
     Cookie.remove(AUTHORIZATION_COOKE, { path: '/', domain: COOKIE_DOMAIN })
-    window.location.href = '/'
+    Cookie.remove(AUTHORIZATION_COOKE) // used for cypress tests
+    window.location.replace('/')
 }
 
 export const openAuthWindow = (authorizationType: string, supportedTypes: TSupportedType[], refetch: () => void) => {
