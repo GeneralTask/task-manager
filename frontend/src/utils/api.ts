@@ -32,7 +32,7 @@ apiClient.interceptors.response.use(
         if (error.response.status === 401) {
             axios.defaults.headers.common['Authorization'] = ''
             Cookies.remove(AUTHORIZATION_COOKE, { path: '/', domain: COOKIE_DOMAIN })
-            window.location.href = REACT_APP_FRONTEND_BASE_URL
+            window.location.replace(REACT_APP_FRONTEND_BASE_URL)
         }
         return error
     }
