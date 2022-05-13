@@ -37,7 +37,6 @@ const Title = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: Switzer-Variable;
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._600};
 `
