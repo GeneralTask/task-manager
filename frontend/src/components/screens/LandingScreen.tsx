@@ -18,7 +18,6 @@ const LandingScreenContainer = styled.div`
     height: 100vh;
     display: flex;
     flex-direction: column;
-    font-family: Switzer-Variable;
 `
 const FlexColumn = styled.div`
     display: flex;

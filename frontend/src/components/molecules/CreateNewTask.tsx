@@ -25,7 +25,6 @@ const TaskInput = styled.input`
     outline: none;
     background-color: transparent;
     font-size: ${Typography.medium.fontSize};
-    font-family: Switzer-Variable;
     flex: 1;
 `
 

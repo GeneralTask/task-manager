@@ -22,7 +22,6 @@ const Title = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: Switzer-Variable;
     font-size: ${Typography.xSmall.fontSize};
 `
 

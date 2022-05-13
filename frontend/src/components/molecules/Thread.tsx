@@ -19,7 +19,6 @@ const Title = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: Switzer-Variable;
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._600};
 `
@@ -32,7 +31,6 @@ const BodyPreview = styled(SubTitle)`
 const SentAtContainer = styled.span`
     margin-left: auto;
     padding-left: ${Spacing.margin._8}px;
-    font-family: Switzer-Variable;
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._400};
     min-width: fit-content;

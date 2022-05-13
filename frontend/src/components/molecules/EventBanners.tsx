@@ -11,7 +11,6 @@ import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
 const EventBannerContainer = styled.div`
     display: flex;
     flex-direction: column;
-    font-family: Switzer-Variable;
     font-size: ${Typography.xSmall.fontSize};
     position: relative;
     width: 100%;
