@@ -9,5 +9,8 @@ describe('user successfuly logs out after being authenticated', () => {
         cy.url().should('equal', `${Cypress.config().baseUrl}/`)
         cy.wait(1000)
         cy.getCookie('authToken').should('not.exist')
+        cy.getCookies().then(cookies => {
+            cy.log(JSON.stringify(cookies))
+        })
     })
 })
