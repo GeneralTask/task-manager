@@ -2,13 +2,11 @@ package api
 
 import (
 	"context"
-	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/rs/zerolog/log"
-	"time"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -42,7 +40,14 @@ func (api *API) CreateTaskFromThread(c *gin.Context) {
 		return
 	}
 
-	err = createTaskFromEmailThread(userID, thread, requestParams)
+	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(thread.SourceID)
+	if err != nil {
+		log.Error().Msgf("failed to load external task source: %v", err)
+		Handle500(c)
+		return
+	}
+
+	err = createTaskFromEmailThread(userID, thread, requestParams, taskSourceResult)
 	if err != nil {
 		log.Error().Msgf("could not update thread %v in DB with error %+v", threadID, err)
 		Handle500(c)
@@ -52,7 +57,12 @@ func (api *API) CreateTaskFromThread(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func createTaskFromEmailThread(userID primitive.ObjectID, thread *database.Item, params taskCreateParams) error {
+func createTaskFromEmailThread(
+	userID primitive.ObjectID,
+	thread *database.Item,
+	params taskCreateParams,
+	taskSourceResult *external.TaskSourceResult,
+) error {
 	taskSection := constants.IDTaskSectionDefault
 	accountID := external.GeneralTaskDefaultAccountID
 
@@ -62,10 +72,9 @@ func createTaskFromEmailThread(userID primitive.ObjectID, thread *database.Item,
 			UserID:          userID,
 			IDExternal:      primitive.NewObjectID().Hex(),
 			IDTaskSection:   taskSection,
-			SourceID:        external.TASK_SOURCE_ID_GT_TASK,
+			SourceID:        taskSourceResult.Details.ID,
 			Title:           params.Title,
 			Body:            params.Body,
-			TimeAllocation:  time.Hour.Nanoseconds(),
 			SourceAccountID: accountID,
 		},
 		TaskType: database.TaskType{
