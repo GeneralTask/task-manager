@@ -12,7 +12,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
     (config) => {
         config.headers = {
-            Authorization: `Bearer ${Cookies.get(AUTHORIZATION_COOKE)}`,
+            Authorization: `Bearer ${Cookie.get(AUTHORIZATION_COOKE)}`,
             'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
             'Access-Control-Allow-Headers':
                 'Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset',
