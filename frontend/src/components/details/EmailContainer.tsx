@@ -30,7 +30,7 @@ const SenderContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+    padding: 0 ${Spacing.padding._8}px;
     justify-content: space-between;
 `
 const SentAtContainer = styled.div`
