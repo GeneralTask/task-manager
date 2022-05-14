@@ -32,3 +32,8 @@ infrastructure/.terraform/*
 
 # Kube Config
 kube-manifests/kube_secrets.yaml
+
+# Mongo Temp DB Dirs
+backend/database/db
+backend/database/dev.archive
+backend/database/production
