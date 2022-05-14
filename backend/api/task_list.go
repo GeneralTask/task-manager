@@ -231,7 +231,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		thread, err := database.GetItem(context.Background(), *t.LinkedMessage.ThreadID, userID)
 		if err != nil {
 			log.Error().Err(err).Interface("threadID", t.LinkedMessage.ThreadID).Msg("Could not find linked thread in db")
-			return nil
+			return taskResult
 		}
 		taskResult.LinkedEmailThread = &thread.EmailThread
 		if t.LinkedMessage.EmailID != nil {
