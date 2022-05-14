@@ -1,6 +1,6 @@
 import getEnvVars from './environment'
 
-const { REACT_APP_API_BASE_URL } = getEnvVars()
+export const { REACT_APP_API_BASE_URL, COOKIE_DOMAIN } = getEnvVars()
 
 // API Constants
 export const MESSAGES_PER_PAGE = 30

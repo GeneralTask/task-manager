@@ -1,7 +1,5 @@
-import { Dispatch } from '@reduxjs/toolkit'
 import Cookie from 'js-cookie'
-import { AUTHORIZATION_COOKE } from '../constants'
-import { setAuthToken } from '../redux/userDataSlice'
+import { AUTHORIZATION_COOKE, COOKIE_DOMAIN } from '../constants'
 import { TSupportedType } from './types';
 
 const AUTH_WINDOW_WIDTH = 960
@@ -9,11 +7,10 @@ const AUTH_WINDOW_HEIGHT = 640
 
 export const isAuthenticated = () => Cookie.get(AUTHORIZATION_COOKE) !== undefined
 
-export const authSignOut = (dispatch: Dispatch) => {
-    dispatch(setAuthToken(undefined))
-    Cookie.remove(AUTHORIZATION_COOKE, { path: '/', domain: '.generaltask.com' }) //production cookie
-    Cookie.remove(AUTHORIZATION_COOKE) //testing cookie
-    window.location.href = '/'
+export const authSignOut = () => {
+    Cookie.remove(AUTHORIZATION_COOKE, { path: '/', domain: COOKIE_DOMAIN })
+    Cookie.remove(AUTHORIZATION_COOKE) // used for cypress tests
+    window.location.replace('/')
 }
 
 export const openAuthWindow = (authorizationType: string, supportedTypes: TSupportedType[], refetch: () => void) => {

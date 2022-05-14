@@ -10,7 +10,6 @@ import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { authSignOut } from '../../utils/auth'
 import styled from 'styled-components'
-import { useAppDispatch } from '../../redux/hooks'
 
 const NavigationViewContainer = styled.div`
     display: flex;
@@ -39,7 +38,6 @@ const GapView = styled.div`
 `
 
 const NavigationView = () => {
-    const dispatch = useAppDispatch()
     const { data: taskSections } = useGetTasks()
     const { data: threadData } = useGetInfiniteThreads()
     const { section: sectionIdParam } = useParams()
@@ -64,7 +62,7 @@ const NavigationView = () => {
             </OverflowContainer>
             <GapView>
                 <FeedbackButton />
-                <RoundedGeneralButton value="Sign Out" textStyle="dark" onPress={() => authSignOut(dispatch)} />
+                <RoundedGeneralButton value="Sign Out" textStyle="dark" onPress={authSignOut} />
             </GapView>
         </NavigationViewContainer>
     )
