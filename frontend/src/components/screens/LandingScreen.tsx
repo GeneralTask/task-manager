@@ -10,7 +10,6 @@ import UnauthorizedFooter from '../molecules/UnauthorizedFooter'
 import UnauthorizedHeader from '../molecules/UnauthorizedHeader'
 import apiClient from '../../utils/api'
 import styled from 'styled-components'
-import { useAppSelector } from '../../redux/hooks'
 import { AUTHORIZATION_COOKE } from '../../constants'
 
 const LandingScreenContainer = styled.div`
@@ -18,7 +17,6 @@ const LandingScreenContainer = styled.div`
     height: 100vh;
     display: flex;
     flex-direction: column;
-    font-family: Switzer-Variable;
 `
 const FlexColumn = styled.div`
     display: flex;
@@ -69,6 +67,8 @@ const LandingScreen = () => {
             email: '',
         },
     })
+    if (Cookies.get(AUTHORIZATION_COOKE)) return <Navigate to="/tasks" />
+
     const onWaitlistSubmit = (data: { email: string }) => {
         joinWaitlist(data.email)
     }
@@ -88,10 +88,6 @@ const LandingScreen = () => {
             setMessage('There was an error adding you to the waitlist')
         }
     }
-    const { authToken } = useAppSelector((state) => ({ authToken: state.user_data.auth_token }))
-    const authCookie = Cookies.get(AUTHORIZATION_COOKE)
-
-    if (authToken || authCookie) return <Navigate to="/tasks" />
 
     return (
         <LandingScreenContainer>

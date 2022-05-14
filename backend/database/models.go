@@ -177,10 +177,16 @@ type MessageChangeable struct {
 	IsCompleted     *bool               `bson:"is_completed,omitempty"`
 }
 
+type LinkedMessage struct {
+	ThreadID *primitive.ObjectID `bson:"thread_id"`
+	EmailID  *primitive.ObjectID `bson:"email_id"`
+}
+
 type Task struct {
 	PriorityID         string  `bson:"priority_id"`
 	PriorityNormalized float64 `bson:"priority_normalized"`
 	TaskNumber         int     `bson:"task_number"`
+	LinkedMessage      `bson:"linked_message"`
 }
 
 type TaskChangeableFields struct {

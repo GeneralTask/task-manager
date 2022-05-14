@@ -13,7 +13,6 @@ const ShortcutHintContainer = styled.div`
     height: 20px;
     justify-content: center;
     align-items: center;
-    font-family: Switzer-Variable;
     font-size: ${Typography.xSmall}px;
 `
 
