@@ -234,7 +234,6 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		}
 		taskResult.LinkedEmailThread = &thread.EmailThread
 		if thread.LinkedMessage.EmailID != nil {
-			log.Debug().Msgf("Assigning null ")
 			taskResult.LinkedEmailID = thread.LinkedMessage.EmailID
 		}
 	}
