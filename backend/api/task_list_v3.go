@@ -69,7 +69,7 @@ func (api *API) mergeTasksV3(
 ) ([]*TaskSection, error) {
 	completedTaskResults := []*TaskResult{}
 	for index, task := range *completedTasks {
-		taskResult := api.taskBaseToTaskResult(&task)
+		taskResult := api.taskBaseToTaskResult(&task, userID)
 		taskResult.IDOrdering = index + 1
 		completedTaskResults = append(completedTaskResults, taskResult)
 	}
@@ -118,7 +118,7 @@ func (api *API) getPriorityTaskResults(db *mongo.Database, userID primitive.Obje
 			thread.Title = thread.Emails[0].Subject
 			thread.TaskBase.Body = thread.Emails[0].Body
 		}
-		taskResults = append([]*TaskResult{api.taskBaseToTaskResult(&thread)}, taskResults...)
+		taskResults = append([]*TaskResult{api.taskBaseToTaskResult(&thread, userID)}, taskResults...)
 	}
 	taskResults = append([]*TaskResult{fakeTaskResultFromTitle(
 		"👇---------- First, unread emails, oldest to newest ----------👇")}, taskResults...)
@@ -129,7 +129,7 @@ func (api *API) getPriorityTaskResults(db *mongo.Database, userID primitive.Obje
 		return nil, err
 	}
 	for _, pullRequest := range *pullRequests {
-		taskResults = append(taskResults, api.taskBaseToTaskResult(&pullRequest))
+		taskResults = append(taskResults, api.taskBaseToTaskResult(&pullRequest, userID))
 	}
 	taskResults = append(taskResults, fakeTaskResultFromTitle(
 		"👇---------- Coming soon, linear tasks ordered by priority / cycle! ----------👇"))
@@ -170,7 +170,7 @@ func (api *API) extractSectionTasksV3(
 	}
 	// this is inefficient but easy to understand - can optimize later as needed
 	for _, task := range *fetchedTasks {
-		taskResult := api.taskBaseToTaskResult(&task)
+		taskResult := api.taskBaseToTaskResult(&task, userID)
 		addedToSection := false
 		for _, resultSection := range resultSections {
 			if task.IDTaskSection == resultSection.ID {
