@@ -234,9 +234,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 			return taskResult
 		}
 		taskResult.LinkedEmailThread = &thread.EmailThread
-		if t.LinkedMessage.EmailID != nil {
-			taskResult.LinkedEmailID = t.LinkedMessage.EmailID
-		}
+		taskResult.LinkedEmailID = t.LinkedMessage.EmailID
 	}
 
 	return taskResult
