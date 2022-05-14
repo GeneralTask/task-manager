@@ -226,6 +226,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		IsDone:         t.IsCompleted,
 	}
 
+	log.Debug().Interface("linkedMessage", t.LinkedMessage).Send()
 	if t.LinkedMessage.ThreadID != nil {
 		thread, err := database.GetItem(context.Background(), *t.LinkedMessage.ThreadID, userID)
 		if err != nil {
@@ -234,7 +235,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		}
 		taskResult.LinkedEmailThread = &thread.EmailThread
 		if t.LinkedMessage.EmailID != nil {
-			taskResult.LinkedEmailID = thread.LinkedMessage.EmailID
+			taskResult.LinkedEmailID = t.LinkedMessage.EmailID
 		}
 	}
 
