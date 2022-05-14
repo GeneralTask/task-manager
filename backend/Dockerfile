@@ -1,5 +1,5 @@
 # Adapted from https://codefresh.io/docs/docs/learn-by-example/golang/golang-hello-world/
-FROM golang:1.16-alpine AS build_base
+FROM golang:1.17-alpine AS build_base
 
 ARG TARGETPLATFORM
 ARG TARGETARCH
