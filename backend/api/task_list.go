@@ -197,7 +197,6 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 	return nil
 }
 
-//func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID) (*TaskResult, error) {
 func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID) *TaskResult {
 	taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
 	var dueDate string
