@@ -11,7 +11,6 @@ const NoDecorationLink = styled(Link)`
 `
 const PurpleText = styled.span`
     color: ${Colors.purple._1};
-    font-family: Switzer-Variable;
     font-weight: ${Typography.weight._500};
     font-size: ${Typography.xxSmall.fontSize};
     margin-right: ${Spacing.margin._4}px;
