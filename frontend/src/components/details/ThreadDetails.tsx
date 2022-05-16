@@ -25,7 +25,7 @@ const HeaderContainer = styled.div`
     align-items: center;
     background-color: ${Colors.white};
     position: sticky;
-    box-shadow: ${Shadows.below};
+    box-shadow: ${Shadows.threadHeaderShadow};
 `
 const HeaderTitleContainer = styled.div`
     display: flex;
