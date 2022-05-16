@@ -23,20 +23,25 @@ type TaskSource struct {
 	IsReplyable   bool   `json:"is_replyable"`
 }
 
+type linkedEmailThread struct {
+	LinkedThreadID *primitive.ObjectID `json:"linked_thread_id,omitempty"`
+	LinkedEmailID  *primitive.ObjectID `json:"linked_email_id,omitempty"`
+	Emails         *[]email            `bson:"emails,omitempty" json:"emails,omitempty"`
+}
+
 type TaskResult struct {
-	ID                primitive.ObjectID    `json:"id"`
-	IDOrdering        int                   `json:"id_ordering"`
-	Source            TaskSource            `json:"source"`
-	Deeplink          string                `json:"deeplink"`
-	Title             string                `json:"title"`
-	Body              string                `json:"body"`
-	Sender            string                `json:"sender"`
-	DueDate           string                `json:"due_date"`
-	TimeAllocation    int64                 `json:"time_allocated"`
-	SentAt            string                `json:"sent_at"`
-	IsDone            bool                  `json:"is_done"`
-	LinkedEmailThread *database.EmailThread `json:"linked_email_thread,omitempty"`
-	LinkedEmailID     *primitive.ObjectID   `json:"linked_email_id,omitempty"`
+	ID                primitive.ObjectID `json:"id"`
+	IDOrdering        int                `json:"id_ordering"`
+	Source            TaskSource         `json:"source"`
+	Deeplink          string             `json:"deeplink"`
+	Title             string             `json:"title"`
+	Body              string             `json:"body"`
+	Sender            string             `json:"sender"`
+	DueDate           string             `json:"due_date"`
+	TimeAllocation    int64              `json:"time_allocated"`
+	SentAt            string             `json:"sent_at"`
+	IsDone            bool               `json:"is_done"`
+	LinkedEmailThread *linkedEmailThread `json:"linked_email_thread,omitempty"`
 }
 
 type TaskSection struct {
@@ -233,8 +238,11 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 			log.Error().Err(err).Interface("threadID", t.LinkedMessage.ThreadID).Msg("Could not find linked thread in db")
 			return taskResult
 		}
-		taskResult.LinkedEmailThread = &thread.EmailThread
-		taskResult.LinkedEmailID = t.LinkedMessage.EmailID
+		taskResult.LinkedEmailThread = &linkedEmailThread{
+			Emails:         createThreadEmailsResponse(&thread.Emails),
+			LinkedThreadID: &thread.ID,
+			LinkedEmailID:  t.LinkedMessage.EmailID,
+		}
 	}
 
 	return taskResult
