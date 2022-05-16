@@ -12,7 +12,7 @@ import (
 
 type taskCreateParams struct {
 	Title   string  `json:"title" binding:"required"`
-	Body    string  `json:"body" binding:"required"`
+	Body    string  `json:"body"`
 	EmailID *string `json:"email_id"`
 }
 
