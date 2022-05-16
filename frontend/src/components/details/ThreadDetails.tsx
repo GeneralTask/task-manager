@@ -1,13 +1,14 @@
 import { Colors, Spacing, Typography } from '../../styles'
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { Fragment, useLayoutEffect, useState } from 'react'
+import { SentEmailBanner, UndoButton } from './EmailCompose/EmailCompose-styles'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
-import { DateTime } from 'luxon'
 import EmailContainer from './EmailContainer'
+import EmailMainActions from './EmailCompose/EmailMainActions'
 import { Icon } from '../atoms/Icon'
-import { getHumanDateTime } from '../../utils/utils'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
+import EmailCompose from './EmailCompose/EmailCompose'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
@@ -36,7 +37,6 @@ const Title = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: Switzer-Variable;
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._600};
 `
@@ -54,16 +54,17 @@ interface ThreadDetailsProps {
     thread: TEmailThread | undefined
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
-    const lastEmailScrollingRef = useRef<HTMLDivElement>(null)
-
-    useLayoutEffect(() => {
-        lastEmailScrollingRef.current?.scrollIntoView()
-    }, [thread?.id])
-
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
         emailId: null,
     })
+    useLayoutEffect(() => {
+        setComposeState({
+            emailComposeType: null,
+            emailId: null,
+        })
+    }, [thread?.id])
+
     const title = `${thread?.emails[0]?.subject ?? ''} (${thread?.emails.length ?? 0})`
     const recipient_emails = Array.from(
         new Set(
@@ -73,6 +74,14 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                 .map((recipient) => recipient.email)
         )
     )
+
+    const onUndoSend = () => {
+        if (composeState.undoTimeout) clearTimeout(composeState.undoTimeout)
+        setComposeState({
+            ...composeState,
+            undoTimeout: undefined,
+        })
+    }
 
     return (
         <FlexColumnContainer>
@@ -87,23 +96,54 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     </HeaderContainer>
                     <EmailThreadsContainer>
                         {thread.emails.map((email, index) => (
-                            <EmailContainer
-                                email={email}
-                                ref={index === thread.emails.length - 1 ? lastEmailScrollingRef : null}
-                                key={email.message_id}
-                                timeSent={getHumanDateTime(DateTime.fromISO(email.sent_at))}
-                                isCollapsed={index !== thread.emails.length - 1}
-                                composeType={
-                                    email.message_id === composeState.emailId ? composeState.emailComposeType : null
-                                }
-                                setThreadComposeState={setComposeState}
-                                sourceAccountId={thread.source.account_id}
-                                showMainActions={index === thread.emails.length - 1}
-                            />
+                            <Fragment key={email.message_id}>
+                                <EmailContainer
+                                    email={email}
+                                    isLastThread={index === thread.emails.length - 1}
+                                    composeState={composeState}
+                                    setThreadComposeState={setComposeState}
+                                    sourceAccountId={thread.source.account_id}
+                                />
+                                {composeState.emailId === email.message_id &&
+                                    index !== thread.emails.length - 1 &&
+                                    composeState.emailComposeType != null && (
+                                        <EmailCompose
+                                            email={thread.emails[thread?.emails.length - 1]}
+                                            composeType={composeState.emailComposeType}
+                                            sourceAccountId={thread.source.account_id}
+                                            isPending={composeState.undoTimeout !== undefined}
+                                            setThreadComposeState={setComposeState}
+                                        />
+                                    )}
+                            </Fragment>
                         ))}
+
+                        {composeState.undoTimeout !== undefined && (
+                            <SentEmailBanner>
+                                Your email was sent.
+                                <UndoButton onClick={onUndoSend}>Undo</UndoButton>
+                            </SentEmailBanner>
+                        )}
                     </EmailThreadsContainer>
+                    {composeState.emailComposeType === null && (
+                        <EmailMainActions
+                            email={thread.emails[thread.emails.length - 1]}
+                            setThreadComposeState={setComposeState}
+                        />
+                    )}
                 </>
             )}
+            {thread &&
+                composeState.emailId === thread.emails[thread.emails.length - 1].message_id &&
+                composeState.emailComposeType != null && (
+                    <EmailCompose
+                        email={thread.emails[thread?.emails.length - 1]}
+                        composeType={composeState.emailComposeType}
+                        sourceAccountId={thread.source.account_id}
+                        isPending={composeState.undoTimeout !== undefined}
+                        setThreadComposeState={setComposeState}
+                    />
+                )}
         </FlexColumnContainer>
     )
 }

@@ -14,7 +14,6 @@ const TextAreaStyled = styled.textarea`
     box-shadow: none;
     outline: none;
     padding: ${Spacing.padding._8}px;
-    font-family: Switzer-Variable;
     font-style: normal;
     font-weight: normal;
     font-size: ${Typography.xSmall.fontSize};

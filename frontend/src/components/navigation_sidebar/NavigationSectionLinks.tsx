@@ -4,7 +4,7 @@ import { useAddTaskSection } from '../../services/api-query-hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { weight } from '../../styles/typography'
-import { TTaskSection } from '../../utils/types'
+import { TEmailThread, TTaskSection } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import NoStyleInput from '../atoms/NoStyleInput'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
@@ -31,11 +31,12 @@ const IconContainer = styled.div`
 
 interface SectionLinksProps {
     taskSections: TTaskSection[]
+    threads: TEmailThread[]
     sectionId: string
     pathName: string
 }
 
-const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLinksProps) => {
+const NavigationSectionLinks = ({ taskSections, threads, sectionId, pathName }: SectionLinksProps) => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
     const [sectionName, setSectionName] = useState('')
     const { mutate: addTaskSection } = useAddTaskSection()
@@ -91,7 +92,9 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                             icon={icons.label}
                             isCurrentPage={sectionId === section.id}
                             taskSection={section}
+                            count={section.tasks.length}
                             droppable
+                            testId="task-section-link"
                         />
                     ))}
                 {isAddSectionInputVisible && (
@@ -106,6 +109,7 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                                 onChange={onKeyChangeHandler}
                                 onKeyDown={onKeyDownHandler}
                                 placeholder="Add Section"
+                                data-testid="add-section-input"
                             />
                         </AddSectionInputContainer>
                     </NavigationLinkTemplate>
@@ -120,7 +124,9 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                             icon={icons.label}
                             isCurrentPage={sectionId === section.id}
                             taskSection={section}
+                            count={section.tasks.length}
                             droppable={false}
+                            testId="done-section-link"
                         />
                     ))}
             </NavigationLinkDropdown>
@@ -128,6 +134,7 @@ const NavigationSectionLinks = ({ taskSections, sectionId, pathName }: SectionLi
                 link="/messages"
                 title="Messages"
                 icon={icons.inbox}
+                count={threads.filter((t) => t.emails.find((e) => e.is_unread)).length}
                 isCurrentPage={pathName === 'messages'}
             />
             <NavigationLink

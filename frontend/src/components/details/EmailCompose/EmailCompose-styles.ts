@@ -26,7 +26,6 @@ export const EmailInput = css`
     padding: 0;
     flex: 1;
     font-size: ${Typography.xSmall.fontSize};
-    font-family: Switzer-Variable;
     height: 30px;
 `
 export const EmailComposeContainer = styled.div`
@@ -100,4 +99,22 @@ export const AddEmailRecipientsButton = styled(NoStyleButton)`
 `
 export const FlexExpand = styled.div`
     flex: 1;
+`
+export const Flex = styled.div`
+    display: flex;
+`
+export const SentEmailBanner = styled.div`
+    background-color: ${Colors.black};
+    color: ${Colors.white};
+    margin: ${Spacing.margin._8}px;
+    border-radius: ${Border.radius.small};
+    padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`
+export const UndoButton = styled(NoStyleButton)`
+    background-color: ${Colors.purple._1};
+    border-radius: ${Border.radius.small};
+    padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
 `

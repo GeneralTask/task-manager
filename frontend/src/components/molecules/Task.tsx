@@ -17,12 +17,11 @@ import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 const IconContainer = styled.div`
     margin-left: ${Spacing.margin._8}px;
 `
-const Title = styled.div`
+const Title = styled.span`
     margin-left: ${Spacing.margin._8}px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: Switzer-Variable;
     font-size: ${Typography.xSmall.fontSize};
 `
 
@@ -106,7 +105,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: Tas
                 <IconContainer>
                     <Icon source={logos[task.source.logo_v2]} size="small" />
                 </IconContainer>
-                <Title>{task.title}</Title>
+                <Title data-testid="task-title">{task.title}</Title>
             </ItemContainer>
         </TaskTemplate>
     )
