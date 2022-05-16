@@ -458,42 +458,6 @@ const getThreadDetail = async (data: { threadId: string }) => {
     }
 }
 
-export const useMarkThreadAsTask = () => {
-    const queryClient = useQueryClient()
-    return useMutation((data: TMarkAsTaskData) => markThreadAsTask(data),
-        {
-            onMutate: async (data: TMarkAsTaskData) => {
-                // cancel all current getThreads queries
-                await queryClient.cancelQueries('emailthreads')
-
-                const response: TEmailThreadResponse | undefined = queryClient.getQueryData('messages')
-                if (!response) return
-
-                for (const page of response.pages) {
-                    for (const thread of page) {
-                        if (thread.id === data.id) {
-                            thread.is_task = data.isTask
-                        }
-                    }
-                }
-                queryClient.setQueryData('emailthreads', response)
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('tasks')
-                queryClient.invalidateQueries('emailthreads')
-            },
-        }
-    )
-}
-const markThreadAsTask = async (data: TMarkAsTaskData) => {
-    try {
-        const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_task: data.isTask })
-        return res.data
-    } catch {
-        throw new Error('markMessageAsTask failed')
-    }
-}
-
 /**
  * MESSAGES QUERIES
  */
