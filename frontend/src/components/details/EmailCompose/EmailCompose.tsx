@@ -110,6 +110,9 @@ const EmailCompose = (props: EmailComposeProps) => {
                         placeholder="Subject"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
+                        onKeyDown={(e) => {
+                            e.stopPropagation()
+                        }}
                     />
                 </SubjectContainer>
                 <Divider color={Colors.gray._200} />
