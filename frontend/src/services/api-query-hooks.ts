@@ -166,7 +166,10 @@ export const useCreateTaskFromThread = () => {
                 ...sections[0].tasks
             ]
             queryClient.setQueryData('tasks', () => sections)
-        }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+        },
     })
 }
 
