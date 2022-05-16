@@ -26,7 +26,7 @@ type email struct {
 	Recipients Recipients         `json:"recipients"`
 }
 
-type Thread struct {
+type ThreadDetailsResponse struct {
 	ID       primitive.ObjectID `json:"id"`
 	Deeplink string             `json:"deeplink"`
 	IsTask   bool               `json:"is_task"`
@@ -101,23 +101,23 @@ func (api *API) ThreadsList(c *gin.Context) {
 	c.JSON(200, orderedMessages)
 }
 
-func (api *API) orderThreads(threadItems *[]database.Item) []*Thread {
+func (api *API) orderThreads(threadItems *[]database.Item) []*ThreadDetailsResponse {
 	sort.SliceStable(*threadItems, func(i, j int) bool {
 		a := (*threadItems)[i]
 		b := (*threadItems)[j]
 		return formatDateTime(a.EmailThread.LastUpdatedAt) > formatDateTime(b.EmailThread.LastUpdatedAt)
 	})
 
-	var responseThreads []*Thread
+	var responseThreads []*ThreadDetailsResponse
 	for _, threadItem := range *threadItems {
 		responseThreads = append(responseThreads, api.createThreadResponse(&threadItem))
 	}
 	return responseThreads
 }
 
-func (api *API) createThreadResponse(t *database.Item) *Thread {
+func (api *API) createThreadResponse(t *database.Item) *ThreadDetailsResponse {
 	threadSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
-	return &Thread{
+	return &ThreadDetailsResponse{
 		ID:     t.ID,
 		IsTask: t.IsTask,
 		Source: messageSource{
