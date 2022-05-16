@@ -95,7 +95,6 @@ func TestTaskDetail(t *testing.T) {
 
 		assert.Equal(t,
 			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Jira","logo":"/images/jira.svg","logo_v2":"jira","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true}`, jiraTaskIDHex),
-			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Jira","logo":"/images/jira.svg","logo_v2":"jira","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"linked_email_thread":{}}`, jiraTaskIDHex),
 			string(body))
 	})
 }

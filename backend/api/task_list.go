@@ -238,7 +238,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 			log.Error().Err(err).Interface("threadID", t.LinkedMessage.ThreadID).Msg("Could not find linked thread in db")
 			return taskResult
 		}
-		taskResult.LinkedEmailThread = linkedEmailThread{
+		taskResult.LinkedEmailThread = &linkedEmailThread{
 			Emails:         createThreadEmailsResponse(&thread.Emails),
 			LinkedThreadID: &thread.ID,
 			LinkedEmailID:  t.LinkedMessage.EmailID,
