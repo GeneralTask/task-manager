@@ -10,6 +10,8 @@ import { logos } from '../../styles/images'
 import styled from 'styled-components'
 import EmailCompose from './EmailCompose/EmailCompose'
 
+const THREAD_HEADER_HEIGHT = '118px'
+
 const FlexColumnContainer = styled.div`
     flex: 1;
     display: flex;
@@ -18,7 +20,7 @@ const FlexColumnContainer = styled.div`
 `
 const HeaderContainer = styled.div`
     display: flex;
-    height: 118px;
+    height: ${THREAD_HEADER_HEIGHT};
     padding: 0 ${Spacing.padding._16}px;
     align-items: center;
     background-color: ${Colors.white};
