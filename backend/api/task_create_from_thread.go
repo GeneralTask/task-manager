@@ -27,6 +27,7 @@ func (api *API) CreateTaskFromThread(c *gin.Context) {
 	var requestParams taskCreateParams
 	err = c.BindJSON(&requestParams)
 	if err != nil {
+		log.Error().Err(err).Msg("could not parse request params")
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
