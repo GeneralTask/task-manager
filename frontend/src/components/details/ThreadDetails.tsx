@@ -54,6 +54,7 @@ interface ThreadDetailsProps {
     thread: TEmailThread | undefined
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
+    const [isCollapsed, setIsCollapsed] = useState(false)
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
         emailId: null,
@@ -95,28 +96,31 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         </HeaderTitleContainer>
                     </HeaderContainer>
                     <EmailThreadsContainer>
-                        {thread.emails.map((email, index) => (
-                            <Fragment key={email.message_id}>
-                                <EmailContainer
-                                    email={email}
-                                    isLastThread={index === thread.emails.length - 1}
-                                    composeState={composeState}
-                                    setThreadComposeState={setComposeState}
-                                    sourceAccountId={thread.source.account_id}
-                                />
-                                {composeState.emailId === email.message_id &&
-                                    index !== thread.emails.length - 1 &&
-                                    composeState.emailComposeType != null && (
-                                        <EmailCompose
-                                            email={thread.emails[thread?.emails.length - 1]}
-                                            composeType={composeState.emailComposeType}
-                                            sourceAccountId={thread.source.account_id}
-                                            isPending={composeState.undoTimeout !== undefined}
+                        {thread.emails.map(
+                            (email, index) =>
+                                (index === 0 || index === thread.emails.length - 1 || !isCollapsed) && (
+                                    <Fragment key={email.message_id}>
+                                        <EmailContainer
+                                            email={email}
+                                            isLastThread={index === thread.emails.length - 1}
+                                            composeState={composeState}
                                             setThreadComposeState={setComposeState}
+                                            sourceAccountId={thread.source.account_id}
                                         />
-                                    )}
-                            </Fragment>
-                        ))}
+                                        {composeState.emailId === email.message_id &&
+                                            index !== thread.emails.length - 1 &&
+                                            composeState.emailComposeType != null && (
+                                                <EmailCompose
+                                                    email={thread.emails[thread?.emails.length - 1]}
+                                                    composeType={composeState.emailComposeType}
+                                                    sourceAccountId={thread.source.account_id}
+                                                    isPending={composeState.undoTimeout !== undefined}
+                                                    setThreadComposeState={setComposeState}
+                                                />
+                                            )}
+                                    </Fragment>
+                                )
+                        )}
 
                         {composeState.undoTimeout !== undefined && (
                             <SentEmailBanner>
