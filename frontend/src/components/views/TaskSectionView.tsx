@@ -15,6 +15,7 @@ import { getSectionById } from '../../utils/task'
 import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
+import ScheduleGapFiller from '../atoms/scheduleGapFiller/ScheduleGapFiller'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 
 const BannerAndSectionContainer = styled.div`
@@ -22,6 +23,7 @@ const BannerAndSectionContainer = styled.div`
     flex-direction: column;
     margin-right: auto;
     flex-shrink: 0;
+    position: relative;
 `
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -129,6 +131,7 @@ const TaskSection = () => {
                         )}
                     </TaskSectionViewContainer>
                 </ScrollViewMimic>
+                <ScheduleGapFiller />
             </BannerAndSectionContainer>
             {expandedTask && currentSection && <TaskDetails task={expandedTask} />}
         </>
