@@ -5,6 +5,7 @@ import {
     TComposeMessageData,
     TCreateEventPayload,
     TCreateTaskData,
+    TCreateTaskFromThreadData,
     TEmailThreadResponse,
     TMarkAsTaskData,
     TMarkMessageReadData,
@@ -128,6 +129,57 @@ const createTask = async (data: TCreateTaskData) => {
         return res.data
     } catch {
         throw new Error('createTask failed')
+    }
+}
+
+/**
+ * Creates a task with a reference link back to the email thread
+ */
+export const useCreateTaskFromThread = () => {
+    const queryClient = useQueryClient()
+    return useMutation((data: TCreateTaskFromThreadData) => createTaskFromThread(data), {
+        onMutate: async (data: TCreateTaskFromThreadData) => {
+            queryClient.cancelQueries('tasks')
+            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            if (!sections) return
+            sections[0].tasks = [
+                {
+                    id: '0',
+                    id_ordering: 0,
+                    title: data.title,
+                    body: data.body,
+                    deeplink: '',
+                    sent_at: '',
+                    time_allocated: 0,
+                    due_date: '',
+                    source: {
+                        name: 'General Task',
+                        logo: '',
+                        logo_v2: 'generaltask',
+                        is_completable: false,
+                        is_replyable: false,
+                    },
+                    sender: '',
+                    is_done: false,
+                    recipients: {} as TRecipients,
+                },
+                ...sections[0].tasks
+            ]
+            queryClient.setQueryData('tasks', () => sections)
+        }
+    })
+}
+
+const createTaskFromThread = async (data: TCreateTaskFromThreadData) => {
+    try {
+        const res = await apiClient.post(`/create_task_from_thread/${data.thread_id}/`, {
+            title: data.title,
+            body: data.body,
+            email_id: data.email_id,
+        })
+        return res.data
+    } catch {
+        throw new Error('createTaskFromThread failed')
     }
 }
 
