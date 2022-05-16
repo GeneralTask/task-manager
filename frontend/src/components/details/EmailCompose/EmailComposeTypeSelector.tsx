@@ -1,5 +1,5 @@
 import { EmailActionOption, EmailComposeIconButton, NoWrap } from './EmailCompose-styles'
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState } from '../../../utils/types'
 
 import { EmailComposeType } from '../../../utils/enums'
@@ -23,52 +23,38 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         setShowEmailActions((show) => !show)
     }
 
-    const replyOption = {
-        item: (
-            <EmailActionOption>
-                {isNewEmail && <Icon size="medium" source={icons.reply} />}
-                <NoWrap>Reply</NoWrap>
-            </EmailActionOption>
-        ),
-        onClick: () => {
-            setThreadComposeState({
-                emailComposeType: EmailComposeType.REPLY,
-                emailId: email.message_id,
-            })
+    const getComposeOption = useCallback(
+        (type: EmailComposeType) => {
+            let icon = icons.reply
+            let label = 'Reply'
+            if (type === EmailComposeType.REPLY_ALL) {
+                icon = icons.replyAll
+                label = 'Reply All'
+            } else if (type === EmailComposeType.FORWARD) {
+                icon = icons.forward
+                label = 'Forward'
+            }
+            return {
+                item: (
+                    <EmailActionOption>
+                        {isNewEmail && <Icon size="medium" source={icon} />}
+                        <NoWrap>{label}</NoWrap>
+                    </EmailActionOption>
+                ),
+                onClick: () => {
+                    setThreadComposeState({
+                        emailComposeType: type,
+                        emailId: email.message_id,
+                    })
+                },
+            }
         },
-    }
-    const replyAllOption = {
-        item: (
-            <EmailActionOption>
-                {isNewEmail && <Icon size="medium" source={icons.replyAll} />}
-                <NoWrap>Reply All</NoWrap>
-            </EmailActionOption>
-        ),
-        onClick: () => {
-            setThreadComposeState({
-                emailComposeType: EmailComposeType.REPLY_ALL,
-                emailId: email.message_id,
-            })
-        },
-    }
-    const forwardOption = {
-        item: (
-            <EmailActionOption>
-                {isNewEmail && <Icon size="medium" source={icons.forward} />}
-                <NoWrap>Forward</NoWrap>
-            </EmailActionOption>
-        ),
-        onClick: () => {
-            setThreadComposeState({
-                emailComposeType: EmailComposeType.FORWARD,
-                emailId: email.message_id,
-            })
-        },
-    }
+        [isNewEmail, setThreadComposeState]
+    )
 
-    const emailActionOptions = [replyOption, forwardOption]
+    const emailActionOptions = [getComposeOption(EmailComposeType.REPLY), getComposeOption(EmailComposeType.FORWARD)]
     if (email.recipients.to.length + email.recipients.cc.length > 1) {
-        emailActionOptions.splice(1, 0, replyAllOption)
+        emailActionOptions.splice(1, 0, getComposeOption(EmailComposeType.REPLY_ALL))
     }
 
     return (
