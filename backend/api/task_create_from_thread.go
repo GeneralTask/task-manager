@@ -12,7 +12,7 @@ import (
 
 type taskCreateParams struct {
 	Title   string  `json:"title" binding:"required"`
-	Body    string  `json:"body" binding:"required"`
+	Body    *string `json:"body"`
 	EmailID *string `json:"email_id"`
 }
 
@@ -66,6 +66,10 @@ func createTaskFromEmailThread(
 ) error {
 	taskSection := constants.IDTaskSectionDefault
 	accountID := external.GeneralTaskDefaultAccountID
+	body := ""
+	if params.Body != nil {
+		body = *params.Body
+	}
 
 	// TODO: we should inherit source ID  from the thread, but any sources besides GT will cause the task to be marked as done
 	//  next time tasks/fetch is called, so we hardcode to GT for now
@@ -77,7 +81,7 @@ func createTaskFromEmailThread(
 			IDTaskSection:   taskSection,
 			SourceID:        external.TASK_SOURCE_ID_GT_TASK,
 			Title:           params.Title,
-			Body:            params.Body,
+			Body:            body,
 			SourceAccountID: accountID,
 		},
 		TaskType: database.TaskType{
