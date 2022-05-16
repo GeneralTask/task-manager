@@ -5,6 +5,7 @@ import {
     TComposeMessageData,
     TCreateEventPayload,
     TCreateTaskData,
+    TCreateTaskFromThreadData,
     TEmailThreadResponse,
     TMarkAsTaskData,
     TMarkMessageReadData,
@@ -128,6 +129,28 @@ const createTask = async (data: TCreateTaskData) => {
         return res.data
     } catch {
         throw new Error('createTask failed')
+    }
+}
+
+/**
+ * Creates a task with a reference link back to the email thread
+ * @returns useMutation<TCreateTaskFromThreadData>
+ */
+
+export const useCreateTaskFromThread = () => {
+    return useMutation((data: TCreateTaskFromThreadData) => createTaskFromThread(data), {})
+}
+
+const createTaskFromThread = async (data: TCreateTaskFromThreadData) => {
+    try {
+        const res = await apiClient.post(`/create_task_from_thread/${data.thread_id}/`, {
+            title: data.title,
+            body: data.body,
+            email_id: data.email_id,
+        })
+        return res.data
+    } catch {
+        throw new Error('createTaskFromThread failed')
     }
 }
 
