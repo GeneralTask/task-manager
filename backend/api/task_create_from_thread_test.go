@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"github.com/GeneralTask/task-manager/backend/constants"
-	"github.com/GeneralTask/task-manager/backend/testutils"
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
 	"testing"
@@ -38,37 +37,9 @@ func TestCreateTaskFromThread(t *testing.T) {
 			SourceID:   external.TASK_SOURCE_ID_GMAIL,
 		},
 		EmailThread: database.EmailThread{
-			ThreadID:      "sample_gmail_thread_id",
-			LastUpdatedAt: 0,
 			Emails: []database.Email{
-				{
-					MessageID:    firstEmailID,
-					SMTPID:       "sample_smtp_1",
-					EmailID:      "sample_gmail_thread_id",
-					Subject:      "test subject 1",
-					Body:         "test body 1",
-					SenderDomain: "gmail",
-					SenderEmail:  "test@generaltask.com",
-					SenderName:   "test",
-					ReplyTo:      "test-reply@generaltask.com",
-					IsUnread:     true,
-					Recipients: database.Recipients{
-						To:  []database.Recipient{{Name: "p1", Email: "p1@gmail.com"}},
-						Cc:  []database.Recipient{{Name: "p2", Email: "p2@gmail.com"}},
-						Bcc: []database.Recipient{{Name: "p3", Email: "p3@gmail.com"}},
-					},
-					SentAt: *testutils.CreateDateTime("2019-04-20"),
-				},
-				{
-					SMTPID:       "sample_smtp_1",
-					EmailID:      "sample_gmail_thread_id",
-					Subject:      "test subject 2",
-					Body:         "test body 2",
-					SenderDomain: "gmail",
-					SenderEmail:  "test@generaltask.com",
-					SenderName:   "test",
-					SentAt:       *testutils.CreateDateTime("2018-04-20"),
-				},
+				{MessageID: firstEmailID},
+				{MessageID: primitive.NewObjectID()},
 			},
 		},
 		TaskType: database.TaskType{IsThread: true},
