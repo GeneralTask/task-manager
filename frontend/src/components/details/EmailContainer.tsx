@@ -37,6 +37,9 @@ const SentAtContainer = styled.div`
 const BodyContainer = styled.div`
     flex: 1;
     margin: ${Spacing.margin._8}px;
+    * > div {
+        white-space: pre-wrap;
+    }
 `
 const BodyContainerCollapsed = styled.span`
     margin-left: ${Spacing.margin._8}px;
