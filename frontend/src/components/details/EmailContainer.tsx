@@ -26,8 +26,7 @@ const SenderContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
-    height: 50px;
+    padding: 0 ${Spacing.padding._8}px;
     justify-content: space-between;
 `
 const SentAtContainer = styled.div`
@@ -49,6 +48,11 @@ const BodyContainerCollapsed = styled.span`
     text-overflow: ellipsis;
     min-width: 0;
     color: ${Colors.gray._400};
+`
+const EmailSenderDetailsContainer = styled.div`
+    margin-left: ${Spacing.margin._8}px;
+    margin-bottom: ${Spacing.margin._8}px;
+    width: fit-content;
 `
 const Title = styled.div`
     background-color: inherit;
@@ -80,7 +84,7 @@ const EmailContainer = (props: EmailContainerProps) => {
     useEffect(() => {
         ReactTooltip.hide()
         ReactTooltip.rebuild()
-    }, [])
+    }, [isCollapsed])
 
     useLayoutEffect(() => {
         setIsCollapsed(!props.isLastThread)
@@ -98,7 +102,6 @@ const EmailContainer = (props: EmailContainerProps) => {
                             <Title>{props.email.sender.name}</Title>
                             <SentAtContainer>{timeSent}</SentAtContainer>
                         </Flex>
-                        <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
                     </div>
                     <EmailComposeTypeSelector
                         email={props.email}
@@ -106,7 +109,13 @@ const EmailContainer = (props: EmailContainerProps) => {
                         setThreadComposeState={props.setThreadComposeState}
                     />
                 </SenderContainer>
-                {isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.email.body)}</BodyContainerCollapsed>}
+                {isCollapsed ? (
+                    <BodyContainerCollapsed>{removeHTMLTags(props.email.body)}</BodyContainerCollapsed>
+                ) : (
+                    <EmailSenderDetailsContainer>
+                        <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
+                    </EmailSenderDetailsContainer>
+                )}
             </CollapseExpandContainer>
             {isCollapsed || (
                 <BodyContainer>
