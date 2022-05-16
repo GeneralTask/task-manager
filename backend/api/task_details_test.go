@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/testutils"
-	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"io/ioutil"
 	"net/http"
@@ -151,7 +150,6 @@ func TestTaskDetail(t *testing.T) {
 		assert.True(t, task.IsTask)
 		assert.Equal(t, threadID, *task.LinkedMessage.ThreadID)
 		assert.Equal(t, firstEmailID, *task.LinkedMessage.EmailID)
-		log.Printf("jerdyy %+v", task)
 
 		body := ServeRequest(t, authToken, "GET", fmt.Sprintf("/tasks/detail/%s/", task.ID.Hex()),
 			nil, http.StatusOK)
