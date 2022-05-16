@@ -26,7 +26,7 @@ type TaskSource struct {
 type linkedEmailThread struct {
 	LinkedThreadID *primitive.ObjectID `json:"linked_thread_id,omitempty"`
 	LinkedEmailID  *primitive.ObjectID `json:"linked_email_id,omitempty"`
-	Emails         *[]email    `bson:"emails,omitempty" json:"emails,omitempty"`
+	Emails         *[]email            `bson:"emails,omitempty" json:"emails,omitempty"`
 }
 
 type TaskResult struct {
@@ -41,7 +41,7 @@ type TaskResult struct {
 	TimeAllocation    int64              `json:"time_allocated"`
 	SentAt            string             `json:"sent_at"`
 	IsDone            bool               `json:"is_done"`
-	LinkedEmailThread linkedEmailThread  `json:"linked_email_thread,omitempty"`
+	LinkedEmailThread *linkedEmailThread `json:"linked_email_thread,omitempty"`
 }
 
 type TaskSection struct {
