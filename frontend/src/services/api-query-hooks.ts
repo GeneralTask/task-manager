@@ -134,11 +134,14 @@ const createTask = async (data: TCreateTaskData) => {
 
 /**
  * Creates a task with a reference link back to the email thread
- * @returns useMutation<TCreateTaskFromThreadData>
  */
-
 export const useCreateTaskFromThread = () => {
-    return useMutation((data: TCreateTaskFromThreadData) => createTaskFromThread(data), {})
+    const queryClient = useQueryClient()
+    return useMutation((data: TCreateTaskFromThreadData) => createTaskFromThread(data), {
+        onMutate: async () => {
+            queryClient.invalidateQueries('tasks')
+        }
+    })
 }
 
 const createTaskFromThread = async (data: TCreateTaskFromThreadData) => {
