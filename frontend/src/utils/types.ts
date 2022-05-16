@@ -46,7 +46,7 @@ export interface TTask {
     sender: string
     recipients: TRecipients
     is_done: boolean
-    linked_email_thread: TLinkedEmailThread
+    linked_email_thread?: TLinkedEmailThread
 }
 
 export interface TLinkedEmailThread {
