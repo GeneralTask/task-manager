@@ -20,6 +20,7 @@ import {
     TEmailThread,
     TEvent,
     TLinkedAccount,
+    TMeetingBanner,
     TMessage,
     TMessageResponse,
     TRecipients,
@@ -470,6 +471,18 @@ const fetchMessages = async () => {
         return res.data
     } catch {
         throw new Error('fetchMessages failed')
+    }
+}
+
+export const useMeetingBanner = () => {
+    return useQuery<TMeetingBanner>('meeting_banner', () => meetingBanner())
+}
+const meetingBanner = async () => {
+    try {
+        const res = await apiClient.get('/meeting_banner/')
+        return res.data
+    } catch {
+        throw new Error('useMeetingBanner failed')
     }
 }
 
