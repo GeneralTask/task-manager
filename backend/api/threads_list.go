@@ -16,7 +16,7 @@ import (
 
 const DEFAULT_THREAD_LIMIT int = 100
 
-type email struct {
+type emailResponse struct {
 	MessageID  primitive.ObjectID `json:"message_id"`
 	Subject    string             `json:"subject"`
 	Body       string             `json:"body"`
@@ -26,12 +26,12 @@ type email struct {
 	Recipients Recipients         `json:"recipients"`
 }
 
-type Thread struct {
+type ThreadDetailsResponse struct {
 	ID       primitive.ObjectID `json:"id"`
 	Deeplink string             `json:"deeplink"`
 	IsTask   bool               `json:"is_task"`
 	Source   messageSource      `json:"source"`
-	Emails   *[]email           `json:"emails"`
+	Emails   *[]emailResponse   `json:"emails"`
 }
 
 type accountParams struct {
@@ -101,23 +101,23 @@ func (api *API) ThreadsList(c *gin.Context) {
 	c.JSON(200, orderedMessages)
 }
 
-func (api *API) orderThreads(threadItems *[]database.Item) []*Thread {
+func (api *API) orderThreads(threadItems *[]database.Item) []*ThreadDetailsResponse {
 	sort.SliceStable(*threadItems, func(i, j int) bool {
 		a := (*threadItems)[i]
 		b := (*threadItems)[j]
 		return formatDateTime(a.EmailThread.LastUpdatedAt) > formatDateTime(b.EmailThread.LastUpdatedAt)
 	})
 
-	var responseThreads []*Thread
+	var responseThreads []*ThreadDetailsResponse
 	for _, threadItem := range *threadItems {
 		responseThreads = append(responseThreads, api.createThreadResponse(&threadItem))
 	}
 	return responseThreads
 }
 
-func (api *API) createThreadResponse(t *database.Item) *Thread {
+func (api *API) createThreadResponse(t *database.Item) *ThreadDetailsResponse {
 	threadSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
-	return &Thread{
+	return &ThreadDetailsResponse{
 		ID:     t.ID,
 		IsTask: t.IsTask,
 		Source: messageSource{
@@ -131,10 +131,10 @@ func (api *API) createThreadResponse(t *database.Item) *Thread {
 	}
 }
 
-func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
-	var emails []email
+func createThreadEmailsResponse(dbEmails *[]database.Email) *[]emailResponse {
+	var emails []emailResponse
 	for _, e := range *dbEmails {
-		formattedEmail := email{
+		formattedEmail := emailResponse{
 			MessageID: e.MessageID,
 			Subject:   e.Subject,
 			Body:      e.Body,

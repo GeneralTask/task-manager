@@ -24,7 +24,7 @@ func TestWaitlistAdd(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing 'email' parameter.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or missing 'emailResponse' parameter.\"}", string(body))
 	})
 	t.Run("MissingEmail", func(t *testing.T) {
 		router := GetRouter(GetAPI())
@@ -37,24 +37,24 @@ func TestWaitlistAdd(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing 'email' parameter.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or missing 'emailResponse' parameter.\"}", string(body))
 	})
 	t.Run("BadEmail", func(t *testing.T) {
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest(
 			"POST",
 			"/waitlist/",
-			bytes.NewBuffer([]byte(`{"email": "teslatothemoon"}`)))
+			bytes.NewBuffer([]byte(`{"emailResponse": "teslatothemoon"}`)))
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid email format.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid emailResponse format.\"}", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
 		sendWaitlistRequest(t, http.StatusCreated, "{}")
-		sendWaitlistRequest(t, http.StatusFound, "{\"detail\":\"email already exists in system\"}")
+		sendWaitlistRequest(t, http.StatusFound, "{\"detail\":\"emailResponse already exists in system\"}")
 
 		db, dbCleanup, err := database.GetDBConnection()
 		assert.NoError(t, err)
@@ -64,7 +64,7 @@ func TestWaitlistAdd(t *testing.T) {
 		defer cancel()
 		count, err := waitlistCollection.CountDocuments(
 			dbCtx,
-			bson.M{"email": "elon@tesla.moon"},
+			bson.M{"emailResponse": "elon@tesla.moon"},
 		)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
@@ -73,7 +73,7 @@ func TestWaitlistAdd(t *testing.T) {
 		defer cancel()
 		err = waitlistCollection.FindOne(
 			dbCtx,
-			bson.M{"email": "elon@tesla.moon"},
+			bson.M{"emailResponse": "elon@tesla.moon"},
 		).Decode(&entry)
 		assert.NoError(t, err)
 		assert.Equal(t, "elon@tesla.moon", entry.Email)
@@ -86,7 +86,7 @@ func sendWaitlistRequest(t *testing.T, expectedCode int, expectedResponse string
 	request, _ := http.NewRequest(
 		"POST",
 		"/waitlist/",
-		bytes.NewBuffer([]byte(`{"email": "elOn@tEslA.mOoN"}`)))
+		bytes.NewBuffer([]byte(`{"emailResponse": "elOn@tEslA.mOoN"}`)))
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	assert.Equal(t, expectedCode, recorder.Code)

@@ -132,7 +132,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	defer cancel()
 	count, err := waitlistCollection.CountDocuments(
 		dbCtx,
-		bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
+		bson.M{"$and": []bson.M{{"emailResponse": lowerEmail}, {"has_access": true}}},
 	)
 	if err != nil {
 		log.Error().Msgf("failed to query waitlist: %v", err)
@@ -141,7 +141,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 	isGTUser := strings.HasSuffix(lowerEmail, "@generaltask.com")
 	if _, contains := constants.ALLOWED_USERNAMES[lowerEmail]; !contains && !isGTUser && count == 0 {
-		c.JSON(403, gin.H{"detail": "email has not been approved."})
+		c.JSON(403, gin.H{"detail": "emailResponse has not been approved."})
 		return
 	}
 

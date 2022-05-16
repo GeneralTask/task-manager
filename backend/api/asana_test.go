@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const DefaultTokenPayload string = `{"access_token":"sample-access-token", "data": {"email": "moon@dogecoin.tesla"}}`
+const DefaultTokenPayload string = `{"access_token":"sample-access-token", "data": {"emailResponse": "moon@dogecoin.tesla"}}`
 
 func TestLinkAsana(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {

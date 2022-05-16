@@ -44,7 +44,7 @@ func (api *API) MeetingBanner(c *gin.Context) {
 			},
 			{
 				Logo:  "gmail",
-				Title: "Unread email: Ramp Daily Digest for May 12",
+				Title: "Unread emailResponse: Ramp Daily Digest for May 12",
 				Link:  "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 			},
 			{

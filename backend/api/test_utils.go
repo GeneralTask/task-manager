@@ -173,7 +173,7 @@ func makeLoginCallbackRequest(
 	).Return(
 		&http.Response{
 			Body: ioutil.NopCloser(bytes.NewBufferString(fmt.Sprintf(
-				"{\"sub\": \"goog12345_%s\", \"email\": \"%s\", \"name\": \"%s\"}",
+				"{\"sub\": \"goog12345_%s\", \"emailResponse\": \"%s\", \"name\": \"%s\"}",
 				email,
 				email,
 				name,

@@ -9,7 +9,7 @@ import (
 )
 
 type createTestUserParams struct {
-	Email string `json:"email" binding:"required"`
+	Email string `json:"emailResponse" binding:"required"`
 	Name  string `json:"name" binding:"required"`
 }
 

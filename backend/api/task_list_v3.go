@@ -105,7 +105,7 @@ func (api *API) mergeTasksV3(
 }
 
 func (api *API) getPriorityTaskResults(db *mongo.Database, userID primitive.ObjectID) (*[]*TaskResult, error) {
-	// first, show unread email threads oldest to newest
+	// first, show unread emailResponse threads oldest to newest
 	limit := 10
 	page := 1
 	threads, err := database.GetEmailThreads(db, userID, true, database.Pagination{Limit: &limit, Page: &page}, nil)

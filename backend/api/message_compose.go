@@ -57,8 +57,8 @@ func handleCompose(c *gin.Context, userID primitive.ObjectID, taskSourceResult *
 	}
 	err := taskSourceResult.Source.SendEmail(userID, requestParams.SourceAccountID, contents)
 	if err != nil {
-		log.Error().Msgf("failed to send email: %v", err)
-		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "failed to send email"})
+		log.Error().Msgf("failed to send emailResponse: %v", err)
+		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "failed to send emailResponse"})
 		return
 	}
 
@@ -84,8 +84,8 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 	}
 	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, messageID, contents)
 	if err != nil {
-		log.Error().Msgf("unable to send email with error: %v", err)
-		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
+		log.Error().Msgf("unable to send emailResponse with error: %v", err)
+		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send emailResponse"})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{})

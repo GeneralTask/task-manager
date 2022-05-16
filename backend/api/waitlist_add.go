@@ -15,7 +15,7 @@ import (
 )
 
 type WaitlistParams struct {
-	Email string `json:"email"`
+	Email string `json:"emailResponse"`
 }
 
 func (api *API) WaitlistAdd(c *gin.Context) {
@@ -24,11 +24,11 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 	err := c.BindJSON(&params)
 	if err != nil || params.Email == "" {
 		log.Error().Msgf("error: %v", err)
-		c.JSON(400, gin.H{"detail": "invalid or missing 'email' parameter."})
+		c.JSON(400, gin.H{"detail": "invalid or missing 'emailResponse' parameter."})
 		return
 	}
 	if !utils.IsEmailValid(params.Email) {
-		c.JSON(400, gin.H{"detail": "invalid email format."})
+		c.JSON(400, gin.H{"detail": "invalid emailResponse format."})
 		return
 	}
 	email := strings.ToLower(params.Email)
@@ -43,14 +43,14 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	count, err := waitlistCollection.CountDocuments(dbCtx, bson.M{"email": email})
+	count, err := waitlistCollection.CountDocuments(dbCtx, bson.M{"emailResponse": email})
 	if err != nil {
 		log.Error().Msgf("failed to query waitlist: %v", err)
 		Handle500(c)
 		return
 	}
 	if count > 0 {
-		c.JSON(302, gin.H{"detail": "email already exists in system"})
+		c.JSON(302, gin.H{"detail": "emailResponse already exists in system"})
 		return
 	}
 
