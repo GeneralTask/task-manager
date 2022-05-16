@@ -60,6 +60,12 @@ func TestCreateTaskFromThread(t *testing.T) {
 				"body": "sample body"
 			}`)), http.StatusBadRequest)
 	})
+	t.Run("MissingBody", func(t *testing.T) {
+		ServeRequest(t, authToken, "POST", "/create_task_from_thread/"+threadIDHex+"/",
+			bytes.NewBuffer([]byte(`{
+				"title": "sample title"
+			}`)), http.StatusOK)
+	})
 	t.Run("SuccessCreateTaskFromThread", func(t *testing.T) {
 		ServeRequest(t, authToken, "POST", "/create_task_from_thread/"+threadIDHex+"/",
 			bytes.NewBuffer([]byte(`{
