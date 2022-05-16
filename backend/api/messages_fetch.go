@@ -127,7 +127,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 			Handle500(c)
 			return
 		}
-		body := (`<!DOCTYPE html><html lang="en"><head></head><body>Please un-link and re-link your emailResponse account ` +
+		body := (`<!DOCTYPE html><html lang="en"><head></head><body>Please un-link and re-link your email account ` +
 			`in the settings page to continue seeing messages from this account. If this is your primary account, ` +
 			`you will need to visit the following link to reauthorize: ` +
 			`<a href="%slogin/?force_prompt=true">Click here</a><br><br><i>Note: once we are verified by Google, this ` +

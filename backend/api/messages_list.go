@@ -19,7 +19,7 @@ type messageSource struct {
 
 type senderV2 struct {
 	Name    string `json:"name"`
-	Email   string `json:"emailResponse"`
+	Email   string `json:"email"`
 	ReplyTo string `json:"reply_to"`
 }
 

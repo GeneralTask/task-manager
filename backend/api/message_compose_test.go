@@ -77,7 +77,7 @@ func TestComposeEmail(t *testing.T) {
 			bytes.NewBuffer([]byte(`{
 				"message_id": "`+messageID.Hex()+`",
 				"body": "`+"test body"+`",
-				"recipients": {"to": [{"name": "Sample Recipient", "emailResponse": "sample@generaltask.com"}]},
+				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "invalid_source",
 				"source_account_id": "approved@generaltask.com"
 			}`)))
@@ -115,7 +115,7 @@ func TestComposeEmail(t *testing.T) {
 			bytes.NewBuffer([]byte(`{
 				"message_id": "`+taskID+`",
 				"body": "`+"test body"+`",
-				"recipients": {"to": [{"name": "Sample Recipient", "emailResponse": "sample@generaltask.com"}]},
+				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "jira",
 				"source_account_id": "approved@generaltask.com"
 			}`)))
@@ -138,7 +138,7 @@ func TestComposeEmail(t *testing.T) {
 			bytes.NewBuffer([]byte(`{
 				"message_id": "`+messageID.Hex()+`",
 				"body": "`+"test body"+`",
-				"recipients": {"to": [{"name": "Sample Recipient", "emailResponse": "sample@generaltask.com"}]},
+				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "gmail",
 				"source_account_id": "approved@generaltask.com"
 			}`)))
@@ -177,7 +177,7 @@ func TestComposeEmail(t *testing.T) {
 			bytes.NewBuffer([]byte(`{
 				"message_id": "`+nonUserSmtpId.Hex()+`",
 				"body": "`+"test body"+`",
-				"recipients": {"to": [{"name": "Sample Recipient", "emailResponse": "sample@generaltask.com"}]},
+				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
 				"source_id": "gmail",
 				"source_account_id": "approved@generaltask.com"
 			}`)))
@@ -209,7 +209,7 @@ func TestComposeEmail(t *testing.T) {
 			"sample_thread_id",
 			headers,
 			"To: Sample sender <sample@generaltask.com>\r\nFrom: General Tasker <approved@generaltask.com>\nSubject: Re: Sample subject\nIn-Reply-To: <id1@gt.io>\nReferences: <id1@gt.io>\nMIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\ntest reply")
-		toStr := `[{"name": "Sample sender", "emailResponse": "sample@generaltask.com"}]`
+		toStr := `[{"name": "Sample sender", "email": "sample@generaltask.com"}]`
 		testSuccessfulComposeWithServer(t, messageID.Hex(), authToken, "test reply", "", toStr, "[]", "[]", server)
 	})
 
@@ -221,7 +221,7 @@ func TestComposeEmail(t *testing.T) {
 			"",
 			headers,
 			"To: Sample sender <sample@generaltask.com>\r\nCc: \r\nBcc: \r\nFrom: General Tasker <approved@generaltask.com>\nSubject: test subject\n\ntest body")
-		toStr := `[{"name": "Sample sender", "emailResponse": "sample@generaltask.com"}]`
+		toStr := `[{"name": "Sample sender", "email": "sample@generaltask.com"}]`
 		testSuccessfulComposeWithServer(t, "", authToken, "test body", "test subject", toStr, "[]", "[]", server)
 	})
 
@@ -232,7 +232,7 @@ func TestComposeEmail(t *testing.T) {
 			"",
 			headers,
 			"To: Sample sender <sample@generaltask.com>\r\nCc: \r\nBcc: \r\nFrom: General Tasker <approved@generaltask.com>\nSubject: test subject\n\n")
-		toStr := `[{"name": "Sample sender", "emailResponse": "sample@generaltask.com"}]`
+		toStr := `[{"name": "Sample sender", "email": "sample@generaltask.com"}]`
 		testSuccessfulComposeWithServer(t, "", authToken, "", "test subject", toStr, "[]", "[]", server)
 	})
 
@@ -243,9 +243,9 @@ func TestComposeEmail(t *testing.T) {
 			"",
 			headers,
 			"To: Sample sender <sample@generaltask.com>,Sample sender 2 <sample2@generaltask.com>\r\nCc: Sample sender cc <samplecc@generaltask.com>\r\nBcc: Sample sender bcc <samplebcc@generaltask.com>\r\nFrom: General Tasker <approved@generaltask.com>\nSubject: test subject\n\ntest reply")
-		toStr := `[{"name": "Sample sender", "emailResponse": "sample@generaltask.com"},{"name": "Sample sender 2", "emailResponse": "sample2@generaltask.com"}]`
-		ccStr := `[{"name": "Sample sender cc", "emailResponse": "samplecc@generaltask.com"}]`
-		bccStr := `[{"name": "Sample sender bcc", "emailResponse": "samplebcc@generaltask.com"}]`
+		toStr := `[{"name": "Sample sender", "email": "sample@generaltask.com"},{"name": "Sample sender 2", "email": "sample2@generaltask.com"}]`
+		ccStr := `[{"name": "Sample sender cc", "email": "samplecc@generaltask.com"}]`
+		bccStr := `[{"name": "Sample sender bcc", "email": "samplebcc@generaltask.com"}]`
 		testSuccessfulComposeWithServer(t, "", authToken, "test reply", "test subject", toStr, ccStr, bccStr, server)
 	})
 }

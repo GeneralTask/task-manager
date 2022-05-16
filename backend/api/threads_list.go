@@ -16,7 +16,7 @@ import (
 
 const DEFAULT_THREAD_LIMIT int = 100
 
-type emailResponse struct {
+type email struct {
 	MessageID  primitive.ObjectID `json:"message_id"`
 	Subject    string             `json:"subject"`
 	Body       string             `json:"body"`
@@ -31,7 +31,7 @@ type ThreadDetailsResponse struct {
 	Deeplink string             `json:"deeplink"`
 	IsTask   bool               `json:"is_task"`
 	Source   messageSource      `json:"source"`
-	Emails   *[]emailResponse   `json:"emails"`
+	Emails   *[]email           `json:"emails"`
 }
 
 type accountParams struct {
@@ -131,10 +131,10 @@ func (api *API) createThreadResponse(t *database.Item) *ThreadDetailsResponse {
 	}
 }
 
-func createThreadEmailsResponse(dbEmails *[]database.Email) *[]emailResponse {
-	var emails []emailResponse
+func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
+	var emails []email
 	for _, e := range *dbEmails {
-		formattedEmail := emailResponse{
+		formattedEmail := email{
 			MessageID: e.MessageID,
 			Subject:   e.Subject,
 			Body:      e.Body,

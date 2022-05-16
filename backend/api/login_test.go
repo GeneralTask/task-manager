@@ -133,7 +133,7 @@ func TestLoginCallback(t *testing.T) {
 	})
 
 	t.Run("EmailNotApprovedOnWaitlist", func(t *testing.T) {
-		// Waitlist entry doesn't matter if has_access = false or if different emailResponse
+		// Waitlist entry doesn't matter if has_access = false or if different email
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		_, err := waitlistCollection.InsertOne(
@@ -156,7 +156,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, http.StatusForbidden, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"emailResponse has not been approved.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"email has not been approved.\"}", string(body))
 	})
 	t.Run("EmailNotApproved", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -167,7 +167,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, http.StatusForbidden, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"emailResponse has not been approved.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"email has not been approved.\"}", string(body))
 		verifyLoginCallback(t, db, "unapproved@gmail.com", "noice420", true, false)
 	})
 	t.Run("Idempotent", func(t *testing.T) {

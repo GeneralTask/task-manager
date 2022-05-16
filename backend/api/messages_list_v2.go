@@ -84,7 +84,7 @@ func (api *API) orderMessagesV2(
 ) ([]*message, error) {
 	orderingSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailOrderingPreference)
 	if err != nil {
-		log.Error().Msgf("failed to fetch emailResponse ordering setting: %v", err)
+		log.Error().Msgf("failed to fetch email ordering setting: %v", err)
 		return []*message{}, err
 	}
 	newestEmailsFirst := *orderingSetting == settings.ChoiceKeyNewestFirst

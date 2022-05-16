@@ -11,7 +11,7 @@ import (
 )
 
 const LinearTokenPayload string = `{"access_token":"sample-linear-access-token"}`
-const LinearUserInfoPayload string = `{"data": {"viewer": { "id": "sample-linear-id", "name": "Test User", "emailResponse": "test@generaltask.com"}}}`
+const LinearUserInfoPayload string = `{"data": {"viewer": { "id": "sample-linear-id", "name": "Test User", "email": "test@generaltask.com"}}}`
 
 func TestLinkLinear(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {

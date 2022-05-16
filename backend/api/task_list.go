@@ -26,7 +26,7 @@ type TaskSource struct {
 type linkedEmailThread struct {
 	LinkedThreadID *primitive.ObjectID `json:"linked_thread_id,omitempty"`
 	LinkedEmailID  *primitive.ObjectID `json:"linked_email_id,omitempty"`
-	Emails         *[]emailResponse    `bson:"emails,omitempty" json:"emails,omitempty"`
+	Emails         *[]email    `bson:"emails,omitempty" json:"emails,omitempty"`
 }
 
 type TaskResult struct {
@@ -60,7 +60,7 @@ type Recipients struct {
 
 type Recipient struct {
 	Name  string `json:"name"`
-	Email string `json:"emailResponse"`
+	Email string `json:"email"`
 }
 
 type TaskGroupType string

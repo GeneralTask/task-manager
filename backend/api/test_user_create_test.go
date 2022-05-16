@@ -36,7 +36,7 @@ func TestCreateTestUser(t *testing.T) {
 		request, _ := http.NewRequest(
 			"POST",
 			"/create_test_user/",
-			bytes.NewBuffer([]byte(`{"emailResponse": "`+email+`", "name": "Test User"}`)))
+			bytes.NewBuffer([]byte(`{"email": "`+email+`", "name": "Test User"}`)))
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -52,7 +52,7 @@ func TestCreateTestUser(t *testing.T) {
 		log.Error().Msgf("%+v", result["token"])
 
 		var userObject database.User
-		err = database.GetUserCollection(db).FindOne(dbCtx, bson.M{"emailResponse": email}).Decode(&userObject)
+		err = database.GetUserCollection(db).FindOne(dbCtx, bson.M{"email": email}).Decode(&userObject)
 		assert.NoError(t, err)
 
 		tokenCollection := database.GetInternalTokenCollection(db)
@@ -70,7 +70,7 @@ func TestCreateTestUser(t *testing.T) {
 		request, _ := http.NewRequest(
 			"POST",
 			"/create_test_user/",
-			bytes.NewBuffer([]byte(`{"emailResponse": "test@generaltask.com", "name": "Test User"}`)))
+			bytes.NewBuffer([]byte(`{"email": "test@generaltask.com", "name": "Test User"}`)))
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
