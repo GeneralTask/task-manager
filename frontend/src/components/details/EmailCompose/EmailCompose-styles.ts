@@ -26,14 +26,14 @@ export const EmailInput = css`
     padding: 0;
     flex: 1;
     font-size: ${Typography.xSmall.fontSize};
-    font-family: Switzer-Variable;
     height: 30px;
 `
 export const EmailComposeContainer = styled.div`
-    padding-top: 0;
-    margin: ${Spacing.margin._16}px;
-    border: 2px solid ${Colors.gray._300};
-    border-radius: ${Border.radius.large};
+    display: flex;
+    margin-bottom: ${Spacing.margin._16}px;
+`
+export const EmailComposeFormContainer = styled.div`
+    flex: 1;
     .react-multi-email {
         ${EmailInputContainer}
     }
@@ -41,9 +41,6 @@ export const EmailComposeContainer = styled.div`
         ${EmailInput}
         margin: 0 ${Spacing.padding._4}px;
     }
-`
-export const FullWidth = styled.div`
-    width: 100%;
 `
 export const EmailRecipientsContainer = styled.div`
     display: flex;
@@ -76,7 +73,7 @@ export const EmailActionButton = styled(NoStyleButton)`
     width: 100%;
     padding: ${Spacing.padding._8}px 0;
 `
-export const ButtonsContainer = styled(FullWidth)`
+export const ButtonsContainer = styled.div`
     display: flex;
     align-items: center;
     gap: ${Spacing.margin._8}px;
@@ -103,4 +100,47 @@ export const FlexExpand = styled.div`
 `
 export const Flex = styled.div`
     display: flex;
+`
+export const SentEmailBanner = styled.div`
+    background-color: ${Colors.black};
+    color: ${Colors.white};
+    margin: ${Spacing.margin._8}px;
+    border-radius: ${Border.radius.small};
+    padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`
+export const UndoButton = styled(NoStyleButton)`
+    background-color: ${Colors.purple._1};
+    border-radius: ${Border.radius.small};
+    padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
+`
+export const ComposeSelectorButtonContainer = styled.div`
+    display: flex;
+    align-items: center;
+    height: 30px;
+    margin: ${Spacing.margin._4}px 0 0 ${Spacing.margin._8}px;
+`
+export const EmailActionOption = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing.padding._8}px;
+`
+export const EmailComposeIconButton = styled(NoStyleButton) <{ hasBorder: boolean }>`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid ${(props) => (props.hasBorder ? Colors.gray._200 : 'transparent')};
+    border-radius: ${Border.radius.xxSmall};
+    position: relative;
+    padding: ${Spacing.padding._4}px;
+    min-height: 20px;
+    min-width: 20px;
+    &:hover {
+        background-color: ${Colors.gray._200};
+    }
+`
+export const NoWrap = styled.span`
+    white-space: nowrap;
 `

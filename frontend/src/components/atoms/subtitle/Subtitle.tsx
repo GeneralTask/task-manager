@@ -6,13 +6,11 @@ const SubtitleStyled = styled.span`
     color: ${Colors.gray._600};
     font-size: ${Typography.small.fontSize};
     font-weight: ${Typography.weight._400};
-    font-family: Switzer-Variable;
 `
 const SubtitleSmallStyles = styled.span`
     color: ${Colors.gray._500};
     font-size: ${Typography.xxSmall.fontSize};
     font-weight: ${Typography.weight._400};
-    font-family: Switzer-Variable;
 `
 
 interface SubtitleProps {

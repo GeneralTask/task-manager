@@ -7,6 +7,7 @@ import styled from 'styled-components'
 const IconContainer = styled.div<{ width: number; height: number }>`
     width: ${(props) => props.width}px;
     height: ${(props) => props.height}px;
+    display: flex;
     align-items: center;
     justify-content: center;
     user-select: none;

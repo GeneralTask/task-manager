@@ -1,7 +1,7 @@
 import { Colors } from '../../styles'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { margin, padding } from '../../styles/spacing'
-import { useGetTasks } from '../../services/api-query-hooks'
+import { useGetInfiniteThreads, useGetTasks } from '../../services/api-query-hooks'
 import { useLocation, useParams } from 'react-router-dom'
 
 import FeedbackButton from '../molecules/FeedbackButton'
@@ -10,7 +10,6 @@ import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { authSignOut } from '../../utils/auth'
 import styled from 'styled-components'
-import { useAppDispatch } from '../../redux/hooks'
 
 const NavigationViewContainer = styled.div`
     display: flex;
@@ -39,10 +38,12 @@ const GapView = styled.div`
 `
 
 const NavigationView = () => {
-    const dispatch = useAppDispatch()
     const { data: taskSections } = useGetTasks()
+    const { data: threadData } = useGetInfiniteThreads()
     const { section: sectionIdParam } = useParams()
     const { pathname } = useLocation()
+
+    const threads = useMemo(() => threadData?.pages.flat().filter((thread) => thread != null) ?? [], [threadData])
 
     return (
         <NavigationViewContainer>
@@ -50,9 +51,10 @@ const NavigationView = () => {
                 <Icon size="medium" />
             </NavigationViewHeader>
             <OverflowContainer>
-                {taskSections && (
+                {taskSections && threadData && (
                     <NavigationSectionLinks
                         taskSections={taskSections}
+                        threads={threads}
                         sectionId={sectionIdParam || ''}
                         pathName={pathname.split('/')[1]}
                     />
@@ -60,7 +62,7 @@ const NavigationView = () => {
             </OverflowContainer>
             <GapView>
                 <FeedbackButton />
-                <RoundedGeneralButton value="Sign Out" textStyle="dark" onPress={() => authSignOut(dispatch)} />
+                <RoundedGeneralButton value="Sign Out" textStyle="dark" onPress={authSignOut} />
             </GapView>
         </NavigationViewContainer>
     )

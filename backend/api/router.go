@@ -43,6 +43,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/threads/", handlers.ThreadsList)
 	router.GET("/threads/detail/:thread_id/", handlers.ThreadDetail)
 	router.PATCH("/threads/modify/:thread_id/", handlers.ThreadModify)
+	router.POST("/create_task_from_thread/:thread_id/", handlers.CreateTaskFromThread)
 	router.GET("/tasks/fetch/", handlers.TasksFetch)
 	router.GET("/tasks/v3/", handlers.TasksListV3)
 	router.POST("/tasks/create/:source_id/", handlers.TaskCreate)

@@ -1,20 +1,14 @@
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState } from '../../utils/types'
+import { getHumanDateTime, removeHTMLTags } from '../../utils/utils'
 
-import EmailCompose from './EmailCompose/EmailCompose'
-import { EmailComposeType } from '../../utils/enums'
-import EmailMainActions from './EmailCompose/EmailMainActions'
+import { DateTime } from 'luxon'
+import EmailComposeTypeSelector from './EmailCompose/EmailComposeTypeSelector'
 import EmailSenderDetails from '../molecules/EmailSenderDetails'
-import GTSelect from '../molecules/GTSelect'
-import { Icon } from '../atoms/Icon'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import ReactTooltip from 'react-tooltip'
 import SanitizedHTML from '../atoms/SanitizedHTML'
-import { icons } from '../../styles/images'
-import { getHumanDateTime, removeHTMLTags } from '../../utils/utils'
 import styled from 'styled-components'
-import { DateTime } from 'luxon'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -43,6 +37,9 @@ const SentAtContainer = styled.div`
 const BodyContainer = styled.div`
     flex: 1;
     margin: ${Spacing.margin._8}px;
+    * > div {
+        white-space: pre-wrap;
+    }
 `
 const BodyContainerCollapsed = styled.span`
     margin-left: ${Spacing.margin._8}px;
@@ -66,34 +63,19 @@ const Title = styled.div`
 const Flex = styled.div`
     display: flex;
 `
-const EmailActionContainer = styled.div`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing.padding._8}px;
-`
-const IconButton = styled(NoStyleButton)`
-    border-radius: ${Border.radius.xxSmall};
-    position: relative;
-    padding: ${Spacing.padding._4}px;
-    &:hover {
-        background-color: ${Colors.gray._200};
-    }
-`
 
 interface EmailContainerProps {
     email: TEmail
     isLastThread: boolean
-    composeType: EmailComposeType | null // null if not in compose mode, otherwise the compose type
-    setThreadComposeState: (state: TEmailComposeState) => void
+    composeState: TEmailComposeState
+    setThreadComposeState: React.Dispatch<React.SetStateAction<TEmailComposeState>>
     sourceAccountId: string
 }
 
 const EmailContainer = (props: EmailContainerProps) => {
-    const [isCollapsed, setIsCollapsed] = useState(props.isLastThread)
-    const [showEmailActions, setShowEmailActions] = useState(false)
+    const [isCollapsed, setIsCollapsed] = useState(!props.isLastThread)
     const timeSent = getHumanDateTime(DateTime.fromISO(props.email.sent_at))
     const scrollingRef = useRef<HTMLDivElement>(null)
-    const emailActionsRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         ReactTooltip.hide()
@@ -101,61 +83,11 @@ const EmailContainer = (props: EmailContainerProps) => {
     }, [])
 
     useLayoutEffect(() => {
-        setIsCollapsed(props.isLastThread)
+        setIsCollapsed(!props.isLastThread)
         if (props.isLastThread) {
             scrollingRef.current?.scrollIntoView()
         }
     }, [props.isLastThread])
-
-    const handleEmailActionsButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation()
-        setShowEmailActions((show) => !show)
-    }
-
-    const emailActionOptions = [
-        {
-            item: (
-                <EmailActionContainer>
-                    <Icon size="medium" source={icons.reply} />
-                    Reply
-                </EmailActionContainer>
-            ),
-            onClick: () => {
-                props.setThreadComposeState({
-                    emailComposeType: EmailComposeType.REPLY,
-                    emailId: props.email.message_id,
-                })
-            },
-        },
-        {
-            item: (
-                <EmailActionContainer>
-                    <Icon size="medium" source={icons.replyAll} />
-                    Reply All
-                </EmailActionContainer>
-            ),
-            onClick: () => {
-                props.setThreadComposeState({
-                    emailComposeType: EmailComposeType.REPLY_ALL,
-                    emailId: props.email.message_id,
-                })
-            },
-        },
-        {
-            item: (
-                <EmailActionContainer>
-                    <Icon size="medium" source={icons.forward} />
-                    Forward
-                </EmailActionContainer>
-            ),
-            onClick: () => {
-                props.setThreadComposeState({
-                    emailComposeType: EmailComposeType.FORWARD,
-                    emailId: props.email.message_id,
-                })
-            },
-        },
-    ]
 
     return (
         <DetailsViewContainer ref={scrollingRef}>
@@ -168,18 +100,11 @@ const EmailContainer = (props: EmailContainerProps) => {
                         </Flex>
                         <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
                     </div>
-                    <div ref={emailActionsRef}>
-                        <IconButton onClick={handleEmailActionsButtonClick}>
-                            <Icon size="small" source={icons.skinnyHamburger} />
-                        </IconButton>
-                        {showEmailActions && (
-                            <GTSelect
-                                options={emailActionOptions}
-                                onClose={() => setShowEmailActions(false)}
-                                parentRef={emailActionsRef}
-                            />
-                        )}
-                    </div>
+                    <EmailComposeTypeSelector
+                        email={props.email}
+                        isNewEmail
+                        setThreadComposeState={props.setThreadComposeState}
+                    />
                 </SenderContainer>
                 {isCollapsed && <BodyContainerCollapsed>{removeHTMLTags(props.email.body)}</BodyContainerCollapsed>}
             </CollapseExpandContainer>
@@ -187,17 +112,6 @@ const EmailContainer = (props: EmailContainerProps) => {
                 <BodyContainer>
                     <SanitizedHTML dirtyHTML={props.email.body} />
                 </BodyContainer>
-            )}
-            {props.composeType != null && (
-                <EmailCompose
-                    email={props.email}
-                    composeType={props.composeType}
-                    sourceAccountId={props.sourceAccountId}
-                    onClose={() => props.setThreadComposeState({ emailComposeType: null, emailId: null })}
-                />
-            )}
-            {props.composeType == null && props.isLastThread && (
-                <EmailMainActions email={props.email} setThreadComposeState={props.setThreadComposeState} />
             )}
         </DetailsViewContainer>
     )

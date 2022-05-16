@@ -58,10 +58,20 @@ interface NavigationLinkProps {
     title: string
     icon?: string
     taskSection?: TTaskSection
+    count?: number
     droppable?: boolean
     testId?: string
 }
-const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppable, testId }: NavigationLinkProps) => {
+const NavigationLink = ({
+    isCurrentPage,
+    link,
+    title,
+    icon,
+    taskSection,
+    count,
+    droppable,
+    testId,
+}: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
@@ -103,7 +113,7 @@ const NavigationLink = ({ isCurrentPage, link, title, icon, taskSection, droppab
             <LinkContainer ref={drop} isSelected={isCurrentPage} isOver={isOver}>
                 <Icon size="small" source={icon} />
                 <SectionTitle isSelected={isCurrentPage}>{title}</SectionTitle>
-                <SectionTitleItemCount isSelected={isCurrentPage}>{taskSection?.tasks.length}</SectionTitleItemCount>
+                <SectionTitleItemCount isSelected={isCurrentPage}>{count}</SectionTitleItemCount>
             </LinkContainer>
         </NavigationLinkTemplate>
     )
