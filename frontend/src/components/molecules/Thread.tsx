@@ -19,7 +19,6 @@ const Title = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: Switzer-Variable;
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._600};
 `
@@ -32,7 +31,6 @@ const BodyPreview = styled(SubTitle)`
 const SentAtContainer = styled.span`
     margin-left: auto;
     padding-left: ${Spacing.margin._8}px;
-    font-family: Switzer-Variable;
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._400};
     min-width: fit-content;
@@ -96,7 +94,7 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const senders = thread.emails[0]?.sender.name
     const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length})` : ''
     const title = `${threadCountString} ${thread.emails[0]?.subject}`
-    const bodyDirtyHTML = thread.emails[0]?.body
+    const bodyDirtyHTML = thread.emails[thread.emails.length - 1]?.body
     const sentAt = getHumanDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
 
     return (

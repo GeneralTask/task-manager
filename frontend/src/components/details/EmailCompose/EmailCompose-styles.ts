@@ -26,7 +26,6 @@ export const EmailInput = css`
     padding: 0;
     flex: 1;
     font-size: ${Typography.xSmall.fontSize};
-    font-family: Switzer-Variable;
     height: 30px;
 `
 export const EmailComposeContainer = styled.div`

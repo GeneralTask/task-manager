@@ -4,6 +4,7 @@ describe('new user is redirected to terms of service page', () => {
     beforeEach('login the user', () => {
         cy.login()
         cy.visit('/')
+        Cypress.Cookies.preserveOnce('authToken')
     })
     it('user redirects to terms of service page', () => {
         cy.location('pathname', { timeout: REDIRECT_TIMEOUT }).should('include', '/tos-summary')

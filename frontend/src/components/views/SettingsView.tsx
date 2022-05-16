@@ -15,7 +15,6 @@ const ScrollViewMimic = styled.div`
     flex: 1;
 `
 const SettingsViewContainer = styled.div`
-    font-family: Switzer-Variable;
     min-width: ${DEFAULT_VIEW_WIDTH};
 `
 const AccountsContainer = styled.div`
