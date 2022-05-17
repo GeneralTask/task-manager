@@ -33,7 +33,6 @@ export const icons: { [key: string]: string } = {
     mark_as_task: '/images/mark_as_task.png',
     mark_as_task_active: '/images/mark_as_task_active.png',
     message_to_task: '/images/message_to_task.svg',
-    message_to_task_selected: '/images/message_to_task_selected.svg',
     messages: '/images/messages.png',
     plus: '/images/plus.png',
     pencil: '/images/pencil.png',
