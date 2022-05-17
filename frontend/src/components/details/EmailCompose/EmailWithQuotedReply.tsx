@@ -17,7 +17,6 @@ interface EmailWithQuotedReplyProps {
 const EmailWithQuotedReply = ({ bodyHTML, quotedEmail }: EmailWithQuotedReplyProps) => {
     const formattedSentAt = DateTime.fromISO(quotedEmail.sent_at).toLocaleString(DateTime.DATETIME_MED)
 
-    // structure copied from Gmail email HTML
     return (
         <>
             <SanitizedHTML dirtyHTML={bodyHTML} />
