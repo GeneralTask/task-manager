@@ -99,7 +99,6 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             <EmailContainer
                                 email={email}
                                 isLastThread={index === thread.emails.length - 1}
-                                composeState={composeState}
                                 setThreadComposeState={setComposeState}
                                 sourceAccountId={thread.source.account_id}
                             />
