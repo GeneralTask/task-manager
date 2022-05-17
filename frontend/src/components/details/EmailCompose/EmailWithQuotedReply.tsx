@@ -23,7 +23,7 @@ const EmailWithQuotedReply = ({ bodyHTML, quotedEmail }: EmailWithQuotedReplyPro
             <br />
             <div>
                 <div>
-                    On {formattedSentAt} {quotedEmail.sender.name + ' '}
+                    On {formattedSentAt} {quotedEmail.sender.name || quotedEmail.sender.name + ' '}
                     {'<'}
                     <a href={'mailto:' + quotedEmail.sender.email} target="_blank" rel="noreferrer">
                         {quotedEmail.sender.email}
