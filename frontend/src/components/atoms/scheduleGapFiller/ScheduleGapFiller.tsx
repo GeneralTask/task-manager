@@ -108,8 +108,8 @@ const Recommendation = styled.div`
 const ScheduleGapFiller = () => {
     const [recommendation, setRecommendation] = useState(0)
     const { data: event } = useMeetingBanner()
-    var eventTitle = ''
-    var eventsubTitle = ''
+    let eventTitle = ''
+    let eventsubTitle = ''
     if (event == undefined) {
         return null
     }
