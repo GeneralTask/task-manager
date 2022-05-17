@@ -3,13 +3,13 @@ import React, { Fragment, useLayoutEffect, useState } from 'react'
 import { SentEmailBanner, UndoButton } from './EmailCompose/EmailCompose-styles'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
+import EmailCompose from './EmailCompose/EmailCompose'
+import EmailComposeQuotedReply from './EmailCompose/EmailWithQuotedReply'
 import EmailContainer from './EmailContainer'
 import EmailMainActions from './EmailCompose/EmailMainActions'
 import { Icon } from '../atoms/Icon'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
-import EmailCompose from './EmailCompose/EmailCompose'
-import EmailComposeQuotedReply from './EmailCompose/EmailComposeQuotedReply'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
