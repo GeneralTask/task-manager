@@ -127,12 +127,12 @@ const EmailCompose = (props: EmailComposeProps) => {
                 </BodyContainer>
                 <ButtonsContainer>
                     <RoundedGeneralButton
-                        onPress={() => startSendEmail(recipients, subject, body)}
+                        onClick={() => startSendEmail(recipients, subject, body)}
                         value="Send"
                         color={Colors.purple._1}
                         disabled={recipients.to.length === 0}
                     />
-                    <RoundedGeneralButton onPress={onClose} value="Cancel" textStyle="dark" />
+                    <RoundedGeneralButton onClick={onClose} value="Cancel" textStyle="dark" />
                     {isLoading && 'Sending...'}
                 </ButtonsContainer>
             </EmailComposeFormContainer>
