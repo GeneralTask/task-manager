@@ -65,7 +65,6 @@ const EmailCompose = (props: EmailComposeProps) => {
                 stripSubjectPrefix(subject) === stripSubjectPrefix(props.email.subject)
                     ? props.email.message_id
                     : undefined
-            console.log({ body: renderToString(<EmailWithQuotedReply bodyHTML={body} quotedEmail={props.email} />) })
             mutate({
                 message_id: messageId,
                 subject,
