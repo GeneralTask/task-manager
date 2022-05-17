@@ -18,7 +18,7 @@ interface EmailWithQuotedReplyProps {
 const EmailWithQuotedReply = ({ bodyHTML, quotedEmail }: EmailWithQuotedReplyProps) => {
     const formattedSentAt = DateTime.fromISO(quotedEmail.sent_at).toLocaleString(DateTime.DATETIME_MED)
 
-    // copied from Gmail email HTML
+    // structure copied from Gmail email HTML
     return (
         <>
             <div dir="ltr">
@@ -27,11 +27,11 @@ const EmailWithQuotedReply = ({ bodyHTML, quotedEmail }: EmailWithQuotedReplyPro
             <br />
             <div className="gmail_quote">
                 <div dir="ltr" className="gmail_attr">
-                    On {formattedSentAt} {quotedEmail.sender.name} &lt;
+                    On {formattedSentAt} {quotedEmail.sender.name} {'<'}
                     <a href={'mailto:' + quotedEmail.sender.email} target="_blank" rel="noreferrer">
                         {quotedEmail.sender.email}
                     </a>
-                    &gt; wrote:
+                    {'>'} wrote:
                     <br />
                 </div>
                 <BlockQuote className="gmail_quote">
