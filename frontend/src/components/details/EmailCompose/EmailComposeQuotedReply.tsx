@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 import { TEmail } from '../../../utils/types'
 import SanitizedHTML from '../../atoms/SanitizedHTML'
-import { getHumanDateTime } from '../../../utils/utils'
 import { DateTime } from 'luxon'
 
 const BlockQuote = styled.blockquote`
@@ -16,10 +15,12 @@ interface EmailComposeQuotedReplyProps {
     quotedEmail: TEmail
 }
 const EmailComposeQuotedReply = ({ quotedEmail }: EmailComposeQuotedReplyProps) => {
+    const formattedSentAt = DateTime.fromISO(quotedEmail.sent_at).toLocaleString(DateTime.DATETIME_MED)
+
     return (
         <div className="gmail_quote">
             <div dir="ltr" className="gmail_attr">
-                On {getHumanDateTime(DateTime.fromISO(quotedEmail.sent_at))} {quotedEmail.sender.name} &lt;
+                On {formattedSentAt} {quotedEmail.sender.name} &lt;
                 <a href={'mailto:' + quotedEmail.sender.email} target="_blank" rel="noreferrer">
                     {quotedEmail.sender.email}
                 </a>
