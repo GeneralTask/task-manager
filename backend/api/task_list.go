@@ -23,19 +23,25 @@ type TaskSource struct {
 	IsReplyable   bool   `json:"is_replyable"`
 }
 
+type linkedEmailThread struct {
+	LinkedThreadID *primitive.ObjectID `json:"linked_thread_id,omitempty"`
+	LinkedEmailID  *primitive.ObjectID `json:"linked_email_id,omitempty"`
+	Emails         *[]email            `bson:"emails,omitempty" json:"emails,omitempty"`
+}
+
 type TaskResult struct {
-	ID             primitive.ObjectID `json:"id"`
-	IDOrdering     int                `json:"id_ordering"`
-	Source         TaskSource         `json:"source"`
-	Deeplink       string             `json:"deeplink"`
-	Title          string             `json:"title"`
-	Body           string             `json:"body"`
-	Sender         string             `json:"sender"`
-	Recipients     Recipients         `json:"recipients"`
-	DueDate        string             `json:"due_date"`
-	TimeAllocation int64              `json:"time_allocated"`
-	SentAt         string             `json:"sent_at"`
-	IsDone         bool               `json:"is_done"`
+	ID                primitive.ObjectID `json:"id"`
+	IDOrdering        int                `json:"id_ordering"`
+	Source            TaskSource         `json:"source"`
+	Deeplink          string             `json:"deeplink"`
+	Title             string             `json:"title"`
+	Body              string             `json:"body"`
+	Sender            string             `json:"sender"`
+	DueDate           string             `json:"due_date"`
+	TimeAllocation    int64              `json:"time_allocated"`
+	SentAt            string             `json:"sent_at"`
+	IsDone            bool               `json:"is_done"`
+	LinkedEmailThread *linkedEmailThread `json:"linked_email_thread,omitempty"`
 }
 
 type TaskSection struct {
@@ -190,13 +196,13 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 			return err
 		}
 		if res.MatchedCount != 1 {
-			log.Error().Msgf("did not find task to update ordering ID (ID=%v)", task.ID)
+			log.Error().Interface("taskResult", task).Msgf("did not find task to update ordering ID (ID=%v)", task.ID)
 		}
 	}
 	return nil
 }
 
-func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
+func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID) *TaskResult {
 	taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
 	var dueDate string
 	if t.DueDate.Time().Unix() == int64(0) {
@@ -205,7 +211,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
 
-	return &TaskResult{
+	taskResult := &TaskResult{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
 		Source: TaskSource{
@@ -220,13 +226,24 @@ func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 		Body:           t.TaskBase.Body,
 		TimeAllocation: t.TimeAllocation,
 		Sender:         t.Sender,
-		Recipients: Recipients{
-			To:  getRecipients(t.Recipients.To),
-			Cc:  getRecipients(t.Recipients.Cc),
-			Bcc: getRecipients(t.Recipients.Bcc),
-		},
-		SentAt:  t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
-		DueDate: dueDate,
-		IsDone:  t.IsCompleted,
+		SentAt:         t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
+		DueDate:        dueDate,
+		IsDone:         t.IsCompleted,
 	}
+
+	log.Debug().Interface("linkedMessage", t.LinkedMessage).Send()
+	if t.LinkedMessage.ThreadID != nil {
+		thread, err := database.GetItem(context.Background(), *t.LinkedMessage.ThreadID, userID)
+		if err != nil {
+			log.Error().Err(err).Interface("threadID", t.LinkedMessage.ThreadID).Msg("Could not find linked thread in db")
+			return taskResult
+		}
+		taskResult.LinkedEmailThread = &linkedEmailThread{
+			Emails:         createThreadEmailsResponse(&thread.Emails),
+			LinkedThreadID: &thread.ID,
+			LinkedEmailID:  t.LinkedMessage.EmailID,
+		}
+	}
+
+	return taskResult
 }

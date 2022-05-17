@@ -94,7 +94,7 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const senders = thread.emails[0]?.sender.name
     const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length})` : ''
     const title = `${threadCountString} ${thread.emails[0]?.subject}`
-    const bodyDirtyHTML = thread.emails[0]?.body
+    const bodyDirtyHTML = thread.emails[thread.emails.length - 1]?.body
     const sentAt = getHumanDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
 
     return (
