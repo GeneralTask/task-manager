@@ -2,14 +2,13 @@ import { DateTime } from 'luxon'
 import React from 'react'
 import SanitizedHTML from '../../atoms/SanitizedHTML'
 import { TEmail } from '../../../utils/types'
-import styled from 'styled-components'
 
 // styles copied from Gmail email HTML
-const BlockQuote = styled.blockquote`
-    margin: 0px 0px 0px 0.8ex;
-    border-left: 1px solid rgb(204, 204, 204);
-    padding-left: 1ex;
-`
+const blockQuoteStyle = {
+    margin: '0px 0px 0px 0.8ex',
+    borderLeft: '1px solid rgb(204, 204, 204)',
+    paddingLeft: '1ex',
+}
 
 interface EmailWithQuotedReplyProps {
     bodyHTML: string
@@ -21,12 +20,10 @@ const EmailWithQuotedReply = ({ bodyHTML, quotedEmail }: EmailWithQuotedReplyPro
     // structure copied from Gmail email HTML
     return (
         <>
-            <div dir="ltr">
-                <SanitizedHTML dirtyHTML={bodyHTML} />
-            </div>
+            <SanitizedHTML dirtyHTML={bodyHTML} />
             <br />
-            <div className="gmail_quote">
-                <div dir="ltr" className="gmail_attr">
+            <div>
+                <div>
                     On {formattedSentAt} {quotedEmail.sender.name} {'<'}
                     <a href={'mailto:' + quotedEmail.sender.email} target="_blank" rel="noreferrer">
                         {quotedEmail.sender.email}
@@ -34,11 +31,9 @@ const EmailWithQuotedReply = ({ bodyHTML, quotedEmail }: EmailWithQuotedReplyPro
                     {'>'} wrote:
                     <br />
                 </div>
-                <BlockQuote className="gmail_quote">
-                    <div dir="ltr">
-                        <SanitizedHTML dirtyHTML={quotedEmail.body} />
-                    </div>
-                </BlockQuote>
+                <blockquote style={blockQuoteStyle}>
+                    <SanitizedHTML dirtyHTML={quotedEmail.body} />
+                </blockquote>
             </div>
         </>
     )
