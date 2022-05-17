@@ -110,7 +110,7 @@ export interface TMeetingBanner {
 
 export interface TMeetingEvent {
     title: string
-    meeting_link: string | null
+    conference_call: TConferenceCall
 }
 
 export interface TMeetingAction {

@@ -4,7 +4,6 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Navigate, useLocation } from 'react-router-dom'
 import Loading from '../atoms/Loading'
 import DefaultTemplate from '../templates/DefaultTemplate'
-import CalendarView from '../views/CalendarView'
 import MessagesView from '../views/MessagesView'
 import Settings from '../views/SettingsView'
 import TaskSection from '../views/TaskSectionView'
@@ -62,10 +61,7 @@ const MainScreen = () => {
     return (
         <DndProvider backend={HTML5Backend}>
             <DefaultTemplate>
-                <>
-                    {expandedCalendar || currentPage}
-                    <CalendarView />
-                </>
+                <>{expandedCalendar || currentPage}</>
             </DefaultTemplate>
             <StyledToastContainer hideProgressBar position="bottom-right" transition={toastAnimation} />
         </DndProvider>

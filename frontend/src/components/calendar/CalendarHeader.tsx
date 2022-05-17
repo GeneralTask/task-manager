@@ -26,9 +26,11 @@ export const ButtonContainer = styled.div`
     gap: 5px;
 `
 export const CursorPointerDiv = styled.div`
+    display: flex;
+    flex-direction: row;
+    margin: 2px;
     cursor: pointer;
     height: fit-content;
-    border-radius: 50%;
     padding: ${Spacing.padding._4}px;
     &:hover {
         background-color: ${Colors.gray._200};

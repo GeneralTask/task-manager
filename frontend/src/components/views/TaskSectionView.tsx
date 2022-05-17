@@ -89,51 +89,53 @@ const TaskSection = () => {
 
     return (
         <>
-            <BannerAndSectionContainer ref={bannerTaskSectionRef}>
-                <EventBanner date={DateTime.now()} />
-                <ScrollViewMimic ref={sectionScrollingRef}>
-                    <TaskSectionViewContainer>
-                        {isLoading || !currentSection ? (
-                            <Loading />
-                        ) : (
-                            <>
-                                <SectionHeader
-                                    sectionName={currentSection.name}
-                                    allowRefresh={true}
-                                    refetch={fetchExternalTasks}
-                                    isRefetching={isRefetchingTasks}
-                                    taskSectionId={currentSection.id}
-                                />
-                                {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
-                                <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
-                                    {currentSection.tasks.map((task, index) => (
-                                        <TaskDropContainer
-                                            key={task.id}
-                                            task={task}
-                                            taskIndex={index}
-                                            sectionId={currentSection.id}
-                                        >
-                                            <Task
+            <>
+                <BannerAndSectionContainer ref={bannerTaskSectionRef}>
+                    <EventBanner date={DateTime.now()} />
+                    <ScrollViewMimic ref={sectionScrollingRef}>
+                        <TaskSectionViewContainer>
+                            {isLoading || !currentSection ? (
+                                <Loading />
+                            ) : (
+                                <>
+                                    <SectionHeader
+                                        sectionName={currentSection.name}
+                                        allowRefresh={true}
+                                        refetch={fetchExternalTasks}
+                                        isRefetching={isRefetchingTasks}
+                                        taskSectionId={currentSection.id}
+                                    />
+                                    {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
+                                    <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
+                                        {currentSection.tasks.map((task, index) => (
+                                            <TaskDropContainer
+                                                key={task.id}
                                                 task={task}
-                                                dragDisabled={currentSection.is_done}
-                                                index={index}
+                                                taskIndex={index}
                                                 sectionId={currentSection.id}
-                                                sectionScrollingRef={sectionScrollingRef}
-                                            />
-                                        </TaskDropContainer>
-                                    ))}
-                                </TasksContainer>
-                                <TaskDropArea
-                                    dropIndex={currentSection.tasks.length + 1}
-                                    taskSectionId={currentSection.id}
-                                />
-                            </>
-                        )}
-                    </TaskSectionViewContainer>
-                </ScrollViewMimic>
-                <ScheduleGapFiller />
-            </BannerAndSectionContainer>
-            {expandedTask && currentSection && <TaskDetails task={expandedTask} />}
+                                            >
+                                                <Task
+                                                    task={task}
+                                                    dragDisabled={currentSection.is_done}
+                                                    index={index}
+                                                    sectionId={currentSection.id}
+                                                    sectionScrollingRef={sectionScrollingRef}
+                                                />
+                                            </TaskDropContainer>
+                                        ))}
+                                    </TasksContainer>
+                                    <TaskDropArea
+                                        dropIndex={currentSection.tasks.length + 1}
+                                        taskSectionId={currentSection.id}
+                                    />
+                                </>
+                            )}
+                        </TaskSectionViewContainer>
+                    </ScrollViewMimic>
+                </BannerAndSectionContainer>
+                {expandedTask && currentSection && <TaskDetails task={expandedTask} />}
+            </>
+            <ScheduleGapFiller />
         </>
     )
 }
