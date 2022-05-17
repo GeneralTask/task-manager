@@ -4,12 +4,21 @@ import { Colors } from '../../styles'
 import NavigationView from '../views/NavigationView'
 import '../../styles/tooltip.css'
 import styled from 'styled-components'
+import CalendarView from '../views/CalendarView'
 
 const DefaultTemplateContainer = styled.div`
     display: flex;
     height: 100vh;
     background-color: ${Colors.gray._50};
     position: relative;
+`
+
+const TasksandDetails = styled.div`
+    flex: 1;
+    flex-direction: row;
+    display: flex;
+    position: relative;
+    min-width: 0px;
 `
 interface DefaultTemplateProps {
     children: React.ReactNode
@@ -29,7 +38,8 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
                 textColor={Colors.black}
             />
             <NavigationView />
-            {children}
+            <TasksandDetails>{children}</TasksandDetails>
+            <CalendarView />
         </DefaultTemplateContainer>
     )
 }
