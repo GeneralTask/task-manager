@@ -96,7 +96,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         modifyThreadData({
             thread_id: thread.id,
             is_unread: false,
-            is_task: true,
+            is_task: false,
         })
     }
 
@@ -110,11 +110,8 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             <Title>{title}</Title>
                             <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
                         </HeaderTitleContainer>
-                        <NoStyleButton disabled={thread.is_task} onClick={onClickHander}>
-                            <Icon
-                                source={thread.is_task ? icons.message_to_task_selected : icons.message_to_task}
-                                size="small"
-                            />
+                        <NoStyleButton onClick={onClickHander}>
+                            <Icon source={icons.message_to_task} size="small" />
                         </NoStyleButton>
                     </HeaderContainer>
                     <EmailThreadsContainer>
