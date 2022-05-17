@@ -17,8 +17,10 @@ import { EMAIL_UNDO_TIMEOUT } from '../../../constants'
 import { EmailComposeType } from '../../../utils/enums'
 import EmailComposeTypeSelector from './EmailComposeTypeSelector'
 import EmailRecipientsInput from './EmailRecipientsInput'
+import EmailWithQuotedReply from './EmailWithQuotedReply'
 import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
+import { renderToString } from 'react-dom/server'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
 
@@ -63,10 +65,11 @@ const EmailCompose = (props: EmailComposeProps) => {
                 stripSubjectPrefix(subject) === stripSubjectPrefix(props.email.subject)
                     ? props.email.message_id
                     : undefined
+            console.log({ body: renderToString(<EmailWithQuotedReply bodyHTML={body} quotedEmail={props.email} />) })
             mutate({
                 message_id: messageId,
                 subject,
-                body,
+                body: renderToString(<EmailWithQuotedReply bodyHTML={body} quotedEmail={props.email} />),
                 recipients,
                 source_id: 'gmail',
                 source_account_id: props.sourceAccountId,
