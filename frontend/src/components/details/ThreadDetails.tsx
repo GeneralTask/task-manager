@@ -9,6 +9,7 @@ import { Icon } from '../atoms/Icon'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 import EmailCompose from './EmailCompose/EmailCompose'
+import EmailComposeQuotedReply from './EmailCompose/EmailComposeQuotedReply'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
@@ -144,6 +145,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         setThreadComposeState={setComposeState}
                     />
                 )}
+            {thread && <EmailComposeQuotedReply quotedEmail={thread.emails[thread?.emails.length - 1]} />}
         </FlexColumnContainer>
     )
 }
