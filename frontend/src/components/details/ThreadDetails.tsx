@@ -6,9 +6,11 @@ import { TEmailComposeState, TEmailThread } from '../../utils/types'
 import EmailContainer from './EmailContainer'
 import EmailMainActions from './EmailCompose/EmailMainActions'
 import { Icon } from '../atoms/Icon'
-import { logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import styled from 'styled-components'
 import EmailCompose from './EmailCompose/EmailCompose'
+import { useCreateTaskFromThread, useModifyThread } from '../../services/api-query-hooks'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
@@ -17,7 +19,6 @@ const FlexColumnContainer = styled.div`
     min-width: 300px;
 `
 const HeaderContainer = styled.div`
-    flex: 0;
     display: flex;
     height: 70px;
     padding: ${Spacing.padding._16}px;
@@ -54,6 +55,8 @@ interface ThreadDetailsProps {
     thread: TEmailThread | undefined
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
+    const { mutate: createTaskFromThread } = useCreateTaskFromThread()
+    const { mutate: modifyThreadData } = useModifyThread()
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
         emailId: null,
@@ -83,6 +86,20 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         })
     }
 
+    const onClickHander = () => {
+        if (!thread) return
+        createTaskFromThread({
+            title: thread.emails[thread.emails.length - 1].subject,
+            body: ' ',
+            thread_id: thread.id,
+        })
+        modifyThreadData({
+            thread_id: thread.id,
+            is_unread: false,
+            is_task: true,
+        })
+    }
+
     return (
         <FlexColumnContainer>
             {thread && (
@@ -93,6 +110,12 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             <Title>{title}</Title>
                             <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
                         </HeaderTitleContainer>
+                        <NoStyleButton disabled={thread.is_task} onClick={onClickHander}>
+                            <Icon
+                                source={thread.is_task ? icons.message_to_task_selected : icons.message_to_task}
+                                size="small"
+                            />
+                        </NoStyleButton>
                     </HeaderContainer>
                     <EmailThreadsContainer>
                         {thread.emails.map((email, index) => (

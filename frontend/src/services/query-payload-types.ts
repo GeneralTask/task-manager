@@ -81,6 +81,12 @@ interface TCreateTaskFromThreadData {
     email_id?: string
 }
 
+interface TModifyThreadData {
+    thread_id: string
+    is_unread: boolean
+    is_task: boolean
+}
+
 export {
     TCreateEventPayload,
     TEmailThreadResponse,
@@ -95,5 +101,6 @@ export {
     TMarkAsTaskData,
     TMarkMessageReadData,
     TComposeMessageData,
-    TCreateTaskFromThreadData
+    TCreateTaskFromThreadData,
+    TModifyThreadData
 }

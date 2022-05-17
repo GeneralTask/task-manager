@@ -12,5 +12,8 @@ const NoStyleButton = styled.button`
     &:focus {
         outline: none;
     }
+    &:disabled {
+        cursor: default;
+    }
 `
 export default NoStyleButton
