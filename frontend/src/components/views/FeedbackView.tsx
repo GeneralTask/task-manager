@@ -58,8 +58,8 @@ const FeedbackView = () => {
                 <TextArea value={feedback} placeholder="Type in your feedback here." setValue={setFeedback} />
             </TextAreaContainer>
             <ButtonContainer>
-                <RoundedGeneralButton onPress={submitFeedback} value="Send feedback" color={Colors.purple._1} />
-                <RoundedGeneralButton onPress={closeModal} value="Cancel" hasBorder textStyle="dark" />
+                <RoundedGeneralButton onClick={submitFeedback} value="Send feedback" color={Colors.purple._1} />
+                <RoundedGeneralButton onClick={closeModal} value="Cancel" hasBorder textStyle="dark" />
             </ButtonContainer>
         </FeedbackViewContainer>
     )

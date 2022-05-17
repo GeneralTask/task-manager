@@ -144,14 +144,15 @@ const TermsOfServiceSummaryView = () => {
                 </NoStyleButton>
             </VerticalFlex>
             <SubmitButtonContainer>
-                <RoundedGeneralButton
-                    onPress={onSubmit}
-                    value="Continue"
-                    color={Colors.purple._1}
-                    disabled={!termsCheck}
-                    testId="terms-submit-button"
-                />
-                <RoundedGeneralButton onPress={onCancel} textStyle="dark" value="Cancel" hasBorder />
+                <div data-testid="terms-submit-button">
+                    <RoundedGeneralButton
+                        onClick={onSubmit}
+                        value="Continue"
+                        color={Colors.purple._1}
+                        disabled={!termsCheck}
+                    />
+                </div>
+                <RoundedGeneralButton onClick={onCancel} textStyle="dark" value="Cancel" hasBorder />
             </SubmitButtonContainer>
         </TermsOfServiceContainer>
     )

@@ -17,8 +17,10 @@ import { EMAIL_UNDO_TIMEOUT } from '../../../constants'
 import { EmailComposeType } from '../../../utils/enums'
 import EmailComposeTypeSelector from './EmailComposeTypeSelector'
 import EmailRecipientsInput from './EmailRecipientsInput'
+import EmailWithQuotedReply from './EmailWithQuotedReply'
 import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
+import { renderToString } from 'react-dom/server'
 import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
 
@@ -66,7 +68,7 @@ const EmailCompose = (props: EmailComposeProps) => {
             mutate({
                 message_id: messageId,
                 subject,
-                body,
+                body: renderToString(<EmailWithQuotedReply bodyHTML={body} quotedEmail={props.email} />),
                 recipients,
                 source_id: 'gmail',
                 source_account_id: props.sourceAccountId,
@@ -127,12 +129,12 @@ const EmailCompose = (props: EmailComposeProps) => {
                 </BodyContainer>
                 <ButtonsContainer>
                     <RoundedGeneralButton
-                        onPress={() => startSendEmail(recipients, subject, body)}
+                        onClick={() => startSendEmail(recipients, subject, body)}
                         value="Send"
                         color={Colors.purple._1}
                         disabled={recipients.to.length === 0}
                     />
-                    <RoundedGeneralButton onPress={onClose} value="Cancel" textStyle="dark" />
+                    <RoundedGeneralButton onClick={onClose} value="Cancel" textStyle="dark" />
                     {isLoading && 'Sending...'}
                 </ButtonsContainer>
             </EmailComposeFormContainer>
