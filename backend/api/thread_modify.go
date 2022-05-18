@@ -15,7 +15,6 @@ import (
 
 type ThreadModifyParams struct {
 	IsUnread *bool `json:"is_unread"`
-	IsTask   *bool `json:"is_task"`
 }
 
 func (api *API) ThreadModify(c *gin.Context) {
@@ -92,9 +91,6 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 		for i := range threadChangeable.EmailThreadChangeable.Emails {
 			threadChangeable.EmailThreadChangeable.Emails[i].IsUnread = *params.IsUnread
 		}
-	}
-	if params.IsTask != nil {
-		threadChangeable.TaskTypeChangeable = &database.TaskTypeChangeable{IsTask: params.IsTask}
 	}
 
 	// We flatten in order to do partial updates of nested documents correctly in mongodb
