@@ -1,14 +1,12 @@
-# Use root/password as user/password credentials
+# Use root/example as user/password credentials
 # Min version is 3.4 because 3.4 is min for setting mongo user/pass:
 # see https://stackoverflow.com/questions/34559557/
 version: '3.4'
 
 services:
 
-
   mongo:
-    image: mongo:latest
-    container_name: mongo
+    image: mongo:4.4.2
     restart: always
     ports:
       - 27017:27017
@@ -16,7 +14,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
-      - ./database/db:/data/db
+      - db-data:/data/db
 
   mongo-express:
     image: mongo-express:latest
@@ -29,8 +27,7 @@ services:
         - ME_CONFIG_MONGODB_URL=mongodb://root:password@mongo:27017/?authSource=admin
         - ME_CONFIG_BASICAUTH_USERNAME=mexpress
         - ME_CONFIG_BASICAUTH_PASSWORD=mexpress
-    links:
-        - mongo
 
 volumes:
   db-data:
+
