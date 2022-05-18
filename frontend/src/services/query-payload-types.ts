@@ -74,6 +74,12 @@ interface TComposeMessageData {
     source_id: string
     source_account_id: string
 }
+interface TCreateTaskFromThreadData {
+    thread_id: string
+    title: string
+    body: string
+    email_id?: string
+}
 
 export {
     TCreateEventPayload,
@@ -89,4 +95,5 @@ export {
     TMarkAsTaskData,
     TMarkMessageReadData,
     TComposeMessageData,
+    TCreateTaskFromThreadData
 }

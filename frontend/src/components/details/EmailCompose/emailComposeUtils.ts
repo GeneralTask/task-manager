@@ -42,3 +42,5 @@ export function getInitialRecipients(email: TEmail, composeType: EmailComposeTyp
         bcc: [],
     }
 }
+
+export const emailsToRecipients = (emails: string[]) => emails.map(email => ({ email, name: '' }))

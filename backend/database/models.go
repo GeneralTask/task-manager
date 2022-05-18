@@ -146,25 +146,25 @@ type CalendarEventChangeableFields struct {
 }
 
 type EmailThread struct {
-	ThreadID      string             `bson:"thread_id"`
-	LastUpdatedAt primitive.DateTime `bson:"last_updated_at"`
-	Emails        []Email            `bson:"emails,omitempty"`
+	ThreadID      string             `bson:"thread_id" json:"thread_id"`
+	LastUpdatedAt primitive.DateTime `bson:"last_updated_at" json:"last_updated_at"`
+	Emails        []Email            `bson:"emails,omitempty" json:"emails,omitempty"`
 }
 
 type Email struct {
-	MessageID    primitive.ObjectID `bson:"message_id"`
-	SMTPID       string             `bson:"smtp_id"`
-	ThreadID     string             `bson:"thread_id"`
-	EmailID      string             `bson:"email_id"`
-	Subject      string             `bson:"subject"`
-	Body         string             `bson:"body"`
-	SenderDomain string             `bson:"sender_domain"`
-	SenderEmail  string             `bson:"sender_email"`
-	SenderName   string             `bson:"sender_name"`
-	ReplyTo      string             `bson:"reply_to"`
-	IsUnread     bool               `bson:"is_unread"`
-	Recipients   Recipients         `bson:"recipients"`
-	SentAt       primitive.DateTime `bson:"sent_at"`
+	MessageID    primitive.ObjectID `bson:"message_id" json:"message_id"`
+	SMTPID       string             `bson:"smtp_id" json:"smtp_id"`
+	ThreadID     string             `bson:"thread_id" json:"thread_id"`
+	EmailID      string             `bson:"email_id" json:"email_id"`
+	Subject      string             `bson:"subject" json:"subject"`
+	Body         string             `bson:"body" json:"body"`
+	SenderDomain string             `bson:"sender_domain" json:"sender_domain"`
+	SenderEmail  string             `bson:"sender_email" json:"sender_email"`
+	SenderName   string             `bson:"sender_name" json:"sender_name"`
+	ReplyTo      string             `bson:"reply_to" json:"reply_to"`
+	IsUnread     bool               `bson:"is_unread" json:"is_unread"`
+	Recipients   Recipients         `bson:"recipients" json:"recipients"`
+	SentAt       primitive.DateTime `bson:"sent_at" json:"sent_at"`
 }
 
 type EmailChangeable struct {
@@ -245,14 +245,14 @@ type Pagination struct {
 }
 
 type Recipients struct {
-	To  []Recipient `bson:"to"`
-	Cc  []Recipient `bson:"cc"`
-	Bcc []Recipient `bson:"bcc"`
+	To  []Recipient `bson:"to" json:"to"`
+	Cc  []Recipient `bson:"cc" json:"cc"`
+	Bcc []Recipient `bson:"bcc" json:"bcc"`
 }
 
 type Recipient struct {
-	Name  string `bson:"name"`
-	Email string `bson:"email"`
+	Name  string `bson:"name" json:"name"`
+	Email string `bson:"email" json:"email"`
 }
 
 type EmailItemChangeable struct {
