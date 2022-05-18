@@ -17,8 +17,6 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
       - ./database/db:/data/db
-      - ./database/dev.archive:/Databases/dev.archive
-      - ./database/production:/Databases/production
 
   mongo-express:
     image: mongo-express:latest
@@ -33,3 +31,6 @@ services:
         - ME_CONFIG_BASICAUTH_PASSWORD=mexpress
     links:
         - mongo
+
+volumes:
+  db-data:
