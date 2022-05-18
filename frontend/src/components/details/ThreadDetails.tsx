@@ -87,10 +87,9 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     }
 
     const onClickHander = () => {
-        if (!thread) return
         createTaskFromThread({
             title: thread.emails[thread.emails.length - 1].subject,
-            body: ' ',
+            body: '',
             thread_id: thread.id,
         })
         modifyThreadData({
