@@ -51,7 +51,7 @@ const MessagesView = () => {
         if (threads.length > 0) {
             return threads.find((thread) => thread.id === params.thread) ?? threads[0]
         }
-        return undefined
+        return null
     }, [params.thread, threads])
 
     useEffect(() => {
@@ -103,7 +103,7 @@ const MessagesView = () => {
                     </div>
                 )}
             </ScrollViewMimic>
-            {<ThreadDetails thread={expandedThread} />}
+            {expandedThread && <ThreadDetails thread={expandedThread} />}
         </>
     )
 }

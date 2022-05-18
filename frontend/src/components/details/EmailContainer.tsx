@@ -71,9 +71,8 @@ const Flex = styled.div`
 interface EmailContainerProps {
     email: TEmail
     isLastThread: boolean
-    composeState: TEmailComposeState
-    setThreadComposeState: React.Dispatch<React.SetStateAction<TEmailComposeState>>
     sourceAccountId: string
+    setThreadComposeState: React.Dispatch<React.SetStateAction<TEmailComposeState>>
 }
 
 const EmailContainer = (props: EmailContainerProps) => {
