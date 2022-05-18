@@ -21,7 +21,6 @@ import {
     TEmailThread,
     TEvent,
     TLinkedAccount,
-    TMessage,
     TMessageResponse,
     TRecipients,
     TSupportedType,
