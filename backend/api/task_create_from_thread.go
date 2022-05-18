@@ -12,7 +12,7 @@ import (
 
 type taskCreateParams struct {
 	Title   string  `json:"title" binding:"required"`
-	Body    string  `json:"body" binding:"required"`
+	Body    string  `json:"body"`
 	EmailID *string `json:"email_id"`
 }
 
@@ -27,6 +27,7 @@ func (api *API) CreateTaskFromThread(c *gin.Context) {
 	var requestParams taskCreateParams
 	err = c.BindJSON(&requestParams)
 	if err != nil {
+		log.Error().Err(err).Msg("could not parse request params")
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
@@ -66,13 +67,15 @@ func createTaskFromEmailThread(
 	taskSection := constants.IDTaskSectionDefault
 	accountID := external.GeneralTaskDefaultAccountID
 
+	// TODO: we should inherit source ID  from the thread, but any sources besides GT will cause the task to be marked as done
+	//  next time tasks/fetch is called, so we hardcode to GT for now
 	newTask := database.Item{
 		TaskBase: database.TaskBase{
 			ID:              primitive.NewObjectID(),
 			UserID:          userID,
 			IDExternal:      primitive.NewObjectID().Hex(),
 			IDTaskSection:   taskSection,
-			SourceID:        taskSourceResult.Details.ID,
+			SourceID:        external.TASK_SOURCE_ID_GT_TASK,
 			Title:           params.Title,
 			Body:            params.Body,
 			SourceAccountID: accountID,

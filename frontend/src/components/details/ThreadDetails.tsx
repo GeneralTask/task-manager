@@ -3,12 +3,12 @@ import React, { Fragment, useLayoutEffect, useState } from 'react'
 import { SentEmailBanner, UndoButton } from './EmailCompose/EmailCompose-styles'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
+import EmailCompose from './EmailCompose/EmailCompose'
 import EmailContainer from './EmailContainer'
 import EmailMainActions from './EmailCompose/EmailMainActions'
 import { Icon } from '../atoms/Icon'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
-import EmailCompose from './EmailCompose/EmailCompose'
 
 const THREAD_HEADER_HEIGHT = '118px'
 
@@ -57,7 +57,7 @@ const EmailThreadsContainer = styled.div`
 `
 
 interface ThreadDetailsProps {
-    thread: TEmailThread | undefined
+    thread: TEmailThread
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     const [composeState, setComposeState] = useState<TEmailComposeState>({
@@ -69,12 +69,12 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
             emailComposeType: null,
             emailId: null,
         })
-    }, [thread?.id])
+    }, [thread.id])
 
-    const title = `${thread?.emails[0]?.subject ?? ''} (${thread?.emails.length ?? 0})`
+    const title = `${thread.emails[0]?.subject ?? ''} (${thread.emails.length ?? 0})`
     const recipient_emails = Array.from(
         new Set(
-            thread?.emails
+            thread.emails
                 .map((email) => email.recipients.to)
                 .flat()
                 .map((recipient) => recipient.email)
@@ -91,59 +91,55 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
 
     return (
         <FlexColumnContainer>
-            {thread && (
-                <>
-                    <HeaderContainer>
-                        <Icon size={'medium'} source={logos.gmail} />
-                        <HeaderTitleContainer>
-                            <Title>{title}</Title>
-                            <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
-                        </HeaderTitleContainer>
-                    </HeaderContainer>
-                    <EmailThreadsContainer>
-                        {thread.emails.map((email, index) => (
-                            <Fragment key={email.message_id}>
-                                <EmailContainer
-                                    email={email}
-                                    isLastThread={index === thread.emails.length - 1}
-                                    composeState={composeState}
-                                    setThreadComposeState={setComposeState}
-                                    sourceAccountId={thread.source.account_id}
-                                />
-                                {composeState.emailId === email.message_id &&
-                                    index !== thread.emails.length - 1 &&
-                                    composeState.emailComposeType != null && (
-                                        <EmailCompose
-                                            email={thread.emails[thread?.emails.length - 1]}
-                                            composeType={composeState.emailComposeType}
-                                            sourceAccountId={thread.source.account_id}
-                                            isPending={composeState.undoTimeout !== undefined}
-                                            setThreadComposeState={setComposeState}
-                                        />
-                                    )}
-                            </Fragment>
-                        ))}
+            <>
+                <HeaderContainer>
+                    <Icon size="medium" source={logos.gmail} />
+                    <HeaderTitleContainer>
+                        <Title>{title}</Title>
+                        <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
+                    </HeaderTitleContainer>
+                </HeaderContainer>
+                <EmailThreadsContainer>
+                    {thread.emails.map((email, index) => (
+                        <Fragment key={email.message_id}>
+                            <EmailContainer
+                                email={email}
+                                isLastThread={index === thread.emails.length - 1}
+                                setThreadComposeState={setComposeState}
+                                sourceAccountId={thread.source.account_id}
+                            />
+                            {composeState.emailId === email.message_id &&
+                                index !== thread.emails.length - 1 &&
+                                composeState.emailComposeType != null && (
+                                    <EmailCompose
+                                        email={thread.emails[thread.emails.length - 1]}
+                                        composeType={composeState.emailComposeType}
+                                        sourceAccountId={thread.source.account_id}
+                                        isPending={composeState.undoTimeout !== undefined}
+                                        setThreadComposeState={setComposeState}
+                                    />
+                                )}
+                        </Fragment>
+                    ))}
 
-                        {composeState.undoTimeout !== undefined && (
-                            <SentEmailBanner>
-                                Your email was sent.
-                                <UndoButton onClick={onUndoSend}>Undo</UndoButton>
-                            </SentEmailBanner>
-                        )}
-                    </EmailThreadsContainer>
-                    {composeState.emailComposeType === null && (
-                        <EmailMainActions
-                            email={thread.emails[thread.emails.length - 1]}
-                            setThreadComposeState={setComposeState}
-                        />
+                    {composeState.undoTimeout !== undefined && (
+                        <SentEmailBanner>
+                            Your email was sent.
+                            <UndoButton onClick={onUndoSend}>Undo</UndoButton>
+                        </SentEmailBanner>
                     )}
-                </>
-            )}
-            {thread &&
-                composeState.emailId === thread.emails[thread.emails.length - 1].message_id &&
+                </EmailThreadsContainer>
+                {composeState.emailComposeType === null && (
+                    <EmailMainActions
+                        email={thread.emails[thread.emails.length - 1]}
+                        setThreadComposeState={setComposeState}
+                    />
+                )}
+            </>
+            {composeState.emailId === thread.emails[thread.emails.length - 1].message_id &&
                 composeState.emailComposeType != null && (
                     <EmailCompose
-                        email={thread.emails[thread?.emails.length - 1]}
+                        email={thread.emails[thread.emails.length - 1]}
                         composeType={composeState.emailComposeType}
                         sourceAccountId={thread.source.account_id}
                         isPending={composeState.undoTimeout !== undefined}

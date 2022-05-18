@@ -10,7 +10,9 @@ describe('new user is redirected to terms of service page', () => {
         cy.location('pathname', { timeout: REDIRECT_TIMEOUT }).should('include', '/tos-summary')
     })
     it('clicking submit button without accepting TOS does not redirect to landing page', () => {
-        cy.findByTestId('terms-submit-button').should('be.disabled')
+        cy.findByTestId('terms-submit-button').within(() => {
+            cy.get('button').first().should('be.disabled')
+        })
     })
     it('clicking submit button and accepting TOS redirects to landing page', () => {
         cy.acceptTermsOfService()
