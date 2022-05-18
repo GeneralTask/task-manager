@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import React from 'react'
 import SanitizedHTML from '../../atoms/SanitizedHTML'
 import { TEmail } from '../../../utils/types'
+import { EmailComposeType } from '../../../utils/enums'
 
 // styles copied from Gmail email HTML
 const blockQuoteStyle = {
@@ -10,31 +11,39 @@ const blockQuoteStyle = {
     paddingLeft: '1ex',
 }
 
+const QuotedReply = ({ quotedEmail }: { quotedEmail: TEmail }) => {
+    const formattedSentAt = DateTime.fromISO(quotedEmail.sent_at).toLocaleString(DateTime.DATETIME_MED)
+    return (
+        <div>
+            <div>
+                On {formattedSentAt} {quotedEmail.sender.name || quotedEmail.sender.name + ' '}
+                {'<'}
+                <a href={'mailto:' + quotedEmail.sender.email} target="_blank" rel="noreferrer">
+                    {quotedEmail.sender.email}
+                </a>
+                {'>'} wrote:
+                <br />
+            </div>
+            <blockquote style={blockQuoteStyle}>
+                <SanitizedHTML dirtyHTML={quotedEmail.body} />
+            </blockquote>
+        </div>
+    )
+}
+
 interface EmailWithQuotedReplyProps {
     bodyHTML: string
     quotedEmail: TEmail
+    composeType: EmailComposeType
 }
-const EmailWithQuotedReply = ({ bodyHTML, quotedEmail }: EmailWithQuotedReplyProps) => {
-    const formattedSentAt = DateTime.fromISO(quotedEmail.sent_at).toLocaleString(DateTime.DATETIME_MED)
-
+const EmailWithQuotedReply = ({ bodyHTML, quotedEmail, composeType }: EmailWithQuotedReplyProps) => {
+    console.log({ bodyHTML, quotedEmail, composeType })
     return (
         <>
             <SanitizedHTML dirtyHTML={bodyHTML} />
             <br />
-            <div>
-                <div>
-                    On {formattedSentAt} {quotedEmail.sender.name || quotedEmail.sender.name + ' '}
-                    {'<'}
-                    <a href={'mailto:' + quotedEmail.sender.email} target="_blank" rel="noreferrer">
-                        {quotedEmail.sender.email}
-                    </a>
-                    {'>'} wrote:
-                    <br />
-                </div>
-                <blockquote style={blockQuoteStyle}>
-                    <SanitizedHTML dirtyHTML={quotedEmail.body} />
-                </blockquote>
-            </div>
+            {composeType === EmailComposeType.REPLY ||
+                (composeType === EmailComposeType.REPLY_ALL && <QuotedReply quotedEmail={quotedEmail} />)}
         </>
     )
 }

@@ -68,7 +68,9 @@ const EmailCompose = (props: EmailComposeProps) => {
             mutate({
                 message_id: messageId,
                 subject,
-                body: renderToString(<EmailWithQuotedReply bodyHTML={body} quotedEmail={props.email} />),
+                body: renderToString(
+                    <EmailWithQuotedReply bodyHTML={body} quotedEmail={props.email} composeType={props.composeType} />
+                ),
                 recipients,
                 source_id: 'gmail',
                 source_account_id: props.sourceAccountId,
