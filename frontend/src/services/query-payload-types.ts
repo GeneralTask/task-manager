@@ -64,7 +64,7 @@ interface TMarkAsTaskData {
 }
 interface TMarkMessageReadData {
     id: string
-    isRead: boolean
+    isUnread: boolean
 }
 interface TComposeMessageData {
     message_id?: string

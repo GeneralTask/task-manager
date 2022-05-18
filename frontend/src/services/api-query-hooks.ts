@@ -461,20 +461,6 @@ const getThreadDetail = async (data: { threadId: string }) => {
 /**
  * MESSAGES QUERIES
  */
-export const useGetInfiniteMessages = () => {
-    return useInfiniteQuery<TMessage[], void>('messages', getInfiniteMessages, {
-        getNextPageParam: (_, pages) => pages.length + 1,
-    })
-}
-const getInfiniteMessages = async ({ pageParam = 1 }) => {
-    try {
-        const res = await apiClient.get(`/messages/v2/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}`)
-        return res.data
-    } catch {
-        throw new Error('getInfiniteMessages failed')
-    }
-}
-
 export const useFetchMessages = () => {
     const queryClient = useQueryClient()
     return useQuery([], () => fetchMessages(), {
@@ -495,15 +481,15 @@ const fetchMessages = async () => {
 export const useMarkMessageRead = () => {
     const queryClient = useQueryClient()
     return useMutation((data: TMarkMessageReadData) => markMessageRead(data), {
-        onSettled: (_, error, variables) => {
+        onSettled: (_, error) => {
             if (error) return
-            queryClient.invalidateQueries(['messages', variables.id])
+            queryClient.invalidateQueries(['emailthreads'])
         },
     })
 }
 const markMessageRead = async (data: TMarkMessageReadData) => {
     try {
-        const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_read: data.isRead })
+        const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_unread: data.isUnread })
         return res.data
     } catch {
         throw new Error('markMessageRead failed')
@@ -515,9 +501,9 @@ export const useMarkMessageAsTask = () => {
     return useMutation((data: TMarkAsTaskData) => markMessageAsTask(data), {
         onMutate: async (data: TMarkAsTaskData) => {
             // cancel all current getMessages queries
-            await queryClient.cancelQueries('messages')
+            await queryClient.cancelQueries('emailthreads')
 
-            const response: TMessageResponse | undefined = queryClient.getQueryData('messages')
+            const response: TMessageResponse | undefined = queryClient.getQueryData('emailthreads')
             if (!response) return
 
             for (const page of response.pages) {
@@ -528,11 +514,11 @@ export const useMarkMessageAsTask = () => {
                     }
                 }
             }
-            queryClient.setQueryData('messages', response)
+            queryClient.setQueryData('emailthreads', response)
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
-            queryClient.invalidateQueries('messages')
+            queryClient.invalidateQueries('emailthreads')
         },
     })
 }
