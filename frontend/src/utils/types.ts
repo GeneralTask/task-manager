@@ -84,7 +84,6 @@ export interface TMessage {
     recipients: TRecipients
     sent_at: string
     is_unread: boolean
-    is_task: boolean
     source: TMessageSource
 }
 
@@ -114,7 +113,6 @@ export interface TEmail {
 
 export interface TEmailThread {
     id: string
-    is_task: boolean
     deeplink: string
     source: TMessageSource
     emails: TEmail[]
