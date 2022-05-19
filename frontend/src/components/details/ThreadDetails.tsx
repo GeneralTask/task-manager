@@ -106,7 +106,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                 index !== thread.emails.length - 1 &&
                                 composeState.emailComposeType != null && (
                                     <EmailCompose
-                                        email={thread.emails[thread.emails.length - 1]}
+                                        email={email}
                                         composeType={composeState.emailComposeType}
                                         sourceAccountId={thread.source.account_id}
                                         isPending={composeState.undoTimeout !== undefined}
