@@ -34,7 +34,7 @@ const QuotedReply = ({ email }: QuotedEmailProps) => {
     )
 }
 
-const ForwardedEmail = ({ email }: QuotedEmailProps) => {
+const QuotedForward = ({ email }: QuotedEmailProps) => {
     const formattedSentAt = formatSentAtDateTime(email.sent_at)
     return (
         <div>
@@ -81,7 +81,7 @@ const EmailWithQuote = ({ bodyHTML, quotedEmail, composeType }: EmailWithQuotePr
             {(composeType === EmailComposeType.REPLY || composeType === EmailComposeType.REPLY_ALL) && (
                 <QuotedReply email={quotedEmail} />
             )}
-            {composeType === EmailComposeType.FORWARD && <ForwardedEmail email={quotedEmail} />}
+            {composeType === EmailComposeType.FORWARD && <QuotedForward email={quotedEmail} />}
         </>
     )
 }
