@@ -3,6 +3,7 @@ import { EmailComposeType } from '../../../utils/enums'
 import React from 'react'
 import SanitizedHTML from '../../atoms/SanitizedHTML'
 import { TEmail } from '../../../utils/types'
+import { formatSentAtDateTime } from './emailComposeUtils'
 
 // styles copied from Gmail email HTML
 const blockQuoteStyle = {
@@ -15,7 +16,7 @@ interface QuotedEmailProps {
     email: TEmail
 }
 const QuotedReply = ({ email }: QuotedEmailProps) => {
-    const formattedSentAt = DateTime.fromISO(email.sent_at).toLocaleString(DateTime.DATETIME_MED)
+    const formattedSentAt = formatSentAtDateTime(email.sent_at)
     return (
         <div>
             <div>
@@ -35,7 +36,7 @@ const QuotedReply = ({ email }: QuotedEmailProps) => {
 }
 
 const ForwardedEmail = ({ email }: QuotedEmailProps) => {
-    const formattedSentAt = DateTime.fromISO(email.sent_at).toLocaleString(DateTime.DATETIME_MED)
+    const formattedSentAt = formatSentAtDateTime(email.sent_at)
     return (
         <div>
             <div>
