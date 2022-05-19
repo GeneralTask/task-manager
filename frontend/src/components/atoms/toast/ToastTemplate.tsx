@@ -23,10 +23,10 @@ const ButtonsContainer = styled.div`
     max-width: 75%;
 `
 
-const stopPropogationWrapper = (onClick: () => void) => {
+const stopPropogationWrapper = (onClick: (e: React.MouseEvent) => void) => {
     return (event: React.MouseEvent) => {
         event.stopPropagation()
-        onClick()
+        onClick(event)
     }
 }
 
