@@ -66,3 +66,4 @@ const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps)
     )
 }
 export default ToastTemplate
+export { ToastTemplateProps }
