@@ -17,7 +17,7 @@ import { EMAIL_UNDO_TIMEOUT } from '../../../constants'
 import { EmailComposeType } from '../../../utils/enums'
 import EmailComposeTypeSelector from './EmailComposeTypeSelector'
 import EmailRecipientsInput from './EmailRecipientsInput'
-import QuotedEmail from './QuotedEmail'
+import EmailWithQuote from './EmailWithQuote'
 import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import { renderToString } from 'react-dom/server'
@@ -72,7 +72,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                 message_id: messageId,
                 subject,
                 body: renderToString(
-                    <QuotedEmail bodyHTML={body} quotedEmail={props.email} composeType={props.composeType} />
+                    <EmailWithQuote bodyHTML={body} quotedEmail={props.email} composeType={props.composeType} />
                 ),
                 recipients,
                 source_id: 'gmail',

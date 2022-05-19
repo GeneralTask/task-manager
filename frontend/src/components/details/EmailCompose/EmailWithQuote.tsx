@@ -65,12 +65,12 @@ const ForwardedEmail = ({ forwardedEmail }: { forwardedEmail: TEmail }) => {
     )
 }
 
-interface QuotedEmailProps {
+interface EmailWithQuoteProps {
     bodyHTML: string
     quotedEmail: TEmail
     composeType: EmailComposeType
 }
-const QuotedEmail = ({ bodyHTML, quotedEmail, composeType }: QuotedEmailProps) => {
+const EmailWithQuote = ({ bodyHTML, quotedEmail, composeType }: EmailWithQuoteProps) => {
     return (
         <>
             <SanitizedHTML dirtyHTML={bodyHTML} />
@@ -83,4 +83,4 @@ const QuotedEmail = ({ bodyHTML, quotedEmail, composeType }: QuotedEmailProps) =
     )
 }
 
-export default QuotedEmail
+export default EmailWithQuote
