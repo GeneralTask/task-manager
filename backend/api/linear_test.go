@@ -1,13 +1,14 @@
 package api
 
 import (
-	"github.com/GeneralTask/task-manager/backend/config"
-	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/stretchr/testify/assert"
 )
 
 const LinearTokenPayload string = `{"access_token":"sample-linear-access-token"}`
@@ -63,16 +64,6 @@ func TestLinkLinearCallback(t *testing.T) {
 }
 
 func getTokenServerForLinear(t *testing.T, statusCode int, body string) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := ioutil.ReadAll(r.Body)
-		assert.NoError(t, err)
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(statusCode)
-		w.Write([]byte(body))
-	}))
-}
-
-func getLinearUserInfoServer(t *testing.T, statusCode int, body string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, err := ioutil.ReadAll(r.Body)
 		assert.NoError(t, err)
