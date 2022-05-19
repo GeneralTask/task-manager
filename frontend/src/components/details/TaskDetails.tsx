@@ -104,12 +104,15 @@ const TaskDetails = (props: TaskDetailsProps) => {
         e.stopPropagation()
     }
 
+    // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
+    const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
+
     return (
         <DetailsTemplate
             top={
                 <>
                     <MarginRight8>
-                        <Icon source={logos[task.source.logo_v2]} size="small" />
+                        <Icon source={icon} size="small" />
                     </MarginRight8>
                     <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                     <FlexGrowView />

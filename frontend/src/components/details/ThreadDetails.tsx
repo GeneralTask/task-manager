@@ -7,8 +7,10 @@ import EmailCompose from './EmailCompose/EmailCompose'
 import EmailContainer from './EmailContainer'
 import EmailMainActions from './EmailCompose/EmailMainActions'
 import { Icon } from '../atoms/Icon'
-import { logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import styled from 'styled-components'
+import { useCreateTaskFromThread, useModifyThread } from '../../services/api-query-hooks'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 const THREAD_HEADER_HEIGHT = '118px'
 
@@ -60,6 +62,8 @@ interface ThreadDetailsProps {
     thread: TEmailThread
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
+    const { mutate: createTaskFromThread } = useCreateTaskFromThread()
+    const { mutate: modifyThreadData } = useModifyThread()
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
         emailId: null,
@@ -89,6 +93,19 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         })
     }
 
+    const onClickHander = () => {
+        createTaskFromThread({
+            title: thread.emails[thread.emails.length - 1].subject,
+            body: '',
+            thread_id: thread.id,
+        })
+        modifyThreadData({
+            thread_id: thread.id,
+            is_unread: false,
+            is_task: false,
+        })
+    }
+
     return (
         <FlexColumnContainer>
             <>
@@ -98,6 +115,9 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         <Title>{title}</Title>
                         <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
                     </HeaderTitleContainer>
+                    <NoStyleButton onClick={onClickHander}>
+                        <Icon source={icons.message_to_task} size="small" />
+                    </NoStyleButton>
                 </HeaderContainer>
                 <EmailThreadsContainer>
                     {thread.emails.map((email, index) => (
