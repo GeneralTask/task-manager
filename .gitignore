@@ -29,3 +29,7 @@ infrastructure/.terraform/*
 .vscode/
 
 .DS_Store
+
+
+# Kube Config
+kube-manifests/kube_secrets.yaml
