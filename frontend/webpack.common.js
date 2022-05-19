@@ -34,6 +34,11 @@ module.exports = {
             {
                 test: /\.css$/,
                 use: ["style-loader", "css-loader"],
+                include: [
+                    path.resolve(__dirname, 'src'),
+                    path.resolve(__dirname, 'node_modules/react-toastify'),
+                    path.resolve(__dirname, 'node_modules/animate.css'),
+                ]
             },
         ],
     },
