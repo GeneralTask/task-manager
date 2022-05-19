@@ -7,7 +7,7 @@ import EmailCompose from './EmailCompose/EmailCompose'
 import { EmailComposeType } from '../../utils/enums'
 import EmailContainer from './EmailContainer'
 import EmailMainActions from './EmailCompose/EmailMainActions'
-import EmailWithQuotedReply from './EmailCompose/EmailWithQuotedReply'
+import QuotedEmail from './EmailCompose/QuotedEmail'
 import { Icon } from '../atoms/Icon'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
@@ -142,7 +142,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         setThreadComposeState={setComposeState}
                     />
                 )}
-            <EmailWithQuotedReply
+            <QuotedEmail
                 quotedEmail={thread.emails[thread.emails.length - 1]}
                 bodyHTML={'<div>body</div>'}
                 composeType={EmailComposeType.FORWARD}

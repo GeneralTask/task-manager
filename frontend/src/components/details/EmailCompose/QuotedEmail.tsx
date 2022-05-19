@@ -36,33 +36,44 @@ const ForwardedEmail = ({ forwardedEmail }: { forwardedEmail: TEmail }) => {
     return (
         <div>
             <div>
-                ---------- Forwarded message ---------
-                <br />
-                On {formattedSentAt} {forwardedEmail.sender.name || forwardedEmail.sender.name + ' '}
-                {'<'}
-                <a href={'mailto:' + forwardedEmail.sender.email} target="_blank" rel="noreferrer">
-                    {forwardedEmail.sender.email}
-                </a>
-                {'>'} wrote:
-                <br />
+                <div dir="ltr" className="gmail_attr">
+                    ---------- Forwarded message ---------
+                    <br />
+                    From: <strong dir="auto">{forwardedEmail.sender.name || forwardedEmail.sender.email}</strong>{' '}
+                    <span dir="auto">
+                        {'<'}
+                        {forwardedEmail.sender.email}
+                        {'>'}
+                    </span>
+                    <br />
+                    Date: {formattedSentAt}
+                    <br />
+                    Subject: {forwardedEmail.subject}
+                    <br />
+                    To: {'<'}
+                    <a href={'mailto:' + forwardedEmail.sender.email} target="_blank" rel="noreferrer">
+                        {forwardedEmail.sender.email}
+                    </a>
+                    {'>'}
+                    <br />
+                </div>
             </div>
-            <blockquote style={blockQuoteStyle}>
-                --- old body here ---
-                {/* <SanitizedHTML dirtyHTML={forwardedEmail.body} /> */}
-            </blockquote>
+            <br />
+            <br />
+            <SanitizedHTML dirtyHTML={forwardedEmail.body} />
         </div>
     )
 }
 
-interface EmailWithQuotedReplyProps {
+interface QuotedEmailProps {
     bodyHTML: string
     quotedEmail: TEmail
     composeType: EmailComposeType
 }
-const EmailWithQuotedReply = ({ bodyHTML, quotedEmail, composeType }: EmailWithQuotedReplyProps) => {
+const QuotedEmail = ({ bodyHTML, quotedEmail, composeType }: QuotedEmailProps) => {
     return (
         <>
-            {/* <SanitizedHTML dirtyHTML={bodyHTML} /> */}
+            <SanitizedHTML dirtyHTML={bodyHTML} />
             <br />
             {(composeType === EmailComposeType.REPLY || composeType === EmailComposeType.REPLY_ALL) && (
                 <QuotedReply quotedEmail={quotedEmail} />
@@ -72,4 +83,4 @@ const EmailWithQuotedReply = ({ bodyHTML, quotedEmail, composeType }: EmailWithQ
     )
 }
 
-export default EmailWithQuotedReply
+export default QuotedEmail

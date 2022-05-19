@@ -17,7 +17,7 @@ import { EMAIL_UNDO_TIMEOUT } from '../../../constants'
 import { EmailComposeType } from '../../../utils/enums'
 import EmailComposeTypeSelector from './EmailComposeTypeSelector'
 import EmailRecipientsInput from './EmailRecipientsInput'
-import EmailWithQuotedReply from './EmailWithQuotedReply'
+import QuotedEmail from './QuotedEmail'
 import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import { renderToString } from 'react-dom/server'
@@ -56,7 +56,11 @@ const EmailCompose = (props: EmailComposeProps) => {
 
     const { mutate, isLoading } = useComposeMessage()
 
-    const onClose = () => props.setThreadComposeState({ emailComposeType: null, emailId: null })
+    const onClose = () =>
+        useCallback(
+            () => props.setThreadComposeState({ emailComposeType: null, emailId: null }),
+            [props.setThreadComposeState]
+        )
 
     const sendEmail = useCallback(
         (recipients: TRecipients, subject: string, body: string) => {
@@ -69,7 +73,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                 message_id: messageId,
                 subject,
                 body: renderToString(
-                    <EmailWithQuotedReply bodyHTML={body} quotedEmail={props.email} composeType={props.composeType} />
+                    <QuotedEmail bodyHTML={body} quotedEmail={props.email} composeType={props.composeType} />
                 ),
                 recipients,
                 source_id: 'gmail',
@@ -77,7 +81,7 @@ const EmailCompose = (props: EmailComposeProps) => {
             })
             onClose()
         },
-        [props.email, props.sourceAccountId, mutate, props.setThreadComposeState]
+        [props.email, props.sourceAccountId, props.setThreadComposeState, props.composeType, mutate]
     )
 
     const startSendEmail = useCallback(
