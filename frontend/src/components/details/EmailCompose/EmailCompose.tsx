@@ -56,10 +56,7 @@ const EmailCompose = (props: EmailComposeProps) => {
 
     const { mutate, isLoading } = useComposeMessage()
 
-    const onClose = useCallback(
-        () => props.setThreadComposeState({ emailComposeType: null, emailId: null }),
-        [props.setThreadComposeState]
-    )
+    const onClose = () => props.setThreadComposeState({ emailComposeType: null, emailId: null })
 
     const sendEmail = useCallback(
         (recipients: TRecipients, subject: string, body: string) => {
