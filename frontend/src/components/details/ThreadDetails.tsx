@@ -1,4 +1,4 @@
-import { Colors, Spacing, Typography } from '../../styles'
+import { Colors, Shadows, Spacing, Typography } from '../../styles'
 import React, { Fragment, useLayoutEffect, useState } from 'react'
 import { SentEmailBanner, UndoButton } from './EmailCompose/EmailCompose-styles'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
@@ -10,6 +10,8 @@ import { Icon } from '../atoms/Icon'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 
+const THREAD_HEADER_HEIGHT = '118px'
+
 const FlexColumnContainer = styled.div`
     flex: 1;
     display: flex;
@@ -17,13 +19,13 @@ const FlexColumnContainer = styled.div`
     min-width: 300px;
 `
 const HeaderContainer = styled.div`
-    flex: 0;
     display: flex;
-    height: 70px;
-    padding: ${Spacing.padding._16}px;
+    height: ${THREAD_HEADER_HEIGHT};
+    padding: 0 ${Spacing.padding._16}px;
     align-items: center;
     background-color: ${Colors.white};
     position: sticky;
+    box-shadow: ${Shadows.threadHeaderShadow};
 `
 const HeaderTitleContainer = styled.div`
     display: flex;
@@ -37,11 +39,15 @@ const Title = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: ${Typography.small.fontSize};
+    font-size: ${Typography.medium.fontSize};
+    line-height: ${Typography.medium.lineHeight};
+    font-weight: ${Typography.weight._600};
     color: ${Colors.gray._600};
 `
 const SubTitle = styled(Title)`
     font-size: ${Typography.xSmall.fontSize};
+    line-height: ${Typography.xSmall.lineHeight};
+    font-weight: ${Typography.weight._400};
     color: ${Colors.gray._400};
 `
 const EmailThreadsContainer = styled.div`
