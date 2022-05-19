@@ -17,9 +17,11 @@ export const DEFAULT_PROPS = {
 }
 
 const StyledToastContainer = styled(ToastContainer).attrs({
+    className: 'toast-container',
     toastClassName: 'toast',
     bodyClassName: 'toast-body',
 })`
+    --toastify-toast-width: fit-content;
     .toast {
         background-color: ${Colors.black};
     }
