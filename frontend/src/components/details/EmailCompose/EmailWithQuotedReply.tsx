@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon'
+import { EmailComposeType } from '../../../utils/enums'
 import React from 'react'
 import SanitizedHTML from '../../atoms/SanitizedHTML'
 import { TEmail } from '../../../utils/types'
-import { EmailComposeType } from '../../../utils/enums'
 
 // styles copied from Gmail email HTML
 const blockQuoteStyle = {
@@ -31,19 +31,43 @@ const QuotedReply = ({ quotedEmail }: { quotedEmail: TEmail }) => {
     )
 }
 
+const ForwardedEmail = ({ forwardedEmail }: { forwardedEmail: TEmail }) => {
+    const formattedSentAt = DateTime.fromISO(forwardedEmail.sent_at).toLocaleString(DateTime.DATETIME_MED)
+    return (
+        <div>
+            <div>
+                ---------- Forwarded message ---------
+                <br />
+                On {formattedSentAt} {forwardedEmail.sender.name || forwardedEmail.sender.name + ' '}
+                {'<'}
+                <a href={'mailto:' + forwardedEmail.sender.email} target="_blank" rel="noreferrer">
+                    {forwardedEmail.sender.email}
+                </a>
+                {'>'} wrote:
+                <br />
+            </div>
+            <blockquote style={blockQuoteStyle}>
+                --- old body here ---
+                {/* <SanitizedHTML dirtyHTML={forwardedEmail.body} /> */}
+            </blockquote>
+        </div>
+    )
+}
+
 interface EmailWithQuotedReplyProps {
     bodyHTML: string
     quotedEmail: TEmail
     composeType: EmailComposeType
 }
 const EmailWithQuotedReply = ({ bodyHTML, quotedEmail, composeType }: EmailWithQuotedReplyProps) => {
-    console.log({ bodyHTML, quotedEmail, composeType })
     return (
         <>
-            <SanitizedHTML dirtyHTML={bodyHTML} />
+            {/* <SanitizedHTML dirtyHTML={bodyHTML} /> */}
             <br />
-            {composeType === EmailComposeType.REPLY ||
-                (composeType === EmailComposeType.REPLY_ALL && <QuotedReply quotedEmail={quotedEmail} />)}
+            {(composeType === EmailComposeType.REPLY || composeType === EmailComposeType.REPLY_ALL) && (
+                <QuotedReply quotedEmail={quotedEmail} />
+            )}
+            {composeType === EmailComposeType.FORWARD && <ForwardedEmail forwardedEmail={quotedEmail} />}
         </>
     )
 }
