@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon'
 import { EmailComposeType } from '../../../utils/enums'
 import React from 'react'
 import SanitizedHTML from '../../atoms/SanitizedHTML'
