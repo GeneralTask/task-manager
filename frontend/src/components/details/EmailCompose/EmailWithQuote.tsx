@@ -11,48 +11,51 @@ const blockQuoteStyle = {
     paddingLeft: '1ex',
 }
 
-const QuotedReply = ({ quotedEmail }: { quotedEmail: TEmail }) => {
-    const formattedSentAt = DateTime.fromISO(quotedEmail.sent_at).toLocaleString(DateTime.DATETIME_MED)
+interface QuotedEmailProps {
+    email: TEmail
+}
+const QuotedReply = ({ email }: QuotedEmailProps) => {
+    const formattedSentAt = DateTime.fromISO(email.sent_at).toLocaleString(DateTime.DATETIME_MED)
     return (
         <div>
             <div>
-                On {formattedSentAt} {quotedEmail.sender.name || quotedEmail.sender.name + ' '}
+                On {formattedSentAt} {email.sender.name || email.sender.name + ' '}
                 {'<'}
-                <a href={'mailto:' + quotedEmail.sender.email} target="_blank" rel="noreferrer">
-                    {quotedEmail.sender.email}
+                <a href={'mailto:' + email.sender.email} target="_blank" rel="noreferrer">
+                    {email.sender.email}
                 </a>
                 {'>'} wrote:
                 <br />
             </div>
             <blockquote style={blockQuoteStyle}>
-                <SanitizedHTML dirtyHTML={quotedEmail.body} />
+                <SanitizedHTML dirtyHTML={email.body} />
             </blockquote>
         </div>
     )
 }
 
-const ForwardedEmail = ({ forwardedEmail }: { forwardedEmail: TEmail }) => {
-    const formattedSentAt = DateTime.fromISO(forwardedEmail.sent_at).toLocaleString(DateTime.DATETIME_MED)
+const ForwardedEmail = ({ email }: QuotedEmailProps) => {
+    const formattedSentAt = DateTime.fromISO(email.sent_at).toLocaleString(DateTime.DATETIME_MED)
     return (
         <div>
             <div>
-                <div dir="ltr" className="gmail_attr">
+                <div dir="ltr">
                     ---------- Forwarded message ---------
                     <br />
-                    From: <strong dir="auto">{forwardedEmail.sender.name || forwardedEmail.sender.email}</strong>{' '}
+                    From: <strong dir="auto">{email.sender.name || email.sender.email}</strong>{' '}
                     <span dir="auto">
                         {'<'}
-                        {forwardedEmail.sender.email}
+                        {email.sender.email}
                         {'>'}
                     </span>
                     <br />
                     Date: {formattedSentAt}
                     <br />
-                    Subject: {forwardedEmail.subject}
+                    Subject: {email.subject}
                     <br />
                     To: {'<'}
-                    <a href={'mailto:' + forwardedEmail.sender.email} target="_blank" rel="noreferrer">
-                        {forwardedEmail.sender.email}
+                    <a href={'mailto:' + email.sender.email} target="_blank" rel="noreferrer">
+                        {email.sender.email}
                     </a>
                     {'>'}
                     <br />
@@ -60,7 +63,7 @@ const ForwardedEmail = ({ forwardedEmail }: { forwardedEmail: TEmail }) => {
             </div>
             <br />
             <br />
-            <SanitizedHTML dirtyHTML={forwardedEmail.body} />
+            <SanitizedHTML dirtyHTML={email.body} />
         </div>
     )
 }
@@ -76,9 +79,9 @@ const EmailWithQuote = ({ bodyHTML, quotedEmail, composeType }: EmailWithQuotePr
             <SanitizedHTML dirtyHTML={bodyHTML} />
             <br />
             {(composeType === EmailComposeType.REPLY || composeType === EmailComposeType.REPLY_ALL) && (
-                <QuotedReply quotedEmail={quotedEmail} />
+                <QuotedReply email={quotedEmail} />
             )}
-            {composeType === EmailComposeType.FORWARD && <ForwardedEmail forwardedEmail={quotedEmail} />}
+            {composeType === EmailComposeType.FORWARD && <ForwardedEmail email={quotedEmail} />}
         </>
     )
 }
