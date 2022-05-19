@@ -4,10 +4,8 @@ import { SentEmailBanner, UndoButton } from './EmailCompose/EmailCompose-styles'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 
 import EmailCompose from './EmailCompose/EmailCompose'
-import { EmailComposeType } from '../../utils/enums'
 import EmailContainer from './EmailContainer'
 import EmailMainActions from './EmailCompose/EmailMainActions'
-import EmailWithQuote from './EmailCompose/EmailWithQuote'
 import { Icon } from '../atoms/Icon'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
@@ -142,11 +140,6 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         setThreadComposeState={setComposeState}
                     />
                 )}
-            <EmailWithQuote
-                quotedEmail={thread.emails[thread.emails.length - 1]}
-                bodyHTML={'<div>body</div>'}
-                composeType={EmailComposeType.FORWARD}
-            />
         </FlexColumnContainer>
     )
 }
