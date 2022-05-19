@@ -99,11 +99,11 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, 4, len(*tasks))
 		task := (*tasks)[3]
 		assert.Equal(t, "buy more dogecoin", task.Title)
-		assert.Equal(t, "", task.Body)
+		assert.Equal(t, "", task.TaskBase.Body)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 		// 1 hour is the default
 		assert.Equal(t, int64(3600000000000), task.TimeAllocation)
-		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
+		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
 	})
 	t.Run("SuccessCustomSection", func(t *testing.T) {
 		authToken = login("create_task_success_custom_section@generaltask.com", "")
@@ -129,7 +129,7 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, 4, len(*tasks))
 		task := (*tasks)[3]
 		assert.Equal(t, "buy more dogecoin", task.Title)
-		assert.Equal(t, "seriously!", task.Body)
+		assert.Equal(t, "seriously!", task.TaskBase.Body)
 		assert.Equal(t, int64(300000000000), task.TimeAllocation)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 		assert.Equal(t, customSectionID, task.IDTaskSection)

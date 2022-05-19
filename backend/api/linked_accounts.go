@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"log"
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -18,13 +18,14 @@ type SupportedAccountType struct {
 	AuthorizationURL string `json:"authorization_url"`
 }
 
-type LinkedAccount struct {
+type linkedAccount struct {
 	ID           string `json:"id"`
 	DisplayID    string `json:"display_id"`
 	Name         string `json:"name"`
 	Logo         string `json:"logo"`
 	LogoV2       string `json:"logo_v2"`
 	IsUnlinkable bool   `json:"is_unlinkable"`
+	HasBadToken  bool   `json:"has_bad_token"`
 }
 
 func (api *API) SupportedAccountTypesList(c *gin.Context) {
@@ -63,7 +64,7 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Printf("failed to fetch api tokens: %v", err)
+		log.Error().Msgf("failed to fetch api tokens: %v", err)
 		Handle500(c)
 		return
 	}
@@ -72,25 +73,26 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
-		log.Printf("failed to iterate through api tokens: %v", err)
+		log.Error().Msgf("failed to iterate through api tokens: %v", err)
 		Handle500(c)
 		return
 	}
-	linkedAccounts := []LinkedAccount{}
+	linkedAccounts := []linkedAccount{}
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
-			log.Printf("failed to fetch task service: %v", err)
+			log.Error().Msgf("failed to fetch task service: %v", err)
 			Handle500(c)
 			return
 		}
-		linkedAccounts = append(linkedAccounts, LinkedAccount{
+		linkedAccounts = append(linkedAccounts, linkedAccount{
 			ID:           token.ID.Hex(),
 			DisplayID:    token.DisplayID,
 			Name:         taskServiceResult.Details.Name,
 			Logo:         taskServiceResult.Details.Logo,
 			LogoV2:       taskServiceResult.Details.LogoV2,
 			IsUnlinkable: token.IsUnlinkable,
+			HasBadToken:  token.IsBadToken,
 		})
 	}
 	c.JSON(200, linkedAccounts)
@@ -141,7 +143,7 @@ func (api *API) DeleteLinkedAccount(c *gin.Context) {
 		bson.M{"_id": accountID},
 	)
 	if err != nil || res.DeletedCount != 1 {
-		log.Printf("error deleting linked account: %v", err)
+		log.Error().Msgf("error deleting linked account: %v", err)
 		Handle500(c)
 		return
 	}

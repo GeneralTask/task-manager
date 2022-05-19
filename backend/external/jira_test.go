@@ -75,7 +75,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:    0,
 				IDExternal:    "42069",
-				IDTaskSection: constants.IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
 				Title:         "Sample Taskeroni",
 				SourceID:      TASK_SOURCE_ID_JIRA,
@@ -120,7 +120,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      2,
 				IDExternal:      "42069",
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				IsCompleted:     true,
 				Deeplink:        "https://dankmemes.com/browse/MOON-1969",
 				Title:           "Sample Taskeroni",
@@ -133,7 +133,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsTask: true,
 			},
 		}
-		database.GetOrCreateTask(
+		database.GetOrCreateItem(
 			db,
 			*userID,
 			"42069",
@@ -190,7 +190,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsTask: true,
 			},
 		}
-		database.GetOrCreateTask(
+		database.GetOrCreateItem(
 			db,
 			*userID,
 			"42069",
@@ -235,7 +235,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:       2,
 				IDExternal:       "42069",
-				IDTaskSection:    constants.IDTaskSectionToday,
+				IDTaskSection:    constants.IDTaskSectionDefault,
 				HasBeenReordered: true,
 				Deeplink:         "https://dankmemes.com/browse/MOON-1969",
 				Title:            "Sample Taskeroni",
@@ -250,7 +250,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsTask: true,
 			},
 		}
-		database.GetOrCreateTask(
+		database.GetOrCreateItem(
 			db,
 			*userID,
 			"42069",
@@ -347,7 +347,7 @@ func assertTasksEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)
 	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
 	assert.Equal(t, a.Title, b.Title)
-	assert.Equal(t, a.Body, b.Body)
+	assert.Equal(t, a.TaskBase.Body, b.TaskBase.Body)
 	assert.Equal(t, a.SourceID, b.SourceID)
 	assert.Equal(t, a.TaskType, b.TaskType)
 	assert.Equal(t, a.DueDate, b.DueDate)

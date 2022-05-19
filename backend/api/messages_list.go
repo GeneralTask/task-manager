@@ -1,7 +1,7 @@
 package api
 
 import (
-	"log"
+	"github.com/rs/zerolog/log"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -10,18 +10,17 @@ import (
 )
 
 type messageSource struct {
-	AccountId     string `json:"account_id"`
-	Name          string `json:"name"`
-	Logo          string `json:"logo"`
-	LogoV2          string `json:"logo_v2"`
-	IsCompletable bool   `json:"is_completable"`
-	IsReplyable   bool   `json:"is_replyable"`
+	AccountId   string `json:"account_id"`
+	Name        string `json:"name"`
+	Logo        string `json:"logo"`
+	LogoV2      string `json:"logo_v2"`
+	IsReplyable bool   `json:"is_replyable"`
 }
 
 type senderV2 struct {
-	Name    string `bson:"name"`
-	Email   string `bson:"email"`
-	ReplyTo string `bson:"reply_to"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	ReplyTo string `json:"reply_to"`
 }
 
 type message struct {
@@ -60,7 +59,7 @@ func markReadMessagesInDB(
 			}
 			err := updateMessageInDB(api, nil, currentEmail.ID, currentEmail.UserID, &messageChangeable)
 			if err != nil {
-				log.Printf("failed to mark message read: (ID=%v) with error: %v", currentEmail.ID, err)
+				log.Error().Msgf("failed to mark message read: (ID=%v) with error: %v", currentEmail.ID, err)
 				return err
 			}
 		}
@@ -75,7 +74,7 @@ func (api *API) emailToMessage(e *database.Item) *message {
 		ID:       e.ID,
 		Title:    e.Title,
 		Deeplink: e.Deeplink,
-		Body:     e.Body,
+		Body:     e.TaskBase.Body,
 		Sender:   e.Sender,
 		SenderV2: senderV2{
 			Name:    e.Sender,
@@ -89,14 +88,13 @@ func (api *API) emailToMessage(e *database.Item) *message {
 		},
 		SentAt:   e.CreatedAtExternal.Time().Format(time.RFC3339),
 		IsUnread: e.Email.IsUnread,
-		IsTask: e.TaskType.IsTask,
+		IsTask:   e.TaskType.IsTask,
 		Source: messageSource{
-			AccountId:     e.SourceAccountID,
-			Name:          messageSourceResult.Details.Name,
-			Logo:          messageSourceResult.Details.Logo,
-			LogoV2:          messageSourceResult.Details.LogoV2,
-			IsCompletable: messageSourceResult.Details.IsCreatable,
-			IsReplyable:   messageSourceResult.Details.IsReplyable,
+			AccountId:   e.SourceAccountID,
+			Name:        messageSourceResult.Details.Name,
+			Logo:        messageSourceResult.Details.Logo,
+			LogoV2:      messageSourceResult.Details.LogoV2,
+			IsReplyable: messageSourceResult.Details.IsReplyable,
 		},
 	}
 }

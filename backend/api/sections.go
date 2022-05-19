@@ -2,7 +2,8 @@ package api
 
 import (
 	"context"
-	"log"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -32,7 +33,7 @@ func (api *API) SectionList(c *gin.Context) {
 
 	sections, err := database.GetTaskSections(db, userID.(primitive.ObjectID))
 	if err != nil {
-		log.Printf("failed to fetch sections for user: %+v", err)
+		log.Error().Msgf("failed to fetch sections for user: %+v", err)
 		Handle500(c)
 		return
 	}
@@ -51,7 +52,7 @@ func (api *API) SectionAdd(c *gin.Context) {
 	var params SectionParams
 	err := c.BindJSON(&params)
 	if err != nil {
-		log.Printf("error: %v", err)
+		log.Error().Msgf("error: %v", err)
 		c.JSON(400, gin.H{"detail": "invalid or missing 'name' parameter."})
 		return
 	}
@@ -76,7 +77,7 @@ func (api *API) SectionAdd(c *gin.Context) {
 		},
 	)
 	if err != nil {
-		log.Printf("failed to insert section: %+v", err)
+		log.Error().Msgf("failed to insert section: %+v", err)
 		Handle500(c)
 		return
 	}
@@ -95,7 +96,7 @@ func (api *API) SectionModify(c *gin.Context) {
 	var params SectionParams
 	err = c.BindJSON(&params)
 	if err != nil {
-		log.Printf("error: %v", err)
+		log.Error().Msgf("error: %v", err)
 		c.JSON(400, gin.H{"detail": "invalid or missing 'name' parameter."})
 		return
 	}
@@ -122,12 +123,12 @@ func (api *API) SectionModify(c *gin.Context) {
 		bson.M{"$set": bson.M{"name": params.Name}},
 	)
 	if err != nil {
-		log.Printf("failed to update internal DB: %+v", err)
+		log.Error().Msgf("failed to update internal DB: %+v", err)
 		Handle500(c)
 		return
 	}
 	if res.MatchedCount != 1 {
-		log.Println("failed to update section", res)
+		log.Error().Msgf("failed to update section %+v", res)
 		Handle404(c)
 		return
 	}
@@ -165,12 +166,12 @@ func (api *API) SectionDelete(c *gin.Context) {
 		}},
 	)
 	if err != nil {
-		log.Printf("failed to update internal DB: %+v", err)
+		log.Error().Err(err).Msg("failed to update internal DB")
 		Handle500(c)
 		return
 	}
 	if res.DeletedCount != 1 {
-		log.Println("failed to delete section", res)
+		log.Error().Msgf("failed to delete section %+v", res)
 		Handle404(c)
 		return
 	}

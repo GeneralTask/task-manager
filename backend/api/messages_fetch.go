@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -33,7 +33,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
-		log.Printf("failed to find user: %v", err)
+		log.Error().Msgf("failed to find user: %v", err)
 		Handle500(c)
 		return
 	}
@@ -52,7 +52,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Printf("failed to fetch api tokens: %v", err)
+		log.Error().Msgf("failed to fetch api tokens: %v", err)
 		Handle500(c)
 		return
 	}
@@ -60,35 +60,47 @@ func (api *API) MessagesFetch(c *gin.Context) {
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
-		log.Printf("failed to iterate through api tokens: %v", err)
+		log.Error().Msgf("failed to iterate through api tokens: %v", err)
 		Handle500(c)
 		return
 	}
 
+	_, fullRefresh := c.GetQuery("fullRefresh")
 	emailChannels := []chan external.EmailResult{}
+	emailChannelToToken := make(map[chan external.EmailResult]database.ExternalAPIToken)
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
+		log.Debug().Msgf("Processing task service %+v for account %s", taskServiceResult.Details.Name, token.AccountID)
 		if err != nil {
-			log.Printf("error loading task service: %v", err)
+			log.Error().Err(err).Msg("error loading task service")
 			Handle500(c)
 			return
 		}
-		for _, taskSource := range taskServiceResult.Sources {
+		for _, taskSourceResult := range taskServiceResult.Sources {
+			log.Debug().Str("taskServiceID", taskServiceResult.Details.ID).Str("taskSourceID", taskSourceResult.Details.ID).
+				Str("tokenAccountID", token.AccountID).Send()
 			var emails = make(chan external.EmailResult)
-			go taskSource.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails)
+			go taskSourceResult.Source.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails, fullRefresh)
 			emailChannels = append(emailChannels, emails)
+			emailChannelToToken[emails] = token
 		}
 	}
 
 	fetchedEmails := []*database.Item{}
-	badTokens := []*database.ExternalAPIToken{}
+	badTokens := []database.ExternalAPIToken{}
 	failedFetchSources := make(map[string]bool)
-	for index, emailChannel := range emailChannels {
+	for _, emailChannel := range emailChannels {
 		emailResult := <-emailChannel
 		if emailResult.Error != nil {
 			if emailResult.IsBadToken {
-				badTokens = append(badTokens, &tokens[index])
+				badToken := emailChannelToToken[emailChannel]
+				badTokens = append(badTokens, badToken)
+				tokenChangeable := database.ExternalAPITokenChangeable{IsBadToken: true}
+				res := externalAPITokenCollection.FindOneAndUpdate(dbCtx, bson.M{"_id": badToken.ID}, bson.M{"$set": tokenChangeable})
+				if res.Err() != nil {
+					log.Error().Err(res.Err()).Msgf("could not update token %+v in db", badToken)
+				}
 			}
 			failedFetchSources[emailResult.SourceID] = true
 			continue
@@ -111,7 +123,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		// For now, marking as GT_TASK source to show visual distinction from emails
 		taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(external.TASK_SOURCE_ID_GT_TASK)
 		if err != nil {
-			log.Printf("error loading task service: %v", err)
+			log.Error().Msgf("error loading task service: %v", err)
 			Handle500(c)
 			return
 		}
@@ -122,7 +134,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 			`issue will happen less often!</i></body></html>`)
 		body = fmt.Sprintf(body, config.GetConfigValue("SERVER_URL"))
 		if err != nil {
-			log.Printf("failed to convert plain text to HTML: %v", err)
+			log.Error().Msgf("failed to convert plain text to HTML: %v", err)
 			continue
 		}
 		badTokenMessages = append([]*message{
@@ -135,12 +147,11 @@ func (api *API) MessagesFetch(c *gin.Context) {
 				SentAt:   time.Now().Format(time.RFC3339),
 				IsUnread: false,
 				Source: messageSource{
-					AccountId:     token.AccountID,
-					Name:          taskSourceResult.Details.Name,
-					Logo:          taskSourceResult.Details.Logo,
-					LogoV2:        taskSourceResult.Details.LogoV2,
-					IsCompletable: taskSourceResult.Details.IsCreatable,
-					IsReplyable:   taskSourceResult.Details.IsReplyable,
+					AccountId:   token.AccountID,
+					Name:        taskSourceResult.Details.Name,
+					Logo:        taskSourceResult.Details.Logo,
+					LogoV2:      taskSourceResult.Details.LogoV2,
+					IsReplyable: taskSourceResult.Details.IsReplyable,
 				},
 			},
 		}, badTokenMessages...)

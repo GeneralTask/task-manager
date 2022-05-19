@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -29,7 +29,7 @@ func requestJSON(client *http.Client, method string, url string, body string, da
 	responseBody, bodyErr := ioutil.ReadAll(response.Body)
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		if err == nil {
-			log.Println("bad response body:", string(responseBody))
+			log.Error().Str("responseBody", string(responseBody)).Msg("bad response body")
 		}
 		return fmt.Errorf("bad status code: %d", response.StatusCode)
 	}

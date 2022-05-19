@@ -88,7 +88,7 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 		task := (*tasks)[0]
 		assert.True(t, task.IsTask)
 		assert.Equal(t, "send tesla stonk to the moon", task.Title)
-		assert.Equal(t, "body", task.Body)
+		assert.Equal(t, "body", task.TaskBase.Body)
 		assert.Equal(t, timeAllocation, task.TimeAllocation)
 	})
 }
@@ -98,7 +98,7 @@ func createTestTask(userID primitive.ObjectID) *database.Item {
 		TaskBase: database.TaskBase{
 			IDOrdering:      2,
 			IDExternal:      primitive.NewObjectID().Hex(),
-			IDTaskSection:   constants.IDTaskSectionToday,
+			IDTaskSection:   constants.IDTaskSectionDefault,
 			Title:           "Sample Taskeroni",
 			SourceID:        TASK_SOURCE_ID_GT_TASK,
 			UserID:          userID,
@@ -112,7 +112,7 @@ func insertTestTasks(t *testing.T, userID primitive.ObjectID, tasks []*database.
 	assert.NoError(t, err)
 	defer dbCleanup()
 	for _, task := range tasks {
-		_, err := database.GetOrCreateTask(
+		_, err := database.GetOrCreateItem(
 			db,
 			userID,
 			task.IDExternal,

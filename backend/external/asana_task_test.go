@@ -113,7 +113,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:        0,
 				IDExternal:        "6942069420",
-				IDTaskSection:     constants.IDTaskSectionToday,
+				IDTaskSection:     constants.IDTaskSectionDefault,
 				Deeplink:          "https://example.com/",
 				Title:             "Task!",
 				Body:              "hmm",
@@ -159,7 +159,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:        0,
 				IDExternal:        "6942069420",
-				IDTaskSection:     constants.IDTaskSectionToday,
+				IDTaskSection:     constants.IDTaskSectionDefault,
 				IsCompleted:       true,
 				Deeplink:          "https://example.com/",
 				Title:             "Task wrong!",
@@ -175,7 +175,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 				IsTask: true,
 			},
 		}
-		database.GetOrCreateTask(
+		database.GetOrCreateItem(
 			db,
 			userID,
 			"6942069420",
@@ -186,7 +186,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 		dueDateCorrect, _ := time.Parse("2006-01-02", "2021-04-20")
 		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDateCorrect)
 		expectedTask.Title = "Task!"
-		expectedTask.Body = "hmm"
+		expectedTask.TaskBase.Body = "hmm"
 
 		var taskResult = make(chan TaskResult)
 		go asanaTask.GetTasks(userID, "sample_account@email.com", taskResult)

@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
+	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -141,7 +143,7 @@ func newStateToken(authToken string, useDeeplink bool) (*string, error) {
 		defer cancel()
 		err := internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": authToken}).Decode(&token)
 		if err != nil {
-			log.Fatalf("Failed to find internal api token for test")
+			log.Fatal().Msgf("Failed to find internal api token for test")
 		}
 		userID = &token.UserID
 	}
@@ -280,4 +282,45 @@ func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	return recorder
+}
+
+func createRandomGTEmail() string {
+	return fmt.Sprintf("%s@generaltask.com", uuid.New().String())
+}
+
+func assertThreadEmailsIsUnreadState(t *testing.T, threadItem database.Item, isUnread bool) {
+	for _, email := range threadItem.Emails {
+		assert.Equal(t, isUnread, email.IsUnread)
+	}
+}
+
+func ServeRequest(
+	t *testing.T,
+	authToken string,
+	method string,
+	url string,
+	requestBody io.Reader,
+	expectedReponseCode int,
+) []byte {
+	router := GetRouter(GetAPI())
+	request, _ := http.NewRequest(method, url, requestBody)
+	request.Header.Add("Authorization", "Bearer "+authToken)
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, expectedReponseCode, recorder.Code)
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.NoError(t, err)
+	return responseBody
+}
+
+func UnauthorizedTest(t *testing.T, method string, url string, body io.Reader) bool {
+	return t.Run("Unauthorized", func(t *testing.T) {
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(method, url, body)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
 }

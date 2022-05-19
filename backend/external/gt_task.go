@@ -3,7 +3,7 @@ package external
 import (
 	"context"
 	"errors"
-	"log"
+	"github.com/rs/zerolog/log"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -14,7 +14,7 @@ import (
 
 type GeneralTaskTaskSource struct{}
 
-func (generalTask GeneralTaskTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (generalTask GeneralTaskTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -45,7 +45,7 @@ func (generalTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 	)
 	var tasks []*database.Item
 	if err != nil || cursor.All(dbCtx, &tasks) != nil {
-		log.Printf("failed to fetch general task tasks: %v", err)
+		log.Error().Msgf("failed to fetch general task tasks: %v", err)
 		result <- emptyTaskResult(err)
 		return
 	}
@@ -56,12 +56,16 @@ func (generalTask GeneralTaskTaskSource) GetPullRequests(userID primitive.Object
 	result <- emptyPullRequestResult(nil)
 }
 
-func (generalTask GeneralTaskTaskSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+func (generalTask GeneralTaskTaskSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
 	return errors.New("general task task does not support replies")
 }
 
+func (generalTask GeneralTaskTaskSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
+	return nil
+}
+
 func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	taskSection := constants.IDTaskSectionToday
+	taskSection := constants.IDTaskSectionDefault
 	if task.IDTaskSection != primitive.NilObjectID {
 		taskSection = task.IDTaskSection
 	}
@@ -100,10 +104,18 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 	return err
 }
 
+func (generalTask GeneralTaskTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+	return errors.New("has not been implemented yet")
+}
+
 func (generalTask GeneralTaskTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
 	return nil
 }
 
 func (generalTask GeneralTaskTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
+	return nil
+}
+
+func (generalTask GeneralTaskTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
 	return nil
 }

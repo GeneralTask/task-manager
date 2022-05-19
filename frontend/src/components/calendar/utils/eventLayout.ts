@@ -1,4 +1,4 @@
-import { TEvent } from '../../../helpers/types'
+import { TEvent } from '../../../utils/types'
 
 function eventsDoOverlap(eventA: TEvent, eventB: TEvent): boolean {
     const eventAStart = new Date(eventA.datetime_start)
@@ -22,7 +22,7 @@ function findCollisionGroups(events: TEvent[]): TEvent[][] {
     events.forEach((event) => {
         let placed = false
         for (const group of collisionGroups) {
-            if (group.length === 0 || group.some(e => eventsDoOverlap(event, e))) {
+            if (group.length === 0 || group.some((e) => eventsDoOverlap(event, e))) {
                 group.push(event)
                 placed = true
                 break
@@ -36,7 +36,7 @@ function findCollisionGroups(events: TEvent[]): TEvent[][] {
 /**
  * For each collision group, maximize the number of events that can be placed
  * in a single events column by greedily placing events into columns left to right.
- * An event can be placed into a column if it does not overlap with any other events 
+ * An event can be placed into a column if it does not overlap with any other events
  * in the same column. Whenever an event does not fit into any of the existing columns,
  * start a new column.
  */
@@ -46,7 +46,7 @@ function createEventColumns(group: TEvent[]) {
     group.forEach((event) => {
         let placed = false
         for (const column of columns) {
-            if (column.length === 0 || column.every(e => !eventsDoOverlap(event, e))) {
+            if (column.length === 0 || column.every((e) => !eventsDoOverlap(event, e))) {
                 column.push(event)
                 placed = true
                 break

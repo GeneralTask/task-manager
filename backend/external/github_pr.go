@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"strings"
 	"time"
 
@@ -24,7 +24,7 @@ type GithubPRSource struct {
 	Github GithubService
 }
 
-func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -52,7 +52,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
 	if token == nil {
-		log.Printf("failed to fetch Github API token")
+		log.Error().Msgf("failed to fetch Github API token")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
 		return
 	}
@@ -72,14 +72,14 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	defer cancel()
 	githubUser, _, err := githubClient.Users.Get(extCtx, CurrentlyAuthedUserFilter)
 	if err != nil || githubUser == nil {
-		log.Println("failed to fetch Github user")
+		log.Error().Msg("failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
 		return
 	}
 
 	repos, _, err := githubClient.Repositories.List(extCtx, CurrentlyAuthedUserFilter, nil)
 	if err != nil {
-		log.Println("failed to fetch Github repos for user")
+		log.Error().Msg("failed to fetch Github repos for user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
 		return
 	}
@@ -109,7 +109,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      fmt.Sprint(*pullRequest.ID),
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				Deeplink:        *pullRequest.HTMLURL,
 				SourceID:        TASK_SOURCE_ID_GITHUB_PR,
 				Title:           *pullRequest.Title,
@@ -128,9 +128,8 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 
 	for _, pullRequest := range pullRequestItems {
-		var dbPR database.Item
 		isCompleted := false
-		res, err := database.UpdateOrCreateTask(
+		dbPR, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			string(pullRequest.IDExternal),
@@ -138,18 +137,13 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			pullRequest,
 			database.PullRequestChangeableFields{
 				Title:       pullRequest.Title,
-				Body:        pullRequest.Body,
+				Body:        pullRequest.TaskBase.Body,
 				IsCompleted: &isCompleted,
 			},
-		)
+			nil,
+			false)
 		if err != nil {
-			log.Printf("failed to update or create pull request: %v", err)
-			result <- emptyPullRequestResult(err)
-			return
-		}
-		err = res.Decode(&dbPR)
-		if err != nil {
-			log.Printf("failed to update or create pull request: %v", err)
+			log.Error().Msgf("failed to update or create pull request: %v", err)
 			result <- emptyPullRequestResult(err)
 			return
 		}
@@ -194,21 +188,31 @@ func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bo
 	return false
 }
 
-func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
 	return errors.New("cannot reply to a PR")
+}
+
+func (gitPR GithubPRSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
+	return errors.New("cannot send email for github pr")
 }
 
 func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, pullRequest TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
 }
 
+func (gitPR GithubPRSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+	return errors.New("has not been implemented yet")
+}
+
 func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
-	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
-		return errors.New("cannot mark PR as done")
-	}
+	// allow users to mark PR as done in GT even if it's not done in Github
 	return nil
 }
 
 func (gitPR GithubPRSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
+	return nil
+}
+
+func (gitPR GithubPRSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
 	return nil
 }

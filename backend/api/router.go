@@ -23,21 +23,32 @@ func GetRouter(handlers *API) *gin.Engine {
 	//logout needs to use the token directly rather than the user so no need to run token middleware
 	router.POST("/logout/", handlers.Logout)
 
+	// Unauthenticated endpoints only for dev environment
+	router.POST("/create_test_user/", handlers.CreateTestUser)
+
+	// Add middlewares
 	router.Use(TokenMiddleware)
 	router.Use(LoggingMiddleware)
 	// Authenticated endpoints
+	router.GET("/meeting_banner/", handlers.MeetingBanner)
 	router.GET("/linked_accounts/", handlers.LinkedAccountsList)
 	router.GET("/linked_accounts/supported_types/", handlers.SupportedAccountTypesList)
 	router.DELETE("/linked_accounts/:account_id/", handlers.DeleteLinkedAccount)
 	router.GET("/events/", handlers.EventsList)
+	router.POST("/events/create/:source_id/", handlers.EventCreate)
 	router.GET("/messages/fetch/", handlers.MessagesFetch)
 	router.GET("/messages/v2/", handlers.MessagesListV2)
 	router.PATCH("/messages/modify/:message_id/", handlers.MessageModify)
+	router.POST("/messages/compose/", handlers.MessageCompose)
+	router.GET("/threads/", handlers.ThreadsList)
+	router.GET("/threads/detail/:thread_id/", handlers.ThreadDetail)
+	router.PATCH("/threads/modify/:thread_id/", handlers.ThreadModify)
+	router.POST("/create_task_from_thread/:thread_id/", handlers.CreateTaskFromThread)
 	router.GET("/tasks/fetch/", handlers.TasksFetch)
 	router.GET("/tasks/v3/", handlers.TasksListV3)
 	router.POST("/tasks/create/:source_id/", handlers.TaskCreate)
 	router.PATCH("/tasks/modify/:task_id/", handlers.TaskModify)
-	router.POST("/tasks/reply/:task_id/", handlers.TaskReply)
+	router.GET("/tasks/detail/:task_id/", handlers.TaskDetail)
 	router.GET("/ping/", handlers.Ping)
 	router.GET("/settings/", handlers.SettingsList)
 	router.PATCH("/settings/", handlers.SettingsModify)

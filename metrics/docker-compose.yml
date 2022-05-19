@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  metrics:
+    build: .
+    environment:
+      DASH_USER: ${DASH_USER}
+      DASH_PASSWORD: ${DASH_PASSWORD}
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
+    ports:
+      - "8050:8050"

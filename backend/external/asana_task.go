@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	"time"
 
@@ -47,7 +47,7 @@ type AsanaTasksUpdateBody struct {
 	Data AsanaTasksUpdateFields `json:"data"`
 }
 
-func (asanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (asanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -74,7 +74,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	var userInfo AsanaUserInfoResponse
 	err = getJSON(client, userInfoURL, &userInfo)
 	if err != nil || len(userInfo.Data.Workspaces) == 0 {
-		log.Printf("failed to get asana workspace ID: %v", err)
+		log.Error().Msgf("failed to get asana workspace ID: %v", err)
 		if err == nil {
 			err = errors.New("user has not workspaces")
 		}
@@ -94,7 +94,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	var asanaTasks AsanaTasksResponse
 	err = getJSON(client, taskFetchURL, &asanaTasks)
 	if err != nil {
-		log.Printf("failed to fetch asana tasks: %v", err)
+		log.Error().Msgf("failed to fetch asana tasks: %v", err)
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 		return
 	}
@@ -105,7 +105,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			TaskBase: database.TaskBase{
 				UserID:            userID,
 				IDExternal:        asanaTaskData.GID,
-				IDTaskSection:     constants.IDTaskSectionToday,
+				IDTaskSection:     constants.IDTaskSectionDefault,
 				Deeplink:          asanaTaskData.PermalinkURL,
 				SourceID:          TASK_SOURCE_ID_ASANA,
 				Title:             asanaTaskData.Name,
@@ -122,8 +122,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
 		isCompleted := false
-		var dbTask database.Item
-		res, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			task.IDExternal,
@@ -131,18 +130,14 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task,
 			database.TaskChangeableFields{
 				Title:       &task.Title,
-				Body:        &task.Body,
+				Body:        &task.TaskBase.Body,
 				DueDate:     task.DueDate,
 				IsCompleted: &isCompleted,
 			},
+			nil,
+			false,
 		)
 		if err != nil {
-			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
-			return
-		}
-		err = res.Decode(&dbTask)
-		if err != nil {
-			log.Printf("failed to update or create task: %v", err)
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 			return
 		}
@@ -184,7 +179,7 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 	}
 	err = requestJSON(client, "PUT", taskUpdateURL, string(bodyJson), EmptyResponsePlaceholder)
 	if err != nil {
-		log.Printf("failed to update asana task: %v", err)
+		log.Error().Msgf("failed to update asana task: %v", err)
 		return err
 	}
 	return nil
@@ -207,14 +202,26 @@ func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.TaskCh
 	return &body
 }
 
-func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, taskID primitive.ObjectID, body string) error {
+func (asanaTask AsanaTaskSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
 	return errors.New("cannot reply to an asana task")
+}
+
+func (asanaTask AsanaTaskSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
+	return errors.New("cannot send email for asana source")
 }
 
 func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("cannot create new asana task")
 }
 
+func (asanaTask AsanaTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+	return errors.New("has not been implemented yet")
+}
+
 func (asanaTask AsanaTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
+	return nil
+}
+
+func (asanaTask AsanaTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
 	return nil
 }

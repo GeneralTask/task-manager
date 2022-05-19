@@ -27,7 +27,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	sourceID := c.Param("source_id")
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
-	if err != nil || !taskSourceResult.Details.IsCreatable {
+	if err != nil || !taskSourceResult.Details.CanCreateTask {
 		Handle404(c)
 		return
 	}
@@ -109,7 +109,7 @@ func getValidTaskSection(taskSectionIDHex string, userID primitive.ObjectID, db 
 	defer cancel()
 	count, err := taskSectionCollection.CountDocuments(dbCtx, bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": IDTaskSection}}})
 	if (err != nil || count == int64(0)) &&
-		IDTaskSection != constants.IDTaskSectionToday &&
+		IDTaskSection != constants.IDTaskSectionDefault &&
 		IDTaskSection != constants.IDTaskSectionBlocked &&
 		IDTaskSection != constants.IDTaskSectionBacklog {
 		return primitive.NilObjectID, errors.New("task section ID not found")

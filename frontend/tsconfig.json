@@ -1,22 +1,33 @@
-{
-    "compilerOptions": {
-        "target": "es5",
-        "lib": ["dom", "dom.iterable", "esnext"],
-        "allowJs": true,
-        "skipLibCheck": true,
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "strict": true,
-        "forceConsistentCasingInFileNames": true,
-        "noFallthroughCasesInSwitch": true,
-        "module": "esnext",
-        "moduleResolution": "node",
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "noEmit": true,
-        "jsx": "react",
-        "noImplicitAny": true
-    },
-    "include": ["src"],
-    "exclude": ["tsconfig.json"]
+{ // https://www.sitepoint.com/react-with-typescript-best-practices/
+  "compilerOptions": {
+    "target": "es6", // Specify ECMAScript target version
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ], // List of library files to be included in the compilation
+    "allowJs": true, // Allow JavaScript files to be compiled
+    "skipLibCheck": true, // Skip type checking of all declaration files
+    "esModuleInterop": true, // Disables namespace imports (import * as fs from "fs") and enables CJS/AMD/UMD style imports (import fs from "fs")
+    "allowSyntheticDefaultImports": true, // Allow default imports from modules with no default export
+    "strict": true, // Enable all strict type checking options
+    "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references to the same file.
+    "module": "esnext", // Specify module code generation
+    "moduleResolution": "node", // Resolve modules using Node.js style
+    "isolatedModules": false, // Unconditionally emit imports for unresolved files
+    "resolveJsonModule": true, // Include modules imported with .json extension
+    "noEmit": false, // Do not emit output (meaning do not compile code, only perform type checking)
+    "jsx": "react", // Support JSX in .tsx files
+    "sourceMap": true, // Generate corrresponding .map file
+    "noUnusedLocals": true, // Report errors on unused locals
+    "noUnusedParameters": true, // Report errors on unused parameters
+    "incremental": true, // Enable incremental compilation by reading/writing information from prior compilations to a file on disk
+    "noFallthroughCasesInSwitch": true, // Report errors for fallthrough cases in switch statement
+    "types": ["node", "cypress", "@testing-library/cypress"]
+  },
+  "include": [
+    "src/**/*", // *** The files TypeScript should type check ***
+    "cypress/**/*.ts", "cypress/tsconfig.json", // *** The files TypeScript should type check ***
+  ],
+  "exclude": ["node_modules", "build", "dist"] // *** The files to not type check ***
 }

@@ -266,6 +266,7 @@ func TestMarkAsComplete(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&task)
 		assert.Equal(t, true, task.IsCompleted)
+		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
 	})
 
 	t.Run("CalendarFailure", func(t *testing.T) {
@@ -343,7 +344,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    2,
-				IDTaskSection: constants.IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -357,7 +358,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        primitive.NewObjectID(),
 				IDOrdering:    3,
-				IDTaskSection: constants.IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -371,7 +372,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    1,
-				IDTaskSection: constants.IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -407,7 +408,7 @@ func TestTaskReorder(t *testing.T) {
 		taskIDHex := taskID.Hex()
 
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+constants.IDTaskSectionToday.Hex()+`"}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+constants.IDTaskSectionDefault.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -424,7 +425,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
-		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
+		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -550,7 +551,7 @@ func TestTaskReorder(t *testing.T) {
 		taskIDHex := taskID.Hex()
 
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+constants.IDTaskSectionToday.Hex()+`"}`)))
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+constants.IDTaskSectionDefault.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
 
@@ -567,7 +568,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, task.IDOrdering)
-		assert.Equal(t, constants.IDTaskSectionToday, task.IDTaskSection)
+		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("OnlyReorderingID", func(t *testing.T) {
@@ -631,7 +632,7 @@ func TestEditFields(t *testing.T) {
 		TaskBase: database.TaskBase{
 			IDExternal:       "ID External",
 			IDOrdering:       1,
-			IDTaskSection:    constants.IDTaskSectionToday,
+			IDTaskSection:    constants.IDTaskSectionDefault,
 			IsCompleted:      false,
 			Sender:           "Sender",
 			SourceID:         "gt_task",
@@ -749,7 +750,7 @@ func TestEditFields(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
-		expectedTask.Body = "New Body"
+		expectedTask.TaskBase.Body = "New Body"
 		utils.AssertTasksEqual(t, &expectedTask, &task)
 	})
 	t.Run("Edit Due Date Success", func(t *testing.T) {
@@ -915,7 +916,7 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 
 		expectedTask.Title = "New Title"
-		expectedTask.Body = "New Body"
+		expectedTask.TaskBase.Body = "New Body"
 		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		expectedTask.TimeAllocation = int64(20 * 1000 * 1000)
 

@@ -1,21 +1,32 @@
-export const {
-    REACT_APP_API_BASE_URL,
-    REACT_APP_FRONTEND_BASE_URL,
-    REACT_APP_COOKIE_DOMAIN,
-    ACCESS_CONTROL_ALLOW_ORIGIN,
-} = process.env
+import getEnvVars from './environment'
+
+export const { REACT_APP_API_BASE_URL, COOKIE_DOMAIN } = getEnvVars()
+
+// API Constants
+export const MESSAGES_PER_PAGE = 30
+export const TASK_SECTION_DEFAULT_ID = '-1'
+export const AUTHORIZATION_COOKE = 'authToken'
+
+// Time constants (in seconds)
+export const TASK_REFETCH_INTERVAL = 30
+export const MESSAGES_REFETCH_INTERVAL = 60
+export const EVENTS_REFETCH_INTERVAL = 60
+export const TIME_INDICATOR_INTERVAL = 6
+export const TASK_MARK_AS_DONE_TIMEOUT = 2
+export const DETAILS_SYNC_TIMEOUT = 1
+export const SINGLE_SECOND_INTERVAL = 1
+export const EMAIL_UNDO_TIMEOUT = 5
 
 // Backend Endpoints
-export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/v3/'
-export const FETCH_TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/fetch/'
-export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/v2/'
-export const FETCH_MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/fetch/'
+export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
+export const MESSAGES_URL = REACT_APP_API_BASE_URL + '/messages/'
 export const TASKS_MODIFY_URL = REACT_APP_API_BASE_URL + '/tasks/modify/'
 export const MESSAGES_MODIFY_URL = REACT_APP_API_BASE_URL + '/messages/modify/'
 export const TASKS_CREATE_URL = REACT_APP_API_BASE_URL + '/tasks/create/'
 export const ASANA_URL = REACT_APP_API_BASE_URL + '/link/asana/'
 export const JIRA_URL = REACT_APP_API_BASE_URL + '/link/jira/'
 export const LOGIN_URL = REACT_APP_API_BASE_URL + '/login/'
+export const DEEPLINK_LOGIN_URL = LOGIN_URL + '?use_deeplink=true'
 export const LOGOUT_URL = REACT_APP_API_BASE_URL + '/logout/'
 export const SETTINGS_URL = REACT_APP_API_BASE_URL + '/settings/'
 export const WAITLIST_URL = REACT_APP_API_BASE_URL + '/waitlist/'
@@ -23,44 +34,25 @@ export const LINKED_ACCOUNTS_URL = REACT_APP_API_BASE_URL + '/linked_accounts/'
 export const SUPPORTED_TYPES_URL = REACT_APP_API_BASE_URL + '/linked_accounts/supported_types/'
 export const LOG_EVENTS_URL = REACT_APP_API_BASE_URL + '/log_events/'
 export const FEEDBACK_URL = REACT_APP_API_BASE_URL + '/feedback/'
-
 export const EVENTS_URL = REACT_APP_API_BASE_URL + '/events/'
 
-// Frontend paths
-export const LANDING_PATH = '/'
-export const SETTINGS_PATH = '/settings/'
-export const MESSAGES_PATH = '/messages/'
-export const PRIVACY_PATH = '/privacy/'
+// Routes
+export const TERMS_OF_SERVICE_ROUTE = 'terms-of-service'
+export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 
-//Google Sign-In SVGs
-export const GOOGLE_LIGHT_NORMAL = '/assets/google_signin_buttons/btn_google_signin_light_normal_web@2x.png'
+export const NO_EVENT_TITLE = '(no title)'
 
-//images
-export const CHEVRON_DOWN = '/images/chevron-arrow-down.svg'
-export const PLUS_ICON = '/images/plus.svg'
-export const DONE_BUTTON = '/images/CheckBox.svg'
-export const UNDONE_BUTTON = '/images/CheckSelected.svg'
-export const BLANK_CALENDAR_ICON = '/images/CalendarBlank.svg'
-export const LABEL_ICON = '/images/Label.svg'
-export const EXPAND_ICON = '/images/ArrowsOutSimple.svg'
-export const TIME_ICON = '/images/Timer.svg'
-export const TRASH_ICON = '/images/TrashSimple.svg'
-export const CLOSE_ICON = '/images/close.svg'
-export const CHECK_CIRCLE = '/images/CheckCircle.svg'
-export const CHECK_SQUARE_OFFSET = '/images/CheckSquareOffset.svg'
-export const GT_TASK_ICON = '/images/generaltask.svg'
-
-//Misc. strings
-export const TASK_STATUS_FETCH_ERROR = 'There was an error fetching tasks'
-export const TASK_STATUS_NO_TASKS = 'No Tasks'
-export const MAX_TASK_BODY_HEIGHT = 495
-export const TOAST_DURATION = 5000
-export const TASKS_FETCH_INTERVAL = 30
-export const MESSAGES_FETCH_INTERVAL = 30
-export const TOOLTIP_DELAY = 500
-export const DEFAULT_ALLOCATION = 3600000000000
-
-export const GT_TASK_SOURCE_ID = 'gt_task'
-export const NOW = 'Now'
-
-export const NO_EVENT_TITLE_DEFAULT = '(No title)'
+export enum KEYBOARD_SHORTCUTS {
+    SELECT = 'Enter',
+    CLOSE = 'Escape',
+    NEXT = 'ArrowDown',
+    PREVIOUS = 'ArrowUp',
+    SHOW_DATE_PICKER = 'S',
+    SHOW_TIME_ESTIMATION_PICKER = 'F',
+    SHOW_LABEL_EDITOR = 'L',
+    CREATE_TASK = 'T',
+    REFRESH = 'R',
+    MARK_COMPLETE = 'D',
+    DOWN = 'ArrowDown',
+    UP = 'ArrowUp',
+}
