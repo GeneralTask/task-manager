@@ -4,12 +4,14 @@ import { Colors, Spacing } from '../../styles'
 
 const FlexColumn = styled.div`
     display: flex;
+    position: relative;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
 `
 const NumMessagesContainer = styled.div`
-    position: fixed;
+    position: absolute;
     line-height: 0;
     padding: ${Spacing.padding._16}px;
     background: ${Colors.gray._50};
@@ -22,11 +24,12 @@ const Divider = styled.hr`
 
 interface PreviousMessagesProps {
     numMessages: number
+    onClick: () => void
 }
 
 const PreviousMessages = (props: PreviousMessagesProps) => {
     return (
-        <FlexColumn>
+        <FlexColumn onClick={props.onClick}>
             <Divider />
             <Divider />
             <NumMessagesContainer>{`View ${props.numMessages} Previous Messages`}</NumMessagesContainer>

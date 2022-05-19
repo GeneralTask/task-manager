@@ -119,7 +119,19 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                                             />
                                         )}
                                 </Fragment>
-                                <PreviousMessages numMessages={thread.emails.length - 2} />
+                                <PreviousMessages
+                                    numMessages={thread.emails.length - 2}
+                                    onClick={() => setIsCollapsed(false)}
+                                />
+                                <Fragment key={thread.emails[thread.emails.length - 1].message_id}>
+                                    <EmailContainer
+                                        email={thread.emails[thread.emails.length - 1]}
+                                        isLastThread={true}
+                                        composeState={composeState}
+                                        setThreadComposeState={setComposeState}
+                                        sourceAccountId={thread.source.account_id}
+                                    />
+                                </Fragment>
                             </>
                         ) : (
                             thread.emails.map((email, index) => (
