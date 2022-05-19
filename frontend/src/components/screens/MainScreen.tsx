@@ -20,7 +20,8 @@ import { useInterval } from '../../hooks'
 import { MESSAGES_REFETCH_INTERVAL, TASK_REFETCH_INTERVAL } from '../../constants'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
-import { cssTransition, ToastContainer } from 'react-toastify'
+import { cssTransition } from 'react-toastify'
+import StyledToastContainer from '../atoms/toast/StyledToastContainer'
 
 const toastAnimation = cssTransition({
     enter: 'animate__animated animate__fadeInRight',
@@ -66,7 +67,7 @@ const MainScreen = () => {
                     <CalendarView />
                 </>
             </DefaultTemplate>
-            <ToastContainer hideProgressBar position="bottom-right" transition={toastAnimation} />
+            <StyledToastContainer hideProgressBar position="bottom-right" transition={toastAnimation} />
         </DndProvider>
     )
 }
