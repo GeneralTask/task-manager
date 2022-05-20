@@ -62,7 +62,7 @@ func UpdateOrCreateTask(
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to update or create task")
+		log.Error().Err(err).Msg("failed to update or create task")
 		return nil, err
 	}
 
@@ -75,7 +75,7 @@ func UpdateOrCreateTask(
 	var item Item
 	err = mongoResult.Decode(&item)
 	if err != nil {
-		log.Printf("Failed to update or create item")
+		log.Error().Err(err).Msg("failed to update or create item")
 		return nil, err
 	}
 	return &item, nil
@@ -85,7 +85,7 @@ func GetEmailFromMessageID(ctx context.Context, messageID primitive.ObjectID, us
 	parentCtx := ctx
 	db, dbCleanup, err := GetDBConnection()
 	if err != nil {
-		log.Print("Failed to establish DB connection", err)
+		log.Error().Err(err).Msg("failed to establish DB connection")
 		return nil, err
 	}
 	defer dbCleanup()
@@ -104,12 +104,12 @@ func GetEmailFromMessageID(ctx context.Context, messageID primitive.ObjectID, us
 		options.FindOne().SetProjection(bson.M{"email_thread.emails.$": 1}),
 	).Decode(&thread)
 	if err != nil {
-		log.Printf("Failed to get email with messageID: %+v, error: %v", messageID, err)
+		log.Error().Err(err).Msgf("Failed to get email with messageID: %+v", messageID)
 		return nil, err
 	}
 
 	if len(thread.EmailThread.Emails) == 0 {
-		log.Printf("Failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
+		log.Error().Msgf("Failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
 		return nil, fmt.Errorf("failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
 	}
 	return &thread.EmailThread.Emails[0], nil

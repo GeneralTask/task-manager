@@ -272,7 +272,7 @@ func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID
 	} else {
 		client := getGoogleHttpClient(db, userID, accountID)
 		if client == nil {
-			log.Error().Err(err).Msg("failed to fetch google API token")
+			log.Error().Msg("failed to fetch google API token")
 			return nil, errors.New("failed to fetch google API token")
 		}
 		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)

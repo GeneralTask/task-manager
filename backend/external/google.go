@@ -3,9 +3,10 @@ package external
 import (
 	"context"
 	"encoding/json"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -220,7 +221,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	).Decode(&user)
 
 	if user.ID == primitive.NilObjectID {
-		log.Error().Err(err).Msg("unable to create user")
+		log.Error().Msg("unable to create user")
 		return primitive.NilObjectID, &userIsNew, nil, err
 	}
 

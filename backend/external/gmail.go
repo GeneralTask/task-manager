@@ -110,7 +110,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 		threadItem, err := database.GetOrCreateItem(db, userID, thread.Id, TASK_SOURCE_ID_GMAIL, threadItem)
 		if err != nil {
-			log.Printf("failed to get or create gmail thread")
+			log.Error().Err(err).Msg("failed to get or create gmail thread")
 			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			return
 		}
@@ -231,7 +231,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			threadItem, database.ThreadItemToChangeable(threadItem),
 			&[]bson.M{{"task_type.is_thread": true}}, true)
 		if err != nil {
-			log.Printf("failed to update or create gmail thread")
+			log.Error().Err(err).Msg("failed to update or create gmail thread")
 			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			return
 		}
@@ -443,13 +443,13 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
-		log.Printf("Could not find user, err")
+		log.Error().Err(err).Msg("could not find user")
 		return err
 	}
 
 	email, err := database.GetEmailFromMessageID(parentCtx, messageID, userID)
 	if err != nil {
-		log.Printf("Could not find message in DB, err")
+		log.Error().Err(err).Msg("could not find message in DB")
 		return err
 	}
 
@@ -459,7 +459,7 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	}
 	messageResponse, err := gmailService.Users.Messages.Get("me", email.EmailID).Do()
 	if err != nil {
-		log.Printf("Could not get message from gmail, err")
+		log.Error().Err(err).Msg("could not get message from gmail")
 		return err
 	}
 
