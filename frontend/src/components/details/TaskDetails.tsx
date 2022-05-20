@@ -27,12 +27,8 @@ const DetailsTopContainer = styled.div`
     align-items: center;
     height: 50px;
 `
-const BodyContainer = styled.div`
+const BodyTextArea = styled.textarea`
     flex: 1;
-`
-export const BodyTextArea = styled.textarea`
-    width: 100%;
-    height: 100%;
     display: block;
     background-color: inherit;
     border: 1px solid transparent;
@@ -48,7 +44,7 @@ export const BodyTextArea = styled.textarea`
         border: 1px solid ${Colors.gray._500};
     }
 `
-export const TitleInput = styled.textarea`
+const TitleInput = styled.textarea`
     background-color: inherit;
     color: ${Colors.gray._600};
     font: inherit;
@@ -80,8 +76,6 @@ interface TaskDetailsProps {
     task: TTask
 }
 const TaskDetails = (props: TaskDetailsProps) => {
-    const { mutate: modifyTask, isError, isLoading } = useModifyTask()
-
     const [task, setTask] = useState<TTask>(props.task)
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
@@ -91,6 +85,8 @@ const TaskDetails = (props: TaskDetailsProps) => {
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
     const bodyRef = useRef<HTMLTextAreaElement>(null)
+
+    const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     useEffect(() => {
@@ -188,19 +184,17 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                 }}
             />
-            <BodyContainer>
-                <BodyTextArea
-                    ref={bodyRef}
-                    data-testid="task-body-input"
-                    placeholder="Add task details"
-                    value={bodyInput}
-                    onChange={(e) => {
-                        setBodyInput(e.target.value)
-                        onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
-                    }}
-                    onKeyDown={(e) => e.stopPropagation()}
-                />
-            </BodyContainer>
+            <BodyTextArea
+                ref={bodyRef}
+                data-testid="task-body-input"
+                placeholder="Add task details"
+                value={bodyInput}
+                onChange={(e) => {
+                    setBodyInput(e.target.value)
+                    onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+            />
         </DetailsViewContainer>
     )
 }
