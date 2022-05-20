@@ -236,7 +236,7 @@ var TaskServiceSlack = TaskServiceDetails{
 	Logo:         "/images/slack.svg",
 	LogoV2:       "slack",
 	AuthType:     AuthTypeOauth2,
-	IsLinkable:   false,
+	IsLinkable:   true,
 	IsSignupable: false,
 }
 var TaskServiceTrello = TaskServiceDetails{

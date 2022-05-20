@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+
 	"github.com/rs/zerolog/log"
+	"github.com/slack-go/slack"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -19,29 +22,39 @@ type SlackService struct {
 	Config OauthConfigWrapper
 }
 
+// guide for local testing: https://slack.dev/node-slack-sdk/tutorials/local-development
+// slack api oauth page: https://api.slack.com/apps/A022SRD9GD9/oauth
+// sign in with slack: https://api.slack.com/authentication/sign-in-with-slack
 func getSlackConfig() *OauthConfig {
 	return &OauthConfig{Config: &oauth2.Config{
 		ClientID:     config.GetConfigValue("SLACK_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("SLACK_OAUTH_CLIENT_SECRET"),
-		RedirectURL:  "https://api.generaltask.com/link/slack/callback",
-		Scopes:       []string{"channels:history", "channels:read", "im:read", "mpim:history", "im:history", "groups:history", "groups:read", "mpim:write", "im:write", "channels:write", "groups:write", "chat:write:user"},
+		RedirectURL:  "https://ade5-2603-3024-180b-f100-f19e-d40-590b-db13.ngrok.io/link/slack/callback",
+		// RedirectURL:  "https://api.generaltask.com/link/slack/callback",
+		Scopes: []string{"identify", "channels:history", "channels:read", "im:read", "mpim:history", "im:history", "groups:history", "groups:read", "mpim:write", "im:write", "channels:write", "groups:write", "chat:write:user"},
+		// Scopes: []string{"identity.basic", "identity.email"},
+		// Scopes: []string{"openid", "email"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://slack.com/oauth/authorize",
 			TokenURL: "https://slack.com/api/oauth.access",
+			// AuthURL:  "https://slack.com/oauth/v2/authorize",
+			// TokenURL: "https://slack.com/api/oauth.v2.access",
+			// AuthURL:  "https://slack.com/openid/connect/authorize",
+			// TokenURL: "https://slack.com/openid/connect/token",
 		},
 	}}
 }
 
-func (slack SlackService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	authURL := slack.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+func (slackService SlackService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
+	authURL := slackService.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
 }
 
-func (slack SlackService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
+func (slackService SlackService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
 	return nil, errors.New("slack does not support signup")
 }
 
-func (slack SlackService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
+func (slackService SlackService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -51,7 +64,7 @@ func (slack SlackService) HandleLinkCallback(params CallbackParams, userID primi
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := slack.Config.Exchange(extCtx, *params.Oauth2Code)
+	token, err := slackService.Config.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
 		log.Error().Msgf("failed to fetch token from Slack: %v", err)
 		return errors.New("internal server error")
@@ -61,6 +74,20 @@ func (slack SlackService) HandleLinkCallback(params CallbackParams, userID primi
 	if err != nil {
 		log.Error().Msgf("error parsing token: %v", err)
 		return errors.New("internal server error")
+	}
+
+	api := slack.New(token.AccessToken)
+	api.GetUserIdentity()
+	// If you set debugging, it will log all requests to the console
+	// Useful when encountering issues
+	// slack.New("YOUR_TOKEN_HERE", slack.OptionDebug(true))
+	userInfo, err := api.AuthTest()
+	if err != nil {
+		log.Error().Msgf("failed to get user identity: %v", err)
+		return errors.New("internal server error")
+	}
+	if userInfo != nil {
+		fmt.Println("userInfo:", *userInfo, userInfo.User, userInfo.UserID)
 	}
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
@@ -73,8 +100,8 @@ func (slack SlackService) HandleLinkCallback(params CallbackParams, userID primi
 			UserID:         userID,
 			ServiceID:      TASK_SERVICE_ID_SLACK,
 			Token:          string(tokenString),
-			AccountID:      "todo",
-			DisplayID:      "todo",
+			AccountID:      userInfo.TeamID + userInfo.UserID,
+			DisplayID:      fmt.Sprintf("%s (%s)", userInfo.User, userInfo.Team),
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
 		}},
@@ -87,10 +114,10 @@ func (slack SlackService) HandleLinkCallback(params CallbackParams, userID primi
 	return nil
 }
 
-func (slack SlackService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
+func (slackService SlackService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	return primitive.NilObjectID, nil, nil, errors.New("slack does not support signup")
 }
 
-func (slack SlackService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
+func (slackService SlackService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
 }
