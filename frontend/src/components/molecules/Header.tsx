@@ -67,13 +67,6 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             navigate('/tasks')
         }
     }
-    const handleEditSectionName = (text: string) => {
-        text = text.trim()
-        if (text.length > 200) {
-            text = text.substring(0, 200)
-        }
-        setSectionName(text)
-    }
     const handleChangeSectionName = (id: string | undefined, name: string) => {
         const trimmedName = name.trim()
         if (id && trimmedName.length > 0) {
@@ -95,7 +88,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         <HeaderTextEditable
             ref={sectionTitleRef}
             value={sectionName}
-            onChange={(e) => handleEditSectionName(e.target.value)}
+            onChange={(e) => setSectionName(e.target.value.trim().substring(0, 200))}
             onKeyDown={handleKeyDown}
             onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
             autoFocus
