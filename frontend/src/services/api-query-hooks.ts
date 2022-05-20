@@ -7,7 +7,6 @@ import {
     TCreateTaskData,
     TCreateTaskFromThreadData,
     TEmailThreadResponse,
-    TMarkAsTaskData,
     TMarkMessageReadData,
     TMarkTaskDoneData,
     TModifyTaskData,
@@ -23,7 +22,6 @@ import {
     TEvent,
     TLinkedAccount,
     TMessage,
-    TMessageResponse,
     TRecipients,
     TSupportedType,
     TTask,
@@ -464,42 +462,6 @@ const getThreadDetail = async (data: { threadId: string }) => {
     }
 }
 
-export const useMarkThreadAsTask = () => {
-    const queryClient = useQueryClient()
-    return useMutation((data: TMarkAsTaskData) => markThreadAsTask(data),
-        {
-            onMutate: async (data: TMarkAsTaskData) => {
-                // cancel all current getThreads queries
-                await queryClient.cancelQueries('emailthreads')
-
-                const response: TEmailThreadResponse | undefined = queryClient.getQueryData('messages')
-                if (!response) return
-
-                for (const page of response.pages) {
-                    for (const thread of page) {
-                        if (thread.id === data.id) {
-                            thread.is_task = data.isTask
-                        }
-                    }
-                }
-                queryClient.setQueryData('emailthreads', response)
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('tasks')
-                queryClient.invalidateQueries('emailthreads')
-            },
-        }
-    )
-}
-const markThreadAsTask = async (data: TMarkAsTaskData) => {
-    try {
-        const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_task: data.isTask })
-        return res.data
-    } catch {
-        throw new Error('markMessageAsTask failed')
-    }
-}
-
 export const useModifyThread = () => {
     const queryClient = useQueryClient()
     return useMutation((data: TModifyThreadData) => modifyThread(data), {
@@ -515,7 +477,6 @@ export const useModifyThread = () => {
             for (const page of queryData.pages) {
                 for (const thread of page) {
                     if (thread.id === data.thread_id) {
-                        thread.is_task = data.is_task
                         if (data.is_unread) break
                         for (const email of thread.emails) {
                             email.is_unread = data.is_unread
@@ -595,40 +556,6 @@ const markMessageRead = async (data: TMarkMessageReadData) => {
     }
 }
 
-export const useMarkMessageAsTask = () => {
-    const queryClient = useQueryClient()
-    return useMutation((data: TMarkAsTaskData) => markMessageAsTask(data), {
-        onMutate: async (data: TMarkAsTaskData) => {
-            // cancel all current getMessages queries
-            await queryClient.cancelQueries('messages')
-
-            const response: TMessageResponse | undefined = queryClient.getQueryData('messages')
-            if (!response) return
-
-            for (const page of response.pages) {
-                if (!page) break
-                for (const message of page) {
-                    if (message.id === data.id) {
-                        message.is_task = data.isTask
-                    }
-                }
-            }
-            queryClient.setQueryData('messages', response)
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries('tasks')
-            queryClient.invalidateQueries('messages')
-        },
-    })
-}
-const markMessageAsTask = async (data: TMarkAsTaskData) => {
-    try {
-        const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_task: data.isTask })
-        return res.data
-    } catch {
-        throw new Error('markMessageAsTask failed')
-    }
-}
 export const useComposeMessage = () => {
     const queryClient = useQueryClient()
     return useMutation((data: TComposeMessageData) => composeMessage(data), {

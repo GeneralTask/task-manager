@@ -9,7 +9,7 @@ import EmailMainActions from './EmailCompose/EmailMainActions'
 import { Icon } from '../atoms/Icon'
 import { icons, logos } from '../../styles/images'
 import styled from 'styled-components'
-import { useCreateTaskFromThread, useModifyThread } from '../../services/api-query-hooks'
+import { useCreateTaskFromThread } from '../../services/api-query-hooks'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { useNavigate } from 'react-router-dom'
 import toast from '../../utils/toast'
@@ -66,7 +66,6 @@ interface ThreadDetailsProps {
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     const navigate = useNavigate()
     const { mutate: createTaskFromThread } = useCreateTaskFromThread()
-    const { mutate: modifyThreadData } = useModifyThread()
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
         emailId: null,
@@ -101,11 +100,6 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
             title: thread.emails[thread.emails.length - 1].subject,
             body: '',
             thread_id: thread.id,
-        })
-        modifyThreadData({
-            thread_id: thread.id,
-            is_unread: false,
-            is_task: false,
         })
         toast({
             message: 'This thread was converted into a task.',
