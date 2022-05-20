@@ -14,6 +14,7 @@ const MessageSpan = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 1;
+    margin-right: ${Spacing.margin._40}px;
 `
 const ButtonsContainer = styled.div`
     display: flex;

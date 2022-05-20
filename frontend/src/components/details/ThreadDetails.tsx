@@ -11,6 +11,8 @@ import { icons, logos } from '../../styles/images'
 import styled from 'styled-components'
 import { useCreateTaskFromThread, useModifyThread } from '../../services/api-query-hooks'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import { useNavigate } from 'react-router-dom'
+import toast from '../../utils/toast'
 
 const THREAD_HEADER_HEIGHT = '118px'
 
@@ -62,6 +64,7 @@ interface ThreadDetailsProps {
     thread: TEmailThread
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
+    const navigate = useNavigate()
     const { mutate: createTaskFromThread } = useCreateTaskFromThread()
     const { mutate: modifyThreadData } = useModifyThread()
     const [composeState, setComposeState] = useState<TEmailComposeState>({
@@ -103,6 +106,15 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
             thread_id: thread.id,
             is_unread: false,
             is_task: false,
+        })
+        toast({
+            message: 'This thread was converted into a task.',
+            rightAction: {
+                label: 'View Task',
+                onClick: () => {
+                    navigate('/tasks')
+                },
+            },
         })
     }
 
