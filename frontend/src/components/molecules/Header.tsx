@@ -88,7 +88,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         <HeaderTextEditable
             ref={sectionTitleRef}
             value={sectionName}
-            onChange={(e) => setSectionName(e.target.value.trim().substring(0, 200))}
+            onChange={(e) => setSectionName(e.target.value.substring(0, 200))}
             onKeyDown={handleKeyDown}
             onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
             autoFocus
