@@ -23,7 +23,7 @@ func (api *API) MessageCompose(c *gin.Context) {
 	var requestParams messageComposeParams
 	err := c.BindJSON(&requestParams)
 	if err != nil {
-		log.Error().Msgf("parameter missing or malformatted, error: %v", err)
+		log.Error().Err(err).Msg("parameter missing or malformatted, error")
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
@@ -33,7 +33,7 @@ func (api *API) MessageCompose(c *gin.Context) {
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(requestParams.SourceID)
 	if err != nil {
-		log.Error().Msgf("failed to load external task source: %v", err)
+		log.Error().Err(err).Msg("failed to load external task source")
 		c.JSON(400, gin.H{"detail": "invalid source id"})
 		return
 	}
@@ -57,7 +57,7 @@ func handleCompose(c *gin.Context, userID primitive.ObjectID, taskSourceResult *
 	}
 	err := taskSourceResult.Source.SendEmail(userID, requestParams.SourceAccountID, contents)
 	if err != nil {
-		log.Error().Msgf("failed to send email: %v", err)
+		log.Error().Err(err).Msg("failed to send email")
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "failed to send email"})
 		return
 	}
@@ -73,7 +73,7 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 
 	messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
 	if err != nil {
-		log.Error().Msgf("could not parse message id with error: %v", err)
+		log.Error().Err(err).Msg("could not parse message id with error")
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "could not parse message id"})
 		return
 	}
@@ -84,7 +84,7 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 	}
 	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, messageID, contents)
 	if err != nil {
-		log.Error().Msgf("unable to send email with error: %v", err)
+		log.Error().Err(err).Msg("unable to send email with error")
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
 		return
 	}

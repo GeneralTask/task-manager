@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+
 	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -49,7 +50,7 @@ func (api *API) ThreadModify(c *gin.Context) {
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(thread.SourceID)
 	if err != nil {
-		log.Error().Msgf("failed to load external task source: %v", err)
+		log.Error().Err(err).Msg("failed to load external task source")
 		Handle500(c)
 		return
 	}
@@ -57,14 +58,14 @@ func (api *API) ThreadModify(c *gin.Context) {
 	// update external thread
 	err = taskSourceResult.Source.ModifyThread(userID, thread.SourceAccountID, thread.ID, modifyParams.IsUnread)
 	if err != nil {
-		log.Error().Msgf("failed to update external task source: %v", err)
+		log.Error().Err(err).Msg("failed to update external task source")
 		Handle500(c)
 		return
 	}
 
 	err = updateThreadInDB(api, c.Request.Context(), threadID, userID, &modifyParams)
 	if err != nil {
-		log.Error().Msgf("could not update thread %v in DB with error %+v", threadID, err)
+		log.Error().Err(err).Msgf("could not update thread %v in DB", threadID)
 		Handle500(c)
 		return
 	}
@@ -96,7 +97,7 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 	// We flatten in order to do partial updates of nested documents correctly in mongodb
 	flattenedUpdateFields, err := flatbson.Flatten(threadChangeable)
 	if err != nil {
-		log.Error().Msgf("Could not flatten %+v, error: %+v", flattenedUpdateFields, err)
+		log.Error().Err(err).Msgf("Could not flatten %+v", flattenedUpdateFields)
 		return err
 	}
 	if len(flattenedUpdateFields) == 0 {
@@ -114,7 +115,7 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 		bson.M{"$set": flattenedUpdateFields},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to update internal DB with fields: %+v and error %v", flattenedUpdateFields, err)
+		log.Error().Err(err).Msgf("failed to update internal DB with fields: %+v", flattenedUpdateFields)
 		return err
 	}
 	if res.MatchedCount != 1 {

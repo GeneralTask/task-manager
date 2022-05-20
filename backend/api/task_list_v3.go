@@ -32,7 +32,7 @@ func (api *API) TasksListV3(c *gin.Context) {
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
-		log.Error().Msgf("failed to find user: %v", err)
+		log.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
 		return
 	}
@@ -151,7 +151,7 @@ func (api *API) extractSectionTasksV3(
 ) ([]*TaskSection, error) {
 	userSections, err := database.GetTaskSections(db, userID)
 	if err != nil {
-		log.Error().Msgf("failed to fetch task sections: %+v", err)
+		log.Error().Err(err).Msg("failed to fetch task sections")
 		return []*TaskSection{}, err
 	}
 	resultSections := []*TaskSection{

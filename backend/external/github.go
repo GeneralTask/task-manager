@@ -75,14 +75,14 @@ func (github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 	defer cancel()
 	token, err := github.Config.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
-		log.Error().Msgf("failed to fetch token from Github: %v", err)
+		log.Error().Err(err).Msg("failed to fetch token from Github")
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
 	log.Info().Msgf("token string: %s", string(tokenString))
 	if err != nil {
-		log.Error().Msgf("error parsing token: %v", err)
+		log.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
 	}
 
@@ -105,7 +105,7 @@ func (github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Msgf("error saving token: %v", err)
+		log.Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 	return nil

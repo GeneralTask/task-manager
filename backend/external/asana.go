@@ -62,7 +62,7 @@ func (asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 	defer cancel()
 	token, err := asana.Config.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
-		log.Error().Msgf("failed to fetch token from Asana: %v", err)
+		log.Error().Err(err).Msg("failed to fetch token from Asana")
 		return errors.New("internal server error")
 	}
 	tokenExtra := token.Extra("data")
@@ -78,7 +78,7 @@ func (asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		log.Error().Msgf("error parsing token: %v", err)
+		log.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
 	}
 
@@ -101,7 +101,7 @@ func (asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Msgf("error saving token: %v", err)
+		log.Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 

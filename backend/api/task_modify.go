@@ -61,7 +61,7 @@ func (api *API) TaskModify(c *gin.Context) {
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
 	if err != nil {
-		log.Error().Msgf("failed to load external task source: %v", err)
+		log.Error().Err(err).Msg("failed to load external task source")
 		Handle500(c)
 		return
 	}
@@ -75,7 +75,7 @@ func (api *API) TaskModify(c *gin.Context) {
 		// update external task
 		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskChangeableFields)
 		if err != nil {
-			log.Error().Msgf("failed to update external task source: %v", err)
+			log.Error().Err(err).Msg("failed to update external task source")
 			Handle500(c)
 			return
 		}
@@ -147,7 +147,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		bson.M{"$set": updateFields},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to update task in db: %v", err)
+		log.Error().Err(err).Msg("failed to update task in db")
 		Handle500(c)
 		return err
 	}
@@ -169,7 +169,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		bson.M{"$inc": bson.M{"id_ordering": 1}},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to move back other tasks in db: %v", err)
+		log.Error().Err(err).Msg("failed to move back other tasks in db")
 		Handle500(c)
 		return err
 	}
@@ -223,7 +223,7 @@ func UpdateTaskInDB(api *API, c *gin.Context, taskID primitive.ObjectID, userID 
 		bson.M{"$set": updateFields},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to update internal DB: %v", err)
+		log.Error().Err(err).Msg("failed to update internal DB")
 		Handle500(c)
 		return
 	}

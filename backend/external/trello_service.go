@@ -36,14 +36,14 @@ func (trello TrelloService) GetLinkURL(stateTokenID primitive.ObjectID, userID p
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
-		log.Error().Msgf("failed to connect to db: %v", err)
+		log.Error().Err(err).Msg("failed to connect to db")
 		return nil, err
 	}
 	defer dbCleanup()
 
 	requestToken, requestSecret, err := trello.Config.RequestToken()
 	if err != nil {
-		log.Error().Msgf("failed to get request token for link URL")
+		log.Error().Err(err).Msg("failed to get request token for link URL")
 		return nil, err
 	}
 	secret := database.Oauth1RequestSecret{
@@ -55,11 +55,11 @@ func (trello TrelloService) GetLinkURL(stateTokenID primitive.ObjectID, userID p
 	authSecretCollection := database.GetOauth1RequestsSecretsCollection(db)
 	_, err = authSecretCollection.DeleteMany(dbCtx, bson.M{"user_id": userID})
 	if err != nil {
-		log.Fatal().Msgf("failed to delete old request secrets: %v", err)
+		log.Fatal().Msgf("failed to delete old request secrets")
 	}
 	_, err = authSecretCollection.InsertOne(dbCtx, &secret)
 	if err != nil {
-		log.Error().Msgf("failed to create new request secret: %v", err)
+		log.Error().Err(err).Msg("failed to create new request secret")
 		return nil, err
 	}
 	authURL, _ := trello.Config.AuthorizationURL(requestToken)
@@ -84,19 +84,19 @@ func (trello TrelloService) HandleLinkCallback(params CallbackParams, userID pri
 	var secret database.Oauth1RequestSecret
 	err = database.GetOauth1RequestsSecretsCollection(db).FindOne(dbCtx, bson.M{"user_id": userID}).Decode(&secret)
 	if err != nil {
-		log.Error().Msgf("failed to load request secret: %v", err)
+		log.Error().Err(err).Msg("failed to load request secret")
 	}
 
 	accessToken, accessSecret, err := trello.Config.AccessToken(*params.Oauth1Token, secret.RequestSecret, *params.Oauth1Verifier)
 	if err != nil {
-		log.Error().Msgf("failed to fetch token from trello: %v", err)
+		log.Error().Err(err).Msg("failed to fetch token from trello")
 		return errors.New("internal server error")
 	}
 	token := oauth1.NewToken(accessToken, accessSecret)
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		log.Error().Msgf("error parsing token: %v", err)
+		log.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
 	}
 
@@ -116,7 +116,7 @@ func (trello TrelloService) HandleLinkCallback(params CallbackParams, userID pri
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Msgf("error saving token: %v", err)
+		log.Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 	return nil
