@@ -1,11 +1,11 @@
 package slack
 
 import (
-	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/GeneralTask/task-manager/backend/testutils"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -17,7 +17,7 @@ func TestSendFeedbackMessage(t *testing.T) {
 		assert.Equal(t, "missing slack webhook setting", err.Error())
 	})
 	t.Run("BadResponse", func(t *testing.T) {
-		server := getSlackServer(t, http.StatusBadRequest)
+		server := testutils.GetMockAPIServer(t, http.StatusBadRequest, `{}`)
 		err := os.Setenv("SLACK_WEBHOOK_FEEDBACK", server.URL)
 		assert.NoError(t, err)
 		err = SendFeedbackMessage("$hood to the moon")
@@ -27,7 +27,7 @@ func TestSendFeedbackMessage(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("Success", func(t *testing.T) {
-		server := getSlackServer(t, http.StatusOK)
+		server := testutils.GetMockAPIServer(t, http.StatusOK, `{}`)
 		err := os.Setenv("SLACK_WEBHOOK_FEEDBACK", server.URL)
 		assert.NoError(t, err)
 		err = SendFeedbackMessage("$hood to the moon")
@@ -35,14 +35,4 @@ func TestSendFeedbackMessage(t *testing.T) {
 		err = os.Unsetenv("SLACK_WEBHOOK_FEEDBACK")
 		assert.NoError(t, err)
 	})
-}
-
-func getSlackServer(t *testing.T, statusCode int) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := ioutil.ReadAll(r.Body)
-		assert.NoError(t, err)
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(statusCode)
-		w.Write([]byte("{}"))
-	}))
 }
