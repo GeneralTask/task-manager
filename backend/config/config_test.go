@@ -9,7 +9,7 @@ import (
 
 func TestGetConfigValue(t *testing.T) {
 	t.Run("Default", func(t *testing.T) {
-		assert.Equal(t, "mongodb://root:password@localhost:27017", GetConfigValue("MONGO_URI"))
+		assert.Equal(t, "mongodb://root:example@localhost:27017", GetConfigValue("MONGO_URI"))
 	})
 	t.Run("Override", func(t *testing.T) {
 		err := os.Setenv("MONGO_URI", "oopsie whoopsie")
