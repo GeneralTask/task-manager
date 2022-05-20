@@ -72,9 +72,6 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 
 	api := slack.New(token.AccessToken)
 	api.GetUserIdentity()
-	// If you set debugging, it will log all requests to the console
-	// Useful when encountering issues
-	// slack.New("YOUR_TOKEN_HERE", slack.OptionDebug(true))
 	userInfo, err := api.AuthTest()
 	if err != nil {
 		log.Error().Msgf("failed to get user identity: %v", err)
