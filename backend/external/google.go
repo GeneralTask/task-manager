@@ -3,9 +3,10 @@ package external
 import (
 	"context"
 	"encoding/json"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -95,13 +96,13 @@ func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID pri
 	defer dbCleanup()
 	token, err := Google.LinkConfig.Exchange(context.Background(), *params.Oauth2Code)
 	if err != nil {
-		log.Error().Msgf("failed to fetch token from google: %v", err)
+		log.Error().Err(err).Msg("failed to fetch token from google")
 		return err
 	}
 	client := Google.LinkConfig.Client(context.Background(), token)
 	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
-		log.Error().Msgf("failed to load user info: %v", err)
+		log.Error().Err(err).Msg("failed to load user info")
 		return err
 	}
 	defer response.Body.Close()
@@ -109,12 +110,12 @@ func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID pri
 
 	err = json.NewDecoder(response.Body).Decode(&userInfo)
 	if err != nil {
-		log.Error().Msgf("failed to load decode user info: %v", err)
+		log.Error().Err(err).Msg("failed to load decode user info")
 		return err
 	}
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		log.Error().Msgf("failed to load token: %v", err)
+		log.Error().Err(err).Msg("failed to load token")
 		return err
 	}
 
@@ -139,7 +140,7 @@ func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID pri
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Msgf("failed to fetch token from google: %v", err)
+		log.Error().Err(err).Msg("failed to fetch token from google")
 		return err
 	}
 	return nil
@@ -158,7 +159,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	defer cancel()
 	token, err := Google.LoginConfig.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
-		log.Error().Msgf("failed to fetch token from google: %v", err)
+		log.Error().Err(err).Msg("failed to fetch token from google")
 
 		return primitive.NilObjectID, nil, nil, err
 	}
@@ -167,7 +168,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	client := Google.LoginConfig.Client(extCtx, token)
 	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
-		log.Error().Msgf("failed to load user info: %v", err)
+		log.Error().Err(err).Msg("failed to load user info")
 
 		return primitive.NilObjectID, nil, nil, err
 	}
@@ -176,7 +177,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 
 	err = json.NewDecoder(response.Body).Decode(&userInfo)
 	if err != nil {
-		log.Error().Msgf("error decoding JSON: %v", err)
+		log.Error().Err(err).Msg("error decoding JSON")
 
 		return primitive.NilObjectID, nil, nil, err
 	}
@@ -220,7 +221,7 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 	).Decode(&user)
 
 	if user.ID == primitive.NilObjectID {
-		log.Error().Msgf("unable to create user")
+		log.Error().Msg("unable to create user")
 		return primitive.NilObjectID, &userIsNew, nil, err
 	}
 

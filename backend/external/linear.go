@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
+
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -14,7 +16,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/oauth2"
-	"net/http"
 )
 
 const (
@@ -59,7 +60,7 @@ func (linear LinearService) HandleLinkCallback(params CallbackParams, userID pri
 	defer cancel()
 	token, err := linear.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
-		log.Error().Msgf("failed to fetch token from Linear: %v", err)
+		log.Error().Err(err).Msg("failed to fetch token from Linear")
 		return errors.New("internal server error")
 	}
 	log.Debug().Interface("token", token).Send()
@@ -67,7 +68,7 @@ func (linear LinearService) HandleLinkCallback(params CallbackParams, userID pri
 	tokenString, err := json.Marshal(&token)
 	log.Info().Msgf("token string: %s", string(tokenString))
 	if err != nil {
-		log.Error().Msgf("error parsing token: %v", err)
+		log.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
 	}
 
@@ -95,7 +96,7 @@ func (linear LinearService) HandleLinkCallback(params CallbackParams, userID pri
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Msgf("error saving token: %v", err)
+		log.Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 

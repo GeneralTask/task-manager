@@ -33,7 +33,7 @@ func (api *API) SectionList(c *gin.Context) {
 
 	sections, err := database.GetTaskSections(db, userID.(primitive.ObjectID))
 	if err != nil {
-		log.Error().Msgf("failed to fetch sections for user: %+v", err)
+		log.Error().Err(err).Msg("failed to fetch sections for user")
 		Handle500(c)
 		return
 	}
@@ -52,7 +52,7 @@ func (api *API) SectionAdd(c *gin.Context) {
 	var params SectionParams
 	err := c.BindJSON(&params)
 	if err != nil {
-		log.Error().Msgf("error: %v", err)
+		log.Error().Err(err).Msg("error")
 		c.JSON(400, gin.H{"detail": "invalid or missing 'name' parameter."})
 		return
 	}
@@ -77,7 +77,7 @@ func (api *API) SectionAdd(c *gin.Context) {
 		},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to insert section: %+v", err)
+		log.Error().Err(err).Msg("failed to insert section")
 		Handle500(c)
 		return
 	}
@@ -96,7 +96,7 @@ func (api *API) SectionModify(c *gin.Context) {
 	var params SectionParams
 	err = c.BindJSON(&params)
 	if err != nil {
-		log.Error().Msgf("error: %v", err)
+		log.Error().Err(err).Msg("error")
 		c.JSON(400, gin.H{"detail": "invalid or missing 'name' parameter."})
 		return
 	}
@@ -123,7 +123,7 @@ func (api *API) SectionModify(c *gin.Context) {
 		bson.M{"$set": bson.M{"name": params.Name}},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to update internal DB: %+v", err)
+		log.Error().Err(err).Msg("failed to update internal DB")
 		Handle500(c)
 		return
 	}

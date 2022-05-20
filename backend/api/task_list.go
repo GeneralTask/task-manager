@@ -85,14 +85,14 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to fetch api tokens: %v", err)
+		log.Error().Err(err).Msg("failed to fetch api tokens")
 		return nil, nil, err
 	}
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
-		log.Error().Msgf("failed to iterate through api tokens: %v", err)
+		log.Error().Err(err).Msg("failed to iterate through api tokens")
 		return nil, nil, err
 	}
 	// add dummy token for gt_task fetch logic
@@ -107,7 +107,7 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
-			log.Error().Msgf("error loading task service: %v", err)
+			log.Error().Err(err).Msg("error loading task service")
 			continue
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
@@ -164,7 +164,7 @@ func adjustForCompletedTasks(
 		if !newTaskIDs[currentTask.ID] && !currentTask.IsMessage && !failedFetchSources[currentTask.SourceID] {
 			err := database.MarkItemComplete(db, currentTask.ID)
 			if err != nil {
-				log.Error().Msgf("failed to update task ordering ID: %v", err)
+				log.Error().Err(err).Msg("failed to update task ordering ID")
 				return err
 			}
 			for _, newTask := range newTasks {
@@ -192,7 +192,7 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 			bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
 		)
 		if err != nil {
-			log.Error().Msgf("failed to update task ordering ID: %v", err)
+			log.Error().Err(err).Msg("failed to update task ordering ID")
 			return err
 		}
 		if res.MatchedCount != 1 {

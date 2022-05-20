@@ -107,7 +107,7 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Err(err).Msgf("error saving token")
+		log.Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 	return nil
