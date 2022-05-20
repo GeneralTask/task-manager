@@ -32,4 +32,3 @@ infrastructure/.terraform/*
 
 # Kube Config
 kube-manifests/kube_secrets.yaml
-
