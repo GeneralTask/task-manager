@@ -85,7 +85,7 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 	}
 	userInfo, err := api.AuthTest()
 	if err != nil {
-		log.Error().Msgf("failed to get user identity: %v", err)
+		log.Error().Msgf("failed to get user identity", err)
 		return errors.New("internal server error")
 	}
 
@@ -99,7 +99,7 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 			UserID:         userID,
 			ServiceID:      TASK_SERVICE_ID_SLACK,
 			Token:          string(tokenString),
-			AccountID:      userInfo.TeamID + userInfo.UserID,
+			AccountID:      fmt.Sprintf("%s-%s", userInfo.TeamID, userInfo.UserID),
 			DisplayID:      fmt.Sprintf("%s (%s)", userInfo.User, userInfo.Team),
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
