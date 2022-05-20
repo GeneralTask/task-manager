@@ -25,22 +25,16 @@ type SlackService struct {
 // guide for local testing: https://slack.dev/node-slack-sdk/tutorials/local-development
 // slack api oauth page: https://api.slack.com/apps/A022SRD9GD9/oauth
 // sign in with slack: https://api.slack.com/authentication/sign-in-with-slack
+
 func getSlackConfig() *OauthConfig {
 	return &OauthConfig{Config: &oauth2.Config{
 		ClientID:     config.GetConfigValue("SLACK_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("SLACK_OAUTH_CLIENT_SECRET"),
-		RedirectURL:  "https://ade5-2603-3024-180b-f100-f19e-d40-590b-db13.ngrok.io/link/slack/callback",
-		// RedirectURL:  "https://api.generaltask.com/link/slack/callback",
-		Scopes: []string{"identify", "channels:history", "channels:read", "im:read", "mpim:history", "im:history", "groups:history", "groups:read", "mpim:write", "im:write", "channels:write", "groups:write", "chat:write:user"},
-		// Scopes: []string{"identity.basic", "identity.email"},
-		// Scopes: []string{"openid", "email"},
+		RedirectURL:  config.GetConfigValue("SERVER_URL") + "link/slack/callback/",
+		Scopes:       []string{"identify", "channels:history", "channels:read", "im:read", "mpim:history", "im:history", "groups:history", "groups:read", "mpim:write", "im:write", "channels:write", "groups:write", "chat:write:user"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://slack.com/oauth/authorize",
 			TokenURL: "https://slack.com/api/oauth.access",
-			// AuthURL:  "https://slack.com/oauth/v2/authorize",
-			// TokenURL: "https://slack.com/api/oauth.v2.access",
-			// AuthURL:  "https://slack.com/openid/connect/authorize",
-			// TokenURL: "https://slack.com/openid/connect/token",
 		},
 	}}
 }
