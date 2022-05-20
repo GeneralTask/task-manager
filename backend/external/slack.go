@@ -24,7 +24,6 @@ type SlackService struct {
 
 // guide for local testing: https://slack.dev/node-slack-sdk/tutorials/local-development
 // slack api oauth page: https://api.slack.com/apps/A022SRD9GD9/oauth
-// sign in with slack: https://api.slack.com/authentication/sign-in-with-slack
 
 func getSlackConfig() *OauthConfig {
 	return &OauthConfig{Config: &oauth2.Config{
