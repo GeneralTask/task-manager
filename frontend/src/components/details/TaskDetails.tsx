@@ -1,4 +1,3 @@
-import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import ActionOption from '../molecules/ActionOption'
 import { Icon } from '../atoms/Icon'
@@ -10,10 +9,74 @@ import { logos } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
-import { Spacing } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
+import { INPUT_VARIABLE_DEFAULT_LINE_HEIGHT } from '../../styles/dimensions'
 
+const DetailsViewContainer = styled.div`
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: ${Colors.gray._50};
+    min-width: 300px;
+    margin-top: ${Spacing.margin._24}px;
+    padding: ${Spacing.padding._16}px;
+`
+const DetailsTopContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    z-index: 1;
+    height: 50px;
+`
+const TaskTitleContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`
+const BodyContainer = styled.div`
+    flex: 1;
+`
+export const BodyTextArea = styled.textarea`
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-color: inherit;
+    border: 1px solid transparent;
+    resize: none;
+    outline: none;
+    overflow: auto;
+    padding: ${Spacing.margin._8}px;
+    font: inherit;
+    color: ${Colors.gray._600};
+    font-size: ${Typography.xSmall.fontSize};
+    box-sizing: border-box;
+    :focus {
+        border: 1px solid ${Colors.gray._500};
+    }
+`
+export const FlexGrowView = styled.div`
+    flex: 1;
+`
+export const TitleInput = styled.textarea`
+    background-color: inherit;
+    color: ${Colors.gray._600};
+    font: inherit;
+    font-size: ${Typography.large.fontSize};
+    font-weight: ${Typography.weight._600};
+    border: none;
+    resize: none;
+    outline: none;
+    overflow: hidden;
+    display: flex;
+    flex: 1;
+    margin-bottom: ${Spacing.margin._16}px;
+    :focus {
+        outline: 1px solid ${Colors.gray._500};
+    }
+    height: ${INPUT_VARIABLE_DEFAULT_LINE_HEIGHT}px;
+`
 const SYNC_MESSAGES = {
     SYNCING: 'Syncing...',
     ERROR: 'There was an error syncing with our servers',
@@ -108,30 +171,28 @@ const TaskDetails = (props: TaskDetailsProps) => {
     const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
 
     return (
-        <DetailsTemplate
-            top={
-                <>
-                    <MarginRight8>
-                        <Icon source={icon} size="small" />
-                    </MarginRight8>
-                    <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
-                    <FlexGrowView />
-                    <MarginRight16>
-                        {task.deeplink && (
-                            <a href={task.deeplink} target="_blank" rel="noreferrer">
-                                <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
-                            </a>
-                        )}
-                    </MarginRight16>
-                    <ActionOption
-                        isShown={labelEditorShown}
-                        setIsShown={setLabelEditorShown}
-                        task={task}
-                        keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
-                    />
-                </>
-            }
-            title={
+        <DetailsViewContainer data-testid="details-view-container">
+            <DetailsTopContainer>
+                <MarginRight8>
+                    <Icon source={icon} size="small" />
+                </MarginRight8>
+                <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
+                <FlexGrowView />
+                <MarginRight16>
+                    {task.deeplink && (
+                        <a href={task.deeplink} target="_blank" rel="noreferrer">
+                            <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
+                        </a>
+                    )}
+                </MarginRight16>
+                <ActionOption
+                    isShown={labelEditorShown}
+                    setIsShown={setLabelEditorShown}
+                    task={task}
+                    keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
+                />
+            </DetailsTopContainer>
+            <TaskTitleContainer>
                 <TitleInput
                     ref={titleRef}
                     data-testid="task-title-input"
@@ -142,9 +203,9 @@ const TaskDetails = (props: TaskDetailsProps) => {
                         onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                     }}
                 />
-            }
-            body={
-                task.source.name === 'Gmail' ? (
+            </TaskTitleContainer>
+            <BodyContainer>
+                {task.source.name === 'Gmail' ? (
                     <SanitizedHTML dirtyHTML={bodyInput} />
                 ) : (
                     <BodyTextArea
@@ -158,9 +219,9 @@ const TaskDetails = (props: TaskDetailsProps) => {
                         }}
                         onKeyDown={(e) => e.stopPropagation()}
                     />
-                )
-            }
-        />
+                )}
+            </BodyContainer>
+        </DetailsViewContainer>
     )
 }
 
