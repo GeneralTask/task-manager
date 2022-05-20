@@ -69,13 +69,13 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 	defer cancel()
 	token, err := slackService.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
-		log.Error().Msgf("failed to fetch token from Slack: %v", err)
+		log.Error().Err(err).Msg("failed to fetch token from Slack")
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		log.Error().Msgf("error parsing token: %v", err)
+		log.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
 	}
 
@@ -85,7 +85,7 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 	}
 	userInfo, err := api.AuthTest()
 	if err != nil {
-		log.Error().Msgf("failed to get user identity", err)
+		log.Error().Err(err).Msg("failed to get user identity")
 		return errors.New("internal server error")
 	}
 
@@ -107,7 +107,7 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Msgf("error saving token: %v", err)
+		log.Error().Err(err).Msgf("error saving token")
 		return errors.New("internal server error")
 	}
 	return nil
