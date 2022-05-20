@@ -32,9 +32,13 @@ module.exports = {
                 use: "babel-loader",
             },
             {
-                test: /\.css$/i,
-                use: ['style-loader', 'css-loader'],
-                exclude: /node_modules/,
+                test: /\.css$/,
+                use: ["style-loader", "css-loader"],
+                include: [
+                    path.resolve(__dirname, 'src'),
+                    path.resolve(__dirname, 'node_modules/react-toastify'),
+                    path.resolve(__dirname, 'node_modules/animate.css'),
+                ]
             },
         ],
     },

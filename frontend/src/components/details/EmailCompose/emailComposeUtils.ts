@@ -1,6 +1,7 @@
 import { TEmail, TRecipients } from "../../../utils/types"
 
 import { EmailComposeType } from "../../../utils/enums"
+import { DateTime } from "luxon"
 
 const prefixes = ['Re: ', 'Fwd: ', 'Fw: ']
 
@@ -44,3 +45,5 @@ export function getInitialRecipients(email: TEmail, composeType: EmailComposeTyp
 }
 
 export const emailsToRecipients = (emails: string[]) => emails.map(email => ({ email, name: '' }))
+
+export const formatSentAtDateTime = (date: string) => DateTime.fromISO(date).toLocaleString(DateTime.DATETIME_MED)

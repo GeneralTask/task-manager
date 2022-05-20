@@ -162,6 +162,10 @@ export const useCreateTaskFromThread = () => {
                     sender: '',
                     is_done: false,
                     recipients: {} as TRecipients,
+                    linked_email_thread: {
+                        linked_thread_id: data.thread_id,
+                        emails: []
+                    }
                 },
                 ...sections[0].tasks
             ]

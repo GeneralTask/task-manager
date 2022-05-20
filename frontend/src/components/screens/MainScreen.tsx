@@ -18,6 +18,15 @@ import {
 } from '../../services/api-query-hooks'
 import { useInterval } from '../../hooks'
 import { MESSAGES_REFETCH_INTERVAL, TASK_REFETCH_INTERVAL } from '../../constants'
+import 'react-toastify/dist/ReactToastify.css'
+import 'animate.css'
+import { cssTransition } from 'react-toastify'
+import StyledToastContainer from '../atoms/toast/StyledToastContainer'
+
+const toastAnimation = cssTransition({
+    enter: 'animate__animated animate__fadeInRight',
+    exit: 'animate__animated animate__fadeOutRight',
+})
 
 const MainScreen = () => {
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
@@ -58,6 +67,7 @@ const MainScreen = () => {
                     <CalendarView />
                 </>
             </DefaultTemplate>
+            <StyledToastContainer hideProgressBar position="bottom-right" transition={toastAnimation} />
         </DndProvider>
     )
 }
