@@ -1,14 +1,12 @@
 package api
 
 import (
-	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/stretchr/testify/assert"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 )
 
 const LinearTokenPayload string = `{"access_token":"sample-linear-access-token"}`
@@ -48,27 +46,17 @@ func TestLinkLinearCallback(t *testing.T) {
 		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/link/linear/callback/")
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
-		server := getTokenServerForLinear(t, http.StatusUnauthorized, LinearTokenPayload)
+		server := testutils.GetMockAPIServer(t, http.StatusUnauthorized, LinearTokenPayload)
 		api := GetAPI()
 		(api.ExternalConfig.Linear.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/link/linear/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
 		api := GetAPI()
-		tokenServer := getTokenServerForLinear(t, http.StatusOK, LinearTokenPayload)
+		tokenServer := testutils.GetMockAPIServer(t, http.StatusOK, LinearTokenPayload)
 		(api.ExternalConfig.Linear.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = tokenServer.URL
-		userInfoServer := getTokenServerForLinear(t, http.StatusOK, LinearUserInfoPayload)
+		userInfoServer := testutils.GetMockAPIServer(t, http.StatusOK, LinearUserInfoPayload)
 		api.ExternalConfig.Linear.ConfigValues.UserInfoURL = &userInfoServer.URL
 		TestAuthorizeCallbackSuccessfulResponse(t, api, "/link/linear/callback/", external.TASK_SERVICE_ID_LINEAR)
 	})
-}
-
-func getTokenServerForLinear(t *testing.T, statusCode int, body string) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := ioutil.ReadAll(r.Body)
-		assert.NoError(t, err)
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(statusCode)
-		w.Write([]byte(body))
-	}))
 }
