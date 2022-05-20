@@ -29,7 +29,7 @@ type Config struct {
 	Github                OauthConfigWrapper
 	GoogleLoginConfig     OauthConfigWrapper
 	GoogleAuthorizeConfig OauthConfigWrapper
-	Slack                 OauthConfigWrapper
+	Slack                 SlackConfig
 	Trello                *oauth1.Config
 	Asana                 OauthConfigWrapper
 	GoogleOverrideURLs    GoogleURLOverrides

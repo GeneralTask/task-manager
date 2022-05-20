@@ -18,28 +18,38 @@ import (
 	"golang.org/x/oauth2"
 )
 
+type SlackConfigValues struct {
+	UserInfoURL *string
+}
+
+type SlackConfig struct {
+	OauthConfig  OauthConfigWrapper
+	ConfigValues SlackConfigValues
+}
+
 type SlackService struct {
-	Config OauthConfigWrapper
+	Config SlackConfig
 }
 
 // guide for local testing: https://slack.dev/node-slack-sdk/tutorials/local-development
 // slack api oauth page: https://api.slack.com/apps/A022SRD9GD9/oauth
 
-func getSlackConfig() *OauthConfig {
-	return &OauthConfig{Config: &oauth2.Config{
-		ClientID:     config.GetConfigValue("SLACK_OAUTH_CLIENT_ID"),
-		ClientSecret: config.GetConfigValue("SLACK_OAUTH_CLIENT_SECRET"),
-		RedirectURL:  config.GetConfigValue("SERVER_URL") + "link/slack/callback/",
-		Scopes:       []string{"identify", "channels:history", "channels:read", "im:read", "mpim:history", "im:history", "groups:history", "groups:read", "mpim:write", "im:write", "channels:write", "groups:write", "chat:write:user"},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://slack.com/oauth/authorize",
-			TokenURL: "https://slack.com/api/oauth.access",
-		},
-	}}
+func getSlackConfig() SlackConfig {
+	return SlackConfig{
+		OauthConfig: &OauthConfig{Config: &oauth2.Config{
+			ClientID:     config.GetConfigValue("SLACK_OAUTH_CLIENT_ID"),
+			ClientSecret: config.GetConfigValue("SLACK_OAUTH_CLIENT_SECRET"),
+			RedirectURL:  config.GetConfigValue("SERVER_URL") + "link/slack/callback/",
+			Scopes:       []string{"identify", "channels:history", "channels:read", "im:read", "mpim:history", "im:history", "groups:history", "groups:read", "mpim:write", "im:write", "channels:write", "groups:write", "chat:write:user"},
+			Endpoint: oauth2.Endpoint{
+				AuthURL:  "https://slack.com/oauth/authorize",
+				TokenURL: "https://slack.com/api/oauth.access",
+			},
+		}}}
 }
 
 func (slackService SlackService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	authURL := slackService.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	authURL := slackService.Config.OauthConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
 }
 
@@ -57,7 +67,7 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := slackService.Config.Exchange(extCtx, *params.Oauth2Code)
+	token, err := slackService.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
 		log.Error().Msgf("failed to fetch token from Slack: %v", err)
 		return errors.New("internal server error")
@@ -70,14 +80,13 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 	}
 
 	api := slack.New(token.AccessToken)
-	api.GetUserIdentity()
+	if slackService.Config.ConfigValues.UserInfoURL != nil {
+		api = slack.New(token.AccessToken, slack.OptionAPIURL(*slackService.Config.ConfigValues.UserInfoURL))
+	}
 	userInfo, err := api.AuthTest()
 	if err != nil {
 		log.Error().Msgf("failed to get user identity: %v", err)
 		return errors.New("internal server error")
-	}
-	if userInfo != nil {
-		fmt.Println("userInfo:", *userInfo, userInfo.User, userInfo.UserID)
 	}
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
