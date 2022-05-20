@@ -63,18 +63,19 @@ export const TitleInput = styled.textarea`
         outline: 1px solid ${Colors.gray._500};
     }
 `
-const SYNC_MESSAGES = {
-    SYNCING: 'Syncing...',
-    ERROR: 'There was an error syncing with our servers',
-    COMPLETE: '',
-}
-
 const MarginLeftAuto = styled.div`
     margin-left: auto;
 `
 const MarginRight8 = styled.div`
     margin-right: ${Spacing.margin._8}px;
 `
+
+const SYNC_MESSAGES = {
+    SYNCING: 'Syncing...',
+    ERROR: 'There was an error syncing with our servers',
+    COMPLETE: '',
+}
+
 interface TaskDetailsProps {
     task: TTask
 }
