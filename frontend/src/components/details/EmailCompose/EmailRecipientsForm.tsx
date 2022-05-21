@@ -10,6 +10,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { Divider } from '../../atoms/SectionDivider'
 import { Icon } from '../../atoms/Icon'
+import MultiEmailInput from './MultiEmailInput'
 import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 import { ReactMultiEmail } from 'react-multi-email'
 import { TRecipients } from '../../../utils/types'
@@ -81,6 +82,12 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
                 </AddEmailRecipientsContainer>
             )}
             <Divider color={Colors.gray._200} />
+
+            <FlexExpand>
+                <MultiEmailInput recipients={recipients.to} />
+            </FlexExpand>
+            <Divider color={Colors.gray._200} />
+
             {showCc && (
                 <>
                     <FlexExpand>

@@ -16,7 +16,7 @@ import { Divider } from '../../atoms/SectionDivider'
 import { EMAIL_UNDO_TIMEOUT } from '../../../constants'
 import { EmailComposeType } from '../../../utils/enums'
 import EmailComposeTypeSelector from './EmailComposeTypeSelector'
-import EmailRecipientsInput from './EmailRecipientsInput'
+import EmailRecipientsForm from './EmailRecipientsForm'
 import EmailWithQuote from './EmailWithQuote'
 import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
@@ -107,7 +107,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                 <EmailComposeTypeSelector email={props.email} setThreadComposeState={props.setThreadComposeState} />
             </ComposeSelectorButtonContainer>
             <EmailComposeFormContainer ref={(node) => node?.scrollIntoView()}>
-                <EmailRecipientsInput recipients={recipients} setRecipients={setRecipients} />
+                <EmailRecipientsForm recipients={recipients} setRecipients={setRecipients} />
                 <SubjectContainer>
                     <SubjectInput
                         className="email-header"
