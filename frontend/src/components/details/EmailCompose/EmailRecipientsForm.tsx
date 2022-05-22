@@ -58,7 +58,9 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
             )}
             {showBcc && (
                 <>
-                    <MultiEmailInput recipients={recipients.bcc} title="Bcc:" updateRecipients={onBccChange} />
+                    <FlexExpand>
+                        <MultiEmailInput recipients={recipients.bcc} title="Bcc:" updateRecipients={onBccChange} />
+                    </FlexExpand>
                     <Divider color={Colors.gray._200} />
                 </>
             )}
