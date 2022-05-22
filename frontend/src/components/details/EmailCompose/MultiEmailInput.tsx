@@ -68,7 +68,6 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>(
                     <EmailTag key={email}>
                         {email}
                         <NoStyleButton
-                            data-tag-handle
                             onClick={() => {
                                 deleteRecipient(email)
                             }}
