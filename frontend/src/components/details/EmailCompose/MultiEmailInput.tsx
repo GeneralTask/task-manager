@@ -83,6 +83,9 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>(
                     value={text}
                     onChange={handleChange}
                     onKeyDown={(e) => handleKeyDown(e, text)}
+                    onBlur={() => {
+                        addRecipientIfValid(text)
+                    }}
                 />
             </EmailFieldContainer>
         )
