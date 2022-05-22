@@ -15,7 +15,7 @@ const SubjectInput = styled.input`
     ${EmailInput}
 `
 
-const ADD_RECIPIENT_KEYBOARD_SHORTCUTS = ['Enter', 'Tab', ' ', ',', ';']
+const ADD_RECIPIENT_KEYBOARD_SHORTCUTS = ['Enter', 'Tab', ' ', ',']
 const DELETE_RECIPIENT_KEYBOARD_SHORTCUTS = 'Backspace'
 
 interface MultiEmailInputProps {

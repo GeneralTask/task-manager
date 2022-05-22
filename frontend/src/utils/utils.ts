@@ -58,4 +58,6 @@ export const getHumanDateTime = (date: DateTime) => {
 // to avoid creating empty placeholder functions across the app
 export const emptyFunction = () => void 0
 
-export const isValidEmail = (email: string): boolean => (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email))
+// https://stackoverflow.com/a/46181/12679075
+export const isValidEmail = (email: string): boolean =>
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email.toLowerCase())

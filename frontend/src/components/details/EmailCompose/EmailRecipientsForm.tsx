@@ -2,19 +2,14 @@ import {
     AddEmailRecipientsButton,
     AddEmailRecipientsContainer,
     EmailRecipientsContainer,
-    EmailTag,
     FlexExpand,
 } from './EmailCompose-styles'
-import { Colors, Images } from '../../../styles'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { TRecipient, TRecipients } from '../../../utils/types'
 
+import { Colors } from '../../../styles'
 import { Divider } from '../../atoms/SectionDivider'
-import { Icon } from '../../atoms/Icon'
 import MultiEmailInput from './MultiEmailInput'
-import NoStyleButton from '../../atoms/buttons/NoStyleButton'
-import { ReactMultiEmail } from 'react-multi-email'
-import { emailsToRecipients } from './emailComposeUtils'
 
 interface EmailRecipientsInputProps {
     recipients: TRecipients
@@ -22,59 +17,26 @@ interface EmailRecipientsInputProps {
 }
 
 const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInputProps) => {
-    // using memo here so that the recipients inputs will not clear on re-render (such as when messages are refetched)
-    const toEmails = useMemo(() => recipients.to.map((r) => r.email), [recipients.to])
-    const ccEmails = useMemo(() => recipients.cc.map((r) => r.email), [recipients.cc])
-    const bccEmails = useMemo(() => recipients.bcc.map((r) => r.email), [recipients.bcc])
-
     const [showCc, setShowCc] = useState(recipients.cc.length > 0)
     const [showBcc, setShowBcc] = useState(recipients.bcc.length > 0)
 
     const onToChange = useCallback(
-        (newEmails: string[]) => setRecipients((recipients) => ({ ...recipients, to: emailsToRecipients(newEmails) })),
-        []
-    )
-    const onToChange2 = useCallback(
         (newEmails: TRecipient[]) => setRecipients((recipients) => ({ ...recipients, to: newEmails })),
         []
     )
     const onCcChange = useCallback(
-        (newEmails: string[]) => setRecipients((recipients) => ({ ...recipients, cc: emailsToRecipients(newEmails) })),
+        (newEmails: TRecipient[]) => setRecipients((recipients) => ({ ...recipients, cc: newEmails })),
         []
     )
     const onBccChange = useCallback(
-        (newEmails: string[]) => setRecipients((recipients) => ({ ...recipients, bcc: emailsToRecipients(newEmails) })),
+        (newEmails: TRecipient[]) => setRecipients((recipients) => ({ ...recipients, bcc: newEmails })),
         []
     )
-
-    const getLabel = useCallback((email: string, index: number, removeEmail: (index: number) => void) => {
-        return (
-            <EmailTag key={email}>
-                {email}
-                <NoStyleButton data-tag-handle onClick={() => removeEmail(index)}>
-                    <Icon size="xSmall" source={Images.icons.x} />
-                </NoStyleButton>
-            </EmailTag>
-        )
-    }, [])
 
     return (
         <EmailRecipientsContainer>
             <FlexExpand>
-                <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
-            </FlexExpand>
-            {(!showCc || !showBcc) && (
-                <AddEmailRecipientsContainer>
-                    {!showCc && <AddEmailRecipientsButton onClick={() => setShowCc(true)}>Cc</AddEmailRecipientsButton>}
-                    {!showBcc && (
-                        <AddEmailRecipientsButton onClick={() => setShowBcc(true)}>Bcc</AddEmailRecipientsButton>
-                    )}
-                </AddEmailRecipientsContainer>
-            )}
-            <Divider color={Colors.gray._200} />
-
-            <FlexExpand>
-                <MultiEmailInput recipients={recipients.to} title="To:" updateRecipients={onToChange2} />
+                <MultiEmailInput recipients={recipients.to} title="To:" updateRecipients={onToChange} />
             </FlexExpand>
             {(!showCc || !showBcc) && (
                 <AddEmailRecipientsContainer>
@@ -89,26 +51,14 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
             {showCc && (
                 <>
                     <FlexExpand>
-                        <ReactMultiEmail
-                            emails={ccEmails}
-                            onChange={onCcChange}
-                            placeholder="Cc:"
-                            getLabel={getLabel}
-                        />
+                        <MultiEmailInput recipients={recipients.cc} title="Cc:" updateRecipients={onCcChange} />
                     </FlexExpand>
                     <Divider color={Colors.gray._200} />
                 </>
             )}
             {showBcc && (
                 <>
-                    <FlexExpand>
-                        <ReactMultiEmail
-                            emails={bccEmails}
-                            onChange={onBccChange}
-                            placeholder="Bcc:"
-                            getLabel={getLabel}
-                        />
-                    </FlexExpand>
+                    <MultiEmailInput recipients={recipients.bcc} title="Bcc:" updateRecipients={onBccChange} />
                     <Divider color={Colors.gray._200} />
                 </>
             )}
