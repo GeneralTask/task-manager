@@ -7283,11 +7283,6 @@ react-modal@^3.14.4:
     react-lifecycles-compat "^3.0.0"
     warning "^4.0.3"
 
-react-multi-email@^0.5.3:
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/react-multi-email/-/react-multi-email-0.5.3.tgz#734a0d4d1af23feef5cb5e635bde23963b0a9e8b"
-  integrity sha512-1AneeJlAwjvzkPV740q2SXes/kW3HKOzR3gs+U7whrHN5nz+yH5Unosf/rvz8kRj/eFwBf6fTzMqlJiupu7S5Q==
-
 react-query@^3.34.16:
   version "3.34.16"
   resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.34.16.tgz#279ea180bcaeaec49c7864b29d1711ee9f152594"
