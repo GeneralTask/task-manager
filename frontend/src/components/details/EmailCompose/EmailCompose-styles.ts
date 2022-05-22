@@ -1,10 +1,9 @@
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
-import styled, { css } from 'styled-components'
 
 import NoStyleButton from '../../atoms/buttons/NoStyleButton'
+import styled from 'styled-components'
 
-// EmailInputContainer and EmailInput are adapted from 'react-multi-email/style.css'
-export const EmailInputContainer = css`
+export const EmailFieldContainer = styled.div`
     margin: 0;
     flex: 1 0 auto;
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
@@ -15,9 +14,10 @@ export const EmailInputContainer = css`
     flex-wrap: wrap;
     align-items: center;
     row-gap: ${Spacing.margin._8}px;
+    gap: ${Spacing.margin._8}px;
 `
-export const EmailInput = css`
-    width: auto;
+export const EmailFieldInput = styled.input`
+    min-width: 20%;
     background-color: inherit;
     outline: none;
     border: none;
@@ -32,16 +32,6 @@ export const EmailComposeContainer = styled.div`
     display: flex;
     margin-bottom: ${Spacing.margin._16}px;
 `
-export const EmailComposeFormContainer = styled.div`
-    flex: 1;
-    .react-multi-email {
-        ${EmailInputContainer}
-    }
-    .react-multi-email > input {
-        ${EmailInput}
-        margin: 0 ${Spacing.padding._4}px;
-    }
-`
 export const EmailRecipientsContainer = styled.div`
     display: flex;
     max-width: 100%;
@@ -51,7 +41,7 @@ export const EmailRecipientsContainer = styled.div`
 `
 export const EmailTag = styled.div`
     max-width: 100%;
-    margin: 0 ${Spacing.margin._4}px;
+    /* margin: 0 ${Spacing.margin._4}px; */
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     border: 1px solid ${Colors.gray._200};
     border-radius: ${Border.radius.large};

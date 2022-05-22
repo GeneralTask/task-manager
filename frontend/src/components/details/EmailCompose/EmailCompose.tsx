@@ -3,9 +3,9 @@ import {
     ButtonsContainer,
     ComposeSelectorButtonContainer,
     EmailComposeContainer,
-    EmailComposeFormContainer,
-    EmailInput,
-    EmailInputContainer,
+    EmailFieldContainer,
+    EmailFieldInput,
+    FlexExpand,
 } from './EmailCompose-styles'
 import React, { useCallback, useEffect, useState } from 'react'
 import { TEmail, TEmailComposeState, TRecipients } from '../../../utils/types'
@@ -21,15 +21,7 @@ import EmailWithQuote from './EmailWithQuote'
 import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import { renderToString } from 'react-dom/server'
-import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
-
-const SubjectContainer = styled.div`
-    ${EmailInputContainer}
-`
-const SubjectInput = styled.input`
-    ${EmailInput}
-`
 
 interface EmailComposeProps {
     email: TEmail
@@ -106,10 +98,10 @@ const EmailCompose = (props: EmailComposeProps) => {
             <ComposeSelectorButtonContainer>
                 <EmailComposeTypeSelector email={props.email} setThreadComposeState={props.setThreadComposeState} />
             </ComposeSelectorButtonContainer>
-            <EmailComposeFormContainer ref={(node) => node?.scrollIntoView()}>
+            <FlexExpand ref={(node) => node?.scrollIntoView()}>
                 <EmailRecipientsForm recipients={recipients} setRecipients={setRecipients} />
-                <SubjectContainer>
-                    <SubjectInput
+                <EmailFieldContainer>
+                    <EmailFieldInput
                         className="email-header"
                         placeholder="Subject"
                         value={subject}
@@ -118,7 +110,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                             e.stopPropagation()
                         }}
                     />
-                </SubjectContainer>
+                </EmailFieldContainer>
                 <Divider color={Colors.gray._200} />
                 <BodyContainer>
                     <TextArea
@@ -139,7 +131,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                     <RoundedGeneralButton onClick={onClose} value="Cancel" textStyle="dark" />
                     {isLoading && 'Sending...'}
                 </ButtonsContainer>
-            </EmailComposeFormContainer>
+            </FlexExpand>
         </EmailComposeContainer>
     )
 }

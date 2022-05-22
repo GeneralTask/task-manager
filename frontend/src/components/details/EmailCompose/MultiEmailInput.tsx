@@ -1,4 +1,4 @@
-import { EmailInput, EmailInputContainer, EmailTag } from './EmailCompose-styles'
+import { EmailFieldContainer, EmailFieldInput, EmailTag } from './EmailCompose-styles'
 import React, { forwardRef, useCallback, useState } from 'react'
 
 import { Icon } from '../../atoms/Icon'
@@ -6,14 +6,6 @@ import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 import { TRecipient } from '../../../utils/types'
 import { icons } from '../../../styles/images'
 import { isValidEmail } from '../../../utils/utils'
-import styled from 'styled-components'
-
-const SubjectContainer = styled.div`
-    ${EmailInputContainer}
-`
-const SubjectInput = styled.input`
-    ${EmailInput}
-`
 
 const ADD_RECIPIENT_KEYBOARD_SHORTCUTS = ['Enter', 'Tab', ' ', ',']
 const DELETE_RECIPIENT_KEYBOARD_SHORTCUTS = 'Backspace'
@@ -70,7 +62,7 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>((prop
     )
 
     return (
-        <SubjectContainer>
+        <EmailFieldContainer>
             <span>{props.title}</span>
             {props.recipients.map(({ email }) => (
                 <EmailTag key={email}>
@@ -85,8 +77,8 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>((prop
                     </NoStyleButton>
                 </EmailTag>
             ))}
-            <SubjectInput ref={ref} value={text} onChange={handleChange} onKeyDown={(e) => handleKeyDown(e, text)} />
-        </SubjectContainer>
+            <EmailFieldInput ref={ref} value={text} onChange={handleChange} onKeyDown={(e) => handleKeyDown(e, text)} />
+        </EmailFieldContainer>
     )
 })
 
