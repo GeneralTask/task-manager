@@ -20,6 +20,7 @@ const DELETE_RECIPIENT_KEYBOARD_SHORTCUTS = 'Backspace'
 
 interface MultiEmailInputProps {
     recipients: TRecipient[]
+    title?: string
     updateRecipients: (recipients: TRecipient[]) => void
 }
 const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>((props, ref) => {
@@ -76,6 +77,7 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>((prop
 
     return (
         <SubjectContainer>
+            <span>{props.title}</span>
             {props.recipients.map(({ email }) => (
                 <EmailTag key={email}>
                     {email}

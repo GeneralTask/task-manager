@@ -74,8 +74,16 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
             <Divider color={Colors.gray._200} />
 
             <FlexExpand>
-                <MultiEmailInput recipients={recipients.to} updateRecipients={onToChange2} />
+                <MultiEmailInput recipients={recipients.to} title="To:" updateRecipients={onToChange2} />
             </FlexExpand>
+            {(!showCc || !showBcc) && (
+                <AddEmailRecipientsContainer>
+                    {!showCc && <AddEmailRecipientsButton onClick={() => setShowCc(true)}>Cc</AddEmailRecipientsButton>}
+                    {!showBcc && (
+                        <AddEmailRecipientsButton onClick={() => setShowBcc(true)}>Bcc</AddEmailRecipientsButton>
+                    )}
+                </AddEmailRecipientsContainer>
+            )}
             <Divider color={Colors.gray._200} />
 
             {showCc && (
