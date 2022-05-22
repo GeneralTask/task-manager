@@ -25,7 +25,6 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>(
         const addRecipientIfValid = useCallback(
             (emailText: string) => {
                 emailText = emailText.trim()
-                console.log({ emailText })
                 if (emailText.length < 0) return
                 if (isValidEmail(emailText) && !recipients.some((r) => r.email === emailText)) {
                     const newRecipient = {
