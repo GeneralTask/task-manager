@@ -51,13 +51,23 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>((prop
         [props.recipients]
     )
 
+    const deleteRecipient = useCallback(
+        (email: string) => {
+            props.updateRecipients(props.recipients.filter((r) => r.email !== email))
+        },
+        [props.recipients, props.updateRecipients]
+    )
+
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent<HTMLInputElement>, emailText: string) => {
             if (ADD_RECIPIENT_KEYBOARD_SHORTCUTS.includes(e.key)) {
                 e.preventDefault()
                 addRecipientIfValid(emailText)
             } else if (DELETE_RECIPIENT_KEYBOARD_SHORTCUTS === e.key) {
-                // delete
+                if (emailText.trim().length === 0) {
+                    e.preventDefault()
+                    deleteRecipient(props.recipients[props.recipients.length - 1].email)
+                }
             }
             e.stopPropagation()
         },
@@ -66,13 +76,13 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>((prop
 
     return (
         <SubjectContainer>
-            {props.recipients.map(({ email }, index) => (
+            {props.recipients.map(({ email }) => (
                 <EmailTag key={email}>
                     {email}
                     <NoStyleButton
                         data-tag-handle
                         onClick={() => {
-                            console.log('remove ' + index)
+                            deleteRecipient(email)
                         }}
                     >
                         <Icon size="xSmall" source={icons.x} />
