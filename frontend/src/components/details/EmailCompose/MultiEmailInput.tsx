@@ -28,35 +28,41 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>((prop
         setText(e.target.value)
     }, [])
 
-    const addRecipientIfValid = (emailText: string) => {
-        emailText = emailText.trim()
-        console.log({ emailText })
-        if (emailText.length < 0) return
-        if (isValidEmail(emailText) && !props.recipients.some((r) => r.email === emailText)) {
-            const newRecipient = {
-                name: '',
-                email: emailText,
-            }
-            props.updateRecipients([...props.recipients, newRecipient])
-            setText('')
-        } else {
-            if (!isValidEmail(emailText)) {
-                alert('is not valid :(')
+    const addRecipientIfValid = useCallback(
+        (emailText: string) => {
+            emailText = emailText.trim()
+            console.log({ emailText })
+            if (emailText.length < 0) return
+            if (isValidEmail(emailText) && !props.recipients.some((r) => r.email === emailText)) {
+                const newRecipient = {
+                    name: '',
+                    email: emailText,
+                }
+                props.updateRecipients([...props.recipients, newRecipient])
+                setText('')
             } else {
-                alert('already exists')
+                if (!isValidEmail(emailText)) {
+                    alert('is not valid :(')
+                } else {
+                    alert('already exists')
+                }
             }
-        }
-    }
+        },
+        [props.recipients]
+    )
 
-    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>, emailText: string) => {
-        if (ADD_RECIPIENT_KEYBOARD_SHORTCUTS.includes(e.key)) {
-            e.preventDefault()
-            addRecipientIfValid(emailText)
-        } else if (DELETE_RECIPIENT_KEYBOARD_SHORTCUTS === e.key) {
-            // delete
-        }
-        e.stopPropagation()
-    }, [])
+    const handleKeyDown = useCallback(
+        (e: React.KeyboardEvent<HTMLInputElement>, emailText: string) => {
+            if (ADD_RECIPIENT_KEYBOARD_SHORTCUTS.includes(e.key)) {
+                e.preventDefault()
+                addRecipientIfValid(emailText)
+            } else if (DELETE_RECIPIENT_KEYBOARD_SHORTCUTS === e.key) {
+                // delete
+            }
+            e.stopPropagation()
+        },
+        [addRecipientIfValid]
+    )
 
     return (
         <SubjectContainer>
