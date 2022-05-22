@@ -1,6 +1,6 @@
-import sanitizeHtml from 'sanitize-html'
-import { TTask } from './types'
 import { DateTime } from 'luxon';
+import { TTask } from './types'
+import sanitizeHtml from 'sanitize-html'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -57,3 +57,5 @@ export const getHumanDateTime = (date: DateTime) => {
 
 // to avoid creating empty placeholder functions across the app
 export const emptyFunction = () => void 0
+
+export const isValidEmail = (email: string): boolean => (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email))

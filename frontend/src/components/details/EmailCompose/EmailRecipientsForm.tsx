@@ -7,13 +7,13 @@ import {
 } from './EmailCompose-styles'
 import { Colors, Images } from '../../../styles'
 import React, { useCallback, useMemo, useState } from 'react'
+import { TRecipient, TRecipients } from '../../../utils/types'
 
 import { Divider } from '../../atoms/SectionDivider'
 import { Icon } from '../../atoms/Icon'
 import MultiEmailInput from './MultiEmailInput'
 import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 import { ReactMultiEmail } from 'react-multi-email'
-import { TRecipients } from '../../../utils/types'
 import { emailsToRecipients } from './emailComposeUtils'
 
 // Keyboard shortcuts used in react-multi-email/ReactMultiEmail.tsx
@@ -35,6 +35,10 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
 
     const onToChange = useCallback(
         (newEmails: string[]) => setRecipients((recipients) => ({ ...recipients, to: emailsToRecipients(newEmails) })),
+        []
+    )
+    const onToChange2 = useCallback(
+        (newEmails: TRecipient[]) => setRecipients((recipients) => ({ ...recipients, to: newEmails })),
         []
     )
     const onCcChange = useCallback(
@@ -84,7 +88,7 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
             <Divider color={Colors.gray._200} />
 
             <FlexExpand>
-                <MultiEmailInput recipients={recipients.to} />
+                <MultiEmailInput recipients={recipients.to} updateRecipients={onToChange2} />
             </FlexExpand>
             <Divider color={Colors.gray._200} />
 
