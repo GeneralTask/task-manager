@@ -11,12 +11,12 @@ import { Colors } from '../../../styles'
 import { Divider } from '../../atoms/SectionDivider'
 import MultiEmailInput from './MultiEmailInput'
 
-interface EmailRecipientsInputProps {
+interface EmailRecipientsFormProps {
     recipients: TRecipients
     setRecipients: React.Dispatch<React.SetStateAction<TRecipients>>
 }
 
-const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInputProps) => {
+const EmailRecipientsForm = ({ recipients, setRecipients }: EmailRecipientsFormProps) => {
     const [showCc, setShowCc] = useState(recipients.cc.length > 0)
     const [showBcc, setShowBcc] = useState(recipients.bcc.length > 0)
 
@@ -68,4 +68,4 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
     )
 }
 
-export default EmailRecipientsInput
+export default EmailRecipientsForm
