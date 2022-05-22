@@ -41,15 +41,9 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>((prop
                 }
                 props.updateRecipients([...props.recipients, newRecipient])
                 setText('')
-            } else {
-                if (!isValidEmail(emailText)) {
-                    alert('is not valid :(')
-                } else {
-                    alert('already exists')
-                }
             }
         },
-        [props.recipients]
+        [props.recipients, props.updateRecipients]
     )
 
     const deleteRecipient = useCallback(
@@ -72,7 +66,7 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>((prop
             }
             e.stopPropagation()
         },
-        [addRecipientIfValid]
+        [addRecipientIfValid, deleteRecipient]
     )
 
     return (
