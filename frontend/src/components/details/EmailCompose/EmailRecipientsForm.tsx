@@ -16,9 +16,6 @@ import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 import { ReactMultiEmail } from 'react-multi-email'
 import { emailsToRecipients } from './emailComposeUtils'
 
-// Keyboard shortcuts used in react-multi-email/ReactMultiEmail.tsx
-const REACT_MULTI_EMAIL_KB_SHORTCUT = ['Enter', 'Tab', 'Backspace']
-
 interface EmailRecipientsInputProps {
     recipients: TRecipients
     setRecipients: React.Dispatch<React.SetStateAction<TRecipients>>
@@ -61,19 +58,8 @@ const EmailRecipientsInput = ({ recipients, setRecipients }: EmailRecipientsInpu
         )
     }, [])
 
-    // blocks all keys from propogating except those used in react-multi-email
-    const enableBuiltInKBShortcuts = useCallback((node: HTMLDivElement) => {
-        if (node) {
-            node.addEventListener('keydown', (e) => {
-                if (!REACT_MULTI_EMAIL_KB_SHORTCUT.includes(e.code)) {
-                    e.stopPropagation()
-                }
-            })
-        }
-    }, [])
-
     return (
-        <EmailRecipientsContainer ref={enableBuiltInKBShortcuts}>
+        <EmailRecipientsContainer>
             <FlexExpand>
                 <ReactMultiEmail emails={toEmails} onChange={onToChange} placeholder="To:" getLabel={getLabel} />
             </FlexExpand>

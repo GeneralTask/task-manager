@@ -1,5 +1,5 @@
 import { EmailInput, EmailInputContainer, EmailTag } from './EmailCompose-styles'
-import React, { useCallback } from 'react'
+import React, { forwardRef, useCallback, useState } from 'react'
 
 import { Icon } from '../../atoms/Icon'
 import NoStyleButton from '../../atoms/buttons/NoStyleButton'
@@ -15,55 +15,48 @@ const SubjectInput = styled.input`
     ${EmailInput}
 `
 
-const ADD_RECIPIENT_KEYBOARD_SHORTCUTS = ['Enter', 'Tab', 'Space', ',', ';']
+const ADD_RECIPIENT_KEYBOARD_SHORTCUTS = ['Enter', 'Tab', ' ', ',', ';']
 const DELETE_RECIPIENT_KEYBOARD_SHORTCUTS = 'Backspace'
 
 interface MultiEmailInputProps {
     recipients: TRecipient[]
     updateRecipients: (recipients: TRecipient[]) => void
 }
-const MultiEmailInput = (props: MultiEmailInputProps) => {
-    const [text, setText] = React.useState('')
+const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>((props, ref) => {
+    const [text, setText] = useState('')
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setText(e.target.value)
+    }, [])
 
-    const handleChange = useCallback(
-        (e: React.ChangeEvent<HTMLInputElement>) => {
-            setText(e.target.value)
-        },
-        [text]
-    )
-
-    const handleKeyDown = useCallback(
-        (e: React.KeyboardEvent<HTMLInputElement>) => {
-            e.stopPropagation()
-            // keyboard shortcuts
-            if (ADD_RECIPIENT_KEYBOARD_SHORTCUTS.includes(e.key)) {
-                addRecipientIfValid()
-            } else if (DELETE_RECIPIENT_KEYBOARD_SHORTCUTS === e.key) {
-                // delete
-            }
-        },
-        [text]
-    )
-
-    const addRecipientIfValid = () => {
-        const trimmedText = text.trim()
-        console.log({ trimmedText })
-        if (trimmedText.length < 0) return
-        if (isValidEmail(trimmedText) && !props.recipients.some((r) => r.email === trimmedText)) {
+    const addRecipientIfValid = (emailText: string) => {
+        emailText = emailText.trim()
+        console.log({ emailText })
+        if (emailText.length < 0) return
+        if (isValidEmail(emailText) && !props.recipients.some((r) => r.email === emailText)) {
             const newRecipient = {
                 name: '',
-                email: trimmedText,
+                email: emailText,
             }
             props.updateRecipients([...props.recipients, newRecipient])
             setText('')
         } else {
-            if (!isValidEmail(trimmedText)) {
+            if (!isValidEmail(emailText)) {
                 alert('is not valid :(')
             } else {
                 alert('already exists')
             }
         }
     }
+
+    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>, emailText: string) => {
+        if (ADD_RECIPIENT_KEYBOARD_SHORTCUTS.includes(e.key)) {
+            e.preventDefault()
+            addRecipientIfValid(emailText)
+        } else if (DELETE_RECIPIENT_KEYBOARD_SHORTCUTS === e.key) {
+            // delete
+        }
+        e.stopPropagation()
+    }, [])
 
     return (
         <SubjectContainer>
@@ -80,9 +73,9 @@ const MultiEmailInput = (props: MultiEmailInputProps) => {
                     </NoStyleButton>
                 </EmailTag>
             ))}
-            <SubjectInput className="email-header" value={text} onChange={handleChange} onKeyDown={handleKeyDown} />
+            <SubjectInput ref={ref} value={text} onChange={handleChange} onKeyDown={(e) => handleKeyDown(e, text)} />
         </SubjectContainer>
     )
-}
+})
 
 export default MultiEmailInput
