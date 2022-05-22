@@ -41,7 +41,6 @@ export const EmailRecipientsContainer = styled.div`
 `
 export const EmailTag = styled.div`
     max-width: 100%;
-    /* margin: 0 ${Spacing.margin._4}px; */
     padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
     border: 1px solid ${Colors.gray._200};
     border-radius: ${Border.radius.large};

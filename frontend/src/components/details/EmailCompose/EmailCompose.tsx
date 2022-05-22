@@ -102,7 +102,6 @@ const EmailCompose = (props: EmailComposeProps) => {
                 <EmailRecipientsForm recipients={recipients} setRecipients={setRecipients} />
                 <EmailFieldContainer>
                     <EmailFieldInput
-                        className="email-header"
                         placeholder="Subject"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
