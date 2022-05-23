@@ -28,7 +28,7 @@ export const ButtonContainer = styled.div`
 export const CursorPointerDiv = styled.div`
     display: flex;
     flex-direction: row;
-    margin: 2px;
+    margin: ${Spacing.margin._4}px;
     cursor: pointer;
     height: fit-content;
     padding: ${Spacing.padding._4}px;
