@@ -15,7 +15,7 @@ import (
 )
 
 type ThreadModifyParams struct {
-	IsUnread *bool `json:"is_unread"`
+	IsUnread   *bool `json:"is_unread"`
 	IsArchived *bool `json:"is_archived"`
 }
 
