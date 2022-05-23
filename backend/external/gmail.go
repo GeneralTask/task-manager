@@ -641,7 +641,7 @@ func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToCh
 		emailID,
 		&modifyRequest,
 	).Do()
-	log.Print("resulting message:", message)
+	log.Debug().Msgf("resulting message: %+v", message)
 
 	return err
 }
