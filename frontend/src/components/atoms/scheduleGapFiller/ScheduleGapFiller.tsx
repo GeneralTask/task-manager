@@ -8,6 +8,7 @@ import { Icon } from '../Icon'
 import JoinMeetingButton from '../buttons/JointMeetingButton'
 import { CursorPointerDiv } from '../../calendar/CalendarHeader'
 import { FlexGrowView } from '../../details/DetailsTemplate'
+import NoStyleButton from '../buttons/NoStyleButton'
 
 const FooterView = styled.div`
     position: absolute;
@@ -44,10 +45,13 @@ const FooterText = styled.span`
     white-space: nowrap;
     font-weight: ${Typography.weight._500};
     color: ${Colors.gray._600};
-    justify-content: center;
-    margin-top: 10px;
-    margin-left: 10px;
+    justify-content: space_between;
+    margin-top: ${Spacing.margin._12}px;
+    margin-left: ${Spacing.margin._12}px;
     align-content: space-between;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 `
 const HeaderText = styled.span`
     margin-right: ${Spacing.margin._8}px;
@@ -56,28 +60,33 @@ const HeaderText = styled.span`
     color: ${Colors.gray._600};
     padding-left: ${Spacing.padding._4}px;
     border: 2px solid transparent;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 `
 const BodyTextArea = styled.span`
     overflow: auto;
     padding: ${Spacing.margin._8}px;
-    font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
     font-weight: ${Typography.weight._400};
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 `
 const CursorView = styled.span`
     display: flex;
     flex-direction: column;
+    align-items: center;
 `
 const RecommendationText = styled.span`
     display: flex;
-    overflow: auto;
     padding: ${Spacing.margin._12}px;
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
     text-decoration: none;
-    margin-left: 4px;
+    margin-left: ${Spacing.margin._4}px;
 `
 const CursorText = styled.span`
     display: flex;
@@ -86,16 +95,13 @@ const CursorText = styled.span`
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
     text-decoration: none;
-    margin-left: 30px;
 `
-const CursorArea = styled.div`
-    margin-left: ${Spacing.margin._16}px;
-    margin-right: 0px;
+const CursorArea = styled.span`
     align-self: right;
     display: flex;
     flex-direction: row;
 `
-const Recommendation = styled.div`
+const Recommendation = styled.span`
     margin-right: ${Spacing.margin._8}px;
     display: flex;
     flex-direction: row;
@@ -106,7 +112,7 @@ const Recommendation = styled.div`
 `
 
 const ScheduleGapFiller = () => {
-    const [recommendation, setRecommendation] = useState(0)
+    const [recommendationIndex, setRecommendation] = useState(0)
     const { data: event } = useMeetingBanner()
     let eventTitle = ''
     let eventsubTitle = ''
@@ -117,36 +123,37 @@ const ScheduleGapFiller = () => {
     eventsubTitle = event.subtitle.length > 0 ? event.subtitle : NO_EVENT_TITLE
     const action = event.actions
     const numEvents = event.events.length
+    const link = action[recommendationIndex].link
 
     return numEvents >= 2 ? (
         <FooterView>
             <FooterTextView>
                 <FooterHeaderArea>
                     <HeaderText>{eventTitle}</HeaderText>
-                    <JoinMeetingButton
-                        conferenceCall={event.events[recommendation]?.conference_call}
-                    ></JoinMeetingButton>
+                    <JoinMeetingButton conferenceCall={event.events[recommendationIndex]?.conference_call} />
                 </FooterHeaderArea>
                 <BodyTextArea>{eventsubTitle}</BodyTextArea>
                 <FooterText>
                     <Recommendation>
-                        <Icon size="large" source={logos[action[recommendation].logo]}></Icon>
-                        <a href={event?.actions[recommendation].link} style={{ textDecoration: 'none' }}>
-                            <RecommendationText>{event?.actions[recommendation].title}</RecommendationText>
+                        <NoStyleButton onClick={() => window.open(link)}>
+                            <Icon size="large" source={logos[action[recommendationIndex].logo]} />
+                        </NoStyleButton>
+                        <a href={action[recommendationIndex].link} style={{ textDecoration: 'none' }}>
+                            <RecommendationText>{action[recommendationIndex].title}</RecommendationText>
                         </a>
                     </Recommendation>
                     <FlexGrowView />
                     <CursorView>
                         <CursorArea>
-                            <CursorPointerDiv onClick={() => setRecommendation((recommendation - 1) % numEvents)}>
+                            <CursorPointerDiv onClick={() => setRecommendation((recommendationIndex - 1) % numEvents)}>
                                 <Icon source={icons.caret_left} size="small" />
                             </CursorPointerDiv>
-                            <CursorPointerDiv onClick={() => setRecommendation((recommendation + 1) % numEvents)}>
+                            <CursorPointerDiv onClick={() => setRecommendation((recommendationIndex + 1) % numEvents)}>
                                 <Icon source={icons.caret_right} size="small" />
                             </CursorPointerDiv>
                         </CursorArea>
                         <CursorText>
-                            {recommendation + 1} of {numEvents}
+                            {recommendationIndex + 1} of {numEvents}
                         </CursorText>
                     </CursorView>
                 </FooterText>
@@ -162,12 +169,13 @@ const ScheduleGapFiller = () => {
                 <BodyTextArea>{eventsubTitle}</BodyTextArea>
                 <FooterText>
                     <Recommendation>
-                        <Icon size="large" source={logos[action[0].logo]}></Icon>
-                        <a href={event?.actions[0].link} style={{ textDecoration: 'none' }}>
-                            <RecommendationText>{event?.actions[0].title}</RecommendationText>
+                        <NoStyleButton onClick={() => window.open(link)}>
+                            <Icon size="large" source={logos[action[recommendationIndex].logo]} />
+                        </NoStyleButton>
+                        <a href={action[recommendationIndex].link} style={{ textDecoration: 'none' }}>
+                            <RecommendationText>{action[recommendationIndex].title}</RecommendationText>
                         </a>
                     </Recommendation>
-                    <FlexGrowView />
                 </FooterText>
             </FooterTextView>
         </FooterView>

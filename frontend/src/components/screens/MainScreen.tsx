@@ -51,9 +51,7 @@ const MainScreen = () => {
 
     return (
         <DndProvider backend={HTML5Backend}>
-            <DefaultTemplate>
-                <>{expandedCalendar || currentPage}</>
-            </DefaultTemplate>
+            <DefaultTemplate>{expandedCalendar || currentPage}</DefaultTemplate>
         </DndProvider>
     )
 }
