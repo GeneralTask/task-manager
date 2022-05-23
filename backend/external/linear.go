@@ -137,7 +137,7 @@ func getLinearClientFromToken(token *oauth2.Token, overrideURL *string) *graphql
 	return client
 }
 
-func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string, ctx context.Context) (*graphql.Client, error) {
+func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string) (*graphql.Client, error) {
 	var client *graphql.Client
 	var err error
 	if overrideURL != nil {
@@ -172,4 +172,22 @@ func getLinearOauthConfig() *OauthConfig {
 			TokenURL: LinearTokenUrl,
 		},
 	}}
+}
+
+type LinearMeQuery struct {
+	Viewer struct {
+		Id    graphql.String
+		Name  graphql.String
+		Email graphql.String
+	}
+}
+
+func GetLinearMeStruct(client *graphql.Client) (*LinearMeQuery, error) {
+	var query *LinearMeQuery
+	err := client.Query(context.Background(), query, nil)
+	if err != nil {
+		log.Error().Err(err).Interface("query", *query).Msg("could not execute query")
+		return nil, err
+	}
+	return query, nil
 }

@@ -1,7 +1,11 @@
 package external
 
 import (
+	"context"
 	"errors"
+	"fmt"
+	"github.com/rs/zerolog/log"
+	"github.com/shurcooL/graphql"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -33,7 +37,47 @@ func (linearTask LinearTaskSource) GetEvents(userID primitive.ObjectID, accountI
 }
 
 func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	result <- emptyTaskResult(nil)
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
+		return
+	}
+	defer dbCleanup()
+
+	client, err := getLinearClient(linearTask.Linear.Config.ConfigValues.TaskFetchURL, db, userID, accountID)
+	if err != nil {
+		log.Error().Err(err).Msg("unable to create linear client")
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
+		return
+	}
+
+	meQuery, err := GetLinearMeStruct(client)
+	if err != nil {
+		log.Error().Err(err).Msg("unable to get linear user details")
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
+		return
+	}
+
+	filter := fmt.Sprintf("issues(filter: {assignee: {id: {eq: \"%s\"}}})", meQuery.Viewer.Id)
+	var query struct {
+		Issues struct {
+			Nodes []struct {
+				Id    graphql.String
+				Title graphql.String
+				//Email graphql.String
+			}
+			//} `graphql:"issues(filter: {assignee: {name: {eq: \"John Reinstra\"}}})"`
+		} `graphql:filter`
+	}
+
+	err = client.Query(context.Background(), &query, nil)
+	if err != nil {
+		log.Error().Err(err).Interface("query", query).Msg("could not execute query")
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
+	}
+	log.Debug().Interface("query", query).Send()
+
+	result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
 }
 
 func (linearTask LinearTaskSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
