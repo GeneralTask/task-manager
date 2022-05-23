@@ -71,6 +71,8 @@ To run tests through VS Code, put the following snippet in your `settings.json`:
     },
 ```
 
+To run tests through GoLand, go to `Run | Edit Configurations` and then add a new `Go Test` configuration with `DB_NAME=test`
+
 ## Deploying backend
 
 We currently perform backend deploys using the Heroku CLI. Assuming you have the heroku credentials, you can deploy with the following steps:
