@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io/ioutil"
+	"os"
+
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
-	"io/ioutil"
-	"os"
 
 	"net/http"
 	"net/http/httptest"
@@ -49,7 +50,7 @@ func TestCreateTestUser(t *testing.T) {
 		err = json.Unmarshal(body, &result)
 		assert.NoError(t, err)
 
-		log.Error().Msgf("%+v", result["token"])
+		log.Error().Err(err).Msgf("%+v", result["token"])
 
 		var userObject database.User
 		err = database.GetUserCollection(db).FindOne(dbCtx, bson.M{"email": email}).Decode(&userObject)

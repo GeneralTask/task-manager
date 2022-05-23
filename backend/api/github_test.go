@@ -1,14 +1,12 @@
 package api
 
 import (
-	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/stretchr/testify/assert"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 )
 
 func TestLinkGithub(t *testing.T) {
@@ -45,25 +43,15 @@ func TestLinkGithubCallback(t *testing.T) {
 		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/link/github/callback/")
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
-		server := getTokenServerForGithub(t, http.StatusUnauthorized, DefaultTokenPayload)
+		server := testutils.GetMockAPIServer(t, http.StatusUnauthorized, DefaultTokenPayload)
 		api := GetAPI()
 		(api.ExternalConfig.Github.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/link/github/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
-		server := getTokenServerForGithub(t, http.StatusOK, DefaultTokenPayload)
+		server := testutils.GetMockAPIServer(t, http.StatusOK, DefaultTokenPayload)
 		api := GetAPI()
 		(api.ExternalConfig.Github.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 		TestAuthorizeCallbackSuccessfulResponse(t, api, "/link/github/callback/", external.TASK_SERVICE_ID_GITHUB)
 	})
-}
-
-func getTokenServerForGithub(t *testing.T, statusCode int, body string) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := ioutil.ReadAll(r.Body)
-		assert.NoError(t, err)
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(statusCode)
-		w.Write([]byte(body))
-	}))
 }

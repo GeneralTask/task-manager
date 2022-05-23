@@ -30,7 +30,7 @@ func (api *API) TasksFetch(c *gin.Context) {
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
-		log.Error().Msgf("failed to find user: %v", err)
+		log.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
 		return
 	}
@@ -54,7 +54,7 @@ func (api *API) TasksFetch(c *gin.Context) {
 		bson.M{"$set": bson.M{"last_refreshed": primitive.NewDateTimeFromTime(time.Now())}},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to update user last_refreshed: %v", err)
+		log.Error().Err(err).Msg("failed to update user last_refreshed")
 	}
 
 	err = adjustForCompletedTasks(db, currentTasks, fetchedTasks, failedFetchSources)

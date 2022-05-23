@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.2",
+    "animate.css": "^4.1.1",
     "axios": "^0.26.1",
     "js-cookie": "^3.0.1",
     "luxon": "^2.3.1",
@@ -42,6 +43,7 @@
     "react-query": "^3.34.16",
     "react-redux": "^7.2.6",
     "react-router-dom": "6",
+    "react-toastify": "^9.0.1",
     "react-tooltip": "^4.2.21",
     "sanitize-html": "^2.7.0",
     "styled-components": "^5.3.3"

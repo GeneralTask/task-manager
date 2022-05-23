@@ -1,18 +1,70 @@
-import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import ActionOption from '../molecules/ActionOption'
 import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
-import SanitizedHTML from '../atoms/SanitizedHTML'
 import { logos } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
-import { Spacing } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
+
+const DetailsViewContainer = styled.div`
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: ${Colors.gray._50};
+    min-width: 300px;
+    margin-top: ${Spacing.margin._24}px;
+    padding: ${Spacing.padding._16}px;
+`
+const DetailsTopContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 50px;
+`
+const BodyTextArea = styled.textarea`
+    flex: 1;
+    display: block;
+    background-color: inherit;
+    border: 1px solid transparent;
+    resize: none;
+    outline: none;
+    overflow: auto;
+    padding: ${Spacing.margin._8}px;
+    font: inherit;
+    color: ${Colors.gray._600};
+    font-size: ${Typography.xSmall.fontSize};
+    box-sizing: border-box;
+    :focus {
+        border: 1px solid ${Colors.gray._500};
+    }
+`
+const TitleInput = styled.textarea`
+    background-color: inherit;
+    color: ${Colors.gray._600};
+    font: inherit;
+    font-size: ${Typography.large.fontSize};
+    font-weight: ${Typography.weight._600};
+    border: none;
+    resize: none;
+    outline: none;
+    overflow: hidden;
+    margin-bottom: ${Spacing.margin._16}px;
+    :focus {
+        outline: 1px solid ${Colors.gray._500};
+    }
+`
+const MarginLeftAuto = styled.div`
+    margin-left: auto;
+`
+const MarginRight8 = styled.div`
+    margin-right: ${Spacing.margin._8}px;
+`
 
 const SYNC_MESSAGES = {
     SYNCING: 'Syncing...',
@@ -20,18 +72,10 @@ const SYNC_MESSAGES = {
     COMPLETE: '',
 }
 
-const MarginRight16 = styled.div`
-    margin-right: ${Spacing.margin._16}px;
-`
-const MarginRight8 = styled.div`
-    margin-right: ${Spacing.margin._8}px;
-`
 interface TaskDetailsProps {
     task: TTask
 }
 const TaskDetails = (props: TaskDetailsProps) => {
-    const { mutate: modifyTask, isError, isLoading } = useModifyTask()
-
     const [task, setTask] = useState<TTask>(props.task)
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
@@ -41,6 +85,8 @@ const TaskDetails = (props: TaskDetailsProps) => {
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
     const bodyRef = useRef<HTMLTextAreaElement>(null)
+
+    const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     useEffect(() => {
@@ -104,60 +150,52 @@ const TaskDetails = (props: TaskDetailsProps) => {
         e.stopPropagation()
     }
 
+    // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
+    const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
+
     return (
-        <DetailsTemplate
-            top={
-                <>
-                    <MarginRight8>
-                        <Icon source={logos[task.source.logo_v2]} size="small" />
-                    </MarginRight8>
-                    <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
-                    <FlexGrowView />
-                    <MarginRight16>
-                        {task.deeplink && (
-                            <a href={task.deeplink} target="_blank" rel="noreferrer">
-                                <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
-                            </a>
-                        )}
-                    </MarginRight16>
+        <DetailsViewContainer data-testid="details-view-container">
+            <DetailsTopContainer>
+                <MarginRight8>
+                    <Icon source={icon} size="small" />
+                </MarginRight8>
+                <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
+                <MarginLeftAuto>
+                    {task.deeplink && (
+                        <a href={task.deeplink} target="_blank" rel="noreferrer">
+                            <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
+                        </a>
+                    )}
                     <ActionOption
                         isShown={labelEditorShown}
                         setIsShown={setLabelEditorShown}
                         task={task}
                         keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
                     />
-                </>
-            }
-            title={
-                <TitleInput
-                    ref={titleRef}
-                    data-testid="task-title-input"
-                    onKeyDown={handleKeyDown}
-                    value={titleInput}
-                    onChange={(e) => {
-                        setTitleInput(e.target.value)
-                        onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
-                    }}
-                />
-            }
-            body={
-                task.source.name === 'Gmail' ? (
-                    <SanitizedHTML dirtyHTML={bodyInput} />
-                ) : (
-                    <BodyTextArea
-                        ref={bodyRef}
-                        data-testid="task-body-input"
-                        placeholder="Add task details"
-                        value={bodyInput}
-                        onChange={(e) => {
-                            setBodyInput(e.target.value)
-                            onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
-                        }}
-                        onKeyDown={(e) => e.stopPropagation()}
-                    />
-                )
-            }
-        />
+                </MarginLeftAuto>
+            </DetailsTopContainer>
+            <TitleInput
+                ref={titleRef}
+                data-testid="task-title-input"
+                onKeyDown={handleKeyDown}
+                value={titleInput}
+                onChange={(e) => {
+                    setTitleInput(e.target.value)
+                    onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
+                }}
+            />
+            <BodyTextArea
+                ref={bodyRef}
+                data-testid="task-body-input"
+                placeholder="Add task details"
+                value={bodyInput}
+                onChange={(e) => {
+                    setBodyInput(e.target.value)
+                    onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+            />
+        </DetailsViewContainer>
     )
 }
 

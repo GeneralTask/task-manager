@@ -45,7 +45,7 @@ func (generalTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 	)
 	var tasks []*database.Item
 	if err != nil || cursor.All(dbCtx, &tasks) != nil {
-		log.Error().Msgf("failed to fetch general task tasks: %v", err)
+		log.Error().Err(err).Msg("failed to fetch general task tasks")
 		result <- emptyTaskResult(err)
 		return
 	}

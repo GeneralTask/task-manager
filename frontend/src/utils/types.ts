@@ -46,6 +46,23 @@ export interface TTask {
     sender: string
     recipients: TRecipients
     is_done: boolean
+    linked_email_thread?: TLinkedEmailThread
+}
+
+export interface TLinkedEmailThread {
+    linked_thread_id: string
+    linked_email_id?: string
+    emails: TLinkedEmail[]
+}
+
+export interface TLinkedEmail {
+    smtp_id: string,
+    subject: string,
+    body: string,
+    sent_at: string,
+    is_unread: string,
+    sender_v2: TSender,
+    recipients: TRecipients
 }
 
 export interface TMessageSource {
@@ -67,7 +84,6 @@ export interface TMessage {
     recipients: TRecipients
     sent_at: string
     is_unread: boolean
-    is_task: boolean
     source: TMessageSource
 }
 
@@ -97,7 +113,6 @@ export interface TEmail {
 
 export interface TEmailThread {
     id: string
-    is_task: boolean
     deeplink: string
     source: TMessageSource
     emails: TEmail[]

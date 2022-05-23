@@ -62,7 +62,7 @@ const NavigationView = () => {
             </OverflowContainer>
             <GapView>
                 <FeedbackButton />
-                <RoundedGeneralButton value="Sign Out" textStyle="dark" onPress={authSignOut} />
+                <RoundedGeneralButton value="Sign Out" textStyle="dark" onClick={authSignOut} />
             </GapView>
         </NavigationViewContainer>
     )

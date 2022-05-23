@@ -114,7 +114,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 	userID, userIsNew, email, err := googleService.HandleSignupCallback(external.CallbackParams{Oauth2Code: &redirectParams.Code})
 	if err != nil {
-		log.Error().Msgf("Failed to handle signup: %v", err)
+		log.Error().Err(err).Msg("Failed to handle signup")
 		Handle500(c)
 		return
 	}
@@ -122,7 +122,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	if userIsNew != nil && *userIsNew {
 		err = createNewUserTasks(parentCtx, userID, db)
 		if err != nil {
-			log.Error().Msgf("failed to create starter tasks: %v", err)
+			log.Error().Err(err).Msg("failed to create starter tasks")
 		}
 	}
 
@@ -135,7 +135,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to query waitlist: %v", err)
+		log.Error().Err(err).Msg("failed to query waitlist")
 		Handle500(c)
 		return
 	}
@@ -154,7 +154,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		&database.InternalAPIToken{UserID: userID, Token: internalToken},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to create internal token record: %v", err)
+		log.Error().Err(err).Msg("failed to create internal token record")
 		Handle500(c)
 		return
 	}

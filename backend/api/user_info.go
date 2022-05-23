@@ -37,7 +37,7 @@ func (api *API) UserInfoGet(c *gin.Context) {
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
-		log.Error().Msgf("failed to find user: %v", err)
+		log.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
 		return
 	}
@@ -52,7 +52,7 @@ func (api *API) UserInfoUpdate(c *gin.Context) {
 	var params UserInfoParams
 	err := c.BindJSON(&params)
 	if err != nil {
-		log.Error().Msgf("error: %v", err)
+		log.Error().Err(err).Msg("error")
 		c.JSON(400, gin.H{"detail": "invalid or missing parameters."})
 		return
 	}

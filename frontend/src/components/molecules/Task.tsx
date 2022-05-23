@@ -96,6 +96,8 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: Tas
     )
 
     useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClick, !isSelected)
+    // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
+    const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
 
     return (
         <TaskTemplate ref={elementRef}>
@@ -103,7 +105,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: Tas
                 {!dragDisabled && <Domino ref={drag} />}
                 <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />
                 <IconContainer>
-                    <Icon source={logos[task.source.logo_v2]} size="small" />
+                    <Icon source={icon} size="small" />
                 </IconContainer>
                 <Title data-testid="task-title">{task.title}</Title>
             </ItemContainer>

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -131,7 +132,7 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Msgf("failed to update user setting: %v", err)
+		log.Error().Err(err).Msg("failed to update user setting")
 		return errors.New("internal server error")
 	}
 	return nil

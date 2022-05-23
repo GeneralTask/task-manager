@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -12,7 +13,7 @@ import (
 
 type taskCreateParams struct {
 	Title   string  `json:"title" binding:"required"`
-	Body    string  `json:"body" binding:"required"`
+	Body    string  `json:"body"`
 	EmailID *string `json:"email_id"`
 }
 
@@ -43,14 +44,14 @@ func (api *API) CreateTaskFromThread(c *gin.Context) {
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(thread.SourceID)
 	if err != nil {
-		log.Error().Msgf("failed to load external task source: %v", err)
+		log.Error().Err(err).Msg("failed to load external task source")
 		Handle500(c)
 		return
 	}
 
 	err = createTaskFromEmailThread(userID, thread, requestParams, taskSourceResult)
 	if err != nil {
-		log.Error().Msgf("could not update thread %v in DB with error %+v", threadID, err)
+		log.Error().Err(err).Msgf("could not update thread %v in DB", threadID)
 		Handle500(c)
 		return
 	}
