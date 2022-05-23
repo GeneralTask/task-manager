@@ -36,7 +36,6 @@ export const EmailRecipientsContainer = styled.div`
     display: flex;
     max-width: 100%;
     align-content: flex-start;
-    flex: 1 0 auto;
     flex-wrap: wrap;
 `
 export const EmailTag = styled.div`
