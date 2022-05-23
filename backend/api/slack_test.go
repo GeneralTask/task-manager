@@ -68,7 +68,7 @@ func TestLinkSlackCallback(t *testing.T) {
 		api := GetAPI()
 		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"access_token":"sample-access-token"}`)
 		(api.ExternalConfig.Slack.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
-		userInfoServer := testutils.GetMockAPIServer(t, http.StatusOK, ``)
+		userInfoServer := testutils.GetMockAPIServer(t, http.StatusOK, `{"ok": true}`)
 		userInfoURL := userInfoServer.URL + "/"
 		api.ExternalConfig.Slack.ConfigValues.UserInfoURL = &userInfoURL
 		TestAuthorizeCallbackSuccessfulResponse(t, api, "/link/slack/callback/", external.TASK_SERVICE_ID_SLACK)
