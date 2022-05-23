@@ -116,6 +116,6 @@ func (generalTask GeneralTaskTaskSource) ModifyMessage(userID primitive.ObjectID
 	return nil
 }
 
-func (generalTask GeneralTaskTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (generalTask GeneralTaskTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }

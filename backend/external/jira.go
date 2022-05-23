@@ -402,6 +402,6 @@ func (jira JIRASource) ModifyMessage(userID primitive.ObjectID, accountID string
 	return nil
 }
 
-func (jira JIRASource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (jira JIRASource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }

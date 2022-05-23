@@ -16,6 +16,7 @@ import (
 
 type ThreadModifyParams struct {
 	IsUnread *bool `json:"is_unread"`
+	IsArchived *bool `json:"is_archived"`
 }
 
 func (api *API) ThreadModify(c *gin.Context) {
@@ -56,7 +57,7 @@ func (api *API) ThreadModify(c *gin.Context) {
 	}
 
 	// update external thread
-	err = taskSourceResult.Source.ModifyThread(userID, thread.SourceAccountID, thread.ID, modifyParams.IsUnread)
+	err = taskSourceResult.Source.ModifyThread(userID, thread.SourceAccountID, thread.ID, modifyParams.IsUnread, modifyParams.IsArchived)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to update external task source")
 		Handle500(c)
