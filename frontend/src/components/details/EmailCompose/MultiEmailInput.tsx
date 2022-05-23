@@ -1,4 +1,4 @@
-import { EmailFieldContainer, EmailFieldInput, EmailTag } from './EmailCompose-styles'
+import { EmailFieldContainer, EmailFieldInput, EmailTag, EmailTagText } from './EmailCompose-styles'
 import React, { forwardRef, useCallback, useState } from 'react'
 
 import { Icon } from '../../atoms/Icon'
@@ -19,7 +19,7 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>(
     ({ recipients, title, updateRecipients }, ref) => {
         const [text, setText] = useState('')
         const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-            setText(e.target.value)
+            setText(e.target.value.substring(0, 320))
         }, [])
 
         const addRecipientIfValid = useCallback(
@@ -66,7 +66,7 @@ const MultiEmailInput = forwardRef<HTMLInputElement, MultiEmailInputProps>(
                 <span>{title}</span>
                 {recipients.map(({ email }) => (
                     <EmailTag key={email}>
-                        {email}
+                        <EmailTagText>{email}</EmailTagText>
                         <NoStyleButton
                             onClick={() => {
                                 deleteRecipient(email)

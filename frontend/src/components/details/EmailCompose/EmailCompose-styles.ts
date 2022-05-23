@@ -48,6 +48,12 @@ export const EmailTag = styled.div`
     gap: ${Spacing.margin._4}px;
     background-color: ${Colors.gray._100};
 `
+export const EmailTagText = styled.span`
+    max-width: 300px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+`
 export const EmailActionButtonContainer = styled.div`
     width: calc(100% / 3);
     padding: ${Spacing.padding._8}px;
