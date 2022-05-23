@@ -43,6 +43,7 @@ export const icons: { [key: string]: string } = {
     task_incomplete: '/images/task_incomplete.png',
     timer: '/images/timer.png',
     trash: '/images/trash.png',
+    unread_dot: '/images/unread_dot.svg',
     skinnyHamburger: '/images/skinny_hamburger.svg',
     x: '/images/x.svg',
 }
