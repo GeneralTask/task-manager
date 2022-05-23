@@ -621,7 +621,7 @@ func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID
 func changeLabelsOnEmailsInThread(gmailService *gmail.Service, threadItem *database.Item, labelToChange string, addLabel bool) error {
 	var err error
 	for _, email := range threadItem.EmailThread.Emails {
-		err = changeLabelOnMessage(gmailService, email.EmailID, "UNREAD", addLabel)
+		err = changeLabelOnMessage(gmailService, email.EmailID, labelToChange, addLabel)
 		if err != nil {
 			return err
 		}
