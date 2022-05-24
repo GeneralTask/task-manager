@@ -7,9 +7,10 @@ import {
     EmailFieldInput,
     FlexExpand,
 } from './EmailCompose-styles'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState, TRecipients } from '../../../utils/types'
 import { attachSubjectPrefix, getInitialRecipients, stripSubjectPrefix } from './emailComposeUtils'
+import toast, { ToastId, dismissToast } from '../../../utils/toast'
 
 import { Colors } from '../../../styles'
 import { Divider } from '../../atoms/SectionDivider'
@@ -36,6 +37,8 @@ const EmailCompose = (props: EmailComposeProps) => {
     )
     const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
+
+    const sentToastRef = useRef<ToastId>()
 
     useEffect(() => {
         setBody('')
@@ -81,9 +84,29 @@ const EmailCompose = (props: EmailComposeProps) => {
                     emailId: null,
                 })
             }, EMAIL_UNDO_TIMEOUT * 1000)
+            sentToastRef.current = toast(
+                {
+                    message: 'Your email was sent.',
+                    rightAction: {
+                        label: 'Undo',
+                        onClick: () => {
+                            clearTimeout(timeout)
+                            dismissToast(sentToastRef.current)
+                            props.setThreadComposeState((composeState) => ({
+                                ...composeState,
+                                isPending: false,
+                            }))
+                        },
+                    },
+                },
+                {
+                    autoClose: EMAIL_UNDO_TIMEOUT * 1000,
+                    pauseOnFocusLoss: false,
+                }
+            )
             props.setThreadComposeState((composeState) => ({
                 ...composeState,
-                undoTimeout: timeout,
+                isPending: true,
             }))
         },
         [sendEmail]
