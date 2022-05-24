@@ -18,7 +18,6 @@ const TasksandDetails = styled.div`
     flex-direction: row;
     display: flex;
     position: relative;
-    min-width: 0px;
 `
 interface DefaultTemplateProps {
     children: React.ReactNode
