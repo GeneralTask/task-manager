@@ -222,6 +222,6 @@ func (asanaTask AsanaTaskSource) ModifyMessage(userID primitive.ObjectID, accoun
 	return nil
 }
 
-func (asanaTask AsanaTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (asanaTask AsanaTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }

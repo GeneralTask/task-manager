@@ -214,6 +214,6 @@ func (gitPR GithubPRSource) ModifyMessage(userID primitive.ObjectID, accountID s
 	return nil
 }
 
-func (gitPR GithubPRSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (gitPR GithubPRSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }

@@ -18,7 +18,7 @@ type TaskSource interface {
 	CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error
 	ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error
 	ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error
-	ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error
+	ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error
 }
 
 type TaskCreationObject struct {

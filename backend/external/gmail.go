@@ -589,7 +589,7 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 	return err
 }
 
-func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -613,6 +613,9 @@ func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID
 
 	if isUnread != nil {
 		err = changeLabelsOnEmailsInThread(gmailService, &threadItem, "UNREAD", *isUnread)
+	}
+	if IsArchived != nil {
+		err = changeLabelsOnEmailsInThread(gmailService, &threadItem, "INBOX", !*IsArchived)
 	}
 	return err
 }

@@ -1,6 +1,6 @@
+import React, { forwardRef } from 'react'
 import { Spacing, Typography } from '../../styles'
 
-import React from 'react'
 import styled from 'styled-components'
 
 const TextAreaStyled = styled.textarea`
@@ -25,17 +25,19 @@ interface TextAreaProps {
     placeholder?: string
     setValue: (value: string) => void
 }
-const TextArea = (props: TextAreaProps) => {
+const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>((props, ref) => {
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         props.setValue(e.target.value)
     }
     return (
         <TextAreaStyled
+            ref={ref}
             value={props.value}
             placeholder={props.placeholder || ''}
             onChange={onChange}
             onKeyDown={(e) => e.stopPropagation()}
         />
     )
-}
+})
+
 export default TextArea
