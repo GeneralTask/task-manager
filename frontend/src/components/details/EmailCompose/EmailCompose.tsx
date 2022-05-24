@@ -39,6 +39,16 @@ const EmailCompose = (props: EmailComposeProps) => {
     const [body, setBody] = useState('')
 
     const sentToastRef = useRef<ToastId>()
+    const toFieldRef = useRef<HTMLInputElement>(null)
+    const bodyFieldRef = useRef<HTMLTextAreaElement>(null)
+
+    useEffect(() => {
+        if (props.composeType === EmailComposeType.REPLY || props.composeType === EmailComposeType.REPLY_ALL) {
+            bodyFieldRef?.current?.focus()
+        } else {
+            toFieldRef?.current?.focus()
+        }
+    }, [props.email.message_id, props.composeType])
 
     useEffect(() => {
         setBody('')
@@ -122,7 +132,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                 <EmailComposeTypeSelector email={props.email} setThreadComposeState={props.setThreadComposeState} />
             </ComposeSelectorButtonContainer>
             <FlexExpand ref={(node) => node?.scrollIntoView()}>
-                <EmailRecipientsForm recipients={recipients} setRecipients={setRecipients} />
+                <EmailRecipientsForm ref={toFieldRef} recipients={recipients} setRecipients={setRecipients} />
                 <EmailFieldContainer>
                     <EmailFieldInput
                         placeholder="Subject"
@@ -136,6 +146,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                 <Divider color={Colors.gray._200} />
                 <BodyContainer>
                     <TextArea
+                        ref={bodyFieldRef}
                         placeholder="Body"
                         setValue={(value) => {
                             setBody(value)
