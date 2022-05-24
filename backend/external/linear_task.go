@@ -75,7 +75,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 					Email graphql.String
 				}
 			}
-		} `graphql:"issues(filter: {state: {name: {neq: \"Done\"}}, assignee: {email: {eq: $email}}})"`
+		} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
 	}
 
 	err = client.Query(context.Background(), &query, variables)
