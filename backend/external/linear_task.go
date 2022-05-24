@@ -59,7 +59,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 	}
 
 	variables := map[string]interface{}{
-		"email": graphql.String(meQuery.Viewer.Email), // TODO: using ID doesn't work for some reason
+		"email": meQuery.Viewer.Email, // TODO: using ID doesn't work for some reason
 	}
 	var query struct {
 		Issues struct {
