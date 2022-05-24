@@ -182,6 +182,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				Subject:      title,
 				ReplyTo:      replyTo,
 				IsUnread:     isMessageUnread(message),
+				IsArchived:   isMessageArchived(message),
 				Recipients:   recipients,
 				SentAt:       timeSent,
 			}
@@ -285,6 +286,15 @@ func isMessageUnread(message *gmail.Message) bool {
 		}
 	}
 	return false
+}
+
+func isMessageArchived(message *gmail.Message) bool {
+	for _, label := range message.LabelIds {
+		if label == "INBOX" {
+			return false
+		}
+	}
+	return true
 }
 
 func expandMessageParts(parts []*gmail.MessagePart) []*gmail.MessagePart {

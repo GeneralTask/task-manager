@@ -148,16 +148,20 @@ func TestGetEmails(t *testing.T) {
 			"gmail_thread_1": {
 				Id: "gmail_thread_1",
 				Messages: []*gmail.Message{
-					createTestGmailMessage("gmail_thread_1_email_1", true,
+					createTestGmailMessage("gmail_thread_1_email_1", true, true,
 						"test subject", "2001-04-20"),
-					createTestGmailMessage("gmail_thread_1_email_2", false,
+					createTestGmailMessage("gmail_thread_1_email_2", false, true,
+						"test subject", "2020-04-20"),
+					createTestGmailMessage("gmail_thread_1_email_3", true, false,
+						"test subject", "2001-04-20"),
+					createTestGmailMessage("gmail_thread_1_email_4", false, false,
 						"test subject", "2020-04-20"),
 				},
 			},
 			"gmail_thread_2": {
 				Id: "gmail_thread_2",
 				Messages: []*gmail.Message{
-					createTestGmailMessage("gmail_thread_2_email_1", false,
+					createTestGmailMessage("gmail_thread_2_email_1", false, false,
 						"test subject", "2019-04-20"),
 				},
 			},
@@ -180,7 +184,7 @@ func TestGetEmails(t *testing.T) {
 		////////////////////////////////////////////////////////////////////////////////
 		// (3) Assert: verify results as expected
 		assert.NoError(t, result.Error)
-		assert.Equal(t, 3, len(result.Emails))
+		assert.Equal(t, 5, len(result.Emails))
 
 		expectedThreadsInDB := []*database.Item{
 			{
@@ -193,9 +197,13 @@ func TestGetEmails(t *testing.T) {
 					ThreadID:      "gmail_thread_1",
 					LastUpdatedAt: *testutils.CreateDateTime("2020-04-20"),
 					Emails: []database.Email{
-						*createTestThreadEmail("gmail_thread_1_email_1", true,
+						*createTestThreadEmail("gmail_thread_1_email_1", true, true,
 							"gmail_thread_1", "test subject", "2001-04-20"),
-						*createTestThreadEmail("gmail_thread_1_email_2", false,
+						*createTestThreadEmail("gmail_thread_1_email_2", false, true,
+							"gmail_thread_1", "test subject", "2020-04-20"),
+						*createTestThreadEmail("gmail_thread_1_email_3", true, false,
+							"gmail_thread_1", "test subject", "2001-04-20"),
+						*createTestThreadEmail("gmail_thread_1_email_4", false, false,
 							"gmail_thread_1", "test subject", "2020-04-20"),
 					},
 				},
@@ -210,7 +218,7 @@ func TestGetEmails(t *testing.T) {
 					ThreadID:      "gmail_thread_1",
 					LastUpdatedAt: *testutils.CreateDateTime("2020-04-20"),
 					Emails: []database.Email{
-						*createTestThreadEmail("gmail_thread_2_email_1", false,
+						*createTestThreadEmail("gmail_thread_2_email_1", false, false,
 							"gmail_thread_2", "test subject", "2019-04-20"),
 					},
 				},
@@ -277,6 +285,7 @@ func getGinGmailFetchServer(t *testing.T, threadsMap map[string]*gmail.Thread) *
 func createTestGmailMessage(
 	externalMessageID string,
 	isUnread bool,
+	isArchived bool,
 	subject string,
 	dt string,
 ) *gmail.Message {
@@ -303,12 +312,16 @@ func createTestGmailMessage(
 	if isUnread {
 		res.LabelIds = append(res.LabelIds, "UNREAD")
 	}
+	if !isArchived {
+		res.LabelIds = append(res.LabelIds, "INBOX")
+	}
 	return &res
 }
 
 func createTestThreadEmail(
 	externalMessageID string,
 	isUnread bool,
+	isArchived bool,
 	threadID string,
 	subject string,
 	dt string,
@@ -324,6 +337,7 @@ func createTestThreadEmail(
 		SenderName:   "First Last",
 		ReplyTo:      "reply-to@generaltask.com",
 		IsUnread:     isUnread,
+		IsArchived:   isArchived,
 		Recipients: database.Recipients{
 			To: []database.Recipient{
 				{Name: "Recipient", Email: "recipient@generaltask.com"},
