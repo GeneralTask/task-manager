@@ -98,6 +98,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 		return
 	}
+
 	var tasks []*database.Item
 	for _, asanaTaskData := range asanaTasks.Data {
 		task := &database.Item{
