@@ -3,7 +3,6 @@ package external
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/shurcooL/graphql"
 	"time"
@@ -58,7 +57,15 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		return
 	}
 
-	filter := fmt.Sprintf("issues(filter: {assignee: {id: {eq: \"%s\"}}})", meQuery.Viewer.Id)
+	variables := map[string]interface{}{
+		"id": graphql.String(meQuery.Viewer.Id),
+		//"id":   graphql.ID(id),
+		//"unit": starwars.LengthUnit("METER"),
+	}
+	_ = variables
+
+	log.Debug().Msg(string(meQuery.Viewer.Id))
+	//filter := fmt.Sprintf("issues(filter: {assignee: {id: {eq: \"%s\"}}})", meQuery.Viewer.Id)
 	var query struct {
 		Issues struct {
 			Nodes []struct {
@@ -66,11 +73,12 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 				Title graphql.String
 				//Email graphql.String
 			}
-			//} `graphql:"issues(filter: {assignee: {name: {eq: \"John Reinstra\"}}})"`
-		} `graphql:filter`
+		} `graphql:"issues(filter: {assignee: {name: {eq: \"John Reinstra\"}}})"`
+		//} `graphql:"issues(filter: {assignee: {id: {eq: $id}}})"`
 	}
 
 	err = client.Query(context.Background(), &query, nil)
+	//err = client.Query(context.Background(), &query, variables)
 	if err != nil {
 		log.Error().Err(err).Interface("query", query).Msg("could not execute query")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
