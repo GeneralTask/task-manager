@@ -57,28 +57,41 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		return
 	}
 
+	type ID graphql.ID
 	variables := map[string]interface{}{
-		"id": graphql.String(meQuery.Viewer.Id),
+		//"id": graphql.String(meQuery.Viewer.Id),
+		"idkk": ID(meQuery.Viewer.Id),
+		//"idkk": graphql.ID(),
+		//"idkk": graphql.ID(meQuery.Viewer.Id),
+		//"name": graphql.String(meQuery.Viewer.Name),
 		//"id":   graphql.ID(id),
 		//"unit": starwars.LengthUnit("METER"),
 	}
-	_ = variables
+	//_ = variables
 
 	log.Debug().Msg(string(meQuery.Viewer.Id))
+	log.Debug().Msgf("%+v", graphql.ID(meQuery.Viewer.Id))
 	//filter := fmt.Sprintf("issues(filter: {assignee: {id: {eq: \"%s\"}}})", meQuery.Viewer.Id)
 	var query struct {
 		Issues struct {
 			Nodes []struct {
-				Id    graphql.String
-				Title graphql.String
-				//Email graphql.String
+				Id       graphql.ID
+				Title    graphql.String
+				Assignee struct {
+					Id   graphql.ID
+					Name graphql.String
+					//Email graphql.String
+				}
 			}
-		} `graphql:"issues(filter: {assignee: {name: {eq: \"John Reinstra\"}}})"`
-		//} `graphql:"issues(filter: {assignee: {id: {eq: $id}}})"`
+			//} `graphql:"issues(filter: {assignee: {name: {eq: \"$namekk\"}}})"`
+			//} `graphql:"issues(filter: {assignee: {name: {eq: $name}}})"`
+			//} `graphql:"issues(filter: {assignee: {name: {eq: \"John Reinstra\"}}})"`
+			//} `graphql:"issues(filter: {assignee: {id: {eq: \"$id\"}}})"`
+		} `graphql:"issues(filter: {assignee: {id: {eq: $idkk}}})"`
 	}
 
-	err = client.Query(context.Background(), &query, nil)
-	//err = client.Query(context.Background(), &query, variables)
+	//err = client.Query(context.Background(), &query, nil)
+	err = client.Query(context.Background(), &query, variables)
 	if err != nil {
 		log.Error().Err(err).Interface("query", query).Msg("could not execute query")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
