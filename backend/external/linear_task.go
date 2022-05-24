@@ -132,6 +132,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		task.TimeAllocation = dbTask.TimeAllocation
 		tasks = append(tasks, task)
 	}
+
 	result <- TaskResult{Tasks: tasks}
 }
 
