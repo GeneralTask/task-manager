@@ -590,7 +590,6 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 }
 
 func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
-	// todo - mark all emails in the thread as read
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
