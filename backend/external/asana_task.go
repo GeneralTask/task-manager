@@ -148,7 +148,6 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 		task.TimeAllocation = dbTask.TimeAllocation
 		tasks = append(tasks, task)
 	}
-
 	result <- TaskResult{
 		Tasks: tasks,
 	}
