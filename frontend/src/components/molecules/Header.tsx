@@ -16,7 +16,7 @@ const SectionHeaderContainer = styled.div`
     flex-direction: row;
     align-items: center;
     margin-bottom: ${Spacing.margin._16}px;
-    height: 50px;
+    min-height: 50px;
     gap: ${Spacing.padding._4}px;
 `
 const HeaderText = styled.span`
@@ -24,6 +24,8 @@ const HeaderText = styled.span`
     font-size: ${Typography.xLarge.fontSize};
     padding-left: ${Spacing.padding._4}px;
     border: 2px solid transparent;
+    overflow-wrap: break-word;
+    min-width: 0;
 `
 const HeaderTextEditable = styled.input`
     margin-right: ${Spacing.margin._8}px;
@@ -35,6 +37,7 @@ const HeaderTextEditable = styled.input`
         border: 2px solid ${Colors.gray._400};
     }
     background-color: transparent;
+    width: 100%;
 `
 
 const immutableSectionIds = ['000000000000000000000000', '000000000000000000000001', '000000000000000000000004']
@@ -64,7 +67,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             navigate('/tasks')
         }
     }
-    const handleChangeSectionName = async (id: string | undefined, name: string) => {
+    const handleChangeSectionName = (id: string | undefined, name: string) => {
         const trimmedName = name.trim()
         if (id && trimmedName.length > 0) {
             modifyTaskSection({ sectionId: id, name: trimmedName })
@@ -85,7 +88,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         <HeaderTextEditable
             ref={sectionTitleRef}
             value={sectionName}
-            onChange={(e) => setSectionName(e.target.value)}
+            onChange={(e) => setSectionName(e.target.value.substring(0, 200))}
             onKeyDown={handleKeyDown}
             onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
             autoFocus

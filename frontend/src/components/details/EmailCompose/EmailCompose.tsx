@@ -3,33 +3,26 @@ import {
     ButtonsContainer,
     ComposeSelectorButtonContainer,
     EmailComposeContainer,
-    EmailComposeFormContainer,
-    EmailInput,
-    EmailInputContainer,
+    EmailFieldContainer,
+    EmailFieldInput,
+    FlexExpand,
 } from './EmailCompose-styles'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState, TRecipients } from '../../../utils/types'
 import { attachSubjectPrefix, getInitialRecipients, stripSubjectPrefix } from './emailComposeUtils'
+import toast, { ToastId, dismissToast } from '../../../utils/toast'
 
 import { Colors } from '../../../styles'
 import { Divider } from '../../atoms/SectionDivider'
 import { EMAIL_UNDO_TIMEOUT } from '../../../constants'
 import { EmailComposeType } from '../../../utils/enums'
 import EmailComposeTypeSelector from './EmailComposeTypeSelector'
-import EmailRecipientsInput from './EmailRecipientsInput'
+import EmailRecipientsForm from './EmailRecipientsForm'
 import EmailWithQuote from './EmailWithQuote'
 import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../atoms/TextArea'
 import { renderToString } from 'react-dom/server'
-import styled from 'styled-components'
 import { useComposeMessage } from '../../../services/api-query-hooks'
-
-const SubjectContainer = styled.div`
-    ${EmailInputContainer}
-`
-const SubjectInput = styled.input`
-    ${EmailInput}
-`
 
 interface EmailComposeProps {
     email: TEmail
@@ -44,6 +37,18 @@ const EmailCompose = (props: EmailComposeProps) => {
     )
     const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
+
+    const sentToastRef = useRef<ToastId>()
+    const toFieldRef = useRef<HTMLInputElement>(null)
+    const bodyFieldRef = useRef<HTMLTextAreaElement>(null)
+
+    useEffect(() => {
+        if (props.composeType === EmailComposeType.REPLY || props.composeType === EmailComposeType.REPLY_ALL) {
+            bodyFieldRef?.current?.focus()
+        } else {
+            toFieldRef?.current?.focus()
+        }
+    }, [props.email.message_id, props.composeType])
 
     useEffect(() => {
         setBody('')
@@ -89,9 +94,29 @@ const EmailCompose = (props: EmailComposeProps) => {
                     emailId: null,
                 })
             }, EMAIL_UNDO_TIMEOUT * 1000)
+            sentToastRef.current = toast(
+                {
+                    message: 'Your email was sent.',
+                    rightAction: {
+                        label: 'Undo',
+                        onClick: () => {
+                            clearTimeout(timeout)
+                            dismissToast(sentToastRef.current)
+                            props.setThreadComposeState((composeState) => ({
+                                ...composeState,
+                                isPending: false,
+                            }))
+                        },
+                    },
+                },
+                {
+                    autoClose: EMAIL_UNDO_TIMEOUT * 1000,
+                    pauseOnFocusLoss: false,
+                }
+            )
             props.setThreadComposeState((composeState) => ({
                 ...composeState,
-                undoTimeout: timeout,
+                isPending: true,
             }))
         },
         [sendEmail]
@@ -106,11 +131,10 @@ const EmailCompose = (props: EmailComposeProps) => {
             <ComposeSelectorButtonContainer>
                 <EmailComposeTypeSelector email={props.email} setThreadComposeState={props.setThreadComposeState} />
             </ComposeSelectorButtonContainer>
-            <EmailComposeFormContainer ref={(node) => node?.scrollIntoView()}>
-                <EmailRecipientsInput recipients={recipients} setRecipients={setRecipients} />
-                <SubjectContainer>
-                    <SubjectInput
-                        className="email-header"
+            <FlexExpand ref={(node) => node?.scrollIntoView()}>
+                <EmailRecipientsForm ref={toFieldRef} recipients={recipients} setRecipients={setRecipients} />
+                <EmailFieldContainer>
+                    <EmailFieldInput
                         placeholder="Subject"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
@@ -118,10 +142,11 @@ const EmailCompose = (props: EmailComposeProps) => {
                             e.stopPropagation()
                         }}
                     />
-                </SubjectContainer>
+                </EmailFieldContainer>
                 <Divider color={Colors.gray._200} />
                 <BodyContainer>
                     <TextArea
+                        ref={bodyFieldRef}
                         placeholder="Body"
                         setValue={(value) => {
                             setBody(value)
@@ -139,7 +164,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                     <RoundedGeneralButton onClick={onClose} value="Cancel" textStyle="dark" />
                     {isLoading && 'Sending...'}
                 </ButtonsContainer>
-            </EmailComposeFormContainer>
+            </FlexExpand>
         </EmailComposeContainer>
     )
 }
