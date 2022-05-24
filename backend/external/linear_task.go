@@ -83,6 +83,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		log.Error().Err(err).Interface("query", query).Msg("could not execute query")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
 	}
+	log.Debug().Interface("query", query).Send()
 
 	var tasks []*database.Item
 	for _, task := range query.Issues.Nodes {
