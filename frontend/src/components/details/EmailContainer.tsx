@@ -68,7 +68,7 @@ const Title = styled.div`
 `
 const UnreadIndicator = styled.div`
     position: absolute;
-    left: -16px;
+    left: -${Spacing.margin._16}px;
 `
 const SenderHeader = styled.div`
     display: flex;
