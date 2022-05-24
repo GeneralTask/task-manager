@@ -133,7 +133,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             <Fragment key={thread.emails[0].message_id}>
                                 <EmailContainer
                                     email={thread.emails[0]}
-                                    isLastThread={0 === thread.emails.length - 1}
+                                    isLastThread={thread.emails.length - 1 === 0}
                                     setThreadComposeState={setComposeState}
                                     sourceAccountId={thread.source.account_id}
                                 />
