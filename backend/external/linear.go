@@ -186,9 +186,7 @@ func GetLinearMeStruct(client *graphql.Client) (*LinearMeQuery, error) {
 	var query LinearMeQuery
 	err := client.Query(context.Background(), &query, nil)
 	if err != nil {
-		log.Error().Err(err).
-			//Interface("query", *query).
-			Msg("could not execute query")
+		log.Error().Err(err).Msg("could not execute query")
 		return nil, err
 	}
 	return &query, nil
