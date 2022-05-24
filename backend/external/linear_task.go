@@ -168,6 +168,6 @@ func (linearTask LinearTaskSource) ModifyMessage(userID primitive.ObjectID, acco
 	return nil
 }
 
-func (linearTask LinearTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (linearTask LinearTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }

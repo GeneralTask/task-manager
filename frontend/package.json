@@ -39,7 +39,6 @@
     "react-idle-timer": "^4.6.4",
     "react-is": ">= 16.8.0",
     "react-modal": "^3.14.4",
-    "react-multi-email": "^0.5.3",
     "react-query": "^3.34.16",
     "react-redux": "^7.2.6",
     "react-router-dom": "6",

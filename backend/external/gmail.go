@@ -589,7 +589,7 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 	return err
 }
 
-func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	// todo - mark all emails in the thread as read
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -615,13 +615,16 @@ func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID
 	if isUnread != nil {
 		err = changeLabelsOnEmailsInThread(gmailService, &threadItem, "UNREAD", *isUnread)
 	}
+	if IsArchived != nil {
+		err = changeLabelsOnEmailsInThread(gmailService, &threadItem, "INBOX", !*IsArchived)
+	}
 	return err
 }
 
 func changeLabelsOnEmailsInThread(gmailService *gmail.Service, threadItem *database.Item, labelToChange string, addLabel bool) error {
 	var err error
 	for _, email := range threadItem.EmailThread.Emails {
-		err = changeLabelOnMessage(gmailService, email.EmailID, "UNREAD", addLabel)
+		err = changeLabelOnMessage(gmailService, email.EmailID, labelToChange, addLabel)
 		if err != nil {
 			return err
 		}
@@ -641,7 +644,7 @@ func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToCh
 		emailID,
 		&modifyRequest,
 	).Do()
-	log.Print("resulting message:", message)
+	log.Debug().Msgf("resulting message: %+v", message)
 
 	return err
 }
