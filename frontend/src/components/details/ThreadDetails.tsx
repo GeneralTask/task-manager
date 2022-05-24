@@ -118,7 +118,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         <FlexColumnContainer>
             <>
                 <HeaderContainer>
-                    <Icon size={'medium'} source={logos.gmail} />
+                    <Icon size="medium" source={logos.gmail} />
                     <HeaderTitleContainer>
                         <Title>{title}</Title>
                         <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
