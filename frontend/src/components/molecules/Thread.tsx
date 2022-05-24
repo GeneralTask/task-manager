@@ -98,7 +98,7 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const bodyDirtyHTML = thread.emails[thread.emails.length - 1]?.body
     const sentAt = getHumanDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
     // const isUnread = thread.emails.any((email) => email.is_unread)
-    const isUnread = !!thread.emails.find((email) => email.is_unread)
+    const isUnread = thread.emails.some((email) => email.is_unread)
 
     return (
         <ThreadContainer ref={elementRef} isSelected={isSelected} isUnread={isUnread} onClick={onClickHandler}>
