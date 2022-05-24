@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -46,7 +47,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 		OrderBy("startTime").
 		Do()
 	if err != nil {
-		log.Error().Msgf("unable to load calendar events: %v", err)
+		log.Error().Err(err).Msg("unable to load calendar events")
 		result <- emptyCalendarResult(err)
 		return
 	}
@@ -178,10 +179,10 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 		ConferenceDataVersion(1).
 		Do()
 	if err != nil {
-		log.Error().Msgf("Unable to create event. %v\n", err)
+		log.Error().Err(err).Msg("unable to create event")
 		return err
 	}
-	log.Error().Msgf("Event created: %s\n", gcalEvent.HtmlLink)
+	log.Info().Msgf("Event created: %s\n", gcalEvent.HtmlLink)
 
 	return nil
 }
@@ -224,7 +225,7 @@ func (googleCalendar GoogleCalendarSource) ModifyMessage(userID primitive.Object
 	return nil
 }
 
-func (googleCalendar GoogleCalendarSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (googleCalendar GoogleCalendarSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }
 
@@ -271,7 +272,7 @@ func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID
 	} else {
 		client := getGoogleHttpClient(db, userID, accountID)
 		if client == nil {
-			log.Error().Msgf("failed to fetch google API token")
+			log.Error().Msg("failed to fetch google API token")
 			return nil, errors.New("failed to fetch google API token")
 		}
 		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
@@ -279,8 +280,8 @@ func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID
 		calendarService, err = calendar.NewService(extCtx, option.WithHTTPClient(client))
 	}
 	if err != nil {
-		log.Error().Msgf("unable to create calendar service: %v", err)
-		return nil, fmt.Errorf("unable to create calendar service: %v", err)
+		log.Error().Err(err).Msg("unable to create calendar service")
+		return nil, fmt.Errorf("unable to create calendar service")
 	}
 	return calendarService, nil
 }

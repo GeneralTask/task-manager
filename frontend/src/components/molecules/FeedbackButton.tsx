@@ -14,7 +14,7 @@ const FeedbackButton = () => {
     }
     return (
         <>
-            <RoundedGeneralButton value="Share your feedback?" color={Colors.purple._1} onPress={openModal} />
+            <RoundedGeneralButton value="Share your feedback?" color={Colors.purple._1} onClick={openModal} />
             <ModalView>
                 <FeedbackView />
             </ModalView>

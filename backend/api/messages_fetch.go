@@ -33,7 +33,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
-		log.Error().Msgf("failed to find user: %v", err)
+		log.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
 		return
 	}
@@ -52,7 +52,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to fetch api tokens: %v", err)
+		log.Error().Err(err).Msg("failed to fetch api tokens")
 		Handle500(c)
 		return
 	}
@@ -60,7 +60,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
-		log.Error().Msgf("failed to iterate through api tokens: %v", err)
+		log.Error().Err(err).Msg("failed to iterate through api tokens")
 		Handle500(c)
 		return
 	}
@@ -123,7 +123,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		// For now, marking as GT_TASK source to show visual distinction from emails
 		taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(external.TASK_SOURCE_ID_GT_TASK)
 		if err != nil {
-			log.Error().Msgf("error loading task service: %v", err)
+			log.Error().Err(err).Msg("error loading task service")
 			Handle500(c)
 			return
 		}
@@ -134,7 +134,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 			`issue will happen less often!</i></body></html>`)
 		body = fmt.Sprintf(body, config.GetConfigValue("SERVER_URL"))
 		if err != nil {
-			log.Error().Msgf("failed to convert plain text to HTML: %v", err)
+			log.Error().Err(err).Msg("failed to convert plain text to HTML")
 			continue
 		}
 		badTokenMessages = append([]*message{

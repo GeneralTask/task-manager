@@ -45,7 +45,7 @@ func (generalTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 	)
 	var tasks []*database.Item
 	if err != nil || cursor.All(dbCtx, &tasks) != nil {
-		log.Error().Msgf("failed to fetch general task tasks: %v", err)
+		log.Error().Err(err).Msg("failed to fetch general task tasks")
 		result <- emptyTaskResult(err)
 		return
 	}
@@ -116,6 +116,6 @@ func (generalTask GeneralTaskTaskSource) ModifyMessage(userID primitive.ObjectID
 	return nil
 }
 
-func (generalTask GeneralTaskTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (generalTask GeneralTaskTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }

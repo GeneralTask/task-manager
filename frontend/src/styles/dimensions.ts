@@ -21,4 +21,3 @@ export const COLLAPSED_CALENDAR_WIDTH = 40;
 export const TASK_ACTION_WIDTH = '200px'
 export const DEFAULT_VIEW_WIDTH = '480px'
 export const TASK_DEFAULT_LINE_HEIGHT = 17;
-export const INPUT_VARIABLE_DEFAULT_LINE_HEIGHT = 31;

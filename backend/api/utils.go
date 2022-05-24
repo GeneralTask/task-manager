@@ -3,8 +3,9 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/rs/zerolog/log"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -79,7 +80,7 @@ func TokenMiddleware(c *gin.Context) {
 	defer cancel()
 	err = internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": token}).Decode(&internalToken)
 	if err != nil {
-		log.Error().Msgf("auth failed: %v\n", err)
+		log.Error().Err(err).Msg("token auth failed")
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
 		return
 	}

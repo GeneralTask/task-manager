@@ -1,14 +1,12 @@
 package api
 
 import (
-	"io/ioutil"
+	"github.com/GeneralTask/task-manager/backend/config"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
-	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/stretchr/testify/assert"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 )
 
 func TestLinkSlack(t *testing.T) {
@@ -20,7 +18,7 @@ func TestLinkSlack(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		TestAuthorizeSuccess(t, GetAPI(), "/link/slack/", func(stateToken string) string {
-			return "<a href=\"https://slack.com/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("SLACK_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=https%3A%2F%2Fapi.generaltask.com%2Flink%2Fslack%2Fcallback&amp;response_type=code&amp;scope=channels%3Ahistory+channels%3Aread+im%3Aread+mpim%3Ahistory+im%3Ahistory+groups%3Ahistory+groups%3Aread+mpim%3Awrite+im%3Awrite+channels%3Awrite+groups%3Awrite+chat%3Awrite%3Auser&amp;state=" + stateToken + "\">Found</a>.\n\n"
+			return "<a href=\"https://slack.com/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("SLACK_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flink%2Fslack%2Fcallback%2F&amp;response_type=code&amp;scope=identify+channels%3Ahistory+channels%3Aread+im%3Aread+mpim%3Ahistory+im%3Ahistory+groups%3Ahistory+groups%3Aread+mpim%3Awrite+im%3Awrite+channels%3Awrite+groups%3Awrite+chat%3Awrite%3Auser&amp;state=" + stateToken + "\">Found</a>.\n\n"
 		})
 	})
 }
@@ -45,25 +43,34 @@ func TestLinkSlackCallback(t *testing.T) {
 		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/link/slack/callback/")
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
-		server := getTokenServerForSlack(t, http.StatusUnauthorized)
+		server := testutils.GetMockAPIServer(t, http.StatusUnauthorized, `{}`)
 		api := GetAPI()
-		(api.ExternalConfig.Slack.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+		(api.ExternalConfig.Slack.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/link/slack/callback/")
+	})
+	t.Run("FailedUserInfoResponse", func(t *testing.T) {
+		api := GetAPI()
+		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"access_token":"sample-access-token"}`)
+		(api.ExternalConfig.Slack.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+		userInfoServer := testutils.GetMockAPIServer(t, http.StatusBadRequest, `{
+			"ok": true,
+			"url": "https://tothemoon.slack.com/",
+			"team": "Dogecoin",
+			"user": "shibetoshi",
+			"team_id": "T69420694",
+			"user_id": "W42069420"
+		}`)
+		userInfoURL := userInfoServer.URL + "/"
+		api.ExternalConfig.Slack.ConfigValues.UserInfoURL = &userInfoURL
 		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/link/slack/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
-		server := getTokenServerForSlack(t, http.StatusOK)
 		api := GetAPI()
-		(api.ExternalConfig.Slack.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"access_token":"sample-access-token"}`)
+		(api.ExternalConfig.Slack.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+		userInfoServer := testutils.GetMockAPIServer(t, http.StatusOK, `{}`)
+		userInfoURL := userInfoServer.URL + "/"
+		api.ExternalConfig.Slack.ConfigValues.UserInfoURL = &userInfoURL
 		TestAuthorizeCallbackSuccessfulResponse(t, api, "/link/slack/callback/", external.TASK_SERVICE_ID_SLACK)
 	})
-}
-
-func getTokenServerForSlack(t *testing.T, statusCode int) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := ioutil.ReadAll(r.Body)
-		assert.NoError(t, err)
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(statusCode)
-		w.Write([]byte(`{"access_token":"sample-access-token"}`))
-	}))
 }

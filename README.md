@@ -48,7 +48,7 @@ go run .
 curl localhost:8080/ping
 ```
 
-We can setup the server to rebuild/rerun upon local file changes using [air](https://github.com/cosmtrek/air) and also control the log level by setting the environment variable `LOG_LEVEL`
+We can setup the server to rebuild/rerun upon local file changes using [air](https://github.com/cosmtrek/air) and also control the log level by setting the environment variable `LOG_LEVEL` (e.g. `info`, `debug`, etc.)
 
 ## Backend testing
 
@@ -70,6 +70,8 @@ To run tests through VS Code, put the following snippet in your `settings.json`:
         "DB_NAME": "test"
     },
 ```
+
+To run tests through GoLand, go to `Run | Edit Configurations` and then add a new `Go Test` configuration with `DB_NAME=test`
 
 ## Deploying backend
 

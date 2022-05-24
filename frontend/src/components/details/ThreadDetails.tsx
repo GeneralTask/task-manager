@@ -1,14 +1,19 @@
-import { Colors, Spacing, Typography } from '../../styles'
+import { Colors, Shadows, Spacing, Typography } from '../../styles'
 import React, { Fragment, useLayoutEffect, useState } from 'react'
-import { SentEmailBanner, UndoButton } from './EmailCompose/EmailCompose-styles'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
+import { icons, logos } from '../../styles/images'
 
+import EmailCompose from './EmailCompose/EmailCompose'
 import EmailContainer from './EmailContainer'
 import EmailMainActions from './EmailCompose/EmailMainActions'
 import { Icon } from '../atoms/Icon'
-import { logos } from '../../styles/images'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import styled from 'styled-components'
-import EmailCompose from './EmailCompose/EmailCompose'
+import toast from '../../utils/toast'
+import { useCreateTaskFromThread } from '../../services/api-query-hooks'
+import { useNavigate } from 'react-router-dom'
+
+const THREAD_HEADER_HEIGHT = '118px'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
@@ -17,13 +22,13 @@ const FlexColumnContainer = styled.div`
     min-width: 300px;
 `
 const HeaderContainer = styled.div`
-    flex: 0;
     display: flex;
-    height: 70px;
-    padding: ${Spacing.padding._16}px;
+    height: ${THREAD_HEADER_HEIGHT};
+    padding: 0 ${Spacing.padding._16}px;
     align-items: center;
     background-color: ${Colors.white};
     position: sticky;
+    box-shadow: ${Shadows.threadHeaderShadow};
 `
 const HeaderTitleContainer = styled.div`
     display: flex;
@@ -37,11 +42,15 @@ const Title = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: ${Typography.small.fontSize};
+    font-size: ${Typography.medium.fontSize};
+    line-height: ${Typography.medium.lineHeight};
+    font-weight: ${Typography.weight._600};
     color: ${Colors.gray._600};
 `
 const SubTitle = styled(Title)`
     font-size: ${Typography.xSmall.fontSize};
+    line-height: ${Typography.xSmall.lineHeight};
+    font-weight: ${Typography.weight._400};
     color: ${Colors.gray._400};
 `
 const EmailThreadsContainer = styled.div`
@@ -51,9 +60,11 @@ const EmailThreadsContainer = styled.div`
 `
 
 interface ThreadDetailsProps {
-    thread: TEmailThread | undefined
+    thread: TEmailThread
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
+    const navigate = useNavigate()
+    const { mutate: createTaskFromThread } = useCreateTaskFromThread()
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
         emailId: null,
@@ -63,87 +74,86 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
             emailComposeType: null,
             emailId: null,
         })
-    }, [thread?.id])
+    }, [thread.id])
 
-    const title = `${thread?.emails[0]?.subject ?? ''} (${thread?.emails.length ?? 0})`
+    const title = `${thread.emails[0]?.subject ?? ''} (${thread.emails.length ?? 0})`
     const recipient_emails = Array.from(
         new Set(
-            thread?.emails
+            thread.emails
                 .map((email) => email.recipients.to)
                 .flat()
                 .map((recipient) => recipient.email)
         )
     )
 
-    const onUndoSend = () => {
-        if (composeState.undoTimeout) clearTimeout(composeState.undoTimeout)
-        setComposeState({
-            ...composeState,
-            undoTimeout: undefined,
+    const onClickHander = () => {
+        createTaskFromThread({
+            title: thread.emails[thread.emails.length - 1].subject,
+            body: '',
+            thread_id: thread.id,
+        })
+        toast({
+            message: 'This thread was converted into a task.',
+            rightAction: {
+                label: 'View Task',
+                onClick: () => {
+                    navigate('/tasks')
+                },
+            },
         })
     }
 
     return (
         <FlexColumnContainer>
-            {thread && (
-                <>
-                    <HeaderContainer>
-                        <Icon size={'medium'} source={logos.gmail} />
-                        <HeaderTitleContainer>
-                            <Title>{title}</Title>
-                            <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
-                        </HeaderTitleContainer>
-                    </HeaderContainer>
-                    <EmailThreadsContainer>
-                        {thread.emails.map((email, index) => (
-                            <Fragment key={email.message_id}>
-                                <EmailContainer
-                                    email={email}
-                                    isLastThread={index === thread.emails.length - 1}
-                                    composeState={composeState}
-                                    setThreadComposeState={setComposeState}
-                                    sourceAccountId={thread.source.account_id}
-                                />
-                                {composeState.emailId === email.message_id &&
-                                    index !== thread.emails.length - 1 &&
-                                    composeState.emailComposeType != null && (
-                                        <EmailCompose
-                                            email={thread.emails[thread?.emails.length - 1]}
-                                            composeType={composeState.emailComposeType}
-                                            sourceAccountId={thread.source.account_id}
-                                            isPending={composeState.undoTimeout !== undefined}
-                                            setThreadComposeState={setComposeState}
-                                        />
-                                    )}
-                            </Fragment>
-                        ))}
-
-                        {composeState.undoTimeout !== undefined && (
-                            <SentEmailBanner>
-                                Your email was sent.
-                                <UndoButton onClick={onUndoSend}>Undo</UndoButton>
-                            </SentEmailBanner>
-                        )}
-                    </EmailThreadsContainer>
-                    {composeState.emailComposeType === null && (
-                        <EmailMainActions
-                            email={thread.emails[thread.emails.length - 1]}
+            <HeaderContainer>
+                <Icon size="medium" source={logos.gmail} />
+                <HeaderTitleContainer>
+                    <Title>{title}</Title>
+                    <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
+                </HeaderTitleContainer>
+                <NoStyleButton onClick={onClickHander}>
+                    <Icon source={icons.message_to_task} size="small" />
+                </NoStyleButton>
+            </HeaderContainer>
+            <EmailThreadsContainer>
+                {thread.emails.map((email, index) => (
+                    <Fragment key={email.message_id}>
+                        <EmailContainer
+                            email={email}
+                            isLastThread={index === thread.emails.length - 1}
                             setThreadComposeState={setComposeState}
+                            sourceAccountId={thread.source.account_id}
                         />
-                    )}
-                </>
-            )}
-            {thread &&
-                composeState.emailId === thread.emails[thread.emails.length - 1].message_id &&
+                        {composeState.emailId === email.message_id &&
+                            index !== thread.emails.length - 1 &&
+                            composeState.emailComposeType != null && (
+                                <EmailCompose
+                                    email={email}
+                                    composeType={composeState.emailComposeType}
+                                    sourceAccountId={thread.source.account_id}
+                                    isPending={!!composeState.isPending}
+                                    setThreadComposeState={setComposeState}
+                                />
+                            )}
+                    </Fragment>
+                ))}
+            </EmailThreadsContainer>
+            {composeState.emailId === thread.emails[thread.emails.length - 1].message_id &&
                 composeState.emailComposeType != null && (
                     <EmailCompose
-                        email={thread.emails[thread?.emails.length - 1]}
+                        email={thread.emails[thread.emails.length - 1]}
                         composeType={composeState.emailComposeType}
                         sourceAccountId={thread.source.account_id}
-                        isPending={composeState.undoTimeout !== undefined}
+                        isPending={!!composeState.isPending}
                         setThreadComposeState={setComposeState}
                     />
                 )}
+            {composeState.emailComposeType === null && (
+                <EmailMainActions
+                    email={thread.emails[thread.emails.length - 1]}
+                    setThreadComposeState={setComposeState}
+                />
+            )}
         </FlexColumnContainer>
     )
 }
