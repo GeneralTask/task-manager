@@ -7,8 +7,8 @@ import { icons, logos } from '../../../styles/images'
 import { Icon } from '../Icon'
 import JoinMeetingButton from '../buttons/JointMeetingButton'
 import { CursorPointerDiv } from '../../calendar/CalendarHeader'
-import { FlexGrowView } from '../../details/DetailsTemplate'
 import NoStyleButton from '../buttons/NoStyleButton'
+import NoStyleAnchor from '../NoStyleAnchor'
 
 const FooterView = styled.div`
     position: absolute;
@@ -45,7 +45,7 @@ const FooterText = styled.span`
     white-space: nowrap;
     font-weight: ${Typography.weight._500};
     color: ${Colors.gray._600};
-    justify-content: space_between;
+    justify-content: space-between;
     margin-top: ${Spacing.margin._12}px;
     margin-left: ${Spacing.margin._12}px;
     align-content: space-between;
@@ -95,6 +95,7 @@ const CursorText = styled.span`
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
     text-decoration: none;
+    align-items: center;
 `
 const CursorArea = styled.span`
     align-self: right;
@@ -114,18 +115,16 @@ const Recommendation = styled.span`
 const ScheduleGapFiller = () => {
     const [recommendationIndex, setRecommendation] = useState(0)
     const { data: event } = useMeetingBanner()
-    let eventTitle = ''
-    let eventsubTitle = ''
     if (event == undefined) {
         return null
     }
-    eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
-    eventsubTitle = event.subtitle.length > 0 ? event.subtitle : NO_EVENT_TITLE
-    const action = event.actions
+    const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
+    const eventsubTitle = event.subtitle.length > 0 ? event.subtitle : NO_EVENT_TITLE
+    const actions = event.actions
     const numEvents = event.events.length
-    const link = action[recommendationIndex].link
+    const link = actions[recommendationIndex].link
 
-    return numEvents >= 2 ? (
+    return (
         <FooterView>
             <FooterTextView>
                 <FooterHeaderArea>
@@ -136,46 +135,31 @@ const ScheduleGapFiller = () => {
                 <FooterText>
                     <Recommendation>
                         <NoStyleButton onClick={() => window.open(link)}>
-                            <Icon size="large" source={logos[action[recommendationIndex].logo]} />
+                            <Icon size="large" source={logos[actions[recommendationIndex].logo]} />
                         </NoStyleButton>
-                        <a href={action[recommendationIndex].link} style={{ textDecoration: 'none' }}>
-                            <RecommendationText>{action[recommendationIndex].title}</RecommendationText>
-                        </a>
+                        <NoStyleAnchor href={actions[recommendationIndex].link} style={{ textDecoration: 'none' }}>
+                            <RecommendationText>{actions[recommendationIndex].title}</RecommendationText>
+                        </NoStyleAnchor>
                     </Recommendation>
-                    <FlexGrowView />
-                    <CursorView>
-                        <CursorArea>
-                            <CursorPointerDiv onClick={() => setRecommendation((recommendationIndex - 1) % numEvents)}>
-                                <Icon source={icons.caret_left} size="small" />
-                            </CursorPointerDiv>
-                            <CursorPointerDiv onClick={() => setRecommendation((recommendationIndex + 1) % numEvents)}>
-                                <Icon source={icons.caret_right} size="small" />
-                            </CursorPointerDiv>
-                        </CursorArea>
-                        <CursorText>
-                            {recommendationIndex + 1} of {numEvents}
-                        </CursorText>
-                    </CursorView>
-                </FooterText>
-            </FooterTextView>
-        </FooterView>
-    ) : (
-        <FooterView>
-            <FooterTextView>
-                <FooterHeaderArea>
-                    <HeaderText>{eventTitle}</HeaderText>
-                    <JoinMeetingButton conferenceCall={event.events[0]?.conference_call}></JoinMeetingButton>
-                </FooterHeaderArea>
-                <BodyTextArea>{eventsubTitle}</BodyTextArea>
-                <FooterText>
-                    <Recommendation>
-                        <NoStyleButton onClick={() => window.open(link)}>
-                            <Icon size="large" source={logos[action[recommendationIndex].logo]} />
-                        </NoStyleButton>
-                        <a href={action[recommendationIndex].link} style={{ textDecoration: 'none' }}>
-                            <RecommendationText>{action[recommendationIndex].title}</RecommendationText>
-                        </a>
-                    </Recommendation>
+                    {numEvents > 1 && (
+                        <CursorView>
+                            <CursorArea>
+                                <CursorPointerDiv
+                                    onClick={() => setRecommendation((recommendationIndex - 1) % numEvents)}
+                                >
+                                    <Icon source={icons.caret_left} size="small" />
+                                </CursorPointerDiv>
+                                <CursorPointerDiv
+                                    onClick={() => setRecommendation((recommendationIndex + 1) % numEvents)}
+                                >
+                                    <Icon source={icons.caret_right} size="small" />
+                                </CursorPointerDiv>
+                            </CursorArea>
+                            <CursorText>
+                                {recommendationIndex + 1} of {numEvents}
+                            </CursorText>
+                        </CursorView>
+                    )}
                 </FooterText>
             </FooterTextView>
         </FooterView>
