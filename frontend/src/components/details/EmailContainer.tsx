@@ -70,7 +70,7 @@ const UnreadIndicator = styled.div`
     position: absolute;
     left: -16px;
 `
-const Flex = styled.div`
+const SenderHeader = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -107,13 +107,13 @@ const EmailContainer = (props: EmailContainerProps) => {
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
                 <SenderContainer>
                     <div>
-                        <Flex>
+                        <SenderHeader>
                             <UnreadIndicator>
-                                {props.email.is_unread && <Icon size="xxSmall" source={icons.unread_dot} />}
+                                {props.email.is_unread && <Icon size="xxSmall" source={icons.dot} />}
                             </UnreadIndicator>
                             <Title>{props.email.sender.name}</Title>
                             <SentAtContainer>{timeSent}</SentAtContainer>
-                        </Flex>
+                        </SenderHeader>
                     </div>
                     <EmailComposeTypeSelector
                         email={props.email}

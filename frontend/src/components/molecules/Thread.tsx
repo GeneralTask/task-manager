@@ -14,7 +14,7 @@ const TitleContainer = styled.div`
     flex-direction: column;
     min-width: 0;
 `
-const Title = styled.span<{ bold?: boolean }>`
+const Title = styled.span<{ bold: boolean }>`
     margin-left: ${Spacing.margin._8}px;
     white-space: nowrap;
     overflow: hidden;
@@ -97,14 +97,14 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const title = `${threadCountString} ${thread.emails[0]?.subject}`
     const bodyDirtyHTML = thread.emails[thread.emails.length - 1]?.body
     const sentAt = getHumanDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
-    const isUnread = !thread.emails.every((email) => !email.is_unread)
+    const isUnread = thread.emails.any((email) => email.is_unread)
 
     return (
         <ThreadContainer ref={elementRef} isSelected={isSelected} isUnread={isUnread} onClick={onClickHandler}>
             <TitleContainer>
                 <Title bold={isUnread}>{senders}</Title>
                 <SubTitle bold={isUnread}>{title}</SubTitle>
-                <BodyPreview>{removeHTMLTags(bodyDirtyHTML)}</BodyPreview>
+                <BodyPreview bold={false}>{removeHTMLTags(bodyDirtyHTML)}</BodyPreview>
             </TitleContainer>
             <SentAtContainer>{sentAt}</SentAtContainer>
         </ThreadContainer>
