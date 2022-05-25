@@ -1,5 +1,5 @@
 import { Colors, Shadows, Spacing, Typography } from '../../styles'
-import React, { Fragment, useLayoutEffect, useState } from 'react'
+import React, { Fragment, useLayoutEffect, useMemo, useState } from 'react'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 import { icons, logos } from '../../styles/images'
 
@@ -65,7 +65,10 @@ interface ThreadDetailsProps {
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     const [isCollapsed, setIsCollapsed] = useState(true)
-    const [isUnread, setIsUnread] = useState(thread.emails.some((email) => email.is_unread))
+    const isUnread = useMemo(
+        () => thread.emails.some((email) => email.is_unread),
+        [...thread.emails.map((email) => email.is_unread)]
+    )
     const navigate = useNavigate()
     const { mutate: createTaskFromThread } = useCreateTaskFromThread()
     const { mutate: modifyThread } = useModifyThread()
@@ -73,9 +76,6 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         emailComposeType: null,
         emailId: null,
     })
-    useLayoutEffect(() => {
-        setIsUnread(thread.emails.some((email) => email.is_unread))
-    }, [JSON.stringify(thread)])
     useLayoutEffect(() => {
         setComposeState({
             emailComposeType: null,
@@ -118,7 +118,6 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         toast({
             message: `This thread was marked as ${!isUnread ? 'unread' : 'read'}.`,
         })
-        setIsUnread(!isUnread)
     }
 
     return (
