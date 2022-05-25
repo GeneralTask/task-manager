@@ -17,6 +17,7 @@ import useItemSelectionController from '../../hooks/useItemSelectionController'
 import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
 import ScheduleGapFiller from '../atoms/scheduleGapFiller/ScheduleGapFiller'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
+import ThreadDetails from '../details/ThreadDetails'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;

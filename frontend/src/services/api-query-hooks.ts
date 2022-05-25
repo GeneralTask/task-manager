@@ -180,7 +180,19 @@ export const useCreateTaskFromThread = () => {
                     recipients: {} as TRecipients,
                     linked_email_thread: {
                         linked_thread_id: data.thread_id,
-                        emails: []
+                        email_thread: {
+                            id: '0',
+                            deeplink: '',
+                            source: {
+                                account_id: '0',
+                                name: 'Gmail',
+                                logo: '',
+                                logo_v2: 'gmail',
+                                is_completable: false,
+                                is_replyable: true,
+                            },
+                            emails: []
+                        }
                     }
                 },
                 ...sections[0].tasks
