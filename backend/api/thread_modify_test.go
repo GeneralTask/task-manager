@@ -209,10 +209,10 @@ func TestChangeThreadReadStatus(t *testing.T) {
 
 	t.Run("GmailSuccessArchive", func(t *testing.T) {
 		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
-		unreadGmailModifyServer := getGmailChangeLabelServer(t, "INBOX", false)
+		archivedGmailModifyServer := getGmailChangeLabelServer(t, "INBOX", false)
 
 		api := GetAPI()
-		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
+		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &archivedGmailModifyServer.URL
 		archivedRouter := GetRouter(api)
 
 		var threadItem database.Item
@@ -243,10 +243,10 @@ func TestChangeThreadReadStatus(t *testing.T) {
 
 	t.Run("GmailSuccessUnArchive", func(t *testing.T) {
 		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
-		unreadGmailModifyServer := getGmailChangeLabelServer(t, "INBOX", true)
+		archivedGmailModifyServer := getGmailChangeLabelServer(t, "INBOX", true)
 
 		api := GetAPI()
-		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
+		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &archivedGmailModifyServer.URL
 		archivedRouter := GetRouter(api)
 
 		var threadItem database.Item
