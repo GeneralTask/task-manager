@@ -45,7 +45,7 @@ const MessagesView = () => {
     } = useGetInfiniteThreads()
     const { mutate: modifyThread } = useModifyThread()
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
-    const unreadTimer = useRef<{ timeout: NodeJS.Timeout; callback: () => void }>()
+    const unreadTimer = useRef<NodeJS.Timeout>()
 
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
     useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
@@ -62,12 +62,9 @@ const MessagesView = () => {
             navigate(`/messages/${expandedThread.id}`)
             const markAsRead = () => modifyThread({ thread_id: expandedThread.id, is_unread: false })
             if (expandedThread.emails.some((email) => email.is_unread)) {
-                unreadTimer.current = {
-                    timeout: setTimeout(markAsRead, TASK_MARK_AS_READ_TIMEOUT * 1000),
-                    callback: markAsRead,
-                }
+                unreadTimer.current = setTimeout(markAsRead, TASK_MARK_AS_READ_TIMEOUT * 1000)
             } else if (unreadTimer.current) {
-                clearTimeout(unreadTimer.current.timeout)
+                clearTimeout(unreadTimer.current)
             }
         }
     }, [expandedThread])
