@@ -277,10 +277,8 @@ func TestChangeThreadReadStatus(t *testing.T) {
 
 	t.Run("BadParamGmailArchive", func(t *testing.T) {
 		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
-		archivedGmailModifyServer := getGmailChangeLabelServer(t, "INBOX", false)
 
 		api := GetAPI()
-		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &archivedGmailModifyServer.URL
 		archivedRouter := GetRouter(api)
 
 		var threadItem database.Item
