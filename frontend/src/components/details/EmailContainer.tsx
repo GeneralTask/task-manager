@@ -9,6 +9,8 @@ import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import ReactTooltip from 'react-tooltip'
 import SanitizedHTML from '../atoms/SanitizedHTML'
 import styled from 'styled-components'
+import { Icon } from '../atoms/Icon'
+import { icons } from '../../styles/images'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -35,13 +37,13 @@ const SentAtContainer = styled.div`
 `
 const BodyContainer = styled.div`
     flex: 1;
-    margin: ${Spacing.margin._8}px;
+    margin: ${Spacing.margin._20}px;
     * > div {
         white-space: pre-wrap;
     }
 `
 const BodyContainerCollapsed = styled.span`
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._20}px;
     flex: 1;
     overflow: hidden;
     white-space: nowrap;
@@ -50,7 +52,7 @@ const BodyContainerCollapsed = styled.span`
     color: ${Colors.gray._400};
 `
 const EmailSenderDetailsContainer = styled.div`
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._20}px;
     margin-bottom: ${Spacing.margin._8}px;
     width: fit-content;
 `
@@ -64,8 +66,16 @@ const Title = styled.div`
     display: flex;
     flex: 1;
 `
-const Flex = styled.div`
+const UnreadIndicator = styled.div`
+    position: absolute;
+    left: -${Spacing.margin._16}px;
+`
+const SenderHeader = styled.div`
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    position: relative;
+    margin-left: ${Spacing.margin._12}px;
 `
 
 interface EmailContainerProps {
@@ -97,10 +107,13 @@ const EmailContainer = (props: EmailContainerProps) => {
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
                 <SenderContainer>
                     <div>
-                        <Flex>
+                        <SenderHeader>
+                            <UnreadIndicator>
+                                {props.email.is_unread && <Icon size="xxSmall" source={icons.dot} />}
+                            </UnreadIndicator>
                             <Title>{props.email.sender.name}</Title>
                             <SentAtContainer>{timeSent}</SentAtContainer>
-                        </Flex>
+                        </SenderHeader>
                     </div>
                     <EmailComposeTypeSelector
                         email={props.email}

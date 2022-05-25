@@ -16,6 +16,7 @@ export const icons: { [key: string]: string } = {
     archive: '/images/archive.svg',
     arrows_in: '/images/arrows_in.png',
     arrows_out: '/images/arrows_out.png',
+    dot: '/images/dot.svg',
     calendar_blank: '/images/calendar_blank.png',
     caret_down: '/images/caret_down.svg',
     caret_left: '/images/caret_left.png',
