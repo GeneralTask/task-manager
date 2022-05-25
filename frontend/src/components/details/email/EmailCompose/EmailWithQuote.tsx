@@ -1,7 +1,7 @@
-import { EmailComposeType } from '../../../utils/enums'
+import { EmailComposeType } from '../../../../utils/enums'
 import React from 'react'
-import SanitizedHTML from '../../atoms/SanitizedHTML'
-import { TEmail } from '../../../utils/types'
+import SanitizedHTML from '../../../atoms/SanitizedHTML'
+import { TEmail } from '../../../../utils/types'
 import { formatSentAtDateTime } from './emailComposeUtils'
 
 // styles copied from Gmail email HTML

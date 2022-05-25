@@ -8,21 +8,21 @@ import {
     FlexExpand,
 } from './EmailCompose-styles'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { TEmail, TEmailComposeState, TRecipients } from '../../../utils/types'
+import { TEmail, TEmailComposeState, TRecipients } from '../../../../utils/types'
 import { attachSubjectPrefix, getInitialRecipients, stripSubjectPrefix } from './emailComposeUtils'
-import toast, { ToastId, dismissToast } from '../../../utils/toast'
+import toast, { ToastId, dismissToast } from '../../../../utils/toast'
 
-import { Colors } from '../../../styles'
-import { Divider } from '../../atoms/SectionDivider'
-import { EMAIL_UNDO_TIMEOUT } from '../../../constants'
-import { EmailComposeType } from '../../../utils/enums'
+import { Colors } from '../../../../styles'
+import { Divider } from '../../../atoms/SectionDivider'
+import { EMAIL_UNDO_TIMEOUT } from '../../../../constants'
+import { EmailComposeType } from '../../../../utils/enums'
 import EmailComposeTypeSelector from './EmailComposeTypeSelector'
 import EmailRecipientsForm from './EmailRecipientsForm'
 import EmailWithQuote from './EmailWithQuote'
-import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
-import TextArea from '../../atoms/TextArea'
+import RoundedGeneralButton from '../../../atoms/buttons/RoundedGeneralButton'
+import TextArea from '../../../atoms/TextArea'
 import { renderToString } from 'react-dom/server'
-import { useComposeMessage } from '../../../services/api-query-hooks'
+import { useComposeMessage } from '../../../../services/api-query-hooks'
 
 interface EmailComposeProps {
     email: TEmail

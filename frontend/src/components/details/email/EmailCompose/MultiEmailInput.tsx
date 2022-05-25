@@ -1,11 +1,11 @@
 import { EmailFieldContainer, EmailFieldInput, EmailTag, EmailTagText } from './EmailCompose-styles'
 import React, { forwardRef, useCallback, useState } from 'react'
 
-import { Icon } from '../../atoms/Icon'
-import NoStyleButton from '../../atoms/buttons/NoStyleButton'
-import { TRecipient } from '../../../utils/types'
-import { icons } from '../../../styles/images'
-import { isValidEmail } from '../../../utils/utils'
+import { Icon } from '../../../atoms/Icon'
+import NoStyleButton from '../../../atoms/buttons/NoStyleButton'
+import { TRecipient } from '../../../../utils/types'
+import { icons } from '../../../../styles/images'
+import { isValidEmail } from '../../../../utils/utils'
 
 const ADD_RECIPIENT_KEYBOARD_SHORTCUTS = ['Enter', 'Tab', ' ', ',']
 const DELETE_RECIPIENT_KEYBOARD_SHORTCUTS = 'Backspace'

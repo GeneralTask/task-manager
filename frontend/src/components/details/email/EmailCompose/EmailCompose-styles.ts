@@ -1,6 +1,6 @@
-import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../../../styles'
 
-import NoStyleButton from '../../atoms/buttons/NoStyleButton'
+import NoStyleButton from '../../../atoms/buttons/NoStyleButton'
 import styled from 'styled-components'
 
 export const EmailFieldContainer = styled.div`
