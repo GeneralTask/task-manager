@@ -24,9 +24,9 @@ type TaskSource struct {
 }
 
 type linkedEmailThread struct {
-	LinkedThreadID *primitive.ObjectID `json:"linked_thread_id,omitempty"`
-	LinkedEmailID  *primitive.ObjectID `json:"linked_email_id,omitempty"`
-	Emails         *[]email            `bson:"emails,omitempty" json:"emails,omitempty"`
+	LinkedThreadID *primitive.ObjectID    `json:"linked_thread_id,omitempty"`
+	LinkedEmailID  *primitive.ObjectID    `json:"linked_email_id,omitempty"`
+	EmailThread    *ThreadDetailsResponse `bson:"email_thread,omitempty" json:"email_thread,omitempty"`
 }
 
 type TaskResult struct {
@@ -238,8 +238,9 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 			log.Error().Err(err).Interface("threadID", t.LinkedMessage.ThreadID).Msg("Could not find linked thread in db")
 			return taskResult
 		}
+
 		taskResult.LinkedEmailThread = &linkedEmailThread{
-			Emails:         createThreadEmailsResponse(&thread.Emails),
+			EmailThread:    api.createThreadResponse(thread),
 			LinkedThreadID: &thread.ID,
 			LinkedEmailID:  t.LinkedMessage.EmailID,
 		}
