@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Colors, Spacing } from '../../styles'
+import { Colors, Spacing } from '../../../styles'
 
 const FlexColumn = styled.div`
     display: flex;

@@ -12,7 +12,7 @@ import styled from 'styled-components'
 import toast from '../../utils/toast'
 import { useCreateTaskFromThread, useModifyThread } from '../../services/api-query-hooks'
 import { useNavigate } from 'react-router-dom'
-import PreviousMessages from './PreviousMessages'
+import PreviousMessages from './email/PreviousMessages'
 
 const THREAD_HEADER_HEIGHT = '118px'
 
