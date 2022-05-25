@@ -494,7 +494,10 @@ export const useModifyThread = () => {
                 for (const thread of page) {
                     if (thread.id === data.thread_id) {
                         for (const email of thread.emails) {
-                            email.is_unread = data.is_unread
+                            if (data.is_unread !== undefined)
+                                email.is_unread = data.is_unread
+                            if (data.is_archived !== undefined)
+                                email.is_archived = data.is_archived
                         }
                         break
                     }
@@ -607,6 +610,7 @@ export const useComposeMessage = () => {
                 body: data.body,
                 sent_at: new Date().toISOString(),
                 is_unread: false,
+                is_archived: false,
                 sender: {
                     name: DEFAULT_SENDER,
                     email: data.source_account_id,

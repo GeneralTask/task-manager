@@ -86,7 +86,8 @@ interface TCreateTaskFromThreadData {
 
 interface TModifyThreadData {
     thread_id: string
-    is_unread: boolean
+    is_unread?: boolean
+    is_archived?: boolean
 }
 
 export {

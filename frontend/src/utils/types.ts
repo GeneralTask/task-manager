@@ -126,6 +126,7 @@ export interface TEmail {
     body: string
     sent_at: string
     is_unread: boolean
+    is_archived: boolean
     sender: TSender
     recipients: TRecipients
 }

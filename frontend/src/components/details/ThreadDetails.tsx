@@ -119,6 +119,15 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
             message: `This thread was marked as ${!isUnread ? 'unread' : 'read'}.`,
         })
     }
+    const onClickArchive = () => {
+        modifyThread({
+            thread_id: thread.id,
+            is_archived: true,
+        })
+        toast({
+            message: 'This thread was archived.',
+        })
+    }
 
     return (
         <FlexColumnContainer>
@@ -133,6 +142,9 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                 </NoStyleButton>
                 <NoStyleButton onClick={onClickMarkAsRead}>
                     <Icon source={isUnread ? icons.mark_read : icons.mark_unread} size="small" />
+                </NoStyleButton>
+                <NoStyleButton onClick={onClickArchive}>
+                    <Icon source={icons.archive} size="small" />
                 </NoStyleButton>
             </HeaderContainer>
             <EmailThreadsContainer>
