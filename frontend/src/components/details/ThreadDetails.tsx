@@ -75,7 +75,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     })
     useLayoutEffect(() => {
         setIsUnread(thread.emails.some((email) => email.is_unread))
-    }, [thread])
+    }, [JSON.stringify(thread)])
     useLayoutEffect(() => {
         setComposeState({
             emailComposeType: null,
