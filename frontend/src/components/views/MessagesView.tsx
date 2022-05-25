@@ -60,11 +60,14 @@ const MessagesView = () => {
     useEffect(() => {
         if (expandedThread) {
             navigate(`/messages/${expandedThread.id}`)
-            const markAsRead = () => modifyThread({ thread_id: expandedThread.id, is_unread: false })
-            if (expandedThread.emails.some((email) => email.is_unread)) {
-                unreadTimer.current = setTimeout(markAsRead, TASK_MARK_AS_READ_TIMEOUT * 1000)
-            } else if (unreadTimer.current) {
+            if (unreadTimer.current) {
                 clearTimeout(unreadTimer.current)
+            }
+            if (expandedThread.emails.some((email) => email.is_unread)) {
+                unreadTimer.current = setTimeout(
+                    () => modifyThread({ thread_id: expandedThread.id, is_unread: false }),
+                    TASK_MARK_AS_READ_TIMEOUT * 1000
+                )
             }
         }
     }, [expandedThread])
