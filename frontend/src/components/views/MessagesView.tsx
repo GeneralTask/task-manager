@@ -3,13 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { SectionHeader } from '../molecules/Header'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
-import { useFetchMessages, useGetInfiniteThreads } from '../../services/api-query-hooks'
+import { useFetchMessages, useGetInfiniteThreads, useModifyThread } from '../../services/api-query-hooks'
 import Loading from '../atoms/Loading'
 import Thread from '../molecules/Thread'
 import ThreadDetails from '../details/ThreadDetails'
 import { Border, Colors, Spacing } from '../../styles'
 import ThreadTemplate from '../atoms/ThreadTemplate'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
+import { TASK_MARK_AS_READ_TIMEOUT } from '../../constants'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -42,7 +43,9 @@ const MessagesView = () => {
         fetchNextPage,
         refetch: getThreads,
     } = useGetInfiniteThreads()
+    const { mutate: modifyThread } = useModifyThread()
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
+    const unreadTimer = useRef<{ timeout: NodeJS.Timeout; callback: () => void }>()
 
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
     useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
@@ -57,6 +60,15 @@ const MessagesView = () => {
     useEffect(() => {
         if (expandedThread) {
             navigate(`/messages/${expandedThread.id}`)
+            const markAsRead = () => modifyThread({ thread_id: expandedThread.id, is_unread: false })
+            if (expandedThread.emails.some((email) => email.is_unread)) {
+                unreadTimer.current = {
+                    timeout: setTimeout(markAsRead, TASK_MARK_AS_READ_TIMEOUT * 1000),
+                    callback: markAsRead,
+                }
+            } else if (unreadTimer.current) {
+                clearTimeout(unreadTimer.current.timeout)
+            }
         }
     }, [expandedThread])
 
