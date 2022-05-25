@@ -133,7 +133,11 @@ const TaskSection = () => {
                     </TaskSectionViewContainer>
                 </ScrollViewMimic>
             </BannerAndSectionContainer>
-            {expandedTask && currentSection && <TaskDetails task={expandedTask} />}
+            {expandedTask && currentSection && (expandedTask.linked_email_thread ? (
+                <ThreadDetails thread={expandedTask.linked_email_thread.email_thread} />
+            ) : (
+                <TaskDetails task={expandedTask} />
+            ))}
             <ScheduleGapFiller />
         </>
     )
