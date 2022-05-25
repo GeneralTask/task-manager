@@ -437,7 +437,7 @@ const modifyTaskSection = async (data: TModifyTaskSectionData) => {
  * THREADS QUERIES
  */
 export const useGetInfiniteThreads = () => {
-    return useInfiniteQuery<TEmailThread[]>('emailthreads', getInfiniteThreads, {
+    return useInfiniteQuery<TEmailThread[]>('emailThreads', getInfiniteThreads, {
         getNextPageParam: (_, pages) => pages.length + 1,
     })
 }
@@ -451,7 +451,7 @@ const getInfiniteThreads = async ({ pageParam = 1 }) => {
 }
 
 export const useGetThreadDetail = (data: { threadId: string }) => {
-    return useQuery<TEmailThread>(['emailthreads', data.threadId], () => getThreadDetail(data))
+    return useQuery<TEmailThread>(['emailThreads', data.threadId], () => getThreadDetail(data))
 }
 const getThreadDetail = async (data: { threadId: string }) => {
     try {
@@ -470,14 +470,13 @@ export const useModifyThread = () => {
             const queryData: {
                 pages: TEmailThread[][]
                 pageParams: unknown[]
-            } | undefined = queryClient.getQueryData('emailthreads')
+            } | undefined = queryClient.getQueryData('emailThreads')
 
             if (!queryData) return
 
             for (const page of queryData.pages) {
                 for (const thread of page) {
                     if (thread.id === data.thread_id) {
-                        if (data.is_unread) break
                         for (const email of thread.emails) {
                             email.is_unread = data.is_unread
                         }
@@ -525,7 +524,7 @@ export const useFetchMessages = () => {
     const queryClient = useQueryClient()
     return useQuery([], () => fetchMessages(), {
         onSettled: () => {
-            queryClient.invalidateQueries('emailthreads')
+            queryClient.invalidateQueries('emailThreads')
         },
     })
 }
@@ -560,12 +559,12 @@ export const useComposeMessage = () => {
     const queryClient = useQueryClient()
     return useMutation((data: TComposeMessageData) => composeMessage(data), {
         onMutate: async (data: TComposeMessageData) => {
-            const response: TEmailThreadResponse | undefined = queryClient.getQueryData('emailthreads')
+            const response: TEmailThreadResponse | undefined = queryClient.getQueryData('emailThreads')
             if (!response) return
 
             // if message is part of a thread
             if (!data.message_id) return
-            await queryClient.cancelQueries('emailthreads')
+            await queryClient.cancelQueries('emailThreads')
 
             const thread = response.pages.flat().find(
                 thread => thread.emails.find(
@@ -589,11 +588,11 @@ export const useComposeMessage = () => {
             }
             thread.emails.push(tempEmail)
 
-            queryClient.setQueryData('emailthreads', response)
+            queryClient.setQueryData('emailThreads', response)
         },
         onSettled: async () => {
             await fetchMessages()
-            queryClient.invalidateQueries('emailthreads')
+            queryClient.invalidateQueries('emailThreads')
         }
     })
 }

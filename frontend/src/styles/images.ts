@@ -13,6 +13,7 @@ export const logos: { [key: string]: string } = {
 }
 
 export const icons: { [key: string]: string } = {
+    archive: '/images/archive.svg',
     arrows_in: '/images/arrows_in.png',
     arrows_out: '/images/arrows_out.png',
     dot: '/images/dot.svg',
@@ -33,6 +34,8 @@ export const icons: { [key: string]: string } = {
     label: '/images/label.png',
     mark_as_task: '/images/mark_as_task.png',
     mark_as_task_active: '/images/mark_as_task_active.png',
+    mark_read: '/images/mark_read.svg',
+    mark_unread: '/images/mark_unread.svg',
     message_to_task: '/images/message_to_task.svg',
     messages: '/images/messages.png',
     plus: '/images/plus.png',
