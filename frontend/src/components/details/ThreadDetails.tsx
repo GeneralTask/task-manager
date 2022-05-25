@@ -10,7 +10,7 @@ import { Icon } from '../atoms/Icon'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import styled from 'styled-components'
 import toast from '../../utils/toast'
-import { useCreateTaskFromThread } from '../../services/api-query-hooks'
+import { useCreateTaskFromThread, useModifyThread } from '../../services/api-query-hooks'
 import { useNavigate } from 'react-router-dom'
 import PreviousMessages from './PreviousMessages'
 
@@ -29,12 +29,12 @@ const HeaderContainer = styled.div`
     align-items: center;
     background-color: ${Colors.white};
     position: sticky;
+    gap: ${Spacing.margin._8}px;
     box-shadow: ${Shadows.threadHeaderShadow};
 `
 const HeaderTitleContainer = styled.div`
     display: flex;
     flex: 1;
-    margin-left: ${Spacing.margin._8}px;
     flex-direction: column;
     min-width: 0;
 `
@@ -65,12 +65,17 @@ interface ThreadDetailsProps {
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     const [isCollapsed, setIsCollapsed] = useState(true)
+    const [isUnread, setIsUnread] = useState(thread.emails.some((email) => email.is_unread))
     const navigate = useNavigate()
     const { mutate: createTaskFromThread } = useCreateTaskFromThread()
+    const { mutate: modifyThread } = useModifyThread()
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
         emailId: null,
     })
+    useLayoutEffect(() => {
+        setIsUnread(thread.emails.some((email) => email.is_unread))
+    }, [thread])
     useLayoutEffect(() => {
         setComposeState({
             emailComposeType: null,
@@ -88,7 +93,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         )
     )
 
-    const onClickHander = () => {
+    const onClickMarkAsTask = () => {
         createTaskFromThread({
             title: thread.emails[thread.emails.length - 1].subject,
             body: '',
@@ -105,6 +110,17 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         })
     }
 
+    const onClickMarkAsRead = () => {
+        modifyThread({
+            thread_id: thread.id,
+            is_unread: !isUnread,
+        })
+        toast({
+            message: `This thread was marked as ${!isUnread ? 'unread' : 'read'}.`,
+        })
+        setIsUnread(!isUnread)
+    }
+
     return (
         <FlexColumnContainer>
             <HeaderContainer>
@@ -113,8 +129,11 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     <Title>{title}</Title>
                     <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
                 </HeaderTitleContainer>
-                <NoStyleButton onClick={onClickHander}>
+                <NoStyleButton onClick={onClickMarkAsTask}>
                     <Icon source={icons.message_to_task} size="small" />
+                </NoStyleButton>
+                <NoStyleButton onClick={onClickMarkAsRead}>
+                    <Icon source={isUnread ? icons.mark_read : icons.mark_unread} size="small" />
                 </NoStyleButton>
             </HeaderContainer>
             <EmailThreadsContainer>
