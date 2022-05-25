@@ -128,6 +128,13 @@ func getGmailArchiveServer(t *testing.T, expectedLabel string) *httptest.Server 
 	}))
 }
 
+func getGmailInternalErrorServer(t *testing.T) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(500)
+		w.Write([]byte(`{}`))
+	}))
+}
+
 func newStateToken(authToken string, useDeeplink bool) (*string, error) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -291,6 +298,12 @@ func createRandomGTEmail() string {
 func assertThreadEmailsIsUnreadState(t *testing.T, threadItem database.Item, isUnread bool) {
 	for _, email := range threadItem.Emails {
 		assert.Equal(t, isUnread, email.IsUnread)
+	}
+}
+
+func assertThreadEmailsIsArchivedState(t *testing.T, threadItem database.Item, IsArchived bool) {
+	for _, email := range threadItem.Emails {
+		assert.Equal(t, IsArchived, email.IsArchived)
 	}
 }
 

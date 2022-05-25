@@ -95,6 +95,12 @@ func updateThreadInDB(api *API, ctx context.Context, threadID primitive.ObjectID
 		}
 	}
 
+	if params.IsArchived != nil {
+		for i := range threadChangeable.EmailThreadChangeable.Emails {
+			threadChangeable.EmailThreadChangeable.Emails[i].IsArchived = *params.IsArchived
+		}
+	}
+
 	// We flatten in order to do partial updates of nested documents correctly in mongodb
 	flattenedUpdateFields, err := flatbson.Flatten(threadChangeable)
 	if err != nil {

@@ -163,12 +163,14 @@ type Email struct {
 	SenderName   string             `bson:"sender_name" json:"sender_name"`
 	ReplyTo      string             `bson:"reply_to" json:"reply_to"`
 	IsUnread     bool               `bson:"is_unread" json:"is_unread"`
+	IsArchived   bool               `bson:"is_archived" json:"is_archived"`
 	Recipients   Recipients         `bson:"recipients" json:"recipients"`
 	SentAt       primitive.DateTime `bson:"sent_at" json:"sent_at"`
 }
 
 type EmailChangeable struct {
-	IsUnread *bool `bson:"is_unread,omitempty"`
+	IsUnread   *bool `bson:"is_unread,omitempty"`
+	IsArchived *bool `bson:"is_archived,omitempty"`
 }
 
 type MessageChangeable struct {
