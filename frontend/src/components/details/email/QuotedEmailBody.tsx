@@ -51,7 +51,7 @@ const QuotedEmailBody = ({ email }: QuotedEmailBodyProps) => {
     return <>{nodes}</>
 }
 
-export default React.memo<QuotedEmailBodyProps>(
+export default React.memo(
     QuotedEmailBody,
     (prevProps, nextProps) => prevProps.email.message_id === nextProps.email.message_id
 )
