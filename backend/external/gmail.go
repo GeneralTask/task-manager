@@ -182,7 +182,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				Subject:      title,
 				ReplyTo:      replyTo,
 				IsUnread:     isMessageUnread(message),
-				IsArchived:   isMessageArchived(message),
 				Recipients:   recipients,
 				SentAt:       timeSent,
 			}
@@ -225,6 +224,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			emails = append(emails, emailItem)
 		}
 
+		if len(thread.Messages) != 0 {
+			threadItem.IsArchived = isMessageArchived(thread.Messages[0])
+		}
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = assignOrGenerateNestedEmailIDs(threadItem, nestedEmails)
 		_, err = database.UpdateOrCreateTask(
