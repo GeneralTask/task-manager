@@ -67,7 +67,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     const [isCollapsed, setIsCollapsed] = useState(true)
     const isUnread = useMemo(
         () => thread.emails.some((email) => email.is_unread),
-        [...thread.emails.map((email) => email.is_unread)]
+        [JSON.stringify(thread.emails.map((email) => email.is_unread))]
     )
     const navigate = useNavigate()
     const { mutate: createTaskFromThread } = useCreateTaskFromThread()
