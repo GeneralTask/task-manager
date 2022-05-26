@@ -7,7 +7,6 @@ import { icons, logos } from '../../../styles/images'
 import { Icon } from '../Icon'
 import JoinMeetingButton from '../buttons/JointMeetingButton'
 import { CursorPointerDiv } from '../../calendar/CalendarHeader'
-import NoStyleButton from '../buttons/NoStyleButton'
 import NoStyleAnchor from '../NoStyleAnchor'
 
 const FooterView = styled.div`
@@ -83,6 +82,7 @@ const RecommendationText = styled.span`
     display: flex;
     padding: ${Spacing.margin._12}px;
     font: inherit;
+    cursor: pointer;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
     text-decoration: none;
@@ -134,9 +134,9 @@ const ScheduleGapFiller = () => {
                 <BodyTextArea>{eventsubTitle}</BodyTextArea>
                 <FooterText>
                     <Recommendation>
-                        <NoStyleButton onClick={() => window.open(link)}>
+                        <a href={link}>
                             <Icon size="large" source={logos[actions[recommendationIndex].logo]} />
-                        </NoStyleButton>
+                        </a>
                         <NoStyleAnchor href={actions[recommendationIndex].link} style={{ textDecoration: 'none' }}>
                             <RecommendationText>{actions[recommendationIndex].title}</RecommendationText>
                         </NoStyleAnchor>
