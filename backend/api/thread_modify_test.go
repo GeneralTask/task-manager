@@ -206,5 +206,37 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		assert.True(t, threadItem.IsThread)
 		assertThreadEmailsIsUnreadState(t, threadItem, true)
 	})
+	t.Run("GmailSuccessArchive", func(t *testing.T) {
+		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
+		archivedGmailModifyServer := getGmailChangeLabelServer(t, "INBOX", false)
 
+		api := GetAPI()
+		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &archivedGmailModifyServer.URL
+		archivedRouter := GetRouter(api)
+
+		var threadItem database.Item
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
+		assert.True(t, threadItem.IsThread)
+		assert.False(t, threadItem.IsArchived)
+
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/threads/modify/"+threadIDHex+"/",
+			bytes.NewBuffer([]byte(`{"is_archived": true}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+
+		assert.NoError(t, err)
+
+		archivedRouter.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
+		assert.True(t, threadItem.IsThread)
+		assert.True(t, threadItem.IsArchived)
+	})
 }

@@ -337,7 +337,6 @@ func createTestThreadEmail(
 		SenderName:   "First Last",
 		ReplyTo:      "reply-to@generaltask.com",
 		IsUnread:     isUnread,
-		IsArchived:   isArchived,
 		Recipients: database.Recipients{
 			To: []database.Recipient{
 				{Name: "Recipient", Email: "recipient@generaltask.com"},
