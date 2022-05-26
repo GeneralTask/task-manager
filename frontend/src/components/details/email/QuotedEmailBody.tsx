@@ -39,16 +39,16 @@ const QuotedEmailBody = ({ email }: QuotedEmailBodyProps) => {
         return <SanitizedHTML dirtyHTML={email.body} />
     }
 
-    const nodes: JSX.Element[] = []
+    const elements: JSX.Element[] = []
     emailDoc.body.childNodes.forEach((child, index) => {
         const elem = child as HTMLElement
         if (isQuotedText(elem)) {
-            nodes.push(<Quote key={index} quotedHTML={elem.outerHTML} />)
+            elements.push(<Quote key={index} quotedHTML={elem.outerHTML} />)
         } else {
-            nodes.push(<SanitizedHTML key={index} dirtyHTML={elem.outerHTML} />)
+            elements.push(<SanitizedHTML key={index} dirtyHTML={elem.outerHTML} />)
         }
     })
-    return <>{nodes}</>
+    return <>{elements}</>
 }
 
 export default React.memo(
