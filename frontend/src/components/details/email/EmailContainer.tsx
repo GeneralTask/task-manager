@@ -7,10 +7,10 @@ import { DateTime } from 'luxon'
 import EmailComposeTypeSelector from './compose/ComposeTypeSelector'
 import EmailSenderDetails from '../../molecules/EmailSenderDetails'
 import ReactTooltip from 'react-tooltip'
-import SanitizedHTML from '../../atoms/SanitizedHTML'
 import styled from 'styled-components'
 import { Icon } from '../../atoms/Icon'
 import { icons } from '../../../styles/images'
+import EmailBody from './EmailBody'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -34,13 +34,6 @@ const SenderContainer = styled.div`
 const SentAtContainer = styled.div`
     font-size: ${Typography.xSmall.fontSize};
     margin-left: ${Spacing.margin._8}px;
-`
-const BodyContainer = styled.div`
-    flex: 1;
-    margin: ${Spacing.margin._20}px;
-    * > div {
-        white-space: pre-wrap;
-    }
 `
 const BodyContainerCollapsed = styled.span`
     margin-left: ${Spacing.margin._20}px;
@@ -129,11 +122,7 @@ const EmailContainer = (props: EmailContainerProps) => {
                     </EmailSenderDetailsContainer>
                 )}
             </CollapseExpandContainer>
-            {isCollapsed || (
-                <BodyContainer>
-                    <SanitizedHTML dirtyHTML={props.email.body} />
-                </BodyContainer>
-            )}
+            {!isCollapsed && <EmailBody email={props.email} />}
         </DetailsViewContainer>
     )
 }

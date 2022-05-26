@@ -17,7 +17,7 @@ interface QuotedEmailProps {
 const QuotedReply = ({ email }: QuotedEmailProps) => {
     const formattedSentAt = formatSentAtDateTime(email.sent_at)
     return (
-        <div>
+        <div className="gmail_quote">
             <div>
                 On {formattedSentAt} {email.sender.name || email.sender.name + ' '}
                 {'<'}
@@ -37,7 +37,7 @@ const QuotedReply = ({ email }: QuotedEmailProps) => {
 const QuotedForward = ({ email }: QuotedEmailProps) => {
     const formattedSentAt = formatSentAtDateTime(email.sent_at)
     return (
-        <div>
+        <div className="gmail_quote">
             <div>
                 <div dir="ltr">
                     ---------- Forwarded message ---------
