@@ -36,7 +36,7 @@ interface QuotedEmailBodyProps {
 const QuotedEmailBody = ({ email }: QuotedEmailBodyProps) => {
     const emailDoc = new DOMParser().parseFromString(email.body, 'text/html')
     if (!emailDoc.body?.childNodes) {
-        return <SanitizedHTML key="0" dirtyHTML={email.body} />
+        return <SanitizedHTML dirtyHTML={email.body} />
     }
 
     const nodes: JSX.Element[] = []
