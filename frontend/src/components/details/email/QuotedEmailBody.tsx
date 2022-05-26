@@ -17,7 +17,7 @@ const QuoteToggle = styled(NoStyleButton)`
 // our rules for determining if a node is a quote
 // currently supports gmail classNames - will need to be updated
 function isQuotedText(node: HTMLElement): boolean {
-    return node?.classList?.contains('gmail_quote')
+    return node.classList?.contains('gmail_quote')
 }
 
 const Quote = ({ quotedHTML }: { quotedHTML: string }) => {
