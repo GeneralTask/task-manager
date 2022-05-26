@@ -1,4 +1,4 @@
-import { EmailActionButton, EmailActionButtonContainer, Flex } from './EmailCompose-styles'
+import { EmailActionButton, EmailActionButtonContainer, Flex } from './styles'
 import { TEmail, TEmailComposeState } from '../../../../utils/types'
 
 import { EmailComposeType } from '../../../../utils/enums'

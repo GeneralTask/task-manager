@@ -6,18 +6,18 @@ import {
     EmailFieldContainer,
     EmailFieldInput,
     FlexExpand,
-} from './EmailCompose-styles'
+} from './styles'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState, TRecipients } from '../../../../utils/types'
-import { attachSubjectPrefix, getInitialRecipients, stripSubjectPrefix } from './emailComposeUtils'
+import { attachSubjectPrefix, getInitialRecipients, stripSubjectPrefix } from './utils'
 import toast, { ToastId, dismissToast } from '../../../../utils/toast'
 
 import { Colors } from '../../../../styles'
 import { Divider } from '../../../atoms/SectionDivider'
 import { EMAIL_UNDO_TIMEOUT } from '../../../../constants'
 import { EmailComposeType } from '../../../../utils/enums'
-import EmailComposeTypeSelector from './EmailComposeTypeSelector'
-import EmailRecipientsForm from './EmailRecipientsForm'
+import EmailComposeTypeSelector from './ComposeTypeSelector'
+import EmailRecipientsForm from './RecipientsForm'
 import EmailWithQuote from './EmailWithQuote'
 import RoundedGeneralButton from '../../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../../atoms/TextArea'

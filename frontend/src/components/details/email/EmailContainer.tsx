@@ -4,7 +4,7 @@ import { TEmail, TEmailComposeState } from '../../../utils/types'
 import { getHumanDateTime, removeHTMLTags } from '../../../utils/utils'
 
 import { DateTime } from 'luxon'
-import EmailComposeTypeSelector from './EmailCompose/EmailComposeTypeSelector'
+import EmailComposeTypeSelector from './compose/ComposeTypeSelector'
 import EmailSenderDetails from '../../molecules/EmailSenderDetails'
 import ReactTooltip from 'react-tooltip'
 import SanitizedHTML from '../../atoms/SanitizedHTML'

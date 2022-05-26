@@ -1,4 +1,4 @@
-import { EmailActionOption, EmailComposeIconButton, NoWrap } from './EmailCompose-styles'
+import { EmailActionOption, EmailComposeIconButton, NoWrap } from './styles'
 import React, { useCallback, useRef, useState } from 'react'
 import { TEmail, TEmailComposeState } from '../../../../utils/types'
 

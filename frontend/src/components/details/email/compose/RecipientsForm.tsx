@@ -1,9 +1,4 @@
-import {
-    AddEmailRecipientsButton,
-    AddEmailRecipientsContainer,
-    EmailRecipientsContainer,
-    FlexExpand,
-} from './EmailCompose-styles'
+import { AddEmailRecipientsButton, AddEmailRecipientsContainer, EmailRecipientsContainer, FlexExpand } from './styles'
 import React, { forwardRef, useCallback, useState } from 'react'
 import { TRecipient, TRecipients } from '../../../../utils/types'
 

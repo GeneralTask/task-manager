@@ -1,4 +1,4 @@
-import { EmailFieldContainer, EmailFieldInput, EmailTag, EmailTagText } from './EmailCompose-styles'
+import { EmailFieldContainer, EmailFieldInput, EmailTag, EmailTagText } from './styles'
 import React, { forwardRef, useCallback, useState } from 'react'
 
 import { Icon } from '../../../atoms/Icon'
