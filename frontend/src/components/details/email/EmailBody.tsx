@@ -21,11 +21,27 @@ const QuoteToggle = styled(NoStyleButton)`
     background-color: ${Colors.gray._200};
 `
 
+// our rules for determining if a node is a quote
+// currently supports gmail classNames - will need to be updated
+function isQuotedText(node: HTMLElement): boolean {
+    return node?.classList?.contains('gmail_quote')
+}
+
+const Quote = ({ quotedHTML }: { quotedHTML: string }) => {
+    const [showQuotedHTML, setShowQuotedHTML] = useState(false)
+    return (
+        <>
+            <QuoteToggle onClick={() => setShowQuotedHTML(!showQuotedHTML)}>···</QuoteToggle>
+            {showQuotedHTML && <SanitizedHTML dirtyHTML={quotedHTML} />}
+        </>
+    )
+}
+
 // returns a list of reeact elements, replacing quoted text with collapsable components
-function getEmailParts(bodyHTML: string): JSX.Element[] {
+const EmailWithQuotes = ({ bodyHTML }: { bodyHTML: string }) => {
     const emailDoc = new DOMParser().parseFromString(bodyHTML, 'text/html')
     if (!emailDoc.body?.childNodes) {
-        return [<SanitizedHTML key="0" dirtyHTML={bodyHTML} />]
+        return <SanitizedHTML key="0" dirtyHTML={bodyHTML} />
     }
 
     const nodes: JSX.Element[] = []
@@ -37,31 +53,14 @@ function getEmailParts(bodyHTML: string): JSX.Element[] {
             nodes.push(<SanitizedHTML key={index} dirtyHTML={elem.outerHTML} />)
         }
     })
-    return nodes
-}
-
-// our rules for determining if a node is a quote
-// currently supports gmail classNames - will need to be updated
-function isQuotedText(node: HTMLElement): boolean {
-    return node?.classList?.contains('gmail_quote')
-}
-
-const Quote = ({ quotedHTML }: { quotedHTML: string }) => {
-    const [showQuotedHTML, setShowQuotedHTML] = useState(false)
-    const renderedText = useMemo(() => <SanitizedHTML dirtyHTML={quotedHTML} />, [])
-    return (
-        <>
-            <QuoteToggle onClick={() => setShowQuotedHTML(!showQuotedHTML)}>···</QuoteToggle>
-            {showQuotedHTML && renderedText}
-        </>
-    )
+    return <>{nodes}</>
 }
 
 interface EmailBodyProps {
     email: TEmail
 }
 const EmailBody = ({ email }: EmailBodyProps) => {
-    const emailParts = useMemo(() => getEmailParts(email.body), [email.message_id])
+    const emailParts = useMemo(() => <EmailWithQuotes bodyHTML={email.body} />, [email.message_id])
 
     return <BodyContainer>{emailParts}</BodyContainer>
 }
