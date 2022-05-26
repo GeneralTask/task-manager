@@ -40,9 +40,9 @@ func getSlackConfig() SlackConfig {
 		OauthConfig: &OauthConfig{Config: &oauth2.Config{
 			ClientID:     config.GetConfigValue("SLACK_OAUTH_CLIENT_ID"),
 			ClientSecret: config.GetConfigValue("SLACK_OAUTH_CLIENT_SECRET"),
-			// RedirectURL:  config.GetConfigValue("SERVER_URL") + "link/slack/callback/",
-			RedirectURL: "https://ade5-2603-3024-180b-f100-f19e-d40-590b-db13.ngrok.io",
-			Scopes:      []string{"identify", "stars:read"},
+			RedirectURL:  config.GetConfigValue("SERVER_URL") + "link/slack/callback/",
+			// RedirectURL: "https://ade5-2603-3024-180b-f100-f19e-d40-590b-db13.ngrok.io",
+			Scopes: []string{"identify", "stars:read"},
 			Endpoint: oauth2.Endpoint{
 				AuthURL:  "https://slack.com/oauth/authorize",
 				TokenURL: "https://slack.com/api/oauth.access",

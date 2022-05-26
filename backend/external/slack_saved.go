@@ -29,7 +29,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		log.Error().Err(err).Msg("failed to connect to db")
-		result <- emptyTaskResult(nil)
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
 		return
 	}
 	defer dbCleanup()
@@ -43,7 +43,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 		externalToken, err := getExternalToken(db, userID, accountID, TASK_SERVICE_ID_SLACK)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to fetch token")
-			result <- emptyTaskResult(nil)
+			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
 			return
 		}
 
@@ -54,7 +54,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 	savedMessages, _, err := api.ListStars(slack.NewStarsParameters())
 	if err != nil {
 		log.Error().Err(err).Msg("failed to fetch saved items")
-		result <- emptyTaskResult(nil)
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
 		return
 	}
 	fmt.Println("WOW IT WORKS", len(savedMessages))
@@ -137,6 +137,6 @@ func (slackTask SlackSavedTaskSource) ModifyMessage(userID primitive.ObjectID, a
 	return nil
 }
 
-func (slackTask SlackSavedTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (slackTask SlackSavedTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, isArchived *bool) error {
 	return nil
 }

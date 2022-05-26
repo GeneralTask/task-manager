@@ -18,16 +18,17 @@ func TestLoadSlackTasks(t *testing.T) {
 	// defer dbCleanup()
 
 	t.Run("BadSlackStatusCode", func(t *testing.T) {
-		slackServer := testutils.GetMockAPIServer(t, http.StatusInternalServerError, "")
-		defer slackServer.Close()
-		slackSaved := SlackSavedTaskSource{Slack: SlackService{Config: SlackConfig{ConfigValues: SlackConfigValues{SavedMessagesURL: &slackServer.URL}}}}
+		savedMessagesServer := testutils.GetMockAPIServer(t, http.StatusInternalServerError, "")
+		defer savedMessagesServer.Close()
+		savedMessagesURL := savedMessagesServer.URL + "/"
+		slackSaved := SlackSavedTaskSource{Slack: SlackService{Config: SlackConfig{ConfigValues: SlackConfigValues{SavedMessagesURL: &savedMessagesURL}}}}
 		userID := primitive.NewObjectID()
 
 		var taskResult = make(chan TaskResult)
 		go slackSaved.GetTasks(userID, "hood_stock@down_bad.com", taskResult)
 		result := <-taskResult
 		assert.NotEqual(t, nil, result.Error)
-		assert.Equal(t, "bad status code: 400", result.Error.Error())
+		assert.Equal(t, "slack server error: 500 Internal Server Error", result.Error.Error())
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("BadSlackResponse", func(t *testing.T) {})
