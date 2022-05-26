@@ -48,7 +48,7 @@ func getExternalOauth2Client(db *mongo.Database, userID primitive.ObjectID, acco
 		return nil
 	}
 
-	token := extrackOauthToken(*externalToken)
+	token := extractOauthToken(*externalToken)
 	return oauthConfig.Client(parentCtx, &token).(*http.Client)
 }
 
@@ -70,7 +70,7 @@ func getExternalToken(db *mongo.Database, userID primitive.ObjectID, accountID s
 	return &externalToken, nil
 }
 
-func extrackOauthToken(externalToken database.ExternalAPIToken) oauth2.Token {
+func extractOauthToken(externalToken database.ExternalAPIToken) oauth2.Token {
 	var token oauth2.Token
 	json.Unmarshal([]byte(externalToken.Token), &token)
 	return token

@@ -34,18 +34,22 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 	}
 	defer dbCleanup()
 
-	externalToken, err := getExternalToken(db, userID, accountID, TASK_SERVICE_ID_SLACK)
-	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch token")
-		result <- emptyTaskResult(nil)
-		return
-	}
-
-	token := extrackOauthToken(*externalToken)
-	fmt.Println("OH WOW", token.AccessToken)
-	api := slack.New(token.AccessToken)
+	var api *slack.Client
 	if slackTask.Slack.Config.ConfigValues.SavedMessagesURL != nil {
-		api = slack.New(token.AccessToken, slack.OptionAPIURL(*slackTask.Slack.Config.ConfigValues.SavedMessagesURL))
+		// this is the code path for unit tests
+		api = slack.New("foobar", slack.OptionAPIURL(*slackTask.Slack.Config.ConfigValues.SavedMessagesURL))
+	} else {
+		// this is the code path in dev/prod (needs manual verification)
+		externalToken, err := getExternalToken(db, userID, accountID, TASK_SERVICE_ID_SLACK)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to fetch token")
+			result <- emptyTaskResult(nil)
+			return
+		}
+
+		token := extractOauthToken(*externalToken)
+		fmt.Println("OH WOW", token.AccessToken)
+		api = slack.New(token.AccessToken)
 	}
 	savedMessages, _, err := api.ListStars(slack.NewStarsParameters())
 	if err != nil {
