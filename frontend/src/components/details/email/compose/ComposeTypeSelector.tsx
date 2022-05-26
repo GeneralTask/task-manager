@@ -1,11 +1,11 @@
-import { EmailActionOption, EmailComposeIconButton, NoWrap } from './EmailCompose-styles'
+import { EmailActionOption, EmailComposeIconButton, NoWrap } from './styles'
 import React, { useCallback, useRef, useState } from 'react'
-import { TEmail, TEmailComposeState } from '../../../utils/types'
+import { TEmail, TEmailComposeState } from '../../../../utils/types'
 
-import { EmailComposeType } from '../../../utils/enums'
-import GTSelect from '../../molecules/GTSelect'
-import { Icon } from '../../atoms/Icon'
-import { icons } from '../../../styles/images'
+import { EmailComposeType } from '../../../../utils/enums'
+import GTSelect from '../../../molecules/GTSelect'
+import { Icon } from '../../../atoms/Icon'
+import { icons } from '../../../../styles/images'
 
 interface EmailComposeTypeSelectorProps {
     email: TEmail

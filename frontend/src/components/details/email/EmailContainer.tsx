@@ -1,16 +1,16 @@
-import { Colors, Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../../styles'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { TEmail, TEmailComposeState } from '../../utils/types'
-import { getHumanDateTime, removeHTMLTags } from '../../utils/utils'
+import { TEmail, TEmailComposeState } from '../../../utils/types'
+import { getHumanDateTime, removeHTMLTags } from '../../../utils/utils'
 
 import { DateTime } from 'luxon'
-import EmailComposeTypeSelector from './EmailCompose/EmailComposeTypeSelector'
-import EmailSenderDetails from '../molecules/EmailSenderDetails'
+import EmailComposeTypeSelector from './compose/ComposeTypeSelector'
+import EmailSenderDetails from '../../molecules/EmailSenderDetails'
 import ReactTooltip from 'react-tooltip'
-import SanitizedHTML from '../atoms/SanitizedHTML'
+import SanitizedHTML from '../../atoms/SanitizedHTML'
 import styled from 'styled-components'
-import { Icon } from '../atoms/Icon'
-import { icons } from '../../styles/images'
+import { Icon } from '../../atoms/Icon'
+import { icons } from '../../../styles/images'
 
 const DetailsViewContainer = styled.div`
     display: flex;

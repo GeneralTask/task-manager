@@ -1,9 +1,9 @@
-import { EmailActionButton, EmailActionButtonContainer, Flex } from './EmailCompose-styles'
-import { TEmail, TEmailComposeState } from '../../../utils/types'
+import { EmailActionButton, EmailActionButtonContainer, Flex } from './styles'
+import { TEmail, TEmailComposeState } from '../../../../utils/types'
 
-import { EmailComposeType } from '../../../utils/enums'
-import { Icon } from '../../atoms/Icon'
-import { Images } from '../../../styles'
+import { EmailComposeType } from '../../../../utils/enums'
+import { Icon } from '../../../atoms/Icon'
+import { Images } from '../../../../styles'
 import React from 'react'
 
 interface EmailMainActionsProps {

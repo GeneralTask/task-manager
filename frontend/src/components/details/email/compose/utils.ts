@@ -1,6 +1,6 @@
-import { TEmail, TRecipients } from "../../../utils/types"
+import { TEmail, TRecipients } from "../../../../utils/types"
 
-import { EmailComposeType } from "../../../utils/enums"
+import { EmailComposeType } from "../../../../utils/enums"
 import { DateTime } from "luxon"
 
 const prefixes = ['Re: ', 'Fwd: ', 'Fw: ']

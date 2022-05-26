@@ -1,8 +1,8 @@
-import { EmailComposeType } from '../../../utils/enums'
+import { EmailComposeType } from '../../../../utils/enums'
 import React from 'react'
-import SanitizedHTML from '../../atoms/SanitizedHTML'
-import { TEmail } from '../../../utils/types'
-import { formatSentAtDateTime } from './emailComposeUtils'
+import SanitizedHTML from '../../../atoms/SanitizedHTML'
+import { TEmail } from '../../../../utils/types'
+import { formatSentAtDateTime } from './utils'
 
 // styles copied from Gmail email HTML
 const blockQuoteStyle = {
