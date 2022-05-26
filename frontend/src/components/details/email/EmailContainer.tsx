@@ -10,7 +10,7 @@ import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { Icon } from '../../atoms/Icon'
 import { icons } from '../../../styles/images'
-import EmailBody from './EmailBody'
+import QuotedEmailBody from './QuotedEmailBody'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -34,6 +34,13 @@ const SenderContainer = styled.div`
 const SentAtContainer = styled.div`
     font-size: ${Typography.xSmall.fontSize};
     margin-left: ${Spacing.margin._8}px;
+`
+const BodyContainer = styled.div`
+    flex: 1;
+    margin: ${Spacing.margin._20}px;
+    * > div {
+        white-space: pre-wrap;
+    }
 `
 const BodyContainerCollapsed = styled.span`
     margin-left: ${Spacing.margin._20}px;
@@ -122,7 +129,11 @@ const EmailContainer = (props: EmailContainerProps) => {
                     </EmailSenderDetailsContainer>
                 )}
             </CollapseExpandContainer>
-            {!isCollapsed && <EmailBody email={props.email} />}
+            {!isCollapsed && (
+                <BodyContainer>
+                    <QuotedEmailBody email={props.email} />
+                </BodyContainer>
+            )}
         </DetailsViewContainer>
     )
 }
