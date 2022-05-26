@@ -136,7 +136,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                 </NoStyleButton>
             </HeaderContainer>
             <EmailThreadsContainer>
-                {isCollapsed && thread.emails.length > 2 ? (
+                {isCollapsed && thread.emails.length > 4 ? (
                     <>
                         <Fragment key={thread.emails[0].message_id}>
                             <EmailContainer
