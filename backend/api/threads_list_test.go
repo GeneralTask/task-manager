@@ -90,6 +90,7 @@ func TestThreadList(t *testing.T) {
 			},
 			IsArchived: true,
 		},
+		TaskType: database.TaskType{IsThread: true},
 	})
 	_ = insertTestItem(t, notUserID, database.Item{
 		TaskBase: database.TaskBase{
@@ -184,7 +185,7 @@ func TestThreadList(t *testing.T) {
 				threadIDHex2, testEmail),
 			string(body))
 	})
-	t.Run("SuccussIsArchived", func(t *testing.T) {
+	t.Run("GetArchivedEmails", func(t *testing.T) {
 		params := []byte(`{}`)
 		request, _ := http.NewRequest(
 			"GET",
@@ -197,10 +198,27 @@ func TestThreadList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t,
-			fmt.Sprintf("neat%sneat",
-			threadIDHex4),
+			fmt.Sprintf("[{\"id\":\"%s\",\"deeplink\":\"\",\"is_task\":false,\"is_archived\":true,\"source\":{\"account_id\":\"%s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2022-04-20T00:00:00Z\",\"is_unread\":true,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]}]",
+				threadIDHex4, testEmail),
 			string(body))
-})
+	})
+	t.Run("GetUnArchivedEmails", func(t *testing.T) {
+		params := []byte(`{}`)
+		request, _ := http.NewRequest(
+			"GET",
+			"/threads/?is_archived=false",
+			bytes.NewBuffer(params))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t,
+			fmt.Sprintf("[{\"id\":\"%[1]s\",\"deeplink\":\"\",\"is_task\":false,\"is_archived\":false,\"source\":{\"account_id\":\"%[4]s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2021-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]},{\"id\":\"%[2]s\",\"deeplink\":\"\",\"is_task\":false,\"is_archived\":false,\"source\":{\"account_id\":\"%[4]s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2018-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}},{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2020-04-20T00:00:00Z\",\"is_unread\":false,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]},{\"id\":\"%[3]s\",\"deeplink\":\"\",\"is_task\":false,\"is_archived\":false,\"source\":{\"account_id\":\"prefix_%[4]s\",\"name\":\"Gmail\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_replyable\":true},\"emails\":[{\"message_id\":\"000000000000000000000000\",\"subject\":\"\",\"body\":\"\",\"sent_at\":\"2019-04-20T00:00:00Z\",\"is_unread\":true,\"sender\":{\"name\":\"\",\"email\":\"\",\"reply_to\":\"\"},\"recipients\":{\"to\":[],\"cc\":[],\"bcc\":[]}}]}]",
+				threadIDHex3, threadIDHex1, threadIDHex2, testEmail),
+			string(body))
+	})
 }
 
 func insertTestItem(t *testing.T, userID primitive.ObjectID, task database.Item) string {
