@@ -398,7 +398,7 @@ func TestGetEmailThreads(t *testing.T) {
 
 	t.Run("SuccessAllInvalidPagination", func(t *testing.T) {
 		page := 1
-		paged_emails, err := GetEmailThreads(db, userID, false, Pagination{Limit: nil, Page: &page}, nil)
+		paged_emails, err := GetEmailThreads(db, userID, false, false, Pagination{Limit: nil, Page: &page}, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 4, len(*paged_emails))
 		assert.Equal(t, thread2.ID, (*paged_emails)[0].ID)
@@ -407,7 +407,7 @@ func TestGetEmailThreads(t *testing.T) {
 		assert.Equal(t, thread4.ID, (*paged_emails)[3].ID)
 	})
 	t.Run("SuccessAllEmptyPagination", func(t *testing.T) {
-		paged_emails, err := GetEmailThreads(db, userID, false, Pagination{}, nil)
+		paged_emails, err := GetEmailThreads(db, userID, false, false, Pagination{}, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 4, len(*paged_emails))
 		assert.Equal(t, thread2.ID, (*paged_emails)[0].ID)
@@ -418,7 +418,7 @@ func TestGetEmailThreads(t *testing.T) {
 	t.Run("SuccessLimited", func(t *testing.T) {
 		limit := 2
 		page := 1
-		paged_emails, err := GetEmailThreads(db, userID, false, Pagination{Limit: &limit, Page: &page}, nil)
+		paged_emails, err := GetEmailThreads(db, userID, false, false, Pagination{Limit: &limit, Page: &page}, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(*paged_emails))
 		assert.Equal(t, thread2.ID, (*paged_emails)[0].ID)
@@ -427,7 +427,7 @@ func TestGetEmailThreads(t *testing.T) {
 	t.Run("SuccessPaged", func(t *testing.T) {
 		limit := 1
 		page := 3
-		paged_emails, err := GetEmailThreads(db, userID, false, Pagination{Limit: &limit, Page: &page}, nil)
+		paged_emails, err := GetEmailThreads(db, userID, false, false, Pagination{Limit: &limit, Page: &page}, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*paged_emails))
 		assert.Equal(t, thread3.ID, (*paged_emails)[0].ID)
@@ -435,14 +435,14 @@ func TestGetEmailThreads(t *testing.T) {
 	t.Run("SuccessLimitedAndPaged", func(t *testing.T) {
 		limit := 2
 		page := 2
-		paged_emails, err := GetEmailThreads(db, userID, false, Pagination{Limit: &limit, Page: &page}, nil)
+		paged_emails, err := GetEmailThreads(db, userID, false, false, Pagination{Limit: &limit, Page: &page}, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(*paged_emails))
 		assert.Equal(t, thread3.ID, (*paged_emails)[0].ID)
 		assert.Equal(t, thread4.ID, (*paged_emails)[1].ID)
 	})
 	t.Run("SuccessOnlyUnread", func(t *testing.T) {
-		paged_emails, err := GetEmailThreads(db, userID, true, Pagination{}, nil)
+		paged_emails, err := GetEmailThreads(db, userID, true, false, Pagination{}, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(*paged_emails))
 		assert.Equal(t, thread1.ID, (*paged_emails)[0].ID)
