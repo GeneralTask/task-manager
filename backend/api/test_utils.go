@@ -301,12 +301,6 @@ func assertThreadEmailsIsUnreadState(t *testing.T, threadItem database.Item, isU
 	}
 }
 
-func assertThreadEmailsIsArchivedState(t *testing.T, threadItem database.Item, IsArchived bool) {
-	for _, email := range threadItem.Emails {
-		assert.Equal(t, IsArchived, email.IsArchived)
-	}
-}
-
 func ServeRequest(
 	t *testing.T,
 	authToken string,

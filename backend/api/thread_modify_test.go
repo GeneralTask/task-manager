@@ -206,7 +206,6 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		assert.True(t, threadItem.IsThread)
 		assertThreadEmailsIsUnreadState(t, threadItem, true)
 	})
-
 	t.Run("GmailSuccessArchive", func(t *testing.T) {
 		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		archivedGmailModifyServer := getGmailChangeLabelServer(t, "INBOX", false)
@@ -220,7 +219,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
 		assert.True(t, threadItem.IsThread)
-		assertThreadEmailsIsArchivedState(t, threadItem, false)
+		assert.False(t, threadItem.IsArchived)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -238,7 +237,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
 		assert.True(t, threadItem.IsThread)
-		assertThreadEmailsIsArchivedState(t, threadItem, true)
+		assert.True(t, threadItem.IsArchived)
 	})
 
 	t.Run("GmailSuccessUnArchive", func(t *testing.T) {
@@ -254,7 +253,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
 		assert.True(t, threadItem.IsThread)
-		assertThreadEmailsIsArchivedState(t, threadItem, true)
+		assert.True(t, threadItem.IsArchived)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -272,7 +271,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
 		assert.True(t, threadItem.IsThread)
-		assertThreadEmailsIsArchivedState(t, threadItem, false)
+		assert.False(t, threadItem.IsArchived)
 	})
 
 	t.Run("BadParamGmailArchive", func(t *testing.T) {
@@ -286,7 +285,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
 		assert.True(t, threadItem.IsThread)
-		assertThreadEmailsIsArchivedState(t, threadItem, false)
+		assert.False(t, threadItem.IsArchived)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -304,7 +303,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
 		assert.True(t, threadItem.IsThread)
-		assertThreadEmailsIsArchivedState(t, threadItem, false)
+		assert.False(t, threadItem.IsArchived)
 	})
 
 	t.Run("ServerErrorGmailArchive", func(t *testing.T) {
@@ -320,7 +319,7 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
 		assert.True(t, threadItem.IsThread)
-		assertThreadEmailsIsArchivedState(t, threadItem, false)
+		assert.False(t, threadItem.IsArchived)
 
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -338,6 +337,6 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
 		assert.True(t, threadItem.IsThread)
-		assertThreadEmailsIsArchivedState(t, threadItem, false)
+		assert.False(t, threadItem.IsArchived)
 	})
 }

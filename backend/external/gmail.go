@@ -182,7 +182,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				Subject:      title,
 				ReplyTo:      replyTo,
 				IsUnread:     isMessageUnread(message),
-				IsArchived:   isMessageArchived(message),
 				Recipients:   recipients,
 				SentAt:       timeSent,
 			}
@@ -225,6 +224,10 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			emails = append(emails, emailItem)
 		}
 
+		// We can just check if the first email is archived because all emails in a thread have the same archive status.
+		if len(thread.Messages) > 0 {
+			threadItem.IsArchived = isMessageArchived(thread.Messages[0])
+		}
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = assignOrGenerateNestedEmailIDs(threadItem, nestedEmails)
 		_, err = database.UpdateOrCreateTask(

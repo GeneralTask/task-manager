@@ -27,11 +27,12 @@ type email struct {
 }
 
 type ThreadDetailsResponse struct {
-	ID       primitive.ObjectID `json:"id"`
-	Deeplink string             `json:"deeplink"`
-	IsTask   bool               `json:"is_task"`
-	Source   messageSource      `json:"source"`
-	Emails   *[]email           `json:"emails"`
+	ID         primitive.ObjectID `json:"id"`
+	Deeplink   string             `json:"deeplink"`
+	IsTask     bool               `json:"is_task"`
+	IsArchived bool               `json:"is_archived"`
+	Source     messageSource      `json:"source"`
+	Emails     *[]email           `json:"emails"`
 }
 
 type accountParams struct {
@@ -118,8 +119,9 @@ func (api *API) orderThreads(threadItems *[]database.Item) []*ThreadDetailsRespo
 func (api *API) createThreadResponse(t *database.Item) *ThreadDetailsResponse {
 	threadSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
 	return &ThreadDetailsResponse{
-		ID:     t.ID,
-		IsTask: t.IsTask,
+		ID:         t.ID,
+		IsTask:     t.IsTask,
+		IsArchived: t.IsArchived,
 		Source: messageSource{
 			AccountId:   t.SourceAccountID,
 			Name:        threadSourceResult.Details.Name,
