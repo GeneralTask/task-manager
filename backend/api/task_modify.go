@@ -79,7 +79,7 @@ func (api *API) TaskModify(c *gin.Context) {
 			Handle500(c)
 			return
 		}
-		UpdateTaskInDB(api, c, taskID, userID, &modifyParams.TaskChangeableFields, task)
+		UpdateTaskInDB(c, taskID, userID, &modifyParams.TaskChangeableFields)
 	}
 
 	// handle reorder task
@@ -202,7 +202,7 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 	return &task, nil
 }
 
-func UpdateTaskInDB(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields, task *database.Item) {
+func UpdateTaskInDB(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
