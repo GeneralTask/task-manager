@@ -7,10 +7,10 @@ import { DateTime } from 'luxon'
 import EmailComposeTypeSelector from './compose/ComposeTypeSelector'
 import EmailSenderDetails from '../../molecules/EmailSenderDetails'
 import ReactTooltip from 'react-tooltip'
-import SanitizedHTML from '../../atoms/SanitizedHTML'
 import styled from 'styled-components'
 import { Icon } from '../../atoms/Icon'
 import { icons } from '../../../styles/images'
+import QuotedEmailBody from './QuotedEmailBody'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -129,9 +129,9 @@ const EmailContainer = (props: EmailContainerProps) => {
                     </EmailSenderDetailsContainer>
                 )}
             </CollapseExpandContainer>
-            {isCollapsed || (
+            {!isCollapsed && (
                 <BodyContainer>
-                    <SanitizedHTML dirtyHTML={props.email.body} />
+                    <QuotedEmailBody email={props.email} />
                 </BodyContainer>
             )}
         </DetailsViewContainer>
