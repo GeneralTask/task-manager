@@ -448,6 +448,20 @@ func TestGetEmailThreads(t *testing.T) {
 		assert.Equal(t, thread1.ID, (*paged_emails)[0].ID)
 		assert.Equal(t, thread3.ID, (*paged_emails)[1].ID)
 	})
+	t.Run("SuccessOnlyArchived", func(t *testing.T) {
+		paged_emails, err := GetEmailThreads(db, userID, false, true, Pagination{}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(*paged_emails))
+	})
+	t.Run("SuccessOnlyUnArchived", func(t *testing.T) {
+		paged_emails, err := GetEmailThreads(db, userID, false, false, Pagination{}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, 4, len(*paged_emails))
+		assert.Equal(t, thread2.ID, (*paged_emails)[0].ID)
+		assert.Equal(t, thread1.ID, (*paged_emails)[1].ID)
+		assert.Equal(t, thread3.ID, (*paged_emails)[2].ID)
+		assert.Equal(t, thread4.ID, (*paged_emails)[3].ID)
+	})
 }
 
 func TestInsertLogEvent(t *testing.T) {
