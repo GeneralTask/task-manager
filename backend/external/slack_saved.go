@@ -2,15 +2,29 @@ package external
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/rs/zerolog/log"
-	"github.com/slack-go/slack"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+type slackSavedMessagesResponse struct {
+	Items []slackItem `json:"items"`
+}
+
+type slackItem struct {
+	Message slackMessage `json:"message"`
+}
+
+type slackMessage struct {
+	ClientMsgID string `json:"client_msg_id"`
+	Text        string `json:"text"`
+	Permalink   string `json:"permalink"`
+}
 
 type SlackSavedTaskSource struct {
 	Slack SlackService
@@ -33,23 +47,15 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 	}
 	defer dbCleanup()
 
-	var api *slack.Client
+	// at least until https://github.com/slack-go/slack/pull/1069 lands and is included in a release, we'll need to do our own response parsing
+	client := getSlackHttpClient(db, userID, accountID)
+	savedMessagesURL := "https://slack.com/api/stars.list"
 	if slackTask.Slack.Config.ConfigValues.SavedMessagesURL != nil {
-		// this is the code path for unit tests
-		api = slack.New("foobar", slack.OptionAPIURL(*slackTask.Slack.Config.ConfigValues.SavedMessagesURL))
-	} else {
-		// this is the code path in dev/prod (needs manual verification)
-		externalToken, err := getExternalToken(db, userID, accountID, TASK_SERVICE_ID_SLACK)
-		if err != nil {
-			log.Error().Err(err).Msg("failed to fetch token")
-			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
-			return
-		}
-
-		token := extractOauthToken(*externalToken)
-		api = slack.New(token.AccessToken)
+		savedMessagesURL = *slackTask.Slack.Config.ConfigValues.SavedMessagesURL
+		client = http.DefaultClient
 	}
-	savedMessages, _, err := api.ListStars(slack.NewStarsParameters())
+	var savedMessages slackSavedMessagesResponse
+	err = getJSON(client, savedMessagesURL, &savedMessages)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to fetch saved items")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
@@ -57,16 +63,13 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 	}
 
 	var tasks []*database.Item
-	for _, messageItem := range savedMessages {
-		if messageItem.Message == nil {
-			log.Warn().Msg("missing message from slack API response item")
-			continue
-		}
+	for _, messageItem := range savedMessages.Items {
 		task := &database.Item{
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      messageItem.Message.ClientMsgID,
 				IDTaskSection:   constants.IDTaskSectionDefault,
+				Deeplink:        messageItem.Message.Permalink,
 				SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
 				Title:           messageItem.Message.Text,
 				SourceAccountID: accountID,
