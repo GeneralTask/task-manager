@@ -75,6 +75,22 @@ func TestThreadList(t *testing.T) {
 		},
 		TaskType: database.TaskType{IsThread: true},
 	})
+	threadIDHex4 := insertTestItem(t, userID, database.Item{
+		TaskBase: database.TaskBase{
+			UserID:          userID,
+			IDExternal:      "sample_gmail_thread_id4",
+			SourceID:        external.TASK_SOURCE_ID_GMAIL,
+			SourceAccountID: testEmail,
+		},
+		EmailThread: database.EmailThread{
+			ThreadID:      "sample_gmail_thread_id4",
+			LastUpdatedAt: *testutils.CreateDateTime("2022-04-20"),
+			Emails: []database.Email{
+				{EmailID: "sample_email_4", SentAt: *testutils.CreateDateTime("2022-04-20"), IsUnread: true},
+			},
+			IsArchived: true,
+		},
+	})
 	_ = insertTestItem(t, notUserID, database.Item{
 		TaskBase: database.TaskBase{
 			UserID:     notUserID,
@@ -168,6 +184,23 @@ func TestThreadList(t *testing.T) {
 				threadIDHex2, testEmail),
 			string(body))
 	})
+	t.Run("SuccussIsArchived", func(t *testing.T) {
+		params := []byte(`{}`)
+		request, _ := http.NewRequest(
+			"GET",
+			"/threads/?is_archived=true",
+			bytes.NewBuffer(params))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t,
+			fmt.Sprintf("neat%sneat",
+			threadIDHex4),
+			string(body))
+})
 }
 
 func insertTestItem(t *testing.T, userID primitive.ObjectID, task database.Item) string {

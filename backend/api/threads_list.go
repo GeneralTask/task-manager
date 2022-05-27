@@ -44,7 +44,7 @@ type accountParams struct {
 type threadsListParams struct {
 	database.Pagination `form:",inline"`
 	OnlyUnread          *bool `form:"only_unread"`
-	IsArchived        *bool `form:"is_archived"`
+	IsArchived          *bool `form:"is_archived"`
 	accountParams       `form:",inline"`
 }
 
