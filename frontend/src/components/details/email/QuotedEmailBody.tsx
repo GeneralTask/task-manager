@@ -23,9 +23,7 @@ const Quote = ({ quotedHTML }: { quotedHTML: string }) => {
     const [showQuotedHTML, setShowQuotedHTML] = useState(false)
     return (
         <>
-            <QuoteToggle onClick={() => setShowQuotedHTML(!showQuotedHTML)}>
-                <span>···</span>
-            </QuoteToggle>
+            <QuoteToggle onClick={() => setShowQuotedHTML(!showQuotedHTML)}>•••</QuoteToggle>
             {showQuotedHTML && <SanitizedHTML dirtyHTML={quotedHTML} />}
         </>
     )
