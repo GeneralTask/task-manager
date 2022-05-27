@@ -2,7 +2,6 @@ package external
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -48,7 +47,6 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 		}
 
 		token := extractOauthToken(*externalToken)
-		fmt.Println("OH WOW", token.AccessToken)
 		api = slack.New(token.AccessToken)
 	}
 	savedMessages, _, err := api.ListStars(slack.NewStarsParameters())
@@ -57,12 +55,11 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
 		return
 	}
-	fmt.Println("WOW IT WORKS", len(savedMessages))
 
 	var tasks []*database.Item
 	for _, messageItem := range savedMessages {
 		if messageItem.Message == nil {
-			fmt.Println("message missing!")
+			log.Warn().Msg("missing message from slack API response item")
 			continue
 		}
 		task := &database.Item{
@@ -70,7 +67,6 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 				UserID:          userID,
 				IDExternal:      messageItem.Message.ClientMsgID,
 				IDTaskSection:   constants.IDTaskSectionDefault,
-				Deeplink:        "https://apple.com/",
 				SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
 				Title:           messageItem.Message.Text,
 				SourceAccountID: accountID,
@@ -93,7 +89,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 			false,
 		)
 		if err != nil {
-			fmt.Println("db update fail!", err)
+			log.Error().Err(err).Msg("failed to save slack saved message in DB")
 			continue
 		}
 		task.HasBeenReordered = dbTask.HasBeenReordered
