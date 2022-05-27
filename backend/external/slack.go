@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/rs/zerolog/log"
 	"github.com/slack-go/slack"
@@ -14,6 +15,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/oauth2"
 )
@@ -120,4 +122,8 @@ func (slackService SlackService) HandleSignupCallback(params CallbackParams) (pr
 
 func (slackService SlackService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
+}
+
+func getSlackHttpClient(db *mongo.Database, userID primitive.ObjectID, accountID string) *http.Client {
+	return getExternalOauth2Client(db, userID, accountID, TASK_SERVICE_ID_SLACK, getSlackConfig().OauthConfig)
 }

@@ -32,7 +32,7 @@ const (
 					"attachments": [],
 					"blocks": [],
 					"is_starred": true,
-					"permalink": "https://generaltask.slack.com/archives/D02591G1X6J/p1648583693380569"
+					"permalink": "https://niceme.me/"
 				},
 				"date_create": 1648585143
 			}
@@ -65,7 +65,7 @@ func TestLoadSlackTasks(t *testing.T) {
 		go slackSaved.GetTasks(userID, "hood_stock@down_bad.com", taskResult)
 		result := <-taskResult
 		assert.NotEqual(t, nil, result.Error)
-		assert.Equal(t, "slack server error: 500 Internal Server Error", result.Error.Error())
+		assert.Equal(t, "bad status code: 500", result.Error.Error())
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("BadSlackResponse", func(t *testing.T) {
@@ -91,6 +91,7 @@ func TestLoadSlackTasks(t *testing.T) {
 				IDOrdering:    0,
 				IDExternal:    SavedMessageIDExternal,
 				IDTaskSection: constants.IDTaskSectionDefault,
+				Deeplink:      "https://niceme.me/",
 				Title:         "don't forget to drink your ovaltine!",
 				SourceID:      TASK_SOURCE_ID_SLACK_SAVED,
 				UserID:        userID,
@@ -126,6 +127,7 @@ func TestLoadSlackTasks(t *testing.T) {
 				IDOrdering:      0,
 				IDExternal:      SavedMessageIDExternal,
 				IDTaskSection:   constants.IDTaskSectionDefault,
+				Deeplink:        "https://niceme.me/",
 				IsCompleted:     true,
 				Title:           "don't forget to drink your ovaltine!",
 				SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
