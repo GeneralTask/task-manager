@@ -224,7 +224,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			emails = append(emails, emailItem)
 		}
 
-		if len(thread.Messages) != 0 {
+		// We can just check if the first email is archived because all emails in a thread have the same archive status.
+		if len(thread.Messages) > 0 {
 			threadItem.IsArchived = isMessageArchived(thread.Messages[0])
 		}
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
