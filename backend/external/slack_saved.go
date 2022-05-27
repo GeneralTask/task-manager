@@ -47,7 +47,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 	}
 	defer dbCleanup()
 
-	// at least until https://github.com/slack-go/slack/pull/1069 lands and is included in a release, we'll need to do our own response parsing
+	// TODO: switch back to Slack library once https://github.com/slack-go/slack/pull/1069 lands and is included in a release
 	client := getSlackHttpClient(db, userID, accountID)
 	savedMessagesURL := "https://slack.com/api/stars.list"
 	if slackTask.Slack.Config.ConfigValues.SavedMessagesURL != nil {
