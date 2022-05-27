@@ -283,7 +283,7 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 	return &activeEmails, nil
 }
 
-func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, onlyArchived bool, pagination Pagination, additionalFilters *[]bson.M) (*[]Item, error) {
+func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, isArchived bool, pagination Pagination, additionalFilters *[]bson.M) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -315,7 +315,7 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 		}
 		filter["$and"] = append(filter["$and"].([]bson.M), isUnreadFilter)
 	}
-	if onlyArchived {
+	if isArchived {
 		isArchivedFilter := bson.M{
 			"email_thread.is_archived": true,
 		}
