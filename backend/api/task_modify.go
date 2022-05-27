@@ -212,7 +212,7 @@ func UpdateTaskInDB(api *API, c *gin.Context, taskID primitive.ObjectID, userID 
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
-	fieldsToUpdate, err := database.FlattenStruct(updateFields)
+	flattenedTaskChangeableFields, err := database.FlattenStruct(updateFields)
 	if err != nil {
 		log.Error().Err(err).Msgf("failed to flatten struct %+v", updateFields)
 		Handle500(c)
@@ -227,7 +227,7 @@ func UpdateTaskInDB(api *API, c *gin.Context, taskID primitive.ObjectID, userID 
 			{"_id": taskID},
 			{"user_id": userID},
 		}},
-		bson.M{"$set": fieldsToUpdate},
+		bson.M{"$set": flattenedTaskChangeableFields},
 	)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to update internal DB")

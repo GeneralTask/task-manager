@@ -658,53 +658,53 @@ func TestEditFields(t *testing.T) {
 		},
 	}
 
-	firstEmailID := primitive.NewObjectID()
-	threadIDHex := insertTestItem(t, userID, database.Item{
-		TaskBase: database.TaskBase{
-			UserID:     userID,
-			IDExternal: "sample_gmail_thread_id",
-			SourceID:   external.TASK_SOURCE_ID_GMAIL,
-		},
-		EmailThread: database.EmailThread{
-			ThreadID:      "sample_gmail_thread_id",
-			LastUpdatedAt: 0,
-			Emails: []database.Email{
-				{
-					MessageID:    firstEmailID,
-					SMTPID:       "sample_smtp_1",
-					EmailID:      "sample_gmail_thread_id",
-					Subject:      "test subject 1",
-					Body:         "test body 1",
-					SenderDomain: "gmail",
-					SenderEmail:  "test@generaltask.com",
-					SenderName:   "test",
-					ReplyTo:      "test-reply@generaltask.com",
-					IsUnread:     true,
-					Recipients: database.Recipients{
-						To:  []database.Recipient{{Name: "p1", Email: "p1@gmail.com"}},
-						Cc:  []database.Recipient{{Name: "p2", Email: "p2@gmail.com"}},
-						Bcc: []database.Recipient{{Name: "p3", Email: "p3@gmail.com"}},
+	t.Run("Edit Title Success on Task from Thread", func(t *testing.T) {
+		firstEmailID := primitive.NewObjectID()
+		threadIDHex := insertTestItem(t, userID, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:     userID,
+				IDExternal: "sample_gmail_thread_id",
+				SourceID:   external.TASK_SOURCE_ID_GMAIL,
+			},
+			EmailThread: database.EmailThread{
+				ThreadID:      "sample_gmail_thread_id",
+				LastUpdatedAt: 0,
+				Emails: []database.Email{
+					{
+						MessageID:    firstEmailID,
+						SMTPID:       "sample_smtp_1",
+						EmailID:      "sample_gmail_thread_id",
+						Subject:      "test subject 1",
+						Body:         "test body 1",
+						SenderDomain: "gmail",
+						SenderEmail:  "test@generaltask.com",
+						SenderName:   "test",
+						ReplyTo:      "test-reply@generaltask.com",
+						IsUnread:     true,
+						Recipients: database.Recipients{
+							To:  []database.Recipient{{Name: "p1", Email: "p1@gmail.com"}},
+							Cc:  []database.Recipient{{Name: "p2", Email: "p2@gmail.com"}},
+							Bcc: []database.Recipient{{Name: "p3", Email: "p3@gmail.com"}},
+						},
+						SentAt: *testutils.CreateDateTime("2019-04-20"),
 					},
-					SentAt: *testutils.CreateDateTime("2019-04-20"),
-				},
-				{
-					SMTPID:       "sample_smtp_1",
-					EmailID:      "sample_gmail_thread_id",
-					Subject:      "test subject 2",
-					Body:         "test body 2",
-					SenderDomain: "gmail",
-					SenderEmail:  "test@generaltask.com",
-					SenderName:   "test",
-					IsUnread:     true,
-					SentAt:       *testutils.CreateDateTime("2018-04-20"),
+					{
+						SMTPID:       "sample_smtp_1",
+						EmailID:      "sample_gmail_thread_id",
+						Subject:      "test subject 2",
+						Body:         "test body 2",
+						SenderDomain: "gmail",
+						SenderEmail:  "test@generaltask.com",
+						SenderName:   "test",
+						IsUnread:     true,
+						SentAt:       *testutils.CreateDateTime("2018-04-20"),
+					},
 				},
 			},
-		},
-		TaskType: database.TaskType{IsThread: true},
-	})
-	threadID, _ := primitive.ObjectIDFromHex(threadIDHex)
+			TaskType: database.TaskType{IsThread: true},
+		})
+		threadID, _ := primitive.ObjectIDFromHex(threadIDHex)
 
-	t.Run("Edit Title Success on Task from Thread", func(t *testing.T) {
 		ServeRequest(t, authToken, "POST", "/create_task_from_thread/"+threadIDHex+"/",
 			bytes.NewBuffer([]byte(`{
 				"title": "sample title from thread",
