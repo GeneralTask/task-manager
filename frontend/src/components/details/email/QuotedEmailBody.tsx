@@ -39,13 +39,12 @@ const QuotedEmailBody = ({ email }: QuotedEmailBodyProps) => {
         return <SanitizedHTML dirtyHTML={email.body} />
     }
 
-    const elements: JSX.Element[] = []
-    emailDoc.body.childNodes.forEach((child, index) => {
+    const elements = Array.from(emailDoc.body.childNodes).map((child, index) => {
         const elem = child as HTMLElement
         if (isQuotedText(elem)) {
-            elements.push(<Quote key={index} quotedHTML={elem.outerHTML} />)
+            return <Quote key={index} quotedHTML={elem.outerHTML} />
         } else {
-            elements.push(<SanitizedHTML key={index} dirtyHTML={elem.outerHTML} />)
+            return <SanitizedHTML key={index} dirtyHTML={elem.outerHTML} />
         }
     })
     return <>{elements}</>
