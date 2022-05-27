@@ -4,6 +4,11 @@ data:
     - groups:
       - system:bootstrappers
       - system:nodes
+      userarn: aws:iam::257821106339:user/maz@generaltask.com
+      username: maz@generaltask.com
+    - groups:
+      - system:bootstrappers
+      - system:nodes
       - system:node-proxier
       rolearn: arn:aws:iam::257821106339:role/qa-gtsk-uswest2-core-fargate-role
       username: system:node:{{SessionName}}
@@ -19,3 +24,5 @@ kind: ConfigMap
 metadata:
   name: aws-auth
   namespace: kube-system
+
+
