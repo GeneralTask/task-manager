@@ -315,12 +315,12 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 		}
 		filter["$and"] = append(filter["$and"].([]bson.M), isUnreadFilter)
 	}
-	if isArchived {
-		isArchivedFilter := bson.M{
-			"email_thread.is_archived": true,
-		}
-		filter["$and"] = append(filter["$and"].([]bson.M), isArchivedFilter)
+
+	isArchivedFilter := bson.M{
+		"email_thread.is_archived": isArchived,
 	}
+	filter["$and"] = append(filter["$and"].([]bson.M), isArchivedFilter)
+
 	cursor, err := GetTaskCollection(db).Find(
 		dbCtx,
 		filter,
