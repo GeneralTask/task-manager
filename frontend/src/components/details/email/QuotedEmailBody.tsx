@@ -8,9 +8,8 @@ import NoStyleButton from '../../atoms/buttons/NoStyleButton'
 const QuoteToggle = styled(NoStyleButton)`
     display: flex;
     align-items: center;
-    height: 0;
     border-radius: ${Border.radius.regular};
-    padding: 8px ${Spacing.padding._4}px;
+    padding: 0 ${Spacing.padding._8}px;
     background-color: ${Colors.gray._200};
 `
 
@@ -24,7 +23,9 @@ const Quote = ({ quotedHTML }: { quotedHTML: string }) => {
     const [showQuotedHTML, setShowQuotedHTML] = useState(false)
     return (
         <>
-            <QuoteToggle onClick={() => setShowQuotedHTML(!showQuotedHTML)}>···</QuoteToggle>
+            <QuoteToggle onClick={() => setShowQuotedHTML(!showQuotedHTML)}>
+                <span>···</span>
+            </QuoteToggle>
             {showQuotedHTML && <SanitizedHTML dirtyHTML={quotedHTML} />}
         </>
     )
