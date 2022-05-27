@@ -108,7 +108,7 @@ func (api *API) getPriorityTaskResults(db *mongo.Database, userID primitive.Obje
 	// first, show unread email threads oldest to newest
 	limit := 10
 	page := 1
-	threads, err := database.GetEmailThreads(db, userID, true, database.Pagination{Limit: &limit, Page: &page}, nil)
+	threads, err := database.GetEmailThreads(db, userID, true, false, database.Pagination{Limit: &limit, Page: &page}, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -2,9 +2,10 @@ package api
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"sort"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 
@@ -43,6 +44,7 @@ type accountParams struct {
 type threadsListParams struct {
 	database.Pagination `form:",inline"`
 	OnlyUnread          *bool `form:"only_unread"`
+	OnlyArchived        *bool `form:"only_archived"`
 	accountParams       `form:",inline"`
 }
 
@@ -78,6 +80,10 @@ func (api *API) ThreadsList(c *gin.Context) {
 	if params.OnlyUnread != nil && *params.OnlyUnread {
 		onlyUnread = true
 	}
+	onlyArchived := false
+	if params.OnlyArchived != nil && *params.OnlyArchived {
+		onlyArchived = true
+	}
 	if !database.IsValidPagination(params.Pagination) {
 		limit := DEFAULT_THREAD_LIMIT
 		page := 1
@@ -88,7 +94,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 	if params.SourceID != nil && params.SourceAccountID != nil {
 		accountFilter = &[]bson.M{{"source_id": params.SourceID}, {"source_account_id": params.SourceAccountID}}
 	}
-	threads, err := database.GetEmailThreads(db, userID.(primitive.ObjectID), onlyUnread, params.Pagination, accountFilter)
+	threads, err := database.GetEmailThreads(db, userID.(primitive.ObjectID), onlyUnread, onlyArchived, params.Pagination, accountFilter)
 	if err != nil {
 		Handle500(c)
 		return
