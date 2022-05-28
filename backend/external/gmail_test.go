@@ -227,7 +227,7 @@ func TestGetEmails(t *testing.T) {
 
 		db, dbCleanup, _ := database.GetDBConnection()
 		defer dbCleanup()
-		threadItems, err := database.GetEmailThreads(db, userID, false, database.Pagination{}, nil)
+		threadItems, err := database.GetEmailThreads(db, userID, false, false, database.Pagination{}, nil)
 		assert.NoError(t, err)
 
 		assert.Equal(t, len(expectedThreadsInDB), len(*threadItems))

@@ -283,7 +283,7 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 	return &activeEmails, nil
 }
 
-func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, pagination Pagination, additionalFilters *[]bson.M) (*[]Item, error) {
+func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, isArchived bool, pagination Pagination, additionalFilters *[]bson.M) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -300,6 +300,7 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 		"$and": []bson.M{
 			{"user_id": userID},
 			{"task_type.is_thread": true},
+			{"email_thread.is_archived": isArchived},
 		},
 	}
 	if additionalFilters != nil && len(*additionalFilters) > 0 {
@@ -315,6 +316,7 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 		}
 		filter["$and"] = append(filter["$and"].([]bson.M), isUnreadFilter)
 	}
+
 	cursor, err := GetTaskCollection(db).Find(
 		dbCtx,
 		filter,
