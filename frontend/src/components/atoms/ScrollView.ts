@@ -1,6 +1,6 @@
 import styled from "styled-components"
 
-const ScrollViewMimic = styled.div`
+const ScrollView = styled.div`
     margin: 40px 0px 0px 10px;
     padding-right: 10px;
     padding-bottom: 100px;
@@ -10,4 +10,4 @@ const ScrollViewMimic = styled.div`
     flex: 1;
 `
 
-export default ScrollViewMimic
+export default ScrollView
