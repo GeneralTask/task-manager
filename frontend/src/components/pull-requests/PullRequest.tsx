@@ -1,4 +1,4 @@
-import { Column, ColumnWidths, Row } from './styles'
+import { Column, ColumnWidths, Row, TruncatedText } from './styles'
 
 import { DateTime } from 'luxon'
 import React from 'react'
@@ -16,13 +16,15 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
     return (
         <Row>
             <Column width={ColumnWidths.title}>
-                <div>{title}</div>
-                <SubtitleSmall truncate>{'#' + number}</SubtitleSmall>
+                <TruncatedText>{title}</TruncatedText>
+                <br />
+                <SubtitleSmall>{'#' + number}</SubtitleSmall>
             </Column>
             <Column width={ColumnWidths.status}>{status}</Column>
             <Column width={ColumnWidths.author}>
                 <SubtitleSmall>{formattedTime}</SubtitleSmall>
-                <div>{author}</div>
+                <br />
+                <TruncatedText>{author}</TruncatedText>
             </Column>
             <Column width={ColumnWidths.branch}>{branch}</Column>
             <Column width={ColumnWidths.link}>
