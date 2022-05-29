@@ -1,8 +1,8 @@
 import styled from "styled-components"
 
 const ScrollView = styled.div`
-    margin: 40px 0px 0px 10px;
-    padding-right: 10px;
+    margin-top: 40px;
+    padding: 0 10px;
     padding-bottom: 100px;
     overflow-y: auto;
     margin-right: auto;

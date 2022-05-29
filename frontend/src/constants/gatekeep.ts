@@ -1,1 +1,1 @@
-export const SHOW_PULL_REQUESTS = false
+export const SHOW_PULL_REQUESTS = true
