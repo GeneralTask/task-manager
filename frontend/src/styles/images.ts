@@ -27,6 +27,7 @@ export const icons: { [key: string]: string } = {
     check_unchecked: '/images/check_unchecked.png',
     chevron_up: '/images/chevron_up.png',
     chevron_down: '/images/chevron_down.png',
+    external_link: '/images/external_link.svg',
     forward: '/images/forward.svg',
     gear: '/images/gear.png',
     inbox: '/images/inbox.png',

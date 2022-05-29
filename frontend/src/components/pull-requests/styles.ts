@@ -1,5 +1,6 @@
 import { Border, Colors, Spacing } from "../../styles"
 
+import NoStyleAnchor from "../atoms/NoStyleAnchor"
 import styled from "styled-components"
 
 export const ColumnWidths = {
@@ -17,7 +18,6 @@ export const Column = styled.div<{ width: string }>`
     width: ${props => props.width};
     padding: ${Spacing.padding._8}px;
     overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
 `
 
@@ -36,4 +36,12 @@ export const TruncatedText = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+`
+
+export const LinkButton = styled(NoStyleAnchor)`
+    margin: auto;
+    padding: ${Spacing.padding._8}px;
+    background-color: ${Colors.gray._100};
+    border-radius: ${Border.radius.large};
+    cursor: pointer;
 `

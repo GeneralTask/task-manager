@@ -1,10 +1,12 @@
-import { Column, ColumnWidths, Row, TruncatedText } from './styles'
+import { Column, ColumnWidths, LinkButton, Row, TruncatedText } from './styles'
 
 import { DateTime } from 'luxon'
+import { Icon } from '../atoms/Icon'
 import React from 'react'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { TPullRequest } from '../../utils/types'
 import { getHumanDateTime } from '../../utils/utils'
+import { icons } from '../../styles/images'
 
 interface PullRequestProps {
     pullRequest: TPullRequest
@@ -17,18 +19,22 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
         <Row>
             <Column width={ColumnWidths.title}>
                 <TruncatedText>{title}</TruncatedText>
-                {/* <br /> */}
                 <SubtitleSmall>{'#' + number}</SubtitleSmall>
             </Column>
-            <Column width={ColumnWidths.status}>{status}</Column>
+            <Column width={ColumnWidths.status}>
+                <TruncatedText>{status}</TruncatedText>
+            </Column>
             <Column width={ColumnWidths.author}>
                 <SubtitleSmall>{formattedTime}</SubtitleSmall>
-                {/* <br /> */}
                 <TruncatedText>{author}</TruncatedText>
             </Column>
-            <Column width={ColumnWidths.branch}>{branch}</Column>
+            <Column width={ColumnWidths.branch}>
+                <TruncatedText>{branch}</TruncatedText>
+            </Column>
             <Column width={ColumnWidths.link}>
-                <a href={link}>link</a>
+                <LinkButton href={link} target="blank">
+                    <Icon source={icons.external_link} size="small" />
+                </LinkButton>
             </Column>
         </Row>
     )

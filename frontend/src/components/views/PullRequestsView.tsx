@@ -16,6 +16,16 @@ const dummyData: TPullRequest[] = [
         branch: 'scott/fro-193-implementation-of-new-pr-view',
         link: 'https://github.com/octocat/Hello-World/pull/1347',
     },
+    {
+        id: '2',
+        title: 'Pull Request 1',
+        number: 1420,
+        status: 'All tests failing',
+        author: 'Nolan',
+        created_at: '2020-04-01T00:00:00.000Z',
+        branch: 'scott/fro-193-implementation-of-new-pr-view',
+        link: 'https://github.com/octocat/Hello-World/pull/1347',
+    },
 ]
 
 const PullRequestsView = () => {
