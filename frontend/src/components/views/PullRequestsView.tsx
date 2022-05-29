@@ -11,7 +11,7 @@ const dummyData: TPullRequest[] = [
         title: 'Pull Request 1',
         number: 1069,
         status: 'Ready to Merge',
-        author: 'scottmai',
+        author: 'Scott Mai',
         created_at: '2020-04-01T00:00:00.000Z',
         branch: 'scott/fro-193-implementation-of-new-pr-view',
         link: 'https://github.com/octocat/Hello-World/pull/1347',

@@ -1,21 +1,28 @@
 import { Column, ColumnWidths, Row } from './styles'
 
+import { DateTime } from 'luxon'
 import React from 'react'
+import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { TPullRequest } from '../../utils/types'
+import { getHumanDateTime } from '../../utils/utils'
 
 interface PullRequestProps {
     pullRequest: TPullRequest
 }
 const PullRequest = ({ pullRequest }: PullRequestProps) => {
     const { title, number, status, author, created_at, branch, link } = pullRequest
+
+    const formattedTime = getHumanDateTime(DateTime.fromISO(created_at))
     return (
         <Row>
             <Column width={ColumnWidths.title}>
-                {number} {title}
+                <div>{title}</div>
+                <SubtitleSmall truncate>{'#' + number}</SubtitleSmall>
             </Column>
             <Column width={ColumnWidths.status}>{status}</Column>
             <Column width={ColumnWidths.author}>
-                {author} {created_at}
+                <SubtitleSmall>{formattedTime}</SubtitleSmall>
+                <div>{author}</div>
             </Column>
             <Column width={ColumnWidths.branch}>{branch}</Column>
             <Column width={ColumnWidths.link}>
