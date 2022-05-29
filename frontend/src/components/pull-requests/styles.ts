@@ -23,13 +23,14 @@ export const Column = styled.div<{ width: string }>`
 
 export const Row = styled.div`
     display: flex;
-    padding: ${Spacing.padding._16}px;
+    padding: ${Spacing.padding._8}px;
 `
 
 export const HeaderContainer = styled(Row)`
     background-color: ${Colors.gray._100};
     border-radius: ${Border.radius.large};
     color: ${Colors.gray._500};
+    padding: ${Spacing.padding._16}px ${Spacing.padding._8}px;
 `
 
 export const TruncatedText = styled.span`
