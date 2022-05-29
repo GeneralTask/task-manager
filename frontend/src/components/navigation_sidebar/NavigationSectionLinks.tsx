@@ -6,6 +6,7 @@ import { TEmailThread, TTaskSection } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
 import NoStyleInput from '../atoms/NoStyleInput'
+import { SHOW_PULL_REQUESTS } from '../../constants/gatekeep'
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import { useAddTaskSection } from '../../services/api-query-hooks'
@@ -138,12 +139,14 @@ const NavigationSectionLinks = ({ taskSections, threads, sectionId, pathName }: 
                 count={threads.filter((t) => t.emails.find((e) => e.is_unread)).length}
                 isCurrentPage={pathName === 'messages'}
             />
-            <NavigationLink
-                link="/pull-requests"
-                title="Pull Requests"
-                icon={icons.inbox}
-                isCurrentPage={pathName === 'pull-requests'}
-            />
+            {SHOW_PULL_REQUESTS && (
+                <NavigationLink
+                    link="/pull-requests"
+                    title="Pull Requests"
+                    icon={icons.inbox}
+                    isCurrentPage={pathName === 'pull-requests'}
+                />
+            )}
             <NavigationLink
                 link="/settings"
                 title="Settings"
