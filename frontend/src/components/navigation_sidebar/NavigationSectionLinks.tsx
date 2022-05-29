@@ -1,14 +1,15 @@
+import { Colors, Spacing, Typography } from '../../styles'
+import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { TEmailThread, TTaskSection } from '../../utils/types'
+
+import { Icon } from '../atoms/Icon'
+import NavigationLinkDropdown from './NavigationLinkDropdown'
+import NoStyleInput from '../atoms/NoStyleInput'
+import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import { useAddTaskSection } from '../../services/api-query-hooks'
-import { Colors, Spacing, Typography } from '../../styles'
-import { icons } from '../../styles/images'
 import { weight } from '../../styles/typography'
-import { TEmailThread, TTaskSection } from '../../utils/types'
-import { Icon } from '../atoms/Icon'
-import NoStyleInput from '../atoms/NoStyleInput'
-import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
-import NavigationLinkDropdown from './NavigationLinkDropdown'
 
 const AddSectionInputContainer = styled.div`
     display: flex;
@@ -136,6 +137,13 @@ const NavigationSectionLinks = ({ taskSections, threads, sectionId, pathName }: 
                 icon={icons.inbox}
                 count={threads.filter((t) => t.emails.find((e) => e.is_unread)).length}
                 isCurrentPage={pathName === 'messages'}
+            />
+            <NavigationLink
+                link="/pull-requests"
+                title="Pull Requests"
+                icon={icons.inbox}
+                count={69}
+                isCurrentPage={pathName === 'pull-requests'}
             />
             <NavigationLink
                 link="/settings"
