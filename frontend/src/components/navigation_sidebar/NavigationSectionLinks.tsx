@@ -142,7 +142,6 @@ const NavigationSectionLinks = ({ taskSections, threads, sectionId, pathName }: 
                 link="/pull-requests"
                 title="Pull Requests"
                 icon={icons.inbox}
-                count={69}
                 isCurrentPage={pathName === 'pull-requests'}
             />
             <NavigationLink

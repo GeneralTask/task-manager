@@ -118,6 +118,18 @@ export interface TEmailThread {
     emails: TEmail[]
 }
 
+// Pull Request Types
+export interface TPullRequest {
+    id: string
+    title: string
+    number: number
+    status: string
+    author: string
+    created_at: string
+    branch: string
+    link: string
+}
+
 export interface TTaskSection {
     id: string
     name: string
