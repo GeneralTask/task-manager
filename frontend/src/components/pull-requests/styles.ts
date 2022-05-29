@@ -3,14 +3,17 @@ import { Border, Colors, Spacing } from "../../styles"
 import styled from "styled-components"
 
 export const ColumnWidths = {
-    title: '30%',
-    status: '30%',
+    title: '35%',
+    status: '25%',
     author: '20%',
     branch: '15%',
     link: '5%',
 }
 
 export const Column = styled.div<{ width: string }>`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     width: ${props => props.width};
     padding: ${Spacing.padding._8}px;
     overflow: hidden;
@@ -29,7 +32,7 @@ export const HeaderContainer = styled(Row)`
     color: ${Colors.gray._500};
 `
 
-export const TruncatedText = styled.div`
+export const TruncatedText = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

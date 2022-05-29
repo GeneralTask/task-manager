@@ -17,13 +17,13 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
         <Row>
             <Column width={ColumnWidths.title}>
                 <TruncatedText>{title}</TruncatedText>
-                <br />
+                {/* <br /> */}
                 <SubtitleSmall>{'#' + number}</SubtitleSmall>
             </Column>
             <Column width={ColumnWidths.status}>{status}</Column>
             <Column width={ColumnWidths.author}>
                 <SubtitleSmall>{formattedTime}</SubtitleSmall>
-                <br />
+                {/* <br /> */}
                 <TruncatedText>{author}</TruncatedText>
             </Column>
             <Column width={ColumnWidths.branch}>{branch}</Column>
