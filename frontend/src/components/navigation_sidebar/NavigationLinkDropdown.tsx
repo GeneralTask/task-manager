@@ -1,10 +1,11 @@
-import React, { ReactNode, useState } from 'react'
-import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import { icons } from '../../styles/images'
-import { margin } from '../../styles/spacing'
+import React, { ReactNode, useState } from 'react'
+
 import { Icon } from '../atoms/Icon'
 import TooltipWrapper from '../atoms/TooltipWrapper'
+import { icons } from '../../styles/images'
+import { margin } from '../../styles/spacing'
+import styled from 'styled-components'
 
 const DropdownContainer = styled.div`
     display: flex;
@@ -41,14 +42,15 @@ const AddSectionContainer = styled.div`
 interface NavigationLinkDropdownProps {
     children: ReactNode
     title: string
-    openAddSectionInput: () => void
+    icon: string
+    openAddSectionInput?: () => void
 }
-const NavigationLinkDropdown = ({ children, title, openAddSectionInput }: NavigationLinkDropdownProps) => {
+const NavigationLinkDropdown = ({ children, title, icon, openAddSectionInput }: NavigationLinkDropdownProps) => {
     const [isOpen, setIsOpen] = useState(true)
     const onClickHandler = () => setIsOpen(!isOpen)
     const openAddSectionHandler = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation()
-        openAddSectionInput()
+        openAddSectionInput && openAddSectionInput()
         setIsOpen(true)
     }
 
@@ -56,13 +58,15 @@ const NavigationLinkDropdown = ({ children, title, openAddSectionInput }: Naviga
         <>
             <DropdownContainer onClick={onClickHandler}>
                 <Icon size="xSmall" source={isOpen ? icons.chevron_down : icons.caret_right} />
-                <Icon size="small" source={icons.inbox} />
+                <Icon size="small" source={icon} />
                 <SectionTitle>{title}</SectionTitle>
-                <AddSectionContainer onClick={openAddSectionHandler} data-testid="add-section-button">
-                    <TooltipWrapper dataTip="Add Section" tooltipId="tooltip">
-                        <Icon size="small" source={icons.plus} />
-                    </TooltipWrapper>
-                </AddSectionContainer>
+                {openAddSectionInput && (
+                    <AddSectionContainer onClick={openAddSectionHandler} data-testid="add-section-button">
+                        <TooltipWrapper dataTip="Add Section" tooltipId="tooltip">
+                            <Icon size="small" source={icons.plus} />
+                        </TooltipWrapper>
+                    </AddSectionContainer>
+                )}
             </DropdownContainer>
             {isOpen && <LinksContainer>{children}</LinksContainer>}
         </>

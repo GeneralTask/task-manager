@@ -1,7 +1,7 @@
 import { Colors, Spacing, Typography } from '../../styles'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { TEmailThread, TTaskSection } from '../../utils/types'
+import { TEmailThread, TRepository, TTaskSection } from '../../utils/types'
 
 import { Icon } from '../atoms/Icon'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
@@ -34,11 +34,20 @@ const IconContainer = styled.div`
 interface SectionLinksProps {
     taskSections: TTaskSection[]
     threads: TEmailThread[]
+    pullRequestRepositories: TRepository[]
     sectionId: string
+    repositoryId: string
     pathName: string
 }
 
-const NavigationSectionLinks = ({ taskSections, threads, sectionId, pathName }: SectionLinksProps) => {
+const NavigationSectionLinks = ({
+    taskSections,
+    threads,
+    pullRequestRepositories,
+    sectionId,
+    repositoryId,
+    pathName,
+}: SectionLinksProps) => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
     const [sectionName, setSectionName] = useState('')
     const { mutate: addTaskSection } = useAddTaskSection()
@@ -83,7 +92,7 @@ const NavigationSectionLinks = ({ taskSections, threads, sectionId, pathName }: 
 
     return (
         <>
-            <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
+            <NavigationLinkDropdown title="Tasks" icon={icons.label} openAddSectionInput={onOpenAddSectionInputHandler}>
                 {taskSections
                     .filter((section) => !section.is_done)
                     .map((section) => (
@@ -140,12 +149,18 @@ const NavigationSectionLinks = ({ taskSections, threads, sectionId, pathName }: 
                 isCurrentPage={pathName === 'messages'}
             />
             {SHOW_PULL_REQUESTS && (
-                <NavigationLink
-                    link="/pull-requests"
-                    title="Pull Requests"
-                    icon={icons.inbox}
-                    isCurrentPage={pathName === 'pull-requests'}
-                />
+                <NavigationLinkDropdown title="Repository" icon={icons.repository}>
+                    {pullRequestRepositories.map((repo) => (
+                        <NavigationLink
+                            key={repo.id}
+                            link={`/pull-requests/${repo.id}`}
+                            title={repo.name}
+                            icon={icons.repository}
+                            count={repo.pull_requests.length}
+                            isCurrentPage={repositoryId === repo.id}
+                        />
+                    ))}
+                </NavigationLinkDropdown>
             )}
             <NavigationLink
                 link="/settings"

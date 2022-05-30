@@ -52,7 +52,7 @@ const App = () => {
                                 {SHOW_PULL_REQUESTS && (
                                     <Route path="pull-requests" element={<PrivateOutlet />}>
                                         <Route index element={<MainScreen />} />
-                                        <Route path=":thread" element={<MainScreen />} />
+                                        <Route path=":repository" element={<MainScreen />} />
                                     </Route>
                                 )}
                                 <Route path="settings" element={<PrivateOutlet />}>

@@ -130,6 +130,12 @@ export interface TPullRequest {
     link: string
 }
 
+export interface TRepository {
+    id: string
+    name: string
+    pull_requests: TPullRequest[]
+}
+
 export interface TTaskSection {
     id: string
     name: string
