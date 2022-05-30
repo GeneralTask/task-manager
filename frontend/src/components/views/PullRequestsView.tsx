@@ -11,11 +11,6 @@ import { TRepository } from '../../utils/types'
 export const dummyRepositories: TRepository[] = [
     {
         id: 'repo-1',
-        name: 'Repository 1',
-        pull_requests: [],
-    },
-    {
-        id: 'repo-2',
         name: 'Task Manager',
         pull_requests: [
             {
@@ -40,6 +35,11 @@ export const dummyRepositories: TRepository[] = [
             },
         ],
     },
+    {
+        id: 'repo-2',
+        name: 'Repository 2',
+        pull_requests: [],
+    },
 ]
 
 const PullRequestsView = () => {
@@ -49,7 +49,7 @@ const PullRequestsView = () => {
     const repositories = dummyRepositories
 
     const repository = repositories.find((repo) => repo.id === repositoryParam)
-    if (!repositoryParam && repositories) {
+    if ((!repositoryParam || !repository) && repositories) {
         navigate(`/pull-requests/${repositories[0].id}`)
     }
 
