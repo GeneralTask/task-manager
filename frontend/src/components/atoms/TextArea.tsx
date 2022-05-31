@@ -18,7 +18,7 @@ const TextAreaStyled = styled.textarea`
     font-weight: normal;
     font-size: ${Typography.xSmall.fontSize};
     background-color: inherit;
-    font-family: 'Switzer-Variable';
+    font-family: inherit;
 `
 
 interface TextAreaProps {
