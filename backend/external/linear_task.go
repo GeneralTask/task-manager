@@ -1,11 +1,9 @@
 package external
 
 import (
-	"context"
 	"errors"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/rs/zerolog/log"
-	"github.com/shurcooL/graphql"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -58,35 +56,15 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		return
 	}
 
-	variables := map[string]interface{}{
-		"email": graphql.String(meQuery.Viewer.Email), // TODO: using ID doesn't work for some reason
-	}
-	var query struct {
-		Issues struct {
-			Nodes []struct {
-				Id          graphql.ID
-				Title       graphql.String
-				Description graphql.String
-				Url         graphql.String
-				CreatedAt   graphql.String
-				Assignee    struct {
-					Id    graphql.ID
-					Name  graphql.String
-					Email graphql.String
-				}
-			}
-		} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
-	}
-
-	err = client.Query(context.Background(), &query, variables)
+	issuesQuery, err := getLinearAssignedIssuesStruct(client, meQuery.Viewer.Email)
 	if err != nil {
-		log.Error().Err(err).Interface("query", query).Msg("failed to fetch linear tasks")
+		log.Error().Err(err).Msg("unable to get linear issues assigned to user")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
+		return
 	}
-	log.Debug().Interface("query", query).Send()
 
 	var tasks []*database.Item
-	for _, task := range query.Issues.Nodes {
+	for _, task := range issuesQuery.Issues.Nodes {
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(task.CreatedAt))
 		task := &database.Item{
 			TaskBase: database.TaskBase{

@@ -182,9 +182,39 @@ type linearUserInfoQuery struct {
 	}
 }
 
+type linearAssignedIssuesQuery struct {
+	Issues struct {
+		Nodes []struct {
+			Id          graphql.ID
+			Title       graphql.String
+			Description graphql.String
+			Url         graphql.String
+			CreatedAt   graphql.String
+			Assignee    struct {
+				Id    graphql.ID
+				Name  graphql.String
+				Email graphql.String
+			}
+		}
+	} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
+}
+
 func getLinearUserInfoStruct(client *graphql.Client) (*linearUserInfoQuery, error) {
 	var query linearUserInfoQuery
 	err := client.Query(context.Background(), &query, nil)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to fetch user info")
+		return nil, err
+	}
+	return &query, nil
+}
+
+func getLinearAssignedIssuesStruct(client *graphql.Client, email graphql.String) (*linearAssignedIssuesQuery, error) {
+	variables := map[string]interface{}{
+		"email": email, // TODO: using ID doesn't work for some reason
+	}
+	var query linearAssignedIssuesQuery
+	err := client.Query(context.Background(), &query, variables)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to fetch user info")
 		return nil, err
