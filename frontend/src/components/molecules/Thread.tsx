@@ -96,6 +96,10 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length})` : ''
     const title = `${threadCountString} ${thread.emails[0]?.subject}`
     const bodyDirtyHTML = thread.emails[thread.emails.length - 1]?.body
+    const cleanedHTML = removeHTMLTags(bodyDirtyHTML).trim()
+    console.log(cleanedHTML)
+    const cleanHTML = cleanedHTML.replaceAll('\u00a0', ' ')
+    console.log(cleanHTML)
     const sentAt = getHumanDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
     const isUnread = thread.emails.some((email) => email.is_unread)
 
@@ -104,7 +108,7 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
             <TitleContainer>
                 <Title bold={isUnread}>{senders}</Title>
                 <SubTitle bold={isUnread}>{title}</SubTitle>
-                <BodyPreview bold={false}>{removeHTMLTags(bodyDirtyHTML)}</BodyPreview>
+                <BodyPreview bold={false}>{cleanHTML}</BodyPreview>
             </TitleContainer>
             <SentAtContainer>{sentAt}</SentAtContainer>
         </ThreadContainer>
