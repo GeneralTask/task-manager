@@ -51,7 +51,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		return
 	}
 
-	meQuery, err := GetLinearMeStruct(client)
+	meQuery, err := getLinearUserInfoStruct(client)
 	if err != nil {
 		log.Error().Err(err).Msg("unable to get linear user details")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
@@ -80,7 +80,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 
 	err = client.Query(context.Background(), &query, variables)
 	if err != nil {
-		log.Error().Err(err).Interface("query", query).Msg("could not execute query")
+		log.Error().Err(err).Interface("query", query).Msg("failed to fetch linear tasks")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
 	}
 	log.Debug().Interface("query", query).Send()
@@ -114,7 +114,6 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 			database.TaskChangeableFields{
 				Title:       &task.Title,
 				Body:        &task.TaskBase.Body,
-				DueDate:     task.DueDate,
 				IsCompleted: &isCompleted,
 			},
 			nil,

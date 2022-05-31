@@ -174,7 +174,7 @@ func getLinearOauthConfig() *OauthConfig {
 	}}
 }
 
-type LinearMeQuery struct {
+type linearUserInfoQuery struct {
 	Viewer struct {
 		Id    graphql.String
 		Name  graphql.String
@@ -182,11 +182,11 @@ type LinearMeQuery struct {
 	}
 }
 
-func GetLinearMeStruct(client *graphql.Client) (*LinearMeQuery, error) {
-	var query LinearMeQuery
+func getLinearUserInfoStruct(client *graphql.Client) (*linearUserInfoQuery, error) {
+	var query linearUserInfoQuery
 	err := client.Query(context.Background(), &query, nil)
 	if err != nil {
-		log.Error().Err(err).Msg("could not execute query")
+		log.Error().Err(err).Msg("failed to fetch user info")
 		return nil, err
 	}
 	return &query, nil
