@@ -11,7 +11,6 @@ interface EmailMainActionsProps {
     setThreadComposeState: (state: TEmailComposeState) => void
 }
 const EmailMainActions = ({ email, setThreadComposeState }: EmailMainActionsProps) => {
-    const numRecipients = email.recipients.to.length + email.recipients.cc.length
     return (
         <Flex>
             <EmailActionButtonContainer>
