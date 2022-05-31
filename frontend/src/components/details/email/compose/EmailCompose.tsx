@@ -88,7 +88,7 @@ const EmailCompose = (props: EmailComposeProps) => {
     const startSendEmail = useCallback(
         (recipients: TRecipients, subject: string, body: string) => {
             const timeout = setTimeout(() => {
-                sendEmail(recipients, subject, body)
+                sendEmail(recipients, subject, body.replace(/\n/g, '<br/>'))
                 props.setThreadComposeState({
                     emailComposeType: null,
                     emailId: null,
