@@ -13,7 +13,6 @@ const FooterView = styled.div`
     position: absolute;
     top: 100%;
     transform: translateY(-100%);
-    right: 0px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -31,14 +30,14 @@ const FooterTextView = styled.div`
     margin: ${Spacing.margin._40}px;
     min-width: 0px;
 `
-const FooterHeaderArea = styled.span`
+const FooterHeaderArea = styled.div`
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
     flex-shrink: 1;
     min-width: 0px;
 `
-const FooterText = styled.span`
+const FooterText = styled.div`
     display: flex;
     flex-direction: row;
     white-space: nowrap;
@@ -52,7 +51,7 @@ const FooterText = styled.span`
     white-space: nowrap;
     text-overflow: ellipsis;
 `
-const HeaderText = styled.span`
+const HeaderText = styled.div`
     margin-right: ${Spacing.margin._8}px;
     font-size: ${Typography.medium.fontSize};
     font-weight: ${Typography.weight._500};
@@ -63,7 +62,7 @@ const HeaderText = styled.span`
     white-space: nowrap;
     text-overflow: ellipsis;
 `
-const BodyTextArea = styled.span`
+const BodyTextArea = styled.div`
     overflow: auto;
     padding: ${Spacing.margin._8}px;
     color: ${Colors.gray._600};
@@ -73,12 +72,12 @@ const BodyTextArea = styled.span`
     white-space: nowrap;
     text-overflow: ellipsis;
 `
-const CursorView = styled.span`
+const CursorView = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
 `
-const RecommendationText = styled.span`
+const RecommendationText = styled.div`
     display: flex;
     padding: ${Spacing.margin._12}px;
     font: inherit;
@@ -88,7 +87,7 @@ const RecommendationText = styled.span`
     text-decoration: none;
     margin-left: ${Spacing.margin._4}px;
 `
-const CursorText = styled.span`
+const CursorText = styled.div`
     display: flex;
     overflow: auto;
     font: inherit;
@@ -97,12 +96,12 @@ const CursorText = styled.span`
     text-decoration: none;
     align-items: center;
 `
-const CursorArea = styled.span`
+const CursorArea = styled.div`
     align-self: right;
     display: flex;
     flex-direction: row;
 `
-const Recommendation = styled.span`
+const Recommendation = styled.div`
     margin-right: ${Spacing.margin._8}px;
     display: flex;
     flex-direction: row;
@@ -115,7 +114,7 @@ const Recommendation = styled.span`
 const ScheduleGapFiller = () => {
     const [recommendationIndex, setRecommendation] = useState(0)
     const { data: event } = useMeetingBanner()
-    if (event == undefined) {
+    if (!event) {
         return null
     }
     const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
@@ -133,14 +132,14 @@ const ScheduleGapFiller = () => {
                 </FooterHeaderArea>
                 <BodyTextArea>{eventsubTitle}</BodyTextArea>
                 <FooterText>
-                    <Recommendation>
-                        <a href={link}>
-                            <Icon size="large" source={logos[actions[recommendationIndex].logo]} />
-                        </a>
-                        <NoStyleAnchor href={actions[recommendationIndex].link} style={{ textDecoration: 'none' }}>
+                    <NoStyleAnchor href={actions[recommendationIndex].link}>
+                        <Recommendation>
+                            <a href={link}>
+                                <Icon size="large" source={logos[actions[recommendationIndex].logo]} />
+                            </a>
                             <RecommendationText>{actions[recommendationIndex].title}</RecommendationText>
-                        </NoStyleAnchor>
-                    </Recommendation>
+                        </Recommendation>
+                    </NoStyleAnchor>
                     {numEvents > 1 && (
                         <CursorView>
                             <CursorArea>
