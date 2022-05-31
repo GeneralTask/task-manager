@@ -9,7 +9,7 @@ import LandingScreen from './src/components/screens/LandingScreen'
 import Loading from './src/components/atoms/Loading'
 import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
-import { SHOW_PULL_REQUESTS } from './src/constants/gatekeep'
+import { isDevelopmentMode } from './src/environment'
 import store from './src/redux/store'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
@@ -49,7 +49,7 @@ const App = () => {
                                     <Route index element={<MainScreen />} />
                                     <Route path=":thread" element={<MainScreen />} />
                                 </Route>
-                                {SHOW_PULL_REQUESTS && (
+                                {isDevelopmentMode && (
                                     <Route path="pull-requests" element={<PrivateOutlet />}>
                                         <Route index element={<MainScreen />} />
                                         <Route path=":repository" element={<MainScreen />} />

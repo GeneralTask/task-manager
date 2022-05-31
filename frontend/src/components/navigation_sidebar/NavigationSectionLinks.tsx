@@ -6,8 +6,8 @@ import { TEmailThread, TRepository, TTaskSection } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
 import NoStyleInput from '../atoms/NoStyleInput'
-import { SHOW_PULL_REQUESTS } from '../../constants/gatekeep'
 import { icons } from '../../styles/images'
+import { isDevelopmentMode } from '../../environment'
 import styled from 'styled-components'
 import { useAddTaskSection } from '../../services/api-query-hooks'
 import { weight } from '../../styles/typography'
@@ -148,7 +148,7 @@ const NavigationSectionLinks = ({
                 count={threads.filter((t) => t.emails.find((e) => e.is_unread)).length}
                 isCurrentPage={pathName === 'messages'}
             />
-            {SHOW_PULL_REQUESTS && (
+            {isDevelopmentMode && (
                 <NavigationLinkDropdown title="Repository" icon={icons.repository}>
                     {pullRequestRepositories.map((repo) => (
                         <NavigationLink
