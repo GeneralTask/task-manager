@@ -13,7 +13,7 @@ const FooterView = styled.div`
     position: absolute;
     top: 100%;
     transform: translateY(-100%);
-    display: flex;
+    display: none; // change when ready to use
     flex-direction: column;
     justify-content: center;
     align-items: right;
@@ -101,16 +101,6 @@ const CursorArea = styled.div`
     display: flex;
     flex-direction: row;
 `
-const Recommendation = styled.div`
-    margin-right: ${Spacing.margin._8}px;
-    display: flex;
-    flex-direction: row;
-    white-space: nowrap;
-    font-weight: ${Typography.weight._500};
-    color: ${Colors.gray._600};
-    justify-content: center;
-`
-
 const ScheduleGapFiller = () => {
     const [recommendationIndex, setRecommendation] = useState(0)
     const { data: event } = useMeetingBanner()
@@ -132,13 +122,14 @@ const ScheduleGapFiller = () => {
                 </FooterHeaderArea>
                 <BodyTextArea>{eventsubTitle}</BodyTextArea>
                 <FooterText>
-                    <NoStyleAnchor href={actions[recommendationIndex].link}>
-                        <Recommendation>
-                            <a href={link}>
-                                <Icon size="large" source={logos[actions[recommendationIndex].logo]} />
-                            </a>
-                            <RecommendationText>{actions[recommendationIndex].title}</RecommendationText>
-                        </Recommendation>
+                    <NoStyleAnchor
+                        href={actions[recommendationIndex].link}
+                        style={{ display: 'flex', flexDirection: 'row', whiteSpace: 'nowrap' }}
+                    >
+                        <a href={link}>
+                            <Icon size="large" source={logos[actions[recommendationIndex].logo]} />
+                        </a>
+                        <RecommendationText>{actions[recommendationIndex].title}</RecommendationText>
                     </NoStyleAnchor>
                     {numEvents > 1 && (
                         <CursorView>
