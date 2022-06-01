@@ -31,6 +31,16 @@ interface DefaultTemplateProps {
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
     return (
         <DefaultTemplateContainer>
+            <ReactTooltip
+                id="tooltip"
+                effect="solid"
+                delayShow={250}
+                delayHide={250}
+                delayUpdate={500}
+                className="tooltip"
+                backgroundColor={Colors.white}
+                textColor={Colors.black}
+            />
             <NavigationView />
             <TasksandDetails>{children}</TasksandDetails>
             <CalendarView />
