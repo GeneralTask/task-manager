@@ -14,7 +14,6 @@ import styled from 'styled-components'
 const NavigationViewContainer = styled.div`
     display: flex;
     flex-direction: column;
-    flex: 0 0 230px;
     min-width: 0px;
     background-color: ${Colors.gray._100};
     padding: ${padding._8}px;

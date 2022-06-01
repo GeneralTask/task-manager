@@ -10,7 +10,7 @@ import CalendarHeader, { CursorPointerDiv } from '../calendar/CalendarHeader'
 import styled from 'styled-components'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
-import { Colors, Dimensions, Spacing } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import { useGetEvents } from '../../services/api-query-hooks'
 import { getMonthsAroundDate } from '../../utils/time'
@@ -18,7 +18,6 @@ import { getMonthsAroundDate } from '../../utils/time'
 const CollapsedCalendarView = styled.div`
     padding-top: ${Spacing.padding._16}px;
     padding-right: ${Spacing.padding._4}px;
-    width: ${Dimensions.COLLAPSED_CALENDAR_WIDTH}px;
     background-color: ${Colors.gray._100};
     display: flex;
     justify-content: center;
