@@ -23,6 +23,9 @@ const TasksandDetails = styled.div`
     display: flex;
     position: relative;
     overflow: hidden;
+    @media only screen and (min-device-width: 375px) and (max-device-width: 480px) {
+        overflow: auto;
+    }
 `
 interface DefaultTemplateProps {
     children: React.ReactNode
