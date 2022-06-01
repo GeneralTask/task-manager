@@ -37,3 +37,4 @@ jobs:
           wait-on: 'http://localhost:3000'
           command: yarn cy:run
           working-directory: frontend
+          parallel: true
