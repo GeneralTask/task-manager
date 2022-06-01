@@ -4,7 +4,7 @@ import Header from '../pull-requests/Header'
 import Loading from '../atoms/Loading'
 import PullRequest from '../pull-requests/PullRequest'
 import React from 'react'
-import Scrollable from '../atoms/Scrollable'
+import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import { SectionHeader } from '../molecules/Header'
 import { TRepository } from '../../utils/types'
 
@@ -64,13 +64,13 @@ const PullRequestsView = () => {
     }
 
     return (
-        <Scrollable>
+        <ScrollableListTemplate>
             <SectionHeader sectionName={repository.name} allowRefresh={false} />
             <Header />
             {repository.pull_requests.map((pr) => (
                 <PullRequest key={pr.id} pullRequest={pr} />
             ))}
-        </Scrollable>
+        </ScrollableListTemplate>
     )
 }
 
