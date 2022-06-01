@@ -17,7 +17,10 @@ export const dummyRepositories: TRepository[] = [
                 id: 'pr-1',
                 title: 'Pull Request 1',
                 number: 1069,
-                status: 'All tests failing',
+                status: {
+                    text: 'All tests failing',
+                    color: 'red',
+                },
                 author: 'Scott Mai',
                 created_at: '2020-04-01T00:00:00.000Z',
                 branch: 'scott/fro-193-implementation-of-new-pr-view',
@@ -27,7 +30,10 @@ export const dummyRepositories: TRepository[] = [
                 id: 'pr-2',
                 title: 'Pull Request 1',
                 number: 1420,
-                status: 'Ready to Merge',
+                status: {
+                    text: 'Ready to Merge',
+                    color: 'green',
+                },
                 author: 'Nolan',
                 created_at: '2020-04-01T00:00:00.000Z',
                 branch: 'scott/fro-193-implementation-of-new-pr-view',

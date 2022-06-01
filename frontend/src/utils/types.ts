@@ -123,7 +123,10 @@ export interface TPullRequest {
     id: string
     title: string
     number: number
-    status: string
+    status: {
+        text: string
+        color: string
+    }
     author: string
     created_at: string
     branch: string
