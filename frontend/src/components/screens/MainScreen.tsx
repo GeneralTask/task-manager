@@ -11,7 +11,6 @@ import {
     useGetUserInfo,
 } from '../../services/api-query-hooks'
 
-import CalendarView from '../views/CalendarView'
 import DefaultTemplate from '../templates/DefaultTemplate'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -67,10 +66,7 @@ const MainScreen = () => {
     return (
         <DndProvider backend={HTML5Backend}>
             <DefaultTemplate>
-                <>
-                    {expandedCalendar || currentPage}
-                    <CalendarView />
-                </>
+                <>{expandedCalendar || currentPage}</>
             </DefaultTemplate>
             <StyledToastContainer hideProgressBar position="bottom-right" transition={toastAnimation} />
         </DndProvider>

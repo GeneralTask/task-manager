@@ -12,7 +12,7 @@ export const logos: { [key: string]: string } = {
     slack: '/images/slack.png',
 }
 
-export const icons: { [key: string]: string } = {
+export const icons = Object.freeze({
     archive: '/images/archive.svg',
     arrows_in: '/images/arrows_in.png',
     arrows_out: '/images/arrows_out.png',
@@ -51,8 +51,10 @@ export const icons: { [key: string]: string } = {
     trash: '/images/trash.png',
     skinnyHamburger: '/images/skinny_hamburger.svg',
     x: '/images/x.svg',
-}
+})
 
 export const buttons: { [key: string]: string } = {
     google_sign_in: '/images/google_sign_in.png',
 }
+
+export type TIconImage = keyof typeof icons

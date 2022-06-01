@@ -101,6 +101,24 @@ export interface TEvent {
     conference_call: TConferenceCall | null
 }
 
+export interface TMeetingBanner {
+    title: string
+    subtitle: string
+    events: TMeetingEvent[]
+    actions: TMeetingAction[]
+}
+
+export interface TMeetingEvent {
+    title: string
+    conference_call: TConferenceCall
+}
+
+export interface TMeetingAction {
+    logo: string
+    title: string
+    link: string
+}
+
 export interface TEmail {
     message_id: string
     subject: string
