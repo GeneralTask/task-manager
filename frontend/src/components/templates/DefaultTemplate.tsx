@@ -5,7 +5,13 @@ import NavigationView from '../views/NavigationView'
 import '../../styles/tooltip.css'
 import styled from 'styled-components'
 import CalendarView from '../views/CalendarView'
-import { NAVIGATION_BAR_WIDTH, COLLAPSED_CALENDAR_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
+import {
+    NAVIGATION_BAR_WIDTH,
+    COLLAPSED_CALENDAR_WIDTH,
+    WINDOW_MIN_WIDTH,
+    MEDIA_MAX_WIDTH,
+    MEDIA_MIN_WIDTH,
+} from '../../styles/dimensions'
 
 const DefaultTemplateContainer = styled.div`
     display: grid;
@@ -27,7 +33,7 @@ const TasksandDetails = styled.div`
     display: flex;
     position: relative;
     overflow: hidden;
-    @media only screen and (min-device-width: 375px) and (max-device-width: 480px) {
+    @media only screen and (min-device-width: ${MEDIA_MIN_WIDTH}px) and (max-device-width: ${MEDIA_MAX_WIDTH}px) {
         overflow: auto;
     }
 `
