@@ -17,7 +17,6 @@ export const modalSize = {
     },
 }
 
-export const MEDIA_MIN_WIDTH = 375
 export const MEDIA_MAX_WIDTH = 480
 
 export const WINDOW_MIN_WIDTH = 800

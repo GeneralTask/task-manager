@@ -10,7 +10,6 @@ import {
     COLLAPSED_CALENDAR_WIDTH,
     WINDOW_MIN_WIDTH,
     MEDIA_MAX_WIDTH,
-    MEDIA_MIN_WIDTH,
 } from '../../styles/dimensions'
 
 const DefaultTemplateContainer = styled.div`
@@ -33,7 +32,7 @@ const TasksandDetails = styled.div`
     display: flex;
     position: relative;
     overflow: hidden;
-    @media only screen and (min-device-width: ${MEDIA_MIN_WIDTH}px) and (max-device-width: ${MEDIA_MAX_WIDTH}px) {
+    @media only screen and (max-device-width: ${MEDIA_MAX_WIDTH}px) {
         overflow: auto;
     }
 `
