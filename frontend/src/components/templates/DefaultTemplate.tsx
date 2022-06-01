@@ -7,10 +7,14 @@ import styled from 'styled-components'
 import CalendarView from '../views/CalendarView'
 
 const DefaultTemplateContainer = styled.div`
-    display: flex;
+    display: grid;
+    grid-template-columns: 230px minmax(300px, auto) minmax(40px, max-content);
+    grid-auto-flow: column;
+    grid-template-rows: 1fr;
     height: 100vh;
     background-color: ${Colors.gray._50};
     position: relative;
+    min-width: 800px;
 `
 
 const TasksandDetails = styled.div`
@@ -18,6 +22,7 @@ const TasksandDetails = styled.div`
     flex-direction: row;
     display: flex;
     position: relative;
+    overflow: hidden;
 `
 interface DefaultTemplateProps {
     children: React.ReactNode
@@ -26,16 +31,6 @@ interface DefaultTemplateProps {
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
     return (
         <DefaultTemplateContainer>
-            <ReactTooltip
-                id="tooltip"
-                effect="solid"
-                delayShow={250}
-                delayHide={250}
-                delayUpdate={500}
-                className="tooltip"
-                backgroundColor={Colors.white}
-                textColor={Colors.black}
-            />
             <NavigationView />
             <TasksandDetails>{children}</TasksandDetails>
             <CalendarView />
