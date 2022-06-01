@@ -145,7 +145,7 @@ func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.O
 	} else {
 		httpClient := getLinearHttpClient(db, userID, accountID)
 		if httpClient == nil {
-			log.Printf("failed to fetch google API token")
+			log.Error().Msg("failed to fetch google API token")
 			return nil, errors.New("failed to fetch google API token")
 		}
 		client = graphql.NewClient(LinearGraphqlEndpoint, httpClient)
