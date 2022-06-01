@@ -1,4 +1,4 @@
-import { Column, ColumnWidths, LinkButton, Row, TruncatedText } from './styles'
+import { Column, LinkButton, Row, TruncatedText } from './styles'
 
 import { DateTime } from 'luxon'
 import { Icon } from '../atoms/Icon'
@@ -17,21 +17,21 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
     const formattedTime = getHumanDateTime(DateTime.fromISO(created_at))
     return (
         <Row>
-            <Column width={ColumnWidths.title}>
+            <Column type="title">
                 <TruncatedText>{title}</TruncatedText>
                 <SubtitleSmall>{'#' + number}</SubtitleSmall>
             </Column>
-            <Column width={ColumnWidths.status}>
+            <Column type="status">
                 <TruncatedText>{status}</TruncatedText>
             </Column>
-            <Column width={ColumnWidths.author}>
+            <Column type="author">
                 <SubtitleSmall>{formattedTime}</SubtitleSmall>
                 <TruncatedText>{author}</TruncatedText>
             </Column>
-            <Column width={ColumnWidths.branch}>
+            <Column type="branch">
                 <TruncatedText>{branch}</TruncatedText>
             </Column>
-            <Column width={ColumnWidths.link}>
+            <Column type="link">
                 <LinkButton href={link} target="blank">
                     <Icon source={icons.external_link} size="small" />
                 </LinkButton>

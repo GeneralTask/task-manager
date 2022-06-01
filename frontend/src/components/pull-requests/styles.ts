@@ -11,11 +11,11 @@ export const ColumnWidths = {
     link: '5%',
 }
 
-export const Column = styled.div<{ width: string }>`
+export const Column = styled.div<{ type: keyof typeof ColumnWidths }>`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: ${props => props.width};
+    width: ${props => ColumnWidths[props.type]};
     padding: ${Spacing.padding._8}px;
     overflow: hidden;
     white-space: nowrap;
