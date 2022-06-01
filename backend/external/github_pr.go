@@ -78,54 +78,50 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		return
 	}
 
-	repos, _, err := githubClient.Repositories.List(extCtx, CurrentlyAuthedUserFilter, nil)
+	repositories, _, err := githubClient.Repositories.List(extCtx, CurrentlyAuthedUserFilter, nil)
 	if err != nil {
 		log.Error().Msg("failed to fetch Github repos for user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
 		return
 	}
-	repoNameToOwner := getReposInOrganizations(repos)
 
-	pullRequests := []*github.PullRequest{}
 	var pullRequestItems []*database.Item
-	for repoName, ownerName := range repoNameToOwner {
+	for _, repository := range repositories {
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
-		fetchedPullRequests, _, err := githubClient.PullRequests.List(extCtx, ownerName, repoName, nil)
+		fetchedPullRequests, _, err := githubClient.PullRequests.List(extCtx, *repository.Owner.Login, *repository.Name, nil)
 		if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 			return
 		}
-		pullRequests = append(pullRequests, fetchedPullRequests...)
-	}
-	for _, pullRequest := range pullRequests {
-		body := ""
-		if pullRequest.Body != nil {
-			body = *pullRequest.Body
+		for _, pullRequest := range fetchedPullRequests {
+			if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest) {
+				continue
+			}
+			pullRequest := &database.Item{
+				TaskBase: database.TaskBase{
+					UserID:          userID,
+					IDExternal:      fmt.Sprint(*pullRequest.ID),
+					Deeplink:        *pullRequest.HTMLURL,
+					SourceID:        TASK_SOURCE_ID_GITHUB_PR,
+					Title:           *pullRequest.Title,
+					SourceAccountID: accountID,
+					CreatedAtExternal:  primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
+				},
+				PullRequest: database.PullRequest{
+					RepositoryId: fmt.Sprint(*repository.ID),
+					RepositoryName: *repository.Name,
+					Number: *pullRequest.Number,
+					Author: *pullRequest.User.Login,
+					Branch: *pullRequest.Head.Ref,
+				},
+				TaskType: database.TaskType{
+					IsTask:        true,
+					IsPullRequest: true,
+				},
+			}
+			pullRequestItems = append(pullRequestItems, pullRequest)
 		}
-		if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest) {
-			continue
-		}
-		pullRequest := &database.Item{
-			TaskBase: database.TaskBase{
-				UserID:          userID,
-				IDExternal:      fmt.Sprint(*pullRequest.ID),
-				IDTaskSection:   constants.IDTaskSectionDefault,
-				Deeplink:        *pullRequest.HTMLURL,
-				SourceID:        TASK_SOURCE_ID_GITHUB_PR,
-				Title:           *pullRequest.Title,
-				Body:            body,
-				SourceAccountID: accountID,
-			},
-			PullRequest: database.PullRequest{
-				Opened: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
-			},
-			TaskType: database.TaskType{
-				IsTask:        true,
-				IsPullRequest: true,
-			},
-		}
-		pullRequestItems = append(pullRequestItems, pullRequest)
 	}
 
 	for _, pullRequest := range pullRequestItems {
@@ -157,21 +153,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		PullRequests: pullRequestItems,
 		Error:        nil,
 	}
-}
-
-func getReposInOrganizations(repos []*github.Repository) map[string]string {
-	repoNameToOwner := make(map[string]string)
-	for _, repo := range repos {
-		if repo != nil &&
-			repo.Name != nil &&
-			repo.Owner != nil &&
-			repo.Owner.Login != nil &&
-			repo.Owner.Type != nil &&
-			*repo.Owner.Type == RepoOwnerTypeOrganization {
-			repoNameToOwner[*repo.Name] = *repo.Owner.Login
-		}
-	}
-	return repoNameToOwner
 }
 
 func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool {

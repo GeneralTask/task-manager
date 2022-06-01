@@ -124,7 +124,11 @@ type TaskBase struct {
 }
 
 type PullRequest struct {
-	Opened primitive.DateTime `bson:"opened"`
+	RepositoryId string `bson:"repository_id"`
+	RepositoryName string `bson:"repository_name"`
+	Number int `bson:"number"`
+	Author string `bson:"author"`
+	Branch string `bson:"branch"`
 }
 
 type PullRequestChangeableFields struct {
