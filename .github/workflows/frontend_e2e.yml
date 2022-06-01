@@ -12,6 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REACT_APP_API_BASE_URL: http://localhost:8080
+    strategy:
+      fail-fast: false
+      matrix:
+        # run copies of the current job in parallel
+        containers: [1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
