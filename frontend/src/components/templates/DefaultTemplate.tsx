@@ -1,14 +1,16 @@
-import React from 'react'
-import ReactTooltip from 'react-tooltip'
+import '../../styles/tooltip.css'
+
+import CalendarView from '../views/CalendarView'
 import { Colors } from '../../styles'
 import NavigationView from '../views/NavigationView'
-import '../../styles/tooltip.css'
+import React from 'react'
+import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
-import CalendarView from '../views/CalendarView'
 
 const DefaultTemplateContainer = styled.div`
     display: flex;
     height: 100vh;
+    width: 100vw;
     background-color: ${Colors.gray._50};
     position: relative;
 `
@@ -16,6 +18,7 @@ const DefaultTemplateContainer = styled.div`
 const TasksandDetails = styled.div`
     flex: 1;
     flex-direction: row;
+    min-width: 0;
     display: flex;
     position: relative;
 `

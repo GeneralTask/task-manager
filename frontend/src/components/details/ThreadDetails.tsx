@@ -2,17 +2,17 @@ import { Colors, Shadows, Spacing, Typography } from '../../styles'
 import React, { Fragment, useLayoutEffect, useMemo, useState } from 'react'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 import { icons, logos } from '../../styles/images'
+import { useCreateTaskFromThread, useModifyThread } from '../../services/api-query-hooks'
 
 import EmailCompose from './email/compose/EmailCompose'
 import EmailContainer from './email/EmailContainer'
 import EmailMainActions from './email/compose/MainActions'
 import { Icon } from '../atoms/Icon'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import PreviousMessages from './email/PreviousMessages'
 import styled from 'styled-components'
 import toast from '../../utils/toast'
-import { useCreateTaskFromThread, useModifyThread } from '../../services/api-query-hooks'
 import { useNavigate } from 'react-router-dom'
-import PreviousMessages from './email/PreviousMessages'
 
 const THREAD_HEADER_HEIGHT = '118px'
 
@@ -20,7 +20,7 @@ const FlexColumnContainer = styled.div`
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-width: 300px;
+    min-width: 0;
 `
 const HeaderContainer = styled.div`
     display: flex;
