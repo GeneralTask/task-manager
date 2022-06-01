@@ -32,7 +32,7 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
                 <TruncatedText>{branch}</TruncatedText>
             </Column>
             <Column type="link">
-                <LinkButton href={link} target="blank">
+                <LinkButton href={link} target="_blank">
                     <Icon source={icons.external_link} size="small" />
                 </LinkButton>
             </Column>

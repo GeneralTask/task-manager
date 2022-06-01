@@ -148,7 +148,7 @@ const NavigationSectionLinks = ({
                 count={threads.filter((t) => t.emails.find((e) => e.is_unread)).length}
                 isCurrentPage={pathName === 'messages'}
             />
-            {isDevelopmentMode && (
+            {isDevelopmentMode && pullRequestRepositories.length > 0 && (
                 <NavigationLinkDropdown title="Pull Requests" icon="repository">
                     {pullRequestRepositories.map((repo) => (
                         <NavigationLink

@@ -55,7 +55,7 @@ const PullRequestsView = () => {
     const repositories = dummyRepositories
 
     const repository = repositories.find((repo) => repo.id === repositoryParam)
-    if ((!repositoryParam || !repository) && repositories.length > 0) {
+    if (!repository && repositories.length > 0) {
         navigate(`/pull-requests/${repositories[0].id}`)
     }
 
