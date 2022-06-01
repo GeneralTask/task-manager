@@ -149,7 +149,7 @@ const NavigationSectionLinks = ({
                 isCurrentPage={pathName === 'messages'}
             />
             {isDevelopmentMode && (
-                <NavigationLinkDropdown title="Repository" icon={icons.repository}>
+                <NavigationLinkDropdown title="Pull Requests" icon={icons.repository}>
                     {pullRequestRepositories.map((repo) => (
                         <NavigationLink
                             key={repo.id}
