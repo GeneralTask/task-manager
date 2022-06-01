@@ -1,9 +1,9 @@
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import React, { ReactNode, useState } from 'react'
+import { TIconImage, icons } from '../../styles/images'
 
 import { Icon } from '../atoms/Icon'
 import TooltipWrapper from '../atoms/TooltipWrapper'
-import { icons } from '../../styles/images'
 import { margin } from '../../styles/spacing'
 import styled from 'styled-components'
 
@@ -42,7 +42,7 @@ const AddSectionContainer = styled.div`
 interface NavigationLinkDropdownProps {
     children: ReactNode
     title: string
-    icon: string
+    icon: TIconImage
     openAddSectionInput?: () => void
 }
 const NavigationLinkDropdown = ({ children, title, icon, openAddSectionInput }: NavigationLinkDropdownProps) => {
@@ -58,7 +58,7 @@ const NavigationLinkDropdown = ({ children, title, icon, openAddSectionInput }: 
         <>
             <DropdownContainer onClick={onClickHandler}>
                 <Icon size="xSmall" source={isOpen ? icons.chevron_down : icons.caret_right} />
-                <Icon size="small" source={icon} />
+                <Icon size="small" source={icons[icon]} />
                 <SectionTitle>{title}</SectionTitle>
                 {openAddSectionInput && (
                     <AddSectionContainer onClick={openAddSectionHandler} data-testid="add-section-button">

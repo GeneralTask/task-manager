@@ -92,7 +92,7 @@ const NavigationSectionLinks = ({
 
     return (
         <>
-            <NavigationLinkDropdown title="Tasks" icon={icons.label} openAddSectionInput={onOpenAddSectionInputHandler}>
+            <NavigationLinkDropdown title="Tasks" icon="label" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {taskSections
                     .filter((section) => !section.is_done)
                     .map((section) => (
@@ -149,7 +149,7 @@ const NavigationSectionLinks = ({
                 isCurrentPage={pathName === 'messages'}
             />
             {isDevelopmentMode && (
-                <NavigationLinkDropdown title="Pull Requests" icon={icons.repository}>
+                <NavigationLinkDropdown title="Pull Requests" icon="repository">
                     {pullRequestRepositories.map((repo) => (
                         <NavigationLink
                             key={repo.id}
