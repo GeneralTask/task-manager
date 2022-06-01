@@ -5,12 +5,25 @@ import NavigationView from '../views/NavigationView'
 import '../../styles/tooltip.css'
 import styled from 'styled-components'
 import CalendarView from '../views/CalendarView'
+import {
+    NAVIGATION_BAR_WIDTH,
+    COLLAPSED_CALENDAR_WIDTH,
+    WINDOW_MIN_WIDTH,
+    MEDIA_MAX_WIDTH,
+} from '../../styles/dimensions'
 
 const DefaultTemplateContainer = styled.div`
-    display: flex;
+    display: grid;
+    grid-template-columns: ${NAVIGATION_BAR_WIDTH}px minmax(300px, auto) minmax(
+            ${COLLAPSED_CALENDAR_WIDTH}px,
+            max-content
+        );
+    grid-auto-flow: column;
+    grid-template-rows: 1fr;
     height: 100vh;
     background-color: ${Colors.gray._50};
     position: relative;
+    min-width: ${WINDOW_MIN_WIDTH}px;
 `
 
 const TasksandDetails = styled.div`
@@ -18,6 +31,10 @@ const TasksandDetails = styled.div`
     flex-direction: row;
     display: flex;
     position: relative;
+    overflow: hidden;
+    @media only screen and (max-device-width: ${MEDIA_MAX_WIDTH}px) {
+        overflow: auto;
+    }
 `
 interface DefaultTemplateProps {
     children: React.ReactNode

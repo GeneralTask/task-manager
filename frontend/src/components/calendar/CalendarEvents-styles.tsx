@@ -170,6 +170,7 @@ export const CalendarContainer = styled.div<{ expanded: boolean }>`
     background-color: ${Colors.gray._100};
     display: flex;
     flex-direction: column;
+    overflow: scroll;
 `
 export const DayAndHeaderContainer = styled.div`
     display: flex;

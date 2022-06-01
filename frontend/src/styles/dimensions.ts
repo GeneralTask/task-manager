@@ -17,7 +17,11 @@ export const modalSize = {
     },
 }
 
-export const COLLAPSED_CALENDAR_WIDTH = 40;
+export const MEDIA_MAX_WIDTH = 480
+
+export const WINDOW_MIN_WIDTH = 800
+export const NAVIGATION_BAR_WIDTH = 230
+export const COLLAPSED_CALENDAR_WIDTH = 40
 export const TASK_ACTION_WIDTH = '200px'
 export const DEFAULT_VIEW_WIDTH = '480px'
-export const TASK_DEFAULT_LINE_HEIGHT = 17;
+export const TASK_DEFAULT_LINE_HEIGHT = 17
