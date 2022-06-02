@@ -89,11 +89,12 @@ export const useCreateTask = () => {
 
             const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
             if (!sections) return
+            console.log(window.crypto.randomUUID())
 
             for (const section of sections) {
                 if (section.id === data.id_task_section) {
                     const newTask: TTask = {
-                        id: data.title + Math.floor(Math.random() * 1000000),
+                        id: window.crypto.randomUUID(),
                         id_ordering: 0,
                         title: data.title,
                         body: data.body,
