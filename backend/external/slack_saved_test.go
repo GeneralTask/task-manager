@@ -124,12 +124,13 @@ func TestLoadSlackTasks(t *testing.T) {
 
 		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
-				IDOrdering:      0,
+				IDOrdering:      1,
 				IDExternal:      SavedMessageIDExternal,
-				IDTaskSection:   constants.IDTaskSectionDefault,
+				IDTaskSection:   constants.IDTaskSectionBlocked,
 				Deeplink:        "https://niceme.me/",
 				IsCompleted:     true,
-				Title:           "don't forget to drink your ovaltine!",
+				Title:           "a custom title",
+				Body:            "a custom body",
 				SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
 				SourceAccountID: "bing chilling",
 				UserID:          userID,
