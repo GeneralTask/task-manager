@@ -100,6 +100,9 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
 		task.TimeAllocation = dbTask.TimeAllocation
+		// we want local (on GT side) title and body changes to persist
+		task.Title = dbTask.Title
+		task.TaskBase.Body = dbTask.TaskBase.Body
 		tasks = append(tasks, task)
 	}
 
