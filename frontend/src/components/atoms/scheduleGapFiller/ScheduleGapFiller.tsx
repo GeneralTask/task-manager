@@ -122,13 +122,8 @@ const ScheduleGapFiller = () => {
                 </FooterHeaderArea>
                 <BodyTextArea>{eventsubTitle}</BodyTextArea>
                 <FooterText>
-                    <NoStyleAnchor
-                        href={actions[recommendationIndex].link}
-                        style={{ display: 'flex', flexDirection: 'row', whiteSpace: 'nowrap' }}
-                    >
-                        <a href={link}>
-                            <Icon size="large" source={logos[actions[recommendationIndex].logo]} />
-                        </a>
+                    <NoStyleAnchor href={link} style={{ display: 'flex', flexDirection: 'row', whiteSpace: 'nowrap' }}>
+                        <Icon size="large" source={logos[actions[recommendationIndex].logo]} />
                         <RecommendationText>{actions[recommendationIndex].title}</RecommendationText>
                     </NoStyleAnchor>
                     {numEvents > 1 && (
