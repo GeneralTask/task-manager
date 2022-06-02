@@ -93,7 +93,7 @@ export const useCreateTask = () => {
             for (const section of sections) {
                 if (section.id === data.id_task_section) {
                     const newTask: TTask = {
-                        id: '0',
+                        id: data.title + Math.floor(Math.random() * 1000000),
                         id_ordering: 0,
                         title: data.title,
                         body: data.body,
