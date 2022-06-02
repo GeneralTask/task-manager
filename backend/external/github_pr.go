@@ -98,22 +98,29 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest) {
 				continue
 			}
+
+			fetchedPullRequests, _, err := githubClient.PullRequests.ListReviews(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+			if err != nil {
+				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviews"))
+				return
+			}
 			pullRequest := &database.Item{
 				TaskBase: database.TaskBase{
-					UserID:          userID,
-					IDExternal:      fmt.Sprint(*pullRequest.ID),
-					Deeplink:        *pullRequest.HTMLURL,
-					SourceID:        TASK_SOURCE_ID_GITHUB_PR,
-					Title:           *pullRequest.Title,
-					SourceAccountID: accountID,
-					CreatedAtExternal:  primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
+					UserID:            userID,
+					IDExternal:        fmt.Sprint(*pullRequest.ID),
+					Deeplink:          *pullRequest.HTMLURL,
+					SourceID:          TASK_SOURCE_ID_GITHUB_PR,
+					Title:             *pullRequest.Title,
+					SourceAccountID:   accountID,
+					CreatedAtExternal: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
 				},
 				PullRequest: database.PullRequest{
-					RepositoryId: fmt.Sprint(*repository.ID),
+					RepositoryId:   fmt.Sprint(*repository.ID),
 					RepositoryName: *repository.Name,
-					Number: *pullRequest.Number,
-					Author: *pullRequest.User.Login,
-					Branch: *pullRequest.Head.Ref,
+					Number:         *pullRequest.Number,
+					Author:         *pullRequest.User.Login,
+					Branch:         *pullRequest.Head.Ref,
+					IsApproved:     pullRequestIsApproved(fetchedPullRequests),
 				},
 				TaskType: database.TaskType{
 					IsTask:        true,
@@ -164,6 +171,15 @@ func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool 
 func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bool {
 	for _, reviewer := range pullRequest.RequestedReviewers {
 		if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
+			return true
+		}
+	}
+	return false
+}
+
+func pullRequestIsApproved(pullRequestReviews []*github.PullRequestReview) bool {
+	for _, review := range pullRequestReviews {
+		if review.State != nil && *review.State == "APPROVED" {
 			return true
 		}
 	}

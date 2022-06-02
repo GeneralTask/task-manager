@@ -124,11 +124,12 @@ type TaskBase struct {
 }
 
 type PullRequest struct {
-	RepositoryId string `bson:"repository_id"`
+	RepositoryId   string `bson:"repository_id"`
 	RepositoryName string `bson:"repository_name"`
-	Number int `bson:"number"`
-	Author string `bson:"author"`
-	Branch string `bson:"branch"`
+	Number         int    `bson:"number"`
+	Author         string `bson:"author"`
+	Branch         string `bson:"branch"`
+	IsApproved     bool   `bson:"is_approved"`
 }
 
 type PullRequestChangeableFields struct {
