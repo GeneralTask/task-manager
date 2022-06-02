@@ -1,5 +1,7 @@
-import styled from 'styled-components'
 import { Colors, Shadows, Spacing, Typography } from '../../styles'
+
+import styled from 'styled-components'
+
 export const CELL_HEIGHT = 64
 export const TABLE_WIDTH_PERCENTAGE = 100
 export const CELL_TIME_WIDTH = 43
@@ -31,10 +33,9 @@ export const TimeContainer = styled.div`
 `
 export const AllDaysContainer = styled.div`
     width: 100%;
-    height: 100%;
     flex: 1;
     display: flex;
-    overflow: auto;
+    overflow: scroll;
     justify-content: center;
     position: relative;
 `
@@ -166,11 +167,11 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
 `
 export const CalendarContainer = styled.div<{ expanded: boolean }>`
     min-width: 300px;
+    height: 100vh;
     flex: ${(props) => (props.expanded ? '1' : '0')};
     background-color: ${Colors.gray._100};
     display: flex;
     flex-direction: column;
-    overflow: scroll;
 `
 export const DayAndHeaderContainer = styled.div`
     display: flex;

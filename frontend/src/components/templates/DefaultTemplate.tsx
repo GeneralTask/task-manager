@@ -1,23 +1,18 @@
-import React from 'react'
-import ReactTooltip from 'react-tooltip'
+import '../../styles/tooltip.css'
+
+import { MEDIA_MAX_WIDTH, NAVIGATION_BAR_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
+
+import CalendarView from '../views/CalendarView'
 import { Colors } from '../../styles'
 import NavigationView from '../views/NavigationView'
-import '../../styles/tooltip.css'
+import React from 'react'
+import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
-import CalendarView from '../views/CalendarView'
-import {
-    NAVIGATION_BAR_WIDTH,
-    COLLAPSED_CALENDAR_WIDTH,
-    WINDOW_MIN_WIDTH,
-    MEDIA_MAX_WIDTH,
-} from '../../styles/dimensions'
+import { useAppSelector } from '../../redux/hooks'
 
 const DefaultTemplateContainer = styled.div`
     display: grid;
-    grid-template-columns: ${NAVIGATION_BAR_WIDTH}px minmax(300px, auto) minmax(
-            ${COLLAPSED_CALENDAR_WIDTH}px,
-            max-content
-        );
+    grid-template-columns: ${NAVIGATION_BAR_WIDTH}px minmax(300px, auto) max-content;
     grid-auto-flow: column;
     grid-template-rows: 1fr;
     height: 100vh;
@@ -41,6 +36,7 @@ interface DefaultTemplateProps {
 }
 
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
+    const isCalendarExpanded = useAppSelector((state) => state.tasks_page.expanded_calendar)
     return (
         <DefaultTemplateContainer>
             <ReactTooltip
@@ -54,8 +50,8 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
                 textColor={Colors.black}
             />
             <NavigationView />
-            <TasksandDetails>{children}</TasksandDetails>
-            <CalendarView />
+            {!isCalendarExpanded && <TasksandDetails>{children}</TasksandDetails>}
+            <CalendarView isExpanded={isCalendarExpanded} />
         </DefaultTemplateContainer>
     )
 }
