@@ -77,7 +77,7 @@ const CursorView = styled.div`
     flex-direction: column;
     align-items: center;
 `
-const RecommendationText = styled.div`
+const RecommendationText = styled.span`
     display: flex;
     padding: ${Spacing.margin._12}px;
     font: inherit;
@@ -86,6 +86,10 @@ const RecommendationText = styled.div`
     font-size: ${Typography.xSmall.fontSize};
     text-decoration: none;
     margin-left: ${Spacing.margin._4}px;
+`
+const DeeplinkText = styled.span`
+    display: flex;
+    flex-wrap: nowrap;
 `
 const CursorText = styled.div`
     display: flex;
@@ -122,14 +126,11 @@ const ScheduleGapFiller = () => {
                 </FooterHeaderArea>
                 <BodyTextArea>{eventsubTitle}</BodyTextArea>
                 <FooterText>
-                    <NoStyleAnchor
-                        href={actions[recommendationIndex].link}
-                        style={{ display: 'flex', flexDirection: 'row', whiteSpace: 'nowrap' }}
-                    >
-                        <a href={link}>
+                    <NoStyleAnchor href={link}>
+                        <DeeplinkText>
                             <Icon size="large" source={logos[actions[recommendationIndex].logo]} />
-                        </a>
-                        <RecommendationText>{actions[recommendationIndex].title}</RecommendationText>
+                            <RecommendationText>{actions[recommendationIndex].title}</RecommendationText>
+                        </DeeplinkText>
                     </NoStyleAnchor>
                     {numEvents > 1 && (
                         <CursorView>
