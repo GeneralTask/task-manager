@@ -35,6 +35,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-q
 import { DateTime } from 'luxon'
 import apiClient from '../utils/api'
 import { getMonthsAroundDate } from '../utils/time'
+import { v4 as uuidv4 } from 'uuid'
 
 /**
  * TASKS QUERIES
@@ -89,12 +90,11 @@ export const useCreateTask = () => {
 
             const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
             if (!sections) return
-            console.log(window.crypto.randomUUID())
 
             for (const section of sections) {
                 if (section.id === data.id_task_section) {
                     const newTask: TTask = {
-                        id: window.crypto.randomUUID(),
+                        id: uuidv4(),
                         id_ordering: 0,
                         title: data.title,
                         body: data.body,
