@@ -1,19 +1,19 @@
-import { DateTime } from 'luxon'
-import React, { useMemo, useState } from 'react'
-import { useIdleTimer } from 'react-idle-timer'
-
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { useInterval } from '../../hooks'
-import CalendarEvents from '../calendar/CalendarEvents'
-import { CalendarContainer } from '../calendar/CalendarEvents-styles'
 import CalendarHeader, { CursorPointerDiv } from '../calendar/CalendarHeader'
-import styled from 'styled-components'
-import { Icon } from '../atoms/Icon'
-import { icons } from '../../styles/images'
 import { Colors, Spacing } from '../../styles'
-import { setExpandedCalendar } from '../../redux/tasksPageSlice'
-import { useGetEvents } from '../../services/api-query-hooks'
+import React, { useMemo, useState } from 'react'
+
+import { CalendarContainer } from '../calendar/CalendarEvents-styles'
+import CalendarEvents from '../calendar/CalendarEvents'
+import { DateTime } from 'luxon'
+import { Icon } from '../atoms/Icon'
 import { getMonthsAroundDate } from '../../utils/time'
+import { icons } from '../../styles/images'
+import { setExpandedCalendar } from '../../redux/tasksPageSlice'
+import styled from 'styled-components'
+import { useAppDispatch } from '../../redux/hooks'
+import { useGetEvents } from '../../services/api-query-hooks'
+import { useIdleTimer } from 'react-idle-timer'
+import { useInterval } from '../../hooks'
 
 const CollapsedCalendarView = styled.div`
     padding-top: ${Spacing.padding._16}px;
@@ -24,10 +24,12 @@ const CollapsedCalendarView = styled.div`
     cursor: pointer;
 `
 
-const CalendarView = () => {
+interface CalendarViewProps {
+    isExpanded: boolean
+}
+const CalendarView = ({ isExpanded }: CalendarViewProps) => {
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const [date, setDate] = useState<DateTime>(DateTime.now())
-    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
@@ -56,9 +58,9 @@ const CalendarView = () => {
             </CursorPointerDiv>
         </CollapsedCalendarView>
     ) : (
-        <CalendarContainer expanded={expandedCalendar}>
+        <CalendarContainer expanded={isExpanded}>
             <CalendarHeader collapseCalendar={handleCollapseCalendar} date={date} setDate={setDate} />
-            <CalendarEvents date={date} numDays={expandedCalendar ? 7 : 1} />
+            <CalendarEvents date={date} numDays={isExpanded ? 7 : 1} />
         </CalendarContainer>
     )
 }
