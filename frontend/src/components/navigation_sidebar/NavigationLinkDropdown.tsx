@@ -50,7 +50,8 @@ const NavigationLinkDropdown = ({ children, title, icon, openAddSectionInput }: 
     const onClickHandler = () => setIsOpen(!isOpen)
     const openAddSectionHandler = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation()
-        openAddSectionInput && openAddSectionInput()
+        if (!openAddSectionInput) return
+        openAddSectionInput()
         setIsOpen(true)
     }
 
