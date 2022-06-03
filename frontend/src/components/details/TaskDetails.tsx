@@ -18,8 +18,8 @@ const DetailsViewContainer = styled.div`
     flex-direction: column;
     background-color: ${Colors.gray._50};
     min-width: 300px;
-    margin-top: ${Spacing.margin._24}px;
-    padding: ${Spacing.padding._16}px;
+    margin-top: ${Spacing.margin._24};
+    padding: ${Spacing.padding._16};
 `
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -35,7 +35,7 @@ const BodyTextArea = styled.textarea`
     resize: none;
     outline: none;
     overflow: auto;
-    padding: ${Spacing.margin._8}px;
+    padding: ${Spacing.margin._8};
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
@@ -54,7 +54,7 @@ const TitleInput = styled.textarea`
     resize: none;
     outline: none;
     overflow: hidden;
-    margin-bottom: ${Spacing.margin._16}px;
+    margin-bottom: ${Spacing.margin._16};
     :focus {
         outline: 1px solid ${Colors.gray._500};
     }
@@ -63,7 +63,7 @@ const MarginLeftAuto = styled.div`
     margin-left: auto;
 `
 const MarginRight8 = styled.div`
-    margin-right: ${Spacing.margin._8}px;
+    margin-right: ${Spacing.margin._8};
 `
 
 const SYNC_MESSAGES = {

@@ -11,7 +11,7 @@ import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 
 export const PaddedContainer = styled.div`
-    padding: ${Spacing.padding._16}px ${Spacing.padding._4}px ${Spacing.padding._16}px ${Spacing.padding._24}px;
+    padding: ${Spacing.padding._16} ${Spacing.padding._4} ${Spacing.padding._16} ${Spacing.padding._24};
 `
 export const HeaderBodyContainer = styled.div`
     display: flex;
@@ -26,10 +26,10 @@ export const ButtonContainer = styled.div`
 export const CursorPointerDiv = styled.div`
     display: flex;
     flex-direction: row;
-    margin: ${Spacing.margin._4}px;
+    margin: ${Spacing.margin._4};
     cursor: pointer;
     height: fit-content;
-    padding: ${Spacing.padding._4}px;
+    padding: ${Spacing.padding._4};
     &:hover {
         background-color: ${Colors.gray._200};
     }
@@ -48,14 +48,14 @@ const ButtonStyles = styled.button`
 export const HoverButton = styled(ButtonStyles)`
     color: ${Colors.white};
     background-color: ${Colors.purple._1};
-    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._4} ${Spacing.padding._8};
     &:hover {
         background-color: ${Colors.purple._2};
     }
 `
 export const ArrowButton = styled(ButtonStyles)`
     background-color: inherit;
-    padding: ${Spacing.padding._4}px;
+    padding: ${Spacing.padding._4};
     &:hover {
         background-color: ${Colors.gray._200};
     }

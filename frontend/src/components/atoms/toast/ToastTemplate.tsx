@@ -14,13 +14,13 @@ const MessageSpan = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 1;
-    margin-right: ${Spacing.margin._40}px;
+    margin-right: ${Spacing.margin._40};
 `
 const ButtonsContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: ${Spacing.margin._4}px;
+    gap: ${Spacing.margin._4};
     max-width: 75%;
 `
 

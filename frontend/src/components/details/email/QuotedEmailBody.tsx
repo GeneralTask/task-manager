@@ -9,7 +9,7 @@ const QuoteToggle = styled(NoStyleButton)`
     display: flex;
     align-items: center;
     border-radius: ${Border.radius.regular};
-    padding: 0 ${Spacing.padding._8}px;
+    padding: 0 ${Spacing.padding._8};
     background-color: ${Colors.gray._200};
 `
 

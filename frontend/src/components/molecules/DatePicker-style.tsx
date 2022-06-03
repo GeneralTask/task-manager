@@ -109,5 +109,5 @@ export const CurrentDateText = styled.span`
     color: ${Colors.gray._800};
 `
 export const IconContainer = styled.div`
-    padding: ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._8};
 `

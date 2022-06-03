@@ -27,9 +27,9 @@ const MessagesContainer = styled.div`
 `
 const MessageDivider = styled.div`
     border-bottom: 1px solid ${Colors.gray._200};
-    margin-top: ${Spacing.margin._4}px;
-    margin-left: ${Spacing.margin._16}px;
-    margin-right: ${Spacing.margin._16}px;
+    margin-top: ${Spacing.margin._4};
+    margin-left: ${Spacing.margin._16};
+    margin-right: ${Spacing.margin._16};
 `
 
 const MessagesView = () => {

@@ -4,7 +4,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 const ActionValueContainer = styled.div`
-    padding: ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._8};
     background-color: ${Colors.gray._300};
     border-radius: ${Border.radius.regular};
 `

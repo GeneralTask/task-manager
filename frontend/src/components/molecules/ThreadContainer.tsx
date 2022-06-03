@@ -9,7 +9,7 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean; isUnread: boolean }>`
     align-items: center;
     height: 100%;
     border-radius: ${Border.radius.large};
-    padding: 0 ${Spacing.padding._8}px;
+    padding: 0 ${Spacing.padding._8};
     border: 2px solid ${(props) => (props.isSelected ? Colors.purple._3 : 'transparent')};
     box-shadow: ${(props) => (props.isSelected ? Shadows.xSmall : 'none')};
     background-color: ${(props) => (props.isSelected || props.isUnread ? Colors.white : 'transparent')};

@@ -16,8 +16,8 @@ import { useIdleTimer } from 'react-idle-timer'
 import { useInterval } from '../../hooks'
 
 const CollapsedCalendarView = styled.div`
-    padding-top: ${Spacing.padding._16}px;
-    padding-right: ${Spacing.padding._4}px;
+    padding-top: ${Spacing.padding._16};
+    padding-right: ${Spacing.padding._4};
     background-color: ${Colors.gray._100};
     display: flex;
     justify-content: center;

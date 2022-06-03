@@ -10,16 +10,16 @@ const DropdownContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._4} ${Spacing.padding._8};
     border-radius: ${Border.radius.small};
     border: 2px solid transparent;
-    gap: ${margin._8}px;
+    gap: ${margin._8};
     cursor: pointer;
 `
 const LinksContainer = styled.div`
     display: flex;
     flex-direction: column;
-    margin-left: ${Spacing.margin._24}px;
+    margin-left: ${Spacing.margin._24};
 `
 const SectionTitle = styled.span`
     font-weight: ${Typography.weight._500};
@@ -31,7 +31,7 @@ const SectionTitle = styled.span`
     flex: 1;
 `
 const AddSectionContainer = styled.div`
-    padding: ${Spacing.padding._4}px;
+    padding: ${Spacing.padding._4};
     border-radius: 50%;
     &:hover {
         background-color: ${Colors.gray._200};

@@ -14,7 +14,7 @@ const AddSectionInputContainer = styled.div`
     display: flex;
     align-items: center;
     overflow: clip;
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._8};
     flex: 1;
     min-width: 0;
     & input {
