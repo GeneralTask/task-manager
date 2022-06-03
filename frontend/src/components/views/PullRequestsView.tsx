@@ -1,12 +1,10 @@
-import { useNavigate, useParams } from 'react-router-dom'
-
 import Header from '../pull-requests/Header'
-import Loading from '../atoms/Loading'
 import PullRequest from '../pull-requests/PullRequest'
 import React from 'react'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import { SectionHeader } from '../molecules/Header'
 import { TRepository } from '../../utils/types'
+import { Repository, RepositoryName } from '../pull-requests/styles'
 
 export const dummyRepositories: TRepository[] = [
     {
@@ -49,26 +47,27 @@ export const dummyRepositories: TRepository[] = [
 ]
 
 const PullRequestsView = () => {
-    const { repository: repositoryParam } = useParams()
-    const navigate = useNavigate()
-
     const repositories = dummyRepositories
-
-    const repository = repositories.find((repo) => repo.id === repositoryParam)
-    if (!repository && repositories.length > 0) {
-        navigate(`/pull-requests/${repositories[0].id}`)
-    }
-
-    if (!repository) {
-        return <Loading />
-    }
 
     return (
         <ScrollableListTemplate>
-            <SectionHeader sectionName={repository.name} allowRefresh={false} />
-            <Header />
-            {repository.pull_requests.map((pr) => (
-                <PullRequest key={pr.id} pullRequest={pr} />
+            <SectionHeader sectionName="Pull Requests" allowRefresh={false} />
+            {repositories.map((repository) => (
+                <Repository key={repository.id}>
+                    <RepositoryName>{repository.name}</RepositoryName>
+
+                    {repository.pull_requests.length === 0 ? (
+                        'No pull requests'
+                    ) : (
+                        <>
+                            <Header />
+                            {repository.pull_requests.map((pr) => (
+                                <PullRequest key={pr.id} pullRequest={pr} />
+                            ))}
+                        </>
+                    )}
+                    <br />
+                </Repository>
             ))}
         </ScrollableListTemplate>
     )

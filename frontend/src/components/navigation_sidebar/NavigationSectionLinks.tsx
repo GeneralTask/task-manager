@@ -148,19 +148,17 @@ const NavigationSectionLinks = ({
                 count={threads.filter((t) => t.emails.find((e) => e.is_unread)).length}
                 isCurrentPage={pathName === 'messages'}
             />
-            {isDevelopmentMode && pullRequestRepositories.length > 0 && (
-                <NavigationLinkDropdown title="Pull Requests" icon="repository">
-                    {pullRequestRepositories.map((repo) => (
-                        <NavigationLink
-                            key={repo.id}
-                            link={`/pull-requests/${repo.id}`}
-                            title={repo.name}
-                            icon={icons.repository}
-                            count={repo.pull_requests.length}
-                            isCurrentPage={repositoryId === repo.id}
-                        />
-                    ))}
-                </NavigationLinkDropdown>
+            {isDevelopmentMode && (
+                <NavigationLink
+                    link="/pull-requests"
+                    title="Pull Requests"
+                    icon={icons.repository}
+                    count={pullRequestRepositories.reduce<number>(
+                        (total, repo) => total + repo.pull_requests.length,
+                        0
+                    )}
+                    isCurrentPage={repositoryId === 'pull-requests'}
+                />
             )}
             <NavigationLink
                 link="/settings"

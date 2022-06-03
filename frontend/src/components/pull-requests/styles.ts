@@ -1,4 +1,4 @@
-import { Border, Colors, Spacing } from "../../styles"
+import { Border, Colors, Spacing, Typography } from "../../styles"
 
 import NoStyleAnchor from "../atoms/NoStyleAnchor"
 import styled from "styled-components"
@@ -21,9 +21,17 @@ export const Column = styled.div<{ type: keyof typeof ColumnWidths }>`
     white-space: nowrap;
 `
 
-export const Row = styled.div`
+export const Repository = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${Spacing.margin._16}px;
+`
+
+export const PullRequestRow = styled.div`
     display: flex;
     padding: ${Spacing.padding._8}px;
+    background-color: ${Colors.white};
+    border-radius: ${Border.radius.large};
 `
 
 export const HeaderContainer = styled.div`
@@ -32,6 +40,11 @@ export const HeaderContainer = styled.div`
     border-radius: ${Border.radius.large};
     color: ${Colors.gray._500};
     padding: ${Spacing.padding._16}px ${Spacing.padding._8}px;
+`
+
+export const RepositoryName = styled.div`
+    font-size: ${Typography.medium.fontSize};
+    color: ${Colors.gray._700};
 `
 
 export const TruncatedText = styled.span`
