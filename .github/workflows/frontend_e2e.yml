@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REACT_APP_API_BASE_URL: http://localhost:8080
+      DB_NAME: test
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
