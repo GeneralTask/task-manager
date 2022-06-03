@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 export const CELL_HEIGHT = '64px'
 export const CELL_HEIGHT_VALUE = 64
-export const TABLE_WIDTH_PERCENTAGE = 100
+export const TABLE_WIDTH_PERCENTAGE = '100%'
 export const CELL_TIME_WIDTH = '43px'
 export const CELL_BORDER_WIDTH = '3px'
 export const CELL_LEFT_MARGIN = '6px'
@@ -17,7 +17,7 @@ export const CALENDAR_INDICATOR_COLOR = Colors.red._1
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = '2.5px'
 
-const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_BORDER_WIDTH} - ${CELL_LEFT_MARGIN}) * 1/var(--squish-factor)`
+const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE} - ${CELL_BORDER_WIDTH} - ${CELL_LEFT_MARGIN}) * 1/var(--squish-factor)`
 
 export const DayContainer = styled.div`
     width: 100%;
@@ -42,7 +42,7 @@ export const AllDaysContainer = styled.div`
 `
 export const CalendarTableStyle = styled.table`
     border-collapse: collapse;
-    width: ${TABLE_WIDTH_PERCENTAGE}%;
+    width: ${TABLE_WIDTH_PERCENTAGE};
 `
 export const CalendarTimesTableStyle = styled.table`
     border-collapse: collapse;
@@ -86,7 +86,7 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     top: ${(props) => props.topOffset}px;
     position: absolute;
     left: calc(
-        ${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_LEFT_MARGIN} + (${WIDTH_CSS_CALCULATION}) * var(--left-offset)
+        100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${WIDTH_CSS_CALCULATION}) * var(--left-offset)
     );
     opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
 `
