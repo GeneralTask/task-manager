@@ -17,10 +17,10 @@ export const modalSize = {
     },
 }
 
-export const MEDIA_MAX_WIDTH = 650
+export const MEDIA_MAX_WIDTH = '650px'
 
-export const WINDOW_MIN_WIDTH = 800
-export const NAVIGATION_BAR_WIDTH = 230
+export const WINDOW_MIN_WIDTH = '800px'
+export const NAVIGATION_BAR_WIDTH = '230px'
 export const TASK_ACTION_WIDTH = '200px'
 export const DEFAULT_VIEW_WIDTH = '480px'
-export const TASK_DEFAULT_LINE_HEIGHT = 17
+export const TASK_DEFAULT_LINE_HEIGHT = '17px'
