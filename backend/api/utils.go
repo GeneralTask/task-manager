@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/rs/zerolog/log"
 
@@ -134,4 +135,14 @@ func Handle404(c *gin.Context) {
 
 func Handle500(c *gin.Context) {
 	c.JSON(500, gin.H{"detail": "internal server error"})
+}
+
+func FakeLagMiddleware(c *gin.Context) {
+	if isLocalServer() {
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func isLocalServer() bool {
+	return config.GetConfigValue("DB_NAME") == "main" && config.GetConfigValue("ENVIRONMENT") == "dev"
 }
