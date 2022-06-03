@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 
-import { CELL_HEIGHT } from './CalendarEvents-styles'
+import { CELL_HEIGHT_VALUE } from './CalendarEvents-styles'
 import { Colors } from '../../styles'
 import { DateTime } from 'luxon'
 import { TIME_INDICATOR_INTERVAL } from '../../constants'
@@ -25,6 +25,6 @@ export function TimeIndicator(): JSX.Element {
         TIME_INDICATOR_INTERVAL
     )
 
-    const topOffset = (60 * time.hour + time.minute) * (CELL_HEIGHT / 60)
+    const topOffset = (60 * time.hour + time.minute) * (CELL_HEIGHT_VALUE / 60)
     return <TimeIndicatorContainer topOffset={topOffset} />
 }
