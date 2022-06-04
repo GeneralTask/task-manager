@@ -144,5 +144,5 @@ func FakeLagMiddleware(c *gin.Context) {
 }
 
 func isLocalServer() bool {
-	return config.GetConfigValue("DB_NAME") == "main" && config.GetConfigValue("ENVIRONMENT") == "dev"
+	return config.GetConfigValue("DB_NAME") == "main" && config.GetEnvironment() == config.Dev
 }
