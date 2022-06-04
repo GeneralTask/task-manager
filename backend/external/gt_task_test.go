@@ -59,7 +59,7 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 
 	t.Run("SuccessMinimumFields", func(t *testing.T) {
 		userID := primitive.NewObjectID()
-		err := GeneralTaskTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
+		_, err := GeneralTaskTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
 			Title: "send dogecoin to the moon",
 		})
 		assert.NoError(t, err)
@@ -75,7 +75,7 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 		userID := primitive.NewObjectID()
 		dueDate := time.Now()
 		timeAllocation := (time.Duration(2) * time.Hour).Nanoseconds()
-		err := GeneralTaskTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
+		_, err := GeneralTaskTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
 			Title:          "send tesla stonk to the moon",
 			Body:           "body",
 			DueDate:        &dueDate,

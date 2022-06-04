@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -85,14 +86,8 @@ func TestCreateTask(t *testing.T) {
 		authToken = login("create_task_success_title_only@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/create/gt_task/",
-			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		body := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/",
+			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin"}`)), http.StatusOK)
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
@@ -104,6 +99,7 @@ func TestCreateTask(t *testing.T) {
 		// 1 hour is the default
 		assert.Equal(t, int64(3600000000000), task.TimeAllocation)
 		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
+		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
 	})
 	t.Run("SuccessCustomSection", func(t *testing.T) {
 		authToken = login("create_task_success_custom_section@generaltask.com", "")
@@ -115,14 +111,9 @@ func TestCreateTask(t *testing.T) {
 		assert.NoError(t, err)
 		customSectionID := res.InsertedID.(primitive.ObjectID)
 
-		request, _ := http.NewRequest(
-			"POST",
-			"/tasks/create/gt_task/",
-			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300, "id_task_section": "`+customSectionID.Hex()+`"}}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		body := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/",
+			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300, "id_task_section": "`+customSectionID.Hex()+`"}`)),
+			http.StatusOK)
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
@@ -133,5 +124,6 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, int64(300000000000), task.TimeAllocation)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 		assert.Equal(t, customSectionID, task.IDTaskSection)
+		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
 	})
 }

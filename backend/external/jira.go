@@ -362,8 +362,8 @@ func (jira JIRASource) SendEmail(userID primitive.ObjectID, accountID string, em
 	return errors.New("cannot send email for JIRA source")
 }
 
-func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("has not been implemented yet")
+func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (jira JIRASource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
