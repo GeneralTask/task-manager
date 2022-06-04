@@ -11,6 +11,7 @@ import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
+import Spinner from '../atoms/Spinner'
 
 const DetailsViewContainer = styled.div`
     flex: 1;
@@ -153,28 +154,35 @@ const TaskDetails = (props: TaskDetailsProps) => {
     // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
     const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
 
+    const isOptimistic = task.optimsticId !== undefined
+
     return (
         <DetailsViewContainer data-testid="details-view-container">
             <DetailsTopContainer>
                 <MarginRight8>
                     <Icon source={icon} size="small" />
                 </MarginRight8>
-                <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
-                <MarginLeftAuto>
-                    {task.deeplink && (
-                        <a href={task.deeplink} target="_blank" rel="noreferrer">
-                            <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
-                        </a>
-                    )}
-                    <ActionOption
-                        isShown={labelEditorShown}
-                        setIsShown={setLabelEditorShown}
-                        task={task}
-                        keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
-                    />
-                </MarginLeftAuto>
+                {!isOptimistic && (
+                    <>
+                        <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
+                        <MarginLeftAuto>
+                            {task.deeplink && (
+                                <a href={task.deeplink} target="_blank" rel="noreferrer">
+                                    <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
+                                </a>
+                            )}
+                            <ActionOption
+                                isShown={labelEditorShown}
+                                setIsShown={setLabelEditorShown}
+                                task={task}
+                                keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
+                            />
+                        </MarginLeftAuto>
+                    </>
+                )}
             </DetailsTopContainer>
             <TitleInput
+                disabled={isOptimistic}
                 ref={titleRef}
                 data-testid="task-title-input"
                 onKeyDown={handleKeyDown}
@@ -184,17 +192,21 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                 }}
             />
-            <BodyTextArea
-                ref={bodyRef}
-                data-testid="task-body-input"
-                placeholder="Add task details"
-                value={bodyInput}
-                onChange={(e) => {
-                    setBodyInput(e.target.value)
-                    onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
-                }}
-                onKeyDown={(e) => e.stopPropagation()}
-            />
+            {isOptimistic ? (
+                <Spinner />
+            ) : (
+                <BodyTextArea
+                    ref={bodyRef}
+                    data-testid="task-body-input"
+                    placeholder="Add task details"
+                    value={bodyInput}
+                    onChange={(e) => {
+                        setBodyInput(e.target.value)
+                        onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
+                    }}
+                    onKeyDown={(e) => e.stopPropagation()}
+                />
+            )}
         </DetailsViewContainer>
     )
 }
