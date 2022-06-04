@@ -123,7 +123,6 @@ export const useCreateTask = () => {
             }
         },
         onSuccess: async (response: TCreateTaskResponse, createData: TCreateTaskData) => {
-            console.log(response)
             const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
             if (!sections) return
 
