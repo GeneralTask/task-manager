@@ -12,6 +12,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
 import Spinner from '../atoms/Spinner'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const DetailsViewContainer = styled.div`
     flex: 1;
@@ -76,8 +77,7 @@ const SYNC_MESSAGES = {
 interface TaskDetailsProps {
     task: TTask
 }
-const TaskDetails = (props: TaskDetailsProps) => {
-    const [task, setTask] = useState<TTask>(props.task)
+const TaskDetails = ({ task }: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
@@ -89,6 +89,9 @@ const TaskDetails = (props: TaskDetailsProps) => {
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
+
+    const navigate = useNavigate()
+    const params = useParams()
 
     useEffect(() => {
         if (isEditing || isLoading) {
@@ -102,10 +105,17 @@ const TaskDetails = (props: TaskDetailsProps) => {
 
     // Update the state when the task changes
     useLayoutEffect(() => {
-        setTask(props.task)
-        setTitleInput(props.task.title)
-        setBodyInput(props.task.body)
-    }, [props.task])
+        setTitleInput(task.title)
+        setBodyInput(task.body)
+    }, [task.id])
+
+    // when the optimistic ID changes to undefined, we know that that task.id is now the real ID
+    // so we can then navigate to the correct link
+    useEffect(() => {
+        if (!task.optimsticId) {
+            navigate(`/tasks/${params.section}/${task.id}`)
+        }
+    }, [task.optimsticId])
 
     useLayoutEffect(() => {
         if (titleRef.current) {
