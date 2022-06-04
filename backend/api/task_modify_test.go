@@ -387,7 +387,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    2,
-				IDTaskSection: constants.IDTaskSectionBacklog,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -400,7 +400,7 @@ func TestTaskReorder(t *testing.T) {
 			dbCtx,
 			database.TaskBase{
 				UserID:        userID,
-				IDTaskSection: constants.IDTaskSectionBacklog,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -543,7 +543,7 @@ func TestTaskReorder(t *testing.T) {
 			dbCtx,
 			database.TaskBase{
 				UserID:        userID,
-				IDTaskSection: constants.IDTaskSectionBacklog,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -580,7 +580,7 @@ func TestTaskReorder(t *testing.T) {
 			dbCtx,
 			database.TaskBase{
 				UserID:        userID,
-				IDTaskSection: constants.IDTaskSectionBacklog,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -606,7 +606,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
-		assert.Equal(t, constants.IDTaskSectionBacklog, task.IDTaskSection)
+		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
