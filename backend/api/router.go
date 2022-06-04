@@ -13,6 +13,9 @@ func GetRouter(handlers *API) *gin.Engine {
 	// Allow CORS for frontend API requests
 	router.Use(CORSMiddleware)
 
+	// Introduce fake lag when running local server to more accurately simulate prod
+	router.Use(FakeLagMiddleware)
+
 	// Unauthenticated endpoints
 	router.GET("/link/:service_name/", handlers.Link)
 	router.GET("/link/:service_name/callback/", handlers.LinkCallback)
