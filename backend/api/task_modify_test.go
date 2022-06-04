@@ -366,6 +366,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.NoError(t, err)
 		taskToNotBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
 
+		customTaskSectionID := primitive.NewObjectID()
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err = taskCollection.InsertOne(
@@ -373,7 +374,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    1,
-				IDTaskSection: constants.IDTaskSectionDefault,
+				IDTaskSection: customTaskSectionID,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -387,7 +388,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    2,
-				IDTaskSection: constants.IDTaskSectionDefault,
+				IDTaskSection: customTaskSectionID,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
