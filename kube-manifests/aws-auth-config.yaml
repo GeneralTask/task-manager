@@ -15,6 +15,10 @@ data:
       username: qa-gtsk-uswest2-core-deploy
       rolearn: arn:aws:iam::257821106339:role/qa-gtsk-uswest2-core-eks-role
       username: qa-gtsk-uswest2-core-eks-role
+    - groups:
+      - qa-gtsk-uswest2-full-access-group
+      rolearn: arn:aws:iam::257821106339:role/qa-gtsk-uswest2-core-eks-read-only-role
+      username: qa-gtsk-uswest2-core-eks-read-only-role
 kind: ConfigMap
 metadata:
   name: aws-auth
