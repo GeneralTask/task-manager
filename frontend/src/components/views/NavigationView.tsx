@@ -1,14 +1,15 @@
-import { Colors } from '../../styles'
 import React, { useMemo } from 'react'
 import { margin, padding } from '../../styles/spacing'
 import { useGetInfiniteThreads, useGetTasks } from '../../services/api-query-hooks'
 import { useLocation, useParams } from 'react-router-dom'
 
+import { Colors } from '../../styles'
 import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { authSignOut } from '../../utils/auth'
+import { dummyRepositories } from './PullRequestsView'
 import styled from 'styled-components'
 
 const NavigationViewContainer = styled.div`
@@ -39,7 +40,8 @@ const GapView = styled.div`
 const NavigationView = () => {
     const { data: taskSections } = useGetTasks()
     const { data: threadData } = useGetInfiniteThreads()
-    const { section: sectionIdParam } = useParams()
+    const pullRequestRepositories = dummyRepositories
+    const { section: sectionIdParam, repository: repositoryIdParam } = useParams()
     const { pathname } = useLocation()
 
     const threads = useMemo(() => threadData?.pages.flat().filter((thread) => thread != null) ?? [], [threadData])
@@ -54,7 +56,9 @@ const NavigationView = () => {
                     <NavigationSectionLinks
                         taskSections={taskSections}
                         threads={threads}
+                        pullRequestRepositories={pullRequestRepositories}
                         sectionId={sectionIdParam || ''}
+                        repositoryId={repositoryIdParam || ''}
                         pathName={pathname.split('/')[1]}
                     />
                 )}

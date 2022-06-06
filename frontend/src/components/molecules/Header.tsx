@@ -22,7 +22,7 @@ const SectionHeaderContainer = styled.div`
 const HeaderText = styled.span`
     margin-right: ${Spacing.margin._8}px;
     font-size: ${Typography.xLarge.fontSize};
-    padding-left: ${Spacing.padding._4}px;
+    padding-left: 6px; /* TODO: remove margins and padding from Header */
     border: 2px solid transparent;
     overflow-wrap: break-word;
     min-width: 0;
