@@ -2,8 +2,8 @@ import { Colors, Shadows, Spacing, Typography } from '../../styles'
 
 import styled from 'styled-components'
 
-export const CELL_HEIGHT = '64px'
 export const CELL_HEIGHT_VALUE = 64
+export const CELL_HEIGHT = `${CELL_HEIGHT_VALUE}px`
 export const TABLE_WIDTH_PERCENTAGE = '100%'
 export const CELL_TIME_WIDTH = '43px'
 export const CELL_BORDER_WIDTH = '3px'
