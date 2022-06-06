@@ -11,7 +11,9 @@ export const ColumnWidths = {
     link: '5%',
 }
 
-export const Column = styled.div<{ type: keyof typeof ColumnWidths }>`
+type TColumnWidths = keyof typeof ColumnWidths
+
+export const Column = styled.div<{ type: TColumnWidths }>`
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -19,6 +21,10 @@ export const Column = styled.div<{ type: keyof typeof ColumnWidths }>`
     padding: ${Spacing.padding._8}px;
     overflow: hidden;
     white-space: nowrap;
+`
+
+export const PullRequestViewContainer = styled.div`
+    margin: 0 ${Spacing.margin._8}px;
 `
 
 export const Repository = styled.div`

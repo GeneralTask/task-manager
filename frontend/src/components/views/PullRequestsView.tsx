@@ -4,7 +4,7 @@ import React from 'react'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import { SectionHeader } from '../molecules/Header'
 import { TRepository } from '../../utils/types'
-import { Repository, RepositoryName } from '../pull-requests/styles'
+import { PullRequestViewContainer, Repository, RepositoryName } from '../pull-requests/styles'
 
 export const dummyRepositories: TRepository[] = [
     {
@@ -52,23 +52,25 @@ const PullRequestsView = () => {
     return (
         <ScrollableListTemplate>
             <SectionHeader sectionName="Pull Requests" allowRefresh={false} />
-            {repositories.map((repository) => (
-                <Repository key={repository.id}>
-                    <RepositoryName>{repository.name}</RepositoryName>
+            <PullRequestViewContainer>
+                {repositories.map((repository) => (
+                    <Repository key={repository.id}>
+                        <RepositoryName>{repository.name}</RepositoryName>
 
-                    {repository.pull_requests.length === 0 ? (
-                        'No pull requests'
-                    ) : (
-                        <>
-                            <Header />
-                            {repository.pull_requests.map((pr) => (
-                                <PullRequest key={pr.id} pullRequest={pr} />
-                            ))}
-                        </>
-                    )}
-                    <br />
-                </Repository>
-            ))}
+                        {repository.pull_requests.length === 0 ? (
+                            'No pull requests'
+                        ) : (
+                            <>
+                                <Header />
+                                {repository.pull_requests.map((pr) => (
+                                    <PullRequest key={pr.id} pullRequest={pr} />
+                                ))}
+                            </>
+                        )}
+                        <br />
+                    </Repository>
+                ))}
+            </PullRequestViewContainer>
         </ScrollableListTemplate>
     )
 }
