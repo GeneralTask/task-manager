@@ -229,14 +229,19 @@ func TestGetEmails(t *testing.T) {
 
 		db, dbCleanup, _ := database.GetDBConnection()
 		defer dbCleanup()
-		threadItems, err := database.GetEmailThreads(db, userID, false, false, database.Pagination{}, nil)
-		assert.NoError(t, err)
 
-		assert.Equal(t, len(*threadItems), 1)
-		if len(*threadItems) != 1 {
+		unarchivedThreadItems, err := database.GetEmailThreads(db, userID, false, false, database.Pagination{}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, len(*unarchivedThreadItems), 1)
+
+		archivedThreadItems, err := database.GetEmailThreads(db, userID, false, true, database.Pagination{}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, len(*archivedThreadItems), 1)
+
+		if len(*unarchivedThreadItems)+len(*archivedThreadItems) != len(expectedThreadsInDB) {
 			return
 		}
-		for i, dbThreadItem := range *threadItems {
+		for i, dbThreadItem := range append(*unarchivedThreadItems, *archivedThreadItems...) {
 			expectedThreadItem := expectedThreadsInDB[i]
 			assertThreadItemsEqual(t, expectedThreadItem, &dbThreadItem)
 
