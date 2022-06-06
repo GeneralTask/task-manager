@@ -84,7 +84,7 @@ const fetchExternalTasks = async () => {
 
 export const useCreateTask = () => {
     const queryClient = useQueryClient()
-    const optimsticId = uuidv4()
+    const optimisticId = uuidv4()
     return useMutation((data: TCreateTaskData) => createTask(data), {
         onMutate: async (data: TCreateTaskData) => {
             // cancel all current getTasks queries
@@ -96,7 +96,7 @@ export const useCreateTask = () => {
             for (const section of sections) {
                 if (section.id === data.id_task_section) {
                     const newTask: TTask = {
-                        id: optimsticId,
+                        id: optimisticId,
                         id_ordering: 0,
                         title: data.title,
                         body: data.body,
@@ -114,7 +114,7 @@ export const useCreateTask = () => {
                         sender: '',
                         is_done: false,
                         recipients: { to: [], cc: [], bcc: [] },
-                        optimsticId,
+                        isOptimistic: true,
                     }
                     section.tasks = [newTask, ...section.tasks]
                     queryClient.setQueryData('tasks', () => sections)
@@ -126,11 +126,11 @@ export const useCreateTask = () => {
             const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
             if (!sections) return
 
-            const task = sections.find(section => section.id === createData.id_task_section)?.tasks.find(task => task.id === optimsticId)
+            const task = sections.find(section => section.id === createData.id_task_section)?.tasks.find(task => task.id === optimisticId)
             if (!task) return
 
             task.id = response.task_id
-            task.optimsticId = undefined
+            task.isOptimistic = false
             queryClient.setQueryData('tasks', () => sections)
         },
         onSettled: () => {

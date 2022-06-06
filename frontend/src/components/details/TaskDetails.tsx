@@ -109,13 +109,13 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
         setBodyInput(task.body)
     }, [task.id])
 
-    // when the optimistic ID changes to undefined, we know that that task.id is now the real ID
-    // so we can then navigate to the correct link
+    /* when the optimistic ID changes to undefined, we know that that task.id is now the real ID
+    so we can then navigate to the correct link */
     useEffect(() => {
-        if (!task.optimsticId) {
+        if (!task.isOptimistic) {
             navigate(`/tasks/${params.section}/${task.id}`)
         }
-    }, [task.optimsticId])
+    }, [task.isOptimistic])
 
     useLayoutEffect(() => {
         if (titleRef.current) {
@@ -164,15 +164,13 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
     const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
 
-    const isOptimistic = task.optimsticId !== undefined
-
     return (
         <DetailsViewContainer data-testid="details-view-container">
             <DetailsTopContainer>
                 <MarginRight8>
                     <Icon source={icon} size="small" />
                 </MarginRight8>
-                {!isOptimistic && (
+                {!task.isOptimistic && (
                     <>
                         <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                         <MarginLeftAuto>
@@ -192,7 +190,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                 )}
             </DetailsTopContainer>
             <TitleInput
-                disabled={isOptimistic}
+                disabled={task.isOptimistic}
                 ref={titleRef}
                 data-testid="task-title-input"
                 onKeyDown={handleKeyDown}
@@ -202,7 +200,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                 }}
             />
-            {isOptimistic ? (
+            {task.isOptimistic ? (
                 <Spinner />
             ) : (
                 <BodyTextArea
