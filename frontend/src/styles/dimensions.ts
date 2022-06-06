@@ -10,17 +10,18 @@ export type TIconSize = keyof typeof iconSize
 
 export const modalSize = {
     small: {
-        width: 478,
-        height: 440,
+        width: '478px',
+        height: '440px',
     },
     medium: {
-        width: 723,
-        height: 620,
+        width: '723px',
+        height: '620px',
     },
 }
 
-export const MEDIA_MAX_WIDTH = '650px'
+export type TModalSize = keyof typeof modalSize
 
+export const MEDIA_MAX_WIDTH = '650px'
 export const WINDOW_MIN_WIDTH = '800px'
 export const NAVIGATION_BAR_WIDTH = '230px'
 export const TASK_ACTION_WIDTH = '200px'
