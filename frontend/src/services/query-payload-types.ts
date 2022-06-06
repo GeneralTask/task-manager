@@ -37,6 +37,9 @@ interface TCreateTaskData {
     body: string
     id_task_section: string
 }
+interface TCreateTaskResponse {
+    task_id: string
+}
 interface TModifyTaskData {
     id: string
     title?: string
@@ -93,6 +96,7 @@ export {
     TAddTaskSectionData,
     TPostFeedbackData,
     TCreateTaskData,
+    TCreateTaskResponse,
     TModifyTaskData,
     TMarkTaskDoneData,
     TReorderTaskData,

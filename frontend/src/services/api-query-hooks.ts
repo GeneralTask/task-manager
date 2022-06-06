@@ -5,6 +5,7 @@ import {
     TComposeMessageData,
     TCreateEventPayload,
     TCreateTaskData,
+    TCreateTaskResponse,
     TCreateTaskFromThreadData,
     TEmailThreadResponse,
     TMarkMessageReadData,
@@ -83,6 +84,7 @@ const fetchExternalTasks = async () => {
 
 export const useCreateTask = () => {
     const queryClient = useQueryClient()
+    const optimisticId = uuidv4()
     return useMutation((data: TCreateTaskData) => createTask(data), {
         onMutate: async (data: TCreateTaskData) => {
             // cancel all current getTasks queries
@@ -94,7 +96,7 @@ export const useCreateTask = () => {
             for (const section of sections) {
                 if (section.id === data.id_task_section) {
                     const newTask: TTask = {
-                        id: uuidv4(),
+                        id: optimisticId,
                         id_ordering: 0,
                         title: data.title,
                         body: data.body,
@@ -111,13 +113,25 @@ export const useCreateTask = () => {
                         },
                         sender: '',
                         is_done: false,
-                        recipients: {} as TRecipients,
+                        recipients: { to: [], cc: [], bcc: [] },
+                        isOptimistic: true,
                     }
                     section.tasks = [newTask, ...section.tasks]
                     queryClient.setQueryData('tasks', () => sections)
                     return
                 }
             }
+        },
+        onSuccess: async (response: TCreateTaskResponse, createData: TCreateTaskData) => {
+            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            if (!sections) return
+
+            const task = sections.find(section => section.id === createData.id_task_section)?.tasks.find(task => task.id === optimisticId)
+            if (!task) return
+
+            task.id = response.task_id
+            task.isOptimistic = false
+            queryClient.setQueryData('tasks', () => sections)
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
