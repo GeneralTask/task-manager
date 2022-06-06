@@ -6,8 +6,7 @@ const ScrollableListTemplate = styled.div`
     padding-bottom: 100px;
     overflow-y: auto;
     margin-right: auto;
-    flex-shrink: 0;
-    flex: 1;
+    flex: 1 0;
 `
 
 export default ScrollableListTemplate
