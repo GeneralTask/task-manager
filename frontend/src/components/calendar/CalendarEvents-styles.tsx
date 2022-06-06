@@ -2,11 +2,12 @@ import { Colors, Shadows, Spacing, Typography } from '../../styles'
 
 import styled from 'styled-components'
 
-export const CELL_HEIGHT = 64
-export const TABLE_WIDTH_PERCENTAGE = 100
-export const CELL_TIME_WIDTH = 43
-export const CELL_BORDER_WIDTH = 3
-export const CELL_LEFT_MARGIN = 6
+export const CELL_HEIGHT_VALUE = 64
+export const CELL_HEIGHT = `${CELL_HEIGHT_VALUE}px`
+export const TABLE_WIDTH_PERCENTAGE = '100%'
+export const CELL_TIME_WIDTH = '43px'
+export const CELL_BORDER_WIDTH = '3px'
+export const CELL_LEFT_MARGIN = '6px'
 export const EVENT_CONTAINER_COLOR = Colors.gray._50
 export const EVENT_TITLE_TEXT_COLOR = Colors.gray._700
 export const EVENT_TIME_TEXT_COLOR = Colors.gray._500
@@ -14,9 +15,9 @@ export const CALENDAR_TD_COLOR = Colors.gray._200
 export const CALENDAR_TIME_COLOR = Colors.gray._400
 export const CALENDAR_INDICATOR_COLOR = Colors.red._1
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
-export const EVENT_BOTTOM_PADDING = 2.5
+export const EVENT_BOTTOM_PADDING = '2.5px'
 
-const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE}% - ${CELL_BORDER_WIDTH}px - ${CELL_LEFT_MARGIN}px) * 1/var(--squish-factor)`
+const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE} - ${CELL_BORDER_WIDTH} - ${CELL_LEFT_MARGIN}) * 1/var(--squish-factor)`
 
 export const DayContainer = styled.div`
     width: 100%;
@@ -41,14 +42,14 @@ export const AllDaysContainer = styled.div`
 `
 export const CalendarTableStyle = styled.table`
     border-collapse: collapse;
-    width: ${TABLE_WIDTH_PERCENTAGE}%;
+    width: ${TABLE_WIDTH_PERCENTAGE};
 `
 export const CalendarTimesTableStyle = styled.table`
     border-collapse: collapse;
 `
 export const CalendarRow = styled.tr`
     display: block;
-    height: ${CELL_HEIGHT}px;
+    height: ${CELL_HEIGHT};
 `
 export const CalendarTD = styled.td`
     display: block;
@@ -64,7 +65,7 @@ export const CalendarCell = styled.div`
     color: ${CALENDAR_TIME_COLOR};
 `
 export const CellTime = styled.div`
-    width: ${CELL_TIME_WIDTH}px;
+    width: ${CELL_TIME_WIDTH};
     height: 40px;
     margin-top: 4px;
     margin-right: 4px;
@@ -81,11 +82,11 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     --squish-factor: ${({ squishFactor }) => squishFactor};
     --left-offset: ${({ leftOffset }) => leftOffset};
     width: calc(${WIDTH_CSS_CALCULATION});
-    height: calc(${(props) => props.eventBodyHeight}px - ${EVENT_BOTTOM_PADDING}px);
+    height: calc(${(props) => props.eventBodyHeight}px - ${EVENT_BOTTOM_PADDING});
     top: ${(props) => props.topOffset}px;
     position: absolute;
     left: calc(
-        ${100 - TABLE_WIDTH_PERCENTAGE}% + ${CELL_LEFT_MARGIN}px + (${WIDTH_CSS_CALCULATION}) * var(--left-offset)
+        100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${WIDTH_CSS_CALCULATION}) * var(--left-offset)
     );
     opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
 `
