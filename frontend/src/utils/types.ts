@@ -47,6 +47,7 @@ export interface TTask {
     recipients: TRecipients
     is_done: boolean
     linked_email_thread?: TLinkedEmailThread
+    isOptimistic?: boolean
 }
 
 export interface TLinkedEmailThread {
@@ -134,6 +135,27 @@ export interface TEmailThread {
     deeplink: string
     source: TMessageSource
     emails: TEmail[]
+}
+
+// Pull Request Types
+export interface TPullRequest {
+    id: string
+    title: string
+    number: number
+    status: {
+        text: string
+        color: string
+    }
+    author: string
+    created_at: string
+    branch: string
+    link: string
+}
+
+export interface TRepository {
+    id: string
+    name: string
+    pull_requests: TPullRequest[]
 }
 
 export interface TTaskSection {

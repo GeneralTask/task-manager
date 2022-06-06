@@ -63,7 +63,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		// TODO: for a full refresh, we probably want to paginate through this request until we've fetched all threads in the DB
 		maxResults = fullFetchMaxResults
 	}
-	threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(maxResults).Q("label:inbox").Do()
+	threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(maxResults).Do()
 	if err != nil {
 		log.Error().Err(err).Msg("failed to load Gmail threads for user")
 		isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
@@ -103,6 +103,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			},
 			EmailThread: database.EmailThread{
 				ThreadID: thread.Id,
+				IsArchived:   isMessageArchived(thread.Messages[0]),
 			},
 			TaskType: database.TaskType{
 				IsThread: true,
@@ -552,8 +553,8 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	return err
 }
 
-func (gmailSource GmailSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("has not been implemented yet")
+func (gmailSource GmailSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (gmailSource GmailSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {

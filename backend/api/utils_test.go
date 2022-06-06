@@ -155,3 +155,7 @@ func Test404(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
 	})
 }
+
+func TestIsLocalServer(t *testing.T) {
+	assert.False(t, isLocalServer())
+}

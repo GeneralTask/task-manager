@@ -1,13 +1,8 @@
-import React from 'react'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
+import 'react-toastify/dist/ReactToastify.css'
+import 'animate.css'
+
+import { MESSAGES_REFETCH_INTERVAL, TASK_REFETCH_INTERVAL } from '../../constants'
 import { Navigate, useLocation } from 'react-router-dom'
-import Loading from '../atoms/Loading'
-import DefaultTemplate from '../templates/DefaultTemplate'
-import MessagesView from '../views/MessagesView'
-import Settings from '../views/SettingsView'
-import TaskSection from '../views/TaskSectionView'
-import { useAppSelector } from '../../redux/hooks'
 import {
     useFetchExternalTasks,
     useFetchMessages,
@@ -15,12 +10,20 @@ import {
     useGetTasks,
     useGetUserInfo,
 } from '../../services/api-query-hooks'
-import { useInterval } from '../../hooks'
-import { MESSAGES_REFETCH_INTERVAL, TASK_REFETCH_INTERVAL } from '../../constants'
-import 'react-toastify/dist/ReactToastify.css'
-import 'animate.css'
-import { cssTransition } from 'react-toastify'
+
+import DefaultTemplate from '../templates/DefaultTemplate'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import Loading from '../atoms/Loading'
+import MessagesView from '../views/MessagesView'
+import PullRequestsView from '../views/PullRequestsView'
+import React from 'react'
+import Settings from '../views/SettingsView'
 import StyledToastContainer from '../atoms/toast/StyledToastContainer'
+import TaskSection from '../views/TaskSectionView'
+import { cssTransition } from 'react-toastify'
+import { useAppSelector } from '../../redux/hooks'
+import { useInterval } from '../../hooks'
 
 const toastAnimation = cssTransition({
     enter: 'animate__animated animate__fadeInRight',
@@ -48,6 +51,8 @@ const MainScreen = () => {
                 return <TaskSection />
             case 'messages':
                 return <MessagesView />
+            case 'pull-requests':
+                return <PullRequestsView />
             case 'settings':
                 return <Settings />
             default:

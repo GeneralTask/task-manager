@@ -91,12 +91,12 @@ func (api *API) TaskCreate(c *gin.Context) {
 		TimeAllocation: timeAllocation,
 		IDTaskSection:  IDTaskSection,
 	}
-	err = taskSourceResult.Source.CreateNewTask(userID, taskCreateParams.AccountID, taskCreationObject)
+	taskID, err := taskSourceResult.Source.CreateNewTask(userID, taskCreateParams.AccountID, taskCreationObject)
 	if err != nil {
 		c.JSON(503, gin.H{"detail": "failed to create task"})
 		return
 	}
-	c.JSON(200, gin.H{})
+	c.JSON(200, gin.H{"task_id": taskID})
 }
 
 func getValidTaskSection(taskSectionIDHex string, userID primitive.ObjectID, db *mongo.Database) (primitive.ObjectID, error) {

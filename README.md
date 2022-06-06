@@ -64,6 +64,7 @@ To clear the test cache:
 go clean -testcache
 ```
 
+### Running Tests in IDE
 To run tests through VS Code, put the following snippet in your `settings.json`:
 ```
     "go.testEnvVars": {

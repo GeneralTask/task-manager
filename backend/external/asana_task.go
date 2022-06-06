@@ -210,8 +210,8 @@ func (asanaTask AsanaTaskSource) SendEmail(userID primitive.ObjectID, accountID 
 	return errors.New("cannot send email for asana source")
 }
 
-func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("cannot create new asana task")
+func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (asanaTask AsanaTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {

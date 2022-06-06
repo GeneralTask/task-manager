@@ -64,7 +64,7 @@ func (generalTask GeneralTaskTaskSource) SendEmail(userID primitive.ObjectID, ac
 	return nil
 }
 
-func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
+func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	taskSection := constants.IDTaskSectionDefault
 	if task.IDTaskSection != primitive.NilObjectID {
 		taskSection = task.IDTaskSection
@@ -94,14 +94,14 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
-		return err
+		return primitive.NilObjectID, err
 	}
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	_, err = taskCollection.InsertOne(dbCtx, newTask)
-	return err
+	insertResult, err := taskCollection.InsertOne(dbCtx, newTask)
+	return insertResult.InsertedID.(primitive.ObjectID), err
 }
 
 func (generalTask GeneralTaskTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {

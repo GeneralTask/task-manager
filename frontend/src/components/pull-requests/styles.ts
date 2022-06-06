@@ -1,0 +1,68 @@
+import { Border, Colors, Spacing, Typography } from "../../styles"
+
+import NoStyleAnchor from "../atoms/NoStyleAnchor"
+import styled from "styled-components"
+
+export const ColumnWidths = {
+    title: '35%',
+    status: '25%',
+    author: '20%',
+    branch: '15%',
+    link: '5%',
+}
+
+type TColumnWidths = keyof typeof ColumnWidths
+
+export const Column = styled.div<{ type: TColumnWidths }>`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: ${props => ColumnWidths[props.type]};
+    padding: ${Spacing.padding._8}px;
+    overflow: hidden;
+    white-space: nowrap;
+`
+
+export const PullRequestViewContainer = styled.div`
+    margin: 0 ${Spacing.margin._8}px;
+`
+
+export const Repository = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${Spacing.margin._16}px;
+`
+
+export const PullRequestRow = styled.div`
+    display: flex;
+    padding: ${Spacing.padding._8}px;
+    background-color: ${Colors.white};
+    border-radius: ${Border.radius.large};
+`
+
+export const HeaderContainer = styled.div`
+    display: flex;
+    background-color: ${Colors.gray._100};
+    border-radius: ${Border.radius.large};
+    color: ${Colors.gray._500};
+    padding: ${Spacing.padding._16}px ${Spacing.padding._8}px;
+`
+
+export const RepositoryName = styled.div`
+    font-size: ${Typography.medium.fontSize};
+    color: ${Colors.gray._700};
+`
+
+export const TruncatedText = styled.span`
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+`
+
+export const LinkButton = styled(NoStyleAnchor)`
+    margin: auto;
+    padding: ${Spacing.padding._8}px;
+    background-color: ${Colors.gray._100};
+    border-radius: ${Border.radius.large};
+    cursor: pointer;
+`
