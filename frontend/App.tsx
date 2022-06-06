@@ -49,7 +49,11 @@ const App = () => {
                                     <Route index element={<MainScreen />} />
                                     <Route path=":thread" element={<MainScreen />} />
                                 </Route>
-                                {isDevelopmentMode && <Route path="pull-requests" element={<MainScreen />} />}
+                                {isDevelopmentMode && (
+                                    <Route path="pull-requests" element={<PrivateOutlet />}>
+                                        <Route index element={<MainScreen />} />
+                                    </Route>
+                                )}
                                 <Route path="settings" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
                                 </Route>
