@@ -18,7 +18,7 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._4} ${Spacing.padding._8};
     width: 100%;
     border-radius: ${Border.radius.small};
     border-width: 2px;
@@ -34,13 +34,13 @@ const SectionTitle = styled.span<{ isSelected: boolean }>`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-left: ${margin._8}px;
+    margin-left: ${margin._8};
     flex: 1;
 `
 const SectionTitleItemCount = styled.span<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
-    margin-right: ${margin._8}px;
+    margin-right: ${margin._8};
     margin-left: auto;
 `
 export const NavigationLinkTemplate = styled.div`

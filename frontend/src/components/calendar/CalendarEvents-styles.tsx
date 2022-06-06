@@ -161,7 +161,7 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
     font-size: ${Typography.small.fontSize};
     font-weight: ${Typography.weight._600};
     border-radius: 50vh;
-    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._4} ${Spacing.padding._8};
     color: ${(props) => (props.isToday ? Colors.white : Colors.gray._800)};
     background-color: ${(props) => (props.isToday ? Colors.purple._1 : Colors.gray._100)};
 `

@@ -14,7 +14,7 @@ const Footer = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
+    padding: ${Spacing.padding._8} ${Spacing.padding._16};
     background-color: ${Colors.purple._2};
     width: 100%;
     z-index: 1;
@@ -24,7 +24,7 @@ const FooderDiv = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: ${Spacing.margin._16}px;
+    gap: ${Spacing.margin._16};
 `
 const FooterText = styled.span`
     color: ${Colors.white};

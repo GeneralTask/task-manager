@@ -27,7 +27,7 @@ const FooterTextView = styled.div`
     align-items: space-between;
     justify-content: center;
     flex-shrink: 1;
-    margin: ${Spacing.margin._40}px;
+    margin: ${Spacing.margin._40};
     min-width: 0px;
 `
 const FooterHeaderArea = styled.div`
@@ -44,19 +44,19 @@ const FooterText = styled.div`
     font-weight: ${Typography.weight._500};
     color: ${Colors.gray._600};
     justify-content: space-between;
-    margin-top: ${Spacing.margin._12}px;
-    margin-left: ${Spacing.margin._12}px;
+    margin-top: ${Spacing.margin._12};
+    margin-left: ${Spacing.margin._12};
     align-content: space-between;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 `
 const HeaderText = styled.div`
-    margin-right: ${Spacing.margin._8}px;
+    margin-right: ${Spacing.margin._8};
     font-size: ${Typography.medium.fontSize};
     font-weight: ${Typography.weight._500};
     color: ${Colors.gray._600};
-    padding-left: ${Spacing.padding._4}px;
+    padding-left: ${Spacing.padding._4};
     border: 2px solid transparent;
     overflow: hidden;
     white-space: nowrap;
@@ -64,7 +64,7 @@ const HeaderText = styled.div`
 `
 const BodyTextArea = styled.div`
     overflow: auto;
-    padding: ${Spacing.margin._8}px;
+    padding: ${Spacing.margin._8};
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
     font-weight: ${Typography.weight._400};
@@ -79,13 +79,13 @@ const CursorView = styled.div`
 `
 const RecommendationText = styled.span`
     display: flex;
-    padding: ${Spacing.margin._12}px;
+    padding: ${Spacing.margin._12};
     font: inherit;
     cursor: pointer;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
     text-decoration: none;
-    margin-left: ${Spacing.margin._4}px;
+    margin-left: ${Spacing.margin._4};
 `
 const DeeplinkText = styled.span`
     display: flex;

@@ -13,7 +13,7 @@ const PurpleText = styled.span`
     color: ${Colors.purple._1};
     font-weight: ${Typography.weight._500};
     font-size: ${Typography.xxSmall.fontSize};
-    margin-right: ${Spacing.margin._4}px;
+    margin-right: ${Spacing.margin._4};
 `
 const VerticalFlex = styled.div`
     display: flex;

@@ -10,7 +10,7 @@ const Row = styled.div`
     flex-direction: row;
 `
 const KeyContainer = styled.div`
-    margin-right: ${Spacing.margin._4}px;
+    margin-right: ${Spacing.margin._4};
     color: ${Colors.gray._600};
 `
 const ValueContainer = styled.div`
