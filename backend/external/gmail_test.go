@@ -232,10 +232,12 @@ func TestGetEmails(t *testing.T) {
 
 		unarchivedThreadItems, err := database.GetEmailThreads(db, userID, false, false, database.Pagination{}, nil)
 		assert.NoError(t, err)
+		assert.NotNil(t, unarchivedThreadItems)
 		assert.Equal(t, len(*unarchivedThreadItems), 1)
 
 		archivedThreadItems, err := database.GetEmailThreads(db, userID, false, true, database.Pagination{}, nil)
 		assert.NoError(t, err)
+		assert.NotNil(t, archivedThreadItems)
 		assert.Equal(t, len(*archivedThreadItems), 1)
 
 		if len(*unarchivedThreadItems)+len(*archivedThreadItems) != len(expectedThreadsInDB) {
