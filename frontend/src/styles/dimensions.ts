@@ -11,7 +11,7 @@ export type TIconSize = keyof typeof iconSize
 export const modalSize = {
     small: {
         width: '478px',
-        height: ' 440px',
+        height: '440px',
     },
     medium: {
         width: '723px',
