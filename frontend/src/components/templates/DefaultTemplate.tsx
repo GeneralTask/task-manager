@@ -27,6 +27,7 @@ const TasksandDetails = styled.div`
     display: flex;
     position: relative;
     overflow: hidden;
+    background-color: inherit;
     @media only screen and (max-device-width: ${MEDIA_MAX_WIDTH}px) {
         overflow: auto;
     }
