@@ -12,13 +12,13 @@ import { useAppSelector } from '../../redux/hooks'
 
 const DefaultTemplateContainer = styled.div`
     display: grid;
-    grid-template-columns: ${NAVIGATION_BAR_WIDTH}px minmax(300px, auto) max-content;
+    grid-template-columns: ${NAVIGATION_BAR_WIDTH} minmax(300px, auto) max-content;
     grid-auto-flow: column;
     grid-template-rows: 1fr;
     height: 100vh;
     background-color: ${Colors.gray._50};
     position: relative;
-    min-width: ${WINDOW_MIN_WIDTH}px;
+    min-width: ${WINDOW_MIN_WIDTH};
 `
 
 const TasksandDetails = styled.div`
@@ -27,7 +27,7 @@ const TasksandDetails = styled.div`
     display: flex;
     position: relative;
     overflow: hidden;
-    @media only screen and (max-device-width: ${MEDIA_MAX_WIDTH}px) {
+    @media only screen and (max-device-width: ${MEDIA_MAX_WIDTH}) {
         overflow: auto;
     }
 `
