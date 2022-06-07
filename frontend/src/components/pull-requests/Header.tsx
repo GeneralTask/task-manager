@@ -9,7 +9,7 @@ const Header = () => {
             <Column type="status">Required Action</Column>
             <Column type="author">Author</Column>
             <Column type="branch">Branch Name</Column>
-            <Column type="link"></Column>
+            <Column type="link">Link</Column>
         </HeaderContainer>
     )
 }
