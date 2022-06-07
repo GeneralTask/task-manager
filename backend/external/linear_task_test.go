@@ -28,7 +28,6 @@ func TestLoadLinearTasks(t *testing.T) {
 						"id": "test-issue-id-1",
 						"title": "test title",
 						"description": "test description",
-						"dueDate": "2021-04-20",
 						"url": "https://example.com/",
 						"createdAt": "2022-06-06T23:13:24.037Z",
 						"assignee": {
@@ -187,7 +186,6 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 		userID := primitive.NewObjectID()
 
-		dueDate, _ := time.Parse("2006-01-02", "2001-04-21")
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
@@ -202,7 +200,6 @@ func TestLoadLinearTasks(t *testing.T) {
 				SourceAccountID:   "sugapapa",
 				UserID:            userID,
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
-				DueDate:           primitive.NewDateTimeFromTime(dueDate),
 				TimeAllocation:    time.Hour.Nanoseconds(),
 			},
 			TaskType: database.TaskType{
@@ -217,8 +214,6 @@ func TestLoadLinearTasks(t *testing.T) {
 			&expectedTask,
 		)
 		// switch a few fields from their existing db value to their expected output value
-		dueDateCorrect, _ := time.Parse("2006-01-02", "2021-04-20")
-		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDateCorrect)
 		expectedTask.Title = "test title"
 		expectedTask.TaskBase.Body = "test description"
 
