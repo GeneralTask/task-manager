@@ -154,9 +154,13 @@ const LandingScreen = () => {
                     <Subheader>What will your app do with Google user data?</Subheader>
                     <FAQItem>
                         General Task stores user data to power features like our email client, calendar view, and
-                        unified task manager. General Task's use and transfer to any other app of information received
-                        from Google APIs will adhere to Google API Services User Data Policy, including the{' '}
-                        <a href="https://support.google.com/cloud/answer/9110914#explain-types" target="_blank">
+                        unified task manager. General Task&#39;s use and transfer to any other app of information
+                        received from Google APIs will adhere to Google API Services User Data Policy, including the{' '}
+                        <a
+                            href="https://support.google.com/cloud/answer/9110914#explain-types"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
                             Limited Use requirements
                         </a>
                         . Read more about how we use data in our{' '}
