@@ -100,14 +100,17 @@ const MessagesView = () => {
                     isRefetching={isRefetchingMessages || isFetchingThreads}
                 />
                 <MessagesContainer>
-                    {threads.map((thread, index) => (
-                        <div key={thread.id}>
-                            <ThreadTemplate ref={index === threads.length - 1 ? lastElementRef : undefined}>
-                                <Thread thread={thread} sectionScrollingRef={sectionScrollingRef} />
-                            </ThreadTemplate>
-                            {index !== threads.length - 1 && <MessageDivider />}
-                        </div>
-                    ))}
+                    {threads.map(
+                        (thread, index) =>
+                            thread.emails.every((email) => !email.is_archived) && (
+                                <div key={thread.id}>
+                                    <ThreadTemplate ref={index === threads.length - 1 ? lastElementRef : undefined}>
+                                        <Thread thread={thread} sectionScrollingRef={sectionScrollingRef} />
+                                    </ThreadTemplate>
+                                    {index !== threads.length - 1 && <MessageDivider />}
+                                </div>
+                            )
+                    )}
                 </MessagesContainer>
                 {(isLoadingThreads || isFetchingThreads) && (
                     <div>

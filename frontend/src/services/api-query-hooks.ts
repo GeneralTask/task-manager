@@ -500,7 +500,7 @@ export const useModifyThread = () => {
                             if (data.is_archived !== undefined)
                                 email.is_archived = data.is_archived
                         }
-                        if (data.is_archived) queryData.pages[i].splice(i, 1)
+                        // if (data.is_archived) queryData.pages[i].splice(i, 1)
                         break
                     }
                 }
