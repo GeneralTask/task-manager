@@ -12,8 +12,10 @@ export function getMonthsAroundDate(date: DateTime, numMonths = 1): DateRange[] 
     const endOfFirstMonth = date.endOf('month').minus({ months: numMonths })
 
     return [...Array(numMonths * 2 + 1).keys()].map((i: number): DateRange => ({
-        start: startOfFirstMonth.plus({ months: i }),
-        end: endOfFirstMonth.plus({ months: i }),
+        start: startOfFirstMonth.plus({ days: (31*i) }),
+        end: endOfFirstMonth.plus({ days: (31*i) }),
     }))
+
+    // add conditional: if month has 31 days, define days: {31*i}. Otherwise {30*i}
 }
 
