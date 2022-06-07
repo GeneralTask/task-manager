@@ -13,10 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const (
-//DefaultUserInfoResponse string = `{"data": {"workspaces": [{"gid": "6942069420"}]}}`
-)
-
 func TestLoadLinearTasks(t *testing.T) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -52,77 +48,84 @@ func TestLoadLinearTasks(t *testing.T) {
 			}
 		}}`)
 
-	//t.Run("BadUserInfoStatusCode", func(t *testing.T) {
-	//	userInfoServer := getMockServer(t, 400, "", NoopRequestChecker)
-	//	defer userInfoServer.Close()
-	//	asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{UserInfoURL: &userInfoServer.URL}}}
-	//	userID := primitive.NewObjectID()
-	//
-	//	var taskResult = make(chan TaskResult)
-	//	go asanaTask.GetTasks(userID, "sample_account@email.com", taskResult)
-	//	result := <-taskResult
-	//	assert.NotEqual(t, nil, result.Error)
-	//	assert.Equal(t, "bad status code: 400", result.Error.Error())
-	//	assert.Equal(t, 0, len(result.Tasks))
-	//})
-	//t.Run("BadUserInfoResponse", func(t *testing.T) {
-	//	userInfoServer := getMockServer(t, 200, `oopsie poopsie`, NoopRequestChecker)
-	//	defer userInfoServer.Close()
-	//	asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{UserInfoURL: &userInfoServer.URL}}}
-	//	userID := primitive.NewObjectID()
-	//
-	//	var taskResult = make(chan TaskResult)
-	//	go asanaTask.GetTasks(userID, "sample_account@email.com", taskResult)
-	//	result := <-taskResult
-	//	assert.NotEqual(t, nil, result.Error)
-	//	assert.Equal(t, "invalid character 'o' looking for beginning of value", result.Error.Error())
-	//	assert.Equal(t, 0, len(result.Tasks))
-	//})
-	//t.Run("NoWorkspaceInUserInfo", func(t *testing.T) {
-	//	userInfoServer := getMockServer(t, 200, `{"data": {"workspaces": []}}`, NoopRequestChecker)
-	//	defer userInfoServer.Close()
-	//	asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{UserInfoURL: &userInfoServer.URL}}}
-	//	userID := primitive.NewObjectID()
-	//
-	//	var taskResult = make(chan TaskResult)
-	//	go asanaTask.GetTasks(userID, "sample_account@email.com", taskResult)
-	//	result := <-taskResult
-	//	assert.NotEqual(t, nil, result.Error)
-	//	assert.Equal(t, "user has not workspaces", result.Error.Error())
-	//	assert.Equal(t, 0, len(result.Tasks))
-	//})
-	//t.Run("BadTaskStatusCode", func(t *testing.T) {
-	//	taskServer := getMockServer(t, 409, ``, NoopRequestChecker)
-	//	defer taskServer.Close()
-	//	asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{
-	//		TaskFetchURL: &taskServer.URL,
-	//		UserInfoURL:  &userInfoServerSuccess.URL,
-	//	}}}
-	//	userID := primitive.NewObjectID()
-	//
-	//	var taskResult = make(chan TaskResult)
-	//	go asanaTask.GetTasks(userID, "sample_account@email.com", taskResult)
-	//	result := <-taskResult
-	//	assert.NotEqual(t, nil, result.Error)
-	//	assert.Equal(t, "bad status code: 409", result.Error.Error())
-	//	assert.Equal(t, 0, len(result.Tasks))
-	//})
-	//t.Run("BadTaskResponse", func(t *testing.T) {
-	//	taskServer := getMockServer(t, 200, `to the moon`, NoopRequestChecker)
-	//	defer taskServer.Close()
-	//	asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{
-	//		TaskFetchURL: &taskServer.URL,
-	//		UserInfoURL:  &userInfoServerSuccess.URL,
-	//	}}}
-	//	userID := primitive.NewObjectID()
-	//
-	//	var taskResult = make(chan TaskResult)
-	//	go asanaTask.GetTasks(userID, "sample_account@email.com", taskResult)
-	//	result := <-taskResult
-	//	assert.NotEqual(t, nil, result.Error)
-	//	assert.Equal(t, "invalid character 'o' in literal true (expecting 'r')", result.Error.Error())
-	//	assert.Equal(t, 0, len(result.Tasks))
-	//})
+	t.Run("BadUserInfoStatusCode", func(t *testing.T) {
+		userInfoServer := testutils.GetMockAPIServer(t, 400, "")
+		defer userInfoServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					UserInfoURL: &userInfoServer.URL,
+				},
+			},
+		}}
+		userID := primitive.NewObjectID()
+
+		var taskResult = make(chan TaskResult)
+		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		result := <-taskResult
+		assert.NotEqual(t, nil, result.Error)
+		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, result.Error.Error())
+		assert.Equal(t, 0, len(result.Tasks))
+	})
+	t.Run("BadUserInfoResponse", func(t *testing.T) {
+		userInfoServer := getMockServer(t, 200, `oopsie poopsie`, NoopRequestChecker)
+		defer userInfoServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					UserInfoURL: &userInfoServer.URL,
+				},
+			},
+		}}
+		userID := primitive.NewObjectID()
+
+		var taskResult = make(chan TaskResult)
+		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		result := <-taskResult
+		assert.NotEqual(t, nil, result.Error)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", result.Error.Error())
+		assert.Equal(t, 0, len(result.Tasks))
+	})
+	t.Run("BadTaskStatusCode", func(t *testing.T) {
+		taskServer := getMockServer(t, 409, ``, NoopRequestChecker)
+		defer taskServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					UserInfoURL:  &userInfoServerSuccess.URL,
+					TaskFetchURL: &taskServer.URL,
+				},
+			},
+		}}
+		userID := primitive.NewObjectID()
+
+		var taskResult = make(chan TaskResult)
+		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		result := <-taskResult
+		assert.NotEqual(t, nil, result.Error)
+		assert.Equal(t, `non-200 OK status code: 409 Conflict body: ""`, result.Error.Error())
+		assert.Equal(t, 0, len(result.Tasks))
+	})
+	t.Run("BadTaskResponse", func(t *testing.T) {
+		taskServer := getMockServer(t, 200, `to the moon`, NoopRequestChecker)
+		defer taskServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					UserInfoURL:  &userInfoServerSuccess.URL,
+					TaskFetchURL: &taskServer.URL,
+				},
+			},
+		}}
+		userID := primitive.NewObjectID()
+
+		var taskResult = make(chan TaskResult)
+		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		result := <-taskResult
+		assert.NotEqual(t, nil, result.Error)
+		assert.Equal(t, "invalid character 'o' in literal true (expecting 'r')", result.Error.Error())
+		assert.Equal(t, 0, len(result.Tasks))
+	})
 	t.Run("Success", func(t *testing.T) {
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
