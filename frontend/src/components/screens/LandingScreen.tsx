@@ -75,9 +75,6 @@ const FAQItem = styled.div`
     margin-bottom: 30px;
     font-size: ${Typography.landingScreen.faqItem};
     text-align: center;
-    &::after: {
-        content: ' ';
-    }
 `
 
 const LandingScreen = () => {
