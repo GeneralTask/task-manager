@@ -5,14 +5,12 @@ import React, { useState } from 'react'
 import Cookies from 'js-cookie'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import JoinWaitlistButton from '../atoms/buttons/JoinWaitlistButton'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import UnauthorizedFooter from '../molecules/UnauthorizedFooter'
 import UnauthorizedHeader from '../molecules/UnauthorizedHeader'
 import apiClient from '../../utils/api'
 import styled from 'styled-components'
 import { AUTHORIZATION_COOKE } from '../../constants'
-import { useNavigate } from 'react-router-dom'
 
 const LandingScreenContainer = styled.div`
     background-color: ${Colors.white};
@@ -33,7 +31,6 @@ const Header = styled.div`
     margin-bottom: 40px;
     font-size: ${Typography.landingScreen.header};
     text-align: center;
-    font-family: inherit;
 `
 const Subheader = styled.div`
     max-width: 725px;
@@ -69,7 +66,6 @@ const FAQHeader = styled.div`
     margin-top: 100px;
     font-size: ${Typography.landingScreen.faqHeader};
     text-align: center;
-    font-family: inherit;
 `
 
 const FAQItem = styled.div`
@@ -79,11 +75,9 @@ const FAQItem = styled.div`
     margin-bottom: 30px;
     font-size: ${Typography.landingScreen.faqItem};
     text-align: center;
-`
-
-const BlueLink = styled.div`
-    color: blue;
-    text-decoration: underline;
+    &::after: {
+        content: ' ';
+    }
 `
 
 const LandingScreen = () => {
@@ -101,7 +95,6 @@ const LandingScreen = () => {
     const onWaitlistError = () => {
         setMessage('Email field is required')
     }
-    const navigate = useNavigate()
 
     const joinWaitlist = async (email: string) => {
         const response: Response = await apiClient.post('/waitlist/', {
@@ -163,11 +156,7 @@ const LandingScreen = () => {
                         >
                             Limited Use requirements
                         </a>
-                        . Read more about how we use data in our{' '}
-                        <NoStyleButton onClick={() => navigate('/privacy-policy')}>
-                            <BlueLink>Privacy Policy</BlueLink>
-                        </NoStyleButton>
-                        .
+                        . Read more about how we use data in our <Link to="/privacy-policy">Privacy Policy</Link>.
                     </FAQItem>
                     <Subheader>How does your app enhance Google user functionality?</Subheader>
                     <FAQItem>
