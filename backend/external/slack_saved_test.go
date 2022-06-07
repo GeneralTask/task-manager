@@ -126,7 +126,7 @@ func TestLoadSlackTasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      1,
 				IDExternal:      SavedMessageIDExternal,
-				IDTaskSection:   constants.IDTaskSectionBlocked,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				Deeplink:        "https://niceme.me/",
 				IsCompleted:     true,
 				Title:           "a custom title",
