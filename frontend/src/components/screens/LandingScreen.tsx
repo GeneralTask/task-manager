@@ -5,12 +5,14 @@ import React, { useState } from 'react'
 import Cookies from 'js-cookie'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import JoinWaitlistButton from '../atoms/buttons/JoinWaitlistButton'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Navigate } from 'react-router-dom'
 import UnauthorizedFooter from '../molecules/UnauthorizedFooter'
 import UnauthorizedHeader from '../molecules/UnauthorizedHeader'
 import apiClient from '../../utils/api'
 import styled from 'styled-components'
 import { AUTHORIZATION_COOKE } from '../../constants'
+import { useNavigate } from 'react-router-dom'
 
 const LandingScreenContainer = styled.div`
     background-color: ${Colors.white};
@@ -60,6 +62,30 @@ const ResponseContainer = styled.div`
     color: ${Colors.response.error};
 `
 
+const FAQHeader = styled.div`
+    max-width: 700px;
+    margin: auto;
+    margin-bottom: 20px;
+    margin-top: 100px;
+    font-size: ${Typography.landingScreen.faqHeader};
+    text-align: center;
+    font-family: inherit;
+`
+
+const FAQItem = styled.div`
+    max-width: 725px;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    font-size: ${Typography.landingScreen.faqItem};
+    text-align: center;
+`
+
+const BlueLink = styled.div`
+    color: blue;
+    text-decoration: underline;
+`
+
 const LandingScreen = () => {
     const [message, setMessage] = useState('')
     const { control, handleSubmit } = useForm({
@@ -75,6 +101,7 @@ const LandingScreen = () => {
     const onWaitlistError = () => {
         setMessage('Email field is required')
     }
+    const navigate = useNavigate()
 
     const joinWaitlist = async (email: string) => {
         const response: Response = await apiClient.post('/waitlist/', {
@@ -120,6 +147,32 @@ const LandingScreen = () => {
                 </WaitlistContainer>
                 <ResponseContainer data-testid="response-container">{message}</ResponseContainer>
                 <GoogleSignInButton />
+            </FlexGrowContainer>
+            <FlexGrowContainer>
+                <FlexColumn>
+                    <FAQHeader>Google Privacy FAQs</FAQHeader>
+                    <Subheader>What will your app do with Google user data?</Subheader>
+                    <FAQItem>
+                        General Task stores user data to power features like our email client, calendar view, and
+                        unified task manager. General Task's use and transfer to any other app of information received
+                        from Google APIs will adhere to Google API Services User Data Policy, including the{' '}
+                        <a href="https://support.google.com/cloud/answer/9110914#explain-types" target="_blank">
+                            Limited Use requirements
+                        </a>
+                        . Read more about how we use data in our{' '}
+                        <NoStyleButton onClick={() => navigate('/privacy-policy')}>
+                            <BlueLink>Privacy Policy</BlueLink>
+                        </NoStyleButton>
+                        .
+                    </FAQItem>
+                    <Subheader>How does your app enhance Google user functionality?</Subheader>
+                    <FAQItem>
+                        Our app enhances user functionality by allowing you to track everything on your plate at work in
+                        one unified place. You can go through your Gmail inbox, respond to emails, and mark other emails
+                        as tasks without leaving our app. You can also view your Google calendar in-app and will soon be
+                        able to modify and create events.
+                    </FAQItem>
+                </FlexColumn>
             </FlexGrowContainer>
             <UnauthorizedFooter />
         </LandingScreenContainer>
