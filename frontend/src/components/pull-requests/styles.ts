@@ -18,24 +18,24 @@ export const Column = styled.div<{ type: TColumnWidths }>`
     flex-direction: column;
     justify-content: center;
     width: ${props => ColumnWidths[props.type]};
-    padding: ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._8};
     overflow: hidden;
     white-space: nowrap;
 `
 
 export const PullRequestViewContainer = styled.div`
-    margin: 0 ${Spacing.margin._8}px;
+    margin: 0 ${Spacing.margin._8};
 `
 
 export const Repository = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${Spacing.margin._16}px;
+    gap: ${Spacing.margin._16};
 `
 
 export const PullRequestRow = styled.div`
     display: flex;
-    padding: ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._8};
     background-color: ${Colors.white};
     border-radius: ${Border.radius.large};
 `
@@ -45,7 +45,7 @@ export const HeaderContainer = styled.div`
     background-color: ${Colors.gray._100};
     border-radius: ${Border.radius.large};
     color: ${Colors.gray._500};
-    padding: ${Spacing.padding._16}px ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._16} ${Spacing.padding._8};
 `
 
 export const RepositoryName = styled.div`
@@ -61,7 +61,7 @@ export const TruncatedText = styled.span`
 
 export const LinkButton = styled(NoStyleAnchor)`
     margin: auto;
-    padding: ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._8};
     background-color: ${Colors.gray._100};
     border-radius: ${Border.radius.large};
     cursor: pointer;
