@@ -188,6 +188,7 @@ type linearAssignedIssuesQuery struct {
 			Id          graphql.ID
 			Title       graphql.String
 			Description graphql.String
+			DueDate     graphql.String
 			Url         graphql.String
 			CreatedAt   graphql.String
 			Assignee    struct {
@@ -216,7 +217,7 @@ func getLinearAssignedIssuesStruct(client *graphql.Client, email graphql.String)
 	var query linearAssignedIssuesQuery
 	err := client.Query(context.Background(), &query, variables)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch user info")
+		log.Error().Err(err).Msg("failed to fetch issues assigned to user")
 		return nil, err
 	}
 	return &query, nil

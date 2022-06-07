@@ -42,13 +42,12 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 	}
 	defer dbCleanup()
 
-	client, err := getLinearClient(linearTask.Linear.Config.ConfigValues.TaskFetchURL, db, userID, accountID)
+	client, err := getLinearClient(linearTask.Linear.Config.ConfigValues.UserInfoURL, db, userID, accountID)
 	if err != nil {
 		log.Error().Err(err).Msg("unable to create linear client")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
 		return
 	}
-
 	meQuery, err := getLinearUserInfoStruct(client)
 	if err != nil {
 		log.Error().Err(err).Msg("unable to get linear user details")
@@ -56,6 +55,12 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		return
 	}
 
+	client, err = getLinearClient(linearTask.Linear.Config.ConfigValues.TaskFetchURL, db, userID, accountID)
+	if err != nil {
+		log.Error().Err(err).Msg("unable to create linear client")
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
+		return
+	}
 	issuesQuery, err := getLinearAssignedIssuesStruct(client, meQuery.Viewer.Email)
 	if err != nil {
 		log.Error().Err(err).Msg("unable to get linear issues assigned to user")
@@ -66,6 +71,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 	var tasks []*database.Item
 	for _, task := range issuesQuery.Issues.Nodes {
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(task.CreatedAt))
+		dueDate, _ := time.Parse("2006-01-02", string(task.DueDate))
 		task := &database.Item{
 			TaskBase: database.TaskBase{
 				UserID:            userID,
@@ -75,6 +81,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 				SourceID:          TASK_SOURCE_ID_LINEAR,
 				Title:             string(task.Title),
 				Body:              string(task.Description),
+				DueDate:           primitive.NewDateTimeFromTime(dueDate),
 				SourceAccountID:   accountID,
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 			},
