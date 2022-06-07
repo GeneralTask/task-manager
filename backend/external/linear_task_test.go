@@ -32,7 +32,7 @@ func TestLoadLinearTasks(t *testing.T) {
 						"id": "test-issue-id-1",
 						"title": "test title",
 						"description": "test description",
-						"dueDate": "2022-04-20",
+						"dueDate": "2021-04-20",
 						"url": "https://example.com/",
 						"createdAt": "2022-06-06T23:13:24.037Z",
 						"assignee": {
@@ -175,13 +175,17 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, "sample_account@email.com", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 	t.Run("SuccessExistingTask", func(t *testing.T) {
-		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{
-			TaskFetchURL: &taskServerSuccess.URL,
-			UserInfoURL:  &userInfoServerSuccess.URL,
-		}}}
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					UserInfoURL:  &userInfoServerSuccess.URL,
+					TaskFetchURL: &taskServerSuccess.URL,
+				},
+			},
+		}}
 		userID := primitive.NewObjectID()
 
-		dueDate, _ := time.Parse("2006-01-02", "2021-04-21")
+		dueDate, _ := time.Parse("2006-01-02", "2001-04-21")
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
@@ -190,9 +194,9 @@ func TestLoadLinearTasks(t *testing.T) {
 				IDTaskSection:     constants.IDTaskSectionDefault,
 				IsCompleted:       true,
 				Deeplink:          "https://example.com/",
-				Title:             "test title",
-				Body:              "test description",
-				SourceID:          TASK_SOURCE_ID_ASANA,
+				Title:             "wrong test title",
+				Body:              "wrgong test description",
+				SourceID:          TASK_SOURCE_ID_LINEAR,
 				SourceAccountID:   "sugapapa",
 				UserID:            userID,
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
@@ -206,18 +210,18 @@ func TestLoadLinearTasks(t *testing.T) {
 		database.GetOrCreateItem(
 			db,
 			userID,
-			"6942069420",
-			TASK_SOURCE_ID_ASANA,
+			"test-issue-id-1",
+			TASK_SOURCE_ID_LINEAR,
 			&expectedTask,
 		)
 		// switch a few fields from their existing db value to their expected output value
 		dueDateCorrect, _ := time.Parse("2006-01-02", "2021-04-20")
 		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDateCorrect)
-		expectedTask.Title = "Task!"
-		expectedTask.TaskBase.Body = "hmm"
+		expectedTask.Title = "test title"
+		expectedTask.TaskBase.Body = "test description"
 
 		var taskResult = make(chan TaskResult)
-		go asanaTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.Tasks))
