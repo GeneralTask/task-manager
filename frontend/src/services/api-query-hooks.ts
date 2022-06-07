@@ -490,8 +490,9 @@ export const useModifyThread = () => {
 
             if (!queryData) return
 
-            for (const page of queryData.pages) {
-                for (const thread of page) {
+            for (let i = 0; i < queryData.pages.length; i++) {
+                if (!queryData.pages[i]) continue
+                for (const thread of queryData.pages[i]) {
                     if (thread.id === data.thread_id) {
                         for (const email of thread.emails) {
                             if (data.is_unread !== undefined)
@@ -499,10 +500,12 @@ export const useModifyThread = () => {
                             if (data.is_archived !== undefined)
                                 email.is_archived = data.is_archived
                         }
+                        if (data.is_archived) queryData.pages[i].splice(i, 1)
                         break
                     }
                 }
             }
+            console.log(queryData)
             queryClient.setQueryData('emailThreads', queryData)
         },
         onSettled: () => {
