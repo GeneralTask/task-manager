@@ -40,6 +40,13 @@ interface ThreadProps {
     thread: TEmailThread
     sectionScrollingRef: MutableRefObject<HTMLDivElement | null>
 }
+
+const cleanPreviewText = (html: string) => {
+    const trimmedText = removeHTMLTags(html).trim()
+    const spacedText = trimmedText.replaceAll('\u00a0', ' ')
+    return spacedText
+}
+
 const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const navigate = useNavigate()
     const params = useParams()
@@ -98,12 +105,6 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const bodytext = thread.emails[thread.emails.length - 1]?.body
     const sentAt = getHumanDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
     const isUnread = thread.emails.some((email) => email.is_unread)
-
-    const cleanPreviewText = (html: string) => {
-        const trimmedText = removeHTMLTags(html).trim()
-        const spacedText = trimmedText.replaceAll('\u00a0', ' ')
-        return spacedText
-    }
 
     return (
         <ThreadContainer ref={elementRef} isSelected={isSelected} isUnread={isUnread} onClick={onClickHandler}>
