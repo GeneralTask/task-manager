@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/rs/zerolog/log"
 	"github.com/slack-go/slack"
@@ -14,12 +15,14 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/oauth2"
 )
 
 type SlackConfigValues struct {
-	UserInfoURL *string
+	UserInfoURL      *string
+	SavedMessagesURL *string
 }
 
 type SlackConfig struct {
@@ -40,7 +43,7 @@ func getSlackConfig() SlackConfig {
 			ClientID:     config.GetConfigValue("SLACK_OAUTH_CLIENT_ID"),
 			ClientSecret: config.GetConfigValue("SLACK_OAUTH_CLIENT_SECRET"),
 			RedirectURL:  config.GetConfigValue("SERVER_URL") + "link/slack/callback/",
-			Scopes:       []string{"identify", "channels:history", "channels:read", "im:read", "mpim:history", "im:history", "groups:history", "groups:read", "mpim:write", "im:write", "channels:write", "groups:write", "chat:write:user"},
+			Scopes:       []string{"identify", "stars:read"},
 			Endpoint: oauth2.Endpoint{
 				AuthURL:  "https://slack.com/oauth/authorize",
 				TokenURL: "https://slack.com/api/oauth.access",
@@ -119,4 +122,8 @@ func (slackService SlackService) HandleSignupCallback(params CallbackParams) (pr
 
 func (slackService SlackService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
+}
+
+func getSlackHttpClient(db *mongo.Database, userID primitive.ObjectID, accountID string) *http.Client {
+	return getExternalOauth2Client(db, userID, accountID, TASK_SERVICE_ID_SLACK, getSlackConfig().OauthConfig)
 }

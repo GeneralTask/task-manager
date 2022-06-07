@@ -1,14 +1,16 @@
-import { Colors, Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../../styles'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { TEmail, TEmailComposeState } from '../../utils/types'
-import { getHumanDateTime, removeHTMLTags } from '../../utils/utils'
+import { TEmail, TEmailComposeState } from '../../../utils/types'
+import { getHumanDateTime, removeHTMLTags } from '../../../utils/utils'
 
 import { DateTime } from 'luxon'
-import EmailComposeTypeSelector from './EmailCompose/EmailComposeTypeSelector'
-import EmailSenderDetails from '../molecules/EmailSenderDetails'
+import EmailComposeTypeSelector from './compose/ComposeTypeSelector'
+import EmailSenderDetails from '../../molecules/EmailSenderDetails'
 import ReactTooltip from 'react-tooltip'
-import SanitizedHTML from '../atoms/SanitizedHTML'
 import styled from 'styled-components'
+import { Icon } from '../../atoms/Icon'
+import { icons } from '../../../styles/images'
+import QuotedEmailBody from './QuotedEmailBody'
 
 const DetailsViewContainer = styled.div`
     display: flex;
@@ -26,22 +28,22 @@ const SenderContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 0 ${Spacing.padding._8}px;
+    padding: 0 ${Spacing.padding._8};
     justify-content: space-between;
 `
 const SentAtContainer = styled.div`
     font-size: ${Typography.xSmall.fontSize};
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._8};
 `
 const BodyContainer = styled.div`
     flex: 1;
-    margin: ${Spacing.margin._8}px;
+    margin: ${Spacing.margin._20};
     * > div {
         white-space: pre-wrap;
     }
 `
 const BodyContainerCollapsed = styled.span`
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._20};
     flex: 1;
     overflow: hidden;
     white-space: nowrap;
@@ -50,8 +52,8 @@ const BodyContainerCollapsed = styled.span`
     color: ${Colors.gray._400};
 `
 const EmailSenderDetailsContainer = styled.div`
-    margin-left: ${Spacing.margin._8}px;
-    margin-bottom: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._20};
+    margin-bottom: ${Spacing.margin._8};
     width: fit-content;
 `
 const Title = styled.div`
@@ -64,8 +66,16 @@ const Title = styled.div`
     display: flex;
     flex: 1;
 `
-const Flex = styled.div`
+const UnreadIndicator = styled.div`
+    position: absolute;
+    left: -${Spacing.margin._16};
+`
+const SenderHeader = styled.div`
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    position: relative;
+    margin-left: ${Spacing.margin._12};
 `
 
 interface EmailContainerProps {
@@ -97,10 +107,13 @@ const EmailContainer = (props: EmailContainerProps) => {
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
                 <SenderContainer>
                     <div>
-                        <Flex>
+                        <SenderHeader>
+                            <UnreadIndicator>
+                                {props.email.is_unread && <Icon size="xxSmall" source={icons.dot} />}
+                            </UnreadIndicator>
                             <Title>{props.email.sender.name}</Title>
                             <SentAtContainer>{timeSent}</SentAtContainer>
-                        </Flex>
+                        </SenderHeader>
                     </div>
                     <EmailComposeTypeSelector
                         email={props.email}
@@ -116,9 +129,9 @@ const EmailContainer = (props: EmailContainerProps) => {
                     </EmailSenderDetailsContainer>
                 )}
             </CollapseExpandContainer>
-            {isCollapsed || (
+            {!isCollapsed && (
                 <BodyContainer>
-                    <SanitizedHTML dirtyHTML={props.email.body} />
+                    <QuotedEmailBody email={props.email} />
                 </BodyContainer>
             )}
         </DetailsViewContainer>

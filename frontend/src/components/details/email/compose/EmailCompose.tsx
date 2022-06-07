@@ -6,23 +6,23 @@ import {
     EmailFieldContainer,
     EmailFieldInput,
     FlexExpand,
-} from './EmailCompose-styles'
+} from './styles'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { TEmail, TEmailComposeState, TRecipients } from '../../../utils/types'
-import { attachSubjectPrefix, getInitialRecipients, stripSubjectPrefix } from './emailComposeUtils'
-import toast, { ToastId, dismissToast } from '../../../utils/toast'
+import { TEmail, TEmailComposeState, TRecipients } from '../../../../utils/types'
+import { attachSubjectPrefix, getInitialRecipients, stripSubjectPrefix } from './utils'
+import toast, { ToastId, dismissToast } from '../../../../utils/toast'
 
-import { Colors } from '../../../styles'
-import { Divider } from '../../atoms/SectionDivider'
-import { EMAIL_UNDO_TIMEOUT } from '../../../constants'
-import { EmailComposeType } from '../../../utils/enums'
-import EmailComposeTypeSelector from './EmailComposeTypeSelector'
-import EmailRecipientsForm from './EmailRecipientsForm'
+import { Colors } from '../../../../styles'
+import { Divider } from '../../../atoms/SectionDivider'
+import { EMAIL_UNDO_TIMEOUT } from '../../../../constants'
+import { EmailComposeType } from '../../../../utils/enums'
+import EmailComposeTypeSelector from './ComposeTypeSelector'
+import EmailRecipientsForm from './RecipientsForm'
 import EmailWithQuote from './EmailWithQuote'
-import RoundedGeneralButton from '../../atoms/buttons/RoundedGeneralButton'
-import TextArea from '../../atoms/TextArea'
+import RoundedGeneralButton from '../../../atoms/buttons/RoundedGeneralButton'
+import TextArea from '../../../atoms/TextArea'
 import { renderToString } from 'react-dom/server'
-import { useComposeMessage } from '../../../services/api-query-hooks'
+import { useComposeMessage } from '../../../../services/api-query-hooks'
 
 interface EmailComposeProps {
     email: TEmail
@@ -88,7 +88,8 @@ const EmailCompose = (props: EmailComposeProps) => {
     const startSendEmail = useCallback(
         (recipients: TRecipients, subject: string, body: string) => {
             const timeout = setTimeout(() => {
-                sendEmail(recipients, subject, body)
+                // insert breaks to ensure email is properly formatted on other clients
+                sendEmail(recipients, subject, body.replace(/\n/g, '<br/>'))
                 props.setThreadComposeState({
                     emailComposeType: null,
                     emailId: null,

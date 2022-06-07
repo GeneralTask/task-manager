@@ -91,12 +91,12 @@ func (api *API) TaskCreate(c *gin.Context) {
 		TimeAllocation: timeAllocation,
 		IDTaskSection:  IDTaskSection,
 	}
-	err = taskSourceResult.Source.CreateNewTask(userID, taskCreateParams.AccountID, taskCreationObject)
+	taskID, err := taskSourceResult.Source.CreateNewTask(userID, taskCreateParams.AccountID, taskCreationObject)
 	if err != nil {
 		c.JSON(503, gin.H{"detail": "failed to create task"})
 		return
 	}
-	c.JSON(200, gin.H{})
+	c.JSON(200, gin.H{"task_id": taskID})
 }
 
 func getValidTaskSection(taskSectionIDHex string, userID primitive.ObjectID, db *mongo.Database) (primitive.ObjectID, error) {
@@ -109,9 +109,7 @@ func getValidTaskSection(taskSectionIDHex string, userID primitive.ObjectID, db 
 	defer cancel()
 	count, err := taskSectionCollection.CountDocuments(dbCtx, bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": IDTaskSection}}})
 	if (err != nil || count == int64(0)) &&
-		IDTaskSection != constants.IDTaskSectionDefault &&
-		IDTaskSection != constants.IDTaskSectionBlocked &&
-		IDTaskSection != constants.IDTaskSectionBacklog {
+		IDTaskSection != constants.IDTaskSectionDefault {
 		return primitive.NilObjectID, errors.New("task section ID not found")
 	}
 	return IDTaskSection, nil

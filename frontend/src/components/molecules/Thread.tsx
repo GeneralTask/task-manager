@@ -14,13 +14,14 @@ const TitleContainer = styled.div`
     flex-direction: column;
     min-width: 0;
 `
-const Title = styled.span`
-    margin-left: ${Spacing.margin._8}px;
+const Title = styled.span<{ bold: boolean }>`
+    margin-left: ${Spacing.margin._8};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._600};
+    font-weight: ${(props) => (props.bold ? Typography.weight._600 : Typography.weight._400)};
 `
 const SubTitle = styled(Title)`
     font-size: ${Typography.xSmall.fontSize};
@@ -30,7 +31,7 @@ const BodyPreview = styled(SubTitle)`
 `
 const SentAtContainer = styled.span`
     margin-left: auto;
-    padding-left: ${Spacing.margin._8}px;
+    padding-left: ${Spacing.margin._8};
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._400};
     min-width: fit-content;
@@ -96,13 +97,14 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const title = `${threadCountString} ${thread.emails[0]?.subject}`
     const bodyDirtyHTML = thread.emails[thread.emails.length - 1]?.body
     const sentAt = getHumanDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
+    const isUnread = thread.emails.some((email) => email.is_unread)
 
     return (
-        <ThreadContainer ref={elementRef} isSelected={isSelected} onClick={onClickHandler}>
+        <ThreadContainer ref={elementRef} isSelected={isSelected} isUnread={isUnread} onClick={onClickHandler}>
             <TitleContainer>
-                <Title>{senders}</Title>
-                <SubTitle>{title}</SubTitle>
-                <BodyPreview>{removeHTMLTags(bodyDirtyHTML)}</BodyPreview>
+                <Title bold={isUnread}>{senders}</Title>
+                <SubTitle bold={isUnread}>{title}</SubTitle>
+                <BodyPreview bold={false}>{removeHTMLTags(bodyDirtyHTML)}</BodyPreview>
             </TitleContainer>
             <SentAtContainer>{sentAt}</SentAtContainer>
         </ThreadContainer>

@@ -149,6 +149,7 @@ type EmailThread struct {
 	ThreadID      string             `bson:"thread_id" json:"thread_id"`
 	LastUpdatedAt primitive.DateTime `bson:"last_updated_at" json:"last_updated_at"`
 	Emails        []Email            `bson:"emails,omitempty" json:"emails,omitempty"`
+	IsArchived    bool               `bson:"is_archived" json:"is_archived"`
 }
 
 type Email struct {
@@ -263,6 +264,7 @@ type EmailThreadChangeable struct {
 	ThreadID      string             `bson:"thread_id,omitempty"`
 	LastUpdatedAt primitive.DateTime `bson:"last_updated_at,omitempty"`
 	Emails        []Email            `bson:"emails,omitempty"`
+	IsArchived    *bool              `bson:"is_archived,omitempty"`
 }
 
 type ThreadItemChangeable struct {

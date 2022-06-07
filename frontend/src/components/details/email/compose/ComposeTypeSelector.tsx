@@ -1,11 +1,11 @@
-import { EmailActionOption, EmailComposeIconButton, NoWrap } from './EmailCompose-styles'
-import React, { useCallback, useRef, useState } from 'react'
-import { TEmail, TEmailComposeState } from '../../../utils/types'
+import { EmailActionOption, EmailComposeIconButton, NoWrap } from './styles'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
+import { TEmail, TEmailComposeState } from '../../../../utils/types'
 
-import { EmailComposeType } from '../../../utils/enums'
-import GTSelect from '../../molecules/GTSelect'
-import { Icon } from '../../atoms/Icon'
-import { icons } from '../../../styles/images'
+import { EmailComposeType } from '../../../../utils/enums'
+import GTSelect from '../../../molecules/GTSelect'
+import { Icon } from '../../../atoms/Icon'
+import { icons } from '../../../../styles/images'
 
 interface EmailComposeTypeSelectorProps {
     email: TEmail
@@ -52,10 +52,14 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
         [isNewEmail, setThreadComposeState]
     )
 
-    const emailActionOptions = [getComposeOption(EmailComposeType.REPLY), getComposeOption(EmailComposeType.FORWARD)]
-    if (email.recipients.to.length + email.recipients.cc.length > 1) {
-        emailActionOptions.splice(1, 0, getComposeOption(EmailComposeType.REPLY_ALL))
-    }
+    const emailActionOptions = useMemo(
+        () => [
+            getComposeOption(EmailComposeType.REPLY),
+            getComposeOption(EmailComposeType.REPLY_ALL),
+            getComposeOption(EmailComposeType.FORWARD),
+        ],
+        []
+    )
 
     return (
         <div ref={emailActionsRef}>

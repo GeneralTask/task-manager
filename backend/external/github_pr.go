@@ -197,8 +197,8 @@ func (gitPR GithubPRSource) SendEmail(userID primitive.ObjectID, accountID strin
 	return errors.New("cannot send email for github pr")
 }
 
-func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, pullRequest TaskCreationObject) error {
-	return errors.New("has not been implemented yet")
+func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (gitPR GithubPRSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {

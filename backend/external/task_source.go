@@ -14,7 +14,7 @@ type TaskSource interface {
 	GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult)
 	Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error
 	SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error
-	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error
+	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error)
 	CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error
 	ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error
 	ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error

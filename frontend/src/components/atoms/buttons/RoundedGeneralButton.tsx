@@ -7,7 +7,7 @@ const RoundedButton = styled.button<{ hasBorder: boolean; textStyle: 'light' | '
     box-shadow: ${Shadows.medium};
     border: ${(props) => (props.hasBorder ? `1px solid ${Colors.gray._200}` : 'none')};
     background-color: ${(props) => props.color};
-    padding: ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._8};
     text-align: center;
     border-radius: ${Border.radius.large};
     height: 100%;

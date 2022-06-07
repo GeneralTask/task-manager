@@ -1,17 +1,18 @@
 import { Colors, Shadows, Spacing, Typography } from '../../styles'
-import React, { Fragment, useLayoutEffect, useState } from 'react'
+import React, { Fragment, useLayoutEffect, useMemo, useState } from 'react'
 import { TEmailComposeState, TEmailThread } from '../../utils/types'
 import { icons, logos } from '../../styles/images'
 
-import EmailCompose from './EmailCompose/EmailCompose'
-import EmailContainer from './EmailContainer'
-import EmailMainActions from './EmailCompose/EmailMainActions'
+import EmailCompose from './email/compose/EmailCompose'
+import EmailContainer from './email/EmailContainer'
+import EmailMainActions from './email/compose/MainActions'
 import { Icon } from '../atoms/Icon'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import styled from 'styled-components'
 import toast from '../../utils/toast'
-import { useCreateTaskFromThread } from '../../services/api-query-hooks'
+import { useCreateTaskFromThread, useModifyThread } from '../../services/api-query-hooks'
 import { useNavigate } from 'react-router-dom'
+import PreviousMessages from './email/PreviousMessages'
 
 const THREAD_HEADER_HEIGHT = '118px'
 
@@ -24,21 +25,21 @@ const FlexColumnContainer = styled.div`
 const HeaderContainer = styled.div`
     display: flex;
     height: ${THREAD_HEADER_HEIGHT};
-    padding: 0 ${Spacing.padding._16}px;
+    padding: 0 ${Spacing.padding._16};
     align-items: center;
     background-color: ${Colors.white};
     position: sticky;
+    gap: ${Spacing.margin._8};
     box-shadow: ${Shadows.threadHeaderShadow};
 `
 const HeaderTitleContainer = styled.div`
     display: flex;
     flex: 1;
-    margin-left: ${Spacing.margin._8}px;
     flex-direction: column;
     min-width: 0;
 `
 const Title = styled.span`
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._8};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -63,8 +64,14 @@ interface ThreadDetailsProps {
     thread: TEmailThread
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
+    const [isCollapsed, setIsCollapsed] = useState(true)
+    const isUnread = useMemo(
+        () => thread.emails.some((email) => email.is_unread),
+        [JSON.stringify(thread.emails.map((email) => email.is_unread))]
+    )
     const navigate = useNavigate()
     const { mutate: createTaskFromThread } = useCreateTaskFromThread()
+    const { mutate: modifyThread } = useModifyThread()
     const [composeState, setComposeState] = useState<TEmailComposeState>({
         emailComposeType: null,
         emailId: null,
@@ -86,7 +93,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         )
     )
 
-    const onClickHander = () => {
+    const onClickMarkAsTask = () => {
         createTaskFromThread({
             title: thread.emails[thread.emails.length - 1].subject,
             body: '',
@@ -103,6 +110,16 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         })
     }
 
+    const onClickMarkAsRead = () => {
+        modifyThread({
+            thread_id: thread.id,
+            is_unread: !isUnread,
+        })
+        toast({
+            message: `This thread was marked as ${!isUnread ? 'unread' : 'read'}.`,
+        })
+    }
+
     return (
         <FlexColumnContainer>
             <HeaderContainer>
@@ -111,32 +128,71 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     <Title>{title}</Title>
                     <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
                 </HeaderTitleContainer>
-                <NoStyleButton onClick={onClickHander}>
+                <NoStyleButton onClick={onClickMarkAsTask}>
                     <Icon source={icons.message_to_task} size="small" />
+                </NoStyleButton>
+                <NoStyleButton onClick={onClickMarkAsRead}>
+                    <Icon source={isUnread ? icons.mark_read : icons.mark_unread} size="small" />
                 </NoStyleButton>
             </HeaderContainer>
             <EmailThreadsContainer>
-                {thread.emails.map((email, index) => (
-                    <Fragment key={email.message_id}>
-                        <EmailContainer
-                            email={email}
-                            isLastThread={index === thread.emails.length - 1}
-                            setThreadComposeState={setComposeState}
-                            sourceAccountId={thread.source.account_id}
+                {isCollapsed && thread.emails.length > 4 ? (
+                    <>
+                        <Fragment key={thread.emails[0].message_id}>
+                            <EmailContainer
+                                email={thread.emails[0]}
+                                isLastThread={thread.emails.length - 1 === 0}
+                                setThreadComposeState={setComposeState}
+                                sourceAccountId={thread.source.account_id}
+                            />
+                            {composeState.emailId === thread.emails[0].message_id &&
+                                0 !== thread.emails.length - 1 &&
+                                composeState.emailComposeType != null && (
+                                    <EmailCompose
+                                        email={thread.emails[thread?.emails.length - 1]}
+                                        composeType={composeState.emailComposeType}
+                                        sourceAccountId={thread.source.account_id}
+                                        isPending={!!composeState.isPending}
+                                        setThreadComposeState={setComposeState}
+                                    />
+                                )}
+                        </Fragment>
+                        <PreviousMessages
+                            numMessages={thread.emails.length - 2}
+                            onClick={() => setIsCollapsed(false)}
                         />
-                        {composeState.emailId === email.message_id &&
-                            index !== thread.emails.length - 1 &&
-                            composeState.emailComposeType != null && (
-                                <EmailCompose
-                                    email={email}
-                                    composeType={composeState.emailComposeType}
-                                    sourceAccountId={thread.source.account_id}
-                                    isPending={!!composeState.isPending}
-                                    setThreadComposeState={setComposeState}
-                                />
-                            )}
-                    </Fragment>
-                ))}
+                        <Fragment key={thread.emails[thread.emails.length - 1].message_id}>
+                            <EmailContainer
+                                email={thread.emails[thread.emails.length - 1]}
+                                isLastThread={true}
+                                setThreadComposeState={setComposeState}
+                                sourceAccountId={thread.source.account_id}
+                            />
+                        </Fragment>
+                    </>
+                ) : (
+                    thread.emails.map((email, index) => (
+                        <Fragment key={email.message_id}>
+                            <EmailContainer
+                                email={email}
+                                isLastThread={index === thread.emails.length - 1}
+                                setThreadComposeState={setComposeState}
+                                sourceAccountId={thread.source.account_id}
+                            />
+                            {composeState.emailId === email.message_id &&
+                                index !== thread.emails.length - 1 &&
+                                composeState.emailComposeType != null && (
+                                    <EmailCompose
+                                        email={thread.emails[thread?.emails.length - 1]}
+                                        composeType={composeState.emailComposeType}
+                                        sourceAccountId={thread.source.account_id}
+                                        isPending={!!composeState.isPending}
+                                        setThreadComposeState={setComposeState}
+                                    />
+                                )}
+                        </Fragment>
+                    ))
+                )}
             </EmailThreadsContainer>
             {composeState.emailId === thread.emails[thread.emails.length - 1].message_id &&
                 composeState.emailComposeType != null && (

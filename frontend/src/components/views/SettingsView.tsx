@@ -18,10 +18,10 @@ const SettingsViewContainer = styled.div`
     min-width: ${DEFAULT_VIEW_WIDTH};
 `
 const AccountsContainer = styled.div`
-    margin-top: ${Spacing.margin._16}px;
+    margin-top: ${Spacing.margin._16};
 `
 const AccountSpacing = styled.div`
-    margin-top: ${Spacing.margin._16}px;
+    margin-top: ${Spacing.margin._16};
 `
 const AccountContainer = styled.div`
     display: flex;
@@ -32,16 +32,16 @@ const AccountContainer = styled.div`
     height: 100%;
 `
 const IconContainer = styled.div`
-    margin-left: ${Spacing.margin._16}px;
-    margin-right: ${Spacing.margin._16}px;
+    margin-left: ${Spacing.margin._16};
+    margin-right: ${Spacing.margin._16};
 `
 const AccountButtonContainer = styled.div<{ important?: boolean }>`
-    margin-right: ${Spacing.margin._16}px;
+    margin-right: ${Spacing.margin._16};
     background-color: ${(props) => (props.important ? Colors.red._2 : Colors.gray._100)};
     outline: 1px solid ${(props) => (props.important ? Colors.red._1 : Colors.gray._100)};
     color: ${Colors.black};
     border-radius: ${Border.radius.small};
-    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._4} ${Spacing.padding._8};
     min-width: fit-content;
 `
 const XSmallFontSpan = styled.span`

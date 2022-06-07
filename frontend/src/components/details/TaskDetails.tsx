@@ -11,6 +11,8 @@ import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
+import Spinner from '../atoms/Spinner'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const DetailsViewContainer = styled.div`
     flex: 1;
@@ -18,8 +20,8 @@ const DetailsViewContainer = styled.div`
     flex-direction: column;
     background-color: ${Colors.gray._50};
     min-width: 300px;
-    margin-top: ${Spacing.margin._24}px;
-    padding: ${Spacing.padding._16}px;
+    margin-top: ${Spacing.margin._24};
+    padding: ${Spacing.padding._16};
 `
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -35,7 +37,7 @@ const BodyTextArea = styled.textarea`
     resize: none;
     outline: none;
     overflow: auto;
-    padding: ${Spacing.margin._8}px;
+    padding: ${Spacing.margin._8};
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
@@ -54,7 +56,7 @@ const TitleInput = styled.textarea`
     resize: none;
     outline: none;
     overflow: hidden;
-    margin-bottom: ${Spacing.margin._16}px;
+    margin-bottom: ${Spacing.margin._16};
     :focus {
         outline: 1px solid ${Colors.gray._500};
     }
@@ -63,7 +65,7 @@ const MarginLeftAuto = styled.div`
     margin-left: auto;
 `
 const MarginRight8 = styled.div`
-    margin-right: ${Spacing.margin._8}px;
+    margin-right: ${Spacing.margin._8};
 `
 
 const SYNC_MESSAGES = {
@@ -75,8 +77,7 @@ const SYNC_MESSAGES = {
 interface TaskDetailsProps {
     task: TTask
 }
-const TaskDetails = (props: TaskDetailsProps) => {
-    const [task, setTask] = useState<TTask>(props.task)
+const TaskDetails = ({ task }: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
@@ -88,6 +89,9 @@ const TaskDetails = (props: TaskDetailsProps) => {
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
+
+    const navigate = useNavigate()
+    const params = useParams()
 
     useEffect(() => {
         if (isEditing || isLoading) {
@@ -101,10 +105,17 @@ const TaskDetails = (props: TaskDetailsProps) => {
 
     // Update the state when the task changes
     useLayoutEffect(() => {
-        setTask(props.task)
-        setTitleInput(props.task.title)
-        setBodyInput(props.task.body)
-    }, [props.task])
+        setTitleInput(task.title)
+        setBodyInput(task.body)
+    }, [task.id])
+
+    /* when the optimistic ID changes to undefined, we know that that task.id is now the real ID
+    so we can then navigate to the correct link */
+    useEffect(() => {
+        if (!task.isOptimistic) {
+            navigate(`/tasks/${params.section}/${task.id}`)
+        }
+    }, [task.isOptimistic])
 
     useLayoutEffect(() => {
         if (titleRef.current) {
@@ -159,22 +170,27 @@ const TaskDetails = (props: TaskDetailsProps) => {
                 <MarginRight8>
                     <Icon source={icon} size="small" />
                 </MarginRight8>
-                <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
-                <MarginLeftAuto>
-                    {task.deeplink && (
-                        <a href={task.deeplink} target="_blank" rel="noreferrer">
-                            <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
-                        </a>
-                    )}
-                    <ActionOption
-                        isShown={labelEditorShown}
-                        setIsShown={setLabelEditorShown}
-                        task={task}
-                        keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
-                    />
-                </MarginLeftAuto>
+                {!task.isOptimistic && (
+                    <>
+                        <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
+                        <MarginLeftAuto>
+                            {task.deeplink && (
+                                <a href={task.deeplink} target="_blank" rel="noreferrer">
+                                    <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
+                                </a>
+                            )}
+                            <ActionOption
+                                isShown={labelEditorShown}
+                                setIsShown={setLabelEditorShown}
+                                task={task}
+                                keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
+                            />
+                        </MarginLeftAuto>
+                    </>
+                )}
             </DetailsTopContainer>
             <TitleInput
+                disabled={task.isOptimistic}
                 ref={titleRef}
                 data-testid="task-title-input"
                 onKeyDown={handleKeyDown}
@@ -184,17 +200,21 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                 }}
             />
-            <BodyTextArea
-                ref={bodyRef}
-                data-testid="task-body-input"
-                placeholder="Add task details"
-                value={bodyInput}
-                onChange={(e) => {
-                    setBodyInput(e.target.value)
-                    onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
-                }}
-                onKeyDown={(e) => e.stopPropagation()}
-            />
+            {task.isOptimistic ? (
+                <Spinner />
+            ) : (
+                <BodyTextArea
+                    ref={bodyRef}
+                    data-testid="task-body-input"
+                    placeholder="Add task details"
+                    value={bodyInput}
+                    onChange={(e) => {
+                        setBodyInput(e.target.value)
+                        onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
+                    }}
+                    onKeyDown={(e) => e.stopPropagation()}
+                />
+            )}
         </DetailsViewContainer>
     )
 }

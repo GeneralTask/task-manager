@@ -3,13 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { SectionHeader } from '../molecules/Header'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
-import { useFetchMessages, useGetInfiniteThreads } from '../../services/api-query-hooks'
+import { useFetchMessages, useGetInfiniteThreads, useModifyThread } from '../../services/api-query-hooks'
 import Loading from '../atoms/Loading'
 import Thread from '../molecules/Thread'
 import ThreadDetails from '../details/ThreadDetails'
 import { Border, Colors, Spacing } from '../../styles'
 import ThreadTemplate from '../atoms/ThreadTemplate'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
+import { TASK_MARK_AS_READ_TIMEOUT } from '../../constants'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -26,9 +27,9 @@ const MessagesContainer = styled.div`
 `
 const MessageDivider = styled.div`
     border-bottom: 1px solid ${Colors.gray._200};
-    margin-top: ${Spacing.margin._4}px;
-    margin-left: ${Spacing.margin._16}px;
-    margin-right: ${Spacing.margin._16}px;
+    margin-top: ${Spacing.margin._4};
+    margin-left: ${Spacing.margin._16};
+    margin-right: ${Spacing.margin._16};
 `
 
 const MessagesView = () => {
@@ -42,7 +43,9 @@ const MessagesView = () => {
         fetchNextPage,
         refetch: getThreads,
     } = useGetInfiniteThreads()
+    const { mutate: modifyThread } = useModifyThread()
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
+    const unreadTimer = useRef<NodeJS.Timeout>()
 
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
     useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
@@ -57,6 +60,15 @@ const MessagesView = () => {
     useEffect(() => {
         if (expandedThread) {
             navigate(`/messages/${expandedThread.id}`)
+            if (unreadTimer.current) {
+                clearTimeout(unreadTimer.current)
+            }
+            if (expandedThread.emails.some((email) => email.is_unread)) {
+                unreadTimer.current = setTimeout(
+                    () => modifyThread({ thread_id: expandedThread.id, is_unread: false }),
+                    TASK_MARK_AS_READ_TIMEOUT * 1000
+                )
+            }
         }
     }, [expandedThread])
 

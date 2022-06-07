@@ -8,13 +8,16 @@ export const logos: { [key: string]: string } = {
     gmail_gray: '/images/gmail_gray.png',
     gcal: '/images/gcal.png',
     gcal_gray: '/images/gcal_gray.png',
+    google_meet: '/images/google-meet.svg',
     linear: '/images/linear.png',
     slack: '/images/slack.png',
 }
 
-export const icons: { [key: string]: string } = {
+export const icons = Object.freeze({
+    archive: '/images/archive.svg',
     arrows_in: '/images/arrows_in.png',
     arrows_out: '/images/arrows_out.png',
+    dot: '/images/dot.svg',
     calendar_blank: '/images/calendar_blank.png',
     caret_down: '/images/caret_down.svg',
     caret_left: '/images/caret_left.png',
@@ -25,6 +28,7 @@ export const icons: { [key: string]: string } = {
     check_unchecked: '/images/check_unchecked.png',
     chevron_up: '/images/chevron_up.png',
     chevron_down: '/images/chevron_down.png',
+    external_link: '/images/external_link.svg',
     forward: '/images/forward.svg',
     gear: '/images/gear.png',
     inbox: '/images/inbox.png',
@@ -32,12 +36,15 @@ export const icons: { [key: string]: string } = {
     label: '/images/label.png',
     mark_as_task: '/images/mark_as_task.png',
     mark_as_task_active: '/images/mark_as_task_active.png',
+    mark_read: '/images/mark_read.svg',
+    mark_unread: '/images/mark_unread.svg',
     message_to_task: '/images/message_to_task.svg',
     messages: '/images/messages.png',
     plus: '/images/plus.png',
     pencil: '/images/pencil.png',
     reply: '/images/reply.svg',
     replyAll: '/images/reply-all.svg',
+    repository: '/images/repository.svg',
     spinner: '/images/spinner.svg',
     task_complete: '/images/task_complete.png',
     task_incomplete: '/images/task_incomplete.png',
@@ -45,8 +52,10 @@ export const icons: { [key: string]: string } = {
     trash: '/images/trash.png',
     skinnyHamburger: '/images/skinny_hamburger.svg',
     x: '/images/x.svg',
-}
+})
 
 export const buttons: { [key: string]: string } = {
     google_sign_in: '/images/google_sign_in.png',
 }
+
+export type TIconImage = keyof typeof icons

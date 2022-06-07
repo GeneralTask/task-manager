@@ -1,14 +1,9 @@
-import {
-    AddEmailRecipientsButton,
-    AddEmailRecipientsContainer,
-    EmailRecipientsContainer,
-    FlexExpand,
-} from './EmailCompose-styles'
+import { AddEmailRecipientsButton, AddEmailRecipientsContainer, EmailRecipientsContainer, FlexExpand } from './styles'
 import React, { forwardRef, useCallback, useState } from 'react'
-import { TRecipient, TRecipients } from '../../../utils/types'
+import { TRecipient, TRecipients } from '../../../../utils/types'
 
-import { Colors } from '../../../styles'
-import { Divider } from '../../atoms/SectionDivider'
+import { Colors } from '../../../../styles'
+import { Divider } from '../../../atoms/SectionDivider'
 import MultiEmailInput from './MultiEmailInput'
 
 interface EmailRecipientsFormProps {

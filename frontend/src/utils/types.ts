@@ -47,6 +47,7 @@ export interface TTask {
     recipients: TRecipients
     is_done: boolean
     linked_email_thread?: TLinkedEmailThread
+    isOptimistic?: boolean
 }
 
 export interface TLinkedEmailThread {
@@ -101,6 +102,24 @@ export interface TEvent {
     conference_call: TConferenceCall | null
 }
 
+export interface TMeetingBanner {
+    title: string
+    subtitle: string
+    events: TMeetingEvent[]
+    actions: TMeetingAction[]
+}
+
+export interface TMeetingEvent {
+    title: string
+    conference_call: TConferenceCall
+}
+
+export interface TMeetingAction {
+    logo: string
+    title: string
+    link: string
+}
+
 export interface TEmail {
     message_id: string
     subject: string
@@ -116,6 +135,27 @@ export interface TEmailThread {
     deeplink: string
     source: TMessageSource
     emails: TEmail[]
+}
+
+// Pull Request Types
+export interface TPullRequest {
+    id: string
+    title: string
+    number: number
+    status: {
+        text: string
+        color: string
+    }
+    author: string
+    created_at: string
+    branch: string
+    link: string
+}
+
+export interface TRepository {
+    id: string
+    name: string
+    pull_requests: TPullRequest[]
 }
 
 export interface TTaskSection {

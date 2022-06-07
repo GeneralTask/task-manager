@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -365,6 +366,7 @@ func TestTaskReorder(t *testing.T) {
 		assert.NoError(t, err)
 		taskToNotBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
 
+		customTaskSectionID := primitive.NewObjectID()
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err = taskCollection.InsertOne(
@@ -372,7 +374,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    1,
-				IDTaskSection: constants.IDTaskSectionDefault,
+				IDTaskSection: customTaskSectionID,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -386,7 +388,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDOrdering:    2,
-				IDTaskSection: constants.IDTaskSectionBacklog,
+				IDTaskSection: customTaskSectionID,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -399,7 +401,7 @@ func TestTaskReorder(t *testing.T) {
 			dbCtx,
 			database.TaskBase{
 				UserID:        userID,
-				IDTaskSection: constants.IDTaskSectionBacklog,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -542,7 +544,7 @@ func TestTaskReorder(t *testing.T) {
 			dbCtx,
 			database.TaskBase{
 				UserID:        userID,
-				IDTaskSection: constants.IDTaskSectionBacklog,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -579,7 +581,7 @@ func TestTaskReorder(t *testing.T) {
 			dbCtx,
 			database.TaskBase{
 				UserID:        userID,
-				IDTaskSection: constants.IDTaskSectionBacklog,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				SourceID:      external.TASK_SOURCE_ID_ASANA,
 			},
 		)
@@ -605,7 +607,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
-		assert.Equal(t, constants.IDTaskSectionBacklog, task.IDTaskSection)
+		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
@@ -656,6 +658,80 @@ func TestEditFields(t *testing.T) {
 			TaskNumber:         3,
 		},
 	}
+
+	t.Run("Edit Title Success on Task from Thread", func(t *testing.T) {
+		firstEmailID := primitive.NewObjectID()
+		threadIDHex := insertTestItem(t, userID, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:     userID,
+				IDExternal: "sample_gmail_thread_id",
+				SourceID:   external.TASK_SOURCE_ID_GMAIL,
+			},
+			EmailThread: database.EmailThread{
+				ThreadID:      "sample_gmail_thread_id",
+				LastUpdatedAt: 0,
+				Emails: []database.Email{
+					{
+						MessageID:    firstEmailID,
+						SMTPID:       "sample_smtp_1",
+						EmailID:      "sample_gmail_thread_id",
+						Subject:      "test subject 1",
+						Body:         "test body 1",
+						SenderDomain: "gmail",
+						SenderEmail:  "test@generaltask.com",
+						SenderName:   "test",
+						ReplyTo:      "test-reply@generaltask.com",
+						IsUnread:     true,
+						Recipients: database.Recipients{
+							To:  []database.Recipient{{Name: "p1", Email: "p1@gmail.com"}},
+							Cc:  []database.Recipient{{Name: "p2", Email: "p2@gmail.com"}},
+							Bcc: []database.Recipient{{Name: "p3", Email: "p3@gmail.com"}},
+						},
+						SentAt: *testutils.CreateDateTime("2019-04-20"),
+					},
+					{
+						SMTPID:       "sample_smtp_1",
+						EmailID:      "sample_gmail_thread_id",
+						Subject:      "test subject 2",
+						Body:         "test body 2",
+						SenderDomain: "gmail",
+						SenderEmail:  "test@generaltask.com",
+						SenderName:   "test",
+						IsUnread:     true,
+						SentAt:       *testutils.CreateDateTime("2018-04-20"),
+					},
+				},
+			},
+			TaskType: database.TaskType{IsThread: true},
+		})
+		threadID, _ := primitive.ObjectIDFromHex(threadIDHex)
+
+		ServeRequest(t, authToken, "POST", "/create_task_from_thread/"+threadIDHex+"/",
+			bytes.NewBuffer([]byte(`{
+				"title": "sample title from thread",
+				"body": "sample body",
+				"email_id": "`+firstEmailID.Hex()+`"
+			}`)), http.StatusOK)
+		var task database.Item
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = database.GetTaskCollection(db).FindOne(dbCtx, bson.M{"title": "sample title from thread", "user_id": userID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.True(t, task.IsTask)
+		assert.Equal(t, threadID, *task.LinkedMessage.ThreadID)
+		assert.Equal(t, firstEmailID, *task.LinkedMessage.EmailID)
+
+		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+task.ID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"title": "New title from thread"}`)), http.StatusOK)
+
+		var taskAfterModify database.Item
+		err = database.GetTaskCollection(db).FindOne(dbCtx, bson.M{"title": "New title from thread", "user_id": userID}).Decode(&taskAfterModify)
+		assert.NoError(t, err)
+		assert.True(t, taskAfterModify.IsTask)
+		assert.Equal(t, threadID, *taskAfterModify.LinkedMessage.ThreadID)
+		assert.Equal(t, firstEmailID, *taskAfterModify.LinkedMessage.EmailID)
+		assert.Equal(t, task.ID, taskAfterModify.ID)
+	})
 
 	t.Run("Edit Title Success", func(t *testing.T) {
 		expectedTask := sampleTask

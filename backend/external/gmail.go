@@ -63,7 +63,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		// TODO: for a full refresh, we probably want to paginate through this request until we've fetched all threads in the DB
 		maxResults = fullFetchMaxResults
 	}
-	threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(maxResults).Q("label:inbox").Do()
+	threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(maxResults).Do()
 	if err != nil {
 		log.Error().Err(err).Msg("failed to load Gmail threads for user")
 		isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
@@ -103,6 +103,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			},
 			EmailThread: database.EmailThread{
 				ThreadID: thread.Id,
+				IsArchived:   isMessageArchived(thread.Messages[0]),
 			},
 			TaskType: database.TaskType{
 				IsThread: true,
@@ -224,6 +225,10 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			emails = append(emails, emailItem)
 		}
 
+		// We can just check if the first email is archived because all emails in a thread have the same archive status.
+		if len(thread.Messages) > 0 {
+			threadItem.IsArchived = isMessageArchived(thread.Messages[0])
+		}
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = assignOrGenerateNestedEmailIDs(threadItem, nestedEmails)
 		_, err = database.UpdateOrCreateTask(
@@ -285,6 +290,15 @@ func isMessageUnread(message *gmail.Message) bool {
 		}
 	}
 	return false
+}
+
+func isMessageArchived(message *gmail.Message) bool {
+	for _, label := range message.LabelIds {
+		if label == "INBOX" {
+			return false
+		}
+	}
+	return true
 }
 
 func expandMessageParts(parts []*gmail.MessagePart) []*gmail.MessagePart {
@@ -539,8 +553,8 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	return err
 }
 
-func (gmailSource GmailSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("has not been implemented yet")
+func (gmailSource GmailSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (gmailSource GmailSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
@@ -590,7 +604,6 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 }
 
 func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
-	// todo - mark all emails in the thread as read
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {

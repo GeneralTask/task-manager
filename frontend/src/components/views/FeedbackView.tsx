@@ -15,25 +15,25 @@ const FeedbackViewContainer = styled.div`
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: ${Spacing.padding._16}px;
+    padding: ${Spacing.padding._16};
     box-sizing: border-box;
 `
 const FeedbackHeader = styled.div`
-    margin-bottom: ${Spacing.margin._24}px;
+    margin-bottom: ${Spacing.margin._24};
     display: flex;
     flex-direction: column;
 `
 const TextAreaContainer = styled.div`
     flex: 1;
-    margin-top: ${Spacing.margin._4}px;
+    margin-top: ${Spacing.margin._4};
     border: 1px solid ${Colors.gray._200};
     border-radius: ${Border.radius.small};
 `
 const ButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
-    margin-top: ${Spacing.margin._8}px;
-    gap: ${Spacing.margin._8}px;
+    margin-top: ${Spacing.margin._8};
+    gap: ${Spacing.margin._8};
 `
 
 const FeedbackView = () => {

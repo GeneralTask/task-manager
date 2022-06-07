@@ -13,11 +13,12 @@ const TextAreaStyled = styled.textarea`
     border: none;
     box-shadow: none;
     outline: none;
-    padding: ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._8};
     font-style: normal;
     font-weight: normal;
     font-size: ${Typography.xSmall.fontSize};
     background-color: inherit;
+    font-family: inherit;
 `
 
 interface TextAreaProps {
