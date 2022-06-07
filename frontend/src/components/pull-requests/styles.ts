@@ -1,7 +1,7 @@
-import { Border, Colors, Spacing, Typography } from "../../styles"
+import { Border, Colors, Spacing, Typography } from '../../styles'
 
-import NoStyleAnchor from "../atoms/NoStyleAnchor"
-import styled from "styled-components"
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
+import styled from 'styled-components'
 
 export const ColumnWidths = {
     title: '35%',
@@ -21,6 +21,36 @@ export const Column = styled.div<{ type: TColumnWidths }>`
     padding: ${Spacing.padding._8};
     overflow: hidden;
     white-space: nowrap;
+`
+
+const StatusColors = {
+    red: {
+        text: '#FF0000B2',
+        background: '#FFE4E4B2',
+    },
+    yellow: {
+        text: '#F5AF19',
+        background: '#DFA0191A',
+    },
+    green: {
+        text: '#00A538',
+        background: '#E5FFE9',
+    },
+    gray: {
+        text: '#D0D0D0',
+        background: '#BBBBBB1A',
+    },
+}
+
+export type TPullRequestStatusColors = keyof typeof StatusColors
+
+export const Status = styled.div<{ type: TPullRequestStatusColors }>`
+    font-weight: ${Typography.weight._500};
+    width: fit-content;
+    padding: ${Spacing.margin._4} ${Spacing.margin._8};
+    color: ${props => StatusColors[props.type].text};
+    background: ${props => StatusColors[props.type].background};
+    border-radius: ${Border.radius.large};
 `
 
 export const PullRequestViewContainer = styled.div`
