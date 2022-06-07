@@ -2,6 +2,7 @@ package external
 
 import (
 	"context"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"testing"
 	"time"
 
@@ -23,8 +24,7 @@ func TestLoadLinearTasks(t *testing.T) {
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
-	//taskServerSuccess := getMockServer(t, 200, `{"data": [{"gid": "6942069420", "due_on": "2021-04-20", "html_notes": "hmm", "name": "Task!", "permalink_url": "https://example.com/"}]}`, NoopRequestChecker)
-	taskServerSuccess := getMockServer(t, 200, `{
+	taskServerSuccess := testutils.GetMockAPIServer(t, 200, `{
 		"data": {
 			"issues": {
 				"nodes": [
@@ -43,15 +43,14 @@ func TestLoadLinearTasks(t *testing.T) {
 				]
 			}
 		}
-	}`, NoopRequestChecker)
-	//userInfoServerSuccess := getMockServer(t, 200, `{"data": {"workspaces": [{"gid": "6942069420"}]}}`, NoopRequestChecker)
-	userInfoServerSuccess := getMockServer(t, 200, `{"data": {
+	}`)
+	userInfoServerSuccess := testutils.GetMockAPIServer(t, 200, `{"data": {
 			"viewer": {
 				"id": "6942069420",
 				"name": "Test User",
 				"email": "test@generaltask.com"
 			}
-		}}`, NoopRequestChecker)
+		}}`)
 
 	//t.Run("BadUserInfoStatusCode", func(t *testing.T) {
 	//	userInfoServer := getMockServer(t, 400, "", NoopRequestChecker)
@@ -135,7 +134,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 		userID := primitive.NewObjectID()
 
-		dueDate, _ := time.Parse("2006-01-02", "2022-04-20")
+		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
@@ -241,17 +240,3 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, "sugapapa", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 }
-
-//type requestChecker func(t *testing.T, r *http.Request)
-//
-//var NoopRequestChecker = func(t *testing.T, r *http.Request) {}
-//
-//func getMockServer(t *testing.T, statusCode int, responseBody string, checkRequest requestChecker) *httptest.Server {
-//	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//		_, err := ioutil.ReadAll(r.Body)
-//		assert.NoError(t, err)
-//		checkRequest(t, r)
-//		w.WriteHeader(statusCode)
-//		w.Write([]byte(responseBody))
-//	}))
-//}
