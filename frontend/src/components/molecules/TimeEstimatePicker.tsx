@@ -21,7 +21,7 @@ export const TimeEstimateContainer = styled.div`
     z-index: 1;
     top: 100%;
     right: 0;
-    padding: ${padding._8}px;
+    padding: ${padding._8};
     cursor: default;
 `
 

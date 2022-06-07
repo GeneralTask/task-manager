@@ -25,11 +25,11 @@ const FlexColumnContainer = styled.div`
 const HeaderContainer = styled.div`
     display: flex;
     height: ${THREAD_HEADER_HEIGHT};
-    padding: 0 ${Spacing.padding._16}px;
+    padding: 0 ${Spacing.padding._16};
     align-items: center;
     background-color: ${Colors.white};
     position: sticky;
-    gap: ${Spacing.margin._8}px;
+    gap: ${Spacing.margin._8};
     box-shadow: ${Shadows.threadHeaderShadow};
 `
 const HeaderTitleContainer = styled.div`
@@ -39,7 +39,7 @@ const HeaderTitleContainer = styled.div`
     min-width: 0;
 `
 const Title = styled.span`
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._8};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

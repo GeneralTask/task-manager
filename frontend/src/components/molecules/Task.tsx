@@ -15,10 +15,10 @@ import { useDrag } from 'react-dnd'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
 const IconContainer = styled.div`
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._8};
 `
 const Title = styled.span`
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._8};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

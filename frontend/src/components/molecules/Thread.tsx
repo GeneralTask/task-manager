@@ -15,7 +15,7 @@ const TitleContainer = styled.div`
     min-width: 0;
 `
 const Title = styled.span<{ bold: boolean }>`
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._8};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -31,7 +31,7 @@ const BodyPreview = styled(SubTitle)`
 `
 const SentAtContainer = styled.span`
     margin-left: auto;
-    padding-left: ${Spacing.margin._8}px;
+    padding-left: ${Spacing.margin._8};
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._400};
     min-width: fit-content;

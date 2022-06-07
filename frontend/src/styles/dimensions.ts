@@ -1,26 +1,29 @@
 export const iconSize = {
-    xxSmall: 10,
-    xSmall: 15,
-    small: 20,
-    medium: 30,
-    large: 40,
+    xxSmall: '10px',
+    xSmall: '15px',
+    small: '20px',
+    medium: '30px',
+    large: '40px',
 }
+
+export type TIconSize = keyof typeof iconSize
 
 export const modalSize = {
     small: {
-        width: 478,
-        height: 440,
+        width: '478px',
+        height: '440px',
     },
     medium: {
-        width: 723,
-        height: 620,
+        width: '723px',
+        height: '620px',
     },
 }
 
-export const MEDIA_MAX_WIDTH = 650
+export type TModalSize = keyof typeof modalSize
 
-export const WINDOW_MIN_WIDTH = 800
-export const NAVIGATION_BAR_WIDTH = 230
+export const MEDIA_MAX_WIDTH = '650px'
+export const WINDOW_MIN_WIDTH = '800px'
+export const NAVIGATION_BAR_WIDTH = '230px'
 export const TASK_ACTION_WIDTH = '200px'
 export const DEFAULT_VIEW_WIDTH = '480px'
-export const TASK_DEFAULT_LINE_HEIGHT = 17
+export const TASK_DEFAULT_LINE_HEIGHT = '17px'
