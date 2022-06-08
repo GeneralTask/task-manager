@@ -196,8 +196,8 @@ type Comment struct {
 	CreatedAt primitive.DateTime `bson:"created_at"`
 }
 
-type TaskStatus struct {
-	ExternalID string `bson:"external_idid"`
+type ExternalTaskStatus struct {
+	ExternalID string `bson:"external_id"`
 	State      string `bson:"state"`
 }
 
@@ -206,10 +206,12 @@ type Task struct {
 	PriorityNormalized float64 `bson:"priority_normalized"`
 	TaskNumber         int     `bson:"task_number"`
 	LinkedMessage      `bson:"linked_message"`
-	Comments           []Comment  `bson:"comments"`
-	Status             TaskStatus `bson:"status"`
+	Comments           []Comment          `bson:"comments"`
+	Status             ExternalTaskStatus `bson:"status"`
 	// Used to cache the current status before marking the task as done
-	PreviousStatus TaskStatus `bson:"previous_status"`
+	PreviousStatus ExternalTaskStatus `bson:"previous_status"`
+	// Stores the `completed` external status state
+	CompletedStatus ExternalTaskStatus `bson:"completed_status"`
 }
 
 type TaskChangeableFields struct {
