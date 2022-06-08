@@ -21,76 +21,80 @@ type TaskModifyParams struct {
 }
 
 func (api *API) TaskModify(c *gin.Context) {
-	taskIDHex := c.Param("task_id")
-	taskID, err := primitive.ObjectIDFromHex(taskIDHex)
-	if err != nil {
-		// This means the task ID is improperly formatted
-		Handle404(c)
-		return
-	}
-	var modifyParams TaskModifyParams
-	err = c.BindJSON(&modifyParams)
-
-	if err != nil {
-		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
-		return
-	}
-
-	if modifyParams.IDTaskSection != nil {
-		_, err := primitive.ObjectIDFromHex(*modifyParams.IDTaskSection)
-		if err != nil {
-			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
-			return
-		}
-	}
-
+	//taskIDHex := c.Param("task_id")
+	//taskID, err := primitive.ObjectIDFromHex(taskIDHex)
+	//if err != nil {
+	//	// This means the task ID is improperly formatted
+	//	Handle404(c)
+	//	return
+	//}
+	//var modifyParams TaskModifyParams
+	//err = c.BindJSON(&modifyParams)
+	//
+	//if err != nil {
+	//	c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
+	//	return
+	//}
+	//
+	//if modifyParams.IDTaskSection != nil {
+	//	_, err := primitive.ObjectIDFromHex(*modifyParams.IDTaskSection)
+	//	if err != nil {
+	//		c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
+	//		return
+	//	}
+	//}
+	//
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	task, err := database.GetItem(c.Request.Context(), taskID, userID)
-	if err != nil {
-		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
-		return
-	}
-
-	// check if all fields are empty
-	if modifyParams == (TaskModifyParams{}) {
-		c.JSON(400, gin.H{"detail": "parameter missing"})
-		return
-	}
-
-	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
-	if err != nil {
-		log.Error().Err(err).Msg("failed to load external task source")
-		Handle500(c)
-		return
-	}
-
-	// check if all edit fields are empty
-	if !ValidateFields(c, &modifyParams.TaskChangeableFields, taskSourceResult) {
-		return
-	}
-
-	if modifyParams.TaskChangeableFields != (database.TaskChangeableFields{}) {
-		// update external task
-		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskChangeableFields)
-		if err != nil {
-			log.Error().Err(err).Msg("failed to update external task source")
-			Handle500(c)
-			return
-		}
-		UpdateTaskInDB(c, taskID, userID, &modifyParams.TaskChangeableFields)
-	}
-
-	// handle reorder task
-	if modifyParams.IDOrdering != nil || modifyParams.IDTaskSection != nil {
-		err = ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection, task)
-		if err != nil {
-			return
-		}
-	}
-
+	taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult("linear_task")
+	taskSourceResult.Source.ModifyTask(userID, "maz@generaltask.com", "1c3b11d7-9298-4cc3-8a4a-d2d6d4677315", nil)
 	c.JSON(200, gin.H{})
+
+	//task, err := database.GetItem(c.Request.Context(), taskID, userID)
+	//if err != nil {
+	//	c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
+	//	return
+	//}
+	//
+	//// check if all fields are empty
+	//if modifyParams == (TaskModifyParams{}) {
+	//	c.JSON(400, gin.H{"detail": "parameter missing"})
+	//	return
+	//}
+	//
+	//taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
+	//if err != nil {
+	//	log.Error().Err(err).Msg("failed to load external task source")
+	//	Handle500(c)
+	//	return
+	//}
+	//
+	//// check if all edit fields are empty
+	//if !ValidateFields(c, &modifyParams.TaskChangeableFields, taskSourceResult) {
+	//	return
+	//}
+	//
+	//if modifyParams.TaskChangeableFields != (database.TaskChangeableFields{}) {
+	//	// update external task
+	//	err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskChangeableFields)
+	//	if err != nil {
+	//		log.Error().Err(err).Msg("failed to update external task source")
+	//		Handle500(c)
+	//		return
+	//	}
+	//	UpdateTaskInDB(c, taskID, userID, &modifyParams.TaskChangeableFields)
+	//}
+	//
+	//// handle reorder task
+	//if modifyParams.IDOrdering != nil || modifyParams.IDTaskSection != nil {
+	//	err = ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection, task)
+	//	if err != nil {
+	//		return
+	//	}
+	//}
+	//
+	//c.JSON(200, gin.H{})
 }
 
 func ValidateFields(c *gin.Context, updateFields *database.TaskChangeableFields, taskSourceResult *external.TaskSourceResult) bool {

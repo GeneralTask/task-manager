@@ -200,6 +200,26 @@ type linearAssignedIssuesQuery struct {
 	} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
 }
 
+type linearUpdateIssueQuery struct {
+	IssueUpdate struct {
+		Success graphql.Boolean
+	} `graphql:"issueUpdate(id: $id, input: {title: $title})"`
+}
+
+func updateLinearIssueMutation(client *graphql.Client, title graphql.String) (*linearUpdateIssueQuery, error) {
+	var query linearUpdateIssueQuery
+	variables := map[string]interface{}{
+		"title": title,
+		"id":    graphql.String("1c3b11d7-9298-4cc3-8a4a-d2d6d4677315"),
+	}
+	err := client.Mutate(context.Background(), &query, variables)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to update linear issue")
+		return nil, err
+	}
+	return &query, nil
+}
+
 func getLinearUserInfoStruct(client *graphql.Client) (*linearUserInfoQuery, error) {
 	var query linearUserInfoQuery
 	err := client.Query(context.Background(), &query, nil)

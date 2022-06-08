@@ -123,7 +123,25 @@ func (linearTask LinearTaskSource) GetPullRequests(userID primitive.ObjectID, ac
 }
 
 func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
-	return errors.New("has not been implemented yet")
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+
+	client, err := getLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
+	if err != nil {
+		log.Error().Err(err).Msg("unable to create linear client")
+		return err
+	}
+	issueUpdate, err := updateLinearIssueMutation(client, "cool title")
+	if err != nil {
+		log.Error().Err(err).Msg("unable to update linear issue")
+		return err
+	}
+	log.Debug().Msgf("%+v", issueUpdate)
+	return nil
+
 }
 
 func (linearTask LinearTaskSource) GetTaskUpdateBody(updateFields *database.TaskChangeableFields) *LinearTasksUpdateBody {
