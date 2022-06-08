@@ -208,6 +208,8 @@ type Task struct {
 	LinkedMessage      `bson:"linked_message"`
 	Comments           []Comment  `bson:"comments"`
 	Status             TaskStatus `bson:"status"`
+	// Used to cache the current status before marking the task as done
+	PreviousStatus TaskStatus `bson:"previous_status"`
 }
 
 type TaskChangeableFields struct {
