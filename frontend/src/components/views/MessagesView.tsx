@@ -42,7 +42,7 @@ const MessagesView = () => {
         isFetching: isFetchingThreads,
         fetchNextPage,
         refetch: getThreads,
-    } = useGetInfiniteThreads()
+    } = useGetInfiniteThreads({ isArchived: false })
     const { mutate: modifyThread } = useModifyThread()
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
     const unreadTimer = useRef<NodeJS.Timeout>()

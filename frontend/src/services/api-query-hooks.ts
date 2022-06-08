@@ -452,14 +452,14 @@ const modifyTaskSection = async (data: TModifyTaskSectionData) => {
 /**
  * THREADS QUERIES
  */
-export const useGetInfiniteThreads = () => {
-    return useInfiniteQuery<TEmailThread[]>('emailThreads', getInfiniteThreads, {
+export const useGetInfiniteThreads = (data: { isArchived: boolean }) => {
+    return useInfiniteQuery<TEmailThread[]>(['emailThreads', { isArchived: data.isArchived }], ({ pageParam = 1 }) => getInfiniteThreads(pageParam, data.isArchived), {
         getNextPageParam: (_, pages) => pages.length + 1,
     })
 }
-const getInfiniteThreads = async ({ pageParam = 1 }) => {
+const getInfiniteThreads = async (pageParam: number, isArchived: boolean) => {
     try {
-        const res = await apiClient.get(`/threads/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}`)
+        const res = await apiClient.get(`/threads/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}&is_archived=${isArchived}`)
         return res.data
     } catch {
         throw new Error('getInfiniteThreads failed')

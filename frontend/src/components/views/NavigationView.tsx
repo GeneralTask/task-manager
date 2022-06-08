@@ -39,7 +39,7 @@ const GapView = styled.div`
 
 const NavigationView = () => {
     const { data: taskSections } = useGetTasks()
-    const { data: threadData } = useGetInfiniteThreads()
+    const { data: threadData } = useGetInfiniteThreads({ isArchived: false })
     const pullRequestRepositories = dummyRepositories
     const { section: sectionIdParam, repository: repositoryIdParam } = useParams()
     const { pathname } = useLocation()
