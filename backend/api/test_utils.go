@@ -283,7 +283,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
 	router := GetRouter(GetAPI())
 
-	request, _ := http.NewRequest("GET", "/ping/", nil)
+	request, _ := http.NewRequest("GET", "/ping_authed/", nil)
 	request.Header.Add("Authorization", attemptedHeader)
 
 	recorder := httptest.NewRecorder()
