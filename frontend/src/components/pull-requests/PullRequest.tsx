@@ -22,9 +22,9 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
                 <SubtitleSmall>{'#' + number}</SubtitleSmall>
             </Column>
             <Column type="status">
-                <Status type={status.color}>
-                    <TruncatedText>{status.text}</TruncatedText>
-                </Status>
+                <div>
+                    <Status type={status.color}>{status.text}</Status>
+                </div>
             </Column>
             <Column type="author">
                 <SubtitleSmall>{formattedTime}</SubtitleSmall>

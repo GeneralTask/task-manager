@@ -45,15 +45,15 @@ const StatusColors = Object.freeze({
 export type TPullRequestStatusColors = keyof typeof StatusColors
 
 export const Status = styled.div<{ type: TPullRequestStatusColors }>`
-    font-weight: ${Typography.weight._500};
-    box-sizing: content-box;
-    width: fit-content;
     color: ${props => StatusColors[props.type].text};
     background: ${props => StatusColors[props.type].background};
     border-radius: ${Border.radius.large};
-    & > TruncatedText {
-        padding: ${Spacing.margin._4} ${Spacing.margin._8};
-    }
+    padding: ${Spacing.margin._4} ${Spacing.margin._8};
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: fit-content;
+    font-weight: ${Typography.weight._500};
 `
 
 export const PullRequestViewContainer = styled.div`
