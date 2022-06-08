@@ -206,7 +206,6 @@ type linearUpdateIssueQuery struct {
 	} `graphql:"issueUpdate(id: $id, input: {title: $title, description: $description})"`
 }
 
-//func updateLinearIssueMutation(client *graphql.Client, title graphql.String) (*linearUpdateIssueQuery, error) {
 func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFields *database.TaskChangeableFields) (*linearUpdateIssueQuery, error) {
 	var query linearUpdateIssueQuery
 	variables := map[string]interface{}{
