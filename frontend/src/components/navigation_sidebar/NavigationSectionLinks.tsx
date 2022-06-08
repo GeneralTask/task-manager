@@ -11,6 +11,7 @@ import { isDevelopmentMode } from '../../environment'
 import styled from 'styled-components'
 import { useAddTaskSection } from '../../services/api-query-hooks'
 import { weight } from '../../styles/typography'
+import { countWithOverflow } from '../../utils/utils'
 
 const AddSectionInputContainer = styled.div`
     display: flex;
@@ -33,19 +34,23 @@ const IconContainer = styled.div`
 
 interface SectionLinksProps {
     taskSections: TTaskSection[]
-    threads: TEmailThread[]
+    threadsInbox: TEmailThread[]
+    threadsArchive: TEmailThread[]
     pullRequestRepositories: TRepository[]
     sectionId: string
     repositoryId: string
+    boxName: string
     pathName: string
 }
 
 const NavigationSectionLinks = ({
     taskSections,
-    threads,
+    threadsInbox,
+    threadsArchive,
     pullRequestRepositories,
     sectionId,
     repositoryId,
+    boxName,
     pathName,
 }: SectionLinksProps) => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
@@ -141,13 +146,22 @@ const NavigationSectionLinks = ({
                         />
                     ))}
             </NavigationLinkDropdown>
-            <NavigationLink
-                link="/messages"
-                title="Messages"
-                icon={icons.inbox}
-                count={threads.filter((t) => t.emails.find((e) => e.is_unread)).length}
-                isCurrentPage={pathName === 'messages'}
-            />
+            <NavigationLinkDropdown title="Messages" icon="label">
+                <NavigationLink
+                    link="/messages/inbox"
+                    title="Inbox"
+                    icon={icons.inbox}
+                    count={countWithOverflow(threadsInbox.filter((t) => t.emails.find((e) => e.is_unread)).length)}
+                    isCurrentPage={boxName === 'inbox'}
+                />
+                <NavigationLink
+                    link="/messages/archive"
+                    title="Archive"
+                    icon={icons.archive}
+                    count={countWithOverflow(threadsArchive.length)}
+                    isCurrentPage={boxName === 'archive'}
+                />
+            </NavigationLinkDropdown>
             {isDevelopmentMode && (
                 <NavigationLink
                     link="/pull-requests"

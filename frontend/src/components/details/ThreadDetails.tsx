@@ -144,7 +144,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     <Icon source={isUnread ? icons.mark_read : icons.mark_unread} size="small" />
                 </NoStyleButton>
                 <NoStyleButton onClick={onClickArchive}>
-                    <Icon source={icons.archive} size="small" />
+                    <Icon source={icons.archive_purple} size="small" />
                 </NoStyleButton>
             </HeaderContainer>
             <EmailThreadsContainer>

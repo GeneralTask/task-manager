@@ -42,7 +42,7 @@ const MessagesView = () => {
         isFetching: isFetchingThreads,
         fetchNextPage,
         refetch: getThreads,
-    } = useGetInfiniteThreads({ isArchived: false })
+    } = useGetInfiniteThreads({ isArchived: params.box === 'archive' })
     const { mutate: modifyThread } = useModifyThread()
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
     const unreadTimer = useRef<NodeJS.Timeout>()
@@ -53,10 +53,6 @@ const MessagesView = () => {
     useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
 
     const expandedThread = useMemo(() => {
-        console.log(
-            'expandedThread',
-            threads.find((thread) => thread.id === params.threadId)
-        )
         if (threads.length > 0) {
             return (
                 threads.find((thread) => thread.id === params.thread && !isArchived(thread.id)) ??
@@ -64,11 +60,11 @@ const MessagesView = () => {
             )
         }
         return null
-    }, [params.thread, JSON.stringify(threads)])
+    }, [params.thread, params.box, JSON.stringify(threads)])
 
     useEffect(() => {
         if (expandedThread) {
-            navigate(`/messages/${expandedThread.id}`)
+            navigate(`/messages/${params.box}/${expandedThread.id}`)
             if (unreadTimer.current) {
                 clearTimeout(unreadTimer.current)
             }
@@ -79,7 +75,7 @@ const MessagesView = () => {
                 )
             }
         }
-    }, [expandedThread])
+    }, [expandedThread, params.box, params.thread])
 
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
@@ -100,7 +96,7 @@ const MessagesView = () => {
         <>
             <ScrollViewMimic ref={sectionScrollingRef}>
                 <SectionHeader
-                    sectionName="Messages"
+                    sectionName={params.box === 'inbox' ? 'Inbox' : 'Archive'}
                     allowRefresh={true}
                     refetch={() => {
                         refetchMessages()

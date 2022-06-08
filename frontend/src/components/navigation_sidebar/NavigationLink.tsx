@@ -58,7 +58,7 @@ interface NavigationLinkProps {
     title: string
     icon?: string
     taskSection?: TTaskSection
-    count?: number
+    count?: number | string
     droppable?: boolean
     testId?: string
 }

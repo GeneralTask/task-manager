@@ -504,7 +504,6 @@ export const useModifyThread = () => {
                     }
                 }
             }
-            console.log(queryData)
             queryClient.setQueryData('emailThreads', queryData)
         },
         onSettled: () => {

@@ -14,7 +14,8 @@ export const logos: { [key: string]: string } = {
 }
 
 export const icons = Object.freeze({
-    archive: '/images/archive.svg',
+    archive_purple: '/images/archive.svg',
+    archive: '/images/archive.png',
     arrows_in: '/images/arrows_in.png',
     arrows_out: '/images/arrows_out.png',
     dot: '/images/dot.svg',

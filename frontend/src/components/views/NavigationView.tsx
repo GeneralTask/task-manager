@@ -39,12 +39,17 @@ const GapView = styled.div`
 
 const NavigationView = () => {
     const { data: taskSections } = useGetTasks()
-    const { data: threadData } = useGetInfiniteThreads({ isArchived: false })
+    const { data: threadDataInbox } = useGetInfiniteThreads({ isArchived: false })
+    const { data: threadDataArchive } = useGetInfiniteThreads({ isArchived: true })
     const pullRequestRepositories = dummyRepositories
-    const { section: sectionIdParam, repository: repositoryIdParam } = useParams()
+    const { section: sectionIdParam, repository: repositoryIdParam, box: boxName } = useParams()
     const { pathname } = useLocation()
 
-    const threads = useMemo(() => threadData?.pages.flat().filter((thread) => thread != null) ?? [], [threadData])
+    const threadsInbox = useMemo(() => threadDataInbox?.pages.flat().filter((t) => t != null) ?? [], [threadDataInbox])
+    const threadsArchive = useMemo(
+        () => threadDataArchive?.pages.flat().filter((t) => t != null) ?? [],
+        [threadDataArchive]
+    )
 
     return (
         <NavigationViewContainer>
@@ -52,13 +57,15 @@ const NavigationView = () => {
                 <Icon size="medium" />
             </NavigationViewHeader>
             <OverflowContainer>
-                {taskSections && threadData && (
+                {taskSections && threadsInbox && threadsArchive && (
                     <NavigationSectionLinks
                         taskSections={taskSections}
-                        threads={threads}
+                        threadsInbox={threadsInbox}
+                        threadsArchive={threadsArchive}
                         pullRequestRepositories={pullRequestRepositories}
                         sectionId={sectionIdParam || ''}
                         repositoryId={repositoryIdParam || ''}
+                        boxName={boxName || ''}
                         pathName={pathname.split('/')[1]}
                     />
                 )}
