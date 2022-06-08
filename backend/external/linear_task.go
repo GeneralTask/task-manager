@@ -139,7 +139,11 @@ func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, account
 		log.Error().Err(err).Msg("unable to update linear issue")
 		return err
 	}
-	log.Debug().Msgf("%+v", issueUpdate)
+	log.Debug().Interface("issueUpdate", issueUpdate)
+	if !issueUpdate.IssueUpdate.Success {
+		log.Error().Msg("linear mutation failed to update issue")
+		return errors.New("linear mutation failed to update issue")
+	}
 	return nil
 
 }
