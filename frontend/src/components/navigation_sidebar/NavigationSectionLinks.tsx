@@ -35,7 +35,6 @@ const IconContainer = styled.div`
 interface SectionLinksProps {
     taskSections: TTaskSection[]
     threadsInbox: TEmailThread[]
-    threadsArchive: TEmailThread[]
     pullRequestRepositories: TRepository[]
     sectionId: string
     repositoryId: string
@@ -46,7 +45,6 @@ interface SectionLinksProps {
 const NavigationSectionLinks = ({
     taskSections,
     threadsInbox,
-    threadsArchive,
     pullRequestRepositories,
     sectionId,
     repositoryId,
@@ -158,7 +156,6 @@ const NavigationSectionLinks = ({
                     link="/messages/archive"
                     title="Archive"
                     icon={icons.archive}
-                    count={countWithOverflow(threadsArchive.length)}
                     isCurrentPage={boxName === 'archive'}
                 />
             </NavigationLinkDropdown>

@@ -48,16 +48,14 @@ const MessagesView = () => {
     const unreadTimer = useRef<NodeJS.Timeout>()
 
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
-    const isArchived = (threadId: string) =>
-        threads.find((thread) => thread.id === threadId)?.emails.every((email) => email.is_archived) ?? false
+    // const shouldShowThread = useCallback(
+    //     (thread: TEmailThread) => (params.box === 'archive' && thread.is_archived) || (params.box === 'inbox' && !thread.is_archived)
+    //     , [JSON.stringify(threads)])
     useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
 
     const expandedThread = useMemo(() => {
         if (threads.length > 0) {
-            return (
-                threads.find((thread) => thread.id === params.thread && !isArchived(thread.id)) ??
-                threads.find((thread) => !isArchived(thread.id))
-            )
+            return threads.find((thread) => thread.id === params.thread) ?? threads[0]
         }
         return null
     }, [params.thread, params.box, JSON.stringify(threads)])
@@ -107,7 +105,7 @@ const MessagesView = () => {
                 <MessagesContainer>
                     {threads.map(
                         (thread, index) =>
-                            !isArchived(thread.id) && (
+                            (params.box === 'archive' || (params.box === 'inbox' && !thread.is_archived)) && (
                                 <div key={thread.id}>
                                     <ThreadTemplate ref={index === threads.length - 1 ? lastElementRef : undefined}>
                                         <Thread thread={thread} sectionScrollingRef={sectionScrollingRef} />

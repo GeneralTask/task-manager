@@ -16,6 +16,7 @@ import {
     TPostFeedbackData,
     TReorderTaskData,
     TTaskModifyRequestBody,
+    TThreadQueryData,
 } from './query-payload-types'
 import {
     TEmail,
@@ -483,31 +484,30 @@ export const useModifyThread = () => {
     return useMutation((data: TModifyThreadData) => modifyThread(data), {
         onMutate: async (data: TModifyThreadData) => {
             await queryClient.cancelQueries('emailThreads')
-            const queryData: {
-                pages: TEmailThread[][]
-                pageParams: unknown[]
-            } | undefined = queryClient.getQueryData('emailThreads')
+            const queryDataInbox: TThreadQueryData | undefined = queryClient.getQueryData(['emailThreads', { isArchived: false }])
+            const queryDataArchive: TThreadQueryData | undefined = queryClient.getQueryData(['emailThreads', { isArchived: true }])
 
-            if (!queryData) return
+            if (!queryDataInbox || !queryDataArchive) return
 
-            for (let i = 0; i < queryData.pages.length; i++) {
-                if (!queryData.pages[i]) continue
-                for (const thread of queryData.pages[i]) {
+            for (const page of queryDataInbox.pages.concat(queryDataArchive.pages)) {
+                if (!page) continue
+                for (const thread of page) {
                     if (thread.id === data.thread_id) {
+                        if (data.is_archived !== undefined)
+                            thread.is_archived = data.is_archived
                         for (const email of thread.emails) {
                             if (data.is_unread !== undefined)
                                 email.is_unread = data.is_unread
-                            if (data.is_archived !== undefined)
-                                email.is_archived = data.is_archived
                         }
                         break
                     }
                 }
             }
-            queryClient.setQueryData('emailThreads', queryData)
+            queryClient.setQueryData(['emailThreads', { isArchived: false }], queryDataInbox)
+            queryClient.setQueryData(['emailThreads', { isArchived: true }], queryDataArchive)
         },
         onSettled: () => {
-            queryClient.invalidateQueries('emailThreads')
+            queryClient.invalidateQueries(['emailThreads'])
         },
     })
 }
@@ -611,7 +611,6 @@ export const useComposeMessage = () => {
                 body: data.body,
                 sent_at: new Date().toISOString(),
                 is_unread: false,
-                is_archived: false,
                 sender: {
                     name: DEFAULT_SENDER,
                     email: data.source_account_id,

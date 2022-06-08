@@ -36,14 +36,16 @@ const MainScreen = () => {
 
     const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
-    const { refetch: getInfiniteThreads } = useGetInfiniteThreads({ isArchived: false })
+    const { refetch: getInfiniteThreadsInbox } = useGetInfiniteThreads({ isArchived: false })
+    const { refetch: getInfiniteThreadsArchive } = useGetInfiniteThreads({ isArchived: true })
 
     // Refetch tasks and messages independent of current page
     const { refetch: refetchExternalTasks } = useFetchExternalTasks()
     useInterval(refetchExternalTasks, TASK_REFETCH_INTERVAL)
     const { refetch: refetchMessages } = useFetchMessages()
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
-    useInterval(getInfiniteThreads, MESSAGES_REFETCH_INTERVAL)
+    useInterval(getInfiniteThreadsInbox, MESSAGES_REFETCH_INTERVAL)
+    useInterval(getInfiniteThreadsArchive, MESSAGES_REFETCH_INTERVAL)
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {

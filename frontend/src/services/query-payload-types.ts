@@ -90,6 +90,11 @@ interface TModifyThreadData {
     is_archived?: boolean
 }
 
+interface TThreadQueryData {
+    pages: TEmailThread[][]
+    pageParams: unknown[]
+}
+
 export {
     TCreateEventPayload,
     TEmailThreadResponse,
@@ -106,5 +111,6 @@ export {
     TMarkMessageReadData,
     TComposeMessageData,
     TCreateTaskFromThreadData,
-    TModifyThreadData
+    TModifyThreadData,
+    TThreadQueryData,
 }

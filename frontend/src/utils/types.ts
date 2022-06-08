@@ -126,7 +126,6 @@ export interface TEmail {
     body: string
     sent_at: string
     is_unread: boolean
-    is_archived: boolean
     sender: TSender
     recipients: TRecipients
 }
@@ -135,6 +134,7 @@ export interface TEmailThread {
     id: string
     deeplink: string
     source: TMessageSource
+    is_archived: boolean
     emails: TEmail[]
 }
 
