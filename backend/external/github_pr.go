@@ -104,10 +104,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviews"))
 				return
 			}
-			// comments, _, err := githubClient.PullRequests.ListComments(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
-			// issueComments, _, err := githubClient.Issues.ListComments(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
-			// reivewComments, _, err := githubClient.PullRequests.ListReviewComments(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
-			// log.Debug().Msgf("%v", comments)
+
 			pullRequest := &database.Item{
 				TaskBase: database.TaskBase{
 					UserID:            userID,
@@ -191,29 +188,22 @@ func pullRequestIsApproved(pullRequestReviews []*github.PullRequestReview) bool 
 	return false
 }
 
-func getCommentCount(extCtx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest) int{
+func getCommentCount(extCtx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest) int {
 	comments, _, err := githubClient.PullRequests.ListComments(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
-	// log.Debug().Msgf("Neutral comments: %v", comments)
-
 	issueComments, _, err := githubClient.Issues.ListComments(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
-	// log.Debug().Msgf("Issue comments: %v", issueComments)
-
-
-	reviewCommentCount := 0
 	reviews, _, err := githubClient.PullRequests.ListReviews(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
-	log.Debug().Msgf("PR: %v", *pullRequest.Number)
-	log.Debug().Msgf("Reviews: %v", len(reviews))
-	log.Debug().Msgf("Issues: %v", len(issueComments))
+	reviewCommentCount := 0
 
 	for _, review := range reviews {
-		reviewComments, _, _ := githubClient.PullRequests.ListReviewComments(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, review.GetID(), nil)
-		// log.Debug().Msgf("Review comments: %v", reviewComments)
-		reviewCommentCount += len(reviewComments)
+		if review.GetBody() != "" {
+			reviewCommentCount += 1
+		}
 	}
 
-	if (err != nil) {
+	if err != nil {
 		return 0
 	}
+
 	return len(comments) + len(issueComments) + reviewCommentCount
 }
 
