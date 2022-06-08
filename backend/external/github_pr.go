@@ -105,6 +105,14 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				return
 			}
 
+			reviewerCount := getReviewerCount(extCtx, githubClient, repository, *pullRequest.Number, fetchedPullRequests)
+
+			isRequestedChanges := pullRequestHasRequestedChanges(fetchedPullRequests)
+
+
+			checkSuiteResult, _, err := githubClient.Checks.ListCheckSuitesForRef(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Head.SHA, nil)
+
+ 
 			pullRequest := &database.Item{
 				TaskBase: database.TaskBase{
 					UserID:            userID,
@@ -123,6 +131,9 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					Branch:         *pullRequest.Head.Ref,
 					IsApproved:     pullRequestIsApproved(fetchedPullRequests),
 					CommentCount:   getCommentCount(extCtx, githubClient, repository, pullRequest),
+					ReviewersCount: reviewerCount,
+					IsRequestedChanges: isRequestedChanges,
+					CombinedStatus: *checkSuiteResult.CheckSuites[0].Conclusion,
 				},
 				TaskType: database.TaskType{
 					IsTask:        true,
@@ -205,6 +216,31 @@ func getCommentCount(extCtx context.Context, githubClient *github.Client, reposi
 	}
 
 	return len(comments) + len(issueComments) + reviewCommentCount
+}
+
+func getReviewerCount(extCtx context.Context, githubClient *github.Client, repository *github.Repository, pullRequestNumber int, reviews []*github.PullRequestReview ) int {
+	submittedReviews := 0
+	for _, review := range reviews {
+		state := review.GetState()
+		if (review.GetUser() != nil && (state == "APPROVED" || state == "CHANGES_REQUESTED")) {
+			submittedReviews += 1
+		}
+	}
+	reviewers, _, err := githubClient.PullRequests.ListReviewers(extCtx, *repository.Owner.Login, *repository.Name, pullRequestNumber, nil)
+	if err != nil {
+		return 0
+	}
+	return submittedReviews + len(reviewers.Users)
+
+}
+
+func pullRequestHasRequestedChanges(reviews []*github.PullRequestReview) bool {
+	for _, review := range reviews {
+		if review.GetState() == "CHANGES_REQUESTED" {
+			return true
+		}
+	}
+	return false
 }
 
 func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
