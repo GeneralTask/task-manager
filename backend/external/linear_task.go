@@ -134,7 +134,7 @@ func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, account
 		log.Error().Err(err).Msg("unable to create linear client")
 		return err
 	}
-	issueUpdate, err := updateLinearIssueMutation(client, "cool title")
+	issueUpdate, err := updateLinearIssueMutation(client, issueID, updateFields)
 	if err != nil {
 		log.Error().Err(err).Msg("unable to update linear issue")
 		return err
