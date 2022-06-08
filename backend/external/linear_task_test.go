@@ -236,3 +236,211 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, "sugapapa", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 }
+
+func TestModifyLinearTask(t *testing.T) {
+	t.Run("MarkAsDoneBadResponse", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		userID := primitive.NewObjectID()
+
+		isCompleted := true
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, err.Error())
+	})
+	t.Run("UpdateFieldsAndMarkAsDoneSuccess", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		userID := primitive.NewObjectID()
+
+		newName := "New Title"
+		newBody := "New Body"
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+			Title: &newName,
+			Body:  &newBody,
+		})
+		assert.NoError(t, err)
+	})
+	t.Run("UpdateFieldsAndMarkAsDoneBadResponse", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		userID := primitive.NewObjectID()
+
+		newName := "New Title"
+		newBody := "New Body"
+		isCompleted := true
+
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+			Title:       &newName,
+			Body:        &newBody,
+			IsCompleted: &isCompleted,
+		})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, err.Error())
+	})
+	t.Run("UpdateTitleBodySuccess", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		userID := primitive.NewObjectID()
+
+		newName := "New Title"
+		newBody := "New Body"
+
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+			Title:   &newName,
+			Body:    &newBody,
+			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+		})
+		assert.NoError(t, err)
+	})
+	t.Run("UpdateTitleBodyBadResponse", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		userID := primitive.NewObjectID()
+
+		newName := "New Title"
+		newBody := "New Body"
+
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+			Title:   &newName,
+			Body:    &newBody,
+			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+		})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, err.Error())
+	})
+	t.Run("UpdateFieldsMarkAsNotDoneSuccess", func(t *testing.T) {
+		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
+		defer taskUpdateServer.Close()
+		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
+		userID := primitive.NewObjectID()
+
+		newName := "New Title"
+		newBody := "New Body"
+		isCompleted := false
+
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+			Title:       &newName,
+			Body:        &newBody,
+			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
+			IsCompleted: &isCompleted,
+		})
+		assert.NoError(t, err)
+	})
+
+	t.Run("UpdateFieldsMarkAsNotDoneBadResponse", func(t *testing.T) {
+		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
+		defer taskUpdateServer.Close()
+		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
+		userID := primitive.NewObjectID()
+
+		newName := "New Title"
+		newBody := "New Body"
+		isCompleted := false
+
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+			Title:       &newName,
+			Body:        &newBody,
+			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
+			IsCompleted: &isCompleted,
+		})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, "bad status code: 400", err.Error())
+	})
+	t.Run("GetTaskUpdateBodyNoDueDate", func(t *testing.T) {
+		title := "Title"
+		description := "Body"
+		timeAllocation := int64(1000)
+		isCompleted := true
+
+		updateFields := &database.TaskChangeableFields{
+			Title:          &title,
+			Body:           &description,
+			TimeAllocation: &timeAllocation,
+			IsCompleted:    &isCompleted,
+		}
+		expected := AsanaTasksUpdateBody{
+			Data: AsanaTasksUpdateFields{
+				Name:      &title,
+				HTMLNotes: &description,
+				Completed: &isCompleted,
+			},
+		}
+		asanaTask := AsanaTaskSource{}
+		body := asanaTask.GetTaskUpdateBody(updateFields)
+		assert.Equal(t, expected, *body)
+	})
+	t.Run("GetTaskUpdateBodyWithDueDate", func(t *testing.T) {
+		title := "Title"
+		description := "Body"
+		date := "2022-02-27T08:00:00Z"
+		shortenedDate := "2022-02-27"
+		dueDate, _ := time.Parse(time.RFC3339, date)
+		timeAllocation := int64(1000)
+		isCompleted := true
+
+		updateFields := &database.TaskChangeableFields{
+			Title:          &title,
+			Body:           &description,
+			DueDate:        primitive.NewDateTimeFromTime(dueDate),
+			TimeAllocation: &timeAllocation,
+			IsCompleted:    &isCompleted,
+		}
+		expected := AsanaTasksUpdateBody{
+			Data: AsanaTasksUpdateFields{
+				Name:      &title,
+				HTMLNotes: &description,
+				DueOn:     &shortenedDate,
+				Completed: &isCompleted,
+			},
+		}
+		asanaTask := AsanaTaskSource{}
+		body := asanaTask.GetTaskUpdateBody(updateFields)
+		assert.Equal(t, *expected.Data.DueOn, *body.Data.DueOn)
+		assert.Equal(t, expected, *body)
+	})
+	t.Run("GetTaskUpdateBodyEmpty", func(t *testing.T) {
+		updateFields := &database.TaskChangeableFields{}
+		expected := AsanaTasksUpdateBody{
+			Data: AsanaTasksUpdateFields{},
+		}
+		asanaTask := AsanaTaskSource{}
+		body := asanaTask.GetTaskUpdateBody(updateFields)
+		assert.Equal(t, expected, *body)
+	})
+}
