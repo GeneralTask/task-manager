@@ -23,7 +23,7 @@ export const Column = styled.div<{ type: TColumnWidths }>`
     white-space: nowrap;
 `
 
-const StatusColors = {
+const StatusColors = Object.freeze({
     red: {
         text: '#FF0000B2',
         background: '#FFE4E4B2',
@@ -40,17 +40,20 @@ const StatusColors = {
         text: '#D0D0D0',
         background: '#BBBBBB1A',
     },
-}
+})
 
 export type TPullRequestStatusColors = keyof typeof StatusColors
 
 export const Status = styled.div<{ type: TPullRequestStatusColors }>`
     font-weight: ${Typography.weight._500};
+    box-sizing: content-box;
     width: fit-content;
-    padding: ${Spacing.margin._4} ${Spacing.margin._8};
     color: ${props => StatusColors[props.type].text};
     background: ${props => StatusColors[props.type].background};
     border-radius: ${Border.radius.large};
+    & > TruncatedText {
+        padding: ${Spacing.margin._4} ${Spacing.margin._8};
+    }
 `
 
 export const PullRequestViewContainer = styled.div`
