@@ -17,6 +17,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.Use(FakeLagMiddleware)
 
 	// Unauthenticated endpoints
+	router.GET("/ping/", handlers.Ping)
 	router.GET("/link/:service_name/", handlers.Link)
 	router.GET("/link/:service_name/callback/", handlers.LinkCallback)
 	router.GET("/login/", handlers.Login)
@@ -52,7 +53,6 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.POST("/tasks/create/:source_id/", handlers.TaskCreate)
 	router.PATCH("/tasks/modify/:task_id/", handlers.TaskModify)
 	router.GET("/tasks/detail/:task_id/", handlers.TaskDetail)
-	router.GET("/ping/", handlers.Ping)
 	router.GET("/settings/", handlers.SettingsList)
 	router.PATCH("/settings/", handlers.SettingsModify)
 	router.POST("/log_events/", handlers.LogEventAdd)
