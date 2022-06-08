@@ -183,11 +183,31 @@ type LinkedMessage struct {
 	EmailID  *primitive.ObjectID `bson:"email_id"`
 }
 
+type ExternalUser struct {
+	ID          string `bson:"id"`
+	Name        string `bson:"name"`
+	DisplayName string `bson:"display_name"`
+	Email       string `bson:"email"`
+}
+
+type Comment struct {
+	Body      string             `bson:"body"`
+	User      ExternalUser       `bson:"user"`
+	CreatedAt primitive.DateTime `bson:"created_at"`
+}
+
+type TaskStatus struct {
+	ID    string `bson:"id"`
+	State string `bson:"state"`
+}
+
 type Task struct {
 	PriorityID         string  `bson:"priority_id"`
 	PriorityNormalized float64 `bson:"priority_normalized"`
 	TaskNumber         int     `bson:"task_number"`
 	LinkedMessage      `bson:"linked_message"`
+	Comments           []Comment  `bson:"comments"`
+	Status             TaskStatus `bson:"status"`
 }
 
 type TaskChangeableFields struct {
