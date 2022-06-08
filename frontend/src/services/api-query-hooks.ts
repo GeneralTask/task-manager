@@ -491,6 +491,7 @@ export const useModifyThread = () => {
             if (!queryData) return
 
             for (const page of queryData.pages) {
+                if (!page) continue
                 for (const thread of page) {
                     if (thread.id === data.thread_id) {
                         for (const email of thread.emails) {
