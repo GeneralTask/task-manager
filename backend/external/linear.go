@@ -209,7 +209,6 @@ type linearUpdateIssueQuery struct {
 func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFields *database.TaskChangeableFields) (*linearUpdateIssueQuery, error) {
 	var query linearUpdateIssueQuery
 	variables := map[string]interface{}{
-		//"id":    graphql.String("1c3b11d7-9298-4cc3-8a4a-d2d6d4677315"),
 		"id": graphql.String(issueID),
 	}
 	if updateFields.Title != nil {
