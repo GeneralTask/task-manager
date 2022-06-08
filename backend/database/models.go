@@ -184,7 +184,7 @@ type LinkedMessage struct {
 }
 
 type ExternalUser struct {
-	ID          string `bson:"id"`
+	ExternalID  string `bson:"external_idid"`
 	Name        string `bson:"name"`
 	DisplayName string `bson:"display_name"`
 	Email       string `bson:"email"`
@@ -197,8 +197,8 @@ type Comment struct {
 }
 
 type TaskStatus struct {
-	ID    string `bson:"id"`
-	State string `bson:"state"`
+	ExternalID string `bson:"external_idid"`
+	State      string `bson:"state"`
 }
 
 type Task struct {
