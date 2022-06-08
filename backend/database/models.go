@@ -184,7 +184,7 @@ type LinkedMessage struct {
 }
 
 type ExternalUser struct {
-	ExternalID  string `bson:"external_idid"`
+	ExternalID  string `bson:"external_id"`
 	Name        string `bson:"name"`
 	DisplayName string `bson:"display_name"`
 	Email       string `bson:"email"`
@@ -209,8 +209,7 @@ type Task struct {
 	Comments           *[]Comment          `bson:"comments"`
 	Status             *ExternalTaskStatus `bson:"status"`
 	// Used to cache the current status before marking the task as done
-	PreviousStatus *ExternalTaskStatus `bson:"previous_status"`
-	// Stores the `completed` external status state
+	PreviousStatus  *ExternalTaskStatus `bson:"previous_status"`
 	CompletedStatus *ExternalTaskStatus `bson:"completed_status"`
 }
 
