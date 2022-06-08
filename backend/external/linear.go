@@ -203,20 +203,21 @@ type linearAssignedIssuesQuery struct {
 type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
 		Success graphql.Boolean
-	} `graphql:"issueUpdate(id: $id, input: {title: $title})"`
+	} `graphql:"issueUpdate(id: $id, input: {title: $title, description: $description})"`
 }
 
 //func updateLinearIssueMutation(client *graphql.Client, title graphql.String) (*linearUpdateIssueQuery, error) {
 func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFields *database.TaskChangeableFields) (*linearUpdateIssueQuery, error) {
 	var query linearUpdateIssueQuery
 	variables := map[string]interface{}{
-		//"title": title,
 		//"id":    graphql.String("1c3b11d7-9298-4cc3-8a4a-d2d6d4677315"),
 		"id": graphql.String(issueID),
 	}
 	if updateFields.Title != nil {
 		variables["title"] = graphql.String(*updateFields.Title)
-
+	}
+	if updateFields.Body != nil {
+		variables["description"] = graphql.String(*updateFields.Body)
 	}
 	err := client.Mutate(context.Background(), &query, variables)
 	if err != nil {
