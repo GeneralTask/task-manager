@@ -1,7 +1,6 @@
 import { Border, Colors, Spacing, Typography } from "../../styles"
 
 import NoStyleAnchor from "../atoms/NoStyleAnchor"
-import { iconSize } from "../../styles/dimensions"
 import styled from "styled-components"
 
 export const ColumnWidths = {
@@ -64,15 +63,6 @@ export const TruncatedText = styled.span`
 export const CommentsContainer = styled.div`
     display: flex;
     gap: ${Spacing.margin._8};
-`
-
-export const CommentIcon = styled.div`
-    position: relative;
-    width: ${iconSize['small']};
-    & > div {
-        position: absolute;
-        top: 4px;
-    }
 `
 
 export const LinkButton = styled(NoStyleAnchor)`
