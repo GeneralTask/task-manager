@@ -1,4 +1,4 @@
-import { Column, CommentsContainer, LinkButton, PullRequestRow, TruncatedText } from './styles'
+import { Column, CommentsCountContainer, LinkButton, PullRequestRow, TruncatedText } from './styles'
 
 import { DateTime } from 'luxon'
 import { Icon } from '../atoms/Icon'
@@ -29,10 +29,10 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
                 <TruncatedText>{author}</TruncatedText>
             </Column>
             <Column type="comments">
-                <CommentsContainer>
+                <CommentsCountContainer>
                     <Icon source={icons.speechBubble} size="small" yOffset="4px" />
                     {num_comments}
-                </CommentsContainer>
+                </CommentsCountContainer>
             </Column>
             <Column type="branch">
                 <TruncatedText>{branch}</TruncatedText>

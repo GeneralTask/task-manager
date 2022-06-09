@@ -60,7 +60,7 @@ export const TruncatedText = styled.span`
     white-space: nowrap;
 `
 
-export const CommentsContainer = styled.div`
+export const CommentsCountContainer = styled.div`
     display: flex;
     gap: ${Spacing.margin._8};
 `
