@@ -213,9 +213,7 @@ func TestLoadLinearTasks(t *testing.T) {
 			actualComments := *result.Tasks[0].Comments
 			assert.Equal(t, len(expectedComments), len(actualComments))
 			if len(*expectedTask.Comments) == len(*result.Tasks[0].Comments) {
-				//for i :=  range expectedComments {
 				assert.Equal(t, expectedComments, actualComments)
-				//}
 			}
 		}
 
