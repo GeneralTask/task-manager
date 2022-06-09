@@ -44,16 +44,19 @@ export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 export const NO_EVENT_TITLE = '(no title)'
 
 export enum KEYBOARD_SHORTCUTS {
-    SELECT = 'Enter',
     CLOSE = 'Escape',
+    CREATE_TASK = 'T',
+    DOWN = 'ArrowDown',
+    FORWARD = 'F',
+    MARK_COMPLETE = 'D',
     NEXT = 'ArrowDown',
     PREVIOUS = 'ArrowUp',
+    REFRESH = 'Ctrl+R',
+    REPLY = 'R',
+    REPLY_ALL = 'Shift+R',
+    SELECT = 'Enter',
     SHOW_DATE_PICKER = 'S',
-    SHOW_TIME_ESTIMATION_PICKER = 'F',
     SHOW_LABEL_EDITOR = 'L',
-    CREATE_TASK = 'T',
-    REFRESH = 'R',
-    MARK_COMPLETE = 'D',
-    DOWN = 'ArrowDown',
+    SHOW_TIME_ESTIMATION_PICKER = 'F',
     UP = 'ArrowUp',
 }
