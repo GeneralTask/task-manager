@@ -43,7 +43,7 @@ export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 
 export const NO_EVENT_TITLE = '(no title)'
 
-const CMD_CTRL_KEY = !navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
+const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
 export const KEYBOARD_SHORTCUTS = Object.freeze({
     CLOSE: 'Escape',
     CREATE_TASK: 'T',
