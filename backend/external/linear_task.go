@@ -87,11 +87,11 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 				IsTask: true,
 			},
 			Task: database.Task{
-				Status: &database.ExternalTaskStatus{
+				Status: database.ExternalTaskStatus{
 					ExternalID: (linearIssue.State.Id).(string),
 					State:      string(linearIssue.State.Name),
 				},
-				CompletedStatus: &database.ExternalTaskStatus{
+				CompletedStatus: database.ExternalTaskStatus{
 					ExternalID: (linearIssue.Team.MergeWorkflowState.Id).(string),
 					State:      string(linearIssue.Team.MergeWorkflowState.Name),
 				},
@@ -129,8 +129,8 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 				IsCompleted: &isCompleted,
 				Task: &database.TaskChangeable{
 					Comments:        task.Comments,
-					Status:          task.Status,
-					CompletedStatus: task.CompletedStatus,
+					Status:          &task.Status,
+					CompletedStatus: &task.CompletedStatus,
 				},
 			},
 			nil,
