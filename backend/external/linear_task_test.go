@@ -19,6 +19,7 @@ func TestLoadLinearTasks(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
+	userID := primitive.NewObjectID()
 
 	taskServerSuccess := testutils.GetMockAPIServer(t, 200, `{
 		"data": {
@@ -57,7 +58,6 @@ func TestLoadLinearTasks(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		var taskResult = make(chan TaskResult)
 		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
@@ -76,7 +76,6 @@ func TestLoadLinearTasks(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		var taskResult = make(chan TaskResult)
 		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
@@ -96,7 +95,6 @@ func TestLoadLinearTasks(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		var taskResult = make(chan TaskResult)
 		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
@@ -116,7 +114,6 @@ func TestLoadLinearTasks(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		var taskResult = make(chan TaskResult)
 		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
@@ -134,7 +131,6 @@ func TestLoadLinearTasks(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 		expectedTask := database.Item{
@@ -182,7 +178,6 @@ func TestLoadLinearTasks(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 		expectedTask := database.Item{
@@ -195,10 +190,9 @@ func TestLoadLinearTasks(t *testing.T) {
 				Title:             "wrong test title",
 				Body:              "wrgong test description",
 				SourceID:          TASK_SOURCE_ID_LINEAR,
-				SourceAccountID:   "sugapapa",
+				SourceAccountID:   "sample_account@email.com",
 				UserID:            userID,
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
-				TimeAllocation:    time.Hour.Nanoseconds(),
 			},
 			TaskType: database.TaskType{
 				IsTask: true,
@@ -233,6 +227,6 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 		assert.False(t, taskFromDB.IsCompleted)
-		assert.Equal(t, "sugapapa", taskFromDB.SourceAccountID) // doesn't get updated
+		assert.Equal(t, "sample_account@email.com", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 }

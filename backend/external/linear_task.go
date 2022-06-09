@@ -61,7 +61,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
 		return
 	}
-	issuesQuery, err := getLinearAssignedIssuesStruct(client, meQuery.Viewer.Email)
+	issuesQuery, err := getLinearAssignedIssues(client, meQuery.Viewer.Email)
 	if err != nil {
 		log.Error().Err(err).Msg("unable to get linear issues assigned to user")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
@@ -111,7 +111,6 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
-		task.TimeAllocation = dbTask.TimeAllocation
 		tasks = append(tasks, task)
 	}
 
