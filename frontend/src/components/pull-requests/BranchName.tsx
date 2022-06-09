@@ -10,8 +10,8 @@ interface BranchNameProps {
     name: string
 }
 const BranchName = ({ name }: BranchNameProps) => {
-    const handleClick = async () => {
-        await navigator.clipboard.writeText(name)
+    const handleClick = () => {
+        navigator.clipboard.writeText(name)
         toast(
             {
                 message: 'Branch copied to clipboard',
