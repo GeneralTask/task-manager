@@ -111,7 +111,18 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 
 			checkSuiteResult, _, err := githubClient.Checks.ListCheckSuitesForRef(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Head.SHA, nil)
+			var status string
+			
+			if checkSuiteResult.CheckSuites != nil && len(checkSuiteResult.CheckSuites) > 0 {
+				length := len(checkSuiteResult.CheckSuites)
 
+				status = *checkSuiteResult.CheckSuites[length - 1].Status
+				if (status == "completed") {
+					status = *checkSuiteResult.CheckSuites[length - 1].Conclusion
+				}
+			} else {
+				status = "pending"
+			}
  
 			pullRequest := &database.Item{
 				TaskBase: database.TaskBase{
@@ -133,7 +144,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					CommentCount:   getCommentCount(extCtx, githubClient, repository, pullRequest),
 					ReviewersCount: reviewerCount,
 					IsRequestedChanges: isRequestedChanges,
-					CombinedStatus: *checkSuiteResult.CheckSuites[0].Conclusion,
+					CombinedStatus: status,
 				},
 				TaskType: database.TaskType{
 					IsTask:        true,
