@@ -65,14 +65,12 @@ func UpdateOrCreateTask(
 		log.Error().Err(err).Msg("failed to update or create task")
 		return nil, err
 	}
-	log.Debug().Msgf("$setOnInsert: %+v", fieldsToInsertIfMissing)
 
 	mongoResult := taskCollection.FindOneAndUpdate(
 		dbCtx,
 		dbQuery,
 		bson.M{"$set": fieldsToUpdate},
 	)
-	log.Debug().Msgf("$set: %+v", fieldsToUpdate)
 
 	var item Item
 	err = mongoResult.Decode(&item)
