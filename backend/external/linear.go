@@ -244,9 +244,9 @@ func getLinearUserInfoStruct(client *graphql.Client) (*linearUserInfoQuery, erro
 	return &query, nil
 }
 
-func getLinearAssignedIssuesStruct(client *graphql.Client, email graphql.String) (*linearAssignedIssuesQuery, error) {
+func getLinearAssignedIssues(client *graphql.Client, email graphql.String) (*linearAssignedIssuesQuery, error) {
 	variables := map[string]interface{}{
-		"email": email, // TODO: using ID doesn't work for some reason
+		"email": email, // TODO: use ID instead of email to filter issues
 	}
 	var query linearAssignedIssuesQuery
 	err := client.Query(context.Background(), &query, variables)
