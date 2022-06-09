@@ -1,5 +1,6 @@
 import { Column, CommentsCountContainer, LinkButton, PullRequestRow, TruncatedText } from './styles'
 
+import BranchName from './BranchName'
 import { DateTime } from 'luxon'
 import { Icon } from '../atoms/Icon'
 import React from 'react'
@@ -35,7 +36,7 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
                 </CommentsCountContainer>
             </Column>
             <Column type="branch">
-                <TruncatedText>{branch}</TruncatedText>
+                <BranchName name={branch} />
             </Column>
             <Column type="link">
                 <LinkButton href={link} target="_blank">

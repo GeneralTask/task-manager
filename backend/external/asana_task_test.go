@@ -218,7 +218,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		isCompleted := true
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted})
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted})
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
@@ -229,7 +229,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		isCompleted := true
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted})
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted})
 		assert.NoError(t, err)
 	})
 	t.Run("MarkAsNotDoneSuccess", func(t *testing.T) {
@@ -239,7 +239,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		isCompleted := false
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted})
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted})
 		assert.NoError(t, err)
 	})
 	t.Run("UpdateFieldsAndMarkAsDoneSuccess", func(t *testing.T) {
@@ -252,7 +252,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		newBody := "New Body"
 		isCompleted := true
 
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:       &newName,
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
@@ -270,7 +270,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		newBody := "New Body"
 		isCompleted := true
 
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:       &newName,
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
@@ -288,7 +288,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		newName := "New Title"
 		newBody := "New Body"
 
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
@@ -304,7 +304,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		newName := "New Title"
 		newBody := "New Body"
 
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
@@ -322,7 +322,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		newBody := "New Body"
 		isCompleted := false
 
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:       &newName,
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
@@ -341,7 +341,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		newBody := "New Body"
 		isCompleted := false
 
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:       &newName,
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
@@ -356,7 +356,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		timeAllocation := int64(1000)
 		isCompleted := true
 
-		updateFields := &database.TaskChangeableFields{
+		updateFields := &database.TaskItemChangeableFields{
 			Title:          &title,
 			Body:           &description,
 			TimeAllocation: &timeAllocation,
@@ -382,7 +382,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		timeAllocation := int64(1000)
 		isCompleted := true
 
-		updateFields := &database.TaskChangeableFields{
+		updateFields := &database.TaskItemChangeableFields{
 			Title:          &title,
 			Body:           &description,
 			DueDate:        primitive.NewDateTimeFromTime(dueDate),
@@ -403,7 +403,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.Equal(t, expected, *body)
 	})
 	t.Run("GetTaskUpdateBodyEmpty", func(t *testing.T) {
-		updateFields := &database.TaskChangeableFields{}
+		updateFields := &database.TaskItemChangeableFields{}
 		expected := AsanaTasksUpdateBody{
 			Data: AsanaTasksUpdateFields{},
 		}
