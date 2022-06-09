@@ -128,7 +128,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task.IDExternal,
 			task.SourceID,
 			task,
-			database.TaskChangeableFields{
+			database.TaskItemChangeableFields{
 				Title:       &task.Title,
 				Body:        &task.TaskBase.Body,
 				DueDate:     task.DueDate,
@@ -158,7 +158,7 @@ func (asanaTask AsanaTaskSource) GetPullRequests(userID primitive.ObjectID, acco
 	result <- emptyPullRequestResult(nil)
 }
 
-func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
@@ -185,7 +185,7 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 	return nil
 }
 
-func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.TaskChangeableFields) *AsanaTasksUpdateBody {
+func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.TaskItemChangeableFields) *AsanaTasksUpdateBody {
 	var dueDate *string
 	if updateFields.DueDate.Time() != time.Unix(0, 0) {
 		dueDateString := updateFields.DueDate.Time().Format(constants.YEAR_MONTH_DAY_FORMAT)
