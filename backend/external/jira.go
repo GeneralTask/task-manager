@@ -370,7 +370,7 @@ func (jira JIRASource) CreateNewEvent(userID primitive.ObjectID, accountID strin
 	return errors.New("has not been implemented yet")
 }
 
-func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields, task *database.Item) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		token, _ := jira.Atlassian.getToken(userID, accountID)
 		siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)

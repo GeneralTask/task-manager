@@ -251,7 +251,7 @@ func TestModifyLinearTask(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		isCompleted := true
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted})
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted}, nil)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, err.Error())
 	})
@@ -272,7 +272,7 @@ func TestModifyLinearTask(t *testing.T) {
 		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
 			Title: &newName,
 			Body:  &newBody,
-		})
+		}, nil)
 		assert.NoError(t, err)
 	})
 	t.Run("UpdateFieldsAndMarkAsDoneBadResponse", func(t *testing.T) {
@@ -295,7 +295,7 @@ func TestModifyLinearTask(t *testing.T) {
 			Title:       &newName,
 			Body:        &newBody,
 			IsCompleted: &isCompleted,
-		})
+		}, nil)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, err.Error())
 	})
@@ -318,7 +318,7 @@ func TestModifyLinearTask(t *testing.T) {
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
-		})
+		}, nil)
 		assert.NoError(t, err)
 	})
 	t.Run("UpdateTitleBodyBadResponse", func(t *testing.T) {
@@ -340,7 +340,7 @@ func TestModifyLinearTask(t *testing.T) {
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
-		})
+		}, nil)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, err.Error())
 	})
@@ -359,7 +359,7 @@ func TestModifyLinearTask(t *testing.T) {
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
 			IsCompleted: &isCompleted,
-		})
+		}, nil)
 		assert.NoError(t, err)
 	})
 
@@ -378,7 +378,7 @@ func TestModifyLinearTask(t *testing.T) {
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
 			IsCompleted: &isCompleted,
-		})
+		}, nil)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})

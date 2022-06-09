@@ -203,10 +203,10 @@ type linearAssignedIssuesQuery struct {
 type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
 		Success graphql.Boolean
-	} `graphql:"issueUpdate(id: $id, input: {title: $title, description: $description})"`
+	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, description: $description})"`
 }
 
-func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFields *database.TaskChangeableFields) (*linearUpdateIssueQuery, error) {
+func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFields *database.TaskChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
 	var query linearUpdateIssueQuery
 	variables := map[string]interface{}{
 		"id": graphql.String(issueID),
@@ -216,6 +216,15 @@ func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFie
 	}
 	if updateFields.Body != nil {
 		variables["description"] = graphql.String(*updateFields.Body)
+	}
+	if updateFields.IsCompleted != nil {
+		if *updateFields.IsCompleted {
+
+			//variables["$stateId"] = graphql.String(task.comp)
+		} else {
+
+		}
+
 	}
 	err := client.Mutate(context.Background(), &query, variables)
 	if err != nil {

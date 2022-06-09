@@ -77,7 +77,7 @@ func (api *API) TaskModify(c *gin.Context) {
 
 	if modifyParams.TaskChangeableFields != (database.TaskChangeableFields{}) {
 		// update external task
-		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskChangeableFields)
+		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskChangeableFields, task)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to update external task source")
 			Handle500(c)

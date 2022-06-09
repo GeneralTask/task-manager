@@ -122,7 +122,7 @@ func (linearTask LinearTaskSource) GetPullRequests(userID primitive.ObjectID, ac
 	result <- emptyPullRequestResult(nil)
 }
 
-func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields, task *database.Item) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
@@ -134,7 +134,7 @@ func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, account
 		log.Error().Err(err).Msg("unable to create linear client")
 		return err
 	}
-	issueUpdate, err := updateLinearIssueMutation(client, issueID, updateFields)
+	issueUpdate, err := updateLinearIssueMutation(client, issueID, updateFields, task)
 	if err != nil {
 		log.Error().Err(err).Msg("unable to update linear issue")
 		return err

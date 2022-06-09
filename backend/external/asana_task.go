@@ -158,7 +158,7 @@ func (asanaTask AsanaTaskSource) GetPullRequests(userID primitive.ObjectID, acco
 	result <- emptyPullRequestResult(nil)
 }
 
-func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields, task *database.Item) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
