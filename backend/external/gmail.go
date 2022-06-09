@@ -102,8 +102,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				SourceAccountID: accountID,
 			},
 			EmailThread: database.EmailThread{
-				ThreadID: thread.Id,
-				IsArchived:   isMessageArchived(thread.Messages[0]),
+				ThreadID:   thread.Id,
+				IsArchived: isMessageArchived(thread.Messages[0]),
 			},
 			TaskType: database.TaskType{
 				IsThread: true,
@@ -561,7 +561,7 @@ func (gmailSource GmailSource) CreateNewEvent(userID primitive.ObjectID, account
 	return errors.New("has not been implemented yet")
 }
 
-func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		gmailSource.MarkAsDone(userID, accountID, issueID)
 	}
