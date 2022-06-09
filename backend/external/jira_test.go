@@ -352,7 +352,6 @@ func assertTasksEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.TaskType, b.TaskType)
 	assert.Equal(t, a.DueDate, b.DueDate)
 	assert.Equal(t, a.TimeAllocation, b.TimeAllocation)
-
 	assert.Equal(t, a.Status, b.Status)
 	assert.Equal(t, a.CompletedStatus, b.CompletedStatus)
 	assert.True(t, (a.Comments == nil) == (b.Comments == nil))
