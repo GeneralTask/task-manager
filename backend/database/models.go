@@ -191,9 +191,9 @@ type ExternalUser struct {
 }
 
 type Comment struct {
-	Body      string             `bson:"body"`
-	User      ExternalUser       `bson:"user"`
-	CreatedAt primitive.DateTime `bson:"created_at"`
+	Body      string             `bson:"body" json:"body"`
+	User      ExternalUser       `bson:"user" json:"user"`
+	CreatedAt primitive.DateTime `bson:"created_at" json:"created_at"`
 }
 
 type ExternalTaskStatus struct {
@@ -206,11 +206,11 @@ type Task struct {
 	PriorityNormalized float64 `bson:"priority_normalized"`
 	TaskNumber         int     `bson:"task_number"`
 	LinkedMessage      `bson:"linked_message"`
-	Comments           *[]Comment          `bson:"comments"`
-	Status             *ExternalTaskStatus `bson:"status"`
+	Comments           *[]Comment         `bson:"comments"`
+	Status             ExternalTaskStatus `bson:"status"`
 	// Used to cache the current status before marking the task as done
-	PreviousStatus  *ExternalTaskStatus `bson:"previous_status"`
-	CompletedStatus *ExternalTaskStatus `bson:"completed_status"`
+	PreviousStatus  ExternalTaskStatus `bson:"previous_status"`
+	CompletedStatus ExternalTaskStatus `bson:"completed_status"`
 }
 
 type TaskChangeable struct {
