@@ -266,18 +266,7 @@ func TestLoadLinearTasks(t *testing.T) {
 					ExternalID: "merge-workflow-state-id",
 					State:      "Done",
 				},
-				Comments: &[]database.Comment{
-					{
-						Body: "wrong test comment body",
-						User: database.ExternalUser{
-							ExternalID:  "test-commenter-id",
-							Name:        "wrong Test Commenter",
-							DisplayName: "wrong test comm",
-							Email:       "wrongtestCommenter@generaltask.com",
-						},
-						CreatedAt: primitive.NewDateTimeFromTime(commentCreatedAt),
-					},
-				},
+				Comments: nil,
 			},
 		}
 		database.GetOrCreateItem(
@@ -290,6 +279,18 @@ func TestLoadLinearTasks(t *testing.T) {
 		// switch a few fields from their existing db value to their expected output value
 		expectedTask.Title = "test title"
 		expectedTask.TaskBase.Body = "test description"
+		expectedTask.Comments = &[]database.Comment{
+			{
+				Body: "test comment body",
+				User: database.ExternalUser{
+					ExternalID:  "test-commenter-id",
+					Name:        "Test Commenter",
+					DisplayName: "test comm",
+					Email:       "testCommenter@generaltask.com",
+				},
+				CreatedAt: primitive.NewDateTimeFromTime(commentCreatedAt),
+			},
+		}
 
 		var taskResult = make(chan TaskResult)
 		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
