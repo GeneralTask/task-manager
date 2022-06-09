@@ -204,6 +204,7 @@ type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
 		Success graphql.Boolean
 	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, description: $description})"`
+	//} `graphql:"issueUpdate(id: $id, input: {title: $title, description: $description})"`
 }
 
 func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFields *database.TaskChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
@@ -211,21 +212,49 @@ func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFie
 	variables := map[string]interface{}{
 		"id": graphql.String(issueID),
 	}
+
 	if updateFields.Title != nil {
 		variables["title"] = graphql.String(*updateFields.Title)
+		// will fail graphql validation on empty string
+	} else {
+		variables["title"] = graphql.String(task.Title)
 	}
 	if updateFields.Body != nil {
 		variables["description"] = graphql.String(*updateFields.Body)
+		// empty string ok
+	} else {
+		variables["description"] = graphql.String(task.TaskBase.Body)
 	}
+
 	if updateFields.IsCompleted != nil {
 		if *updateFields.IsCompleted {
-
-			//variables["$stateId"] = graphql.String(task.comp)
+			variables["$stateId"] = task.CompletedStatus.ExternalID
 		} else {
 
 		}
-
+	} else {
+		variables["$stateId"] = task.Status.ExternalID
+		// empty string fails
 	}
+
+	if updateFields.Title != nil {
+		//variables["title"] = graphql.String(*updateFields.Title)
+		variables["title"] = graphql.String("32")
+	}
+	if updateFields.Body != nil {
+		//variables["description"] = graphql.String(*updateFields.Body)
+		variables["description"] = graphql.String("safdasdfk2")
+	}
+	variables["$stateId"] = ""
+	//if updateFields.IsCompleted != nil {
+	//	if *updateFields.IsCompleted {
+	//
+	//		variables["$stateId"] = graphql.String(task.comp)
+	//	} else {
+	//
+	//	}
+	//}
+
 	err := client.Mutate(context.Background(), &query, variables)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to update linear issue")

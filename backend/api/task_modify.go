@@ -216,6 +216,16 @@ func UpdateTaskInDB(c *gin.Context, taskID primitive.ObjectID, userID primitive.
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
+	if updateFields.IsCompleted != nil {
+		if updateFields.IsCompleted {
+			updateFields.PreviousStatus = database.ExternalTaskStatus{
+				ExternalID: "",
+				State:      "",
+			}
+
+		}
+	}
+
 	flattenedTaskChangeableFields, err := database.FlattenStruct(updateFields)
 	if err != nil {
 		log.Error().Err(err).Msgf("failed to flatten struct %+v", updateFields)
