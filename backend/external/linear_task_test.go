@@ -239,6 +239,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
+		commentCreatedAt, _ := time.Parse("2006-01-02", "2019-04-21")
 		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:        0,
@@ -247,7 +248,7 @@ func TestLoadLinearTasks(t *testing.T) {
 				IsCompleted:       true,
 				Deeplink:          "https://example.com/",
 				Title:             "wrong test title",
-				Body:              "wrgong test description",
+				Body:              "wrong test description",
 				SourceID:          TASK_SOURCE_ID_LINEAR,
 				SourceAccountID:   "sample_account@email.com",
 				UserID:            userID,
@@ -255,6 +256,28 @@ func TestLoadLinearTasks(t *testing.T) {
 			},
 			TaskType: database.TaskType{
 				IsTask: true,
+			},
+			Task: database.Task{
+				Status: &database.ExternalTaskStatus{
+					ExternalID: "state-id",
+					State:      "Todo",
+				},
+				CompletedStatus: &database.ExternalTaskStatus{
+					ExternalID: "merge-workflow-state-id",
+					State:      "Done",
+				},
+				Comments: &[]database.Comment{
+					{
+						Body: "wrong test comment body",
+						User: database.ExternalUser{
+							ExternalID:  "test-commenter-id",
+							Name:        "wrong Test Commenter",
+							DisplayName: "wrong test comm",
+							Email:       "wrongtestCommenter@generaltask.com",
+						},
+						CreatedAt: primitive.NewDateTimeFromTime(commentCreatedAt),
+					},
+				},
 			},
 		}
 		database.GetOrCreateItem(
