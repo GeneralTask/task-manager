@@ -36,7 +36,6 @@ interface SectionLinksProps {
     threads: TEmailThread[]
     pullRequestRepositories: TRepository[]
     sectionId: string
-    repositoryId: string
     pathName: string
 }
 
@@ -45,7 +44,6 @@ const NavigationSectionLinks = ({
     threads,
     pullRequestRepositories,
     sectionId,
-    repositoryId,
     pathName,
 }: SectionLinksProps) => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
@@ -157,7 +155,7 @@ const NavigationSectionLinks = ({
                         (total, repo) => total + repo.pull_requests.length,
                         0
                     )}
-                    isCurrentPage={repositoryId === 'pull-requests'}
+                    isCurrentPage={pathName === 'pull-requests'}
                 />
             )}
             <NavigationLink
