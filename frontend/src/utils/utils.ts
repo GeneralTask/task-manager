@@ -21,10 +21,18 @@ export function resetOrderingIds(tasks: TTask[]) {
 }
 
 export const removeHTMLTags = (dirtyHTML: string) => {
-    return sanitizeHtml(dirtyHTML, {
+    const strsToReplace = {
+        '&lt;': '<',
+        '&gt;': '>',
+        '&amp;': '&',
+        '&quot;': '"',
+        '&apos;': '\'',
+    }
+    const sanitized = sanitizeHtml(dirtyHTML, {
         allowedTags: [],
         allowedAttributes: {},
     })
+    return replaceBulk(sanitized, strsToReplace)
 }
 
 export const getHumanTimeSinceDateTime = (date: DateTime) => {
@@ -61,3 +69,15 @@ export const emptyFunction = () => void 0
 // https://stackoverflow.com/a/46181/12679075
 export const isValidEmail = (email: string): boolean =>
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email.toLowerCase())
+
+// Inspired by https://stackoverflow.com/questions/5069464/replace-multiple-strings-at-once
+function replaceBulk(str: string, findReplaceMap: { [key: string]: string }) {
+    const regexArr: string[] = []
+    for (const find of Object.keys(findReplaceMap)) {
+        regexArr.push(find.replace(/([-[\]{}()*+?.\\^$|#,])/g, '\\$1'))
+    }
+    const regex = regexArr.join('|')
+    return str.replace(new RegExp(regex, 'g'), function (matched) {
+        return findReplaceMap[matched]
+    })
+}
