@@ -82,7 +82,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 			log.Debug().Str("taskServiceID", taskServiceResult.Details.ID).Str("taskSourceID", taskSourceResult.Details.ID).
 				Str("tokenAccountID", token.AccountID).Send()
 			var emails = make(chan external.EmailResult)
-			go taskSourceResult.Source.GetEmails(userID.(primitive.ObjectID), token.AccountID, emails, fullRefresh)
+			go taskSourceResult.Source.GetEmails(userID.(primitive.ObjectID), token.AccountID, token.HistoryID, emails, fullRefresh)
 			emailChannels = append(emailChannels, emails)
 			emailChannelToToken[emails] = token
 		}
@@ -106,6 +106,17 @@ func (api *API) MessagesFetch(c *gin.Context) {
 			failedFetchSources[emailResult.SourceID] = true
 			continue
 		}
+
+		// update historyID for token, in order to facilitate next update
+		if emailResult.HistoryID != 0 {
+			validToken := emailChannelToToken[emailChannel]
+			historyChangeable := database.ExternalAPITokenChangeable{HistoryID: emailResult.HistoryID}
+			res := externalAPITokenCollection.FindOneAndUpdate(dbCtx, bson.M{"_id": validToken.ID}, bson.M{"$set": historyChangeable})
+			if res.Err() != nil {
+				log.Error().Err(res.Err()).Msgf("could not update token %+v in db", validToken)
+			}
+		}
+
 		fetchedEmails = append(fetchedEmails, emailResult.Emails...)
 	}
 

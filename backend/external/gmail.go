@@ -24,8 +24,7 @@ import (
 )
 
 const (
-	defaultFetchMaxResults = int64(20)
-	fullFetchMaxResults    = int64(500)
+	fullFetchMaxResults = int64(500)
 )
 
 type GmailSource struct {
@@ -215,6 +214,40 @@ func processThreads(userID primitive.ObjectID, accountID string, db *mongo.Datab
 	return EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL}
 }
 
+func getAllGmailHistory(gmailService *gmail.Service, historyID uint64) ([]*gmail.History, uint64, error) {
+	historyResponse, err := gmailService.Users.History.List("me").StartHistoryId(historyID).MaxResults(fullFetchMaxResults).Do()
+	if err != nil {
+		return []*gmail.History{}, 0, err
+	}
+
+	historiesRequiringUpdate := historyResponse.History
+
+	// iterate through until we have the full history (no returned new entries)
+	for len(historyResponse.History) > 0 {
+		currentHistoryID := historyResponse.History[len(historyResponse.History)-1].Id
+		historyResponse, err = gmailService.Users.History.List("me").StartHistoryId(currentHistoryID).MaxResults(fullFetchMaxResults).Do()
+		if err != nil {
+			return []*gmail.History{}, 0, err
+		}
+		historiesRequiringUpdate = append(historiesRequiringUpdate, historyResponse.History...)
+	}
+
+	return historiesRequiringUpdate, historyResponse.HistoryId, nil
+}
+
+// from StackOverflow
+func removeDuplicateStr(strSlice []string) []string {
+	allKeys := make(map[string]bool)
+	list := []string{}
+	for _, item := range strSlice {
+		if _, value := allKeys[item]; !value {
+			allKeys[item] = true
+			list = append(list, item)
+		}
+	}
+	return list
+}
+
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, historyID uint64, result chan<- EmailResult, fullRefresh bool) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -232,14 +265,14 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	}
 
 	threadChannels := []chan *gmail.Thread{}
-
-	recentHistoryID := uint64(1)
+	var recentHistoryID uint64
+	var historiesRequiringUpdate []*gmail.History
 	// loads all thread changes, or 500 recent threads in the inbox
-	if fullRefresh {
+	// do fullRefresh if we don't have history data stored for the account
+	if fullRefresh || historyID == 0 {
 		log.Debug().Msg("Performing full gmail thread refresh")
 		// TODO: for a full refresh, we probably want to paginate through this request until we've fetched all threads in the DB
-		maxResults := fullFetchMaxResults
-		threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(maxResults).Do()
+		threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(fullFetchMaxResults).Do()
 		if err != nil {
 			log.Error().Err(err).Msg("failed to load Gmail threads for user")
 			isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
@@ -249,38 +282,42 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			result <- threadOutput
 			return
 		}
+
 		for _, threadListItem := range threadsResponse.Threads {
 			var threadResult = make(chan *gmail.Thread)
 			go getThreadFromGmail(gmailService, threadListItem.Id, threadResult)
 			threadChannels = append(threadChannels, threadResult)
 		}
 
+		// get single history for historyID number
 		historyResponse, err := gmailService.Users.History.List("me").MaxResults(1).StartHistoryId(1).Do()
 		if err == nil {
 			recentHistoryID = historyResponse.HistoryId
 		}
 	} else {
 		log.Debug().Msg("Performing small gmail thread update/refresh")
-		maxResults := defaultFetchMaxResults
 
-		//
-		historyResponse, err := gmailService.Users.History.List("me").StartHistoryId(historyID).MaxResults(maxResults).Do()
+		historiesRequiringUpdate, recentHistoryID, err = getAllGmailHistory(gmailService, historyID)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to load Gmail history for user")
 			isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
 				strings.Contains(err.Error(), "authError")
 			threadOutput := emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			threadOutput.IsBadToken = isBadToken
-			result <- threadOutput
-			return
 		}
 
+		// get all thread IDs mentioned in the history
 		historyThreadIDs := []string{}
-		for _, historyEntry := range historyResponse.History {
+		for _, historyEntry := range historiesRequiringUpdate {
 			for _, message := range historyEntry.Messages {
 				historyThreadIDs = append(historyThreadIDs, message.ThreadId)
 			}
 		}
+
+		// dedupe the thread updates
+		historyThreadIDs = removeDuplicateStr(historyThreadIDs)
+
+		// get emails from the thread
 		for _, threadListItem := range historyThreadIDs {
 			var threadResult = make(chan *gmail.Thread)
 			go getThreadFromGmail(gmailService, threadListItem, threadResult)
