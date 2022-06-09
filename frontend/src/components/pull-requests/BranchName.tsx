@@ -1,22 +1,10 @@
-import { Border, Colors, Spacing } from '../../styles'
+import { BranchNameContainer, TruncatedText } from './styles'
 
 import { Icon } from '../atoms/Icon'
 import React from 'react'
 import TooltipWrapper from '../atoms/TooltipWrapper'
-import { TruncatedText } from './styles'
 import { icons } from '../../styles/images'
-import styled from 'styled-components'
 import toast from '../../utils/toast'
-
-const BranchNameContainer = styled.div`
-    display: flex;
-    align-items: center;
-    color: ${Colors.purple._1};
-    border: 0.5px solid ${Colors.gray._200};
-    border-radius: ${Border.radius.regular};
-    padding: ${Spacing.padding._4} ${Spacing.padding._4};
-    cursor: pointer;
-`
 
 interface BranchNameProps {
     name: string
