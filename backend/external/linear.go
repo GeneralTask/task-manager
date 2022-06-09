@@ -137,7 +137,7 @@ func getLinearClientFromToken(token *oauth2.Token, overrideURL *string) *graphql
 	return client
 }
 
-func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string, ctx context.Context) (*graphql.Client, error) {
+func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string) (*graphql.Client, error) {
 	var client *graphql.Client
 	var err error
 	if overrideURL != nil {
@@ -145,8 +145,8 @@ func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.O
 	} else {
 		httpClient := getLinearHttpClient(db, userID, accountID)
 		if httpClient == nil {
-			log.Printf("failed to fetch google API token")
-			return nil, errors.New("failed to fetch google API token")
+			log.Error().Msg("could not create linear client")
+			return nil, errors.New("could not create linear client")
 		}
 		client = graphql.NewClient(LinearGraphqlEndpoint, httpClient)
 	}
@@ -172,4 +172,53 @@ func getLinearOauthConfig() *OauthConfig {
 			TokenURL: LinearTokenUrl,
 		},
 	}}
+}
+
+type linearUserInfoQuery struct {
+	Viewer struct {
+		Id    graphql.String
+		Name  graphql.String
+		Email graphql.String
+	}
+}
+
+type linearAssignedIssuesQuery struct {
+	Issues struct {
+		Nodes []struct {
+			Id          graphql.ID
+			Title       graphql.String
+			Description graphql.String
+			DueDate     graphql.String
+			Url         graphql.String
+			CreatedAt   graphql.String
+			Assignee    struct {
+				Id    graphql.ID
+				Name  graphql.String
+				Email graphql.String
+			}
+		}
+	} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
+}
+
+func getLinearUserInfoStruct(client *graphql.Client) (*linearUserInfoQuery, error) {
+	var query linearUserInfoQuery
+	err := client.Query(context.Background(), &query, nil)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to fetch user info")
+		return nil, err
+	}
+	return &query, nil
+}
+
+func getLinearAssignedIssues(client *graphql.Client, email graphql.String) (*linearAssignedIssuesQuery, error) {
+	variables := map[string]interface{}{
+		"email": email, // TODO: use ID instead of email to filter issues
+	}
+	var query linearAssignedIssuesQuery
+	err := client.Query(context.Background(), &query, variables)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to fetch issues assigned to user")
+		return nil, err
+	}
+	return &query, nil
 }
