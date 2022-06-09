@@ -37,7 +37,6 @@ interface SectionLinksProps {
     threadsInbox: TEmailThread[]
     pullRequestRepositories: TRepository[]
     sectionId: string
-    repositoryId: string
     boxName: string
     pathName: string
 }
@@ -47,7 +46,6 @@ const NavigationSectionLinks = ({
     threadsInbox,
     pullRequestRepositories,
     sectionId,
-    repositoryId,
     boxName,
     pathName,
 }: SectionLinksProps) => {
@@ -168,7 +166,7 @@ const NavigationSectionLinks = ({
                         (total, repo) => total + repo.pull_requests.length,
                         0
                     )}
-                    isCurrentPage={repositoryId === 'pull-requests'}
+                    isCurrentPage={pathName === 'pull-requests'}
                 />
             )}
             <NavigationLink

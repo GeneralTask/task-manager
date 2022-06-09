@@ -41,7 +41,7 @@ const NavigationView = () => {
     const { data: taskSections } = useGetTasks()
     const { data: threadDataInbox } = useGetInfiniteThreads({ isArchived: false })
     const pullRequestRepositories = dummyRepositories
-    const { section: sectionIdParam, repository: repositoryIdParam, box: boxName } = useParams()
+    const { section: sectionIdParam, box: boxName } = useParams()
     const { pathname } = useLocation()
 
     const threadsInbox = useMemo(() => threadDataInbox?.pages.flat().filter((t) => t != null) ?? [], [threadDataInbox])
@@ -58,7 +58,6 @@ const NavigationView = () => {
                         threadsInbox={threadsInbox}
                         pullRequestRepositories={pullRequestRepositories}
                         sectionId={sectionIdParam || ''}
-                        repositoryId={repositoryIdParam || ''}
                         boxName={boxName || ''}
                         pathName={pathname.split('/')[1]}
                     />
