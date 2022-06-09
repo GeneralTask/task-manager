@@ -1,9 +1,9 @@
-import React, { Fragment, useEffect, useLayoutEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import ActionOption from '../molecules/ActionOption'
 import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
 import ReactTooltip from 'react-tooltip'
-import { TEmailComposeState, TTask } from '../../utils/types'
+import { TTask } from '../../utils/types'
 import { logos } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
@@ -13,10 +13,11 @@ import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
 import Spinner from '../atoms/Spinner'
 import { useNavigate, useParams } from 'react-router-dom'
-import PreviousMessages from './email/PreviousMessages'
-import EmailContainer from './email/EmailContainer'
-import EmailCompose from './email/compose/EmailCompose'
-import EmailMainActions from './email/compose/MainActions'
+// import PreviousMessages from './email/PreviousMessages'
+// import EmailContainer from './email/EmailContainer'
+// import EmailCompose from './email/compose/EmailCompose'
+// import EmailMainActions from './email/compose/MainActions'
+import { EmailList } from './email/EmailList'
 
 const DetailsViewContainer = styled.div`
     flex: 1;
@@ -71,11 +72,11 @@ const MarginLeftAuto = styled.div`
 const MarginRight8 = styled.div`
     margin-right: ${Spacing.margin._8};
 `
-const EmailThreadsContainer = styled.div`
-    flex: 1;
-    overflow-y: auto;
-    min-width: 0;
-`
+// const EmailThreadsContainer = styled.div`
+//     flex: 1;
+//     overflow-y: auto;
+//     min-width: 0;
+// `
 
 const SYNC_MESSAGES = {
     SYNCING: 'Syncing...',
@@ -92,18 +93,18 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
-    const [isCollapsed, setIsCollapsed] = useState(true)
-    const [composeState, setComposeState] = useState<TEmailComposeState>({
-        emailComposeType: null,
-        emailId: null,
-    })
+    // const [isCollapsed, setIsCollapsed] = useState(true)
+    // const [composeState, setComposeState] = useState<TEmailComposeState>({
+    //     emailComposeType: null,
+    //     emailId: null,
+    // })
     const thread = task.linked_email_thread?.email_thread
-    useLayoutEffect(() => {
-        setComposeState({
-            emailComposeType: null,
-            emailId: null,
-        })
-    }, [thread?.id])
+    // useLayoutEffect(() => {
+    //     setComposeState({
+    //         emailComposeType: null,
+    //         emailId: null,
+    //     })
+    // }, [thread?.id])
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
     const bodyRef = useRef<HTMLTextAreaElement>(null)
@@ -237,7 +238,8 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                         }}
                         onKeyDown={(e) => e.stopPropagation()}
                     />
-                    {thread && (
+                    {thread && <EmailList thread={thread} />}
+                    {/* {thread && (
                         <>
                             <EmailThreadsContainer>
                                 {isCollapsed && thread.emails.length > 1 ? (
@@ -294,7 +296,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                 />
                             )}
                         </>
-                    )}
+                    )} */}
                 </>
             )}
         </DetailsViewContainer>

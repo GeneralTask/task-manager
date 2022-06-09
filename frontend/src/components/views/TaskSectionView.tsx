@@ -17,7 +17,6 @@ import useItemSelectionController from '../../hooks/useItemSelectionController'
 import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
 import ScheduleGapFiller from '../atoms/scheduleGapFiller/ScheduleGapFiller'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
-import ThreadDetails from '../details/ThreadDetails'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;
@@ -133,11 +132,7 @@ const TaskSection = () => {
                     </TaskSectionViewContainer>
                 </ScrollViewMimic>
             </BannerAndSectionContainer>
-            {expandedTask && currentSection && (expandedTask.linked_email_thread ? (
-                <ThreadDetails thread={expandedTask.linked_email_thread.email_thread} />
-            ) : (
-                <TaskDetails task={expandedTask} />
-            ))}
+            {expandedTask && currentSection && <TaskDetails task={expandedTask} />}
             <ScheduleGapFiller />
         </>
     )

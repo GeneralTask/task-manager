@@ -152,6 +152,7 @@ const createTask = async (data: TCreateTaskData) => {
  */
 export const useCreateTaskFromThread = () => {
     const queryClient = useQueryClient()
+    const optimisticId = uuidv4()
 
     return useMutation((data: TCreateTaskFromThreadData) => createTaskFromThread(data), {
         onMutate: async (data: TCreateTaskFromThreadData) => {
@@ -160,7 +161,7 @@ export const useCreateTaskFromThread = () => {
             if (!sections) return
             sections[0].tasks = [
                 {
-                    id: '0',
+                    id: optimisticId,
                     id_ordering: 0,
                     title: data.title,
                     body: data.body,
