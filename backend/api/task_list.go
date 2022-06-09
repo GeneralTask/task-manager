@@ -30,20 +30,18 @@ type linkedEmailThread struct {
 }
 
 type TaskResult struct {
-	ID                primitive.ObjectID  `json:"id"`
-	IDOrdering        int                 `json:"id_ordering"`
-	Source            TaskSource          `json:"source"`
-	Deeplink          string              `json:"deeplink"`
-	Title             string              `json:"title"`
-	Body              string              `json:"body"`
-	Sender            string              `json:"sender"`
-	DueDate           string              `json:"due_date"`
-	TimeAllocation    int64               `json:"time_allocated"`
-	SentAt            string              `json:"sent_at"`
-	IsDone            bool                `json:"is_done"`
-	LinkedEmailThread *linkedEmailThread  `json:"linked_email_thread,omitempty"`
-	ExternalStatus    string              `json:"external_status,omitempty"`
-	Comments          *[]database.Comment `json:"comments,omitempty"`
+	ID                primitive.ObjectID `json:"id"`
+	IDOrdering        int                `json:"id_ordering"`
+	Source            TaskSource         `json:"source"`
+	Deeplink          string             `json:"deeplink"`
+	Title             string             `json:"title"`
+	Body              string             `json:"body"`
+	Sender            string             `json:"sender"`
+	DueDate           string             `json:"due_date"`
+	TimeAllocation    int64              `json:"time_allocated"`
+	SentAt            string             `json:"sent_at"`
+	IsDone            bool               `json:"is_done"`
+	LinkedEmailThread *linkedEmailThread `json:"linked_email_thread,omitempty"`
 }
 
 type TaskSection struct {
@@ -231,8 +229,6 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		SentAt:         t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		DueDate:        dueDate,
 		IsDone:         t.IsCompleted,
-		ExternalStatus: t.Status.State,
-		Comments:       t.Comments,
 	}
 
 	log.Debug().Interface("linkedMessage", t.LinkedMessage).Send()

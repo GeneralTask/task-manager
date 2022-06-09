@@ -176,11 +176,11 @@ func TestLoadLinearTasks(t *testing.T) {
 				IsTask: true,
 			},
 			Task: database.Task{
-				Status: database.ExternalTaskStatus{
+				Status: &database.ExternalTaskStatus{
 					ExternalID: "state-id",
 					State:      "Todo",
 				},
-				CompletedStatus: database.ExternalTaskStatus{
+				CompletedStatus: &database.ExternalTaskStatus{
 					ExternalID: "merge-workflow-state-id",
 					State:      "Done",
 				},
@@ -258,11 +258,11 @@ func TestLoadLinearTasks(t *testing.T) {
 				IsTask: true,
 			},
 			Task: database.Task{
-				Status: database.ExternalTaskStatus{
+				Status: &database.ExternalTaskStatus{
 					ExternalID: "state-id",
 					State:      "Todo",
 				},
-				CompletedStatus: database.ExternalTaskStatus{
+				CompletedStatus: &database.ExternalTaskStatus{
 					ExternalID: "merge-workflow-state-id",
 					State:      "Done",
 				},
