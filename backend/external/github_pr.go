@@ -112,13 +112,15 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 			checkSuiteResult, _, err := githubClient.Checks.ListCheckSuitesForRef(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Head.SHA, nil)
 			var status string
+
+			log.Debug().Msgf("checkSuiteResult: %+v\n\n\n", checkSuiteResult)
 			
 			if checkSuiteResult.CheckSuites != nil && len(checkSuiteResult.CheckSuites) > 0 {
-				length := len(checkSuiteResult.CheckSuites)
+				// length := len(checkSuiteResult.CheckSuites)
 
-				status = *checkSuiteResult.CheckSuites[length - 1].Status
+				status = *checkSuiteResult.CheckSuites[0].Status
 				if (status == "completed") {
-					status = *checkSuiteResult.CheckSuites[length - 1].Conclusion
+					status = *checkSuiteResult.CheckSuites[0].Conclusion
 				}
 			} else {
 				status = "pending"

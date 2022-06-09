@@ -94,10 +94,11 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 	)
 	tokenClient := oauth2.NewClient(extCtx, tokenSource)
 	githubClient := github.NewClient(tokenClient)
-	githubUser, _, err := githubClient.Users.Get(extCtx, CurrentlyAuthedUserFilter)
+	githubUser, res, err := githubClient.Users.Get(extCtx, CurrentlyAuthedUserFilter)
 
 	if err != nil || githubUser == nil {
 		log.Error().Msg("failed to fetch Github user")
+		log.Error().Msgf("error: %s", res)
 		return nil
 	}
 
