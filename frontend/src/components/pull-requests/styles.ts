@@ -1,14 +1,16 @@
 import { Border, Colors, Spacing, Typography } from "../../styles"
 
 import NoStyleAnchor from "../atoms/NoStyleAnchor"
+import { iconSize } from "../../styles/dimensions"
 import styled from "styled-components"
 
 export const ColumnWidths = {
-    title: '35%',
-    status: '25%',
-    author: '20%',
+    title: '30%',
+    status: '20%',
+    author: '15%',
+    comments: '10%',
     branch: '15%',
-    link: '5%',
+    link: '10%',
 }
 
 type TColumnWidths = keyof typeof ColumnWidths
@@ -57,6 +59,20 @@ export const TruncatedText = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+`
+
+export const CommentsContainer = styled.div`
+    display: flex;
+    gap: ${Spacing.margin._8};
+`
+
+export const CommentIcon = styled.div`
+    position: relative;
+    width: ${iconSize['small']};
+    & > div {
+        position: absolute;
+        top: 4px;
+    }
 `
 
 export const LinkButton = styled(NoStyleAnchor)`

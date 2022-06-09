@@ -1,4 +1,4 @@
-import { Column, LinkButton, PullRequestRow, TruncatedText } from './styles'
+import { Column, CommentIcon, CommentsContainer, LinkButton, PullRequestRow, TruncatedText } from './styles'
 
 import { DateTime } from 'luxon'
 import { Icon } from '../atoms/Icon'
@@ -12,7 +12,7 @@ interface PullRequestProps {
     pullRequest: TPullRequest
 }
 const PullRequest = ({ pullRequest }: PullRequestProps) => {
-    const { title, number, status, author, created_at, branch, link } = pullRequest
+    const { title, number, status, author, num_comments, created_at, branch, link } = pullRequest
 
     const formattedTime = getHumanDateTime(DateTime.fromISO(created_at))
     return (
@@ -27,6 +27,14 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
             <Column type="author">
                 <SubtitleSmall>{formattedTime}</SubtitleSmall>
                 <TruncatedText>{author}</TruncatedText>
+            </Column>
+            <Column type="comments">
+                <CommentsContainer>
+                    <CommentIcon>
+                        <Icon source={icons.speechBubble} size="small" />
+                    </CommentIcon>
+                    {num_comments}
+                </CommentsContainer>
             </Column>
             <Column type="branch">
                 <TruncatedText>{branch}</TruncatedText>

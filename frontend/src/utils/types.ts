@@ -147,6 +147,7 @@ export interface TPullRequest {
         color: string
     }
     author: string
+    num_comments: number
     created_at: string
     branch: string
     link: string

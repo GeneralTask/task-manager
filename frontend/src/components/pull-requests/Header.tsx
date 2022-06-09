@@ -8,6 +8,7 @@ const Header = () => {
             <Column type="title"># Title</Column>
             <Column type="status">Status</Column>
             <Column type="author">Author</Column>
+            <Column type="comments">Comments</Column>
             <Column type="branch">Branch Name</Column>
             <Column type="link"></Column>
         </HeaderContainer>
