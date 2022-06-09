@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	defaultFetchMaxResults = int64(100)
+	defaultFetchMaxResults = int64(20)
 	fullFetchMaxResults    = int64(500)
 )
 
@@ -215,7 +215,7 @@ func processThreads(userID primitive.ObjectID, accountID string, db *mongo.Datab
 	return EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL}
 }
 
-func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
+func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, historyID uint64, result chan<- EmailResult, fullRefresh bool) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -232,7 +232,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	}
 
 	threadChannels := []chan *gmail.Thread{}
-	// loads the most recent 100 or 500 threads in the inbox
+
+	recentHistoryID := uint64(1)
+	// loads all thread changes, or 500 recent threads in the inbox
 	if fullRefresh {
 		log.Debug().Msg("Performing full gmail thread refresh")
 		// TODO: for a full refresh, we probably want to paginate through this request until we've fetched all threads in the DB
@@ -242,12 +244,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			log.Error().Err(err).Msg("failed to load Gmail threads for user")
 			isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
 				strings.Contains(err.Error(), "authError")
-			result <- EmailResult{
-				Emails:     []*database.Item{},
-				Error:      err,
-				IsBadToken: isBadToken,
-				SourceID:   TASK_SOURCE_ID_GMAIL,
-			}
+			threadOutput := emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
+			threadOutput.IsBadToken = isBadToken
+			result <- threadOutput
 			return
 		}
 		for _, threadListItem := range threadsResponse.Threads {
@@ -255,21 +254,24 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			go getThreadFromGmail(gmailService, threadListItem.Id, threadResult)
 			threadChannels = append(threadChannels, threadResult)
 		}
+
+		historyResponse, err := gmailService.Users.History.List("me").MaxResults(1).StartHistoryId(1).Do()
+		if err == nil {
+			recentHistoryID = historyResponse.HistoryId
+		}
 	} else {
 		log.Debug().Msg("Performing small gmail thread update/refresh")
 		maxResults := defaultFetchMaxResults
 
-		historyResponse, err := gmailService.Users.History.List("me").MaxResults(maxResults).Do()
+		//
+		historyResponse, err := gmailService.Users.History.List("me").StartHistoryId(historyID).MaxResults(maxResults).Do()
 		if err != nil {
 			log.Error().Err(err).Msg("failed to load Gmail history for user")
 			isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
 				strings.Contains(err.Error(), "authError")
-			result <- EmailResult{
-				Emails:     []*database.Item{},
-				Error:      err,
-				IsBadToken: isBadToken,
-				SourceID:   TASK_SOURCE_ID_GMAIL,
-			}
+			threadOutput := emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
+			threadOutput.IsBadToken = isBadToken
+			result <- threadOutput
 			return
 		}
 
@@ -286,7 +288,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 	}
 	// TODO handle thread deletion as well
-	result <- processThreads(userID, accountID, db, threadChannels)
+	emailResult := processThreads(userID, accountID, db, threadChannels)
+	emailResult.HistoryID = recentHistoryID
+	result <- emailResult
 }
 
 func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []database.Email) []database.Email {

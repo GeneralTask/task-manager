@@ -39,6 +39,7 @@ type ExternalAPIToken struct {
 	UserID         primitive.ObjectID `bson:"user_id"`
 	AccountID      string             `bson:"account_id"`
 	DisplayID      string             `bson:"display_id"`
+	HistoryID      string             `bson:"history_id"`
 	IsUnlinkable   bool               `bson:"is_unlinkable"`
 	IsPrimaryLogin bool               `bson:"is_primary_login"`
 	IsBadToken     bool               `bson:"is_bad_token"`

@@ -3,8 +3,9 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
