@@ -45,7 +45,7 @@ func TestLinkedAccountsList(t *testing.T) {
 	defer dbCleanup()
 	t.Run("SuccessOnlyGoogle", func(t *testing.T) {
 		authToken := login("linkedaccounts@generaltask.com", "")
-		createGoogleLink(t, db, authToken, "linkedaccounts@generaltask.com").Hex()
+		createGoogleLink(t, db, authToken, "linkedaccounts@generaltask.com", false).Hex()
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/linked_accounts/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -55,11 +55,11 @@ func TestLinkedAccountsList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		googleTokenID := getGoogleTokenFromAuthToken(t, db, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false,\"has_bad_token\":false}]", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("linkedaccounts2@generaltask.com", "")
-		createGoogleLink(t, db, authToken, "linkedaccounts2@generaltask.com").Hex()
+		createGoogleLink(t, db, authToken, "linkedaccounts2@generaltask.com", false).Hex()
 		jiraTokenID := createJIRADungeon(t, db, authToken).Hex()
 		assert.NoError(t, err)
 		router := GetRouter(GetAPI())
@@ -71,7 +71,25 @@ func TestLinkedAccountsList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		googleTokenID := getGoogleTokenFromAuthToken(t, db, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts2@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false},{\"id\":\""+jiraTokenID+"\",\"display_id\":\"Jira dungeon\",\"name\":\"Atlassian\",\"logo\":\"/images/jira.svg\",\"logo_v2\":\"jira-v2\",\"is_unlinkable\":true}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts2@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false,\"has_bad_token\":false},{\"id\":\""+jiraTokenID+"\",\"display_id\":\"Jira dungeon\",\"name\":\"Atlassian\",\"logo\":\"/images/jira.svg\",\"logo_v2\":\"jira-v2\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(body))
+	})
+
+	t.Run("SuccessWithBadToken", func(t *testing.T) {
+		authToken := login("linkedaccounts3@generaltask.com", "")
+		createGoogleLink(t, db, authToken, "linkedaccounts3@generaltask.com", true).Hex()
+		jiraTokenID := createJIRADungeon(t, db, authToken).Hex()
+
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest("GET", "/linked_accounts/", nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		googleTokenID := getGoogleTokenFromAuthToken(t, db, authToken).ID.Hex()
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts3@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false,\"has_bad_token\":true},{\"id\":\""+jiraTokenID+"\",\"display_id\":\"Jira dungeon\",\"name\":\"Atlassian\",\"logo\":\"/images/jira.svg\",\"logo_v2\":\"jira-v2\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(body))
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(GetAPI())
@@ -89,7 +107,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	parentCtx := context.Background()
 	t.Run("MalformattedAccountID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		createGoogleLink(t, db, authToken, "approved@generaltask.com").Hex()
+		createGoogleLink(t, db, authToken, "approved@generaltask.com", false).Hex()
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/123/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -99,7 +117,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	})
 	t.Run("InvalidAccountID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		createGoogleLink(t, db, authToken, "approved@generaltask.com").Hex()
+		createGoogleLink(t, db, authToken, "approved@generaltask.com", false).Hex()
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+primitive.NewObjectID().Hex()+"/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -109,7 +127,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	})
 	t.Run("UnlinkableAccount", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		createGoogleLink(t, db, authToken, "approved@generaltask.com").Hex()
+		createGoogleLink(t, db, authToken, "approved@generaltask.com", false).Hex()
 		googleAccountID := getGoogleTokenFromAuthToken(t, db, authToken).ID
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+googleAccountID.Hex()+"/", nil)
@@ -123,9 +141,9 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	})
 	t.Run("AccountDifferentUser", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		createGoogleLink(t, db, authToken, "approved@generaltask.com").Hex()
+		createGoogleLink(t, db, authToken, "approved@generaltask.com", false).Hex()
 		authTokenOther := login("other@generaltask.com", "")
-		createGoogleLink(t, db, authTokenOther, "other@generaltask.com").Hex()
+		createGoogleLink(t, db, authTokenOther, "other@generaltask.com", false).Hex()
 		googleAccountID := getGoogleTokenFromAuthToken(t, db, authTokenOther).ID
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+googleAccountID.Hex()+"/", nil)
@@ -162,7 +180,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	})
 }
 
-func createGoogleLink(t *testing.T, db *mongo.Database, authToken string, email string) primitive.ObjectID {
+func createGoogleLink(t *testing.T, db *mongo.Database, authToken string, email string, isBadToken bool) primitive.ObjectID {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -173,6 +191,7 @@ func createGoogleLink(t *testing.T, db *mongo.Database, authToken string, email 
 			UserID:       getUserIDFromAuthToken(t, db, authToken),
 			DisplayID:    email,
 			IsUnlinkable: false,
+			IsBadToken:   isBadToken,
 		},
 	)
 	assert.NoError(t, err)

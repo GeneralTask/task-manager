@@ -16,7 +16,7 @@ func (api *API) LogEventAdd(c *gin.Context) {
 	var params LogEventParams
 	err := c.BindJSON(&params)
 	if err != nil {
-		log.Error().Msgf("error: %v", err)
+		log.Error().Err(err).Msg("error")
 		c.JSON(400, gin.H{"detail": "invalid or missing 'event_type' parameter."})
 		return
 	}
@@ -31,7 +31,7 @@ func (api *API) LogEventAdd(c *gin.Context) {
 	userID, _ := c.Get("user")
 	err = database.InsertLogEvent(db, userID.(primitive.ObjectID), params.EventType)
 	if err != nil {
-		log.Error().Msgf("failed to insert waitlist entry: %v", err)
+		log.Error().Err(err).Msg("failed to insert waitlist entry")
 		Handle500(c)
 		return
 	}

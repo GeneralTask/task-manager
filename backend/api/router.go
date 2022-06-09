@@ -13,7 +13,11 @@ func GetRouter(handlers *API) *gin.Engine {
 	// Allow CORS for frontend API requests
 	router.Use(CORSMiddleware)
 
+	// Introduce fake lag when running local server to more accurately simulate prod
+	router.Use(FakeLagMiddleware)
+
 	// Unauthenticated endpoints
+	router.GET("/ping/", handlers.Ping)
 	router.GET("/link/:service_name/", handlers.Link)
 	router.GET("/link/:service_name/callback/", handlers.LinkCallback)
 	router.GET("/login/", handlers.Login)
@@ -23,9 +27,14 @@ func GetRouter(handlers *API) *gin.Engine {
 	//logout needs to use the token directly rather than the user so no need to run token middleware
 	router.POST("/logout/", handlers.Logout)
 
+	// Unauthenticated endpoints only for dev environment
+	router.POST("/create_test_user/", handlers.CreateTestUser)
+
+	// Add middlewares
 	router.Use(TokenMiddleware)
 	router.Use(LoggingMiddleware)
 	// Authenticated endpoints
+	router.GET("/meeting_banner/", handlers.MeetingBanner)
 	router.GET("/linked_accounts/", handlers.LinkedAccountsList)
 	router.GET("/linked_accounts/supported_types/", handlers.SupportedAccountTypesList)
 	router.DELETE("/linked_accounts/:account_id/", handlers.DeleteLinkedAccount)
@@ -38,12 +47,13 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/threads/", handlers.ThreadsList)
 	router.GET("/threads/detail/:thread_id/", handlers.ThreadDetail)
 	router.PATCH("/threads/modify/:thread_id/", handlers.ThreadModify)
+	router.POST("/create_task_from_thread/:thread_id/", handlers.CreateTaskFromThread)
 	router.GET("/tasks/fetch/", handlers.TasksFetch)
 	router.GET("/tasks/v3/", handlers.TasksListV3)
 	router.POST("/tasks/create/:source_id/", handlers.TaskCreate)
 	router.PATCH("/tasks/modify/:task_id/", handlers.TaskModify)
 	router.GET("/tasks/detail/:task_id/", handlers.TaskDetail)
-	router.GET("/ping/", handlers.Ping)
+	router.GET("/ping_authed/", handlers.Ping)
 	router.GET("/settings/", handlers.SettingsList)
 	router.PATCH("/settings/", handlers.SettingsModify)
 	router.POST("/log_events/", handlers.LogEventAdd)

@@ -1,8 +1,6 @@
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
-import { useAppDispatch } from '../../redux/hooks'
-import { setSelectedItemId } from '../../redux/tasksPageSlice'
 import { useCreateTask } from '../../services/api-query-hooks'
 import { Colors, Images, Typography } from '../../styles'
 import { radius } from '../../styles/border'
@@ -14,20 +12,19 @@ const CreateNewTaskContainer = styled.div`
     display: flex;
     flex-shrink: 0;
     flex-direction: row;
-    gap: ${padding._8}px;
+    gap: ${padding._8};
     background-color: ${Colors.gray._100};
     height: 45px;
     align-items: center;
-    padding: 0px ${padding._8}px;
+    padding: 0px ${padding._8};
     border-radius: ${radius.large};
-    margin-bottom: ${padding._8}px;
+    margin-bottom: ${padding._8};
 `
 const TaskInput = styled.input`
     border: none;
     outline: none;
     background-color: transparent;
     font-size: ${Typography.medium.fontSize};
-    font-family: Switzer-Variable;
     flex: 1;
 `
 
@@ -37,7 +34,6 @@ interface CreateNewTaskProps {
 const CreateNewTask = (props: CreateNewTaskProps) => {
     const [text, setText] = useState('')
     const { mutate: createTask } = useCreateTask()
-    const dispatch = useAppDispatch()
     const inputRef = useRef<HTMLInputElement>(null)
 
     const submitNewTask = async () => {
@@ -65,7 +61,6 @@ const CreateNewTask = (props: CreateNewTaskProps) => {
                 value={text}
                 placeholder="Add new task"
                 onKeyDown={handleKeyDown}
-                onFocus={() => dispatch(setSelectedItemId(null))}
                 onChange={(e) => setText(e.target.value)}
             />
             <KeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CREATE_TASK} onKeyPress={() => inputRef.current?.focus()} />

@@ -15,6 +15,13 @@ type User struct {
 	LastRefreshed      primitive.DateTime `bson:"last_refreshed,omitempty"`
 	AgreedToTerms      *bool              `bson:"agreed_to_terms,omitempty"`
 	OptedIntoMarketing *bool              `bson:"opted_into_marketing,omitempty"`
+	CreatedAt          primitive.DateTime `bson:"created_at,omitempty"`
+}
+
+type UserChangeable struct {
+	Email         string             `bson:"email,omitempty"`
+	Name          string             `bson:"name,omitempty"`
+	LastRefreshed primitive.DateTime `bson:"last_refreshed,omitempty"`
 }
 
 // InternalAPIToken model
@@ -34,6 +41,11 @@ type ExternalAPIToken struct {
 	DisplayID      string             `bson:"display_id"`
 	IsUnlinkable   bool               `bson:"is_unlinkable"`
 	IsPrimaryLogin bool               `bson:"is_primary_login"`
+	IsBadToken     bool               `bson:"is_bad_token"`
+}
+
+type ExternalAPITokenChangeable struct {
+	IsBadToken bool `bson:"is_bad_token,omitempty"`
 }
 
 type AtlassianSiteConfiguration struct {
@@ -134,25 +146,26 @@ type CalendarEventChangeableFields struct {
 }
 
 type EmailThread struct {
-	ThreadID      string             `bson:"thread_id"`
-	LastUpdatedAt primitive.DateTime `bson:"last_updated_at"`
-	Emails        []Email            `bson:"emails,omitempty"`
+	ThreadID      string             `bson:"thread_id" json:"thread_id"`
+	LastUpdatedAt primitive.DateTime `bson:"last_updated_at" json:"last_updated_at"`
+	Emails        []Email            `bson:"emails,omitempty" json:"emails,omitempty"`
+	IsArchived    bool               `bson:"is_archived" json:"is_archived"`
 }
 
 type Email struct {
-	MessageID    primitive.ObjectID `bson:"message_id"`
-	SMTPID       string             `bson:"smtp_id"`
-	ThreadID     string             `bson:"thread_id"`
-	EmailID      string             `bson:"email_id"`
-	Subject      string             `bson:"subject"`
-	Body         string             `bson:"body"`
-	SenderDomain string             `bson:"sender_domain"`
-	SenderEmail  string             `bson:"sender_email"`
-	SenderName   string             `bson:"sender_name"`
-	ReplyTo      string             `bson:"reply_to"`
-	IsUnread     bool               `bson:"is_unread"`
-	Recipients   Recipients         `bson:"recipients"`
-	SentAt       primitive.DateTime `bson:"sent_at"`
+	MessageID    primitive.ObjectID `bson:"message_id" json:"message_id"`
+	SMTPID       string             `bson:"smtp_id" json:"smtp_id"`
+	ThreadID     string             `bson:"thread_id" json:"thread_id"`
+	EmailID      string             `bson:"email_id" json:"email_id"`
+	Subject      string             `bson:"subject" json:"subject"`
+	Body         string             `bson:"body" json:"body"`
+	SenderDomain string             `bson:"sender_domain" json:"sender_domain"`
+	SenderEmail  string             `bson:"sender_email" json:"sender_email"`
+	SenderName   string             `bson:"sender_name" json:"sender_name"`
+	ReplyTo      string             `bson:"reply_to" json:"reply_to"`
+	IsUnread     bool               `bson:"is_unread" json:"is_unread"`
+	Recipients   Recipients         `bson:"recipients" json:"recipients"`
+	SentAt       primitive.DateTime `bson:"sent_at" json:"sent_at"`
 }
 
 type EmailChangeable struct {
@@ -165,10 +178,39 @@ type MessageChangeable struct {
 	IsCompleted     *bool               `bson:"is_completed,omitempty"`
 }
 
+type LinkedMessage struct {
+	ThreadID *primitive.ObjectID `bson:"thread_id"`
+	EmailID  *primitive.ObjectID `bson:"email_id"`
+}
+
+type ExternalUser struct {
+	ExternalID  string `bson:"external_id"`
+	Name        string `bson:"name"`
+	DisplayName string `bson:"display_name"`
+	Email       string `bson:"email"`
+}
+
+type Comment struct {
+	Body      string             `bson:"body"`
+	User      ExternalUser       `bson:"user"`
+	CreatedAt primitive.DateTime `bson:"created_at"`
+}
+
+type ExternalTaskStatus struct {
+	ExternalID string `bson:"external_id"`
+	State      string `bson:"state"`
+}
+
 type Task struct {
 	PriorityID         string  `bson:"priority_id"`
 	PriorityNormalized float64 `bson:"priority_normalized"`
 	TaskNumber         int     `bson:"task_number"`
+	LinkedMessage      `bson:"linked_message"`
+	Comments           *[]Comment          `bson:"comments"`
+	Status             *ExternalTaskStatus `bson:"status"`
+	// Used to cache the current status before marking the task as done
+	PreviousStatus  *ExternalTaskStatus `bson:"previous_status"`
+	CompletedStatus *ExternalTaskStatus `bson:"completed_status"`
 }
 
 type TaskChangeableFields struct {
@@ -227,14 +269,14 @@ type Pagination struct {
 }
 
 type Recipients struct {
-	To  []Recipient `bson:"to"`
-	Cc  []Recipient `bson:"cc"`
-	Bcc []Recipient `bson:"bcc"`
+	To  []Recipient `bson:"to" json:"to"`
+	Cc  []Recipient `bson:"cc" json:"cc"`
+	Bcc []Recipient `bson:"bcc" json:"bcc"`
 }
 
 type Recipient struct {
-	Name  string `bson:"name"`
-	Email string `bson:"email"`
+	Name  string `bson:"name" json:"name"`
+	Email string `bson:"email" json:"email"`
 }
 
 type EmailItemChangeable struct {
@@ -245,6 +287,7 @@ type EmailThreadChangeable struct {
 	ThreadID      string             `bson:"thread_id,omitempty"`
 	LastUpdatedAt primitive.DateTime `bson:"last_updated_at,omitempty"`
 	Emails        []Email            `bson:"emails,omitempty"`
+	IsArchived    *bool              `bson:"is_archived,omitempty"`
 }
 
 type ThreadItemChangeable struct {

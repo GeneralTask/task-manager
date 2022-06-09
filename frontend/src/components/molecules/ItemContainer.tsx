@@ -10,7 +10,7 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean }>`
     height: 100%;
     background-color: ${Colors.white};
     border-radius: ${Border.radius.large};
-    padding: 0 ${Spacing.padding._8}px;
+    padding: 0 ${Spacing.padding._8};
     border: 1px solid ${(props) => (props.isSelected ? Colors.gray._500 : Colors.gray._100)};
     cursor: pointer;
 `
@@ -21,7 +21,7 @@ interface ItemContainerProps {
     children: React.ReactNode
 }
 const ItemContainer = React.forwardRef<HTMLDivElement, ItemContainerProps>(({ isSelected, onClick, children }, ref) => (
-    <ItemContainerDiv isSelected={isSelected} onClick={onClick} ref={ref}>
+    <ItemContainerDiv isSelected={isSelected} onClick={onClick} ref={ref} data-testid="list-item">
         {children}
     </ItemContainerDiv>
 ))

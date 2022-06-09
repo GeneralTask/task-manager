@@ -2,9 +2,10 @@ package api
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"sort"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 
@@ -26,12 +27,13 @@ type email struct {
 	Recipients Recipients         `json:"recipients"`
 }
 
-type Thread struct {
-	ID       primitive.ObjectID `json:"id"`
-	Deeplink string             `json:"deeplink"`
-	IsTask   bool               `json:"is_task"`
-	Source   messageSource      `json:"source"`
-	Emails   *[]email           `json:"emails"`
+type ThreadDetailsResponse struct {
+	ID         primitive.ObjectID `json:"id"`
+	Deeplink   string             `json:"deeplink"`
+	IsTask     bool               `json:"is_task"`
+	IsArchived bool               `json:"is_archived"`
+	Source     messageSource      `json:"source"`
+	Emails     *[]email           `json:"emails"`
 }
 
 type accountParams struct {
@@ -42,6 +44,7 @@ type accountParams struct {
 type threadsListParams struct {
 	database.Pagination `form:",inline"`
 	OnlyUnread          *bool `form:"only_unread"`
+	IsArchived          *bool `form:"is_archived"`
 	accountParams       `form:",inline"`
 }
 
@@ -61,7 +64,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
-		log.Error().Msgf("failed to find user: %v", err)
+		log.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
 		return
 	}
@@ -77,6 +80,10 @@ func (api *API) ThreadsList(c *gin.Context) {
 	if params.OnlyUnread != nil && *params.OnlyUnread {
 		onlyUnread = true
 	}
+	isArchived := false
+	if params.IsArchived != nil && *params.IsArchived {
+		isArchived = true
+	}
 	if !database.IsValidPagination(params.Pagination) {
 		limit := DEFAULT_THREAD_LIMIT
 		page := 1
@@ -87,7 +94,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 	if params.SourceID != nil && params.SourceAccountID != nil {
 		accountFilter = &[]bson.M{{"source_id": params.SourceID}, {"source_account_id": params.SourceAccountID}}
 	}
-	threads, err := database.GetEmailThreads(db, userID.(primitive.ObjectID), onlyUnread, params.Pagination, accountFilter)
+	threads, err := database.GetEmailThreads(db, userID.(primitive.ObjectID), onlyUnread, isArchived, params.Pagination, accountFilter)
 	if err != nil {
 		Handle500(c)
 		return
@@ -101,25 +108,26 @@ func (api *API) ThreadsList(c *gin.Context) {
 	c.JSON(200, orderedMessages)
 }
 
-func (api *API) orderThreads(threadItems *[]database.Item) []*Thread {
+func (api *API) orderThreads(threadItems *[]database.Item) []*ThreadDetailsResponse {
 	sort.SliceStable(*threadItems, func(i, j int) bool {
 		a := (*threadItems)[i]
 		b := (*threadItems)[j]
 		return formatDateTime(a.EmailThread.LastUpdatedAt) > formatDateTime(b.EmailThread.LastUpdatedAt)
 	})
 
-	var responseThreads []*Thread
+	var responseThreads []*ThreadDetailsResponse
 	for _, threadItem := range *threadItems {
 		responseThreads = append(responseThreads, api.createThreadResponse(&threadItem))
 	}
 	return responseThreads
 }
 
-func (api *API) createThreadResponse(t *database.Item) *Thread {
+func (api *API) createThreadResponse(t *database.Item) *ThreadDetailsResponse {
 	threadSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
-	return &Thread{
-		ID:     t.ID,
-		IsTask: t.IsTask,
+	return &ThreadDetailsResponse{
+		ID:         t.ID,
+		IsTask:     t.IsTask,
+		IsArchived: t.IsArchived,
 		Source: messageSource{
 			AccountId:   t.SourceAccountID,
 			Name:        threadSourceResult.Details.Name,

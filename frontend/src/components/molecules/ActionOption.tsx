@@ -13,6 +13,8 @@ import styled from 'styled-components'
 import { useClickOutside } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import TooltipWrapper from '../atoms/TooltipWrapper'
+import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
+import * as ReactDOMServer from 'react-dom/server'
 
 const ButtonAndPopoverContainer = styled.div`
     position: relative;
@@ -22,17 +24,35 @@ const ActionButton = styled(NoStyleButton)`
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    padding: ${Spacing.padding._4}px;
-    margin-right: ${Spacing.margin._8}px;
+    padding: ${Spacing.padding._4};
+    margin-right: ${Spacing.margin._8};
     position: relative;
 `
 
+const TooltipContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+`
+
+const LabelContainer = styled.div`
+    margin-right: ${Spacing.margin._8};
+`
 interface ActionOptionProps {
     task: TTask
     isShown: boolean
     keyboardShortcut: KEYBOARD_SHORTCUTS
     setIsShown: (isShown: boolean) => void
 }
+
+const label = ReactDOMServer.renderToString(
+    <TooltipContainer>
+        <LabelContainer>Label</LabelContainer>
+        <KeyboardShortcutContainer isPressed={false}>{KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}</KeyboardShortcutContainer>
+    </TooltipContainer>
+)
+
 const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOptionProps) => {
     const actionRef = useRef<HTMLDivElement>(null)
     useClickOutside(actionRef, () => setIsShown(false))
@@ -63,7 +83,7 @@ const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOpt
     return (
         <ButtonAndPopoverContainer ref={actionRef}>
             <ActionButton onClick={() => setIsShown(!isShown)}>
-                <TooltipWrapper inline dataTip="Label" tooltipId="tooltip">
+                <TooltipWrapper inline dataTip={label} tooltipId="tooltip">
                     {actionString ? <ActionValue value={actionString} /> : <Icon source={icon} size="small" />}
                 </TooltipWrapper>
             </ActionButton>

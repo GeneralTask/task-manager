@@ -3,6 +3,7 @@ import Modal from 'react-modal'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
 import { Colors, Dimensions } from '../../styles'
+import { TModalSize } from '../../styles/dimensions'
 import { ModalEnum } from '../../utils/enums'
 
 const SHARED_MODAL_OVERLAY_STYLE: React.CSSProperties = {
@@ -23,15 +24,15 @@ const SHARED_MODAL_CONTENT_STYLE: React.CSSProperties = {
     padding: '0px',
 }
 
-const getModalStyle = (modalSize: 'small' | 'medium'): Modal.Styles => {
+const getModalStyle = (modalSize: TModalSize): Modal.Styles => {
     const width = Dimensions.modalSize[modalSize].width
     const height = Dimensions.modalSize[modalSize].height
     return {
         overlay: SHARED_MODAL_OVERLAY_STYLE,
         content: {
             ...SHARED_MODAL_CONTENT_STYLE,
-            width: `${width}px`,
-            height: `${height}px`,
+            width,
+            height,
         },
     }
 }

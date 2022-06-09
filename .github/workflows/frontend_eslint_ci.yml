@@ -1,6 +1,5 @@
 name: Frontend ESLint
 
-# Controls when the action will run.
 on:
   push:
     branches: [master]
@@ -8,14 +7,8 @@ on:
     branches:
       - "**"
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -27,9 +20,5 @@ jobs:
           node-version: 14
       - name: Install
         run: yarn add --dev @typescript-eslint/eslint-plugin@latest
-      - name: Run eslint on changed files
-        uses: tj-actions/eslint-changed-files@v10.1
-        with:
-          config_path: "frontend/.eslintrc"
-          extensions: "ts,tsx,js,jsx"
-          extra_args: "--max-warnings=0"
+      - name: Run ESLint
+        run: yarn run eslint . --ext .ts,.tsx --max-warnings=0

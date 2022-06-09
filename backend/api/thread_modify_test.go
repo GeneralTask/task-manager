@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"github.com/GeneralTask/task-manager/backend/testutils"
 	"net/http"
 	"net/http/httptest"
@@ -13,8 +12,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/settings"
-	"github.com/google/uuid"
-
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -209,163 +206,137 @@ func TestChangeThreadReadStatus(t *testing.T) {
 		assert.True(t, threadItem.IsThread)
 		assertThreadEmailsIsUnreadState(t, threadItem, true)
 	})
-
-}
-
-func TestMarkThreadAsTask(t *testing.T) {
-	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
-	defer dbCleanup()
-
-	testEmail := fmt.Sprintf("%s@generaltask.com", uuid.New().String()[:4])
-	authToken := login(testEmail, "General Tasker")
-	userID := getUserIDFromAuthToken(t, db, authToken)
-
-	taskCollection := database.GetTaskCollection(db)
-
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-
-	threadIDHex := insertTestItem(t, userID, database.Item{
-		TaskBase: database.TaskBase{
-			UserID:     userID,
-			IDExternal: "sample_gmail_thread_id",
-			SourceID:   external.TASK_SOURCE_ID_GMAIL,
-		},
-		EmailThread: database.EmailThread{
-			ThreadID:      "sample_gmail_thread_id",
-			LastUpdatedAt: 0,
-			Emails: []database.Email{
-				{
-					SMTPID:       "sample_smtp_1",
-					EmailID:      "sample_gmail_thread_id",
-					Subject:      "test subject 1",
-					Body:         "test body 1",
-					SenderDomain: "gmail",
-					SenderEmail:  "test@generaltask.com",
-					SenderName:   "test",
-					ReplyTo:      "test-reply@generaltask.com",
-					IsUnread:     true,
-					Recipients: database.Recipients{
-						To:  []database.Recipient{{Name: "p1", Email: "p1@gmail.com"}},
-						Cc:  []database.Recipient{{Name: "p2", Email: "p2@gmail.com"}},
-						Bcc: []database.Recipient{{Name: "p3", Email: "p3@gmail.com"}},
-					},
-					SentAt: *testutils.CreateDateTime("2019-04-20"),
-				},
-				{
-					SMTPID:       "sample_smtp_1",
-					EmailID:      "sample_gmail_thread_id",
-					Subject:      "test subject 2",
-					Body:         "test body 2",
-					SenderDomain: "gmail",
-					SenderEmail:  "test@generaltask.com",
-					SenderName:   "test",
-					SentAt:       *testutils.CreateDateTime("2018-04-20"),
-				},
-			},
-		},
-		TaskType: database.TaskType{IsThread: true},
-	})
-	threadID, _ := primitive.ObjectIDFromHex(threadIDHex)
-
-	t.Run("MarkMessageAsTask", func(t *testing.T) {
-		unreadGmailModifyServer := getGmailChangeLabelServer(t, "UNREAD", false)
+	t.Run("GmailSuccessArchive", func(t *testing.T) {
+		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
+		archivedGmailModifyServer := getGmailChangeLabelServer(t, "INBOX", false)
 
 		api := GetAPI()
-		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
-		unreadRouter := GetRouter(api)
+		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &archivedGmailModifyServer.URL
+		archivedRouter := GetRouter(api)
 
-		var message database.Item
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		var threadItem database.Item
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
-		assert.False(t, message.IsTask)
-		assert.True(t, message.IsThread)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
+		assert.True(t, threadItem.IsThread)
+		assert.False(t, threadItem.IsArchived)
 
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/threads/modify/"+threadIDHex+"/",
-			bytes.NewBuffer([]byte(`{"is_task": true}`)))
+			bytes.NewBuffer([]byte(`{"is_archived": true}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 
 		assert.NoError(t, err)
 
-		unreadRouter.ServeHTTP(recorder, request)
+		archivedRouter.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
-		assert.True(t, message.IsTask)
-		assert.True(t, message.IsThread)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
+		assert.True(t, threadItem.IsThread)
+		assert.True(t, threadItem.IsArchived)
 	})
 
-	t.Run("MarkMessageAsTaskAgain", func(t *testing.T) {
-		unreadGmailModifyServer := getGmailChangeLabelServer(t, "UNREAD", false)
+	t.Run("GmailSuccessUnArchive", func(t *testing.T) {
+		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
+		archivedGmailModifyServer := getGmailChangeLabelServer(t, "INBOX", true)
 
 		api := GetAPI()
-		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
-		unreadRouter := GetRouter(api)
+		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &archivedGmailModifyServer.URL
+		archivedRouter := GetRouter(api)
 
-		var message database.Item
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		var threadItem database.Item
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
-		assert.True(t, message.IsTask)
-		assert.True(t, message.IsThread)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
+		assert.True(t, threadItem.IsThread)
+		assert.True(t, threadItem.IsArchived)
 
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/threads/modify/"+threadIDHex+"/",
-			bytes.NewBuffer([]byte(`{"is_task": true}`)))
+			bytes.NewBuffer([]byte(`{"is_archived": false}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 
 		assert.NoError(t, err)
 
-		unreadRouter.ServeHTTP(recorder, request)
+		archivedRouter.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
-		assert.True(t, message.IsTask)
-		assert.True(t, message.IsThread)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
+		assert.True(t, threadItem.IsThread)
+		assert.False(t, threadItem.IsArchived)
 	})
 
-	t.Run("MarkMessageBackToNotTask", func(t *testing.T) {
-		unreadGmailModifyServer := getGmailChangeLabelServer(t, "UNREAD", false)
+	t.Run("BadParamGmailArchive", func(t *testing.T) {
+		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 
 		api := GetAPI()
-		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
-		unreadRouter := GetRouter(api)
+		archivedRouter := GetRouter(api)
 
-		var message database.Item
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		var threadItem database.Item
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
-		assert.True(t, message.IsTask)
-		assert.True(t, message.IsThread)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
+		assert.True(t, threadItem.IsThread)
+		assert.False(t, threadItem.IsArchived)
 
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/threads/modify/"+threadIDHex+"/",
-			bytes.NewBuffer([]byte(`{"is_task": false}`)))
+			bytes.NewBuffer([]byte(`{"is_archived": foobar}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 
 		assert.NoError(t, err)
 
-		unreadRouter.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		archivedRouter.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&message)
-		assert.False(t, message.IsTask)
-		assert.True(t, message.IsThread)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
+		assert.True(t, threadItem.IsThread)
+		assert.False(t, threadItem.IsArchived)
+	})
+
+	t.Run("ServerErrorGmailArchive", func(t *testing.T) {
+		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
+		archivedGmailModifyServer := getGmailInternalErrorServer(t)
+
+		api := GetAPI()
+		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &archivedGmailModifyServer.URL
+		archivedRouter := GetRouter(api)
+
+		var threadItem database.Item
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
+		assert.True(t, threadItem.IsThread)
+		assert.False(t, threadItem.IsArchived)
+
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/threads/modify/"+threadIDHex+"/",
+			bytes.NewBuffer([]byte(`{"is_archived": true}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+
+		assert.NoError(t, err)
+
+		archivedRouter.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": threadID}).Decode(&threadItem)
+		assert.True(t, threadItem.IsThread)
+		assert.False(t, threadItem.IsArchived)
 	})
 }

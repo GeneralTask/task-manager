@@ -5,20 +5,27 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"github.com/GeneralTask/task-manager/backend/utils"
+	"github.com/cenkalti/backoff/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
+)
+
+const (
+	defaultFetchMaxResults = int64(100)
+	fullFetchMaxResults    = int64(500)
 )
 
 type GmailSource struct {
@@ -31,7 +38,7 @@ type EmailContents struct {
 	Body       string
 }
 
-func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -44,15 +51,21 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 	gmailService, err := createGmailService(gmailSource.Google.OverrideURLs.GmailFetchURL, db, userID, accountID, &gmailSource, parentCtx)
 	if err != nil {
-		log.Error().Msgf("unable to create Gmail service: %v", err)
+		log.Error().Err(err).Msg("unable to create Gmail service")
 		result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		return
 	}
 
-	// loads the most recent 100 threads in the inbox
-	threadsResponse, err := gmailService.Users.Threads.List("me").Q("label:inbox").Do()
+	// loads the most recent 100 or 500 threads in the inbox
+	maxResults := defaultFetchMaxResults
+	if fullRefresh {
+		log.Debug().Msg("Performing full gmail thread refresh")
+		// TODO: for a full refresh, we probably want to paginate through this request until we've fetched all threads in the DB
+		maxResults = fullFetchMaxResults
+	}
+	threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(maxResults).Do()
 	if err != nil {
-		log.Error().Msgf("failed to load Gmail threads for user: %v", err)
+		log.Error().Err(err).Msg("failed to load Gmail threads for user")
 		isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
 			strings.Contains(err.Error(), "authError")
 		result <- EmailResult{
@@ -72,7 +85,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	for _, threadChannel := range threadChannels {
 		thread := <-threadChannel
 		if thread == nil {
-			log.Error().Msgf("failed to load thread: %v", err)
+			log.Error().Err(err).Msg("failed to load thread")
 			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			return
 		}
@@ -83,13 +96,14 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      thread.Id,
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				SourceID:        TASK_SOURCE_ID_GMAIL,
 				Deeplink:        fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, thread.Id),
 				SourceAccountID: accountID,
 			},
 			EmailThread: database.EmailThread{
 				ThreadID: thread.Id,
+				IsArchived:   isMessageArchived(thread.Messages[0]),
 			},
 			TaskType: database.TaskType{
 				IsThread: true,
@@ -97,7 +111,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 		threadItem, err := database.GetOrCreateItem(db, userID, thread.Id, TASK_SOURCE_ID_GMAIL, threadItem)
 		if err != nil {
-			log.Printf("failed to get or create gmail thread: %v", err)
+			log.Error().Err(err).Msg("failed to get or create gmail thread")
 			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			return
 		}
@@ -125,7 +139,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			for _, messagePart := range messageParts {
 				parsedBody, err := parseMessagePartBody(messagePart.MimeType, messagePart.Body)
 				if err != nil {
-					log.Error().Msgf("failed to parse message body: %v", err)
+					log.Error().Err(err).Msg("failed to parse message body")
 					continue
 				}
 				if messagePart.MimeType == "text/html" {
@@ -177,7 +191,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				TaskBase: database.TaskBase{
 					UserID:            userID,
 					IDExternal:        message.Id,
-					IDTaskSection:     constants.IDTaskSectionToday,
+					IDTaskSection:     constants.IDTaskSectionDefault,
 					Sender:            senderName,
 					SourceID:          TASK_SOURCE_ID_GMAIL,
 					Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, thread.Id),
@@ -199,6 +213,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				true,
 			)
 			if err != nil {
+				log.Error().Err(err).Msgf("Could not update or create %+v", emailItem)
 				result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 				return
 			}
@@ -210,6 +225,10 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			emails = append(emails, emailItem)
 		}
 
+		// We can just check if the first email is archived because all emails in a thread have the same archive status.
+		if len(thread.Messages) > 0 {
+			threadItem.IsArchived = isMessageArchived(thread.Messages[0])
+		}
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = assignOrGenerateNestedEmailIDs(threadItem, nestedEmails)
 		_, err = database.UpdateOrCreateTask(
@@ -217,7 +236,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			threadItem, database.ThreadItemToChangeable(threadItem),
 			&[]bson.M{{"task_type.is_thread": true}}, true)
 		if err != nil {
-			log.Printf("failed to update or create gmail thread: %v", err)
+			log.Error().Err(err).Msg("failed to update or create gmail thread")
 			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			return
 		}
@@ -232,7 +251,7 @@ func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []d
 			emailIDToObjectID[dbEmail.EmailID] = dbEmail.MessageID
 		}
 	}
-	for i, _ := range fetchedEmails {
+	for i := range fetchedEmails {
 		if emailObjectID, ok := emailIDToObjectID[fetchedEmails[i].EmailID]; ok {
 			fetchedEmails[i].MessageID = emailObjectID
 		} else {
@@ -243,13 +262,25 @@ func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []d
 }
 
 func getThreadFromGmail(gmailService *gmail.Service, threadID string, result chan<- *gmail.Thread) {
-	thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
+	getThreadCall := func() error {
+		thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
+		if err != nil {
+			return err
+		}
+		result <- thread
+		return nil
+	}
+	notify := func(err error, ts time.Duration) {
+		log.Debug().Err(err).Msgf("retrying threadID %s with backoff delay %+v", threadID, ts)
+	}
+
+	err := backoff.RetryNotify(getThreadCall, backoff.NewExponentialBackOff(), notify)
 	if err != nil {
-		log.Error().Msgf("failed to load thread: %v", err)
+		log.Error().Err(err).Msgf("permanently failed to load threadID %s", threadID)
 		result <- nil
 		return
 	}
-	result <- thread
+
 }
 
 func isMessageUnread(message *gmail.Message) bool {
@@ -259,6 +290,15 @@ func isMessageUnread(message *gmail.Message) bool {
 		}
 	}
 	return false
+}
+
+func isMessageArchived(message *gmail.Message) bool {
+	for _, label := range message.LabelIds {
+		if label == "INBOX" {
+			return false
+		}
+	}
+	return true
 }
 
 func expandMessageParts(parts []*gmail.MessagePart) []*gmail.MessagePart {
@@ -277,7 +317,7 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 	data := body.Data
 	bodyData, err := base64.URLEncoding.DecodeString(data)
 	if err != nil {
-		log.Error().Msgf("failed to decode email body: %v", err)
+		log.Error().Err(err).Msg("failed to decode email body")
 		return nil, err
 	}
 
@@ -286,7 +326,7 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 	if mimeType == "text/plain" {
 		formattedBody, err := templating.FormatPlainTextAsHTML(bodyString)
 		if err != nil {
-			log.Error().Msgf("failed to decode email body: %v", err)
+			log.Error().Err(err).Msg("failed to decode email body")
 			return nil, err
 		} else {
 			bodyString = formattedBody
@@ -332,13 +372,13 @@ func (gmailSource GmailSource) MarkAsDone(userID primitive.ObjectID, accountID s
 	}
 
 	if err != nil {
-		log.Error().Msgf("unable to create Gmail service: %v", err)
+		log.Error().Err(err).Msg("unable to create Gmail service")
 		return err
 	}
 
 	doneSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailDonePreference)
 	if err != nil {
-		log.Error().Msgf("failed to load user setting: %s", err)
+		log.Error().Err(err).Msg("failed to load user setting")
 		return err
 	}
 	var labelToRemove string
@@ -417,13 +457,13 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
-		log.Printf("Could not find user, err: %+v", err)
+		log.Error().Err(err).Msg("could not find user")
 		return err
 	}
 
 	email, err := database.GetEmailFromMessageID(parentCtx, messageID, userID)
 	if err != nil {
-		log.Printf("Could not find message in DB, err: %+v", err)
+		log.Error().Err(err).Msg("could not find message in DB")
 		return err
 	}
 
@@ -433,7 +473,7 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	}
 	messageResponse, err := gmailService.Users.Messages.Get("me", email.EmailID).Do()
 	if err != nil {
-		log.Printf("Could not get message from gmail, err: %+v", err)
+		log.Error().Err(err).Msg("could not get message from gmail")
 		return err
 	}
 
@@ -478,10 +518,13 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 
 	var recipientHeader string
 	if emailContents.Recipients != nil {
-		emailTo := "To: " + createEmailRecipientHeader(emailContents.Recipients.To) + "\r\n"
-		emailCc := "Cc: " + createEmailRecipientHeader(emailContents.Recipients.Cc) + "\r\n"
-		emailBcc := "Bcc: " + createEmailRecipientHeader(emailContents.Recipients.Bcc) + "\r\n"
-		recipientHeader = emailTo + emailCc + emailBcc
+		recipientHeader = "To: " + createEmailRecipientHeader(emailContents.Recipients.To) + "\r\n"
+		if len(emailContents.Recipients.Cc) > 0 {
+			recipientHeader += "Cc: " + createEmailRecipientHeader(emailContents.Recipients.Cc) + "\r\n"
+		}
+		if len(emailContents.Recipients.Bcc) > 0 {
+			recipientHeader += "Bcc: " + createEmailRecipientHeader(emailContents.Recipients.Bcc) + "\r\n"
+		}
 	} else {
 		// For backwards compatibility - TODO remove this after frontend migrates to messages/compose endpoint
 		emailTo := "To: " + sendAddress + "\r\n"
@@ -510,8 +553,8 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	return err
 }
 
-func (gmailSource GmailSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("has not been implemented yet")
+func (gmailSource GmailSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (gmailSource GmailSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
@@ -549,7 +592,7 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 	}
 
 	if err != nil {
-		log.Error().Msgf("unable to create Gmail service: %v", err)
+		log.Error().Err(err).Msg("unable to create Gmail service")
 		return err
 	}
 
@@ -560,8 +603,7 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 	return err
 }
 
-func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
-	// todo - mark all emails in the thread as read
+func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -586,13 +628,16 @@ func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID
 	if isUnread != nil {
 		err = changeLabelsOnEmailsInThread(gmailService, &threadItem, "UNREAD", *isUnread)
 	}
+	if IsArchived != nil {
+		err = changeLabelsOnEmailsInThread(gmailService, &threadItem, "INBOX", !*IsArchived)
+	}
 	return err
 }
 
 func changeLabelsOnEmailsInThread(gmailService *gmail.Service, threadItem *database.Item, labelToChange string, addLabel bool) error {
 	var err error
 	for _, email := range threadItem.EmailThread.Emails {
-		err = changeLabelOnMessage(gmailService, email.EmailID, "UNREAD", addLabel)
+		err = changeLabelOnMessage(gmailService, email.EmailID, labelToChange, addLabel)
 		if err != nil {
 			return err
 		}
@@ -612,7 +657,7 @@ func changeLabelOnMessage(gmailService *gmail.Service, emailID string, labelToCh
 		emailID,
 		&modifyRequest,
 	).Do()
-	log.Print("resulting message:", message)
+	log.Debug().Msgf("resulting message: %+v", message)
 
 	return err
 }
@@ -640,6 +685,10 @@ func GetRecipients(headers []*gmail.MessagePartHeader) *database.Recipients {
 // accepts recipients in form: `"Recipient Name" <recipient@email.com>, "Recipient 2 Name" <recipient2@email.com>`
 // adds to recipients parameter
 func parseRecipients(recipientsString string) []database.Recipient {
+	recipientsString = strings.TrimSpace(recipientsString)
+	if recipientsString == "" {
+		return []database.Recipient{}
+	}
 	split := strings.Split(recipientsString, ",")
 	recipients := []database.Recipient{}
 	for _, s := range split {

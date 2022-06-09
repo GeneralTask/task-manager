@@ -1,7 +1,7 @@
-import Cookies from 'js-cookie'
+import Cookie from 'js-cookie'
 import axios from 'axios'
 import getEnvVars from '../environment'
-import { AUTHORIZATION_COOKE } from '../constants'
+import { AUTHORIZATION_COOKE, COOKIE_DOMAIN } from '../constants'
 
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
 
@@ -12,7 +12,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
     (config) => {
         config.headers = {
-            Authorization: `Bearer ${Cookies.get(AUTHORIZATION_COOKE)}`,
+            Authorization: `Bearer ${Cookie.get(AUTHORIZATION_COOKE)}`,
             'Access-Control-Allow-Origin': REACT_APP_FRONTEND_BASE_URL,
             'Access-Control-Allow-Headers':
                 'Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Timezone-Offset',
@@ -31,8 +31,9 @@ apiClient.interceptors.response.use(
     (error) => {
         if (error.response.status === 401) {
             axios.defaults.headers.common['Authorization'] = ''
-            Cookies.remove(AUTHORIZATION_COOKE)
-            window.location.href = REACT_APP_FRONTEND_BASE_URL
+            Cookie.remove(AUTHORIZATION_COOKE, { path: '/', domain: COOKIE_DOMAIN })
+            Cookie.remove(AUTHORIZATION_COOKE) // used for cypress tests
+            window.location.replace(REACT_APP_FRONTEND_BASE_URL)
         }
         return error
     }

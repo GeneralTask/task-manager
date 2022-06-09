@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: BackendTests
 
 # Controls when the action will run.
 on:
@@ -15,8 +15,8 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+  # This workflow contains five identical build jobs to reduce flakiness
+  build_0:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     defaults:
@@ -38,17 +38,105 @@ jobs:
       - name: docker ps
         run: docker ps
 
-      - name: Run go tests (5 times to check for flakiness)
+      - name: Run go tests
         run: ./runtests.sh
+
+  build_1:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Spin up db
+        run: docker-compose up -d
+
+      - name: Wait 5 seconds
+        run: sleep 5
+
+      - name: docker ps
+        run: docker ps
 
       - name: Run go tests
         run: ./runtests.sh
 
-      - name: Run go tests
-        run: ./runtests.sh
+  build_2:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Spin up db
+        run: docker-compose up -d
+
+      - name: Wait 5 seconds
+        run: sleep 5
+
+      - name: docker ps
+        run: docker ps
 
       - name: Run go tests
         run: ./runtests.sh
+
+  build_3:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Spin up db
+        run: docker-compose up -d
+
+      - name: Wait 5 seconds
+        run: sleep 5
+
+      - name: docker ps
+        run: docker ps
+
+      - name: Run go tests
+        run: ./runtests.sh
+
+  build_4:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Spin up db
+        run: docker-compose up -d
+
+      - name: Wait 5 seconds
+        run: sleep 5
+
+      - name: docker ps
+        run: docker ps
 
       - name: Run go tests
         run: ./runtests.sh

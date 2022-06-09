@@ -42,4 +42,6 @@ export const weight = {
 export const landingScreen = {
     header: '58px',
     subheader: '27px',
+    faqHeader: '36px',
+    faqItem: '18px',
 }

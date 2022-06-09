@@ -43,6 +43,17 @@ type OauthConfigWrapper interface {
 
 func getExternalOauth2Client(db *mongo.Database, userID primitive.ObjectID, accountID string, serviceID string, oauthConfig OauthConfigWrapper) *http.Client {
 	parentCtx := context.Background()
+	externalToken, err := getExternalToken(db, userID, accountID, serviceID)
+	if err != nil {
+		return nil
+	}
+
+	token := extractOauthToken(*externalToken)
+	return oauthConfig.Client(parentCtx, &token).(*http.Client)
+}
+
+func getExternalToken(db *mongo.Database, userID primitive.ObjectID, accountID string, serviceID string) (*database.ExternalAPIToken, error) {
+	parentCtx := context.Background()
 	var externalToken database.ExternalAPIToken
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -54,10 +65,13 @@ func getExternalOauth2Client(db *mongo.Database, userID primitive.ObjectID, acco
 			{"service_id": serviceID},
 			{"account_id": accountID},
 		}}).Decode(&externalToken); err != nil {
-		return nil
+		return nil, err
 	}
+	return &externalToken, nil
+}
 
+func extractOauthToken(externalToken database.ExternalAPIToken) oauth2.Token {
 	var token oauth2.Token
 	json.Unmarshal([]byte(externalToken.Token), &token)
-	return oauthConfig.Client(parentCtx, &token).(*http.Client)
+	return token
 }

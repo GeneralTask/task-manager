@@ -3,8 +3,10 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/rs/zerolog/log"
 	"net/http"
+	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -79,7 +81,7 @@ func TokenMiddleware(c *gin.Context) {
 	defer cancel()
 	err = internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": token}).Decode(&internalToken)
 	if err != nil {
-		log.Error().Msgf("auth failed: %v\n", err)
+		log.Error().Err(err).Msg("token auth failed")
 		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
 		return
 	}
@@ -133,4 +135,14 @@ func Handle404(c *gin.Context) {
 
 func Handle500(c *gin.Context) {
 	c.JSON(500, gin.H{"detail": "internal server error"})
+}
+
+func FakeLagMiddleware(c *gin.Context) {
+	if isLocalServer() {
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func isLocalServer() bool {
+	return config.GetConfigValue("DB_NAME") == "main" && config.GetEnvironment() == config.Dev
 }

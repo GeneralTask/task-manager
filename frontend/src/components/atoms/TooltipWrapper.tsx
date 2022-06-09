@@ -9,12 +9,12 @@ interface TooltipWrapperProps {
 const TooltipWrapper = ({ children, dataTip, tooltipId, inline }: TooltipWrapperProps) => {
     if (inline)
         return (
-            <span data-tip={dataTip} data-for={tooltipId}>
+            <span data-tip={dataTip} data-for={tooltipId} data-html={true}>
                 {children}
             </span>
         )
     return (
-        <div data-tip={dataTip} data-for={tooltipId}>
+        <div data-tip={dataTip} data-for={tooltipId} data-html={true}>
             {children}
         </div>
     )

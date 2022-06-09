@@ -1,30 +1,49 @@
-import React, { useEffect } from 'react'
+import 'react-toastify/dist/ReactToastify.css'
+import 'animate.css'
+
+import { MESSAGES_REFETCH_INTERVAL, TASK_REFETCH_INTERVAL } from '../../constants'
+import { Navigate, useLocation } from 'react-router-dom'
+import {
+    useFetchExternalTasks,
+    useFetchMessages,
+    useGetInfiniteThreads,
+    useGetTasks,
+    useGetUserInfo,
+} from '../../services/api-query-hooks'
+
+import DefaultTemplate from '../templates/DefaultTemplate'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { Navigate, useLocation, useParams } from 'react-router-dom'
 import Loading from '../atoms/Loading'
-import DefaultTemplate from '../templates/DefaultTemplate'
-import CalendarView from '../views/CalendarView'
 import MessagesView from '../views/MessagesView'
+import PullRequestsView from '../views/PullRequestsView'
+import React from 'react'
 import Settings from '../views/SettingsView'
+import StyledToastContainer from '../atoms/toast/StyledToastContainer'
 import TaskSection from '../views/TaskSectionView'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { setSelectedItemId } from '../../redux/tasksPageSlice'
-import { useGetTasks, useGetUserInfo } from '../../services/api-query-hooks'
+import { cssTransition } from 'react-toastify'
+import { useAppSelector } from '../../redux/hooks'
+import { useInterval } from '../../hooks'
+
+const toastAnimation = cssTransition({
+    enter: 'animate__animated animate__fadeInRight',
+    exit: 'animate__animated animate__fadeOutRight',
+})
 
 const MainScreen = () => {
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const location = useLocation()
-    const dispatch = useAppDispatch()
-    const params = useParams()
 
     const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
+    const { refetch: getInfiniteThreads } = useGetInfiniteThreads()
 
-    useEffect(() => {
-        if (!params.task) return
-        dispatch(setSelectedItemId(params.task))
-    }, [params])
+    // Refetch tasks and messages independent of current page
+    const { refetch: refetchExternalTasks } = useFetchExternalTasks()
+    useInterval(refetchExternalTasks, TASK_REFETCH_INTERVAL)
+    const { refetch: refetchMessages } = useFetchMessages()
+    useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
+    useInterval(getInfiniteThreads, MESSAGES_REFETCH_INTERVAL)
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {
@@ -32,6 +51,8 @@ const MainScreen = () => {
                 return <TaskSection />
             case 'messages':
                 return <MessagesView />
+            case 'pull-requests':
+                return <PullRequestsView />
             case 'settings':
                 return <Settings />
             default:
@@ -45,11 +66,9 @@ const MainScreen = () => {
     return (
         <DndProvider backend={HTML5Backend}>
             <DefaultTemplate>
-                <>
-                    {expandedCalendar || currentPage}
-                    <CalendarView />
-                </>
+                <>{expandedCalendar || currentPage}</>
             </DefaultTemplate>
+            <StyledToastContainer hideProgressBar position="bottom-right" transition={toastAnimation} />
         </DndProvider>
     )
 }

@@ -21,7 +21,6 @@ export const TimeEstimateContainer = styled.div`
 `
 
 export const Header = styled.div`
-    font-family: Switzer-Variable;
     font-weight: ${weight._600};
     font-size: ${xxSmall.fontSize};
     line-height: ${xxSmall.lineHeight};

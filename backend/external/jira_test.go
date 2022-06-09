@@ -75,7 +75,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:    0,
 				IDExternal:    "42069",
-				IDTaskSection: constants.IDTaskSectionToday,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
 				Title:         "Sample Taskeroni",
 				SourceID:      TASK_SOURCE_ID_JIRA,
@@ -120,7 +120,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:      2,
 				IDExternal:      "42069",
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				IsCompleted:     true,
 				Deeplink:        "https://dankmemes.com/browse/MOON-1969",
 				Title:           "Sample Taskeroni",
@@ -176,7 +176,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:    2,
 				IDExternal:    "42069",
-				IDTaskSection: constants.IDTaskSectionBlocked,
+				IDTaskSection: constants.IDTaskSectionDefault,
 				Deeplink:      "https://dankmemes.com/browse/MOON-1969",
 				Title:         "Sample Taskeroni",
 				SourceID:      TASK_SOURCE_ID_JIRA,
@@ -222,7 +222,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.NoError(t, err)
 		// ordering ID in DB isn't updated until task merge
 		expectedTask.IDOrdering = 2
-		expectedTask.IDTaskSection = constants.IDTaskSectionBlocked
+		expectedTask.IDTaskSection = constants.IDTaskSectionDefault
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 	})
 	t.Run("NewPriorityReordered", func(t *testing.T) {
@@ -235,7 +235,7 @@ func TestLoadJIRATasks(t *testing.T) {
 			TaskBase: database.TaskBase{
 				IDOrdering:       2,
 				IDExternal:       "42069",
-				IDTaskSection:    constants.IDTaskSectionToday,
+				IDTaskSection:    constants.IDTaskSectionDefault,
 				HasBeenReordered: true,
 				Deeplink:         "https://dankmemes.com/browse/MOON-1969",
 				Title:            "Sample Taskeroni",

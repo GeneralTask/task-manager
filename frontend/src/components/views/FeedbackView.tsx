@@ -1,6 +1,7 @@
-import { Colors, Spacing } from '../../styles'
+import { Border, Colors, Spacing } from '../../styles'
 import React, { useState } from 'react'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
+
 import { ModalEnum } from '../../utils/enums'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
@@ -14,23 +15,25 @@ const FeedbackViewContainer = styled.div`
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: ${Spacing.padding._16}px;
+    padding: ${Spacing.padding._16};
     box-sizing: border-box;
 `
 const FeedbackHeader = styled.div`
-    margin-bottom: ${Spacing.margin._24}px;
+    margin-bottom: ${Spacing.margin._24};
     display: flex;
     flex-direction: column;
 `
-const MarginTop = styled.div`
+const TextAreaContainer = styled.div`
     flex: 1;
-    margin-top: ${Spacing.margin._4}px;
+    margin-top: ${Spacing.margin._4};
+    border: 1px solid ${Colors.gray._200};
+    border-radius: ${Border.radius.small};
 `
 const ButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
-    margin-top: ${Spacing.margin._8}px;
-    gap: ${Spacing.margin._8}px;
+    margin-top: ${Spacing.margin._8};
+    gap: ${Spacing.margin._8};
 `
 
 const FeedbackView = () => {
@@ -51,12 +54,12 @@ const FeedbackView = () => {
                 <SubtitleSmall>Let us know how we can improve!</SubtitleSmall>
             </FeedbackHeader>
             <TitleSmall>Feedback</TitleSmall>
-            <MarginTop>
+            <TextAreaContainer>
                 <TextArea value={feedback} placeholder="Type in your feedback here." setValue={setFeedback} />
-            </MarginTop>
+            </TextAreaContainer>
             <ButtonContainer>
-                <RoundedGeneralButton onPress={submitFeedback} value="Send feedback" color={Colors.purple._1} />
-                <RoundedGeneralButton onPress={closeModal} value="Cancel" hasBorder textStyle="dark" />
+                <RoundedGeneralButton onClick={submitFeedback} value="Send feedback" color={Colors.purple._1} />
+                <RoundedGeneralButton onClick={closeModal} value="Cancel" hasBorder textStyle="dark" />
             </ButtonContainer>
         </FeedbackViewContainer>
     )

@@ -1,7 +1,7 @@
 import {
     AllDaysContainer,
     CALENDAR_DEFAULT_SCROLL_HOUR,
-    CELL_HEIGHT,
+    CELL_HEIGHT_VALUE,
     CalendarCell,
     CalendarDayHeader,
     CalendarRow,
@@ -128,7 +128,7 @@ const CalendarEvents = ({ date, numDays }: CalendarEventsProps) => {
 
     useLayoutEffect(() => {
         if (eventsContainerRef.current) {
-            eventsContainerRef.current.scrollTop = CELL_HEIGHT * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
+            eventsContainerRef.current.scrollTop = CELL_HEIGHT_VALUE * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
         }
     }, [])
 

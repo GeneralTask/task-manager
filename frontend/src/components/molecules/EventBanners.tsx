@@ -11,7 +11,6 @@ import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
 const EventBannerContainer = styled.div`
     display: flex;
     flex-direction: column;
-    font-family: Switzer-Variable;
     font-size: ${Typography.xSmall.fontSize};
     position: relative;
     width: 100%;
@@ -52,7 +51,7 @@ const MessageView = styled.div`
     align-items: center;
     justify-content: center;
     flex-shrink: 1;
-    margin-right: ${Spacing.margin._12}px;
+    margin-right: ${Spacing.margin._12};
     min-width: 0px;
 `
 const MessageText = styled.span`

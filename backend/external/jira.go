@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -109,7 +110,7 @@ func (jira JIRASource) getAPIBaseURL(siteConfiguration database.AtlassianSiteCon
 	return "https://api.atlassian.com/ex/jira/" + siteConfiguration.CloudID
 }
 
-func (jira JIRASource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (jira JIRASource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -133,7 +134,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	JQL := "assignee=currentuser() AND status != Done"
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
 	if err != nil {
-		log.Error().Msgf("error forming search request: %v", err)
+		log.Error().Err(err).Msg("error forming search request")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
@@ -141,13 +142,13 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Error().Msgf("failed to load search results: %v", err)
+		log.Error().Err(err).Msg("failed to load search results")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
 	taskData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Error().Msgf("failed to read search response: %v", err)
+		log.Error().Err(err).Msg("failed to read search response")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
@@ -160,7 +161,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	var jiraTasks JIRATaskList
 	err = json.Unmarshal(taskData, &jiraTasks)
 	if err != nil {
-		log.Error().Msgf("failed to parse JIRA tasks: %v", err)
+		log.Error().Err(err).Msg("failed to parse JIRA tasks")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
@@ -176,7 +177,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	for _, jiraTask := range jiraTasks.Issues {
 		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
 		if err != nil {
-			log.Error().Msgf("unable to parse JIRA template: %v", err)
+			log.Error().Err(err).Msg("unable to parse JIRA template")
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
@@ -185,7 +186,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      jiraTask.ID,
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				Deeplink:        siteConfiguration.SiteURL + "/browse/" + jiraTask.Key,
 				SourceID:        TASK_SOURCE_ID_JIRA,
 				Title:           jiraTask.Fields.Summary,
@@ -224,7 +225,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	if needsRefresh {
 		err = jira.GetListOfPriorities(userID, authToken.AccessToken)
 		if err != nil {
-			log.Error().Msgf("failed to fetch priorities: %v", err)
+			log.Error().Err(err).Msg("failed to fetch priorities")
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
@@ -281,7 +282,7 @@ func (JIRA JIRASource) fetchLocalPriorityMapping(prioritiesCollection *mongo.Col
 	defer cancel()
 	cursor, err := prioritiesCollection.Find(dbCtx, bson.M{"user_id": userID})
 	if err != nil {
-		log.Error().Msgf("failed to fetch local priorities: %v", err)
+		log.Error().Err(err).Msg("failed to fetch local priorities")
 		return nil
 	}
 	var priorities []database.JIRAPriority
@@ -307,20 +308,20 @@ func (jira JIRASource) getFinalTransitionID(apiBaseURL string, AtlassianAuthToke
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Error().Msgf("failed to request transitions: %v", err)
+		log.Error().Err(err).Msg("failed to request transitions")
 		return nil
 	}
 
 	responseString, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Error().Msgf("failed to read http response body: %v", err)
+		log.Error().Err(err).Msg("failed to read http response body")
 		return nil
 	}
 
 	var data map[string]interface{}
 	err = json.Unmarshal(responseString, &data)
 	if err != nil {
-		log.Error().Msgf("failed to parse json data: %v", err)
+		log.Error().Err(err).Msg("failed to parse json data")
 		return nil
 	}
 
@@ -361,8 +362,8 @@ func (jira JIRASource) SendEmail(userID primitive.ObjectID, accountID string, em
 	return errors.New("cannot send email for JIRA source")
 }
 
-func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("has not been implemented yet")
+func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (jira JIRASource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
@@ -401,6 +402,6 @@ func (jira JIRASource) ModifyMessage(userID primitive.ObjectID, accountID string
 	return nil
 }
 
-func (jira JIRASource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (jira JIRASource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }

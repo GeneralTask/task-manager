@@ -1,35 +1,58 @@
-import React from 'react'
-import ReactTooltip from 'react-tooltip'
+import '../../styles/tooltip.css'
+
+import { MEDIA_MAX_WIDTH, NAVIGATION_BAR_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
+
+import CalendarView from '../views/CalendarView'
 import { Colors } from '../../styles'
 import NavigationView from '../views/NavigationView'
-import '../../styles/tooltip.css'
+import React from 'react'
+import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
+import { useAppSelector } from '../../redux/hooks'
 
 const DefaultTemplateContainer = styled.div`
-    display: flex;
+    display: grid;
+    grid-template-columns: ${NAVIGATION_BAR_WIDTH} minmax(300px, auto) max-content;
+    grid-auto-flow: column;
+    grid-template-rows: 1fr;
     height: 100vh;
-    font-family: Switzer-Variable;
     background-color: ${Colors.gray._50};
     position: relative;
+    min-width: ${WINDOW_MIN_WIDTH};
+`
+
+const TasksandDetails = styled.div`
+    flex: 1;
+    flex-direction: row;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    background-color: inherit;
+    @media only screen and (max-device-width: ${MEDIA_MAX_WIDTH}) {
+        overflow: auto;
+    }
 `
 interface DefaultTemplateProps {
     children: React.ReactNode
 }
+
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
-    const createTooltipView = (message: string) => <span>{message}</span>
+    const isCalendarExpanded = useAppSelector((state) => state.tasks_page.expanded_calendar)
     return (
         <DefaultTemplateContainer>
             <ReactTooltip
                 id="tooltip"
                 effect="solid"
                 delayShow={250}
+                delayHide={250}
+                delayUpdate={500}
                 className="tooltip"
                 backgroundColor={Colors.white}
                 textColor={Colors.black}
-                getContent={createTooltipView}
             />
             <NavigationView />
-            {children}
+            {!isCalendarExpanded && <TasksandDetails>{children}</TasksandDetails>}
+            <CalendarView isExpanded={isCalendarExpanded} />
         </DefaultTemplateContainer>
     )
 }

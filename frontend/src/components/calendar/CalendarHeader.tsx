@@ -1,19 +1,17 @@
-import { DateTime } from 'luxon'
+import { Colors, Spacing } from '../../styles'
 import React, { useCallback } from 'react'
-import styled from 'styled-components'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { setExpandedCalendar } from '../../redux/tasksPageSlice'
-import { Colors, Dimensions, Spacing } from '../../styles'
-import { icons } from '../../styles/images'
-import { Icon } from '../atoms/Icon'
-import { Divider } from '../atoms/SectionDivider'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+
+import { DateTime } from 'luxon'
+import { Divider } from '../atoms/SectionDivider'
+import { Icon } from '../atoms/Icon'
+import { icons } from '../../styles/images'
+import { setExpandedCalendar } from '../../redux/tasksPageSlice'
+import styled from 'styled-components'
 
 export const PaddedContainer = styled.div`
-    padding-top: ${Spacing.padding._16}px;
-    padding-right: ${(Dimensions.COLLAPSED_CALENDAR_WIDTH - Dimensions.iconSize.small) / 2}px;
-    padding-bottom: ${Spacing.padding._16}px;
-    padding-left: ${Spacing.padding._24}px;
+    padding: ${Spacing.padding._16} ${Spacing.padding._4} ${Spacing.padding._16} ${Spacing.padding._24};
 `
 export const HeaderBodyContainer = styled.div`
     display: flex;
@@ -26,10 +24,12 @@ export const ButtonContainer = styled.div`
     gap: 5px;
 `
 export const CursorPointerDiv = styled.div`
+    display: flex;
+    flex-direction: row;
+    margin: ${Spacing.margin._4};
     cursor: pointer;
     height: fit-content;
-    border-radius: 50%;
-    padding: ${Spacing.padding._4}px;
+    padding: ${Spacing.padding._4};
     &:hover {
         background-color: ${Colors.gray._200};
     }
@@ -48,14 +48,14 @@ const ButtonStyles = styled.button`
 export const HoverButton = styled(ButtonStyles)`
     color: ${Colors.white};
     background-color: ${Colors.purple._1};
-    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._4} ${Spacing.padding._8};
     &:hover {
         background-color: ${Colors.purple._2};
     }
 `
 export const ArrowButton = styled(ButtonStyles)`
     background-color: inherit;
-    padding: ${Spacing.padding._4}px;
+    padding: ${Spacing.padding._4};
     &:hover {
         background-color: ${Colors.gray._200};
     }

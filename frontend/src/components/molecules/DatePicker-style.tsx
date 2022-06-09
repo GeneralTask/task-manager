@@ -42,8 +42,6 @@ export const DayTable = styled.table`
 export const WeekDay = styled.th`
     position: static;
     width: 24px;
-
-    font-family: Switzer-Variable;
     font-weight: ${weight._500};
     font-size: ${xxSmall.fontSize};
     line-height: ${xxSmall.lineHeight};
@@ -55,7 +53,6 @@ export const BottomBar = styled.div`
     padding-bottom: 12px;
 `
 export const MonthYearHeader = styled.div`
-    font-family: Switzer-Variable;
     font-style: normal;
     font-weight: ${weight._500};
     font-size: ${xSmall.fontSize};
@@ -85,7 +82,6 @@ export const DayLabel = styled.span<{ grayed: boolean; isSelected: boolean }>`
     left: 0px;
     top: 5.5px;
 
-    font-family: Switzer-Variable;
     font-weight: ${weight._500};
     font-size: ${xxSmall.fontSize};
     line-height: ${xxSmall.lineHeight};
@@ -106,7 +102,6 @@ export const BottomDateView = styled.div`
     border-radius: 10px;
 `
 export const CurrentDateText = styled.span`
-    font-family: Switzer-Variable;
     font-weight: ${weight._500};
     font-size: ${xSmall.fontSize};
     line-height: ${xSmall.lineHeight};
@@ -114,5 +109,5 @@ export const CurrentDateText = styled.span`
     color: ${Colors.gray._800};
 `
 export const IconContainer = styled.div`
-    padding: ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._8};
 `

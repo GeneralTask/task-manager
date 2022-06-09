@@ -2,8 +2,9 @@ package api
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -22,26 +23,33 @@ type TaskSource struct {
 	IsReplyable   bool   `json:"is_replyable"`
 }
 
+type linkedEmailThread struct {
+	LinkedThreadID *primitive.ObjectID    `json:"linked_thread_id,omitempty"`
+	LinkedEmailID  *primitive.ObjectID    `json:"linked_email_id,omitempty"`
+	EmailThread    *ThreadDetailsResponse `bson:"email_thread,omitempty" json:"email_thread,omitempty"`
+}
+
 type TaskResult struct {
-	ID             primitive.ObjectID `json:"id"`
-	IDOrdering     int                `json:"id_ordering"`
-	Source         TaskSource         `json:"source"`
-	Deeplink       string             `json:"deeplink"`
-	Title          string             `json:"title"`
-	Body           string             `json:"body"`
-	Sender         string             `json:"sender"`
-	Recipients     Recipients         `json:"recipients"`
-	DueDate        string             `json:"due_date"`
-	TimeAllocation int64              `json:"time_allocated"`
-	SentAt         string             `json:"sent_at"`
-	IsDone         bool               `json:"is_done"`
+	ID                primitive.ObjectID `json:"id"`
+	IDOrdering        int                `json:"id_ordering"`
+	Source            TaskSource         `json:"source"`
+	Deeplink          string             `json:"deeplink"`
+	Title             string             `json:"title"`
+	Body              string             `json:"body"`
+	Sender            string             `json:"sender"`
+	DueDate           string             `json:"due_date"`
+	TimeAllocation    int64              `json:"time_allocated"`
+	SentAt            string             `json:"sent_at"`
+	IsDone            bool               `json:"is_done"`
+	LinkedEmailThread *linkedEmailThread `json:"linked_email_thread,omitempty"`
 }
 
 type TaskSection struct {
-	ID     primitive.ObjectID `json:"id"`
-	Name   string             `json:"name"`
-	Tasks  []*TaskResult      `json:"tasks"`
-	IsDone bool               `json:"is_done"`
+	ID         primitive.ObjectID `json:"id"`
+	Name       string             `json:"name"`
+	Tasks      []*TaskResult      `json:"tasks"`
+	IsDone     bool               `json:"is_done"`
+	IsPriority bool               `json:"is_priority"`
 }
 
 type Recipients struct {
@@ -58,12 +66,13 @@ type Recipient struct {
 type TaskGroupType string
 
 const (
-	ScheduledTask          TaskGroupType = "scheduled_task"
-	UnscheduledGroup       TaskGroupType = "unscheduled_group"
-	TaskSectionNameToday   string        = "Today"
-	TaskSectionNameBlocked string        = "Blocked"
-	TaskSectionNameBacklog string        = "Backlog"
-	TaskSectionNameDone    string        = "Done"
+	ScheduledTask           TaskGroupType = "scheduled_task"
+	UnscheduledGroup        TaskGroupType = "unscheduled_group"
+	TaskSectionNamePriority string        = "🚀 Priority (read only)"
+	TaskSectionNameDefault  string        = "Default"
+	TaskSectionNameBlocked  string        = "Blocked"
+	TaskSectionNameBacklog  string        = "Backlog"
+	TaskSectionNameDone     string        = "Done"
 )
 
 func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Item, map[string]bool, error) {
@@ -76,14 +85,14 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to fetch api tokens: %v", err)
+		log.Error().Err(err).Msg("failed to fetch api tokens")
 		return nil, nil, err
 	}
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
-		log.Error().Msgf("failed to iterate through api tokens: %v", err)
+		log.Error().Err(err).Msg("failed to iterate through api tokens")
 		return nil, nil, err
 	}
 	// add dummy token for gt_task fetch logic
@@ -98,16 +107,16 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
-			log.Error().Msgf("error loading task service: %v", err)
+			log.Error().Err(err).Msg("error loading task service")
 			continue
 		}
-		for _, taskSource := range taskServiceResult.Sources {
+		for _, taskSourceResult := range taskServiceResult.Sources {
 			var tasks = make(chan external.TaskResult)
-			go taskSource.GetTasks(userID.(primitive.ObjectID), token.AccountID, tasks)
+			go taskSourceResult.Source.GetTasks(userID.(primitive.ObjectID), token.AccountID, tasks)
 			taskChannels = append(taskChannels, tasks)
 
 			var pullRequests = make(chan external.PullRequestResult)
-			go taskSource.GetPullRequests(userID.(primitive.ObjectID), token.AccountID, pullRequests)
+			go taskSourceResult.Source.GetPullRequests(userID.(primitive.ObjectID), token.AccountID, pullRequests)
 			pullRequestChannels = append(pullRequestChannels, pullRequests)
 		}
 	}
@@ -155,7 +164,7 @@ func adjustForCompletedTasks(
 		if !newTaskIDs[currentTask.ID] && !currentTask.IsMessage && !failedFetchSources[currentTask.SourceID] {
 			err := database.MarkItemComplete(db, currentTask.ID)
 			if err != nil {
-				log.Error().Msgf("failed to update task ordering ID: %v", err)
+				log.Error().Err(err).Msg("failed to update task ordering ID")
 				return err
 			}
 			for _, newTask := range newTasks {
@@ -183,17 +192,17 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 			bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
 		)
 		if err != nil {
-			log.Error().Msgf("failed to update task ordering ID: %v", err)
+			log.Error().Err(err).Msg("failed to update task ordering ID")
 			return err
 		}
 		if res.MatchedCount != 1 {
-			log.Error().Msgf("did not find task to update ordering ID (ID=%v)", task.ID)
+			log.Error().Interface("taskResult", task).Msgf("did not find task to update ordering ID (ID=%v)", task.ID)
 		}
 	}
 	return nil
 }
 
-func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
+func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID) *TaskResult {
 	taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
 	var dueDate string
 	if t.DueDate.Time().Unix() == int64(0) {
@@ -202,7 +211,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
 
-	return &TaskResult{
+	taskResult := &TaskResult{
 		ID:         t.ID,
 		IDOrdering: t.IDOrdering,
 		Source: TaskSource{
@@ -217,13 +226,25 @@ func (api *API) taskBaseToTaskResult(t *database.Item) *TaskResult {
 		Body:           t.TaskBase.Body,
 		TimeAllocation: t.TimeAllocation,
 		Sender:         t.Sender,
-		Recipients: Recipients{
-			To:  getRecipients(t.Recipients.To),
-			Cc:  getRecipients(t.Recipients.Cc),
-			Bcc: getRecipients(t.Recipients.Bcc),
-		},
-		SentAt:  t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
-		DueDate: dueDate,
-		IsDone:  t.IsCompleted,
+		SentAt:         t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
+		DueDate:        dueDate,
+		IsDone:         t.IsCompleted,
 	}
+
+	log.Debug().Interface("linkedMessage", t.LinkedMessage).Send()
+	if t.LinkedMessage.ThreadID != nil {
+		thread, err := database.GetItem(context.Background(), *t.LinkedMessage.ThreadID, userID)
+		if err != nil {
+			log.Error().Err(err).Interface("threadID", t.LinkedMessage.ThreadID).Msg("Could not find linked thread in db")
+			return taskResult
+		}
+
+		taskResult.LinkedEmailThread = &linkedEmailThread{
+			EmailThread:    api.createThreadResponse(thread),
+			LinkedThreadID: &thread.ID,
+			LinkedEmailID:  t.LinkedMessage.EmailID,
+		}
+	}
+
+	return taskResult
 }

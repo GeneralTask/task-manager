@@ -14,7 +14,7 @@ import (
 
 type GeneralTaskTaskSource struct{}
 
-func (generalTask GeneralTaskTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (generalTask GeneralTaskTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -45,7 +45,7 @@ func (generalTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 	)
 	var tasks []*database.Item
 	if err != nil || cursor.All(dbCtx, &tasks) != nil {
-		log.Error().Msgf("failed to fetch general task tasks: %v", err)
+		log.Error().Err(err).Msg("failed to fetch general task tasks")
 		result <- emptyTaskResult(err)
 		return
 	}
@@ -64,8 +64,8 @@ func (generalTask GeneralTaskTaskSource) SendEmail(userID primitive.ObjectID, ac
 	return nil
 }
 
-func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	taskSection := constants.IDTaskSectionToday
+func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	taskSection := constants.IDTaskSectionDefault
 	if task.IDTaskSection != primitive.NilObjectID {
 		taskSection = task.IDTaskSection
 	}
@@ -94,14 +94,14 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
-		return err
+		return primitive.NilObjectID, err
 	}
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	_, err = taskCollection.InsertOne(dbCtx, newTask)
-	return err
+	insertResult, err := taskCollection.InsertOne(dbCtx, newTask)
+	return insertResult.InsertedID.(primitive.ObjectID), err
 }
 
 func (generalTask GeneralTaskTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
@@ -116,6 +116,6 @@ func (generalTask GeneralTaskTaskSource) ModifyMessage(userID primitive.ObjectID
 	return nil
 }
 
-func (generalTask GeneralTaskTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (generalTask GeneralTaskTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }

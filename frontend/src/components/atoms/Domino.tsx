@@ -5,9 +5,9 @@ import styled from 'styled-components'
 
 const DominoOuterContainer = styled.div`
     cursor: grab;
-    height: ${Spacing.margin._16}px;
-    padding-left: ${Spacing.padding._4}px;
-    padding-right: ${Spacing.padding._12}px;
+    height: ${Spacing.margin._16};
+    padding-left: ${Spacing.padding._4};
+    padding-right: ${Spacing.padding._12};
 `
 const DominoContainer = styled.div`
     height: 100%;
@@ -27,7 +27,7 @@ const Dot = styled.div`
 
 const Domino = React.forwardRef<HTMLDivElement>((_, ref) => {
     return (
-        <DominoOuterContainer ref={ref}>
+        <DominoOuterContainer ref={ref} data-testid="drag-domino">
             <DominoContainer>
                 {Array(6)
                     .fill(0)

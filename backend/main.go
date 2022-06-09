@@ -17,7 +17,7 @@ func main() {
 
 	err := migrations.RunMigrations("migrations")
 	if err != nil {
-		log.Error().Msgf("error running migrations: %v", err)
+		log.Error().Err(err).Msg("error running migrations")
 	}
 	api.GetRouter(api.GetAPI()).Run()
 }

@@ -1,6 +1,6 @@
 import getEnvVars from './environment'
 
-const { REACT_APP_API_BASE_URL } = getEnvVars()
+export const { REACT_APP_API_BASE_URL, COOKIE_DOMAIN } = getEnvVars()
 
 // API Constants
 export const MESSAGES_PER_PAGE = 30
@@ -13,8 +13,10 @@ export const MESSAGES_REFETCH_INTERVAL = 60
 export const EVENTS_REFETCH_INTERVAL = 60
 export const TIME_INDICATOR_INTERVAL = 6
 export const TASK_MARK_AS_DONE_TIMEOUT = 2
+export const TASK_MARK_AS_READ_TIMEOUT = 0.5
 export const DETAILS_SYNC_TIMEOUT = 1
 export const SINGLE_SECOND_INTERVAL = 1
+export const EMAIL_UNDO_TIMEOUT = 5
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'

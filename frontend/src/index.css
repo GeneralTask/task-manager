@@ -1,5 +1,14 @@
+:root {
+    --animate-duration: 250ms !important;
+}
+
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    font-family: 'Switzer-Variable'
+}
+
+.__react_component_tooltip.show {
+    opacity: 1 !important;
 }

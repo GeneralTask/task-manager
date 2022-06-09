@@ -1,149 +1,92 @@
-import { Colors, Spacing } from '../../styles'
+import { Colors, Shadows, Spacing } from '../../styles'
+import React, { ReactNode, useRef } from 'react'
 
-import { Icon } from '../atoms/Icon'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import React from 'react'
-import { icons } from '../../styles/images'
+import { radius } from '../../styles/border'
 import styled from 'styled-components'
+import { useClickOutside } from '../../hooks'
 
-const InputContainer = styled.div<{ valid: boolean }>`
+const SelectContainer = styled.div<{ alignment: 'left' | 'right' }>`
     display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid ${Colors.gray._200};
-    border-radius: 8px;
-    outline: ${(props) => (props.valid ? 'none' : `1px solid ${Colors.red._1}`)};
-    margin-bottom: 4px;
-`
-const Input = styled.input`
-    width: 100%;
-    background: transparent;
-    border: none;
-    color: ${Colors.gray._800};
-    font-size: 16px;
-    font-weight: 500;
-    padding: 6px 0;
+    flex-direction: column;
+    position: absolute;
+    background-color: ${Colors.white};
+    border-radius: ${radius.regular};
+    box-shadow: ${Shadows.medium};
+    z-index: 1;
+    ${({ alignment }) => alignment === 'left' && 'right: 0;'}
+    cursor: default;
     outline: none;
 `
-const Dropdown = styled.div`
-    display: flex;
-    border-radius: 8px;
-    flex-direction: column;
-    background: ${Colors.white};
-    border-radius: 8px;
-    height: 200px;
-    padding: 6px;
-    overflow-y: auto;
+const OptionsContainer = styled.div`
+    overflow: hidden;
+    border-radius: inherit;
+    max-height: 500px;
 `
-const Button = styled.button`
-    background: transparent;
-    text-align: left;
-    border: none;
-    border-radius: 6px;
-    color: ${Colors.gray._800};
-    font-size: 16px;
-    font-weight: 500;
-    padding: 6px 8px;
-    width: 100%;
-    cursor: pointer;
+const TitleContainer = styled.div`
+    padding: ${Spacing.padding._12} ${Spacing.padding._16};
+    border-bottom: 1px solid ${Colors.gray._100};
+    color: ${Colors.gray._600};
+`
+const ListItem = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: ${Spacing.padding._8} ${Spacing.padding._16};
     &:hover {
         background-color: ${Colors.gray._100};
     }
+    overflow: hidden;
+    cursor: pointer;
 `
-const ExpandButton = styled(NoStyleButton)`
-    padding: ${Spacing.padding._8}px;
+const SectionTitleBox = styled.div`
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    gap: ${Spacing.padding._8};
+    color: ${Colors.gray._600};
+    min-width: 0;
 `
-const IconContainer = styled.div`
-    margin: ${Spacing.margin._8}px;
+const PositionRelative = styled.div`
+    position: relative;
 `
 
-interface Props {
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-    options: { value: number; label: string }[]
-    onSubmit?: (val: number) => void
-    placeholder?: string
-    pattern?: string
-    invalidInput?: string
-    inputIcon?: string
+interface GTSelectOption {
+    item: ReactNode
+    onClick: () => void
 }
 
-function GTSelect(props: Props): JSX.Element {
-    const { onChange, onSubmit, placeholder, inputIcon, options, invalidInput } = props
-    const [valid, setValid] = React.useState(true)
-    const [expanded, setExpanded] = React.useState(true)
-
-    function optionsList(): JSX.Element[] {
-        const { options } = props
-        return options.map(({ value, label }) => (
-            <Button
-                key={value}
-                value={value}
-                onClick={() => {
-                    onSubmit && onSubmit(value)
-                }}
-            >
-                {label}
-            </Button>
-        ))
-    }
-    function checkValid(val: string): boolean {
-        const { pattern } = props
-        if (pattern) {
-            const regex = new RegExp(pattern)
-            setValid(regex.test(val))
-            return regex.test(val)
-        }
-        return true
-    }
-    function exec(val: string): RegExpExecArray | null {
-        const { pattern } = props
-        if (pattern) {
-            const regex = new RegExp(pattern)
-            return regex.exec(val)
-        }
-        return null
-    }
-    function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
-        e.stopPropagation()
-        if (e.key === 'Enter' && checkValid(e.currentTarget.value) && onSubmit) {
-            const result = exec(e.currentTarget.value)
-            if (result) {
-                const val = Number(result[1]) * 60 + Number(result[2])
-                onSubmit(val)
-            }
-        }
-        if (invalidInput) {
-            const regex = new RegExp(invalidInput)
-            if (regex.test(e.key)) e.preventDefault()
-        }
-    }
-
+interface GTSelectProps {
+    options: GTSelectOption[]
+    onClose: () => void
+    location?: 'left' | 'right'
+    title?: ReactNode
+    parentRef?: React.RefObject<HTMLElement> // pass this in to exclude parent from click outside
+}
+const GTSelect = ({ options, onClose, location, title, parentRef }: GTSelectProps) => {
+    location = location ?? 'right'
+    const selectRef = useRef(null)
+    useClickOutside(parentRef ?? selectRef, onClose)
+    const optionsList = options.map((option, index) => (
+        <ListItem
+            key={index}
+            tabIndex={0}
+            onClick={() => {
+                option.onClick()
+                onClose()
+            }}
+        >
+            <SectionTitleBox>{option.item}</SectionTitleBox>
+        </ListItem>
+    ))
     return (
-        <>
-            <InputContainer valid={valid}>
-                {inputIcon && (
-                    <IconContainer>
-                        <Icon source={inputIcon} size="xSmall" />
-                    </IconContainer>
-                )}
-                <Input
-                    onChange={(e) => {
-                        checkValid(e.target.value)
-                        onChange(e)
-                    }}
-                    onKeyDown={handleKeyDown}
-                    placeholder={placeholder}
-                    autoFocus
-                />
-                {options.length && (
-                    <ExpandButton onClick={() => setExpanded(!expanded)}>
-                        <Icon source={icons['chevron_down']} size="xSmall" />
-                    </ExpandButton>
-                )}
-            </InputContainer>
-            {expanded && options && <Dropdown>{optionsList()}</Dropdown>}
-        </>
+        <PositionRelative>
+            <SelectContainer ref={selectRef} onClick={(e) => e.stopPropagation()} alignment={location}>
+                {title && <TitleContainer>{title}</TitleContainer>}
+                <OptionsContainer>{optionsList}</OptionsContainer>
+            </SelectContainer>
+        </PositionRelative>
     )
 }
 
-export default GTSelect
+export default React.memo(GTSelect)

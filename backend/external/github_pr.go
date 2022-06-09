@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -24,7 +25,7 @@ type GithubPRSource struct {
 	Github GithubService
 }
 
-func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult) {
+func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -52,7 +53,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
 	if token == nil {
-		log.Error().Msgf("failed to fetch Github API token")
+		log.Error().Msg("failed to fetch Github API token")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
 		return
 	}
@@ -109,7 +110,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			TaskBase: database.TaskBase{
 				UserID:          userID,
 				IDExternal:      fmt.Sprint(*pullRequest.ID),
-				IDTaskSection:   constants.IDTaskSectionToday,
+				IDTaskSection:   constants.IDTaskSectionDefault,
 				Deeplink:        *pullRequest.HTMLURL,
 				SourceID:        TASK_SOURCE_ID_GITHUB_PR,
 				Title:           *pullRequest.Title,
@@ -145,7 +146,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			nil,
 			false)
 		if err != nil {
-			log.Error().Msgf("failed to update or create pull request: %v", err)
+			log.Error().Err(err).Msg("failed to update or create pull request")
 			result <- emptyPullRequestResult(err)
 			return
 		}
@@ -198,8 +199,8 @@ func (gitPR GithubPRSource) SendEmail(userID primitive.ObjectID, accountID strin
 	return errors.New("cannot send email for github pr")
 }
 
-func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, pullRequest TaskCreationObject) error {
-	return errors.New("has not been implemented yet")
+func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (gitPR GithubPRSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
@@ -215,6 +216,6 @@ func (gitPR GithubPRSource) ModifyMessage(userID primitive.ObjectID, accountID s
 	return nil
 }
 
-func (gitPR GithubPRSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool) error {
+func (gitPR GithubPRSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }

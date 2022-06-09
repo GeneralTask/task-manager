@@ -17,6 +17,7 @@
     "sourceType": "module"
   },
   "plugins": ["react", "@typescript-eslint", "unused-imports"],
+  "ignorePatterns": ["dist", "build", "node_modules", "cypress/**/*.ts"],
   "rules": {
     "@typescript-eslint/no-unused-vars": "warn",
     "unused-imports/no-unused-imports": "warn",
@@ -24,7 +25,7 @@
         "warn",
         { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
       ],
-      "react/react-in-jsx-scope": "off",
-      "react/display-name": "off" 
+    "react/react-in-jsx-scope": "off",
+    "react/display-name": "off"
   }
 }

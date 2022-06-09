@@ -3,11 +3,11 @@ import { useGetTasks, useReorderTask } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Colors, Dimensions, Shadows, Spacing } from '../../styles'
 import { radius } from '../../styles/border'
-import { setSelectedItemId } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
-import { useAppDispatch } from '../../redux/hooks'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
+
+const PRIORITY_SECTION_ID = '000000000000000000000000'
 
 const LabelEditorContainer = styled.div`
     display: flex;
@@ -27,7 +27,7 @@ const OptionsContainer = styled.div`
     max-height: 500px;
 `
 const TopNav = styled.div`
-    padding: ${Spacing.padding._12}px ${Spacing.padding._16}px;
+    padding: ${Spacing.padding._12} ${Spacing.padding._16};
     border-bottom: 1px solid ${Colors.gray._100};
 `
 const Header = styled.div`
@@ -37,7 +37,7 @@ const ListItem = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: ${Spacing.padding._12}px ${Spacing.padding._16}px;
+    padding: ${Spacing.padding._12} ${Spacing.padding._16};
     border-bottom: 1px solid ${Colors.gray._100};
     &:hover {
         background-color: ${Colors.gray._100};
@@ -49,7 +49,7 @@ const SectionTitleBox = styled.div<{ isSelected: boolean }>`
     flex: 1;
     flex-direction: row;
     align-items: center;
-    gap: ${Spacing.padding._8}px;
+    gap: ${Spacing.padding._8};
     color: ${(props) => (props.isSelected ? Colors.purple._1 : Colors.gray._600)};
     min-width: 0;
 `
@@ -70,12 +70,12 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
     const { data } = useGetTasks()
 
     const navigate = useNavigate()
-    const dispatch = useAppDispatch()
     const params = useParams()
     const current_section_id = params.section || ''
 
     const options = data?.map((section) => {
-        if (section.is_done) return
+        // Do not allow moving to the done or the priority sections
+        if (section.is_done || section.id === PRIORITY_SECTION_ID) return
         const isCurrentSection = section.id === current_section_id
 
         const handleOnClick = () => {
@@ -87,7 +87,6 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
             })
             closeLabelEditor()
             navigate(`/tasks/${current_section_id}`)
-            dispatch(setSelectedItemId(null))
         }
 
         return (

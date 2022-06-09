@@ -7,9 +7,8 @@ const WaitlistButtonStyled = styled.button`
     background-color: ${Colors.purple._1};
     border: none;
     color: ${Colors.white};
-    font-family: Switzer-Variable;
     font-size: ${Typography.small.fontSize};
-    padding: 0px ${Spacing.padding._8}px;
+    padding: 0px ${Spacing.padding._8};
     cursor: pointer;
 `
 interface JointWaitlistButtonProps {

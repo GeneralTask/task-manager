@@ -40,3 +40,10 @@ export enum CompanyPolicyPages {
     TermsOfService,
     PrivacyPolicy,
 }
+
+export enum EmailComposeType {
+    REPLY,
+    REPLY_ALL,
+    FORWARD,
+    NEW,
+}

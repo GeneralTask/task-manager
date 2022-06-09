@@ -29,7 +29,7 @@ func TestCORSHeaders(t *testing.T) {
 	})
 	t.Run("GET request", func(t *testing.T) {
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("GET", "/ping/", nil)
+		request, _ := http.NewRequest("GET", "/ping_authed/", nil)
 		authToken := login("approved@generaltask.com", "")
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -154,4 +154,8 @@ func Test404(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
 	})
+}
+
+func TestIsLocalServer(t *testing.T) {
+	assert.False(t, isLocalServer())
 }

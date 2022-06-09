@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/chidiwilliams/flatbson"
 	"github.com/rs/zerolog/log"
-	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"go.mongodb.org/mongo-driver/bson"
@@ -61,7 +62,7 @@ func UpdateOrCreateTask(
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Msgf("Failed to update or create task: %v", err)
+		log.Error().Err(err).Msg("failed to update or create task")
 		return nil, err
 	}
 
@@ -74,7 +75,7 @@ func UpdateOrCreateTask(
 	var item Item
 	err = mongoResult.Decode(&item)
 	if err != nil {
-		log.Printf("Failed to update or create item: %v", err)
+		log.Error().Err(err).Msg("failed to update or create item")
 		return nil, err
 	}
 	return &item, nil
@@ -84,7 +85,7 @@ func GetEmailFromMessageID(ctx context.Context, messageID primitive.ObjectID, us
 	parentCtx := ctx
 	db, dbCleanup, err := GetDBConnection()
 	if err != nil {
-		log.Print("Failed to establish DB connection", err)
+		log.Error().Err(err).Msg("failed to establish DB connection")
 		return nil, err
 	}
 	defer dbCleanup()
@@ -103,12 +104,12 @@ func GetEmailFromMessageID(ctx context.Context, messageID primitive.ObjectID, us
 		options.FindOne().SetProjection(bson.M{"email_thread.emails.$": 1}),
 	).Decode(&thread)
 	if err != nil {
-		log.Printf("Failed to get email with messageID: %+v, error: %v", messageID, err)
+		log.Error().Err(err).Msgf("Failed to get email with messageID: %+v", messageID)
 		return nil, err
 	}
 
 	if len(thread.EmailThread.Emails) == 0 {
-		log.Printf("Failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
+		log.Error().Msgf("Failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
 		return nil, fmt.Errorf("failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
 	}
 	return &thread.EmailThread.Emails[0], nil
@@ -134,7 +135,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 			{"user_id": userID},
 		}}).Decode(&message)
 	if err != nil {
-		log.Error().Msgf("Failed to get item: %+v, error: %v", itemID, err)
+		log.Error().Err(err).Msgf("Failed to get item: %+v", itemID)
 		return nil, err
 	}
 	return &message, nil
@@ -159,7 +160,7 @@ func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Msgf("Failed to get or create task: %v", err)
+		log.Error().Err(err).Msg("Failed to get or create task")
 		return nil, err
 	}
 
@@ -171,7 +172,7 @@ func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 		dbQuery,
 	).Decode(&item)
 	if err != nil {
-		log.Error().Msgf("Failed to get task: %v", err)
+		log.Error().Err(err).Msg("Failed to get task")
 		return nil, err
 	}
 
@@ -193,7 +194,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 		},
 	)
 	if err != nil {
-		log.Error().Msgf("Failed to fetch tasks for user: %v", err)
+		log.Error().Err(err).Msg("Failed to fetch tasks for user")
 		return nil, err
 	}
 	var tasks []Item
@@ -201,39 +202,43 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
-		log.Error().Msgf("Failed to fetch tasks for user: %v", err)
+		log.Error().Err(err).Msg("Failed to fetch tasks for user")
 		return nil, err
 	}
 	return &tasks, nil
 }
 
-func GetUnreadEmails(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
+func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
+	filter := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+		},
+	}
+	if additionalFilters != nil && len(*additionalFilters) > 0 {
+		for _, additionalFilter := range *additionalFilters {
+			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
+		}
+	}
 	cursor, err := GetTaskCollection(db).Find(
 		dbCtx,
-		bson.M{
-			"$and": []bson.M{
-				{"user_id": userID},
-				{"task_type.is_message": true},
-				{"email.is_unread": true},
-			},
-		},
+		filter,
 	)
 	if err != nil {
-		log.Error().Msgf("Failed to fetch emails for user: %v", err)
+		log.Error().Err(err).Msg("Failed to fetch items for user")
 		return nil, err
 	}
-	var activeEmails []Item
+	var items []Item
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = cursor.All(dbCtx, &activeEmails)
+	err = cursor.All(dbCtx, &items)
 	if err != nil {
-		log.Error().Msgf("Failed to fetch emails for user: %v", err)
+		log.Error().Err(err).Msg("Failed to fetch items for user")
 		return nil, err
 	}
-	return &activeEmails, nil
+	return &items, nil
 }
 
 func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, pagination Pagination) (*[]Item, error) {
@@ -264,7 +269,7 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 		&opts,
 	)
 	if err != nil {
-		log.Error().Msgf("Failed to fetch emails for user: %v with pagination: %v", err, pagination)
+		log.Error().Err(err).Msgf("Failed to fetch emails for user with pagination: %v", pagination)
 		return nil, err
 	}
 	var activeEmails []Item
@@ -272,13 +277,13 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 	defer cancel()
 	err = cursor.All(dbCtx, &activeEmails)
 	if err != nil {
-		log.Error().Msgf("Failed to fetch emails for user: %v with pagination: %v", err, pagination)
+		log.Error().Err(err).Msgf("Failed to fetch emails for user with pagination: %v", pagination)
 		return nil, err
 	}
 	return &activeEmails, nil
 }
 
-func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, pagination Pagination, additionalFilters *[]bson.M) (*[]Item, error) {
+func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, isArchived bool, pagination Pagination, additionalFilters *[]bson.M) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -295,6 +300,7 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 		"$and": []bson.M{
 			{"user_id": userID},
 			{"task_type.is_thread": true},
+			{"email_thread.is_archived": isArchived},
 		},
 	}
 	if additionalFilters != nil && len(*additionalFilters) > 0 {
@@ -310,13 +316,14 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 		}
 		filter["$and"] = append(filter["$and"].([]bson.M), isUnreadFilter)
 	}
+
 	cursor, err := GetTaskCollection(db).Find(
 		dbCtx,
 		filter,
 		&opts,
 	)
 	if err != nil {
-		log.Error().Msgf("Failed to fetch threads for user: %v with pagination: %v", err, pagination)
+		log.Error().Err(err).Msgf("Failed to fetch threads for user with pagination: %v", pagination)
 		return nil, err
 	}
 	var activeEmails []Item
@@ -324,7 +331,7 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 	defer cancel()
 	err = cursor.All(dbCtx, &activeEmails)
 	if err != nil {
-		log.Error().Msgf("Failed to fetch threads for user: %v with pagination: %v", err, pagination)
+		log.Error().Err(err).Msgf("Failed to fetch threads for user with pagination: %v", pagination)
 		return nil, err
 	}
 	return &activeEmails, nil
@@ -350,7 +357,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 		findOptions,
 	)
 	if err != nil {
-		log.Error().Msgf("Failed to fetch tasks for user: %v", err)
+		log.Error().Err(err).Msg("Failed to fetch tasks for user")
 		return nil, err
 	}
 	var tasks []Item
@@ -358,7 +365,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
-		log.Error().Msgf("Failed to fetch tasks for user: %v", err)
+		log.Error().Err(err).Msg("Failed to fetch tasks for user")
 		return nil, err
 	}
 	return &tasks, nil
@@ -375,7 +382,7 @@ func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSect
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Error().Msgf("failed to fetch sections for user: %+v", err)
+		log.Error().Err(err).Msg("failed to fetch sections for user")
 		return nil, err
 	}
 	var sections []TaskSection
@@ -383,7 +390,7 @@ func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSect
 	defer cancel()
 	err = cursor.All(dbCtx, &sections)
 	if err != nil {
-		log.Error().Msgf("failed to fetch sections for user: %v", err)
+		log.Error().Err(err).Msg("failed to fetch sections for user")
 		return nil, err
 	}
 	return &sections, nil
@@ -421,7 +428,7 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 		bson.M{"_id": userID},
 	).Decode(&userObject)
 	if err != nil {
-		log.Error().Msgf("Failed to load user: %v", err)
+		log.Error().Err(err).Msg("Failed to load user")
 		return nil, err
 	}
 	return &userObject, nil
@@ -437,7 +444,7 @@ func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID, useDeeplin
 	defer cancel()
 	cursor, err := GetStateTokenCollection(db).InsertOne(dbCtx, stateToken)
 	if err != nil {
-		log.Error().Msgf("Failed to create new state token: %v", err)
+		log.Error().Err(err).Msg("Failed to create new state token")
 		return nil, err
 	}
 	stateTokenStr := cursor.InsertedID.(primitive.ObjectID).Hex()
@@ -457,7 +464,7 @@ func GetStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userID *
 	defer cancel()
 	err := GetStateTokenCollection(db).FindOne(dbCtx, query).Decode(&token)
 	if err != nil {
-		log.Error().Msgf("Failed to get state token: %v", err)
+		log.Error().Err(err).Msg("Failed to get state token")
 		return nil, err
 	}
 	return &token, nil
@@ -475,7 +482,7 @@ func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userI
 	defer cancel()
 	result, err := GetStateTokenCollection(db).DeleteOne(dbCtx, deletionQuery)
 	if err != nil {
-		log.Error().Msgf("Failed to delete state token: %v", err)
+		log.Error().Err(err).Msg("Failed to delete state token")
 		return err
 	}
 	if result.DeletedCount != 1 {

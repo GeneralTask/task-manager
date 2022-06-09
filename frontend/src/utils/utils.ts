@@ -1,6 +1,6 @@
-import sanitizeHtml from 'sanitize-html'
-import { TTask } from './types'
 import { DateTime } from 'luxon';
+import { TTask } from './types'
+import sanitizeHtml from 'sanitize-html'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -28,23 +28,36 @@ export const removeHTMLTags = (dirtyHTML: string) => {
 }
 
 export const getHumanTimeSinceDateTime = (date: DateTime) => {
-    const now = DateTime.now()
-    const { years, months, days, hours, minutes } = now.diff(date, ['years', 'months', 'days', 'hours', 'minutes', 'milliseconds'])
+    const { years, months, days, hours, minutes } = DateTime.now().diff(date, ['years', 'months', 'days', 'hours', 'minutes', 'milliseconds'])
 
     if (years > 0) {
-        return `${years} year${years > 1 ? 's' : ''} ago`
+        return `${years} ${years > 1 ? 'years' : 'year'} ago`
     } else if (months > 0) {
-        return `${months} month${months > 1 ? 's' : ''} ago`
+        return `${months} ${months > 1 ? 'months' : 'month'} ago`
     } else if (days > 0) {
-        return `${days} day${days > 1 ? 's' : ''} ago`
+        return `${days} ${days > 1 ? 'days' : 'day'} ago`
     } else if (hours > 0) {
-        return `${hours} hour${hours > 1 ? 's' : ''} ago`
+        return `${hours} ${hours > 1 ? 'hours' : 'hour'} ago`
     } else if (minutes > 0) {
-        return `${minutes} min${minutes > 1 ? 's' : ''} ago`
-    } else {
-        return `just now`
+        return `${minutes} ${minutes > 1 ? 'mins' : 'min'} ago`
     }
+    return `just now`
+}
+
+export const getHumanDateTime = (date: DateTime) => {
+    const { days } = DateTime.now().endOf('day').diff(date, ['milliseconds', 'days'])
+
+    if (days === 0) {
+        return date.toLocaleString({ hour12: true, hour: 'numeric', minute: 'numeric' })
+    } else if (days === 1) {
+        return 'Yesterday'
+    }
+    return date.toLocaleString({ month: 'numeric', day: 'numeric', year: '2-digit' })
 }
 
 // to avoid creating empty placeholder functions across the app
 export const emptyFunction = () => void 0
+
+// https://stackoverflow.com/a/46181/12679075
+export const isValidEmail = (email: string): boolean =>
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email.toLowerCase())

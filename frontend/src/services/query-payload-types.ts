@@ -1,4 +1,4 @@
-import { TEmailThread } from "../utils/types"
+import { TEmailThread, TRecipients } from "../utils/types"
 
 interface TEventAttendee {
     name: string
@@ -37,6 +37,9 @@ interface TCreateTaskData {
     body: string
     id_task_section: string
 }
+interface TCreateTaskResponse {
+    task_id: string
+}
 interface TModifyTaskData {
     id: string
     title?: string
@@ -66,6 +69,25 @@ interface TMarkMessageReadData {
     id: string
     isRead: boolean
 }
+interface TComposeMessageData {
+    message_id?: string
+    subject?: string
+    body: string
+    recipients: TRecipients
+    source_id: string
+    source_account_id: string
+}
+interface TCreateTaskFromThreadData {
+    thread_id: string
+    title: string
+    body: string
+    email_id?: string
+}
+
+interface TModifyThreadData {
+    thread_id: string
+    is_unread: boolean
+}
 
 export {
     TCreateEventPayload,
@@ -74,10 +96,14 @@ export {
     TAddTaskSectionData,
     TPostFeedbackData,
     TCreateTaskData,
+    TCreateTaskResponse,
     TModifyTaskData,
     TMarkTaskDoneData,
     TReorderTaskData,
     TModifyTaskSectionData,
     TMarkAsTaskData,
     TMarkMessageReadData,
+    TComposeMessageData,
+    TCreateTaskFromThreadData,
+    TModifyThreadData
 }

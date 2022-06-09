@@ -1,35 +1,42 @@
+import { DEFAULT_MESSAGE_ID, DEFAULT_SENDER, DEFAULT_SUBJECT } from '../constants/emailConstants'
 import { MESSAGES_PER_PAGE, TASK_MARK_AS_DONE_TIMEOUT, TASK_SECTION_DEFAULT_ID } from '../constants'
 import {
+    TAddTaskSectionData,
+    TComposeMessageData,
+    TCreateEventPayload,
+    TCreateTaskData,
+    TCreateTaskResponse,
+    TCreateTaskFromThreadData,
+    TEmailThreadResponse,
+    TMarkMessageReadData,
+    TMarkTaskDoneData,
+    TModifyTaskData,
+    TModifyTaskSectionData,
+    TModifyThreadData,
+    TPostFeedbackData,
+    TReorderTaskData,
+    TTaskModifyRequestBody,
+} from './query-payload-types'
+import {
+    TEmail,
     TEmailThread,
     TEvent,
     TLinkedAccount,
+    TMeetingBanner,
     TMessage,
-    TMessageResponse,
     TRecipients,
     TSupportedType,
     TTask,
     TTaskSection,
     TUserInfo,
 } from '../utils/types'
-import {
-    TAddTaskSectionData,
-    TCreateEventPayload,
-    TCreateTaskData,
-    TEmailThreadResponse,
-    TMarkAsTaskData,
-    TMarkMessageReadData,
-    TMarkTaskDoneData,
-    TModifyTaskData,
-    TModifyTaskSectionData,
-    TPostFeedbackData,
-    TReorderTaskData,
-    TTaskModifyRequestBody,
-} from './query-payload-types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
+
 import { DateTime } from 'luxon'
 import apiClient from '../utils/api'
 import { getMonthsAroundDate } from '../utils/time'
+import { v4 as uuidv4 } from 'uuid'
 
 /**
  * TASKS QUERIES
@@ -77,6 +84,7 @@ const fetchExternalTasks = async () => {
 
 export const useCreateTask = () => {
     const queryClient = useQueryClient()
+    const optimisticId = uuidv4()
     return useMutation((data: TCreateTaskData) => createTask(data), {
         onMutate: async (data: TCreateTaskData) => {
             // cancel all current getTasks queries
@@ -88,7 +96,7 @@ export const useCreateTask = () => {
             for (const section of sections) {
                 if (section.id === data.id_task_section) {
                     const newTask: TTask = {
-                        id: '0',
+                        id: optimisticId,
                         id_ordering: 0,
                         title: data.title,
                         body: data.body,
@@ -105,13 +113,25 @@ export const useCreateTask = () => {
                         },
                         sender: '',
                         is_done: false,
-                        recipients: {} as TRecipients,
+                        recipients: { to: [], cc: [], bcc: [] },
+                        isOptimistic: true,
                     }
                     section.tasks = [newTask, ...section.tasks]
                     queryClient.setQueryData('tasks', () => sections)
                     return
                 }
             }
+        },
+        onSuccess: async (response: TCreateTaskResponse, createData: TCreateTaskData) => {
+            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            if (!sections) return
+
+            const task = sections.find(section => section.id === createData.id_task_section)?.tasks.find(task => task.id === optimisticId)
+            if (!task) return
+
+            task.id = response.task_id
+            task.isOptimistic = false
+            queryClient.setQueryData('tasks', () => sections)
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
@@ -124,6 +144,65 @@ const createTask = async (data: TCreateTaskData) => {
         return res.data
     } catch {
         throw new Error('createTask failed')
+    }
+}
+
+/**
+ * Creates a task with a reference link back to the email thread
+ */
+export const useCreateTaskFromThread = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation((data: TCreateTaskFromThreadData) => createTaskFromThread(data), {
+        onMutate: async (data: TCreateTaskFromThreadData) => {
+            queryClient.cancelQueries('tasks')
+            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            if (!sections) return
+            sections[0].tasks = [
+                {
+                    id: '0',
+                    id_ordering: 0,
+                    title: data.title,
+                    body: data.body,
+                    deeplink: '',
+                    sent_at: '',
+                    time_allocated: 0,
+                    due_date: '',
+                    source: {
+                        name: 'General Task',
+                        logo: '',
+                        logo_v2: 'generaltask',
+                        is_completable: false,
+                        is_replyable: false,
+                    },
+                    sender: '',
+                    is_done: false,
+                    recipients: {} as TRecipients,
+                    linked_email_thread: {
+                        linked_thread_id: data.thread_id,
+                        emails: []
+                    }
+                },
+                ...sections[0].tasks
+            ]
+            queryClient.setQueryData('tasks', () => sections)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+        },
+    })
+}
+
+const createTaskFromThread = async (data: TCreateTaskFromThreadData) => {
+    try {
+        const res = await apiClient.post(`/create_task_from_thread/${data.thread_id}/`, {
+            title: data.title,
+            body: data.body,
+            email_id: data.email_id,
+        })
+        return res.data
+    } catch {
+        throw new Error('createTaskFromThread failed')
     }
 }
 
@@ -374,7 +453,7 @@ const modifyTaskSection = async (data: TModifyTaskSectionData) => {
  * THREADS QUERIES
  */
 export const useGetInfiniteThreads = () => {
-    return useInfiniteQuery<TEmailThread[]>('emailthreads', getInfiniteThreads, {
+    return useInfiniteQuery<TEmailThread[]>('emailThreads', getInfiniteThreads, {
         getNextPageParam: (_, pages) => pages.length + 1,
     })
 }
@@ -388,7 +467,7 @@ const getInfiniteThreads = async ({ pageParam = 1 }) => {
 }
 
 export const useGetThreadDetail = (data: { threadId: string }) => {
-    return useQuery<TEmailThread>(['emailthreads', data.threadId], () => getThreadDetail(data))
+    return useQuery<TEmailThread>(['emailThreads', data.threadId], () => getThreadDetail(data))
 }
 const getThreadDetail = async (data: { threadId: string }) => {
     try {
@@ -399,41 +478,47 @@ const getThreadDetail = async (data: { threadId: string }) => {
     }
 }
 
-export const useMarkThreadAsTask = () => {
+export const useModifyThread = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: TMarkAsTaskData) => markThreadAsTask(data),
-        {
-            onMutate: async (data: TMarkAsTaskData) => {
-                // cancel all current getThreads queries
-                await queryClient.cancelQueries('emailthreads')
+    return useMutation((data: TModifyThreadData) => modifyThread(data), {
+        onMutate: async (data: TModifyThreadData) => {
+            await queryClient.cancelQueries('emailThreads')
+            const queryData: {
+                pages: TEmailThread[][]
+                pageParams: unknown[]
+            } | undefined = queryClient.getQueryData('emailThreads')
 
-                const response: TEmailThreadResponse | undefined = queryClient.getQueryData('messages')
-                if (!response) return
+            if (!queryData) return
 
-                for (const page of response.pages) {
-                    for (const thread of page) {
-                        if (thread.id === data.id) {
-                            thread.is_task = data.isTask
+            for (const page of queryData.pages) {
+                if (!page) continue
+                for (const thread of page) {
+                    if (thread.id === data.thread_id) {
+                        for (const email of thread.emails) {
+                            email.is_unread = data.is_unread
                         }
+                        break
                     }
                 }
-                queryClient.setQueryData('emailthreads', response)
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('tasks')
-                queryClient.invalidateQueries('emailthreads')
-            },
-        }
-    )
+            }
+            queryClient.setQueryData('emailThreads', queryData)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('emailThreads')
+        },
+    })
 }
-const markThreadAsTask = async (data: TMarkAsTaskData) => {
+
+
+const modifyThread = async (data: TModifyThreadData) => {
     try {
-        const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_task: data.isTask })
+        const res = await apiClient.patch(`/threads/modify/${data.thread_id}/`, data)
         return res.data
     } catch {
-        throw new Error('markMessageAsTask failed')
+        throw new Error('modifyThread failed')
     }
 }
+
 
 /**
  * MESSAGES QUERIES
@@ -456,7 +541,7 @@ export const useFetchMessages = () => {
     const queryClient = useQueryClient()
     return useQuery([], () => fetchMessages(), {
         onSettled: () => {
-            queryClient.invalidateQueries('messages')
+            queryClient.invalidateQueries('emailThreads')
         },
     })
 }
@@ -466,6 +551,18 @@ const fetchMessages = async () => {
         return res.data
     } catch {
         throw new Error('fetchMessages failed')
+    }
+}
+
+export const useMeetingBanner = () => {
+    return useQuery<TMeetingBanner>('meeting_banner', () => meetingBanner())
+}
+const meetingBanner = async () => {
+    try {
+        const res = await apiClient.get('/meeting_banner/')
+        return res.data
+    } catch {
+        throw new Error('useMeetingBanner failed')
     }
 }
 
@@ -487,38 +584,53 @@ const markMessageRead = async (data: TMarkMessageReadData) => {
     }
 }
 
-export const useMarkMessageAsTask = () => {
+export const useComposeMessage = () => {
     const queryClient = useQueryClient()
-    return useMutation((data: TMarkAsTaskData) => markMessageAsTask(data), {
-        onMutate: async (data: TMarkAsTaskData) => {
-            // cancel all current getMessages queries
-            await queryClient.cancelQueries('messages')
-
-            const response: TMessageResponse | undefined = queryClient.getQueryData('messages')
+    return useMutation((data: TComposeMessageData) => composeMessage(data), {
+        onMutate: async (data: TComposeMessageData) => {
+            const response: TEmailThreadResponse | undefined = queryClient.getQueryData('emailThreads')
             if (!response) return
 
-            for (const page of response.pages) {
-                if (!page) break
-                for (const message of page) {
-                    if (message.id === data.id) {
-                        message.is_task = data.isTask
-                    }
-                }
+            // if message is part of a thread
+            if (!data.message_id) return
+            await queryClient.cancelQueries('emailThreads')
+
+            const thread = response.pages.flat().find(
+                thread => thread.emails.find(
+                    email => email.message_id === data.message_id
+                ) !== null
+            )
+            if (!thread) return
+
+            const tempEmail: TEmail = {
+                message_id: DEFAULT_MESSAGE_ID,
+                subject: data.subject || DEFAULT_SUBJECT,
+                body: data.body,
+                sent_at: new Date().toISOString(),
+                is_unread: false,
+                sender: {
+                    name: DEFAULT_SENDER,
+                    email: data.source_account_id,
+                    reply_to: '',
+                },
+                recipients: data.recipients,
             }
-            queryClient.setQueryData('messages', response)
+            thread.emails.push(tempEmail)
+
+            queryClient.setQueryData('emailThreads', response)
         },
-        onSettled: () => {
-            queryClient.invalidateQueries('tasks')
-            queryClient.invalidateQueries('messages')
-        },
+        onSettled: async () => {
+            await fetchMessages()
+            queryClient.invalidateQueries('emailThreads')
+        }
     })
 }
-const markMessageAsTask = async (data: TMarkAsTaskData) => {
+const composeMessage = async (data: TComposeMessageData) => {
     try {
-        const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_task: data.isTask })
+        const res = await apiClient.post(`/messages/compose/`, data)
         return res.data
     } catch {
-        throw new Error('markMessageAsTask failed')
+        throw new Error('composeMessage failed')
     }
 }
 
@@ -632,7 +744,7 @@ const getLinkedAccounts = async () => {
 }
 
 export const useGetSupportedTypes = () => {
-    return useQuery<TSupportedType[]>([], getSupportedTypes)
+    return useQuery<TSupportedType[]>('supported_types', getSupportedTypes)
 }
 const getSupportedTypes = async () => {
     try {

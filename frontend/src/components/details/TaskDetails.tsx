@@ -1,72 +1,123 @@
-import DetailsTemplate, { BodyTextArea, FlexGrowView, TitleInput } from './DetailsTemplate'
-import React, { useEffect, useMemo, useState } from 'react'
-
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import ActionOption from '../molecules/ActionOption'
-import EmailSenderDetails from '../molecules/EmailSenderDetails'
 import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
-import SanitizedHTML from '../atoms/SanitizedHTML'
 import { logos } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
-import { Spacing } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
+import Spinner from '../atoms/Spinner'
+import { useNavigate, useParams } from 'react-router-dom'
 
-const SYNCING = 'Syncing...'
-const SYNC_ERROR = 'There was an error syncing with our servers'
-const SYNCED = 'Synced'
-
-const MarginRight16 = styled.div`
-    margin-right: ${Spacing.margin._16}px;
+const DetailsViewContainer = styled.div`
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: ${Colors.gray._50};
+    min-width: 300px;
+    margin-top: ${Spacing.margin._24};
+    padding: ${Spacing.padding._16};
+`
+const DetailsTopContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 50px;
+`
+const BodyTextArea = styled.textarea`
+    flex: 1;
+    display: block;
+    background-color: inherit;
+    border: 1px solid transparent;
+    resize: none;
+    outline: none;
+    overflow: auto;
+    padding: ${Spacing.margin._8};
+    font: inherit;
+    color: ${Colors.gray._600};
+    font-size: ${Typography.xSmall.fontSize};
+    box-sizing: border-box;
+    :focus {
+        border: 1px solid ${Colors.gray._500};
+    }
+`
+const TitleInput = styled.textarea`
+    background-color: inherit;
+    color: ${Colors.gray._600};
+    font: inherit;
+    font-size: ${Typography.large.fontSize};
+    font-weight: ${Typography.weight._600};
+    border: none;
+    resize: none;
+    outline: none;
+    overflow: hidden;
+    margin-bottom: ${Spacing.margin._16};
+    :focus {
+        outline: 1px solid ${Colors.gray._500};
+    }
+`
+const MarginLeftAuto = styled.div`
+    margin-left: auto;
 `
 const MarginRight8 = styled.div`
-    margin-right: ${Spacing.margin._8}px;
+    margin-right: ${Spacing.margin._8};
 `
+
+const SYNC_MESSAGES = {
+    SYNCING: 'Syncing...',
+    ERROR: 'There was an error syncing with our servers',
+    COMPLETE: '',
+}
+
 interface TaskDetailsProps {
     task: TTask
 }
-const TaskDetails = (props: TaskDetailsProps) => {
-    const { mutate: modifyTask, isError, isLoading } = useModifyTask()
-
-    const [task, setTask] = useState<TTask>(props.task)
+const TaskDetails = ({ task }: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
+    const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
     const bodyRef = useRef<HTMLTextAreaElement>(null)
-    const syncTimer = useRef<NodeJS.Timeout>()
 
-    const syncIndicatorText = useMemo(() => {
-        if (isEditing || isLoading) return SYNCING
-        if (isError) return SYNC_ERROR
-        return SYNCED
+    const { mutate: modifyTask, isError, isLoading } = useModifyTask()
+    const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
+
+    const navigate = useNavigate()
+    const params = useParams()
+
+    useEffect(() => {
+        if (isEditing || isLoading) {
+            setSyncIndicatorText(SYNC_MESSAGES.SYNCING)
+        } else if (isError) {
+            setSyncIndicatorText(SYNC_MESSAGES.ERROR)
+        } else {
+            setSyncIndicatorText(SYNC_MESSAGES.COMPLETE)
+        }
     }, [isError, isLoading, isEditing])
 
-    useEffect(() => {
-        ReactTooltip.rebuild()
-    }, [])
-
     // Update the state when the task changes
-    useEffect(() => {
-        setTask(props.task)
-        setTitleInput(props.task.title)
-        setBodyInput(props.task.body)
+    useLayoutEffect(() => {
+        setTitleInput(task.title)
+        setBodyInput(task.body)
+    }, [task.id])
 
-        if (titleRef.current) {
-            titleRef.current.value = task.title
-            titleRef.current.style.height = '0px'
-            titleRef.current.style.height =
-                titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
+    /* when the optimistic ID changes to undefined, we know that that task.id is now the real ID
+    so we can then navigate to the correct link */
+    useEffect(() => {
+        if (!task.isOptimistic) {
+            navigate(`/tasks/${params.section}/${task.id}`)
         }
-    }, [props.task])
+    }, [task.isOptimistic])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (titleRef.current) {
             titleRef.current.style.height = '0px'
             titleRef.current.style.height =
@@ -75,88 +126,96 @@ const TaskDetails = (props: TaskDetailsProps) => {
     }, [titleInput])
 
     useEffect(() => {
-        // to ensure the timeout is cleared on component unmount
+        ReactTooltip.rebuild()
         return () => {
-            if (syncTimer.current) clearTimeout(syncTimer.current)
+            for (const timer of Object.values(timers.current)) {
+                timer.callback()
+                clearTimeout(timer.timeout)
+            }
         }
     }, [])
 
-    const syncDetails = useCallback(() => {
-        if (syncTimer.current) clearTimeout(syncTimer.current)
-        setIsEditing(false)
-        const title = titleRef?.current ? titleRef.current.value : ''
-        const body = bodyRef?.current ? bodyRef.current.value : ''
-        modifyTask({ id: task.id, title, body })
-    }, [task.id, modifyTask])
+    const syncDetails = useCallback(
+        (taskId: string, title: string, body: string) => {
+            setIsEditing(false)
+            if (timers.current[taskId]) clearTimeout(timers.current[taskId].timeout)
+            modifyTask({ id: taskId, title, body })
+        },
+        [task.id, modifyTask]
+    )
 
-    const onEdit = useCallback(() => {
-        if (syncTimer.current) clearTimeout(syncTimer.current)
-        setIsEditing(true)
-        syncTimer.current = setTimeout(syncDetails, DETAILS_SYNC_TIMEOUT * 1000)
-    }, [syncDetails])
+    const onEdit = useCallback(
+        (taskId: string, title: string, body: string) => {
+            setIsEditing(true)
+            if (timers.current[taskId]) clearTimeout(timers.current[taskId].timeout)
+            timers.current[taskId] = {
+                timeout: setTimeout(() => syncDetails(taskId, title, body), DETAILS_SYNC_TIMEOUT * 1000),
+                callback: () => syncDetails(taskId, title, body),
+            }
+        },
+        [syncDetails]
+    )
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
         if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
         e.stopPropagation()
     }
 
+    // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
+    const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
+
     return (
-        <DetailsTemplate
-            top={
-                <>
-                    <MarginRight8>
-                        <Icon source={logos[task.source.logo_v2]} size="small" />
-                    </MarginRight8>
-                    <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
-                    <FlexGrowView />
-                    <MarginRight16>
-                        {task.deeplink && (
-                            <a href={task.deeplink} target="_blank" rel="noreferrer">
-                                <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
-                            </a>
-                        )}
-                    </MarginRight16>
-                    <ActionOption
-                        isShown={labelEditorShown}
-                        setIsShown={setLabelEditorShown}
-                        task={task}
-                        keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
-                    />
-                </>
-            }
-            title={
-                <TitleInput
-                    ref={titleRef}
-                    onKeyDown={handleKeyDown}
-                    value={titleInput}
+        <DetailsViewContainer data-testid="details-view-container">
+            <DetailsTopContainer>
+                <MarginRight8>
+                    <Icon source={icon} size="small" />
+                </MarginRight8>
+                {!task.isOptimistic && (
+                    <>
+                        <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
+                        <MarginLeftAuto>
+                            {task.deeplink && (
+                                <a href={task.deeplink} target="_blank" rel="noreferrer">
+                                    <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
+                                </a>
+                            )}
+                            <ActionOption
+                                isShown={labelEditorShown}
+                                setIsShown={setLabelEditorShown}
+                                task={task}
+                                keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
+                            />
+                        </MarginLeftAuto>
+                    </>
+                )}
+            </DetailsTopContainer>
+            <TitleInput
+                disabled={task.isOptimistic}
+                ref={titleRef}
+                data-testid="task-title-input"
+                onKeyDown={handleKeyDown}
+                value={titleInput}
+                onChange={(e) => {
+                    setTitleInput(e.target.value)
+                    onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
+                }}
+            />
+            {task.isOptimistic ? (
+                <Spinner />
+            ) : (
+                <BodyTextArea
+                    ref={bodyRef}
+                    data-testid="task-body-input"
+                    placeholder="Add task details"
+                    value={bodyInput}
                     onChange={(e) => {
-                        setTitleInput(e.target.value)
-                        onEdit()
+                        setBodyInput(e.target.value)
+                        onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                     }}
+                    onKeyDown={(e) => e.stopPropagation()}
                 />
-            }
-            subtitle={
-                task.source.name === 'Gmail' && task.sender && task.recipients ? (
-                    <EmailSenderDetails sender={task.sender} recipients={task.recipients} />
-                ) : undefined
-            }
-            body={
-                task.source.name === 'Gmail' ? (
-                    <SanitizedHTML dirtyHTML={bodyInput} />
-                ) : (
-                    <BodyTextArea
-                        ref={bodyRef}
-                        placeholder="Add task details"
-                        value={bodyInput}
-                        onChange={(e) => {
-                            setBodyInput(e.target.value)
-                            onEdit()
-                        }}
-                        onKeyDown={(e) => e.stopPropagation()}
-                    />
-                )
-            }
-        />
+            )}
+        </DetailsViewContainer>
     )
 }
 

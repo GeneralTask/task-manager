@@ -1,100 +1,58 @@
-import { Colors, Images } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { TRecipient, TRecipients, TSender } from '../../utils/types'
-import { useEffect, useState } from 'react'
-
-import { Icon } from '../atoms/Icon'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { margin } from '../../styles/spacing'
 import styled from 'styled-components'
 import React from 'react'
+import * as ReactDOMServer from 'react-dom/server'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 
-const Container = styled.div`
-    margin-top: ${margin._4}px;
-`
 const Row = styled.div`
     display: flex;
     flex-direction: row;
 `
 const KeyContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    width: 10%;
+    margin-right: ${Spacing.margin._4};
     color: ${Colors.gray._600};
 `
 const ValueContainer = styled.div`
-    display: flex;
-    flex-direction: row;
+    color: ${Colors.gray._800};
 `
-const Bold = styled.span`
-    font-weight: bold;
+const SmallGrayText = styled.span`
+    font-size: ${Typography.xSmall.fontSize};
+    color: ${Colors.gray._400};
 `
-const DetailsContainer = styled.div`
-    height: 20px;
-`
-const ExpandCollapse = styled(NoStyleButton)`
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
+const Underline = styled.span`
+    text-decoration: underline;
 `
 
 interface RecipientDetailsProps {
     category: string
     recipients: TRecipient[]
 }
-function RecipientDetails({ category, recipients }: RecipientDetailsProps): JSX.Element {
-    return (
-        <>
-            {recipients.map(({ name, email }, index) => {
-                return (
-                    <Row key={index}>
-                        <KeyContainer>{index === 0 && category}</KeyContainer>
-                        <ValueContainer>{name ? `${name} <${email}>` : email}</ValueContainer>
-                    </Row>
-                )
-            })}
-        </>
-    )
-}
+const RecipientDetails = ({ category, recipients }: RecipientDetailsProps) => (
+    <>
+        {recipients.map(({ name, email }, index) => (
+            <Row key={index}>
+                <KeyContainer>{index === 0 && category}</KeyContainer>
+                <ValueContainer>{name ? `${name} <${email}>` : email}</ValueContainer>
+            </Row>
+        ))}
+    </>
+)
 
 interface EmailSenderDetailsProps {
-    sender: TSender | string
+    sender: TSender
     recipients: TRecipients
 }
 
 const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => {
-    const [showDetails, setShowDetails] = useState(false)
+    const numRecipients = recipients.to.length + recipients.cc.length + recipients.bcc.length
 
-    const canShowMoreDetails = recipients.to.length > 1 || recipients.cc.length > 0 || recipients.bcc.length > 0
-
-    useEffect(() => {
-        setShowDetails(false)
-    }, [sender, recipients])
-
-    const senderDisplayText =
-        typeof sender === 'string' ? (
-            sender
-        ) : (
-            <>
-                <Bold>{sender.name} </Bold>
-                {`<${sender.email}>`}
-            </>
-        )
-
-    const senderDetailsRow = (
-        <Row>
-            <KeyContainer>From:</KeyContainer>
-            <ValueContainer>{senderDisplayText}</ValueContainer>
-        </Row>
-    )
-
-    const restOfDetails = !showDetails ? (
-        <Row>
-            <KeyContainer>To:</KeyContainer>
-            <ValueContainer>{recipients.to.map(({ name, email }) => name || email).join(', ')}</ValueContainer>
-        </Row>
-    ) : (
+    const details = ReactDOMServer.renderToString(
         <>
+            <Row>
+                <KeyContainer>From:</KeyContainer>
+                <ValueContainer>{`${sender.name} <${sender.email}>`}</ValueContainer>
+            </Row>
             <RecipientDetails category="To:" recipients={recipients.to} />
             <RecipientDetails category="Cc:" recipients={recipients.cc} />
             <RecipientDetails category="Bcc:" recipients={recipients.bcc} />
@@ -102,21 +60,11 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
     )
 
     return (
-        <Container>
-            {senderDetailsRow}
-            {restOfDetails}
-            <DetailsContainer>
-                {canShowMoreDetails && (
-                    <ExpandCollapse onClick={() => setShowDetails(!showDetails)}>
-                        {showDetails ? (
-                            <Icon size="small" source={Images.icons.chevron_up} />
-                        ) : (
-                            <Icon size="small" source={Images.icons.chevron_down} />
-                        )}
-                    </ExpandCollapse>
-                )}
-            </DetailsContainer>
-        </Container>
+        <TooltipWrapper dataTip={details} tooltipId="tooltip">
+            <SmallGrayText>
+                <Underline>{`${numRecipients} ${numRecipients === 1 ? 'recipient' : 'recipients'}`}</Underline> ▼
+            </SmallGrayText>
+        </TooltipWrapper>
     )
 }
 

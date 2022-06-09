@@ -1,3 +1,5 @@
+import { EmailComposeType } from "./enums"
+
 export type Datestring = string
 
 export interface TTaskSource {
@@ -44,6 +46,24 @@ export interface TTask {
     sender: string
     recipients: TRecipients
     is_done: boolean
+    linked_email_thread?: TLinkedEmailThread
+    isOptimistic?: boolean
+}
+
+export interface TLinkedEmailThread {
+    linked_thread_id: string
+    linked_email_id?: string
+    emails: TLinkedEmail[]
+}
+
+export interface TLinkedEmail {
+    smtp_id: string,
+    subject: string,
+    body: string,
+    sent_at: string,
+    is_unread: string,
+    sender_v2: TSender,
+    recipients: TRecipients
 }
 
 export interface TMessageSource {
@@ -65,7 +85,6 @@ export interface TMessage {
     recipients: TRecipients
     sent_at: string
     is_unread: boolean
-    is_task: boolean
     source: TMessageSource
 }
 
@@ -83,6 +102,24 @@ export interface TEvent {
     conference_call: TConferenceCall | null
 }
 
+export interface TMeetingBanner {
+    title: string
+    subtitle: string
+    events: TMeetingEvent[]
+    actions: TMeetingAction[]
+}
+
+export interface TMeetingEvent {
+    title: string
+    conference_call: TConferenceCall
+}
+
+export interface TMeetingAction {
+    logo: string
+    title: string
+    link: string
+}
+
 export interface TEmail {
     message_id: string
     subject: string
@@ -95,10 +132,30 @@ export interface TEmail {
 
 export interface TEmailThread {
     id: string
-    is_task: boolean
     deeplink: string
     source: TMessageSource
     emails: TEmail[]
+}
+
+// Pull Request Types
+export interface TPullRequest {
+    id: string
+    title: string
+    number: number
+    status: {
+        text: string
+        color: string
+    }
+    author: string
+    created_at: string
+    branch: string
+    link: string
+}
+
+export interface TRepository {
+    id: string
+    name: string
+    pull_requests: TPullRequest[]
 }
 
 export interface TTaskSection {
@@ -133,6 +190,7 @@ export interface TLinkedAccount {
     logo: string
     logo_v2: string
     is_unlinkable: boolean
+    has_bad_token: boolean
 }
 
 // React-DND Item Types
@@ -162,4 +220,10 @@ export interface TTaskCreateParams {
 export interface TUserInfo {
     agreed_to_terms: boolean
     opted_into_marketing: boolean
+}
+
+export interface TEmailComposeState {
+    emailComposeType: EmailComposeType | null
+    emailId: string | null // the id of the email to show the compose form for
+    isPending?: boolean
 }

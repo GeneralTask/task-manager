@@ -5,8 +5,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"io/ioutil"
 	"github.com/rs/zerolog/log"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -123,6 +124,13 @@ func getGmailArchiveServer(t *testing.T, expectedLabel string) *httptest.Server 
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"removeLabelIds\":[\""+expectedLabel+"\"]}\n", string(body))
 		w.WriteHeader(200)
+		w.Write([]byte(`{}`))
+	}))
+}
+
+func getGmailInternalErrorServer(t *testing.T) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(500)
 		w.Write([]byte(`{}`))
 	}))
 }
@@ -275,7 +283,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
 	router := GetRouter(GetAPI())
 
-	request, _ := http.NewRequest("GET", "/ping/", nil)
+	request, _ := http.NewRequest("GET", "/ping_authed/", nil)
 	request.Header.Add("Authorization", attemptedHeader)
 
 	recorder := httptest.NewRecorder()
@@ -291,4 +299,35 @@ func assertThreadEmailsIsUnreadState(t *testing.T, threadItem database.Item, isU
 	for _, email := range threadItem.Emails {
 		assert.Equal(t, isUnread, email.IsUnread)
 	}
+}
+
+func ServeRequest(
+	t *testing.T,
+	authToken string,
+	method string,
+	url string,
+	requestBody io.Reader,
+	expectedReponseCode int,
+) []byte {
+	router := GetRouter(GetAPI())
+	request, _ := http.NewRequest(method, url, requestBody)
+	request.Header.Add("Authorization", "Bearer "+authToken)
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	assert.Equal(t, expectedReponseCode, recorder.Code)
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.NoError(t, err)
+	return responseBody
+}
+
+func UnauthorizedTest(t *testing.T, method string, url string, body io.Reader) bool {
+	return t.Run("Unauthorized", func(t *testing.T) {
+		router := GetRouter(GetAPI())
+		request, _ := http.NewRequest(method, url, body)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
 }

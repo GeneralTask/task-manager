@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.2",
+    "animate.css": "^4.1.1",
     "axios": "^0.26.1",
     "js-cookie": "^3.0.1",
     "luxon": "^2.3.1",
@@ -41,9 +42,11 @@
     "react-query": "^3.34.16",
     "react-redux": "^7.2.6",
     "react-router-dom": "6",
+    "react-toastify": "^9.0.1",
     "react-tooltip": "^4.2.21",
     "sanitize-html": "^2.7.0",
-    "styled-components": "^5.3.3"
+    "styled-components": "^5.3.3",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",
@@ -65,6 +68,7 @@
     "@types/react-native": "~0.64.12",
     "@types/sanitize-html": "^2.6.2",
     "@types/styled-components": "^5.1.24",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
     "@typescript-eslint/parser": "^5.14.0",
     "babel-jest": "^27.5.1",
