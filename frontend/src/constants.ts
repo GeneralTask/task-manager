@@ -43,20 +43,21 @@ export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 
 export const NO_EVENT_TITLE = '(no title)'
 
-export enum KEYBOARD_SHORTCUTS {
-    CLOSE = 'Escape',
-    CREATE_TASK = 'T',
-    DOWN = 'ArrowDown',
-    FORWARD = 'F',
-    MARK_COMPLETE = 'D',
-    NEXT = 'ArrowDown',
-    PREVIOUS = 'ArrowUp',
-    REFRESH = 'Ctrl+R',
-    REPLY = 'R',
-    REPLY_ALL = 'Shift+R',
-    SELECT = 'Enter',
-    SHOW_DATE_PICKER = 'S',
-    SHOW_LABEL_EDITOR = 'L',
-    SHOW_TIME_ESTIMATION_PICKER = 'F',
-    UP = 'ArrowUp',
-}
+const CMD_CTRL_KEY = !navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
+export const KEYBOARD_SHORTCUTS = Object.freeze({
+    CLOSE: 'Escape',
+    CREATE_TASK: 'T',
+    DOWN: 'ArrowDown',
+    FORWARD: 'F',
+    MARK_COMPLETE: 'D',
+    NEXT: 'ArrowDown',
+    PREVIOUS: 'ArrowUp',
+    REFRESH: CMD_CTRL_KEY + '+R',
+    REPLY: 'R',
+    REPLY_ALL: 'Shift+R',
+    SELECT: 'Enter',
+    SHOW_DATE_PICKER: 'S',
+    SHOW_LABEL_EDITOR: 'L',
+    SHOW_TIME_ESTIMATION_PICKER: 'F',
+    UP: 'ArrowUp',
+})
