@@ -127,6 +127,14 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
         }
     }, [titleInput])
 
+    useLayoutEffect(() => {
+        if (bodyRef.current && thread) {
+            bodyRef.current.style.height = '0px'
+            bodyRef.current.style.height =
+                bodyRef.current.scrollHeight > 300 ? '300px' : `${bodyRef.current.scrollHeight}px`
+        }
+    }, [bodyInput])
+
     useEffect(() => {
         ReactTooltip.rebuild()
         return () => {
