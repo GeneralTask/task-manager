@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import { TTask } from './types'
 import sanitizeHtml from 'sanitize-html'
+import he from 'he'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -21,18 +22,11 @@ export function resetOrderingIds(tasks: TTask[]) {
 }
 
 export const removeHTMLTags = (dirtyHTML: string) => {
-    const strsToReplace = {
-        '&lt;': '<',
-        '&gt;': '>',
-        '&amp;': '&',
-        '&quot;': '"',
-        '&apos;': '\'',
-    }
     const sanitized = sanitizeHtml(dirtyHTML, {
         allowedTags: [],
         allowedAttributes: {},
     })
-    return replaceBulk(sanitized, strsToReplace)
+    return he.decode(sanitized)
 }
 
 export const getHumanTimeSinceDateTime = (date: DateTime) => {
@@ -71,7 +65,7 @@ export const isValidEmail = (email: string): boolean =>
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email.toLowerCase())
 
 // Inspired by https://stackoverflow.com/questions/5069464/replace-multiple-strings-at-once
-function replaceBulk(str: string, findReplaceMap: { [key: string]: string }) {
+export function replaceBulk(str: string, findReplaceMap: { [key: string]: string }) {
     const regexArr: string[] = []
     for (const find of Object.keys(findReplaceMap)) {
         regexArr.push(find.replace(/([-[\]{}()*+?.\\^$|#,])/g, '\\$1'))
