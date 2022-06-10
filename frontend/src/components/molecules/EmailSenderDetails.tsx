@@ -63,10 +63,11 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
         </>
     )
 
-    let displayText = numRecipients > 0 ? allRecipients[0].name || allRecipients[0].email : ''
-    displayText += numRecipients > 1 ? `, ${allRecipients[1].name || allRecipients[1].email}` : ''
-    displayText += numRecipients > 2 ? `, ${allRecipients[2].name || allRecipients[2].email}` : ''
-    displayText += numRecipients > 3 ? `, +${numRecipients - 3} more` : ''
+    const displayText =
+        allRecipients
+            .slice(0, 3)
+            .map((r) => r.name || r.email)
+            .join(', ') + (numRecipients > 3 ? `, +${numRecipients - 3} more` : '')
 
     return (
         <TooltipWrapper dataTip={details} tooltipId="tooltip">
