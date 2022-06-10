@@ -263,8 +263,7 @@ const linearUpdateIssueQueryStr = `
 		  ) {
 			success
 		  }
-		}
-	`
+		}`
 
 type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
