@@ -140,6 +140,29 @@ func processThreads(userID primitive.ObjectID, accountID string, db *mongo.Datab
 		var nestedEmails []database.Email
 		var mostRecentEmailTimestamp primitive.DateTime
 
+		threadItem := &database.Item{
+			TaskBase: database.TaskBase{
+				UserID:          userID,
+				IDExternal:      thread.Id,
+				IDTaskSection:   constants.IDTaskSectionDefault,
+				SourceID:        TASK_SOURCE_ID_GMAIL,
+				Deeplink:        fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, thread.Id),
+				SourceAccountID: accountID,
+			},
+			EmailThread: database.EmailThread{
+				ThreadID:   thread.Id,
+				IsArchived: isMessageArchived(thread.Messages[0]),
+			},
+			TaskType: database.TaskType{
+				IsThread: true,
+			},
+		}
+		threadItem, err := database.GetOrCreateItem(db, userID, thread.Id, TASK_SOURCE_ID_GMAIL, threadItem)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to get or create gmail thread")
+			return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
+		}
+
 		for _, message := range thread.Messages {
 			emailItem, err := parseEmail(userID, accountID, message, thread.Id)
 			// if we ran into an error parsing message body
@@ -172,35 +195,13 @@ func processThreads(userID primitive.ObjectID, accountID string, db *mongo.Datab
 			emails = append(emails, emailItem)
 		}
 
-		threadItem := &database.Item{
-			TaskBase: database.TaskBase{
-				UserID:          userID,
-				IDExternal:      thread.Id,
-				IDTaskSection:   constants.IDTaskSectionDefault,
-				SourceID:        TASK_SOURCE_ID_GMAIL,
-				Deeplink:        fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, thread.Id),
-				SourceAccountID: accountID,
-			},
-			EmailThread: database.EmailThread{
-				ThreadID:   thread.Id,
-				IsArchived: isMessageArchived(thread.Messages[0]),
-			},
-			TaskType: database.TaskType{
-				IsThread: true,
-			},
-		}
-		threadItem, err := database.GetOrCreateItem(db, userID, thread.Id, TASK_SOURCE_ID_GMAIL, threadItem)
-		if err != nil {
-			log.Error().Err(err).Msg("failed to get or create gmail thread")
-			return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
-		}
-
 		// We can just check if the first email is archived because all emails in a thread have the same archive status.
 		if len(thread.Messages) > 0 {
 			threadItem.IsArchived = isMessageArchived(thread.Messages[0])
 		}
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = assignOrGenerateNestedEmailIDs(threadItem, nestedEmails)
+
 		_, err = database.UpdateOrCreateTask(
 			db, userID, threadItem.IDExternal, threadItem.SourceID,
 			threadItem, database.ThreadItemToChangeable(threadItem),
@@ -214,7 +215,7 @@ func processThreads(userID primitive.ObjectID, accountID string, db *mongo.Datab
 	return EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL}
 }
 
-func getAllGmailHistory(gmailService *gmail.Service, historyID uint64) ([]*gmail.History, uint64, error) {
+func getAllRecentGmailHistory(gmailService *gmail.Service, historyID uint64) ([]*gmail.History, uint64, error) {
 	historyResponse, err := gmailService.Users.History.List("me").StartHistoryId(historyID).MaxResults(fullFetchMaxResults).Do()
 	if err != nil {
 		return []*gmail.History{}, 0, err
@@ -297,7 +298,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	} else {
 		log.Debug().Msg("Performing small gmail thread update/refresh")
 
-		historiesRequiringUpdate, recentHistoryID, err = getAllGmailHistory(gmailService, historyID)
+		historiesRequiringUpdate, recentHistoryID, err = getAllRecentGmailHistory(gmailService, historyID)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to load Gmail history for user")
 			isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
