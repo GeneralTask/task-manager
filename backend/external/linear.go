@@ -9,6 +9,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	graphqlBasic "github.com/machinebox/graphql"
 	"github.com/rs/zerolog/log"
 	"github.com/shurcooL/graphql"
 	"go.mongodb.org/mongo-driver/bson"
@@ -157,6 +158,26 @@ func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.O
 	return client, nil
 }
 
+func getBasicLinearClient(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string) (*graphqlBasic.Client, error) {
+	var client *graphqlBasic.Client
+	var err error
+	if overrideURL != nil {
+		client = graphqlBasic.NewClient(*overrideURL, nil)
+	} else {
+		httpClient := getLinearHttpClient(db, userID, accountID)
+		if httpClient == nil {
+			log.Error().Msg("could not create linear client")
+			return nil, errors.New("could not create linear client")
+		}
+		client = graphqlBasic.NewClient(LinearGraphqlEndpoint, graphqlBasic.WithHTTPClient(httpClient))
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
+
 func getLinearHttpClient(db *mongo.Database, userID primitive.ObjectID, accountID string) *http.Client {
 	return getExternalOauth2Client(db, userID, accountID, TASK_SERVICE_ID_LINEAR, getLinearOauthConfig())
 }
@@ -231,6 +252,63 @@ type linearUpdateIssueQuery struct {
 	} `graphql:"issueUpdate(id: $id, input: {title: $title, description: $description})"`
 }
 
+//func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
+func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) {
+	//var query linearUpdateIssueQuery
+	//variables := map[string]interface{}{
+	//	"id": graphql.String(issueID),
+	//}
+
+	// make a request
+	req := graphqlBasic.NewRequest(`
+		mutation IssueUpdate (
+			$title: String
+			, $id: String!
+			, $stateId: String
+			, $description: String
+		) {
+		  issueUpdate(
+			id: $id,
+			input: {
+			  title: $title
+			  stateId: $stateId,
+			  description: $description
+			}
+		  ) {
+			success
+		  }
+		}
+	`)
+
+	// set any variables
+	req.Var("id", issueID)
+	req.Var("title", "titse")
+	req.Var("description", "fsdafdasfdtitse")
+
+	//// set header fields
+	//req.Header.Set("Cache-Control", "no-cache")
+
+	// run it and capture the response
+
+	type ResponseStruct struct {
+		IssueUpdate struct {
+			Success bool
+		}
+	}
+
+	var respData linearUpdateIssueQuery
+	if err := client.Run(context.Background(), req, &respData); err != nil {
+		log.Error().Err(err).Send()
+	}
+	log.Info().Msgf("%+v", respData)
+
+	//err := client.Mutate(context.Background(), &query, variables)
+	//if err != nil {
+	//	log.Error().Err(err).Msg("failed to update linear issue")
+	//	return nil, err
+	//}
+}
+
 func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
 	var query linearUpdateIssueQuery
 	variables := map[string]interface{}{
@@ -263,7 +341,8 @@ func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFie
 	//
 	if updateFields.Title != nil {
 		//variables["title"] = graphql.String(*updateFields.Title)
-		//variables["title"] = nil
+		//variables["title"] = (*graphql.String)(nil)
+		variables["title"] = graphql.String("")
 	}
 	if updateFields.Body != nil {
 		//variables["description"] = graphql.String(*updateFields.Body)
