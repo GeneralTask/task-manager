@@ -300,7 +300,6 @@ func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, upd
 
 	var query linearUpdateIssueQuery
 	if err := client.Run(context.Background(), req, &query); err != nil {
-		log.Error().Err(err).Send()
 		log.Error().Err(err).Msg("failed to update linear issue")
 		return nil, err
 	}
