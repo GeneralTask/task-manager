@@ -157,6 +157,7 @@ func processThreads(userID primitive.ObjectID, accountID string, db *mongo.Datab
 				IsThread: true,
 			},
 		}
+		// this database creation item should be before email parsing, otherwise we get duplicate _id errors in Mongo
 		threadItem, err := database.GetOrCreateItem(db, userID, thread.Id, TASK_SOURCE_ID_GMAIL, threadItem)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to get or create gmail thread")
