@@ -70,6 +70,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 
 	var tasks []*database.Item
 	for _, linearIssue := range issuesQuery.Issues.Nodes {
+		log.Info().Msgf("%+v", linearIssue.Team.MergeWorkflowState)
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
 		task := &database.Item{
 			TaskBase: database.TaskBase{
@@ -98,7 +99,6 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 			},
 		}
 		if len(linearIssue.Comments.Nodes) > 0 {
-			log.Info().Msgf("reading comments %+v", linearIssue.Title)
 			var dbComments []database.Comment
 			for _, linearComment := range linearIssue.Comments.Nodes {
 				commentCreatedAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearComment.CreatedAt))
