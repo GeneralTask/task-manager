@@ -47,7 +47,7 @@ const App = () => {
                                 </Route>
                                 <Route path="messages" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
-                                    <Route path=":box" element={<MainScreen />}>
+                                    <Route path=":mailbox" element={<MainScreen />}>
                                         <Route path=":thread" element={<MainScreen />} />
                                     </Route>
                                 </Route>

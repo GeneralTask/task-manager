@@ -11,7 +11,6 @@ import { isDevelopmentMode } from '../../environment'
 import styled from 'styled-components'
 import { useAddTaskSection } from '../../services/api-query-hooks'
 import { weight } from '../../styles/typography'
-import { countWithOverflow } from '../../utils/utils'
 
 const AddSectionInputContainer = styled.div`
     display: flex;
@@ -37,7 +36,7 @@ interface SectionLinksProps {
     threadsInbox: TEmailThread[]
     pullRequestRepositories: TRepository[]
     sectionId: string
-    boxName: string
+    mailbox: 'inbox' | 'archive' | ''
     pathName: string
 }
 
@@ -46,7 +45,7 @@ const NavigationSectionLinks = ({
     threadsInbox,
     pullRequestRepositories,
     sectionId,
-    boxName,
+    mailbox,
     pathName,
 }: SectionLinksProps) => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
@@ -147,14 +146,14 @@ const NavigationSectionLinks = ({
                     link="/messages/inbox"
                     title="Inbox"
                     icon={icons.inbox}
-                    count={countWithOverflow(threadsInbox.filter((t) => t.emails.find((e) => e.is_unread)).length)}
-                    isCurrentPage={boxName === 'inbox'}
+                    count={threadsInbox.filter((t) => t.emails.find((e) => e.is_unread)).length}
+                    isCurrentPage={mailbox === 'inbox'}
                 />
                 <NavigationLink
                     link="/messages/archive"
                     title="Archive"
                     icon={icons.archive}
-                    isCurrentPage={boxName === 'archive'}
+                    isCurrentPage={mailbox === 'archive'}
                 />
             </NavigationLinkDropdown>
             {isDevelopmentMode && (

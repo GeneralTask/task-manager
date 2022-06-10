@@ -11,7 +11,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import styled from 'styled-components'
 import toast from '../../utils/toast'
 import { useCreateTaskFromThread, useModifyThread } from '../../services/api-query-hooks'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import PreviousMessages from './email/PreviousMessages'
 
 const THREAD_HEADER_HEIGHT = '118px'
@@ -64,6 +64,7 @@ interface ThreadDetailsProps {
     thread: TEmailThread
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
+    const params = useParams()
     const [isCollapsed, setIsCollapsed] = useState(true)
     const isUnread = useMemo(
         () => thread.emails.some((email) => email.is_unread),
@@ -143,9 +144,11 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                 <NoStyleButton onClick={onClickMarkAsRead}>
                     <Icon source={isUnread ? icons.mark_read : icons.mark_unread} size="small" />
                 </NoStyleButton>
-                <NoStyleButton onClick={onClickArchive}>
-                    <Icon source={icons.archive_purple} size="small" />
-                </NoStyleButton>
+                {params.mailbox !== 'archive' && (
+                    <NoStyleButton onClick={onClickArchive}>
+                        <Icon source={icons.archive_purple} size="small" />
+                    </NoStyleButton>
+                )}
             </HeaderContainer>
             <EmailThreadsContainer>
                 {isCollapsed && thread.emails.length > 4 ? (
