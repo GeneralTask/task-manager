@@ -105,27 +105,31 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				return
 			}
 
-			reviewerCount := getReviewerCount(extCtx, githubClient, repository, *pullRequest.Number, fetchedPullRequests)
-
-			isRequestedChanges := pullRequestHasRequestedChanges(fetchedPullRequests)
-
-
-			checkSuiteResult, _, err := githubClient.Checks.ListCheckSuitesForRef(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Head.SHA, nil)
-			var status string
-
-			log.Debug().Msgf("checkSuiteResult: %+v\n\n\n", checkSuiteResult)
-			
-			if checkSuiteResult.CheckSuites != nil && len(checkSuiteResult.CheckSuites) > 0 {
-				// length := len(checkSuiteResult.CheckSuites)
-
-				status = *checkSuiteResult.CheckSuites[0].Status
-				if (status == "completed") {
-					status = *checkSuiteResult.CheckSuites[0].Conclusion
-				}
-			} else {
-				status = "pending"
+			reviewers, _, err := githubClient.PullRequests.ListReviewers(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+			if err != nil {
+				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviewers"))
+				return
 			}
- 
+
+			requestedReviewersCount := getReviewerCount(reviewers, fetchedPullRequests)
+			haveRequestedChanges := reviewersHaveRequestedChanges(fetchedPullRequests)
+
+			checkRuns, _, err := githubClient.Checks.ListCheckRunsForRef(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Head.SHA, nil)
+			if err != nil {
+				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR check runs"))
+				return
+			}
+			checksDidFail := checksDidFail(checkRuns)
+
+			pullRequestFetch, _, err := githubClient.PullRequests.Get(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number)
+			if err != nil {
+				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR"))
+				return
+			}
+
+			isMergeable := pullRequestFetch.GetMergeable()
+			isApproved := pullRequestIsApproved(fetchedPullRequests)
+
 			pullRequest := &database.Item{
 				TaskBase: database.TaskBase{
 					UserID:            userID,
@@ -142,11 +146,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					Number:         *pullRequest.Number,
 					Author:         *pullRequest.User.Login,
 					Branch:         *pullRequest.Head.Ref,
-					IsApproved:     pullRequestIsApproved(fetchedPullRequests),
-					CommentCount:   getCommentCount(extCtx, githubClient, repository, pullRequest),
-					ReviewersCount: reviewerCount,
-					IsRequestedChanges: isRequestedChanges,
-					CombinedStatus: status,
+					RequiredAction: getPullRequestRequiredAciton(requestedReviewersCount, isMergeable, isApproved, haveRequestedChanges, checksDidFail),
 				},
 				TaskType: database.TaskType{
 					IsTask:        true,
@@ -231,29 +231,58 @@ func getCommentCount(extCtx context.Context, githubClient *github.Client, reposi
 	return len(comments) + len(issueComments) + reviewCommentCount
 }
 
-func getReviewerCount(extCtx context.Context, githubClient *github.Client, repository *github.Repository, pullRequestNumber int, reviews []*github.PullRequestReview ) int {
+func getReviewerCount(reviewers *github.Reviewers, reviews []*github.PullRequestReview) int {
 	submittedReviews := 0
 	for _, review := range reviews {
 		state := review.GetState()
-		if (review.GetUser() != nil && (state == "APPROVED" || state == "CHANGES_REQUESTED")) {
+		if review.GetUser() != nil && (state == "APPROVED" || state == "CHANGES_REQUESTED") {
 			submittedReviews += 1
 		}
 	}
-	reviewers, _, err := githubClient.PullRequests.ListReviewers(extCtx, *repository.Owner.Login, *repository.Name, pullRequestNumber, nil)
-	if err != nil {
-		return 0
-	}
+
 	return submittedReviews + len(reviewers.Users)
 
 }
 
-func pullRequestHasRequestedChanges(reviews []*github.PullRequestReview) bool {
+func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
+	userToMostRecentReview := make(map[string]string)
 	for _, review := range reviews {
-		if review.GetState() == "CHANGES_REQUESTED" {
+		userToMostRecentReview[review.GetUser().GetLogin()] = review.GetState()
+	}
+	for _, review := range userToMostRecentReview {
+		if review == "CHANGES_REQUESTED" {
 			return true
 		}
 	}
 	return false
+}
+
+func checksDidFail(checkRuns *github.ListCheckRunsResults) bool {
+	for _, run := range checkRuns.CheckRuns {
+		if run.GetStatus() == "completed" && (run.GetConclusion() == "failure" || run.GetConclusion() == "timed_out") {
+			return true
+		}
+	}
+	return false
+}
+
+func getPullRequestRequiredAciton(requestedReviewers int, isMergeable bool, isApproved bool, isRequestedChanges bool, checksDidFail bool) string {
+	if requestedReviewers == 0 {
+		return "Add Reviewers"
+	}
+	if !isMergeable {
+		return "Fix Merge Conflicts"
+	}
+	if checksDidFail {
+		return "Fix Failed CI"
+	}
+	if isApproved && !isRequestedChanges {
+		return "Merge PR"
+	}
+	if isRequestedChanges {
+		return "Address Requested Changes"
+	}
+	return "Waiting on Review"
 }
 
 func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
