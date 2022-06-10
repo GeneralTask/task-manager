@@ -1,4 +1,4 @@
-import { Column, LinkButton, PullRequestRow, TruncatedText } from './styles'
+import { Column, LinkButton, PullRequestRow, Status, TruncatedText } from './styles'
 
 import BranchName from './BranchName'
 import { DateTime } from 'luxon'
@@ -23,7 +23,7 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
                 <SubtitleSmall>{'#' + number}</SubtitleSmall>
             </Column>
             <Column type="status">
-                <TruncatedText>{status.text}</TruncatedText>
+                <Status type={status.color}>{status.text}</Status>
             </Column>
             <Column type="author">
                 <SubtitleSmall>{formattedTime}</SubtitleSmall>
