@@ -487,8 +487,6 @@ export const useModifyThread = () => {
             const queryDataInbox: TThreadQueryData | undefined = queryClient.getQueryData(['emailThreads', { isArchived: false }])
             const queryDataArchive: TThreadQueryData | undefined = queryClient.getQueryData(['emailThreads', { isArchived: true }])
 
-            console.log(queryDataInbox)
-
             if (!queryDataInbox || !queryDataArchive) return
 
             for (const page of [...queryDataInbox.pages, ...queryDataArchive.pages]) {

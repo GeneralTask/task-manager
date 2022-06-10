@@ -1,7 +1,7 @@
 import { Colors, Spacing, Typography } from '../../styles'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { TEmailThread, TRepository, TTaskSection } from '../../utils/types'
+import { TEmailThread, TMailbox, TRepository, TTaskSection } from '../../utils/types'
 
 import { Icon } from '../atoms/Icon'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
@@ -36,7 +36,7 @@ interface SectionLinksProps {
     threadsInbox: TEmailThread[]
     pullRequestRepositories: TRepository[]
     sectionId: string
-    mailbox: 'inbox' | 'archive' | ''
+    mailbox?: TMailbox
     pathName: string
 }
 

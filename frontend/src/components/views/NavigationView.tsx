@@ -58,7 +58,7 @@ const NavigationView = () => {
                         threadsInbox={threadsInbox}
                         pullRequestRepositories={pullRequestRepositories}
                         sectionId={sectionIdParam || ''}
-                        mailbox={mailbox === 'inbox' || mailbox === 'archive' || mailbox === '' ? mailbox : ''}
+                        mailbox={mailbox === 'inbox' || mailbox === 'archive' ? mailbox : undefined}
                         pathName={pathname.split('/')[1]}
                     />
                 )}
