@@ -337,6 +337,32 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 	return &activeEmails, nil
 }
 
+func DeleteEmailThread(db *mongo.Database, userID primitive.ObjectID, threadID string) (*mongo.DeleteResult, error) {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	opts := options.DeleteOptions{}
+
+	filter := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+			{"task_type.is_thread": true},
+			{"id_external": threadID},
+		},
+	}
+
+	res, err := GetTaskCollection(db).DeleteMany(
+		dbCtx,
+		filter,
+		&opts,
+	)
+	if err != nil {
+		log.Error().Err(err).Msgf("Failed to delete threads for user")
+		return nil, err
+	}
+	return res, nil
+}
+
 func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
 	parentCtx := context.Background()
 
