@@ -47,11 +47,10 @@ type TaskResult struct {
 }
 
 type TaskSection struct {
-	ID         primitive.ObjectID `json:"id"`
-	Name       string             `json:"name"`
-	Tasks      []*TaskResult      `json:"tasks"`
-	IsDone     bool               `json:"is_done"`
-	IsPriority bool               `json:"is_priority"`
+	ID     primitive.ObjectID `json:"id"`
+	Name   string             `json:"name"`
+	Tasks  []*TaskResult      `json:"tasks"`
+	IsDone bool               `json:"is_done"`
 }
 
 type Recipients struct {
@@ -68,13 +67,12 @@ type Recipient struct {
 type TaskGroupType string
 
 const (
-	ScheduledTask           TaskGroupType = "scheduled_task"
-	UnscheduledGroup        TaskGroupType = "unscheduled_group"
-	TaskSectionNamePriority string        = "🚀 Priority (read only)"
-	TaskSectionNameDefault  string        = "Default"
-	TaskSectionNameBlocked  string        = "Blocked"
-	TaskSectionNameBacklog  string        = "Backlog"
-	TaskSectionNameDone     string        = "Done"
+	ScheduledTask          TaskGroupType = "scheduled_task"
+	UnscheduledGroup       TaskGroupType = "unscheduled_group"
+	TaskSectionNameDefault string        = "Default"
+	TaskSectionNameBlocked string        = "Blocked"
+	TaskSectionNameBacklog string        = "Backlog"
+	TaskSectionNameDone    string        = "Done"
 )
 
 func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Item, map[string]bool, error) {
