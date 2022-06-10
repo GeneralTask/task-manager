@@ -59,6 +59,16 @@ export const TruncatedText = styled.span`
     white-space: nowrap;
 `
 
+export const BranchNameContainer = styled.div`
+    display: flex;
+    align-items: center;
+    color: ${Colors.purple._1};
+    border: 0.5px solid ${Colors.gray._200};
+    border-radius: ${Border.radius.regular};
+    padding: ${Spacing.padding._4} ${Spacing.padding._4};
+    cursor: pointer;
+`
+
 export const LinkButton = styled(NoStyleAnchor)`
     margin: auto;
     padding: ${Spacing.padding._8};

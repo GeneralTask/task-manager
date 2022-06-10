@@ -47,10 +47,10 @@ describe('user can reorder tasks using react-dnd', () => {
     })
     it('user can move task to another section', () => {
         // Create a new task section
-        cy.findAllByTestId('task-section-link').should('have.length', 2)
+        cy.findAllByTestId('task-section-link').should('have.length', 1)
         cy.findByTestId('add-section-button').click()
         cy.findByTestId('add-section-input').should('be.visible').type('New Section').type('{enter}')
-        cy.findAllByTestId('task-section-link').should('have.length', 3)
+        cy.findAllByTestId('task-section-link').should('have.length', 2)
 
         // Start drag on first task
         cy.findAllByTestId('list-item').first().findByTestId('drag-domino').dragStart()
