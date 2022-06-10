@@ -25,9 +25,7 @@ const Underline = styled.span`
 `
 
 // Temporary hack to remove bad recipients from backend email recipient parsing
-const removeBadRecipients = (recipients: TRecipient[]): TRecipient[] => {
-    return recipients.filter((r) => !r.email.includes('"'))
-}
+const removeBadRecipients = (recipients: TRecipient[]) => recipients.filter((r) => !r.email.includes('"'))
 
 interface RecipientDetailsProps {
     category: string
