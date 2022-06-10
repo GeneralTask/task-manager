@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
 import { KEYBOARD_SHORTCUTS } from '../constants'
 import { useAppSelector } from '../redux/hooks'
 import { ModalEnum } from '../utils/enums'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export default function useKeyboardShortcut(
     shortcut: KEYBOARD_SHORTCUTS,
@@ -63,10 +63,13 @@ export default function useKeyboardShortcut(
  * we should not assign a keyboard shortcut to existing actions - i.e. ctrl+a, ctrl+s, ctrl+d
  **/
 function wasValidKeyPressed(shortcut: string, e: KeyboardEvent): boolean {
-    if (e.ctrlKey || e.altKey || e.metaKey) {
-        return false
-    }
     let keyName = ''
+    if (e.ctrlKey) {
+        keyName += 'ctrl+'
+    }
+    if (e.metaKey) {
+        keyName += 'meta+'
+    }
     if (e.shiftKey) {
         keyName += 'shift+'
     }
