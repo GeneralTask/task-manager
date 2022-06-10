@@ -130,6 +130,7 @@ type PullRequest struct {
 	Author         string `bson:"author"`
 	Branch         string `bson:"branch"`
 	RequiredAction string `bson:"required_action"`
+	CommentCount   int    `bson:"comment_count"`
 }
 
 type PullRequestChangeableFields struct {

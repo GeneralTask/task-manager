@@ -104,29 +104,40 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviews"))
 				return
 			}
-
+			comments, _, err := githubClient.PullRequests.ListComments(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+			if err != nil {
+				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviews"))
+				return
+			}
+			issueComments, _, err := githubClient.Issues.ListComments(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+			if err != nil {
+				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviews"))
+				return
+			}
+			reviews, _, err := githubClient.PullRequests.ListReviews(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+			if err != nil {
+				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviews"))
+				return
+			}
 			reviewers, _, err := githubClient.PullRequests.ListReviewers(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 			if err != nil {
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviewers"))
 				return
 			}
-
-			requestedReviewersCount := getReviewerCount(reviewers, fetchedPullRequests)
-			haveRequestedChanges := reviewersHaveRequestedChanges(fetchedPullRequests)
-
 			checkRuns, _, err := githubClient.Checks.ListCheckRunsForRef(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Head.SHA, nil)
 			if err != nil {
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR check runs"))
 				return
 			}
-			checksDidFail := checksDidFail(checkRuns)
-
 			pullRequestFetch, _, err := githubClient.PullRequests.Get(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number)
 			if err != nil {
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR"))
 				return
 			}
 
+			requestedReviewersCount := getReviewerCount(reviewers, fetchedPullRequests)
+			haveRequestedChanges := reviewersHaveRequestedChanges(fetchedPullRequests)
+			checksDidFail := checksDidFail(checkRuns)
 			isMergeable := pullRequestFetch.GetMergeable()
 			isApproved := pullRequestIsApproved(fetchedPullRequests)
 
@@ -147,6 +158,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					Author:         *pullRequest.User.Login,
 					Branch:         *pullRequest.Head.Ref,
 					RequiredAction: getPullRequestRequiredAciton(requestedReviewersCount, isMergeable, isApproved, haveRequestedChanges, checksDidFail),
+					CommentCount:   getCommentCount(comments, issueComments, reviews),
 				},
 				TaskType: database.TaskType{
 					IsTask:        true,
@@ -212,10 +224,8 @@ func pullRequestIsApproved(pullRequestReviews []*github.PullRequestReview) bool 
 	return false
 }
 
-func getCommentCount(extCtx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest) int {
-	comments, _, err := githubClient.PullRequests.ListComments(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
-	issueComments, _, err := githubClient.Issues.ListComments(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
-	reviews, _, err := githubClient.PullRequests.ListReviews(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+func getCommentCount(pullRequestComments []*github.PullRequestComment, issueComments []*github.IssueComment, reviews []*github.PullRequestReview) int {
+
 	reviewCommentCount := 0
 
 	for _, review := range reviews {
@@ -224,11 +234,7 @@ func getCommentCount(extCtx context.Context, githubClient *github.Client, reposi
 		}
 	}
 
-	if err != nil {
-		return 0
-	}
-
-	return len(comments) + len(issueComments) + reviewCommentCount
+	return len(pullRequestComments) + len(issueComments) + reviewCommentCount
 }
 
 func getReviewerCount(reviewers *github.Reviewers, reviews []*github.PullRequestReview) int {
