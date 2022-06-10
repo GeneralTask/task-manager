@@ -225,15 +225,12 @@ func pullRequestIsApproved(pullRequestReviews []*github.PullRequestReview) bool 
 }
 
 func getCommentCount(pullRequestComments []*github.PullRequestComment, issueComments []*github.IssueComment, reviews []*github.PullRequestReview) int {
-
 	reviewCommentCount := 0
-
 	for _, review := range reviews {
 		if review.GetBody() != "" {
 			reviewCommentCount += 1
 		}
 	}
-
 	return len(pullRequestComments) + len(issueComments) + reviewCommentCount
 }
 
@@ -245,9 +242,7 @@ func getReviewerCount(reviewers *github.Reviewers, reviews []*github.PullRequest
 			submittedReviews += 1
 		}
 	}
-
 	return submittedReviews + len(reviewers.Users)
-
 }
 
 func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
