@@ -269,7 +269,6 @@ type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
 		Success graphql.Boolean
 	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, description: $description})"`
-	//} `graphql:"issueUpdate(id: $id, input: {title: $title, description: $description})"`
 }
 
 func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
