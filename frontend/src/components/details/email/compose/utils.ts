@@ -37,7 +37,7 @@ export function getInitialRecipients(email: TEmail, composeType: EmailComposeTyp
         else if (composeType === EmailComposeType.REPLY_ALL) {
             return {
                 to: email.recipients.to,
-                cc: email.recipients.cc,
+                cc: email.recipients.cc.filter(r => r.email !== userEmail),
                 bcc: []
             }
         }
