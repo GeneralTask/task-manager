@@ -10,12 +10,10 @@ const IconContainer = styled.div<{ width: string; height: string }>`
     align-items: center;
     justify-content: center;
     user-select: none;
-    position: relative;
 `
 const ImageContainer = styled.img`
     width: 100%;
     aspect-ratio: 1;
-    position: absolute;
 `
 
 interface IconProps {
