@@ -245,22 +245,7 @@ type linearAssignedIssuesQuery struct {
 	} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
 }
 
-type linearUpdateIssueQuery struct {
-	IssueUpdate struct {
-		Success graphql.Boolean
-		//} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, description: $description})"`
-	} `graphql:"issueUpdate(id: $id, input: {title: $title, description: $description})"`
-}
-
-//func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
-func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) {
-	//var query linearUpdateIssueQuery
-	//variables := map[string]interface{}{
-	//	"id": graphql.String(issueID),
-	//}
-
-	// make a request
-	req := graphqlBasic.NewRequest(`
+const linearUpdateIssueQueryStr = `
 		mutation IssueUpdate (
 			$title: String
 			, $id: String!
@@ -278,35 +263,30 @@ func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, upd
 			success
 		  }
 		}
-	`)
+	`
 
-	// set any variables
+type linearUpdateIssueQuery struct {
+	IssueUpdate struct {
+		Success graphql.Boolean
+	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, description: $description})"`
+	//} `graphql:"issueUpdate(id: $id, input: {title: $title, description: $description})"`
+}
+
+func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
+	//func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) {
+	req := graphqlBasic.NewRequest(linearUpdateIssueQueryStr)
+
 	req.Var("id", issueID)
 	req.Var("title", "titse")
 	req.Var("description", "fsdafdasfdtitse")
 
-	//// set header fields
-	//req.Header.Set("Cache-Control", "no-cache")
-
-	// run it and capture the response
-
-	type ResponseStruct struct {
-		IssueUpdate struct {
-			Success bool
-		}
-	}
-
-	var respData linearUpdateIssueQuery
-	if err := client.Run(context.Background(), req, &respData); err != nil {
+	var query linearUpdateIssueQuery
+	if err := client.Run(context.Background(), req, &query); err != nil {
 		log.Error().Err(err).Send()
+		log.Error().Err(err).Msg("failed to update linear issue")
+		return nil, err
 	}
-	log.Info().Msgf("%+v", respData)
-
-	//err := client.Mutate(context.Background(), &query, variables)
-	//if err != nil {
-	//	log.Error().Err(err).Msg("failed to update linear issue")
-	//	return nil, err
-	//}
+	return &query, nil
 }
 
 func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
