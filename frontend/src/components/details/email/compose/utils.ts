@@ -25,20 +25,45 @@ export function attachSubjectPrefix(subject: string, composeType: EmailComposeTy
     return prefix + subject
 }
 
-export function getInitialRecipients(email: TEmail, composeType: EmailComposeType, exclude: string): TRecipients {
-    let initialToRecipients: string[] = []
-    if (composeType === EmailComposeType.REPLY) {
-        initialToRecipients = [email.sender.email]
+export function getInitialRecipients(email: TEmail, composeType: EmailComposeType, userEmail: string): TRecipients {
+    if (email.sender.email === userEmail) {
+        if (composeType === EmailComposeType.REPLY) {
+            return {
+                to: email.recipients.to,
+                cc: [],
+                bcc: []
+            }
+        }
+        else if (composeType === EmailComposeType.REPLY_ALL) {
+            return {
+                to: email.recipients.to,
+                cc: email.recipients.cc,
+                bcc: []
+            }
+        }
     }
-    else if (composeType === EmailComposeType.REPLY_ALL) {
-        initialToRecipients = [...new Set([
-            email.sender.email,
-            ...email.recipients.to.map(recipient => recipient.email).filter(email => email !== exclude),
-            ...email.recipients.cc.map(recipient => recipient.email).filter(email => email !== exclude),
-        ])]
+    else {
+        if (composeType === EmailComposeType.REPLY) {
+            return {
+                to: [{ email: email.sender.email, name: '' }],
+                cc: [],
+                bcc: [],
+            }
+        }
+        else if (composeType === EmailComposeType.REPLY_ALL) {
+            return {
+                to: [...new Set([
+                    email.sender.email,
+                    ...email.recipients.to.map(recipient => recipient.email).filter(email => email !== userEmail),
+                    ...email.recipients.cc.map(recipient => recipient.email).filter(email => email !== userEmail),
+                ])].map(email => ({ email, name: '' })),
+                cc: [],
+                bcc: [],
+            }
+        }
     }
     return {
-        to: initialToRecipients.map(email => ({ email, name: '' })),
+        to: [],
         cc: [],
         bcc: [],
     }
