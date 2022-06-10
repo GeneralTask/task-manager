@@ -62,7 +62,9 @@ export const TruncatedText = styled.span`
 
 export const CommentsCountContainer = styled.div`
     display: flex;
+    align-items: flex-start;
     gap: ${Spacing.margin._8};
+    line-height: 1;
 `
 
 export const BranchNameContainer = styled.div`

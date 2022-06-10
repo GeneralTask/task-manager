@@ -1,13 +1,12 @@
-import { Column, CommentsCountContainer, LinkButton, PullRequestRow, TruncatedText } from './styles'
-
-import BranchName from './BranchName'
-import { DateTime } from 'luxon'
-import { Icon } from '../atoms/Icon'
-import React from 'react'
-import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import { icons } from '../../styles/images'
 import { TPullRequest } from '../../utils/types'
 import { getHumanDateTime } from '../../utils/utils'
-import { icons } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
+import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import BranchName from './BranchName'
+import { Column, CommentsCountContainer, LinkButton, PullRequestRow, TruncatedText } from './styles'
+import { DateTime } from 'luxon'
+import React from 'react'
 
 interface PullRequestProps {
     pullRequest: TPullRequest
@@ -31,7 +30,7 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
             </Column>
             <Column type="comments">
                 <CommentsCountContainer>
-                    <Icon source={icons.speechBubble} size="small" yOffset="4px" />
+                    <Icon source={icons.speechBubble} size="small" />
                     {num_comments}
                 </CommentsCountContainer>
             </Column>
