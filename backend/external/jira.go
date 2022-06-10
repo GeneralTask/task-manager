@@ -245,7 +245,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 			database.TaskItemChangeableFields{
 				Title:   &task.Title,
 				DueDate: task.DueDate,
-				Task: &database.TaskChangeable{
+				Task: database.TaskChangeable{
 					PriorityID:         &task.PriorityID,
 					PriorityNormalized: &priorityNormalized,
 				},

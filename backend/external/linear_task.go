@@ -126,7 +126,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 				Title:       &task.Title,
 				Body:        &task.TaskBase.Body,
 				IsCompleted: &isCompleted,
-				Task: &database.TaskChangeable{
+				Task: database.TaskChangeable{
 					Comments:        task.Comments,
 					Status:          &task.Status,
 					CompletedStatus: &task.CompletedStatus,

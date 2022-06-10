@@ -83,7 +83,7 @@ func (api *API) TaskModify(c *gin.Context) {
 			Handle500(c)
 			return
 		}
-		UpdateTaskInDB(c, taskID, userID, &modifyParams.TaskItemChangeableFields)
+		UpdateTaskInDB(c, task, userID, &modifyParams.TaskItemChangeableFields)
 	}
 
 	// handle reorder task
@@ -206,7 +206,7 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 	return &task, nil
 }
 
-func UpdateTaskInDB(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskItemChangeableFields) {
+func UpdateTaskInDB(c *gin.Context, task *database.Item, userID primitive.ObjectID, updateFields *database.TaskItemChangeableFields) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -218,7 +218,8 @@ func UpdateTaskInDB(c *gin.Context, taskID primitive.ObjectID, userID primitive.
 
 	if updateFields.IsCompleted != nil {
 		if *updateFields.IsCompleted {
-			updateFields.Task.PreviousStatus = updateFields.Task.Status
+			updateFields.Task.PreviousStatus = &task.Status
+			updateFields.Task.Status = &task.CompletedStatus
 		}
 	}
 
@@ -234,7 +235,7 @@ func UpdateTaskInDB(c *gin.Context, taskID primitive.ObjectID, userID primitive.
 	res, err := taskCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
-			{"_id": taskID},
+			{"_id": task.ID},
 			{"user_id": userID},
 		}},
 		bson.M{"$set": flattenedTaskChangeableFields},

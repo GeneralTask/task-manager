@@ -285,7 +285,6 @@ func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, upd
 	if updateFields.IsCompleted != nil {
 		if *updateFields.IsCompleted {
 			req.Var("stateId", task.CompletedStatus.ExternalID)
-			log.Print(task.CompletedStatus)
 		} else {
 			if task.Status.ExternalID != task.CompletedStatus.ExternalID {
 				log.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
