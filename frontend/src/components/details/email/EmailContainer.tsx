@@ -1,5 +1,5 @@
 import { Colors, Spacing, Typography } from '../../../styles'
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TEmail, TEmailComposeState } from '../../../utils/types'
 import { getHumanDateTime, removeHTMLTags } from '../../../utils/utils'
 
@@ -88,22 +88,14 @@ interface EmailContainerProps {
 const EmailContainer = (props: EmailContainerProps) => {
     const [isCollapsed, setIsCollapsed] = useState(!props.isLastThread)
     const timeSent = getHumanDateTime(DateTime.fromISO(props.email.sent_at))
-    const scrollingRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         ReactTooltip.hide()
         ReactTooltip.rebuild()
     }, [isCollapsed])
 
-    useLayoutEffect(() => {
-        setIsCollapsed(!props.isLastThread)
-        if (props.isLastThread) {
-            scrollingRef.current?.scrollIntoView()
-        }
-    }, [props.isLastThread])
-
     return (
-        <DetailsViewContainer ref={scrollingRef}>
+        <DetailsViewContainer>
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
                 <SenderContainer>
                     <div>

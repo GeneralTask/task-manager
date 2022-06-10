@@ -45,7 +45,34 @@ export const dummyRepositories: TRepository[] = [
     {
         id: 'repo-2',
         name: 'Repository 2',
-        pull_requests: [],
+        pull_requests: [
+            {
+                id: 'pr-1',
+                title: 'Pull Request 1',
+                number: 1069,
+                status: {
+                    text: 'All tests failing',
+                    color: 'yellow',
+                },
+                author: 'Scott Mai',
+                created_at: '2020-04-01T00:00:00.000Z',
+                branch: 'scott/fro-193-implementation-of-new-pr-view',
+                link: 'https://github.com/octocat/Hello-World/pull/1347',
+            },
+            {
+                id: 'pr-2',
+                title: 'Pull Request 1',
+                number: 1420,
+                status: {
+                    text: 'Ready to Merge',
+                    color: 'gray',
+                },
+                author: 'Nolan',
+                created_at: '2020-04-01T00:00:00.000Z',
+                branch: 'scott/fro-193-implementation-of-new-pr-view',
+                link: 'https://github.com/octocat/Hello-World/pull/1347',
+            },
+        ],
     },
 ]
 

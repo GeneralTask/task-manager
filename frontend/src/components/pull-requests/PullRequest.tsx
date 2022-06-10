@@ -4,7 +4,7 @@ import { getHumanDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import BranchName from './BranchName'
-import { Column, CommentsCountContainer, LinkButton, PullRequestRow, TruncatedText } from './styles'
+import { Column, CommentsCountContainer, LinkButton, PullRequestRow, Status, TruncatedText } from './styles'
 import { DateTime } from 'luxon'
 import React from 'react'
 
@@ -22,7 +22,7 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
                 <SubtitleSmall>{'#' + number}</SubtitleSmall>
             </Column>
             <Column type="status">
-                <TruncatedText>{status.text}</TruncatedText>
+                <Status type={status.color}>{status.text}</Status>
             </Column>
             <Column type="author">
                 <SubtitleSmall>{formattedTime}</SubtitleSmall>
