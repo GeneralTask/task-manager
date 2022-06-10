@@ -192,9 +192,33 @@ type linearAssignedIssuesQuery struct {
 			Url         graphql.String
 			CreatedAt   graphql.String
 			Assignee    struct {
-				Id    graphql.ID
-				Name  graphql.String
-				Email graphql.String
+				Id          graphql.ID
+				Name        graphql.String
+				DisplayName graphql.String
+				Email       graphql.String
+			}
+			Team struct {
+				Name               graphql.String
+				MergeWorkflowState struct {
+					Id   graphql.ID
+					Name graphql.String
+				}
+			}
+			State struct {
+				Id   graphql.ID
+				Name graphql.String
+			}
+			Comments struct {
+				Nodes []struct {
+					Body      graphql.String
+					CreatedAt graphql.String
+					User      struct {
+						Id          graphql.ID
+						Name        graphql.String
+						DisplayName graphql.String
+						Email       graphql.String
+					}
+				}
 			}
 		}
 	} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
@@ -207,7 +231,7 @@ type linearUpdateIssueQuery struct {
 	//} `graphql:"issueUpdate(id: $id, input: {title: $title, description: $description})"`
 }
 
-func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFields *database.TaskChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
+func updateLinearIssueMutation(client *graphql.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
 	var query linearUpdateIssueQuery
 	variables := map[string]interface{}{
 		"id": graphql.String(issueID),

@@ -34,6 +34,31 @@ func TestLoadLinearTasks(t *testing.T) {
 						"assignee": {
 							"id": "6942069420",
 							"name": "Test User"
+						},
+						"state": {
+							"id": "state-id",
+							"name": "Todo"
+						},
+						"team": {
+							"name": "Backend",
+							"mergeWorkflowState": {
+								"name": "Done",
+								"id": "merge-workflow-state-id"
+							}
+						},
+						"comments": {
+							"nodes": [
+								{
+									"body": "test comment body",
+									"createdAt": "2019-04-21T00:00:00.000Z",
+									"user": {
+										"id": "test-commenter-id",
+										"name": "Test Commenter",
+										"displayName": "test comm",
+										"email": "testCommenter@generaltask.com"
+									}
+								}
+							]
 						}
 					}
 				]
@@ -133,6 +158,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
+		commentCreatedAt, _ := time.Parse("2006-01-02", "2019-04-21")
 		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:        0,
@@ -149,6 +175,28 @@ func TestLoadLinearTasks(t *testing.T) {
 			TaskType: database.TaskType{
 				IsTask: true,
 			},
+			Task: database.Task{
+				Status: database.ExternalTaskStatus{
+					ExternalID: "state-id",
+					State:      "Todo",
+				},
+				CompletedStatus: database.ExternalTaskStatus{
+					ExternalID: "merge-workflow-state-id",
+					State:      "Done",
+				},
+				Comments: &[]database.Comment{
+					{
+						Body: "test comment body",
+						User: database.ExternalUser{
+							ExternalID:  "test-commenter-id",
+							Name:        "Test Commenter",
+							DisplayName: "test comm",
+							Email:       "testCommenter@generaltask.com",
+						},
+						CreatedAt: primitive.NewDateTimeFromTime(commentCreatedAt),
+					},
+				},
+			},
 		}
 
 		var taskResult = make(chan TaskResult)
@@ -157,6 +205,17 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.Tasks))
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
+		assert.Equal(t, expectedTask.Status, result.Tasks[0].Status)
+		assert.Equal(t, expectedTask.CompletedStatus, result.Tasks[0].CompletedStatus)
+		assert.True(t, (expectedTask.Comments == nil) == (result.Tasks[0].Comments == nil))
+		if (expectedTask.Comments != nil) && (result.Tasks[0].Comments != nil) {
+			expectedComments := *expectedTask.Comments
+			actualComments := *result.Tasks[0].Comments
+			assert.Equal(t, len(expectedComments), len(actualComments))
+			if len(*expectedTask.Comments) == len(*result.Tasks[0].Comments) {
+				assert.Equal(t, expectedComments, actualComments)
+			}
+		}
 
 		var taskFromDB database.Item
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -180,6 +239,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
+		commentCreatedAt, _ := time.Parse("2006-01-02", "2019-04-21")
 		expectedTask := database.Item{
 			TaskBase: database.TaskBase{
 				IDOrdering:        0,
@@ -188,7 +248,7 @@ func TestLoadLinearTasks(t *testing.T) {
 				IsCompleted:       true,
 				Deeplink:          "https://example.com/",
 				Title:             "wrong test title",
-				Body:              "wrgong test description",
+				Body:              "wrong test description",
 				SourceID:          TASK_SOURCE_ID_LINEAR,
 				SourceAccountID:   "sample_account@email.com",
 				UserID:            userID,
@@ -196,6 +256,17 @@ func TestLoadLinearTasks(t *testing.T) {
 			},
 			TaskType: database.TaskType{
 				IsTask: true,
+			},
+			Task: database.Task{
+				Status: database.ExternalTaskStatus{
+					ExternalID: "state-id",
+					State:      "Todo",
+				},
+				CompletedStatus: database.ExternalTaskStatus{
+					ExternalID: "merge-workflow-state-id",
+					State:      "Done",
+				},
+				Comments: nil,
 			},
 		}
 		database.GetOrCreateItem(
@@ -208,6 +279,18 @@ func TestLoadLinearTasks(t *testing.T) {
 		// switch a few fields from their existing db value to their expected output value
 		expectedTask.Title = "test title"
 		expectedTask.TaskBase.Body = "test description"
+		expectedTask.Comments = &[]database.Comment{
+			{
+				Body: "test comment body",
+				User: database.ExternalUser{
+					ExternalID:  "test-commenter-id",
+					Name:        "Test Commenter",
+					DisplayName: "test comm",
+					Email:       "testCommenter@generaltask.com",
+				},
+				CreatedAt: primitive.NewDateTimeFromTime(commentCreatedAt),
+			},
+		}
 
 		var taskResult = make(chan TaskResult)
 		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
@@ -245,7 +328,7 @@ func TestModifyLinearTask(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		isCompleted := true
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted}, nil)
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, nil)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, err.Error())
 	})
@@ -263,7 +346,7 @@ func TestModifyLinearTask(t *testing.T) {
 
 		newName := "New Title"
 		newBody := "New Body"
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title: &newName,
 			Body:  &newBody,
 		}, nil)
@@ -285,7 +368,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newBody := "New Body"
 		isCompleted := true
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:       &newName,
 			Body:        &newBody,
 			IsCompleted: &isCompleted,
@@ -308,7 +391,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newName := "New Title"
 		newBody := "New Body"
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
@@ -330,7 +413,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newName := "New Title"
 		newBody := "New Body"
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
@@ -348,7 +431,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newBody := "New Body"
 		isCompleted := false
 
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:       &newName,
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
@@ -367,7 +450,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newBody := "New Body"
 		isCompleted := false
 
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:       &newName,
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
@@ -382,7 +465,7 @@ func TestModifyLinearTask(t *testing.T) {
 		timeAllocation := int64(1000)
 		isCompleted := true
 
-		updateFields := &database.TaskChangeableFields{
+		updateFields := &database.TaskItemChangeableFields{
 			Title:          &title,
 			Body:           &description,
 			TimeAllocation: &timeAllocation,
@@ -408,7 +491,7 @@ func TestModifyLinearTask(t *testing.T) {
 		timeAllocation := int64(1000)
 		isCompleted := true
 
-		updateFields := &database.TaskChangeableFields{
+		updateFields := &database.TaskItemChangeableFields{
 			Title:          &title,
 			Body:           &description,
 			DueDate:        primitive.NewDateTimeFromTime(dueDate),
@@ -429,7 +512,7 @@ func TestModifyLinearTask(t *testing.T) {
 		assert.Equal(t, expected, *body)
 	})
 	t.Run("GetTaskUpdateBodyEmpty", func(t *testing.T) {
-		updateFields := &database.TaskChangeableFields{}
+		updateFields := &database.TaskItemChangeableFields{}
 		expected := AsanaTasksUpdateBody{
 			Data: AsanaTasksUpdateFields{},
 		}

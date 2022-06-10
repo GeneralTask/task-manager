@@ -22,7 +22,7 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		isCompleted := true
-		err := gmailTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskChangeableFields{IsCompleted: &isCompleted}, nil)
+		err := gmailTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, nil)
 		assert.NoError(t, err)
 	})
 }

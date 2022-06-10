@@ -108,7 +108,7 @@ func (generalTask GeneralTaskTaskSource) CreateNewEvent(userID primitive.ObjectI
 	return errors.New("has not been implemented yet")
 }
 
-func (generalTask GeneralTaskTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields, task *database.Item) error {
+func (generalTask GeneralTaskTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
 	return nil
 }
 
