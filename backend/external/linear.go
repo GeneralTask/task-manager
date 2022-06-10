@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -273,12 +274,29 @@ type linearUpdateIssueQuery struct {
 }
 
 func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
-	//func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) {
 	req := graphqlBasic.NewRequest(linearUpdateIssueQueryStr)
-
 	req.Var("id", issueID)
-	req.Var("title", "titse")
-	req.Var("description", "fsdafdasfdtitse")
+
+	if updateFields.Title != nil {
+		req.Var("title", *updateFields.Title) // will fail linear graphql validation on empty string
+	}
+	if updateFields.Body != nil {
+		req.Var("description", *updateFields.Body) // empty string is ok but will be a NOOP
+	}
+	if updateFields.IsCompleted != nil {
+		if *updateFields.IsCompleted {
+			req.Var("$stateId", task.CompletedStatus.ExternalID)
+		} else {
+			if task.Status.ExternalID != task.CompletedStatus.ExternalID {
+				log.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
+				return nil, fmt.Errorf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
+			} else if task.PreviousStatus.ExternalID == "" {
+				log.Error().Msgf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
+				return nil, fmt.Errorf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
+			}
+			req.Var("$stateId", task.PreviousStatus.ExternalID)
+		}
+	}
 
 	var query linearUpdateIssueQuery
 	if err := client.Run(context.Background(), req, &query); err != nil {
