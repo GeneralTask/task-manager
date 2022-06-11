@@ -25,11 +25,11 @@ data:
     - userarn: arn:aws:iam::257821106339:user/eks-user
       username: eksadmin
       groups:
-        - qa-gtsk-uswest2-full-access-group
+        - prd-gtsk-uswest2-full-access-group
     - userarn: arn:aws:iam::257821106339:user/maz@generaltask.com
       username: maz
       groups:
-        - qa-gtsk-uswest2-full-access-group
+        - prd-gtsk-uswest2-full-access-group
 kind: ConfigMap
 metadata:
   name: aws-auth
