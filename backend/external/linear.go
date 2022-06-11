@@ -163,7 +163,9 @@ func getBasicLinearClient(overrideURL *string, db *mongo.Database, userID primit
 	var client *graphqlBasic.Client
 	var err error
 	if overrideURL != nil {
-		client = graphqlBasic.NewClient(*overrideURL, nil)
+		log.Error().Msg("jerd beofore")
+		client = graphqlBasic.NewClient(*overrideURL)
+		log.Error().Msg("jerd after")
 	} else {
 		httpClient := getLinearHttpClient(db, userID, accountID)
 		if httpClient == nil {
@@ -295,6 +297,8 @@ func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, upd
 			req.Var("stateId", task.PreviousStatus.ExternalID)
 		}
 	}
+	log.Error().Msg("jerd 1")
+	log.Error().Msg("jerd 1")
 
 	var query linearUpdateIssueQuery
 	if err := client.Run(context.Background(), req, &query); err != nil {

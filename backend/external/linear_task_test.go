@@ -3,6 +3,7 @@ package external
 import (
 	"context"
 	"github.com/GeneralTask/task-manager/backend/testutils"
+	"github.com/rs/zerolog/log"
 	"testing"
 	"time"
 
@@ -316,6 +317,8 @@ func TestLoadLinearTasks(t *testing.T) {
 
 func TestModifyLinearTask(t *testing.T) {
 	t.Run("MarkAsDoneBadResponse", func(t *testing.T) {
+		assert.Fail(t, "fd")
+		log.Error().Msg("jerd yoyo")
 		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
 		defer taskUpdateServer.Close()
 		linearTask := LinearTaskSource{Linear: LinearService{
@@ -327,8 +330,10 @@ func TestModifyLinearTask(t *testing.T) {
 		}}
 		userID := primitive.NewObjectID()
 
+		log.Error().Msg("jerd yoyo")
 		isCompleted := true
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, nil)
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, &database.Item{})
+		log.Error().Msg("jerd yoyo")
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, err.Error())
 	})
