@@ -13,11 +13,17 @@ jobs:
     env:
       REACT_APP_API_BASE_URL: http://localhost:8080
       DB_NAME: test
+    strategy:
+      fail-fast: false
+      matrix:
+        # run copies of the current job in parallel
+        containers: [1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
           node-version: 14
+          runTests: false
 
       - name: Spin up db
         working-directory: backend
@@ -36,5 +42,7 @@ jobs:
         with:
           start: yarn start
           wait-on: 'http://localhost:3000'
+          record: true
+          parallel: true
           command: yarn cy:run
           working-directory: frontend
