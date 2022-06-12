@@ -46,6 +46,9 @@ spec:
                 key: COOKIE_DOMAIN
                 optional: false
 
+          - name: ENVIRONMENT
+            value: "prod"
+
           - name: GITHUB_OAUTH_CLIENT_ID
             valueFrom:
               secretKeyRef:
