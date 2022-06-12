@@ -46,3 +46,6 @@ jobs:
           parallel: true
           command: yarn cy:run
           working-directory: frontend
+        env: 
+          CYPRESS_RECORD_KEY: 'ytcc3m'
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
