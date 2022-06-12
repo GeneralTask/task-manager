@@ -46,6 +46,20 @@ spec:
                 key: COOKIE_DOMAIN
                 optional: false
 
+          - name: GITHUB_OAUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: GITHUB_OAUTH_CLIENT_ID
+                optional: false
+
+          - name: GITHUB_OAUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: GITHUB_OAUTH_CLIENT_SECRET
+                optional: false
+
           - name: GOOGLE_OAUTH_AUTHORIZE_REDIRECT_URL
             valueFrom:
               secretKeyRef:
