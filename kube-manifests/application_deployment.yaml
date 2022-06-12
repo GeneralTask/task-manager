@@ -109,6 +109,20 @@ spec:
                 key: JIRA_OAUTH_CLIENT_SECRET
                 optional: false
 
+          - name: LINEAR_OAUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: LINEAR_OAUTH_CLIENT_ID
+                optional: false
+
+          - name: LINEAR_OAUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: LINEAR_OAUTH_CLIENT_SECRET
+                optional: false
+
           - name: MONGO_URI
             valueFrom:
               secretKeyRef:
