@@ -42,10 +42,7 @@ jobs:
         with:
           start: yarn start
           wait-on: 'http://localhost:3000'
-          browser: chrome
-          record: true
-          parallel: true
-          command: yarn cy:run
+          command: yarn cy:run --record --parallel
           working-directory: frontend
           group: 'UI - Chrome'
         env: 
