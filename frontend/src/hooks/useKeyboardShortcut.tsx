@@ -1,16 +1,17 @@
-import { KEYBOARD_SHORTCUTS } from '../constants'
+import { KEYBOARD_SHORTCUTS, TKeyboardShortcuts } from '../constants'
 import { useAppSelector } from '../redux/hooks'
 import { ModalEnum } from '../utils/enums'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export default function useKeyboardShortcut(
-    shortcut: KEYBOARD_SHORTCUTS,
+    shortcutType: TKeyboardShortcuts,
     onKeyPress: () => void,
     disabled = false,
     showIndicator = false
 ): boolean {
     const isKeyDown = useRef<boolean>(false)
     const [showKeyDownIndicator, setShowKeyDownIndicator] = useState(false)
+    const shortcut = KEYBOARD_SHORTCUTS[shortcutType]
 
     //Keyboard shortcuts should not trigger when modal is open
     const { isModalOpen } = useAppSelector((state) => ({

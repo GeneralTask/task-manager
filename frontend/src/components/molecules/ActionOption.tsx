@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react'
 
 import ActionValue from '../atoms/ActionValue'
 import { Icon } from '../atoms/Icon'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
+import { KEYBOARD_SHORTCUTS, TKeyboardShortcuts } from '../../constants'
 import LabelEditor from './LabelEditor'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import React from 'react'
@@ -42,14 +42,14 @@ const LabelContainer = styled.div`
 interface ActionOptionProps {
     task: TTask
     isShown: boolean
-    keyboardShortcut: KEYBOARD_SHORTCUTS
+    keyboardShortcut: TKeyboardShortcuts
     setIsShown: (isShown: boolean) => void
 }
 
 const label = ReactDOMServer.renderToString(
     <TooltipContainer>
         <LabelContainer>Label</LabelContainer>
-        <KeyboardShortcutContainer isPressed={false}>{KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}</KeyboardShortcutContainer>
+        <KeyboardShortcutContainer isPressed={false}>{KEYBOARD_SHORTCUTS.showLabelEditor}</KeyboardShortcutContainer>
     </TooltipContainer>
 )
 
@@ -65,9 +65,9 @@ const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOpt
         keyboardShortcut,
         useCallback(() => setIsShown(!isShown), [isShown])
     )
-    // when the action is shown, close action when KEYBOARD_SHORTCUTS.CLOSE is pressed
+    // when the action is shown, close action when close shortcut is pressed
     useKeyboardShortcut(
-        KEYBOARD_SHORTCUTS.CLOSE,
+        'close',
         useCallback(() => setIsShown(false), []),
         !isShown
     )
