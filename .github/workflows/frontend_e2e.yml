@@ -46,5 +46,5 @@ jobs:
           working-directory: frontend
           group: 'UI - Chrome'
         env: 
-          CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
+          CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7 
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
