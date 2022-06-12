@@ -42,10 +42,12 @@ jobs:
         with:
           start: yarn start
           wait-on: 'http://localhost:3000'
+          browser: chrome
           record: true
           parallel: true
           command: yarn cy:run
           working-directory: frontend
+          group: 'UI - Chrome'
         env: 
           CYPRESS_RECORD_KEY: 'ytcc3m'
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
