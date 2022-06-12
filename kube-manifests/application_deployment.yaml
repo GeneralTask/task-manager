@@ -144,6 +144,20 @@ spec:
                 key: SERVER_URL
                 optional: false
 
+          - name: SLACK_OAUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: SLACK_OAUTH_CLIENT_ID
+                optional: false
+
+          - name: SLACK_OAUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: SLACK_OAUTH_CLIENT_SECRET
+                optional: false
+
           - name: TRELLO_OAUTH_CLIENT_ID
             valueFrom:
               secretKeyRef:
