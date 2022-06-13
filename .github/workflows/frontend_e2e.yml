@@ -39,7 +39,11 @@ jobs:
 
       - name: Try Building  (just for funsies)
         working-directory: frontend
-        run: yarn build
+        run: yarn start
+
+      - name: Try starting  (just for funsies)
+        working-directory: frontend
+        run: yarn start
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
