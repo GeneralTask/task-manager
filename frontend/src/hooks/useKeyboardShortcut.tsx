@@ -61,7 +61,6 @@ export default function useKeyboardShortcut(
 /**
  * Check if a valid key is pressed.
  * Will prevent default behavior of a key
- * we should not assign a keyboard shortcut to existing actions - i.e. ctrl+a, ctrl+s, ctrl+d
  **/
 function wasValidKeyPressed(shortcut: string, e: KeyboardEvent): boolean {
     let keyName = ''
