@@ -15,6 +15,13 @@ spec:
     spec:
       containers:
       - image: "257821106339.dkr.ecr.us-west-2.amazonaws.com/qa-gtsk-uswest2"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1024m"
+          limits:
+            memory: "2Gi"
+            cpu: "1024m"
         imagePullPolicy: Always
         name: "core"
         env:
