@@ -37,21 +37,13 @@ jobs:
         working-directory: frontend
         run: yarn install --frozen-lockfile
 
-      - name: Try Building  (just for funsies)
-        working-directory: frontend
-        run: yarn start
-
-      - name: Try starting  (just for funsies)
-        working-directory: frontend
-        run: yarn start
-
-      # - name: Cypress run
-      #   uses: cypress-io/github-action@v2
-      #   with:
-      #     start: yarn start
-      #     wait-on: 'http://localhost:3000'
-      #     command: yarn cy:run --record --parallel
-      #     working-directory: frontend
-      #   env: 
-      #     CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
-      #     GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          start: yarn start
+          wait-on: 'http://localhost:3000'
+          command: yarn cy:run --record --parallel
+          working-directory: frontend
+        env: 
+          CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
