@@ -65,7 +65,6 @@ const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOpt
         keyboardShortcut,
         useCallback(() => setIsShown(!isShown), [isShown])
     )
-    // when the action is shown, close action when close shortcut is pressed
     useKeyboardShortcut(
         'close',
         useCallback(() => setIsShown(false), []),
