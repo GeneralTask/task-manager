@@ -45,13 +45,16 @@ func TestLinkGithubCallback(t *testing.T) {
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
 		server := testutils.GetMockAPIServer(t, http.StatusUnauthorized, DefaultTokenPayload)
 		api := GetAPI()
-		(api.ExternalConfig.Github.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+		(api.ExternalConfig.Github.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/link/github/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
 		server := testutils.GetMockAPIServer(t, http.StatusOK, DefaultTokenPayload)
 		api := GetAPI()
-		(api.ExternalConfig.Github.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+		(api.ExternalConfig.Github.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+
+		accountIdServer := testutils.GetMockAPIServer(t, http.StatusOK, "")
+		api.ExternalConfig.Github.ConfigValues.UserInfoURL = &accountIdServer.URL
 		TestAuthorizeCallbackSuccessfulResponse(t, api, "/link/github/callback/", external.TASK_SERVICE_ID_GITHUB)
 	})
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
 
 	"github.com/rs/zerolog/log"
 
@@ -19,8 +20,17 @@ import (
 	"golang.org/x/oauth2"
 )
 
+type GithubConfigValues struct {
+	UserInfoURL *string
+}
+
+type GithubConfig struct {
+	OauthConfig OauthConfigWrapper
+	ConfigValues LinearConfigValues
+}
+
 type GithubService struct {
-	Config OauthConfigWrapper
+	Config GithubConfig
 }
 
 func getGithubConfig() *OauthConfig {
@@ -58,7 +68,7 @@ func GetGithubToken(externalAPITokenCollection *mongo.Collection, userID primiti
 }
 
 func (githubService GithubService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	authURL := githubService.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	authURL := githubService.Config.OauthConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
 }
 
@@ -76,7 +86,7 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := githubService.Config.Exchange(extCtx, *params.Oauth2Code)
+	token, err := githubService.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to fetch token from Github")
 		return errors.New("internal server error")
@@ -94,11 +104,11 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 	)
 	tokenClient := oauth2.NewClient(extCtx, tokenSource)
 	githubClient := github.NewClient(tokenClient)
-	githubUser, res, err := githubClient.Users.Get(extCtx, CurrentlyAuthedUserFilter)
+	githubAccountId, err := getGithubAccountId(extCtx, CurrentlyAuthedUserFilter, githubClient, githubService.Config.ConfigValues.UserInfoURL)
 
-	if err != nil || githubUser == nil {
+	if err != nil {
 		log.Error().Msg("failed to fetch Github user")
-		log.Error().Msgf("error: %s", res)
+		// log.Error().Msgf("error: %s", res)
 		return nil
 	}
 
@@ -113,7 +123,7 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 			UserID:         userID,
 			ServiceID:      TASK_SERVICE_ID_GITHUB,
 			Token:          string(tokenString),
-			AccountID:      fmt.Sprint(*githubUser.ID),
+			AccountID:      fmt.Sprint(githubAccountId),
 			DisplayID:      "Github",
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
@@ -129,4 +139,21 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 
 func (github GithubService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	return primitive.NilObjectID, nil, nil, errors.New("github does not support signup")
+}
+
+func getGithubAccountId(context context.Context, currentlyAuthedUserFilter string, githubClient *github.Client, overrideURL *string) (int64, error) {
+	if overrideURL != nil {
+		log.Error().Msg("override url is present")
+		overrideUrl, _ := url.Parse(*overrideURL)
+		githubClient.BaseURL = overrideUrl
+	}
+
+	githubUser, res, err := githubClient.Users.Get(context, CurrentlyAuthedUserFilter)
+
+	if err != nil || githubUser == nil {
+		log.Error().Msg("failed to fetch Github user")
+		log.Error().Msgf("error: %s", res)
+		return 0, errors.New("internal server error")
+	}
+	return githubUser.GetID(), nil
 }
