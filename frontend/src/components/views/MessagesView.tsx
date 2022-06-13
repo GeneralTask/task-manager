@@ -58,7 +58,9 @@ const MessagesView = () => {
     }, [params.thread, params.mailbox, JSON.stringify(threads)])
 
     useEffect(() => {
-        if (expandedThread) {
+        if (params.mailbox !== 'inbox' && params.mailbox !== 'archive') {
+            navigate(`/messages/inbox`)
+        } else if (expandedThread) {
             navigate(`/messages/${params.mailbox}/${expandedThread.id}`)
             if (unreadTimer.current) {
                 clearTimeout(unreadTimer.current)
