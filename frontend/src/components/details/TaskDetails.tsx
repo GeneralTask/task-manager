@@ -38,11 +38,12 @@ const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
     resize: none;
     outline: none;
     overflow: auto;
-    padding: ${Spacing.margin._8};
+    padding: ${Spacing.padding._8};
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
-    box-sizing: border-box;
+    line-height: ${Typography.xSmall.lineHeight};
+    /* box-sizing: border-box; */
     :focus {
         border: 1px solid ${Colors.gray._500};
     }
@@ -131,7 +132,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
         if (bodyRef.current && thread) {
             bodyRef.current.style.height = '0px'
             bodyRef.current.style.height =
-                bodyRef.current.scrollHeight > 300 ? '300px' : `${bodyRef.current.scrollHeight}px`
+                bodyRef.current.scrollHeight > 300 ? '300px' : `${bodyRef.current.scrollHeight - 16}px`
         }
     }, [bodyInput])
 
