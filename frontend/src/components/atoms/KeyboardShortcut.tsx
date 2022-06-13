@@ -28,6 +28,5 @@ interface KeyboardShortcutProps {
 }
 export default function KeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutProps): JSX.Element {
     const isKeyDown = useKeyboardShortcut(shortcut, onKeyPress, !!disabled, true)
-    const key = KEYBOARD_SHORTCUTS[shortcut]
-    return <KeyboardShortcutContainer isPressed={isKeyDown}>{key}</KeyboardShortcutContainer>
+    return <KeyboardShortcutContainer isPressed={isKeyDown}>{KEYBOARD_SHORTCUTS[shortcut]}</KeyboardShortcutContainer>
 }
