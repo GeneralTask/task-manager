@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         # run copies of the current job in parallel
-        containers: [1, 2]
+        containers: [1]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -36,6 +36,10 @@ jobs:
       - name: Install dependencies
         working-directory: frontend
         run: yarn install --frozen-lockfile
+
+      - name: Try Building  (just for funsies)
+        working-directory: frontend
+        run: yarn build
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
