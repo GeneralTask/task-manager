@@ -185,6 +185,7 @@ export const useCreateTaskFromThread = () => {
                         email_thread: {
                             id: '0',
                             deeplink: '',
+                            is_archived: false,
                             source: {
                                 account_id: '0',
                                 name: 'Gmail',
