@@ -23,6 +23,15 @@ const (
 	ChangesRequestedState     string = "CHANGES_REQUESTED"
 )
 
+const (
+	AddReviewersAction      string = "Add Reviewers"
+	FixMergeConflictsAction string = "Fix Merge Conflicts"
+	FixFailedCIAction       string = "Fix Failed CI"
+	AddressRequestedAction  string = "Address Requested Changes"
+	MergePRAction           string = "Merge PR"
+	WaitingOnReviewAction   string = "Waiting on Review"
+)
+
 type GithubPRSource struct {
 	Github GithubService
 }
@@ -277,21 +286,21 @@ func checksDidFail(checkRuns *github.ListCheckRunsResults) bool {
 
 func getPullRequestRequiredAciton(data GithubActionData) string {
 	if data.RequestedReviewers == 0 {
-		return "Add Reviewers"
+		return AddReviewersAction
 	}
 	if !data.IsMergeable {
-		return "Fix Merge Conflicts"
+		return FixMergeConflictsAction
 	}
 	if data.ChecksDidFail {
-		return "Fix Failed CI"
+		return FixFailedCIAction
 	}
 	if data.HaveRequestedChanges {
-		return "Address Requested Changes"
+		return AddressRequestedAction
 	}
 	if data.IsApproved {
-		return "Merge PR"
+		return MergePRAction
 	}
-	return "Waiting on Review"
+	return WaitingOnReviewAction
 }
 
 func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
