@@ -31,7 +31,7 @@ jobs:
       - name: Save build folder
         uses: actions/upload-artifact@v3
         with:
-          name: dist
+          name: build
           if-no-files-found: error
           path: frontend/dist
 
@@ -52,8 +52,17 @@ jobs:
       - name: Download the build folders
         uses: actions/download-artifact@v3
         with:
-          name: dist
+          name: build
           path: frontend/dist
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          runTests: false
+
+      - name: Install serve package
+        run: npm install -g serve
 
       - name: Spin up db
         working-directory: backend
@@ -67,7 +76,7 @@ jobs:
         uses: cypress-io/github-action@v4
         with:
           install: false
-          start: yarn start:test
+          start: serve -s build
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 120
           browser: chrome
