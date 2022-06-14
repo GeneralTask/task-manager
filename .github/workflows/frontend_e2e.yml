@@ -56,9 +56,6 @@ jobs:
           name: dist
           path: frontend/dist
       
-      - name: ls
-        run: ls
-
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
