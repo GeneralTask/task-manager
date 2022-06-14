@@ -25,6 +25,7 @@ jobs:
         with:
           # Disable running of tests within install job
           working-directory: frontend
+          runTests: false
           build: yarn build:test
 
       - name: Save build folder
