@@ -27,7 +27,7 @@ type GithubConfigValues struct {
 
 type GithubConfig struct {
 	OauthConfig  OauthConfigWrapper
-	ConfigValues LinearConfigValues
+	ConfigValues GithubConfigValues
 }
 
 type GithubService struct {
