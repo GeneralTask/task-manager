@@ -64,7 +64,6 @@ jobs:
 
       - name: Cypress run
         uses: cypress-io/github-action@v4
-        working-directory: frontend
         with:
           install: false
           start: yarn start:test
