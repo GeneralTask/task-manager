@@ -27,6 +27,14 @@ type GithubPRSource struct {
 	Github GithubService
 }
 
+type GithubActionData struct {
+	RequestedReviewers   int
+	IsMergeable          bool
+	IsApproved           bool
+	HaveRequestedChanges bool
+	ChecksDidFail        bool
+}
+
 func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
@@ -132,11 +140,13 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				return
 			}
 
-			requestedReviewersCount := getReviewerCount(reviewers, reviews)
-			haveRequestedChanges := reviewersHaveRequestedChanges(reviews)
-			checksDidFail := checksDidFail(checkRuns)
-			isMergeable := pullRequestFetch.GetMergeable()
-			isApproved := pullRequestIsApproved(reviews)
+			actionData := GithubActionData{
+				RequestedReviewers:   getReviewerCount(reviewers, reviews),
+				IsMergeable:          pullRequestFetch.GetMergeable(),
+				IsApproved:           pullRequestIsApproved(reviews),
+				HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
+				ChecksDidFail:        checksDidFail(checkRuns),
+			}
 
 			pullRequest := &database.Item{
 				TaskBase: database.TaskBase{
@@ -154,7 +164,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					Number:         *pullRequest.Number,
 					Author:         *pullRequest.User.Login,
 					Branch:         *pullRequest.Head.Ref,
-					RequiredAction: getPullRequestRequiredAciton(requestedReviewersCount, isMergeable, isApproved, haveRequestedChanges, checksDidFail),
+					RequiredAction: getPullRequestRequiredAciton(actionData),
 					CommentCount:   getCommentCount(comments, issueComments, reviews),
 				},
 				TaskType: database.TaskType{
@@ -265,20 +275,20 @@ func checksDidFail(checkRuns *github.ListCheckRunsResults) bool {
 	return false
 }
 
-func getPullRequestRequiredAciton(requestedReviewers int, isMergeable bool, isApproved bool, isRequestedChanges bool, checksDidFail bool) string {
-	if requestedReviewers == 0 {
+func getPullRequestRequiredAciton(data GithubActionData) string {
+	if data.RequestedReviewers == 0 {
 		return "Add Reviewers"
 	}
-	if !isMergeable {
+	if !data.IsMergeable {
 		return "Fix Merge Conflicts"
 	}
-	if checksDidFail {
+	if data.ChecksDidFail {
 		return "Fix Failed CI"
 	}
-	if isRequestedChanges {
+	if data.HaveRequestedChanges {
 		return "Address Requested Changes"
 	}
-	if isApproved {
+	if data.IsApproved {
 		return "Merge PR"
 	}
 	return "Waiting on Review"
