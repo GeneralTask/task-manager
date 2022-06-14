@@ -10,9 +10,6 @@ on:
 jobs:
   install:
     runs-on: ubuntu-latest
-    defaults:
-      uses:
-        working-directory: frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -28,14 +25,14 @@ jobs:
         with:
           # Disable running of tests within install job
           runTests: false
-          build: yarn build:test
+          build: cd frontend; yarn build:test
 
       - name: Save build folder
         uses: actions/upload-artifact@v2
         with:
           name: dist
           if-no-files-found: error
-          path: dist
+          path: frontend/dist
 
   build:
     runs-on: ubuntu-latest
