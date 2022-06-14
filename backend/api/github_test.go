@@ -102,7 +102,7 @@ func TestLinkGithubCallback(t *testing.T) {
 		(api.ExternalConfig.Github.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 
 		accountIdServer := testutils.GetMockAPIServer(t, http.StatusOK, GithubUserResponsePayload)
-		api.ExternalConfig.Github.ConfigValues.UserInfoURL = &accountIdServer.URL
+		api.ExternalConfig.Github.ConfigValues.BaseURL = &accountIdServer.URL
 		TestAuthorizeCallbackSuccessfulResponse(t, api, "/link/github/callback/", external.TASK_SERVICE_ID_GITHUB)
 	})
 }

@@ -22,7 +22,7 @@ import (
 )
 
 type GithubConfigValues struct {
-	UserInfoURL *string
+	BaseURL *string
 }
 
 type GithubConfig struct {
@@ -104,7 +104,7 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 		&oauth2.Token{AccessToken: token.AccessToken},
 	)
 	tokenClient := oauth2.NewClient(extCtx, tokenSource)
-	githubClient := getGithubClient(extCtx, tokenClient, githubService.Config.ConfigValues.UserInfoURL)
+	githubClient := getGithubClient(extCtx, tokenClient, githubService.Config.ConfigValues.BaseURL)
 	githubAccountID, err := getGithubAccountID(extCtx, CurrentlyAuthedUserFilter, githubClient)
 
 	if err != nil {
