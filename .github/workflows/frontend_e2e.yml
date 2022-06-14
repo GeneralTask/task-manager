@@ -73,12 +73,10 @@ jobs:
         working-directory: backend
         run: go run . &
 
-      - name: Sanity check
-        run: npx --yes cypress --version
-
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
+          build: npm i -D cypress
           install: false
           working-directory: frontend
           start: serve -s dist
