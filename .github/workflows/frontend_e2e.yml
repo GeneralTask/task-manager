@@ -20,19 +20,19 @@ jobs:
           node-version: 14
           runTests: false
 
-      - name: Save build folder
-        uses: actions/upload-artifact@v2
-        with:
-          name: dist
-          if-no-files-found: error
-          path: dist
-
       - name: Cypress install
         uses: cypress-io/github-action@v4
         with:
           # Disable running of tests within install job
           runTests: false
           build: yarn build:test
+
+      - name: Save build folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          if-no-files-found: error
+          path: dist
 
   build:
     runs-on: ubuntu-latest
