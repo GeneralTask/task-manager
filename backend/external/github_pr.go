@@ -274,11 +274,11 @@ func getPullRequestRequiredAciton(requestedReviewers int, isMergeable bool, isAp
 	if checksDidFail {
 		return "Fix Failed CI"
 	}
-	if isApproved && !isRequestedChanges {
-		return "Merge PR"
-	}
 	if isRequestedChanges {
 		return "Address Requested Changes"
+	}
+	if isApproved {
+		return "Merge PR"
 	}
 	return "Waiting on Review"
 }
