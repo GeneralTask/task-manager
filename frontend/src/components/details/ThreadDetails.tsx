@@ -8,7 +8,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import styled from 'styled-components'
 import toast from '../../utils/toast'
 import { useCreateTaskFromThread, useModifyThread } from '../../services/api-query-hooks'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { EmailList } from './email/EmailList'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import ReactTooltip from 'react-tooltip'
@@ -60,6 +60,7 @@ interface ThreadDetailsProps {
     thread: TEmailThread
 }
 const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
+    const params = useParams()
     const isUnread = useMemo(
         () => thread.emails.some((email) => email.is_unread),
         [JSON.stringify(thread.emails.map((email) => email.is_unread))]
@@ -108,6 +109,15 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
             message: `This thread was marked as ${!isUnread ? 'unread' : 'read'}.`,
         })
     }
+    const onClickArchive = () => {
+        modifyThread({
+            thread_id: thread.id,
+            is_archived: true,
+        })
+        toast({
+            message: 'This thread was archived.',
+        })
+    }
 
     return (
         <FlexColumnContainer>
@@ -127,6 +137,13 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         <Icon source={isUnread ? icons.mark_read : icons.mark_unread} size="small" />
                     </NoStyleButton>
                 </TooltipWrapper>
+                {params.mailbox !== 'archive' && (
+                    <TooltipWrapper inline dataTip="Archive" tooltipId="tooltip">
+                        <NoStyleButton onClick={onClickArchive}>
+                            <Icon source={icons.archive_purple} size="small" />
+                        </NoStyleButton>
+                    </TooltipWrapper>
+                )}
             </HeaderContainer>
             <EmailList thread={thread} />
         </FlexColumnContainer>

@@ -86,7 +86,13 @@ interface TCreateTaskFromThreadData {
 
 interface TModifyThreadData {
     thread_id: string
-    is_unread: boolean
+    is_unread?: boolean
+    is_archived?: boolean
+}
+
+interface TThreadQueryData {
+    pages: TEmailThread[][]
+    pageParams: unknown[]
 }
 
 export {
@@ -105,5 +111,6 @@ export {
     TMarkMessageReadData,
     TComposeMessageData,
     TCreateTaskFromThreadData,
-    TModifyThreadData
+    TModifyThreadData,
+    TThreadQueryData,
 }

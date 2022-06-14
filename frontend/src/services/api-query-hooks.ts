@@ -16,6 +16,7 @@ import {
     TPostFeedbackData,
     TReorderTaskData,
     TTaskModifyRequestBody,
+    TThreadQueryData,
 } from './query-payload-types'
 import {
     TEmail,
@@ -184,6 +185,7 @@ export const useCreateTaskFromThread = () => {
                         email_thread: {
                             id: '0',
                             deeplink: '',
+                            is_archived: false,
                             source: {
                                 account_id: '0',
                                 name: 'Gmail',
@@ -465,14 +467,14 @@ const modifyTaskSection = async (data: TModifyTaskSectionData) => {
 /**
  * THREADS QUERIES
  */
-export const useGetInfiniteThreads = () => {
-    return useInfiniteQuery<TEmailThread[]>('emailThreads', getInfiniteThreads, {
+export const useGetInfiniteThreads = (data: { isArchived: boolean }) => {
+    return useInfiniteQuery<TEmailThread[]>(['emailThreads', { isArchived: data.isArchived }], ({ pageParam = 1 }) => getInfiniteThreads(pageParam, data.isArchived), {
         getNextPageParam: (_, pages) => pages.length + 1,
     })
 }
-const getInfiniteThreads = async ({ pageParam = 1 }) => {
+const getInfiniteThreads = async (pageParam: number, isArchived: boolean) => {
     try {
-        const res = await apiClient.get(`/threads/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}`)
+        const res = await apiClient.get(`/threads/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}&is_archived=${isArchived}`)
         return res.data
     } catch {
         throw new Error('getInfiniteThreads failed')
@@ -496,28 +498,30 @@ export const useModifyThread = () => {
     return useMutation((data: TModifyThreadData) => modifyThread(data), {
         onMutate: async (data: TModifyThreadData) => {
             await queryClient.cancelQueries('emailThreads')
-            const queryData: {
-                pages: TEmailThread[][]
-                pageParams: unknown[]
-            } | undefined = queryClient.getQueryData('emailThreads')
+            const queryDataInbox: TThreadQueryData | undefined = queryClient.getQueryData(['emailThreads', { isArchived: false }])
+            const queryDataArchive: TThreadQueryData | undefined = queryClient.getQueryData(['emailThreads', { isArchived: true }])
 
-            if (!queryData) return
+            if (!queryDataInbox || !queryDataArchive) return
 
-            for (const page of queryData.pages) {
+            for (const page of [...queryDataInbox.pages, ...queryDataArchive.pages]) {
                 if (!page) continue
                 for (const thread of page) {
                     if (thread.id === data.thread_id) {
+                        if (data.is_archived !== undefined)
+                            thread.is_archived = data.is_archived
                         for (const email of thread.emails) {
-                            email.is_unread = data.is_unread
+                            if (data.is_unread !== undefined)
+                                email.is_unread = data.is_unread
                         }
                         break
                     }
                 }
             }
-            queryClient.setQueryData('emailThreads', queryData)
+            queryClient.setQueryData(['emailThreads', { isArchived: false }], queryDataInbox)
+            queryClient.setQueryData(['emailThreads', { isArchived: true }], queryDataArchive)
         },
         onSettled: () => {
-            queryClient.invalidateQueries('emailThreads')
+            queryClient.invalidateQueries(['emailThreads'])
         },
     })
 }

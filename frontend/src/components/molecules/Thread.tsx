@@ -93,7 +93,7 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     )
 
     const onClickHandler = useCallback(() => {
-        navigate(`/messages/${thread.id}`)
+        navigate(`/messages/${params.mailbox}/${thread.id}`)
     }, [params, thread])
 
     useKeyboardShortcut('select', onClickHandler, !isSelected)

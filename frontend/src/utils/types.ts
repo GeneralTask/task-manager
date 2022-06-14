@@ -125,6 +125,7 @@ export interface TEmailThread {
     id: string
     deeplink: string
     source: TMessageSource
+    is_archived: boolean
     emails: TEmail[]
 }
 
@@ -218,3 +219,5 @@ export interface TEmailComposeState {
     emailId: string | null // the id of the email to show the compose form for
     isPending?: boolean
 }
+
+export type TMailbox = 'inbox' | 'archive'
