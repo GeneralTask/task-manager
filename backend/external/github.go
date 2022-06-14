@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/rs/zerolog/log"
@@ -103,8 +104,8 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 		&oauth2.Token{AccessToken: token.AccessToken},
 	)
 	tokenClient := oauth2.NewClient(extCtx, tokenSource)
-	githubClient := github.NewClient(tokenClient)
-	githubAccountID, err := getGithubAccountID(extCtx, CurrentlyAuthedUserFilter, githubClient, githubService.Config.ConfigValues.UserInfoURL)
+	githubClient := getGithubClient(extCtx, tokenClient, githubService.Config.ConfigValues.UserInfoURL)
+	githubAccountID, err := getGithubAccountID(extCtx, CurrentlyAuthedUserFilter, githubClient)
 
 	if err != nil {
 		log.Error().Msg("failed to fetch Github user")
@@ -141,11 +142,17 @@ func (github GithubService) HandleSignupCallback(params CallbackParams) (primiti
 	return primitive.NilObjectID, nil, nil, errors.New("github does not support signup")
 }
 
-func getGithubAccountID(context context.Context, currentlyAuthedUserFilter string, githubClient *github.Client, overrideURL *string) (int64, error) {
+func getGithubClient(ctx context.Context, tokenClient *http.Client, overrideURL *string) *github.Client {
+	githubClient := github.NewClient(tokenClient)
 	if overrideURL != nil {
-		overrideUrl, _ := url.Parse(fmt.Sprintf("%s/", *overrideURL))
-		githubClient.BaseURL = overrideUrl
+		formattedURL, _ := url.Parse(fmt.Sprintf("%s/", *overrideURL))
+		githubClient.BaseURL = formattedURL
 	}
+
+	return githubClient
+}
+
+func getGithubAccountID(context context.Context, currentlyAuthedUserFilter string, githubClient *github.Client) (int64, error) {
 	githubUser, _, err := githubClient.Users.Get(context, CurrentlyAuthedUserFilter)
 
 	if err != nil || githubUser == nil {
