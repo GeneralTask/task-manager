@@ -78,7 +78,7 @@ jobs:
           start: npx serve -s dist
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 60
-          command: npx cypress run --parallel --record --config-file frontend/cypress.json
+          command: npx cypress run --config-file frontend/cypress.json --parallel --record
         env: 
           CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
