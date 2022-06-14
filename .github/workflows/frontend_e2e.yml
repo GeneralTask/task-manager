@@ -63,7 +63,7 @@ jobs:
           runTests: false
 
       - name: Install packages
-        run: yarn global add serve cypress
+        run: npm install -g serve cypress
 
       - name: Spin up db
         working-directory: backend
@@ -77,10 +77,11 @@ jobs:
         uses: cypress-io/github-action@v4
         with:
           install: false
-          start: serve -s frontend/dist
+          working-directory: frontend
+          start: serve -s dist
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 60
-          command: yarn cy:run --record --parallel --config-file cypress.json
+          command: cypress run --record --parallel --config-file cypress.json
         env: 
           CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
