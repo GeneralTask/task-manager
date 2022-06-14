@@ -28,6 +28,29 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 	})
 }
 
+func TestGetPullRequests(t *testing.T) {
+	t.Run("ExternalError", func(t *testing.T) {
+		userId := primitive.NewObjectID()
+		failedFetchUserServer := getMockServer(t, 401, `{}`, NoopRequestChecker)
+		serverURL := &failedFetchUserServer.URL
+		defer failedFetchUserServer.Close()
+
+		var pullRequests = make(chan PullRequestResult)
+		githubPR := GithubPRSource{
+			Github: GithubService{
+				Config: GithubConfig{
+					ConfigValues: GithubConfigValues{
+						BaseURL: serverURL,
+					},
+				},
+			},
+		}
+		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
+		result := <-pullRequests
+		assert.Error(t, result.Error)
+	})
+}
+
 func TestUserIsOwner(t *testing.T) {
 	githubUserId1 := int64(1)
 	githubUserId2 := int64(2)
