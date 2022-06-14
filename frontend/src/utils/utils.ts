@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import { TTask } from './types'
 import sanitizeHtml from 'sanitize-html'
+import he from 'he'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -21,10 +22,11 @@ export function resetOrderingIds(tasks: TTask[]) {
 }
 
 export const removeHTMLTags = (dirtyHTML: string) => {
-    return sanitizeHtml(dirtyHTML, {
+    const sanitized = sanitizeHtml(dirtyHTML, {
         allowedTags: [],
         allowedAttributes: {},
     })
+    return he.decode(sanitized)
 }
 
 export const getHumanTimeSinceDateTime = (date: DateTime) => {
