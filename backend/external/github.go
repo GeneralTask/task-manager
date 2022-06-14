@@ -25,7 +25,7 @@ type GithubConfigValues struct {
 }
 
 type GithubConfig struct {
-	OauthConfig OauthConfigWrapper
+	OauthConfig  OauthConfigWrapper
 	ConfigValues LinearConfigValues
 }
 
@@ -104,11 +104,11 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 	)
 	tokenClient := oauth2.NewClient(extCtx, tokenSource)
 	githubClient := github.NewClient(tokenClient)
-	githubAccountId, err := getGithubAccountId(extCtx, CurrentlyAuthedUserFilter, githubClient, githubService.Config.ConfigValues.UserInfoURL)
+	githubAccountID, err := getGithubAccountID(extCtx, CurrentlyAuthedUserFilter, githubClient, githubService.Config.ConfigValues.UserInfoURL)
 
 	if err != nil {
 		log.Error().Msg("failed to fetch Github user")
-		// log.Error().Msgf("error: %s", res)
+		log.Error().Msgf("error: %s", err)
 		return nil
 	}
 
@@ -123,7 +123,7 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 			UserID:         userID,
 			ServiceID:      TASK_SERVICE_ID_GITHUB,
 			Token:          string(tokenString),
-			AccountID:      fmt.Sprint(githubAccountId),
+			AccountID:      fmt.Sprint(githubAccountID),
 			DisplayID:      "Github",
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
@@ -141,18 +141,16 @@ func (github GithubService) HandleSignupCallback(params CallbackParams) (primiti
 	return primitive.NilObjectID, nil, nil, errors.New("github does not support signup")
 }
 
-func getGithubAccountId(context context.Context, currentlyAuthedUserFilter string, githubClient *github.Client, overrideURL *string) (int64, error) {
+func getGithubAccountID(context context.Context, currentlyAuthedUserFilter string, githubClient *github.Client, overrideURL *string) (int64, error) {
 	if overrideURL != nil {
-		log.Error().Msg("override url is present")
-		overrideUrl, _ := url.Parse(*overrideURL)
+		overrideUrl, _ := url.Parse(fmt.Sprintf("%s/", *overrideURL))
 		githubClient.BaseURL = overrideUrl
 	}
-
-	githubUser, res, err := githubClient.Users.Get(context, CurrentlyAuthedUserFilter)
+	githubUser, _, err := githubClient.Users.Get(context, CurrentlyAuthedUserFilter)
 
 	if err != nil || githubUser == nil {
 		log.Error().Msg("failed to fetch Github user")
-		log.Error().Msgf("error: %s", res)
+		log.Error().Msgf("error: %+v\n", err)
 		return 0, errors.New("internal server error")
 	}
 	return githubUser.GetID(), nil
