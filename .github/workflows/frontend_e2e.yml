@@ -78,7 +78,6 @@ jobs:
         with:
           build: npm i -D cypress
           install: false
-          working-directory: frontend
           start: serve -s dist
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 60
