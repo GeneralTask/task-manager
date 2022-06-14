@@ -84,7 +84,11 @@ jobs:
           start: serve -s dist
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 60
-          command: npx --yes cypress run --record --parallel --config-file cypress.json
+          browser: chrome
+          record: true
+          parallel: true
+          group: 'UI - Chrome'
+          command-prefix: npx --yes
         env: 
           CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
