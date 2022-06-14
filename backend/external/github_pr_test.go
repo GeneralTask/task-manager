@@ -64,10 +64,10 @@ func TestUserIsOwner(t *testing.T) {
 		ID: nil,
 	}
 	pullRequestUser1 := github.PullRequest{
-		User:&testGithubUser1,
+		User: &testGithubUser1,
 	}
 	pullRequestUser3 := github.PullRequest{
-		User:&testGithubUser3,
+		User: &testGithubUser3,
 	}
 
 	t.Run("UserIsOwner", func(t *testing.T) {
