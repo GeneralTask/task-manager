@@ -84,7 +84,7 @@ jobs:
           record: true
           parallel: true
           group: 'UI - Chrome'
-          # command: yarn cy:run --record --parallel
+          command: cypress run --record --parallel
         env: 
           CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
