@@ -1,28 +1,28 @@
-name: Frontend CI
+# name: Frontend CI
 
-on:
-  push:
-    branches: [master]
-  pull_request:
-    branches:
-      - "**"
+# on:
+#   push:
+#     branches: [master]
+#   pull_request:
+#     branches:
+#       - "**"
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    env:
-      REACT_APP_API_BASE_URL: http://localhost:8080
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 14
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     env:
+#       REACT_APP_API_BASE_URL: http://localhost:8080
+#     defaults:
+#       run:
+#         working-directory: frontend
+#     steps:
+#       - uses: actions/checkout@v2
+#       - uses: actions/setup-node@v2
+#         with:
+#           node-version: 14
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+#       - name: Install dependencies
+#         run: yarn install --frozen-lockfile
 
-      - name: Build app
-        run: yarn build
+#       - name: Build app
+#         run: yarn build
