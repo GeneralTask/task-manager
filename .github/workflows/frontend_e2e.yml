@@ -80,11 +80,7 @@ jobs:
           start: serve -s frontend/dist
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 60
-          browser: chrome
-          record: true
-          parallel: true
-          group: 'UI - Chrome'
-          command: cypress run --record --parallel
+          command: cd frontend; cypress run --record --parallel --config-file cypress.json
         env: 
           CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
