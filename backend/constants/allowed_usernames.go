@@ -9,4 +9,5 @@ var ALLOWED_USERNAMES = map[string]struct{}{
 	"nolan1299@gmail.com":     {},
 	"jack_hamilton@me.com":    {},
 	"mazin.bokhari@gmail.com": {},
+	"a.alhaffar@obytes.com":   {},
 }

@@ -30,26 +30,27 @@ type linkedEmailThread struct {
 }
 
 type TaskResult struct {
-	ID                primitive.ObjectID `json:"id"`
-	IDOrdering        int                `json:"id_ordering"`
-	Source            TaskSource         `json:"source"`
-	Deeplink          string             `json:"deeplink"`
-	Title             string             `json:"title"`
-	Body              string             `json:"body"`
-	Sender            string             `json:"sender"`
-	DueDate           string             `json:"due_date"`
-	TimeAllocation    int64              `json:"time_allocated"`
-	SentAt            string             `json:"sent_at"`
-	IsDone            bool               `json:"is_done"`
-	LinkedEmailThread *linkedEmailThread `json:"linked_email_thread,omitempty"`
+	ID                primitive.ObjectID  `json:"id"`
+	IDOrdering        int                 `json:"id_ordering"`
+	Source            TaskSource          `json:"source"`
+	Deeplink          string              `json:"deeplink"`
+	Title             string              `json:"title"`
+	Body              string              `json:"body"`
+	Sender            string              `json:"sender"`
+	DueDate           string              `json:"due_date"`
+	TimeAllocation    int64               `json:"time_allocated"`
+	SentAt            string              `json:"sent_at"`
+	IsDone            bool                `json:"is_done"`
+	LinkedEmailThread *linkedEmailThread  `json:"linked_email_thread,omitempty"`
+	ExternalStatus    string              `json:"external_status,omitempty"`
+	Comments          *[]database.Comment `json:"comments,omitempty"`
 }
 
 type TaskSection struct {
-	ID         primitive.ObjectID `json:"id"`
-	Name       string             `json:"name"`
-	Tasks      []*TaskResult      `json:"tasks"`
-	IsDone     bool               `json:"is_done"`
-	IsPriority bool               `json:"is_priority"`
+	ID     primitive.ObjectID `json:"id"`
+	Name   string             `json:"name"`
+	Tasks  []*TaskResult      `json:"tasks"`
+	IsDone bool               `json:"is_done"`
 }
 
 type Recipients struct {
@@ -66,13 +67,12 @@ type Recipient struct {
 type TaskGroupType string
 
 const (
-	ScheduledTask           TaskGroupType = "scheduled_task"
-	UnscheduledGroup        TaskGroupType = "unscheduled_group"
-	TaskSectionNamePriority string        = "🚀 Priority (read only)"
-	TaskSectionNameDefault  string        = "Default"
-	TaskSectionNameBlocked  string        = "Blocked"
-	TaskSectionNameBacklog  string        = "Backlog"
-	TaskSectionNameDone     string        = "Done"
+	ScheduledTask          TaskGroupType = "scheduled_task"
+	UnscheduledGroup       TaskGroupType = "unscheduled_group"
+	TaskSectionNameDefault string        = "Default"
+	TaskSectionNameBlocked string        = "Blocked"
+	TaskSectionNameBacklog string        = "Backlog"
+	TaskSectionNameDone    string        = "Done"
 )
 
 func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Item, map[string]bool, error) {
@@ -229,6 +229,8 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		SentAt:         t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		DueDate:        dueDate,
 		IsDone:         t.IsCompleted,
+		ExternalStatus: t.Status.State,
+		Comments:       t.Comments,
 	}
 
 	log.Debug().Interface("linkedMessage", t.LinkedMessage).Send()

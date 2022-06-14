@@ -69,23 +69,52 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 	}
 
 	var tasks []*database.Item
-	for _, task := range issuesQuery.Issues.Nodes {
-		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(task.CreatedAt))
+	for _, linearIssue := range issuesQuery.Issues.Nodes {
+		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
 		task := &database.Item{
 			TaskBase: database.TaskBase{
 				UserID:            userID,
-				IDExternal:        task.Id.(string),
+				IDExternal:        linearIssue.Id.(string),
 				IDTaskSection:     constants.IDTaskSectionDefault,
-				Deeplink:          string(task.Url),
+				Deeplink:          string(linearIssue.Url),
 				SourceID:          TASK_SOURCE_ID_LINEAR,
-				Title:             string(task.Title),
-				Body:              string(task.Description),
+				Title:             string(linearIssue.Title),
+				Body:              string(linearIssue.Description),
 				SourceAccountID:   accountID,
 				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 			},
 			TaskType: database.TaskType{
 				IsTask: true,
 			},
+			Task: database.Task{
+				Status: database.ExternalTaskStatus{
+					ExternalID: (linearIssue.State.Id).(string),
+					State:      string(linearIssue.State.Name),
+				},
+				CompletedStatus: database.ExternalTaskStatus{
+					ExternalID: (linearIssue.Team.MergeWorkflowState.Id).(string),
+					State:      string(linearIssue.Team.MergeWorkflowState.Name),
+				},
+			},
+		}
+		if len(linearIssue.Comments.Nodes) > 0 {
+			log.Info().Msgf("reading comments %+v", linearIssue.Title)
+			var dbComments []database.Comment
+			for _, linearComment := range linearIssue.Comments.Nodes {
+				commentCreatedAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearComment.CreatedAt))
+				dbComment := database.Comment{
+					Body: string(linearComment.Body),
+					User: database.ExternalUser{
+						ExternalID:  (linearComment.User.Id).(string),
+						Name:        string(linearComment.User.Name),
+						DisplayName: string(linearComment.User.DisplayName),
+						Email:       string(linearComment.User.Email),
+					},
+					CreatedAt: primitive.NewDateTimeFromTime(commentCreatedAt),
+				}
+				dbComments = append(dbComments, dbComment)
+			}
+			task.Task.Comments = &dbComments
 		}
 		isCompleted := false
 		dbTask, err := database.UpdateOrCreateTask(
@@ -94,13 +123,18 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 			task.IDExternal,
 			task.SourceID,
 			task,
-			database.TaskChangeableFields{
+			database.TaskItemChangeableFields{
 				Title:       &task.Title,
 				Body:        &task.TaskBase.Body,
 				IsCompleted: &isCompleted,
+				Task: &database.TaskChangeable{
+					Comments:        task.Comments,
+					Status:          &task.Status,
+					CompletedStatus: &task.CompletedStatus,
+				},
 			},
 			nil,
-			false,
+			true,
 		)
 		if err != nil {
 			log.Error().Err(err).Msg("could not create task")
@@ -121,11 +155,11 @@ func (linearTask LinearTaskSource) GetPullRequests(userID primitive.ObjectID, ac
 	result <- emptyPullRequestResult(nil)
 }
 
-func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (linearTask LinearTaskSource) GetTaskUpdateBody(updateFields *database.TaskChangeableFields) *LinearTasksUpdateBody {
+func (linearTask LinearTaskSource) GetTaskUpdateBody(updateFields *database.TaskItemChangeableFields) *LinearTasksUpdateBody {
 	return &LinearTasksUpdateBody{}
 }
 

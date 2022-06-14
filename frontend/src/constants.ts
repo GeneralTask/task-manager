@@ -43,17 +43,23 @@ export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 
 export const NO_EVENT_TITLE = '(no title)'
 
-export enum KEYBOARD_SHORTCUTS {
-    SELECT = 'Enter',
-    CLOSE = 'Escape',
-    NEXT = 'ArrowDown',
-    PREVIOUS = 'ArrowUp',
-    SHOW_DATE_PICKER = 'S',
-    SHOW_TIME_ESTIMATION_PICKER = 'F',
-    SHOW_LABEL_EDITOR = 'L',
-    CREATE_TASK = 'T',
-    REFRESH = 'R',
-    MARK_COMPLETE = 'D',
-    DOWN = 'ArrowDown',
-    UP = 'ArrowUp',
-}
+const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
+export const KEYBOARD_SHORTCUTS = Object.freeze({
+    close: 'Escape',
+    createTask: 'T',
+    down: 'ArrowDown',
+    forward: 'F',
+    markComplete: 'D',
+    next: 'ArrowDown',
+    previous: 'ArrowUp',
+    refresh: CMD_CTRL_KEY + '+R',
+    reply: 'R',
+    replyAll: 'Shift+R',
+    select: 'Enter',
+    showDatePicker: 'S',
+    showLabelEditor: 'L',
+    showTimeEstimationPicker: 'F',
+    up: 'ArrowUp',
+})
+
+export type TKeyboardShortcuts = keyof typeof KEYBOARD_SHORTCUTS

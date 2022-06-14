@@ -1,0 +1,186 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "core-deployment"
+  namespace: "prd-gtsk-uswest2"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "core"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "core"
+    spec:
+      containers:
+      - image: "257821106339.dkr.ecr.us-west-2.amazonaws.com/prd-gtsk-uswest2"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1024m"
+          limits:
+            memory: "2Gi"
+            cpu: "1024m"
+        imagePullPolicy: Always
+        name: "core"
+        env:
+          - name: ACCESS_CONTROL_ALLOW_ORIGIN
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: ACCESS_CONTROL_ALLOW_ORIGIN
+                optional: false
+
+          - name: ASANA_OAUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: ASANA_OAUTH_CLIENT_ID
+                optional: false
+
+          - name: ASANA_OAUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: ASANA_OAUTH_CLIENT_SECRET
+                optional: false
+
+          - name: COOKIE_DOMAIN
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: COOKIE_DOMAIN
+                optional: false
+
+          - name: ENVIRONMENT
+            value: "prod"
+
+          - name: GITHUB_OAUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: GITHUB_OAUTH_CLIENT_ID
+                optional: false
+
+          - name: GITHUB_OAUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: GITHUB_OAUTH_CLIENT_SECRET
+                optional: false
+
+          - name: GOOGLE_OAUTH_AUTHORIZE_REDIRECT_URL
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: GOOGLE_OAUTH_AUTHORIZE_REDIRECT_URL
+                optional: false
+
+          - name: GOOGLE_OAUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: GOOGLE_OAUTH_CLIENT_ID
+                optional: false
+
+          - name: GOOGLE_OAUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: GOOGLE_OAUTH_CLIENT_SECRET
+                optional: false
+
+          - name: GOOGLE_OAUTH_LOGIN_REDIRECT_URL
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: GOOGLE_OAUTH_LOGIN_REDIRECT_URL
+                optional: false
+
+          - name: HOME_URL
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: HOME_URL
+                optional: false
+
+          - name: JIRA_OAUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: JIRA_OAUTH_CLIENT_ID
+                optional: false
+
+          - name: JIRA_OAUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: JIRA_OAUTH_CLIENT_SECRET
+                optional: false
+
+          - name: LINEAR_OAUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: LINEAR_OAUTH_CLIENT_ID
+                optional: false
+
+          - name: LINEAR_OAUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: LINEAR_OAUTH_CLIENT_SECRET
+                optional: false
+
+          - name: MONGO_URI
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: MONGO_URI
+                optional: false
+
+          - name: MONGO_URI_MIGRATIONS
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: MONGO_URI_MIGRATIONS
+                optional: false
+
+          - name: SERVER_URL
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: SERVER_URL
+                optional: false
+
+          - name: SLACK_OAUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: SLACK_OAUTH_CLIENT_ID
+                optional: false
+
+          - name: SLACK_OAUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: SLACK_OAUTH_CLIENT_SECRET
+                optional: false
+
+          - name: TRELLO_OAUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: TRELLO_OAUTH_CLIENT_ID
+                optional: false
+
+          - name: TRELLO_OAUTH_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: TRELLO_OAUTH_CLIENT_SECRET
+                optional: false
+
+        ports:
+        - containerPort: 8080

@@ -153,6 +153,7 @@ const createTask = async (data: TCreateTaskData) => {
  */
 export const useCreateTaskFromThread = () => {
     const queryClient = useQueryClient()
+    const optimisticId = uuidv4()
 
     return useMutation((data: TCreateTaskFromThreadData) => createTaskFromThread(data), {
         onMutate: async (data: TCreateTaskFromThreadData) => {
@@ -161,7 +162,7 @@ export const useCreateTaskFromThread = () => {
             if (!sections) return
             sections[0].tasks = [
                 {
-                    id: '0',
+                    id: optimisticId,
                     id_ordering: 0,
                     title: data.title,
                     body: data.body,
@@ -181,7 +182,19 @@ export const useCreateTaskFromThread = () => {
                     recipients: {} as TRecipients,
                     linked_email_thread: {
                         linked_thread_id: data.thread_id,
-                        emails: []
+                        email_thread: {
+                            id: '0',
+                            deeplink: '',
+                            source: {
+                                account_id: '0',
+                                name: 'Gmail',
+                                logo: '',
+                                logo_v2: 'gmail',
+                                is_completable: false,
+                                is_replyable: true,
+                            },
+                            emails: []
+                        }
                     }
                 },
                 ...sections[0].tasks
