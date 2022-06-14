@@ -20,68 +20,71 @@ jobs:
           node-version: 14
           runTests: false
 
-      - name: Cypress install
-        uses: cypress-io/github-action@v4
-        with:
-          # Disable running of tests within install job
-          working-directory: frontend
-          runTests: false
-          build: yarn build:test
+      - name: Sanity check
+        run: npx --yes cypress --version
 
-      - name: Save build folder
-        uses: actions/upload-artifact@v3
-        with:
-          name: dist
-          if-no-files-found: error
-          path: frontend/dist
+  #     - name: Cypress install
+  #       uses: cypress-io/github-action@v4
+  #       with:
+  #         # Disable running of tests within install job
+  #         working-directory: frontend
+  #         runTests: false
+  #         build: yarn build:test
 
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      REACT_APP_API_BASE_URL: http://localhost:8080
-      DB_NAME: test
-    strategy:
-      fail-fast: false
-      matrix:
-        # run copies of the current job in parallel
-        containers: [1, 2]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  #     - name: Save build folder
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: dist
+  #         if-no-files-found: error
+  #         path: frontend/dist
+
+  # test:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     REACT_APP_API_BASE_URL: http://localhost:8080
+  #     DB_NAME: test
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       # run copies of the current job in parallel
+  #       containers: [1, 2]
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
       
-      - name: Download the build folders
-        uses: actions/download-artifact@v3
-        with:
-          name: dist
-          path: frontend/dist
+  #     - name: Download the build folders
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: dist
+  #         path: frontend/dist
       
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
-          runTests: false
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 14
+  #         runTests: false
 
-      - name: Install packages
-        run: npm install -g serve
+  #     - name: Install packages
+  #       run: npm install -g serve
 
-      - name: Spin up db
-        working-directory: backend
-        run: docker-compose up -d
+  #     - name: Spin up db
+  #       working-directory: backend
+  #       run: docker-compose up -d
 
-      - name: Start backend server
-        working-directory: backend
-        run: go run . &
+  #     - name: Start backend server
+  #       working-directory: backend
+  #       run: go run . &
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v4
-        with:
-          install: false
-          working-directory: frontend
-          start: serve -s dist
-          wait-on: 'http://localhost:3000'
-          wait-on-timeout: 60
-          command: npm_config_yes=true npx cypress run --record --parallel --config-file cypress.json
-        env: 
-          CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  #     - name: Cypress run
+  #       uses: cypress-io/github-action@v4
+  #       with:
+  #         install: false
+  #         working-directory: frontend
+  #         start: serve -s dist
+  #         wait-on: 'http://localhost:3000'
+  #         wait-on-timeout: 60
+  #         command: npm_config_yes=true npx cypress run --record --parallel --config-file cypress.json
+  #       env: 
+  #         CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
+  #         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
