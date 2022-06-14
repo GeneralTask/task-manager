@@ -17,6 +17,8 @@ import TooltipWrapper from '../atoms/TooltipWrapper'
 import ReactTooltip from 'react-tooltip'
 
 const THREAD_HEADER_HEIGHT = '118px'
+const MARK_AS_READ = 'Mark as Read'
+const MARK_AS_UNREAD = 'Mark as Unread'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
@@ -139,7 +141,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         <Icon source={icons.message_to_task} size="small" />
                     </NoStyleButton>
                 </TooltipWrapper>
-                <TooltipWrapper inline dataTip={isUnread ? 'Mark as Read' : 'Mark as Unread'} tooltipId="tooltip">
+                <TooltipWrapper inline dataTip={isUnread ? MARK_AS_READ : MARK_AS_UNREAD} tooltipId="tooltip">
                     <NoStyleButton onClick={onClickMarkAsRead}>
                         <Icon source={isUnread ? icons.mark_read : icons.mark_unread} size="small" />
                     </NoStyleButton>
