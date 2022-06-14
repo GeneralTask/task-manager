@@ -8,31 +8,31 @@ on:
       - "**"
 
 jobs:
-  install:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # install:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
       
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
-          runTests: false
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 14
+  #         runTests: false
 
-      - name: Save build folder
-        uses: actions/upload-artifact@v2
-        with:
-          name: build
-          if-no-files-found: error
-          path: build
+  #     - name: Save build folder
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: build
+  #         if-no-files-found: error
+  #         path: build
 
-      - name: Cypress install
-        uses: cypress-io/github-action@v4
-        with:
-          # Disable running of tests within install job
-          runTests: false
-          build: yarn build:test
+  #     - name: Cypress install
+  #       uses: cypress-io/github-action@v4
+  #       with:
+  #         # Disable running of tests within install job
+  #         runTests: false
+  #         build: yarn build:test
 
   build:
     runs-on: ubuntu-latest
