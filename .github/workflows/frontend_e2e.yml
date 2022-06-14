@@ -45,7 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         # run copies of the current job in parallel
-        containers: [1, 2, 3, 4, 5]
+        containers: [1, 2]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -63,7 +63,7 @@ jobs:
           runTests: false
 
       - name: Install packages
-        run: npm install -g serve cypress
+        run: yarn global add serve cypress
 
       - name: Spin up db
         working-directory: backend
@@ -80,7 +80,7 @@ jobs:
           start: serve -s frontend/dist
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 60
-          command: cd frontend; cypress run --record --parallel --config-file cypress.json
+          command: yarn cy:run --record --parallel --config-file cypress.json
         env: 
           CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
