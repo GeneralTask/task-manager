@@ -62,8 +62,8 @@ jobs:
           node-version: 14
           runTests: false
 
-      - name: Install serve package
-        run: npm install -g serve
+      - name: Install packages
+        run: npm install -g serve cypress
 
       - name: Spin up db
         working-directory: backend
