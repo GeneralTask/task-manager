@@ -77,7 +77,7 @@ jobs:
         uses: cypress-io/github-action@v4
         with:
           install: false
-          start: serve -s build
+          start: "serve -s build"
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 120
           browser: chrome
