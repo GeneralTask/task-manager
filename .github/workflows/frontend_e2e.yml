@@ -24,8 +24,9 @@ jobs:
         uses: cypress-io/github-action@v4
         with:
           # Disable running of tests within install job
+          working-directory: frontend
           runTests: false
-          build: cd frontend; yarn build:test
+          build: yarn build:test
 
       - name: Save build folder
         uses: actions/upload-artifact@v2
