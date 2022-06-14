@@ -31,7 +31,7 @@ jobs:
       - name: Save build folder
         uses: actions/upload-artifact@v3
         with:
-          name: build
+          name: dist
           if-no-files-found: error
           path: frontend/dist
 
@@ -53,7 +53,7 @@ jobs:
       - name: Download the build folders
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: dist
           path: frontend/dist
 
       - name: Setup Node
@@ -77,7 +77,7 @@ jobs:
         uses: cypress-io/github-action@v4
         with:
           install: false
-          start: build
+          start: serve -s dist
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 60
           browser: chrome
