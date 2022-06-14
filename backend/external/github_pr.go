@@ -19,6 +19,8 @@ import (
 const (
 	CurrentlyAuthedUserFilter string = ""
 	RepoOwnerTypeOrganization string = "Organization"
+	ApprovedState             string = "APPROVED"
+	ChangesRequestedState     string = "CHANGES_REQUESTED"
 )
 
 type GithubPRSource struct {
@@ -212,7 +214,7 @@ func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bo
 
 func pullRequestIsApproved(pullRequestReviews []*github.PullRequestReview) bool {
 	for _, review := range pullRequestReviews {
-		if review.State != nil && *review.State == "APPROVED" {
+		if review.State != nil && *review.State == ApprovedState {
 			return true
 		}
 	}
@@ -233,7 +235,7 @@ func getReviewerCount(reviewers *github.Reviewers, reviews []*github.PullRequest
 	submittedReviews := 0
 	for _, review := range reviews {
 		state := review.GetState()
-		if review.GetUser() != nil && (state == "APPROVED" || state == "CHANGES_REQUESTED") {
+		if review.GetUser() != nil && (state == ApprovedState || state == ChangesRequestedState) {
 			submittedReviews += 1
 		}
 	}
@@ -246,7 +248,7 @@ func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 		userToMostRecentReview[review.GetUser().GetLogin()] = review.GetState()
 	}
 	for _, review := range userToMostRecentReview {
-		if review == "CHANGES_REQUESTED" {
+		if review == ChangesRequestedState {
 			return true
 		}
 	}
