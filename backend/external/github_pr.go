@@ -256,6 +256,7 @@ func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 }
 
 func checksDidFail(checkRuns *github.ListCheckRunsResults) bool {
+	// check runs are individual tests that make up a check suite associated with a commit
 	for _, run := range checkRuns.CheckRuns {
 		if run.GetStatus() == "completed" && (run.GetConclusion() == "failure" || run.GetConclusion() == "timed_out") {
 			return true
