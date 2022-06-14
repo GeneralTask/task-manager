@@ -13,6 +13,10 @@ import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
 import Spinner from '../atoms/Spinner'
 import { useNavigate, useParams } from 'react-router-dom'
+import { EmailList } from './email/EmailList'
+
+// This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
+const BODY_HEIGHT_OFFSET = 16
 
 const DetailsViewContainer = styled.div`
     flex: 1;
@@ -29,19 +33,19 @@ const DetailsTopContainer = styled.div`
     align-items: center;
     height: 50px;
 `
-const BodyTextArea = styled.textarea`
-    flex: 1;
+const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
+    ${({ isFullHeight }) => isFullHeight && `flex: 1;`}
     display: block;
     background-color: inherit;
     border: 1px solid transparent;
     resize: none;
     outline: none;
     overflow: auto;
-    padding: ${Spacing.margin._8};
+    padding: ${Spacing.padding._8};
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
-    box-sizing: border-box;
+    line-height: ${Typography.xSmall.lineHeight};
     :focus {
         border: 1px solid ${Colors.gray._500};
     }
@@ -83,6 +87,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
+    const thread = task.linked_email_thread?.email_thread
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
     const bodyRef = useRef<HTMLTextAreaElement>(null)
@@ -124,6 +129,14 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                 titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
         }
     }, [titleInput])
+
+    useLayoutEffect(() => {
+        if (bodyRef.current && thread) {
+            bodyRef.current.style.height = '0px'
+            bodyRef.current.style.height =
+                bodyRef.current.scrollHeight > 300 ? '300px' : `${bodyRef.current.scrollHeight - BODY_HEIGHT_OFFSET}px`
+        }
+    }, [bodyInput])
 
     useEffect(() => {
         ReactTooltip.rebuild()
@@ -203,17 +216,21 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
             {task.isOptimistic ? (
                 <Spinner />
             ) : (
-                <BodyTextArea
-                    ref={bodyRef}
-                    data-testid="task-body-input"
-                    placeholder="Add task details"
-                    value={bodyInput}
-                    onChange={(e) => {
-                        setBodyInput(e.target.value)
-                        onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
-                    }}
-                    onKeyDown={(e) => e.stopPropagation()}
-                />
+                <>
+                    <BodyTextArea
+                        ref={bodyRef}
+                        data-testid="task-body-input"
+                        placeholder="Add task details"
+                        isFullHeight={!thread}
+                        value={bodyInput}
+                        onChange={(e) => {
+                            setBodyInput(e.target.value)
+                            onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
+                        }}
+                        onKeyDown={(e) => e.stopPropagation()}
+                    />
+                    {thread && <EmailList thread={thread} />}
+                </>
             )}
         </DetailsViewContainer>
     )
