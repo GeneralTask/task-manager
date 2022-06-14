@@ -1,4 +1,3 @@
-import { KEYBOARD_SHORTCUTS } from '../../../../constants'
 import { useKeyboardShortcut } from '../../../../hooks'
 import { Images } from '../../../../styles'
 import { EmailComposeType } from '../../../../utils/enums'
@@ -30,9 +29,9 @@ const EmailMainActions = ({ email, setThreadComposeState }: EmailMainActionsProp
             emailId: email.message_id,
         })
     }
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.REPLY, onReply)
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.REPLY_ALL, onReplyAll)
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.FORWARD, onForward)
+    useKeyboardShortcut('reply', onReply)
+    useKeyboardShortcut('replyAll', onReplyAll)
+    useKeyboardShortcut('forward', onForward)
 
     return (
         <Flex>

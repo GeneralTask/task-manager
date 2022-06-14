@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import ActionOption from '../molecules/ActionOption'
 import { Icon } from '../atoms/Icon'
-import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
 import { logos } from '../../styles/images'
@@ -183,7 +183,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                 isShown={labelEditorShown}
                                 setIsShown={setLabelEditorShown}
                                 task={task}
-                                keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
+                                keyboardShortcut="showLabelEditor"
                             />
                         </MarginLeftAuto>
                     </>
