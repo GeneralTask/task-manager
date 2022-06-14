@@ -149,9 +149,7 @@ func getGithubAccountID(context context.Context, currentlyAuthedUserFilter strin
 	githubUser, _, err := githubClient.Users.Get(context, CurrentlyAuthedUserFilter)
 
 	if err != nil || githubUser == nil {
-		log.Error().Msg("failed to fetch Github user")
-		log.Error().Msgf("error: %+v\n", err)
-		return 0, errors.New("internal server error")
+		return 0, err
 	}
 	return githubUser.GetID(), nil
 }
