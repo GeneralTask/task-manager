@@ -10,6 +10,9 @@ on:
 jobs:
   install:
     runs-on: ubuntu-latest
+    defaults:
+      uses:
+        working-directory: frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -22,7 +25,6 @@ jobs:
 
       - name: Cypress install
         uses: cypress-io/github-action@v4
-        working-directory: frontend
         with:
           # Disable running of tests within install job
           runTests: false
@@ -30,7 +32,6 @@ jobs:
 
       - name: Save build folder
         uses: actions/upload-artifact@v2
-        working-directory: frontend
         with:
           name: dist
           if-no-files-found: error
