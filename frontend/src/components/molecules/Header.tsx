@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Colors, Spacing, Typography } from '../../styles'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-query-hooks'
 import { Icon } from '../atoms/Icon'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { emptyFunction } from '../../utils/utils'
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
@@ -82,7 +81,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         e.stopPropagation()
     }
 
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.REFRESH, props.refetch ?? emptyFunction, props.refetch == null)
+    useKeyboardShortcut('refresh', props.refetch ?? emptyFunction, props.refetch == null)
 
     const headerText = isEditingTitle ? (
         <HeaderTextEditable

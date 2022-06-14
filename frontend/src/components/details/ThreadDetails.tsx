@@ -1,5 +1,5 @@
 import { Colors, Shadows, Spacing, Typography } from '../../styles'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { TEmailThread } from '../../utils/types'
 import { icons, logos } from '../../styles/images'
 
@@ -10,8 +10,12 @@ import toast from '../../utils/toast'
 import { useCreateTaskFromThread, useModifyThread } from '../../services/api-query-hooks'
 import { useNavigate } from 'react-router-dom'
 import { EmailList } from './email/EmailList'
+import TooltipWrapper from '../atoms/TooltipWrapper'
+import ReactTooltip from 'react-tooltip'
 
 const THREAD_HEADER_HEIGHT = '118px'
+const MARK_AS_READ = 'Mark as Read'
+const MARK_AS_UNREAD = 'Mark as Unread'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
@@ -63,6 +67,10 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     const navigate = useNavigate()
     const { mutate: createTaskFromThread } = useCreateTaskFromThread()
     const { mutate: modifyThread } = useModifyThread()
+    useEffect(() => {
+        ReactTooltip.hide()
+        ReactTooltip.rebuild()
+    }, [isUnread])
 
     const title = `${thread.emails[0]?.subject ?? ''} (${thread.emails.length ?? 0})`
     const recipient_emails = Array.from(
@@ -109,12 +117,16 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     <Title>{title}</Title>
                     <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
                 </HeaderTitleContainer>
-                <NoStyleButton onClick={onClickMarkAsTask}>
-                    <Icon source={icons.message_to_task} size="small" />
-                </NoStyleButton>
-                <NoStyleButton onClick={onClickMarkAsRead}>
-                    <Icon source={isUnread ? icons.mark_read : icons.mark_unread} size="small" />
-                </NoStyleButton>
+                <TooltipWrapper inline dataTip="Mark as Task" tooltipId="tooltip">
+                    <NoStyleButton onClick={onClickMarkAsTask}>
+                        <Icon source={icons.message_to_task} size="small" />
+                    </NoStyleButton>
+                </TooltipWrapper>
+                <TooltipWrapper inline dataTip={isUnread ? MARK_AS_READ : MARK_AS_UNREAD} tooltipId="tooltip">
+                    <NoStyleButton onClick={onClickMarkAsRead}>
+                        <Icon source={isUnread ? icons.mark_read : icons.mark_unread} size="small" />
+                    </NoStyleButton>
+                </TooltipWrapper>
             </HeaderContainer>
             <EmailList thread={thread} />
         </FlexColumnContainer>

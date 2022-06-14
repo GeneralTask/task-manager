@@ -1,4 +1,5 @@
 import { EmailComposeType } from "./enums"
+import { TPullRequestStatusColors } from "../components/pull-requests/styles"
 
 export type Datestring = string
 
@@ -134,7 +135,7 @@ export interface TPullRequest {
     number: number
     status: {
         text: string
-        color: string
+        color: TPullRequestStatusColors
     }
     author: string
     created_at: string

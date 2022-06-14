@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { useCreateTask } from '../../services/api-query-hooks'
 import { Colors, Images, Typography } from '../../styles'
 import { radius } from '../../styles/border'
@@ -63,7 +62,7 @@ const CreateNewTask = (props: CreateNewTaskProps) => {
                 onKeyDown={handleKeyDown}
                 onChange={(e) => setText(e.target.value)}
             />
-            <KeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CREATE_TASK} onKeyPress={() => inputRef.current?.focus()} />
+            <KeyboardShortcut shortcut="createTask" onKeyPress={() => inputRef.current?.focus()} />
         </CreateNewTaskContainer>
     )
 }

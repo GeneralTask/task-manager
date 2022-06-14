@@ -17,7 +17,7 @@ import (
 type TaskModifyParams struct {
 	IDOrdering    *int    `json:"id_ordering"`
 	IDTaskSection *string `json:"id_task_section"`
-	database.TaskChangeableFields
+	database.TaskItemChangeableFields
 }
 
 func (api *API) TaskModify(c *gin.Context) {
@@ -67,19 +67,19 @@ func (api *API) TaskModify(c *gin.Context) {
 	}
 
 	// check if all edit fields are empty
-	if !ValidateFields(c, &modifyParams.TaskChangeableFields, taskSourceResult) {
+	if !ValidateFields(c, &modifyParams.TaskItemChangeableFields, taskSourceResult) {
 		return
 	}
 
-	if modifyParams.TaskChangeableFields != (database.TaskChangeableFields{}) {
+	if modifyParams.TaskItemChangeableFields != (database.TaskItemChangeableFields{}) {
 		// update external task
-		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskChangeableFields)
+		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskItemChangeableFields)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to update external task source")
 			Handle500(c)
 			return
 		}
-		UpdateTaskInDB(c, taskID, userID, &modifyParams.TaskChangeableFields)
+		UpdateTaskInDB(c, taskID, userID, &modifyParams.TaskItemChangeableFields)
 	}
 
 	// handle reorder task
@@ -93,7 +93,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func ValidateFields(c *gin.Context, updateFields *database.TaskChangeableFields, taskSourceResult *external.TaskSourceResult) bool {
+func ValidateFields(c *gin.Context, updateFields *database.TaskItemChangeableFields, taskSourceResult *external.TaskSourceResult) bool {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted && !taskSourceResult.Details.IsCompletable {
 		c.JSON(400, gin.H{"detail": "cannot be marked done"})
 		return false
@@ -202,7 +202,7 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 	return &task, nil
 }
 
-func UpdateTaskInDB(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskChangeableFields) {
+func UpdateTaskInDB(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskItemChangeableFields) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {

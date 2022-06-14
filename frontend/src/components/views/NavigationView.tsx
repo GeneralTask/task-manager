@@ -41,7 +41,7 @@ const NavigationView = () => {
     const { data: taskSections } = useGetTasks()
     const { data: threadData } = useGetInfiniteThreads()
     const pullRequestRepositories = dummyRepositories
-    const { section: sectionIdParam, repository: repositoryIdParam } = useParams()
+    const { section: sectionIdParam } = useParams()
     const { pathname } = useLocation()
 
     const threads = useMemo(() => threadData?.pages.flat().filter((thread) => thread != null) ?? [], [threadData])
@@ -58,7 +58,6 @@ const NavigationView = () => {
                         threads={threads}
                         pullRequestRepositories={pullRequestRepositories}
                         sectionId={sectionIdParam || ''}
-                        repositoryId={repositoryIdParam || ''}
                         pathName={pathname.split('/')[1]}
                     />
                 )}
