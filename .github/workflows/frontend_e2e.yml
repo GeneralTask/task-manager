@@ -70,6 +70,7 @@ jobs:
         working-directory: backend
         run: go run . &
 
+
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
@@ -78,7 +79,7 @@ jobs:
           start: npx serve -s dist
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 60
-          command: npx cypress run --parallel --record --config projectId=ytcc3m,baseUrl=http://localhost:3000,supportFile=frontend/cypress/support,defaultCommandTimeout=10000
+          command: npx cypress run --parallel --record --config-file frontend/cypress.json --config supportFile=frontend/cypress/support
         env: 
           CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
