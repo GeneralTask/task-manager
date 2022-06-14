@@ -76,7 +76,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
-          build: npm i -D cypress serve
+          build: npm i -D cypress@9.5.3 serve
           install: false
           start: npx serve -s dist
           wait-on: 'http://localhost:3000'
