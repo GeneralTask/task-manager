@@ -86,7 +86,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 	tokenClient := oauth2.NewClient(extCtx, tokenSource)
-	githubClient = getGithubClient(extCtx,tokenClient, gitPR.Github.Config.ConfigValues.BaseURL)
+	githubClient = github.NewClient(tokenClient)
 
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()

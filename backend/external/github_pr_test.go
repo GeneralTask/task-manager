@@ -40,7 +40,7 @@ func TestGetPullRequests(t *testing.T) {
 			Github: GithubService{
 				Config: GithubConfig{
 					ConfigValues: GithubConfigValues{
-						BaseURL: serverURL,
+						GithubClientURL: serverURL,
 					},
 				},
 			},

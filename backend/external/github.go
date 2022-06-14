@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 
 	"github.com/rs/zerolog/log"
@@ -22,7 +21,13 @@ import (
 )
 
 type GithubConfigValues struct {
-	BaseURL *string
+	PullRequestListURL          *string
+	PullRequestListReviewURL    *string
+	PullRequestListReviewersURL *string
+	ListCheckRunsForRefURL      *string
+	UsersGetURL                 *string
+	RepositoriesListURL         *string
+	GithubClientURL             *string
 }
 
 type GithubConfig struct {
@@ -100,7 +105,7 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 		return errors.New("internal server error")
 	}
 
-	githubAccountID, err := getGithubAccountIDFromToken(extCtx, token, githubService.Config.ConfigValues.BaseURL, CurrentlyAuthedUserFilter)
+	githubAccountID, err := getGithubAccountIDFromToken(extCtx, token, CurrentlyAuthedUserFilter, githubService.Config.ConfigValues.UsersGetURL)
 	if err != nil {
 		log.Error().Msg("failed to fetch Github user")
 		log.Error().Msgf("error: %s", err)
@@ -136,25 +141,19 @@ func (github GithubService) HandleSignupCallback(params CallbackParams) (primiti
 	return primitive.NilObjectID, nil, nil, errors.New("github does not support signup")
 }
 
-func getGithubAccountIDFromToken(ctx context.Context, token *oauth2.Token, overrideURL *string, currentlyAuthedUserFilter string) (int64, error) {
+func getGithubAccountIDFromToken(ctx context.Context, token *oauth2.Token, currentlyAuthedUserFilter string, overrideURL *string) (int64, error) {
 	tokenSource := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token.AccessToken},
 	)
 	tokenClient := oauth2.NewClient(ctx, tokenSource)
-	githubClient := getGithubClient(ctx, tokenClient, overrideURL)
-	return getGithubAccountID(ctx, currentlyAuthedUserFilter, githubClient)
-}
-
-func getGithubClient(ctx context.Context, tokenClient *http.Client, overrideURL *string) *github.Client {
 	githubClient := github.NewClient(tokenClient)
-	if overrideURL != nil {
-		formattedURL, _ := url.Parse(fmt.Sprintf("%s/", *overrideURL))
-		githubClient.BaseURL = formattedURL
-	}
-
-	return githubClient
+	return getGithubAccountID(ctx, currentlyAuthedUserFilter, githubClient, overrideURL)
 }
-func getGithubAccountID(context context.Context, currentlyAuthedUserFilter string, githubClient *github.Client) (int64, error) {
+
+func getGithubAccountID(context context.Context, currentlyAuthedUserFilter string, githubClient *github.Client, overrideURL *string) (int64, error) {
+	if overrideURL != nil {
+		githubClient.BaseURL, _ = url.Parse(fmt.Sprintf("%s/", *overrideURL))
+	}
 	githubUser, _, err := githubClient.Users.Get(context, CurrentlyAuthedUserFilter)
 	if err != nil || githubUser == nil {
 		return 0, err
