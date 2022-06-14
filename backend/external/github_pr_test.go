@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/google/go-github/v45/github"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"github.com/google/go-github/v45/github"
 )
 
 func TestLoadGithubPullRequests(t *testing.T) {

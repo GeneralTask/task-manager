@@ -100,13 +100,7 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 		return errors.New("internal server error")
 	}
 
-	tokenSource := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token.AccessToken},
-	)
-	tokenClient := oauth2.NewClient(extCtx, tokenSource)
-	githubClient := getGithubClient(extCtx, tokenClient, githubService.Config.ConfigValues.BaseURL)
-	githubAccountID, err := getGithubAccountID(extCtx, CurrentlyAuthedUserFilter, githubClient)
-
+	githubAccountID, err := getGithubAccountIDFromToken(extCtx, token, githubService.Config.ConfigValues.BaseURL, CurrentlyAuthedUserFilter)
 	if err != nil {
 		log.Error().Msg("failed to fetch Github user")
 		log.Error().Msgf("error: %s", err)
@@ -142,6 +136,15 @@ func (github GithubService) HandleSignupCallback(params CallbackParams) (primiti
 	return primitive.NilObjectID, nil, nil, errors.New("github does not support signup")
 }
 
+func getGithubAccountIDFromToken(ctx context.Context, token *oauth2.Token, overrideURL *string, currentlyAuthedUserFilter string) (int64, error) {
+	tokenSource := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token.AccessToken},
+	)
+	tokenClient := oauth2.NewClient(ctx, tokenSource)
+	githubClient := getGithubClient(ctx, tokenClient, overrideURL)
+	return getGithubAccountID(ctx, currentlyAuthedUserFilter, githubClient)
+}
+
 func getGithubClient(ctx context.Context, tokenClient *http.Client, overrideURL *string) *github.Client {
 	githubClient := github.NewClient(tokenClient)
 	if overrideURL != nil {
@@ -151,10 +154,8 @@ func getGithubClient(ctx context.Context, tokenClient *http.Client, overrideURL 
 
 	return githubClient
 }
-
 func getGithubAccountID(context context.Context, currentlyAuthedUserFilter string, githubClient *github.Client) (int64, error) {
 	githubUser, _, err := githubClient.Users.Get(context, CurrentlyAuthedUserFilter)
-
 	if err != nil || githubUser == nil {
 		return 0, err
 	}
