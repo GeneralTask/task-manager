@@ -8,7 +8,7 @@ on:
       - "**"
 
 jobs:
-  install:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -35,7 +35,8 @@ jobs:
           if-no-files-found: error
           path: frontend/dist
 
-  build:
+  test:
+    needs: build
     runs-on: ubuntu-latest
     env:
       REACT_APP_API_BASE_URL: http://localhost:8080
