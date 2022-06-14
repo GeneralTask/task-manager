@@ -4,6 +4,7 @@
   "scripts": {
     "start": "webpack-dev-server --config ./webpack.dev.js",
     "build": "webpack --config ./webpack.prod.js",
+    "build:test": "webpack --config ./webpack.dev.js",
     "prettier:fix": "prettier --write",
     "lint": "eslint --fix",
     "test": "jest",
