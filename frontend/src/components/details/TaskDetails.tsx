@@ -15,6 +15,9 @@ import Spinner from '../atoms/Spinner'
 import { useNavigate, useParams } from 'react-router-dom'
 import { EmailList } from './email/EmailList'
 
+// This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
+const BODY_HEIGHT_OFFSET = 16
+
 const DetailsViewContainer = styled.div`
     flex: 1;
     display: flex;
@@ -131,7 +134,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
         if (bodyRef.current && thread) {
             bodyRef.current.style.height = '0px'
             bodyRef.current.style.height =
-                bodyRef.current.scrollHeight > 300 ? '300px' : `${bodyRef.current.scrollHeight - 16}px`
+                bodyRef.current.scrollHeight > 300 ? '300px' : `${bodyRef.current.scrollHeight - BODY_HEIGHT_OFFSET}px`
         }
     }, [bodyInput])
 
