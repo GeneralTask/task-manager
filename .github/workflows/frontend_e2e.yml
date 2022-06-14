@@ -23,9 +23,9 @@ jobs:
       - name: Save build folder
         uses: actions/upload-artifact@v2
         with:
-          name: build
+          name: dist
           if-no-files-found: error
-          path: build
+          path: dist
 
       - name: Cypress install
         uses: cypress-io/github-action@v4
@@ -51,8 +51,8 @@ jobs:
       - name: Download the build folders
         uses: actions/download-artifact@v2
         with:
-          name: build
-          path: build
+          name: dist
+          path: dist
 
       - name: Spin up db
         working-directory: backend
