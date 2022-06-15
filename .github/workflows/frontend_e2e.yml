@@ -45,7 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         # run copies of the current job in parallel
-        containers: [1, 2, 3, 4, 5]
+        containers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -75,12 +75,11 @@ jobs:
 
       - name: Install dependencies
         working-directory: frontend
-        run: npm i --no-save cypress@9.5.3 serve typescript @testing-library/cypress chance
+        run: npm i cypress@9.5.3 serve typescript @testing-library/cypress chance
 
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
-          # build: npm i -D cypress@9.5.3 serve typescript @testing-library/cypress chance
           working-directory: frontend
           install: false
           start: npx serve -s dist
