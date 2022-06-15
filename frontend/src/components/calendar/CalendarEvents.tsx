@@ -15,18 +15,19 @@ import {
     TimeAndHeaderContainer,
     TimeContainer,
 } from './CalendarEvents-styles'
-import React, { Ref, useLayoutEffect, useMemo, useRef } from 'react'
+import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
-import { TEvent } from '../../utils/types'
+import { DropProps, ItemTypes, TEvent } from '../../utils/types'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
 import { useAppSelector } from '../../redux/hooks'
 import { useGetEvents } from '../../services/api-query-hooks'
 import useInterval from '../../hooks/useInterval'
+import { DropTargetMonitor, useDrop } from 'react-dnd'
 
 function CalendarDayTable(): JSX.Element {
     const hourElements = Array(24)
@@ -110,11 +111,26 @@ const CalendarEvents = ({ date, numDays }: CalendarEventsProps) => {
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     }, [date])
-    const events: TEvent[] = []
+
     const { data: eventPreviousMonth, refetch: refetchPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
     const { data: eventsCurrentMonth, refetch: refetchCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
     const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
-    events.push(...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? []))
+
+    const allGroups = useMemo(() => {
+        const events = [...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? [])]
+        const allGroups: TEvent[][][] = []
+        for (let i = 0; i < numDays; i++) {
+            const startDate = date.plus({ days: i }).startOf('day')
+            const endDate = startDate.endOf('day')
+            const eventList = events?.filter(
+                (event) =>
+                    DateTime.fromISO(event.datetime_end) >= startDate &&
+                    DateTime.fromISO(event.datetime_start) <= endDate
+            )
+            allGroups.push(findCollisionGroups(eventList ?? []))
+        }
+        return allGroups
+    }, [date, eventPreviousMonth, eventsCurrentMonth, eventsNextMonth])
 
     useInterval(
         () => {
@@ -132,16 +148,36 @@ const CalendarEvents = ({ date, numDays }: CalendarEventsProps) => {
         }
     }, [])
 
-    const allGroups: TEvent[][][] = []
-    for (let i = 0; i < numDays; i++) {
-        const startDate = date.plus({ days: i }).startOf('day')
-        const endDate = startDate.endOf('day')
-        const eventList = events?.filter(
-            (event) =>
-                DateTime.fromISO(event.datetime_end) >= startDate && DateTime.fromISO(event.datetime_start) <= endDate
-        )
-        allGroups.push(findCollisionGroups(eventList ?? []))
-    }
+    const onDrop = useCallback(async (_item: DropProps, _monitor: DropTargetMonitor) => {
+        if (eventsContainerRef.current == null) return
+        // const dropDirection = await getDropDirection(monitor.getClientOffset()?.y ?? 0)
+
+        // const dropIndex = taskIndex + (dropDirection === DropDirection.Up ? 1 : 2)
+
+        // reorderTask({
+        //     taskId: item.id,
+        //     orderingId: dropIndex,
+        //     dropSectionId: sectionId,
+        // })
+    }, [])
+
+    const [_isOver, drop] = useDrop(
+        () => ({
+            accept: ItemTypes.TASK,
+            collect: (monitor) => {
+                return !!monitor.isOver()
+            },
+            drop: onDrop,
+            // hover: (_, monitor) => {
+            //     getDropDirection(monitor.getClientOffset()?.y ?? 0)
+            // },
+        }),
+        []
+    )
+
+    useEffect(() => {
+        drop(eventsContainerRef)
+    }, [eventsContainerRef])
 
     return (
         <AllDaysContainer ref={eventsContainerRef}>
