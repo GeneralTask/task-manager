@@ -145,7 +145,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR"))
 				return
 			}
-
 			checksDidFail, err := checksDidFail(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListCheckRunsForRefURL)
 			if err != nil {
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR check runs"))
