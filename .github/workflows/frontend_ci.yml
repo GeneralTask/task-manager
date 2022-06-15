@@ -22,7 +22,7 @@ jobs:
           node-version: 14
 
       - name: Install dependencies
-        run: yarn install --production=true # does not install devDependencies
+        run: yarn install --frozen-lockfile
 
       - name: Build app
         run: yarn build
