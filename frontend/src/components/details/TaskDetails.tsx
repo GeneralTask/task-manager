@@ -4,7 +4,7 @@ import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
-import { logos } from '../../styles/images'
+import { logos, statuses } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
@@ -70,6 +70,17 @@ const MarginLeftAuto = styled.div`
 `
 const MarginRight8 = styled.div`
     margin-right: ${Spacing.margin._8};
+`
+const StatusContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: ${Spacing.margin._8};
+    align-items: center;
+    font-size: ${Typography.xSmall.fontSize};
+    line-height: ${Typography.xSmall.lineHeight};
+    font-weight: ${Typography.weight._500};
+    color: ${Colors.gray._700};
+    margin-bottom: ${Spacing.margin._8};
 `
 
 const SYNC_MESSAGES = {
@@ -177,6 +188,13 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
     const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
 
+    const status = task.external_status
+        ? typeof task.external_status === 'string'
+            ? task.external_status
+            : task.external_status.state
+        : ''
+    const statusIcon = status.toLowerCase().replace(/ /g, '')
+
     return (
         <DetailsViewContainer data-testid="details-view-container">
             <DetailsTopContainer>
@@ -213,6 +231,12 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                 }}
             />
+            {task.external_status && (
+                <StatusContainer>
+                    <Icon source={statuses[statusIcon]} size="small" />
+                    <span>{task.external_status}</span>
+                </StatusContainer>
+            )}
             {task.isOptimistic ? (
                 <Spinner />
             ) : (
