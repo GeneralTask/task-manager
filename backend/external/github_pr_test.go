@@ -11,9 +11,10 @@ import (
 )
 
 const (
-	ClientResponsePayload   string = `{"id": 1,"plan": {}}`
-	UserResponsePayload     string = `{"login": "chad1616"}`
-	UserRepositoriesPayload string = `[{"id": 1234, "name": "MyFirstRepo", "owner": {"login": "chad6161"}}]`
+	ClientResponsePayload   string = `{"id": 1, "plan": {}}`
+	UserResponsePayload     string = `{"id": 1, "login": "chad1616"}`
+	UserRepositoriesPayload string = `[{"id": 1234, "name": "MyFirstRepo", "owner": {"login": "gigaChad123"}}]`
+	UserPullRequestsPayload string = `[{"id": 1, "number": 420, "user": {"login": "chat1616", "id": 1}, "requested_reviewers": [] }]`
 )
 
 func TestLoadGithubPullRequests(t *testing.T) {
@@ -36,6 +37,42 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 }
 
 func TestGetPullRequests(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		userId := primitive.NewObjectID()
+		githubClientURLServer := testutils.GetMockAPIServer(t, 200, ClientResponsePayload)
+		serverURL := &githubClientURLServer.URL
+
+		githubUserGetURLServer := testutils.GetMockAPIServer(t, 200, UserResponsePayload)
+		githubUserGetURL := &githubUserGetURLServer.URL
+
+		githubUserRepositoriesURLServer := testutils.GetMockAPIServer(t, 200, UserRepositoriesPayload)
+		githubUserRepositoriesURL := &githubUserRepositoriesURLServer.URL
+
+		githubUserPullRequestsURLServer := testutils.GetMockAPIServer(t, 200, UserPullRequestsPayload)
+		githubUserPullRequestsURL := &githubUserPullRequestsURLServer.URL
+
+		githubPullRequestReviewersURLServer := testutils.GetMockAPIServer(t, 200, `{"users": []}`)
+		githubPullRequestReviewersURL := &githubPullRequestReviewersURLServer.URL
+
+		var pullRequests = make(chan PullRequestResult)
+		githubPR := GithubPRSource{
+			Github: GithubService{
+				Config: GithubConfig{
+					ConfigValues: GithubConfigValues{
+						GithubClientURL:             serverURL,
+						UsersGetURL:                 githubUserGetURL,
+						RepositoriesListURL:         githubUserRepositoriesURL,
+						PullRequestListURL:          githubUserPullRequestsURL,
+						PullRequestListReviewersURL: githubPullRequestReviewersURL,
+					},
+				},
+			},
+		}
+		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
+		result := <-pullRequests
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 0, len(result.PullRequests))
+	})
 	t.Run("NoPullRequests", func(t *testing.T) {
 		userId := primitive.NewObjectID()
 		githubClientURLServer := testutils.GetMockAPIServer(t, 200, ClientResponsePayload)

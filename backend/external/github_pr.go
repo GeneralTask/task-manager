@@ -135,7 +135,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviews"))
 				return
 			}
-			requestedReviewers, err := getReviewerCount(extCtx, githubClient, repository, pullRequest, reviews)
+			requestedReviewers, err := getReviewerCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.PullRequestListReviewersURL)
 			if err != nil {
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviewers"))
 				return
@@ -260,6 +260,19 @@ func getGithubPullRequests(ctx context.Context, githubClient *github.Client, rep
 	return fetchedPullRequests, err
 }
 
+func getListReviewers(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.Reviewers, error) {
+	if overrideURL != nil {
+		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
+		githubClient.BaseURL = baseURl
+		if err != nil {
+			return nil, err
+		}
+	}
+	reviewers, _, err := githubClient.PullRequests.ListReviewers(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+	return reviewers, err
+
+}
+
 func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool {
 	return (githubUser.ID != nil &&
 		pullRequest.User.ID != nil &&
@@ -302,8 +315,8 @@ func getCommentCount(context context.Context, githubClient *github.Client, repos
 	return len(comments) + len(issueComments) + reviewCommentCount, nil
 }
 
-func getReviewerCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview) (int, error) {
-	reviewers, _, err := githubClient.PullRequests.ListReviewers(context, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+func getReviewerCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURL *string) (int, error) {
+	reviewers, err := getListReviewers(context, githubClient, repository, pullRequest, overrideURL)
 	if err != nil {
 		return 0, err
 	}
