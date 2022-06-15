@@ -260,7 +260,7 @@ func getGithubPullRequests(ctx context.Context, githubClient *github.Client, rep
 	return fetchedPullRequests, err
 }
 
-func getListReviewers(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.Reviewers, error) {
+func listReviewers(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.Reviewers, error) {
 	if overrideURL != nil {
 		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
 		githubClient.BaseURL = baseURl
@@ -271,6 +271,30 @@ func getListReviewers(ctx context.Context, githubClient *github.Client, reposito
 	reviewers, _, err := githubClient.PullRequests.ListReviewers(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	return reviewers, err
 
+}
+
+func listComments(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) ([]*github.PullRequestComment, error) {
+	if overrideURL != nil {
+		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
+		githubClient.BaseURL = baseURl
+		if err != nil {
+			return nil, err
+		}
+	}
+	comments, _, err := githubClient.PullRequests.ListComments(context, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+	return comments, err
+}
+
+func listCheckRunsForRef(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.ListCheckRunsResults, error) {
+	if overrideURL != nil {
+		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
+		githubClient.BaseURL = baseURl
+		if err != nil {
+			return nil, err
+		}
+	}
+	checkRuns, _, err := githubClient.Checks.ListCheckRunsForRef(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Head.SHA, nil)
+	return checkRuns, err
 }
 
 func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool {
@@ -297,18 +321,6 @@ func pullRequestIsApproved(pullRequestReviews []*github.PullRequestReview) bool 
 	return false
 }
 
-func listComments(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) ([]*github.PullRequestComment, error) {
-	if overrideURL != nil {
-		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
-		githubClient.BaseURL = baseURl
-		if err != nil {
-			return nil, err
-		}
-	}
-	comments, _, err := githubClient.PullRequests.ListComments(context, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
-	return comments, err
-}
-
 func getCommentCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURL *string) (int, error) {
 	comments, err := listComments(context, githubClient, repository, pullRequest, overrideURL)
 	if err != nil {
@@ -328,7 +340,7 @@ func getCommentCount(context context.Context, githubClient *github.Client, repos
 }
 
 func getReviewerCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURL *string) (int, error) {
-	reviewers, err := getListReviewers(context, githubClient, repository, pullRequest, overrideURL)
+	reviewers, err := listReviewers(context, githubClient, repository, pullRequest, overrideURL)
 	if err != nil {
 		return 0, err
 	}
@@ -353,18 +365,6 @@ func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 		}
 	}
 	return false
-}
-
-func listCheckRunsForRef(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.ListCheckRunsResults, error) {
-	if overrideURL != nil {
-		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
-		githubClient.BaseURL = baseURl
-		if err != nil {
-			return nil, err
-		}
-	}
-	checkRuns, _, err := githubClient.Checks.ListCheckRunsForRef(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Head.SHA, nil)
-	return checkRuns, err
 }
 
 func checksDidFail(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (bool, error) {
