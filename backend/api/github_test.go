@@ -9,7 +9,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/testutils"
 )
 
-
 func TestLinkGithub(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
 		TestAuthorizeCookieMissing(t, GetAPI(), "/link/github/")
@@ -55,8 +54,8 @@ func TestLinkGithubCallback(t *testing.T) {
 		api := GetAPI()
 		(api.ExternalConfig.Github.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 
-		accountIdServer := testutils.GetMockAPIServer(t, http.StatusOK, external.GithubUserResponsePayload)
-		api.ExternalConfig.Github.ConfigValues.UsersGetURL = &accountIdServer.URL
+		accountIdServer := testutils.GetMockAPIServer(t, http.StatusOK, external.UserResponsePayload)
+		api.ExternalConfig.Github.ConfigValues.GetUserURL = &accountIdServer.URL
 		TestAuthorizeCallbackSuccessfulResponse(t, api, "/link/github/callback/", external.TASK_SERVICE_ID_GITHUB)
 	})
 }
