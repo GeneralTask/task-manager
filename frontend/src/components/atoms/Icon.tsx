@@ -1,8 +1,7 @@
 import { Dimensions, Images } from '../../styles'
-
+import { TIconSize } from '../../styles/dimensions'
 import React from 'react'
 import styled from 'styled-components'
-import { TIconSize } from '../../styles/dimensions'
 
 const IconContainer = styled.div<{ width: string; height: string }>`
     width: ${(props) => props.width};

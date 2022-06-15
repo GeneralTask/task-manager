@@ -139,6 +139,7 @@ export interface TPullRequest {
         color: TPullRequestStatusColors
     }
     author: string
+    num_comments: number
     created_at: string
     branch: string
     link: string

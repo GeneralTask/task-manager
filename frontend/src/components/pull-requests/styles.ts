@@ -4,11 +4,12 @@ import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import styled from 'styled-components'
 
 export const ColumnWidths = {
-    title: '35%',
-    status: '25%',
-    author: '20%',
+    title: '30%',
+    status: '20%',
+    author: '15%',
+    comments: '10%',
     branch: '15%',
-    link: '5%',
+    link: '10%',
 }
 
 type TColumnWidths = keyof typeof ColumnWidths
@@ -90,6 +91,13 @@ export const TruncatedText = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+`
+
+export const CommentsCountContainer = styled.div`
+    display: flex;
+    align-items: flex-start;
+    gap: ${Spacing.margin._8};
+    line-height: 1;
 `
 
 export const BranchNameContainer = styled.div`

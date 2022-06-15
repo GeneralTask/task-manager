@@ -55,12 +55,13 @@ export const icons = Object.freeze({
     reply: '/images/reply.svg',
     replyAll: '/images/reply-all.svg',
     repository: '/images/repository.svg',
+    skinnyHamburger: '/images/skinny_hamburger.svg',
+    speechBubble: '/images/speech_bubble.svg',
     spinner: '/images/spinner.svg',
     task_complete: '/images/task_complete.png',
     task_incomplete: '/images/task_incomplete.png',
     timer: '/images/timer.png',
     trash: '/images/trash.png',
-    skinnyHamburger: '/images/skinny_hamburger.svg',
     x: '/images/x.svg',
 })
 
