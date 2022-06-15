@@ -14,7 +14,7 @@ const (
 	ClientResponsePayload   string = `{"id": 1, "plan": {}}`
 	UserResponsePayload     string = `{"id": 1, "login": "chad1616"}`
 	UserRepositoriesPayload string = `[{"id": 1234, "name": "MyFirstRepo", "owner": {"login": "gigaChad123"}}]`
-	UserPullRequestsPayload string = `[{"id": 1, "number": 420, "user": {"login": "chat1616", "id": 1}, "requested_reviewers": [] }]`
+	UserPullRequestsPayload string = `[{"id": 1, "number": 420, "user": {"login": "chat1616", "id": 1}, "requested_reviewers": [], "head": {"sha": "abc123"}}]`
 )
 
 func TestLoadGithubPullRequests(t *testing.T) {
@@ -54,6 +54,9 @@ func TestGetPullRequests(t *testing.T) {
 		githubPullRequestReviewersURLServer := testutils.GetMockAPIServer(t, 200, `{"users": []}`)
 		githubPullRequestReviewersURL := &githubPullRequestReviewersURLServer.URL
 
+		githubListCheckRunsForRefURLServer := testutils.GetMockAPIServer(t, 200, `{"total_count": 0, "check_runs": []}`)
+		githubListCheckRunsForRefURL := &githubListCheckRunsForRefURLServer.URL
+
 		var pullRequests = make(chan PullRequestResult)
 		githubPR := GithubPRSource{
 			Github: GithubService{
@@ -64,6 +67,7 @@ func TestGetPullRequests(t *testing.T) {
 						RepositoriesListURL:         githubUserRepositoriesURL,
 						PullRequestListURL:          githubUserPullRequestsURL,
 						PullRequestListReviewersURL: githubPullRequestReviewersURL,
+						ListCheckRunsForRefURL:      githubListCheckRunsForRefURL,
 					},
 				},
 			},
