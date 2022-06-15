@@ -54,7 +54,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: dist
-          path: dist
+          path: frontend/dist
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -73,18 +73,16 @@ jobs:
       - name: Copy Cypress config
         run: cp frontend/cypress.json .
 
-      - name: installyboi
-        run: npm i typescript -g
-
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
-          # build: npm i -D cypress@9.5.3 serve
+          build: npm i -D cypress@9.5.3 serve typescript
+          working-directory: frontend
           install: false
           start: npx serve -s dist
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 60
-          command: npx --yes cypress@9.5.3 run --parallel --record --config supportFile=frontend/cypress/support,integrationFolder=frontend/cypress/integration
+          command: npx cypress run --parallel --record --config supportFile=frontend/cypress/support,integrationFolder=frontend/cypress/integration
         env: 
           CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
