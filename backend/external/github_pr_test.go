@@ -44,10 +44,10 @@ func TestGetPullRequests(t *testing.T) {
 		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 200, UserPullRequestsPayload)
 		userPullRequestsURL := &githubUserPullRequestsServer.URL
 
-		githubPullRequestReviewersServer := testutils.GetMockAPIServer(t, 200, `{"users": []}`)
+		githubPullRequestReviewersServer := testutils.GetMockAPIServer(t, 200, PullRequestReviewersPayload)
 		pullRequestReviewersURL := &githubPullRequestReviewersServer.URL
 
-		githubListCheckRunsForRefServer := testutils.GetMockAPIServer(t, 200, `{"total_count": 0, "check_runs": []}`)
+		githubListCheckRunsForRefServer := testutils.GetMockAPIServer(t, 200, CheckRunsForRefPayload)
 		listCheckRunsForRefURL := &githubListCheckRunsForRefServer.URL
 
 		githubListPullRequestCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
