@@ -110,18 +110,10 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				historyThreadIDs = append(historyThreadIDs, message.ThreadId)
 			}
 			for _, messageAdded := range historyEntry.MessagesAdded {
-				if _, ok := netThreadEmailDelta[messageAdded.Message.ThreadId]; ok {
-					netThreadEmailDelta[messageAdded.Message.ThreadId] += 1
-				} else {
-					netThreadEmailDelta[messageAdded.Message.ThreadId] = 1
-				}
+				netThreadEmailDelta[messageAdded.Message.ThreadId] += 1
 			}
 			for _, messageDeleted := range historyEntry.MessagesDeleted {
-				if _, ok := netThreadEmailDelta[messageDeleted.Message.ThreadId]; ok {
-					netThreadEmailDelta[messageDeleted.Message.ThreadId] -= 1
-				} else {
-					netThreadEmailDelta[messageDeleted.Message.ThreadId] = -1
-				}
+				netThreadEmailDelta[messageDeleted.Message.ThreadId] -= 1
 			}
 		}
 
@@ -350,6 +342,7 @@ func handleThreadDeletion(db *mongo.Database, userID primitive.ObjectID, history
 
 			// if error in db fetch, fetch thread regardless
 			if dbThreadCount == -1 {
+				threadsToFetch = append(threadsToFetch, threadID)
 				continue
 			}
 			totalThreadCount := netThreadCount + dbThreadCount
@@ -358,10 +351,10 @@ func handleThreadDeletion(db *mongo.Database, userID primitive.ObjectID, history
 				if err != nil {
 					log.Error().Err(err).Send()
 				}
-				continue
 			}
+		} else {
+			threadsToFetch = append(threadsToFetch, threadID)
 		}
-		threadsToFetch = append(threadsToFetch, threadID)
 	}
 	return threadsToFetch
 }
