@@ -14,7 +14,7 @@ const (
 	ClientResponsePayload   string = `{"id": 1, "plan": {}}`
 	UserResponsePayload     string = `{"id": 1, "login": "chad1616"}`
 	UserRepositoriesPayload string = `[{"id": 1234, "name": "MyFirstRepo", "owner": {"login": "gigaChad123"}}]`
-	UserPullRequestsPayload string = `[{"id": 1, "number": 420, "user": {"login": "chat1616", "id": 1}, "requested_reviewers": [], "head": {"sha": "abc123"}}]`
+	UserPullRequestsPayload string = `[{"id": 1, "number": 420, "title": "Fix big oopsie", "created_at": "2011-01-26T19:01:12Z", "html_url": "github.com", "user": {"login": "chat1616", "id": 1}, "requested_reviewers": [], "head": {"sha": "abc123", "ref": "abc123"}}]`
 )
 
 func TestLoadGithubPullRequests(t *testing.T) {
@@ -57,6 +57,9 @@ func TestGetPullRequests(t *testing.T) {
 		githubListCheckRunsForRefURLServer := testutils.GetMockAPIServer(t, 200, `{"total_count": 0, "check_runs": []}`)
 		githubListCheckRunsForRefURL := &githubListCheckRunsForRefURLServer.URL
 
+		githubListPullRequestCommentsURLServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		githubListPullRequestCommentsURL := &githubListPullRequestCommentsURLServer.URL
+
 		var pullRequests = make(chan PullRequestResult)
 		githubPR := GithubPRSource{
 			Github: GithubService{
@@ -66,6 +69,7 @@ func TestGetPullRequests(t *testing.T) {
 						UsersGetURL:                 githubUserGetURL,
 						RepositoriesListURL:         githubUserRepositoriesURL,
 						PullRequestListURL:          githubUserPullRequestsURL,
+						ListPullRequestCommentsURL:  githubListPullRequestCommentsURL,
 						PullRequestListReviewersURL: githubPullRequestReviewersURL,
 						ListCheckRunsForRefURL:      githubListCheckRunsForRefURL,
 					},
@@ -75,7 +79,7 @@ func TestGetPullRequests(t *testing.T) {
 		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
 		assert.NoError(t, result.Error)
-		assert.Equal(t, 0, len(result.PullRequests))
+		assert.Equal(t, 1, len(result.PullRequests))
 	})
 	t.Run("NoPullRequests", func(t *testing.T) {
 		userId := primitive.NewObjectID()
