@@ -99,8 +99,8 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     useKeyboardShortcut('select', onClickHandler, !isSelected)
 
     const senders = thread.emails[0]?.sender.name
-    const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length})` : ''
-    const title = `${threadCountString} ${thread.emails[0]?.subject}`
+    const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length}) ` : ''
+    const title = `${threadCountString}${thread.emails[0]?.subject}`
     const bodytext = thread.emails[thread.emails.length - 1]?.body
     const sentAt = getHumanDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
     const isUnread = thread.emails.some((email) => email.is_unread)

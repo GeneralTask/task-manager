@@ -73,8 +73,8 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
         ReactTooltip.rebuild()
     }, [isUnread])
 
-    const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length})` : ''
-    const title = `${threadCountString} ${thread.emails[0]?.subject}`
+    const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length}) ` : ''
+    const title = `${threadCountString}${thread.emails[0]?.subject}`
     const recipient_emails = Array.from(
         new Set(
             thread.emails
