@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v2.0.0
 
       - name: install dependencies
-        run: yarn install --production=true # does not install devDependencies
+        run: "yarn install"
 
       - name: install wrangler
         run: "yarn global add @cloudflare/wrangler"
