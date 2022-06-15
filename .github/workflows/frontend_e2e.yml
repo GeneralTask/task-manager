@@ -23,7 +23,7 @@ jobs:
       - name: Cypress install
         uses: cypress-io/github-action@v4
         with:
-          # Disable running of tests within install job
+          install: yarn install --production=true # does not install devDependencies
           working-directory: frontend
           runTests: false
           build: yarn build:test
