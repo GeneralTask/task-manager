@@ -101,7 +101,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 	}
-	githubUser, err := getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.UsersGetURL)
+	githubUser, err := getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL)
 
 	if err != nil || githubUser == nil {
 		log.Error().Msg("failed to fetch Github user")
@@ -109,7 +109,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		return
 	}
 
-	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.RepositoriesListURL)
+	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL)
 	if err != nil {
 		log.Error().Msg("failed to fetch Github repos for user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
@@ -120,7 +120,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	for _, repository := range repositories {
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
-		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.PullRequestListURL) //githubClient.PullRequests.List(extCtx, *repository.Owner.Login, *repository.Name, nil)
+		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
 		if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 			return
@@ -135,7 +135,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviews"))
 				return
 			}
-			requestedReviewers, err := getReviewerCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.PullRequestListReviewersURL)
+			requestedReviewers, err := getReviewerCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
 			if err != nil {
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviewers"))
 				return

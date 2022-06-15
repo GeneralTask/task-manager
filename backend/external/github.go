@@ -21,14 +21,14 @@ import (
 )
 
 type GithubConfigValues struct {
-	PullRequestListURL          *string
-	PullRequestListReviewURL    *string
-	PullRequestListReviewersURL *string
+	GithubClientURL             *string
+	GetUserURL                  *string
+	ListPullRequestsURL         *string
+	ListPullRequestReviewURL    *string
+	ListPullRequestReviewersURL *string
 	ListCheckRunsForRefURL      *string
 	ListPullRequestCommentsURL  *string
-	UsersGetURL                 *string
-	RepositoriesListURL         *string
-	GithubClientURL             *string
+	ListRepositoriesURL         *string
 }
 
 type GithubConfig struct {
@@ -106,7 +106,7 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 		return errors.New("internal server error")
 	}
 
-	githubAccountID, err := getGithubAccountIDFromToken(extCtx, token, CurrentlyAuthedUserFilter, githubService.Config.ConfigValues.UsersGetURL)
+	githubAccountID, err := getGithubAccountIDFromToken(extCtx, token, CurrentlyAuthedUserFilter, githubService.Config.ConfigValues.GetUserURL)
 	if err != nil {
 		log.Error().Msg("failed to fetch Github user")
 		log.Error().Msgf("error: %s", err)
