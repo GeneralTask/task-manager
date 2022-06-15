@@ -129,6 +129,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		historyThreadIDs = removeDuplicateStr(historyThreadIDs)
 
 		// handle thread deletion
+		// TODO implement unit testing for this logic
 		historyThreadIDsToFetch := handleThreadDeletion(db, userID, historyThreadIDs, netThreadEmailDelta)
 
 		// get emails from the thread
@@ -346,9 +347,6 @@ func handleThreadDeletion(db *mongo.Database, userID primitive.ObjectID, history
 		// if thread mentioned in additions/deletions, fetch, otherwise simply fetch updates
 		if netThreadCount, ok := netThreadEmailDelta[threadID]; ok {
 			dbThreadCount := getDBThreadCount(db, userID, threadID)
-
-			log.Print("db count: %v", dbThreadCount)
-			log.Print("net count: %v", netThreadCount)
 
 			// if error in db fetch, fetch thread regardless
 			if dbThreadCount == -1 {
