@@ -25,6 +25,8 @@ const (
 	TASK_SOURCE_ID_LINEAR      = "linear_task"
 	TASK_SOURCE_ID_SLACK_SAVED = "slack"
 )
+const GithubUserResponsePayload string = `{"id": 1,"plan": {}}`
+
 
 type Config struct {
 	Github                GithubConfig

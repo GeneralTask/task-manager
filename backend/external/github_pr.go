@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -61,36 +62,47 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 	var githubClient *github.Client
 	var err error
-
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		result <- emptyPullRequestResult(err)
-		return
-	}
-	defer dbCleanup()
-
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
-	if token == nil {
-		log.Error().Msg("failed to fetch Github API token")
-		result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
-		return
-	}
-	if err != nil {
-		result <- emptyPullRequestResult(err)
-		return
-	}
-	tokenSource := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token.AccessToken},
-	)
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	tokenClient := oauth2.NewClient(extCtx, tokenSource)
-	githubClient = github.NewClient(tokenClient)
+	db, dbCleanup, err := database.GetDBConnection()
+	defer dbCleanup()
 
-	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
-	defer cancel()
-	githubUser, _, err := githubClient.Users.Get(extCtx, CurrentlyAuthedUserFilter)
+	if gitPR.Github.Config.ConfigValues.GithubClientURL != nil {
+		githubClient = github.NewClient(nil)
+		githubClient.BaseURL, err = url.Parse(*gitPR.Github.Config.ConfigValues.GithubClientURL)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to parse github client url")
+			result <- emptyPullRequestResult(err)
+			return
+		}
+	} else {
+		if err != nil {
+			result <- emptyPullRequestResult(err)
+			return
+		}
+	
+		externalAPITokenCollection := database.GetExternalTokenCollection(db)
+		token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
+		if token == nil {
+			log.Error().Msg("failed to fetch Github API token")
+			result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
+			return
+		}
+		if err != nil {
+			result <- emptyPullRequestResult(err)
+			return
+		}
+		tokenSource := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: token.AccessToken},
+		)
+
+		tokenClient := oauth2.NewClient(extCtx, tokenSource)
+		githubClient = github.NewClient(tokenClient)
+		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		defer cancel()
+	}
+	githubUser, err := getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.UsersGetURL)
+	
 	if err != nil || githubUser == nil {
 		log.Error().Msg("failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
@@ -211,6 +223,19 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		Error:        nil,
 	}
 }
+
+func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) (*github.User, error) {
+	if overrideURL != nil {
+		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
+		githubClient.BaseURL = baseURl
+		if err != nil {
+			return nil, err
+		}
+	}
+	githubUser, _, err := githubClient.Users.Get(ctx, currentlyAuthedUserFilter)
+	return githubUser, err
+}
+
 
 func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool {
 	return (githubUser.ID != nil &&

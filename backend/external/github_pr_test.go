@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/google/go-github/v45/github"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -29,6 +30,25 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 }
 
 func TestGetPullRequests(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		userId := primitive.NewObjectID()
+		githubClientURLServer := testutils.GetMockAPIServer(t, 200, GithubUserResponsePayload)
+		serverURL := &githubClientURLServer.URL
+
+		var pullRequests = make(chan PullRequestResult)
+		githubPR := GithubPRSource{
+			Github: GithubService{
+				Config: GithubConfig{
+					ConfigValues: GithubConfigValues{
+						GithubClientURL: serverURL,
+					},
+				},
+			},
+		}
+		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
+		result := <-pullRequests
+		assert.NoError(t, result.Error)
+	})
 	t.Run("ExternalError", func(t *testing.T) {
 		userId := primitive.NewObjectID()
 		failedFetchUserServer := getMockServer(t, 401, `{}`, NoopRequestChecker)
