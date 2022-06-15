@@ -199,6 +199,7 @@ type Comment struct {
 type ExternalTaskStatus struct {
 	ExternalID string `bson:"external_id"`
 	State      string `bson:"state"`
+	Type       string `bson:"type"`
 }
 
 type Task struct {
