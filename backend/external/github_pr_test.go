@@ -30,17 +30,25 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 }
 
 func TestGetPullRequests(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
+	t.Run("NoRepositories", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		githubClientURLServer := testutils.GetMockAPIServer(t, 200, GithubUserResponsePayload)
+		githubClientURLServer := testutils.GetMockAPIServer(t, 200, GithubClientResponsePayload)
 		serverURL := &githubClientURLServer.URL
+
+		githubUserGetURLServer := testutils.GetMockAPIServer(t, 200, GithubUserResponsePayload)
+		githubUserGetURL := &githubUserGetURLServer.URL
+
+		githubUserRepositoriesURLServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		githubUserRepositoriesURL := &githubUserRepositoriesURLServer.URL
 
 		var pullRequests = make(chan PullRequestResult)
 		githubPR := GithubPRSource{
 			Github: GithubService{
 				Config: GithubConfig{
 					ConfigValues: GithubConfigValues{
-						GithubClientURL: serverURL,
+						GithubClientURL:     serverURL,
+						UsersGetURL:         githubUserGetURL,
+						RepositoriesListURL: githubUserRepositoriesURL,
 					},
 				},
 			},
