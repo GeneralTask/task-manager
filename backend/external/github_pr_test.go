@@ -56,6 +56,7 @@ func TestGetPullRequests(t *testing.T) {
 		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
 		assert.NoError(t, result.Error)
+		assert.Equal(t, 0, len(result.PullRequests))
 	})
 	t.Run("ExternalError", func(t *testing.T) {
 		userId := primitive.NewObjectID()
