@@ -10,6 +10,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+const (
+	ClientResponsePayload   string = `{"id": 1,"plan": {}}`
+	UserResponsePayload     string = `{"login": "chad1616"}`
+	UserRepositoriesPayload string = `[{"id": 1234, "name": "MyFirstRepo", "owner": {"login": "chad6161"}}]`
+)
+
 func TestLoadGithubPullRequests(t *testing.T) {
 	t.Run("BadIssuesResponse", func(t *testing.T) {})
 	t.Run("Success", func(t *testing.T) {})
@@ -30,12 +36,44 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 }
 
 func TestGetPullRequests(t *testing.T) {
-	t.Run("NoRepositories", func(t *testing.T) {
+	t.Run("NoPullRequests", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		githubClientURLServer := testutils.GetMockAPIServer(t, 200, GithubClientResponsePayload)
+		githubClientURLServer := testutils.GetMockAPIServer(t, 200, ClientResponsePayload)
 		serverURL := &githubClientURLServer.URL
 
-		githubUserGetURLServer := testutils.GetMockAPIServer(t, 200, GithubUserResponsePayload)
+		githubUserGetURLServer := testutils.GetMockAPIServer(t, 200, UserResponsePayload)
+		githubUserGetURL := &githubUserGetURLServer.URL
+
+		githubUserRepositoriesURLServer := testutils.GetMockAPIServer(t, 200, UserRepositoriesPayload)
+		githubUserRepositoriesURL := &githubUserRepositoriesURLServer.URL
+
+		githubUserPullRequestsURLServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		githubUserPullRequestsURL := &githubUserPullRequestsURLServer.URL
+
+		var pullRequests = make(chan PullRequestResult)
+		githubPR := GithubPRSource{
+			Github: GithubService{
+				Config: GithubConfig{
+					ConfigValues: GithubConfigValues{
+						GithubClientURL:     serverURL,
+						UsersGetURL:         githubUserGetURL,
+						RepositoriesListURL: githubUserRepositoriesURL,
+						PullRequestListURL:  githubUserPullRequestsURL,
+					},
+				},
+			},
+		}
+		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
+		result := <-pullRequests
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 0, len(result.PullRequests))
+	})
+	t.Run("NoRepositories", func(t *testing.T) {
+		userId := primitive.NewObjectID()
+		githubClientURLServer := testutils.GetMockAPIServer(t, 200, ClientResponsePayload)
+		serverURL := &githubClientURLServer.URL
+
+		githubUserGetURLServer := testutils.GetMockAPIServer(t, 200, UserResponsePayload)
 		githubUserGetURL := &githubUserGetURLServer.URL
 
 		githubUserRepositoriesURLServer := testutils.GetMockAPIServer(t, 200, `[]`)

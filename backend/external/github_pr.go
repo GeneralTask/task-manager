@@ -120,7 +120,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	for _, repository := range repositories {
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
-		fetchedPullRequests, _, err := githubClient.PullRequests.List(extCtx, *repository.Owner.Login, *repository.Name, nil)
+		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.PullRequestListURL) //githubClient.PullRequests.List(extCtx, *repository.Owner.Login, *repository.Name, nil)
 		if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 			return
@@ -246,6 +246,18 @@ func getGithubRepositories(ctx context.Context, githubClient *github.Client, cur
 	}
 	repositories, _, err := githubClient.Repositories.List(ctx, currentlyAuthedUserFilter, nil)
 	return repositories, err
+}
+
+func getGithubPullRequests(ctx context.Context, githubClient *github.Client, repository *github.Repository, overrideURL *string) ([]*github.PullRequest, error) {
+	if overrideURL != nil {
+		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
+		githubClient.BaseURL = baseURl
+		if err != nil {
+			return nil, err
+		}
+	}
+	fetchedPullRequests, _, err := githubClient.PullRequests.List(ctx, *repository.Owner.Login, *repository.Name, nil)
+	return fetchedPullRequests, err
 }
 
 func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool {
