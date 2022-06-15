@@ -43,10 +43,9 @@ export const EmailList = ({ thread }: EmailListProps) => {
                                 sourceAccountId={thread.source.account_id}
                             />
                             {composeState.emailId === thread.emails[0].message_id &&
-                                0 !== thread.emails.length - 1 &&
                                 composeState.emailComposeType != null && (
                                     <EmailCompose
-                                        email={thread.emails[thread?.emails.length - 1]}
+                                        email={thread.emails[0]}
                                         composeType={composeState.emailComposeType}
                                         sourceAccountId={thread.source.account_id}
                                         isPending={!!composeState.isPending}
@@ -80,7 +79,7 @@ export const EmailList = ({ thread }: EmailListProps) => {
                                 index !== thread.emails.length - 1 &&
                                 composeState.emailComposeType != null && (
                                     <EmailCompose
-                                        email={thread.emails[thread?.emails.length - 1]}
+                                        email={email}
                                         composeType={composeState.emailComposeType}
                                         sourceAccountId={thread.source.account_id}
                                         isPending={!!composeState.isPending}
