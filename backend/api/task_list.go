@@ -234,11 +234,14 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		SentAt:         t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		DueDate:        dueDate,
 		IsDone:         t.IsCompleted,
-		ExternalStatus: &externalStatus{
+		Comments:       t.Comments,
+	}
+
+	if t.Status != (database.ExternalTaskStatus{}) {
+		taskResult.ExternalStatus = &externalStatus{
 			State: t.Status.State,
 			Type:  t.Status.Type,
-		},
-		Comments: t.Comments,
+		}
 	}
 
 	log.Debug().Interface("linkedMessage", t.LinkedMessage).Send()
