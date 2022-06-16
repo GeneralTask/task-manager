@@ -37,7 +37,7 @@ type GithubPRSource struct {
 	Github GithubService
 }
 
-type GithubActionData struct {
+type GithubPRData struct {
 	RequestedReviewers   int
 	IsMergeable          bool
 	IsApproved           bool
@@ -156,7 +156,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				return
 			}
 
-			actionData := GithubActionData{
+			pullRequestData := GithubPRData{
 				RequestedReviewers:   requestedReviewers,
 				IsMergeable:          pullRequestFetch.GetMergeable(),
 				IsApproved:           pullRequestIsApproved(reviews),
@@ -180,7 +180,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					Number:         *pullRequest.Number,
 					Author:         *pullRequest.User.Login,
 					Branch:         *pullRequest.Head.Ref,
-					RequiredAction: getPullRequestRequiredAciton(actionData),
+					RequiredAction: getPullRequestRequiredAciton(pullRequestData),
 					CommentCount:   commentCount,
 				},
 				TaskType: database.TaskType{
@@ -381,7 +381,7 @@ func checksDidFail(context context.Context, githubClient *github.Client, reposit
 	return false, nil
 }
 
-func getPullRequestRequiredAciton(data GithubActionData) string {
+func getPullRequestRequiredAciton(data GithubPRData) string {
 	if data.RequestedReviewers == 0 {
 		return AddReviewersAction
 	}
