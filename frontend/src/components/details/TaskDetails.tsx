@@ -233,8 +233,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
             />
             {task.external_status && (
                 <StatusContainer>
-                    <Icon source={statuses[statusIcon]} size="small" />
-                    <span>{task.external_status}</span>
+                    <Icon source={statuses[statusIcon]} size="small" /> {status}
                 </StatusContainer>
             )}
             {task.isOptimistic ? (
