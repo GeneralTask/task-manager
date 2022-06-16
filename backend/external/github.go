@@ -150,7 +150,7 @@ func (github GithubService) HandleSignupCallback(params CallbackParams) (primiti
 	return primitive.NilObjectID, nil, nil, errors.New("github does not support signup")
 }
 
-func getGithubClient(ctx context.Context, token *oauth2.Token) *github.Client {
+func getGithubClientFromToken(ctx context.Context, token *oauth2.Token) *github.Client {
 	tokenSource := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token.AccessToken},
 	)
@@ -159,7 +159,7 @@ func getGithubClient(ctx context.Context, token *oauth2.Token) *github.Client {
 }
 
 func getGithubAccountIDFromToken(ctx context.Context, token *oauth2.Token, currentlyAuthedUserFilter string, overrideURL *string) (int64, error) {
-	githubClient := getGithubClient(ctx, token)
+	githubClient := getGithubClientFromToken(ctx, token)
 	return getGithubAccountID(ctx, currentlyAuthedUserFilter, githubClient, overrideURL)
 }
 
