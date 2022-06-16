@@ -4,7 +4,7 @@ import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
-import { logos, statuses } from '../../styles/images'
+import { icons, logos, statuses } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
@@ -66,6 +66,9 @@ const TitleInput = styled.textarea`
     }
 `
 const MarginLeftAuto = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     margin-left: auto;
 `
 const MarginRight8 = styled.div`
@@ -201,17 +204,27 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     <>
                         <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                         <MarginLeftAuto>
-                            {task.deeplink && (
-                                <a href={task.deeplink} target="_blank" rel="noreferrer">
-                                    <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
-                                </a>
-                            )}
                             <ActionOption
                                 isShown={labelEditorShown}
                                 setIsShown={setLabelEditorShown}
                                 task={task}
                                 keyboardShortcut="showLabelEditor"
                             />
+                            {task.deeplink && (
+                                <a
+                                    href={task.deeplink}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    style={{ textDecoration: 'none' }}
+                                >
+                                    <RoundedGeneralButton
+                                        textStyle="dark"
+                                        value={task.source.name}
+                                        hasBorder
+                                        iconSource={icons.external_link}
+                                    />
+                                </a>
+                            )}
                         </MarginLeftAuto>
                     </>
                 )}
