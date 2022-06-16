@@ -14,7 +14,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/google/go-github/v45/github"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/oauth2"
 )
 
 const (
@@ -92,12 +91,8 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			result <- emptyPullRequestResult(err)
 			return
 		}
-		tokenSource := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: token.AccessToken},
-		)
 
-		tokenClient := oauth2.NewClient(extCtx, tokenSource)
-		githubClient = github.NewClient(tokenClient)
+		githubClient = getGithubClient(extCtx, token)
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 	}
