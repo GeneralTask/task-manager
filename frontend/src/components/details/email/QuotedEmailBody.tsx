@@ -19,6 +19,10 @@ function isQuotedText(node: HTMLElement): boolean {
     return node.classList?.contains('gmail_quote')
 }
 
+function replaceNewlinesWithBreaks(text: string): string {
+    return text.replace(/\n/g, '<br>')
+}
+
 const Quote = ({ quotedHTML }: { quotedHTML: string }) => {
     const [showQuotedHTML, setShowQuotedHTML] = useState(false)
     return (
@@ -40,7 +44,7 @@ const QuotedEmailBody = ({ email }: QuotedEmailBodyProps) => {
 
     const elements = Array.from(emailDoc.body.childNodes).map((child, index) => {
         const elem = child as HTMLElement
-        const outerHTML = elem.outerHTML?.replaceAll('\n', '<br>')
+        const outerHTML = replaceNewlinesWithBreaks(elem.outerHTML || '')
         if (isQuotedText(elem)) {
             return <Quote key={index} quotedHTML={outerHTML} />
         } else {
