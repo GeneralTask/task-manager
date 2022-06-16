@@ -15,7 +15,7 @@ import (
 
 type GeneralTaskTaskSource struct{}
 
-func (generalTask GeneralTaskTaskSource) GetEmails(userID primitive.ObjectID, accountID string, historyID uint64, result chan<- EmailResult, fullRefresh bool) {
+func (generalTask GeneralTaskTaskSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 

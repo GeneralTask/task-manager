@@ -365,13 +365,11 @@ func DeleteEmailThread(db *mongo.Database, userID primitive.ObjectID, threadID s
 
 func GetThread(db *mongo.Database, userID primitive.ObjectID, threadID string) (*Item, error) {
 	parentCtx := context.Background()
-	taskCollection := GetTaskCollection(db)
-
-	var message Item
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 
-	err := taskCollection.FindOne(
+	var message Item
+	err := GetTaskCollection(db).FindOne(
 		dbCtx,
 		bson.M{
 			"$and": []bson.M{
@@ -381,7 +379,7 @@ func GetThread(db *mongo.Database, userID primitive.ObjectID, threadID string) (
 			},
 		}).Decode(&message)
 	if err != nil {
-		log.Error().Err(err).Msgf("Failed to get item: %+v", threadID)
+		log.Error().Err(err).Msgf("failed to get item: %+v", threadID)
 		return nil, err
 	}
 	return &message, nil

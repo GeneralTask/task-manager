@@ -43,7 +43,7 @@ type EmailContents struct {
 	Body       string
 }
 
-func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, historyID uint64, result chan<- EmailResult, fullRefresh bool) {
+func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -64,14 +64,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	var historiesRequiringUpdate []*gmail.History
 	// loads all thread changes, or 500 recent threads in the inbox
 	// do fullRefresh if we don't have history data stored for the account
-	if fullRefresh || historyID == 0 {
+	if fullRefresh || latestHistoryID == 0 {
 		log.Debug().Msg("Performing full gmail thread refresh")
-
-		// get single history for historyID number (will be used in future inbox updates)
-		historyResponse, err := gmailService.Users.History.List("me").MaxResults(1).StartHistoryId(1).Do()
-		if err == nil {
-			recentHistoryID = historyResponse.HistoryId
-		}
 
 		// TODO: for a full refresh, we probably want to paginate through this request until we've fetched all threads in the DB
 		threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(fullFetchMaxResults).Do()
@@ -90,41 +84,44 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			go getThreadFromGmail(gmailService, threadListItem.Id, threadResult)
 			threadChannels = append(threadChannels, threadResult)
 		}
+
+		if len(threadsResponse.Threads) > 0 {
+			recentHistoryID = threadsResponse.Threads[0].HistoryId
+		}
 	} else {
 		log.Debug().Msg("Performing small gmail thread update/refresh")
 
-		historiesRequiringUpdate, recentHistoryID, err = getAllRecentGmailHistory(gmailService, historyID)
+		historiesRequiringUpdate, recentHistoryID, err = getAllRecentGmailHistory(gmailService, latestHistoryID)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to load Gmail history for user")
 			isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
 				strings.Contains(err.Error(), "authError")
 			threadOutput := emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			threadOutput.IsBadToken = isBadToken
+			result <- threadOutput
+			return
 		}
 
 		// get all thread IDs mentioned in the history
 		historyThreadIDs := []string{}
-		netThreadEmailDelta := make(map[string]int)
+		netChangeInNumEmailsPerThread := make(map[string]int)
 		for _, historyEntry := range historiesRequiringUpdate {
 			for _, message := range historyEntry.Messages {
 				historyThreadIDs = append(historyThreadIDs, message.ThreadId)
 			}
 			for _, messageAdded := range historyEntry.MessagesAdded {
-				netThreadEmailDelta[messageAdded.Message.ThreadId] += 1
+				netChangeInNumEmailsPerThread[messageAdded.Message.ThreadId] += 1
 			}
 			for _, messageDeleted := range historyEntry.MessagesDeleted {
-				netThreadEmailDelta[messageDeleted.Message.ThreadId] -= 1
+				netChangeInNumEmailsPerThread[messageDeleted.Message.ThreadId] -= 1
 			}
 		}
 
-		// dedupe the thread updates
 		historyThreadIDs = removeDuplicateStr(historyThreadIDs)
 
-		// handle thread deletion
 		// TODO implement unit testing for this logic
-		historyThreadIDsToFetch := handleThreadDeletion(db, userID, historyThreadIDs, netThreadEmailDelta)
+		historyThreadIDsToFetch := handleThreadDeletion(db, userID, historyThreadIDs, netChangeInNumEmailsPerThread)
 
-		// get emails from the thread
 		// TODO: think about not fetching emails if the only updates are label changes
 		for _, threadListItem := range historyThreadIDsToFetch {
 			var threadResult = make(chan *gmail.Thread)
@@ -133,12 +130,12 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 	}
 
-	emailResult := createOrUpdateTaskFromThreads(userID, accountID, db, threadChannels)
+	emailResult := createOrUpdateThreads(userID, accountID, db, threadChannels)
 	emailResult.HistoryID = recentHistoryID
 	result <- emailResult
 }
 
-func createOrUpdateTaskFromThreads(userID primitive.ObjectID, accountID string, db *mongo.Database, threadChannels []chan *gmail.Thread) EmailResult {
+func createOrUpdateThreads(userID primitive.ObjectID, accountID string, db *mongo.Database, threadChannels []chan *gmail.Thread) EmailResult {
 	emails := []*database.Item{}
 
 	for _, threadChannel := range threadChannels {
@@ -323,8 +320,8 @@ func getAllRecentGmailHistory(gmailService *gmail.Service, historyID uint64) ([]
 	// iterate through until we have the full history (no returned new entries)
 	for len(historyResponse.History) > 0 {
 		historiesRequiringUpdate = append(historiesRequiringUpdate, historyResponse.History...)
-		currentHistoryID := historyResponse.History[len(historyResponse.History)-1].Id
-		historyResponse, err = gmailService.Users.History.List("me").StartHistoryId(currentHistoryID).MaxResults(fullFetchMaxResults).Do()
+		nextHistoryID := historyResponse.History[len(historyResponse.History)-1].Id
+		historyResponse, err = gmailService.Users.History.List("me").StartHistoryId(nextHistoryID).MaxResults(fullFetchMaxResults).Do()
 		if err != nil {
 			return []*gmail.History{}, 0, err
 		}
@@ -338,39 +335,37 @@ func handleThreadDeletion(db *mongo.Database, userID primitive.ObjectID, history
 	for _, threadID := range historyThreadIDs {
 		// if thread mentioned in additions/deletions, fetch, otherwise simply fetch updates
 		if netThreadCount, ok := netThreadEmailDelta[threadID]; ok {
-			dbThreadCount := getDBThreadCount(db, userID, threadID)
-
-			// if error in db fetch, fetch thread regardless
-			if dbThreadCount == -1 {
-				threadsToFetch = append(threadsToFetch, threadID)
-				continue
+			dbThreadCount, err := getDBThreadCount(db, userID, threadID)
+			if err != nil {
+				if err != mongo.ErrNoDocuments {
+					log.Print(err)
+					threadsToFetch = append(threadsToFetch, threadID)
+					continue
+				}
+				dbThreadCount = 0
 			}
+
 			totalThreadCount := netThreadCount + dbThreadCount
 			if totalThreadCount <= 0 {
 				_, err := database.DeleteEmailThread(db, userID, threadID)
 				if err != nil {
 					log.Error().Err(err).Send()
 				}
+				continue
 			}
-		} else {
-			threadsToFetch = append(threadsToFetch, threadID)
 		}
+		threadsToFetch = append(threadsToFetch, threadID)
 	}
 	return threadsToFetch
 }
 
-func getDBThreadCount(db *mongo.Database, userID primitive.ObjectID, threadID string) int {
+func getDBThreadCount(db *mongo.Database, userID primitive.ObjectID, threadID string) (int, error) {
 	thread, err := database.GetThread(db, userID, threadID)
 	if err != nil {
-		// ErrNoDocuments means that the filter did not match any documents in the collection
-		if err == mongo.ErrNoDocuments {
-			return 0
-		}
-		log.Error().Err(err).Send()
-		// return -1 to signal error (not NoDocuments)
-		return -1
+		log.Error().Err(err).Msg("failed to fetch DB thread count")
+		return 0, err
 	}
-	return len(thread.Emails)
+	return len(thread.Emails), nil
 }
 
 // from StackOverflow: https://stackoverflow.com/questions/66643946/how-to-remove-duplicates-strings-or-int-from-slice-in-go

@@ -24,7 +24,7 @@ type LinearTasksUpdateFields struct {
 type LinearTasksUpdateBody struct {
 }
 
-func (linearTask LinearTaskSource) GetEmails(userID primitive.ObjectID, accountID string, historyID uint64, result chan<- EmailResult, fullRefresh bool) {
+func (linearTask LinearTaskSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
