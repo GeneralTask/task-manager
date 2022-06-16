@@ -40,10 +40,11 @@ const QuotedEmailBody = ({ email }: QuotedEmailBodyProps) => {
 
     const elements = Array.from(emailDoc.body.childNodes).map((child, index) => {
         const elem = child as HTMLElement
+        const outerHTML = elem.outerHTML?.replaceAll('\n', '<br>')
         if (isQuotedText(elem)) {
-            return <Quote key={index} quotedHTML={elem.outerHTML} />
+            return <Quote key={index} quotedHTML={outerHTML} />
         } else {
-            return <SanitizedHTML key={index} dirtyHTML={elem.outerHTML} />
+            return <SanitizedHTML key={index} dirtyHTML={outerHTML} />
         }
     })
     return <>{elements}</>
