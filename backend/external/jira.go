@@ -236,7 +236,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	isCompleted := false
 	for _, task := range tasks {
 		priorityNormalized := float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength)
-		dbTask, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			task.IDExternal,

@@ -79,7 +79,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 			},
 		}
 		isCompleted := false
-		dbTask, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			task.IDExternal,

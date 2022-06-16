@@ -122,7 +122,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
 		isCompleted := false
-		dbTask, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			task.IDExternal,

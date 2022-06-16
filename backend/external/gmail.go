@@ -215,7 +215,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				},
 			}
 
-			dbEmail, err := database.UpdateOrCreateTask(
+			dbEmail, err := database.UpdateOrCreateItem(
 				db, userID, emailItem.IDExternal, emailItem.SourceID,
 				emailItem, database.EmailItemToChangeable(emailItem),
 				&[]bson.M{{"task_type.is_message": true}},
@@ -240,7 +240,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = assignOrGenerateNestedEmailIDs(threadItem, nestedEmails)
-		_, err = database.UpdateOrCreateTask(
+		_, err = database.UpdateOrCreateItem(
 			db, userID, threadItem.IDExternal, threadItem.SourceID,
 			threadItem, database.ThreadItemToChangeable(threadItem),
 			&[]bson.M{{"task_type.is_thread": true}}, true)
