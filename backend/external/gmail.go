@@ -118,6 +118,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 
 		for _, message := range thread.Messages {
+			numAttachments := 0
 			sender := ""
 			replyTo := ""
 			title := ""
@@ -139,11 +140,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			messageParts := expandMessageParts(message.Payload.Parts)
 
 			// NOTE: We count the number of attachments separately because the body parsing code below is fragile
-			numAttachments := 0
+			numAttachments += countAttachmentsInMessagePart(message.Payload)
 			for _, messagePart := range messageParts {
-				if messagePart.Filename != "" {
-					numAttachments += 1
-				}
+				numAttachments += countAttachmentsInMessagePart(messagePart)
 			}
 
 			for _, messagePart := range messageParts {
@@ -734,6 +733,13 @@ func recipientToString(recipient database.Recipient) string {
 	} else {
 		return recipient.Email
 	}
+}
+
+func countAttachmentsInMessagePart(messagePart *gmail.MessagePart) int {
+	if messagePart.Filename != "" {
+		return 1
+	}
+	return 0
 }
 
 func createGmailService(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string, gmailSource *GmailSource, ctx context.Context) (*gmail.Service, error) {
