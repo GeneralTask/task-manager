@@ -24,9 +24,8 @@ import (
 )
 
 const (
-	defaultFetchMaxResults = int64(1)
-	//defaultFetchMaxResults = int64(100)
-	fullFetchMaxResults = int64(500)
+	defaultFetchMaxResults = int64(100)
+	fullFetchMaxResults    = int64(500)
 )
 
 type GmailSource struct {
