@@ -90,10 +90,12 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 				Status: database.ExternalTaskStatus{
 					ExternalID: (linearIssue.State.Id).(string),
 					State:      string(linearIssue.State.Name),
+					Type:       string(linearIssue.State.Type),
 				},
 				CompletedStatus: database.ExternalTaskStatus{
 					ExternalID: (linearIssue.Team.MergeWorkflowState.Id).(string),
 					State:      string(linearIssue.Team.MergeWorkflowState.Name),
+					Type:       string(linearIssue.Team.MergeWorkflowState.Type),
 				},
 			},
 		}

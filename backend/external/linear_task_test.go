@@ -37,13 +37,15 @@ func TestLoadLinearTasks(t *testing.T) {
 						},
 						"state": {
 							"id": "state-id",
-							"name": "Todo"
+							"name": "Todo",
+							"type": "started"
 						},
 						"team": {
 							"name": "Backend",
 							"mergeWorkflowState": {
 								"name": "Done",
-								"id": "merge-workflow-state-id"
+								"id": "merge-workflow-state-id",
+								"type": "completed"
 							}
 						},
 						"comments": {
@@ -179,10 +181,12 @@ func TestLoadLinearTasks(t *testing.T) {
 				Status: database.ExternalTaskStatus{
 					ExternalID: "state-id",
 					State:      "Todo",
+					Type:       "started",
 				},
 				CompletedStatus: database.ExternalTaskStatus{
 					ExternalID: "merge-workflow-state-id",
 					State:      "Done",
+					Type:       "completed",
 				},
 				Comments: &[]database.Comment{
 					{
@@ -261,10 +265,12 @@ func TestLoadLinearTasks(t *testing.T) {
 				Status: database.ExternalTaskStatus{
 					ExternalID: "state-id",
 					State:      "Todo",
+					Type:       "started",
 				},
 				CompletedStatus: database.ExternalTaskStatus{
 					ExternalID: "merge-workflow-state-id",
 					State:      "Done",
+					Type:       "completed",
 				},
 				Comments: nil,
 			},

@@ -202,11 +202,13 @@ type linearAssignedIssuesQuery struct {
 				MergeWorkflowState struct {
 					Id   graphql.ID
 					Name graphql.String
+					Type graphql.String
 				}
 			}
 			State struct {
 				Id   graphql.ID
 				Name graphql.String
+				Type graphql.String
 			}
 			Comments struct {
 				Nodes []struct {

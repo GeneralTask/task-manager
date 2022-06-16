@@ -29,6 +29,11 @@ type linkedEmailThread struct {
 	EmailThread    *ThreadDetailsResponse `bson:"email_thread,omitempty" json:"email_thread,omitempty"`
 }
 
+type externalStatus struct {
+	State string `json:"state,omitempty"`
+	Type  string `json:"type,omitempty"`
+}
+
 type TaskResult struct {
 	ID                primitive.ObjectID  `json:"id"`
 	IDOrdering        int                 `json:"id_ordering"`
@@ -42,7 +47,7 @@ type TaskResult struct {
 	SentAt            string              `json:"sent_at"`
 	IsDone            bool                `json:"is_done"`
 	LinkedEmailThread *linkedEmailThread  `json:"linked_email_thread,omitempty"`
-	ExternalStatus    string              `json:"external_status,omitempty"`
+	ExternalStatus    *externalStatus     `json:"external_status,omitempty"`
 	Comments          *[]database.Comment `json:"comments,omitempty"`
 }
 
@@ -229,8 +234,14 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		SentAt:         t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		DueDate:        dueDate,
 		IsDone:         t.IsCompleted,
-		ExternalStatus: t.Status.State,
 		Comments:       t.Comments,
+	}
+
+	if t.Status != (database.ExternalTaskStatus{}) {
+		taskResult.ExternalStatus = &externalStatus{
+			State: t.Status.State,
+			Type:  t.Status.Type,
+		}
 	}
 
 	log.Debug().Interface("linkedMessage", t.LinkedMessage).Send()
