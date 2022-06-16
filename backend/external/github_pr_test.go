@@ -32,22 +32,22 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 func TestGetPullRequests(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		githubClientServer := testutils.GetMockAPIServer(t, 200, ClientResponsePayload)
+		githubClientServer := testutils.GetMockAPIServer(t, 200, testutils.ClientResponsePayload)
 		clientServerURL := &githubClientServer.URL
 
-		githubUserServer := testutils.GetMockAPIServer(t, 200, UserResponsePayload)
+		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 		userURL := &githubUserServer.URL
 
-		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, UserRepositoriesPayload)
+		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, testutils.UserRepositoriesPayload)
 		userRepositoriesURL := &githubUserRepositoriesServer.URL
 
-		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 200, UserPullRequestsPayload)
+		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 200, testutils.UserPullRequestsPayload)
 		userPullRequestsURL := &githubUserPullRequestsServer.URL
 
-		githubPullRequestReviewersServer := testutils.GetMockAPIServer(t, 200, PullRequestReviewersPayload)
+		githubPullRequestReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
 		pullRequestReviewersURL := &githubPullRequestReviewersServer.URL
 
-		githubListCheckRunsForRefServer := testutils.GetMockAPIServer(t, 200, CheckRunsForRefPayload)
+		githubListCheckRunsForRefServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefPayload)
 		listCheckRunsForRefURL := &githubListCheckRunsForRefServer.URL
 
 		githubListPullRequestCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
@@ -76,13 +76,13 @@ func TestGetPullRequests(t *testing.T) {
 	})
 	t.Run("NoPullRequests", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		githubPRClientURLServer := testutils.GetMockAPIServer(t, 200, ClientResponsePayload)
+		githubPRClientURLServer := testutils.GetMockAPIServer(t, 200, testutils.ClientResponsePayload)
 		prClientServerURL := &githubPRClientURLServer.URL
 
-		githubUserServer := testutils.GetMockAPIServer(t, 200, UserResponsePayload)
+		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 		userURL := &githubUserServer.URL
 
-		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, UserRepositoriesPayload)
+		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, testutils.UserRepositoriesPayload)
 		userRepositoriesURL := &githubUserRepositoriesServer.URL
 
 		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 200, `[]`)
@@ -108,10 +108,10 @@ func TestGetPullRequests(t *testing.T) {
 	})
 	t.Run("NoRepositories", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		githubClientServer := testutils.GetMockAPIServer(t, 200, ClientResponsePayload)
+		githubClientServer := testutils.GetMockAPIServer(t, 200, testutils.ClientResponsePayload)
 		clientServerURL := &githubClientServer.URL
 
-		githubUserServer := testutils.GetMockAPIServer(t, 200, UserResponsePayload)
+		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 		userURL := &githubUserServer.URL
 
 		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, `[]`)
