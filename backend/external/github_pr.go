@@ -11,7 +11,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v45/github"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/oauth2"
 )
