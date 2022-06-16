@@ -24,12 +24,12 @@ const (
 )
 
 const (
-	AddReviewersAction      string = "Add Reviewers"
-	FixMergeConflictsAction string = "Fix Merge Conflicts"
-	FixFailedCIAction       string = "Fix Failed CI"
-	AddressRequestedAction  string = "Address Requested Changes"
-	MergePRAction           string = "Merge PR"
-	WaitingOnReviewAction   string = "Waiting on Review"
+	ActionAddReviewers      string = "Add Reviewers"
+	ActionFixMergeConflicts string = "Fix Merge Conflicts"
+	ActionFixFailedCI       string = "Fix Failed CI"
+	ActionAddressRequested  string = "Address Requested Changes"
+	ActionMergePR           string = "Merge PR"
+	ActionWaitingOnReview   string = "Waiting on Review"
 )
 
 type GithubPRSource struct {
@@ -378,21 +378,21 @@ func checksDidFail(context context.Context, githubClient *github.Client, reposit
 
 func getPullRequestRequiredAction(data GithubPRData) string {
 	if data.RequestedReviewers == 0 {
-		return AddReviewersAction
+		return ActionAddReviewers
 	}
 	if !data.IsMergeable {
-		return FixMergeConflictsAction
+		return ActionFixMergeConflicts
 	}
 	if data.ChecksDidFail {
-		return FixFailedCIAction
+		return ActionFixFailedCI
 	}
 	if data.HaveRequestedChanges {
-		return AddressRequestedAction
+		return ActionAddressRequested
 	}
 	if data.IsApproved {
-		return MergePRAction
+		return ActionMergePR
 	}
-	return WaitingOnReviewAction
+	return ActionWaitingOnReview
 }
 
 func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
