@@ -180,7 +180,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					Number:         *pullRequest.Number,
 					Author:         *pullRequest.User.Login,
 					Branch:         *pullRequest.Head.Ref,
-					RequiredAction: getPullRequestRequiredAciton(pullRequestData),
+					RequiredAction: getPullRequestRequiredAction(pullRequestData),
 					CommentCount:   commentCount,
 				},
 				TaskType: database.TaskType{
@@ -381,7 +381,7 @@ func checksDidFail(context context.Context, githubClient *github.Client, reposit
 	return false, nil
 }
 
-func getPullRequestRequiredAciton(data GithubPRData) string {
+func getPullRequestRequiredAction(data GithubPRData) string {
 	if data.RequestedReviewers == 0 {
 		return AddReviewersAction
 	}
