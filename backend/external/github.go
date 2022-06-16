@@ -117,9 +117,8 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 
 	githubAccountID, err := getGithubAccountIDFromToken(extCtx, token, CurrentlyAuthedUserFilter, githubService.Config.ConfigValues.GetUserURL)
 	if err != nil {
-		log.Error().Msg("failed to fetch Github user")
-		log.Error().Msgf("error: %s", err)
-		return nil
+		log.Error().Err(err).Msg("failed to fetch Github user")
+		return errors.New("internal server error")
 	}
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
