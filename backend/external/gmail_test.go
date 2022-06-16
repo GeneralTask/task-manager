@@ -147,6 +147,7 @@ func TestGetEmails(t *testing.T) {
 		messageWithAttachment := createTestGmailMessage("gmail_thread_1_email_1", true, false,
 			"test subject", "2001-04-20")
 		messageWithAttachment.Payload.Filename = "gigachad.png"
+		messageWithAttachment.Payload.Parts = []*gmail.MessagePart{{Filename: "baijushair.png", MimeType: "image/jpeg", Body: &gmail.MessagePartBody{Data: ""}}}
 		threadsMap := map[string]*gmail.Thread{
 			"gmail_thread_1": {
 				Id: "gmail_thread_1",
@@ -190,7 +191,7 @@ func TestGetEmails(t *testing.T) {
 
 		emailWithAttachment := createTestThreadEmail("gmail_thread_1_email_1", true,
 			"gmail_thread_1", "test subject", "2001-04-20")
-		emailWithAttachment.NumAttachments = 1
+		emailWithAttachment.NumAttachments = 2
 
 		expectedThreadsInDB := []*database.Item{
 			{
