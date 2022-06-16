@@ -188,11 +188,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
     const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
 
-    const status = task.external_status
-        ? typeof task.external_status === 'string'
-            ? task.external_status
-            : task.external_status.state
-        : ''
+    const status = task.external_status ? task.external_status.state : ''
     const statusIcon = status.toLowerCase().replace(/ /g, '')
 
     return (

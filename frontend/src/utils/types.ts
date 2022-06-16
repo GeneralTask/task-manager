@@ -43,7 +43,7 @@ export interface TTask {
     sent_at: string
     time_allocated: number
     due_date: string
-    external_status: TExternalStatus | string
+    external_status: TExternalStatus
     source: TTaskSource
     sender: string
     recipients: TRecipients
