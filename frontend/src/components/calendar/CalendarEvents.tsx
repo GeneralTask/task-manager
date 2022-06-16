@@ -188,7 +188,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
         [date, accountId, createEvent]
     )
 
-    const [_, drop] = useDrop(
+    const [, drop] = useDrop(
         () => ({
             accept: ItemTypes.TASK,
             collect: (monitor) => {
