@@ -18,13 +18,14 @@ import (
 const DEFAULT_THREAD_LIMIT int = 100
 
 type email struct {
-	MessageID  primitive.ObjectID `json:"message_id"`
-	Subject    string             `json:"subject"`
-	Body       string             `json:"body"`
-	SentAt     string             `json:"sent_at"`
-	IsUnread   bool               `json:"is_unread"`
-	Sender     senderV2           `json:"sender"`
-	Recipients Recipients         `json:"recipients"`
+	MessageID      primitive.ObjectID `json:"message_id"`
+	Subject        string             `json:"subject"`
+	Body           string             `json:"body"`
+	SentAt         string             `json:"sent_at"`
+	IsUnread       bool               `json:"is_unread"`
+	Sender         senderV2           `json:"sender"`
+	Recipients     Recipients         `json:"recipients"`
+	NumAttachments int                `json:"num_attachments"`
 }
 
 type ThreadDetailsResponse struct {
@@ -158,6 +159,7 @@ func createThreadEmailsResponse(dbEmails *[]database.Email) *[]email {
 				Cc:  getRecipients(e.Recipients.Cc),
 				Bcc: getRecipients(e.Recipients.Bcc),
 			},
+			NumAttachments: e.NumAttachments,
 		}
 		emails = append(emails, formattedEmail)
 	}

@@ -117,6 +117,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 
 		for _, message := range thread.Messages {
+			numAttachments := 0
 			sender := ""
 			replyTo := ""
 			title := ""
@@ -136,6 +137,13 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			var bodyPlain *string
 
 			messageParts := expandMessageParts(message.Payload.Parts)
+
+			// NOTE: We count the number of attachments separately because the body parsing code below is fragile
+			numAttachments += countAttachmentsInMessagePart(message.Payload)
+			for _, messagePart := range messageParts {
+				numAttachments += countAttachmentsInMessagePart(messagePart)
+			}
+
 			for _, messagePart := range messageParts {
 				parsedBody, err := parseMessagePartBody(messagePart.MimeType, messagePart.Body)
 				if err != nil {
@@ -173,18 +181,19 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 				mostRecentEmailTimestamp = timeSent
 			}
 			email := database.Email{
-				SMTPID:       smtpID,
-				ThreadID:     thread.Id,
-				EmailID:      message.Id,
-				SenderDomain: senderDomain,
-				SenderEmail:  senderEmail,
-				SenderName:   senderName,
-				Body:         *body,
-				Subject:      title,
-				ReplyTo:      replyTo,
-				IsUnread:     isMessageUnread(message),
-				Recipients:   recipients,
-				SentAt:       timeSent,
+				SMTPID:         smtpID,
+				ThreadID:       thread.Id,
+				EmailID:        message.Id,
+				SenderDomain:   senderDomain,
+				SenderEmail:    senderEmail,
+				SenderName:     senderName,
+				Body:           *body,
+				Subject:        title,
+				ReplyTo:        replyTo,
+				IsUnread:       isMessageUnread(message),
+				Recipients:     recipients,
+				SentAt:         timeSent,
+				NumAttachments: numAttachments,
 			}
 			nestedEmails = append(nestedEmails, email)
 			emailItem := &database.Item{
@@ -723,6 +732,13 @@ func recipientToString(recipient database.Recipient) string {
 	} else {
 		return recipient.Email
 	}
+}
+
+func countAttachmentsInMessagePart(messagePart *gmail.MessagePart) int {
+	if messagePart.Filename != "" {
+		return 1
+	}
+	return 0
 }
 
 func createGmailService(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string, gmailSource *GmailSource, ctx context.Context) (*gmail.Service, error) {
