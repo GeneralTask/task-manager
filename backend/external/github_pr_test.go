@@ -58,7 +58,7 @@ func TestGetPullRequests(t *testing.T) {
 			Github: GithubService{
 				Config: GithubConfig{
 					ConfigValues: GithubConfigValues{
-						GithubClientURL:             clientServerURL,
+						GithubPRClientBaseURL:       clientServerURL,
 						GetUserURL:                  userURL,
 						ListRepositoriesURL:         userRepositoriesURL,
 						ListPullRequestsURL:         userPullRequestsURL,
@@ -76,8 +76,8 @@ func TestGetPullRequests(t *testing.T) {
 	})
 	t.Run("NoPullRequests", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		githubClientURLServer := testutils.GetMockAPIServer(t, 200, ClientResponsePayload)
-		clientServerURL := &githubClientURLServer.URL
+		githubPRClientURLServer := testutils.GetMockAPIServer(t, 200, ClientResponsePayload)
+		prClientServerURL := &githubPRClientURLServer.URL
 
 		githubUserServer := testutils.GetMockAPIServer(t, 200, UserResponsePayload)
 		userURL := &githubUserServer.URL
@@ -93,10 +93,10 @@ func TestGetPullRequests(t *testing.T) {
 			Github: GithubService{
 				Config: GithubConfig{
 					ConfigValues: GithubConfigValues{
-						GithubClientURL:     clientServerURL,
-						GetUserURL:          userURL,
-						ListRepositoriesURL: userRepositoriesURL,
-						ListPullRequestsURL: userPullRequestsURL,
+						GithubPRClientBaseURL: prClientServerURL,
+						GetUserURL:            userURL,
+						ListRepositoriesURL:   userRepositoriesURL,
+						ListPullRequestsURL:   userPullRequestsURL,
 					},
 				},
 			},
@@ -122,9 +122,9 @@ func TestGetPullRequests(t *testing.T) {
 			Github: GithubService{
 				Config: GithubConfig{
 					ConfigValues: GithubConfigValues{
-						GithubClientURL:     clientServerURL,
-						GetUserURL:          userURL,
-						ListRepositoriesURL: userRepositoriesURL,
+						GithubPRClientBaseURL: clientServerURL,
+						GetUserURL:            userURL,
+						ListRepositoriesURL:   userRepositoriesURL,
 					},
 				},
 			},
@@ -145,7 +145,7 @@ func TestGetPullRequests(t *testing.T) {
 			Github: GithubService{
 				Config: GithubConfig{
 					ConfigValues: GithubConfigValues{
-						GithubClientURL: serverURL,
+						GithubPRClientBaseURL: serverURL,
 					},
 				},
 			},

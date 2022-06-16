@@ -66,9 +66,9 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	db, dbCleanup, err := database.GetDBConnection()
 	defer dbCleanup()
 
-	if gitPR.Github.Config.ConfigValues.GithubClientURL != nil {
+	if gitPR.Github.Config.ConfigValues.GithubPRClientBaseURL != nil {
 		githubClient = github.NewClient(nil)
-		githubClient.BaseURL, err = url.Parse(*gitPR.Github.Config.ConfigValues.GithubClientURL)
+		githubClient.BaseURL, err = url.Parse(*gitPR.Github.Config.ConfigValues.GithubPRClientBaseURL)
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to parse github client url")
 			result <- emptyPullRequestResult(err)

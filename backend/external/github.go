@@ -30,7 +30,7 @@ const (
 )
 
 type GithubConfigValues struct {
-	GithubClientURL             *string
+	GithubPRClientBaseURL       *string
 	GetUserURL                  *string
 	ListPullRequestsURL         *string
 	ListPullRequestReviewURL    *string
