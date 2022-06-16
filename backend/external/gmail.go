@@ -136,23 +136,17 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			var body *string
 			var bodyPlain *string
 
-			numAttachments, messageParts := expandMessageParts(message.Payload.Parts)
-			log.Print("p1", len(messageParts))
-			for _, part := range messageParts {
-				log.Error().Msgf("yo %+v", *part)
-			}
-			//numAttachments := 0
-			//log.Debug().Msgf("jerd message parts %+v", message.Payload.Parts)
-			//for _, part := range message.Payload.Parts {
-			//	log.Debug().Msgf("jerd filename %+v", part.Filename)
-			//}
-			log.Print("p1", len(messageParts))
+			messageParts := expandMessageParts(message.Payload.Parts)
+
+			// NOTE: We count the number of attachments separately because the body parsing code below is fragile
+			numAttachments := 0
 			for _, messagePart := range messageParts {
-				log.Debug().Msgf("yoyo %+v", *messagePart)
-				//log.Error().Msgf("yoyo %+v", *part)
-				//if messagePart.Filename != "" {
-				//	numAttachments += 1
-				//}
+				if messagePart.Filename != "" {
+					numAttachments += 1
+				}
+			}
+
+			for _, messagePart := range messageParts {
 				parsedBody, err := parseMessagePartBody(messagePart.MimeType, messagePart.Body)
 				if err != nil {
 					log.Error().Err(err).Msg("failed to parse message body")
@@ -179,7 +173,6 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 					return
 				}
 			}
-			log.Debug().Msgf("jerd body %+v", *body)
 
 			senderName, senderEmail := utils.ExtractSenderName(sender)
 			senderDomain := utils.ExtractEmailDomain(senderEmail)
@@ -319,27 +312,16 @@ func isMessageArchived(message *gmail.Message) bool {
 	return true
 }
 
-func expandMessageParts(parts []*gmail.MessagePart) (int, []*gmail.MessagePart) {
+func expandMessageParts(parts []*gmail.MessagePart) []*gmail.MessagePart {
 	var messageParts []*gmail.MessagePart
-	numAttachments := 0
 	for _, messagePart := range parts {
-		var currNumAttachments int
 		if messagePart.MimeType[:9] == "multipart" {
-			tmp, nestedParts := expandMessageParts(messagePart.Parts)
-			currNumAttachments = tmp
-			messageParts = append(messageParts, nestedParts...)
-		} else {
-			messageParts = append(messageParts, messagePart)
-			if messagePart.Filename != "" {
-				currNumAttachments = 1
-			}
+			messageParts = append(messageParts, expandMessageParts(messagePart.Parts)...)
+			continue
 		}
-		numAttachments += currNumAttachments
+		messageParts = append(messageParts, messagePart)
 	}
-	//for _, part := range messageParts {
-	//	log.Error().Msgf("%+v", *part)
-	//}
-	return numAttachments, messageParts
+	return messageParts
 }
 
 func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string, error) {
