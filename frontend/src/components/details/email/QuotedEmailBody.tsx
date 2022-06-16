@@ -19,7 +19,7 @@ function isQuotedText(node: HTMLElement): boolean {
     return node.classList?.contains('gmail_quote')
 }
 
-function replaceNewlinesWithBreaks(text: string): string {
+function replaceNewlinesWithBreaks(text: string) {
     return text.replace(/\n/g, '<br>')
 }
 
