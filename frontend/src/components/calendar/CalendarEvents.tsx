@@ -153,7 +153,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     const { mutate: createEvent } = useCreateEvent()
 
     const onDrop = useCallback(
-        async (_item: DropProps, monitor: DropTargetMonitor) => {
+        async (item: DropProps, monitor: DropTargetMonitor) => {
             const dropPosition = monitor.getClientOffset()
             if (!eventsContainerRef.current || !dropPosition || !accountId) return
             const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
@@ -179,7 +179,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
                     account_id: accountId,
                     datetime_start: start.toISO(),
                     datetime_end: end.toISO(),
-                    summary: 'My task',
+                    summary: item.task.title,
                 },
                 date,
             })

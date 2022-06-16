@@ -58,7 +58,6 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
         () => linkedAccounts?.filter((account) => account.name === 'Google')?.[0]?.display_id,
         [linkedAccounts]
     )
-    console.log({ firstLinkedCalendarAccount })
 
     return isCalendarCollapsed ? (
         <CollapsedCalendarView onClick={() => setIsCalendarCollapsed(false)}>
