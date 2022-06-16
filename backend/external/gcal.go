@@ -99,7 +99,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				IsEvent: true,
 			},
 		}
-		dbEvent, err := database.UpdateOrCreateTask(
+		dbEvent, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			event.IDExternal,

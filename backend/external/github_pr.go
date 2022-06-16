@@ -130,7 +130,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 	for _, pullRequest := range pullRequestItems {
 		isCompleted := false
-		dbPR, err := database.UpdateOrCreateTask(
+		dbPR, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			string(pullRequest.IDExternal),
