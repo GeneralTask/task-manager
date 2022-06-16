@@ -39,6 +39,22 @@ func TestTaskDetail(t *testing.T) {
 		},
 		TaskType: database.TaskType{IsTask: true},
 	})
+	linearTaskIDHex := insertTestTask(t, userID, database.Item{
+		TaskBase: database.TaskBase{
+			UserID:      userID,
+			IDExternal:  "sample_linear_id_details",
+			SourceID:    external.TASK_SOURCE_ID_LINEAR,
+			IsCompleted: true,
+		},
+		TaskType: database.TaskType{IsTask: true},
+		Task: database.Task{
+			Status: database.ExternalTaskStatus{
+				//ExternalID: "",
+				State: "Done",
+				Type:  "completed",
+			},
+		},
+	})
 	nonUserTaskIDHex := insertTestTask(t, userID, database.Item{
 		TaskBase: database.TaskBase{
 			UserID:     notUserID,
@@ -137,6 +153,22 @@ func TestTaskDetail(t *testing.T) {
 
 		assert.Equal(t,
 			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Jira","logo":"/images/jira.svg","logo_v2":"jira","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true}`, jiraTaskIDHex),
+			string(body))
+	})
+	t.Run("SuccessLinear", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"GET",
+			fmt.Sprintf("/tasks/detail/%s/", linearTaskIDHex),
+			nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+
+		assert.Equal(t,
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"external_status":{"state":"Done","type":"completed"}}`, linearTaskIDHex),
 			string(body))
 	})
 	t.Run("SuccessTaskFromEmail", func(t *testing.T) {
