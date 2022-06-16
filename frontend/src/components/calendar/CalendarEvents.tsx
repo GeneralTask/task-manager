@@ -197,7 +197,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
             drop: onDrop,
             canDrop: () => accountId !== undefined,
         }),
-        [accountId]
+        [accountId, onDrop]
     )
 
     useEffect(() => {
