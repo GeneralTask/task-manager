@@ -19,13 +19,13 @@ import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef } 
 
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
-import { EVENTS_REFETCH_INTERVAL } from '../../constants'
+import { CALENDAR_DEFAULT_EVENT_DURATION, EVENTS_REFETCH_INTERVAL } from '../../constants'
 import { DropProps, ItemTypes, TEvent } from '../../utils/types'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
 import { useAppSelector } from '../../redux/hooks'
-import { useGetEvents } from '../../services/api-query-hooks'
+import { useCreateEvent, useGetEvents } from '../../services/api-query-hooks'
 import useInterval from '../../hooks/useInterval'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 
@@ -148,29 +148,49 @@ const CalendarEvents = ({ date, numDays }: CalendarEventsProps) => {
         }
     }, [])
 
-    const onDrop = useCallback(async (_item: DropProps, _monitor: DropTargetMonitor) => {
-        if (eventsContainerRef.current == null) return
-        // const dropDirection = await getDropDirection(monitor.getClientOffset()?.y ?? 0)
+    // drag task to calendar logic
 
-        // const dropIndex = taskIndex + (dropDirection === DropDirection.Up ? 1 : 2)
+    const { mutate: createEvent } = useCreateEvent()
 
-        // reorderTask({
-        //     taskId: item.id,
-        //     orderingId: dropIndex,
-        //     dropSectionId: sectionId,
-        // })
+    const onDrop = useCallback(async (_item: DropProps, monitor: DropTargetMonitor) => {
+        const dropPosition = monitor.getClientOffset()
+        if (!eventsContainerRef.current || !dropPosition) return
+        const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
+        const scrollOffset = eventsContainerRef.current.scrollTop
+
+        const yPosInEventsContainer = dropPosition.y - eventsContainerOffset + scrollOffset
+
+        // index of 30 minute block on the calendar, i.e. 12 am is 0, 12:30 AM is 1, etc.
+        const dropTimeBlock = Math.floor(
+            yPosInEventsContainer / ((CELL_HEIGHT_VALUE * CALENDAR_DEFAULT_EVENT_DURATION) / 60)
+        )
+
+        const start = date.set({
+            hour: dropTimeBlock / 2,
+            minute: dropTimeBlock % 2 === 0 ? 0 : 30,
+            second: 0,
+            millisecond: 0,
+        })
+        const end = start.plus({ minutes: 30 })
+
+        createEvent({
+            createEventPayload: {
+                account_id: 'scottmai702@gmail.com',
+                datetime_start: start.toISO(),
+                datetime_end: end.toISO(),
+                summary: 'My task',
+            },
+            date,
+        })
     }, [])
 
-    const [_isOver, drop] = useDrop(
+    const [_, drop] = useDrop(
         () => ({
             accept: ItemTypes.TASK,
             collect: (monitor) => {
                 return !!monitor.isOver()
             },
             drop: onDrop,
-            // hover: (_, monitor) => {
-            //     getDropDirection(monitor.getClientOffset()?.y ?? 0)
-            // },
         }),
         []
     )
