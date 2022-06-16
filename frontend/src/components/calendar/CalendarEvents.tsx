@@ -116,6 +116,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     const { data: eventPreviousMonth, refetch: refetchPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
     const { data: eventsCurrentMonth, refetch: refetchCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
     const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
+    const { mutate: createEvent } = useCreateEvent()
 
     const allGroups = useMemo(() => {
         const events = [...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? [])]
@@ -150,7 +151,6 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     }, [])
 
     // drag task to calendar logic
-    const { mutate: createEvent } = useCreateEvent()
 
     const onDrop = useCallback(
         async (item: DropProps, monitor: DropTargetMonitor) => {
@@ -185,7 +185,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
                 date,
             })
         },
-        [date, accountId]
+        [date, accountId, createEvent]
     )
 
     const [_, drop] = useDrop(
