@@ -679,9 +679,9 @@ export const useCreateEvent = () => {
             onMutate: async ({ createEventPayload, date }: CreateEventParams) => {
                 await queryClient.cancelQueries('events')
 
-                const timeBlocks = getMonthsAroundDate(date, 1)
                 const start = DateTime.fromISO(createEventPayload.datetime_start)
                 const end = DateTime.fromISO(createEventPayload.datetime_end)
+                const timeBlocks = getMonthsAroundDate(date, 1)
                 const blockIndex = timeBlocks.findIndex(block => start >= block.start && end <= block.end)
                 const block = timeBlocks[blockIndex]
 
@@ -694,7 +694,7 @@ export const useCreateEvent = () => {
                 if (events == null) return
 
                 const newEvent: TEvent = {
-                    id: '0',
+                    id: uuidv4(),
                     title: createEventPayload.summary ?? '',
                     body: createEventPayload.description ?? '',
                     deeplink: '',
@@ -702,8 +702,11 @@ export const useCreateEvent = () => {
                     datetime_end: createEventPayload.datetime_end,
                     conference_call: null,
                 }
-                events.push(newEvent)
-                queryClient.setQueryData('events', () => events)
+                queryClient.setQueryData([
+                    'events',
+                    'calendar',
+                    block.start.toISO(),
+                ], [...events, newEvent])
             },
             onSettled: () => {
                 queryClient.invalidateQueries('events')

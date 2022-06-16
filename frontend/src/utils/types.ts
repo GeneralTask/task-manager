@@ -199,6 +199,7 @@ export interface DropProps {
     id: string
     taskIndex: number
     sectionId: string
+    task: TTask
 }
 
 export interface TTaskCreateParams {

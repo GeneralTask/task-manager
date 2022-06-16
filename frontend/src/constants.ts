@@ -17,6 +17,7 @@ export const TASK_MARK_AS_READ_TIMEOUT = 0.5
 export const DETAILS_SYNC_TIMEOUT = 1
 export const SINGLE_SECOND_INTERVAL = 1
 export const EMAIL_UNDO_TIMEOUT = 5
+export const CALENDAR_DEFAULT_EVENT_DURATION = 30
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
