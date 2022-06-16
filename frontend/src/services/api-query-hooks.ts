@@ -702,7 +702,6 @@ export const useCreateEvent = () => {
                     datetime_end: createEventPayload.datetime_end,
                     conference_call: null,
                 }
-                console.log({ newEvent })
                 events.push(newEvent)
                 queryClient.setQueryData('events', () => events)
             },

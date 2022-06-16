@@ -180,6 +180,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
                     datetime_start: start.toISO(),
                     datetime_end: end.toISO(),
                     summary: item.task.title,
+                    description: item.task.body,
                 },
                 date,
             })
