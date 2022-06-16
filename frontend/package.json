@@ -4,6 +4,7 @@
   "scripts": {
     "start": "webpack-dev-server --config ./webpack.dev.js",
     "build": "webpack --config ./webpack.prod.js",
+    "build:test": "webpack --config ./webpack.dev.js",
     "prettier:fix": "prettier --write",
     "lint": "eslint --fix",
     "test": "jest",
@@ -78,7 +79,7 @@
     "chance": "^1.1.8",
     "copy-webpack-plugin": "^10.2.4",
     "css-loader": "^6.7.1",
-    "cypress": "^9.5.3",
+    "cypress": "9.5.3",
     "eslint": "^8.11.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
