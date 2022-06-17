@@ -4,7 +4,7 @@ import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
-import { icons, logos, statuses } from '../../styles/images'
+import { logos, linearStatus, TLinearStatusImage } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
@@ -14,6 +14,7 @@ import { useCallback, useRef } from 'react'
 import Spinner from '../atoms/Spinner'
 import { useNavigate, useParams } from 'react-router-dom'
 import { EmailList } from './email/EmailList'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16
@@ -211,19 +212,14 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                 keyboardShortcut="showLabelEditor"
                             />
                             {task.deeplink && (
-                                <a
-                                    href={task.deeplink}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    style={{ textDecoration: 'none' }}
-                                >
+                                <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
                                     <RoundedGeneralButton
                                         textStyle="dark"
                                         value={task.source.name}
                                         hasBorder
-                                        iconSource={icons.external_link}
+                                        iconSource={'external_link'}
                                     />
-                                </a>
+                                </NoStyleAnchor>
                             )}
                         </MarginLeftAuto>
                     </>
@@ -240,9 +236,9 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                 }}
             />
-            {task.external_status && (
+            {task.external_status && Object.keys(linearStatus).includes(statusIcon) && (
                 <StatusContainer>
-                    <Icon source={statuses[statusIcon]} size="small" /> {status}
+                    <Icon source={linearStatus[statusIcon as TLinearStatusImage]} size="small" /> {status}
                 </StatusContainer>
             )}
             {task.isOptimistic ? (

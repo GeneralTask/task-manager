@@ -61,7 +61,7 @@ export const buttons: { [key: string]: string } = {
     google_sign_in: '/images/google_sign_in.png',
 }
 
-export const statuses: { [key: string]: string } = {
+export const linearStatus = Object.freeze({
     backlog: '/images/linear_backlog.svg',
     canceled: '/images/linear_canceled.svg',
     done: '/images/linear_done.svg',
@@ -70,6 +70,7 @@ export const statuses: { [key: string]: string } = {
     inreview: '/images/linear_inreview.svg',
     todo: '/images/linear_todo.svg',
     triage: '/images/linear_triage.svg',
-}
+})
 
 export type TIconImage = keyof typeof icons
+export type TLinearStatusImage = keyof typeof linearStatus

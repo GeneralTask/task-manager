@@ -2,6 +2,7 @@ import { Border, Colors, Spacing, Typography } from '../../../styles'
 import React from 'react'
 import styled from 'styled-components'
 import { Icon } from '../Icon'
+import { TIconImage } from '../../../styles/images'
 
 const RoundedButton = styled.button<{ hasBorder: boolean; textStyle: 'light' | 'dark'; wrapText?: boolean }>`
     display: flex;
@@ -30,7 +31,7 @@ interface RoundedGeneralButtonProps extends React.ButtonHTMLAttributes<HTMLButto
     textStyle?: 'light' | 'dark'
     wrapText?: boolean
     hasBorder?: boolean
-    iconSource?: string
+    iconSource?: TIconImage
 }
 const RoundedGeneralButton = (props: RoundedGeneralButtonProps) => {
     const color = props.disabled ? Colors.gray._400 : props.color || Colors.white
@@ -43,7 +44,7 @@ const RoundedGeneralButton = (props: RoundedGeneralButtonProps) => {
             textStyle={props.textStyle || 'light'}
             wrapText={props.wrapText}
         >
-            {props.iconSource && <Icon size={'small'} source={props.iconSource} />}
+            {props.iconSource && <Icon size="small" source={props.iconSource} />}
             {props.value}
         </RoundedButton>
     )
