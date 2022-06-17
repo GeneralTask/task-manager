@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { forwardRef } from 'react'
 import { TLinearComment } from '../../../utils/types'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
@@ -19,7 +19,7 @@ const TopContainer = styled.div`
 const BodyContainer = styled.div`
     padding: ${Spacing.padding._4};
 `
-const BlackText = styled.div`
+const BlackText = styled.span`
     font-size: ${Typography.xSmall.fontSize};
     line-height: ${Typography.xSmall.lineHeight};
     color: ${Colors.gray._700};
@@ -32,19 +32,19 @@ interface LinearCommentProps {
     comment: TLinearComment
 }
 
-const LinearComment = ({ comment }: LinearCommentProps) => {
-    const date_sent = DateTime.fromISO(comment.created_at)
+const LinearComment = forwardRef<HTMLDivElement, LinearCommentProps>(({ comment }: LinearCommentProps, ref) => {
+    const dateSent = DateTime.fromISO(comment.created_at)
     return (
-        <CommentContainer>
+        <CommentContainer ref={ref}>
             <TopContainer>
                 <BlackText>{`${comment.user.Name} (${comment.user.DisplayName})`}</BlackText>
-                <GrayText>{getHumanTimeSinceDateTime(date_sent)}</GrayText>
+                <GrayText>{getHumanTimeSinceDateTime(dateSent)}</GrayText>
             </TopContainer>
             <BodyContainer>
                 <BlackText>{comment.body}</BlackText>
             </BodyContainer>
         </CommentContainer>
     )
-}
+})
 
 export default LinearComment

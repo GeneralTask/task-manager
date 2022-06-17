@@ -1,4 +1,4 @@
-import React, { Ref, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { TLinearComment } from '../../../utils/types'
 import LinearComment from './LinearComment'
 import styled from 'styled-components'
@@ -7,7 +7,7 @@ import { Colors, Spacing } from '../../../styles'
 const CommentListContainer = styled.div`
     display: flex;
     flex-direction: column;
-    max-height: 400px;
+    max-height: 200px;
     overflow-y: auto;
     gap: ${Spacing.margin._8};
 `
@@ -23,9 +23,11 @@ interface LinearCommentListProps {
 }
 
 const LinearCommentList = ({ comments }: LinearCommentListProps) => {
-    const bottomRef: Ref<HTMLDivElement> = useRef(null)
+    const bottomRef = useRef<HTMLDivElement>(null)
 
-    useEffect(() => bottomRef.current?.scrollIntoView(), [])
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView()
+    }, [comments])
 
     return (
         <>
@@ -34,10 +36,15 @@ const LinearCommentList = ({ comments }: LinearCommentListProps) => {
                 {comments
                     .slice()
                     .reverse()
-                    .map((comment) => (
-                        <LinearComment key={comment.created_at} comment={comment} />
-                    ))}
-                <div ref={bottomRef} />
+                    .map((comment, i) => {
+                        return (
+                            <LinearComment
+                                key={comment.created_at}
+                                comment={comment}
+                                ref={i === comments.length - 1 ? bottomRef : undefined}
+                            />
+                        )
+                    })}
             </CommentListContainer>
         </>
     )
