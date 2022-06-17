@@ -71,8 +71,19 @@ func TestGetPullRequests(t *testing.T) {
 		}
 		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
+
+		expectedPullRequest := database.PullRequest{
+			RepositoryId:   "1234",
+			RepositoryName: "ExampleRepository",
+			Number:         420,
+			Author:         "chad1616",
+			Branch:         "ExampleBranch",
+			RequiredAction: "Add Reviewers",
+			CommentCount:   0,
+		}
 		assert.NoError(t, result.Error)
-		assert.Equal(t, 1, len(result.PullRequests))
+		assert.Equal(t, len(result.PullRequests), 1)
+		assert.Equal(t, expectedPullRequest, result.PullRequests[0].PullRequest)
 	})
 	t.Run("NoPullRequests", func(t *testing.T) {
 		userId := primitive.NewObjectID()
