@@ -9,6 +9,8 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import { openAuthWindow } from '../../utils/auth'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
+import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
+import GTSelect from '../molecules/GTSelect'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -64,17 +66,35 @@ const SettingsView = () => {
         supportedTypes && openAuthWindow(selectedType, supportedTypes, refetch)
         setSelectedType('add')
     }, [selectedType])
+    console.log({
+        options:
+            supportedTypes?.map((type) => ({
+                item: type.name === 'Google' ? <GoogleSignInButton /> : type.name,
+                onClick: () => {},
+                noPadding: type.name === 'Google',
+            })) ?? [],
+    })
 
     return (
         <ScrollViewMimic>
             <SettingsViewContainer>
                 <SectionHeader sectionName="Settings" allowRefresh={false} />
                 <AccountsContainer>
+                    <GTSelect
+                        options={
+                            supportedTypes?.map((type) => ({
+                                item: type.name === 'Google' ? <GoogleSignInButton /> : type.name,
+                                onClick: () => {},
+                                hasPadding: type.name !== 'Google',
+                            })) ?? []
+                        }
+                        onClose={() => {}}
+                    />
                     <FullWidthSelect value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
                         <option value="add">Add new account</option>
                         {supportedTypes?.map((type, i) => (
                             <option key={i} value={type.name}>
-                                {type.name}
+                                {type.name === 'Google' ? <GoogleSignInButton /> : type.name}
                             </option>
                         ))}
                     </FullWidthSelect>
