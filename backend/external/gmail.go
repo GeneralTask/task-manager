@@ -176,7 +176,7 @@ func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mong
 				return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			}
 
-			dbEmail, err := database.UpdateOrCreateTask(
+			dbEmail, err := database.UpdateOrCreateItem(
 				db, userID, emailItem.IDExternal, emailItem.SourceID,
 				emailItem, database.EmailItemToChangeable(emailItem),
 				&[]bson.M{{"task_type.is_message": true}},
@@ -207,8 +207,7 @@ func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mong
 		}
 		threadItem.EmailThread.LastUpdatedAt = mostRecentEmailTimestamp
 		threadItem.EmailThread.Emails = assignOrGenerateNestedEmailIDs(threadItem, nestedEmails)
-
-		_, err = database.UpdateOrCreateTask(
+		_, err = database.UpdateOrCreateItem(
 			db, userID, threadItem.IDExternal, threadItem.SourceID,
 			threadItem, database.ThreadItemToChangeable(threadItem),
 			&[]bson.M{{"task_type.is_thread": true}}, true)
@@ -222,6 +221,7 @@ func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mong
 }
 
 func parseEmail(userID primitive.ObjectID, accountID string, message *gmail.Message, threadID string) (*database.Item, error) {
+	numAttachments := 0
 	sender := ""
 	replyTo := ""
 	title := ""
@@ -241,6 +241,13 @@ func parseEmail(userID primitive.ObjectID, accountID string, message *gmail.Mess
 	var bodyPlain *string
 
 	messageParts := expandMessageParts(message.Payload.Parts)
+
+	// NOTE: We count the number of attachments separately because the body parsing code below is fragile
+	numAttachments += countAttachmentsInMessagePart(message.Payload)
+	for _, messagePart := range messageParts {
+		numAttachments += countAttachmentsInMessagePart(messagePart)
+	}
+
 	for _, messagePart := range messageParts {
 		parsedBody, err := parseMessagePartBody(messagePart.MimeType, messagePart.Body)
 		if err != nil {
@@ -262,11 +269,11 @@ func parseEmail(userID primitive.ObjectID, accountID string, message *gmail.Mess
 
 	//fallback to body if there are no parts.
 	if body == nil || len(*body) == 0 {
-		bodyParsed, err := parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
+		body, err = parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
 		if err != nil {
-			return &database.Item{}, err
+			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
+			return
 		}
-		body = bodyParsed
 	}
 
 	senderName, senderEmail := utils.ExtractSenderName(sender)
@@ -274,20 +281,25 @@ func parseEmail(userID primitive.ObjectID, accountID string, message *gmail.Mess
 	recipients := *GetRecipients(message.Payload.Headers)
 
 	timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
-	email := database.Email{
-		SMTPID:       smtpID,
-		ThreadID:     threadID,
-		EmailID:      message.Id,
-		SenderDomain: senderDomain,
-		SenderEmail:  senderEmail,
-		SenderName:   senderName,
-		Body:         *body,
-		Subject:      title,
-		ReplyTo:      replyTo,
-		IsUnread:     isMessageUnread(message),
-		Recipients:   recipients,
-		SentAt:       timeSent,
+	if timeSent > mostRecentEmailTimestamp {
+		mostRecentEmailTimestamp = timeSent
 	}
+	email := database.Email{
+		SMTPID:         smtpID,
+		ThreadID:       thread.Id,
+		EmailID:        message.Id,
+		SenderDomain:   senderDomain,
+		SenderEmail:    senderEmail,
+		SenderName:     senderName,
+		Body:           *body,
+		Subject:        title,
+		ReplyTo:        replyTo,
+		IsUnread:       isMessageUnread(message),
+		Recipients:     recipients,
+		SentAt:         timeSent,
+		NumAttachments: numAttachments,
+	}
+	nestedEmails = append(nestedEmails, email)
 	emailItem := &database.Item{
 		TaskBase: database.TaskBase{
 			UserID:            userID,
@@ -295,7 +307,7 @@ func parseEmail(userID primitive.ObjectID, accountID string, message *gmail.Mess
 			IDTaskSection:     constants.IDTaskSectionDefault,
 			Sender:            senderName,
 			SourceID:          TASK_SOURCE_ID_GMAIL,
-			Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, threadID),
+			Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, thread.Id),
 			Title:             title,
 			Body:              *body,
 			SourceAccountID:   accountID,
@@ -696,7 +708,7 @@ func (gmailSource GmailSource) CreateNewEvent(userID primitive.ObjectID, account
 	return errors.New("has not been implemented yet")
 }
 
-func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		gmailSource.MarkAsDone(userID, accountID, issueID)
 	}
@@ -858,6 +870,13 @@ func recipientToString(recipient database.Recipient) string {
 	} else {
 		return recipient.Email
 	}
+}
+
+func countAttachmentsInMessagePart(messagePart *gmail.MessagePart) int {
+	if messagePart.Filename != "" {
+		return 1
+	}
+	return 0
 }
 
 func createGmailService(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string, gmailSource *GmailSource, ctx context.Context) (*gmail.Service, error) {

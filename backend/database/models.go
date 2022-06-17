@@ -155,19 +155,20 @@ type EmailThread struct {
 }
 
 type Email struct {
-	MessageID    primitive.ObjectID `bson:"message_id" json:"message_id"`
-	SMTPID       string             `bson:"smtp_id" json:"smtp_id"`
-	ThreadID     string             `bson:"thread_id" json:"thread_id"`
-	EmailID      string             `bson:"email_id" json:"email_id"`
-	Subject      string             `bson:"subject" json:"subject"`
-	Body         string             `bson:"body" json:"body"`
-	SenderDomain string             `bson:"sender_domain" json:"sender_domain"`
-	SenderEmail  string             `bson:"sender_email" json:"sender_email"`
-	SenderName   string             `bson:"sender_name" json:"sender_name"`
-	ReplyTo      string             `bson:"reply_to" json:"reply_to"`
-	IsUnread     bool               `bson:"is_unread" json:"is_unread"`
-	Recipients   Recipients         `bson:"recipients" json:"recipients"`
-	SentAt       primitive.DateTime `bson:"sent_at" json:"sent_at"`
+	MessageID      primitive.ObjectID `bson:"message_id" json:"message_id"`
+	SMTPID         string             `bson:"smtp_id" json:"smtp_id"`
+	ThreadID       string             `bson:"thread_id" json:"thread_id"`
+	EmailID        string             `bson:"email_id" json:"email_id"`
+	Subject        string             `bson:"subject" json:"subject"`
+	Body           string             `bson:"body" json:"body"`
+	SenderDomain   string             `bson:"sender_domain" json:"sender_domain"`
+	SenderEmail    string             `bson:"sender_email" json:"sender_email"`
+	SenderName     string             `bson:"sender_name" json:"sender_name"`
+	ReplyTo        string             `bson:"reply_to" json:"reply_to"`
+	IsUnread       bool               `bson:"is_unread" json:"is_unread"`
+	Recipients     Recipients         `bson:"recipients" json:"recipients"`
+	SentAt         primitive.DateTime `bson:"sent_at" json:"sent_at"`
+	NumAttachments int                `bson:"num_attachments" json:"num_attachments"`
 }
 
 type EmailChangeable struct {
@@ -185,15 +186,51 @@ type LinkedMessage struct {
 	EmailID  *primitive.ObjectID `bson:"email_id"`
 }
 
+type ExternalUser struct {
+	ExternalID  string `bson:"external_id"`
+	Name        string `bson:"name"`
+	DisplayName string `bson:"display_name"`
+	Email       string `bson:"email"`
+}
+
+type Comment struct {
+	Body      string             `bson:"body" json:"body"`
+	User      ExternalUser       `bson:"user" json:"user"`
+	CreatedAt primitive.DateTime `bson:"created_at" json:"created_at"`
+}
+
+type ExternalTaskStatus struct {
+	ExternalID string `bson:"external_id"`
+	State      string `bson:"state"`
+	Type       string `bson:"type"`
+}
+
 type Task struct {
 	PriorityID         string  `bson:"priority_id"`
 	PriorityNormalized float64 `bson:"priority_normalized"`
 	TaskNumber         int     `bson:"task_number"`
 	LinkedMessage      `bson:"linked_message"`
+	Comments           *[]Comment         `bson:"comments"`
+	Status             ExternalTaskStatus `bson:"status"`
+	// Used to cache the current status before marking the task as done
+	PreviousStatus  ExternalTaskStatus `bson:"previous_status"`
+	CompletedStatus ExternalTaskStatus `bson:"completed_status"`
 }
 
-type TaskChangeableFields struct {
-	Task           `bson:"task,omitempty"`
+type TaskChangeable struct {
+	PriorityID         *string  `bson:"priority_id,omitempty"`
+	PriorityNormalized *float64 `bson:"priority_normalized,omitempty"`
+	TaskNumber         *int     `bson:"task_number,omitempty"`
+	LinkedMessage      `bson:"linked_message,omitempty"`
+	Comments           *[]Comment          `bson:"comments,omitempty"`
+	Status             *ExternalTaskStatus `bson:"status,omitempty"`
+	// Used to cache the current status before marking the task as done
+	PreviousStatus  *ExternalTaskStatus `bson:"previous_status,omitempty"`
+	CompletedStatus *ExternalTaskStatus `bson:"completed_status,omitempty"`
+}
+
+type TaskItemChangeableFields struct {
+	Task           *TaskChangeable    `bson:"task,omitempty"`
 	Title          *string            `json:"title" bson:"title,omitempty"`
 	Body           *string            `json:"body" bson:"body,omitempty"`
 	DueDate        primitive.DateTime `json:"due_date" bson:"due_date,omitempty"`

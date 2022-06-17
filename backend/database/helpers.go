@@ -16,7 +16,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func UpdateOrCreateTask(
+func UpdateOrCreateItem(
 	db *mongo.Database,
 	userID primitive.ObjectID,
 	IDExternal string,

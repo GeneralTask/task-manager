@@ -16,7 +16,7 @@ type TaskSource interface {
 	SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error
 	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error)
 	CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error
-	ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error
+	ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error
 	ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error
 	ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error
 }

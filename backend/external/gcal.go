@@ -99,7 +99,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				IsEvent: true,
 			},
 		}
-		dbEvent, err := database.UpdateOrCreateTask(
+		dbEvent, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			event.IDExternal,
@@ -214,7 +214,7 @@ func GetConferenceCall(event *calendar.Event, accountID string) *database.Confer
 	return conferenceCall
 }
 
-func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		return errors.New("cannot mark calendar event as done")
 	}

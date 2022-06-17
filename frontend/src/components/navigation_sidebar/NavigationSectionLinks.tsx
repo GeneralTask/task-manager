@@ -1,7 +1,7 @@
 import { Colors, Spacing, Typography } from '../../styles'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { TEmailThread, TRepository, TTaskSection } from '../../utils/types'
+import { TEmailThread, TMailbox, TRepository, TTaskSection } from '../../utils/types'
 
 import { Icon } from '../atoms/Icon'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
@@ -33,19 +33,19 @@ const IconContainer = styled.div`
 
 interface SectionLinksProps {
     taskSections: TTaskSection[]
-    threads: TEmailThread[]
+    threadsInbox: TEmailThread[]
     pullRequestRepositories: TRepository[]
     sectionId: string
-    repositoryId: string
+    mailbox?: TMailbox
     pathName: string
 }
 
 const NavigationSectionLinks = ({
     taskSections,
-    threads,
+    threadsInbox,
     pullRequestRepositories,
     sectionId,
-    repositoryId,
+    mailbox,
     pathName,
 }: SectionLinksProps) => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
@@ -141,13 +141,21 @@ const NavigationSectionLinks = ({
                         />
                     ))}
             </NavigationLinkDropdown>
-            <NavigationLink
-                link="/messages"
-                title="Messages"
-                icon={icons.inbox}
-                count={threads.filter((t) => t.emails.find((e) => e.is_unread)).length}
-                isCurrentPage={pathName === 'messages'}
-            />
+            <NavigationLinkDropdown title="Messages" icon="label">
+                <NavigationLink
+                    link="/messages/inbox"
+                    title="Inbox"
+                    icon={icons.inbox}
+                    count={threadsInbox.filter((t) => t.emails.find((e) => e.is_unread)).length}
+                    isCurrentPage={mailbox === 'inbox'}
+                />
+                <NavigationLink
+                    link="/messages/archive"
+                    title="Archive"
+                    icon={icons.archive}
+                    isCurrentPage={mailbox === 'archive'}
+                />
+            </NavigationLinkDropdown>
             {isDevelopmentMode && (
                 <NavigationLink
                     link="/pull-requests"
@@ -157,7 +165,7 @@ const NavigationSectionLinks = ({
                         (total, repo) => total + repo.pull_requests.length,
                         0
                     )}
-                    isCurrentPage={repositoryId === 'pull-requests'}
+                    isCurrentPage={pathName === 'pull-requests'}
                 />
             )}
             <NavigationLink

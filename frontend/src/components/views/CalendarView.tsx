@@ -11,7 +11,7 @@ import { icons } from '../../styles/images'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useAppDispatch } from '../../redux/hooks'
-import { useGetEvents } from '../../services/api-query-hooks'
+import { useGetEvents, useGetLinkedAccounts } from '../../services/api-query-hooks'
 import { useIdleTimer } from 'react-idle-timer'
 import { useInterval } from '../../hooks'
 
@@ -51,6 +51,14 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
         1,
         false
     )
+
+    const { data: linkedAccounts } = useGetLinkedAccounts()
+
+    const firstLinkedCalendarAccount = useMemo(
+        () => linkedAccounts?.filter((account) => account.name === 'Google')?.[0]?.display_id,
+        [linkedAccounts]
+    )
+
     return isCalendarCollapsed ? (
         <CollapsedCalendarView onClick={() => setIsCalendarCollapsed(false)}>
             <CursorPointerDiv>
@@ -60,7 +68,7 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
     ) : (
         <CalendarContainer expanded={isExpanded}>
             <CalendarHeader collapseCalendar={handleCollapseCalendar} date={date} setDate={setDate} />
-            <CalendarEvents date={date} numDays={isExpanded ? 7 : 1} />
+            <CalendarEvents date={date} numDays={isExpanded ? 7 : 1} accountId={firstLinkedCalendarAccount} />
         </CalendarContainer>
     )
 }

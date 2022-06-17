@@ -10,14 +10,57 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          runTests: false
+
+      - name: Cypress install
+        uses: cypress-io/github-action@v4
+        with:
+          install: yarn install --production=true # does not install devDependencies
+          working-directory: frontend
+          runTests: false
+          build: yarn build:test
+
+      - name: Save build folder
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          if-no-files-found: error
+          path: frontend/dist
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
     env:
       REACT_APP_API_BASE_URL: http://localhost:8080
       DB_NAME: test
+    strategy:
+      fail-fast: false
+      matrix:
+        # run copies of the current job in parallel
+        containers: [1, 2, 3, 4, 5]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Download the build folders
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: frontend/dist
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
         with:
           node-version: 14
+          runTests: false
 
       - name: Spin up db
         working-directory: backend
@@ -27,14 +70,23 @@ jobs:
         working-directory: backend
         run: go run . &
 
+      - name: Copy Cypress config
+        run: cp frontend/cypress.json .
+
       - name: Install dependencies
         working-directory: frontend
-        run: yarn install --frozen-lockfile
+        run: npm i cypress@9.5.3 serve typescript @testing-library/cypress chance
 
       - name: Cypress run
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v4
         with:
-          start: yarn start
-          wait-on: 'http://localhost:3000'
-          command: yarn cy:run
           working-directory: frontend
+          install: false
+          start: npx serve -s dist
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 60
+          command: npx cypress run --parallel --record --config supportFile=cypress/support,integrationFolder=cypress/integration
+        env: 
+          CYPRESS_RECORD_KEY: 65dc874e-0eec-40c2-92a6-6353992fbbc7
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          api_url: http://localhost:8080

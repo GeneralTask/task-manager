@@ -1,4 +1,5 @@
 import { EmailComposeType } from "./enums"
+import { TPullRequestStatusColors } from "../components/pull-requests/styles"
 
 export type Datestring = string
 
@@ -53,17 +54,7 @@ export interface TTask {
 export interface TLinkedEmailThread {
     linked_thread_id: string
     linked_email_id?: string
-    emails: TLinkedEmail[]
-}
-
-export interface TLinkedEmail {
-    smtp_id: string,
-    subject: string,
-    body: string,
-    sent_at: string,
-    is_unread: string,
-    sender_v2: TSender,
-    recipients: TRecipients
+    email_thread: TEmailThread
 }
 
 export interface TMessageSource {
@@ -134,6 +125,7 @@ export interface TEmailThread {
     id: string
     deeplink: string
     source: TMessageSource
+    is_archived: boolean
     emails: TEmail[]
 }
 
@@ -144,9 +136,10 @@ export interface TPullRequest {
     number: number
     status: {
         text: string
-        color: string
+        color: TPullRequestStatusColors
     }
     author: string
+    num_comments: number
     created_at: string
     branch: string
     link: string
@@ -206,6 +199,7 @@ export interface DropProps {
     id: string
     taskIndex: number
     sectionId: string
+    task: TTask
 }
 
 export interface TTaskCreateParams {
@@ -227,3 +221,5 @@ export interface TEmailComposeState {
     emailId: string | null // the id of the email to show the compose form for
     isPending?: boolean
 }
+
+export type TMailbox = 'inbox' | 'archive'

@@ -24,6 +24,9 @@ const Underline = styled.span`
     text-decoration: underline;
 `
 
+// Temporary hack to remove bad recipients from backend email recipient parsing
+const removeBadRecipients = (recipients: TRecipient[]) => recipients.filter((r) => !r.email.includes('"'))
+
 interface RecipientDetailsProps {
     category: string
     recipients: TRecipient[]
@@ -45,7 +48,8 @@ interface EmailSenderDetailsProps {
 }
 
 const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => {
-    const numRecipients = recipients.to.length + recipients.cc.length + recipients.bcc.length
+    const allRecipients = removeBadRecipients([...recipients.to, ...recipients.cc, ...recipients.bcc])
+    const numRecipients = allRecipients.length
 
     const details = ReactDOMServer.renderToString(
         <>
@@ -53,16 +57,22 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
                 <KeyContainer>From:</KeyContainer>
                 <ValueContainer>{`${sender.name} <${sender.email}>`}</ValueContainer>
             </Row>
-            <RecipientDetails category="To:" recipients={recipients.to} />
-            <RecipientDetails category="Cc:" recipients={recipients.cc} />
-            <RecipientDetails category="Bcc:" recipients={recipients.bcc} />
+            <RecipientDetails category="To:" recipients={removeBadRecipients(recipients.to)} />
+            <RecipientDetails category="Cc:" recipients={removeBadRecipients(recipients.cc)} />
+            <RecipientDetails category="Bcc:" recipients={removeBadRecipients(recipients.bcc)} />
         </>
     )
+
+    const displayText =
+        allRecipients
+            .slice(0, 3)
+            .map((r) => r.name || r.email)
+            .join(', ') + (numRecipients > 3 ? `, +${numRecipients - 3} more` : '')
 
     return (
         <TooltipWrapper dataTip={details} tooltipId="tooltip">
             <SmallGrayText>
-                <Underline>{`${numRecipients} ${numRecipients === 1 ? 'recipient' : 'recipients'}`}</Underline> ▼
+                <Underline>{`To: ${displayText}`}</Underline>
             </SmallGrayText>
         </TooltipWrapper>
     )

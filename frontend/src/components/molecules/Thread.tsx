@@ -2,7 +2,6 @@ import { DateTime } from 'luxon'
 import React, { MutableRefObject, useCallback, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { Colors, Spacing, Typography } from '../../styles'
 import { TEmailThread } from '../../utils/types'
@@ -40,6 +39,13 @@ interface ThreadProps {
     thread: TEmailThread
     sectionScrollingRef: MutableRefObject<HTMLDivElement | null>
 }
+
+const cleanPreviewText = (html: string) => {
+    const trimmedText = removeHTMLTags(html).trim()
+    const spacedText = trimmedText.replaceAll('\u00a0', ' ')
+    return spacedText
+}
+
 const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const navigate = useNavigate()
     const params = useParams()
@@ -87,15 +93,15 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     )
 
     const onClickHandler = useCallback(() => {
-        navigate(`/messages/${thread.id}`)
+        navigate(`/messages/${params.mailbox}/${thread.id}`)
     }, [params, thread])
 
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClickHandler, !isSelected)
+    useKeyboardShortcut('select', onClickHandler, !isSelected)
 
     const senders = thread.emails[0]?.sender.name
-    const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length})` : ''
-    const title = `${threadCountString} ${thread.emails[0]?.subject}`
-    const bodyDirtyHTML = thread.emails[thread.emails.length - 1]?.body
+    const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length}) ` : ''
+    const title = `${threadCountString}${thread.emails[0]?.subject}`
+    const bodytext = thread.emails[thread.emails.length - 1]?.body
     const sentAt = getHumanDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
     const isUnread = thread.emails.some((email) => email.is_unread)
 
@@ -104,7 +110,7 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
             <TitleContainer>
                 <Title bold={isUnread}>{senders}</Title>
                 <SubTitle bold={isUnread}>{title}</SubTitle>
-                <BodyPreview bold={false}>{removeHTMLTags(bodyDirtyHTML)}</BodyPreview>
+                <BodyPreview bold={false}>{cleanPreviewText(bodytext)}</BodyPreview>
             </TitleContainer>
             <SentAtContainer>{sentAt}</SentAtContainer>
         </ThreadContainer>

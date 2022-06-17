@@ -1,10 +1,11 @@
+import { PullRequestViewContainer, Repository, RepositoryName } from '../pull-requests/styles'
+
 import Header from '../pull-requests/Header'
 import PullRequest from '../pull-requests/PullRequest'
 import React from 'react'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import { SectionHeader } from '../molecules/Header'
 import { TRepository } from '../../utils/types'
-import { PullRequestViewContainer, Repository, RepositoryName } from '../pull-requests/styles'
 
 export const dummyRepositories: TRepository[] = [
     {
@@ -20,6 +21,7 @@ export const dummyRepositories: TRepository[] = [
                     color: 'red',
                 },
                 author: 'Scott Mai',
+                num_comments: 3,
                 created_at: '2020-04-01T00:00:00.000Z',
                 branch: 'scott/fro-193-implementation-of-new-pr-view',
                 link: 'https://github.com/octocat/Hello-World/pull/1347',
@@ -33,6 +35,7 @@ export const dummyRepositories: TRepository[] = [
                     color: 'green',
                 },
                 author: 'Nolan',
+                num_comments: 4,
                 created_at: '2020-04-01T00:00:00.000Z',
                 branch: 'scott/fro-193-implementation-of-new-pr-view',
                 link: 'https://github.com/octocat/Hello-World/pull/1347',
@@ -42,7 +45,36 @@ export const dummyRepositories: TRepository[] = [
     {
         id: 'repo-2',
         name: 'Repository 2',
-        pull_requests: [],
+        pull_requests: [
+            {
+                id: 'pr-1',
+                title: 'Pull Request 1',
+                number: 1069,
+                status: {
+                    text: 'All tests failing',
+                    color: 'yellow',
+                },
+                author: 'Scott Mai',
+                num_comments: 6,
+                created_at: '2020-04-01T00:00:00.000Z',
+                branch: 'scott/fro-193-implementation-of-new-pr-view',
+                link: 'https://github.com/octocat/Hello-World/pull/1347',
+            },
+            {
+                id: 'pr-2',
+                title: 'Pull Request 1',
+                number: 1420,
+                status: {
+                    text: 'Ready to Merge',
+                    color: 'gray',
+                },
+                author: 'Nolan',
+                num_comments: 9,
+                created_at: '2020-04-01T00:00:00.000Z',
+                branch: 'scott/fro-193-implementation-of-new-pr-view',
+                link: 'https://github.com/octocat/Hello-World/pull/1347',
+            },
+        ],
     },
 ]
 

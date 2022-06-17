@@ -17,6 +17,7 @@ export const TASK_MARK_AS_READ_TIMEOUT = 0.5
 export const DETAILS_SYNC_TIMEOUT = 1
 export const SINGLE_SECOND_INTERVAL = 1
 export const EMAIL_UNDO_TIMEOUT = 5
+export const CALENDAR_DEFAULT_EVENT_DURATION = 30
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
@@ -43,17 +44,23 @@ export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 
 export const NO_EVENT_TITLE = '(no title)'
 
-export enum KEYBOARD_SHORTCUTS {
-    SELECT = 'Enter',
-    CLOSE = 'Escape',
-    NEXT = 'ArrowDown',
-    PREVIOUS = 'ArrowUp',
-    SHOW_DATE_PICKER = 'S',
-    SHOW_TIME_ESTIMATION_PICKER = 'F',
-    SHOW_LABEL_EDITOR = 'L',
-    CREATE_TASK = 'T',
-    REFRESH = 'R',
-    MARK_COMPLETE = 'D',
-    DOWN = 'ArrowDown',
-    UP = 'ArrowUp',
-}
+const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
+export const KEYBOARD_SHORTCUTS = Object.freeze({
+    close: 'Escape',
+    createTask: 'T',
+    down: 'ArrowDown',
+    forward: 'F',
+    markComplete: 'D',
+    next: 'ArrowDown',
+    previous: 'ArrowUp',
+    refresh: CMD_CTRL_KEY + '+R',
+    reply: 'R',
+    replyAll: 'Shift+R',
+    select: 'Enter',
+    showDatePicker: 'S',
+    showLabelEditor: 'L',
+    showTimeEstimationPicker: 'F',
+    up: 'ArrowUp',
+})
+
+export type TKeyboardShortcuts = keyof typeof KEYBOARD_SHORTCUTS

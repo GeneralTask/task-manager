@@ -11,7 +11,6 @@ import (
 func main() {
 	env := config.GetEnvironment()
 	utils.ConfigureLogger(env)
-
 	log.Info().Msgf("Starting server in %s environment", env)
 	// TODO: Validate .env/config at server startup
 

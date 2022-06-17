@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "core-service"
+  namespace: "prd-gtsk-uswest2"
+  annotations:
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ports:
+  - port: 8080 # exposes the Kubernetes service on the specified port within the cluster
+    targetPort: 8080 # is the port on which the service will send requests to, that your pod will be listening on
+    protocol: TCP
+    nodePort: 31254
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: "core"
