@@ -32,6 +32,12 @@ const (
 	ActionWaitingOnReview   string = "Waiting on Review"
 )
 
+const (
+	ChecksStatusCompleted    string = "completed"
+	ChecksConclusionFailure  string = "failure"
+	ChecksConclusionTimedOut string = "timed_out"
+)
+
 type GithubPRSource struct {
 	Github GithubService
 }
@@ -369,7 +375,7 @@ func checksDidFail(context context.Context, githubClient *github.Client, reposit
 
 	// check runs are individual tests that make up a check suite associated with a commit
 	for _, run := range checkRuns.CheckRuns {
-		if run.GetStatus() == "completed" && (run.GetConclusion() == "failure" || run.GetConclusion() == "timed_out") {
+		if run.GetStatus() == ChecksStatusCompleted && (run.GetConclusion() == ChecksConclusionFailure || run.GetConclusion() == ChecksConclusionTimedOut) {
 			return true, nil
 		}
 	}
