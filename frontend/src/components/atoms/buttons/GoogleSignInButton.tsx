@@ -17,12 +17,12 @@ const GoogleSignInImage = styled.img`
     width: ${googleButtonDimensions.width}px;
 `
 
+export const GoogleSignInButtonImage = <GoogleSignInImage src={Images.buttons.google_sign_in} />
+
 const GoogleSignInButton = () => {
     return (
         <GoogleButtonContainer>
-            <a href={LOGIN_URL}>
-                <GoogleSignInImage src={Images.buttons.google_sign_in} />
-            </a>
+            <a href={LOGIN_URL}>{GoogleSignInButtonImage}</a>
         </GoogleButtonContainer>
     )
 }

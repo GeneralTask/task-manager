@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Border, Colors, Spacing, Typography } from '../../styles'
@@ -9,8 +9,9 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import { openAuthWindow } from '../../utils/auth'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
-import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
+import { GoogleSignInButtonImage } from '../atoms/buttons/GoogleSignInButton'
 import GTSelect from '../molecules/GTSelect'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -50,54 +51,55 @@ const XSmallFontSpan = styled.span`
     font-size: ${Typography.xSmall.fontSize};
     margin-right: auto;
 `
-const FullWidthSelect = styled.select`
-    width: 100%;
+const TextAlignCenter = styled.span`
+    text-align: center;
+    /* width: 100%; */
 `
 
 const SettingsView = () => {
-    const [selectedType, setSelectedType] = useState<string>('add')
+    const [showLinkAccountsDropdown, setShowLinkedAccountsDropdown] = useState(false)
+    const showLinkAccountsButtonRef = useRef<HTMLButtonElement>(null)
+
     const { data: supportedTypes } = useGetSupportedTypes()
     const { data: linkedAccounts, refetch } = useGetLinkedAccounts()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
     const onUnlink = (id: string) => deleteAccount({ id: id })
     const onRelink = (accountType: string) => supportedTypes && openAuthWindow(accountType, supportedTypes, refetch)
-    useEffect(() => {
-        supportedTypes && openAuthWindow(selectedType, supportedTypes, refetch)
-        setSelectedType('add')
-    }, [selectedType])
-    console.log({
-        options:
-            supportedTypes?.map((type) => ({
-                item: type.name === 'Google' ? <GoogleSignInButton /> : type.name,
-                onClick: () => {},
-                noPadding: type.name === 'Google',
-            })) ?? [],
-    })
 
     return (
         <ScrollViewMimic>
             <SettingsViewContainer>
                 <SectionHeader sectionName="Settings" allowRefresh={false} />
                 <AccountsContainer>
-                    <GTSelect
-                        options={
-                            supportedTypes?.map((type) => ({
-                                item: type.name === 'Google' ? <GoogleSignInButton /> : type.name,
-                                onClick: () => {},
-                                hasPadding: type.name !== 'Google',
-                            })) ?? []
-                        }
-                        onClose={() => {}}
+                    <RoundedGeneralButton
+                        ref={showLinkAccountsButtonRef}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            setShowLinkedAccountsDropdown(!showLinkAccountsDropdown)
+                        }}
+                        style={{ textAlign: 'right' }}
+                        value="Add duck"
+                        textStyle="dark"
                     />
-                    <FullWidthSelect value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
-                        <option value="add">Add new account</option>
-                        {supportedTypes?.map((type, i) => (
-                            <option key={i} value={type.name}>
-                                {type.name === 'Google' ? <GoogleSignInButton /> : type.name}
-                            </option>
-                        ))}
-                    </FullWidthSelect>
+                    {showLinkAccountsDropdown && (
+                        <GTSelect
+                            options={
+                                supportedTypes?.map((type) => ({
+                                    item:
+                                        type.name === 'Google' ? (
+                                            GoogleSignInButtonImage
+                                        ) : (
+                                            <TextAlignCenter>{type.name}</TextAlignCenter>
+                                        ),
+                                    onClick: () => openAuthWindow(type.name, supportedTypes, refetch),
+                                    hasPadding: type.name !== 'Google',
+                                })) ?? []
+                            }
+                            onClose={() => setShowLinkedAccountsDropdown(false)}
+                            parentRef={showLinkAccountsButtonRef}
+                        />
+                    )}
                 </AccountsContainer>
                 {linkedAccounts?.map((account) => (
                     <AccountSpacing key={account.id}>
