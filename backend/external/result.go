@@ -12,6 +12,7 @@ type EmailResult struct {
 	Error      error
 	IsBadToken bool
 	SourceID   string
+	HistoryID  uint64
 }
 
 type TaskResult struct {
