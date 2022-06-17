@@ -36,15 +36,13 @@ const LinearCommentList = ({ comments }: LinearCommentListProps) => {
                 {comments
                     .slice()
                     .reverse()
-                    .map((comment, i) => {
-                        return (
-                            <LinearComment
-                                key={comment.created_at}
-                                comment={comment}
-                                ref={i === comments.length - 1 ? bottomRef : undefined}
-                            />
-                        )
-                    })}
+                    .map((comment, i) => (
+                        <LinearComment
+                            key={comment.created_at}
+                            comment={comment}
+                            ref={i === comments.length - 1 ? bottomRef : undefined}
+                        />
+                    ))}
             </CommentListContainer>
         </>
     )
