@@ -163,6 +163,8 @@ func TestGetPullRequests(t *testing.T) {
 		}
 		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
+
+		assert.Equal(t, result.Error.Error(), "failed to fetch Github user")
 		assert.Error(t, result.Error)
 	})
 }
