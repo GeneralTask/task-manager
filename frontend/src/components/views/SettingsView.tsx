@@ -51,14 +51,19 @@ const XSmallFontSpan = styled.span`
     font-size: ${Typography.xSmall.fontSize};
     margin-right: auto;
 `
+const ShowLinkAccountsButtonContainer = styled.div`
+    display: flex;
+    justify-content: end;
+    margin-right: ${Spacing.margin._16};
+`
 const TextAlignCenter = styled.span`
     text-align: center;
-    /* width: 100%; */
+    width: 100%;
 `
 
 const SettingsView = () => {
     const [showLinkAccountsDropdown, setShowLinkedAccountsDropdown] = useState(false)
-    const showLinkAccountsButtonRef = useRef<HTMLButtonElement>(null)
+    const showLinkAccountsButtonContainerRef = useRef<HTMLDivElement>(null)
 
     const { data: supportedTypes } = useGetSupportedTypes()
     const { data: linkedAccounts, refetch } = useGetLinkedAccounts()
@@ -72,34 +77,37 @@ const SettingsView = () => {
             <SettingsViewContainer>
                 <SectionHeader sectionName="Settings" allowRefresh={false} />
                 <AccountsContainer>
-                    <RoundedGeneralButton
-                        ref={showLinkAccountsButtonRef}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            setShowLinkedAccountsDropdown(!showLinkAccountsDropdown)
-                        }}
-                        style={{ textAlign: 'right' }}
-                        value="Add duck"
-                        textStyle="dark"
-                    />
-                    {showLinkAccountsDropdown && (
-                        <GTSelect
-                            options={
-                                supportedTypes?.map((type) => ({
-                                    item:
-                                        type.name === 'Google' ? (
-                                            GoogleSignInButtonImage
-                                        ) : (
-                                            <TextAlignCenter>{type.name}</TextAlignCenter>
-                                        ),
-                                    onClick: () => openAuthWindow(type.name, supportedTypes, refetch),
-                                    hasPadding: type.name !== 'Google',
-                                })) ?? []
-                            }
-                            onClose={() => setShowLinkedAccountsDropdown(false)}
-                            parentRef={showLinkAccountsButtonRef}
-                        />
-                    )}
+                    <ShowLinkAccountsButtonContainer>
+                        <div ref={showLinkAccountsButtonContainerRef}>
+                            <RoundedGeneralButton
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setShowLinkedAccountsDropdown(!showLinkAccountsDropdown)
+                                }}
+                                value="Add new Account"
+                                textStyle="dark"
+                            />
+                            {showLinkAccountsDropdown && (
+                                <GTSelect
+                                    options={
+                                        supportedTypes?.map((type) => ({
+                                            item:
+                                                type.name === 'Google' ? (
+                                                    GoogleSignInButtonImage
+                                                ) : (
+                                                    <TextAlignCenter>{type.name}</TextAlignCenter>
+                                                ),
+                                            onClick: () => openAuthWindow(type.name, supportedTypes, refetch),
+                                            hasPadding: type.name !== 'Google',
+                                        })) ?? []
+                                    }
+                                    location="left"
+                                    onClose={() => setShowLinkedAccountsDropdown(false)}
+                                    parentRef={showLinkAccountsButtonContainerRef}
+                                />
+                            )}
+                        </div>
+                    </ShowLinkAccountsButtonContainer>
                 </AccountsContainer>
                 {linkedAccounts?.map((account) => (
                     <AccountSpacing key={account.id}>

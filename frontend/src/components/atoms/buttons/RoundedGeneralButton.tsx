@@ -1,5 +1,5 @@
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
-import React, { forwardRef } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 const RoundedButton = styled.button<{ hasBorder: boolean; textStyle: 'light' | 'dark'; wrapText?: boolean }>`
@@ -26,11 +26,10 @@ interface RoundedGeneralButtonProps extends React.ButtonHTMLAttributes<HTMLButto
     wrapText?: boolean
     hasBorder?: boolean
 }
-const RoundedGeneralButton = forwardRef<HTMLButtonElement, RoundedGeneralButtonProps>((props, ref) => {
+const RoundedGeneralButton = (props: RoundedGeneralButtonProps) => {
     const color = props.disabled ? Colors.gray._400 : props.color || Colors.white
     return (
         <RoundedButton
-            ref={ref}
             disabled={props.disabled}
             onClick={props.onClick}
             hasBorder={!!props.hasBorder}
@@ -41,6 +40,6 @@ const RoundedGeneralButton = forwardRef<HTMLButtonElement, RoundedGeneralButtonP
             {props.value}
         </RoundedButton>
     )
-})
+}
 
 export default RoundedGeneralButton
