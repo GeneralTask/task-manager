@@ -175,6 +175,21 @@ func TestGetPullRequests(t *testing.T) {
 	})
 }
 
+func TestSetOverrideURL(t *testing.T) {
+	t.Run("NoOverride", func(t *testing.T) {
+		githubClient := *github.NewClient(nil)
+		var overrideURL *string = nil
+		setOverrideURL(&githubClient, overrideURL)
+		assert.Equal(t, githubClient.BaseURL.String(), "https://api.github.com/")
+	})
+	t.Run("SetOverride", func(t *testing.T) {
+		githubClient := *github.NewClient(nil)
+		overrideURL := "https://nicememe.com/"
+		setOverrideURL(&githubClient, &overrideURL)
+		assert.Equal(t, githubClient.BaseURL.String(), "https://api.github.com/")
+	})
+}
+
 func TestUserIsOwner(t *testing.T) {
 	githubUserId1 := int64(1)
 	githubUserId2 := int64(2)
