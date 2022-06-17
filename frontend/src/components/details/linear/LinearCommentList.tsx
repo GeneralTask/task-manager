@@ -7,7 +7,7 @@ import { Colors, Spacing } from '../../../styles'
 const CommentListContainer = styled.div`
     display: flex;
     flex-direction: column;
-    max-height: 200px;
+    max-height: 400px;
     overflow-y: auto;
     gap: ${Spacing.margin._8};
 `
