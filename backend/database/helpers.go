@@ -351,11 +351,7 @@ func DeleteEmailThread(db *mongo.Database, userID primitive.ObjectID, threadID s
 		},
 	}
 
-	res, err := GetTaskCollection(db).DeleteOne(
-		dbCtx,
-		filter,
-		&opts,
-	)
+	res, err := GetTaskCollection(db).DeleteOne(dbCtx, filter, &opts)
 	if err != nil {
 		log.Error().Err(err).Msgf("failed to delete threads for user")
 		return nil, err

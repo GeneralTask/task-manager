@@ -130,12 +130,12 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		}
 	}
 
-	emailResult := createOrUpdateThreads(userID, accountID, db, threadChannels)
+	emailResult := updateOrCreateThreads(userID, accountID, db, threadChannels)
 	emailResult.HistoryID = recentHistoryID
 	result <- emailResult
 }
 
-func createOrUpdateThreads(userID primitive.ObjectID, accountID string, db *mongo.Database, threadChannels []chan *gmail.Thread) EmailResult {
+func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mongo.Database, threadChannels []chan *gmail.Thread) EmailResult {
 	emails := []*database.Item{}
 
 	for _, threadChannel := range threadChannels {
@@ -338,7 +338,6 @@ func handleThreadDeletion(db *mongo.Database, userID primitive.ObjectID, history
 			dbThreadCount, err := getDBThreadCount(db, userID, threadID)
 			if err != nil {
 				if err != mongo.ErrNoDocuments {
-					log.Print(err)
 					threadsToFetch = append(threadsToFetch, threadID)
 					continue
 				}
