@@ -269,11 +269,11 @@ func parseEmail(userID primitive.ObjectID, accountID string, message *gmail.Mess
 
 	//fallback to body if there are no parts.
 	if body == nil || len(*body) == 0 {
-		body, err = parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
+		bodyParsed, err := parseMessagePartBody(message.Payload.MimeType, message.Payload.Body)
 		if err != nil {
-			result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
-			return
+			return &database.Item{}, err
 		}
+		body = bodyParsed
 	}
 
 	senderName, senderEmail := utils.ExtractSenderName(sender)
@@ -281,12 +281,9 @@ func parseEmail(userID primitive.ObjectID, accountID string, message *gmail.Mess
 	recipients := *GetRecipients(message.Payload.Headers)
 
 	timeSent := primitive.NewDateTimeFromTime(time.Unix(message.InternalDate/1000, 0))
-	if timeSent > mostRecentEmailTimestamp {
-		mostRecentEmailTimestamp = timeSent
-	}
 	email := database.Email{
 		SMTPID:         smtpID,
-		ThreadID:       thread.Id,
+		ThreadID:       threadID,
 		EmailID:        message.Id,
 		SenderDomain:   senderDomain,
 		SenderEmail:    senderEmail,
@@ -299,7 +296,6 @@ func parseEmail(userID primitive.ObjectID, accountID string, message *gmail.Mess
 		SentAt:         timeSent,
 		NumAttachments: numAttachments,
 	}
-	nestedEmails = append(nestedEmails, email)
 	emailItem := &database.Item{
 		TaskBase: database.TaskBase{
 			UserID:            userID,
@@ -307,7 +303,7 @@ func parseEmail(userID primitive.ObjectID, accountID string, message *gmail.Mess
 			IDTaskSection:     constants.IDTaskSectionDefault,
 			Sender:            senderName,
 			SourceID:          TASK_SOURCE_ID_GMAIL,
-			Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, thread.Id),
+			Deeplink:          fmt.Sprintf("https://mail.google.com/mail?authuser=%s#all/%s", accountID, threadID),
 			Title:             title,
 			Body:              *body,
 			SourceAccountID:   accountID,
