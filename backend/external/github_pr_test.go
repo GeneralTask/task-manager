@@ -178,15 +178,14 @@ func TestGetPullRequests(t *testing.T) {
 func TestSetOverrideURL(t *testing.T) {
 	t.Run("NoOverride", func(t *testing.T) {
 		githubClient := *github.NewClient(nil)
-		var overrideURL *string = nil
-		setOverrideURL(&githubClient, overrideURL)
+		setOverrideURL(&githubClient, nil)
 		assert.Equal(t, githubClient.BaseURL.String(), "https://api.github.com/")
 	})
 	t.Run("SetOverride", func(t *testing.T) {
 		githubClient := *github.NewClient(nil)
-		overrideURL := "https://nicememe.com/"
+		overrideURL := "https://nicememe.com"
 		setOverrideURL(&githubClient, &overrideURL)
-		assert.Equal(t, githubClient.BaseURL.String(), "https://api.github.com/")
+		assert.Equal(t, githubClient.BaseURL.String(), "https://nicememe.com/")
 	})
 }
 
