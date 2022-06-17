@@ -116,7 +116,7 @@ export const useCreateTask = () => {
                         is_done: false,
                         recipients: { to: [], cc: [], bcc: [] },
                         isOptimistic: true,
-                        linear_comments: [],
+                        comments: [],
                     }
                     section.tasks = [newTask, ...section.tasks]
                     queryClient.setQueryData('tasks', () => sections)
@@ -198,7 +198,7 @@ export const useCreateTaskFromThread = () => {
                             emails: []
                         }
                     },
-                    linear_comments: [],
+                    comments: [],
                 },
                 ...sections[0].tasks
             ]

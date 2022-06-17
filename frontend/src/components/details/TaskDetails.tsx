@@ -231,7 +231,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                         onKeyDown={(e) => e.stopPropagation()}
                     />
                     {thread && <EmailList thread={thread} />}
-                    {task.linear_comments && <LinearCommentList comments={task.linear_comments} />}
+                    {task.comments && <LinearCommentList comments={task.comments} />}
                 </>
             )}
         </DetailsViewContainer>
