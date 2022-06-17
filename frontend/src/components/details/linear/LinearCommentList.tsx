@@ -33,16 +33,13 @@ const LinearCommentList = ({ comments }: LinearCommentListProps) => {
         <>
             <DividerView />
             <CommentListContainer>
-                {comments
-                    .slice()
-                    .reverse()
-                    .map((comment, i) => (
-                        <LinearComment
-                            key={comment.created_at}
-                            comment={comment}
-                            ref={i === comments.length - 1 ? bottomRef : undefined}
-                        />
-                    ))}
+                {[...comments].reverse().map((comment, i) => (
+                    <LinearComment
+                        key={comment.created_at}
+                        comment={comment}
+                        ref={i === comments.length - 1 ? bottomRef : undefined}
+                    />
+                ))}
             </CommentListContainer>
         </>
     )
