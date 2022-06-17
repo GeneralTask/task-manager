@@ -48,7 +48,7 @@ export interface TTask {
     recipients: TRecipients
     is_done: boolean
     linked_email_thread?: TLinkedEmailThread
-    comments?: TLinearComment[]
+    linear_comments?: TLinearComment[]
     isOptimistic?: boolean
 }
 
