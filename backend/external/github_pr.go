@@ -224,49 +224,47 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 }
 
-func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) (*github.User, error) {
+func setOverrideURL(githubClient *github.Client, overrideURL *string) error {
+	var err error
+	var baseURL *url.URL
 	if overrideURL != nil {
-		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
-		githubClient.BaseURL = baseURl
-		if err != nil {
-			return nil, err
-		}
+		baseURL, err = url.Parse(fmt.Sprintf("%s/", *overrideURL))
+		githubClient.BaseURL = baseURL
+	}
+	return err
+}
+
+func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) (*github.User, error) {
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
 	}
 	githubUser, _, err := githubClient.Users.Get(ctx, currentlyAuthedUserFilter)
 	return githubUser, err
 }
 
 func getGithubRepositories(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) ([]*github.Repository, error) {
-	if overrideURL != nil {
-		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
-		githubClient.BaseURL = baseURl
-		if err != nil {
-			return nil, err
-		}
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
 	}
 	repositories, _, err := githubClient.Repositories.List(ctx, currentlyAuthedUserFilter, nil)
 	return repositories, err
 }
 
 func getGithubPullRequests(ctx context.Context, githubClient *github.Client, repository *github.Repository, overrideURL *string) ([]*github.PullRequest, error) {
-	if overrideURL != nil {
-		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
-		githubClient.BaseURL = baseURl
-		if err != nil {
-			return nil, err
-		}
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
 	}
 	fetchedPullRequests, _, err := githubClient.PullRequests.List(ctx, *repository.Owner.Login, *repository.Name, nil)
 	return fetchedPullRequests, err
 }
 
 func listReviewers(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.Reviewers, error) {
-	if overrideURL != nil {
-		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
-		githubClient.BaseURL = baseURl
-		if err != nil {
-			return nil, err
-		}
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
 	}
 	reviewers, _, err := githubClient.PullRequests.ListReviewers(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	return reviewers, err
@@ -274,24 +272,18 @@ func listReviewers(ctx context.Context, githubClient *github.Client, repository 
 }
 
 func listComments(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) ([]*github.PullRequestComment, error) {
-	if overrideURL != nil {
-		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
-		githubClient.BaseURL = baseURl
-		if err != nil {
-			return nil, err
-		}
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
 	}
 	comments, _, err := githubClient.PullRequests.ListComments(context, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	return comments, err
 }
 
 func listCheckRunsForRef(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.ListCheckRunsResults, error) {
-	if overrideURL != nil {
-		baseURl, err := url.Parse(fmt.Sprintf("%s/", *overrideURL))
-		githubClient.BaseURL = baseURl
-		if err != nil {
-			return nil, err
-		}
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
 	}
 	checkRuns, _, err := githubClient.Checks.ListCheckRunsForRef(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Head.SHA, nil)
 	return checkRuns, err
