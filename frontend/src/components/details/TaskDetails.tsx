@@ -14,6 +14,7 @@ import { useCallback, useRef } from 'react'
 import Spinner from '../atoms/Spinner'
 import { useNavigate, useParams } from 'react-router-dom'
 import { EmailList } from './email/EmailList'
+import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
@@ -257,6 +258,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                         onKeyDown={(e) => e.stopPropagation()}
                     />
                     {thread && <EmailList thread={thread} />}
+                    {task.comments && <LinearCommentList comments={task.comments} />}
                 </>
             )}
         </DetailsViewContainer>

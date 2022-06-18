@@ -49,7 +49,21 @@ export interface TTask {
     recipients: TRecipients
     is_done: boolean
     linked_email_thread?: TLinkedEmailThread
+    comments?: TLinearComment[]
     isOptimistic?: boolean
+}
+
+export interface TLinearComment {
+    body: string
+    created_at: string
+    user: TLinearUser
+}
+
+export interface TLinearUser {
+    DisplayName: string
+    Email: string
+    ExternalID: string
+    Name: string
 }
 
 export interface TExternalStatus {
