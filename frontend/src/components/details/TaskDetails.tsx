@@ -4,7 +4,7 @@ import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
-import { logos, linearStatus, TLinearStatusImage } from '../../styles/images'
+import { logos, linearStatus } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
@@ -193,7 +193,6 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
 
     const status = task.external_status ? task.external_status.state : ''
-    const statusIcon = status.toLowerCase().replace(/ /g, '')
 
     return (
         <DetailsViewContainer data-testid="details-view-container">
@@ -236,9 +235,9 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                 }}
             />
-            {task.external_status && Object.keys(linearStatus).includes(statusIcon) && (
+            {task.external_status && (
                 <StatusContainer>
-                    <Icon source={linearStatus[statusIcon as TLinearStatusImage]} size="small" /> {status}
+                    <Icon source={linearStatus[task.external_status.type]} size="small" /> {status}
                 </StatusContainer>
             )}
             {task.isOptimistic ? (

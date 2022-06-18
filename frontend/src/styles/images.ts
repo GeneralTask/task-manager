@@ -63,13 +63,14 @@ export const buttons: { [key: string]: string } = {
 
 export const linearStatus = Object.freeze({
     backlog: '/images/linear_backlog.svg',
+    unstarted: '/images/linear_todo.svg',
+    started: '/images/linear_inprogress.svg',
+    completed: '/images/linear_done.svg',
     canceled: '/images/linear_canceled.svg',
-    done: '/images/linear_done.svg',
-    duplicate: '/images/linear_duplicate.svg',
-    inprogress: '/images/linear_inprogress.svg',
+
     inreview: '/images/linear_inreview.svg',
-    todo: '/images/linear_todo.svg',
     triage: '/images/linear_triage.svg',
+    duplicate: '/images/linear_duplicate.svg',
 })
 
 export type TIconImage = keyof typeof icons
