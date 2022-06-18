@@ -36,14 +36,6 @@ export const icons = Object.freeze({
     inbox: '/images/inbox.png',
     inbox_purple: '/images/inbox_purple.png',
     label: '/images/label.png',
-    linear_backlog: '/images/linear_backlog.svg',
-    linear_canceled: '/images/linear_canceled.svg',
-    linear_done: '/images/linear_done.svg',
-    linear_duplicate: '/images/linear_duplicate.svg',
-    linear_inprogress: '/images/linear_inprogress.svg',
-    linear_inreview: '/images/linear_inreview.svg',
-    linear_todo: '/images/linear_todo.svg',
-    linear_triage: '/images/linear_triage.svg',
     mark_as_task: '/images/mark_as_task.png',
     mark_as_task_active: '/images/mark_as_task_active.png',
     mark_read: '/images/mark_read.svg',
@@ -69,4 +61,17 @@ export const buttons: { [key: string]: string } = {
     google_sign_in: '/images/google_sign_in.png',
 }
 
+export const linearStatus = Object.freeze({
+    backlog: '/images/linear_backlog.svg',
+    unstarted: '/images/linear_todo.svg',
+    started: '/images/linear_inprogress.svg',
+    completed: '/images/linear_done.svg',
+    canceled: '/images/linear_canceled.svg',
+
+    inreview: '/images/linear_inreview.svg',
+    triage: '/images/linear_triage.svg',
+    duplicate: '/images/linear_duplicate.svg',
+})
+
 export type TIconImage = keyof typeof icons
+export type TLinearStatusImage = keyof typeof linearStatus

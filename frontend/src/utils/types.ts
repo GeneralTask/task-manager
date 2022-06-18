@@ -43,12 +43,18 @@ export interface TTask {
     sent_at: string
     time_allocated: number
     due_date: string
+    external_status: TExternalStatus
     source: TTaskSource
     sender: string
     recipients: TRecipients
     is_done: boolean
     linked_email_thread?: TLinkedEmailThread
     isOptimistic?: boolean
+}
+
+export interface TExternalStatus {
+    state: string // the custom name of the status (e.g. Todo) - note: these are self-defined by the users of linear and can be different even across teams
+    type: 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled' // the type of status native to the task application
 }
 
 export interface TLinkedEmailThread {
