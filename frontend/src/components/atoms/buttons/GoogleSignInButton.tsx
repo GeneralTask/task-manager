@@ -3,18 +3,18 @@ import { LOGIN_URL } from '../../../constants'
 import React from 'react'
 import styled from 'styled-components'
 
-const googleButtonDimensions = {
-    width: 191,
-    height: 92,
+export const signInWithGoogleButtonDimensions = {
+    width: '191px',
+    height: '92px',
 }
 const GoogleButtonContainer = styled.div`
     width: 100%;
-    max-height: ${googleButtonDimensions.height};
+    max-height: ${signInWithGoogleButtonDimensions};
     display: flex;
     justify-content: center;
 `
 const GoogleSignInImage = styled.img`
-    width: ${googleButtonDimensions.width}px;
+    width: ${signInWithGoogleButtonDimensions.width};
 `
 
 export const GoogleSignInButtonImage = <GoogleSignInImage src={Images.buttons.google_sign_in} />

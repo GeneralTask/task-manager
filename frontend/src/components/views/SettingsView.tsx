@@ -9,7 +9,7 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import { openAuthWindow } from '../../utils/auth'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
-import { GoogleSignInButtonImage } from '../atoms/buttons/GoogleSignInButton'
+import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../atoms/buttons/GoogleSignInButton'
 import GTSelect from '../molecules/GTSelect'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 
@@ -51,10 +51,15 @@ const XSmallFontSpan = styled.span`
     font-size: ${Typography.xSmall.fontSize};
     margin-right: auto;
 `
-const ShowLinkAccountsButtonContainer = styled.div`
+const FullWidth = styled.div`
     display: flex;
     justify-content: end;
     margin-right: ${Spacing.margin._16};
+`
+const ShowLinkAccountsButtonContainer = styled.div`
+    width: ${signInWithGoogleButtonDimensions.width};
+    display: flex;
+    flex-direction: column;
 `
 const TextAlignCenter = styled.span`
     text-align: center;
@@ -77,8 +82,8 @@ const SettingsView = () => {
             <SettingsViewContainer>
                 <SectionHeader sectionName="Settings" allowRefresh={false} />
                 <AccountsContainer>
-                    <ShowLinkAccountsButtonContainer>
-                        <div ref={showLinkAccountsButtonContainerRef}>
+                    <FullWidth>
+                        <ShowLinkAccountsButtonContainer ref={showLinkAccountsButtonContainerRef}>
                             <RoundedGeneralButton
                                 onClick={(e) => {
                                     e.stopPropagation()
@@ -106,8 +111,8 @@ const SettingsView = () => {
                                     parentRef={showLinkAccountsButtonContainerRef}
                                 />
                             )}
-                        </div>
-                    </ShowLinkAccountsButtonContainer>
+                        </ShowLinkAccountsButtonContainer>
+                    </FullWidth>
                 </AccountsContainer>
                 {linkedAccounts?.map((account) => (
                     <AccountSpacing key={account.id}>
