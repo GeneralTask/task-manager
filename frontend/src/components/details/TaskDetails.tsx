@@ -4,7 +4,7 @@ import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
-import { logos } from '../../styles/images'
+import { logos, linearStatus } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
@@ -15,6 +15,7 @@ import Spinner from '../atoms/Spinner'
 import { useNavigate, useParams } from 'react-router-dom'
 import { EmailList } from './email/EmailList'
 import LinearCommentList from './linear/LinearCommentList'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16
@@ -25,8 +26,8 @@ const DetailsViewContainer = styled.div`
     flex-direction: column;
     background-color: ${Colors.gray._50};
     min-width: 300px;
-    margin-top: ${Spacing.margin._24};
-    padding: ${Spacing.padding._16};
+    border-left: 1px solid ${Colors.gray._300};
+    padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
 `
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -67,10 +68,24 @@ const TitleInput = styled.textarea`
     }
 `
 const MarginLeftAuto = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     margin-left: auto;
 `
 const MarginRight8 = styled.div`
     margin-right: ${Spacing.margin._8};
+`
+const StatusContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: ${Spacing.margin._8};
+    align-items: center;
+    font-size: ${Typography.xSmall.fontSize};
+    line-height: ${Typography.xSmall.lineHeight};
+    font-weight: ${Typography.weight._500};
+    color: ${Colors.gray._700};
+    margin-bottom: ${Spacing.margin._8};
 `
 
 const SYNC_MESSAGES = {
@@ -178,6 +193,8 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
     const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
 
+    const status = task.external_status ? task.external_status.state : ''
+
     return (
         <DetailsViewContainer data-testid="details-view-container">
             <DetailsTopContainer>
@@ -188,17 +205,22 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     <>
                         <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                         <MarginLeftAuto>
-                            {task.deeplink && (
-                                <a href={task.deeplink} target="_blank" rel="noreferrer">
-                                    <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
-                                </a>
-                            )}
                             <ActionOption
                                 isShown={labelEditorShown}
                                 setIsShown={setLabelEditorShown}
                                 task={task}
                                 keyboardShortcut="showLabelEditor"
                             />
+                            {task.deeplink && (
+                                <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
+                                    <RoundedGeneralButton
+                                        textStyle="dark"
+                                        value={task.source.name}
+                                        hasBorder
+                                        iconSource={'external_link'}
+                                    />
+                                </NoStyleAnchor>
+                            )}
                         </MarginLeftAuto>
                     </>
                 )}
@@ -214,6 +236,11 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                 }}
             />
+            {task.external_status && (
+                <StatusContainer>
+                    <Icon source={linearStatus[task.external_status.type]} size="small" /> {status}
+                </StatusContainer>
+            )}
             {task.isOptimistic ? (
                 <Spinner />
             ) : (

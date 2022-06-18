@@ -3,14 +3,15 @@ package external
 import (
 	"encoding/base64"
 	"fmt"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/api/gmail/v1"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestGetRecipients(t *testing.T) {
@@ -181,7 +182,7 @@ func TestGetEmails(t *testing.T) {
 		////////////////////////////////////////////////////////////////////////////////
 		// (2) Act: call the API / perform the work
 		var emailResult = make(chan EmailResult)
-		go mockGmailSource.GetEmails(userID, "me", emailResult, false)
+		go mockGmailSource.GetEmails(userID, "me", 0, emailResult, true)
 		result := <-emailResult
 
 		////////////////////////////////////////////////////////////////////////////////
