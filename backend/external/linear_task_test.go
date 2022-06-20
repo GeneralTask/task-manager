@@ -3,6 +3,7 @@ package external
 import (
 	"context"
 	"github.com/GeneralTask/task-manager/backend/testutils"
+	"net/http"
 	"testing"
 	"time"
 
@@ -428,8 +429,8 @@ func TestModifyLinearTask(t *testing.T) {
 		assert.Equal(t, `decoding response: EOF`, err.Error())
 	})
 	t.Run("UpdateFieldsMarkAsNotDoneSuccess", func(t *testing.T) {
-		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
-		defer taskUpdateServer.Close()
+		taskUpdateServer := testutils.GetMockAPIServer(t, http.StatusOK, `{"foo": "bar"}`)
+		taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
 
@@ -447,7 +448,7 @@ func TestModifyLinearTask(t *testing.T) {
 	})
 
 	t.Run("UpdateFieldsMarkAsNotDoneBadResponse", func(t *testing.T) {
-		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, http.StatusOK, "")
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
