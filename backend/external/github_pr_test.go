@@ -51,7 +51,7 @@ func TestGetPullRequests(t *testing.T) {
 		pullRequestReviewersURL := &githubPullRequestReviewersServer.URL
 		defer githubPullRequestReviewersServer.Close()
 
-		githubListCheckRunsForRefServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefPayload)
+		githubListCheckRunsForRefServer := testutils.GetMockAPIServer(t, 200, testutils.EmptyCheckRunsForRefPayload)
 		listCheckRunsForRefURL := &githubListCheckRunsForRefServer.URL
 		defer githubListCheckRunsForRefServer.Close()
 
@@ -288,6 +288,35 @@ func TestListComments(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(githubComments))
 		assert.Equal(t, "chad1616", *githubComments[0].User.Login)
+	})
+}
+
+func TestCheckRunsForRef(t *testing.T) {
+	t.Run("SuccessWithOverrideURL", func(t *testing.T) {
+		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefPayload)
+		checkRunsURL := &githubCheckRunsServer.URL
+		defer githubCheckRunsServer.Close()
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+			Head: &github.PullRequestBranch{
+				SHA: github.String("abc123"),
+			},
+		}
+		githubCheckRuns, err := listCheckRunsForRef(ctx, githubClient, repository, pullRequest, checkRunsURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, *githubCheckRuns.Total)
+		assert.Equal(t, 1, len(githubCheckRuns.CheckRuns))
+		assert.Equal(t, int64(96024), *githubCheckRuns.CheckRuns[0].ID)
 	})
 }
 
