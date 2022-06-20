@@ -141,6 +141,7 @@ func TestLoadLinearTasks(t *testing.T) {
 				},
 			},
 		}}
+
 		var taskResult = make(chan TaskResult)
 		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
