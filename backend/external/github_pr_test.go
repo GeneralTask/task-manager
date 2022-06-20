@@ -266,6 +266,31 @@ func TestListReviewers(t *testing.T) {
 	})
 }
 
+func TestListComments(t *testing.T) {
+	t.Run("SuccessWithOverrideURL", func(t *testing.T) {
+		githubCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestCommentsPayload)
+		commentsURL := &githubCommentsServer.URL
+		defer githubCommentsServer.Close()
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+		}
+		githubComments, err := listComments(ctx, githubClient, repository, pullRequest, commentsURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(githubComments))
+		assert.Equal(t, "chad1616", *githubComments[0].User.Login)
+	})
+}
+
 func TestUserIsOwner(t *testing.T) {
 	githubUserId1 := int64(1)
 	githubUserId2 := int64(2)
