@@ -203,6 +203,20 @@ func TestGetGithubUser(t *testing.T) {
 	})
 }
 
+func TestGithubRepositories(t *testing.T) {
+	t.Run("SuccessWithOverrideURL", func(t *testing.T) {
+		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, testutils.UserRepositoriesPayload)
+		userRepositoriesURL := &githubUserRepositoriesServer.URL
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+		githubRepositories, err := getGithubRepositories(ctx, githubClient, "", userRepositoriesURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, len(githubRepositories), 1)
+		assert.Equal(t, *githubRepositories[0].Name, "ExampleRepository")
+	})
+}
+
 func TestUserIsOwner(t *testing.T) {
 	githubUserId1 := int64(1)
 	githubUserId2 := int64(2)
