@@ -20,6 +20,7 @@ func TestLoadLinearTasks(t *testing.T) {
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 	userID := primitive.NewObjectID()
+
 	taskServerSuccess := testutils.GetMockAPIServer(t, 200, `{
 		"data": {
 			"issues": {
