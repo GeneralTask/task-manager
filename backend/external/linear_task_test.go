@@ -74,6 +74,7 @@ func TestLoadLinearTasks(t *testing.T) {
 				"email": "test@generaltask.com"
 			}
 		}}`)
+
 	t.Run("BadUserInfoStatusCode", func(t *testing.T) {
 		userInfoServer := testutils.GetMockAPIServer(t, 400, "")
 		defer userInfoServer.Close()
