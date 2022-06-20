@@ -10,6 +10,7 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { margin } from '../../styles/spacing'
 import { weight } from '../../styles/typography'
 import { ItemTypes, TTaskSection } from '../../utils/types'
+import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 
 const LINK_TEMPLATE_HEIGHT = 32
@@ -113,7 +114,9 @@ const NavigationLink = ({
             <LinkContainer ref={drop} isSelected={isCurrentPage} isOver={isOver}>
                 <Icon size="small" source={icon} />
                 <SectionTitle isSelected={isCurrentPage}>{title}</SectionTitle>
-                <SectionTitleItemCount isSelected={isCurrentPage}>{count}</SectionTitleItemCount>
+                <SectionTitleItemCount isSelected={isCurrentPage}>
+                    {count && countWithOverflow(count)}
+                </SectionTitleItemCount>
             </LinkContainer>
         </NavigationLinkTemplate>
     )

@@ -7,7 +7,6 @@ import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import ItemContainer from './ItemContainer'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
@@ -86,7 +85,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: Tas
     const [, drag, dragPreview] = useDrag(
         () => ({
             type: ItemTypes.TASK,
-            item: { id: task.id, taskIndex: index, sectionId },
+            item: { id: task.id, taskIndex: index, sectionId, task },
             collect: (monitor) => {
                 const isDragging = !!monitor.isDragging()
                 return { opacity: isDragging ? 0.5 : 1 }
@@ -95,7 +94,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: Tas
         [task.id, index, sectionId]
     )
 
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClick, !isSelected)
+    useKeyboardShortcut('select', onClick, !isSelected)
     // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
     const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
 

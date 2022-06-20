@@ -33,19 +33,21 @@ type InternalAPIToken struct {
 
 // ExternalAPIToken model
 type ExternalAPIToken struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty"`
-	ServiceID      string             `bson:"service_id"`
-	Token          string             `bson:"token"`
-	UserID         primitive.ObjectID `bson:"user_id"`
-	AccountID      string             `bson:"account_id"`
-	DisplayID      string             `bson:"display_id"`
-	IsUnlinkable   bool               `bson:"is_unlinkable"`
-	IsPrimaryLogin bool               `bson:"is_primary_login"`
-	IsBadToken     bool               `bson:"is_bad_token"`
+	ID              primitive.ObjectID `bson:"_id,omitempty"`
+	ServiceID       string             `bson:"service_id"`
+	Token           string             `bson:"token"`
+	UserID          primitive.ObjectID `bson:"user_id"`
+	AccountID       string             `bson:"account_id"`
+	DisplayID       string             `bson:"display_id"`
+	LatestHistoryID uint64             `bson:"history_id"`
+	IsUnlinkable    bool               `bson:"is_unlinkable"`
+	IsPrimaryLogin  bool               `bson:"is_primary_login"`
+	IsBadToken      bool               `bson:"is_bad_token"`
 }
 
 type ExternalAPITokenChangeable struct {
-	IsBadToken bool `bson:"is_bad_token,omitempty"`
+	IsBadToken      bool   `bson:"is_bad_token,omitempty"`
+	LatestHistoryID uint64 `bson:"history_id,omitempty"`
 }
 
 type AtlassianSiteConfiguration struct {
@@ -153,19 +155,20 @@ type EmailThread struct {
 }
 
 type Email struct {
-	MessageID    primitive.ObjectID `bson:"message_id" json:"message_id"`
-	SMTPID       string             `bson:"smtp_id" json:"smtp_id"`
-	ThreadID     string             `bson:"thread_id" json:"thread_id"`
-	EmailID      string             `bson:"email_id" json:"email_id"`
-	Subject      string             `bson:"subject" json:"subject"`
-	Body         string             `bson:"body" json:"body"`
-	SenderDomain string             `bson:"sender_domain" json:"sender_domain"`
-	SenderEmail  string             `bson:"sender_email" json:"sender_email"`
-	SenderName   string             `bson:"sender_name" json:"sender_name"`
-	ReplyTo      string             `bson:"reply_to" json:"reply_to"`
-	IsUnread     bool               `bson:"is_unread" json:"is_unread"`
-	Recipients   Recipients         `bson:"recipients" json:"recipients"`
-	SentAt       primitive.DateTime `bson:"sent_at" json:"sent_at"`
+	MessageID      primitive.ObjectID `bson:"message_id" json:"message_id"`
+	SMTPID         string             `bson:"smtp_id" json:"smtp_id"`
+	ThreadID       string             `bson:"thread_id" json:"thread_id"`
+	EmailID        string             `bson:"email_id" json:"email_id"`
+	Subject        string             `bson:"subject" json:"subject"`
+	Body           string             `bson:"body" json:"body"`
+	SenderDomain   string             `bson:"sender_domain" json:"sender_domain"`
+	SenderEmail    string             `bson:"sender_email" json:"sender_email"`
+	SenderName     string             `bson:"sender_name" json:"sender_name"`
+	ReplyTo        string             `bson:"reply_to" json:"reply_to"`
+	IsUnread       bool               `bson:"is_unread" json:"is_unread"`
+	Recipients     Recipients         `bson:"recipients" json:"recipients"`
+	SentAt         primitive.DateTime `bson:"sent_at" json:"sent_at"`
+	NumAttachments int                `bson:"num_attachments" json:"num_attachments"`
 }
 
 type EmailChangeable struct {
@@ -199,6 +202,7 @@ type Comment struct {
 type ExternalTaskStatus struct {
 	ExternalID string `bson:"external_id"`
 	State      string `bson:"state"`
+	Type       string `bson:"type"`
 }
 
 type Task struct {

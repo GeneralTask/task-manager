@@ -1,19 +1,18 @@
-import { Column, LinkButton, PullRequestRow, TruncatedText } from './styles'
-
-import BranchName from './BranchName'
-import { DateTime } from 'luxon'
-import { Icon } from '../atoms/Icon'
-import React from 'react'
-import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import { icons } from '../../styles/images'
 import { TPullRequest } from '../../utils/types'
 import { getHumanDateTime } from '../../utils/utils'
-import { icons } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
+import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import BranchName from './BranchName'
+import { Column, CommentsCountContainer, LinkButton, PullRequestRow, Status, TruncatedText } from './styles'
+import { DateTime } from 'luxon'
+import React from 'react'
 
 interface PullRequestProps {
     pullRequest: TPullRequest
 }
 const PullRequest = ({ pullRequest }: PullRequestProps) => {
-    const { title, number, status, author, created_at, branch, link } = pullRequest
+    const { title, number, status, author, num_comments, created_at, branch, link } = pullRequest
 
     const formattedTime = getHumanDateTime(DateTime.fromISO(created_at))
     return (
@@ -23,11 +22,17 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
                 <SubtitleSmall>{'#' + number}</SubtitleSmall>
             </Column>
             <Column type="status">
-                <TruncatedText>{status.text}</TruncatedText>
+                <Status type={status.color}>{status.text}</Status>
             </Column>
             <Column type="author">
                 <SubtitleSmall>{formattedTime}</SubtitleSmall>
                 <TruncatedText>{author}</TruncatedText>
+            </Column>
+            <Column type="comments">
+                <CommentsCountContainer>
+                    <Icon source={icons.speechBubble} size="small" />
+                    {num_comments}
+                </CommentsCountContainer>
             </Column>
             <Column type="branch">
                 <BranchName name={branch} />

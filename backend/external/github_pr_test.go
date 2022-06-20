@@ -1,6 +1,7 @@
 package external
 
 import (
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -16,7 +17,7 @@ func TestLoadGithubPullRequests(t *testing.T) {
 
 func TestMarkGithubPRTaskAsDone(t *testing.T) {
 	t.Run("MarkAsDone", func(t *testing.T) {
-		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"foo": "bar"}`)
 		defer taskUpdateServer.Close()
 		gmailTask := GithubPRSource{}
 		userID := primitive.NewObjectID()

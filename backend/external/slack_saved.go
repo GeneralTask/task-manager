@@ -30,7 +30,7 @@ type SlackSavedTaskSource struct {
 	Slack SlackService
 }
 
-func (slackTask SlackSavedTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
+func (slackTask SlackSavedTaskSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -79,7 +79,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 			},
 		}
 		isCompleted := false
-		dbTask, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			task.IDExternal,

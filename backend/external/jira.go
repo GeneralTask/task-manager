@@ -110,7 +110,7 @@ func (jira JIRASource) getAPIBaseURL(siteConfiguration database.AtlassianSiteCon
 	return "https://api.atlassian.com/ex/jira/" + siteConfiguration.CloudID
 }
 
-func (jira JIRASource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
+func (jira JIRASource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -236,7 +236,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	isCompleted := false
 	for _, task := range tasks {
 		priorityNormalized := float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength)
-		dbTask, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			task.IDExternal,

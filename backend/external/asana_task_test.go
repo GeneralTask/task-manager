@@ -2,9 +2,7 @@ package external
 
 import (
 	"context"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"testing"
 	"time"
 
@@ -26,11 +24,11 @@ func TestLoadAsanaTasks(t *testing.T) {
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
-	taskServerSuccess := getMockServer(t, 200, `{"data": [{"gid": "6942069420", "due_on": "2021-04-20", "html_notes": "hmm", "name": "Task!", "permalink_url": "https://example.com/"}]}`, NoopRequestChecker)
-	userInfoServerSuccess := getMockServer(t, 200, `{"data": {"workspaces": [{"gid": "6942069420"}]}}`, NoopRequestChecker)
+	taskServerSuccess := testutils.GetMockAPIServer(t, 200, `{"data": [{"gid": "6942069420", "due_on": "2021-04-20", "html_notes": "hmm", "name": "Task!", "permalink_url": "https://example.com/"}]}`)
+	userInfoServerSuccess := testutils.GetMockAPIServer(t, 200, `{"data": {"workspaces": [{"gid": "6942069420"}]}}`)
 
 	t.Run("BadUserInfoStatusCode", func(t *testing.T) {
-		userInfoServer := getMockServer(t, 400, "", NoopRequestChecker)
+		userInfoServer := testutils.GetMockAPIServer(t, 400, "")
 		defer userInfoServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{UserInfoURL: &userInfoServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -43,7 +41,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("BadUserInfoResponse", func(t *testing.T) {
-		userInfoServer := getMockServer(t, 200, `oopsie poopsie`, NoopRequestChecker)
+		userInfoServer := testutils.GetMockAPIServer(t, 200, `oopsie poopsie`)
 		defer userInfoServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{UserInfoURL: &userInfoServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -56,7 +54,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("NoWorkspaceInUserInfo", func(t *testing.T) {
-		userInfoServer := getMockServer(t, 200, `{"data": {"workspaces": []}}`, NoopRequestChecker)
+		userInfoServer := testutils.GetMockAPIServer(t, 200, `{"data": {"workspaces": []}}`)
 		defer userInfoServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{UserInfoURL: &userInfoServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -69,7 +67,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("BadTaskStatusCode", func(t *testing.T) {
-		taskServer := getMockServer(t, 409, ``, NoopRequestChecker)
+		taskServer := testutils.GetMockAPIServer(t, 409, "")
 		defer taskServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{
 			TaskFetchURL: &taskServer.URL,
@@ -85,7 +83,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("BadTaskResponse", func(t *testing.T) {
-		taskServer := getMockServer(t, 200, `to the moon`, NoopRequestChecker)
+		taskServer := testutils.GetMockAPIServer(t, 200, `to the moon`)
 		defer taskServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{
 			TaskFetchURL: &taskServer.URL,
@@ -212,7 +210,7 @@ func TestLoadAsanaTasks(t *testing.T) {
 
 func TestModifyAsanaTask(t *testing.T) {
 	t.Run("MarkAsDoneBadResponse", func(t *testing.T) {
-		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -223,7 +221,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
 	t.Run("MarkAsDoneSuccess", func(t *testing.T) {
-		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"foo": "bar"}`)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -233,7 +231,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("MarkAsNotDoneSuccess", func(t *testing.T) {
-		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"foo": "bar"}`)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -243,7 +241,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("UpdateFieldsAndMarkAsDoneSuccess", func(t *testing.T) {
-		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"foo": "bar"}`)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -261,7 +259,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("UpdateFieldsAndMarkAsDoneBadResponse", func(t *testing.T) {
-		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -280,7 +278,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
 	t.Run("UpdateTitleBodyDueDateSuccess", func(t *testing.T) {
-		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"foo": "bar"}`)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -296,7 +294,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("UpdateTitleBodyDueDateBadResponse", func(t *testing.T) {
-		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -313,7 +311,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
 	t.Run("UpdateFieldsMarkAsNotDoneSuccess", func(t *testing.T) {
-		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"foo": "bar"}`)
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -332,7 +330,7 @@ func TestModifyAsanaTask(t *testing.T) {
 	})
 
 	t.Run("UpdateFieldsMarkAsNotDoneBadResponse", func(t *testing.T) {
-		taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -411,18 +409,4 @@ func TestModifyAsanaTask(t *testing.T) {
 		body := asanaTask.GetTaskUpdateBody(updateFields)
 		assert.Equal(t, expected, *body)
 	})
-}
-
-type requestChecker func(t *testing.T, r *http.Request)
-
-var NoopRequestChecker = func(t *testing.T, r *http.Request) {}
-
-func getMockServer(t *testing.T, statusCode int, responseBody string, checkRequest requestChecker) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := ioutil.ReadAll(r.Body)
-		assert.NoError(t, err)
-		checkRequest(t, r)
-		w.WriteHeader(statusCode)
-		w.Write([]byte(responseBody))
-	}))
 }

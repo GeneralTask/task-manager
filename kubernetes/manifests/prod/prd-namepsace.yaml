@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prd-gtsk-uswest2

@@ -16,6 +16,7 @@ import {
     TPostFeedbackData,
     TReorderTaskData,
     TTaskModifyRequestBody,
+    TThreadQueryData,
 } from './query-payload-types'
 import {
     TEmail,
@@ -111,10 +112,15 @@ export const useCreateTask = () => {
                             is_completable: false,
                             is_replyable: false,
                         },
+                        external_status: {
+                            state: 'Todo',
+                            type: 'unstarted',
+                        },
                         sender: '',
                         is_done: false,
                         recipients: { to: [], cc: [], bcc: [] },
                         isOptimistic: true,
+                        comments: [],
                     }
                     section.tasks = [newTask, ...section.tasks]
                     queryClient.setQueryData('tasks', () => sections)
@@ -152,6 +158,7 @@ const createTask = async (data: TCreateTaskData) => {
  */
 export const useCreateTaskFromThread = () => {
     const queryClient = useQueryClient()
+    const optimisticId = uuidv4()
 
     return useMutation((data: TCreateTaskFromThreadData) => createTaskFromThread(data), {
         onMutate: async (data: TCreateTaskFromThreadData) => {
@@ -160,7 +167,7 @@ export const useCreateTaskFromThread = () => {
             if (!sections) return
             sections[0].tasks = [
                 {
-                    id: '0',
+                    id: optimisticId,
                     id_ordering: 0,
                     title: data.title,
                     body: data.body,
@@ -175,13 +182,31 @@ export const useCreateTaskFromThread = () => {
                         is_completable: false,
                         is_replyable: false,
                     },
+                    external_status: {
+                        state: 'Todo',
+                        type: 'unstarted',
+                    },
                     sender: '',
                     is_done: false,
                     recipients: {} as TRecipients,
                     linked_email_thread: {
                         linked_thread_id: data.thread_id,
-                        emails: []
-                    }
+                        email_thread: {
+                            id: '0',
+                            deeplink: '',
+                            is_archived: false,
+                            source: {
+                                account_id: '0',
+                                name: 'Gmail',
+                                logo: '',
+                                logo_v2: 'gmail',
+                                is_completable: false,
+                                is_replyable: true,
+                            },
+                            emails: []
+                        }
+                    },
+                    comments: [],
                 },
                 ...sections[0].tasks
             ]
@@ -452,14 +477,14 @@ const modifyTaskSection = async (data: TModifyTaskSectionData) => {
 /**
  * THREADS QUERIES
  */
-export const useGetInfiniteThreads = () => {
-    return useInfiniteQuery<TEmailThread[]>('emailThreads', getInfiniteThreads, {
+export const useGetInfiniteThreads = (data: { isArchived: boolean }) => {
+    return useInfiniteQuery<TEmailThread[]>(['emailThreads', { isArchived: data.isArchived }], ({ pageParam = 1 }) => getInfiniteThreads(pageParam, data.isArchived), {
         getNextPageParam: (_, pages) => pages.length + 1,
     })
 }
-const getInfiniteThreads = async ({ pageParam = 1 }) => {
+const getInfiniteThreads = async (pageParam: number, isArchived: boolean) => {
     try {
-        const res = await apiClient.get(`/threads/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}`)
+        const res = await apiClient.get(`/threads/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}&is_archived=${isArchived}`)
         return res.data
     } catch {
         throw new Error('getInfiniteThreads failed')
@@ -483,28 +508,30 @@ export const useModifyThread = () => {
     return useMutation((data: TModifyThreadData) => modifyThread(data), {
         onMutate: async (data: TModifyThreadData) => {
             await queryClient.cancelQueries('emailThreads')
-            const queryData: {
-                pages: TEmailThread[][]
-                pageParams: unknown[]
-            } | undefined = queryClient.getQueryData('emailThreads')
+            const queryDataInbox: TThreadQueryData | undefined = queryClient.getQueryData(['emailThreads', { isArchived: false }])
+            const queryDataArchive: TThreadQueryData | undefined = queryClient.getQueryData(['emailThreads', { isArchived: true }])
 
-            if (!queryData) return
+            if (!queryDataInbox || !queryDataArchive) return
 
-            for (const page of queryData.pages) {
+            for (const page of [...queryDataInbox.pages, ...queryDataArchive.pages]) {
                 if (!page) continue
                 for (const thread of page) {
                     if (thread.id === data.thread_id) {
+                        if (data.is_archived !== undefined)
+                            thread.is_archived = data.is_archived
                         for (const email of thread.emails) {
-                            email.is_unread = data.is_unread
+                            if (data.is_unread !== undefined)
+                                email.is_unread = data.is_unread
                         }
                         break
                     }
                 }
             }
-            queryClient.setQueryData('emailThreads', queryData)
+            queryClient.setQueryData(['emailThreads', { isArchived: false }], queryDataInbox)
+            queryClient.setQueryData(['emailThreads', { isArchived: true }], queryDataArchive)
         },
         onSettled: () => {
-            queryClient.invalidateQueries('emailThreads')
+            queryClient.invalidateQueries(['emailThreads'])
         },
     })
 }
@@ -662,9 +689,9 @@ export const useCreateEvent = () => {
             onMutate: async ({ createEventPayload, date }: CreateEventParams) => {
                 await queryClient.cancelQueries('events')
 
-                const timeBlocks = getMonthsAroundDate(date, 1)
                 const start = DateTime.fromISO(createEventPayload.datetime_start)
                 const end = DateTime.fromISO(createEventPayload.datetime_end)
+                const timeBlocks = getMonthsAroundDate(date, 1)
                 const blockIndex = timeBlocks.findIndex(block => start >= block.start && end <= block.end)
                 const block = timeBlocks[blockIndex]
 
@@ -677,7 +704,7 @@ export const useCreateEvent = () => {
                 if (events == null) return
 
                 const newEvent: TEvent = {
-                    id: '0',
+                    id: uuidv4(),
                     title: createEventPayload.summary ?? '',
                     body: createEventPayload.description ?? '',
                     deeplink: '',
@@ -685,8 +712,11 @@ export const useCreateEvent = () => {
                     datetime_end: createEventPayload.datetime_end,
                     conference_call: null,
                 }
-                events.push(newEvent)
-                queryClient.setQueryData('events', () => events)
+                queryClient.setQueryData([
+                    'events',
+                    'calendar',
+                    block.start.toISO(),
+                ], [...events, newEvent])
             },
             onSettled: () => {
                 queryClient.invalidateQueries('events')

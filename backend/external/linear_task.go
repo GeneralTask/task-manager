@@ -26,7 +26,7 @@ type LinearTasksUpdateFields struct {
 type LinearTasksUpdateBody struct {
 }
 
-func (linearTask LinearTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
+func (linearTask LinearTaskSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -90,10 +90,12 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 				Status: database.ExternalTaskStatus{
 					ExternalID: (linearIssue.State.Id).(string),
 					State:      string(linearIssue.State.Name),
+					Type:       string(linearIssue.State.Type),
 				},
 				CompletedStatus: database.ExternalTaskStatus{
 					ExternalID: (linearIssue.Team.MergeWorkflowState.Id).(string),
 					State:      string(linearIssue.Team.MergeWorkflowState.Name),
+					Type:       string(linearIssue.Team.MergeWorkflowState.Type),
 				},
 			},
 		}
@@ -116,7 +118,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 			task.Task.Comments = &dbComments
 		}
 		isCompleted := false
-		dbTask, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			task.IDExternal,

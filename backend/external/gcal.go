@@ -22,7 +22,7 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
+func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -99,7 +99,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				IsEvent: true,
 			},
 		}
-		dbEvent, err := database.UpdateOrCreateTask(
+		dbEvent, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			event.IDExternal,

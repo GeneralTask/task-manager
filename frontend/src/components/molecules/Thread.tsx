@@ -2,7 +2,6 @@ import { DateTime } from 'luxon'
 import React, { MutableRefObject, useCallback, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { Colors, Spacing, Typography } from '../../styles'
 import { TEmailThread } from '../../utils/types'
@@ -94,14 +93,14 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     )
 
     const onClickHandler = useCallback(() => {
-        navigate(`/messages/${thread.id}`)
+        navigate(`/messages/${params.mailbox}/${thread.id}`)
     }, [params, thread])
 
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.SELECT, onClickHandler, !isSelected)
+    useKeyboardShortcut('select', onClickHandler, !isSelected)
 
     const senders = thread.emails[0]?.sender.name
-    const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length})` : ''
-    const title = `${threadCountString} ${thread.emails[0]?.subject}`
+    const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length}) ` : ''
+    const title = `${threadCountString}${thread.emails[0]?.subject}`
     const bodytext = thread.emails[thread.emails.length - 1]?.body
     const sentAt = getHumanDateTime(DateTime.fromISO(thread.emails[thread.emails.length - 1]?.sent_at))
     const isUnread = thread.emails.some((email) => email.is_unread)

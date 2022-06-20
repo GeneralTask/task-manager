@@ -39,6 +39,22 @@ func TestTaskDetail(t *testing.T) {
 		},
 		TaskType: database.TaskType{IsTask: true},
 	})
+	linearTaskIDHex := insertTestTask(t, userID, database.Item{
+		TaskBase: database.TaskBase{
+			UserID:      userID,
+			IDExternal:  "sample_linear_id_details",
+			SourceID:    external.TASK_SOURCE_ID_LINEAR,
+			IsCompleted: true,
+		},
+		TaskType: database.TaskType{IsTask: true},
+		Task: database.Task{
+			Status: database.ExternalTaskStatus{
+				//ExternalID: "",
+				State: "Done",
+				Type:  "completed",
+			},
+		},
+	})
 	nonUserTaskIDHex := insertTestTask(t, userID, database.Item{
 		TaskBase: database.TaskBase{
 			UserID:     notUserID,
@@ -139,6 +155,22 @@ func TestTaskDetail(t *testing.T) {
 			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Jira","logo":"/images/jira.svg","logo_v2":"jira","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true}`, jiraTaskIDHex),
 			string(body))
 	})
+	t.Run("SuccessLinear", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"GET",
+			fmt.Sprintf("/tasks/detail/%s/", linearTaskIDHex),
+			nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+
+		assert.Equal(t,
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"external_status":{"state":"Done","type":"completed"}}`, linearTaskIDHex),
+			string(body))
+	})
 	t.Run("SuccessTaskFromEmail", func(t *testing.T) {
 		ServeRequest(t, authToken, "POST", "/create_task_from_thread/"+threadIDHex+"/",
 			bytes.NewBuffer([]byte(`{
@@ -155,7 +187,7 @@ func TestTaskDetail(t *testing.T) {
 		body := ServeRequest(t, authToken, "GET", fmt.Sprintf("/tasks/detail/%s/", task.ID.Hex()),
 			nil, http.StatusOK)
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"General Task","logo":"/images/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"sample title","body":"sample body","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":false,"linked_email_thread":{"linked_thread_id":"%s","linked_email_id":"%s","email_thread":{"id":"%s","deeplink":"","is_task":false,"is_archived":false,"source":{"account_id":"","name":"Gmail","logo":"/images/gmail.svg","logo_v2":"gmail","is_replyable":true},"emails":[{"message_id":"%s","subject":"test subject 1","body":"test body 1","sent_at":"2019-04-20T00:00:00Z","is_unread":true,"sender":{"name":"test","email":"test@generaltask.com","reply_to":"test-reply@generaltask.com"},"recipients":{"to":[{"name":"p1","email":"p1@gmail.com"}],"cc":[{"name":"p2","email":"p2@gmail.com"}],"bcc":[{"name":"p3","email":"p3@gmail.com"}]}},{"message_id":"000000000000000000000000","subject":"test subject 2","body":"test body 2","sent_at":"2018-04-20T00:00:00Z","is_unread":true,"sender":{"name":"test","email":"test@generaltask.com","reply_to":""},"recipients":{"to":[],"cc":[],"bcc":[]}}]}}}`,
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"General Task","logo":"/images/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"sample title","body":"sample body","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":false,"linked_email_thread":{"linked_thread_id":"%s","linked_email_id":"%s","email_thread":{"id":"%s","deeplink":"","is_task":false,"is_archived":false,"source":{"account_id":"","name":"Gmail","logo":"/images/gmail.svg","logo_v2":"gmail","is_replyable":true},"emails":[{"message_id":"%s","subject":"test subject 1","body":"test body 1","sent_at":"2019-04-20T00:00:00Z","is_unread":true,"sender":{"name":"test","email":"test@generaltask.com","reply_to":"test-reply@generaltask.com"},"recipients":{"to":[{"name":"p1","email":"p1@gmail.com"}],"cc":[{"name":"p2","email":"p2@gmail.com"}],"bcc":[{"name":"p3","email":"p3@gmail.com"}]},"num_attachments":0},{"message_id":"000000000000000000000000","subject":"test subject 2","body":"test body 2","sent_at":"2018-04-20T00:00:00Z","is_unread":true,"sender":{"name":"test","email":"test@generaltask.com","reply_to":""},"recipients":{"to":[],"cc":[],"bcc":[]},"num_attachments":0}]}}}`,
 				task.ID.Hex(), threadID.Hex(), firstEmailID.Hex(), threadID.Hex(), firstEmailID.Hex()),
 			string(body))
 	})

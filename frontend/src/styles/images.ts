@@ -14,7 +14,8 @@ export const logos: { [key: string]: string } = {
 }
 
 export const icons = Object.freeze({
-    archive: '/images/archive.svg',
+    archive_purple: '/images/archive_purple.svg',
+    archive: '/images/archive.png',
     arrows_in: '/images/arrows_in.png',
     arrows_out: '/images/arrows_out.png',
     calendar_blank: '/images/calendar_blank.png',
@@ -46,12 +47,13 @@ export const icons = Object.freeze({
     reply: '/images/reply.svg',
     replyAll: '/images/reply-all.svg',
     repository: '/images/repository.svg',
+    skinnyHamburger: '/images/skinny_hamburger.svg',
+    speechBubble: '/images/speech_bubble.svg',
     spinner: '/images/spinner.svg',
     task_complete: '/images/task_complete.png',
     task_incomplete: '/images/task_incomplete.png',
     timer: '/images/timer.png',
     trash: '/images/trash.png',
-    skinnyHamburger: '/images/skinny_hamburger.svg',
     x: '/images/x.svg',
 })
 
@@ -59,4 +61,17 @@ export const buttons: { [key: string]: string } = {
     google_sign_in: '/images/google_sign_in.png',
 }
 
+export const linearStatus = Object.freeze({
+    backlog: '/images/linear_backlog.svg',
+    unstarted: '/images/linear_todo.svg',
+    started: '/images/linear_inprogress.svg',
+    completed: '/images/linear_done.svg',
+    canceled: '/images/linear_canceled.svg',
+
+    inreview: '/images/linear_inreview.svg',
+    triage: '/images/linear_triage.svg',
+    duplicate: '/images/linear_duplicate.svg',
+})
+
 export type TIconImage = keyof typeof icons
+export type TLinearStatusImage = keyof typeof linearStatus

@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { KEYBOARD_SHORTCUTS } from '../constants'
 import { TEmailThread, TTask } from '../utils/types'
 import useKeyboardShortcut from './useKeyboardShortcut'
 
@@ -34,6 +33,6 @@ export default function useItemSelectionController(items: TTask[] | TEmailThread
         [selectedItemId, items]
     )
 
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.DOWN, () => onUpDown('down'))
-    useKeyboardShortcut(KEYBOARD_SHORTCUTS.UP, () => onUpDown('up'))
+    useKeyboardShortcut('down', () => onUpDown('down'))
+    useKeyboardShortcut('up', () => onUpDown('up'))
 }

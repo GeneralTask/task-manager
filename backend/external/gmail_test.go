@@ -3,14 +3,15 @@ package external
 import (
 	"encoding/base64"
 	"fmt"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/api/gmail/v1"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestGetRecipients(t *testing.T) {
@@ -144,12 +145,15 @@ func TestGetEmails(t *testing.T) {
 
 		////////////////////////////////////////////////////////////////////////////////
 		// (1) Arrange: setup testing objects and mock data
+		messageWithAttachment := createTestGmailMessage("gmail_thread_1_email_1", true, false,
+			"test subject", "2001-04-20")
+		messageWithAttachment.Payload.Filename = "gigachad.png"
+		messageWithAttachment.Payload.Parts = []*gmail.MessagePart{{Filename: "baijushair.png", MimeType: "image/jpeg", Body: &gmail.MessagePartBody{Data: ""}}}
 		threadsMap := map[string]*gmail.Thread{
 			"gmail_thread_1": {
 				Id: "gmail_thread_1",
 				Messages: []*gmail.Message{
-					createTestGmailMessage("gmail_thread_1_email_1", true, false,
-						"test subject", "2001-04-20"),
+					messageWithAttachment,
 					createTestGmailMessage("gmail_thread_1_email_2", false, false,
 						"test subject", "2020-04-20"),
 					createTestGmailMessage("gmail_thread_1_email_3", true, false,
@@ -178,13 +182,17 @@ func TestGetEmails(t *testing.T) {
 		////////////////////////////////////////////////////////////////////////////////
 		// (2) Act: call the API / perform the work
 		var emailResult = make(chan EmailResult)
-		go mockGmailSource.GetEmails(userID, "me", emailResult, false)
+		go mockGmailSource.GetEmails(userID, "me", 0, emailResult, true)
 		result := <-emailResult
 
 		////////////////////////////////////////////////////////////////////////////////
 		// (3) Assert: verify results as expected
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 5, len(result.Emails))
+
+		emailWithAttachment := createTestThreadEmail("gmail_thread_1_email_1", true,
+			"gmail_thread_1", "test subject", "2001-04-20")
+		emailWithAttachment.NumAttachments = 2
 
 		expectedThreadsInDB := []*database.Item{
 			{
@@ -198,8 +206,7 @@ func TestGetEmails(t *testing.T) {
 					LastUpdatedAt: *testutils.CreateDateTime("2020-04-20"),
 					IsArchived:    false,
 					Emails: []database.Email{
-						*createTestThreadEmail("gmail_thread_1_email_1", true,
-							"gmail_thread_1", "test subject", "2001-04-20"),
+						*emailWithAttachment,
 						*createTestThreadEmail("gmail_thread_1_email_2", false,
 							"gmail_thread_1", "test subject", "2020-04-20"),
 						*createTestThreadEmail("gmail_thread_1_email_3", true,
