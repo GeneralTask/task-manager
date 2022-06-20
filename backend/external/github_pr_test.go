@@ -36,21 +36,27 @@ func TestGetPullRequests(t *testing.T) {
 
 		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 		userURL := &githubUserServer.URL
+		defer githubUserServer.Close()
 
 		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, testutils.UserRepositoriesPayload)
 		userRepositoriesURL := &githubUserRepositoriesServer.URL
+		defer githubUserRepositoriesServer.Close()
 
 		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 200, testutils.UserPullRequestsPayload)
 		userPullRequestsURL := &githubUserPullRequestsServer.URL
+		defer githubUserPullRequestsServer.Close()
 
 		githubPullRequestReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
 		pullRequestReviewersURL := &githubPullRequestReviewersServer.URL
+		defer githubPullRequestReviewersServer.Close()
 
 		githubListCheckRunsForRefServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefPayload)
 		listCheckRunsForRefURL := &githubListCheckRunsForRefServer.URL
+		defer githubListCheckRunsForRefServer.Close()
 
 		githubListPullRequestCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
 		listPullRequestCommentsURL := &githubListPullRequestCommentsServer.URL
+		defer githubListPullRequestCommentsServer.Close()
 
 		var pullRequests = make(chan PullRequestResult)
 		githubPR := GithubPRSource{
@@ -90,12 +96,15 @@ func TestGetPullRequests(t *testing.T) {
 
 		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 		userURL := &githubUserServer.URL
+		defer githubUserServer.Close()
 
 		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, testutils.UserRepositoriesPayload)
 		userRepositoriesURL := &githubUserRepositoriesServer.URL
+		defer githubUserRepositoriesServer.Close()
 
 		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 200, `[]`)
 		userPullRequestsURL := &githubUserPullRequestsServer.URL
+		defer githubUserPullRequestsServer.Close()
 
 		var pullRequests = make(chan PullRequestResult)
 		githubPR := GithubPRSource{
@@ -121,9 +130,11 @@ func TestGetPullRequests(t *testing.T) {
 
 		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 		userURL := &githubUserServer.URL
+		defer githubUserServer.Close()
 
 		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, `[]`)
 		userRepositoriesURL := &githubUserRepositoriesServer.URL
+		defer githubUserRepositoriesServer.Close()
 
 		var pullRequests = make(chan PullRequestResult)
 		githubPR := GithubPRSource{
