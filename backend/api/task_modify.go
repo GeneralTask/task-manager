@@ -47,10 +47,6 @@ func (api *API) TaskModify(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	//taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult("linear_task")
-	//taskSourceResult.Source.ModifyTask(userID, "maz@generaltask.com", "1c3b11d7-9298-4cc3-8a4a-d2d6d4677315", nil)
-	//c.JSON(200, gin.H{})
-
 	task, err := database.GetItem(c.Request.Context(), taskID, userID)
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
