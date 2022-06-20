@@ -37,6 +37,9 @@ interface TCreateTaskData {
     body: string
     id_task_section: string
 }
+interface TCreateTaskResponse {
+    task_id: string
+}
 interface TModifyTaskData {
     id: string
     title?: string
@@ -83,7 +86,13 @@ interface TCreateTaskFromThreadData {
 
 interface TModifyThreadData {
     thread_id: string
-    is_unread: boolean
+    is_unread?: boolean
+    is_archived?: boolean
+}
+
+interface TThreadQueryData {
+    pages: TEmailThread[][]
+    pageParams: unknown[]
 }
 
 export {
@@ -93,6 +102,7 @@ export {
     TAddTaskSectionData,
     TPostFeedbackData,
     TCreateTaskData,
+    TCreateTaskResponse,
     TModifyTaskData,
     TMarkTaskDoneData,
     TReorderTaskData,
@@ -101,5 +111,6 @@ export {
     TMarkMessageReadData,
     TComposeMessageData,
     TCreateTaskFromThreadData,
-    TModifyThreadData
+    TModifyThreadData,
+    TThreadQueryData,
 }

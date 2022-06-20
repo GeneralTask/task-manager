@@ -50,7 +50,7 @@ type GithubPRData struct {
 	ChecksDidFail        bool
 }
 
-func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
+func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -187,7 +187,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 	for _, pullRequest := range pullRequestItems {
 		isCompleted := false
-		dbPR, err := database.UpdateOrCreateTask(
+		dbPR, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			string(pullRequest.IDExternal),
@@ -393,15 +393,15 @@ func (gitPR GithubPRSource) SendEmail(userID primitive.ObjectID, accountID strin
 	return errors.New("cannot send email for github pr")
 }
 
-func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, pullRequest TaskCreationObject) error {
-	return errors.New("has not been implemented yet")
+func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (gitPR GithubPRSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
 	// allow users to mark PR as done in GT even if it's not done in Github
 	return nil
 }

@@ -23,15 +23,15 @@ const OptionsContainer = styled.div`
     max-height: 500px;
 `
 const TitleContainer = styled.div`
-    padding: ${Spacing.padding._12}px ${Spacing.padding._16}px;
+    padding: ${Spacing.padding._12} ${Spacing.padding._16};
     border-bottom: 1px solid ${Colors.gray._100};
     color: ${Colors.gray._600};
 `
-const ListItem = styled.div`
+const ListItem = styled.div<{ hasPadding: boolean }>`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: ${Spacing.padding._8}px ${Spacing.padding._16}px;
+    ${({ hasPadding }) => (hasPadding ? `padding: ${Spacing.padding._8} ${Spacing.padding._16};` : '')}
     &:hover {
         background-color: ${Colors.gray._100};
     }
@@ -43,7 +43,7 @@ const SectionTitleBox = styled.div`
     flex: 1;
     flex-direction: row;
     align-items: center;
-    gap: ${Spacing.padding._8}px;
+    gap: ${Spacing.padding._8};
     color: ${Colors.gray._600};
     min-width: 0;
 `
@@ -54,6 +54,7 @@ const PositionRelative = styled.div`
 interface GTSelectOption {
     item: ReactNode
     onClick: () => void
+    hasPadding?: boolean // default to true
 }
 
 interface GTSelectProps {
@@ -75,6 +76,7 @@ const GTSelect = ({ options, onClose, location, title, parentRef }: GTSelectProp
                 option.onClick()
                 onClose()
             }}
+            hasPadding={option.hasPadding !== false}
         >
             <SectionTitleBox>{option.item}</SectionTitleBox>
         </ListItem>

@@ -23,29 +23,29 @@ import { AUTHORIZATION_COOKE } from '../../constants'
 const TermsOfServiceContainer = styled.div`
     display: flex;
     flex-direction: column;
-    padding: ${Spacing.padding._16}px;
+    padding: ${Spacing.padding._16};
     height: 100%;
     box-sizing: border-box;
 `
 const TermsOfServiceHeader = styled.div`
-    margin-top: ${Spacing.margin._24}px;
-    margin-bottom: ${Spacing.margin._16}px;
+    margin-top: ${Spacing.margin._24};
+    margin-bottom: ${Spacing.margin._16};
 `
 const TitleLargeContainer = styled.div`
-    margin-bottom: ${Spacing.margin._8}px;
+    margin-bottom: ${Spacing.margin._8};
 `
 const TermsScrollDiv = styled.div`
     flex: 1;
     overflow-y: scroll;
-    margin-top: ${Spacing.margin._8}px;
-    padding: ${Spacing.padding._8}px;
+    margin-top: ${Spacing.margin._8};
+    padding: ${Spacing.padding._8};
 `
 const LinkContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.margin._16}px;
-    margin-top: ${Spacing.margin._16}px;
-    margin-right: ${Spacing.margin._16}px;
+    gap: ${Spacing.margin._16};
+    margin-top: ${Spacing.margin._16};
+    margin-right: ${Spacing.margin._16};
 `
 const VerticalFlex = styled.div`
     display: flex;
@@ -54,10 +54,10 @@ const VerticalFlex = styled.div`
 const HorizontalFlex = styled.div`
     display: flex;
     flex-direction: row;
-    margin-top: ${Spacing.margin._8}px;
+    margin-top: ${Spacing.margin._8};
 `
 const AgreementText = styled.div<{ required?: boolean }>`
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._8};
     font-family: 'Switzer-Variable';
     font-size: ${Typography.xSmall.fontSize};
     font-weight: ${Typography.weight._500};
@@ -70,8 +70,8 @@ const RedAsterisk = styled.span`
 const SubmitButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.margin._8}px;
-    margin-top: ${Spacing.margin._16}px;
+    gap: ${Spacing.margin._8};
+    margin-top: ${Spacing.margin._16};
 `
 
 const TermsOfServiceSummaryView = () => {

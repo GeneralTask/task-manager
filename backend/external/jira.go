@@ -110,7 +110,7 @@ func (jira JIRASource) getAPIBaseURL(siteConfiguration database.AtlassianSiteCon
 	return "https://api.atlassian.com/ex/jira/" + siteConfiguration.CloudID
 }
 
-func (jira JIRASource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
+func (jira JIRASource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -235,18 +235,19 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 
 	isCompleted := false
 	for _, task := range tasks {
-		dbTask, err := database.UpdateOrCreateTask(
+		priorityNormalized := float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength)
+		dbTask, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			task.IDExternal,
 			task.SourceID,
 			task,
-			database.TaskChangeableFields{
+			database.TaskItemChangeableFields{
 				Title:   &task.Title,
 				DueDate: task.DueDate,
-				Task: database.Task{
-					PriorityID:         task.PriorityID,
-					PriorityNormalized: float64((*cachedMapping)[task.PriorityID]) / float64(priorityLength),
+				Task: &database.TaskChangeable{
+					PriorityID:         &task.PriorityID,
+					PriorityNormalized: &priorityNormalized,
 				},
 				IsCompleted: &isCompleted,
 			},
@@ -362,15 +363,15 @@ func (jira JIRASource) SendEmail(userID primitive.ObjectID, accountID string, em
 	return errors.New("cannot send email for JIRA source")
 }
 
-func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("has not been implemented yet")
+func (jira JIRASource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (jira JIRASource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (jira JIRASource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		token, _ := jira.Atlassian.getToken(userID, accountID)
 		siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)

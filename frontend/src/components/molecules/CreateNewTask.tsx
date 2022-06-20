@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { useCreateTask } from '../../services/api-query-hooks'
 import { Colors, Images, Typography } from '../../styles'
 import { radius } from '../../styles/border'
@@ -12,13 +11,13 @@ const CreateNewTaskContainer = styled.div`
     display: flex;
     flex-shrink: 0;
     flex-direction: row;
-    gap: ${padding._8}px;
+    gap: ${padding._8};
     background-color: ${Colors.gray._100};
     height: 45px;
     align-items: center;
-    padding: 0px ${padding._8}px;
+    padding: 0px ${padding._8};
     border-radius: ${radius.large};
-    margin-bottom: ${padding._8}px;
+    margin-bottom: ${padding._8};
 `
 const TaskInput = styled.input`
     border: none;
@@ -63,7 +62,7 @@ const CreateNewTask = (props: CreateNewTaskProps) => {
                 onKeyDown={handleKeyDown}
                 onChange={(e) => setText(e.target.value)}
             />
-            <KeyboardShortcut shortcut={KEYBOARD_SHORTCUTS.CREATE_TASK} onKeyPress={() => inputRef.current?.focus()} />
+            <KeyboardShortcut shortcut="createTask" onKeyPress={() => inputRef.current?.focus()} />
         </CreateNewTaskContainer>
     )
 }

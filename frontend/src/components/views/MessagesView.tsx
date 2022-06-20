@@ -27,9 +27,9 @@ const MessagesContainer = styled.div`
 `
 const MessageDivider = styled.div`
     border-bottom: 1px solid ${Colors.gray._200};
-    margin-top: ${Spacing.margin._4}px;
-    margin-left: ${Spacing.margin._16}px;
-    margin-right: ${Spacing.margin._16}px;
+    margin-top: ${Spacing.margin._4};
+    margin-left: ${Spacing.margin._16};
+    margin-right: ${Spacing.margin._16};
 `
 
 const MessagesView = () => {
@@ -42,7 +42,7 @@ const MessagesView = () => {
         isFetching: isFetchingThreads,
         fetchNextPage,
         refetch: getThreads,
-    } = useGetInfiniteThreads()
+    } = useGetInfiniteThreads({ isArchived: params.mailbox === 'archive' })
     const { mutate: modifyThread } = useModifyThread()
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
     const unreadTimer = useRef<NodeJS.Timeout>()
@@ -55,11 +55,13 @@ const MessagesView = () => {
             return threads.find((thread) => thread.id === params.thread) ?? threads[0]
         }
         return null
-    }, [params.thread, threads])
+    }, [params.thread, params.mailbox, JSON.stringify(threads)])
 
     useEffect(() => {
-        if (expandedThread) {
-            navigate(`/messages/${expandedThread.id}`)
+        if (params.mailbox !== 'inbox' && params.mailbox !== 'archive') {
+            navigate(`/messages/inbox`)
+        } else if (expandedThread) {
+            navigate(`/messages/${params.mailbox}/${expandedThread.id}`)
             if (unreadTimer.current) {
                 clearTimeout(unreadTimer.current)
             }
@@ -70,7 +72,7 @@ const MessagesView = () => {
                 )
             }
         }
-    }, [expandedThread])
+    }, [expandedThread, params.mailbox, params.thread])
 
     const observer = useRef<IntersectionObserver>()
     const lastElementRef = useCallback(
@@ -91,7 +93,7 @@ const MessagesView = () => {
         <>
             <ScrollViewMimic ref={sectionScrollingRef}>
                 <SectionHeader
-                    sectionName="Messages"
+                    sectionName={params.mailbox === 'inbox' ? 'Inbox' : 'Archive'}
                     allowRefresh={true}
                     refetch={() => {
                         refetchMessages()
@@ -100,14 +102,17 @@ const MessagesView = () => {
                     isRefetching={isRefetchingMessages || isFetchingThreads}
                 />
                 <MessagesContainer>
-                    {threads.map((thread, index) => (
-                        <div key={thread.id}>
-                            <ThreadTemplate ref={index === threads.length - 1 ? lastElementRef : undefined}>
-                                <Thread thread={thread} sectionScrollingRef={sectionScrollingRef} />
-                            </ThreadTemplate>
-                            {index !== threads.length - 1 && <MessageDivider />}
-                        </div>
-                    ))}
+                    {threads.map(
+                        (thread, index) =>
+                            (params.mailbox === 'archive' || (params.mailbox === 'inbox' && !thread.is_archived)) && (
+                                <div key={thread.id}>
+                                    <ThreadTemplate ref={index === threads.length - 1 ? lastElementRef : undefined}>
+                                        <Thread thread={thread} sectionScrollingRef={sectionScrollingRef} />
+                                    </ThreadTemplate>
+                                    {index !== threads.length - 1 && <MessageDivider />}
+                                </div>
+                            )
+                    )}
                 </MessagesContainer>
                 {(isLoadingThreads || isFetchingThreads) && (
                     <div>

@@ -30,7 +30,7 @@ type SlackSavedTaskSource struct {
 	Slack SlackService
 }
 
-func (slackTask SlackSavedTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
+func (slackTask SlackSavedTaskSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -79,13 +79,13 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 			},
 		}
 		isCompleted := false
-		dbTask, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			task.IDExternal,
 			task.SourceID,
 			task,
-			database.TaskChangeableFields{
+			database.TaskItemChangeableFields{
 				IsCompleted: &isCompleted,
 			},
 			nil,
@@ -100,6 +100,9 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
 		task.TimeAllocation = dbTask.TimeAllocation
+		// we want local (on GT side) title and body changes to persist
+		task.Title = dbTask.Title
+		task.TaskBase.Body = dbTask.TaskBase.Body
 		tasks = append(tasks, task)
 	}
 
@@ -112,7 +115,7 @@ func (slackTask SlackSavedTaskSource) GetPullRequests(userID primitive.ObjectID,
 	result <- emptyPullRequestResult(nil)
 }
 
-func (slackTask SlackSavedTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (slackTask SlackSavedTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
 	return errors.New("has not been implemented yet")
 }
 
@@ -124,8 +127,8 @@ func (slackTask SlackSavedTaskSource) SendEmail(userID primitive.ObjectID, accou
 	return errors.New("cannot send email for Slack source")
 }
 
-func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("cannot create new Slack task")
+func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (slackTask SlackSavedTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {

@@ -9,7 +9,7 @@ const QuoteToggle = styled(NoStyleButton)`
     display: flex;
     align-items: center;
     border-radius: ${Border.radius.regular};
-    padding: 0 ${Spacing.padding._8}px;
+    padding: 0 ${Spacing.padding._8};
     background-color: ${Colors.gray._200};
 `
 
@@ -17,6 +17,10 @@ const QuoteToggle = styled(NoStyleButton)`
 // currently supports gmail classNames - will need to be updated
 function isQuotedText(node: HTMLElement): boolean {
     return node.classList?.contains('gmail_quote')
+}
+
+function replaceNewlinesWithBreaks(text: string) {
+    return text.replace(/\n/g, '<br>')
 }
 
 const Quote = ({ quotedHTML }: { quotedHTML: string }) => {
@@ -40,10 +44,11 @@ const QuotedEmailBody = ({ email }: QuotedEmailBodyProps) => {
 
     const elements = Array.from(emailDoc.body.childNodes).map((child, index) => {
         const elem = child as HTMLElement
+        const outerHTML = replaceNewlinesWithBreaks(elem.outerHTML || '')
         if (isQuotedText(elem)) {
-            return <Quote key={index} quotedHTML={elem.outerHTML} />
+            return <Quote key={index} quotedHTML={outerHTML} />
         } else {
-            return <SanitizedHTML key={index} dirtyHTML={elem.outerHTML} />
+            return <SanitizedHTML key={index} dirtyHTML={outerHTML} />
         }
     })
     return <>{elements}</>

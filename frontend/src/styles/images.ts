@@ -8,15 +8,16 @@ export const logos: { [key: string]: string } = {
     gmail_gray: '/images/gmail_gray.png',
     gcal: '/images/gcal.png',
     gcal_gray: '/images/gcal_gray.png',
+    google_meet: '/images/google-meet.svg',
     linear: '/images/linear.png',
     slack: '/images/slack.png',
 }
 
 export const icons = Object.freeze({
-    archive: '/images/archive.svg',
+    archive_purple: '/images/archive_purple.svg',
+    archive: '/images/archive.png',
     arrows_in: '/images/arrows_in.png',
     arrows_out: '/images/arrows_out.png',
-    dot: '/images/dot.svg',
     calendar_blank: '/images/calendar_blank.png',
     caret_down: '/images/caret_down.svg',
     caret_left: '/images/caret_left.png',
@@ -27,6 +28,9 @@ export const icons = Object.freeze({
     check_unchecked: '/images/check_unchecked.png',
     chevron_up: '/images/chevron_up.png',
     chevron_down: '/images/chevron_down.png',
+    copy: '/images/copy.svg',
+    dot: '/images/dot.svg',
+    external_link: '/images/external_link.svg',
     forward: '/images/forward.svg',
     gear: '/images/gear.png',
     inbox: '/images/inbox.png',
@@ -42,12 +46,14 @@ export const icons = Object.freeze({
     pencil: '/images/pencil.png',
     reply: '/images/reply.svg',
     replyAll: '/images/reply-all.svg',
+    repository: '/images/repository.svg',
+    skinnyHamburger: '/images/skinny_hamburger.svg',
+    speechBubble: '/images/speech_bubble.svg',
     spinner: '/images/spinner.svg',
     task_complete: '/images/task_complete.png',
     task_incomplete: '/images/task_incomplete.png',
     timer: '/images/timer.png',
     trash: '/images/trash.png',
-    skinnyHamburger: '/images/skinny_hamburger.svg',
     x: '/images/x.svg',
 })
 
@@ -55,4 +61,17 @@ export const buttons: { [key: string]: string } = {
     google_sign_in: '/images/google_sign_in.png',
 }
 
+export const linearStatus = Object.freeze({
+    backlog: '/images/linear_backlog.svg',
+    unstarted: '/images/linear_todo.svg',
+    started: '/images/linear_inprogress.svg',
+    completed: '/images/linear_done.svg',
+    canceled: '/images/linear_canceled.svg',
+
+    inreview: '/images/linear_inreview.svg',
+    triage: '/images/linear_triage.svg',
+    duplicate: '/images/linear_duplicate.svg',
+})
+
 export type TIconImage = keyof typeof icons
+export type TLinearStatusImage = keyof typeof linearStatus

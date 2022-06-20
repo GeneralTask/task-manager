@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Border, Colors, Spacing, Typography } from '../../styles'
@@ -9,6 +9,9 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import { openAuthWindow } from '../../utils/auth'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
+import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../atoms/buttons/GoogleSignInButton'
+import GTSelect from '../molecules/GTSelect'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -18,10 +21,10 @@ const SettingsViewContainer = styled.div`
     min-width: ${DEFAULT_VIEW_WIDTH};
 `
 const AccountsContainer = styled.div`
-    margin-top: ${Spacing.margin._16}px;
+    margin-top: ${Spacing.margin._16};
 `
 const AccountSpacing = styled.div`
-    margin-top: ${Spacing.margin._16}px;
+    margin-top: ${Spacing.margin._16};
 `
 const AccountContainer = styled.div`
     display: flex;
@@ -32,52 +35,84 @@ const AccountContainer = styled.div`
     height: 100%;
 `
 const IconContainer = styled.div`
-    margin-left: ${Spacing.margin._16}px;
-    margin-right: ${Spacing.margin._16}px;
+    margin-left: ${Spacing.margin._16};
+    margin-right: ${Spacing.margin._16};
 `
 const AccountButtonContainer = styled.div<{ important?: boolean }>`
-    margin-right: ${Spacing.margin._16}px;
+    margin-right: ${Spacing.margin._16};
     background-color: ${(props) => (props.important ? Colors.red._2 : Colors.gray._100)};
     outline: 1px solid ${(props) => (props.important ? Colors.red._1 : Colors.gray._100)};
     color: ${Colors.black};
     border-radius: ${Border.radius.small};
-    padding: ${Spacing.padding._4}px ${Spacing.padding._8}px;
+    padding: ${Spacing.padding._4} ${Spacing.padding._8};
     min-width: fit-content;
 `
 const XSmallFontSpan = styled.span`
     font-size: ${Typography.xSmall.fontSize};
     margin-right: auto;
 `
-const FullWidthSelect = styled.select`
+const FullWidth = styled.div`
+    display: flex;
+    justify-content: end;
+    margin-right: ${Spacing.margin._16};
+`
+const ShowLinkAccountsButtonContainer = styled.div`
+    width: ${signInWithGoogleButtonDimensions.width};
+    display: flex;
+    flex-direction: column;
+`
+const TextAlignCenter = styled.span`
+    text-align: center;
     width: 100%;
 `
 
 const SettingsView = () => {
-    const [selectedType, setSelectedType] = useState<string>('add')
+    const [showLinkAccountsDropdown, setShowLinkedAccountsDropdown] = useState(false)
+    const showLinkAccountsButtonContainerRef = useRef<HTMLDivElement>(null)
+
     const { data: supportedTypes } = useGetSupportedTypes()
     const { data: linkedAccounts, refetch } = useGetLinkedAccounts()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
     const onUnlink = (id: string) => deleteAccount({ id: id })
     const onRelink = (accountType: string) => supportedTypes && openAuthWindow(accountType, supportedTypes, refetch)
-    useEffect(() => {
-        supportedTypes && openAuthWindow(selectedType, supportedTypes, refetch)
-        setSelectedType('add')
-    }, [selectedType])
 
     return (
         <ScrollViewMimic>
             <SettingsViewContainer>
                 <SectionHeader sectionName="Settings" allowRefresh={false} />
                 <AccountsContainer>
-                    <FullWidthSelect value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
-                        <option value="add">Add new account</option>
-                        {supportedTypes?.map((type, i) => (
-                            <option key={i} value={type.name}>
-                                {type.name}
-                            </option>
-                        ))}
-                    </FullWidthSelect>
+                    <FullWidth>
+                        <ShowLinkAccountsButtonContainer ref={showLinkAccountsButtonContainerRef}>
+                            <RoundedGeneralButton
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setShowLinkedAccountsDropdown(!showLinkAccountsDropdown)
+                                }}
+                                value="Add new Account"
+                                textStyle="dark"
+                            />
+                            {showLinkAccountsDropdown && (
+                                <GTSelect
+                                    options={
+                                        supportedTypes?.map((type) => ({
+                                            item:
+                                                type.name === 'Google' ? (
+                                                    GoogleSignInButtonImage
+                                                ) : (
+                                                    <TextAlignCenter>{type.name}</TextAlignCenter>
+                                                ),
+                                            onClick: () => openAuthWindow(type.name, supportedTypes, refetch),
+                                            hasPadding: type.name !== 'Google',
+                                        })) ?? []
+                                    }
+                                    location="left"
+                                    onClose={() => setShowLinkedAccountsDropdown(false)}
+                                    parentRef={showLinkAccountsButtonContainerRef}
+                                />
+                            )}
+                        </ShowLinkAccountsButtonContainer>
+                    </FullWidth>
                 </AccountsContainer>
                 {linkedAccounts?.map((account) => (
                     <AccountSpacing key={account.id}>

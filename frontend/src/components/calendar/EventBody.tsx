@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import React from 'react'
 import { TEvent } from '../../utils/types'
 import {
-    CELL_HEIGHT,
+    CELL_HEIGHT_VALUE,
     EventBodyStyle,
     EventFill,
     EventInfo,
@@ -27,10 +27,10 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const startedBeforeToday = startTime <= props.date.startOf('day')
     const endedAfterToday = endTime >= props.date.endOf('day')
 
-    const top = startedBeforeToday ? 0 : CELL_HEIGHT * startTime.diff(props.date.startOf('day'), 'hours').hours
+    const top = startedBeforeToday ? 0 : CELL_HEIGHT_VALUE * startTime.diff(props.date.startOf('day'), 'hours').hours
     const bottom = endedAfterToday
-        ? CELL_HEIGHT * 24
-        : CELL_HEIGHT * endTime.diff(props.date.startOf('day'), 'hours').hours
+        ? CELL_HEIGHT_VALUE * 24
+        : CELL_HEIGHT_VALUE * endTime.diff(props.date.startOf('day'), 'hours').hours
     const eventBodyHeight = Math.max(bottom - top, MINIMUM_BODY_HEIGHT)
 
     const startTimeString = startTime.toFormat('h:mm') // ex: 3:00

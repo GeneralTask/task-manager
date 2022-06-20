@@ -1,16 +1,24 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import ActionOption from '../molecules/ActionOption'
 import { Icon } from '../atoms/Icon'
-import { DETAILS_SYNC_TIMEOUT, KEYBOARD_SHORTCUTS } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
-import { logos } from '../../styles/images'
+import { logos, linearStatus } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
+import Spinner from '../atoms/Spinner'
+import { useNavigate, useParams } from 'react-router-dom'
+import { EmailList } from './email/EmailList'
+import LinearCommentList from './linear/LinearCommentList'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
+
+// This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
+const BODY_HEIGHT_OFFSET = 16
 
 const DetailsViewContainer = styled.div`
     flex: 1;
@@ -18,8 +26,8 @@ const DetailsViewContainer = styled.div`
     flex-direction: column;
     background-color: ${Colors.gray._50};
     min-width: 300px;
-    margin-top: ${Spacing.margin._24}px;
-    padding: ${Spacing.padding._16}px;
+    border-left: 1px solid ${Colors.gray._300};
+    padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
 `
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -27,19 +35,19 @@ const DetailsTopContainer = styled.div`
     align-items: center;
     height: 50px;
 `
-const BodyTextArea = styled.textarea`
-    flex: 1;
+const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
+    ${({ isFullHeight }) => isFullHeight && `flex: 1;`}
     display: block;
     background-color: inherit;
     border: 1px solid transparent;
     resize: none;
     outline: none;
     overflow: auto;
-    padding: ${Spacing.margin._8}px;
+    padding: ${Spacing.padding._8};
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
-    box-sizing: border-box;
+    line-height: ${Typography.xSmall.lineHeight};
     :focus {
         border: 1px solid ${Colors.gray._500};
     }
@@ -54,16 +62,30 @@ const TitleInput = styled.textarea`
     resize: none;
     outline: none;
     overflow: hidden;
-    margin-bottom: ${Spacing.margin._16}px;
+    margin-bottom: ${Spacing.margin._16};
     :focus {
         outline: 1px solid ${Colors.gray._500};
     }
 `
 const MarginLeftAuto = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     margin-left: auto;
 `
 const MarginRight8 = styled.div`
-    margin-right: ${Spacing.margin._8}px;
+    margin-right: ${Spacing.margin._8};
+`
+const StatusContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: ${Spacing.margin._8};
+    align-items: center;
+    font-size: ${Typography.xSmall.fontSize};
+    line-height: ${Typography.xSmall.lineHeight};
+    font-weight: ${Typography.weight._500};
+    color: ${Colors.gray._700};
+    margin-bottom: ${Spacing.margin._8};
 `
 
 const SYNC_MESSAGES = {
@@ -75,19 +97,22 @@ const SYNC_MESSAGES = {
 interface TaskDetailsProps {
     task: TTask
 }
-const TaskDetails = (props: TaskDetailsProps) => {
-    const [task, setTask] = useState<TTask>(props.task)
+const TaskDetails = ({ task }: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
+    const thread = task.linked_email_thread?.email_thread
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
     const bodyRef = useRef<HTMLTextAreaElement>(null)
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
+
+    const navigate = useNavigate()
+    const params = useParams()
 
     useEffect(() => {
         if (isEditing || isLoading) {
@@ -101,10 +126,17 @@ const TaskDetails = (props: TaskDetailsProps) => {
 
     // Update the state when the task changes
     useLayoutEffect(() => {
-        setTask(props.task)
-        setTitleInput(props.task.title)
-        setBodyInput(props.task.body)
-    }, [props.task])
+        setTitleInput(task.title)
+        setBodyInput(task.body)
+    }, [task.id])
+
+    /* when the optimistic ID changes to undefined, we know that that task.id is now the real ID
+    so we can then navigate to the correct link */
+    useEffect(() => {
+        if (!task.isOptimistic) {
+            navigate(`/tasks/${params.section}/${task.id}`)
+        }
+    }, [task.isOptimistic])
 
     useLayoutEffect(() => {
         if (titleRef.current) {
@@ -113,6 +145,14 @@ const TaskDetails = (props: TaskDetailsProps) => {
                 titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
         }
     }, [titleInput])
+
+    useLayoutEffect(() => {
+        if (bodyRef.current && thread) {
+            bodyRef.current.style.height = '0px'
+            bodyRef.current.style.height =
+                bodyRef.current.scrollHeight > 300 ? '300px' : `${bodyRef.current.scrollHeight - BODY_HEIGHT_OFFSET}px`
+        }
+    }, [bodyInput])
 
     useEffect(() => {
         ReactTooltip.rebuild()
@@ -153,28 +193,40 @@ const TaskDetails = (props: TaskDetailsProps) => {
     // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
     const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
 
+    const status = task.external_status ? task.external_status.state : ''
+
     return (
         <DetailsViewContainer data-testid="details-view-container">
             <DetailsTopContainer>
                 <MarginRight8>
                     <Icon source={icon} size="small" />
                 </MarginRight8>
-                <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
-                <MarginLeftAuto>
-                    {task.deeplink && (
-                        <a href={task.deeplink} target="_blank" rel="noreferrer">
-                            <RoundedGeneralButton textStyle="dark" value={`View in ${task.source.name}`} />
-                        </a>
-                    )}
-                    <ActionOption
-                        isShown={labelEditorShown}
-                        setIsShown={setLabelEditorShown}
-                        task={task}
-                        keyboardShortcut={KEYBOARD_SHORTCUTS.SHOW_LABEL_EDITOR}
-                    />
-                </MarginLeftAuto>
+                {!task.isOptimistic && (
+                    <>
+                        <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
+                        <MarginLeftAuto>
+                            <ActionOption
+                                isShown={labelEditorShown}
+                                setIsShown={setLabelEditorShown}
+                                task={task}
+                                keyboardShortcut="showLabelEditor"
+                            />
+                            {task.deeplink && (
+                                <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
+                                    <RoundedGeneralButton
+                                        textStyle="dark"
+                                        value={task.source.name}
+                                        hasBorder
+                                        iconSource={'external_link'}
+                                    />
+                                </NoStyleAnchor>
+                            )}
+                        </MarginLeftAuto>
+                    </>
+                )}
             </DetailsTopContainer>
             <TitleInput
+                disabled={task.isOptimistic}
                 ref={titleRef}
                 data-testid="task-title-input"
                 onKeyDown={handleKeyDown}
@@ -184,17 +236,31 @@ const TaskDetails = (props: TaskDetailsProps) => {
                     onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                 }}
             />
-            <BodyTextArea
-                ref={bodyRef}
-                data-testid="task-body-input"
-                placeholder="Add task details"
-                value={bodyInput}
-                onChange={(e) => {
-                    setBodyInput(e.target.value)
-                    onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
-                }}
-                onKeyDown={(e) => e.stopPropagation()}
-            />
+            {task.external_status && (
+                <StatusContainer>
+                    <Icon source={linearStatus[task.external_status.type]} size="small" /> {status}
+                </StatusContainer>
+            )}
+            {task.isOptimistic ? (
+                <Spinner />
+            ) : (
+                <>
+                    <BodyTextArea
+                        ref={bodyRef}
+                        data-testid="task-body-input"
+                        placeholder="Add task details"
+                        isFullHeight={!thread}
+                        value={bodyInput}
+                        onChange={(e) => {
+                            setBodyInput(e.target.value)
+                            onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
+                        }}
+                        onKeyDown={(e) => e.stopPropagation()}
+                    />
+                    {thread && <EmailList thread={thread} />}
+                    {task.comments && <LinearCommentList comments={task.comments} />}
+                </>
+            )}
         </DetailsViewContainer>
     )
 }

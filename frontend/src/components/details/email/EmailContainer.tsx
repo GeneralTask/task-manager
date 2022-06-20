@@ -1,5 +1,5 @@
 import { Colors, Spacing, Typography } from '../../../styles'
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TEmail, TEmailComposeState } from '../../../utils/types'
 import { getHumanDateTime, removeHTMLTags } from '../../../utils/utils'
 
@@ -28,22 +28,20 @@ const SenderContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 0 ${Spacing.padding._8}px;
+    padding: 0 ${Spacing.padding._8};
     justify-content: space-between;
 `
 const SentAtContainer = styled.div`
     font-size: ${Typography.xSmall.fontSize};
-    margin-left: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._8};
 `
 const BodyContainer = styled.div`
     flex: 1;
-    margin: ${Spacing.margin._20}px;
-    * > div {
-        white-space: pre-wrap;
-    }
+    margin: ${Spacing.margin._20};
 `
 const BodyContainerCollapsed = styled.span`
-    margin-left: ${Spacing.margin._20}px;
+    margin-left: ${Spacing.margin._20};
+    margin-bottom: ${Spacing.margin._8};
     flex: 1;
     overflow: hidden;
     white-space: nowrap;
@@ -52,8 +50,8 @@ const BodyContainerCollapsed = styled.span`
     color: ${Colors.gray._400};
 `
 const EmailSenderDetailsContainer = styled.div`
-    margin-left: ${Spacing.margin._20}px;
-    margin-bottom: ${Spacing.margin._8}px;
+    margin-left: ${Spacing.margin._20};
+    margin-bottom: ${Spacing.margin._8};
     width: fit-content;
 `
 const Title = styled.div`
@@ -68,14 +66,14 @@ const Title = styled.div`
 `
 const UnreadIndicator = styled.div`
     position: absolute;
-    left: -${Spacing.margin._16}px;
+    left: -${Spacing.margin._16};
 `
 const SenderHeader = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
     position: relative;
-    margin-left: ${Spacing.margin._12}px;
+    margin-left: ${Spacing.margin._12};
 `
 
 interface EmailContainerProps {
@@ -88,22 +86,14 @@ interface EmailContainerProps {
 const EmailContainer = (props: EmailContainerProps) => {
     const [isCollapsed, setIsCollapsed] = useState(!props.isLastThread)
     const timeSent = getHumanDateTime(DateTime.fromISO(props.email.sent_at))
-    const scrollingRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         ReactTooltip.hide()
         ReactTooltip.rebuild()
     }, [isCollapsed])
 
-    useLayoutEffect(() => {
-        setIsCollapsed(!props.isLastThread)
-        if (props.isLastThread) {
-            scrollingRef.current?.scrollIntoView()
-        }
-    }, [props.isLastThread])
-
     return (
-        <DetailsViewContainer ref={scrollingRef}>
+        <DetailsViewContainer>
             <CollapseExpandContainer onClick={() => setIsCollapsed(!isCollapsed)}>
                 <SenderContainer>
                     <div>

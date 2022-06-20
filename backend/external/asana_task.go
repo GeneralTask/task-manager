@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -47,7 +48,7 @@ type AsanaTasksUpdateBody struct {
 	Data AsanaTasksUpdateFields `json:"data"`
 }
 
-func (asanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
+func (asanaTask AsanaTaskSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -122,13 +123,13 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 			task.DueDate = primitive.NewDateTimeFromTime(dueDate)
 		}
 		isCompleted := false
-		dbTask, err := database.UpdateOrCreateTask(
+		dbTask, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			task.IDExternal,
 			task.SourceID,
 			task,
-			database.TaskChangeableFields{
+			database.TaskItemChangeableFields{
 				Title:       &task.Title,
 				Body:        &task.TaskBase.Body,
 				DueDate:     task.DueDate,
@@ -158,7 +159,7 @@ func (asanaTask AsanaTaskSource) GetPullRequests(userID primitive.ObjectID, acco
 	result <- emptyPullRequestResult(nil)
 }
 
-func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err
@@ -185,7 +186,7 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 	return nil
 }
 
-func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.TaskChangeableFields) *AsanaTasksUpdateBody {
+func (asanaTask AsanaTaskSource) GetTaskUpdateBody(updateFields *database.TaskItemChangeableFields) *AsanaTasksUpdateBody {
 	var dueDate *string
 	if updateFields.DueDate.Time() != time.Unix(0, 0) {
 		dueDateString := updateFields.DueDate.Time().Format(constants.YEAR_MONTH_DAY_FORMAT)
@@ -210,8 +211,8 @@ func (asanaTask AsanaTaskSource) SendEmail(userID primitive.ObjectID, accountID 
 	return errors.New("cannot send email for asana source")
 }
 
-func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("cannot create new asana task")
+func (asanaTask AsanaTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (asanaTask AsanaTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {

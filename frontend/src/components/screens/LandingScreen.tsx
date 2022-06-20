@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 import Cookies from 'js-cookie'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import JoinWaitlistButton from '../atoms/buttons/JoinWaitlistButton'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import UnauthorizedFooter from '../molecules/UnauthorizedFooter'
 import UnauthorizedHeader from '../molecules/UnauthorizedHeader'
 import apiClient from '../../utils/api'
@@ -31,7 +31,6 @@ const Header = styled.div`
     margin-bottom: 40px;
     font-size: ${Typography.landingScreen.header};
     text-align: center;
-    font-family: inherit;
 `
 const Subheader = styled.div`
     max-width: 725px;
@@ -58,6 +57,24 @@ const ResponseContainer = styled.div`
     margin-top: 20px;
     height: 20px;
     color: ${Colors.response.error};
+`
+
+const FAQHeader = styled.div`
+    max-width: 700px;
+    margin: auto;
+    margin-bottom: 20px;
+    margin-top: 100px;
+    font-size: ${Typography.landingScreen.faqHeader};
+    text-align: center;
+`
+
+const FAQItem = styled.div`
+    max-width: 725px;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    font-size: ${Typography.landingScreen.faqItem};
+    text-align: center;
 `
 
 const LandingScreen = () => {
@@ -120,6 +137,32 @@ const LandingScreen = () => {
                 </WaitlistContainer>
                 <ResponseContainer data-testid="response-container">{message}</ResponseContainer>
                 <GoogleSignInButton />
+            </FlexGrowContainer>
+            <FlexGrowContainer>
+                <FlexColumn>
+                    <FAQHeader>Google Privacy FAQs</FAQHeader>
+                    <Subheader>What will your app do with Google user data?</Subheader>
+                    <FAQItem>
+                        General Task stores user data to power features like our email client, calendar view, and
+                        unified task manager. General Task&#39;s use and transfer to any other app of information
+                        received from Google APIs will adhere to Google API Services User Data Policy, including the{' '}
+                        <a
+                            href="https://support.google.com/cloud/answer/9110914#explain-types"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Limited Use requirements
+                        </a>
+                        . Read more about how we use data in our <Link to="/privacy-policy">Privacy Policy</Link>.
+                    </FAQItem>
+                    <Subheader>How does your app enhance Google user functionality?</Subheader>
+                    <FAQItem>
+                        Our app enhances user functionality by allowing you to track everything on your plate at work in
+                        one unified place. You can go through your Gmail inbox, respond to emails, and mark other emails
+                        as tasks without leaving our app. You can also view your Google calendar in-app and will soon be
+                        able to modify and create events.
+                    </FAQItem>
+                </FlexColumn>
             </FlexGrowContainer>
             <UnauthorizedFooter />
         </LandingScreenContainer>

@@ -22,7 +22,7 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, accountID string, result chan<- EmailResult, fullRefresh bool) {
+func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -99,7 +99,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 				IsEvent: true,
 			},
 		}
-		dbEvent, err := database.UpdateOrCreateTask(
+		dbEvent, err := database.UpdateOrCreateItem(
 			db,
 			userID,
 			event.IDExternal,
@@ -146,8 +146,8 @@ func (googleCalendar GoogleCalendarSource) SendEmail(userID primitive.ObjectID, 
 	return errors.New("cannot send email for calendar event")
 }
 
-func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
-	return errors.New("has not been implemented yet")
+func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
@@ -214,7 +214,7 @@ func GetConferenceCall(event *calendar.Event, accountID string) *database.Confer
 	return conferenceCall
 }
 
-func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskChangeableFields) error {
+func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		return errors.New("cannot mark calendar event as done")
 	}

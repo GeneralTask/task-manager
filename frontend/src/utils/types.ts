@@ -1,4 +1,5 @@
 import { EmailComposeType } from "./enums"
+import { TPullRequestStatusColors } from "../components/pull-requests/styles"
 
 export type Datestring = string
 
@@ -42,27 +43,38 @@ export interface TTask {
     sent_at: string
     time_allocated: number
     due_date: string
+    external_status: TExternalStatus
     source: TTaskSource
     sender: string
     recipients: TRecipients
     is_done: boolean
     linked_email_thread?: TLinkedEmailThread
+    comments?: TLinearComment[]
+    isOptimistic?: boolean
+}
+
+export interface TLinearComment {
+    body: string
+    created_at: string
+    user: TLinearUser
+}
+
+export interface TLinearUser {
+    DisplayName: string
+    Email: string
+    ExternalID: string
+    Name: string
+}
+
+export interface TExternalStatus {
+    state: string // the custom name of the status (e.g. Todo) - note: these are self-defined by the users of linear and can be different even across teams
+    type: 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled' // the type of status native to the task application
 }
 
 export interface TLinkedEmailThread {
     linked_thread_id: string
     linked_email_id?: string
-    emails: TLinkedEmail[]
-}
-
-export interface TLinkedEmail {
-    smtp_id: string,
-    subject: string,
-    body: string,
-    sent_at: string,
-    is_unread: string,
-    sender_v2: TSender,
-    recipients: TRecipients
+    email_thread: TEmailThread
 }
 
 export interface TMessageSource {
@@ -133,7 +145,30 @@ export interface TEmailThread {
     id: string
     deeplink: string
     source: TMessageSource
+    is_archived: boolean
     emails: TEmail[]
+}
+
+// Pull Request Types
+export interface TPullRequest {
+    id: string
+    title: string
+    number: number
+    status: {
+        text: string
+        color: TPullRequestStatusColors
+    }
+    author: string
+    num_comments: number
+    created_at: string
+    branch: string
+    link: string
+}
+
+export interface TRepository {
+    id: string
+    name: string
+    pull_requests: TPullRequest[]
 }
 
 export interface TTaskSection {
@@ -184,6 +219,7 @@ export interface DropProps {
     id: string
     taskIndex: number
     sectionId: string
+    task: TTask
 }
 
 export interface TTaskCreateParams {
@@ -205,3 +241,5 @@ export interface TEmailComposeState {
     emailId: string | null // the id of the email to show the compose form for
     isPending?: boolean
 }
+
+export type TMailbox = 'inbox' | 'archive'
