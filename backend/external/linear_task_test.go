@@ -132,6 +132,7 @@ func TestLoadLinearTasks(t *testing.T) {
 	})
 	t.Run("BadTaskResponse", func(t *testing.T) {
 		taskServer := testutils.GetMockAPIServer(t, 200, `to the moon`)
+	
 		defer taskServer.Close()
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
