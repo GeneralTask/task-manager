@@ -321,35 +321,33 @@ func TestCheckRunsForRef(t *testing.T) {
 }
 
 func TestUserIsOwner(t *testing.T) {
-	githubUserId1 := int64(1)
-	githubUserId2 := int64(2)
-	testGithubUser1 := github.User{
-		ID: &githubUserId1,
+	testGithubUser1 := &github.User{
+		ID: github.Int64(1),
 	}
-	testGithubUser2 := github.User{
-		ID: &githubUserId2,
+	testGithubUser2 := &github.User{
+		ID: github.Int64(2),
 	}
-	testGithubUser3 := github.User{
+	testGithubUser3 := &github.User{
 		ID: nil,
 	}
-	pullRequestUser1 := github.PullRequest{
-		User: &testGithubUser1,
+	pullRequestUser1 := &github.PullRequest{
+		User: testGithubUser1,
 	}
-	pullRequestUser3 := github.PullRequest{
-		User: &testGithubUser3,
+	pullRequestUser3 := &github.PullRequest{
+		User: testGithubUser3,
 	}
 
 	t.Run("UserIsOwner", func(t *testing.T) {
-		assert.True(t, userIsOwner(&testGithubUser1, &pullRequestUser1))
+		assert.True(t, userIsOwner(testGithubUser1, pullRequestUser1))
 	})
 	t.Run("UserIsNotOwner", func(t *testing.T) {
-		assert.False(t, userIsOwner(&testGithubUser2, &pullRequestUser1))
+		assert.False(t, userIsOwner(testGithubUser2, pullRequestUser1))
 	})
 	t.Run("UserIdIsNil", func(t *testing.T) {
-		assert.False(t, userIsOwner(&testGithubUser3, &pullRequestUser1))
+		assert.False(t, userIsOwner(testGithubUser3, pullRequestUser1))
 	})
 	t.Run("PullRequestUserIdIsNil", func(t *testing.T) {
-		assert.False(t, userIsOwner(&testGithubUser1, &pullRequestUser3))
+		assert.False(t, userIsOwner(testGithubUser1, pullRequestUser3))
 	})
 }
 
