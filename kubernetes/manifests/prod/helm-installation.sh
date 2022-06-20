@@ -18,7 +18,7 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
  --set serviceAccount.create=false \
  --set serviceAccount.name=aws-load-balancer-controller \
  --set vpcId=vpc-0f4a35f3131c1aa49 \
- --set replicaCount=1 \
+ --set replicaCount=1
 
 
 #================#
