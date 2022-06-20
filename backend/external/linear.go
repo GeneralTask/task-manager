@@ -271,7 +271,7 @@ type linearUpdateIssueQuery struct {
 	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, description: $description})"`
 }
 
-func updateLinearIssueMutation2(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
+func updateLinearIssueMutation(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
 	req := graphqlBasic.NewRequest(linearUpdateIssueQueryStr)
 	req.Var("id", issueID)
 
