@@ -94,7 +94,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("BadUserInfoResponse", func(t *testing.T) {
-		userInfoServer := getMockServer(t, 200, `oopsie poopsie`, NoopRequestChecker)
+		userInfoServer := testutils.GetMockAPIServer(t, 200, `oopsie poopsie`)
 		defer userInfoServer.Close()
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
@@ -112,7 +112,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("BadTaskStatusCode", func(t *testing.T) {
-		taskServer := getMockServer(t, 409, ``, NoopRequestChecker)
+		taskServer := testutils.GetMockAPIServer(t, 409, ``)
 		defer taskServer.Close()
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
@@ -131,7 +131,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("BadTaskResponse", func(t *testing.T) {
-		taskServer := getMockServer(t, 200, `to the moon`, NoopRequestChecker)
+		taskServer := testutils.GetMockAPIServer(t, 200, `to the moon`)
 		defer taskServer.Close()
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
