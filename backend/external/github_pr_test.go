@@ -194,6 +194,7 @@ func TestGetGithubUser(t *testing.T) {
 	t.Run("SuccessWithOverrideURL", func(t *testing.T) {
 		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 		userURL := &githubUserServer.URL
+		defer githubUserServer.Close()
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
 		githubUser, err := getGithubUser(ctx, githubClient, "", userURL)
@@ -207,6 +208,7 @@ func TestGithubRepositories(t *testing.T) {
 	t.Run("SuccessWithOverrideURL", func(t *testing.T) {
 		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, testutils.UserRepositoriesPayload)
 		userRepositoriesURL := &githubUserRepositoriesServer.URL
+		defer githubUserRepositoriesServer.Close()
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
 		githubRepositories, err := getGithubRepositories(ctx, githubClient, "", userRepositoriesURL)
@@ -221,6 +223,7 @@ func TestGithubPullRequests(t *testing.T) {
 	t.Run("SuccessWithOverrideURL", func(t *testing.T) {
 		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 200, testutils.UserPullRequestsPayload)
 		userPullRequestsURL := &githubUserPullRequestsServer.URL
+		defer githubUserPullRequestsServer.Close()
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
 
