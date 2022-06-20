@@ -3,7 +3,6 @@ package external
 import (
 	"context"
 	"github.com/GeneralTask/task-manager/backend/testutils"
-	"github.com/rs/zerolog/log"
 	"testing"
 	"time"
 
@@ -317,8 +316,6 @@ func TestLoadLinearTasks(t *testing.T) {
 
 func TestModifyLinearTask(t *testing.T) {
 	t.Run("MarkAsDoneBadResponse", func(t *testing.T) {
-		assert.Fail(t, "fd")
-		log.Error().Msg("jerd yoyo")
 		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
 		defer taskUpdateServer.Close()
 		linearTask := LinearTaskSource{Linear: LinearService{
@@ -330,12 +327,10 @@ func TestModifyLinearTask(t *testing.T) {
 		}}
 		userID := primitive.NewObjectID()
 
-		log.Error().Msg("jerd yoyo")
 		isCompleted := true
 		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, &database.Item{})
-		log.Error().Msg("jerd yoyo")
 		assert.NotEqual(t, nil, err)
-		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, err.Error())
+		assert.Equal(t, `decoding response: EOF`, err.Error())
 	})
 	t.Run("UpdateFieldsAndMarkAsDoneSuccess", func(t *testing.T) {
 		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
@@ -377,9 +372,9 @@ func TestModifyLinearTask(t *testing.T) {
 			Title:       &newName,
 			Body:        &newBody,
 			IsCompleted: &isCompleted,
-		}, nil)
+		}, &database.Item{})
 		assert.NotEqual(t, nil, err)
-		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, err.Error())
+		assert.Equal(t, `decoding response: EOF`, err.Error())
 	})
 	t.Run("UpdateTitleBodySuccess", func(t *testing.T) {
 		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
@@ -424,7 +419,7 @@ func TestModifyLinearTask(t *testing.T) {
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
 		}, nil)
 		assert.NotEqual(t, nil, err)
-		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, err.Error())
+		assert.Equal(t, `decoding response: EOF`, err.Error())
 	})
 	t.Run("UpdateFieldsMarkAsNotDoneSuccess", func(t *testing.T) {
 		taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)

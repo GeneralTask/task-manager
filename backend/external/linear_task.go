@@ -161,25 +161,21 @@ func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, account
 	}
 	defer dbCleanup()
 
-	//client, err := getLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
 	client, err := getBasicLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
 	if err != nil {
 		log.Error().Err(err).Msg("unable to create linear client")
 		return err
 	}
-	log.Error().Msg("jerd created client")
-	//issueUpdate, err := updateLinearIssueMutation(client, issueID, updateFields, task)
-	updateLinearIssueMutation2(client, issueID, updateFields, task)
-	//issueUpdate, err := updateLinearIssueMutation2(client, issueID, updateFields, task)
-	//if err != nil {
-	//	log.Error().Err(err).Msg("unable to update linear issue")
-	//	return err
-	//}
-	//log.Debug().Interface("issueUpdate", issueUpdate)
-	//if !issueUpdate.IssueUpdate.Success {
-	//	log.Error().Msg("linear mutation failed to update issue")
-	//	return errors.New("linear mutation failed to update issue")
-	//}
+	issueUpdate, err := updateLinearIssueMutation2(client, issueID, updateFields, task)
+	if err != nil {
+		log.Error().Err(err).Msg("unable to update linear issue")
+		return err
+	}
+	log.Debug().Interface("issueUpdate", issueUpdate)
+	if !issueUpdate.IssueUpdate.Success {
+		log.Error().Msg("linear mutation failed to update issue")
+		return errors.New("linear mutation failed to update issue")
+	}
 	return nil
 
 }
