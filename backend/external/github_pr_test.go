@@ -47,7 +47,7 @@ func TestGetPullRequests(t *testing.T) {
 		userPullRequestsURL := &githubUserPullRequestsServer.URL
 		defer githubUserPullRequestsServer.Close()
 
-		githubPullRequestReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
+		githubPullRequestReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.EmptyPullRequestReviewersPayload)
 		pullRequestReviewersURL := &githubPullRequestReviewersServer.URL
 		defer githubPullRequestReviewersServer.Close()
 
@@ -235,6 +235,31 @@ func TestGithubPullRequests(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, len(githubPullRequests), 1)
 		assert.Equal(t, *githubPullRequests[0].Title, "Fix big oopsie")
+	})
+}
+
+func TestListReviewers(t *testing.T) {
+	t.Run("SuccessWithoverrideURL", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+		}
+		githubReviewers, err := listReviewers(ctx, githubClient, repository, pullRequest, reviewersURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(githubReviewers.Users))
+		assert.Equal(t, "goodTeamMember", *githubReviewers.Users[0].Login)
 	})
 }
 
