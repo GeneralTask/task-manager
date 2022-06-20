@@ -14,10 +14,10 @@ kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller/
 echo "Install the helm chart if using IAM roles for service accounts. "
 helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
  -n kube-system \
- --set clusterName=qa-gtsk-uswest2-backend \
+ --set clusterName=qa-gtsk-uswest1-backend \
  --set serviceAccount.create=false \
  --set serviceAccount.name=aws-load-balancer-controller \
- --set vpcId=vpc-011e0834f744beb6c \
+ --set vpcId=vpc-0520f2421d2fb4061 \
  --set replicaCount=1
 
 
