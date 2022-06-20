@@ -3,7 +3,9 @@ package external
 import (
 	"context"
 	"github.com/GeneralTask/task-manager/backend/testutils"
+	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -429,8 +431,9 @@ func TestModifyLinearTask(t *testing.T) {
 		assert.Equal(t, `decoding response: EOF`, err.Error())
 	})
 	t.Run("UpdateFieldsMarkAsNotDoneSuccess", func(t *testing.T) {
-		taskUpdateServer := testutils.GetMockAPIServer(t, http.StatusOK, `{"foo": "bar"}`)
-		taskUpdateServer.Close()
+		//taskUpdateServer := getMockServer(t, 200, `{"foo": "bar"}`, NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"foo": "bar"}`)
+		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
 
@@ -448,7 +451,8 @@ func TestModifyLinearTask(t *testing.T) {
 	})
 
 	t.Run("UpdateFieldsMarkAsNotDoneBadResponse", func(t *testing.T) {
-		taskUpdateServer := testutils.GetMockAPIServer(t, http.StatusOK, "")
+		//taskUpdateServer := getMockServer(t, 400, "", NoopRequestChecker)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
 		defer taskUpdateServer.Close()
 		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
 		userID := primitive.NewObjectID()
@@ -527,4 +531,18 @@ func TestModifyLinearTask(t *testing.T) {
 		body := asanaTask.GetTaskUpdateBody(updateFields)
 		assert.Equal(t, expected, *body)
 	})
+}
+
+type requestChecker func(t *testing.T, r *http.Request)
+
+var NoopRequestChecker = func(t *testing.T, r *http.Request) {}
+
+func getMockServer(t *testing.T, statusCode int, responseBody string, checkRequest requestChecker) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := ioutil.ReadAll(r.Body)
+		assert.NoError(t, err)
+		checkRequest(t, r)
+		w.WriteHeader(statusCode)
+		w.Write([]byte(responseBody))
+	}))
 }
