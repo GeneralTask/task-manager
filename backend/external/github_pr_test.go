@@ -1,6 +1,7 @@
 package external
 
 import (
+	"context"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -176,16 +177,29 @@ func TestGetPullRequests(t *testing.T) {
 }
 
 func TestSetOverrideURL(t *testing.T) {
-	t.Run("NoOverride", func(t *testing.T) {
+	t.Run("WithOverrideURL", func(t *testing.T) {
 		githubClient := *github.NewClient(nil)
 		setOverrideURL(&githubClient, nil)
 		assert.Equal(t, githubClient.BaseURL.String(), "https://api.github.com/")
 	})
-	t.Run("SetOverride", func(t *testing.T) {
+	t.Run("WithoutOverrideURL", func(t *testing.T) {
 		githubClient := *github.NewClient(nil)
 		overrideURL := "https://nicememe.com"
 		setOverrideURL(&githubClient, &overrideURL)
 		assert.Equal(t, githubClient.BaseURL.String(), "https://nicememe.com/")
+	})
+}
+
+func TestGetGithubUser(t *testing.T) {
+	t.Run("SuccessWithOverrideURL", func(t *testing.T) {
+		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
+		userURL := &githubUserServer.URL
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+		githubUser, err := getGithubUser(ctx, githubClient, "", userURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, *githubUser.Login, "chad1616")
 	})
 }
 
