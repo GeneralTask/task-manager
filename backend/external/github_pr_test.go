@@ -352,3 +352,22 @@ func TestUserIsOwner(t *testing.T) {
 		assert.False(t, userIsOwner(&testGithubUser1, &pullRequestUser3))
 	})
 }
+
+func TestUserIsReviewer(t *testing.T) {
+	testGithubUser1 := &github.User{
+		ID: github.Int64(1),
+	}
+	testGithubUser2 := &github.User{
+		ID: github.Int64(2),
+	}
+	githubPullRequest := &github.PullRequest{
+		RequestedReviewers: []*github.User{testGithubUser1},
+	}
+	t.Run("UserIsReviewer", func(t *testing.T) {
+
+		assert.True(t, userIsReviewer(testGithubUser1, githubPullRequest))
+	})
+	t.Run("UserIsNotReviewer", func(t *testing.T) {
+		assert.False(t, userIsReviewer(testGithubUser2, githubPullRequest))
+	})
+}
