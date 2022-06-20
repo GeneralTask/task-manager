@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: "core-deployment"
-  namespace: "qa-gtsk-uswest2"
+  namespace: "qa-gtsk-uswest1"
 spec:
   replicas: 2
   selector:
@@ -14,7 +14,7 @@ spec:
         app.kubernetes.io/name: "core"
     spec:
       containers:
-      - image: "257821106339.dkr.ecr.us-west-2.amazonaws.com/qa-gtsk-uswest2"
+      - image: "257821106339.dkr.ecr.us-west-1.amazonaws.com/qa-gtsk-uswest1"
         resources:
           requests:
             memory: "2Gi"
