@@ -369,3 +369,31 @@ func TestUserIsReviewer(t *testing.T) {
 		assert.False(t, userIsReviewer(testGithubUser2, githubPullRequest))
 	})
 }
+
+func TestPullRequestIsApproved(t *testing.T) {
+	approvedReviews := []*github.PullRequestReview{
+		{
+			State: github.String("APPROVED"),
+		},
+		{
+			State: github.String("CHECKSUM_FAILED"),
+		},
+		{
+			State: github.String("COMMENTED"),
+		},
+	}
+	notApprovedReviews := []*github.PullRequestReview{
+		{
+			State: github.String("CHECKSUM_FAILED"),
+		},
+		{
+			State: github.String("COMMENTED"),
+		},
+	}
+	t.Run("PullRequestIsApproved", func(t *testing.T) {
+		assert.True(t, pullRequestIsApproved(approvedReviews))
+	})
+	t.Run("PullRequestIsNotApproved", func(t *testing.T) {
+		assert.False(t, pullRequestIsApproved(notApprovedReviews))
+	})
+}
