@@ -2,14 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: "core-ingress"
-  namespace: "prd-gtsk-uswest2"
+  namespace: "prd-gtsk-uswest1"
   annotations:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     # Health Check Settings
     alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
     alb.ingress.kubernetes.io/healthcheck-port: traffic-port
-    alb.ingress.kubernetes.io/tags: Name=prd-gtask-uswest2-alb,Environment=PRD
+    alb.ingress.kubernetes.io/tags: Name=prd-gtask-uswest1-alb,Environment=PRD
     #Important Note:  Need to add health check path annotations in service level if we are planning to use multiple targets in a load balancer
     alb.ingress.kubernetes.io/healthcheck-path: /ping/
     alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
@@ -19,7 +19,7 @@ metadata:
     alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
     ## SSL Settings
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:257821106339:certificate/bb4c710a-b5f5-4d23-9204-1a739e8335b8
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-1:257821106339:certificate/553eefd8-86da-42c6-ab5c-ad8556b5c9d6
     # SSL Redirect Setting
     # alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
     external-dns.alpha.kubernetes.io/hostname: api.generaltask.com

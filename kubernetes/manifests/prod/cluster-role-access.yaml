@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: prd-gtsk-uswest2-full-access
+  name: prd-gtsk-uswest1-full-access
 rules:
 - apiGroups:
   - ""
@@ -40,12 +40,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: prd-gtsk-uswest2-full-access-binding
+  name: prd-gtsk-uswest1-full-access-binding
 subjects:
 - kind: Group
-  name: prd-gtsk-uswest2-full-access-group
+  name: prd-gtsk-uswest1-full-access-group
   apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: ClusterRole
-  name: prd-gtsk-uswest2-full-access
+  name: prd-gtsk-uswest1-full-access
   apiGroup: rbac.authorization.k8s.io
