@@ -20,9 +20,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
-
 type GithubConfigValues struct {
-	GithubPRClientBaseURL       *string
+	FetchExternalAPIToken       *bool
 	GetUserURL                  *string
 	ListPullRequestsURL         *string
 	ListPullRequestReviewURL    *string

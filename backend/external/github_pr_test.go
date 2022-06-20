@@ -32,8 +32,7 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 func TestGetPullRequests(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		githubClientServer := testutils.GetMockAPIServer(t, 200, testutils.ClientResponsePayload)
-		clientServerURL := &githubClientServer.URL
+		fetchExternalAPITokenValue := false
 
 		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 		userURL := &githubUserServer.URL
@@ -58,7 +57,7 @@ func TestGetPullRequests(t *testing.T) {
 			Github: GithubService{
 				Config: GithubConfig{
 					ConfigValues: GithubConfigValues{
-						GithubPRClientBaseURL:       clientServerURL,
+						FetchExternalAPIToken:       &fetchExternalAPITokenValue,
 						GetUserURL:                  userURL,
 						ListRepositoriesURL:         userRepositoriesURL,
 						ListPullRequestsURL:         userPullRequestsURL,
@@ -87,8 +86,7 @@ func TestGetPullRequests(t *testing.T) {
 	})
 	t.Run("NoPullRequests", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		githubPRClientURLServer := testutils.GetMockAPIServer(t, 200, testutils.ClientResponsePayload)
-		prClientServerURL := &githubPRClientURLServer.URL
+		fetchExternalAPITokenValue := false
 
 		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 		userURL := &githubUserServer.URL
@@ -104,7 +102,7 @@ func TestGetPullRequests(t *testing.T) {
 			Github: GithubService{
 				Config: GithubConfig{
 					ConfigValues: GithubConfigValues{
-						GithubPRClientBaseURL: prClientServerURL,
+						FetchExternalAPIToken: &fetchExternalAPITokenValue,
 						GetUserURL:            userURL,
 						ListRepositoriesURL:   userRepositoriesURL,
 						ListPullRequestsURL:   userPullRequestsURL,
@@ -119,8 +117,7 @@ func TestGetPullRequests(t *testing.T) {
 	})
 	t.Run("NoRepositories", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		githubClientServer := testutils.GetMockAPIServer(t, 200, testutils.ClientResponsePayload)
-		clientServerURL := &githubClientServer.URL
+		fetchExternalAPITokenValue := false
 
 		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 		userURL := &githubUserServer.URL
@@ -133,7 +130,7 @@ func TestGetPullRequests(t *testing.T) {
 			Github: GithubService{
 				Config: GithubConfig{
 					ConfigValues: GithubConfigValues{
-						GithubPRClientBaseURL: clientServerURL,
+						FetchExternalAPIToken: &fetchExternalAPITokenValue,
 						GetUserURL:            userURL,
 						ListRepositoriesURL:   userRepositoriesURL,
 					},
@@ -147,16 +144,14 @@ func TestGetPullRequests(t *testing.T) {
 	})
 	t.Run("ExternalError", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		failedFetchUserServer := getMockServer(t, 401, `{}`, NoopRequestChecker)
-		serverURL := &failedFetchUserServer.URL
-		defer failedFetchUserServer.Close()
+		fetchExternalAPITokenValue := false
 
 		var pullRequests = make(chan PullRequestResult)
 		githubPR := GithubPRSource{
 			Github: GithubService{
 				Config: GithubConfig{
 					ConfigValues: GithubConfigValues{
-						GithubPRClientBaseURL: serverURL,
+						FetchExternalAPIToken: &fetchExternalAPITokenValue,
 					},
 				},
 			},

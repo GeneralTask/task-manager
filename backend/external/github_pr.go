@@ -71,21 +71,11 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	defer cancel()
 	db, dbCleanup, err := database.GetDBConnection()
 	defer dbCleanup()
-
-	if gitPR.Github.Config.ConfigValues.GithubPRClientBaseURL != nil {
-		githubClient = github.NewClient(nil)
-		githubClient.BaseURL, err = url.Parse(*gitPR.Github.Config.ConfigValues.GithubPRClientBaseURL)
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to parse github client url")
-			result <- emptyPullRequestResult(err)
-			return
-		}
-	} else {
-		if err != nil {
-			result <- emptyPullRequestResult(err)
-			return
-		}
-
+	if err != nil {
+		result <- emptyPullRequestResult(err)
+		return
+	}
+	if gitPR.Github.Config.ConfigValues.FetchExternalAPIToken != nil && *gitPR.Github.Config.ConfigValues.FetchExternalAPIToken {
 		externalAPITokenCollection := database.GetExternalTokenCollection(db)
 		token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
 		if token == nil {
@@ -101,6 +91,8 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		githubClient = getGithubClientFromToken(extCtx, token)
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
+	} else {
+		githubClient = github.NewClient(nil)
 	}
 	githubUser, err := getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL)
 
