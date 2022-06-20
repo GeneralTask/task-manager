@@ -185,7 +185,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					CommentCount:   commentCount,
 				},
 				TaskType: database.TaskType{
-					IsTask:        true,
+					IsTask:        false,
 					IsPullRequest: true,
 				},
 			}
