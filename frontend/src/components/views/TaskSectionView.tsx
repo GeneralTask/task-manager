@@ -55,8 +55,6 @@ const TaskSectionView = () => {
     const navigate = useNavigate()
     const params = useParams()
 
-    console.log(taskSections)
-
     const { section, task } = useMemo(() => {
         const section = taskSections?.find(({ id }) => id === params.section)
         const task = section?.tasks.find(({ id }) => id === params.task)
