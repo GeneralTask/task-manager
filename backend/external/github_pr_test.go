@@ -333,6 +333,24 @@ func TestListReviewers(t *testing.T) {
 		assert.Equal(t, "failed: pull request is nil", err.Error())
 		assert.Nil(t, githubReviewers)
 	})
+	t.Run("FailureWithoutOverrideURL", func(t *testing.T) {
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+		}
+		githubReviewers, err := listReviewers(ctx, githubClient, repository, pullRequest, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "GET https://api.github.com/repos/chad1616/ExampleRepository/pulls/1/requested_reviewers: 404 Not Found []", err.Error())
+		assert.Nil(t, githubReviewers)
+	})
 }
 
 func TestListComments(t *testing.T) {
