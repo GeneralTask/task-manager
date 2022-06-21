@@ -58,8 +58,8 @@ const TaskSectionView = () => {
     console.log(taskSections)
 
     const { section, task } = useMemo(() => {
-        const section = taskSections ? taskSections.find(({ id }) => id === params.section) : undefined
-        const task = section ? section.tasks.find(({ id }) => id === params.task) : undefined
+        const section = taskSections?.find(({ id }) => id === params.section)
+        const task = section?.tasks.find(({ id }) => id === params.task)
         return { section, task }
     }, [taskSections, params.task, params.section])
 
