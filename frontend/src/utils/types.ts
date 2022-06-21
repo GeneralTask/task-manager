@@ -139,6 +139,7 @@ export interface TEmail {
     is_unread: boolean
     sender: TSender
     recipients: TRecipients
+    num_attachments: number
 }
 
 export interface TEmailThread {
