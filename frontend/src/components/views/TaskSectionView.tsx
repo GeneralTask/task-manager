@@ -74,7 +74,6 @@ const TaskSectionView = () => {
             const firstSectionId = taskSections[0].id
             if (!section) {
                 navigate(`/tasks/${firstSectionId}/`)
-                return // so typescript knows that section is defined
             } else if (!task && section.tasks.length > 0) {
                 navigate(`/tasks/${section.id}/${section.tasks[0].id}`)
             }
