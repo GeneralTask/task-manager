@@ -49,7 +49,7 @@ const TaskSectionView = () => {
     const bannerTaskSectionRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
-    const { data: taskSections, isLoading } = useGetTasks()
+    const { data: taskSections, isLoading, dataUpdatedAt } = useGetTasks()
     const { refetch: fetchExternalTasks, isFetching: isRefetchingTasks } = useFetchExternalTasks()
 
     const navigate = useNavigate()
@@ -59,7 +59,7 @@ const TaskSectionView = () => {
         const section = taskSections ? taskSections.find(({ id }) => id === params.section) : undefined
         const task = section ? section.tasks.find(({ id }) => id === params.task) : undefined
         return { section, task }
-    }, [taskSections, params.task, params.section])
+    }, [taskSections, dataUpdatedAt, params.task, params.section])
 
     const selectTask = useCallback(
         (itemId: string) => {
@@ -67,6 +67,8 @@ const TaskSectionView = () => {
         },
         [section]
     )
+
+    console.log({ tasks: section?.tasks })
 
     // deal with invalid routes
     useEffect(() => {
@@ -79,7 +81,7 @@ const TaskSectionView = () => {
                 navigate(`/tasks/${section.id}/${section.tasks[0].id}`)
             }
         }
-    }, [taskSections, params.section])
+    }, [taskSections, dataUpdatedAt, params.section])
 
     useItemSelectionController(section?.tasks ?? [], selectTask)
 
