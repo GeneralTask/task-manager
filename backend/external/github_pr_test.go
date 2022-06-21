@@ -226,6 +226,15 @@ func TestGithubRepositories(t *testing.T) {
 		assert.Equal(t, len(githubRepositories), 1)
 		assert.Equal(t, *githubRepositories[0].Name, "ExampleRepository")
 	})
+	t.Run("FailureWithoutOverrideURL", func(t *testing.T) {
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+		githubRepositories, err := getGithubRepositories(ctx, githubClient, "", nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "GET https://api.github.com/user/repos: 401 Requires authentication []", err.Error())
+		assert.Nil(t, githubRepositories)
+	})
 }
 
 func TestGithubPullRequests(t *testing.T) {
