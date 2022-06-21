@@ -11,7 +11,6 @@ import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
 import TaskDetails from '../details/TaskDetails'
 import TaskDropContainer from '../molecules/TaskDropContainer'
-import { getSectionById } from '../../utils/task'
 import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
@@ -45,7 +44,7 @@ const TasksContainer = styled.div`
     flex-direction: column;
 `
 
-const TaskSection = () => {
+const TaskSectionView = () => {
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
     const bannerTaskSectionRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
@@ -53,39 +52,36 @@ const TaskSection = () => {
     const { data: taskSections, isLoading } = useGetTasks()
     const { refetch: fetchExternalTasks, isFetching: isRefetchingTasks } = useFetchExternalTasks()
 
-    const routerSection = useParams().section || ''
     const navigate = useNavigate()
     const params = useParams()
 
-    const currentSection = taskSections ? getSectionById(taskSections, routerSection) : undefined
-    const expandTask = useCallback(
+    const { section, task } = useMemo(() => {
+        const section = taskSections ? taskSections.find(({ id }) => id === params.section) : undefined
+        const task = section ? section.tasks.find(({ id }) => id === params.task) : undefined
+        return { section, task }
+    }, [taskSections, params.task, params.section])
+
+    const selectTask = useCallback(
         (itemId: string) => {
-            if (currentSection) navigate(`/tasks/${currentSection.id}/${itemId}`)
+            if (section) navigate(`/tasks/${section.id}/${itemId}`)
         },
-        [currentSection]
+        [section]
     )
-    useItemSelectionController(currentSection?.tasks ?? [], expandTask)
 
+    // deal with invalid routes
     useEffect(() => {
-        if (taskSections && !getSectionById(taskSections, routerSection) && taskSections.length > 0) {
+        if (taskSections && taskSections.length > 0 && (!section || !task)) {
             const firstSectionId = taskSections[0].id
-            navigate(`/tasks/${firstSectionId}`)
+            if (!section) {
+                navigate(`/tasks/${firstSectionId}/`)
+                return // so typescript knows that section is defined
+            } else if (!task && section.tasks.length > 0) {
+                navigate(`/tasks/${section.id}/${section.tasks[0].id}`)
+            }
         }
-    }, [taskSections, routerSection])
+    }, [taskSections, params.section])
 
-    const expandedTask = useMemo(() => {
-        const section = taskSections?.find((section) => section.id === params.section)
-        if (section?.tasks && section.tasks.length > 0) {
-            return section.tasks.find((task) => task.id === params.task) ?? section.tasks[0]
-        }
-        return undefined
-    }, [params.task, params.section, taskSections])
-
-    useEffect(() => {
-        if (expandedTask) {
-            navigate(`/tasks/${routerSection}/${expandedTask.id}`)
-        }
-    }, [expandedTask])
+    useItemSelectionController(section?.tasks ?? [], selectTask)
 
     return (
         <>
@@ -93,49 +89,46 @@ const TaskSection = () => {
                 <EventBanner date={DateTime.now()} />
                 <ScrollViewMimic ref={sectionScrollingRef}>
                     <TaskSectionViewContainer>
-                        {isLoading || !currentSection ? (
+                        {isLoading || !section ? (
                             <Loading />
                         ) : (
                             <>
                                 <SectionHeader
-                                    sectionName={currentSection.name}
+                                    sectionName={section.name}
                                     allowRefresh={true}
                                     refetch={fetchExternalTasks}
                                     isRefetching={isRefetchingTasks}
-                                    taskSectionId={currentSection.id}
+                                    taskSectionId={section.id}
                                 />
-                                {!currentSection.is_done && <CreateNewTask section={currentSection.id} />}
+                                {!section.is_done && <CreateNewTask section={section.id} />}
                                 <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
-                                    {currentSection.tasks.map((task, index) => (
+                                    {section.tasks.map((task, index) => (
                                         <TaskDropContainer
                                             key={task.id}
                                             task={task}
                                             taskIndex={index}
-                                            sectionId={currentSection.id}
+                                            sectionId={section.id}
                                         >
                                             <Task
                                                 task={task}
-                                                dragDisabled={currentSection.is_done}
+                                                dragDisabled={section.is_done}
                                                 index={index}
-                                                sectionId={currentSection.id}
+                                                sectionId={section.id}
                                                 sectionScrollingRef={sectionScrollingRef}
                                             />
                                         </TaskDropContainer>
                                     ))}
                                 </TasksContainer>
-                                <TaskDropArea
-                                    dropIndex={currentSection.tasks.length + 1}
-                                    taskSectionId={currentSection.id}
-                                />
+                                <TaskDropArea dropIndex={section.tasks.length + 1} taskSectionId={section.id} />
                             </>
                         )}
                     </TaskSectionViewContainer>
                 </ScrollViewMimic>
             </BannerAndSectionContainer>
-            {expandedTask && currentSection && <TaskDetails task={expandedTask} />}
+            {task && section && <TaskDetails task={task} />}
             <ScheduleGapFiller />
         </>
     )
 }
 
-export default TaskSection
+export default TaskSectionView
