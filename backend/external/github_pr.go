@@ -249,6 +249,10 @@ func getGithubPullRequests(ctx context.Context, githubClient *github.Client, rep
 	if err != nil {
 		return nil, err
 	}
+	if repository == nil || repository.Owner == nil || repository.Owner.Login == nil {
+		err = errors.New("failed: repository is nil")
+		return nil, err
+	}
 	fetchedPullRequests, _, err := githubClient.PullRequests.List(ctx, *repository.Owner.Login, *repository.Name, nil)
 	return fetchedPullRequests, err
 }

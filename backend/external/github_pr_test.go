@@ -257,6 +257,30 @@ func TestGithubPullRequests(t *testing.T) {
 		assert.Equal(t, len(githubPullRequests), 1)
 		assert.Equal(t, *githubPullRequests[0].Title, "Fix big oopsie")
 	})
+	t.Run("FailureWithNilRepository", func(t *testing.T) {
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+		githubPullRequests, err := getGithubPullRequests(ctx, githubClient, nil, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "failed: repository is nil", err.Error())
+		assert.Nil(t, githubPullRequests)
+	})
+	t.Run("FailureWithoutOverrideURL", func(t *testing.T) {
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		githubPullRequests, err := getGithubPullRequests(ctx, githubClient, repository, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "GET https://api.github.com/repos/chad1616/ExampleRepository/pulls: 404 Not Found []", err.Error())
+		assert.Nil(t, githubPullRequests)
+	})
 }
 
 func TestListReviewers(t *testing.T) {
