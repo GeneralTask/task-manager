@@ -68,8 +68,6 @@ const TaskSectionView = () => {
         [section]
     )
 
-    console.log({ tasks: section?.tasks })
-
     // deal with invalid routes
     useEffect(() => {
         if (taskSections && taskSections.length > 0 && (!section || !task)) {
