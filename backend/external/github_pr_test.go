@@ -306,6 +306,33 @@ func TestListReviewers(t *testing.T) {
 		assert.Equal(t, 1, len(githubReviewers.Users))
 		assert.Equal(t, "goodTeamMember", *githubReviewers.Users[0].Login)
 	})
+	t.Run("FailureWithNilRepository", func(t *testing.T) {
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+		}
+		githubReviewers, err := listReviewers(ctx, githubClient, nil, pullRequest, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "failed: repository is nil", err.Error())
+		assert.Nil(t, githubReviewers)
+	})
+	t.Run("FailureWithNilPullRequest", func(t *testing.T) {
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		githubReviewers, err := listReviewers(ctx, githubClient, repository, nil, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "failed: pull request is nil", err.Error())
+		assert.Nil(t, githubReviewers)
+	})
 }
 
 func TestListComments(t *testing.T) {

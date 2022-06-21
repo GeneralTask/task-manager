@@ -262,6 +262,14 @@ func listReviewers(ctx context.Context, githubClient *github.Client, repository 
 	if err != nil {
 		return nil, err
 	}
+	if repository == nil || repository.Owner == nil || repository.Owner.Login == nil {
+		err = errors.New("failed: repository is nil")
+		return nil, err
+	}
+	if pullRequest == nil || pullRequest.Number == nil {
+		err = errors.New("failed: pull request is nil")
+		return nil, err
+	}
 	reviewers, _, err := githubClient.PullRequests.ListReviewers(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	return reviewers, err
 
