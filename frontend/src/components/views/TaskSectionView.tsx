@@ -49,17 +49,19 @@ const TaskSectionView = () => {
     const bannerTaskSectionRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
-    const { data: taskSections, isLoading, dataUpdatedAt } = useGetTasks()
+    const { data: taskSections, isLoading } = useGetTasks()
     const { refetch: fetchExternalTasks, isFetching: isRefetchingTasks } = useFetchExternalTasks()
 
     const navigate = useNavigate()
     const params = useParams()
 
+    console.log(taskSections)
+
     const { section, task } = useMemo(() => {
         const section = taskSections ? taskSections.find(({ id }) => id === params.section) : undefined
         const task = section ? section.tasks.find(({ id }) => id === params.task) : undefined
         return { section, task }
-    }, [taskSections, dataUpdatedAt, params.task, params.section])
+    }, [taskSections, params.task, params.section])
 
     const selectTask = useCallback(
         (itemId: string) => {
@@ -79,7 +81,7 @@ const TaskSectionView = () => {
                 navigate(`/tasks/${section.id}/${section.tasks[0].id}`)
             }
         }
-    }, [taskSections, dataUpdatedAt, params.section])
+    }, [taskSections, params.section])
 
     useItemSelectionController(section?.tasks ?? [], selectTask)
 

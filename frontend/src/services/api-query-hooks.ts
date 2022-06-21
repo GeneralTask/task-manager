@@ -1,5 +1,6 @@
 import { DEFAULT_MESSAGE_ID, DEFAULT_SENDER, DEFAULT_SUBJECT } from '../constants/emailConstants'
 import { MESSAGES_PER_PAGE, TASK_MARK_AS_DONE_TIMEOUT, TASK_SECTION_DEFAULT_ID } from '../constants'
+import _ from 'lodash'
 import {
     TAddTaskSectionData,
     TComposeMessageData,
@@ -273,8 +274,10 @@ export const useMarkTaskDone = () => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
-            if (!sections) return
+            const oldSections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            if (!oldSections) return
+
+            const sections = _.cloneDeep(oldSections)
 
             for (const section of sections) {
                 for (const task of section.tasks) {
