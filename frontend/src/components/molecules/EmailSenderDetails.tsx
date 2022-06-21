@@ -70,7 +70,7 @@ const EmailSenderDetails = ({ sender, recipients }: EmailSenderDetailsProps) => 
             .join(', ') + (numRecipients > 3 ? `, +${numRecipients - 3} more` : '')
 
     return (
-        <TooltipWrapper dataTip={details} tooltipId="tooltip">
+        <TooltipWrapper dataTip={details} tooltipId="recipients-tooltip">
             <SmallGrayText>
                 <Underline>{`To: ${displayText}`}</Underline>
             </SmallGrayText>

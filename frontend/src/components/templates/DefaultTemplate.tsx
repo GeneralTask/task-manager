@@ -41,10 +41,19 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
     return (
         <DefaultTemplateContainer>
             <ReactTooltip
-                id="tooltip"
+                id="recipients-tooltip"
                 effect="solid"
                 delayShow={250}
                 delayHide={250}
+                delayUpdate={500}
+                className="recipients-tooltip"
+                backgroundColor={Colors.white}
+                textColor={Colors.black}
+            />
+            <ReactTooltip
+                id="tooltip"
+                effect="solid"
+                delayShow={250}
                 delayUpdate={500}
                 className="tooltip"
                 backgroundColor={Colors.white}
