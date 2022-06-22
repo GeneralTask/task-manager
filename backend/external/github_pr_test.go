@@ -830,7 +830,7 @@ func TestChecksDidFail(t *testing.T) {
 		}
 		conclusion, err := checksDidFail(context, githubClient, nil, pullRequest, nil)
 		assert.Error(t, err)
-		assert.Equal(t, "failed: pull request is nil", err.Error())
+		assert.Equal(t, "failed: repository is nil", err.Error())
 		assert.False(t, conclusion)
 	})
 	t.Run("PullRequestIsNil", func(t *testing.T) {
@@ -843,6 +843,7 @@ func TestChecksDidFail(t *testing.T) {
 			},
 		}
 		conclusion, err := checksDidFail(context, githubClient, repository, nil, nil)
+
 		assert.Error(t, err)
 		assert.Equal(t, "failed: pull request is nil", err.Error())
 		assert.False(t, conclusion)
