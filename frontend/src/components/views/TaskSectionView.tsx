@@ -51,6 +51,7 @@ const TaskSectionView = () => {
 
     const { data: taskSections, isLoading } = useGetTasks()
     const { refetch: fetchExternalTasks, isFetching: isRefetchingTasks } = useFetchExternalTasks()
+    console.log({ taskSections })
 
     const navigate = useNavigate()
     const params = useParams()
