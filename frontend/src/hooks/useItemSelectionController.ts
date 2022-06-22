@@ -30,7 +30,7 @@ export default function useItemSelectionController(items: TTask[] | TEmailThread
                 selectItem(newSelectedItem)
             }
         },
-        [selectedItemId, items]
+        [selectedItemId, items, selectItem]
     )
 
     useKeyboardShortcut('down', () => onUpDown('down'))

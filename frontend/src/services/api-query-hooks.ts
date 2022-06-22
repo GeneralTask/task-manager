@@ -38,6 +38,7 @@ import { DateTime } from 'luxon'
 import apiClient from '../utils/api'
 import { getMonthsAroundDate } from '../utils/time'
 import { v4 as uuidv4 } from 'uuid'
+import produce from 'immer'
 
 /**
  * TASKS QUERIES
@@ -283,24 +284,33 @@ export const useMarkTaskDone = () => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
             if (!sections) return
+            const sectionIdx = sections.findIndex(section => section.id === data.sectionId)
+            if (sectionIdx === -1) return
+            const taskIdx = sections[sectionIdx].tasks.findIndex(t => t.id === data.taskId)
+            if (taskIdx === -1) return
 
-            for (const section of sections) {
-                for (const task of section.tasks) {
-                    if (task.id === data.taskId) {
-                        task.is_done = data.isCompleted
-                        // Sets a timeout so that the task is removed from the section after 5 seconds of being marked done
-                        setTimeout(() => {
-                            if (task.is_done && section.tasks.includes(task)) {
-                                section.tasks.splice(section.tasks.indexOf(task), 1)
-                                queryClient.setQueryData('tasks', sections)
-                            }
-                        }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
-                    }
-                }
+            const newSections = produce(sections, newSections => {
+                newSections[sectionIdx].tasks[taskIdx].is_done = data.isCompleted
+            })
+            queryClient.setQueryData('tasks', newSections)
+
+            if (data.isCompleted) {
+                setTimeout(() => {
+                    const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
+                    if (!sections) return
+                    const sectionIdx = sections.findIndex(section => section.id === data.sectionId)
+                    if (sectionIdx === -1) return
+                    const taskIdx = sections[sectionIdx].tasks.findIndex(t => t.id === data.taskId)
+                    if (taskIdx === -1) return
+
+                    const newSections = produce(sections, newSections => {
+                        newSections[sectionIdx].tasks.splice(taskIdx, 1)
+                    })
+                    queryClient.setQueryData('tasks', newSections)
+                }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
             }
-            queryClient.setQueryData('tasks', sections)
         },
     })
 }
