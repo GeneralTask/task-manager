@@ -849,3 +849,68 @@ func TestChecksDidFail(t *testing.T) {
 		assert.False(t, conclusion)
 	})
 }
+
+func TestGetPullRequestRequiredAction(t *testing.T) {
+	t.Run("AddReviewers", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers: 0,
+		}
+		aciton := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Add Reviewers", aciton)
+	})
+	t.Run("FixMergeConflicts", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers: 1,
+			IsMergeable:        false,
+		}
+		aciton := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Fix Merge Conflicts", aciton)
+	})
+	t.Run("FixFailedCI", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers: 1,
+			IsMergeable:        true,
+			ChecksDidFail:      true,
+		}
+		aciton := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Fix Failed CI", aciton)
+	})
+	t.Run("AddressRequestedChanges", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: true,
+		}
+		aciton := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Address Requested Changes", aciton)
+	})
+	t.Run("MergePR", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: false,
+			IsApproved:           true,
+		}
+		aciton := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Merge PR", aciton)
+	})
+	t.Run("WaitingOnReview", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: false,
+			IsApproved:           false,
+		}
+		aciton := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Waiting on Review", aciton)
+	})
+}
