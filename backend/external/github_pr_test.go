@@ -486,7 +486,7 @@ func TestPullRequestIsApproved(t *testing.T) {
 }
 
 func TestGetReviewerCount(t *testing.T) {
-	t.Run("SingleSubmittedReview", func(t *testing.T) {
+	t.Run("SingleListReview", func(t *testing.T) {
 		githubReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
 		reviewersURL := &githubReviewersServer.URL
 		defer githubReviewersServer.Close()
@@ -506,6 +506,36 @@ func TestGetReviewerCount(t *testing.T) {
 			},
 		}
 		reviews := []*github.PullRequestReview{}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, reviewerCount)
+	})
+	t.Run("SingleSubmittedReview", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 200, `{}`)
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+		context := context.Background()
+		githubClient := github.NewClient(nil)
+
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+			Head: &github.PullRequestBranch{
+				SHA: github.String("abc123"),
+			},
+		}
+		reviews := []*github.PullRequestReview{{
+			User: &github.User{
+				ID: github.Int64(1),
+			},
+			State: github.String("APPROVED"),
+		}}
 		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
 
 		assert.NoError(t, err)
