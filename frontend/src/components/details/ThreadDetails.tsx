@@ -13,7 +13,6 @@ import { EmailList } from './email/EmailList'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import ReactTooltip from 'react-tooltip'
 
-const THREAD_HEADER_HEIGHT = '118px'
 const MARK_AS_READ = 'Mark as Read'
 const MARK_AS_UNREAD = 'Mark as Unread'
 
@@ -24,14 +23,19 @@ const FlexColumnContainer = styled.div`
     min-width: 300px;
 `
 const HeaderContainer = styled.div`
-    display: flex;
-    height: ${THREAD_HEADER_HEIGHT};
-    padding: 0 ${Spacing.padding._16};
-    align-items: center;
+    padding: ${Spacing.padding._24} ${Spacing.padding._16};
     background-color: ${Colors.white};
     position: sticky;
-    gap: ${Spacing.margin._8};
     box-shadow: ${Shadows.threadHeaderShadow};
+`
+const ActionsContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing.padding._8};
+`
+const TitleContainer = styled.div`
+    display: flex;
+    align-items: center;
 `
 const HeaderTitleContainer = styled.div`
     display: flex;
@@ -41,12 +45,9 @@ const HeaderTitleContainer = styled.div`
 `
 const Title = styled.span`
     margin-left: ${Spacing.margin._8};
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     font-size: ${Typography.medium.fontSize};
     line-height: ${Typography.medium.lineHeight};
-    font-weight: ${Typography.weight._600};
+    font-weight: ${Typography.weight._500};
     color: ${Colors.gray._600};
 `
 const SubTitle = styled(Title)`
@@ -123,28 +124,32 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
     return (
         <FlexColumnContainer>
             <HeaderContainer>
-                <Icon size="medium" source={logos.gmail} />
-                <HeaderTitleContainer>
-                    <Title>{title}</Title>
-                    <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
-                </HeaderTitleContainer>
-                <TooltipWrapper inline dataTip="Mark as Task" tooltipId="tooltip">
-                    <NoStyleButton onClick={onClickMarkAsTask}>
-                        <Icon source={icons.message_to_task} size="small" />
-                    </NoStyleButton>
-                </TooltipWrapper>
-                <TooltipWrapper inline dataTip={isUnread ? MARK_AS_READ : MARK_AS_UNREAD} tooltipId="tooltip">
-                    <NoStyleButton onClick={onClickMarkAsRead}>
-                        <Icon source={isUnread ? icons.mark_read : icons.mark_unread} size="small" />
-                    </NoStyleButton>
-                </TooltipWrapper>
-                {params.mailbox !== 'archive' && (
-                    <TooltipWrapper inline dataTip="Archive" tooltipId="tooltip">
-                        <NoStyleButton onClick={onClickArchive}>
-                            <Icon source={icons.archive_purple} size="small" />
+                <ActionsContainer>
+                    <TooltipWrapper inline dataTip="Mark as Task" tooltipId="tooltip">
+                        <NoStyleButton onClick={onClickMarkAsTask}>
+                            <Icon source={icons.message_to_task} size="small" />
                         </NoStyleButton>
                     </TooltipWrapper>
-                )}
+                    <TooltipWrapper inline dataTip={isUnread ? MARK_AS_READ : MARK_AS_UNREAD} tooltipId="tooltip">
+                        <NoStyleButton onClick={onClickMarkAsRead}>
+                            <Icon source={isUnread ? icons.mark_read : icons.mark_unread} size="small" />
+                        </NoStyleButton>
+                    </TooltipWrapper>
+                    {params.mailbox !== 'archive' && (
+                        <TooltipWrapper inline dataTip="Archive" tooltipId="tooltip">
+                            <NoStyleButton onClick={onClickArchive}>
+                                <Icon source={icons.archive_purple} size="small" />
+                            </NoStyleButton>
+                        </TooltipWrapper>
+                    )}
+                </ActionsContainer>
+                <TitleContainer>
+                    <Icon size="medium" source={logos.gmail} />
+                    <HeaderTitleContainer>
+                        <Title>{title}</Title>
+                        <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
+                    </HeaderTitleContainer>
+                </TitleContainer>
             </HeaderContainer>
             <EmailList thread={thread} />
         </FlexColumnContainer>
