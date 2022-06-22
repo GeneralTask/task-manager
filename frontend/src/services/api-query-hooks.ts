@@ -1,6 +1,5 @@
 import { DEFAULT_MESSAGE_ID, DEFAULT_SENDER, DEFAULT_SUBJECT } from '../constants/emailConstants'
 import { MESSAGES_PER_PAGE, TASK_MARK_AS_DONE_TIMEOUT, TASK_SECTION_DEFAULT_ID } from '../constants'
-import _ from 'lodash'
 import {
     TAddTaskSectionData,
     TComposeMessageData,
@@ -39,6 +38,7 @@ import { DateTime } from 'luxon'
 import apiClient from '../utils/api'
 import { getMonthsAroundDate } from '../utils/time'
 import { v4 as uuidv4 } from 'uuid'
+import produce from 'immer'
 
 /**
  * TASKS QUERIES
@@ -274,26 +274,33 @@ export const useMarkTaskDone = () => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
-            const oldSections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
-            if (!oldSections) return
+            const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
+            if (!sections) return
+            const sectionIdx = sections.findIndex(section => section.id === data.sectionId)
+            if (sectionIdx === -1) return
+            const taskIdx = sections[sectionIdx].tasks.findIndex(t => t.id === data.taskId)
+            if (taskIdx === -1) return
 
-            const sections = _.cloneDeep(oldSections)
+            const newSections = produce(sections, newSections => {
+                newSections[sectionIdx].tasks[taskIdx].is_done = data.isCompleted
+            })
+            queryClient.setQueryData('tasks', newSections)
 
-            for (const section of sections) {
-                for (const task of section.tasks) {
-                    if (task.id === data.taskId) {
-                        task.is_done = data.isCompleted
-                        // Sets a timeout so that the task is removed from the section after 5 seconds of being marked done
-                        setTimeout(() => {
-                            if (task.is_done && section.tasks.includes(task)) {
-                                section.tasks.splice(section.tasks.indexOf(task), 1)
-                                queryClient.setQueryData('tasks', sections)
-                            }
-                        }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
-                    }
-                }
+            if (data.isCompleted) {
+                setTimeout(() => {
+                    const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
+                    if (!sections) return
+                    const sectionIdx = sections.findIndex(section => section.id === data.sectionId)
+                    if (sectionIdx === -1) return
+                    const taskIdx = sections[sectionIdx].tasks.findIndex(t => t.id === data.taskId)
+                    if (taskIdx === -1) return
+
+                    const newSections = produce(sections, newSections => {
+                        newSections[sectionIdx].tasks.splice(taskIdx, 1)
+                    })
+                    queryClient.setQueryData('tasks', newSections)
+                }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
             }
-            queryClient.setQueryData('tasks', sections)
         },
     })
 }

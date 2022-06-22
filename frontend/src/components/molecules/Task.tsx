@@ -102,7 +102,12 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: Tas
         <TaskTemplate ref={elementRef}>
             <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreview}>
                 {!dragDisabled && <Domino ref={drag} />}
-                <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />
+                <CompleteButton
+                    sectionId={sectionId}
+                    taskId={task.id}
+                    isComplete={task.is_done}
+                    isSelected={isSelected}
+                />
                 <IconContainer>
                     <Icon source={icon} size="small" />
                 </IconContainer>

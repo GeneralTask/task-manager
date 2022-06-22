@@ -8,6 +8,7 @@ import NoStyleButton from './NoStyleButton'
 interface CompleteButtonProps {
     isComplete: boolean
     taskId: string
+    sectionId: string
     isSelected: boolean
 }
 const CompleteButton = (props: CompleteButtonProps) => {
@@ -15,7 +16,7 @@ const CompleteButton = (props: CompleteButtonProps) => {
 
     const onClickHandler = (e?: React.MouseEvent<HTMLButtonElement>) => {
         if (e) e.stopPropagation()
-        markTaskDone({ taskId: props.taskId, isCompleted: !props.isComplete })
+        markTaskDone({ taskId: props.taskId, sectionId: props.sectionId, isCompleted: !props.isComplete })
     }
     useKeyboardShortcut('markComplete', onClickHandler, !props.isSelected)
     return (
