@@ -2,28 +2,38 @@ package external
 
 import (
 	"errors"
-	"net/http"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
-
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type slackSavedMessagesResponse struct {
-	Items []slackItem `json:"items"`
-}
-
-type slackItem struct {
-	Message slackMessage `json:"message"`
+type SlackShortcutRequest struct {
+	User    slackChannel `json:"user"`
+	Message slackMessage `json:"message" binding:"required"`
+	Channel slackChannel `json:"channel"`
+	Team    slackTeam    `json:"team"`
 }
 
 type slackMessage struct {
-	ClientMsgID string `json:"client_msg_id"`
-	Text        string `json:"text"`
-	Permalink   string `json:"permalink"`
+	User     string    `json:"user"`
+	TimeSent time.Time `json:"ts"`
+	Text     string    `json:"text"`
+}
+
+type slackUser struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type slackTeam struct {
+	Id     string `json:"id"`
+	Domain string `json:"domain"`
+}
+
+type slackChannel struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type SlackSavedTaskSource struct {
@@ -39,72 +49,72 @@ func (slackTask SlackSavedTaskSource) GetEvents(userID primitive.ObjectID, accou
 }
 
 func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		log.Error().Err(err).Msg("failed to connect to db")
-		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
-		return
-	}
-	defer dbCleanup()
+	// db, dbCleanup, err := database.GetDBConnection()
+	// if err != nil {
+	// 	log.Error().Err(err).Msg("failed to connect to db")
+	// 	result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
+	// 	return
+	// }
+	// defer dbCleanup()
 
 	// TODO: switch back to Slack library once https://github.com/slack-go/slack/pull/1069 lands and is included in a release
-	client := getSlackHttpClient(db, userID, accountID)
-	savedMessagesURL := "https://slack.com/api/stars.list"
-	if slackTask.Slack.Config.ConfigValues.SavedMessagesURL != nil {
-		savedMessagesURL = *slackTask.Slack.Config.ConfigValues.SavedMessagesURL
-		client = http.DefaultClient
-	}
-	var savedMessages slackSavedMessagesResponse
-	err = getJSON(client, savedMessagesURL, &savedMessages)
-	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch saved items")
-		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
-		return
-	}
+	// client := getSlackHttpClient(db, userID, accountID)
+	// savedMessagesURL := "https://slack.com/api/stars.list"
+	// if slackTask.Slack.Config.ConfigValues.SavedMessagesURL != nil {
+	// 	savedMessagesURL = *slackTask.Slack.Config.ConfigValues.SavedMessagesURL
+	// 	client = http.DefaultClient
+	// }
+	// var savedMessages slackSavedMessagesResponse
+	// err = getJSON(client, savedMessagesURL, &savedMessages)
+	// if err != nil {
+	// 	log.Error().Err(err).Msg("failed to fetch saved items")
+	// 	result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
+	// 	return
+	// }
 
 	var tasks []*database.Item
-	for _, messageItem := range savedMessages.Items {
-		task := &database.Item{
-			TaskBase: database.TaskBase{
-				UserID:          userID,
-				IDExternal:      messageItem.Message.ClientMsgID,
-				IDTaskSection:   constants.IDTaskSectionDefault,
-				Deeplink:        messageItem.Message.Permalink,
-				SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
-				Title:           messageItem.Message.Text,
-				SourceAccountID: accountID,
-			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
-		}
-		isCompleted := false
-		dbTask, err := database.UpdateOrCreateItem(
-			db,
-			userID,
-			task.IDExternal,
-			task.SourceID,
-			task,
-			database.TaskItemChangeableFields{
-				IsCompleted: &isCompleted,
-			},
-			nil,
-			false,
-		)
-		if err != nil {
-			log.Error().Err(err).Msg("failed to save slack saved message in DB")
-			continue
-		}
-		task.HasBeenReordered = dbTask.HasBeenReordered
-		task.ID = dbTask.ID
-		task.IDOrdering = dbTask.IDOrdering
-		task.IDTaskSection = dbTask.IDTaskSection
-		task.TimeAllocation = dbTask.TimeAllocation
-		// we want local (on GT side) title and body changes to persist
-		task.Title = dbTask.Title
-		task.TaskBase.Body = dbTask.TaskBase.Body
-		tasks = append(tasks, task)
-	}
+	// for _, messageItem := range savedMessages.Items {
+	// 	task := &database.Item{
+	// 		TaskBase: database.TaskBase{
+	// 			UserID:          userID,
+	// 			IDExternal:      messageItem.Message.ClientMsgID,
+	// 			IDTaskSection:   constants.IDTaskSectionDefault,
+	// 			Deeplink:        messageItem.Message.Permalink,
+	// 			SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
+	// 			Title:           messageItem.Message.Text,
+	// 			SourceAccountID: accountID,
+	// 		},
+	// 		TaskType: database.TaskType{
+	// 			IsTask: true,
+	// 		},
+	// 	}
+	// 	isCompleted := false
+	// 	dbTask, err := database.UpdateOrCreateItem(
+	// 		db,
+	// 		userID,
+	// 		task.IDExternal,
+	// 		task.SourceID,
+	// 		task,
+	// 		database.TaskItemChangeableFields{
+	// 			IsCompleted: &isCompleted,
+	// 		},
+	// 		nil,
+	// 		false,
+	// 	)
+	// 	if err != nil {
+	// 		log.Error().Err(err).Msg("failed to save slack saved message in DB")
+	// 		continue
+	// 	}
+	// 	task.HasBeenReordered = dbTask.HasBeenReordered
+	// 	task.ID = dbTask.ID
+	// 	task.IDOrdering = dbTask.IDOrdering
+	// 	task.IDTaskSection = dbTask.IDTaskSection
+	// 	task.TimeAllocation = dbTask.TimeAllocation
+	// 	// we want local (on GT side) title and body changes to persist
+	// 	task.Title = dbTask.Title
+	// 	task.TaskBase.Body = dbTask.TaskBase.Body
+	// 	tasks = append(tasks, task)
+	// }
 
 	result <- TaskResult{
 		Tasks: tasks,

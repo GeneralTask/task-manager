@@ -23,6 +23,8 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/login/", handlers.Login)
 	router.GET("/login/callback/", handlers.LoginCallback)
 	router.POST("/waitlist/", handlers.WaitlistAdd)
+	// needs to be unauthenticated because of Slack task creation
+	router.POST("/tasks/create/:source_id/", handlers.TaskCreate)
 
 	//logout needs to use the token directly rather than the user so no need to run token middleware
 	router.POST("/logout/", handlers.Logout)
@@ -50,7 +52,6 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.POST("/create_task_from_thread/:thread_id/", handlers.CreateTaskFromThread)
 	router.GET("/tasks/fetch/", handlers.TasksFetch)
 	router.GET("/tasks/v3/", handlers.TasksListV3)
-	router.POST("/tasks/create/:source_id/", handlers.TaskCreate)
 	router.PATCH("/tasks/modify/:task_id/", handlers.TaskModify)
 	router.GET("/tasks/detail/:task_id/", handlers.TaskDetail)
 	router.GET("/ping_authed/", handlers.Ping)

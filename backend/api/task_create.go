@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -31,6 +33,17 @@ func (api *API) TaskCreate(c *gin.Context) {
 		Handle404(c)
 		return
 	}
+
+	var slackParams external.SlackShortcutRequest
+	c.Request.ParseForm()
+	formData := []byte(c.Request.Form["payload"][0])
+	json.Unmarshal(formData, &slackParams)
+	log.Print(slackParams)
+
+	// decoder := json.NewDecoder(c.Request.Body)
+	// err = decoder.Decode(&slackParams)
+	// log.Print(err)
+	// log.Print(slackParams)
 
 	var taskCreateParams TaskCreateParams
 	err = c.BindJSON(&taskCreateParams)
