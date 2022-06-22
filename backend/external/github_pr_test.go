@@ -692,3 +692,82 @@ func TestGetReviewerCount(t *testing.T) {
 		assert.Equal(t, 0, reviewerCount)
 	})
 }
+
+func TestReviewersHaveRequestedChanges(t *testing.T) {
+	t.Run("NoReviews", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{}
+		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
+
+		assert.False(t, reviewersHaveRequestedChanges)
+	})
+	t.Run("SingleApprovalReview", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("APPROVED"),
+			},
+		}
+		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
+
+		assert.False(t, reviewersHaveRequestedChanges)
+	})
+	t.Run("PreviousRequestedChanges", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("REQUESTED_CHANGES"),
+			},
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("APPROVED"),
+			},
+		}
+		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
+
+		assert.False(t, reviewersHaveRequestedChanges)
+	})
+	t.Run("RequestedChanges", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("APPROVED"),
+			},
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("CHANGES_REQUESTED"),
+			},
+		}
+		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
+
+		assert.True(t, reviewersHaveRequestedChanges)
+	})
+	t.Run("MultupleUserStates", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{
+			{
+				User: &github.User{
+					Login: github.String("testUser2"),
+				},
+				State: github.String("CHANGES_REQUESTED"),
+			},
+			{
+				User: &github.User{
+					Login: github.String("testUser1"),
+				},
+				State: github.String("APPROVED"),
+			},
+		}
+		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
+
+		assert.True(t, reviewersHaveRequestedChanges)
+	})
+}
