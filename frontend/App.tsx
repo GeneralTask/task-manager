@@ -39,6 +39,11 @@ const App = () => {
                                 <Route path="tos-summary" element={<PrivateOutlet />}>
                                     <Route index element={<TermsOfServiceSummaryScreen />} />
                                 </Route>
+                                {isDevelopmentMode && (
+                                    <Route path="overview" element={<PrivateOutlet />}>
+                                        <Route index element={<MainScreen />} />
+                                    </Route>
+                                )}
                                 <Route path="tasks" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
                                     <Route path=":section" element={<MainScreen />}>
