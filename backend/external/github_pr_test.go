@@ -771,3 +771,80 @@ func TestReviewersHaveRequestedChanges(t *testing.T) {
 		assert.True(t, reviewersHaveRequestedChanges)
 	})
 }
+
+func TestChecksDidFail(t *testing.T) {
+	t.Run("ChecksPass", func(t *testing.T) {
+		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefPayload)
+		checkRunsURL := &githubCheckRunsServer.URL
+		defer githubCheckRunsServer.Close()
+		context := context.Background()
+		githubClient := github.NewClient(nil)
+
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+			Head: &github.PullRequestBranch{
+				SHA: github.String("abc123"),
+			},
+		}
+		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
+		assert.NoError(t, err)
+		assert.False(t, conclusion)
+	})
+	t.Run("ChecksFail", func(t *testing.T) {
+		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefFailPayload)
+		checkRunsURL := &githubCheckRunsServer.URL
+		defer githubCheckRunsServer.Close()
+		context := context.Background()
+		githubClient := github.NewClient(nil)
+
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+			Head: &github.PullRequestBranch{
+				SHA: github.String("abc123"),
+			},
+		}
+		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
+		assert.NoError(t, err)
+		assert.True(t, conclusion)
+	})
+	t.Run("RepositoryIsNil", func(t *testing.T) {
+		context := context.Background()
+		githubClient := github.NewClient(nil)
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+			Head: &github.PullRequestBranch{
+				SHA: github.String("abc123"),
+			},
+		}
+		conclusion, err := checksDidFail(context, githubClient, nil, pullRequest, nil)
+		assert.Error(t, err)
+		assert.Equal(t, "failed: pull request is nil", err.Error())
+		assert.False(t, conclusion)
+	})
+	t.Run("PullRequestIsNil", func(t *testing.T) {
+		context := context.Background()
+		githubClient := github.NewClient(nil)
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		conclusion, err := checksDidFail(context, githubClient, repository, nil, nil)
+		assert.Error(t, err)
+		assert.Equal(t, "failed: pull request is nil", err.Error())
+		assert.False(t, conclusion)
+	})
+}

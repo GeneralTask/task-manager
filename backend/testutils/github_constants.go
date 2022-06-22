@@ -9,6 +9,7 @@ const (
 	EmptyPullRequestReviewersPayload string = `{"users": []}`
 	EmptyCheckRunsForRefPayload      string = `{"total_count": 0, "check_runs": []}`
 	CheckRunsForRefPayload           string = `{"total_count": 1, "check_runs": [{"ID": 96024}]}`
+	CheckRunsForRefFailPayload 	     string = `{"total_count": 1, "check_runs": [{"ID": 96024, "status": "completed", "conclusion": "failure"}]}`
 	PullRequestCommentsPayload       string = `[{"id": 1, "body": "This is a comment", "user": {"login": "chad1616", "id": 1}, "created_at": "2011-01-26T19:01:12Z", "updated_at": "2011-01-26T19:01:12Z"}]`
 	IssueCommentPayload              string = `[{}]`
 )

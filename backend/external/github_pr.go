@@ -382,6 +382,12 @@ func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 }
 
 func checksDidFail(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (bool, error) {
+	if repository == nil {
+		return false, errors.New("failed: repository is nil")
+	}
+	if pullRequest == nil {
+		return false, errors.New("failed: pull request is nil")
+	}
 	checkRuns, err := listCheckRunsForRef(context, githubClient, repository, pullRequest, overrideURL)
 	if err != nil {
 		return false, err
