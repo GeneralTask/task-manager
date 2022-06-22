@@ -263,7 +263,7 @@ func TestGithubPullRequests(t *testing.T) {
 		githubPullRequests, err := getGithubPullRequests(ctx, githubClient, nil, nil)
 
 		assert.Error(t, err)
-		assert.Equal(t, "failed: repository is nil", err.Error())
+		assert.Equal(t, "repository is nil", err.Error())
 		assert.Nil(t, githubPullRequests)
 	})
 	t.Run("FailureWithoutOverrideURL", func(t *testing.T) {
@@ -315,7 +315,7 @@ func TestListReviewers(t *testing.T) {
 		githubReviewers, err := listReviewers(ctx, githubClient, nil, pullRequest, nil)
 
 		assert.Error(t, err)
-		assert.Equal(t, "failed: repository is nil", err.Error())
+		assert.Equal(t, "repository is nil", err.Error())
 		assert.Nil(t, githubReviewers)
 	})
 	t.Run("FailureWithNilPullRequest", func(t *testing.T) {
@@ -330,7 +330,7 @@ func TestListReviewers(t *testing.T) {
 		githubReviewers, err := listReviewers(ctx, githubClient, repository, nil, nil)
 
 		assert.Error(t, err)
-		assert.Equal(t, "failed: pull request is nil", err.Error())
+		assert.Equal(t, "pull request is nil", err.Error())
 		assert.Nil(t, githubReviewers)
 	})
 	t.Run("FailureWithoutOverrideURL", func(t *testing.T) {
