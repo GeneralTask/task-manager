@@ -485,6 +485,63 @@ func TestPullRequestIsApproved(t *testing.T) {
 	})
 }
 
+func TestCommentCount(t *testing.T) {
+	t.Run("SingleListComment", func(t *testing.T) {
+		githubCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestCommentsPayload)
+		commentsURL := &githubCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		githubIssueCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		issueCommentsURL := &githubIssueCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+		}
+		reviews := []*github.PullRequestReview{}
+		count, err := getCommentCount(ctx, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, count)
+	})
+	t.Run("SingleIssueComment", func(t *testing.T) {
+		githubCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		commentsURL := &githubCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		githubIssueCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.IssueCommentPayload)
+		issueCommentsURL := &githubIssueCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+		}
+		reviews := []*github.PullRequestReview{}
+		count, err := getCommentCount(ctx, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, count)
+	})
+}
+
 func TestGetReviewerCount(t *testing.T) {
 	t.Run("SingleListReview", func(t *testing.T) {
 		githubReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
