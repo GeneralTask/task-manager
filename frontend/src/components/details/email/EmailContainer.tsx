@@ -49,10 +49,23 @@ const BodyContainerCollapsed = styled.span`
     min-width: 0;
     color: ${Colors.gray._400};
 `
-const EmailSenderDetailsContainer = styled.div`
+const LowerDetailsContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     margin-left: ${Spacing.margin._20};
+    margin-right: ${Spacing.margin._20};
     margin-bottom: ${Spacing.margin._8};
-    width: fit-content;
+`
+const SmallGrayText = styled.span`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing.margin._4};
+    font-size: ${Typography.xSmall.fontSize};
+    line-height: ${Typography.xSmall.lineHeight};
+    color: ${Colors.gray._400};
+    text-decoration: underline;
 `
 const Title = styled.div`
     background-color: inherit;
@@ -114,9 +127,17 @@ const EmailContainer = (props: EmailContainerProps) => {
                 {isCollapsed ? (
                     <BodyContainerCollapsed>{removeHTMLTags(props.email.body)}</BodyContainerCollapsed>
                 ) : (
-                    <EmailSenderDetailsContainer>
+                    <LowerDetailsContainer>
                         <EmailSenderDetails sender={props.email.sender} recipients={props.email.recipients} />
-                    </EmailSenderDetailsContainer>
+                        {props.email.num_attachments > 0 && (
+                            <SmallGrayText>
+                                <Icon size="xSmall" source={icons.attachment} />
+                                {`(${props.email.num_attachments} ${
+                                    props.email.num_attachments > 1 ? 'attachments' : 'attachment'
+                                })`}
+                            </SmallGrayText>
+                        )}
+                    </LowerDetailsContainer>
                 )}
             </CollapseExpandContainer>
             {!isCollapsed && (

@@ -18,6 +18,7 @@ export const icons = Object.freeze({
     archive: '/images/archive.png',
     arrows_in: '/images/arrows_in.png',
     arrows_out: '/images/arrows_out.png',
+    attachment: '/images/attachment.svg',
     calendar_blank: '/images/calendar_blank.png',
     caret_down: '/images/caret_down.svg',
     caret_left: '/images/caret_left.png',

@@ -646,6 +646,7 @@ export const useComposeMessage = () => {
                     reply_to: '',
                 },
                 recipients: data.recipients,
+                num_attachments: 0
             }
             thread.emails.push(tempEmail)
 
