@@ -217,7 +217,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                         textStyle="dark"
                                         value={task.source.name}
                                         hasBorder
-                                        iconSource={'external_link'}
+                                        iconSource="external_link"
                                     />
                                 </NoStyleAnchor>
                             )}
