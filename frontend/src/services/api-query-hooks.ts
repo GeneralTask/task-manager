@@ -113,15 +113,10 @@ export const useCreateTask = () => {
                             is_completable: false,
                             is_replyable: false,
                         },
-                        external_status: {
-                            state: 'Todo',
-                            type: 'unstarted',
-                        },
                         sender: '',
                         is_done: false,
                         recipients: { to: [], cc: [], bcc: [] },
                         isOptimistic: true,
-                        comments: [],
                     }
                     section.tasks = [newTask, ...section.tasks]
                     queryClient.setQueryData('tasks', () => sections)
