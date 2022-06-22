@@ -506,9 +506,41 @@ func TestGetReviewerCount(t *testing.T) {
 			},
 		}
 		reviews := []*github.PullRequestReview{}
-
 		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
+
 		assert.NoError(t, err)
 		assert.Equal(t, 1, reviewerCount)
+	})
+	t.Run("RepositoryIsNil", func(t *testing.T) {
+		context := context.Background()
+		githubClient := github.NewClient(nil)
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+			Head: &github.PullRequestBranch{
+				SHA: github.String("abc123"),
+			},
+		}
+		reviews := []*github.PullRequestReview{}
+		reviewerCount, err := getReviewerCount(context, githubClient, nil, pullRequest, reviews, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "failed: repository is nil", err.Error())
+		assert.Equal(t, 0, reviewerCount)
+	})
+	t.Run("PullRequestIsNil", func(t *testing.T) {
+		context := context.Background()
+		githubClient := github.NewClient(nil)
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		reviews := []*github.PullRequestReview{}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, nil, reviews, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "failed: pull request is nil", err.Error())
+		assert.Equal(t, 0, reviewerCount)
 	})
 }
