@@ -522,7 +522,7 @@ func TestCommentCount(t *testing.T) {
 		issueCommentsURL := &githubIssueCommentsServer.URL
 		defer githubCommentsServer.Close()
 
-		ctx := context.Background()
+		context := context.Background()
 		githubClient := github.NewClient(nil)
 
 		repository := &github.Repository{
@@ -535,10 +535,71 @@ func TestCommentCount(t *testing.T) {
 			Number: github.Int(1),
 		}
 		reviews := []*github.PullRequestReview{}
-		count, err := getCommentCount(ctx, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, count)
+	})
+	t.Run("SingleReviewComment", func(t *testing.T) {
+		githubCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		commentsURL := &githubCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		githubIssueCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		issueCommentsURL := &githubIssueCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		context := context.Background()
+		githubClient := github.NewClient(nil)
+
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+		}
+		reviews := []*github.PullRequestReview{{
+			Body: github.String("This is a review comment"),
+		}}
+		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, count)
+	})
+	t.Run("RepositoryIsNil", func(t *testing.T) {
+		context := context.Background()
+		githubClient := github.NewClient(nil)
+		pullRequest := &github.PullRequest{
+			Number: github.Int(1),
+			Head: &github.PullRequestBranch{
+				SHA: github.String("abc123"),
+			},
+		}
+		reviews := []*github.PullRequestReview{}
+		count, err := getCommentCount(context, githubClient, nil, pullRequest, reviews, nil, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "failed: repository is nil", err.Error())
+		assert.Equal(t, 0, count)
+	})
+	t.Run("PullRequestIsNil", func(t *testing.T) {
+		context := context.Background()
+		githubClient := github.NewClient(nil)
+		repository := &github.Repository{
+			Name: github.String("ExampleRepository"),
+			Owner: &github.User{
+				Login: github.String("chad1616"),
+			},
+		}
+		reviews := []*github.PullRequestReview{}
+		count, err := getCommentCount(context, githubClient, repository, nil, reviews, nil, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "failed: pull request is nil", err.Error())
+		assert.Equal(t, 0, count)
 	})
 }
 
