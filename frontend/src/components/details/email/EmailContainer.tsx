@@ -132,8 +132,8 @@ const EmailContainer = (props: EmailContainerProps) => {
                         {props.email.num_attachments > 0 && (
                             <SmallGrayText>
                                 <Icon size="xSmall" source={icons.attachment} />
-                                {`(${props.email.num_attachments} attachment${
-                                    props.email.num_attachments > 1 ? 's' : ''
+                                {`(${props.email.num_attachments} ${
+                                    props.email.num_attachments > 1 ? 'attachments' : 'attachment'
                                 })`}
                             </SmallGrayText>
                         )}
