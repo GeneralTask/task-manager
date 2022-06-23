@@ -12,9 +12,12 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { EmailList } from './email/EmailList'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import ReactTooltip from 'react-tooltip'
+import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 
 const MARK_AS_READ = 'Mark as Read'
 const MARK_AS_UNREAD = 'Mark as Unread'
+const ACTION_CONTAINER_HEIGHT = '40px'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
@@ -23,7 +26,7 @@ const FlexColumnContainer = styled.div`
     min-width: 300px;
 `
 const HeaderContainer = styled.div`
-    padding: ${Spacing.padding._24} ${Spacing.padding._16};
+    padding: ${Spacing.padding._24} ${Spacing.padding._24} ${Spacing.padding._16};
     background-color: ${Colors.white};
     position: sticky;
     box-shadow: ${Shadows.threadHeaderShadow};
@@ -31,11 +34,18 @@ const HeaderContainer = styled.div`
 const ActionsContainer = styled.div`
     display: flex;
     align-items: center;
-    gap: ${Spacing.padding._8};
+    gap: ${Spacing.padding._16};
+    margin-bottom: ${Spacing.margin._12};
+    height: ${ACTION_CONTAINER_HEIGHT};
 `
 const TitleContainer = styled.div`
     display: flex;
-    align-items: center;
+`
+const LogoContainer = styled.div`
+    margin-top: ${Spacing.margin._4};
+`
+const DeeplinkContainer = styled.div`
+    margin-left: auto;
 `
 const HeaderTitleContainer = styled.div`
     display: flex;
@@ -44,7 +54,7 @@ const HeaderTitleContainer = styled.div`
     min-width: 0;
 `
 const Title = styled.span`
-    margin-left: ${Spacing.margin._8};
+    margin-left: ${Spacing.margin._16};
     font-size: ${Typography.medium.fontSize};
     line-height: ${Typography.medium.lineHeight};
     font-weight: ${Typography.weight._500};
@@ -142,9 +152,23 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                             </NoStyleButton>
                         </TooltipWrapper>
                     )}
+                    <DeeplinkContainer>
+                        {!thread.deeplink && (
+                            <NoStyleAnchor href={thread.deeplink} target="_blank" rel="noreferrer">
+                                <RoundedGeneralButton
+                                    textStyle="dark"
+                                    value={thread.source.name}
+                                    hasBorder
+                                    iconSource="external_link"
+                                />
+                            </NoStyleAnchor>
+                        )}
+                    </DeeplinkContainer>
                 </ActionsContainer>
                 <TitleContainer>
-                    <Icon size="medium" source={logos.gmail} />
+                    <LogoContainer>
+                        <Icon size="medium" source={logos.gmail} />
+                    </LogoContainer>
                     <HeaderTitleContainer>
                         <Title>{title}</Title>
                         <SubTitle>{`To: ${recipient_emails.join(', ')}`}</SubTitle>
