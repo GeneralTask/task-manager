@@ -2,6 +2,7 @@ package external
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -191,7 +192,7 @@ func TestSetOverrideURL(t *testing.T) {
 }
 
 func TestGetGithubUser(t *testing.T) {
-	t.Run("SuccessWithOverrideURL", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 		userURL := &githubUserServer.URL
 		defer githubUserServer.Close()
@@ -202,19 +203,22 @@ func TestGetGithubUser(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, *githubUser.Login, "chad1616")
 	})
-	t.Run("FailureWithoutOverrideURL", func(t *testing.T) {
+	t.Run("Failure", func(t *testing.T) {
+		githubUserServer := testutils.GetMockAPIServer(t, 401, "")
+		userURL := &githubUserServer.URL
+		defer githubUserServer.Close()
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
-		githubUser, err := getGithubUser(ctx, githubClient, "", nil)
+		githubUser, err := getGithubUser(ctx, githubClient, "", userURL)
 
 		assert.Error(t, err)
-		assert.Equal(t, "GET https://api.github.com/user: 401 Requires authentication []", err.Error())
+		assert.Equal(t, fmt.Sprintf("GET %s/user: 401  []", *userURL), err.Error())
 		assert.Nil(t, githubUser)
 	})
 }
 
 func TestGithubRepositories(t *testing.T) {
-	t.Run("SuccessWithOverrideURL", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, testutils.UserRepositoriesPayload)
 		userRepositoriesURL := &githubUserRepositoriesServer.URL
 		defer githubUserRepositoriesServer.Close()
@@ -226,33 +230,38 @@ func TestGithubRepositories(t *testing.T) {
 		assert.Equal(t, len(githubRepositories), 1)
 		assert.Equal(t, *githubRepositories[0].Name, "ExampleRepository")
 	})
-	t.Run("FailureWithoutOverrideURL", func(t *testing.T) {
+	t.Run("Failure", func(t *testing.T) {
+		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 401, "")
+		userRepositoriesURL := &githubUserRepositoriesServer.URL
+		defer githubUserRepositoriesServer.Close()
+
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
-		githubRepositories, err := getGithubRepositories(ctx, githubClient, "", nil)
+		githubRepositories, err := getGithubRepositories(ctx, githubClient, "", userRepositoriesURL)
 
 		assert.Error(t, err)
-		assert.Equal(t, "GET https://api.github.com/user/repos: 401 Requires authentication []", err.Error())
+		assert.Equal(t, fmt.Sprintf("GET %s/user/repos: 401  []", *userRepositoriesURL), err.Error())
 		assert.Nil(t, githubRepositories)
 	})
 }
 
 func TestGithubPullRequests(t *testing.T) {
-	t.Run("SuccessWithOverrideURL", func(t *testing.T) {
+	repositoryName := "ExampleRepository"
+	repositoryOwner := "chad1616"
+	repository := &github.Repository{
+		Name: github.String(repositoryName),
+		Owner: &github.User{
+			Login: github.String(repositoryOwner),
+		},
+	}
+	t.Run("Success", func(t *testing.T) {
 		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 200, testutils.UserPullRequestsPayload)
 		userPullRequestsURL := &githubUserPullRequestsServer.URL
 		defer githubUserPullRequestsServer.Close()
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
-
-		repository := &github.Repository{
-			Name: github.String("ExampleRepository"),
-			Owner: &github.User{
-				Login: github.String("chad1616"),
-			},
-		}
-
 		githubPullRequests, err := getGithubPullRequests(ctx, githubClient, repository, userPullRequestsURL)
+
 		assert.NoError(t, err)
 		assert.Equal(t, len(githubPullRequests), 1)
 		assert.Equal(t, *githubPullRequests[0].Title, "Fix big oopsie")
@@ -266,19 +275,16 @@ func TestGithubPullRequests(t *testing.T) {
 		assert.Equal(t, "repository is nil", err.Error())
 		assert.Nil(t, githubPullRequests)
 	})
-	t.Run("FailureWithoutOverrideURL", func(t *testing.T) {
+	t.Run("Failure", func(t *testing.T) {
+		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 401, "")
+		userPullRequestsURL := &githubUserPullRequestsServer.URL
+		defer githubUserPullRequestsServer.Close()
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
-		repository := &github.Repository{
-			Name: github.String("ExampleRepository"),
-			Owner: &github.User{
-				Login: github.String("chad1616"),
-			},
-		}
-		githubPullRequests, err := getGithubPullRequests(ctx, githubClient, repository, nil)
+		githubPullRequests, err := getGithubPullRequests(ctx, githubClient, repository, userPullRequestsURL)
 
 		assert.Error(t, err)
-		assert.Equal(t, "GET https://api.github.com/repos/chad1616/ExampleRepository/pulls: 404 Not Found []", err.Error())
+		assert.Equal(t, fmt.Sprintf("GET %s/repos/%s/%s/pulls: 401  []", *userPullRequestsURL, repositoryOwner, repositoryName), err.Error())
 		assert.Nil(t, githubPullRequests)
 	})
 }
