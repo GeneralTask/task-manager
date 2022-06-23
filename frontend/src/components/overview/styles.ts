@@ -3,9 +3,6 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 export const OverviewPageContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    position: relative;
     flex: 1;
 `
 export const PageHeader = styled.div`
