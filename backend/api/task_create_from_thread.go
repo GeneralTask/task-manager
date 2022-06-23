@@ -80,6 +80,7 @@ func createTaskFromEmailThread(
 			Title:           params.Title,
 			Body:            params.Body,
 			SourceAccountID: accountID,
+			Deeplink:        thread.Deeplink,
 		},
 		TaskType: database.TaskType{
 			IsTask: true,
