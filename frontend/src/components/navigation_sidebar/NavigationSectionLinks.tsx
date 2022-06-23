@@ -96,7 +96,7 @@ const NavigationSectionLinks = ({
                 <NavigationLink
                     link="/overview"
                     title="Overview"
-                    icon={icons.label}
+                    icon={icons.list}
                     isCurrentPage={pathName === 'overview'}
                 />
             )}

@@ -244,3 +244,13 @@ export interface TEmailComposeState {
 }
 
 export type TMailbox = 'inbox' | 'archive'
+
+export interface TOverviewBlock {
+    id: string
+    name: string
+    type: 'github' | 'task_section' | 'linear' | 'message' | 'slack'
+    section_id?: string
+    is_paginated: boolean
+    is_reorderable: boolean
+    view_items: TTask[] // TODO: change this to more general type
+}
