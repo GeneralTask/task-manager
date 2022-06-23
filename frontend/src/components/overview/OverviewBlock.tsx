@@ -16,6 +16,9 @@ const OverviewBlock = ({ block }: OverviewBlockProps) => {
                     <Icon source={icons.x_thin} size="xSmall" />
                 </RemoveButton>
             </BlockHeader>
+            some tasks here
+            <br />
+            and more tasks here
         </BlockContainer>
     )
 }

@@ -1,9 +1,8 @@
 import React from 'react'
 import { Colors } from '../../styles'
 import { TOverviewBlock } from '../../utils/types'
-import { SectionHeader } from '../molecules/Header'
 import OverviewBlock from '../overview/OverviewBlock'
-import { OverviewPageContainer } from '../overview/styles'
+import { DetailsViewContainer, OverviewPageContainer, PageHeader } from '../overview/styles'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const dummyData: TOverviewBlock[] = [
@@ -39,14 +38,17 @@ const dummyData: TOverviewBlock[] = [
 const OverviewView = () => {
     const blocks = dummyData
     return (
-        <ScrollableListTemplate backgroundColor={Colors.gray._50}>
-            <SectionHeader sectionName="Overview" allowRefresh={false} />
+        <>
             <OverviewPageContainer>
-                {blocks.map((block, index) => (
-                    <OverviewBlock block={block} key={index} />
-                ))}
+                <PageHeader>Overview</PageHeader>
+                <ScrollableListTemplate backgroundColor={Colors.gray._50}>
+                    {blocks.map((block, index) => (
+                        <OverviewBlock block={block} key={index} />
+                    ))}
+                </ScrollableListTemplate>
             </OverviewPageContainer>
-        </ScrollableListTemplate>
+            <DetailsViewContainer>These be the deets</DetailsViewContainer>
+        </>
     )
 }
 
