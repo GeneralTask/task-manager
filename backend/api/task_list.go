@@ -49,6 +49,10 @@ type TaskResult struct {
 	LinkedEmailThread *linkedEmailThread  `json:"linked_email_thread,omitempty"`
 	ExternalStatus    *externalStatus     `json:"external_status,omitempty"`
 	Comments          *[]database.Comment `json:"comments,omitempty"`
+	Channel           string              `json:"channel,omitempty"`
+	SenderID          string              `json:"sender_id,omitempty"`
+	Team              string              `json:"team,omitempty"`
+	TimeSent          string              `json:"ts,omitempty"`
 }
 
 type TaskSection struct {

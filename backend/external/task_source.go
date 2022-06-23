@@ -27,6 +27,10 @@ type TaskCreationObject struct {
 	DueDate        *time.Time
 	TimeAllocation *int64
 	IDTaskSection  primitive.ObjectID
+	Channel        string
+	SenderID       string
+	Team           string
+	TimeSent       string
 }
 
 type Attendee struct {

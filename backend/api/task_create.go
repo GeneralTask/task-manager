@@ -6,11 +6,12 @@ import (
 	"errors"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog/log"
+	"github.com/slack-go/slack"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -25,6 +26,66 @@ type TaskCreateParams struct {
 	IDTaskSection *string    `json:"id_task_section"`
 }
 
+func (api *API) ExternalTaskCreate(c *gin.Context) {
+	sourceID := c.Param("source_id")
+	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
+	if err != nil || !taskSourceResult.Details.CanCreateTask {
+		Handle404(c)
+		return
+	}
+
+	// verification for security
+	slackSigningSecret := config.GetConfigValue("SLACK_SIGNING_SECRET")
+	verifier, err := slack.NewSecretsVerifier(c.Request.Header, slackSigningSecret)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "unable to create slack verifier."})
+		return
+	}
+
+	err = verifier.Ensure()
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "signing secret invalid."})
+		return
+	}
+
+	var slackParams external.SlackShortcutRequest
+	c.Request.ParseForm()
+	formData := []byte(c.Request.Form["payload"][0])
+	err = json.Unmarshal(formData, &slackParams)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "unable to process task payload."})
+		return
+	}
+
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
+	externalID := slackParams.Team.Id + "-" + slackParams.User.ID
+	externalToken, err := database.GetExternalToken(db, externalID, sourceID)
+	userID := externalToken.UserID
+
+	IDTaskSection := primitive.NilObjectID
+
+	taskCreationObject := external.TaskCreationObject{
+		Title:         slackParams.Message.Text,
+		TimeSent:      slackParams.Message.TimeSent,
+		Channel:       slackParams.Channel.Name,
+		SenderID:      slackParams.Message.User,
+		Team:          slackParams.Team.Domain,
+		IDTaskSection: IDTaskSection,
+	}
+	taskID, err := taskSourceResult.Source.CreateNewTask(userID, externalID, taskCreationObject)
+	if err != nil {
+		c.JSON(503, gin.H{"detail": "failed to create task"})
+		return
+	}
+	c.JSON(200, gin.H{"task_id": taskID})
+}
+
 func (api *API) TaskCreate(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	sourceID := c.Param("source_id")
@@ -33,17 +94,6 @@ func (api *API) TaskCreate(c *gin.Context) {
 		Handle404(c)
 		return
 	}
-
-	var slackParams external.SlackShortcutRequest
-	c.Request.ParseForm()
-	formData := []byte(c.Request.Form["payload"][0])
-	json.Unmarshal(formData, &slackParams)
-	log.Print(slackParams)
-
-	// decoder := json.NewDecoder(c.Request.Body)
-	// err = decoder.Decode(&slackParams)
-	// log.Print(err)
-	// log.Print(slackParams)
 
 	var taskCreateParams TaskCreateParams
 	err = c.BindJSON(&taskCreateParams)

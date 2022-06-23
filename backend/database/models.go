@@ -123,6 +123,11 @@ type TaskBase struct {
 	ConferenceCall    *ConferenceCall    `bson:"conference_call"`
 	CreatedAtExternal primitive.DateTime `bson:"created_at_external"`
 	CompletedAt       primitive.DateTime `bson:"completed_at"`
+	//slack
+	Channel  string `json:"channel"`
+	SenderID string `json:"sender_id"`
+	Team     string `json:"team"`
+	TimeSent string `json:"ts"`
 }
 
 type PullRequest struct {
