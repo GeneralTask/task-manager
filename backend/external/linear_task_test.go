@@ -321,6 +321,11 @@ func TestLoadLinearTasks(t *testing.T) {
 }
 
 func TestModifyLinearTask(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
 	t.Run("MarkAsDoneBadResponse", func(t *testing.T) {
 		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
 		defer taskUpdateServer.Close()
@@ -430,33 +435,60 @@ func TestModifyLinearTask(t *testing.T) {
 	t.Run("UpdateFieldsMarkAsNotDoneSuccess", func(t *testing.T) {
 		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"foo": "bar"}`)
 		defer taskUpdateServer.Close()
-		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
 		userID := primitive.NewObjectID()
 
 		newName := "New Title"
 		newBody := "New Body"
 		isCompleted := false
 
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+		var taskFromDB database.Item
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(
+			dbCtx,
+			bson.M{"user_id": userID},
+		).Decode(&taskFromDB)
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:       &newName,
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
 			IsCompleted: &isCompleted,
-		}, nil)
+			//}, &database.Item{})
+		}, &taskFromDB)
 		assert.NoError(t, err)
 	})
 
 	t.Run("UpdateFieldsMarkAsNotDoneBadResponse", func(t *testing.T) {
 		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
 		defer taskUpdateServer.Close()
-		asanaTask := AsanaTaskSource{Asana: AsanaService{ConfigValues: AsanaConfigValues{TaskUpdateURL: &taskUpdateServer.URL}}}
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
 		userID := primitive.NewObjectID()
 
 		newName := "New Title"
 		newBody := "New Body"
 		isCompleted := false
 
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+		var taskFromDB database.Item
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(
+			dbCtx,
+			bson.M{"user_id": userID},
+		).Decode(&taskFromDB)
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:       &newName,
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
