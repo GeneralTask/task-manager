@@ -35,6 +35,7 @@ func TestCreateTaskFromThread(t *testing.T) {
 			UserID:     userID,
 			IDExternal: "sample_gmail_thread_id",
 			SourceID:   external.TASK_SOURCE_ID_GMAIL,
+			Deeplink:   "deeplink.com/wut",
 		},
 		EmailThread: database.EmailThread{
 			Emails: []database.Email{
@@ -76,6 +77,7 @@ func TestCreateTaskFromThread(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"title": "sample title", "user_id": userID}).Decode(&task)
 		assert.True(t, task.IsTask)
 		assert.Equal(t, threadID, *task.LinkedMessage.ThreadID)
+		assert.Equal(t, "deeplink.com/wut", task.Deeplink)
 		assert.Nil(t, task.LinkedMessage.EmailID)
 	})
 	t.Run("SuccessCreateTaskFromEmail", func(t *testing.T) {
