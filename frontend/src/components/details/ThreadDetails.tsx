@@ -153,7 +153,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                         </TooltipWrapper>
                     )}
                     <DeeplinkContainer>
-                        {!thread.deeplink && (
+                        {thread.deeplink && (
                             <NoStyleAnchor href={thread.deeplink} target="_blank" rel="noreferrer">
                                 <RoundedGeneralButton
                                     textStyle="dark"
