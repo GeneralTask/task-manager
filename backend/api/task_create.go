@@ -1,9 +1,14 @@
 package api
 
 import (
+	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -11,7 +16,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
-	"github.com/slack-go/slack"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,26 +32,39 @@ type TaskCreateParams struct {
 
 func (api *API) ExternalTaskCreate(c *gin.Context) {
 	sourceID := c.Param("source_id")
+
+	// only support slack creation for the time being
+	if sourceID != external.TASK_SOURCE_ID_SLACK_SAVED {
+		Handle404(c)
+		return
+	}
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
 	if err != nil || !taskSourceResult.Details.CanCreateTask {
 		Handle404(c)
 		return
 	}
 
+	// make request body readable
+	body, _ := ioutil.ReadAll(c.Request.Body) // after this operation body will equal 0
+	// Restore the io.ReadCloser to request
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
 	// verification for security
 	slackSigningSecret := config.GetConfigValue("SLACK_SIGNING_SECRET")
-	verifier, err := slack.NewSecretsVerifier(c.Request.Header, slackSigningSecret)
-	if err != nil {
-		c.JSON(400, gin.H{"detail": "unable to create slack verifier."})
-		return
-	}
+	header := c.Request.Header.Get("X-Slack-Request-Timestamp")
+	signature := c.Request.Header.Get("X-Slack-Signature")
 
-	err = verifier.Ensure()
-	if err != nil {
+	// as per: https://api.slack.com/authentication/verifying-requests-from-slack
+	secretConstructor := "v0:" + header + ":" + string(body)
+	hash := hmac.New(sha256.New, []byte(slackSigningSecret))
+	hash.Write([]byte(secretConstructor))
+	computed := []byte("v0=" + hex.EncodeToString(hash.Sum(nil)))
+	if !hmac.Equal(computed, []byte(signature)) {
 		c.JSON(400, gin.H{"detail": "signing secret invalid."})
 		return
 	}
 
+	// process payload information
 	var slackParams external.SlackShortcutRequest
 	c.Request.ParseForm()
 	formData := []byte(c.Request.Form["payload"][0])

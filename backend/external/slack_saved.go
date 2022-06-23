@@ -59,6 +59,10 @@ type SlackSavedTaskSource struct {
 	Slack SlackService
 }
 
+func (slackTask SlackSavedTaskSource) VerifySlackSigningSecret() {
+
+}
+
 func (slackTask SlackSavedTaskSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
