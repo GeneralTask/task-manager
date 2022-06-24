@@ -20,7 +20,7 @@ function isQuotedText(node: HTMLElement): boolean {
 }
 
 function replaceNewlinesWithBreaks(text: string) {
-    return text.replace(/\n/g, '<br>')
+    return text.replace(/\n/g, '<br>').replace(/(<br>)+/g, '<br>')
 }
 
 const Quote = ({ quotedHTML }: { quotedHTML: string }) => {
