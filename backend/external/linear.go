@@ -283,7 +283,6 @@ func updateLinearIssueMutation(client *graphqlBasic.Client, issueID string, upda
 	if updateFields.Body != nil {
 		req.Var("description", *updateFields.Body) // empty string is ok but will be a NOOP
 	}
-	log.Debug().Msgf("jerd %+v", task)
 	if updateFields.IsCompleted != nil {
 		if *updateFields.IsCompleted {
 			req.Var("stateId", task.CompletedStatus.ExternalID)

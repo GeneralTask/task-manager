@@ -326,6 +326,53 @@ func TestModifyLinearTask(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
+
+	userID := primitive.NewObjectID()
+	createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
+	expectedTask := database.Item{
+		TaskBase: database.TaskBase{
+			IDOrdering:        0,
+			IDExternal:        "test-issue-id-1",
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			IsCompleted:       true,
+			Deeplink:          "https://example.com/",
+			Title:             "test title",
+			Body:              "test description",
+			SourceID:          TASK_SOURCE_ID_LINEAR,
+			SourceAccountID:   "sample_account@email.com",
+			UserID:            userID,
+			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+		},
+		TaskType: database.TaskType{
+			IsTask: true,
+		},
+		Task: database.Task{
+			Status: database.ExternalTaskStatus{
+				ExternalID: "merge-workflow-state-id",
+				State:      "Done",
+				Type:       "completed",
+			},
+			PreviousStatus: database.ExternalTaskStatus{
+				ExternalID: "state-id",
+				State:      "Todo",
+				Type:       "started",
+			},
+			CompletedStatus: database.ExternalTaskStatus{
+				ExternalID: "merge-workflow-state-id",
+				State:      "Done",
+				Type:       "completed",
+			},
+			Comments: nil,
+		},
+	}
+	database.GetOrCreateItem(
+		db,
+		userID,
+		"test-issue-id-1",
+		TASK_SOURCE_ID_LINEAR,
+		&expectedTask,
+	)
+
 	t.Run("MarkAsDoneBadResponse", func(t *testing.T) {
 		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
 		defer taskUpdateServer.Close()
@@ -336,7 +383,6 @@ func TestModifyLinearTask(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		isCompleted := true
 		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, &database.Item{})
@@ -353,7 +399,6 @@ func TestModifyLinearTask(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		newName := "New Title"
 		newBody := "New Body"
@@ -373,7 +418,6 @@ func TestModifyLinearTask(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		newName := "New Title"
 		newBody := "New Body"
@@ -397,7 +441,6 @@ func TestModifyLinearTask(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		newName := "New Title"
 		newBody := "New Body"
@@ -419,7 +462,6 @@ func TestModifyLinearTask(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		newName := "New Title"
 		newBody := "New Body"
@@ -433,7 +475,17 @@ func TestModifyLinearTask(t *testing.T) {
 		assert.Equal(t, `decoding response: EOF`, err.Error())
 	})
 	t.Run("UpdateFieldsMarkAsNotDoneSuccess", func(t *testing.T) {
-		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"foo": "bar"}`)
+		response := `{"data": {"issueUpdate": {
+				"success": true,
+					"issue": {
+					"id": "1c3b11d7-9298-4cc3-8a4a-d2d6d4677315",
+						"title": "fs",
+						"description": "bruhhh",
+						"state": {
+						"id": "39e87303-2b42-4c71-bfbe-4afb7bb7eecb",
+							"name": "Done"
+					}}}}}`
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
 		defer taskUpdateServer.Close()
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
@@ -442,26 +494,17 @@ func TestModifyLinearTask(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		newName := "New Title"
 		newBody := "New Body"
 		isCompleted := false
 
-		var taskFromDB database.Item
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = taskCollection.FindOne(
-			dbCtx,
-			bson.M{"user_id": userID},
-		).Decode(&taskFromDB)
 		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
 			Title:       &newName,
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
 			IsCompleted: &isCompleted,
-			//}, &database.Item{})
-		}, &taskFromDB)
+		}, &expectedTask)
 		assert.NoError(t, err)
 	})
 
@@ -475,7 +518,6 @@ func TestModifyLinearTask(t *testing.T) {
 				},
 			},
 		}}
-		userID := primitive.NewObjectID()
 
 		newName := "New Title"
 		newBody := "New Body"
@@ -493,9 +535,9 @@ func TestModifyLinearTask(t *testing.T) {
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
 			IsCompleted: &isCompleted,
-		}, nil)
+		}, &expectedTask)
 		assert.NotEqual(t, nil, err)
-		assert.Equal(t, "bad status code: 400", err.Error())
+		assert.Equal(t, "decoding response: EOF", err.Error())
 	})
 	t.Run("GetTaskUpdateBodyNoDueDate", func(t *testing.T) {
 		title := "Title"
