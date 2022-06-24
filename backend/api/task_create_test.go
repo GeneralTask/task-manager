@@ -62,7 +62,7 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing parameter.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or missing parameter\"}", string(body))
 	})
 	t.Run("WrongAccountID", func(t *testing.T) {
 		// this currently isn't possible because only GT tasks are supported, but we should add this when it's possible
@@ -144,6 +144,6 @@ func TestSlackTaskCreate(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"signing secret invalid.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"signing secret invalid\"}", string(body))
 	})
 }
