@@ -13,8 +13,10 @@ const OverviewBlock = ({ block }: OverviewBlockProps) => {
         switch (block.type) {
             case 'task_section':
                 return <TaskSectionBlockItems block={block} />
+            default:
+                return <div>[WIP]List of items for type {block.type}</div>
         }
-    }, [block.id, block.type, block.view_items])
+    }, [block])
 
     return (
         <BlockContainer>

@@ -8,8 +8,7 @@ const TaskSectionBlockItems = ({ block }: { block: TOverviewBlock }) => {
     const { section_id: sectionId } = block
     const { overviewItem } = useParams()
 
-    // unused for now.
-    // TODO: either change Task to make this optional or add better support for scrolling
+    // TODO: either change Task to make this optional or add better support for scrolling. Unused for now.
     const scrollingRef = useRef<HTMLDivElement>(null)
 
     if (!sectionId) {
@@ -18,7 +17,6 @@ const TaskSectionBlockItems = ({ block }: { block: TOverviewBlock }) => {
     return (
         <div ref={scrollingRef}>
             {block.view_items.map((item, index) => (
-                // <div key={item.id}>{item.title}</div>
                 <TaskDropContainer key={item.id} task={item} taskIndex={index} sectionId={sectionId}>
                     <Task
                         key={item.id}

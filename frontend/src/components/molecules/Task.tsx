@@ -79,7 +79,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
 
     const onClick = useCallback(() => {
         navigate(link)
-    }, [task, link])
+    }, [link])
 
     const [, drag, dragPreview] = useDrag(
         () => ({
