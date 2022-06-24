@@ -452,6 +452,27 @@ func TestModifyLinearTask(t *testing.T) {
 		}, nil)
 		assert.NoError(t, err)
 	})
+	t.Run("UpdateEmptyTitleFails", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+
+		newName := ""
+		newBody := "New Body"
+
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+			Title:   &newName,
+			Body:    &newBody,
+			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+		}, nil)
+		assert.EqualErrorf(t, err, err.Error(), "cannot set linear issue title to empty string")
+	})
 	t.Run("UpdateTitleBodyBadResponse", func(t *testing.T) {
 		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
 		defer taskUpdateServer.Close()
@@ -479,11 +500,11 @@ func TestModifyLinearTask(t *testing.T) {
 				"success": true,
 					"issue": {
 					"id": "1c3b11d7-9298-4cc3-8a4a-d2d6d4677315",
-						"title": "fs",
-						"description": "bruhhh",
+						"title": "test title",
+						"description": "test description",
 						"state": {
 						"id": "39e87303-2b42-4c71-bfbe-4afb7bb7eecb",
-							"name": "Done"
+							"name": "Todo"
 					}}}}}`
 		taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
 		defer taskUpdateServer.Close()

@@ -278,7 +278,10 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 	req.Var("id", issueID)
 
 	if updateFields.Title != nil {
-		req.Var("title", *updateFields.Title) // will fail linear graphql validation on empty string
+		if *updateFields.Title == "" {
+			return nil, errors.New("cannot set linear issue title to empty string")
+		}
+		req.Var("title", *updateFields.Title)
 	}
 	if updateFields.Body != nil {
 		req.Var("description", *updateFields.Body) // empty string is ok but will be a NOOP
