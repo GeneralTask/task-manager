@@ -79,7 +79,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 
 	err = authenticateSlackRequest(slackSigningSecret, timestamp, signature, string(body))
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "signing secret invalid."})
+		c.JSON(400, gin.H{"detail": "signing secret invalid"})
 		return
 	}
 
@@ -93,12 +93,12 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		}
 	}
 	if len(formData) <= 0 {
-		c.JSON(400, gin.H{"detail": "payload not included in request."})
+		c.JSON(400, gin.H{"detail": "payload not included in request"})
 		return
 	}
 	err = json.Unmarshal(formData, &slackParams)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "unable to process task payload."})
+		c.JSON(400, gin.H{"detail": "unable to process task payload"})
 		return
 	}
 
@@ -146,7 +146,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 	var taskCreateParams TaskCreateParams
 	err = c.BindJSON(&taskCreateParams)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "invalid or missing parameter."})
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
 		return
 	}
 
