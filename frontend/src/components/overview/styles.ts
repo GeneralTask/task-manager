@@ -2,15 +2,6 @@ import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
-export const OverviewPageContainer = styled.div`
-    flex: 1;
-`
-export const PageHeader = styled.div`
-    padding: ${Spacing.padding._16};
-    color: ${Colors.gray._500};
-    font-size: ${Typography.small.fontSize};
-    border-bottom: 2px solid ${Colors.gray._200};
-`
 export const BlockContainer = styled.div`
     padding: ${Spacing.padding._12};
     background-color: ${Colors.white};
@@ -33,10 +24,4 @@ export const RemoveButton = styled(NoStyleButton)`
     &:hover {
         background-color: ${Colors.gray._200};
     }
-`
-// placeholder for details view
-export const DetailsViewContainer = styled.div`
-    background-color: ${Colors.white};
-    padding-top: 50vh;
-    min-width: 400px;
 `

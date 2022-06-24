@@ -1,8 +1,25 @@
 import React from 'react'
+import styled from 'styled-components'
+import { Spacing, Colors, Typography } from '../../styles'
 import { TOverviewBlock } from '../../utils/types'
 import OverviewBlock from '../overview/OverviewBlock'
-import { DetailsViewContainer, OverviewPageContainer, PageHeader } from '../overview/styles'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
+
+const OverviewPageContainer = styled.div`
+    flex: 1;
+`
+const PageHeader = styled.div`
+    padding: ${Spacing.padding._16};
+    color: ${Colors.gray._500};
+    font-size: ${Typography.small.fontSize};
+    border-bottom: 2px solid ${Colors.gray._200};
+`
+// placeholder for details view
+const DetailsViewContainer = styled.div`
+    background-color: ${Colors.white};
+    padding-top: 50vh;
+    min-width: 400px;
+`
 
 const dummyData: TOverviewBlock[] = [
     {
