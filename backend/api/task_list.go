@@ -35,24 +35,21 @@ type externalStatus struct {
 }
 
 type TaskResult struct {
-	ID                primitive.ObjectID  `json:"id"`
-	IDOrdering        int                 `json:"id_ordering"`
-	Source            TaskSource          `json:"source"`
-	Deeplink          string              `json:"deeplink"`
-	Title             string              `json:"title"`
-	Body              string              `json:"body"`
-	Sender            string              `json:"sender"`
-	DueDate           string              `json:"due_date"`
-	TimeAllocation    int64               `json:"time_allocated"`
-	SentAt            string              `json:"sent_at"`
-	IsDone            bool                `json:"is_done"`
-	LinkedEmailThread *linkedEmailThread  `json:"linked_email_thread,omitempty"`
-	ExternalStatus    *externalStatus     `json:"external_status,omitempty"`
-	Comments          *[]database.Comment `json:"comments,omitempty"`
-	Channel           string              `json:"channel,omitempty"`
-	SenderID          string              `json:"sender_id,omitempty"`
-	Team              string              `json:"team,omitempty"`
-	TimeSent          string              `json:"ts,omitempty"`
+	ID                 primitive.ObjectID           `json:"id"`
+	IDOrdering         int                          `json:"id_ordering"`
+	Source             TaskSource                   `json:"source"`
+	Deeplink           string                       `json:"deeplink"`
+	Title              string                       `json:"title"`
+	Body               string                       `json:"body"`
+	Sender             string                       `json:"sender"`
+	DueDate            string                       `json:"due_date"`
+	TimeAllocation     int64                        `json:"time_allocated"`
+	SentAt             string                       `json:"sent_at"`
+	IsDone             bool                         `json:"is_done"`
+	LinkedEmailThread  *linkedEmailThread           `json:"linked_email_thread,omitempty"`
+	ExternalStatus     *externalStatus              `json:"external_status,omitempty"`
+	Comments           *[]database.Comment          `json:"comments,omitempty"`
+	SlackMessageParams *database.SlackMessageParams `json:"slack_message_params,omitempty"`
 }
 
 type TaskSection struct {

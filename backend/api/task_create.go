@@ -30,44 +30,72 @@ type TaskCreateParams struct {
 	IDTaskSection *string    `json:"id_task_section"`
 }
 
-func (api *API) ExternalTaskCreate(c *gin.Context) {
-	sourceID := c.Param("source_id")
+type SlackShortcutRequest struct {
+	User    slackUser            `json:"user"`
+	Message slackShortcutMessage `json:"message" binding:"required"`
+	Channel slackChannel         `json:"channel"`
+	Team    slackTeam            `json:"team"`
+}
 
-	// only support slack creation for the time being
-	if sourceID != external.TASK_SOURCE_ID_SLACK_SAVED {
-		Handle404(c)
-		return
-	}
+type slackUser struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type slackShortcutMessage struct {
+	User     string `json:"user"`
+	TimeSent string `json:"ts"`
+	Text     string `json:"text"`
+}
+
+type slackChannel struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type slackTeam struct {
+	ID     string `json:"id"`
+	Domain string `json:"domain"`
+}
+
+func (api *API) SlackTaskCreate(c *gin.Context) {
+	sourceID := external.TASK_SOURCE_ID_SLACK_SAVED
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
-	if err != nil || !taskSourceResult.Details.CanCreateTask {
+	if err != nil {
 		Handle404(c)
 		return
 	}
 
 	// make request body readable
-	body, _ := ioutil.ReadAll(c.Request.Body) // after this operation body will equal 0
-	// Restore the io.ReadCloser to request
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	// this is required, as the first write fully consumes the body
+	// the Form in the body is required for payload extraction
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 	// verification for security
 	slackSigningSecret := config.GetConfigValue("SLACK_SIGNING_SECRET")
-	header := c.Request.Header.Get("X-Slack-Request-Timestamp")
+	timestamp := c.Request.Header.Get("X-Slack-Request-Timestamp")
 	signature := c.Request.Header.Get("X-Slack-Signature")
 
-	// as per: https://api.slack.com/authentication/verifying-requests-from-slack
-	secretConstructor := "v0:" + header + ":" + string(body)
-	hash := hmac.New(sha256.New, []byte(slackSigningSecret))
-	hash.Write([]byte(secretConstructor))
-	computed := []byte("v0=" + hex.EncodeToString(hash.Sum(nil)))
-	if !hmac.Equal(computed, []byte(signature)) {
+	err = authenticateSlackRequest(slackSigningSecret, timestamp, signature, string(body))
+	if err != nil {
 		c.JSON(400, gin.H{"detail": "signing secret invalid."})
 		return
 	}
 
 	// process payload information
-	var slackParams external.SlackShortcutRequest
+	var slackParams SlackShortcutRequest
+	formData := []byte{}
 	c.Request.ParseForm()
-	formData := []byte(c.Request.Form["payload"][0])
+	if val, ok := c.Request.Form["payload"]; ok {
+		if len(val) > 0 {
+			formData = []byte(val[0])
+		}
+	}
+	if len(formData) <= 0 {
+		c.JSON(400, gin.H{"detail": "payload not included in request."})
+		return
+	}
 	err = json.Unmarshal(formData, &slackParams)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "unable to process task payload."})
@@ -81,19 +109,22 @@ func (api *API) ExternalTaskCreate(c *gin.Context) {
 	}
 	defer dbCleanup()
 
-	externalID := slackParams.Team.Id + "-" + slackParams.User.ID
+	externalID := external.GenerateSlackUserID(slackParams.Team.ID, slackParams.User.ID)
 	externalToken, err := database.GetExternalToken(db, externalID, sourceID)
 	userID := externalToken.UserID
 
-	IDTaskSection := primitive.NilObjectID
+	IDTaskSection := constants.IDTaskSectionDefault
+	slackMessageParams := database.SlackMessageParams{
+		TimeSent: slackParams.Message.TimeSent,
+		Channel:  slackParams.Channel.Name,
+		SenderID: slackParams.Message.User,
+		Team:     slackParams.Team.Domain,
+	}
 
 	taskCreationObject := external.TaskCreationObject{
-		Title:         slackParams.Message.Text,
-		TimeSent:      slackParams.Message.TimeSent,
-		Channel:       slackParams.Channel.Name,
-		SenderID:      slackParams.Message.User,
-		Team:          slackParams.Team.Domain,
-		IDTaskSection: IDTaskSection,
+		Title:              slackParams.Message.Text,
+		SlackMessageParams: slackMessageParams,
+		IDTaskSection:      IDTaskSection,
 	}
 	taskID, err := taskSourceResult.Source.CreateNewTask(userID, externalID, taskCreationObject)
 	if err != nil {
@@ -193,4 +224,16 @@ func getValidTaskSection(taskSectionIDHex string, userID primitive.ObjectID, db 
 		return primitive.NilObjectID, errors.New("task section ID not found")
 	}
 	return IDTaskSection, nil
+}
+
+func authenticateSlackRequest(signingSecret string, timestamp string, signature string, body string) error {
+	// as per: https://api.slack.com/authentication/verifying-requests-from-slack
+	secretConstructor := "v0:" + timestamp + ":" + body
+	hash := hmac.New(sha256.New, []byte(signingSecret))
+	hash.Write([]byte(secretConstructor))
+	computed := []byte("v0=" + hex.EncodeToString(hash.Sum(nil)))
+	if !hmac.Equal(computed, []byte(signature)) {
+		return errors.New("invalid signature")
+	}
+	return nil
 }

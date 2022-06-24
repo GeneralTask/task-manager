@@ -27,34 +27,6 @@ type slackMessage struct {
 	Permalink   string `json:"permalink"`
 }
 
-type SlackShortcutRequest struct {
-	User    slackUser            `json:"user"`
-	Message slackShortcutMessage `json:"message" binding:"required"`
-	Channel slackChannel         `json:"channel"`
-	Team    slackTeam            `json:"team"`
-}
-
-type slackShortcutMessage struct {
-	User     string `json:"user"`
-	TimeSent string `json:"ts"`
-	Text     string `json:"text"`
-}
-
-type slackUser struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
-type slackTeam struct {
-	Id     string `json:"id"`
-	Domain string `json:"domain"`
-}
-
-type slackChannel struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
 type SlackSavedTaskSource struct {
 	Slack SlackService
 }
@@ -164,27 +136,21 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 	newTask := database.Item{
 		TaskBase: database.TaskBase{
 			UserID:          userID,
-			IDExternal:      primitive.NewObjectID().Hex(),
 			IDTaskSection:   taskSection,
 			SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
 			Title:           task.Title,
 			Body:            task.Body,
-			TimeAllocation:  time.Hour.Nanoseconds(),
 			SourceAccountID: accountID,
-			Channel:         task.Channel,
-			SenderID:        task.SenderID,
-			Team:            task.Team,
-			TimeSent:        task.TimeSent,
 		},
 		TaskType: database.TaskType{
 			IsTask: true,
 		},
-	}
-	if task.DueDate != nil {
-		newTask.DueDate = primitive.NewDateTimeFromTime(*task.DueDate)
-	}
-	if task.TimeAllocation != nil {
-		newTask.TimeAllocation = *task.TimeAllocation
+		SlackMessageParams: database.SlackMessageParams{
+			Channel:  task.SlackMessageParams.Channel,
+			SenderID: task.SlackMessageParams.SenderID,
+			Team:     task.SlackMessageParams.Team,
+			TimeSent: task.SlackMessageParams.TimeSent,
+		},
 	}
 
 	parentCtx := context.Background()
@@ -210,4 +176,8 @@ func (slackTask SlackSavedTaskSource) ModifyMessage(userID primitive.ObjectID, a
 
 func (slackTask SlackSavedTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, isArchived *bool) error {
 	return nil
+}
+
+func GenerateSlackUserID(teamID string, userID string) string {
+	return teamID + "-" + userID
 }

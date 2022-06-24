@@ -22,15 +22,12 @@ type TaskSource interface {
 }
 
 type TaskCreationObject struct {
-	Title          string
-	Body           string
-	DueDate        *time.Time
-	TimeAllocation *int64
-	IDTaskSection  primitive.ObjectID
-	Channel        string
-	SenderID       string
-	Team           string
-	TimeSent       string
+	Title              string
+	Body               string
+	DueDate            *time.Time
+	TimeAllocation     *int64
+	IDTaskSection      primitive.ObjectID
+	SlackMessageParams database.SlackMessageParams
 }
 
 type Attendee struct {
