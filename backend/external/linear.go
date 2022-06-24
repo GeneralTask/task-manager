@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	graphqlBasic "github.com/machinebox/graphql"
 	"github.com/rs/zerolog/log"
 	"github.com/shurcooL/graphql"
 	"go.mongodb.org/mongo-driver/bson"
@@ -157,6 +159,26 @@ func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.O
 	return client, nil
 }
 
+func getBasicLinearClient(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string) (*graphqlBasic.Client, error) {
+	var client *graphqlBasic.Client
+	var err error
+	if overrideURL != nil {
+		client = graphqlBasic.NewClient(*overrideURL)
+	} else {
+		httpClient := getLinearHttpClient(db, userID, accountID)
+		if httpClient == nil {
+			log.Error().Msg("could not create linear client")
+			return nil, errors.New("could not create linear client")
+		}
+		client = graphqlBasic.NewClient(LinearGraphqlEndpoint, graphqlBasic.WithHTTPClient(httpClient))
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
+
 func getLinearHttpClient(db *mongo.Database, userID primitive.ObjectID, accountID string) *http.Client {
 	return getExternalOauth2Client(db, userID, accountID, TASK_SERVICE_ID_LINEAR, getLinearOauthConfig())
 }
@@ -224,6 +246,67 @@ type linearAssignedIssuesQuery struct {
 			}
 		}
 	} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
+}
+
+const linearUpdateIssueQueryStr = `
+		mutation IssueUpdate (
+			$title: String
+			, $id: String!
+			, $stateId: String
+			, $description: String
+		) {
+		  issueUpdate(
+			id: $id,
+			input: {
+			  title: $title
+			  stateId: $stateId,
+			  description: $description
+			}
+		  ) {
+			success
+		  }
+		}`
+
+type linearUpdateIssueQuery struct {
+	IssueUpdate struct {
+		Success graphql.Boolean
+	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, description: $description})"`
+}
+
+func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
+	req := graphqlBasic.NewRequest(linearUpdateIssueQueryStr)
+	req.Var("id", issueID)
+
+	if updateFields.Title != nil {
+		if *updateFields.Title == "" {
+			return nil, errors.New("cannot set linear issue title to empty string")
+		}
+		req.Var("title", *updateFields.Title)
+	}
+	if updateFields.Body != nil {
+		req.Var("description", *updateFields.Body) // empty string is ok but will be a NOOP
+	}
+	if updateFields.IsCompleted != nil {
+		if *updateFields.IsCompleted {
+			req.Var("stateId", task.CompletedStatus.ExternalID)
+		} else {
+			if task.Status.ExternalID != task.CompletedStatus.ExternalID {
+				log.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
+				return nil, fmt.Errorf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
+			} else if task.PreviousStatus.ExternalID == "" {
+				log.Error().Msgf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
+				return nil, fmt.Errorf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
+			}
+			req.Var("stateId", task.PreviousStatus.ExternalID)
+		}
+	}
+
+	var query linearUpdateIssueQuery
+	if err := client.Run(context.Background(), req, &query); err != nil {
+		log.Error().Err(err).Msg("failed to update linear issue")
+		return nil, err
+	}
+	return &query, nil
 }
 
 func getLinearUserInfoStruct(client *graphql.Client) (*linearUserInfoQuery, error) {

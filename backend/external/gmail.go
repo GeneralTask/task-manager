@@ -714,7 +714,7 @@ func (gmailSource GmailSource) CreateNewEvent(userID primitive.ObjectID, account
 	return errors.New("has not been implemented yet")
 }
 
-func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
+func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		gmailSource.MarkAsDone(userID, accountID, issueID)
 	}

@@ -100,7 +100,6 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 			},
 		}
 		if len(linearIssue.Comments.Nodes) > 0 {
-			log.Info().Msgf("reading comments %+v", linearIssue.Title)
 			var dbComments []database.Comment
 			for _, linearComment := range linearIssue.Comments.Nodes {
 				commentCreatedAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearComment.CreatedAt))
@@ -129,7 +128,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 				Title:       &task.Title,
 				Body:        &task.TaskBase.Body,
 				IsCompleted: &isCompleted,
-				Task: &database.TaskChangeable{
+				Task: database.TaskChangeable{
 					Comments:        task.Comments,
 					Status:          &task.Status,
 					CompletedStatus: &task.CompletedStatus,
@@ -157,8 +156,30 @@ func (linearTask LinearTaskSource) GetPullRequests(userID primitive.ObjectID, ac
 	result <- emptyPullRequestResult(nil)
 }
 
-func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
-	return errors.New("has not been implemented yet")
+func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+
+	client, err := getBasicLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
+	if err != nil {
+		log.Error().Err(err).Msg("unable to create linear client")
+		return err
+	}
+	issueUpdate, err := updateLinearIssue(client, issueID, updateFields, task)
+	if err != nil {
+		log.Error().Err(err).Msg("unable to update linear issue")
+		return err
+	}
+	log.Debug().Interface("issueUpdate", issueUpdate)
+	if !issueUpdate.IssueUpdate.Success {
+		log.Error().Msg("linear mutation failed to update issue")
+		return errors.New("linear mutation failed to update issue")
+	}
+	return nil
+
 }
 
 func (linearTask LinearTaskSource) GetTaskUpdateBody(updateFields *database.TaskItemChangeableFields) *LinearTasksUpdateBody {

@@ -216,7 +216,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		isCompleted := true
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted})
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, nil)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
@@ -227,7 +227,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		isCompleted := true
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted})
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, nil)
 		assert.NoError(t, err)
 	})
 	t.Run("MarkAsNotDoneSuccess", func(t *testing.T) {
@@ -237,7 +237,7 @@ func TestModifyAsanaTask(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		isCompleted := false
-		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted})
+		err := asanaTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, nil)
 		assert.NoError(t, err)
 	})
 	t.Run("UpdateFieldsAndMarkAsDoneSuccess", func(t *testing.T) {
@@ -255,7 +255,7 @@ func TestModifyAsanaTask(t *testing.T) {
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
 			IsCompleted: &isCompleted,
-		})
+		}, nil)
 		assert.NoError(t, err)
 	})
 	t.Run("UpdateFieldsAndMarkAsDoneBadResponse", func(t *testing.T) {
@@ -273,7 +273,7 @@ func TestModifyAsanaTask(t *testing.T) {
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
 			IsCompleted: &isCompleted,
-		})
+		}, nil)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
@@ -290,7 +290,7 @@ func TestModifyAsanaTask(t *testing.T) {
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
-		})
+		}, nil)
 		assert.NoError(t, err)
 	})
 	t.Run("UpdateTitleBodyDueDateBadResponse", func(t *testing.T) {
@@ -306,7 +306,7 @@ func TestModifyAsanaTask(t *testing.T) {
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
-		})
+		}, nil)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})
@@ -325,7 +325,7 @@ func TestModifyAsanaTask(t *testing.T) {
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
 			IsCompleted: &isCompleted,
-		})
+		}, nil)
 		assert.NoError(t, err)
 	})
 
@@ -344,7 +344,7 @@ func TestModifyAsanaTask(t *testing.T) {
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
 			IsCompleted: &isCompleted,
-		})
+		}, nil)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "bad status code: 400", err.Error())
 	})

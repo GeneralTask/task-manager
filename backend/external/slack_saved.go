@@ -115,7 +115,7 @@ func (slackTask SlackSavedTaskSource) GetPullRequests(userID primitive.ObjectID,
 	result <- emptyPullRequestResult(nil)
 }
 
-func (slackTask SlackSavedTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
+func (slackTask SlackSavedTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
 	return errors.New("has not been implemented yet")
 }
 

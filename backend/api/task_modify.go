@@ -73,13 +73,13 @@ func (api *API) TaskModify(c *gin.Context) {
 
 	if modifyParams.TaskItemChangeableFields != (database.TaskItemChangeableFields{}) {
 		// update external task
-		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskItemChangeableFields)
+		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskItemChangeableFields, task)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to update external task source")
 			Handle500(c)
 			return
 		}
-		UpdateTaskInDB(c, taskID, userID, &modifyParams.TaskItemChangeableFields)
+		UpdateTaskInDB(c, task, userID, &modifyParams.TaskItemChangeableFields)
 	}
 
 	// handle reorder task
@@ -202,7 +202,7 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 	return &task, nil
 }
 
-func UpdateTaskInDB(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, updateFields *database.TaskItemChangeableFields) {
+func UpdateTaskInDB(c *gin.Context, task *database.Item, userID primitive.ObjectID, updateFields *database.TaskItemChangeableFields) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -211,6 +211,15 @@ func UpdateTaskInDB(c *gin.Context, taskID primitive.ObjectID, userID primitive.
 	}
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
+
+	if updateFields.IsCompleted != nil {
+		updateFields.Task.PreviousStatus = &task.Status
+		if *updateFields.IsCompleted {
+			updateFields.Task.Status = &task.CompletedStatus
+		} else {
+			updateFields.Task.Status = &task.PreviousStatus
+		}
+	}
 
 	flattenedTaskChangeableFields, err := database.FlattenStruct(updateFields)
 	if err != nil {
@@ -224,7 +233,7 @@ func UpdateTaskInDB(c *gin.Context, taskID primitive.ObjectID, userID primitive.
 	res, err := taskCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
-			{"_id": taskID},
+			{"_id": task.ID},
 			{"user_id": userID},
 		}},
 		bson.M{"$set": flattenedTaskChangeableFields},
