@@ -1,7 +1,7 @@
 import { ItemTypes, TTask } from '../../utils/types'
 import React, { MutableRefObject, useCallback, useEffect, useRef } from 'react'
 import { Spacing, Typography } from '../../styles'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
@@ -30,14 +30,12 @@ interface TaskProps {
     index: number
     sectionId: string
     sectionScrollingRef: MutableRefObject<HTMLDivElement | null>
+    isSelected: boolean
     link: string
 }
 
-const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, link }: TaskProps) => {
+const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSelected, link }: TaskProps) => {
     const navigate = useNavigate()
-    const params = useParams()
-    const selectedTask = params.task
-    const isSelected = selectedTask === task.id
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
 
@@ -57,7 +55,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, link 
         if (sectionScrollingRef.current) {
             isScrolling.current = false
         }
-    }, [selectedTask])
+    }, [isSelected])
 
     //Auto-scroll to task if it is selected and out of view
     const elementRef = useCallback(
@@ -81,7 +79,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, link 
 
     const onClick = useCallback(() => {
         navigate(link)
-    }, [params, task])
+    }, [task, link])
 
     const [, drag, dragPreview] = useDrag(
         () => ({
