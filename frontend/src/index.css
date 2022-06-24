@@ -9,10 +9,6 @@ html, body {
     font-family: 'Switzer-Variable'
 }
 
-a {
-    color: #5C31D7;
-}
-
 .__react_component_tooltip.show {
     opacity: 1 !important;
 }
