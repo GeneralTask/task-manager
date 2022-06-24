@@ -213,9 +213,11 @@ func UpdateTaskInDB(c *gin.Context, task *database.Item, userID primitive.Object
 	taskCollection := database.GetTaskCollection(db)
 
 	if updateFields.IsCompleted != nil {
+		updateFields.Task.PreviousStatus = &task.Status
 		if *updateFields.IsCompleted {
-			updateFields.Task.PreviousStatus = &task.Status
 			updateFields.Task.Status = &task.CompletedStatus
+		} else {
+			updateFields.Task.Status = &task.PreviousStatus
 		}
 	}
 
