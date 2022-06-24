@@ -1,5 +1,4 @@
 import React from 'react'
-import { Colors } from '../../styles'
 import { TOverviewBlock } from '../../utils/types'
 import OverviewBlock from '../overview/OverviewBlock'
 import { DetailsViewContainer, OverviewPageContainer, PageHeader } from '../overview/styles'
@@ -41,7 +40,7 @@ const OverviewView = () => {
         <>
             <OverviewPageContainer>
                 <PageHeader>Overview</PageHeader>
-                <ScrollableListTemplate backgroundColor={Colors.gray._50}>
+                <ScrollableListTemplate>
                     {blocks.map((block) => (
                         <OverviewBlock block={block} key={block.id} />
                     ))}
