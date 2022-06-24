@@ -75,6 +75,7 @@ func TestCreateTaskFromThread(t *testing.T) {
 		var task database.Item
 		err = taskCollection.FindOne(dbCtx, bson.M{"title": "sample title", "user_id": userID}).Decode(&task)
 		assert.True(t, task.IsTask)
+		assert.Equal(t, external.TASK_SOURCE_ID_GMAIL, task.SourceID)
 		assert.Equal(t, threadID, *task.LinkedMessage.ThreadID)
 		assert.Nil(t, task.LinkedMessage.EmailID)
 	})
@@ -88,6 +89,7 @@ func TestCreateTaskFromThread(t *testing.T) {
 		var task database.Item
 		err = taskCollection.FindOne(dbCtx, bson.M{"title": "sample title 2", "user_id": userID}).Decode(&task)
 		assert.True(t, task.IsTask)
+		assert.Equal(t, external.TASK_SOURCE_ID_GMAIL, task.SourceID)
 		assert.Equal(t, threadID, *task.LinkedMessage.ThreadID)
 		assert.Equal(t, firstEmailID, *task.LinkedMessage.EmailID)
 	})
