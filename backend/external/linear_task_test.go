@@ -539,58 +539,6 @@ func TestModifyLinearTask(t *testing.T) {
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "decoding response: EOF", err.Error())
 	})
-	t.Run("GetTaskUpdateBodyNoDueDate", func(t *testing.T) {
-		title := "Title"
-		description := "Body"
-		timeAllocation := int64(1000)
-		isCompleted := true
-
-		updateFields := &database.TaskItemChangeableFields{
-			Title:          &title,
-			Body:           &description,
-			TimeAllocation: &timeAllocation,
-			IsCompleted:    &isCompleted,
-		}
-		expected := AsanaTasksUpdateBody{
-			Data: AsanaTasksUpdateFields{
-				Name:      &title,
-				HTMLNotes: &description,
-				Completed: &isCompleted,
-			},
-		}
-		asanaTask := AsanaTaskSource{}
-		body := asanaTask.GetTaskUpdateBody(updateFields)
-		assert.Equal(t, expected, *body)
-	})
-	t.Run("GetTaskUpdateBodyWithDueDate", func(t *testing.T) {
-		title := "Title"
-		description := "Body"
-		date := "2022-02-27T08:00:00Z"
-		shortenedDate := "2022-02-27"
-		dueDate, _ := time.Parse(time.RFC3339, date)
-		timeAllocation := int64(1000)
-		isCompleted := true
-
-		updateFields := &database.TaskItemChangeableFields{
-			Title:          &title,
-			Body:           &description,
-			DueDate:        primitive.NewDateTimeFromTime(dueDate),
-			TimeAllocation: &timeAllocation,
-			IsCompleted:    &isCompleted,
-		}
-		expected := AsanaTasksUpdateBody{
-			Data: AsanaTasksUpdateFields{
-				Name:      &title,
-				HTMLNotes: &description,
-				DueOn:     &shortenedDate,
-				Completed: &isCompleted,
-			},
-		}
-		asanaTask := AsanaTaskSource{}
-		body := asanaTask.GetTaskUpdateBody(updateFields)
-		assert.Equal(t, *expected.Data.DueOn, *body.Data.DueOn)
-		assert.Equal(t, expected, *body)
-	})
 	t.Run("GetTaskUpdateBodyEmpty", func(t *testing.T) {
 		updateFields := &database.TaskItemChangeableFields{}
 		expected := AsanaTasksUpdateBody{

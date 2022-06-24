@@ -212,10 +212,14 @@ func UpdateTaskInDB(c *gin.Context, task *database.Item, userID primitive.Object
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 
-	if updateFields.IsCompleted != nil {
+	if updateFields.IsCompleted != nil && task.Status != (database.ExternalTaskStatus{}) &&
+		task.PreviousStatus != (database.ExternalTaskStatus{}) && task.CompletedStatus != (database.ExternalTaskStatus{}) {
 		if *updateFields.IsCompleted {
 			updateFields.Task.PreviousStatus = &task.Status
 			updateFields.Task.Status = &task.CompletedStatus
+		} else {
+			updateFields.Task.PreviousStatus = &task.Status
+			updateFields.Task.Status = &task.PreviousStatus
 		}
 	}
 

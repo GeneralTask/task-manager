@@ -230,7 +230,7 @@ type TaskChangeable struct {
 }
 
 type TaskItemChangeableFields struct {
-	Task           TaskChangeable     `bson:"task,omitempty"`
+	Task           *TaskChangeable    `bson:"task,omitempty"`
 	Title          *string            `json:"title" bson:"title,omitempty"`
 	Body           *string            `json:"body" bson:"body,omitempty"`
 	DueDate        primitive.DateTime `json:"due_date" bson:"due_date,omitempty"`
