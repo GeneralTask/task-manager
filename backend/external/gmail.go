@@ -418,7 +418,17 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 		log.Debug().Err(err).Msgf("retrying threadID %s with backoff delay %+v", threadID, ts)
 	}
 
-	err := backoff.RetryNotify(getThreadCall, backoff.NewExponentialBackOff(), notify)
+	expBackoff := &backoff.ExponentialBackOff{
+		InitialInterval:     backoff.DefaultInitialInterval,
+		RandomizationFactor: 2.0,
+		Multiplier:          backoff.DefaultMultiplier,
+		MaxInterval:         backoff.DefaultMaxInterval,
+		MaxElapsedTime:      10 * time.Second,
+		Stop:                backoff.Stop,
+		Clock:               backoff.SystemClock,
+	}
+	expBackoff.Reset()
+	err := backoff.RetryNotify(getThreadCall, expBackoff, notify)
 	if err != nil {
 		log.Error().Err(err).Msgf("permanently failed to load threadID %s", threadID)
 		result <- nil
