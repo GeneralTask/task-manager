@@ -37,6 +37,7 @@ export const icons = Object.freeze({
     inbox: '/images/inbox.png',
     inbox_purple: '/images/inbox_purple.png',
     label: '/images/label.png',
+    list: '/images/list.svg',
     mark_as_task: '/images/mark_as_task.png',
     mark_as_task_active: '/images/mark_as_task_active.png',
     mark_read: '/images/mark_read.svg',
@@ -55,6 +56,7 @@ export const icons = Object.freeze({
     task_incomplete: '/images/task_incomplete.png',
     timer: '/images/timer.png',
     trash: '/images/trash.png',
+    x_thin: '/images/x_thin.svg',
     x: '/images/x.svg',
 })
 
