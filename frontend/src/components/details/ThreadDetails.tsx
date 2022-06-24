@@ -17,7 +17,6 @@ import NoStyleAnchor from '../atoms/NoStyleAnchor'
 
 const MARK_AS_READ = 'Mark as Read'
 const MARK_AS_UNREAD = 'Mark as Unread'
-const ACTION_CONTAINER_HEIGHT = '40px'
 
 const FlexColumnContainer = styled.div`
     flex: 1;
@@ -36,7 +35,6 @@ const ActionsContainer = styled.div`
     align-items: center;
     gap: ${Spacing.padding._16};
     margin-bottom: ${Spacing.margin._12};
-    height: ${ACTION_CONTAINER_HEIGHT};
 `
 const TitleContainer = styled.div`
     display: flex;
