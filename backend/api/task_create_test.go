@@ -127,3 +127,23 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
 	})
 }
+
+func TestSlackTaskCreate(t *testing.T) {
+	router := GetRouter(GetAPI())
+
+	t.Run("BadSourceID", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/create_external/slack/",
+			bytes.NewBuffer([]byte(`{"payload": []}`)))
+
+		request.Header.Add("X-Slack-Request-Timestamp", "invalid timestamp")
+		request.Header.Add("X-Slack-Signature", "invalid signature")
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"signing secret invalid.\"}", string(body))
+	})
+}
