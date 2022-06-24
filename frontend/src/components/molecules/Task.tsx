@@ -30,9 +30,10 @@ interface TaskProps {
     index: number
     sectionId: string
     sectionScrollingRef: MutableRefObject<HTMLDivElement | null>
+    link: string
 }
 
-const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: TaskProps) => {
+const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, link }: TaskProps) => {
     const navigate = useNavigate()
     const params = useParams()
     const selectedTask = params.task
@@ -79,7 +80,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef }: Tas
     )
 
     const onClick = useCallback(() => {
-        navigate(`/tasks/${params.section}/${task.id}`)
+        navigate(link)
     }, [params, task])
 
     const [, drag, dragPreview] = useDrag(

@@ -1,4 +1,5 @@
 import React from 'react'
+import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { Spacing, Colors, Typography } from '../../styles'
 import { TOverviewBlock } from '../../utils/types'
@@ -29,7 +30,68 @@ const dummyData: TOverviewBlock[] = [
         section_id: 'section 1',
         is_paginated: false,
         is_reorderable: true,
-        view_items: [],
+        view_items: [
+            {
+                id: '1',
+                id_ordering: 1,
+                title: 'Check in with Scott',
+                body: 'pls',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '2',
+                id_ordering: 2,
+                title: 'Check in with Nolan',
+                body: 'pls',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '3',
+                id_ordering: 3,
+                title: 'Buy more Waterloo',
+                body: 'black cherry only >:o',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+        ],
     },
     {
         id: '2',
@@ -38,7 +100,68 @@ const dummyData: TOverviewBlock[] = [
         section_id: 'section 2',
         is_paginated: false,
         is_reorderable: true,
-        view_items: [],
+        view_items: [
+            {
+                id: '1',
+                id_ordering: 1,
+                title: 'Check in with Scott',
+                body: 'pls',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '2',
+                id_ordering: 2,
+                title: 'Check in with Nolan',
+                body: 'pls',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '3',
+                id_ordering: 3,
+                title: 'Buy more Waterloo',
+                body: 'black cherry only >:o',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+        ],
     },
     {
         id: '3',
@@ -47,12 +170,74 @@ const dummyData: TOverviewBlock[] = [
         section_id: 'section 3',
         is_paginated: false,
         is_reorderable: false,
-        view_items: [],
+        view_items: [
+            {
+                id: '1',
+                id_ordering: 1,
+                title: 'Check in with Scott',
+                body: 'pls',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '2',
+                id_ordering: 2,
+                title: 'Check in with Nolan',
+                body: 'pls',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '3',
+                id_ordering: 3,
+                title: 'Buy more Waterloo',
+                body: 'black cherry only >:o',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+        ],
     },
 ]
 
 const OverviewView = () => {
     const blocks = dummyData
+    const { overviewItem } = useParams()
     return (
         <>
             <OverviewPageContainer>
@@ -63,7 +248,10 @@ const OverviewView = () => {
                     ))}
                 </ScrollableListTemplate>
             </OverviewPageContainer>
-            <DetailsViewContainer>These be the deets</DetailsViewContainer>
+            <DetailsViewContainer>
+                These be the deets
+                {overviewItem && ' for item with id: ' + overviewItem}
+            </DetailsViewContainer>
         </>
     )
 }

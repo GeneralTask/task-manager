@@ -42,6 +42,7 @@ const App = () => {
                                 {isDevelopmentMode && (
                                     <Route path="overview" element={<PrivateOutlet />}>
                                         <Route index element={<MainScreen />} />
+                                        <Route path=":overviewItem" element={<MainScreen />}></Route>
                                     </Route>
                                 )}
                                 <Route path="tasks" element={<PrivateOutlet />}>
