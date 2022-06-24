@@ -24,6 +24,7 @@ export const BlockHeader = styled.div`
     align-items: center;
     color: ${Colors.gray._700};
     font-size: ${Typography.medium.fontSize};
+    line-height: ${Typography.medium.lineHeight};
     font-weight: ${Typography.weight._600};
 `
 export const RemoveButton = styled(NoStyleButton)`

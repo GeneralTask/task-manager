@@ -42,8 +42,8 @@ const OverviewView = () => {
             <OverviewPageContainer>
                 <PageHeader>Overview</PageHeader>
                 <ScrollableListTemplate backgroundColor={Colors.gray._50}>
-                    {blocks.map((block, index) => (
-                        <OverviewBlock block={block} key={index} />
+                    {blocks.map((block) => (
+                        <OverviewBlock block={block} key={block.id} />
                     ))}
                 </ScrollableListTemplate>
             </OverviewPageContainer>
