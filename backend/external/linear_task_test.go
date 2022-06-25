@@ -3,10 +3,6 @@ package external
 import (
 	"context"
 	"github.com/GeneralTask/task-manager/backend/testutils"
-	"github.com/rs/zerolog/log"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -436,8 +432,7 @@ func TestModifyLinearTask(t *testing.T) {
 		assert.Equal(t, `decoding response: EOF`, err.Error())
 	})
 	t.Run("UpdateTitleBodySuccess", func(t *testing.T) {
-		//taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
-		taskUpdateServer := getLinearTaskUpdateServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
 		defer taskUpdateServer.Close()
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
@@ -574,22 +569,4 @@ func TestModifyLinearTask(t *testing.T) {
 		body := asanaTask.GetTaskUpdateBody(updateFields)
 		assert.Equal(t, expected, *body)
 	})
-}
-
-//func getLinearTaskUpdateServer(t *testing.T, statusCode int, empty bool) *httptest.Server {
-func getLinearTaskUpdateServer(t *testing.T, statusCode int, body string) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Error().Msgf("%+v", r.Body)
-		_, err := ioutil.ReadAll(r.Body)
-		assert.NoError(t, err)
-
-		//assert.Equal(t, "Bearer sample-access-token", r.Header.Get("Authorization"))
-		requestBody, err := ioutil.ReadAll(r.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "afsd", string(requestBody))
-
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(statusCode)
-		w.Write([]byte(body))
-	}))
 }
