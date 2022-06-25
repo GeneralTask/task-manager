@@ -267,6 +267,25 @@ const linearUpdateIssueQueryStr = `
 		  }
 		}`
 
+const linearUpdateIssueWithProsemirrorQueryStr = `
+		mutation IssueUpdate (
+			$title: String
+			, $id: String!
+			, $stateId: String
+			, $descriptionData: String
+		) {
+		  issueUpdate(
+			id: $id,
+			input: {
+			  title: $title
+			  stateId: $stateId,
+			  descriptionData: $descriptionData
+			}
+		  ) {
+			success
+		  }
+		}`
+
 type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
 		Success graphql.Boolean
@@ -274,7 +293,11 @@ type linearUpdateIssueQuery struct {
 }
 
 func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
-	req := graphqlBasic.NewRequest(linearUpdateIssueQueryStr)
+	updateIssueQueryStr := linearUpdateIssueQueryStr
+	if updateFields.Body != nil && *updateFields.Body == "" {
+		updateIssueQueryStr = linearUpdateIssueWithProsemirrorQueryStr
+	}
+	req := graphqlBasic.NewRequest(updateIssueQueryStr)
 	req.Var("id", issueID)
 
 	if updateFields.Title != nil {
@@ -284,7 +307,11 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 		req.Var("title", *updateFields.Title)
 	}
 	if updateFields.Body != nil {
-		req.Var("description", *updateFields.Body) // empty string is ok but will be a NOOP
+		if *updateFields.Body == "" {
+			req.Var("descriptionData", `"{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\"}]}"`)
+		} else {
+			req.Var("description", *updateFields.Body)
+		}
 	}
 	if updateFields.IsCompleted != nil {
 		if *updateFields.IsCompleted {
