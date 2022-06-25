@@ -272,7 +272,7 @@ const linearUpdateIssueWithProsemirrorQueryStr = `
 			$title: String
 			, $id: String!
 			, $stateId: String
-			, $descriptionData: String
+			, $descriptionData: JSON
 		) {
 		  issueUpdate(
 			id: $id,
@@ -293,29 +293,24 @@ type linearUpdateIssueQuery struct {
 }
 
 func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
-	updateIssueQueryStr := linearUpdateIssueQueryStr
-	if updateFields.Body != nil && *updateFields.Body == "" {
-		updateIssueQueryStr = linearUpdateIssueWithProsemirrorQueryStr
-	}
-	req := graphqlBasic.NewRequest(updateIssueQueryStr)
-	req.Var("id", issueID)
-
+	reqVars := make(map[string]interface{})
+	reqVars["id"] = issueID
 	if updateFields.Title != nil {
 		if *updateFields.Title == "" {
 			return nil, errors.New("cannot set linear issue title to empty string")
 		}
-		req.Var("title", *updateFields.Title)
+		reqVars["title"] = *updateFields.Title
 	}
 	if updateFields.Body != nil {
 		if *updateFields.Body == "" {
-			req.Var("descriptionData", `"{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\"}]}"`)
+			reqVars["descriptionData"] = `{"type":"doc","content":[{"type":"paragraph"}]}`
 		} else {
-			req.Var("description", *updateFields.Body)
+			reqVars["description"] = *updateFields.Body
 		}
 	}
 	if updateFields.IsCompleted != nil {
 		if *updateFields.IsCompleted {
-			req.Var("stateId", task.CompletedStatus.ExternalID)
+			reqVars["stateId"] = task.CompletedStatus.ExternalID
 		} else {
 			if task.Status.ExternalID != task.CompletedStatus.ExternalID {
 				log.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
@@ -324,10 +319,20 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 				log.Error().Msgf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
 				return nil, fmt.Errorf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
 			}
-			req.Var("stateId", task.PreviousStatus.ExternalID)
+			reqVars["stateId"] = task.PreviousStatus.ExternalID
 		}
 	}
 
+	updateIssueQueryStr := linearUpdateIssueQueryStr
+	if updateFields.Body != nil && *updateFields.Body == "" {
+		updateIssueQueryStr = linearUpdateIssueWithProsemirrorQueryStr
+	}
+	req := graphqlBasic.NewRequest(updateIssueQueryStr)
+	for key, value := range reqVars {
+		req.Var(key, value)
+	}
+
+	log.Debug().Msgf("request %+v", req)
 	var query linearUpdateIssueQuery
 	if err := client.Run(context.Background(), req, &query); err != nil {
 		log.Error().Err(err).Msg("failed to update linear issue")
