@@ -332,7 +332,7 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 		req.Var(key, value)
 	}
 
-	log.Debug().Msgf("request %+v", req)
+	log.Debug().Msgf("sending request to Linear: %+v", req)
 	var query linearUpdateIssueQuery
 	if err := client.Run(context.Background(), req, &query); err != nil {
 		log.Error().Err(err).Msg("failed to update linear issue")
