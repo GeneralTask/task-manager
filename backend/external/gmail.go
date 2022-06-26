@@ -412,6 +412,7 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 	getThreadCall := func() error {
 		thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
 		if err != nil {
+			// short circuit retry with nil return on 404, trying again will not fix the issue
 			if strings.Contains(err.Error(), "Error 404") {
 				log.Error().Err(err).Msg("failed to fetch thread from gmail: 404")
 				result <- nil
