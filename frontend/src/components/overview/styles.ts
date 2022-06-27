@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography, Shadows } from '../../styles'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 export const BlockContainer = styled.div`
@@ -7,6 +7,7 @@ export const BlockContainer = styled.div`
     background-color: ${Colors.white};
     border-radius: ${Border.radius.small};
     margin: 0 ${Spacing.margin._24} ${Spacing.margin._16};
+    box-shadow: ${Shadows.small};
 `
 export const BlockHeader = styled.div`
     margin: ${Spacing.margin._8} 0;
