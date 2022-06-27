@@ -24,9 +24,8 @@ const ScrollViewMimic = styled.div`
 const MessagesContainer = styled.div`
     width: ${DEFAULT_VIEW_WIDTH};
 `
-const MessageDivider = styled.div`
-    border-bottom: 1px solid ${Colors.gray._200};
-    margin-top: ${Spacing.margin._4};
+const MessageDivider = styled.div<{ transparent?: boolean }>`
+    border: 0.5px solid ${(props) => (props.transparent ? 'transparent' : Colors.gray._200)};
     margin-left: ${Spacing.margin._16};
     margin-right: ${Spacing.margin._16};
 `
@@ -49,11 +48,13 @@ const MessagesView = () => {
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
     useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
 
-    const expandedThread = useMemo(() => {
+    const { expandedThread, expandedIndex } = useMemo(() => {
         if (threads.length > 0) {
-            return threads.find((thread) => thread.id === params.thread) ?? threads[0]
+            const thread = threads.find((thread) => thread.id === params.thread) ?? threads[0]
+            const index = threads.findIndex((thread) => thread.id === params.thread) ?? 0
+            return { expandedThread: thread, expandedIndex: index }
         }
-        return null
+        return { expandedThread: undefined, expandedIndex: 0 }
     }, [params.thread, params.mailbox, JSON.stringify(threads)])
 
     useEffect(() => {
@@ -108,7 +109,11 @@ const MessagesView = () => {
                                     <ThreadTemplate ref={index === threads.length - 1 ? lastElementRef : undefined}>
                                         <Thread thread={thread} sectionScrollingRef={sectionScrollingRef} />
                                     </ThreadTemplate>
-                                    {index !== threads.length - 1 && <MessageDivider />}
+                                    {index !== threads.length - 1 && (
+                                        <MessageDivider
+                                            transparent={expandedIndex === index || expandedIndex - 1 === index}
+                                        />
+                                    )}
                                 </div>
                             )
                     )}
