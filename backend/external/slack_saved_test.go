@@ -1,16 +1,12 @@
 package external
 
 import (
-	"context"
-	"net/http"
 	"testing"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/GeneralTask/task-manager/backend/testutils"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -45,126 +41,84 @@ const (
 )
 
 func TestLoadSlackTasks(t *testing.T) {
-	parentCtx := context.Background()
+	userID := primitive.NewObjectID()
+	task := createTestSlackTask(userID)
+	taskWrongSource := createTestSlackTask(userID)
+	taskWrongSource.SourceID = TASK_SOURCE_ID_GCAL
+	taskCompleted := createTestSlackTask(userID)
+	taskCompleted.IsCompleted = true
+	insertTestTasks(
+		t,
+		userID,
+		[]*database.Item{
+			task,
+			taskWrongSource,
+			taskCompleted,
+		},
+	)
+
+	t.Run("Success", func(t *testing.T) {
+		var tasks = make(chan TaskResult)
+		go SlackSavedTaskSource{}.GetTasks(userID, GeneralTaskDefaultAccountID, tasks)
+		result := <-tasks
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 1, len(result.Tasks))
+		// check IDExternal because ID is set upon db insertion
+		assert.Equal(t, task.IDExternal, result.Tasks[0].IDExternal)
+	})
+	t.Run("WrongUserID", func(t *testing.T) {
+		var tasks = make(chan TaskResult)
+		go SlackSavedTaskSource{}.GetTasks(primitive.NewObjectID(), GeneralTaskDefaultAccountID, tasks)
+		result := <-tasks
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 0, len(result.Tasks))
+	})
+	t.Run("WrongSourceAccountID", func(t *testing.T) {
+		var tasks = make(chan TaskResult)
+		go SlackSavedTaskSource{}.GetTasks(userID, "other_account_id", tasks)
+		result := <-tasks
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 0, len(result.Tasks))
+	})
+}
+
+func TestCreateSlackTask(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	taskCollection := database.GetTaskCollection(db)
 
-	savedMessagesServerSuccess := testutils.GetMockAPIServer(t, http.StatusOK, SavedMessagesResponse)
-	savedMessagesSuccessURL := savedMessagesServerSuccess.URL + "/"
-
-	t.Run("BadSlackStatusCode", func(t *testing.T) {
-		savedMessagesServer := testutils.GetMockAPIServer(t, http.StatusInternalServerError, "")
-		defer savedMessagesServer.Close()
-		savedMessagesURL := savedMessagesServer.URL + "/"
-		slackSaved := SlackSavedTaskSource{Slack: SlackService{Config: SlackConfig{ConfigValues: SlackConfigValues{SavedMessagesURL: &savedMessagesURL}}}}
+	t.Run("SuccessSlackCreation", func(t *testing.T) {
 		userID := primitive.NewObjectID()
-
-		var taskResult = make(chan TaskResult)
-		go slackSaved.GetTasks(userID, "hood_stock@down_bad.com", taskResult)
-		result := <-taskResult
-		assert.NotEqual(t, nil, result.Error)
-		assert.Equal(t, "bad status code: 500", result.Error.Error())
-		assert.Equal(t, 0, len(result.Tasks))
-	})
-	t.Run("BadSlackResponse", func(t *testing.T) {
-		savedMessagesServer := testutils.GetMockAPIServer(t, http.StatusOK, "dogecoin to the moon")
-		defer savedMessagesServer.Close()
-		savedMessagesURL := savedMessagesServer.URL + "/"
-		slackSaved := SlackSavedTaskSource{Slack: SlackService{Config: SlackConfig{ConfigValues: SlackConfigValues{SavedMessagesURL: &savedMessagesURL}}}}
-		userID := primitive.NewObjectID()
-
-		var taskResult = make(chan TaskResult)
-		go slackSaved.GetTasks(userID, "tsla_stock@down_bad.com", taskResult)
-		result := <-taskResult
-		assert.NotEqual(t, nil, result.Error)
-		assert.Equal(t, "invalid character 'd' looking for beginning of value", result.Error.Error())
-		assert.Equal(t, 0, len(result.Tasks))
-	})
-	t.Run("Success", func(t *testing.T) {
-		slackSaved := SlackSavedTaskSource{Slack: SlackService{Config: SlackConfig{ConfigValues: SlackConfigValues{SavedMessagesURL: &savedMessagesSuccessURL}}}}
-		userID := primitive.NewObjectID()
-
-		expectedTask := database.Item{
-			TaskBase: database.TaskBase{
-				IDOrdering:    0,
-				IDExternal:    SavedMessageIDExternal,
-				IDTaskSection: constants.IDTaskSectionDefault,
-				Deeplink:      "https://niceme.me/",
-				Title:         "don't forget to drink your ovaltine!",
-				SourceID:      TASK_SOURCE_ID_SLACK_SAVED,
-				UserID:        userID,
+		_, err := SlackSavedTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
+			Title: "send dogecoin to the moon",
+			SlackMessageParams: database.SlackMessageParams{
+				Channel:  "test channel",
+				SenderID: "test sender ID",
+				Team:     "test team",
+				TimeSent: "test ts",
 			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
-		}
-
-		var taskResult = make(chan TaskResult)
-		go slackSaved.GetTasks(userID, "dogecoin@down_bad.com", taskResult)
-		result := <-taskResult
-		assert.NoError(t, result.Error)
-		assert.Equal(t, 1, len(result.Tasks))
-		assertTasksEqual(t, &expectedTask, result.Tasks[0])
-
-		var taskFromDB database.Item
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err := taskCollection.FindOne(
-			dbCtx,
-			bson.M{"user_id": userID},
-		).Decode(&taskFromDB)
+		})
 		assert.NoError(t, err)
-		assertTasksEqual(t, &expectedTask, &taskFromDB)
-	})
-	t.Run("SuccessExisting", func(t *testing.T) {
-		slackSaved := SlackSavedTaskSource{Slack: SlackService{Config: SlackConfig{ConfigValues: SlackConfigValues{SavedMessagesURL: &savedMessagesSuccessURL}}}}
-		userID := primitive.NewObjectID()
-
-		expectedTask := database.Item{
-			TaskBase: database.TaskBase{
-				IDOrdering:      1,
-				IDExternal:      SavedMessageIDExternal,
-				IDTaskSection:   constants.IDTaskSectionDefault,
-				Deeplink:        "https://niceme.me/",
-				IsCompleted:     true,
-				Title:           "a custom title",
-				Body:            "a custom body",
-				SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
-				SourceAccountID: "bing chilling",
-				UserID:          userID,
-			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
-		}
-		database.GetOrCreateItem(
-			db,
-			userID,
-			SavedMessageIDExternal,
-			TASK_SOURCE_ID_SLACK_SAVED,
-			&expectedTask,
-		)
-
-		var taskResult = make(chan TaskResult)
-		go slackSaved.GetTasks(userID, "stonks@down_bad.com", taskResult)
-		result := <-taskResult
-		assert.NoError(t, result.Error)
-		assert.Equal(t, 1, len(result.Tasks))
-		assertTasksEqual(t, &expectedTask, result.Tasks[0])
-		assert.False(t, result.Tasks[0].IsCompleted)
-
-		var taskFromDB database.Item
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err := taskCollection.FindOne(
-			dbCtx,
-			bson.M{"user_id": userID},
-		).Decode(&taskFromDB)
+		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
-		assertTasksEqual(t, &expectedTask, &taskFromDB)
-		assert.False(t, taskFromDB.IsCompleted)
-		assert.Equal(t, "bing chilling", taskFromDB.SourceAccountID) // doesn't get updated
+		assert.Equal(t, 1, len(*tasks))
+		task := (*tasks)[0]
+		assert.True(t, task.IsTask)
+		assert.Equal(t, "send dogecoin to the moon", task.Title)
+		assert.Equal(t, "test channel", task.SlackMessageParams.Channel)
 	})
+}
+
+func createTestSlackTask(userID primitive.ObjectID) *database.Item {
+	return &database.Item{
+		TaskBase: database.TaskBase{
+			IDOrdering:      2,
+			IDExternal:      primitive.NewObjectID().Hex(),
+			IDTaskSection:   constants.IDTaskSectionDefault,
+			Title:           "Sample Taskeroni",
+			SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
+			UserID:          userID,
+			SourceAccountID: GeneralTaskDefaultAccountID,
+		},
+	}
 }
