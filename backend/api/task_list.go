@@ -245,6 +245,15 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		}
 	}
 
+	if t.SlackMessageParams != (database.SlackMessageParams{}) {
+		taskResult.SlackMessageParams = &database.SlackMessageParams{
+			Channel:  t.SlackMessageParams.Channel,
+			SenderID: t.SlackMessageParams.SenderID,
+			Team:     t.SlackMessageParams.Team,
+			TimeSent: t.SlackMessageParams.TimeSent,
+		}
+	}
+
 	log.Debug().Interface("linkedMessage", t.LinkedMessage).Send()
 	if t.LinkedMessage.ThreadID != nil {
 		thread, err := database.GetItem(context.Background(), *t.LinkedMessage.ThreadID, userID)
