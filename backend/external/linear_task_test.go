@@ -319,3 +319,254 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, "sample_account@email.com", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 }
+
+func TestModifyLinearTask(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
+
+	userID := primitive.NewObjectID()
+	createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
+	expectedTask := database.Item{
+		TaskBase: database.TaskBase{
+			IDOrdering:        0,
+			IDExternal:        "test-issue-id-1",
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			IsCompleted:       true,
+			Deeplink:          "https://example.com/",
+			Title:             "test title",
+			Body:              "test description",
+			SourceID:          TASK_SOURCE_ID_LINEAR,
+			SourceAccountID:   "sample_account@email.com",
+			UserID:            userID,
+			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+		},
+		TaskType: database.TaskType{
+			IsTask: true,
+		},
+		Task: database.Task{
+			Status: database.ExternalTaskStatus{
+				ExternalID: "merge-workflow-state-id",
+				State:      "Done",
+				Type:       "completed",
+			},
+			PreviousStatus: database.ExternalTaskStatus{
+				ExternalID: "state-id",
+				State:      "Todo",
+				Type:       "started",
+			},
+			CompletedStatus: database.ExternalTaskStatus{
+				ExternalID: "merge-workflow-state-id",
+				State:      "Done",
+				Type:       "completed",
+			},
+			Comments: nil,
+		},
+	}
+	database.GetOrCreateItem(
+		db,
+		userID,
+		"test-issue-id-1",
+		TASK_SOURCE_ID_LINEAR,
+		&expectedTask,
+	)
+
+	t.Run("MarkAsDoneBadResponse", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+
+		isCompleted := true
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, &database.Item{})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, `decoding response: EOF`, err.Error())
+	})
+	t.Run("UpdateFieldsAndMarkAsDoneSuccess", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+
+		newName := "New Title"
+		newBody := "New Body"
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+			Title: &newName,
+			Body:  &newBody,
+		}, nil)
+		assert.NoError(t, err)
+	})
+	t.Run("UpdateFieldsAndMarkAsDoneBadResponse", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+
+		newName := "New Title"
+		newBody := "New Body"
+		isCompleted := true
+
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+			Title:       &newName,
+			Body:        &newBody,
+			IsCompleted: &isCompleted,
+		}, &database.Item{})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, `decoding response: EOF`, err.Error())
+	})
+	t.Run("UpdateTitleBodySuccess", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+
+		newName := "New Title"
+		newBody := "New Body"
+
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+			Title:   &newName,
+			Body:    &newBody,
+			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+		}, nil)
+		assert.NoError(t, err)
+	})
+	t.Run("UpdateEmptyTitleFails", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+
+		newName := ""
+		newBody := "New Body"
+
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+			Title:   &newName,
+			Body:    &newBody,
+			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+		}, nil)
+		assert.EqualErrorf(t, err, err.Error(), "cannot set linear issue title to empty string")
+	})
+	t.Run("UpdateTitleBodyBadResponse", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+
+		newName := "New Title"
+		newBody := "New Body"
+
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+			Title:   &newName,
+			Body:    &newBody,
+			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+		}, nil)
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, `decoding response: EOF`, err.Error())
+	})
+	t.Run("UpdateFieldsMarkAsNotDoneSuccess", func(t *testing.T) {
+		response := `{"data": {"issueUpdate": {
+				"success": true,
+					"issue": {
+					"id": "1c3b11d7-9298-4cc3-8a4a-d2d6d4677315",
+						"title": "test title",
+						"description": "test description",
+						"state": {
+						"id": "39e87303-2b42-4c71-bfbe-4afb7bb7eecb",
+							"name": "Todo"
+					}}}}}`
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+
+		newName := "New Title"
+		newBody := "New Body"
+		isCompleted := false
+
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+			Title:       &newName,
+			Body:        &newBody,
+			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
+			IsCompleted: &isCompleted,
+		}, &expectedTask)
+		assert.NoError(t, err)
+	})
+
+	t.Run("UpdateFieldsMarkAsNotDoneBadResponse", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+
+		newName := "New Title"
+		newBody := "New Body"
+		isCompleted := false
+
+		var taskFromDB database.Item
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(
+			dbCtx,
+			bson.M{"user_id": userID},
+		).Decode(&taskFromDB)
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+			Title:       &newName,
+			Body:        &newBody,
+			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
+			IsCompleted: &isCompleted,
+		}, &expectedTask)
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, "decoding response: EOF", err.Error())
+	})
+	t.Run("GetTaskUpdateBodyEmpty", func(t *testing.T) {
+		updateFields := &database.TaskItemChangeableFields{}
+		expected := AsanaTasksUpdateBody{
+			Data: AsanaTasksUpdateFields{},
+		}
+		asanaTask := AsanaTaskSource{}
+		body := asanaTask.GetTaskUpdateBody(updateFields)
+		assert.Equal(t, expected, *body)
+	})
+}

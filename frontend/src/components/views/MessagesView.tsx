@@ -19,6 +19,7 @@ const ScrollViewMimic = styled.div`
     overflow-y: auto;
     margin-right: auto;
     flex-shrink: 0;
+    user-select: none;
 `
 const MessagesContainer = styled.div`
     border-radius: ${Border.radius.large};

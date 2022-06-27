@@ -1,6 +1,7 @@
 package external
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"time"
@@ -115,7 +116,7 @@ func (slackTask SlackSavedTaskSource) GetPullRequests(userID primitive.ObjectID,
 	result <- emptyPullRequestResult(nil)
 }
 
-func (slackTask SlackSavedTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
+func (slackTask SlackSavedTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
 	return errors.New("has not been implemented yet")
 }
 
@@ -128,7 +129,41 @@ func (slackTask SlackSavedTaskSource) SendEmail(userID primitive.ObjectID, accou
 }
 
 func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
-	return primitive.NilObjectID, errors.New("has not been implemented yet")
+	taskSection := constants.IDTaskSectionDefault
+	if task.IDTaskSection != primitive.NilObjectID {
+		taskSection = task.IDTaskSection
+	}
+	newTask := database.Item{
+		TaskBase: database.TaskBase{
+			UserID:          userID,
+			IDTaskSection:   taskSection,
+			SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
+			Title:           task.Title,
+			Body:            task.Body,
+			SourceAccountID: accountID,
+		},
+		TaskType: database.TaskType{
+			IsTask: true,
+		},
+		SlackMessageParams: database.SlackMessageParams{
+			Channel:  task.SlackMessageParams.Channel,
+			SenderID: task.SlackMessageParams.SenderID,
+			Team:     task.SlackMessageParams.Team,
+			TimeSent: task.SlackMessageParams.TimeSent,
+		},
+	}
+
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return primitive.NilObjectID, err
+	}
+	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	insertResult, err := taskCollection.InsertOne(dbCtx, newTask)
+	return insertResult.InsertedID.(primitive.ObjectID), err
 }
 
 func (slackTask SlackSavedTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
@@ -141,4 +176,8 @@ func (slackTask SlackSavedTaskSource) ModifyMessage(userID primitive.ObjectID, a
 
 func (slackTask SlackSavedTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, isArchived *bool) error {
 	return nil
+}
+
+func GenerateSlackUserID(teamID string, userID string) string {
+	return teamID + "-" + userID
 }

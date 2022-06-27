@@ -472,7 +472,7 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 		bson.M{"_id": userID},
 	).Decode(&userObject)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to load user")
+		log.Error().Err(err).Msg("failed to load user")
 		return nil, err
 	}
 	return &userObject, nil
@@ -488,7 +488,7 @@ func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID, useDeeplin
 	defer cancel()
 	cursor, err := GetStateTokenCollection(db).InsertOne(dbCtx, stateToken)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to create new state token")
+		log.Error().Err(err).Msg("failed to create new state token")
 		return nil, err
 	}
 	stateTokenStr := cursor.InsertedID.(primitive.ObjectID).Hex()
@@ -508,7 +508,7 @@ func GetStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userID *
 	defer cancel()
 	err := GetStateTokenCollection(db).FindOne(dbCtx, query).Decode(&token)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to get state token")
+		log.Error().Err(err).Msg("failed to get state token")
 		return nil, err
 	}
 	return &token, nil
@@ -544,6 +544,27 @@ func InsertLogEvent(db *mongo.Database, userID primitive.ObjectID, eventType str
 		CreatedAt: primitive.NewDateTimeFromTime(time.Now()),
 	})
 	return err
+}
+
+func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (*ExternalAPIToken, error) {
+	parentCtx := context.Background()
+	var externalAPIToken ExternalAPIToken
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err := GetExternalTokenCollection(db).FindOne(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"service_id": serviceID},
+				{"account_id": externalID},
+			},
+		},
+	).Decode(&externalAPIToken)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to load external api token")
+		return nil, err
+	}
+	return &externalAPIToken, nil
 }
 
 func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {

@@ -140,6 +140,9 @@ func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mong
 
 	for _, threadChannel := range threadChannels {
 		thread := <-threadChannel
+		if thread == nil {
+			continue
+		}
 
 		var nestedEmails []database.Email
 		var mostRecentEmailTimestamp primitive.DateTime
@@ -409,6 +412,12 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 	getThreadCall := func() error {
 		thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
 		if err != nil {
+			// short circuit retry with nil return on 404, trying again will not fix the issue
+			if strings.Contains(err.Error(), "Error 404") {
+				log.Error().Err(err).Msg("failed to fetch thread from gmail: 404")
+				result <- nil
+				return nil
+			}
 			return err
 		}
 		result <- thread
@@ -418,7 +427,17 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 		log.Debug().Err(err).Msgf("retrying threadID %s with backoff delay %+v", threadID, ts)
 	}
 
-	err := backoff.RetryNotify(getThreadCall, backoff.NewExponentialBackOff(), notify)
+	expBackoff := &backoff.ExponentialBackOff{
+		InitialInterval:     backoff.DefaultInitialInterval,
+		RandomizationFactor: 2.0,
+		Multiplier:          backoff.DefaultMultiplier,
+		MaxInterval:         backoff.DefaultMaxInterval,
+		MaxElapsedTime:      10 * time.Second,
+		Stop:                backoff.Stop,
+		Clock:               backoff.SystemClock,
+	}
+	expBackoff.Reset()
+	err := backoff.RetryNotify(getThreadCall, expBackoff, notify)
 	if err != nil {
 		log.Error().Err(err).Msgf("permanently failed to load threadID %s", threadID)
 		result <- nil
@@ -704,7 +723,7 @@ func (gmailSource GmailSource) CreateNewEvent(userID primitive.ObjectID, account
 	return errors.New("has not been implemented yet")
 }
 
-func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields) error {
+func (gmailSource GmailSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		gmailSource.MarkAsDone(userID, accountID, issueID)
 	}
