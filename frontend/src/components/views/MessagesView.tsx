@@ -7,7 +7,7 @@ import { useFetchMessages, useGetInfiniteThreads, useModifyThread } from '../../
 import Loading from '../atoms/Loading'
 import Thread from '../molecules/Thread'
 import ThreadDetails from '../details/ThreadDetails'
-import { Border, Colors, Spacing } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import ThreadTemplate from '../atoms/ThreadTemplate'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { TASK_MARK_AS_READ_TIMEOUT } from '../../constants'
@@ -22,8 +22,6 @@ const ScrollViewMimic = styled.div`
     user-select: none;
 `
 const MessagesContainer = styled.div`
-    border-radius: ${Border.radius.large};
-    background-color: ${Colors.gray._100};
     width: ${DEFAULT_VIEW_WIDTH};
 `
 const MessageDivider = styled.div`
