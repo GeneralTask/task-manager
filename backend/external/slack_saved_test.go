@@ -100,6 +100,8 @@ func TestCreateSlackTask(t *testing.T) {
 	t.Run("SuccessSlackCustomSpecifySection", func(t *testing.T) {
 		userID := primitive.NewObjectID()
 		testTask.TaskBase.UserID = userID
+		taskSectionID := primitive.NewObjectID()
+		testTask.IDTaskSection = taskSectionID
 		_, err := SlackSavedTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
 			Title: "send dogecoin to the moon",
 			SlackMessageParams: database.SlackMessageParams{
@@ -108,7 +110,7 @@ func TestCreateSlackTask(t *testing.T) {
 				Team:     "test team",
 				TimeSent: "test ts",
 			},
-			IDTaskSection: constants.IDTaskSectionDefault,
+			IDTaskSection: taskSectionID,
 		})
 		assert.NoError(t, err)
 		tasks, err := database.GetActiveTasks(db, userID)
