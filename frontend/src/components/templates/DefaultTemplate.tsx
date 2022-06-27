@@ -19,6 +19,9 @@ const DefaultTemplateContainer = styled.div`
     background-color: ${Colors.gray._50};
     position: relative;
     min-width: ${WINDOW_MIN_WIDTH};
+    a {
+        color: ${Colors.purple._1};
+    }
 `
 
 const TasksandDetails = styled.div`
