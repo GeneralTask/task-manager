@@ -77,13 +77,21 @@ type Oauth1RequestSecret struct {
 }
 
 type Item struct {
-	TaskBase      `bson:",inline"`
-	TaskType      `bson:"task_type"`
-	Task          `bson:"task,omitempty"`
-	Email         `bson:"email,omitempty"`
-	EmailThread   `bson:"email_thread,omitempty"`
-	CalendarEvent `bson:"calendar_event,omitempty"`
-	PullRequest   `bson:"pull_request,omitempty"`
+	TaskBase           `bson:",inline"`
+	TaskType           `bson:"task_type"`
+	Task               `bson:"task,omitempty"`
+	Email              `bson:"email,omitempty"`
+	EmailThread        `bson:"email_thread,omitempty"`
+	CalendarEvent      `bson:"calendar_event,omitempty"`
+	PullRequest        `bson:"pull_request,omitempty"`
+	SlackMessageParams `bson:"slack_message_params,omitempty"`
+}
+
+type SlackMessageParams struct {
+	Channel  string `json:"channel,omitempty"`
+	SenderID string `json:"sender_id,omitempty"`
+	Team     string `json:"team,omitempty"`
+	TimeSent string `json:"ts,omitempty"`
 }
 
 type TaskType struct {

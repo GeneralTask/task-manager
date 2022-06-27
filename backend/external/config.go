@@ -362,7 +362,7 @@ var TaskSourceSlackSaved = TaskSourceDetails{
 	Logo:                   "/images/slack.png",
 	LogoV2:                 "slack",
 	IsCompletable:          true,
-	CanCreateTask:          false,
+	CanCreateTask:          true,
 	IsReplyable:            false,
 	CanCreateCalendarEvent: false,
 }
