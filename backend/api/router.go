@@ -24,7 +24,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/login/callback/", handlers.LoginCallback)
 	router.POST("/waitlist/", handlers.WaitlistAdd)
 
-	//logout needs to use the token directly rather than the user so no need to run token middleware
+	// logout needs to use the token directly rather than the user so no need to run token middleware
 	router.POST("/logout/", handlers.Logout)
 
 	// Unauthenticated endpoints only for dev environment
