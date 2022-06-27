@@ -1,4 +1,4 @@
-import { Border, Colors, Shadows, Spacing } from '../../styles'
+import { Border, Colors, Spacing } from '../../styles'
 
 import React from 'react'
 import styled from 'styled-components'
