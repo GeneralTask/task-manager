@@ -110,7 +110,7 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
             <TitleContainer>
                 <Title bold={isUnread}>{senders}</Title>
                 <SubTitle bold={isUnread}>{title}</SubTitle>
-                <BodyPreview bold={false}>{cleanPreviewText(bodytext)}</BodyPreview>
+                <BodyPreview bold={isUnread}>{cleanPreviewText(bodytext)}</BodyPreview>
             </TitleContainer>
             <SentAtContainer>{sentAt}</SentAtContainer>
         </ThreadContainer>
