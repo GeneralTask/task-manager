@@ -43,10 +43,11 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
-		result <- emptyTaskResult(err)
-		return
+		log.Error().Err(err).Msg("failed to connect to db")
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
 	}
 	defer dbCleanup()
+
 	taskCollection := database.GetTaskCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -62,7 +63,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 	)
 	var tasks []*database.Item
 	if err != nil || cursor.All(dbCtx, &tasks) != nil {
-		log.Error().Err(err).Msg("failed to fetch general task tasks")
+		log.Error().Err(err).Msg("failed to fetch slack tasks")
 		result <- emptyTaskResult(err)
 		return
 	}

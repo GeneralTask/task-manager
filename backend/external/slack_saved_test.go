@@ -11,35 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	SavedMessagesResponse string = `{
-		"ok": true,
-		"items": [
-			{
-				"type": "message",
-				"channel": "D02591G1X6J",
-				"message": {
-					"client_msg_id": "a4f0672f-618c-411f-9f21-a2f926af2423",
-					"type": "message",
-					"text": "don't forget to drink your ovaltine!",
-					"user": "U025FVDFA91",
-					"ts": "1648583693.380569",
-					"team": "T01ML9H5LJD",
-					"attachments": [],
-					"blocks": [],
-					"is_starred": true,
-					"permalink": "https://niceme.me/"
-				},
-				"date_create": 1648585143
-			}
-		],
-		"response_metadata": {
-			"next_cursor": ""
-		}
-	}`
-	SavedMessageIDExternal string = "a4f0672f-618c-411f-9f21-a2f926af2423"
-)
-
 func TestLoadSlackTasks(t *testing.T) {
 	userID := primitive.NewObjectID()
 	task := createTestSlackTask(userID)
