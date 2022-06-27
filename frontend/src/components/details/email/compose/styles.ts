@@ -121,11 +121,12 @@ export const EmailActionOption = styled.div`
     align-items: center;
     gap: ${Spacing.padding._8};
 `
-export const EmailComposeIconButton = styled(NoStyleButton) <{ hasBorder: boolean }>`
+export const EmailComposeIconButton = styled(NoStyleButton) <{ hasBorder: boolean, isPressed: boolean }>`
     display: flex;
     justify-content: center;
     align-items: center;
     border: 2px solid ${(props) => (props.hasBorder ? Colors.gray._200 : 'transparent')};
+    background-color: ${(props) => (props.isPressed ? Colors.gray._200 : 'none')};
     border-radius: ${Border.radius.xxSmall};
     position: relative;
     padding: ${Spacing.padding._4};
