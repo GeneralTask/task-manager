@@ -106,7 +106,7 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const isUnread = thread.emails.some((email) => email.is_unread)
 
     return (
-        <ThreadContainer ref={elementRef} isSelected={isSelected} isUnread={isUnread} onClick={onClickHandler}>
+        <ThreadContainer ref={elementRef} isSelected={isSelected} onClick={onClickHandler}>
             <TitleContainer>
                 <Title bold={isUnread}>{senders}</Title>
                 <SubTitle bold={isUnread}>{title}</SubTitle>
