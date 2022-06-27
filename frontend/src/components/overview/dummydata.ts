@@ -213,4 +213,8 @@ const dummyData: TOverviewBlock[] = [
     },
 ]
 
-export default dummyData
+const useGetOverviewBlocks = () => {
+    return { data: dummyData }
+}
+
+export default useGetOverviewBlocks

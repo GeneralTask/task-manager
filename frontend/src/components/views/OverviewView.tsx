@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { Spacing, Colors, Typography } from '../../styles'
-import dummyData from '../overview/dummydata'
+import useGetOverviewBlocks from '../overview/dummydata'
 import OverviewBlock from '../overview/OverviewBlock'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -21,7 +21,7 @@ const DetailsViewContainer = styled.div`
 `
 
 const OverviewView = () => {
-    const blocks = dummyData
+    const { data: blocks } = useGetOverviewBlocks()
     const { overviewItem } = useParams()
     return (
         <>
