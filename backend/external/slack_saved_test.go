@@ -7,6 +7,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/utils"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -58,8 +59,27 @@ func TestCreateSlackTask(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 
+	testTask := database.Item{
+		TaskBase: database.TaskBase{
+			IDTaskSection:   constants.IDTaskSectionDefault,
+			SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
+			Title:           "send dogecoin to the moon",
+			Body:            "",
+			SourceAccountID: GeneralTaskDefaultAccountID,
+		},
+		TaskType: database.TaskType{
+			IsTask: true,
+		},
+		SlackMessageParams: database.SlackMessageParams{
+			Channel:  "test channel",
+			SenderID: "test sender ID",
+			Team:     "test team",
+			TimeSent: "test ts",
+		},
+	}
 	t.Run("SuccessSlackCreation", func(t *testing.T) {
 		userID := primitive.NewObjectID()
+		testTask.TaskBase.UserID = userID
 		_, err := SlackSavedTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
 			Title: "send dogecoin to the moon",
 			SlackMessageParams: database.SlackMessageParams{
@@ -75,8 +95,28 @@ func TestCreateSlackTask(t *testing.T) {
 		assert.Equal(t, 1, len(*tasks))
 		task := (*tasks)[0]
 		assert.True(t, task.IsTask)
-		assert.Equal(t, "send dogecoin to the moon", task.Title)
-		assert.Equal(t, "test channel", task.SlackMessageParams.Channel)
+		utils.AssertTasksEqual(t, &task, &testTask)
+	})
+	t.Run("SuccessSlackCustomSpecifySection", func(t *testing.T) {
+		userID := primitive.NewObjectID()
+		testTask.TaskBase.UserID = userID
+		_, err := SlackSavedTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
+			Title: "send dogecoin to the moon",
+			SlackMessageParams: database.SlackMessageParams{
+				Channel:  "test channel",
+				SenderID: "test sender ID",
+				Team:     "test team",
+				TimeSent: "test ts",
+			},
+			IDTaskSection: constants.IDTaskSectionDefault,
+		})
+		assert.NoError(t, err)
+		tasks, err := database.GetActiveTasks(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*tasks))
+		task := (*tasks)[0]
+		assert.True(t, task.IsTask)
+		utils.AssertTasksEqual(t, &task, &testTask)
 	})
 }
 
