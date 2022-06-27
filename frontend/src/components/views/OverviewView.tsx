@@ -6,14 +6,12 @@ import dummyData from '../overview/dummydata'
 import OverviewBlock from '../overview/OverviewBlock'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
-const OverviewPageContainer = styled.div`
-    flex: 1;
-`
 const PageHeader = styled.div`
     padding: ${Spacing.padding._16};
     color: ${Colors.gray._500};
     font-size: ${Typography.small.fontSize};
     border-bottom: 2px solid ${Colors.gray._200};
+    margin-bottom: ${Spacing.margin._40};
 `
 // placeholder for details view
 const DetailsViewContainer = styled.div`
@@ -27,14 +25,13 @@ const OverviewView = () => {
     const { overviewItem } = useParams()
     return (
         <>
-            <OverviewPageContainer>
+            <ScrollableListTemplate noTopPadding>
                 <PageHeader>Overview</PageHeader>
-                <ScrollableListTemplate>
-                    {blocks.map((block) => (
-                        <OverviewBlock block={block} key={block.id} />
-                    ))}
-                </ScrollableListTemplate>
-            </OverviewPageContainer>
+
+                {blocks.map((block) => (
+                    <OverviewBlock block={block} key={block.id} />
+                ))}
+            </ScrollableListTemplate>
             <DetailsViewContainer>
                 These be the deets
                 {overviewItem && ' for item with id: ' + overviewItem}
