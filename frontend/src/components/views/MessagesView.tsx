@@ -46,7 +46,7 @@ const MessagesView = () => {
     const unreadTimer = useRef<NodeJS.Timeout>()
 
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
-    useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
+    useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${params.mailbox}/${itemId}`))
 
     const { expandedThread, expandedIndex } = useMemo(() => {
         if (threads.length > 0) {
