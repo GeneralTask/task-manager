@@ -4,16 +4,21 @@ import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { Colors, Spacing, Typography } from '../../styles'
+import { icons } from '../../styles/images'
 import { TEmailThread } from '../../utils/types'
 import { removeHTMLTags, getHumanDateTime } from '../../utils/utils'
+import { Icon } from '../atoms/Icon'
 import ThreadContainer from './ThreadContainer'
+
+const UNREAD_INDICATOR_LEFT_OFFSET = '4px'
+const UNREAD_INDICATOR_TOP_OFFSET = '11px'
 
 const TitleContainer = styled.div`
     display: flex;
     flex-direction: column;
     min-width: 0;
 `
-const Title = styled.span<{ bold: boolean }>`
+const Title = styled.span<{ bold?: boolean }>`
     margin-left: ${Spacing.margin._8};
     white-space: nowrap;
     overflow: hidden;
@@ -34,6 +39,11 @@ const SentAtContainer = styled.span`
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._400};
     min-width: fit-content;
+`
+const UnreadIndicator = styled.div`
+    position: absolute;
+    left: ${UNREAD_INDICATOR_LEFT_OFFSET};
+    top: ${UNREAD_INDICATOR_TOP_OFFSET};
 `
 interface ThreadProps {
     thread: TEmailThread
@@ -108,9 +118,10 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     return (
         <ThreadContainer ref={elementRef} isSelected={isSelected} onClick={onClickHandler}>
             <TitleContainer>
+                <UnreadIndicator>{isUnread && <Icon size="xxSmall" source={icons.dot} />}</UnreadIndicator>
                 <Title bold={isUnread}>{senders}</Title>
                 <SubTitle bold={isUnread}>{title}</SubTitle>
-                <BodyPreview bold={isUnread}>{cleanPreviewText(bodytext)}</BodyPreview>
+                <BodyPreview>{cleanPreviewText(bodytext)}</BodyPreview>
             </TitleContainer>
             <SentAtContainer>{sentAt}</SentAtContainer>
         </ThreadContainer>
