@@ -30,6 +30,7 @@ const SectionTitle = styled.span`
     text-overflow: ellipsis;
     white-space: nowrap;
     flex: 1;
+    user-select: none;
 `
 const AddSectionContainer = styled.div`
     padding: ${Spacing.padding._4};

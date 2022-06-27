@@ -37,12 +37,14 @@ const SectionTitle = styled.span<{ isSelected: boolean }>`
     white-space: nowrap;
     margin-left: ${margin._8};
     flex: 1;
+    user-select: none;
 `
 const SectionTitleItemCount = styled.span<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};
     color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
     margin-right: ${margin._8};
     margin-left: auto;
+    user-select: none;
 `
 export const NavigationLinkTemplate = styled.div`
     height: ${LINK_TEMPLATE_HEIGHT}px;
