@@ -27,7 +27,6 @@ const OverviewView = () => {
         <>
             <ScrollableListTemplate noTopPadding>
                 <PageHeader>Overview</PageHeader>
-
                 {blocks.map((block) => (
                     <OverviewBlock block={block} key={block.id} />
                 ))}
