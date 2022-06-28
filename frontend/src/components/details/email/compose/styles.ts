@@ -126,7 +126,7 @@ export const EmailComposeIconButton = styled(NoStyleButton) <{ hasBorder: boolea
     justify-content: center;
     align-items: center;
     border: 2px solid ${(props) => (props.hasBorder ? Colors.gray._200 : 'transparent')};
-    background-color: ${(props) => (props.isPressed ? Colors.gray._200 : 'none')};
+    background-color: ${(props) => (props.isPressed ? Colors.gray._200 : 'inherit')};
     border-radius: ${Border.radius.xxSmall};
     position: relative;
     padding: ${Spacing.padding._4};
