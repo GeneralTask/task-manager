@@ -71,10 +71,22 @@ func TestCreateSlackTask(t *testing.T) {
 			IsTask: true,
 		},
 		SlackMessageParams: database.SlackMessageParams{
-			Channel:  "test channel",
-			SenderID: "test sender ID",
-			Team:     "test team",
-			TimeSent: "test ts",
+			Channel: database.SlackChannel{
+				ID:   "channel ID",
+				Name: "channel name",
+			},
+			User: database.SlackUser{
+				ID:   "user ID",
+				Name: "user name",
+			},
+			Team: database.SlackTeam{
+				ID:     "team ID",
+				Domain: "team domain",
+			},
+			Message: database.SlackMessage{
+				TimeSent: "test ts",
+				Text:     "hello!",
+			},
 		},
 	}
 	t.Run("SuccessSlackCreation", func(t *testing.T) {
@@ -83,10 +95,22 @@ func TestCreateSlackTask(t *testing.T) {
 		_, err := SlackSavedTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
 			Title: "send dogecoin to the moon",
 			SlackMessageParams: database.SlackMessageParams{
-				Channel:  "test channel",
-				SenderID: "test sender ID",
-				Team:     "test team",
-				TimeSent: "test ts",
+				Channel: database.SlackChannel{
+					ID:   "channel ID",
+					Name: "channel name",
+				},
+				User: database.SlackUser{
+					ID:   "user ID",
+					Name: "user name",
+				},
+				Team: database.SlackTeam{
+					ID:     "team ID",
+					Domain: "team domain",
+				},
+				Message: database.SlackMessage{
+					TimeSent: "test ts",
+					Text:     "hello!",
+				},
 			},
 		})
 		assert.NoError(t, err)
@@ -105,10 +129,22 @@ func TestCreateSlackTask(t *testing.T) {
 		_, err := SlackSavedTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
 			Title: "send dogecoin to the moon",
 			SlackMessageParams: database.SlackMessageParams{
-				Channel:  "test channel",
-				SenderID: "test sender ID",
-				Team:     "test team",
-				TimeSent: "test ts",
+				Channel: database.SlackChannel{
+					ID:   "channel ID",
+					Name: "channel name",
+				},
+				User: database.SlackUser{
+					ID:   "user ID",
+					Name: "user name",
+				},
+				Team: database.SlackTeam{
+					ID:     "team ID",
+					Domain: "team domain",
+				},
+				Message: database.SlackMessage{
+					TimeSent: "test ts",
+					Text:     "hello!",
+				},
 			},
 			IDTaskSection: taskSectionID,
 		})

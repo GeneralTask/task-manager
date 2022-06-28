@@ -87,11 +87,35 @@ type Item struct {
 	SlackMessageParams `bson:"slack_message_params,omitempty"`
 }
 
+// Note that this model is used in the request for Slack, and thus should match
+// the payload from the Slack request.
 type SlackMessageParams struct {
-	Channel  string `json:"channel,omitempty"`
-	SenderID string `json:"sender_id,omitempty"`
-	Team     string `json:"team,omitempty"`
+	Channel SlackChannel `json:"channel,omitempty"`
+	User    SlackUser    `json:"user,omitempty"`
+	Team    SlackTeam    `json:"team,omitempty"`
+	Message SlackMessage `json:"message,omitempty"`
+}
+
+type SlackTeam struct {
+	ID     string `json:"id,omitempty"`
+	Domain string `json:"domain,omitempty"`
+}
+
+type SlackChannel struct {
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+type SlackUser struct {
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+type SlackMessage struct {
+	Type     string `json:"type,omitempty"`
+	User     string `json:"user,omitempty"`
 	TimeSent string `json:"ts,omitempty"`
+	Text     string `json:"text,omitempty"`
 }
 
 type TaskType struct {
