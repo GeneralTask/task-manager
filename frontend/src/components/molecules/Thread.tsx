@@ -13,7 +13,7 @@ const TitleContainer = styled.div`
     flex-direction: column;
     min-width: 0;
 `
-const Title = styled.span<{ bold: boolean }>`
+const Title = styled.span<{ isUnread?: boolean }>`
     position: relative;
     margin-left: ${Spacing.margin._8};
     white-space: nowrap;
@@ -21,29 +21,29 @@ const Title = styled.span<{ bold: boolean }>`
     text-overflow: ellipsis;
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._600};
-    font-weight: ${(props) => (props.bold ? Typography.weight._600 : Typography.weight._400)};
+    font-weight: ${(props) => (props.isUnread ? Typography.weight._600 : Typography.weight._400)};
+    overflow: visible;
     &::before {
-        content: '';
+        content: ${(props) => (props.isUnread ? '""' : 'none')};
         position: absolute;
         margin: auto;
         top: 0;
         bottom: 0;
-        left: -4px;
+        left: -${Spacing.margin._12};
         height: 8px;
         width: 8px;
         border-radius: 50%;
         background-color: ${Colors.purple._1};
-        z-index: 1;
     }
 `
-const SubTitle = styled.span<{ bold: boolean }>`
+const SubTitle = styled.span<{ isUnread?: boolean }>`
     margin-left: ${Spacing.margin._8};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: ${Typography.xSmall.fontSize};
     color: ${Colors.gray._600};
-    font-weight: ${(props) => (props.bold ? Typography.weight._600 : Typography.weight._400)};
+    font-weight: ${(props) => (props.isUnread ? Typography.weight._600 : Typography.weight._400)};
 `
 const BodyPreview = styled(SubTitle)`
     color: ${Colors.gray._400};
@@ -128,9 +128,9 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     return (
         <ThreadContainer ref={elementRef} isSelected={isSelected} onClick={onClickHandler}>
             <TitleContainer>
-                <Title bold={isUnread}>{senders}</Title>
-                <SubTitle bold={isUnread}>{title}</SubTitle>
-                <BodyPreview bold={isUnread}>{cleanPreviewText(bodytext)}</BodyPreview>
+                <Title isUnread={isUnread}>{senders}</Title>
+                <SubTitle isUnread={isUnread}>{title}</SubTitle>
+                <BodyPreview>{cleanPreviewText(bodytext)}</BodyPreview>
             </TitleContainer>
             <SentAtContainer>{sentAt}</SentAtContainer>
         </ThreadContainer>
