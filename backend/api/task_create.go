@@ -46,6 +46,7 @@ type slackShortcutMessage struct {
 	User     string `json:"user"`
 	TimeSent string `json:"ts"`
 	Text     string `json:"text"`
+	Type     string `json:"type"`
 }
 
 type slackChannel struct {
@@ -84,7 +85,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 	}
 
 	// process payload information
-	var slackParams SlackShortcutRequest
+	var slackParams database.SlackMessageParams
 	formData := []byte{}
 	c.Request.ParseForm()
 	if val, ok := c.Request.Form["payload"]; ok {
@@ -114,16 +115,10 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 	userID := externalToken.UserID
 
 	IDTaskSection := constants.IDTaskSectionDefault
-	slackMessageParams := database.SlackMessageParams{
-		TimeSent: slackParams.Message.TimeSent,
-		Channel:  slackParams.Channel.Name,
-		SenderID: slackParams.Message.User,
-		Team:     slackParams.Team.Domain,
-	}
 
 	taskCreationObject := external.TaskCreationObject{
 		Title:              slackParams.Message.Text,
-		SlackMessageParams: slackMessageParams,
+		SlackMessageParams: slackParams,
 		IDTaskSection:      IDTaskSection,
 	}
 	taskID, err := taskSourceResult.Source.CreateNewTask(userID, externalID, taskCreationObject)

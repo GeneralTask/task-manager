@@ -27,8 +27,8 @@ func AssertTasksEqual(t *testing.T, a *database.Item, b *database.Item) {
 		expectedSlack := a.SlackMessageParams
 		actualSlack := b.SlackMessageParams
 		assert.Equal(t, expectedSlack.Channel, actualSlack.Channel)
-		assert.Equal(t, expectedSlack.SenderID, actualSlack.SenderID)
+		assert.Equal(t, expectedSlack.User, actualSlack.User)
 		assert.Equal(t, expectedSlack.Team, actualSlack.Team)
-		assert.Equal(t, expectedSlack.TimeSent, actualSlack.TimeSent)
+		assert.Equal(t, expectedSlack.Message, actualSlack.Message)
 	}
 }

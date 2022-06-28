@@ -104,10 +104,10 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 			IsTask: true,
 		},
 		SlackMessageParams: database.SlackMessageParams{
-			Channel:  task.SlackMessageParams.Channel,
-			SenderID: task.SlackMessageParams.SenderID,
-			Team:     task.SlackMessageParams.Team,
-			TimeSent: task.SlackMessageParams.TimeSent,
+			Channel: task.SlackMessageParams.Channel,
+			User:    task.SlackMessageParams.User,
+			Team:    task.SlackMessageParams.Team,
+			Message: task.SlackMessageParams.Message,
 		},
 	}
 

@@ -247,10 +247,10 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 
 	if t.SlackMessageParams != (database.SlackMessageParams{}) {
 		taskResult.SlackMessageParams = &database.SlackMessageParams{
-			Channel:  t.SlackMessageParams.Channel,
-			SenderID: t.SlackMessageParams.SenderID,
-			Team:     t.SlackMessageParams.Team,
-			TimeSent: t.SlackMessageParams.TimeSent,
+			Channel: t.SlackMessageParams.Channel,
+			User:    t.SlackMessageParams.User,
+			Team:    t.SlackMessageParams.Team,
+			Message: t.SlackMessageParams.Message,
 		}
 	}
 
