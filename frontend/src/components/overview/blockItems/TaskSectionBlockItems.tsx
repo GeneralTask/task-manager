@@ -4,7 +4,10 @@ import { TOverviewBlock } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import TaskDropContainer from '../../molecules/TaskDropContainer'
 
-const TaskSectionBlockItems = ({ block }: { block: TOverviewBlock }) => {
+interface TaskSectionBlockItemsProps {
+    block: TOverviewBlock
+}
+const TaskSectionBlockItems = ({ block }: TaskSectionBlockItemsProps) => {
     const { section_id: sectionId } = block
     const { overviewItem } = useParams()
 
