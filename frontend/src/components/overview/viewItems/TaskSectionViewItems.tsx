@@ -1,14 +1,14 @@
 import React, { useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { TOverviewBlock } from '../../../utils/types'
+import { TOverviewView } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import TaskDropContainer from '../../molecules/TaskDropContainer'
 
-interface TaskSectionBlockItemsProps {
-    block: TOverviewBlock
+interface TaskSectionViewItemsProps {
+    view: TOverviewView
 }
-const TaskSectionBlockItems = ({ block }: TaskSectionBlockItemsProps) => {
-    const { section_id: sectionId } = block
+const TaskSectionViewItems = ({ view }: TaskSectionViewItemsProps) => {
+    const { section_id: sectionId } = view
     const { overviewItem } = useParams()
 
     // TODO: either change Task to make this optional or add better support for scrolling. Unused for now.
@@ -17,7 +17,7 @@ const TaskSectionBlockItems = ({ block }: TaskSectionBlockItemsProps) => {
     return (
         <div ref={scrollingRef}>
             {sectionId &&
-                block.view_items.map((item, index) => (
+                view.view_items.map((item, index) => (
                     <TaskDropContainer key={item.id} task={item} taskIndex={index} sectionId={sectionId}>
                         <Task
                             key={item.id}
@@ -35,4 +35,4 @@ const TaskSectionBlockItems = ({ block }: TaskSectionBlockItemsProps) => {
     )
 }
 
-export default TaskSectionBlockItems
+export default TaskSectionViewItems

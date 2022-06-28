@@ -2,8 +2,8 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { Spacing, Colors, Typography } from '../../styles'
-import useGetOverviewBlocks from '../overview/dummydata'
-import OverviewBlock from '../overview/OverviewBlock'
+import useGeTOverviewViews from '../overview/dummydata'
+import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const PageHeader = styled.div`
@@ -21,14 +21,14 @@ const DetailsViewContainer = styled.div`
 `
 
 const OverviewView = () => {
-    const { data: blocks } = useGetOverviewBlocks()
+    const { data: views } = useGeTOverviewViews()
     const { overviewItem } = useParams()
     return (
         <>
             <ScrollableListTemplate noTopPadding>
                 <PageHeader>Overview</PageHeader>
-                {blocks.map((block) => (
-                    <OverviewBlock block={block} key={block.id} />
+                {views.map((view) => (
+                    <OverviewViewContainer view={view} key={view.id} />
                 ))}
             </ScrollableListTemplate>
             <DetailsViewContainer>

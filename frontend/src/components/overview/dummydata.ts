@@ -1,6 +1,6 @@
-import { TOverviewBlock } from '../../utils/types'
+import { TOverviewView } from '../../utils/types'
 
-const dummyData: TOverviewBlock[] = [
+const dummyData: TOverviewView[] = [
     {
         id: '1',
         name: 'My tasks',
@@ -213,8 +213,8 @@ const dummyData: TOverviewBlock[] = [
     },
 ]
 
-const useGetOverviewBlocks = () => {
+const useGeTOverviewViews = () => {
     return { data: dummyData }
 }
 
-export default useGetOverviewBlocks
+export default useGeTOverviewViews
