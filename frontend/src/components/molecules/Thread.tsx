@@ -14,6 +14,7 @@ const TitleContainer = styled.div`
     min-width: 0;
 `
 const Title = styled.span<{ bold: boolean }>`
+    position: relative;
     margin-left: ${Spacing.margin._8};
     white-space: nowrap;
     overflow: hidden;
@@ -21,9 +22,28 @@ const Title = styled.span<{ bold: boolean }>`
     font-size: ${Typography.small.fontSize};
     color: ${Colors.gray._600};
     font-weight: ${(props) => (props.bold ? Typography.weight._600 : Typography.weight._400)};
+    &::before {
+        content: '';
+        position: absolute;
+        margin: auto;
+        top: 0;
+        bottom: 0;
+        left: -4px;
+        height: 8px;
+        width: 8px;
+        border-radius: 50%;
+        background-color: ${Colors.purple._1};
+        z-index: 1;
+    }
 `
-const SubTitle = styled(Title)`
+const SubTitle = styled.span<{ bold: boolean }>`
+    margin-left: ${Spacing.margin._8};
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: ${Typography.xSmall.fontSize};
+    color: ${Colors.gray._600};
+    font-weight: ${(props) => (props.bold ? Typography.weight._600 : Typography.weight._400)};
 `
 const BodyPreview = styled(SubTitle)`
     color: ${Colors.gray._400};
