@@ -213,8 +213,8 @@ const dummyData: TOverviewView[] = [
     },
 ]
 
-const useGeTOverviewViews = () => {
+const useGetOverviewViews = () => {
     return { data: dummyData }
 }
 
-export default useGeTOverviewViews
+export default useGetOverviewViews
