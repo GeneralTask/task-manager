@@ -30,35 +30,6 @@ type TaskCreateParams struct {
 	IDTaskSection *string    `json:"id_task_section"`
 }
 
-type SlackShortcutRequest struct {
-	User    slackUser            `json:"user"`
-	Message slackShortcutMessage `json:"message" binding:"required"`
-	Channel slackChannel         `json:"channel"`
-	Team    slackTeam            `json:"team"`
-}
-
-type slackUser struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
-type slackShortcutMessage struct {
-	User     string `json:"user"`
-	TimeSent string `json:"ts"`
-	Text     string `json:"text"`
-	Type     string `json:"type"`
-}
-
-type slackChannel struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
-type slackTeam struct {
-	ID     string `json:"id"`
-	Domain string `json:"domain"`
-}
-
 func (api *API) SlackTaskCreate(c *gin.Context) {
 	sourceID := external.TASK_SOURCE_ID_SLACK_SAVED
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
