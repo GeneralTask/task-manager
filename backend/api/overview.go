@@ -138,5 +138,14 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 					IsDone:         false,
 				},
 			},
-		}})
+		},
+	})
+}
+
+func (api *API) OverviewViewAdd(c *gin.Context) {
+	c.JSON(200, nil)
+}
+
+func (api *API) OverviewViewModify(c *gin.Context) {
+	c.JSON(200, nil)
 }
