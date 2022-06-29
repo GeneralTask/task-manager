@@ -345,6 +345,7 @@ type ThreadItemChangeable struct {
 
 type View struct {
 	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	UserID        primitive.ObjectID `bson:"user_id"`
 	IDOrdering    int                `bson:"id_ordering"`
 	Type          string             `bson:"type"`
 	IsPaginated   bool               `bson:"is_paginated"`
