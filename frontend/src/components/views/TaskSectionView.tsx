@@ -115,6 +115,8 @@ const TaskSectionView = () => {
                                                 index={index}
                                                 sectionId={section.id}
                                                 sectionScrollingRef={sectionScrollingRef}
+                                                isSelected={task.id === params.task}
+                                                link={`/tasks/${params.section}/${task.id}`}
                                             />
                                         </TaskDropContainer>
                                     ))}
