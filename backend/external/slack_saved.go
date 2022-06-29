@@ -103,9 +103,9 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 		taskSection = task.IDTaskSection
 	}
 
-	permalink := ""
-	if task.SlackMessageParams.Message.TimeSent != "" && task.SlackMessageParams.Channel.ID != "" {
-		permalink = GetSlackMessagePermalink(db, userID, accountID, task.SlackMessageParams.Channel.ID, task.SlackMessageParams.Message.TimeSent)
+	permalink, err := GetSlackMessagePermalink(db, userID, accountID, task.SlackMessageParams.Channel.ID, task.SlackMessageParams.Message.TimeSent)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to fetch Slack message permalink")
 	}
 
 	newTask := database.Item{
@@ -152,11 +152,14 @@ func GenerateSlackUserID(teamID string, userID string) string {
 	return teamID + "-" + userID
 }
 
-func GetSlackMessagePermalink(db *mongo.Database, userID primitive.ObjectID, accountID string, channelID string, ts string) string {
+func GetSlackMessagePermalink(db *mongo.Database, userID primitive.ObjectID, accountID string, channelID string, ts string) (string, error) {
+	if channelID == "" || ts == "" {
+		return "", nil
+	}
+
 	externalToken, err := getExternalToken(db, userID, accountID, TASK_SERVICE_ID_SLACK)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch Slack external token")
-		return ""
+		return "", err
 	}
 
 	var oauthToken oauth2.Token
@@ -169,8 +172,7 @@ func GetSlackMessagePermalink(db *mongo.Database, userID primitive.ObjectID, acc
 	}
 	permalink, err := client.GetPermalink(&params)
 	if err != nil {
-		log.Error().Err(err).Msg("unable to fetch Slack message permalink")
-		return ""
+		return "", err
 	}
-	return permalink
+	return permalink, nil
 }
