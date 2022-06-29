@@ -76,7 +76,7 @@ func createTaskFromEmailThread(
 			UserID:          userID,
 			IDExternal:      primitive.NewObjectID().Hex(),
 			IDTaskSection:   taskSection,
-			SourceID:        external.TASK_SOURCE_ID_GMAIL,
+			SourceID:        external.TASK_SOURCE_ID_GT_TASK,
 			Title:           params.Title,
 			Body:            params.Body,
 			SourceAccountID: accountID,
