@@ -66,5 +66,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.PATCH("/sections/modify/:section_id/", handlers.SectionModify)
 	router.DELETE("/sections/delete/:section_id/", handlers.SectionDelete)
 	router.GET("/overview/views/", handlers.OverviewViewsList)
+	router.POST("/overview/views/", handlers.OverviewViewAdd)
+	router.PATCH("/overview/views/:view_id", handlers.OverviewViewModify)
 	return router
 }
