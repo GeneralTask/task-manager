@@ -1,0 +1,92 @@
+import React from 'react'
+import Modal from 'react-modal'
+import styled from 'styled-components'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { icons } from '../../styles/images'
+import NoStyleButton from './buttons/NoStyleButton'
+import { Icon } from './Icon'
+import { background } from '../../styles/colors'
+
+Modal.setAppElement('#root')
+
+const ModalContainer = styled.div`
+    padding: ${Spacing.padding._16};
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex: auto;
+    flex-direction: column;
+`
+const Header = styled.div`
+    color: ${Colors.gray._700};
+    font-size: ${Typography.xLarge.fontSize};
+    line-height: ${Typography.xLarge.lineHeight};
+    font-weight: ${Typography.weight._600};
+    margin-bottom: ${Spacing.margin._16};
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`
+const Body = styled.div`
+    overflow: auto;
+`
+const Footer = styled.div`
+    margin-top: ${Spacing.margin._16};
+    display: flex;
+    justify-content: space-between;
+`
+const CloseButton = styled(NoStyleButton)`
+    padding: ${Spacing.padding._8};
+    border-radius: ${Border.radius.small};
+    &:hover {
+        background-color: ${Colors.gray._200};
+    }
+`
+
+const modalStyles = {
+    overlay: {
+        background: background.modalOverlay,
+    },
+    content: {
+        margin: 'auto',
+        border: 'none',
+        width: '50%',
+        height: '75%',
+        boxShadow: Shadows.medium,
+    },
+}
+
+interface GTModalProps {
+    children: JSX.Element
+    isOpen: boolean
+    title?: string
+    leftButtons?: JSX.Element
+    rightButtons?: JSX.Element
+    onClose?: () => void
+}
+const GTModal = (props: GTModalProps) => {
+    const handleClose = () => {
+        props.onClose?.()
+    }
+    return (
+        <Modal isOpen={props.isOpen} style={modalStyles} onRequestClose={handleClose}>
+            <ModalContainer>
+                <Header>
+                    <div>{props.title}</div>
+                    <CloseButton onClick={handleClose}>
+                        <Icon size="small" source={icons.x} />
+                    </CloseButton>
+                </Header>
+                <Body>{props.children}</Body>
+                {(props.leftButtons || props.rightButtons) && (
+                    <Footer>
+                        <div>{props.leftButtons}</div>
+                        <div>{props.rightButtons}</div>
+                    </Footer>
+                )}
+            </ModalContainer>
+        </Modal>
+    )
+}
+
+export default GTModal
