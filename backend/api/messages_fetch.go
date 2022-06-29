@@ -98,6 +98,8 @@ func (api *API) MessagesFetch(c *gin.Context) {
 				badToken := emailChannelToToken[emailChannel]
 				badTokens = append(badTokens, badToken)
 				tokenChangeable := database.ExternalAPITokenChangeable{IsBadToken: true}
+				dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+				defer cancel()
 				res := externalAPITokenCollection.FindOneAndUpdate(dbCtx, bson.M{"_id": badToken.ID}, bson.M{"$set": tokenChangeable})
 				if res.Err() != nil {
 					log.Error().Err(res.Err()).Msgf("could not update token %+v in db", badToken)
@@ -111,6 +113,8 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		if emailResult.HistoryID != 0 {
 			validToken := emailChannelToToken[emailChannel]
 			historyChangeable := database.ExternalAPITokenChangeable{LatestHistoryID: emailResult.HistoryID}
+			dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+			defer cancel()
 			res := externalAPITokenCollection.FindOneAndUpdate(dbCtx, bson.M{"_id": validToken.ID}, bson.M{"$set": historyChangeable})
 			if res.Err() != nil {
 				log.Error().Err(res.Err()).Msgf("could not update token %+v in db", validToken)

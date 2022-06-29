@@ -16,6 +16,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/cenkalti/backoff/v4"
+	"github.com/gammazero/workerpool"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -24,7 +25,8 @@ import (
 )
 
 const (
-	fullFetchMaxResults = int64(500)
+	fullFetchMaxResults = int64(200)
+	concurrencyLimit    = 10
 )
 
 type GmailThreadResponse struct {
@@ -60,11 +62,12 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	}
 
 	threadChannels := []chan *gmail.Thread{}
+	workerPool := workerpool.New(concurrencyLimit)
 	var recentHistoryID uint64
 	var historiesRequiringUpdate []*gmail.History
 	// loads all thread changes, or 500 recent threads in the inbox
 	// do fullRefresh if we don't have history data stored for the account
-	if fullRefresh || latestHistoryID == 0 {
+	if true || fullRefresh || latestHistoryID == 0 {
 		log.Debug().Msg("Performing full gmail thread refresh")
 
 		// TODO: for a full refresh, we probably want to paginate through this request until we've fetched all threads in the DB
@@ -81,7 +84,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 		for _, threadListItem := range threadsResponse.Threads {
 			var threadResult = make(chan *gmail.Thread)
-			go getThreadFromGmail(gmailService, threadListItem.Id, threadResult)
+			workerPool.Submit(func() {
+				getThreadFromGmail(gmailService, threadListItem.Id, threadResult)
+			})
 			threadChannels = append(threadChannels, threadResult)
 		}
 
@@ -125,7 +130,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		// TODO: think about not fetching emails if the only updates are label changes
 		for _, threadListItem := range historyThreadIDsToFetch {
 			var threadResult = make(chan *gmail.Thread)
-			go getThreadFromGmail(gmailService, threadListItem, threadResult)
+			workerPool.Submit(func() {
+				getThreadFromGmail(gmailService, threadListItem, threadResult)
+			})
 			threadChannels = append(threadChannels, threadResult)
 		}
 	}
@@ -409,7 +416,10 @@ func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []d
 }
 
 func getThreadFromGmail(gmailService *gmail.Service, threadID string, result chan<- *gmail.Thread) {
+	counter := 0
+	fmt.Println("getThreadFromGmail", time.Now())
 	getThreadCall := func() error {
+		counter += 1
 		thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
 		if err != nil {
 			// short circuit retry with nil return on 404, trying again will not fix the issue
@@ -443,6 +453,7 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 		result <- nil
 		return
 	}
+	fmt.Println("counter:", counter)
 }
 
 func isMessageUnread(message *gmail.Message) bool {
