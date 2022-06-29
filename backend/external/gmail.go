@@ -93,6 +93,13 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 		historiesRequiringUpdate, recentHistoryID, err = getAllRecentGmailHistory(gmailService, latestHistoryID)
 		if err != nil {
+			// retry request with full refresh in history fetching fails
+			// this will happen if the history is too old and too many threads will be returned
+			if strings.Contains(err.Error(), "Error 404") {
+				log.Error().Err(err).Msg("failed to fetch history")
+				gmailSource.GetEmails(userID, accountID, latestHistoryID, result, true)
+				return
+			}
 			log.Error().Err(err).Msg("failed to load Gmail history for user")
 			isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
 				strings.Contains(err.Error(), "authError")
