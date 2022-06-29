@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { Colors, Shadows, Spacing, Border } from '../../styles'
 import { icons } from '../../styles/images'
@@ -25,16 +25,14 @@ const EditViewsButton = () => {
     const openModal = () => {
         setPageState('edit')
     }
-    // const onClose = () => {
-    //     setPageState('none')
-    // }
+    const handleClose = useCallback(() => setPageState('none'), []) // callback so that modal components do not re-render
     return (
         <>
             <Button onClick={openModal}>
                 <Icon source={icons.gear} size="small" />
                 Edit Views
             </Button>
-            <EditViewsModal isOpen={pageState === 'edit'} onClose={() => setPageState('none')} />
+            <EditViewsModal isOpen={pageState === 'edit'} onClose={handleClose} />
             {pageState === 'add' && <div>Add a new view here xD</div>}
         </>
     )
