@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/panjf2000/ants/v2"
 	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -16,7 +17,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/cenkalti/backoff/v4"
-	"github.com/gammazero/workerpool"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -62,7 +62,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	}
 
 	threadChannels := []chan *gmail.Thread{}
-	workerPool := workerpool.New(concurrencyLimit)
+	workerPool, _ := ants.NewPool(concurrencyLimit)
+	defer workerPool.Release()
 	var recentHistoryID uint64
 	var historiesRequiringUpdate []*gmail.History
 	// loads all thread changes, or 500 recent threads in the inbox
@@ -84,8 +85,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 		for _, threadListItem := range threadsResponse.Threads {
 			var threadResult = make(chan *gmail.Thread)
+			threadID := threadListItem.Id
 			workerPool.Submit(func() {
-				getThreadFromGmail(gmailService, threadListItem.Id, threadResult)
+				getThreadFromGmail(gmailService, threadID, threadResult)
 			})
 			threadChannels = append(threadChannels, threadResult)
 		}
@@ -130,15 +132,14 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		// TODO: think about not fetching emails if the only updates are label changes
 		for _, threadListItem := range historyThreadIDsToFetch {
 			var threadResult = make(chan *gmail.Thread)
+			threadID := threadListItem
 			workerPool.Submit(func() {
-				getThreadFromGmail(gmailService, threadListItem, threadResult)
+				getThreadFromGmail(gmailService, threadID, threadResult)
 			})
 			threadChannels = append(threadChannels, threadResult)
 		}
 	}
-	fmt.Println("start stopwait")
-	workerPool.StopWait()
-	fmt.Println("done stopwait")
+
 	emailResult := updateOrCreateThreads(userID, accountID, db, threadChannels)
 	emailResult.HistoryID = recentHistoryID
 	result <- emailResult
@@ -179,7 +180,6 @@ func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mong
 			log.Error().Err(err).Msg("failed to get or create gmail thread")
 			return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		}
-
 		for _, message := range thread.Messages {
 			emailItem, err := parseEmail(userID, accountID, message, thread.Id)
 			// if we ran into an error parsing message body
@@ -228,7 +228,6 @@ func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mong
 			return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		}
 	}
-
 	return EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL}
 }
 
@@ -446,9 +445,7 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 		Clock:               backoff.SystemClock,
 	}
 	expBackoff.Reset()
-	fmt.Println("backoff start")
 	err := backoff.RetryNotify(getThreadCall, expBackoff, notify)
-	fmt.Println("backoff stop")
 	if err != nil {
 		log.Error().Err(err).Msgf("permanently failed to load threadID %s", threadID)
 		result <- nil
