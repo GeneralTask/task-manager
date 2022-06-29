@@ -38,7 +38,7 @@ export const ModalHeader = styled.div`
     font-weight: ${Typography.weight._600};
     margin-bottom: ${Spacing.margin._24};
 `
-export const EditViewsBlock = styled.div`
+export const SelectedView = styled.div`
     display: flex;
     align-items: center;
     border-radius: ${Border.radius.small};

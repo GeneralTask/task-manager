@@ -1,10 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { useAppDispatch } from '../../redux/hooks'
-import { setShowModal } from '../../redux/tasksPageSlice'
 import { Colors, Shadows, Spacing, Border } from '../../styles'
 import { icons } from '../../styles/images'
-import { ModalEnum } from '../../utils/enums'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Icon } from '../atoms/Icon'
 import EditViewsModal from './EditViewsModal'
@@ -25,9 +22,7 @@ type TPageState = 'none' | 'edit' | 'add'
 
 const EditViewsButton = () => {
     const [pageState, setPageState] = useState<TPageState>('none')
-    const dispatch = useAppDispatch()
     const openModal = () => {
-        dispatch(setShowModal(ModalEnum.OVERVIEW))
         setPageState('edit')
     }
     // const onClose = () => {
@@ -39,7 +34,7 @@ const EditViewsButton = () => {
                 <Icon source={icons.gear} size="small" />
                 Edit Views
             </Button>
-            {pageState === 'edit' && <EditViewsModal />}
+            <EditViewsModal isOpen={pageState === 'edit'} onClose={() => setPageState('none')} />
             {pageState === 'add' && <div>Add a new view here xD</div>}
         </>
     )
