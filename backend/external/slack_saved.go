@@ -2,15 +2,19 @@ package external
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/slack-go/slack"
+	"golang.org/x/oauth2"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type slackSavedMessagesResponse struct {
@@ -87,10 +91,23 @@ func (slackTask SlackSavedTaskSource) SendEmail(userID primitive.ObjectID, accou
 }
 
 func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return primitive.NilObjectID, err
+	}
+	defer dbCleanup()
+
 	taskSection := constants.IDTaskSectionDefault
 	if task.IDTaskSection != primitive.NilObjectID {
 		taskSection = task.IDTaskSection
 	}
+
+	permalink := ""
+	if task.SlackMessageParams.Message.TimeSent != "" && task.SlackMessageParams.Channel.ID != "" {
+		permalink = GetSlackMessagePermalink(db, userID, accountID, task.SlackMessageParams.Channel.ID, task.SlackMessageParams.Message.TimeSent)
+	}
+
 	newTask := database.Item{
 		TaskBase: database.TaskBase{
 			UserID:          userID,
@@ -99,6 +116,7 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 			Title:           task.Title,
 			Body:            task.Body,
 			SourceAccountID: accountID,
+			Deeplink:        permalink,
 		},
 		TaskType: database.TaskType{
 			IsTask: true,
@@ -111,12 +129,6 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 		},
 	}
 
-	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return primitive.NilObjectID, err
-	}
-	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -138,4 +150,27 @@ func (slackTask SlackSavedTaskSource) ModifyThread(userID primitive.ObjectID, ac
 
 func GenerateSlackUserID(teamID string, userID string) string {
 	return teamID + "-" + userID
+}
+
+func GetSlackMessagePermalink(db *mongo.Database, userID primitive.ObjectID, accountID string, channelID string, ts string) string {
+	externalToken, err := getExternalToken(db, userID, accountID, TASK_SERVICE_ID_SLACK)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to fetch Slack external token")
+		return ""
+	}
+
+	var oauthToken oauth2.Token
+	json.Unmarshal([]byte(externalToken.Token), &oauthToken)
+
+	client := slack.New(oauthToken.AccessToken)
+	params := slack.PermalinkParameters{
+		Channel: channelID,
+		Ts:      ts,
+	}
+	permalink, err := client.GetPermalink(&params)
+	if err != nil {
+		log.Error().Err(err).Msg("unable to fetch Slack message permalink")
+		return ""
+	}
+	return permalink
 }
