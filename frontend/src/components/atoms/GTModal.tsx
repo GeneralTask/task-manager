@@ -71,7 +71,9 @@ interface GTModalProps {
 }
 const GTModal = (props: GTModalProps) => {
     const handleClose = () => {
-        props.onClose?.()
+        if (props.onClose) {
+            props.onClose()
+        }
     }
     return (
         <Modal isOpen={props.isOpen} style={modalStyles} onRequestClose={handleClose}>
