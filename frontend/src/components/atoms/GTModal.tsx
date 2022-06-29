@@ -10,12 +10,12 @@ import { background } from '../../styles/colors'
 Modal.setAppElement('#root')
 
 const ModalContainer = styled.div`
-    padding: ${Spacing.padding._16};
     height: 100%;
     box-sizing: border-box;
     display: flex;
     flex: auto;
     flex-direction: column;
+    justify-content: space-between;
 `
 const Header = styled.div`
     color: ${Colors.gray._700};
@@ -53,6 +53,7 @@ const modalStyles = {
         width: '50%',
         height: '75%',
         boxShadow: Shadows.medium,
+        padding: Spacing.padding._16,
     },
 }
 
