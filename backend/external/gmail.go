@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/panjf2000/ants/v2"
 	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -24,7 +25,8 @@ import (
 )
 
 const (
-	fullFetchMaxResults = int64(500)
+	fullFetchMaxResults = int64(100)
+	concurrencyLimit    = 15
 )
 
 type GmailThreadResponse struct {
@@ -60,6 +62,8 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	}
 
 	threadChannels := []chan *gmail.Thread{}
+	workerPool, _ := ants.NewPool(concurrencyLimit)
+	defer workerPool.Release()
 	var recentHistoryID uint64
 	var historiesRequiringUpdate []*gmail.History
 	// loads all thread changes, or 500 recent threads in the inbox
@@ -81,7 +85,10 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 		for _, threadListItem := range threadsResponse.Threads {
 			var threadResult = make(chan *gmail.Thread)
-			go getThreadFromGmail(gmailService, threadListItem.Id, threadResult)
+			threadID := threadListItem.Id
+			workerPool.Submit(func() {
+				getThreadFromGmail(gmailService, threadID, threadResult)
+			})
 			threadChannels = append(threadChannels, threadResult)
 		}
 
@@ -132,7 +139,10 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		// TODO: think about not fetching emails if the only updates are label changes
 		for _, threadListItem := range historyThreadIDsToFetch {
 			var threadResult = make(chan *gmail.Thread)
-			go getThreadFromGmail(gmailService, threadListItem, threadResult)
+			threadID := threadListItem
+			workerPool.Submit(func() {
+				getThreadFromGmail(gmailService, threadID, threadResult)
+			})
 			threadChannels = append(threadChannels, threadResult)
 		}
 	}
@@ -177,7 +187,6 @@ func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mong
 			log.Error().Err(err).Msg("failed to get or create gmail thread")
 			return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		}
-
 		for _, message := range thread.Messages {
 			emailItem, err := parseEmail(userID, accountID, message, thread.Id)
 			// if we ran into an error parsing message body
@@ -226,7 +235,6 @@ func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mong
 			return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		}
 	}
-
 	return EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL}
 }
 
