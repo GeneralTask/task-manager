@@ -3,11 +3,10 @@ package api
 import (
 	"bytes"
 	"context"
-	"net/http"
-	"testing"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"go.mongodb.org/mongo-driver/bson"
+	"net/http"
+	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -77,7 +76,7 @@ func TestCreateTaskFromThread(t *testing.T) {
 		var task database.Item
 		err = taskCollection.FindOne(dbCtx, bson.M{"title": "sample title", "user_id": userID}).Decode(&task)
 		assert.True(t, task.IsTask)
-		assert.Equal(t, external.TASK_SOURCE_ID_GT_TASK, task.SourceID)
+		assert.Equal(t, external.TASK_SOURCE_ID_GMAIL, task.SourceID)
 		assert.Equal(t, threadID, *task.LinkedMessage.ThreadID)
 		assert.Equal(t, "deeplink.com/wut", task.Deeplink)
 		assert.Nil(t, task.LinkedMessage.EmailID)
@@ -92,7 +91,7 @@ func TestCreateTaskFromThread(t *testing.T) {
 		var task database.Item
 		err = taskCollection.FindOne(dbCtx, bson.M{"title": "sample title 2", "user_id": userID}).Decode(&task)
 		assert.True(t, task.IsTask)
-		assert.Equal(t, external.TASK_SOURCE_ID_GT_TASK, task.SourceID)
+		assert.Equal(t, external.TASK_SOURCE_ID_GMAIL, task.SourceID)
 		assert.Equal(t, threadID, *task.LinkedMessage.ThreadID)
 		assert.Equal(t, firstEmailID, *task.LinkedMessage.EmailID)
 	})
