@@ -3,7 +3,6 @@ import { icons, logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import useGetOverviewViews from './dummydata'
 import { SelectedView, EditViewsDeleteButton } from './styles'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { Colors } from '../../styles'
 import GTModal from '../atoms/GTModal'
 
@@ -18,7 +17,7 @@ const EditViewsModal = ({ isOpen, onClose }: EditViewsModalProps) => {
             isOpen={isOpen}
             title="Edit views"
             onClose={onClose}
-            leftButtons={<RoundedGeneralButton value="Done" color={Colors.purple._1} onClick={onClose} />}
+            leftButtons={[{ value: 'Done', color: Colors.purple._1, onClick: onClose }]}
         >
             <>
                 {blocks.map((block) => (
