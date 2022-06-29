@@ -9,11 +9,13 @@ import { background } from '../../styles/colors'
 import RoundedGeneralButton, { RoundedGeneralButtonProps } from './buttons/RoundedGeneralButton'
 
 const MODAL_MAX_HEIGHT = '75vh'
+const MODAL_MIN_HEIGHT = '50vh'
 const MODAL_WIDTH = '50vw'
 
 Modal.setAppElement('#root')
 
 const ModalContainer = styled.div`
+    min-height: ${MODAL_MIN_HEIGHT};
     max-height: ${MODAL_MAX_HEIGHT};
     box-sizing: border-box;
     display: flex;
@@ -55,6 +57,7 @@ const modalStyles = {
         margin: 'auto',
         border: 'none',
         height: 'fit-content',
+        minHeight: MODAL_MIN_HEIGHT,
         maxHeight: MODAL_MAX_HEIGHT,
         width: MODAL_WIDTH,
         boxShadow: Shadows.medium,
