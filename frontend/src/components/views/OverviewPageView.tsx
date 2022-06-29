@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { Spacing, Colors, Typography } from '../../styles'
 import useGeTOverviewViews from '../overview/dummydata'
+import EditViewsButton from '../overview/EditViewsButton'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -11,7 +12,10 @@ const PageHeader = styled.div`
     color: ${Colors.gray._500};
     font-size: ${Typography.small.fontSize};
     border-bottom: 2px solid ${Colors.gray._200};
-    margin-bottom: ${Spacing.margin._40};
+`
+const ActionsContainer = styled.div`
+    display: flex;
+    justify-content: flex-end;
 `
 // placeholder for details view
 const DetailsViewContainer = styled.div`
@@ -27,6 +31,9 @@ const OverviewView = () => {
         <>
             <ScrollableListTemplate noTopPadding>
                 <PageHeader>Overview</PageHeader>
+                <ActionsContainer>
+                    <EditViewsButton />
+                </ActionsContainer>
                 {views.map((view) => (
                     <OverviewViewContainer view={view} key={view.id} />
                 ))}
