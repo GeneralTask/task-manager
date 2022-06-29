@@ -26,7 +26,7 @@ const RoundedButton = styled.button<{ hasBorder: boolean; textStyle: 'light' | '
     cursor: pointer;
 `
 
-interface RoundedGeneralButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface RoundedGeneralButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     color?: string
     textStyle?: 'light' | 'dark'
     wrapText?: boolean

@@ -6,6 +6,7 @@ import { icons } from '../../styles/images'
 import NoStyleButton from './buttons/NoStyleButton'
 import { Icon } from './Icon'
 import { background } from '../../styles/colors'
+import RoundedGeneralButton, { RoundedGeneralButtonProps } from './buttons/RoundedGeneralButton'
 
 const MODAL_MAX_HEIGHT = '75vh'
 const MODAL_WIDTH = '50vw'
@@ -62,11 +63,11 @@ const modalStyles = {
 }
 
 interface GTModalProps {
-    children: JSX.Element
+    children: React.ReactNode
     isOpen: boolean
     title?: string
-    leftButtons?: JSX.Element
-    rightButtons?: JSX.Element
+    leftButtons?: RoundedGeneralButtonProps[]
+    rightButtons?: RoundedGeneralButtonProps[]
     onClose?: () => void
 }
 const GTModal = (props: GTModalProps) => {
@@ -87,8 +88,18 @@ const GTModal = (props: GTModalProps) => {
                 <Body>{props.children}</Body>
                 {(props.leftButtons || props.rightButtons) && (
                     <Footer>
-                        <div>{props.leftButtons}</div>
-                        <div>{props.rightButtons}</div>
+                        <div>
+                            {props.leftButtons?.map((buttonProps, index) => (
+                                <RoundedGeneralButton key={index} {...buttonProps} />
+                            ))}
+                        </div>
+                        {props.rightButtons && (
+                            <div>
+                                {props.rightButtons?.map((buttonProps, index) => (
+                                    <RoundedGeneralButton key={index} {...buttonProps} />
+                                ))}
+                            </div>
+                        )}
                     </Footer>
                 )}
             </ModalContainer>
