@@ -8,7 +8,7 @@ import (
 type ViewType string
 
 const (
-	ViewTaskSection ViewType = "TaskSection"
+	ViewTaskSection ViewType = "task_section"
 )
 
 type SourcesResult struct {
@@ -40,7 +40,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 			IsLinked: false,
 			Sources: []SourcesResult{
 				{
-					Name: "Tasks",
+					Name: "GeneralTask",
 				},
 			},
 			IsPaginated:   false,
