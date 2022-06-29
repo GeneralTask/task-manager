@@ -7,10 +7,13 @@ import NoStyleButton from './buttons/NoStyleButton'
 import { Icon } from './Icon'
 import { background } from '../../styles/colors'
 
+const MODAL_MAX_HEIGHT = '75vh'
+const MODAL_WIDTH = '50vw'
+
 Modal.setAppElement('#root')
 
 const ModalContainer = styled.div`
-    height: 100%;
+    max-height: ${MODAL_MAX_HEIGHT};
     box-sizing: border-box;
     display: flex;
     flex: auto;
@@ -50,8 +53,9 @@ const modalStyles = {
     content: {
         margin: 'auto',
         border: 'none',
-        width: '50%',
-        height: '75%',
+        height: 'fit-content',
+        maxHeight: MODAL_MAX_HEIGHT,
+        width: MODAL_WIDTH,
         boxShadow: Shadows.medium,
         padding: Spacing.padding._16,
     },
