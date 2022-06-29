@@ -25,8 +25,8 @@ import (
 )
 
 const (
-	fullFetchMaxResults = int64(200)
-	concurrencyLimit    = 10
+	fullFetchMaxResults = int64(100)
+	concurrencyLimit    = 15
 )
 
 type GmailThreadResponse struct {
@@ -416,10 +416,7 @@ func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []d
 }
 
 func getThreadFromGmail(gmailService *gmail.Service, threadID string, result chan<- *gmail.Thread) {
-	counter := 0
-	fmt.Println("getThreadFromGmail", time.Now())
 	getThreadCall := func() error {
-		counter += 1
 		thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
 		if err != nil {
 			// short circuit retry with nil return on 404, trying again will not fix the issue
@@ -453,7 +450,6 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 		result <- nil
 		return
 	}
-	fmt.Println("counter:", counter)
 }
 
 func isMessageUnread(message *gmail.Message) bool {
