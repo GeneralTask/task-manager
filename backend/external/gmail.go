@@ -136,7 +136,9 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			threadChannels = append(threadChannels, threadResult)
 		}
 	}
-
+	fmt.Println("start stopwait")
+	workerPool.StopWait()
+	fmt.Println("done stopwait")
 	emailResult := updateOrCreateThreads(userID, accountID, db, threadChannels)
 	emailResult.HistoryID = recentHistoryID
 	result <- emailResult
@@ -444,7 +446,9 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 		Clock:               backoff.SystemClock,
 	}
 	expBackoff.Reset()
+	fmt.Println("backoff start")
 	err := backoff.RetryNotify(getThreadCall, expBackoff, notify)
+	fmt.Println("backoff stop")
 	if err != nil {
 		log.Error().Err(err).Msgf("permanently failed to load threadID %s", threadID)
 		result <- nil
