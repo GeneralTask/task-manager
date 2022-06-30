@@ -30,7 +30,6 @@ type API struct {
 
 func GetAPI() *API {
 	logger := GetSentryLogger()
-	logger.Error().Err(errors.New("hello")).Msg("test")
 	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: logger}
 }
 
