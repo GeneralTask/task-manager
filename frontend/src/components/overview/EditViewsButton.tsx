@@ -19,19 +19,19 @@ const Button = styled(NoStyleButton)`
 `
 
 const EditViewsButton = () => {
-    const [pageState, setPageState] = useState<'none' | 'edit' | 'add'>('none')
+    const [pageState, setPageState] = useState<'NONE' | 'EDIT' | 'ADD'>('NONE')
     const openModal = () => {
-        setPageState('edit')
+        setPageState('EDIT')
     }
-    const handleClose = useCallback(() => setPageState('none'), []) // callback so that modal components do not re-render
+    const handleClose = useCallback(() => setPageState('NONE'), []) // callback so that modal components do not re-render
     return (
         <>
             <Button onClick={openModal}>
                 <Icon source={icons.gear} size="small" />
                 Edit Views
             </Button>
-            <EditViewsModal isOpen={pageState === 'edit'} onClose={handleClose} />
-            {pageState === 'add' && <div>Add a new view here xD</div>}
+            <EditViewsModal isOpen={pageState === 'EDIT'} onClose={handleClose} />
+            {pageState === 'ADD' && <div>Add a new view here xD</div>}
         </>
     )
 }
