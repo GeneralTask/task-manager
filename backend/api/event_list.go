@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"sort"
 	"time"
 
@@ -61,7 +60,7 @@ func (api *API) EventsList(c *gin.Context) {
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
-		log.Error().Err(err).Msg("failed to find user")
+		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
 		return
 	}
@@ -74,7 +73,7 @@ func (api *API) EventsList(c *gin.Context) {
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch api tokens")
+		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")
 		Handle500(c)
 		return
 	}
@@ -82,7 +81,7 @@ func (api *API) EventsList(c *gin.Context) {
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to iterate through api tokens")
+		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
 		Handle500(c)
 		return
 	}
@@ -92,7 +91,7 @@ func (api *API) EventsList(c *gin.Context) {
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
-			log.Error().Err(err).Msg("error loading task service")
+			api.Logger.Error().Err(err).Msg("error loading task service")
 			continue
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {

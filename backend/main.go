@@ -16,7 +16,8 @@ func main() {
 
 	err := migrations.RunMigrations("migrations")
 	if err != nil {
-		log.Error().Err(err).Msg("error running migrations")
+		logger := api.GetSentryLogger()
+		logger.Error().Err(err).Msg("error running migrations")
 	}
 	api.GetRouter(api.GetAPI()).Run()
 }

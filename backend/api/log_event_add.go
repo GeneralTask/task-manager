@@ -1,8 +1,6 @@
 package api
 
 import (
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -16,7 +14,7 @@ func (api *API) LogEventAdd(c *gin.Context) {
 	var params LogEventParams
 	err := c.BindJSON(&params)
 	if err != nil {
-		log.Error().Err(err).Msg("error")
+		api.Logger.Error().Err(err).Msg("error")
 		c.JSON(400, gin.H{"detail": "invalid or missing 'event_type' parameter."})
 		return
 	}
@@ -31,7 +29,7 @@ func (api *API) LogEventAdd(c *gin.Context) {
 	userID, _ := c.Get("user")
 	err = database.InsertLogEvent(db, userID.(primitive.ObjectID), params.EventType)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to insert waitlist entry")
+		api.Logger.Error().Err(err).Msg("failed to insert waitlist entry")
 		Handle500(c)
 		return
 	}

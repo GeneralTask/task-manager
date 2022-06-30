@@ -3,9 +3,13 @@ package api
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
+	"os"
 	"time"
 
+	zlogsentry "github.com/archdx/zerolog-sentry"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -21,10 +25,22 @@ import (
 type API struct {
 	ExternalConfig      external.Config
 	SkipStateTokenCheck bool
+	Logger              zerolog.Logger
 }
 
 func GetAPI() *API {
-	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false}
+	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: GetSentryLogger()}
+}
+
+func GetSentryLogger() zerolog.Logger {
+	w, err := zlogsentry.New("https://2b8b40065a7c480584a06774b22741d5@o1302719.ingest.sentry.io/6540750", zlogsentry.WithLevels(zerolog.WarnLevel))
+	if err != nil {
+		log.Err(err).Msg("failed to initialize sentry logger")
+	}
+
+	defer w.Close()
+
+	return zerolog.New(io.MultiWriter(w, os.Stdout)).With().Timestamp().Logger()
 }
 
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {

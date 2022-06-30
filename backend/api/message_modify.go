@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/chidiwilliams/flatbson"
@@ -53,7 +51,7 @@ func (api *API) MessageModify(c *gin.Context) {
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(message.SourceID)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to load external task source")
+		api.Logger.Error().Err(err).Msg("failed to load external task source")
 		Handle500(c)
 		return
 	}
@@ -61,14 +59,14 @@ func (api *API) MessageModify(c *gin.Context) {
 	// update external message
 	err = taskSourceResult.Source.ModifyMessage(userID, message.SourceAccountID, message.IDExternal, messageChangeableFields)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to update external task source")
+		api.Logger.Error().Err(err).Msg("failed to update external task source")
 		Handle500(c)
 		return
 	}
 
 	err = updateMessageInDB(api, c.Request.Context(), messageID, userID, messageChangeableFields)
 	if err != nil {
-		log.Error().Err(err).Msgf("could not update message %v in DB with fields %+v", messageID, messageChangeableFields)
+		api.Logger.Error().Err(err).Msgf("could not update message %v in DB with fields %+v", messageID, messageChangeableFields)
 		Handle500(c)
 		return
 	}
@@ -91,7 +89,7 @@ func updateMessageInDB(api *API, ctx context.Context, messageID primitive.Object
 	// We flatten in order to do partial updates of nested documents correctly in mongodb
 	flattenedUpdateFields, err := flatbson.Flatten(updateFields)
 	if err != nil {
-		log.Error().Err(err).Msgf("Could not flatten %+v", updateFields)
+		api.Logger.Error().Err(err).Msgf("Could not flatten %+v", updateFields)
 		return err
 	}
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -106,12 +104,12 @@ func updateMessageInDB(api *API, ctx context.Context, messageID primitive.Object
 	)
 
 	if err != nil {
-		log.Error().Err(err).Msg("failed to update internal DB")
+		api.Logger.Error().Err(err).Msg("failed to update internal DB")
 		return err
 	}
 	if res.MatchedCount != 1 {
 		// Note, we don't consider res.ModifiedCount because no-op updates don't count as modified
-		log.Error().Msgf("failed to find message %+v", res)
+		api.Logger.Error().Msgf("failed to find message %+v", res)
 		return fmt.Errorf("failed to find message %+v", res)
 	}
 
