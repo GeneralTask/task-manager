@@ -18,10 +18,8 @@ const Button = styled(NoStyleButton)`
     margin: ${Spacing.margin._16} 0;
 `
 
-type TPageState = 'none' | 'edit' | 'add'
-
 const EditViewsButton = () => {
-    const [pageState, setPageState] = useState<TPageState>('none')
+    const [pageState, setPageState] = useState<'none' | 'edit' | 'add'>('none')
     const openModal = () => {
         setPageState('edit')
     }

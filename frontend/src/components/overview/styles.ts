@@ -29,7 +29,7 @@ export const RemoveButton = styled(NoStyleButton)`
 export const SelectedView = styled.div`
     display: flex;
     align-items: center;
-    border-radius: ${Border.radius.small};
+    border-radius: ${Border.radius.large};
     border: 1px solid ${Colors.purple._3};
     padding: ${Spacing.padding._16} ${Spacing.padding._12};
     margin: ${Spacing.margin._12} 0;
