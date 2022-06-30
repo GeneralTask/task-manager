@@ -29,18 +29,27 @@ type API struct {
 }
 
 func GetAPI() *API {
-	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: GetSentryLogger()}
+	logger := GetSentryLogger()
+	logger.Error().Err(errors.New("hello")).Msg("test")
+	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: logger}
 }
 
+// note: sentry logger returns a stdout logger when not in production
 func GetSentryLogger() zerolog.Logger {
-	w, err := zlogsentry.New("https://2b8b40065a7c480584a06774b22741d5@o1302719.ingest.sentry.io/6540750", zlogsentry.WithLevels(zerolog.WarnLevel))
-	if err != nil {
-		log.Err(err).Msg("failed to initialize sentry logger")
+	var logger io.Writer
+	if config.GetEnvironment() == config.Prod {
+		w, err := zlogsentry.New("https://2b8b40065a7c480584a06774b22741d5@o1302719.ingest.sentry.io/6540750", zlogsentry.WithLevels(zerolog.WarnLevel, zerolog.ErrorLevel, zerolog.FatalLevel, zerolog.PanicLevel))
+		if err != nil {
+			log.Error().Err(err).Msg("failed to initialize sentry logger")
+		}
+
+		defer w.Close()
+		logger = io.MultiWriter(w, os.Stdout)
+	} else {
+		logger = os.Stdout
 	}
 
-	defer w.Close()
-
-	return zerolog.New(io.MultiWriter(w, os.Stdout)).With().Timestamp().Logger()
+	return zerolog.New(logger).With().Timestamp().Logger()
 }
 
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
