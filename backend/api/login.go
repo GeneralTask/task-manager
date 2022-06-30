@@ -125,7 +125,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		}
 		err = createNewUserViews(parentCtx, userID, db)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to create starter views")
+			api.Logger.Error().Err(err).Msg("failed to create starter views")
 		}
 	}
 
