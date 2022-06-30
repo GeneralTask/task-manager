@@ -21,6 +21,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+const SentryDSN = "https://2b8b40065a7c480584a06774b22741d5@o1302719.ingest.sentry.io/6540750"
+
 // API is the object containing API route handlers
 type API struct {
 	ExternalConfig      external.Config
@@ -37,7 +39,7 @@ func GetAPI() *API {
 func GetSentryLogger() zerolog.Logger {
 	var logger io.Writer
 	if config.GetEnvironment() == config.Prod {
-		w, err := zlogsentry.New("https://2b8b40065a7c480584a06774b22741d5@o1302719.ingest.sentry.io/6540750", zlogsentry.WithLevels(zerolog.WarnLevel, zerolog.ErrorLevel, zerolog.FatalLevel, zerolog.PanicLevel))
+		w, err := zlogsentry.New(SentryDSN, zlogsentry.WithLevels(zerolog.WarnLevel, zerolog.ErrorLevel, zerolog.FatalLevel, zerolog.PanicLevel))
 		if err != nil {
 			log.Error().Err(err).Msg("failed to initialize sentry logger")
 		}
