@@ -213,8 +213,5 @@ func createNewUserViews(parentCtx context.Context, userID primitive.ObjectID, db
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err := viewCollection.InsertOne(dbCtx, initialTaskSectionView)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
