@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -28,7 +27,7 @@ func (api *API) Logout(c *gin.Context) {
 	defer cancel()
 	result, err := tokenCollection.DeleteOne(dbCtx, bson.M{"token": token})
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to remove token")
+		api.Logger.Error().Err(err).Msg("Failed to remove token")
 		Handle500(c)
 		return
 	}

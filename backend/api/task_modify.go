@@ -3,8 +3,9 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/rs/zerolog/log"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -61,7 +62,7 @@ func (api *API) TaskModify(c *gin.Context) {
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to load external task source")
+		api.Logger.Error().Err(err).Msg("failed to load external task source")
 		Handle500(c)
 		return
 	}
@@ -75,16 +76,16 @@ func (api *API) TaskModify(c *gin.Context) {
 		// update external task
 		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &modifyParams.TaskItemChangeableFields, task)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to update external task source")
+			api.Logger.Error().Err(err).Msg("failed to update external task source")
 			Handle500(c)
 			return
 		}
-		UpdateTaskInDB(c, task, userID, &modifyParams.TaskItemChangeableFields)
+		api.UpdateTaskInDB(c, task, userID, &modifyParams.TaskItemChangeableFields)
 	}
 
 	// handle reorder task
 	if modifyParams.IDOrdering != nil || modifyParams.IDTaskSection != nil {
-		err = ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection, task)
+		err = api.ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection, task)
 		if err != nil {
 			return
 		}
@@ -116,7 +117,7 @@ func ValidateFields(c *gin.Context, updateFields *database.TaskItemChangeableFie
 	return true
 }
 
-func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string, task *database.Item) error {
+func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string, task *database.Item) error {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -147,7 +148,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		bson.M{"$set": updateFields},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to update task in db")
+		api.Logger.Error().Err(err).Msg("failed to update task in db")
 		Handle500(c)
 		return err
 	}
@@ -169,7 +170,7 @@ func ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.Obj
 		bson.M{"$inc": bson.M{"id_ordering": 1}},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to move back other tasks in db")
+		api.Logger.Error().Err(err).Msg("failed to move back other tasks in db")
 		Handle500(c)
 		return err
 	}
@@ -202,7 +203,7 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 	return &task, nil
 }
 
-func UpdateTaskInDB(c *gin.Context, task *database.Item, userID primitive.ObjectID, updateFields *database.TaskItemChangeableFields) {
+func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Item, userID primitive.ObjectID, updateFields *database.TaskItemChangeableFields) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -223,7 +224,7 @@ func UpdateTaskInDB(c *gin.Context, task *database.Item, userID primitive.Object
 
 	flattenedTaskChangeableFields, err := database.FlattenStruct(updateFields)
 	if err != nil {
-		log.Error().Err(err).Msgf("failed to flatten struct %+v", updateFields)
+		api.Logger.Error().Err(err).Msgf("failed to flatten struct %+v", updateFields)
 		Handle500(c)
 		return
 	}
@@ -239,7 +240,7 @@ func UpdateTaskInDB(c *gin.Context, task *database.Item, userID primitive.Object
 		bson.M{"$set": flattenedTaskChangeableFields},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to update internal DB")
+		api.Logger.Error().Err(err).Msg("failed to update internal DB")
 		Handle500(c)
 		return
 	}

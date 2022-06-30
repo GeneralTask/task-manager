@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -31,7 +29,7 @@ func (api *API) TasksFetch(c *gin.Context) {
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
-		log.Error().Err(err).Msg("failed to find user")
+		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
 		return
 	}
@@ -55,10 +53,10 @@ func (api *API) TasksFetch(c *gin.Context) {
 		bson.M{"$set": bson.M{"last_refreshed": primitive.NewDateTimeFromTime(time.Now())}},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to update user last_refreshed")
+		api.Logger.Error().Err(err).Msg("failed to update user last_refreshed")
 	}
 
-	err = adjustForCompletedTasks(db, currentTasks, fetchedTasks, failedFetchSources)
+	err = api.adjustForCompletedTasks(db, currentTasks, fetchedTasks, failedFetchSources)
 	if err != nil {
 		Handle500(c)
 		return

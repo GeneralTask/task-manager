@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/slack"
@@ -22,7 +20,7 @@ func (api *API) FeedbackAdd(c *gin.Context) {
 	var params FeedbackParams
 	err := c.BindJSON(&params)
 	if err != nil || params.Feedback == "" {
-		log.Error().Err(err).Msg("error")
+		api.Logger.Error().Err(err).Msg("error")
 		c.JSON(400, gin.H{"detail": "invalid or missing 'feedback' parameter."})
 		return
 	}
@@ -48,13 +46,13 @@ func (api *API) FeedbackAdd(c *gin.Context) {
 		},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to insert feedback item")
+		api.Logger.Error().Err(err).Msg("failed to insert feedback item")
 		Handle500(c)
 		return
 	}
 	err = slack.SendFeedbackMessage(params.Feedback)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to send slack feedback message")
+		api.Logger.Error().Err(err).Msg("failed to send slack feedback message")
 	}
 	c.JSON(201, gin.H{})
 }

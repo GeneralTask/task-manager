@@ -1,8 +1,6 @@
 package api
 
 import (
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +16,7 @@ func (api *API) EventCreate(c *gin.Context) {
 	var eventCreateObject external.EventCreateObject
 	err = c.Bind(&eventCreateObject)
 	if err != nil {
-		log.Error().Err(err).Msg("invalid or missing parameter, err")
+		api.Logger.Error().Err(err).Msg("invalid or missing parameter, err")
 		c.JSON(400, gin.H{"detail": "invalid or missing parameter."})
 		return
 	}
@@ -26,7 +24,7 @@ func (api *API) EventCreate(c *gin.Context) {
 	userID := getUserIDFromContext(c)
 	err = taskSourceResult.Source.CreateNewEvent(userID, eventCreateObject.AccountID, eventCreateObject)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to update external task source")
+		api.Logger.Error().Err(err).Msg("failed to update external task source")
 		Handle500(c)
 		return
 	}
