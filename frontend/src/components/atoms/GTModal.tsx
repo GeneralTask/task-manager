@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 import Modal from 'react-modal'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
@@ -6,7 +6,6 @@ import { icons } from '../../styles/images'
 import NoStyleButton from './buttons/NoStyleButton'
 import { Icon } from './Icon'
 import { background } from '../../styles/colors'
-import RoundedGeneralButton, { RoundedGeneralButtonProps } from './buttons/RoundedGeneralButton'
 
 const MODAL_MAX_HEIGHT = '75vh'
 const MODAL_MIN_HEIGHT = '50vh'
@@ -35,6 +34,7 @@ const Header = styled.div`
 `
 const Body = styled.div`
     overflow: auto;
+    flex: 1;
 `
 const Footer = styled.div`
     margin-top: ${Spacing.margin._16};
@@ -47,6 +47,10 @@ const CloseButton = styled(NoStyleButton)`
     &:hover {
         background-color: ${Colors.gray._200};
     }
+`
+const ButtonsGroup = styled.div`
+    display: flex;
+    gap: ${Spacing.margin._8};
 `
 
 const modalStyles = {
@@ -62,6 +66,7 @@ const modalStyles = {
         width: MODAL_WIDTH,
         boxShadow: Shadows.medium,
         padding: Spacing.padding._16,
+        borderRadius: Border.radius.large,
     },
 }
 
@@ -69,8 +74,8 @@ interface GTModalProps {
     children: React.ReactNode
     isOpen: boolean
     title?: string
-    leftButtons?: RoundedGeneralButtonProps[]
-    rightButtons?: RoundedGeneralButtonProps[]
+    leftButtons?: ReactElement | ReactElement[]
+    rightButtons?: ReactElement | ReactElement[]
     onClose?: () => void
 }
 const GTModal = (props: GTModalProps) => {
@@ -91,18 +96,8 @@ const GTModal = (props: GTModalProps) => {
                 <Body>{props.children}</Body>
                 {(props.leftButtons || props.rightButtons) && (
                     <Footer>
-                        <div>
-                            {props.leftButtons?.map((buttonProps, index) => (
-                                <RoundedGeneralButton key={index} {...buttonProps} />
-                            ))}
-                        </div>
-                        {props.rightButtons && (
-                            <div>
-                                {props.rightButtons?.map((buttonProps, index) => (
-                                    <RoundedGeneralButton key={index} {...buttonProps} />
-                                ))}
-                            </div>
-                        )}
+                        <ButtonsGroup>{props.leftButtons}</ButtonsGroup>
+                        {props.rightButtons && <ButtonsGroup>{props.rightButtons}</ButtonsGroup>}
                     </Footer>
                 )}
             </ModalContainer>
