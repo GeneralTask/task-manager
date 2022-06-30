@@ -5,8 +5,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -65,7 +63,7 @@ func (api *API) ThreadsList(c *gin.Context) {
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to find user")
+		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
 		return
 	}
