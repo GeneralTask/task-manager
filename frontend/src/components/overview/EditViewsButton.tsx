@@ -17,9 +17,10 @@ const Button = styled(NoStyleButton)`
     border-radius: ${Border.radius.small};
     margin: ${Spacing.margin._16} 0;
 `
+type TPageState = 'NONE' | 'EDIT' | 'ADD'
 
 const EditViewsButton = () => {
-    const [pageState, setPageState] = useState<'NONE' | 'EDIT' | 'ADD'>('NONE')
+    const [pageState, setPageState] = useState<TPageState>('NONE')
     const openModal = () => {
         setPageState('EDIT')
     }

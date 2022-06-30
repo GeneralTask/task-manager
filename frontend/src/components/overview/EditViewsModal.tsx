@@ -18,7 +18,7 @@ const EditViewsModal = ({ isOpen, onClose }: EditViewsModalProps) => {
             isOpen={isOpen}
             title="Edit views"
             onClose={onClose}
-            leftButtons={<RoundedGeneralButton key={0} value="Done" color={Colors.purple._1} onClick={onClose} />}
+            leftButtons={<RoundedGeneralButton value="Done" color={Colors.purple._1} onClick={onClose} />}
         >
             <>
                 {blocks.map((block) => (
