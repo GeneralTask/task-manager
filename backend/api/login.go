@@ -123,6 +123,10 @@ func (api *API) LoginCallback(c *gin.Context) {
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to create starter tasks")
 		}
+		err = createNewUserViews(parentCtx, userID, db)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to create starter views")
+		}
 	}
 
 	lowerEmail := strings.ToLower(*email)
@@ -185,6 +189,31 @@ func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		_, err := taskCollection.InsertOne(dbCtx, newTask)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func createNewUserViews(parentCtx context.Context, userID primitive.ObjectID, db *mongo.Database) error {
+	viewCollection := database.GetViewCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	for index, view := range constants.StarterViews {
+		newView := database.View{
+			ID:            primitive.NewObjectID(),
+			UserID:        userID,
+			IDOrdering:    index + 1,
+			Type:          view.Type,
+			IsPaginated:   view.IsPaginated,
+			IsReorderable: view.IsReorderable,
+			IsLinked:      view.IsLinked,
+			TaskSectionID: view.TaskSectionID,
+		}
+		_, err := viewCollection.InsertOne(dbCtx, newView)
+
 		if err != nil {
 			return err
 		}
