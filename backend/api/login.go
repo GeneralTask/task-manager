@@ -200,18 +200,25 @@ func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db
 
 func createNewUserViews(parentCtx context.Context, userID primitive.ObjectID, db *mongo.Database) error {
 	viewCollection := database.GetViewCollection(db)
-	initialTaskSectionView := database.View{
-		ID:            primitive.NewObjectID(),
-		UserID:        userID,
-		IDOrdering:    1,
-		Type:          "task_section",
-		IsPaginated:   false,
-		IsReorderable: true,
-		IsLinked:      false,
-		TaskSectionID: constants.IDTaskSectionDefault,
-	}
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	_, err := viewCollection.InsertOne(dbCtx, initialTaskSectionView)
-	return err
+
+	for index, view := range constants.StarterViews {
+		newView := database.View{
+			ID:            primitive.NewObjectID(),
+			UserID:        userID,
+			IDOrdering:    index + 1,
+			Type:          view.Type,
+			IsPaginated:   view.IsPaginated,
+			IsReorderable: view.IsReorderable,
+			IsLinked:      view.IsLinked,
+			TaskSectionID: view.TaskSectionID,
+		}
+		_, err := viewCollection.InsertOne(dbCtx, newView)
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
