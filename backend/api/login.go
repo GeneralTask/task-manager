@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -115,7 +113,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 	userID, userIsNew, email, err := googleService.HandleSignupCallback(external.CallbackParams{Oauth2Code: &redirectParams.Code})
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to handle signup")
+		api.Logger.Error().Err(err).Msg("Failed to handle signup")
 		Handle500(c)
 		return
 	}
@@ -123,7 +121,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	if userIsNew != nil && *userIsNew {
 		err = createNewUserTasks(parentCtx, userID, db)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to create starter tasks")
+			api.Logger.Error().Err(err).Msg("failed to create starter tasks")
 		}
 		err = createNewUserViews(parentCtx, userID, db)
 		if err != nil {
@@ -140,7 +138,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to query waitlist")
+		api.Logger.Error().Err(err).Msg("failed to query waitlist")
 		Handle500(c)
 		return
 	}
@@ -159,7 +157,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		&database.InternalAPIToken{UserID: userID, Token: internalToken},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to create internal token record")
+		api.Logger.Error().Err(err).Msg("failed to create internal token record")
 		Handle500(c)
 		return
 	}

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/rs/zerolog/log"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -23,7 +22,7 @@ func (api *API) MessageCompose(c *gin.Context) {
 	var requestParams messageComposeParams
 	err := c.BindJSON(&requestParams)
 	if err != nil {
-		log.Error().Err(err).Msg("parameter missing or malformatted, error")
+		api.Logger.Error().Err(err).Msg("parameter missing or malformatted, error")
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
@@ -33,19 +32,19 @@ func (api *API) MessageCompose(c *gin.Context) {
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(requestParams.SourceID)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to load external task source")
+		api.Logger.Error().Err(err).Msg("failed to load external task source")
 		c.JSON(400, gin.H{"detail": "invalid source id"})
 		return
 	}
 
 	if requestParams.MessageID != nil {
-		handleReply(c, userID, taskSourceResult, &requestParams)
+		api.handleReply(c, userID, taskSourceResult, &requestParams)
 	} else {
-		handleCompose(c, userID, taskSourceResult, &requestParams)
+		api.handleCompose(c, userID, taskSourceResult, &requestParams)
 	}
 }
 
-func handleCompose(c *gin.Context, userID primitive.ObjectID, taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
+func (api *API) handleCompose(c *gin.Context, userID primitive.ObjectID, taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
 	if requestParams.Subject == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "subject must be set for composed message"})
 		return
@@ -57,7 +56,7 @@ func handleCompose(c *gin.Context, userID primitive.ObjectID, taskSourceResult *
 	}
 	err := taskSourceResult.Source.SendEmail(userID, requestParams.SourceAccountID, contents)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to send email")
+		api.Logger.Error().Err(err).Msg("failed to send email")
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "failed to send email"})
 		return
 	}
@@ -65,7 +64,7 @@ func handleCompose(c *gin.Context, userID primitive.ObjectID, taskSourceResult *
 	c.JSON(http.StatusCreated, gin.H{})
 }
 
-func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
+func (api *API) handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *external.TaskSourceResult, requestParams *messageComposeParams) {
 	if !taskSourceResult.Details.IsReplyable {
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "task cannot be replied to"})
 		return
@@ -73,7 +72,7 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 
 	messageID, err := primitive.ObjectIDFromHex(*requestParams.MessageID)
 	if err != nil {
-		log.Error().Err(err).Msg("could not parse message id with error")
+		api.Logger.Error().Err(err).Msg("could not parse message id with error")
 		c.JSON(http.StatusBadRequest, gin.H{"detail": "could not parse message id"})
 		return
 	}
@@ -84,7 +83,7 @@ func handleReply(c *gin.Context, userID primitive.ObjectID, taskSourceResult *ex
 	}
 	err = taskSourceResult.Source.Reply(userID, requestParams.SourceAccountID, messageID, contents)
 	if err != nil {
-		log.Error().Err(err).Msg("unable to send email with error")
+		api.Logger.Error().Err(err).Msg("unable to send email with error")
 		c.JSON(http.StatusServiceUnavailable, gin.H{"detail": "unable to send email"})
 		return
 	}

@@ -83,6 +83,10 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 
 	externalID := external.GenerateSlackUserID(slackParams.Team.ID, slackParams.User.ID)
 	externalToken, err := database.GetExternalToken(db, externalID, sourceID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	userID := externalToken.UserID
 
 	IDTaskSection := constants.IDTaskSectionDefault
