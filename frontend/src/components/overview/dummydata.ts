@@ -8,6 +8,7 @@ const dummyData: TOverviewView[] = [
         section_id: 'section 1',
         is_paginated: false,
         is_reorderable: true,
+        logo: 'generaltask',
         view_items: [
             {
                 id: '1',
@@ -78,6 +79,7 @@ const dummyData: TOverviewView[] = [
         section_id: 'section 2',
         is_paginated: false,
         is_reorderable: true,
+        logo: 'generaltask',
         view_items: [
             {
                 id: '4',
@@ -148,6 +150,7 @@ const dummyData: TOverviewView[] = [
         section_id: 'section 3',
         is_paginated: false,
         is_reorderable: false,
+        logo: 'generaltask',
         view_items: [
             {
                 id: '7',

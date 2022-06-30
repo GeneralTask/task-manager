@@ -1,5 +1,6 @@
 import { EmailComposeType } from "./enums"
 import { TPullRequestStatusColors } from "../components/pull-requests/styles"
+import { TLogoImage } from "../styles/images"
 
 export type Datestring = string
 
@@ -253,5 +254,6 @@ export interface TOverviewView {
     section_id?: string
     is_paginated: boolean
     is_reorderable: boolean
+    logo: TLogoImage
     view_items: TOverviewItem[]
 }
