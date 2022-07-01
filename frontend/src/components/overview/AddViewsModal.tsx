@@ -4,7 +4,7 @@ import { useGetSupportedViews } from '../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
-import GTCheckmark from '../atoms/GTCheckmark'
+import GTCheckbox from '../atoms/GTCheckbox'
 import GTModal from '../atoms/GTModal'
 import { Icon } from '../atoms/Icon'
 
@@ -50,7 +50,7 @@ const AddViewsModal = ({ isOpen, onClose }: AddViewsModalProps) => {
                                 <Icon source={logos[supportedView.logo]} size="small" />
                                 {supportedView.name}
                             </LeftSide>
-                            <GTCheckmark
+                            <GTCheckbox
                                 isChecked={supportedView.is_added}
                                 onChange={() => temporaryAddOrRemoveViewFunc(supportedView.id, !supportedView.is_added)}
                             />

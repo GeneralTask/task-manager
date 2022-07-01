@@ -3,11 +3,11 @@ import { icons } from '../../styles/images'
 import NoStyleButton from './buttons/NoStyleButton'
 import { Icon } from './Icon'
 
-interface GTCheckmarkProps {
+interface GTCheckboxProps {
     isChecked: boolean
     onChange: (checked: boolean) => void
 }
-const GTCheckmark = ({ isChecked, onChange }: GTCheckmarkProps) => {
+const GTCheckbox = ({ isChecked, onChange }: GTCheckboxProps) => {
     return (
         <NoStyleButton onClick={() => onChange(!isChecked)}>
             <Icon size="small" source={isChecked ? icons.task_complete : icons.task_incomplete} />
@@ -15,4 +15,4 @@ const GTCheckmark = ({ isChecked, onChange }: GTCheckmarkProps) => {
     )
 }
 
-export default GTCheckmark
+export default GTCheckbox
