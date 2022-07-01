@@ -7,6 +7,7 @@ import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import GTCheckbox from '../atoms/GTCheckbox'
 import GTModal from '../atoms/GTModal'
 import { Icon } from '../atoms/Icon'
+import { Divider } from '../atoms/SectionDivider'
 
 const SupportedView = styled.div`
     display: flex;
@@ -22,13 +23,6 @@ const LeftSide = styled.div`
     font-size: ${Typography.small.fontSize};
     line-height: ${Typography.small.lineHeight};
 `
-const Divider = styled.div`
-    background-color: ${Colors.gray._100};
-    height: 1px;
-    width: 100%;
-    margin: ${Spacing.margin._12} 0;
-`
-
 interface AddViewsModalProps {
     isOpen: boolean
     onClose: () => void
@@ -55,7 +49,7 @@ const AddViewsModal = ({ isOpen, onClose }: AddViewsModalProps) => {
                                 onChange={() => temporaryAddOrRemoveViewFunc(supportedView.id, !supportedView.is_added)}
                             />
                         </SupportedView>
-                        {index !== supportedViews.length - 1 && <Divider />}
+                        {index !== supportedViews.length - 1 && <Divider color={Colors.gray._100} />}
                     </>
                 ))}
             </>
