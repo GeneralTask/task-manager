@@ -25,7 +25,7 @@ import (
 
 const (
 	fullFetchMaxResults = int64(100)
-	concurrencyLimit    = 10
+	concurrencyLimit    = 15
 )
 
 type GmailThreadResponse struct {
