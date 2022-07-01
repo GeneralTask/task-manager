@@ -427,7 +427,7 @@ func runThreadWorkers(gmailService *gmail.Service, threadIds []string) []*gmail.
 		numWorkers = len(threadIds)
 	}
 
-	for i := 1; i <= concurrencyLimit; i++ {
+	for i := 1; i <= numWorkers; i++ {
 		go threadWorker(jobs, results)
 	}
 	for _, threadId := range threadIds {
