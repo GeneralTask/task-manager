@@ -70,7 +70,7 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	var recentHistoryID uint64
 	var historiesRequiringUpdate []*gmail.History
 
-	// loads all thread changes, or 500 recent threads in the inbox
+	// loads all thread changes, or 100 recent threads in the inbox
 	// do fullRefresh if we don't have history data stored for the account
 	if fullRefresh || latestHistoryID == 0 {
 		log.Debug().Msg("Performing full gmail thread refresh")
