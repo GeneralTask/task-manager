@@ -257,3 +257,10 @@ export interface TOverviewView {
     logo: TLogoImage
     view_items: TOverviewItem[]
 }
+
+export interface TSupportedOverviewView {
+    id: string
+    name: string
+    logo: TLogoImage
+    is_added: boolean
+}
