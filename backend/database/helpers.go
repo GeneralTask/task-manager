@@ -431,11 +431,8 @@ func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID) (s
 			"_id": taskSectionID,
 		},
 	).Decode(&taskSection)
-	if err != nil {
-		return "", err
-	}
 
-	return taskSection.Name, nil
+	return taskSection.Name, err
 }
 
 func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {
