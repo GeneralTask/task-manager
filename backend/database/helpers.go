@@ -415,6 +415,26 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 	return &tasks, nil
 }
 
+func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID) string {
+	if taskSectionID == constants.IDTaskSectionDefault {
+		return "Default"
+	}
+
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, _ := GetTaskSectionCollection(db).Find(
+		dbCtx,
+		bson.M{
+			"_id": taskSectionID,
+		},
+	)
+	var taskSection TaskSection
+	_ = cursor.Decode(&taskSection)
+
+	return taskSection.Name
+}
+
 func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {
 	parentCtx := context.Background()
 	sectionCollection := GetTaskSectionCollection(db)
