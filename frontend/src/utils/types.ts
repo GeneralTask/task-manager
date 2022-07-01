@@ -52,6 +52,28 @@ export interface TTask {
     linked_email_thread?: TLinkedEmailThread
     comments?: TLinearComment[]
     isOptimistic?: boolean
+    slack_message_params?: TSlackMessageParams
+}
+
+export interface TSlackMessageParams {
+    channel: {
+        id: string
+        name: string // ex. general, shitposting, directmessage
+    }
+    user: {
+        id: string
+        name: string // the user who initiated the shortcut. *NOT* the user who sent the message
+    }
+    team: {
+        id: string
+        domain: string // ex. generaltask
+    }
+    message: {
+        text: string
+        ts: number // time sent
+        type: 'message' // message type
+        user: string // user ID of who sent the message. *NOT* the user name
+    }
 }
 
 export interface TLinearComment {

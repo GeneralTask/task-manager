@@ -16,6 +16,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { EmailList } from './email/EmailList'
 import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
+import SlackMessage from './slack/SlackMessage'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16
@@ -245,6 +246,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                 <Spinner />
             ) : (
                 <>
+                    {task.slack_message_params && <SlackMessage slack_message_params={task.slack_message_params} />}
                     <BodyTextArea
                         ref={bodyRef}
                         data-testid="task-body-input"
