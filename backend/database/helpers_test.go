@@ -2,9 +2,10 @@ package database
 
 import (
 	"context"
-	"github.com/GeneralTask/task-manager/backend/testutils"
 	"testing"
 	"time"
+
+	"github.com/GeneralTask/task-manager/backend/testutils"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/stretchr/testify/assert"
@@ -477,6 +478,47 @@ func TestInsertLogEvent(t *testing.T) {
 		count, err := logEventsCollection.CountDocuments(dbCtx, bson.M{"event_type": "dogecoin_to_the_moon"})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
+	})
+}
+
+func TestTaskSectionName(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	t.Run("Default task section", func(t *testing.T) {
+		name, err := GetTaskSectionName(db, constants.IDTaskSectionDefault)
+		assert.NoError(t, err)
+		assert.Equal(t, "Default", name)
+	})
+	t.Run("Custom task section", func(t *testing.T) {
+		parentCtx := context.Background()
+		sectionName := "TestSection"
+		taskSectionCollection := GetTaskSectionCollection(db)
+
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		res, err := taskSectionCollection.InsertOne(
+			dbCtx,
+			&TaskSection{
+				UserID: primitive.NewObjectID(),
+				Name:   sectionName,
+			},
+		)
+		assert.NoError(t, err)
+
+		name, err := GetTaskSectionName(db, res.InsertedID.(primitive.ObjectID))
+		assert.NoError(t, err)
+		assert.Equal(t, sectionName, name)
+	})
+	t.Run("No task section with provided ID", func(t *testing.T) {
+		db, dbCleanup, err := GetDBConnection()
+		assert.NoError(t, err)
+		defer dbCleanup()
+
+		name, err := GetTaskSectionName(db, primitive.NewObjectID())
+		assert.Error(t, err)
+		assert.Equal(t, "", name)
 	})
 }
 
