@@ -1,7 +1,12 @@
 package api
 
 import (
+	"context"
+
+	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -27,119 +32,110 @@ type OverviewResult struct {
 	IsPaginated   bool                `json:"is_paginated"`
 	IsReorderable bool                `json:"is_reorderable"`
 	IDOrdering    int                 `json:"ordering_id"`
-	ViewItems     []*TaskResult       `json:"view_items"`
+	ViewItems     interface{}         `json:"view_items"`
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
-	c.JSON(200, []*OverviewResult{
-		{
-			ID:       primitive.NewObjectID(),
-			Name:     "Tasks",
-			Type:     ViewTaskSection,
-			Logo:     "generaltask",
-			IsLinked: false,
-			Sources: []SourcesResult{
-				{
-					Name: "GeneralTask",
-				},
-			},
-			IsPaginated:   false,
-			IsReorderable: true,
-			IDOrdering:    0,
-			ViewItems: []*TaskResult{
-				{
-					ID:         primitive.NewObjectID(),
-					IDOrdering: 1,
-					Source: TaskSource{
-						Name:          "Tasks",
-						Logo:          "generaltask",
-						IsCompletable: true,
-						IsReplyable:   false,
-					},
-					Deeplink:       "https://shorturl.at/lpKMU",
-					Title:          "Film total rickall",
-					Body:           "Ooo wee look at this task body",
-					Sender:         "Professor PB",
-					DueDate:        "2020-01-01",
-					TimeAllocation: 0,
-					SentAt:         "2020-01-01",
-					IsDone:         false,
-				},
-				{
-					ID:         primitive.NewObjectID(),
-					IDOrdering: 2,
-					Source: TaskSource{
-						Name:          "Tasks",
-						Logo:          "generaltask",
-						IsCompletable: true,
-						IsReplyable:   false,
-					},
-					Deeplink:       "https://en.wikipedia.org/wiki/Battle_of_Waterloo",
-					Title:          "Ban black cherry waterloo",
-					Body:           "Have Scott follow through with this",
-					Sender:         "Nolan",
-					DueDate:        "2020-01-01",
-					TimeAllocation: 0,
-					SentAt:         "2020-01-01",
-					IsDone:         false,
-				},
-				{
-					ID:         primitive.NewObjectID(),
-					IDOrdering: 3,
-					Source: TaskSource{
-						Name:          "Tasks",
-						Logo:          "generaltask",
-						IsCompletable: true,
-						IsReplyable:   false,
-					},
-					Deeplink:       "https://www.generaltask.com/",
-					Title:          "Task 3",
-					Body:           "Wow look at this task body",
-					Sender:         "Scott",
-					DueDate:        "2020-01-01",
-					TimeAllocation: 0,
-					SentAt:         "2020-01-01",
-					IsDone:         false,
-				},
-				{
-					ID:         primitive.NewObjectID(),
-					IDOrdering: 4,
-					Source: TaskSource{
-						Name:          "Tasks",
-						Logo:          "generaltask",
-						IsCompletable: true,
-						IsReplyable:   false,
-					},
-					Deeplink:       "https://www.generaltask.com/",
-					Title:          "Task 4",
-					Body:           "Wow look at this task body",
-					Sender:         "Scott",
-					DueDate:        "2020-01-01",
-					TimeAllocation: 0,
-					SentAt:         "2020-01-01",
-					IsDone:         false,
-				},
-				{
-					ID:         primitive.NewObjectID(),
-					IDOrdering: 5,
-					Source: TaskSource{
-						Name:          "Tasks",
-						Logo:          "generaltask",
-						IsCompletable: true,
-						IsReplyable:   false,
-					},
-					Deeplink:       "https://www.generaltask.com/",
-					Title:          "Task 5",
-					Body:           "Wow look at this task body",
-					Sender:         "Jack",
-					DueDate:        "2020-01-01",
-					TimeAllocation: 0,
-					SentAt:         "2020-01-01",
-					IsDone:         false,
-				},
+	parentCtx := c.Request.Context()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+	}
+	defer dbCleanup()
+
+	userID := getUserIDFromContext(c)
+	_, err = getUserFromUserID(db, userID)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find user")
+		Handle500(c)
+		return
+	}
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := database.GetViewCollection(db).Find(
+		dbCtx,
+		bson.M{
+			"user_id": userID,
+		},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find views")
+		Handle500(c)
+		return
+	}
+	
+	var views []database.View
+	err = cursor.All(dbCtx, &views)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find views")
+		Handle500(c)
+		return
+	}
+
+	var overviewResults []*OverviewResult
+	for _, view := range views {
+		overviewResults = append(overviewResults, api.getOverviewResult(parentCtx, view, userID))
+	}
+	c.JSON(200, overviewResults)
+}
+
+func (api *API) getOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) *OverviewResult {
+	if view.Type == "task_section" {
+		result, err := api.getTaskSectionOverviewResult(ctx, view, userID)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to get task section overview result")
+			return nil
+		}
+		return result
+	}
+	return nil
+}
+
+func (api *API) getTaskSectionOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return nil, err
+	}
+	defer dbCleanup()
+
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, _ := database.GetTaskCollection(db).Find(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_completed": false},
+				{"task_type.is_task": true},
+				{"id_task_section": view.TaskSectionID},
 			},
 		},
-	})
+	)
+	var tasks []database.Item
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	_ = cursor.All(dbCtx, &tasks)
+
+	var taskResults []*TaskResult
+	for _, task := range tasks {
+		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
+	}
+
+	name, _ := database.GetTaskSectionName(db, view.TaskSectionID)
+	return &OverviewResult{
+		ID:            view.ID,
+		Name:          name,
+		Logo:          "generaltask",
+		Type:          ViewTaskSection,
+		IsLinked:      view.IsLinked,
+		TaskSectionId: &view.TaskSectionID,
+		IsPaginated:   view.IsPaginated,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     taskResults,
+	}, nil
 }
 
 func (api *API) OverviewViewAdd(c *gin.Context) {
