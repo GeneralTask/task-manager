@@ -4,6 +4,7 @@ import { Colors, Shadows, Spacing, Border } from '../../styles'
 import { icons } from '../../styles/images'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Icon } from '../atoms/Icon'
+import AddViewsModal from './AddViewsModal'
 import EditViewsModal from './EditViewsModal'
 
 const Button = styled(NoStyleButton)`
@@ -31,8 +32,12 @@ const EditViewsButton = () => {
                 <Icon source={icons.gear} size="small" />
                 Edit Views
             </Button>
-            <EditViewsModal isOpen={pageState === 'EDIT'} onClose={handleClose} />
-            {pageState === 'ADD' && <div>Add a new view here xD</div>}
+            <EditViewsModal
+                isOpen={pageState === 'EDIT'}
+                onClose={handleClose}
+                goToAddViewsView={() => setPageState('ADD')}
+            />
+            <AddViewsModal isOpen={pageState === 'ADD'} onClose={handleClose} />
         </>
     )
 }

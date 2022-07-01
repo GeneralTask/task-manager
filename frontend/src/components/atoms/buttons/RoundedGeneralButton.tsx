@@ -8,6 +8,7 @@ const RoundedButton = styled.button<{ hasBorder: boolean; textStyle: 'light' | '
     display: flex;
     flex-direction: row;
     justify-content: center;
+    align-items: center;
     gap: ${Spacing.margin._4};
     border-radius: ${Border.radius.large};
     border: ${(props) => (props.hasBorder ? `2px solid ${Colors.gray._100}` : 'none')};

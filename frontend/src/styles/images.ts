@@ -44,7 +44,7 @@ export const icons = Object.freeze({
     mark_unread: '/images/mark_unread.svg',
     message_to_task: '/images/message_to_task.svg',
     messages: '/images/messages.png',
-    plus: '/images/plus.png',
+    plus: '/images/plus.svg',
     pencil: '/images/pencil.png',
     reply: '/images/reply.svg',
     replyAll: '/images/reply-all.svg',
