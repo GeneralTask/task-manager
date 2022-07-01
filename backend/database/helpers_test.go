@@ -482,24 +482,19 @@ func TestInsertLogEvent(t *testing.T) {
 }
 
 func TestTaskSectionName(t *testing.T) {
-	sectionName := "TestSection"
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
 
 	t.Run("Default task section", func(t *testing.T) {
-		db, dbCleanup, err := GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
-
 		name, err := GetTaskSectionName(db, constants.IDTaskSectionDefault)
 		assert.NoError(t, err)
 		assert.Equal(t, "Default", name)
 	})
 	t.Run("Custom task section", func(t *testing.T) {
 		parentCtx := context.Background()
-		db, dbCleanup, err := GetDBConnection()
-		defer dbCleanup()
-
+		sectionName := "TestSection"
 		taskSectionCollection := GetTaskSectionCollection(db)
-		assert.NoError(t, err)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -518,8 +513,8 @@ func TestTaskSectionName(t *testing.T) {
 	})
 	t.Run("No task section with provided ID", func(t *testing.T) {
 		db, dbCleanup, err := GetDBConnection()
-		defer dbCleanup()
 		assert.NoError(t, err)
+		defer dbCleanup()
 
 		name, err := GetTaskSectionName(db, primitive.NewObjectID())
 		assert.Error(t, err)
