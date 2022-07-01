@@ -413,6 +413,7 @@ func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []d
 	return fetchedEmails
 }
 
+// based on: https://gobyexample.com/worker-pools
 func runThreadWorkers(gmailService *gmail.Service, threadIds []string) []*gmail.Thread {
 	threads := []*gmail.Thread{}
 
