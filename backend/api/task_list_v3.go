@@ -4,8 +4,6 @@ import (
 	"context"
 	"sort"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -32,7 +30,7 @@ func (api *API) TasksListV3(c *gin.Context) {
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
-		log.Error().Err(err).Msg("failed to find user")
+		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
 		return
 	}
@@ -100,7 +98,7 @@ func (api *API) extractSectionTasksV3(
 ) ([]*TaskSection, error) {
 	userSections, err := database.GetTaskSections(db, userID)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch task sections")
+		api.Logger.Error().Err(err).Msg("failed to fetch task sections")
 		return []*TaskSection{}, err
 	}
 	resultSections := []*TaskSection{
@@ -134,7 +132,7 @@ func (api *API) extractSectionTasksV3(
 		}
 	}
 	for _, resultSection := range resultSections {
-		updateOrderingIDsV2(db, &resultSection.Tasks)
+		api.updateOrderingIDsV2(db, &resultSection.Tasks)
 	}
 	return resultSections, nil
 }

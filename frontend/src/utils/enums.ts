@@ -16,6 +16,7 @@ export enum ModalEnum {
     NONE,
     FEEDBACK,
     PRIVACY_POLICY,
+    OVERVIEW,
 }
 
 export enum LogEvents {

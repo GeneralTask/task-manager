@@ -575,6 +575,10 @@ func GetTaskCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("tasks")
 }
 
+func GetViewCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("views")
+}
+
 func GetUserCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("users")
 }

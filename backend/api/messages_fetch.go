@@ -34,7 +34,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to find user")
+		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
 		return
 	}
@@ -53,7 +53,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch api tokens")
+		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")
 		Handle500(c)
 		return
 	}
@@ -61,7 +61,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to iterate through api tokens")
+		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
 		Handle500(c)
 		return
 	}
@@ -74,7 +74,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		log.Debug().Msgf("Processing task service %+v for account %s", taskServiceResult.Details.Name, token.AccountID)
 		if err != nil {
-			log.Error().Err(err).Msg("error loading task service")
+			api.Logger.Error().Err(err).Msg("error loading task service")
 			Handle500(c)
 			return
 		}
@@ -102,7 +102,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 				defer cancel()
 				res := externalAPITokenCollection.FindOneAndUpdate(dbCtx, bson.M{"_id": badToken.ID}, bson.M{"$set": tokenChangeable})
 				if res.Err() != nil {
-					log.Error().Err(res.Err()).Msgf("could not update token %+v in db", badToken)
+					api.Logger.Error().Err(res.Err()).Msgf("could not update token %+v in db", badToken)
 				}
 			}
 			failedFetchSources[emailResult.SourceID] = true
@@ -117,7 +117,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 			defer cancel()
 			res := externalAPITokenCollection.FindOneAndUpdate(dbCtx, bson.M{"_id": validToken.ID}, bson.M{"$set": historyChangeable})
 			if res.Err() != nil {
-				log.Error().Err(res.Err()).Msgf("could not update token %+v in db", validToken)
+				api.Logger.Error().Err(res.Err()).Msgf("could not update token %+v in db", validToken)
 			}
 		}
 
@@ -139,7 +139,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		// For now, marking as GT_TASK source to show visual distinction from emails
 		taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(external.TASK_SOURCE_ID_GT_TASK)
 		if err != nil {
-			log.Error().Err(err).Msg("error loading task service")
+			api.Logger.Error().Err(err).Msg("error loading task service")
 			Handle500(c)
 			return
 		}
@@ -150,7 +150,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 			`issue will happen less often!</i></body></html>`)
 		body = fmt.Sprintf(body, config.GetConfigValue("SERVER_URL"))
 		if err != nil {
-			log.Error().Err(err).Msg("failed to convert plain text to HTML")
+			api.Logger.Error().Err(err).Msg("failed to convert plain text to HTML")
 			continue
 		}
 		badTokenMessages = append([]*message{

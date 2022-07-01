@@ -168,6 +168,13 @@ spec:
                 key: SLACK_OAUTH_CLIENT_SECRET
                 optional: false
 
+          - name: SLACK_SIGNING_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: core-secrets
+                key: SLACK_SIGNING_SECRET
+                optional: false
+
           - name: TRELLO_OAUTH_CLIENT_ID
             valueFrom:
               secretKeyRef:

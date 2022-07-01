@@ -27,4 +27,5 @@ export const response = {
 }
 export const background = {
     primary: white,
+    modalOverlay: '#D9D9D980',
 }
