@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/panjf2000/ants/v2"
 	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -26,7 +25,7 @@ import (
 
 const (
 	fullFetchMaxResults = int64(100)
-	concurrencyLimit    = 15
+	concurrencyLimit    = 10
 )
 
 type GmailThreadResponse struct {
@@ -45,6 +44,12 @@ type EmailContents struct {
 	Body       string
 }
 
+type GmailThreadRequest struct {
+	GmailService *gmail.Service
+	ThreadID     string
+	Result       chan *gmail.Thread
+}
+
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -61,11 +66,10 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 		return
 	}
 
-	threadChannels := []chan *gmail.Thread{}
-	workerPool, _ := ants.NewPool(concurrencyLimit)
-	defer workerPool.Release()
+	threads := []*gmail.Thread{}
 	var recentHistoryID uint64
 	var historiesRequiringUpdate []*gmail.History
+
 	// loads all thread changes, or 500 recent threads in the inbox
 	// do fullRefresh if we don't have history data stored for the account
 	if fullRefresh || latestHistoryID == 0 {
@@ -83,15 +87,11 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 			return
 		}
 
-		for _, threadListItem := range threadsResponse.Threads {
-			var threadResult = make(chan *gmail.Thread)
-			threadID := threadListItem.Id
-			workerPool.Submit(func() {
-				getThreadFromGmail(gmailService, threadID, threadResult)
-			})
-			threadChannels = append(threadChannels, threadResult)
+		threadIds := []string{}
+		for _, thread := range threadsResponse.Threads {
+			threadIds = append(threadIds, thread.Id)
 		}
-
+		threads = runThreadWorkers(gmailService, threadIds)
 		if len(threadsResponse.Threads) > 0 {
 			recentHistoryID = threadsResponse.Threads[0].HistoryId
 		}
@@ -135,28 +135,18 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 		// TODO implement unit testing for this logic
 		historyThreadIDsToFetch := handleThreadDeletion(db, userID, historyThreadIDs, netChangeInNumEmailsPerThread)
-
-		// TODO: think about not fetching emails if the only updates are label changes
-		for _, threadListItem := range historyThreadIDsToFetch {
-			var threadResult = make(chan *gmail.Thread)
-			threadID := threadListItem
-			workerPool.Submit(func() {
-				getThreadFromGmail(gmailService, threadID, threadResult)
-			})
-			threadChannels = append(threadChannels, threadResult)
-		}
+		threads = runThreadWorkers(gmailService, historyThreadIDsToFetch)
 	}
 
-	emailResult := updateOrCreateThreads(userID, accountID, db, threadChannels)
+	emailResult := updateOrCreateThreads(userID, accountID, db, threads)
 	emailResult.HistoryID = recentHistoryID
 	result <- emailResult
 }
 
-func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mongo.Database, threadChannels []chan *gmail.Thread) EmailResult {
+func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mongo.Database, threads []*gmail.Thread) EmailResult {
 	emails := []*database.Item{}
 
-	for _, threadChannel := range threadChannels {
-		thread := <-threadChannel
+	for _, thread := range threads {
 		if thread == nil {
 			continue
 		}
@@ -423,6 +413,47 @@ func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []d
 	return fetchedEmails
 }
 
+func runThreadWorkers(gmailService *gmail.Service, threadIds []string) []*gmail.Thread {
+	threads := []*gmail.Thread{}
+
+	// concurrently fetch a number of threads at any one time
+	// this logic is required in order to stop the threadsd from failing
+	var jobs = make(chan *GmailThreadRequest, len(threadIds))
+	var results = make(chan *gmail.Thread, len(threadIds))
+
+	// don't create more workers than necessary
+	numWorkers := concurrencyLimit
+	if len(threadIds) < numWorkers {
+		numWorkers = len(threadIds)
+	}
+
+	for i := 1; i <= concurrencyLimit; i++ {
+		go threadWorker(jobs, results)
+	}
+	for _, threadId := range threadIds {
+		var channel = make(chan *gmail.Thread)
+		jobs <- &GmailThreadRequest{
+			GmailService: gmailService,
+			ThreadID:     threadId,
+			Result:       channel,
+		}
+	}
+	close(jobs)
+	for i := 1; i <= len(threadIds); i++ {
+		emailResult := <-results
+		threads = append(threads, emailResult)
+	}
+	return threads
+}
+
+func threadWorker(jobs <-chan *GmailThreadRequest, results chan<- *gmail.Thread) {
+	for j := range jobs {
+		go getThreadFromGmail(j.GmailService, j.ThreadID, j.Result)
+		thread := <-j.Result
+		results <- thread
+	}
+}
+
 func getThreadFromGmail(gmailService *gmail.Service, threadID string, result chan<- *gmail.Thread) {
 	getThreadCall := func() error {
 		thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
@@ -455,8 +486,6 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 	err := backoff.RetryNotify(getThreadCall, expBackoff, notify)
 	if err != nil {
 		log.Error().Err(err).Msgf("permanently failed to load threadID %s", threadID)
-		result <- nil
-		return
 	}
 }
 
