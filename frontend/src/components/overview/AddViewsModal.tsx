@@ -15,7 +15,7 @@ const SupportedView = styled.div`
     align-items: center;
     padding: ${Spacing.padding._8};
 `
-const LeftSide = styled.div`
+const SupportedViewContent = styled.div`
     display: flex;
     align-items: center;
     color: ${Colors.gray._600};
@@ -40,10 +40,10 @@ const AddViewsModal = ({ isOpen, onClose }: AddViewsModalProps) => {
                 {supportedViews.map((supportedView, index) => (
                     <>
                         <SupportedView key={supportedView.id}>
-                            <LeftSide>
+                            <SupportedViewContent>
                                 <Icon source={logos[supportedView.logo]} size="small" />
                                 {supportedView.name}
-                            </LeftSide>
+                            </SupportedViewContent>
                             <GTCheckbox
                                 isChecked={supportedView.is_added}
                                 onChange={() => temporaryAddOrRemoveViewFunc(supportedView.id, !supportedView.is_added)}
