@@ -8,8 +8,8 @@ interface GTCheckboxProps {
     onChange: (checked: boolean) => void
 }
 const GTCheckbox = ({ isChecked, onChange }: GTCheckboxProps) => {
-    const onClickHandler = (e?: React.MouseEvent<HTMLButtonElement>) => {
-        if (e) e.stopPropagation()
+    const onClickHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation()
         onChange(!isChecked)
     }
     return (
