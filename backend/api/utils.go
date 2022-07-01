@@ -78,6 +78,12 @@ func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
 	return &internalToken, nil
 }
 
+// Ping godoc
+// @Summary      Returns success
+// @Description  used to determine if server online
+// @Tags         utils
+// @Success      200 {object} string
+// @Router       /ping/ [get]
 func (api *API) Ping(c *gin.Context) {
 	log.Info().Msg("success!")
 	c.JSON(200, "success")

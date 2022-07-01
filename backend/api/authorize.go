@@ -18,6 +18,17 @@ type Oauth2RedirectParams struct {
 	State string `form:"state" binding:"required"`
 }
 
+// Link godoc
+// @Summary      Redirects to link callback for that service
+// @Description  First step in oauth verification
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Source ID"
+// @Success      302 {object} string "URL redirect"
+// @Failure      404 {object} string "service not found"
+// @Success      500 {object} string "internal server error"
+// @Router       /link/{sourceID}/ [get]
 func (api *API) Link(c *gin.Context) {
 	taskService, err := api.ExternalConfig.GetTaskServiceResult(c.Param("service_name"))
 	if err != nil {

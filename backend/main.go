@@ -8,6 +8,16 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// @title           General Task API
+// @version         0.1
+// @description     Making knowledge workers more productive
+// @termsOfService  https://generaltask.com/terms-of-service
+
+// @contact.name   Support
+// @contact.email  support@generaltask.com
+
+// @host      localhost:8080
+// @BasePath  /
 func main() {
 	env := config.GetEnvironment()
 	utils.ConfigureLogger(env)

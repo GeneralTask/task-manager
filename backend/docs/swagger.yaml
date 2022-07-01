@@ -1,0 +1,52 @@
+basePath: /
+host: localhost:8080
+info:
+  contact:
+    email: support@generaltask.com
+    name: Support
+  description: Making knowledge workers more productive
+  termsOfService: https://generaltask.com/terms-of-service
+  title: General Task API
+  version: "0.1"
+paths:
+  /link/{sourceID}/:
+    get:
+      consumes:
+      - application/json
+      description: First step in oauth verification
+      parameters:
+      - description: Source ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: URL redirect
+          schema:
+            type: string
+        "404":
+          description: service not found
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Redirects to link callback for that service
+      tags:
+      - auth
+  /ping/:
+    get:
+      description: used to determine if server online
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Returns success
+      tags:
+      - utils
+swagger: "2.0"

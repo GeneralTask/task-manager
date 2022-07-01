@@ -1,6 +1,12 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	_ "github.com/GeneralTask/task-manager/backend/docs"
+
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+)
 
 func GetRouter(handlers *API) *gin.Engine {
 	// Setting release mode has the benefit of reducing spam on the unit test output
@@ -15,6 +21,9 @@ func GetRouter(handlers *API) *gin.Engine {
 
 	// Introduce fake lag when running local server to more accurately simulate prod
 	router.Use(FakeLagMiddleware)
+
+	// Swagger API
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Unauthenticated endpoints
 	router.GET("/ping/", handlers.Ping)
