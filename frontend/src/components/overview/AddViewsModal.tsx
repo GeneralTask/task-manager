@@ -26,15 +26,16 @@ const SupportedViewContent = styled.div`
 interface AddViewsModalProps {
     isOpen: boolean
     onClose: () => void
+    goToEditViewsView: () => void
 }
-const AddViewsModal = ({ isOpen, onClose }: AddViewsModalProps) => {
+const AddViewsModal = ({ isOpen, onClose, goToEditViewsView }: AddViewsModalProps) => {
     const { data: supportedViews, temporaryAddOrRemoveViewFunc } = useGetSupportedViews()
     return (
         <GTModal
             isOpen={isOpen}
             title="Add views"
             onClose={onClose}
-            leftButtons={<RoundedGeneralButton value="Done" color={Colors.purple._1} onClick={onClose} />}
+            leftButtons={<RoundedGeneralButton value="Back" color={Colors.purple._1} onClick={goToEditViewsView} />}
         >
             <>
                 {supportedViews.map((supportedView, index) => (

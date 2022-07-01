@@ -37,7 +37,11 @@ const EditViewsButton = () => {
                 onClose={handleClose}
                 goToAddViewsView={() => setPageState('ADD')}
             />
-            <AddViewsModal isOpen={pageState === 'ADD'} onClose={handleClose} />
+            <AddViewsModal
+                isOpen={pageState === 'ADD'}
+                onClose={handleClose}
+                goToEditViewsView={() => setPageState('EDIT')}
+            />
         </>
     )
 }
