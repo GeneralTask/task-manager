@@ -2,14 +2,12 @@ package api
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type ViewType string
@@ -83,9 +81,6 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	for _, view := range views {
 		overviewResults = append(overviewResults, api.getOverviewResult(parentCtx, view, userID.(primitive.ObjectID)))
 	}
-	api.Logger.Debug().Msg(fmt.Sprintf("found %d views", len(views)))
-
-	api.Logger.Debug().Msg(fmt.Sprintf("found %d overviewViews", len(overviewResults)))
 
 	c.JSON(200, overviewResults)
 }
@@ -133,9 +128,11 @@ func (api *API) getTaskSectionOverviewResult(ctx context.Context, view database.
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
 
+	name, _ := database.GetTaskSectionName(db, view.TaskSectionID)
 	return &OverviewResult{
 		ID:            view.ID,
-		Name:          database.GetTaskSectionName(db, view.TaskSectionID),
+		Name:          name,
+		Logo:		   "generaltask",
 		Type:          ViewTaskSection,
 		IsLinked:      view.IsLinked,
 		TaskSectionId: &view.TaskSectionID,
