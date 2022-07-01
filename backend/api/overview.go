@@ -44,7 +44,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	defer dbCleanup()
 
 	userID := getUserIDFromContext(c)
-	_, err = getUserFromUserID(db, userID)
+	_, err = database.GetUser(db, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
@@ -64,7 +64,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	
+
 	var views []database.View
 	err = cursor.All(dbCtx, &views)
 	if err != nil {
