@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -75,9 +76,9 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 
 	var overviewResults []*OverviewResult
 	for _, view := range views {
-		result := api.getOverviewResult(parentCtx, view, userID)
-		if result == nil {
-			api.Logger.Error().Err(err).Msg("failed to populate views")
+		result, err := api.getOverviewResult(parentCtx, view, userID)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to find views")
 			Handle500(c)
 		}
 		overviewResults = append(overviewResults, result)
@@ -85,16 +86,15 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	c.JSON(200, overviewResults)
 }
 
-func (api *API) getOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) *OverviewResult {
+func (api *API) getOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
 	if view.Type == "task_section" {
 		result, err := api.getTaskSectionOverviewResult(ctx, view, userID)
 		if err != nil {
-			api.Logger.Error().Err(err).Msg("failed to get task section overview result")
-			return nil
+			return nil, err
 		}
-		return result
+		return result, nil
 	}
-	return nil
+	return nil, errors.New("invalid view type")
 }
 
 func (api *API) getTaskSectionOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
