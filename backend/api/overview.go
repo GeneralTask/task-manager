@@ -76,7 +76,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 
 	var overviewResults []*OverviewResult
 	for _, view := range views {
-		result, err := api.getOverviewResult(parentCtx, view, userID)
+		result, err := getOverviewResult(parentCtx, view, userID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to find views")
 			Handle500(c)
@@ -86,9 +86,9 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	c.JSON(200, overviewResults)
 }
 
-func (api *API) getOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
+func getOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
 	if view.Type == "task_section" {
-		result, err := api.getTaskSectionOverviewResult(ctx, view, userID)
+		result, err := getTaskSectionOverviewResult(ctx, view, userID)
 		if err != nil {
 			return nil, err
 		}
@@ -97,7 +97,7 @@ func (api *API) getOverviewResult(ctx context.Context, view database.View, userI
 	return nil, errors.New("invalid view type")
 }
 
-func (api *API) getTaskSectionOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
+func getTaskSectionOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return nil, err
