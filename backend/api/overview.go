@@ -75,7 +75,12 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 
 	var overviewResults []*OverviewResult
 	for _, view := range views {
-		overviewResults = append(overviewResults, api.getOverviewResult(parentCtx, view, userID))
+		result := api.getOverviewResult(parentCtx, view, userID)
+		if result == nil {
+			api.Logger.Error().Err(err).Msg("failed to populate views")
+			Handle500(c)
+		}
+		overviewResults = append(overviewResults, result)
 	}
 	c.JSON(200, overviewResults)
 }
