@@ -1,6 +1,222 @@
-import produce from "immer"
-import { useState } from "react"
-import { TSupportedOverviewView } from "../../utils/types"
+import produce from 'immer'
+import { useState } from 'react'
+import { TOverviewView, TSupportedOverviewView } from '../../utils/types'
+
+const dummyOverviewViews: TOverviewView[] = [
+    {
+        id: '1',
+        name: 'My tasks',
+        type: 'task_section',
+        section_id: 'section 1',
+        is_paginated: false,
+        is_reorderable: true,
+        logo: 'generaltask',
+        view_items: [
+            {
+                id: '1',
+                id_ordering: 1,
+                title: 'Check in with Scott',
+                body: 'pls',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '2',
+                id_ordering: 2,
+                title: 'Check in with Nolan',
+                body: 'pls',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '3',
+                id_ordering: 3,
+                title: 'Buy more Waterloo',
+                body: 'black cherry only >:o',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+        ],
+    },
+    {
+        id: '2',
+        name: 'Your tasks',
+        type: 'task_section',
+        section_id: 'section 2',
+        is_paginated: false,
+        is_reorderable: true,
+        logo: 'generaltask',
+        view_items: [
+            {
+                id: '4',
+                id_ordering: 1,
+                title: 'Check in with Scott',
+                body: 'pls',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '5',
+                id_ordering: 2,
+                title: 'Check in with Nolan',
+                body: 'pls',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '6',
+                id_ordering: 3,
+                title: 'Buy more Waterloo',
+                body: 'black cherry only >:o',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+        ],
+    },
+    {
+        id: '3',
+        name: 'Backlog',
+        type: 'task_section',
+        section_id: 'section 3',
+        is_paginated: false,
+        is_reorderable: false,
+        logo: 'generaltask',
+        view_items: [
+            {
+                id: '7',
+                id_ordering: 1,
+                title: 'Check in with Scott',
+                body: 'pls',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '8',
+                id_ordering: 2,
+                title: 'Check in with Nolan',
+                body: 'pls',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '9',
+                id_ordering: 3,
+                title: 'Buy more Waterloo',
+                body: 'black cherry only >:o',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'General Task',
+                    logo: '',
+                    logo_v2: 'generaltask',
+                    is_completable: false,
+                    is_replyable: false,
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+        ],
+    },
+]
 
 const dummySupportedViews = [
     {
@@ -46,6 +262,11 @@ const dummySupportedViews = [
         is_added: false,
     },
 ]
+
+export const useGetOverviewViews = () => {
+    const [views, _setViews] = useState<TOverviewView[]>(dummyOverviewViews)
+    return { data: views }
+}
 
 export const useGetSupportedViews = () => {
     const [supportedViews, setSupportedViews] = useState<TSupportedOverviewView[]>(dummySupportedViews)

@@ -1,8 +1,8 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { Spacing, Colors, Typography } from '../../styles'
-import useGeTOverviewViews from '../overview/dummydata'
 import EditViewsButton from '../overview/EditViewsButton'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -25,7 +25,7 @@ const DetailsViewContainer = styled.div`
 `
 
 const OverviewView = () => {
-    const { data: views } = useGeTOverviewViews()
+    const { data: views } = useGetOverviewViews()
     const { overviewItem } = useParams()
     return (
         <>
