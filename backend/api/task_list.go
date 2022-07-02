@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -141,7 +142,7 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	for _, pullRequestChannel := range pullRequestChannels {
 		pullRequestResult := <-pullRequestChannel
 		if pullRequestResult.Error != nil {
-			api.Logger.Error().Err(taskResult.Error).Msg("failed to load PR source")
+			api.Logger.Error().Err(pullRequestResult.Error).Msg("failed to load PR source")
 			failedFetchSources[pullRequestResult.SourceID] = true
 			continue
 		}
@@ -160,6 +161,9 @@ func (api *API) adjustForCompletedTasks(
 	fetchedTasks *[]*database.Item,
 	failedFetchSources map[string]bool,
 ) error {
+	if fetchedTasks != nil && len(*fetchedTasks) == 0 {
+		return errors.New("invalid empty list of fetched tasks")
+	}
 	// decrements IDOrdering for tasks behind newly completed tasks
 	var newTasks []*database.TaskBase
 	newTaskIDs := make(map[primitive.ObjectID]bool)

@@ -59,6 +59,7 @@ func (api *API) TasksFetch(c *gin.Context) {
 
 	err = api.adjustForCompletedTasks(db, currentTasks, fetchedTasks, failedFetchSources)
 	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to adjust for completed tasks")
 		Handle500(c)
 		return
 	}
