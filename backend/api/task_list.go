@@ -114,7 +114,7 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("error loading task service")
-			continue
+			return nil, nil, err
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var tasks = make(chan external.TaskResult)
@@ -132,6 +132,7 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	for _, taskChannel := range taskChannels {
 		taskResult := <-taskChannel
 		if taskResult.Error != nil {
+			api.Logger.Error().Err(taskResult.Error).Msg("failed to load task source")
 			failedFetchSources[taskResult.SourceID] = true
 			continue
 		}
@@ -140,6 +141,8 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	for _, pullRequestChannel := range pullRequestChannels {
 		pullRequestResult := <-pullRequestChannel
 		if pullRequestResult.Error != nil {
+			api.Logger.Error().Err(taskResult.Error).Msg("failed to load PR source")
+			failedFetchSources[pullRequestResult.SourceID] = true
 			continue
 		}
 		for _, pullRequest := range pullRequestResult.PullRequests {

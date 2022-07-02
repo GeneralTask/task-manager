@@ -25,6 +25,7 @@ type TaskResult struct {
 type PullRequestResult struct {
 	PullRequests []*database.Item
 	Error        error
+	SourceID     string
 }
 
 func emptyCalendarResult(err error) CalendarResult {
@@ -66,5 +67,6 @@ func emptyPullRequestResult(err error) PullRequestResult {
 	return PullRequestResult{
 		PullRequests: []*database.Item{},
 		Error:        err,
+		SourceID:     TASK_SOURCE_ID_GITHUB_PR,
 	}
 }
