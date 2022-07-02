@@ -121,14 +121,20 @@ func (api *API) getTaskSectionOverviewResult(ctx context.Context, view database.
 	var tasks []database.Item
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	_ = cursor.All(dbCtx, &tasks)
+	err = cursor.All(dbCtx, &tasks)
+	if err != nil {
+		return nil, err
+	}
 
 	var taskResults []*TaskResult
 	for _, task := range tasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
 
-	name, _ := database.GetTaskSectionName(db, view.TaskSectionID)
+	name, err := database.GetTaskSectionName(db, view.TaskSectionID)
+	if err != nil {
+		return nil, err
+	}
 	return &OverviewResult{
 		ID:            view.ID,
 		Name:          name,
