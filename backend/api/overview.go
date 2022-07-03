@@ -56,9 +56,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	defer cancel()
 	cursor, err := database.GetViewCollection(db).Find(
 		dbCtx,
-		bson.M{
-			"user_id": userID,
-		},
+		bson.M{"user_id": userID},
 	)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find views")
