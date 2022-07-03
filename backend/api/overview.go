@@ -96,6 +96,10 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+	name, err := database.GetTaskSectionName(db, view.TaskSectionID)
+	if err != nil {
+		return nil, err
+	}
 
 	tasks, err := database.GetItems(db, userID,
 		&[]bson.M{
@@ -112,11 +116,6 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	var taskResults []*TaskResult
 	for _, task := range *tasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
-	}
-
-	name, err := database.GetTaskSectionName(db, view.TaskSectionID)
-	if err != nil {
-		return nil, err
 	}
 	return &OverviewResult{
 		ID:            view.ID,
