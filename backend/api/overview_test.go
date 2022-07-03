@@ -37,7 +37,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
 
-	t.Run("NoTaskView", func(t *testing.T) {
+	t.Run("EmptyViewItems", func(t *testing.T) {
 		api := GetAPI()
 		result, err := api.GetTaskSectionOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
@@ -55,7 +55,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		assert.True(t, ok)
 		assert.Equal(t, 0, len(items))
 	})
-	t.Run("SingleTaskView", func(t *testing.T) {
+	t.Run("SingleTaskViewItem", func(t *testing.T) {
 		taskCollection := database.GetTaskCollection(db)
 		taskResult, err := taskCollection.InsertOne(parentCtx, database.Item{
 			TaskBase: database.TaskBase{
