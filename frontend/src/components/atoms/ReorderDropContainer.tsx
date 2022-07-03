@@ -2,7 +2,6 @@ import { DropItem, DropType } from '../../utils/types'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
-
 import { Colors } from '../../styles'
 
 const DropOverlay = styled.div<{ isLast?: boolean }>`
