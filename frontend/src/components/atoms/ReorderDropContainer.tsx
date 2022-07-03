@@ -46,24 +46,21 @@ const ReorderDropContainer = ({ children, index, acceptDropType, isLast, onReord
     const dropRef = useRef<HTMLDivElement>(null)
     const [dropDirection, setDropDirection] = useState<DropDirection>(DropDirection.ABOVE)
 
-    const getAndUpdateDropDirection = useCallback((dropY: number): DropDirection => {
+    const getDropDirection = useCallback((dropY: number): DropDirection => {
         if (isLast) return DropDirection.ABOVE
         const boundingRect = dropRef.current?.getBoundingClientRect()
         if (!boundingRect) {
             return DropDirection.ABOVE
         }
         const midpoint = (boundingRect.top + boundingRect.bottom) / 2
-        const dropDirection = dropY < midpoint ? DropDirection.ABOVE : DropDirection.BELOW
-        setDropDirection(dropDirection)
-        return dropDirection
+        return dropY < midpoint ? DropDirection.ABOVE : DropDirection.BELOW
     }, [])
 
     const onDrop = useCallback(
-        async (item: DropItem, monitor: DropTargetMonitor) => {
-            const dropDirection = await getAndUpdateDropDirection(monitor.getClientOffset()?.y ?? 0)
-
+        (item: DropItem, monitor: DropTargetMonitor) => {
+            const dropDirection = getDropDirection(monitor.getClientOffset()?.y ?? 0)
+            setDropDirection(dropDirection)
             const dropIndex = index + (dropDirection === DropDirection.ABOVE ? 1 : 2)
-
             onReorder(item, dropIndex)
         },
         [index, onReorder, isLast]
@@ -76,9 +73,11 @@ const ReorderDropContainer = ({ children, index, acceptDropType, isLast, onReord
                 return !!monitor.isOver()
             },
             drop: onDrop,
-            hover: async (_, monitor) => getAndUpdateDropDirection(monitor.getClientOffset()?.y ?? 0),
+            hover: async (_, monitor) => {
+                setDropDirection(getDropDirection(monitor.getClientOffset()?.y ?? 0))
+            },
         }),
-        [onDrop, acceptDropType, getAndUpdateDropDirection]
+        [onDrop, acceptDropType, getDropDirection]
     )
 
     useEffect(() => {
