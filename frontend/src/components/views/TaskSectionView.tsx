@@ -15,7 +15,7 @@ import useItemSelectionController from '../../hooks/useItemSelectionController'
 import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
 import ScheduleGapFiller from '../atoms/scheduleGapFiller/ScheduleGapFiller'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
-import { DropProps } from '../../utils/types'
+import { DropProps, DropType } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 
 const BannerAndSectionContainer = styled.div`
@@ -117,7 +117,12 @@ const TaskSectionView = () => {
                                 {!section.is_done && <CreateNewTask section={section.id} />}
                                 <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
                                     {section.tasks.map((task, index) => (
-                                        <ReorderDropContainer key={task.id} index={index} onReorder={handleReorderTask}>
+                                        <ReorderDropContainer
+                                            key={task.id}
+                                            index={index}
+                                            acceptDropType={DropType.TASK}
+                                            onReorder={handleReorderTask}
+                                        >
                                             <Task
                                                 task={task}
                                                 dragDisabled={section.is_done}

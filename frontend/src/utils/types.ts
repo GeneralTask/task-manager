@@ -211,6 +211,7 @@ export interface TLinkedAccount {
 // React-DND Item Types
 export enum DropType {
     TASK = 'task',
+    OVERVIEW_VIEW = 'overview-view',
 }
 
 export interface DropResult {

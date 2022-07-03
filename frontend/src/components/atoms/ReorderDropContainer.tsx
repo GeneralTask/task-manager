@@ -30,6 +30,7 @@ const DropIndicatorBelow = styled.div`
 interface ReorderDropContainerProps {
     children: JSX.Element
     index: number
+    acceptDropType: DropType
     onReorder: (item: DropProps, dropIndex: number) => void
 }
 enum DropDirection {
@@ -40,6 +41,7 @@ enum DropDirection {
 const ReorderDropContainer: React.FC<ReorderDropContainerProps> = ({
     children,
     index,
+    acceptDropType,
     onReorder,
 }: ReorderDropContainerProps) => {
     const dropRef = useRef<HTMLDivElement>(null)
@@ -69,14 +71,14 @@ const ReorderDropContainer: React.FC<ReorderDropContainerProps> = ({
 
     const [isOver, drop] = useDrop(
         () => ({
-            accept: DropType.TASK,
+            accept: acceptDropType,
             collect: (monitor) => {
                 return !!monitor.isOver()
             },
             drop: onDrop,
             hover: async (_, monitor) => getAndUpdateDropDirection(monitor.getClientOffset()?.y ?? 0),
         }),
-        [onDrop]
+        [onDrop, acceptDropType]
     )
 
     useEffect(() => {
