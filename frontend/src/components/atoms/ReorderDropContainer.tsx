@@ -4,19 +4,17 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 import { Colors } from '../../styles'
 
+const isLastStyle = css`
+    flex: 1;
+    min-height: 100px;
+`
 const DropOverlay = styled.div<{ isLast?: boolean }>`
     width: 100%;
     height: fit-content;
     display: flex;
     flex-direction: column;
     align-items: center;
-    ${({ isLast }) =>
-        isLast
-            ? `
-        flex: 1;
-        min-height: 100px;
-    `
-            : ''}
+    ${({ isLast }) => (isLast ? isLastStyle : '')}
 `
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
     width: 100%;
