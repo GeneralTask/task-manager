@@ -76,7 +76,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	for _, view := range views {
 		result, err := api.getOverviewResult(parentCtx, view, userID)
 		if err != nil {
-			api.Logger.Error().Err(err).Msg("failed to find views")
+			api.Logger.Error().Err(err).Msg("failed to load view items in view")
 			Handle500(c)
 		}
 		overviewResults = append(overviewResults, result)
