@@ -1,4 +1,4 @@
-import { ItemTypes, TTask } from '../../utils/types'
+import { DropType, TTask } from '../../utils/types'
 import React, { MutableRefObject, useCallback, useEffect, useRef } from 'react'
 import { Spacing, Typography } from '../../styles'
 import { useNavigate } from 'react-router-dom'
@@ -83,7 +83,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
 
     const [, drag, dragPreview] = useDrag(
         () => ({
-            type: ItemTypes.TASK,
+            type: DropType.TASK,
             item: { id: task.id, taskIndex: index, sectionId, task },
             collect: (monitor) => {
                 const isDragging = !!monitor.isDragging()

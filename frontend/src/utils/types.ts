@@ -209,8 +209,8 @@ export interface TLinkedAccount {
 }
 
 // React-DND Item Types
-export const ItemTypes = {
-    TASK: 'task',
+export enum DropType {
+    TASK = 'task',
 }
 
 export interface DropResult {

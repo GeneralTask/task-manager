@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import styled from 'styled-components'
 import { useReorderTask } from '../../../services/api-query-hooks'
-import { DropProps, ItemTypes } from '../../../utils/types'
+import { DropProps, DropType } from '../../../utils/types'
 import { DropIndicatorAbove } from '../TaskDropContainer'
 
 const TaskDropAreaContainer = styled.div`
@@ -33,7 +33,7 @@ const TaskDropArea = ({ dropIndex, taskSectionId }: TaskDropAreaProps) => {
 
     const [isOver, drop] = useDrop(
         () => ({
-            accept: ItemTypes.TASK,
+            accept: DropType.TASK,
             collect: (monitor) => {
                 return !!monitor.isOver()
             },

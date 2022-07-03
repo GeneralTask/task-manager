@@ -1,4 +1,4 @@
-import { DropProps, ItemTypes, TTask } from '../../utils/types'
+import { DropProps, DropType, TTask } from '../../utils/types'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
@@ -79,7 +79,7 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
 
     const [isOver, drop] = useDrop(
         () => ({
-            accept: ItemTypes.TASK,
+            accept: DropType.TASK,
             collect: (monitor) => {
                 return !!monitor.isOver()
             },
