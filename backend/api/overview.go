@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type ViewType string
@@ -74,7 +75,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 
 	var overviewResults []*OverviewResult
 	for _, view := range views {
-		result, err := api.getOverviewResult(parentCtx, view, userID)
+		result, err := api.getOverviewResult(db, parentCtx, view, userID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to load view items in view")
 			Handle500(c)
@@ -84,22 +85,17 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	c.JSON(200, overviewResults)
 }
 
-func (api *API) getOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
+func (api *API) getOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
 	if view.Type == "task_section" {
-		return api.GetTaskSectionOverviewResult(ctx, view, userID)
+		return api.GetTaskSectionOverviewResult(db, ctx, view, userID)
 	}
 	return nil, errors.New("invalid view type")
 }
 
-func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
+func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
 
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -118,7 +114,7 @@ func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.
 	var tasks []database.Item
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = cursor.All(dbCtx, &tasks)
+	err := cursor.All(dbCtx, &tasks)
 	if err != nil {
 		return nil, err
 	}
