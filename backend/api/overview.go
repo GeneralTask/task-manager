@@ -97,30 +97,20 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 		return nil, errors.New("invalid user")
 	}
 
-	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	cursor, _ := database.GetTaskCollection(db).Find(
-		dbCtx,
-		bson.M{
-			"$and": []bson.M{
-				{"user_id": userID},
-				{"is_completed": false},
-				{"task_type.is_task": true},
-				{"id_task_section": view.TaskSectionID},
-			},
+	tasks, err := database.GetItems(db, userID,
+		&[]bson.M{
+			{"user_id": userID},
+			{"is_completed": false},
+			{"task_type.is_task": true},
+			{"id_task_section": view.TaskSectionID},
 		},
 	)
-	var tasks []database.Item
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err := cursor.All(dbCtx, &tasks)
 	if err != nil {
 		return nil, err
 	}
 
 	var taskResults []*TaskResult
-	for _, task := range tasks {
+	for _, task := range *tasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
 
