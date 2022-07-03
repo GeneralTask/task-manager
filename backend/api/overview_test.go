@@ -89,4 +89,11 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		assert.Equal(t, 1, len(items))
 		assert.Equal(t, taskID, items[0].ID)
 	})
+	t.Run("InvalidUser", func(t *testing.T) {
+		api := GetAPI()
+		result, err := api.GetTaskSectionOverviewResult(parentCtx, view, primitive.NewObjectID())
+		assert.Error(t, err)
+		assert.Equal(t, "invalid user", err.Error())
+		assert.Nil(t, result)
+	})
 }
