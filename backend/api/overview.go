@@ -98,6 +98,9 @@ func (api *API) getOverviewResult(ctx context.Context, view database.View, userI
 }
 
 func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return nil, err
