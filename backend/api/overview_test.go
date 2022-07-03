@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -17,16 +16,15 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 
-	userID1 := primitive.NewObjectID()
-	// userID2 := primitive.NewObjectID()
-
+	taskSectionName := "Test Task Section"
 	taskSectionCollection := database.GetTaskSectionCollection(db)
 	taskSectionResult, err := taskSectionCollection.InsertOne(parentCtx, database.TaskSection{
-		Name:      "Test Task Section",
+		Name:      taskSectionName,
 	})
 	assert.NoError(t, err)
 	taskSectionID := taskSectionResult.InsertedID.(primitive.ObjectID)
 
+	userID1 := primitive.NewObjectID()
 	taskCollection := database.GetTaskCollection(db)
 	taskResult, err := taskCollection.InsertOne(parentCtx, database.Item{
 		TaskBase: database.TaskBase{
@@ -59,7 +57,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		result, err := api.GetTaskSectionOverviewResult(parentCtx, view, userID1)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
-		assert.Equal(t, "Test Task Section", result.Name)
+		assert.Equal(t, taskSectionName, result.Name)
 		assert.Equal(t, ViewTaskSection, result.Type)
 		assert.Equal(t, "generaltask", result.Logo)
 		assert.Equal(t, false, result.IsLinked)
