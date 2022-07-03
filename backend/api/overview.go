@@ -86,11 +86,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 
 func (api *API) getOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
 	if view.Type == "task_section" {
-		result, err := api.GetTaskSectionOverviewResult(ctx, view, userID)
-		if err != nil {
-			return nil, err
-		}
-		return result, nil
+		return api.GetTaskSectionOverviewResult(ctx, view, userID)
 	}
 	return nil, errors.New("invalid view type")
 }
