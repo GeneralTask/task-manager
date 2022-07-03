@@ -78,7 +78,7 @@ const ReorderDropContainer = ({ children, index, acceptDropType, isLast, onReord
             drop: onDrop,
             hover: async (_, monitor) => getAndUpdateDropDirection(monitor.getClientOffset()?.y ?? 0),
         }),
-        [onDrop, acceptDropType]
+        [onDrop, acceptDropType, getAndUpdateDropDirection]
     )
 
     useEffect(() => {
