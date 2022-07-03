@@ -12,7 +12,6 @@ import Task from '../molecules/Task'
 import TaskDetails from '../details/TaskDetails'
 import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
-import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
 import ScheduleGapFiller from '../atoms/scheduleGapFiller/ScheduleGapFiller'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { DropItem, DropType } from '../../utils/types'
@@ -135,7 +134,12 @@ const TaskSectionView = () => {
                                         </ReorderDropContainer>
                                     ))}
                                 </TasksContainer>
-                                <TaskDropArea dropIndex={section.tasks.length + 1} taskSectionId={section.id} />
+                                <ReorderDropContainer
+                                    index={section.tasks.length + 1}
+                                    acceptDropType={DropType.TASK}
+                                    onReorder={handleReorderTask}
+                                    isLast
+                                />
                             </>
                         )}
                     </TaskSectionViewContainer>

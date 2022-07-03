@@ -5,12 +5,19 @@ import styled, { css } from 'styled-components'
 
 import { Colors } from '../../styles'
 
-const DropOverlay = styled.div`
+const DropOverlay = styled.div<{ isLast?: boolean }>`
     width: 100%;
     height: fit-content;
     display: flex;
     flex-direction: column;
     align-items: center;
+    ${({ isLast }) =>
+        isLast
+            ? `
+        flex: 1;
+        min-height: 100px;
+    `
+            : ''}
 `
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
     width: 100%;
@@ -27,27 +34,23 @@ const DropIndicatorBelow = styled.div`
     top: 2px;
 `
 
-interface ReorderDropContainerProps {
-    children: JSX.Element
-    index: number
-    acceptDropType: DropType
-    onReorder: (item: DropItem, dropIndex: number) => void
-}
 enum DropDirection {
     ABOVE,
     BELOW,
 }
-
-const ReorderDropContainer: React.FC<ReorderDropContainerProps> = ({
-    children,
-    index,
-    acceptDropType,
-    onReorder,
-}: ReorderDropContainerProps) => {
+interface ReorderDropContainerProps {
+    children?: JSX.Element
+    index: number
+    acceptDropType: DropType
+    isLast?: boolean
+    onReorder: (item: DropItem, dropIndex: number) => void
+}
+const ReorderDropContainer = ({ children, index, acceptDropType, isLast, onReorder }: ReorderDropContainerProps) => {
     const dropRef = useRef<HTMLDivElement>(null)
     const [dropDirection, setDropDirection] = useState<DropDirection>(DropDirection.ABOVE)
 
     const getAndUpdateDropDirection = useCallback((dropY: number): DropDirection => {
+        if (isLast) return DropDirection.ABOVE
         const boundingRect = dropRef.current?.getBoundingClientRect()
         if (!boundingRect) {
             return DropDirection.ABOVE
@@ -86,10 +89,10 @@ const ReorderDropContainer: React.FC<ReorderDropContainerProps> = ({
     }, [dropRef])
 
     return (
-        <DropOverlay ref={dropRef}>
+        <DropOverlay ref={dropRef} isLast={isLast}>
             <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.ABOVE} />
             {children}
-            <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.BELOW} />
+            <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.BELOW && !isLast} />
         </DropOverlay>
     )
 }
