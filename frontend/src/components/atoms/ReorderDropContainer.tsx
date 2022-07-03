@@ -36,7 +36,7 @@ enum DropDirection {
     BELOW,
 }
 interface ReorderDropContainerProps {
-    children?: JSX.Element
+    children?: React.ReactElement
     index: number
     acceptDropType: DropType
     isLast?: boolean
