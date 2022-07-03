@@ -1,4 +1,4 @@
-import { DropProps, DropType, TTask } from '../../utils/types'
+import { DropItem, DropType, TTask } from '../../utils/types'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
@@ -62,7 +62,7 @@ const TaskDropContainer: React.FC<TaskDropContainerProps> = ({
     }, [])
 
     const onDrop = useCallback(
-        async (item: DropProps, monitor: DropTargetMonitor) => {
+        async (item: DropItem, monitor: DropTargetMonitor) => {
             if (item.id === task.id || dropRef.current == null) return
             const dropDirection = await getDropDirection(monitor.getClientOffset()?.y ?? 0)
 

@@ -214,13 +214,8 @@ export enum DropType {
     OVERVIEW_VIEW = 'overview-view',
 }
 
-export interface DropResult {
+export interface DropItem {
     id: string
-    dropDisabled: boolean
-}
-export interface DropProps {
-    id: string
-    taskIndex: number
     sectionId: string
     task: TTask
 }

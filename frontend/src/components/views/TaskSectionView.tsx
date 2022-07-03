@@ -15,7 +15,7 @@ import useItemSelectionController from '../../hooks/useItemSelectionController'
 import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
 import ScheduleGapFiller from '../atoms/scheduleGapFiller/ScheduleGapFiller'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
-import { DropProps, DropType } from '../../utils/types'
+import { DropItem, DropType } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 
 const BannerAndSectionContainer = styled.div`
@@ -72,7 +72,7 @@ const TaskSectionView = () => {
     )
 
     const handleReorderTask = useCallback(
-        (item: DropProps, dropIndex: number) => {
+        (item: DropItem, dropIndex: number) => {
             if (!section) return
             reorderTask({
                 taskId: item.id,

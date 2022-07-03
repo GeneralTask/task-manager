@@ -1,4 +1,4 @@
-import { DropProps, DropType } from '../../utils/types'
+import { DropItem, DropType } from '../../utils/types'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
@@ -31,7 +31,7 @@ interface ReorderDropContainerProps {
     children: JSX.Element
     index: number
     acceptDropType: DropType
-    onReorder: (item: DropProps, dropIndex: number) => void
+    onReorder: (item: DropItem, dropIndex: number) => void
 }
 enum DropDirection {
     ABOVE,
@@ -59,7 +59,7 @@ const ReorderDropContainer: React.FC<ReorderDropContainerProps> = ({
     }, [])
 
     const onDrop = useCallback(
-        async (item: DropProps, monitor: DropTargetMonitor) => {
+        async (item: DropItem, monitor: DropTargetMonitor) => {
             const dropDirection = await getAndUpdateDropDirection(monitor.getClientOffset()?.y ?? 0)
 
             const dropIndex = index + (dropDirection === DropDirection.ABOVE ? 1 : 2)

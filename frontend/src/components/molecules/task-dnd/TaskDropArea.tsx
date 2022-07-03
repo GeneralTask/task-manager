@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import styled from 'styled-components'
 import { useReorderTask } from '../../../services/api-query-hooks'
-import { DropProps, DropType } from '../../../utils/types'
+import { DropItem, DropType } from '../../../utils/types'
 import { DropIndicatorAbove } from '../TaskDropContainer'
 
 const TaskDropAreaContainer = styled.div`
@@ -21,7 +21,7 @@ const TaskDropArea = ({ dropIndex, taskSectionId }: TaskDropAreaProps) => {
     const { mutate: reorderTask } = useReorderTask()
 
     const onDrop = useCallback(
-        (item: DropProps) => {
+        (item: DropItem) => {
             reorderTask({
                 taskId: item.id,
                 orderingId: dropIndex,

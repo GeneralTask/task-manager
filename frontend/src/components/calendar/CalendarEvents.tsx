@@ -20,7 +20,7 @@ import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef } 
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
 import { CALENDAR_DEFAULT_EVENT_DURATION, EVENTS_REFETCH_INTERVAL } from '../../constants'
-import { DropProps, DropType, TEvent } from '../../utils/types'
+import { DropItem, DropType, TEvent } from '../../utils/types'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
@@ -153,7 +153,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     // drag task to calendar logic
 
     const onDrop = useCallback(
-        async (item: DropProps, monitor: DropTargetMonitor) => {
+        async (item: DropItem, monitor: DropTargetMonitor) => {
             const dropPosition = monitor.getClientOffset()
             if (!eventsContainerRef.current || !dropPosition || !accountId) return
             const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y

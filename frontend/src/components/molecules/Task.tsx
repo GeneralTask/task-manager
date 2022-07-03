@@ -84,7 +84,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     const [, drag, dragPreview] = useDrag(
         () => ({
             type: DropType.TASK,
-            item: { id: task.id, taskIndex: index, sectionId, task },
+            item: { id: task.id, sectionId, task },
             collect: (monitor) => {
                 const isDragging = !!monitor.isDragging()
                 return { opacity: isDragging ? 0.5 : 1 }
