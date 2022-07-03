@@ -66,7 +66,7 @@ const ReorderDropContainer = ({ children, index, acceptDropType, isLast, onReord
 
             onReorder(item, dropIndex)
         },
-        [index]
+        [index, onReorder, isLast]
     )
 
     const [isOver, drop] = useDrop(
