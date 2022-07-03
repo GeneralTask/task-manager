@@ -9,7 +9,7 @@ import { useReorderTask } from '../../services/api-query-hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { margin } from '../../styles/spacing'
 import { weight } from '../../styles/typography'
-import { ItemTypes, TTaskSection } from '../../utils/types'
+import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 
@@ -80,7 +80,7 @@ const NavigationLink = ({
     const navigate = useNavigate()
 
     const onDrop = useCallback(
-        (item: { id: string; taskIndex: number; sectionId: string }) => {
+        (item: DropItem) => {
             if (taskSection && droppable) {
                 reorderTask({
                     taskId: item.id,
@@ -95,7 +95,7 @@ const NavigationLink = ({
 
     const [isOver, drop] = useDrop(
         () => ({
-            accept: ItemTypes.TASK,
+            accept: DropType.TASK,
             collect: (monitor) => {
                 return !!(taskSection && droppable && monitor.isOver())
             },
