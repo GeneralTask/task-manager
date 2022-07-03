@@ -29,7 +29,7 @@ type OverviewResult struct {
 	Logo          string              `json:"logo"`
 	IsLinked      bool                `json:"is_linked"`
 	Sources       []SourcesResult     `json:"sources"`
-	TaskSectionId *primitive.ObjectID `json:"task_section_id"`
+	TaskSectionID *primitive.ObjectID `json:"task_section_id"`
 	IsPaginated   bool                `json:"is_paginated"`
 	IsReorderable bool                `json:"is_reorderable"`
 	IDOrdering    int                 `json:"ordering_id"`
@@ -88,7 +88,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 
 func (api *API) getOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
 	if view.Type == "task_section" {
-		result, err := api.getTaskSectionOverviewResult(ctx, view, userID)
+		result, err := api.GetTaskSectionOverviewResult(ctx, view, userID)
 		if err != nil {
 			return nil, err
 		}
@@ -97,7 +97,7 @@ func (api *API) getOverviewResult(ctx context.Context, view database.View, userI
 	return nil, errors.New("invalid view type")
 }
 
-func (api *API) getTaskSectionOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
+func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return nil, err
@@ -141,7 +141,7 @@ func (api *API) getTaskSectionOverviewResult(ctx context.Context, view database.
 		Logo:          "generaltask",
 		Type:          ViewTaskSection,
 		IsLinked:      view.IsLinked,
-		TaskSectionId: &view.TaskSectionID,
+		TaskSectionID: &view.TaskSectionID,
 		IsPaginated:   view.IsPaginated,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
