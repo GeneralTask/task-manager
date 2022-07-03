@@ -216,8 +216,8 @@ export enum DropType {
 
 export interface DropItem {
     id: string
-    sectionId: string
-    task: TTask
+    sectionId?: string
+    task?: TTask
 }
 
 export interface TTaskCreateParams {
